@@ -1,0 +1,39 @@
+[
+  "medida",
+  "proceso.sintaxis_valida_tras_edicion_masiva",
+  [
+    "desde",
+    [
+      "de",
+      "archivo",
+      "a"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "a",
+          "sintaxis_valida"
+        ],
+        false
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea"
+  ],
+  [
+    "alcance",
+    "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis"
+  ]
+]

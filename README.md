@@ -80,13 +80,38 @@ mal» cuando el verde no se movió.
 
 ## Estado
 
-Paso 0 de 5. Está el [corpus](corpus/) —los casos donde la medición dijo bien y no estaba bien— y la
-[especificación](ESPECIFICACION.md) del álgebra. **Todavía no hay evaluador**: el corpus es el
-criterio de aceptación de lo que venga, y por eso se escribió primero.
+**Paso 2 de 5.** Están el [corpus](corpus/) (11 casos), la [especificación](ESPECIFICACION.md) del
+álgebra, el evaluador (`nucleo/`) y 8 medidas en [`catalogos/`](catalogos/) — **como archivos de
+datos, no como código**.
 
 ```bash
-python tools/corpus.py      # valida el corpus (sale != 0 si algo está mal)
+python tools/corpus.py --resumen                 # el corpus está en regla
+python tools/aceptacion.py                       # el corpus juzga al oráculo
+python -m unittest discover -s tests -t . -q     # 32 tests, cero dependencias
 ```
+
+Los 9 casos que declaran una medida **se ponen en rojo**; los 2 con hueco declarado siguen verdes a
+propósito y su número tiene que bajar. Corre además el nivel L2: el catálogo servido como relación y
+medido por una medida, sin ningún mecanismo nuevo.
+
+**Tres de los seis operadores están implementados** (`de`, `donde`, `resumen`): son los únicos que
+piden las medidas que existen. Los otros levantan un error que dice su disparador.
+
+### Dos oráculos, y ninguno alcanza solo
+
+La ronda de mutación dejó algo a la vista: de 6 mutantes del núcleo, los 6 mueren con los tests, pero
+**3 dejan la aceptación en verde**. El replay del corpus ejercita la *evaluación*; las reglas de
+*declaración* —que un umbral traiga defensa, que el alcance no esté vacío— sólo las cubren los tests.
+Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
+
+### Qué falta
+
+- **Paso 3 — el sensor de mutación**: producir hechos `mutante(id, apunta_a, murio)` del repo vivo,
+  con caché frío. Es lo que hace que `proceso.test_con_mutante_que_lo_mata` muerda sobre código real
+  en vez de sobre evidencia guardada.
+- **Paso 4 — el catálogo de geometría**, que es el que prueba que el álgebra es general y el que
+  dispara `unir`.
+- **Paso 5 — cablearlo**: que los verificadores escritos a mano de Jam se re-expresen como medidas.
 
 ## Por qué el corpus va primero
 

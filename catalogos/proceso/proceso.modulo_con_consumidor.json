@@ -1,0 +1,39 @@
+[
+  "medida",
+  "proceso.modulo_con_consumidor",
+  [
+    "desde",
+    [
+      "de",
+      "modulo",
+      "m"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "m",
+          "importadores"
+        ],
+        0
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "un módulo entero, con tests en verde y sin un solo importador, está verde y no está en uso"
+  ],
+  [
+    "alcance",
+    "NO ve la diferencia entre un importador real y un test: un módulo cuyos únicos importadores son sus propios tests sale VERDE acá, y es justo la lección del caso 009. Para distinguirlos hace falta `agrupar` (ver «ausencia» en la especificación)"
+  ]
+]

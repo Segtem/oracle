@@ -1,7 +1,14 @@
 # Especificación del álgebra
 
-Versión `0.1` — borrador. **Escrita para ser rota**: el criterio de si sirve está al final, y es
-comprobable.
+Versión `0.2`. **Escrita para ser rota**: el criterio de si sirve está al final, y es comprobable.
+
+> **Qué cambió respecto de `0.1`, y por qué.** La implementación encontró dos cosas.
+> **(a)** El acceso a datos pasó a ser **explícito** (`["campo", alias, nombre]`, `["hecho", alias]`)
+> en vez de la forma corta `["penetracion", "a", "b"]` que publicaba la 0.1: si un string suelto
+> significara «alias», un dato de texto que coincida con un alias cambiaría de sentido según el
+> contexto. Es más verboso y no tiene casos raros.
+> **(b)** Sólo **tres de los seis operadores están implementados**, porque son los únicos que piden
+> las medidas que existen. Es la regla de este documento aplicada a sí mismo — ver §3.
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
@@ -29,10 +36,20 @@ específico de cada dominio y vive con el productor, no acá.
 ["medida", "colocacion.interpenetracion",
   ["desde",
     ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"]],
-    ["donde", [">", ["penetracion", "a", "b"], 0]]],
-  ["resumen", "max", ["penetracion", "a", "b"]],
+    ["donde", [">", ["penetracion", ["hecho", "a"], ["hecho", "b"]], 0]]],
+  ["resumen", "max", ["penetracion", ["hecho", "a"], ["hecho", "b"]]],
   ["umbral", "<=", 0, "penetracion() ya descuenta la tolerancia de contacto"],
   ["alcance", "solape de AABB. NO ve la malla real, ni oclusión, ni si quedó flotando"]]
+```
+
+Una medida real, del catálogo que ya corre — sin `unir`, que todavía no tiene usuario:
+
+```json
+["medida", "proceso.test_con_mutante_que_lo_mata",
+  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina…"],
+  ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió…"]]
 ```
 
 Listas anidadas, serializable a JSON. De eso salen cuatro cosas que si no serían mecanismos aparte:
@@ -61,9 +78,31 @@ que una medida consuma la salida de otra sin ningún caso especial.
 | `agrupar` | `["agrupar", [claves], [nombre, agg, expr]]` | agrupa y agrega |
 | `resumen` | `["resumen", agg, expr]` | colapsa a un escalar — **la medición** |
 
-Agregados: `max`, `min`, `suma`, `promedio`, `contar`.
+Agregados: `max`, `min`, `suma`, `promedio`, `contar`. `contar` **no evalúa la expresión**: cuenta
+filas. Los agregados sobre cero filas dan `0`.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
+
+### Implementados: tres de seis
+
+La regla *no se agrega un operador hasta que una segunda medida lo necesite* aplica también a
+**implementarlos**: un operador sin usuario es un operador sin verificar. Hoy corren `de`, `donde` y
+`resumen`, que es todo lo que piden las ocho medidas del catálogo. Los otros tres levantan un error
+que dice su disparador, así que cuando hagan falta no hay que adivinar por qué faltan:
+
+| Operador | Se implementa cuando aparezca… |
+|---|---|
+| `unir` | el catálogo de geometría: «pares de piezas que se clavan» es un producto |
+| `agrupar` | contar por grupo — importadores por módulo, y con eso la «ausencia» de §7 |
+| `con` | una medida que reuse una columna derivada en más de un paso |
+
+### Acceso a los datos
+
+Explícito siempre: `["campo", alias, nombre]` para un campo, `["hecho", alias]` para el hecho entero,
+`["col", nombre]` para una columna derivada. Todo lo demás en posición de expresión es un **literal**.
+
+Comparar contra un campo ausente **levanta un error**, no devuelve `False`: en una medida eso es casi
+siempre un nombre mal escrito, y un `False` silencioso lo convertiría en un verde.
 
 ### Funciones escalares
 
@@ -81,7 +120,7 @@ normales:
 
 ```json
 ["medida", "meta.umbral_sin_defensa",
-  ["desde", ["de", "medida", "m"], ["donde", ["==", ["porque", "m"], ""]]],
+  ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "porque"], ""]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un número que nadie puede discutir es una métrica esperando a volverse objetivo"],
   ["alcance", "ve si la defensa está VACÍA. NO ve si la defensa es mala, circular o mentirosa"]]
