@@ -1,0 +1,25 @@
+{
+  "id": "004-testigos-duplicados",
+  "titulo": "La medición y sus testigos recorrían los datos dos veces, con dos definiciones",
+  "etiqueta": "deuda_de_diseño",
+  "sintoma": "`INTERPENETRACION` declaraba `mide=penetracion_maxima` y `testigos=piezas_clavadas`: dos funciones que recorren lo mismo con la misma condición escrita dos veces. Nada garantiza que no se separen.",
+  "como_se_detecto": "persona",
+  "medida": null,
+  "sin_medida_todavia": "es un defecto del LENGUAJE, no del código: se corrige haciendo que los testigos sean las filas que sobrevivieron al filtro. Motiva el punto 2 de la especificación.",
+  "evidencia": {
+    "declaracion": [
+      {
+        "medida": "colocacion.interpenetracion",
+        "mide": "penetracion_maxima",
+        "testigos": "piezas_clavadas",
+        "condicion_repetida": true
+      }
+    ]
+  },
+  "leccion": "Si el lenguaje obliga a escribir dos veces la misma condición, el lenguaje está mal. Los testigos no son un cálculo aparte: son el filtro.",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Brianholl/jam",
+    "commit": "535d476"
+  }
+}

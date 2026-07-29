@@ -1,0 +1,35 @@
+{
+  "id": "007-relevo-verde-arbol-sucio",
+  "titulo": "El verificador de relevo daba verde con el código vivo modificado sin commitear",
+  "etiqueta": "falso_verde",
+  "sintoma": "La regla comparaba el commit de la última verificación con motor contra HEAD. Como los cambios estaban en el árbol de trabajo y no commiteados, el diff salía vacío y la verificación se declaraba vigente.",
+  "como_se_detecto": "accidente",
+  "medida": "proceso.verificacion_vigente",
+  "evidencia": {
+    "verificacion": [
+      {
+        "que": "motor",
+        "commit": "15c4cae",
+        "camino": "editor headless"
+      }
+    ],
+    "cambio": [
+      {
+        "archivo": "jam/api.py",
+        "commiteado": false,
+        "es_codigo_vivo": true
+      },
+      {
+        "archivo": "jam/funcion.py",
+        "commiteado": false,
+        "es_codigo_vivo": true
+      }
+    ]
+  },
+  "leccion": "«Verde» es una foto con fecha. Si después se tocó el código —commiteado o no—, la foto es de otro código y afirmarla es mentir.",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Brianholl/jam",
+    "commit": "19d2593"
+  }
+}

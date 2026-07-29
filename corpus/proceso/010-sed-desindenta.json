@@ -1,0 +1,29 @@
+{
+  "id": "010-sed-desindenta",
+  "titulo": "Una edición en masa desindentó código y lo dejó sintácticamente roto",
+  "etiqueta": "falso_verde",
+  "sintoma": "`sed 's/^ *from src\\./from oraculo./'` reescribió imports que estaban DENTRO de funciones y les comió la indentación. El daño no lo detectó ninguna comprobación propia: apareció porque un parser ajeno no pudo leer el archivo.",
+  "como_se_detecto": "herramienta_ajena",
+  "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+  "evidencia": {
+    "edicion_masiva": [
+      {
+        "herramienta": "sed",
+        "archivos": 13,
+        "verifico_sintaxis_despues": false
+      }
+    ],
+    "archivo": [
+      {
+        "ruta": "tests/test_winnability_h9.py",
+        "sintaxis_valida": false
+      }
+    ]
+  },
+  "leccion": "Después de reescribir N archivos con una expresión regular hay que comprobar que los N siguen parseando. Es una línea y no estaba.",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Brianholl/jam",
+    "commit": "24d5e07"
+  }
+}

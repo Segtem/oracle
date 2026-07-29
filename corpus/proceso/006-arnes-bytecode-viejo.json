@@ -1,0 +1,24 @@
+{
+  "id": "006-arnes-bytecode-viejo",
+  "titulo": "El arnés de mutación corría bytecode mutado sobre código restaurado",
+  "etiqueta": "falso_verde",
+  "sintoma": "`max` y `min` ocupan lo mismo. CPython invalida el .pyc por (mtime, tamaño), y mutar/restaurar caía dentro del mismo segundo: Python siguió ejecutando el .pyc mutado con el .py ya restaurado. Los resultados reportados eran basura.",
+  "como_se_detecto": "accidente",
+  "medida": "proceso.arnes_con_bytecode_frio",
+  "evidencia": {
+    "corrida_mutacion": [
+      {
+        "id": "c1",
+        "mutantes": 6,
+        "bytecode_frio": false,
+        "resultado_confiable": false
+      }
+    ]
+  },
+  "leccion": "El instrumento que mide la calidad de los tests también necesita ser verificado. Un arnés de mutación que no invalida el caché reporta al azar.",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Brianholl/jam",
+    "commit": "535d476"
+  }
+}
