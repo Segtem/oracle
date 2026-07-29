@@ -113,8 +113,10 @@ Comprobable, y si falla el diseño está mal:
    sin adaptador;
 2. una medida **sobre medidas** no introduce ninguna construcción nueva;
 3. el corpus guarda los tres niveles con el mismo formato;
-4. **cada caso del corpus se pone en rojo** con las medidas que se escriban. El que quede verde
-   señala lenguaje faltante o medida faltante, y hay que decir cuál.
+4. **todo caso del corpus que declara una medida se pone en rojo** con esa medida. El que quede verde
+   señala lenguaje faltante o medida mal escrita, y hay que decir cuál. Los casos con
+   `sin_medida_todavia` **siguen verdes a propósito**: son el hueco declarado, no una falla del
+   evaluador — y el número de casos sin medida es una métrica del marco, que tiene que bajar.
 
 **Condición de parada:** si los casos del corpus no se ponen rojos con este juego chico de
 operadores, se para y se rediseña — no se agregan operadores hasta que entren.
