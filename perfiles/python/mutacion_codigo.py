@@ -609,13 +609,17 @@ def _escribir_manifiesto(ruta: Path, datos: dict) -> None:
             temporal.unlink()
 
 
-def _identidad_ronda(raiz: Path, objetivos: list[Path], comando: list[str], equivalentes: dict,
-                     timeout: float, codigos, limite_salida: int) -> dict:
+def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path],
+                     comando: list[str], equivalentes: dict, timeout: float,
+                     codigos, limite_salida: int) -> dict:
     fuentes = [{"ruta": ruta.resolve().relative_to(raiz).as_posix(),
                 "sha256": hashlib.sha256(ruta.read_bytes()).hexdigest()}
                for ruta in objetivos]
+    soporte = [{"ruta": ruta.resolve().relative_to(raiz).as_posix(),
+                "sha256": hashlib.sha256(ruta.read_bytes()).hexdigest()}
+               for ruta in dependencias]
     motor = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
-    return {"raiz": str(raiz), "fuentes": fuentes, "comando": comando,
+    return {"raiz": str(raiz), "fuentes": fuentes, "dependencias": soporte, "comando": comando,
             "equivalentes": equivalentes, "timeout": timeout,
             "codigos_fallo_tests": sorted(codigos), "limite_salida": limite_salida,
             "motor_sha256": motor}
@@ -879,11 +883,16 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
            timeout_por_ejecucion: float = 60.0,
            codigos_fallo_tests=frozenset({1}), limite_diagnostico: int = 16_384,
            limite_salida: int = 1_048_576, manifiesto: Path | None = None,
-           reanudar: bool = False) -> dict:
+           reanudar: bool = False, dependencias: list[Path] | None = None) -> dict:
     """Muta exclusivamente una copia temporal y comprueba que los objetivos originales no cambien."""
     raiz = Path(raiz).resolve(strict=True)
     objetivos = [Path(ruta) if Path(ruta).is_absolute() else raiz / ruta for ruta in objetivos]
     _validar_objetivos(raiz, objetivos)
+    dependencias = [Path(ruta) if Path(ruta).is_absolute() else raiz / ruta
+                    for ruta in (dependencias or [])]
+    _validar_objetivos(raiz, dependencias)
+    dependencias = sorted(set(ruta.resolve() for ruta in dependencias)
+                          - set(ruta.resolve() for ruta in objetivos))
     originales = {ruta.resolve(): ruta.read_bytes() for ruta in objetivos}
     equivalentes = equivalentes or {}
     sitios = {sitio.id: sitio for ruta in objetivos for sitio in sitios_de(ruta, raiz)}
@@ -895,7 +904,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
         raise ManifiestoInvalido("`reanudar` requiere una ruta de manifiesto")
     ruta_manifiesto = Path(manifiesto).expanduser().resolve() if manifiesto else None
     identidad = _identidad_ronda(
-        raiz, objetivos, comando, equivalentes, timeout_por_ejecucion,
+        raiz, objetivos, dependencias, comando, equivalentes, timeout_por_ejecucion,
         codigos_fallo_tests, limite_salida)
 
     with _bloqueo_de_ronda(raiz), _senales_de_ronda():

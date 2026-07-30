@@ -94,6 +94,14 @@ error de arnés. Cada copia terminó con los 11 archivos de `nucleo/*.py` idént
 snapshot inicial y sin `__pycache__` local. Ninguno de estos cambios está incluido en el hash auditado
 de la sección siguiente.
 
+P2.3 invalidó este baseline histórico en vez de comparar números incompatibles. Tras mover el mutador
+y los sensores Python a un perfil, el alcance vigente es de 1108 sitios. Se añadió partición explícita
+por objetivo y prioridad de tests seguida siempre por la suite completa. Las primeras seis particiones
+del núcleo y perfil, más `diferencial`, cubren 179/179 sin equivalencias; 18 sobrevivientes iniciales
+se cerraron con casos discriminantes. Además, el manifiesto ahora firma las dependencias de la ronda:
+antes un cambio en los tests podía reutilizar resultados viejos porque sólo se firmaban comando,
+objetivos y motor. La suite actual tiene 250 pruebas.
+
 | Archivo | Muertos | Total | Vivos |
 |---|---:|---:|---:|
 | `algebra.py` | 183 | 186 | 3 |

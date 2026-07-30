@@ -7,6 +7,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
@@ -30,6 +31,8 @@ class ExpansionTests(unittest.TestCase):
     def test_ninguno_par_une_la_relacion_consigo_misma(self) -> None:
         d = expandir(["ninguno-par", "d.p", "doc", "a", "b", PRED, "razón", "NO ve nada"])
         self.assertEqual(d[2][1], ["unir", ["de", "doc", "a"], ["de", "doc", "b"]])
+        self.assertEqual(d[3], ["resumen", "contar", 1])
+        self.assertEqual(d[4], ["umbral", "<=", 0, "razón"])
 
     def test_ninguno_par_con_el_mismo_alias_dos_veces_no_pasa(self) -> None:
         with self.assertRaises(MacroMalUsada) as e:
@@ -63,6 +66,14 @@ class ExpansionTests(unittest.TestCase):
     def test_expandir_es_idempotente(self) -> None:
         una = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
         self.assertEqual(expandir(una), una)
+
+    def test_una_macro_no_puede_expandir_a_otra_macro(self) -> None:
+        def torre(_datos):
+            return ["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"]
+
+        with mock.patch.dict(MACROS, {"torre": torre}):
+            with self.assertRaisesRegex(MacroMalUsada, "expandió a otra macro"):
+                expandir(["torre"])
 
 
 class ContratoConLaMedidaTests(unittest.TestCase):

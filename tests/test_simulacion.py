@@ -10,6 +10,7 @@ from __future__ import annotations
 import itertools
 import sys
 import unittest
+from dataclasses import FrozenInstanceError
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -27,6 +28,14 @@ def _fijo(escenario, semilla, tope):
 
 
 class ContratoDeCorridaTests(unittest.TestCase):
+    def test_los_contratos_de_corrida_y_terminacion_son_inmutables(self) -> None:
+        corrida = Corrida()
+        contrato = ContratoTerminacion(frozenset({"agotado"}))
+        with self.assertRaises(FrozenInstanceError):
+            corrida.pasos = 2
+        with self.assertRaises(FrozenInstanceError):
+            contrato.razones_de_agotamiento = frozenset()
+
     def test_un_simulador_devuelve_Corrida(self) -> None:
         with self.assertRaises(SimuladorMalContratado):
             correr(lambda e, s, t: {"pasos": 0}, [ESCENARIO], [1])
@@ -186,6 +195,10 @@ class EntradasDelRunnerTests(unittest.TestCase):
 
     def test_sin_traza_no_publica_la_relacion_evento(self) -> None:
         evidencia = correr(_fijo, [ESCENARIO], [1], con_traza=False)
+        self.assertNotIn("evento", evidencia)
+
+    def test_una_traza_vacia_no_publica_una_relacion_evento_vacia(self) -> None:
+        evidencia = correr(lambda e, s, t: Corrida(), [ESCENARIO], [1])
         self.assertNotIn("evento", evidencia)
 
 

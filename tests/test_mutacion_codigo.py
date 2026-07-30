@@ -425,27 +425,36 @@ class CorrerTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as d:
             raiz, objetivo = self._entorno(d)
+            dependencia = raiz / "test_contrato.py"
+            dependencia.write_text("VERSION = 1\n", encoding="utf-8")
             manifiesto = raiz / "progreso.json"
             with self.assertRaises(Interrumpida):
                 mc.correr(
                     raiz, [objetivo], SIEMPRE_PASA,
                     al_terminar_uno=lambda _fila: (_ for _ in ()).throw(Interrumpida()),
-                    manifiesto=manifiesto)
+                    manifiesto=manifiesto, dependencias=[dependencia])
             original_manifiesto = manifiesto.read_text(encoding="utf-8")
             objetivo.write_text(FUENTE + "\n# cambio\n", encoding="utf-8")
             with self.assertRaises(mc.ManifiestoInvalido):
                 mc.correr(
                     raiz, [objetivo], SIEMPRE_PASA,
-                    manifiesto=manifiesto, reanudar=True)
+                    manifiesto=manifiesto, reanudar=True, dependencias=[dependencia])
 
             objetivo.write_text(FUENTE, encoding="utf-8")
+            dependencia.write_text("VERSION = 2\n", encoding="utf-8")
+            with self.assertRaises(mc.ManifiestoInvalido):
+                mc.correr(
+                    raiz, [objetivo], SIEMPRE_PASA,
+                    manifiesto=manifiesto, reanudar=True, dependencias=[dependencia])
+
+            dependencia.write_text("VERSION = 1\n", encoding="utf-8")
             datos = json.loads(original_manifiesto)
             datos["completados"][0]["murio"] = not datos["completados"][0]["murio"]
             manifiesto.write_text(json.dumps(datos), encoding="utf-8")
             with self.assertRaises(mc.ManifiestoInvalido):
                 mc.correr(
                     raiz, [objetivo], SIEMPRE_PASA,
-                    manifiesto=manifiesto, reanudar=True)
+                    manifiesto=manifiesto, reanudar=True, dependencias=[dependencia])
 
     def test_limpiar_cache_borra_los_pycache(self) -> None:
         with tempfile.TemporaryDirectory() as d:

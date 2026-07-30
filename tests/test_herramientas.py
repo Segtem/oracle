@@ -513,6 +513,27 @@ class HerramientasCLITests(unittest.TestCase):
         self.assertIn("timeout", datos["error_mutacion"][0]["mensaje"])
         self.assertNotIn("Traceback", r.stdout + r.stderr)
 
+    def test_la_mutacion_de_codigo_incluye_el_perfil_y_particiona_sin_escapar(self) -> None:
+        from tools import mutar_codigo as cli
+
+        disponibles = cli.objetivos_disponibles()
+        self.assertIn("nucleo/algebra.py", disponibles)
+        self.assertIn("perfiles/python/mutacion_codigo.py", disponibles)
+        elegidos = cli.resolver_objetivos(["nucleo/algebra.py"])
+        self.assertEqual(elegidos, [RAIZ / "nucleo" / "algebra.py"])
+        comando = cli.comando_de_tests(elegidos, priorizar=True)
+        self.assertEqual(comando[-2:], ["--prioridad", "tests.test_nucleo"])
+        dependencias = {p.relative_to(RAIZ).as_posix() for p in cli.dependencias_de_ronda()}
+        self.assertIn("tests/test_nucleo.py", dependencias)
+        self.assertIn("tools/ejecutar_suite_mutacion.py", dependencias)
+
+        for invalido in ("../afuera.py", "/tmp/afuera.py", "nucleo/no_existe.py"):
+            with self.subTest(invalido=invalido):
+                with self.assertRaises(ValueError):
+                    cli.resolver_objetivos([invalido])
+        with self.assertRaises(ValueError):
+            cli.resolver_objetivos(["nucleo/algebra.py", "nucleo/algebra.py"])
+
     def _salida_mutacion_simulada(self, *, mutantes: int, errores: int, timeouts: int,
                                   equivalentes: list[dict] | None = None) -> int:
         from tools import mutar_codigo as cli
@@ -577,7 +598,7 @@ class HerramientasCLITests(unittest.TestCase):
 
 
 class RunnerMutacionTests(unittest.TestCase):
-    def _correr(self, fuente: str | None):
+    def _correr(self, fuente: str | None, *extras: str):
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
             tests = raiz / "tests"
@@ -587,7 +608,7 @@ class RunnerMutacionTests(unittest.TestCase):
                 (tests / "test_ejemplo.py").write_text(fuente, encoding="utf-8")
             return subprocess.run(
                 [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py"),
-                 "--inicio", "tests", "--tope", "."],
+                 "--inicio", "tests", "--tope", ".", *extras],
                 cwd=raiz, capture_output=True, text=True)
 
     def test_un_fallo_o_excepcion_dentro_de_un_test_discrimina(self) -> None:
@@ -612,6 +633,21 @@ class RunnerMutacionTests(unittest.TestCase):
 
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
         self.assertNotIn("SEGUNDO_TEST_EJECUTADO", r.stdout + r.stderr)
+
+    def test_una_prioridad_discrimina_antes_de_descubrir_el_resto(self) -> None:
+        r = self._correr(
+            "import unittest\n"
+            "class T(unittest.TestCase):\n"
+            "    def test_falla(self): self.fail('prioridad')\n",
+            "--prioridad", "tests.test_ejemplo")
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+
+    def test_una_prioridad_inexistente_es_error_del_arnes(self) -> None:
+        r = self._correr(
+            "import unittest\nclass T(unittest.TestCase):\n    def test_ok(self): pass\n",
+            "--prioridad", "tests.no_existe")
+        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+        self.assertIn("carga prioritaria", r.stdout + r.stderr)
 
     def test_cero_tests_es_error_del_arnes(self) -> None:
         r = self._correr(None)

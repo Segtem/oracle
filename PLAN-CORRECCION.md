@@ -249,8 +249,8 @@ evaluación filas de entrada, productos y profundidad, con techos finitos por de
 
 ### P2.3 Cerrar deuda, empaquetar y probar independencia
 
-- [ ] Triar los 113 mutantes vivos del baseline 503/616: test discriminante o equivalencia individual
-  con razón revisada.
+- [ ] Reemplazar el baseline vencido 503/616 y triar el denominador actual: test discriminante o
+  equivalencia individual con razón revisada.
 - [x] Reclasificar los casos `004` y `012` como resueltos sin contarlos como huecos abiertos; definir el
   estado honesto de `011`.
 - [x] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
@@ -268,7 +268,11 @@ reproduce las verificaciones y un consumidor independiente completa autoría, di
 **Estado parcial 2026-07-30:** los casos `004` y `012` ya son memoria resuelta y `011` declara una
 frontera humana; el corpus informa cero huecos abiertos. Al no existir dos usuarios reales, `con` y
 la unión izquierda se retiraron de la especificación y del parser activos, con regresiones de rechazo.
-Suite: 235. Siguen pendientes el baseline de 113 mutantes, empaquetado/CI, documentación generada,
+Suite: 250. El alcance actual tiene 1108 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
+el sensor Python de módulos suman 137/137, y `diferencial` aporta otros 42/42: 179/179 ejecutados sin
+equivalencias. Quedan 929 sitios por ejecutar y triar. El manifiesto firma ahora también las fuentes
+de tests y soporte; cambiar la suite invalida la reanudación. Siguen pendientes empaquetado/CI,
+documentación generada,
 legado de Jam y el segundo consumidor independiente.
 
 ## Primer bloque de trabajo recomendado

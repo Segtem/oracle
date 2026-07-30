@@ -39,9 +39,8 @@ class Procedencia:
                 raise ProcedenciaInvalida(f"{nombre} requiere al menos una ruta")
             if any(not isinstance(r, str) or not r.strip() for r in rutas):
                 raise ProcedenciaInvalida(f"{nombre} contiene una ruta inválida")
-        relativa = Path(self.desde_proyecto)
-        if (not isinstance(self.desde_proyecto, str) or self.desde_proyecto not in (".", "..")
-                or relativa.is_absolute()):
+        if (not isinstance(self.desde_proyecto, str)
+                or self.desde_proyecto not in (".", "..")):
             raise ProcedenciaInvalida(
                 "desde_proyecto sólo puede ser '.' o '..'; no se recorren ancestros arbitrarios")
 
@@ -63,7 +62,10 @@ def _resolver_entrada(raiz: Path, entrada: str) -> tuple[str, Path]:
     relativa = Path(entrada)
     if relativa.is_absolute() or ".." in relativa.parts or relativa == Path("."):
         raise ProcedenciaInvalida(f"ruta de procedencia no confinada: {entrada!r}")
-    raiz_fisica = raiz.resolve(strict=True)
+    try:
+        raiz_fisica = raiz.resolve(strict=True)
+    except OSError as e:
+        raise ProcedenciaInvalida(f"raíz de procedencia inválida: {raiz}: {e}") from e
     candidata = raiz / relativa
     try:
         fisica = candidata.resolve(strict=True)
@@ -77,7 +79,10 @@ def _resolver_entrada(raiz: Path, entrada: str) -> tuple[str, Path]:
 
 def _archivos(raiz: Path, entradas: tuple[str, ...] | list[str]) -> list[tuple[str, Path]]:
     encontrados: dict[str, Path] = {}
-    raiz_fisica = raiz.resolve(strict=True)
+    try:
+        raiz_fisica = raiz.resolve(strict=True)
+    except OSError as e:
+        raise ProcedenciaInvalida(f"raíz de procedencia inválida: {raiz}: {e}") from e
     for entrada in entradas:
         relativa, fisica = _resolver_entrada(raiz, entrada)
         candidatos = [fisica] if fisica.is_file() else sorted(p for p in fisica.rglob("*") if p.is_file())

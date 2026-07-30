@@ -17,7 +17,8 @@ def hechos_de_modulos(raiz, paquetes, entradas) -> dict:
             if "__pycache__" in p.parts:
                 continue
             nombre = ".".join(p.relative_to(raiz).with_suffix("").parts).removesuffix(".__init__")
-            es_test = "test" in p.name or "tests" in p.parts
+            es_test = (p.name.startswith("test_") or p.name.endswith("_test.py")
+                       or "tests" in p.parts)
             fuente = p.read_text(encoding="utf-8")
             arbol = ast.parse(fuente)
             modulos.append({"nombre": nombre, "es_test": es_test,

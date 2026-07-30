@@ -64,6 +64,33 @@ class PerfilesDeProyectoTests(unittest.TestCase):
                 {"desde": "paquete", "hasta": "paquete.usado", "saltos": 1},
             ])
 
+    def test_el_sensor_distingue_tests_y_paquetes_vacios_sin_heuristicas_amplias(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            paquete = raiz / "paquete"
+            (paquete / "tests").mkdir(parents=True)
+            fuentes = {
+                "__init__.py": "",
+                "test_uno.py": "X = 1\n",
+                "dos_test.py": "X = 1\n",
+                "contest.py": "X = 1\n",
+                "vacio.py": "",
+                "tests/ayudante.py": "X = 1\n",
+            }
+            for nombre, contenido in fuentes.items():
+                ruta = paquete / nombre
+                ruta.write_text(contenido, encoding="utf-8")
+
+            modulos = {m["nombre"]: m for m in
+                       hechos_de_modulos(raiz, ["paquete"], ["paquete"])["modulo"]}
+            self.assertTrue(modulos["paquete.test_uno"]["es_test"])
+            self.assertTrue(modulos["paquete.dos_test"]["es_test"])
+            self.assertTrue(modulos["paquete.tests.ayudante"]["es_test"])
+            self.assertFalse(modulos["paquete.contest"]["es_test"])
+            self.assertTrue(modulos["paquete"]["es_paquete_vacio"])
+            self.assertFalse(modulos["paquete.contest"]["es_paquete_vacio"])
+            self.assertFalse(modulos["paquete.vacio"]["es_paquete_vacio"])
+
 
 if __name__ == "__main__":
     unittest.main()

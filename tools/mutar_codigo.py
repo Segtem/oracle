@@ -35,6 +35,61 @@ PROY = resolver(sys.argv[1:])
 TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
 
+PRIORIDADES = {
+    "nucleo/algebra.py": ("tests.test_nucleo",),
+    "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
+    "nucleo/dominio.py": ("tests.test_dominio",),
+    "nucleo/fixtures.py": ("tests.test_herramientas",),
+    "nucleo/grafo.py": ("tests.test_nucleo",),
+    "nucleo/macro.py": ("tests.test_macro",),
+    "nucleo/marco.py": ("tests.test_marco",),
+    "nucleo/medida.py": ("tests.test_nucleo",),
+    "nucleo/mutacion.py": ("tests.test_mutacion",),
+    "nucleo/proyecto.py": ("tests.test_herramientas", "tests.test_perfiles"),
+    "nucleo/simulacion.py": ("tests.test_simulacion",),
+    "perfiles/python/marco.py": ("tests.test_perfiles",),
+    "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
+}
+
+
+def objetivos_disponibles() -> dict[str, Path]:
+    rutas = [*(RAIZ / "nucleo").glob("*.py"), *(RAIZ / "perfiles" / "python").glob("*.py")]
+    return {ruta.relative_to(RAIZ).as_posix(): ruta for ruta in sorted(rutas)
+            if ruta.name != "__init__.py"}
+
+
+def resolver_objetivos(declarados: list[str] | None) -> list[Path]:
+    disponibles = objetivos_disponibles()
+    if not declarados:
+        return list(disponibles.values())
+    desconocidos = [nombre for nombre in declarados if nombre not in disponibles]
+    if desconocidos:
+        raise ValueError(
+            f"objetivos desconocidos o fuera del perfil activo: {sorted(set(desconocidos))}")
+    if len(declarados) != len(set(declarados)):
+        raise ValueError("un --objetivo no puede repetirse")
+    return [disponibles[nombre] for nombre in declarados]
+
+
+def comando_de_tests(objetivos: list[Path], *, priorizar: bool) -> list[str]:
+    comando = list(TESTS)
+    if priorizar:
+        modulos = dict.fromkeys(
+            modulo for ruta in objetivos
+            for modulo in PRIORIDADES[ruta.relative_to(RAIZ).as_posix()])
+        for modulo in modulos:
+            comando.extend(("--prioridad", modulo))
+    return comando
+
+
+def dependencias_de_ronda() -> list[Path]:
+    """Archivos que pueden cambiar el resultado aunque no sean el objetivo mutado."""
+    carpetas = ("nucleo", "perfiles", "tests", "catalogos", "corpus", "diferencial")
+    rutas = [ruta for nombre in carpetas for ruta in (RAIZ / nombre).rglob("*")
+             if ruta.is_file() and "__pycache__" not in ruta.parts and ruta.suffix != ".pyc"]
+    rutas.append(RAIZ / "tools" / "ejecutar_suite_mutacion.py")
+    return sorted(set(rutas))
+
 
 def argumentos(argv: list[str]):
     p = argparse.ArgumentParser(description=__doc__)
@@ -47,6 +102,8 @@ def argumentos(argv: list[str]):
                    help="guardar progreso atómico para poder reanudar la ronda")
     p.add_argument("--reanudar", action="store_true",
                    help="continuar un --manifiesto compatible, revalidando antes la baseline")
+    p.add_argument("--objetivo", action="append", metavar="RUTA",
+                   help="archivo relativo a Oracle que se muta; repetible para particionar")
     p.add_argument("--confiar-escalares", action="store_true",
                    help="ejecutar el escalares.py del proyecto externo")
     return p.parse_args(argv)
@@ -78,7 +135,8 @@ def cargar_equivalentes(ruta: Path) -> dict[str, str]:
 
 
 def _ejecutar(args) -> int:
-    objetivos = sorted((RAIZ / "nucleo").glob("*.py"))
+    objetivos = resolver_objetivos(args.objetivo)
+    comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
     silencioso = args.hechos
 
     def progreso(fila):
@@ -94,15 +152,16 @@ def _ejecutar(args) -> int:
             print(f"  {marca:>4}  {fila['id']:<52} {fila['cambio']}", flush=True)
 
     if not silencioso:
-        print(f"objetivos: {', '.join(p.name for p in objetivos)}\n")
+        print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
 
     try:
         equivalentes = cargar_equivalentes(EQUIVALENTES)
         evidencia = correr(
-            RAIZ, objetivos, TESTS, equivalentes, al_terminar_uno=progreso,
+            RAIZ, objetivos, comando_tests, equivalentes, al_terminar_uno=progreso,
             timeout_por_ejecucion=args.timeout,
             limite_salida=args.limite_salida_kb * 1024,
-            manifiesto=args.manifiesto, reanudar=args.reanudar)
+            manifiesto=args.manifiesto, reanudar=args.reanudar,
+            dependencias=dependencias_de_ronda())
     except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, AislamientoRoto,
             ManifiestoInvalido, RondaEnCurso, OSError, ValueError) as e:
         error = {"tipo": type(e).__name__, "mensaje": str(e)}

@@ -10,13 +10,37 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares del catálogo base
-from nucleo.marco import hechos_de_uso  # noqa: E402
+from nucleo.marco import hechos_de_casos, hechos_de_uso  # noqa: E402
 from nucleo.medida import cargar  # noqa: E402
 
 
 MID = "dominio.ordinaria"
 CATALOGO = {MID: object()}
 FIJADA = cargar(RAIZ / "catalogos" / "meta" / "meta.toda_medida_esta_fijada.json")
+
+
+class HechosDeCasosTests(unittest.TestCase):
+    def test_distingue_sin_medida_id_desconocido_y_estado_del_hueco(self) -> None:
+        casos = [
+            {"id": "abierto", "medida": None, "etiqueta": "falso_verde",
+             "estado_sin_medida": "abierto", "sin_medida_todavia": "falta una regla"},
+            {"id": "desconocido", "medida": "dominio.no_existe",
+             "etiqueta": "falso_verde"},
+            {"id": "resuelto", "medida": None, "etiqueta": "deuda_de_diseño",
+             "estado_sin_medida": "resuelto", "resuelto": "cerrado"},
+        ]
+        filas = {f["id"]: f for f in hechos_de_casos({}, casos)["caso"]}
+
+        self.assertEqual(filas["abierto"]["medida"], "")
+        self.assertFalse(filas["abierto"]["tiene_medida"])
+        self.assertFalse(filas["abierto"]["medida_existe"])
+        self.assertTrue(filas["abierto"]["es_hueco_abierto"])
+        self.assertTrue(filas["abierto"]["explica_el_hueco"])
+
+        self.assertTrue(filas["desconocido"]["tiene_medida"])
+        self.assertFalse(filas["desconocido"]["medida_existe"])
+        self.assertFalse(filas["desconocido"]["es_hueco_abierto"])
+        self.assertFalse(filas["resuelto"]["es_hueco_abierto"])
 
 
 class TodaMedidaEstaFijadaTests(unittest.TestCase):
