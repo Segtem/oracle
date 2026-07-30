@@ -1,0 +1,39 @@
+[
+  "medida",
+  "relevo.testigo_tiene_sus_campos",
+  [
+    "desde",
+    [
+      "de",
+      "testigo_campo",
+      "c"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "c",
+          "presente"
+        ],
+        false
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "un testigo al que le falta un campo no se puede leer entero, y el que entra no tiene forma de saber qué falta"
+  ],
+  [
+    "alcance",
+    "ve si el campo ESTÁ. NO ve si su contenido es cierto: un `verde_editor` con un commit inventado cumple esta medida y lo agarra otra"
+  ]
+]

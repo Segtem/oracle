@@ -1,0 +1,39 @@
+[
+  "medida",
+  "relevo.agentes_conocidos",
+  [
+    "desde",
+    [
+      "de",
+      "agente",
+      "a"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "a",
+          "conocido"
+        ],
+        false
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "un agente que no está en la lista no tiene ni recetas ni trampas escritas para él, así que el relevo no le sirve de nada"
+  ],
+  [
+    "alcance",
+    "NO ve si el agente nombrado es el que realmente va a trabajar"
+  ]
+]

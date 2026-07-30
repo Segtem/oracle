@@ -80,8 +80,8 @@ mal» cuando el verde no se movió.
 
 ## Estado
 
-**Paso 5 de 5, a medias.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **18 medidas en tres dominios** dentro de [`catalogos/`](catalogos/) —como
+**Los cinco pasos, hechos.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+el evaluador (`nucleo/`), **23 medidas en cuatro dominios** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
 ```bash
@@ -110,8 +110,13 @@ Es el criterio que decide si esto es general o si es una cosa disfrazada de otra
 | **proceso** | un agente construyendo herramientas: mutantes, afirmaciones, verificaciones vencidas | el corpus de fallas reales |
 | **geometría** | piezas en un nivel: interpenetración, bounds, snap a grilla y yaw | 1200 veredictos contra los oráculos escritos a mano de Jam |
 | **vault** | la documentación de un proyecto: convención de nombres, coherencia del frontmatter, enlaces | 42 veredictos contra `tools/vault.py` de Jam, con un defecto inyectado de cada tipo |
+| **relevo** | la entrega de un turno entre dos agentes: testigo completo, agentes conocidos, verificación reproducible | 48 veredictos contra `tools/relevo.py`, sobre repositorios git montados para cada escenario |
 
-No se parecen en nada, y usan **los mismos operadores sin un solo adaptador**. La prueba diferencial
+No se parecen en nada, y usan **los mismos operadores sin un solo adaptador**.
+
+La prueba más limpia de que el álgebra cierra: `proceso.verificacion_vigente` se escribió para un caso
+del corpus, y **juzgó los hechos del sensor de relevo sin una sola modificación**. La misma medida, dos
+sensores distintos, dominios distintos. La prueba diferencial
 la genera Jam (`tools/emitir_diferencial.py`) con código que no comparte una línea con este álgebra;
 lo único que viaja entre los repos es un archivo de hechos.
 
@@ -161,10 +166,14 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 ### Qué falta
 
-- **La otra mitad del paso 5**: `relevo.py` de Jam todavía es un verificador escrito a mano. `vault.py`
-  ya está re-expresado como seis medidas y verificado por diferencial, pero **sigue en uso** — el
-  reemplazo se hace cuando el diferencial lleve tiempo en verde, no el mismo día.
+- **Reemplazar de verdad los verificadores de Jam.** `vault.py` y `relevo.py` están re-expresados y
+  verificados por diferencial, y **siguen en uso los originales**. El reemplazo va cuando el
+  diferencial lleve tiempo en verde, no el mismo día en que se escribió — y menos `relevo.py`, que es
+  la herramienta que abre y cierra los turnos.
 - **Los 31 mutantes de código vivos**, de a uno.
+- **Los 3 huecos declarados del corpus**: dos son defectos del lenguaje (`004` testigos duplicados,
+  `012` umbral duplicado) y uno no tiene forma mecánica conocida (`011`).
+- **El modo simulación** (§5 de la especificación) sigue sin un solo usuario.
 - **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
   no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 

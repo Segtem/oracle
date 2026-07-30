@@ -1,0 +1,51 @@
+[
+  "medida",
+  "relevo.verificacion_existe",
+  [
+    "desde",
+    [
+      "de",
+      "verificacion",
+      "v"
+    ],
+    [
+      "donde",
+      [
+        "o",
+        [
+          "==",
+          [
+            "campo",
+            "v",
+            "existe"
+          ],
+          false
+        ],
+        [
+          "==",
+          [
+            "campo",
+            "v",
+            "es_ancestro"
+          ],
+          false
+        ]
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "una verificación que apunta a un commit inexistente o a una rama que no está en la historia no se puede reproducir, y afirmarla es afirmar nada"
+  ],
+  [
+    "alcance",
+    "ve que el commit exista y esté en la historia. NO ve si en ese commit la verificación se corrió de verdad — eso lo declara una persona"
+  ]
+]
