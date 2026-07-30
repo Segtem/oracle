@@ -35,9 +35,9 @@ Cada pieza es una respuesta a *«¿por qué debería creerte?»* sobre una clase
 
 ### Su naturaleza es negarse
 
-No es un instrumento de medición: es un instrumento de **rechazo**. En 1593 líneas de núcleo hay
-**siete tipos de error declarados y 39 negativas** — 16 de ellas en los 123 renglones del álgebra. No
-calcula calidad: **declina dejar pasar** lo que no se puede sostener.
+No es un instrumento de medición: es un instrumento de **rechazo**. En este corte hay 2202 líneas de
+núcleo y **106 negativas explícitas** (`raise`). No calcula calidad: **declina dejar pasar** lo que no
+se puede sostener.
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
 `False`, levanta error. La igualdad exacta entre flotantes está prohibida. Un dominio sin defectos
@@ -51,26 +51,27 @@ se sabe sobre qué se está callando.
 
 ### La asimetría, medida
 
-De los 16 defectos reales del corpus: **14 falsos verdes, 1 falso rojo**. Ésa es la justificación
-empírica de cada decisión de «negarse antes que permitir». Pero un falso rojo enseña a ignorar el
-verificador, y por eso pesa igual de grave: en un solo día lo cometí tres veces.
+De los 20 defectos reales del corpus: **18 falsos verdes, 1 falso rojo y 1 conclusión causal
+incorrecta pese a una medida correcta**. Ésa es la justificación empírica de cada decisión de
+«negarse antes que permitir». Pero un falso rojo enseña a ignorar el verificador, y por eso pesa igual
+de grave: en un solo día lo cometí tres veces.
 
 ### El sujeto es el que construye, no lo construido
 
-**20 de los 29 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Y ninguno de los
-16 defectos lo atrapó un verificador propio en el momento: 8 la mutación, 5 una persona, 4 la
-casualidad, 1 una herramienta ajena. Oracle no es un juez de artefactos — es una prótesis para alguien
+**28 de los 34 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Los 20 defectos
+salieron a la luz por vías que no aceptan el verde nominal: 9 la mutación, 6 una persona, 4 la
+casualidad y 1 una herramienta ajena. Oracle no es un juez de artefactos — es una prótesis para alguien
 que escribe la herramienta y su test con la misma mano y no recuerda ayer.
 
 ### El costo, dicho
 
-**1593 líneas de lenguaje.** Contra las medidas escritas en él: **diez a uno** si se cuenta sólo el
-catálogo base, **cinco a uno** contando un proyecto real que lo use. Ésa es la apuesta y ésa es la
+**2202 líneas de lenguaje.** Contra las medidas escritas en él: **trece a uno** si se cuenta sólo el
+catálogo base, **seis a uno** contando las medidas de Jam. Ésa es la apuesta y ésa es la
 métrica: que el segundo número crezca y el primero no.
 
-*(Los números los mide `python tools/estudio.py`, no están escritos a mano acá. Dos veces los afirmé
-de memoria y las dos veces estaban mal — la proporción del catálogo base la dije «treinta a uno»
-cuando el catálogo tenía la mitad de las medidas que tiene hoy.)*
+*(El núcleo y el catálogo base los mide `python tools/estudio.py`; la razón con Jam usa el mismo
+conteo directo de líneas. Dos veces los afirmé de memoria y las dos estaban mal — la proporción base
+la dije «treinta a uno» cuando el catálogo tenía la mitad de las medidas que tiene hoy.)*
 
 Es la única medición del proyecto **que no se puede sastrear escribiendo más medidas** — escribir más
 medidas es justamente lo que la mejora. Si en seis meses la proporción no se movió, el lenguaje no
@@ -78,8 +79,8 @@ valió la pena.
 
 ### Y la historia lo dice mejor que el código
 
-De 23 commits, **cerca de la mitad tienen por título la corrección de algo que yo mismo había
-afirmado**: un criterio imposible de cumplir, un corpus al que le faltaba una polaridad, 53 tests en
+En el historial, **cerca de la mitad de los commits tienen por título la corrección de algo que yo
+mismo había afirmado**: un criterio imposible de cumplir, un corpus al que le faltaba una polaridad, 53 tests en
 verde conviviendo con 88 mutantes vivos, un concepto de juego metido en el núcleo, una guía que
 describía un problema ya resuelto. El repositorio es, sobre todo, **el registro de un autor
 equivocándose y siendo atrapado por lo que estaba construyendo**. Que eso sea legible es la única
@@ -195,13 +196,14 @@ no abstraer.
 
 ## Estado
 
-> **Estado auditado el 2026-07-30; P0 en curso.** Ya se corrigieron los bypasses de simulación,
-> baseline y verdes vacuos; timeout, taxonomía de errores del arnés y aislamiento siguen pendientes.
-> Ver
+> **Estado auditado el 2026-07-30; P0 cerrado.** Los bypasses de simulación, baseline, caché,
+> equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
+> distintos de una muerte. El aislamiento automático en una copia, el bloqueo y la restauración
+> atómica siguen en P2. Ver
 > [`AUDITORIA-2026-07-30.md`](AUDITORIA-2026-07-30.md) y
 > [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
 
-**El prototipo contiene los cinco componentes.** El [corpus](corpus/) (29 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+**El prototipo contiene los cinco componentes.** El [corpus](corpus/) (34 casos), la [especificación](ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
@@ -214,15 +216,15 @@ python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
 python tools/diferencial.py                      # el álgebra vs una implementación independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 165 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # 190 tests, cero dependencias
 ```
 
-15 defectos en rojo · 11 verdes correctos · 3 huecos declarados · **269 escenarios de Jam
-coincidiendo con implementaciones independientes** · 44/44 mutantes de medida · 165 tests.
+19 defectos en rojo · 12 verdes correctos · 3 huecos declarados · **269 escenarios de Jam
+coincidiendo con implementaciones independientes** · 48/48 mutantes de medida · 190 tests.
 
-> **`tools/mutar_codigo.py` sigue saliendo en ROJO.** La última ronda completa, ejecutada sobre una
-> copia temporal, dejó 454/546 mutantes muertos y 92 vivos; cuatro de esos vivos murieron después en
-> una comprobación dirigida. Se podrían declarar equivalentes en masa para
+> **`tools/mutar_codigo.py` sigue saliendo en ROJO.** El baseline completo y particionado, ejecutado
+> sobre copias temporales, dejó 503/616 mutantes muertos y 113 vivos, sin timeout ni error de arnés.
+> Se podrían declarar equivalentes en masa para
 > pintar verde — y eso sería exactamente el Goodhart que este repositorio persigue. El número baja
 > escribiendo tests o declarando equivalentes **de a uno y con su razón escrita**.
 
@@ -254,7 +256,7 @@ lo único que viaja entre los repos es un archivo de hechos.
 **una medida del catálogo**, `proceso.test_con_mutante_que_lo_mata`. El sensor no dicta veredictos:
 produce evidencia, y el álgebra la mide.
 
-Hoy: **44 mutantes, 44 muertos** (el corpus y el fixture diferencial se usan los dos como material de
+Hoy: **48 mutantes, 48 muertos** (el corpus y el fixture diferencial se usan los dos como material de
 mutación). Un sobreviviente sería un aspecto de la medida que nada fija, y por lo tanto algo que se
 podría escribir mal sin que nada frene.
 
@@ -334,8 +336,8 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
   verificados por diferencial, y **siguen en uso los originales**. El reemplazo va cuando el
   diferencial lleve tiempo en verde, no el mismo día en que se escribió — y menos `relevo.py`, que es
   la herramienta que abre y cierra los turnos.
-- **Los mutantes de código vivos**, de a uno: el último baseline completo dejó 92 y cuatro murieron
-  después en comprobaciones dirigidas.
+- **Los 113 mutantes de código vivos**, de a uno: test discriminante o equivalencia individual con
+  razón revisada.
 - **Los 3 casos que el corpus aún cuenta sin medida**: `004` y `012` ya están resueltos por
   construcción pero falta reclasificarlos; `011` no tiene una detección mecánica conocida.
 - **Declarar los dos arneses que faltan** en el proyecto de Jam (`relevo`, `geometria`) con

@@ -30,8 +30,10 @@ def hechos(ctx):
 def referencia(ctx):
     return not any(c["mal"] for c in ctx)      # implementación independiente, trivial
 
-BUENO = Dominio(nombre="d", montar=montar, hechos=hechos, referencia=referencia,
-                defectos=("una_mala",), descripcion="prueba")
+def dominio_bueno():
+    """Construir dentro del test evita que un mutante del contrato rompa el discovery del arnés."""
+    return Dominio(nombre="d", montar=montar, hechos=hechos, referencia=referencia,
+                   defectos=("una_mala",), descripcion="prueba")
 
 
 class DeclaracionTests(unittest.TestCase):
@@ -48,7 +50,7 @@ class DeclaracionTests(unittest.TestCase):
 
 class GenerarTests(unittest.TestCase):
     def test_produce_un_fixture_con_los_hechos_y_el_veredicto_de_la_referencia(self) -> None:
-        fx = generar(BUENO, [MEDIDA])
+        fx = generar(dominio_bueno(), [MEDIDA])
         self.assertEqual(fx["dominio"], "d")
         self.assertEqual(fx["medidas"], ["d.sin_fallas"])
         self.assertEqual([e["referencia_ok"] for e in fx["escenarios"]], [True, False])
@@ -57,7 +59,7 @@ class GenerarTests(unittest.TestCase):
 
     def test_NO_guarda_expectativa_por_medida(self) -> None:
         """Eso reimplementaba las medidas en Python: dos definiciones de lo mismo."""
-        for esc in generar(BUENO, [MEDIDA])["escenarios"]:
+        for esc in generar(dominio_bueno(), [MEDIDA])["escenarios"]:
             self.assertNotIn("esperado_ok", esc)
             self.assertNotIn("espera", esc)
 
@@ -90,4 +92,4 @@ class GenerarTests(unittest.TestCase):
 
     def test_se_niega_sin_medidas(self) -> None:
         with self.assertRaises(DominioMalDeclarado):
-            generar(BUENO, [])
+            generar(dominio_bueno(), [])

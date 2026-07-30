@@ -72,6 +72,7 @@ class CorrerTests(unittest.TestCase):
     def test_produce_hechos_y_no_veredictos(self) -> None:
         ev = mutacion.correr(self.catalogo, [CASO_ROJO, CASO_VERDE])
         self.assertEqual(sorted(ev), ["corrida_mutacion", "deteccion", "mutante"])
+        self.assertNotIn("resultado_confiable", ev["corrida_mutacion"][0])
         for fila in ev["mutante"]:
             self.assertEqual(sorted(fila),
                              ["apunta_a", "cambio", "casos_que_lo_detectan", "id", "murio"])
@@ -114,10 +115,11 @@ class CorrerTests(unittest.TestCase):
         ajeno = {**CASO_ROJO, "medida": "d.fantasma"}
         self.assertEqual(mutacion.correr(self.catalogo, [ajeno])["mutante"], [])
 
-    def test_el_bytecode_frio_es_por_construccion(self) -> None:
-        # no se toca ningún archivo: no hay .pyc que pueda quedar viejo
+    def test_la_mutacion_en_memoria_no_declara_estado_de_bytecode(self) -> None:
+        # Este sensor no ejecuta código mutado ni toca archivos: el estado del bytecode no aplica.
+        # Publicar `True` sólo para compartir forma con otro sensor sería una confianza ornamental.
         ev = mutacion.correr(self.catalogo, [CASO_ROJO])
-        self.assertTrue(ev["corrida_mutacion"][0]["bytecode_frio"])
+        self.assertNotIn("bytecode_frio", ev["corrida_mutacion"][0])
 
     def test_un_mutante_que_revienta_cuenta_como_muerto_y_no_como_hallazgo(self) -> None:
         malo = [*BASE[:2],

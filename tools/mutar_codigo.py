@@ -2,16 +2,19 @@
 
     python tools/mutar_codigo.py                 → informe
     python tools/mutar_codigo.py --hechos        → volcar la evidencia (JSON)
+    python tools/mutar_codigo.py --timeout 90    → límite por ejecución de tests
 
-Toca archivos reales, así que cada mutante se restaura en un `finally` y el caché se limpia antes de
-cada corrida de tests. Si el proceso se interrumpe a la fuerza, comprobá `git status` antes de seguir.
+Toca archivos reales, así que cada mutante se restaura en un `finally`; cada ejecución aísla el
+bytecode y comprueba el árbol antes y después. Si el proceso se interrumpe a la fuerza, comprobá
+`git status` antes de seguir.
 
-Sale != 0 si algún mutante sobrevivió sin estar declarado equivalente: un mutante vivo es código que
-ningún test fija.
+Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Timeout, error del arnés y fallo de
+tests son estados distintos; sólo el último demuestra que el mutante murió.
 """
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -21,52 +24,129 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo  # noqa: E402
-from nucleo.mutacion_codigo import correr  # noqa: E402
+from nucleo.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido, LineaBaseFallida,
+                                    correr)  # noqa: E402
 from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
                              sin_bandera)  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
 registrar_escalares(PROY)
 
-TESTS = [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-q"]
+TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
 
 
-def main() -> int:
-    objetivos = sorted((RAIZ / "nucleo").glob("*.py"))
-    equivalentes = {}
-    if EQUIVALENTES.exists():
-        equivalentes = {e["id"]: e["razon"]
-                        for e in json.loads(EQUIVALENTES.read_text(encoding="utf-8"))}
+def argumentos(argv: list[str]):
+    p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
+    p.add_argument("--timeout", type=float, default=60.0,
+                   help="segundos máximos para la baseline y cada mutante (60 por defecto)")
+    return p.parse_args(argv)
 
-    silencioso = "--hechos" in sin_bandera(sys.argv[1:])
-    hechos_previos = []
+
+def cargar_equivalentes(ruta: Path) -> dict[str, str]:
+    if not ruta.exists():
+        return {}
+    try:
+        datos = json.loads(ruta.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as e:
+        raise EquivalenteInvalido(f"no se pudo leer {ruta.name}: {e}") from e
+    if not isinstance(datos, list):
+        raise EquivalenteInvalido(f"{ruta.name} tiene que contener una lista")
+
+    salida: dict[str, str] = {}
+    for i, entrada in enumerate(datos):
+        if not isinstance(entrada, dict):
+            raise EquivalenteInvalido(f"{ruta.name}[{i}] tiene que ser un objeto")
+        mid, razon = entrada.get("id"), entrada.get("razon")
+        if not isinstance(mid, str) or not mid.strip():
+            raise EquivalenteInvalido(f"{ruta.name}[{i}].id tiene que ser texto no vacío")
+        if not isinstance(razon, str) or not razon.strip():
+            raise EquivalenteInvalido(f"{ruta.name}[{i}].razon tiene que ser texto no vacío")
+        if mid in salida:
+            raise EquivalenteInvalido(f"id equivalente duplicado en {ruta.name}: {mid}")
+        salida[mid] = razon
+    return salida
+
+
+def main() -> int:
+    args = argumentos(sin_bandera(sys.argv[1:]))
+    objetivos = sorted((RAIZ / "nucleo").glob("*.py"))
+    silencioso = args.hechos
 
     def progreso(fila):
-        hechos_previos.append(fila)
         if not silencioso:
-            marca = "·" if fila["murio"] else "VIVO"
+            if fila["tests_fallaron"]:
+                marca = "·"
+            elif fila["timeout"]:
+                marca = "TIEMPO"
+            elif fila["error_arnes"]:
+                marca = "ARNÉS"
+            else:
+                marca = "VIVO"
             print(f"  {marca:>4}  {fila['id']:<52} {fila['cambio']}", flush=True)
 
     if not silencioso:
         print(f"objetivos: {', '.join(p.name for p in objetivos)}\n")
 
-    evidencia = correr(RAIZ, objetivos, TESTS, equivalentes, al_terminar_uno=progreso)
+    try:
+        equivalentes = cargar_equivalentes(EQUIVALENTES)
+        evidencia = correr(
+            RAIZ, objetivos, TESTS, equivalentes, al_terminar_uno=progreso,
+            timeout_por_ejecucion=args.timeout)
+    except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, ValueError) as e:
+        error = {"tipo": type(e).__name__, "mensaje": str(e)}
+        if isinstance(e, LineaBaseFallida):
+            salida = e.resultado.salida
+            error.update({
+                "baseline_verde": False,
+                "tests_fallaron": e.resultado.tests_fallaron,
+                "error_arnes": e.resultado.error_arnes,
+                "timeout": e.resultado.timeout,
+                "codigo_salida": e.resultado.codigo_salida,
+                "salida": salida[:16_384],
+                "salida_truncada": len(salida) > 16_384,
+            })
+        if silencioso:
+            print(json.dumps({"error_mutacion": [error]}, ensure_ascii=False, indent=2))
+        else:
+            print(f"\nMUTACIÓN NO CONFIABLE — {type(e).__name__}\n{e}", file=sys.stderr)
+        return 2
+
+    corrida = evidencia["corrida_mutacion"][0]
+    muertos = sum(m["tests_fallaron"] for m in evidencia["mutante"])
+    vivos = [m for m in evidencia["mutante"] if m["estado"] == "pasaron"]
+    ronda_inconclusa = (not corrida["baseline_verde"]
+                        or not corrida["bytecode_frio"]
+                        or corrida["mutantes"] <= 0
+                        or corrida["errores_arnes"] > 0
+                        or corrida["timeouts"] > 0)
 
     if silencioso:
         print(json.dumps(evidencia, ensure_ascii=False, indent=2))
-        return 0
+        if ronda_inconclusa:
+            return 2
+        return 1 if vivos else 0
 
-    vivos = [m for m in evidencia["mutante"] if not m["murio"]]
     eq = evidencia["mutante_equivalente"]
     print(f"\nmutantes: {len(evidencia['mutante'])} · murieron "
-          f"{len(evidencia['mutante']) - len(vivos)} · sobrevivieron {len(vivos)} · "
+          f"{muertos} · sobrevivieron {len(vivos)} · "
+          f"timeout {corrida['timeouts']} · errores de arnés {corrida['errores_arnes']} · "
           f"equivalentes declarados: {len(eq)}")
 
     catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
-    for mid in ("proceso.test_con_mutante_que_lo_mata", "proceso.arnes_con_bytecode_frio"):
+    for mid in ("proceso.test_con_mutante_que_lo_mata", "proceso.arnes_con_bytecode_frio",
+                "proceso.ronda_mutacion_concluyente"):
         v = catalogo[mid].evaluar(evidencia)
         print(f"  {'✓' if v.ok else '✗'} {mid:<44} valor {v.valor} ({v.umbral})")
+
+    if ronda_inconclusa:
+        print("\nRONDA INCONCLUSA: un timeout o error del arnés no mata un mutante.")
+        if corrida["primer_inconcluso_id"]:
+            print(f"  {corrida['primer_inconcluso_id']} · "
+                  f"{corrida['primer_inconcluso_estado']}")
+            print(corrida["primer_inconcluso_salida"])
+        return 2
 
     if vivos:
         print("\nCÓDIGO QUE NINGÚN TEST FIJA:")

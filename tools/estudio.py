@@ -126,8 +126,9 @@ def corpus_en_prosa() -> str:
     out += ["", "| Cómo se detectó | Cuántos |", "|---|---|"]
     out += [f"| {k} | {v} |" for k, v in det.most_common()]
     out += ["",
-            "**Ninguno lo atrapó un verificador propio en el momento en que ocurrió.** Ésa es la",
-            "medición que justifica el repositorio entero.", ""]
+            "**Cada caso registra cómo se detectó.** Una suite verde y una mutación, una persona o",
+            "un accidente son señales distintas; mezclarlas borraría justo la evidencia que el",
+            "corpus intenta conservar.", ""]
 
     for c in casos:
         out += [f"## {c['id']}", "", f"**{c['titulo']}**", "",

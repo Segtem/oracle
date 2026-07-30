@@ -5,5 +5,5 @@
   "m",
   ["==", ["campo", "m", "murio"], false],
   "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada",
-  "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutantes que nadie escribió: una función sin ningún mutante apuntado da cero y sale verde"
+  "cuenta mutantes cuya muerte no fue demostrada: sobrevivientes, timeouts y errores del arnés conservan `murio=false`. NO ve los mutantes que nadie generó: una función sin ningún mutante apuntado da cero y sale verde"
 ]

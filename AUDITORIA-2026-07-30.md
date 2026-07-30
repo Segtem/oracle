@@ -20,27 +20,67 @@ mezclaba: que el código corra, que el diseño sea reusable y que un verde sea e
 
 ## Seguimiento posterior a la auditoría
 
-Los hallazgos describen el commit auditado y se conservan como línea base. El worktree posterior ya
-inició P0:
+Los hallazgos describen el commit auditado y se conservan como línea base. El worktree posterior
+completó P0:
 
 | Hallazgo | Estado posterior |
 |---|---|
 | A-01, campos certificados de simulación | Corregido en el worktree: colisiones rechazadas y 18 tests directos nuevos. |
 | A-02, mutación sin línea base | Corregido en el worktree: una baseline roja levanta `LineaBaseFallida` antes de tocar fuentes. |
-| A-03, confianza hardcodeada | Parcialmente corregido: caché comprobado, evidencia derivada y equivalentes validados; timeout y aislamiento siguen pendientes. |
+| A-03, confianza hardcodeada | Corregido para P0: caché comprobado antes y después, estados estructurados, timeout configurable, diagnóstico y equivalentes validados. Se eliminaron los veredictos de confianza autoproducidos y el estado de bytecode que no aplicaba a la mutación en memoria. La mutación automática sobre una copia en vez de fuentes activas sigue en P2. |
 | A-04, verdes vacuos | Corregido en el worktree: ausencia, cero medidas/casos/mutantes y fixtures incompletos fallan de forma explícita. |
 
-Después de esos cambios la suite tiene 165 tests verdes. Oracle conserva 15 defectos en rojo, 11
-verdes correctos, 3 huecos declarados y 44/44 mutantes de medida muertos; contra Jam conserva 269
+Después de esos cambios la suite tiene 190 tests verdes. Oracle conserva 19 defectos en rojo, 12
+verdes correctos, 3 huecos declarados y 48/48 mutantes de medida muertos; contra Jam conserva 269
 comparaciones diferenciales sin desacuerdo y 80/80 mutantes de medida muertos. La aceptación de Jam,
 que no tiene corpus propio, ahora termina como `NO APLICABLE — SIN CASOS` con código distinto de cero.
+El generador de estudio funciona sobre Oracle, pero `tools/estudio.py --proyecto .../jam/medidas`
+todavía falla al validar `volumen` porque no registra las escalares del proyecto; resolverlo sin
+ocultar la ejecución de UDF externas permanece en P1.
 
-La mutación de código se ejecutó dos veces sobre una copia temporal verificada, nunca sobre este
-worktree. La última ronda completa registró 546 mutantes: 454 muertos y 92 vivos. Después se añadieron
-dos regresiones meta y los cuatro mutantes dirigidos que motivaron esas regresiones murieron 4/4; no
-se ejecutó una tercera ronda completa, por lo que 92 es el último baseline completo y 88 es sólo una
-cota superior posterior, no una cifra cerrada. La copia quedó restaurada byte a byte y volvió a pasar
-la suite. Ninguno de estos cambios está incluido en el hash auditado de la sección siguiente.
+La mutación de código se repitió de forma particionada sobre copias temporales frescas, nunca sobre
+este worktree. Los cambios descubiertos durante las rondas obligaron a repetir íntegramente cada
+partición afectada. El baseline final cubre 616 sitios: 503 muertos reales y 113 vivos, sin timeout ni
+error de arnés. Cada copia terminó con los 11 archivos de `nucleo/*.py` idénticos byte a byte a su
+snapshot inicial y sin `__pycache__` local. Ninguno de estos cambios está incluido en el hash auditado
+de la sección siguiente.
+
+| Archivo | Muertos | Total | Vivos |
+|---|---:|---:|---:|
+| `algebra.py` | 183 | 186 | 3 |
+| `dominio.py` | 11 | 18 | 7 |
+| `grafo.py` | 0 | 4 | 4 |
+| `macro.py` | 18 | 21 | 3 |
+| `marco.py` | 24 | 43 | 19 |
+| `medida.py` | 69 | 80 | 11 |
+| `mutacion.py` | 47 | 50 | 3 |
+| `mutacion_codigo.py` | 94 | 140 | 46 |
+| `proyecto.py` | 18 | 34 | 16 |
+| `simulacion.py` | 39 | 40 | 1 |
+| **Total** | **503** | **616** | **113** |
+
+Al repetir la ronda durante P0 apareció un riesgo nuevo en la propia instrumentación: mutar el
+predicado que enumera `__pycache__` hizo que la limpieza interpretara casi todas las rutas como caché
+y borrara una copia temporal completa. El worktree real no estuvo expuesto. El punto de borrado ahora
+revalida, de forma independiente, el nombre exacto y el confinamiento físico de cada ruta; dos
+regresiones demuestran que ni un enumerador corrompido ni una ruta exterior reciben autoridad de
+borrado. El incidente quedó registrado como caso `018` y refuerza que el aislamiento definitivo de
+P2 no es una mejora cosmética.
+
+La misma repetición encontró un segundo caso operativo: mutar el comparador que reconoce
+`--proyecto` podía quitar también `--hechos` y `--timeout`, lanzar recursivamente otra ronda completa
+y agotar el límite de 60 segundos. El estado nuevo lo clasificó como inconcluso, no como muerte. Una
+regresión directa fija el parser y el runner se detiene en la primera discriminación; al repetir los
+34 sitios de `proyecto.py`, ese mutante terminó como `tests_fallaron` y no quedó ningún timeout ni
+error de arnés.
+
+Una revisión cruzada posterior reprodujo otros cuatro bypasses antes del cierre: un objetivo symlink
+podía llevar la escritura fuera de la raíz; un error de importación creado como `_FailedTest` salía
+con el mismo código que una discriminación; un timeout de un equivalente desaparecía del cálculo de
+la CLI; y una ronda con cero mutantes devolvía éxito. Los cuatro tienen regresiones y fallan cerrado.
+También se prohibieron códigos de señal como supuestos fallos de tests y se validan formato,
+unicidad y razones de `equivalentes.json` antes de convertirlo en mapa. El caso vacuo quedó registrado
+como `019`.
 
 ## Estado auditado y alcance
 

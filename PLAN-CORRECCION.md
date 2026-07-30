@@ -38,9 +38,11 @@ por el runner; los bypasses de la auditoría levantan `SimuladorMalContratado`.
 - [x] Ejecutar los tests una vez sobre las fuentes originales antes de generar mutantes.
 - [x] Abortar con un error específico si la línea base está roja; no producir hechos `murio`.
 - [x] Cambiar el test que hoy canoniza “si los tests siempre fallan, todos mueren”.
-- [ ] Separar en la evidencia `baseline_verde`, `tests_fallaron`, `error_arnes` y `timeout`.
+- [x] Separar en la evidencia `baseline_verde`, `tests_fallaron`, `error_arnes` y `timeout`.
+- [x] Tratar fallos de importación/descubrimiento como error del arnés y detener la suite en la
+  primera discriminación antes de que un camino posterior la convierta en timeout.
 - [x] Derivar `resultado_confiable` de comprobaciones reales o eliminar el campo.
-- [ ] Incorporar timeout por mutante y conservar la salida del primer fallo para diagnóstico.
+- [x] Incorporar timeout por mutante y conservar la salida del primer fallo para diagnóstico.
 
 **Criterio de salida:** una suite originalmente roja nunca puede producir “todos los mutantes
 murieron” ni un código de salida exitoso.
@@ -50,8 +52,13 @@ murieron” ni un código de salida exitoso.
 - [x] Hacer que `limpiar_cache` falle si no puede borrar un caché o si éste sigue presente.
 - [x] Emitir `bytecode_frio=True` sólo después de verificar el estado, no por construcción declarada.
 - [x] Probar fallos de borrado y symlinks sin seguir ni borrar su destino.
-- [ ] Probar y definir qué ocurre si un caché reaparece durante la misma corrida.
+- [x] Probar y definir qué ocurre si un caché reaparece durante la misma corrida.
+- [x] Revalidar cada ruta en el punto de borrado para que un enumerador mutado no pueda borrar el
+  proyecto ni una ruta exterior.
+- [x] Confinar físicamente cada fuente antes de leerla o escribirla y rechazar objetivos symlink.
 - [x] Rechazar equivalentes con razón vacía, id inexistente o id vencido.
+- [x] Validar formato y unicidad de `equivalentes.json`; un incidente de un equivalente también
+  invalida la ronda completa.
 - [x] Hacer que una declaración equivalente inválida ponga la ronda en rojo.
 
 **Criterio de salida:** no queda ningún booleano de confianza fijado incondicionalmente y una razón
@@ -67,6 +74,7 @@ vacía no puede sacar un mutante del denominador.
   umbral y tipos básicos.
 - [x] Impedir que un catálogo o informe con cero medidas sea verde.
 - [x] Impedir que aceptación con cero casos diga `ACEPTACIÓN ✓`; usar un estado no aplicable o error.
+- [x] Impedir que una ronda de código con cero mutantes —incluidos todos equivalentes— salga verde.
 - [x] Cambiar `meta.toda_medida_esta_fijada` para exigir `mutantes > 0` y
   `mutantes_vivos == 0`, con una política explícita para medidas heredadas.
 - [x] Rechazar hechos mutantes sin `apunta_a` vigente o sin un `murio` booleano, para que una fila
@@ -86,6 +94,10 @@ P0 termina sólo cuando:
 - aceptación y mutación de medidas siguen funcionando sobre Oracle;
 - una copia temporal ejecuta la mutación de código sin tocar el worktree real;
 - el informe ya no contiene afirmaciones de confianza autoproducidas.
+
+**Estado 2026-07-30:** puerta cumplida. La suite pasa, Oracle y Jam conservan sus verificaciones y el
+baseline particionado cubrió 616 sitios en copias temporales restauradas byte a byte, sin rondas
+inconclusas en el agregado final.
 
 ## P1 — estabilizar semántica, diferencial e integración externa
 
@@ -126,6 +138,8 @@ cambios produce el mismo archivo; el informe no llama veredictos individuales a 
 - [ ] Validar ids con una gramática cerrada y confinar toda ruta creada debajo de `catalogos/` después
   de resolverla.
 - [ ] Corregir la presentación de rutas para proyectos externos.
+- [ ] Hacer que `tools/estudio.py --proyecto` resuelva escalares externas bajo la misma confirmación
+  explícita de confianza que el resto de las herramientas.
 - [ ] Validar estructura de proyecto según la herramienta: catálogo, corpus y/o diferencial requerido,
   en vez de aceptar siempre sólo `catalogos/`.
 - [ ] Crear un fixture de integración temporal que pruebe el flujo externo completo en tests.
@@ -182,8 +196,8 @@ particulares se cargan explícitamente.
 
 ### P2.3 Cerrar deuda, empaquetar y probar independencia
 
-- [ ] Triar los mutantes vivos (92 en la última ronda completa; cuatro murieron después en pruebas
-  dirigidas): test discriminante o equivalencia individual con razón revisada.
+- [ ] Triar los 113 mutantes vivos del baseline 503/616: test discriminante o equivalencia individual
+  con razón revisada.
 - [ ] Reclasificar los casos `004` y `012` como resueltos sin contarlos como huecos abiertos; definir el
   estado honesto de `011`.
 - [ ] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
@@ -208,20 +222,25 @@ El primer bloque debe ser pequeño y dejar una mejora verificable sin migrar for
 4. ~~Añadir regresiones para cero medidas, cero mutantes y relación ausente.~~ Hecho.
 5. ~~Corregir las invariantes vacías y actualizar las medidas meta.~~ Hecho.
 6. ~~Ejecutar suite, corpus, aceptación y mutación de medidas.~~ Hecho.
-7. ~~Ejecutar mutación de código en una copia temporal y registrar el nuevo baseline.~~ Hecho: la
-   última ronda completa fue 454/546 muertos; después cuatro mutantes meta dirigidos murieron 4/4,
-   sin una tercera ronda completa.
+7. ~~Ejecutar mutación de código en una copia temporal y registrar el nuevo baseline.~~ Hecho:
+   503/616 muertos y 113 vivos; cero timeout/error de arnés en el agregado final y copias restauradas
+   byte a byte.
 
 No se debe empezar por `con`, por migrar verificadores de Jam ni por reducir en masa los mutantes vivos:
 primero hay que asegurar que el instrumento que cuenta esos mutantes no pueda declarar confianza por
 construcción.
 
-## Siguiente bloque de trabajo
+## Bloque de cierre P0
 
-El P0 todavía no está cerrado. Lo siguiente es completar P0.2 y P0.3, sin saltar aún a P1:
+P0 quedó cerrado sin saltar todavía a P1:
 
-1. modelar por separado `tests_fallaron`, `error_arnes` y `timeout`, conservando salida diagnóstica;
-2. imponer un timeout por mutante y demostrar que no se confunde con una muerte válida;
-3. probar la reaparición de caché durante una ronda;
-4. repetir la mutación completa en copia temporal y cerrar el baseline posterior a las regresiones
-   dirigidas.
+1. ~~Modelar por separado `tests_fallaron`, `error_arnes` y `timeout`, conservando salida
+   diagnóstica.~~ Hecho.
+2. ~~Imponer un timeout por mutante y demostrar que no se confunde con una muerte válida.~~ Hecho.
+3. ~~Probar la reaparición de caché durante una ronda.~~ Hecho: una reaparición invalida la ronda
+   antes de que la limpieza pueda ocultarla.
+4. ~~Repetir la mutación completa en copia temporal y cerrar el baseline posterior a las regresiones
+   dirigidas.~~ Hecho: 503/616, con 113 vivos explícitos y ninguna ejecución inconclusa.
+
+El siguiente bloque recomendado es P1.1: formalizar semántica de bolsas/conjuntos, flotantes y
+mutación independiente de escala antes de ampliar operadores o migrar formatos de Jam.

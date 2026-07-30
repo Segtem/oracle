@@ -163,8 +163,5 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
         "corrida_mutacion": [{
             "id": "mutacion_de_medidas",
             "mutantes": len(por_mutante),
-            # verdadero por construcción: no se toca ningún archivo, así que no hay .pyc que rancie
-            "bytecode_frio": True,
-            "resultado_confiable": True,
         }],
     }
