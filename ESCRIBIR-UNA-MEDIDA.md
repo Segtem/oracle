@@ -105,9 +105,9 @@ El 90% de las medidas son así: filtrás lo malo, contás, y el umbral es `<= 0`
   ["alcance", "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"]]
 ```
 
-Acá el valor es centímetros y no una cuenta, que dice más en el informe. El costo: la tolerancia
-aparece **dos veces** —en el `donde` y en el `umbral`— y nada las mantiene juntas. Está anotado como
-deuda de diseño en el caso `012` del corpus.
+Acá el valor es centímetros y no una cuenta, y eso dice más en el informe. **Escrita a mano, la
+tolerancia aparece dos veces** —en el `donde` y en el `umbral`— y nada las mantiene juntas: era el
+caso `012` del corpus. Por eso esta forma se escribe con la macro `peor`, que la recibe una sola vez.
 
 ### 3. Comparar filas entre sí
 
