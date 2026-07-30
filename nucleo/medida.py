@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .algebra import COMPARADORES, _cmp, desde, resumir
+from .macro import es_macro, expandir
 
 
 class MedidaMalDeclarada(ValueError):
@@ -78,9 +79,14 @@ class Medida:
     limite: float
     porque: str
     alcance: str
+    fuente: tuple = ()          # cómo estaba escrita: macro o canónica
 
     @classmethod
     def de_datos(cls, d: list) -> "Medida":
+        # Las macros se expanden ANTES de construir, como en LISP: de acá para adentro nadie sabe
+        # que existieron, así que el evaluador, la mutación, el inventario y el L2 no cambian.
+        fuente = d
+        d = expandir(d)
         if not isinstance(d, list) or len(d) != 6 or d[0] != "medida":
             raise MedidaMalDeclarada(
                 "una medida es ['medida', id, tuberia, resumen, umbral, alcance]")
@@ -101,7 +107,8 @@ class Medida:
                 and str(alcance[1]).strip()):
             raise MedidaMalDeclarada(f"{mid}: falta `alcance` — hay que declarar qué NO ve")
         return cls(id=mid, tuberia=tuberia, resumen=resumen, op=op, limite=limite,
-                   porque=str(porque), alcance=str(alcance[1]))
+                   porque=str(porque), alcance=str(alcance[1]),
+                   fuente=tuple(fuente) if es_macro(fuente) else ())
 
     def evaluar(self, evidencia: dict) -> Veredicto:
         testigos = desde(self.tuberia, evidencia)
@@ -111,8 +118,14 @@ class Medida:
                          alcance=self.alcance, testigos=tuple(testigos))
 
     def a_datos(self) -> list:
+        """La forma CANÓNICA, siempre. Es lo que muta el sensor: mutar la expansión llega más lejos
+        que mutar la invocación de la macro."""
         return ["medida", self.id, self.tuberia, self.resumen,
                 ["umbral", self.op, self.limite, self.porque], ["alcance", self.alcance]]
+
+    def a_fuente(self) -> list:
+        """Cómo está escrita en el archivo: la macro si vino de una, la canónica si no."""
+        return list(self.fuente) if self.fuente else self.a_datos()
 
 
 def cargar(ruta: Path) -> Medida:

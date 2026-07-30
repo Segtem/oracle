@@ -4,6 +4,7 @@
     python tools/medida.py --escalares             qué funciones de dominio se pueden usar
     python tools/medida.py --nueva dominio.nombre  crea el archivo con la forma puesta
     python tools/medida.py <archivo.json>          la revisa y la corre contra el corpus
+    python tools/medida.py --expandir <archivo>     ve en qué forma canónica se convierte la macro
 
 Existe porque sin esto el lenguaje tiene dueño. Todo el argumento de este repositorio es que quien
 ve un defecto pueda escribir la regla que lo atrapa; si para eso hay que escribir s-expresiones en
@@ -28,15 +29,18 @@ import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES  # noqa: E402
 from nucleo.medida import Medida, MedidaMalDeclarada, cargar_catalogo  # noqa: E402
 
+# La plantilla usa la macro `ninguno`, que es la forma del 80% de las medidas. `--expandir` muestra
+# en qué se convierte; y si el caso no encaja, la forma canónica sigue siendo válida.
 PLANTILLA = """\
-["medida", "{mid}",
-  ["desde", ["de", "RELACION", "x"],
-            ["donde", ["==", ["campo", "x", "CAMPO"], false]]],
-  ["resumen", "contar", 1],
-  ["umbral", "<=", 0,
-   "POR QUE ese numero y no otro. Un umbral sin defensa es una metrica esperando a volverse objetivo."],
-  ["alcance",
-   "QUE NO VE esta medida. Obligatorio: un verde que no dice lo que no mira se lee como «esta bien»."]]
+[
+  "ninguno",
+  "{mid}",
+  "RELACION",
+  "x",
+  ["==", ["campo", "x", "CAMPO"], false],
+  "POR QUE ese numero y no otro. Un umbral sin defensa es una metrica esperando a volverse objetivo.",
+  "QUE NO VE esta medida. Obligatorio: un verde que no dice lo que no mira se lee como «esta bien»."
+]
 """
 
 
@@ -107,6 +111,16 @@ def nueva(mid: str) -> int:
     return 0
 
 
+def expandir_archivo(ruta: Path) -> int:
+    datos = json.loads(ruta.read_text(encoding="utf-8"))
+    from nucleo.macro import es_macro
+    if not es_macro(datos):
+        print(f"«{datos[1] if len(datos) > 1 else '?'}» ya está en forma canónica.")
+    m = Medida.de_datos(datos)
+    print(json.dumps(m.a_datos(), ensure_ascii=False, indent=1))
+    return 0
+
+
 def revisar(ruta: Path) -> int:
     try:
         datos = json.loads(ruta.read_text(encoding="utf-8"))
@@ -119,7 +133,9 @@ def revisar(ruta: Path) -> int:
         print(f"✗ {e}")
         return 1
 
-    print(f"✓ bien declarada: {medida.id}")
+    from nucleo.macro import MACROS
+    forma = datos[0] if datos[0] in MACROS else "canónica"
+    print(f"✓ bien declarada: {medida.id}   (forma: {forma})")
     print(f"    umbral   {medida.op} {medida.limite}")
     print(f"    porque   {medida.porque}")
     print(f"    alcance  {medida.alcance}\n")
@@ -173,6 +189,11 @@ def main() -> int:
         return relaciones()
     if args[0] == "--escalares":
         return escalares()
+    if args[0] == "--expandir":
+        if len(args) < 2:
+            print("falta el archivo: --expandir <archivo.json>")
+            return 1
+        return expandir_archivo(Path(args[1]) if Path(args[1]).exists() else RAIZ / args[1])
     if args[0] == "--nueva":
         if len(args) < 2:
             print("falta el id: --nueva dominio.nombre")

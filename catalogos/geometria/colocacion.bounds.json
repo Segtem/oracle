@@ -1,41 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "colocacion.bounds",
-  [
-    "desde",
-    [
-      "de",
-      "pieza",
-      "a"
-    ],
-    [
-      "donde",
-      [
-        "<=",
-        [
-          "volumen",
-          [
-            "hecho",
-            "a"
-          ]
-        ],
-        0.001
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "una malla vacía o degenerada da volumen ~0: la colocación es inútil aunque no choque con nada"
-  ],
-  [
-    "alcance",
-    "volumen del AABB. NO ve si la malla está partida, invertida, ni si tiene geometría adentro del bounding box"
-  ]
+  "pieza",
+  "a",
+  ["<=", ["volumen", ["hecho", "a"]], 0.001],
+  "una malla vacía o degenerada da volumen ~0: la colocación es inútil aunque no choque con nada",
+  "volumen del AABB. NO ve si la malla está partida, invertida, ni si tiene geometría adentro del bounding box"
 ]

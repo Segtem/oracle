@@ -37,10 +37,38 @@ excusa, y el número de equivalentes declarados es una métrica que hay que mira
 from __future__ import annotations
 
 import ast
+import atexit
 import shutil
+import signal
 import subprocess
 from dataclasses import dataclass
 from pathlib import Path
+
+# Archivos con su contenido original mientras están mutados. Un `finally` NO alcanza: `timeout` manda
+# SIGTERM y Python termina sin ejecutarlo, así que una corrida cortada dejaba el archivo mutado en el
+# árbol de trabajo. Pasó de verdad, y el daño lo salvó git — no la herramienta.
+_EN_VUELO: dict[Path, str] = {}
+
+
+def _restaurar_todo(*_args) -> None:
+    for ruta, original in list(_EN_VUELO.items()):
+        try:
+            ruta.write_text(original, encoding="utf-8")
+        except Exception:  # noqa: BLE001  restaurar es lo último que se intenta, nunca lo que falla
+            pass
+        _EN_VUELO.pop(ruta, None)
+
+
+atexit.register(_restaurar_todo)
+for _sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
+    try:
+        signal.signal(_sig, lambda s, f: (_restaurar_todo(), raise_exit(s)))
+    except (ValueError, OSError):
+        pass
+
+
+def raise_exit(sig):
+    raise SystemExit(128 + sig)
 
 CAMBIOS_COMPARADOR = {
     ast.Lt: ast.LtE, ast.LtE: ast.Lt,
@@ -208,11 +236,13 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
             if mutado is None:
                 continue
             try:
+                _EN_VUELO[ruta] = original      # red de seguridad si nos matan a mitad
                 ruta.write_text(mutado, encoding="utf-8")
                 limpiar_cache(raiz)
                 murio = not correr_tests(comando, raiz)
             finally:
                 ruta.write_text(original, encoding="utf-8")
+                _EN_VUELO.pop(ruta, None)
                 limpiar_cache(raiz)
 
             filas.append({

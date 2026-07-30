@@ -1,39 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "proceso.afirmacion_declara_alcance",
-  [
-    "desde",
-    [
-      "de",
-      "afirmacion",
-      "a"
-    ],
-    [
-      "donde",
-      [
-        "==",
-        [
-          "campo",
-          "a",
-          "alcance"
-        ],
-        ""
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»"
-  ],
-  [
-    "alcance",
-    "ve si el campo está VACÍO. NO ve si el alcance escrito es honesto, completo ni pertinente"
-  ]
+  "afirmacion",
+  "a",
+  ["==", ["campo", "a", "alcance"], ""],
+  "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»",
+  "ve si el campo está VACÍO. NO ve si el alcance escrito es honesto, completo ni pertinente"
 ]

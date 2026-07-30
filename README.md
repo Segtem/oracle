@@ -81,7 +81,7 @@ mal» cuando el verde no se movió.
 ## Estado
 
 **Los cinco pasos, hechos.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **23 medidas en cuatro dominios** dentro de [`catalogos/`](catalogos/) —como
+el evaluador (`nucleo/`), **27 medidas en cuatro dominios** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).
@@ -156,6 +156,10 @@ actuar, así que el informe también es contrato. Y con ese cambio hay que corre
 resto se detecta por los testigos en cualquiera de las dos polaridades. Los casos verdes siguen
 valiendo por otra razón: son lo único que ataja una medida que se pone roja con entrada correcta, que
 es el modo de falla del caso `008`.
+
+**Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
+medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
+medidas, expanden a la forma canónica, y `peor` cerró por construcción la deuda del umbral duplicado.
 
 **Cuatro de los seis operadores están implementados**: `de`, `donde`, `resumen`, y `unir` — que entró
 al llegar su disparador, porque «pares de piezas que se clavan» es un producto y ninguna medida de

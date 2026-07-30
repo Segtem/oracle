@@ -1,43 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "vault.fecha_coincide",
-  [
-    "desde",
-    [
-      "de",
-      "documento",
-      "d"
-    ],
-    [
-      "donde",
-      [
-        "!=",
-        [
-          "campo",
-          "d",
-          "fecha_en_nombre"
-        ],
-        [
-          "campo",
-          "d",
-          "updated"
-        ]
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "la fecha del nombre es lo que se ve al listar el directorio; si no es la de `updated`, el orden aparente del vault miente"
-  ],
-  [
-    "alcance",
-    "NO ve si `updated` es cierto — nadie comprueba que el documento se haya tocado ese día"
-  ]
+  "documento",
+  "d",
+  ["!=", ["campo", "d", "fecha_en_nombre"], ["campo", "d", "updated"]],
+  "la fecha del nombre es lo que se ve al listar el directorio; si no es la de `updated`, el orden aparente del vault miente",
+  "NO ve si `updated` es cierto — nadie comprueba que el documento se haya tocado ese día"
 ]

@@ -7,6 +7,7 @@ se restaure siempre**. Esta herramienta escribe sobre fuentes reales.
 
 from __future__ import annotations
 
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -154,6 +155,32 @@ class CorrerTests(unittest.TestCase):
         self.assertNotIn(elegido, [m["id"] for m in ev["mutante"]])
         eq = next(m for m in ev["mutante_equivalente"] if m["id"] == elegido)
         self.assertEqual(eq["razon_equivalente"], "porque sí, con razón escrita")
+
+    def test_si_MATAN_el_proceso_el_archivo_igual_se_restaura(self) -> None:
+        """El `finally` no alcanza: `timeout` manda SIGTERM y Python termina sin ejecutarlo. Pasó de
+        verdad —una corrida cortada dejó `mutacion_codigo.py` mutado en el árbol— y el daño lo salvó
+        git, no la herramienta. Se prueba lanzando un subproceso y matándolo a mitad."""
+        import os
+        import signal as sig
+        import time
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            guion = raiz / "correr.py"
+            guion.write_text(
+                "import sys, time\n"
+                f"sys.path.insert(0, {str(RAIZ)!r})\n"
+                "from nucleo import mutacion_codigo as mc\n"
+                f"mc.correr({str(raiz)!r} and __import__('pathlib').Path({str(raiz)!r}), "
+                f"[__import__('pathlib').Path({str(objetivo)!r})], "
+                "[sys.executable, '-c', 'import time; time.sleep(30)'])\n",
+                encoding="utf-8")
+            proc = subprocess.Popen([sys.executable, str(guion)])
+            time.sleep(2.5)                       # que llegue a mutar el primer sitio
+            os.kill(proc.pid, sig.SIGTERM)
+            proc.wait(timeout=15)
+
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE,
+                             "el archivo quedó mutado después de matar el proceso")
 
     def test_limpiar_cache_borra_los_pycache(self) -> None:
         with tempfile.TemporaryDirectory() as d:

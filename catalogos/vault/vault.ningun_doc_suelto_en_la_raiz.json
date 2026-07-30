@@ -1,39 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "vault.ningun_doc_suelto_en_la_raiz",
-  [
-    "desde",
-    [
-      "de",
-      "documento",
-      "d"
-    ],
-    [
-      "donde",
-      [
-        "==",
-        [
-          "campo",
-          "d",
-          "carpeta"
-        ],
-        ""
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "la carpeta es la taxonomía: un documento en la raíz no pertenece a ninguna categoría y el índice no sabe dónde ponerlo"
-  ],
-  [
-    "alcance",
-    "NO ve los archivos que no son `.md`, ni el `README.md`, que va en la raíz a propósito"
-  ]
+  "documento",
+  "d",
+  ["==", ["campo", "d", "carpeta"], ""],
+  "la carpeta es la taxonomía: un documento en la raíz no pertenece a ninguna categoría y el índice no sabe dónde ponerlo",
+  "NO ve los archivos que no son `.md`, ni el `README.md`, que va en la raíz a propósito"
 ]

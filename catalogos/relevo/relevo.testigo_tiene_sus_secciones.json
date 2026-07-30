@@ -1,39 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "relevo.testigo_tiene_sus_secciones",
-  [
-    "desde",
-    [
-      "de",
-      "testigo_seccion",
-      "s"
-    ],
-    [
-      "donde",
-      [
-        "==",
-        [
-          "campo",
-          "s",
-          "presente"
-        ],
-        false
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "si una sección se puede omitir, un turno deja de pedir manos o de declarar su frontera sin que nadie lo note: vacía dice «no hace falta», ausente no dice nada"
-  ],
-  [
-    "alcance",
-    "ve el TÍTULO de la sección. NO ve si abajo hay algo escrito, ni si lo que dice es de este turno"
-  ]
+  "testigo_seccion",
+  "s",
+  ["==", ["campo", "s", "presente"], false],
+  "si una sección se puede omitir, un turno deja de pedir manos o de declarar su frontera sin que nadie lo note: vacía dice «no hace falta», ausente no dice nada",
+  "ve el TÍTULO de la sección. NO ve si abajo hay algo escrito, ni si lo que dice es de este turno"
 ]

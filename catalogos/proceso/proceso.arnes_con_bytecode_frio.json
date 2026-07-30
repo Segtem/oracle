@@ -1,39 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "proceso.arnes_con_bytecode_frio",
-  [
-    "desde",
-    [
-      "de",
-      "corrida_mutacion",
-      "c"
-    ],
-    [
-      "donde",
-      [
-        "==",
-        [
-          "campo",
-          "c",
-          "bytecode_frio"
-        ],
-        false
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado"
-  ],
-  [
-    "alcance",
-    "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación"
-  ]
+  "corrida_mutacion",
+  "c",
+  ["==", ["campo", "c", "bytecode_frio"], false],
+  "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado",
+  "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación"
 ]

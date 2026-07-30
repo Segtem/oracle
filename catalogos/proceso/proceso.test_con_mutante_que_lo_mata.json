@@ -1,39 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "proceso.test_con_mutante_que_lo_mata",
-  [
-    "desde",
-    [
-      "de",
-      "mutante",
-      "m"
-    ],
-    [
-      "donde",
-      [
-        "==",
-        [
-          "campo",
-          "m",
-          "murio"
-        ],
-        false
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada"
-  ],
-  [
-    "alcance",
-    "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutantes que nadie escribió: una función sin ningún mutante apuntado da cero y sale verde"
-  ]
+  "mutante",
+  "m",
+  ["==", ["campo", "m", "murio"], false],
+  "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada",
+  "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutantes que nadie escribió: una función sin ningún mutante apuntado da cero y sale verde"
 ]

@@ -10,7 +10,7 @@
   "sintoma": "En `snap.grilla` el 1.0 cm está en el `donde` (que selecciona los testigos) y otra vez en el `umbral` (que trae su defensa escrita). Si alguien cambia uno y no el otro, la medida queda incoherente: reportaría testigos que el umbral perdona, o al revés.",
   "como_se_detecto": "persona",
   "medida": null,
-  "sin_medida_todavia": "es un defecto del LENGUAJE. El umbral lleva su defensa (`porque`) y el filtro no tiene dónde ponerla, así que el número tiene que estar en los dos lados. Se arregla dándole al filtro un lugar para su defensa, o derivando el filtro del umbral. Comprobarlo requiere mirar la estructura de la tubería, que hoy `como_hechos` no expone.",
+  "sin_medida_todavia": "ya no hace falta medida — ver `resuelto`. Se conserva porque un corpus del que se borran los casos arreglados pierde la memoria de por qué las cosas son como son.",
   "evidencia": {
     "declaracion": [
       {
@@ -27,5 +27,6 @@
       }
     ]
   },
-  "leccion": "Un número que aparece dos veces puede divergir. Es el mismo defecto que los testigos duplicados del caso 004, en el otro extremo de la medida."
+  "leccion": "Un número que aparece dos veces puede divergir. Es el mismo defecto que los testigos duplicados del caso 004, en el otro extremo de la medida.",
+  "resuelto": "2026-07-29, por construcción: la macro `peor` recibe la tolerancia UNA vez y genera con ella el filtro y el umbral. No hace falta comprobar que coincidan porque no hay dos copias. Se deja el caso como registro: la deuda existió y así se cerró."
 }

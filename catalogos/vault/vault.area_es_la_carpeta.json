@@ -1,43 +1,9 @@
 [
-  "medida",
+  "ninguno",
   "vault.area_es_la_carpeta",
-  [
-    "desde",
-    [
-      "de",
-      "documento",
-      "d"
-    ],
-    [
-      "donde",
-      [
-        "!=",
-        [
-          "campo",
-          "d",
-          "area"
-        ],
-        [
-          "campo",
-          "d",
-          "carpeta"
-        ]
-      ]
-    ]
-  ],
-  [
-    "resumen",
-    "contar",
-    1
-  ],
-  [
-    "umbral",
-    "<=",
-    0,
-    "la carpeta es la taxonomía; un `area` que dice otra cosa reintroduce la segunda taxonomía incoherente que la reorganización eliminó"
-  ],
-  [
-    "alcance",
-    "NO ve si el documento está en la carpeta CORRECTA: sólo que su `area` diga dónde está"
-  ]
+  "documento",
+  "d",
+  ["!=", ["campo", "d", "area"], ["campo", "d", "carpeta"]],
+  "la carpeta es la taxonomía; un `area` que dice otra cosa reintroduce la segunda taxonomía incoherente que la reorganización eliminó",
+  "NO ve si el documento está en la carpeta CORRECTA: sólo que su `area` diga dónde está"
 ]

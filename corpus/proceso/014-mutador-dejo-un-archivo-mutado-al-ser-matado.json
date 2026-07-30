@@ -1,0 +1,30 @@
+{
+  "id": "014-mutador-dejo-un-archivo-mutado-al-ser-matado",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "corrida de mutación cortada por timeout"
+  },
+  "titulo": "El mutador de código dejó un archivo del núcleo MUTADO en el árbol de trabajo",
+  "etiqueta": "falso_verde",
+  "sintoma": "`tools/mutar_codigo.py` restaura cada archivo en un `finally`, y hay un test que lo comprueba: `test_restaura_el_archivo_EXACTAMENTE`. Pero el test sólo cubre el camino NORMAL. Una corrida se cortó por timeout —SIGTERM— y Python termina sin ejecutar el `finally`: `nucleo/mutacion_codigo.py` quedó en su forma mutada, con 71 líneas menos. El daño lo salvó `git checkout`, no la herramienta.",
+  "como_se_detecto": "accidente",
+  "medida": "proceso.test_con_mutante_que_lo_mata",
+  "evidencia": {
+    "mutante": [
+      {
+        "id": "mutacion_codigo.py:sin_manejador_de_señales",
+        "apunta_a": "mutacion_codigo._restaurar_todo",
+        "murio": false
+      }
+    ],
+    "test": [
+      {
+        "id": "test_restaura_el_archivo_EXACTAMENTE",
+        "archivo": "tests/test_mutacion_codigo.py",
+        "cubre": "el camino normal, no la terminación forzada"
+      }
+    ]
+  },
+  "leccion": "Una herramienta que escribe sobre fuentes reales necesita red de seguridad ANTE TERMINACIÓN, no sólo ante excepción: `atexit` más manejadores de SIGTERM/SIGINT/SIGHUP. Y el test que la cubre tiene que MATAR un subproceso de verdad — probar el camino normal y llamarlo «se restaura siempre» es la misma clase de falso verde que el resto del corpus."
+}
