@@ -1,0 +1,72 @@
+"""Política explícita de uso y fijación de las medidas."""
+
+from __future__ import annotations
+
+import sys
+import unittest
+from pathlib import Path
+
+RAIZ = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(RAIZ))
+
+import catalogos.escalares  # noqa: F401,E402  registra las escalares del catálogo base
+from nucleo.marco import hechos_de_uso  # noqa: E402
+from nucleo.medida import cargar  # noqa: E402
+
+
+MID = "dominio.ordinaria"
+CATALOGO = {MID: object()}
+FIJADA = cargar(RAIZ / "catalogos" / "meta" / "meta.toda_medida_esta_fijada.json")
+
+
+class TodaMedidaEstaFijadaTests(unittest.TestCase):
+    def _evaluar(self, mutantes=(), **politica):
+        evidencia = hechos_de_uso(CATALOGO, [], list(mutantes), **politica)
+        return evidencia["medida_en_uso"][0], FIJADA.evaluar(evidencia)
+
+    def test_una_medida_ordinaria_con_CERO_mutantes_no_pasa_vacuamente(self) -> None:
+        uso, veredicto = self._evaluar()
+        self.assertFalse(uso["es_heredada"])
+        self.assertEqual(uso["casos_que_la_evaluan"], 0)
+        self.assertTrue(uso["debe_tener_mutantes"])
+        self.assertFalse(veredicto.ok)
+
+    def test_un_caso_que_reclama_la_medida_la_cuenta_exactamente_una_vez(self) -> None:
+        evidencia = hechos_de_uso(CATALOGO, [{"medida": MID}], [])
+        self.assertEqual(evidencia["medida_en_uso"][0]["casos_que_la_evaluan"], 1)
+
+    def test_una_medida_con_un_mutante_vivo_no_esta_fijada(self) -> None:
+        uso, veredicto = self._evaluar([{"apunta_a": MID, "murio": False}])
+        self.assertEqual((uso["mutantes"], uso["mutantes_vivos"]), (1, 1))
+        self.assertFalse(veredicto.ok)
+
+    def test_una_medida_con_todos_sus_mutantes_muertos_esta_fijada(self) -> None:
+        uso, veredicto = self._evaluar([
+            {"apunta_a": MID, "murio": True},
+            {"apunta_a": MID, "murio": True},
+        ])
+        self.assertEqual((uso["mutantes"], uso["mutantes_vivos"]), (2, 0))
+        self.assertTrue(veredicto.ok)
+
+    def test_una_medida_heredada_declara_que_no_debe_mutarse_en_esta_ronda(self) -> None:
+        uso, veredicto = self._evaluar(heredadas={MID})
+        self.assertTrue(uso["es_heredada"])
+        self.assertFalse(uso["debe_tener_mutantes"])
+        self.assertTrue(veredicto.ok)
+
+    def test_una_medida_evaluada_aparte_declara_que_no_debe_mutarse(self) -> None:
+        uso, veredicto = self._evaluar(evaluadas_aparte={MID})
+        self.assertEqual(uso["casos_que_la_evaluan"], 1)
+        self.assertFalse(uso["debe_tener_mutantes"])
+        self.assertTrue(veredicto.ok)
+
+    def test_un_mutante_sin_resultado_booleano_no_puede_contar_como_muerto(self) -> None:
+        for mutante in ({"apunta_a": MID}, {"apunta_a": MID, "murio": "si"},
+                        {"apunta_a": "otra.medida", "murio": True}, None):
+            with self.subTest(mutante=mutante):
+                with self.assertRaises(ValueError):
+                    hechos_de_uso(CATALOGO, [], [mutante])
+
+
+if __name__ == "__main__":
+    unittest.main()

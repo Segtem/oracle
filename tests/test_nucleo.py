@@ -85,6 +85,15 @@ class AlgebraTests(unittest.TestCase):
             evaluar_expr(["esta_escalar_no_existe", 1, 2], {})
         self.assertIn("escalar declarada", str(e.exception))
 
+    def test_una_expresion_mal_formada_da_ErrorDeAlgebra_y_no_ValueError(self) -> None:
+        invalidas = (["campo", "p"], ["hecho", "p", "extra"], ["col"],
+                     ["==", 1], ["!=", 1, 2, 3], ["no", True, False],
+                     ["y", True], ["o"], [], {"no": "escalar"})
+        for expr in invalidas:
+            with self.subTest(expr=expr):
+                with self.assertRaises(ErrorDeAlgebra):
+                    evaluar_expr(expr, {"p": {"x": 1}})
+
     def test_la_escalar_declarada_se_llama(self) -> None:
         self.assertTrue(evaluar_expr(["contiene", "NO ve la malla", "NO "], {}))
         self.assertFalse(evaluar_expr(["contiene", "ve la malla", "NO "], {}))
@@ -97,8 +106,16 @@ class AlgebraTests(unittest.TestCase):
         filas = desde(["desde", ["de", "pieza", "p"], ["donde", [">", ["campo", "p", "x"], 3]]], EV)
         self.assertEqual([f["p"]["id"] for f in filas], ["b"])
 
-    def test_una_relacion_ausente_da_cero_filas_y_no_explota(self) -> None:
-        self.assertEqual(desde(["desde", ["de", "fantasma", "f"]], EV), [])
+    def test_una_relacion_ausente_es_error_y_no_un_verde_vacio(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "no existe"):
+            desde(["desde", ["de", "fantasma", "f"]], EV)
+
+    def test_una_relacion_presente_y_vacia_da_cero_filas(self) -> None:
+        self.assertEqual(desde(["desde", ["de", "vacia", "v"]], {"vacia": []}), [])
+
+    def test_una_tuberia_sin_fuente_se_rechaza(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "necesita una fuente"):
+            desde(["desde"], EV)
 
     def test_la_tuberia_tiene_que_empezar_con_una_fuente(self) -> None:
         with self.assertRaises(ErrorDeAlgebra):
@@ -220,6 +237,157 @@ class AlgebraTests(unittest.TestCase):
 
 
 class MedidaTests(unittest.TestCase):
+    def test_la_estructura_invalida_falla_al_CARGAR_y_no_al_evaluar(self) -> None:
+        tuberias_invalidas = [
+            [],
+            7,
+            ["desde"],
+            ["desde", 7],
+            ["desde", ["de", "pieza"]],
+            ["desde", ["fantasma", "pieza", "p"]],
+            ["desde", ["unir", 7, ["de", "pieza", "b"]]],
+            ["desde", ["unir", ["de", "pieza", "a"],
+                        ["de", "pieza", "b"], "modo-inventado"]],
+            ["desde", ["de", "pieza", "p"], 7],
+            ["desde", ["de", "pieza", "p"], ["donde"]],
+            ["desde", ["de", "pieza", "p"], ["de", "pieza", "q"]],
+            ["desde", ["unir", ["de", "pieza", "a"]]],
+            ["desde", ["de", "pieza", "p"], ["con", "doble"]],
+            ["desde", ["de", "pieza", "p"], ["agrupar", [], [["n", "contar"]]]],
+            ["desde", ["de", "pieza", "p"],
+             ["agrupar", 7, [["n", "contar", 1]]]],
+            ["desde", ["de", "pieza", "p"],
+             ["agrupar", [["nombre_sin_expresion"]], [["n", "contar", 1]]]],
+            ["desde", ["de", "pieza", "p"], ["operador_nuevo", 1]],
+        ]
+        for tuberia in tuberias_invalidas:
+            with self.subTest(tuberia=tuberia):
+                datos = _medida()
+                datos[2] = tuberia
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_una_expresion_invalida_falla_al_CARGAR(self) -> None:
+        expresiones_invalidas = (
+            ["campo", "p"],
+            ["campo", 7, "x"],
+            ["hecho", "p", "extra"],
+            ["col"],
+            ["==", ["campo", "p", "x"]],
+            ["no", True, False],
+            ["y", True],
+            ["escalar_que_no_existe", 1],
+            ["contiene", "un solo argumento"],
+            {"un": "objeto no es literal escalar"},
+        )
+        for expr in expresiones_invalidas:
+            with self.subTest(expr=expr):
+                datos = _medida(pred=expr)
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_expresiones_de_resumen_con_y_agrupar_se_validan_al_CARGAR(self) -> None:
+        medidas_invalidas = []
+
+        resumen = _medida()
+        resumen[3] = ["resumen", "max", ["campo", "p"]]
+        medidas_invalidas.append(resumen)
+
+        con = _medida()
+        con[2].insert(2, ["con", "", ["campo", "p", "x"]])
+        medidas_invalidas.append(con)
+
+        agrupar = _medida()
+        agrupar[2].insert(2, ["agrupar", [["k", ["campo", "p"]]],
+                              [["n", "contar", 1]]])
+        medidas_invalidas.append(agrupar)
+
+        agregado_sin_operador = _medida()
+        agregado_sin_operador[2].insert(2, ["agrupar", [], [["n", [], 1]]])
+        medidas_invalidas.append(agregado_sin_operador)
+
+        for datos in medidas_invalidas:
+            with self.subTest(datos=datos):
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_fuente_exige_nombres_y_alias_de_texto(self) -> None:
+        for fuente in (["de", 7, "p"], ["de", "pieza", None], ["de", "", "p"]):
+            with self.subTest(fuente=fuente):
+                datos = _medida()
+                datos[2][1] = fuente
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_el_id_exige_texto_no_vacio_y_sin_espacios(self) -> None:
+        for mid in (7, None, "", "   ", "dominio con espacios"):
+            with self.subTest(mid=mid):
+                datos = _medida()
+                datos[1] = mid
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_una_escalar_registrada_respeta_argumentos_requeridos_opcionales_y_variadicos(self) -> None:
+        @algebra.escalar("d_escalar_opcional")
+        def opcional(a, b=1):
+            return a + b
+
+        @algebra.escalar("d_escalar_variadica")
+        def variadica(*xs):
+            return sum(xs)
+
+        try:
+            for expr in (["d_escalar_opcional", 1], ["d_escalar_opcional", 1, 2],
+                         ["d_escalar_variadica"], ["d_escalar_variadica", 1, 2, 3]):
+                Medida.de_datos(_medida(pred=[">", expr, 0]))
+            for expr in (["d_escalar_opcional"], ["d_escalar_opcional", 1, 2, 3]):
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(_medida(pred=[">", expr, 0]))
+        finally:
+            del algebra.ESCALARES["d_escalar_opcional"]
+            del algebra.ESCALARES["d_escalar_variadica"]
+
+    def test_umbral_defensa_y_alcance_exigen_tipos_basicos_al_CARGAR(self) -> None:
+        invalidas = []
+        for limite in ([], {}, None):
+            datos = _medida()
+            datos[4][2] = limite
+            invalidas.append(datos)
+        for porque in (7, [], None):
+            invalidas.append(_medida(porque=porque))
+        for alcance in (7, [], None):
+            invalidas.append(_medida(alcance=alcance))
+
+        for datos in invalidas:
+            with self.subTest(datos=datos):
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_la_forma_del_umbral_se_valida_al_CARGAR(self) -> None:
+        for umbral in (None, [], ["umbral", "<=", 0],
+                       ["otra-cosa", "<=", 0, "razon"]):
+            with self.subTest(umbral=umbral):
+                datos = _medida()
+                datos[4] = umbral
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_un_resumen_invalido_falla_al_CARGAR(self) -> None:
+        for resumen in ([], ["resumen", "contar"], ["otra_cosa", "contar", 1],
+                        ["resumen", "moda", 1], ["resumen", [], 1]):
+            with self.subTest(resumen=resumen):
+                datos = _medida()
+                datos[3] = resumen
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(datos)
+
+    def test_con_sigue_declarado_aunque_no_implementado(self) -> None:
+        datos = _medida()
+        datos[2].insert(2, ["con", "doble", ["campo", "p", "x"]])
+        medida = Medida.de_datos(datos)
+        with self.assertRaises(OperadorNoImplementado):
+            medida.evaluar(EV)
+
     def test_un_umbral_sin_defensa_no_se_carga(self) -> None:
         with self.assertRaises(MedidaMalDeclarada) as e:
             Medida.de_datos(_medida(porque="   "))
@@ -260,6 +428,13 @@ class MedidaTests(unittest.TestCase):
         self.assertIn("SIN MIRAR", texto)
         self.assertIn("NO ve nada más", texto)
         self.assertNotIn("TODO VERDE", texto)
+
+    def test_un_informe_sin_medidas_no_es_verde(self) -> None:
+        informe = evaluar([], EV)
+        self.assertFalse(informe.ok)
+        self.assertIn("SIN MEDIDAS", informe.texto())
+        self.assertNotIn("verde", informe.texto().lower())
+        self.assertFalse(json.loads(informe.a_json())["ok"])
 
     def test_un_informe_rojo_no_promete_alcance(self) -> None:
         texto = evaluar([Medida.de_datos(_medida())], EV).texto()

@@ -69,17 +69,56 @@ class SimuladorMalContratado(ValueError):
     """El simulador no devolvió lo que el contrato pide."""
 
 
+_ESCALARES_L0 = (str, int, float, bool, type(None))
+
+# Estos campos los certifica el runner. Si el dominio pudiera aportarlos desde `resumen`, podría
+# reemplazar justamente los hechos que el runner calcula (incluido `determinista`).
+_CAMPOS_RESERVADOS_CORRIDA = frozenset({
+    "id", "escenario", "semilla", "pasos", "razon", "determinista",
+})
+_CAMPOS_RESERVADOS_EVENTO = frozenset({"corrida"})
+
+
 def _revisar(c) -> Corrida:
     if not isinstance(c, Corrida):
         raise SimuladorMalContratado(f"un simulador devuelve `Corrida`, no {type(c).__name__}")
+
+    if not isinstance(c.pasos, int) or isinstance(c.pasos, bool) or c.pasos < 0:
+        raise SimuladorMalContratado(
+            f"`pasos` tiene que ser un entero no negativo (no bool), no {c.pasos!r}")
+    if not isinstance(c.razon, str):
+        raise SimuladorMalContratado(
+            f"`razon` tiene que ser texto, no {type(c.razon).__name__}")
+    if not isinstance(c.resumen, dict):
+        raise SimuladorMalContratado(
+            f"`resumen` tiene que ser un mapa, no {type(c.resumen).__name__}")
+    if not isinstance(c.eventos, list):
+        raise SimuladorMalContratado(
+            f"`eventos` tiene que ser una lista, no {type(c.eventos).__name__}")
+
+    colisiones = _CAMPOS_RESERVADOS_CORRIDA.intersection(c.resumen)
+    if colisiones:
+        raise SimuladorMalContratado(
+            "el resumen intenta reemplazar campos certificados por el runner: "
+            f"{sorted(colisiones)}")
     for k, v in c.resumen.items():
-        if not isinstance(v, (str, int, float, bool, type(None))):
+        if not isinstance(k, str):
+            raise SimuladorMalContratado(f"resumen tiene una clave que no es texto: {k!r}")
+        if not isinstance(v, _ESCALARES_L0):
             raise SimuladorMalContratado(f"resumen.{k} no es escalar: `corrida` es una relación L0")
+
     for i, e in enumerate(c.eventos):
         if not isinstance(e, dict) or "t" not in e or "que" not in e:
             raise SimuladorMalContratado(f"evento[{i}] tiene que ser un hecho con `t` y `que`")
+        colisiones = _CAMPOS_RESERVADOS_EVENTO.intersection(e)
+        if colisiones:
+            raise SimuladorMalContratado(
+                f"evento[{i}] intenta reemplazar campos certificados por el runner: "
+                f"{sorted(colisiones)}")
         for k, v in e.items():
-            if not isinstance(v, (str, int, float, bool, type(None))):
+            if not isinstance(k, str):
+                raise SimuladorMalContratado(f"evento[{i}] tiene una clave que no es texto: {k!r}")
+            if not isinstance(v, _ESCALARES_L0):
                 raise SimuladorMalContratado(
                     f"evento[{i}].{k} no es escalar: la traza es una relación L0")
     return c
@@ -92,18 +131,39 @@ def correr(simulador: Simulador, escenarios: list[dict], semillas: list[int],
     Cada combinación se ejecuta **dos veces**: si las dos trazas no coinciden, la corrida se marca
     como no determinista y eso queda como hecho para que lo juzgue una medida.
     """
+    if not isinstance(tope, int) or isinstance(tope, bool) or tope < 0:
+        raise SimuladorMalContratado(
+            f"`tope` tiene que ser un entero no negativo (no bool), no {tope!r}")
+
     corridas, eventos = [], []
+    ids_corrida: set[str] = set()
     for escenario in escenarios:
+        if not isinstance(escenario, dict):
+            raise SimuladorMalContratado(
+                f"un escenario tiene que ser un mapa, no {type(escenario).__name__}")
         eid = escenario.get("id", "?")
+        if (isinstance(eid, bool) or not isinstance(eid, (str, int))
+                or isinstance(eid, str) and not eid.strip()):
+            raise SimuladorMalContratado(
+                f"escenario.id tiene que ser texto no vacío o entero (no bool), no {eid!r}")
         for semilla in semillas:
+            if not isinstance(semilla, int) or isinstance(semilla, bool):
+                raise SimuladorMalContratado(
+                    f"una semilla tiene que ser un entero (no bool), no {semilla!r}")
+
+            cid = f"{eid}·s{semilla}"
+            if cid in ids_corrida:
+                raise SimuladorMalContratado(
+                    f"id de corrida repetido: «{cid}»; escenario y semilla deben identificarla")
+            ids_corrida.add(cid)
+
             a = _revisar(simulador(escenario, semilla, tope))
             b = _revisar(simulador(escenario, semilla, tope))
             determinista = (a.eventos == b.eventos and a.pasos == b.pasos
                             and a.razon == b.razon and a.resumen == b.resumen)
 
-            cid = f"{eid}·s{semilla}"
             corridas.append({"id": cid, "escenario": eid, "semilla": semilla,
-                             "pasos": int(a.pasos), "razon": a.razon,
+                             "pasos": a.pasos, "razon": a.razon,
                              "determinista": determinista, **a.resumen})
             if con_traza:
                 for e in a.eventos:

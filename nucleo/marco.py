@@ -59,14 +59,17 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
                   heredadas: set[str] | None = None) -> dict:
     """Un hecho por medida del catálogo: cuántos casos la evalúan y cuántos mutantes le sobreviven.
 
-    `mutantes` son las filas que produce `nucleo.mutacion`; sin ellas, la cuenta de sobrevivientes
-    queda en cero y `meta.toda_medida_esta_fijada` no puede decir nada — por eso el informe aclara
-    cuándo se corrió sin mutación.
+    `debe_tener_mutantes` declara la política: una medida propia y ordinaria tiene que generar al
+    menos uno; una heredada responde ante el corpus de origen, y una evaluada aparte queda fuera de
+    esta ronda. Así «cero mutantes» no se confunde con «todos sus mutantes murieron».
     """
+    evaluadas_aparte = evaluadas_aparte or set()
+    heredadas = heredadas or set()
+
     # Las medidas de nivel meta no las evalúa ningún caso del corpus: se evalúan sobre el catálogo
     # mismo. Se declaran acá en vez de exceptuarlas, para que «ejercitada» siga significando lo mismo
     # para todas.
-    evalua: dict[str, int] = {mid: (1 if mid in (evaluadas_aparte or set()) else 0)
+    evalua: dict[str, int] = {mid: (1 if mid in evaluadas_aparte else 0)
                               for mid in catalogo}
     for c in casos:
         mid = c.get("medida") or ""
@@ -75,21 +78,26 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
 
     total: dict[str, int] = {mid: 0 for mid in catalogo}
     vivos: dict[str, int] = {mid: 0 for mid in catalogo}
-    for m in (mutantes or []):
-        mid = m.get("apunta_a", "")
-        if mid in total:
-            total[mid] += 1
-            if not m.get("murio", True):
-                vivos[mid] += 1
+    for i, m in enumerate(mutantes or []):
+        if not isinstance(m, dict):
+            raise ValueError(f"mutante[{i}] tiene que ser un hecho")
+        mid = m.get("apunta_a")
+        if not isinstance(mid, str) or mid not in total:
+            raise ValueError(f"mutante[{i}].apunta_a no identifica una medida del catálogo: {mid!r}")
+        if type(m.get("murio")) is not bool:
+            raise ValueError(f"mutante[{i}].murio tiene que ser booleano")
+        total[mid] += 1
+        if not m["murio"]:
+            vivos[mid] += 1
 
     # `es_heredada`: vino del catálogo BASE de oracle, no del proyecto. Sin este campo, apuntar la
     # herramienta a un proyecto ajeno daba falso rojo en «sin ejercitar» para todas las medidas
     # universales — que están fijadas por el corpus de oracle, no por el del proyecto. Un proyecto
     # responde por SUS medidas.
-    heredadas = heredadas or set()
     return {"medida_en_uso": [
         {"id": mid, "casos_que_la_evaluan": evalua[mid], "mutantes": total[mid],
-         "mutantes_vivos": vivos[mid], "es_heredada": mid in heredadas}
+         "mutantes_vivos": vivos[mid], "es_heredada": mid in heredadas,
+         "debe_tener_mutantes": mid not in heredadas and mid not in evaluadas_aparte}
         for mid in sorted(catalogo)]}
 
 

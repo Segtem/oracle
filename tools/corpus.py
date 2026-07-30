@@ -65,8 +65,8 @@ def revisar_evidencia(nombre: str, evidencia) -> list[str]:
     if not isinstance(evidencia, dict) or not evidencia:
         return [f"{nombre}: `evidencia` tiene que ser un mapa de relación → filas, y no estar vacío"]
     for relacion, filas in evidencia.items():
-        if not isinstance(filas, list) or not filas:
-            fallas.append(f"{nombre}: la relación «{relacion}» no es una lista de filas con contenido")
+        if not isinstance(filas, list):
+            fallas.append(f"{nombre}: la relación «{relacion}» no es una lista de filas")
             continue
         for i, fila in enumerate(filas):
             if not isinstance(fila, dict):

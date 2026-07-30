@@ -44,6 +44,19 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+
+class LineaBaseFallida(RuntimeError):
+    """Los tests ya fallan sobre el código original, así que la mutación no puede dar evidencia."""
+
+
+class CacheNoLimpio(RuntimeError):
+    """No se pudo garantizar que la próxima corrida lea bytecode nuevo."""
+
+
+class EquivalenteInvalido(ValueError):
+    """Una exclusión de mutación no tiene sitio vigente o razón defendible."""
+
+
 # Archivos con su contenido original mientras están mutados. Un `finally` NO alcanza: `timeout` manda
 # SIGTERM y Python termina sin ejecutarlo, así que una corrida cortada dejaba el archivo mutado en el
 # árbol de trabajo. Pasó de verdad, y el daño lo salvó git — no la herramienta.
@@ -205,12 +218,34 @@ def mutar_fuente(fuente: str, sitio: Sitio) -> str | None:
 
 
 def limpiar_cache(raiz: Path) -> int:
-    """Borra todo `__pycache__` bajo `raiz`. Sin esto la ronda entera puede ser basura (caso 006)."""
-    n = 0
-    for d in raiz.rglob("__pycache__"):
-        shutil.rmtree(d, ignore_errors=True)
-        n += 1
-    return n
+    """Borra y COMPRUEBA todo `__pycache__` bajo `raiz`.
+
+    Un intento de borrado no es evidencia de caché frío. Los symlinks se desenlazan sin seguirlos: un
+    proyecto no puede hacer que limpiar su caché borre un directorio ajeno.
+    """
+    encontrados = sorted(raiz.rglob("__pycache__"),
+                         key=lambda p: len(p.parts), reverse=True)
+    for d in encontrados:
+        if not d.exists() and not d.is_symlink():
+            continue
+        try:
+            if d.is_symlink() or not d.is_dir():
+                d.unlink()
+            else:
+                shutil.rmtree(d)
+        except OSError as e:
+            raise CacheNoLimpio(f"no se pudo borrar el caché «{d}»: {e}") from e
+
+    restantes = list(raiz.rglob("__pycache__"))
+    if restantes:
+        muestra = ", ".join(str(p) for p in restantes[:3])
+        raise CacheNoLimpio(f"siguen presentes cachés después de limpiar: {muestra}")
+    return len(encontrados)
+
+
+def cache_esta_frio(raiz: Path) -> bool:
+    """La afirmación que se publica como hecho, derivada del árbol en vez de fijada a mano."""
+    return not any(raiz.rglob("__pycache__"))
 
 
 def correr_tests(comando: list[str], raiz: Path) -> bool:
@@ -227,11 +262,32 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
     que separa esta herramienta de un destructor de repositorios.
     """
     equivalentes = equivalentes or {}
+
+    originales = {ruta: ruta.read_text(encoding="utf-8") for ruta in objetivos}
+    sitios_por_ruta = {ruta: sitios_de(ruta, raiz) for ruta in objetivos}
+    ids_vigentes = {sitio.id for sitios in sitios_por_ruta.values() for sitio in sitios}
+
+    razones_invalidas = [mid for mid, razon in equivalentes.items()
+                         if not isinstance(razon, str) or not razon.strip()]
+    if razones_invalidas:
+        raise EquivalenteInvalido(
+            f"equivalentes sin razón no vacía: {sorted(map(str, razones_invalidas))}")
+    ids_vencidos = set(equivalentes) - ids_vigentes
+    if ids_vencidos:
+        raise EquivalenteInvalido(
+            f"equivalentes que no apuntan a un sitio vigente: {sorted(map(str, ids_vencidos))}")
+
+    limpiar_cache(raiz)
+    baseline_verde = correr_tests(comando, raiz)
+    if not baseline_verde:
+        raise LineaBaseFallida(
+            "la línea base falla: los tests tienen que pasar sobre el código original antes de mutarlo")
+
     filas: list[dict] = []
 
     for ruta in objetivos:
-        original = ruta.read_text(encoding="utf-8")
-        for sitio in sitios_de(ruta, raiz):
+        original = originales[ruta]
+        for sitio in sitios_por_ruta[ruta]:
             mutado = mutar_fuente(original, sitio)
             if mutado is None:
                 continue
@@ -256,6 +312,13 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
             if al_terminar_uno:
                 al_terminar_uno(filas[-1])
 
+    # La línea base pudo volver a crear bytecode. Si no hubo objetivos o sitios, ningún `finally` lo
+    # habría limpiado: el hecho final igual tiene que salir de una comprobación real.
+    limpiar_cache(raiz)
+    bytecode_frio = cache_esta_frio(raiz)
+    if not bytecode_frio:  # defensa redundante: `limpiar_cache` ya se niega, el hecho no se presume
+        raise CacheNoLimpio("el árbol conserva bytecode después de la limpieza final")
+
     reales = [f for f in filas if not f["equivalente_declarado"]]
     return {
         "mutante": reales,
@@ -263,7 +326,8 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
         "corrida_mutacion": [{
             "id": "mutacion_de_codigo",
             "mutantes": len(reales),
-            "bytecode_frio": True,       # se limpia antes de CADA corrida de tests
-            "resultado_confiable": True,
+            "baseline_verde": baseline_verde,
+            "bytecode_frio": bytecode_frio,
+            "resultado_confiable": baseline_verde and bytecode_frio,
         }],
     }

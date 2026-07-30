@@ -195,7 +195,13 @@ no abstraer.
 
 ## Estado
 
-**Los cinco pasos, hechos.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+> **Estado auditado el 2026-07-30; P0 en curso.** Ya se corrigieron los bypasses de simulación,
+> baseline y verdes vacuos; timeout, taxonomía de errores del arnés y aislamiento siguen pendientes.
+> Ver
+> [`AUDITORIA-2026-07-30.md`](AUDITORIA-2026-07-30.md) y
+> [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
+
+**El prototipo contiene los cinco componentes.** El [corpus](corpus/) (29 casos), la [especificación](ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
@@ -208,15 +214,15 @@ python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
 python tools/diferencial.py                      # el álgebra vs una implementación independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 53 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # 165 tests, cero dependencias
 ```
 
-10 defectos en rojo · 7 verdes correctos · 3 huecos declarados · **1200 veredictos de geometría
-coincidiendo con una implementación independiente** · 44/44 mutantes de medida · **211/242 mutantes
-de código** · 81 tests.
+15 defectos en rojo · 11 verdes correctos · 3 huecos declarados · **269 escenarios de Jam
+coincidiendo con implementaciones independientes** · 44/44 mutantes de medida · 165 tests.
 
-> **`tools/mutar_codigo.py` sale en ROJO a propósito, y el número está a la vista.** 31 mutantes
-> siguen vivos: código del núcleo que ningún test fija. Se podrían declarar equivalentes en masa para
+> **`tools/mutar_codigo.py` sigue saliendo en ROJO.** La última ronda completa, ejecutada sobre una
+> copia temporal, dejó 454/546 mutantes muertos y 92 vivos; cuatro de esos vivos murieron después en
+> una comprobación dirigida. Se podrían declarar equivalentes en masa para
 > pintar verde — y eso sería exactamente el Goodhart que este repositorio persigue. El número baja
 > escribiendo tests o declarando equivalentes **de a uno y con su razón escrita**.
 
@@ -227,9 +233,9 @@ Es el criterio que decide si esto es general o si es una cosa disfrazada de otra
 | Dominio | Qué mide | Cómo se verifica |
 |---|---|---|
 | **proceso** | un agente construyendo herramientas: mutantes, afirmaciones, verificaciones vencidas | el corpus de fallas reales |
-| **geometría** | piezas en un nivel: interpenetración, bounds, snap a grilla y yaw | 1200 veredictos contra los oráculos escritos a mano de Jam |
-| **vault** | la documentación de un proyecto: convención de nombres, coherencia del frontmatter, enlaces | 42 veredictos contra `tools/vault.py` de Jam, con un defecto inyectado de cada tipo |
-| **relevo** | la entrega de un turno entre dos agentes: testigo completo, agentes conocidos, verificación reproducible | 48 veredictos contra `tools/relevo.py`, sobre repositorios git montados para cada escenario |
+| **geometría** | piezas en un nivel: interpenetración, bounds, snap a grilla y yaw | 250 escenarios globales contra los oráculos escritos a mano de Jam |
+| **vault** | la documentación de un proyecto: convención de nombres, coherencia del frontmatter, enlaces | 11 escenarios globales contra `tools/vault.py` de Jam |
+| **relevo** | la entrega de un turno entre dos agentes: testigo completo, agentes conocidos, verificación reproducible | 8 escenarios globales contra `tools/relevo.py` |
 | **cola** | un sistema con recursos limitados: rechazos, esperas — el caso canónico de GPSS | corridas reales de `simuladores/cola.py` |
 | **laberinto** | recorrer una topología con información parcial y presupuesto finito | corridas reales, y la invariante de que nadie alcanza lo que no tiene camino |
 
@@ -328,13 +334,12 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
   verificados por diferencial, y **siguen en uso los originales**. El reemplazo va cuando el
   diferencial lleve tiempo en verde, no el mismo día en que se escribió — y menos `relevo.py`, que es
   la herramienta que abre y cierra los turnos.
-- **Los 31 mutantes de código vivos**, de a uno.
-- **Los 3 huecos declarados del corpus**: dos son defectos del lenguaje (`004` testigos duplicados,
-  `012` umbral duplicado) y uno no tiene forma mecánica conocida (`011`).
+- **Los mutantes de código vivos**, de a uno: el último baseline completo dejó 92 y cuatro murieron
+  después en comprobaciones dirigidas.
+- **Los 3 casos que el corpus aún cuenta sin medida**: `004` y `012` ya están resueltos por
+  construcción pero falta reclasificarlos; `011` no tiene una detección mecánica conocida.
 - **Declarar los dos arneses que faltan** en el proyecto de Jam (`relevo`, `geometria`) con
   `nucleo.dominio`, como ya se hizo con `vault`.
-- **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
-  no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 
 ## Por qué el corpus va primero
 

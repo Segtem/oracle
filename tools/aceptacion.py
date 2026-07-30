@@ -57,6 +57,10 @@ def main() -> int:
 
     print(f"catálogo: {len(catalogo)} medidas · corpus: {len(todos)} casos\n")
 
+    if not todos:
+        print("ACEPTACIÓN NO APLICABLE — SIN CASOS: un corpus vacío no puede juzgar al oráculo")
+        return 1
+
     for c in todos:
         mid = c.get("medida")
         if not mid:

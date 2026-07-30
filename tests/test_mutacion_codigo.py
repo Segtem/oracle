@@ -12,6 +12,7 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
@@ -27,6 +28,19 @@ def f(x, y):
 
 SIEMPRE_PASA = [sys.executable, "-c", "raise SystemExit(0)"]
 SIEMPRE_FALLA = [sys.executable, "-c", "raise SystemExit(1)"]
+PASA_SOLO_CON_ORIGINAL = [
+    sys.executable,
+    "-c",
+    ("from pathlib import Path; "
+     f"raise SystemExit(Path('m.py').read_text(encoding='utf-8') != {FUENTE!r})"),
+]
+DUERME_SOLO_CON_MUTANTE = [
+    sys.executable,
+    "-c",
+    ("from pathlib import Path; import time; "
+     "actual = Path('m.py').read_text(encoding='utf-8'); "
+     f"time.sleep(30) if actual != {FUENTE!r} else None"),
+]
 
 
 class SitiosTests(unittest.TestCase):
@@ -113,7 +127,7 @@ class CorrerTests(unittest.TestCase):
         """La propiedad crítica: esta herramienta escribe sobre fuentes reales."""
         with tempfile.TemporaryDirectory() as d:
             raiz, objetivo = self._entorno(d)
-            mc.correr(raiz, [objetivo], SIEMPRE_FALLA)
+            mc.correr(raiz, [objetivo], PASA_SOLO_CON_ORIGINAL)
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
     def test_restaura_incluso_si_los_tests_pasan_siempre(self) -> None:
@@ -129,21 +143,29 @@ class CorrerTests(unittest.TestCase):
             self.assertTrue(ev["mutante"])
             self.assertTrue(all(not m["murio"] for m in ev["mutante"]))
 
-    def test_si_los_tests_siempre_fallan_TODOS_mueren(self) -> None:
+    def test_si_la_linea_base_falla_aborta_sin_tocar_la_fuente(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             raiz, objetivo = self._entorno(d)
-            ev = mc.correr(raiz, [objetivo], SIEMPRE_FALLA)
-            self.assertTrue(all(m["murio"] for m in ev["mutante"]))
+            producidos = []
+            with self.assertRaises(mc.LineaBaseFallida):
+                mc.correr(raiz, [objetivo], SIEMPRE_FALLA,
+                          al_terminar_uno=producidos.append)
+            self.assertEqual(producidos, [])
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
     def test_produce_hechos_con_la_forma_que_espera_la_medida(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             raiz, objetivo = self._entorno(d)
-            ev = mc.correr(raiz, [objetivo], SIEMPRE_FALLA)
+            ev = mc.correr(raiz, [objetivo], PASA_SOLO_CON_ORIGINAL)
         self.assertEqual(sorted(ev), ["corrida_mutacion", "mutante", "mutante_equivalente"])
         self.assertEqual(sorted(ev["mutante"][0]),
                          ["apunta_a", "cambio", "equivalente_declarado", "id", "murio",
                           "razon_equivalente"])
-        self.assertTrue(ev["corrida_mutacion"][0]["bytecode_frio"])
+        corrida = ev["corrida_mutacion"][0]
+        self.assertTrue(corrida["baseline_verde"])
+        self.assertTrue(corrida["bytecode_frio"])
+        self.assertEqual(corrida["resultado_confiable"],
+                         corrida["baseline_verde"] and corrida["bytecode_frio"])
 
     def test_un_equivalente_declarado_sale_de_los_mutantes_y_lleva_su_razon(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -155,6 +177,22 @@ class CorrerTests(unittest.TestCase):
         self.assertNotIn(elegido, [m["id"] for m in ev["mutante"]])
         eq = next(m for m in ev["mutante_equivalente"] if m["id"] == elegido)
         self.assertEqual(eq["razon_equivalente"], "porque sí, con razón escrita")
+
+    def test_un_equivalente_sin_razon_se_rechaza_antes_de_mutar(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            sitio = mc.sitios_de(objetivo, raiz)[0]
+            with self.assertRaises(mc.EquivalenteInvalido):
+                mc.correr(raiz, [objetivo], SIEMPRE_PASA, {sitio.id: "  "})
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
+
+    def test_un_equivalente_vencido_se_rechaza_antes_de_mutar(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            with self.assertRaises(mc.EquivalenteInvalido):
+                mc.correr(raiz, [objetivo], SIEMPRE_PASA,
+                          {"m.py:999:0:retorno": "existió en otra versión"})
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
     def test_si_MATAN_el_proceso_el_archivo_igual_se_restaura(self) -> None:
         """El `finally` no alcanza: `timeout` manda SIGTERM y Python termina sin ejecutarlo. Pasó de
@@ -172,7 +210,7 @@ class CorrerTests(unittest.TestCase):
                 "from nucleo import mutacion_codigo as mc\n"
                 f"mc.correr({str(raiz)!r} and __import__('pathlib').Path({str(raiz)!r}), "
                 f"[__import__('pathlib').Path({str(objetivo)!r})], "
-                "[sys.executable, '-c', 'import time; time.sleep(30)'])\n",
+                f"{DUERME_SOLO_CON_MUTANTE!r})\n",
                 encoding="utf-8")
             proc = subprocess.Popen([sys.executable, str(guion)])
             time.sleep(2.5)                       # que llegue a mutar el primer sitio
@@ -187,6 +225,40 @@ class CorrerTests(unittest.TestCase):
             (Path(d) / "sub" / "__pycache__").mkdir(parents=True)
             self.assertEqual(mc.limpiar_cache(Path(d)), 1)
             self.assertFalse((Path(d) / "sub" / "__pycache__").exists())
+
+    def test_limpiar_cache_desenlaza_un_symlink_sin_borrar_su_destino(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            destino = raiz / "cache_ajeno"
+            destino.mkdir()
+            enlace = raiz / "sub" / "__pycache__"
+            enlace.parent.mkdir()
+            enlace.symlink_to(destino, target_is_directory=True)
+
+            self.assertEqual(mc.limpiar_cache(raiz), 1)
+            self.assertFalse(enlace.exists())
+            self.assertFalse(enlace.is_symlink())
+            self.assertTrue(destino.exists())
+
+    def test_limpiar_cache_tambien_desenlaza_un_symlink_roto(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            enlace = raiz / "sub" / "__pycache__"
+            enlace.parent.mkdir()
+            enlace.symlink_to(raiz / "destino-que-no-existe", target_is_directory=True)
+
+            self.assertTrue(enlace.is_symlink())
+            self.assertFalse(enlace.exists())
+            self.assertEqual(mc.limpiar_cache(raiz), 1)
+            self.assertFalse(enlace.is_symlink())
+
+    def test_limpiar_cache_no_declara_exito_si_el_borrado_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            cache = Path(d) / "__pycache__"
+            cache.mkdir()
+            with mock.patch.object(mc.shutil, "rmtree", side_effect=OSError("sin permiso")):
+                with self.assertRaises(mc.CacheNoLimpio):
+                    mc.limpiar_cache(Path(d))
 
     def test_correr_tests_lee_el_codigo_de_salida(self) -> None:
         with tempfile.TemporaryDirectory() as d:
