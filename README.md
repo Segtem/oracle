@@ -84,7 +84,11 @@ mal» cuando el verde no se movió.
 el evaluador (`nucleo/`), **23 medidas en cuatro dominios** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
+**¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).
+`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `--nueva` crea el archivo.
+
 ```bash
+python tools/medida.py --relaciones              # qué se puede medir, derivado de la evidencia real
 python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
 python tools/diferencial.py                      # el álgebra vs una implementación independiente
