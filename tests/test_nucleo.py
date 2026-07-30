@@ -56,8 +56,10 @@ class AlgebraTests(unittest.TestCase):
             evaluar_expr(["campo", "q", "x"], {"p": {"x": 1}})
 
     def test_una_cabeza_desconocida_es_error(self) -> None:
+        # ojo: `penetracion` YA es una escalar declarada (dominio geometría). Hace falta un nombre
+        # que de verdad no exista, o el test deja de comprobar lo que dice.
         with self.assertRaises(ErrorDeAlgebra) as e:
-            evaluar_expr(["penetracion", 1, 2], {})
+            evaluar_expr(["esta_escalar_no_existe", 1, 2], {})
         self.assertIn("escalar declarada", str(e.exception))
 
     def test_la_escalar_declarada_se_llama(self) -> None:
@@ -80,10 +82,30 @@ class AlgebraTests(unittest.TestCase):
             desde(["desde", ["donde", True]], EV)
 
     def test_los_operadores_sin_usuario_dicen_su_disparador(self) -> None:
-        for op in ("con", "unir", "agrupar"):
+        # `unir` salió de esta lista al llegar su disparador (el catálogo de geometría)
+        for op in ("con", "agrupar"):
             with self.assertRaises(OperadorNoImplementado) as e:
                 desde(["desde", ["de", "pieza", "p"], [op, "x", 1]], EV)
             self.assertIn("se implementa cuando aparezca", str(e.exception).lower())
+
+    def test_unir_hace_el_producto_y_conviven_los_alias(self) -> None:
+        filas = desde(["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"]]], EV)
+        self.assertEqual(len(filas), 4)
+        self.assertEqual(sorted(filas[0]), ["a", "b"])
+
+    def test_unir_con_alias_repetido_no_pasa_en_silencio(self) -> None:
+        with self.assertRaises(ErrorDeAlgebra) as e:
+            desde(["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "a"]]], EV)
+        self.assertIn("alias repetido", str(e.exception))
+
+    def test_unir_en_modo_izquierda_todavia_no_tiene_usuario(self) -> None:
+        with self.assertRaises(OperadorNoImplementado) as e:
+            desde(["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"], "izquierda"]], EV)
+        self.assertIn("ausencia", str(e.exception))
+
+    def test_unir_solo_acepta_fuentes(self) -> None:
+        with self.assertRaises(ErrorDeAlgebra):
+            desde(["desde", ["unir", ["donde", True], ["de", "pieza", "b"]]], EV)
 
     def test_contar_no_evalua_la_expresion(self) -> None:
         filas = desde(["desde", ["de", "pieza", "p"]], EV)

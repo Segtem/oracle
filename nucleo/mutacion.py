@@ -73,6 +73,14 @@ def negar_filtro(datos: list) -> list | None:
     return d if hubo else None
 
 
+def _huella(testigos) -> tuple:
+    """Forma canónica de los testigos, para comparar informes. Ordenada: el orden de las filas no es
+    parte del contrato, pero QUIÉNES son sí."""
+    return tuple(sorted(
+        tuple(sorted((alias, tuple(sorted(hecho.items()))) for alias, hecho in fila.items()))
+        for fila in testigos))
+
+
 MUTADORES = {
     "aflojar_umbral": aflojar_umbral,
     "invertir_comparador": invertir_comparador,
@@ -111,11 +119,20 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
         original = catalogo[mid]
         if original.evaluar(caso["evidencia"]).ok != esperado_ok:
             continue                      # el caso no está en su estado esperado: no fija nada
+        base = original.evaluar(caso["evidencia"])
         for nombre, datos in mutantes(original.a_datos()):
             try:
                 v = Medida.de_datos(datos).evaluar(caso["evidencia"])
-                murio = v.ok != esperado_ok
-                como = "invirtio_el_veredicto" if murio else "sin_efecto"
+                if v.ok != esperado_ok:
+                    murio, como = True, "invirtio_el_veredicto"
+                elif _huella(v.testigos) != _huella(base.testigos):
+                    # El informe también es contrato: los testigos son lo que una persona LEE para
+                    # actuar. En el patrón «donde tol → max → umbral tol» quitar el filtro no puede
+                    # cambiar el veredicto (es un mutante equivalente en el veredicto), y sí cambia
+                    # los testigos. Mirando sólo `ok` esa mutación era invisible.
+                    murio, como = True, "cambio_los_testigos"
+                else:
+                    murio, como = False, "sin_efecto"
             except Exception as e:        # noqa: BLE001  un mutante inválido no es un hallazgo
                 murio, como = True, f"error:{type(e).__name__}"
             detecciones.append({

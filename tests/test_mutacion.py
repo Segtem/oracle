@@ -77,19 +77,27 @@ class CorrerTests(unittest.TestCase):
                              ["apunta_a", "cambio", "casos_que_lo_detectan", "id", "murio"])
 
     def test_un_mutante_muere_si_ALGUN_caso_lo_detecta(self) -> None:
-        # `quitar_filtro` no lo puede detectar el caso rojo (contar sin filtro sigue dando >0);
-        # sí lo detecta el verde. Con los dos, muere.
         ev = mutacion.correr(self.catalogo, [CASO_ROJO, CASO_VERDE])
         quitar = next(m for m in ev["mutante"] if m["cambio"] == "quitar_filtro")
         self.assertTrue(quitar["murio"])
-        self.assertEqual(quitar["casos_que_lo_detectan"], 1)
+        self.assertEqual(quitar["casos_que_lo_detectan"], 2)
 
-    def test_con_una_sola_polaridad_quitar_filtro_sobrevive(self) -> None:
+    def test_quitar_el_filtro_se_detecta_por_los_TESTIGOS_no_por_el_veredicto(self) -> None:
+        """En el caso rojo, contar sin filtro sigue dando >0: el veredicto no se mueve. Lo que
+        cambia es QUIÉNES son los testigos, y el informe también es contrato."""
         ev = mutacion.correr(self.catalogo, [CASO_ROJO])
-        quitar = next(m for m in ev["mutante"] if m["cambio"] == "quitar_filtro")
-        self.assertFalse(quitar["murio"])
+        d = next(x for x in ev["deteccion"] if x["mutante"].endswith("quitar_filtro"))
+        self.assertTrue(d["invirtio"])
+        self.assertEqual(d["como"], "cambio_los_testigos")
 
-    def test_aflojar_umbral_lo_agarra_el_caso_ROJO_y_no_el_verde(self) -> None:
+    def test_aflojar_el_umbral_se_detecta_por_el_VEREDICTO(self) -> None:
+        ev = mutacion.correr(self.catalogo, [CASO_ROJO])
+        d = next(x for x in ev["deteccion"] if x["mutante"].endswith("aflojar_umbral"))
+        self.assertEqual(d["como"], "invirtio_el_veredicto")
+
+    def test_aflojar_umbral_sigue_necesitando_un_caso_ROJO(self) -> None:
+        """Aflojar un umbral no mueve un verde ni le cambia los testigos: hace falta un caso ROJO.
+        Es al revés de lo que yo suponía cuando agregué los casos verdes."""
         solo_verde = mutacion.correr(self.catalogo, [CASO_VERDE])
         self.assertFalse(next(m for m in solo_verde["mutante"]
                               if m["cambio"] == "aflojar_umbral")["murio"])

@@ -123,13 +123,44 @@ AGREGADOS: dict[str, Callable[[list], Any]] = {
 
 DISPARADORES = {
     "con": "una medida que necesite una columna derivada reusada en más de un paso",
-    "unir": "el catálogo de geometría: «pares de piezas que se clavan» es un producto",
     "agrupar": "contar por grupo — p. ej. importadores por módulo (ver «ausencia» en la espec.)",
 }
+
+FUENTES = ("de", "unir")
 
 
 def _de(evidencia: dict, relacion: str, alias: str) -> list[dict]:
     return [{alias: dict(hecho)} for hecho in evidencia.get(relacion, [])]
+
+
+def _unir(paso, evidencia: dict) -> list[dict]:
+    """`["unir", izq, der, modo?]` → producto. Los alias de los dos lados conviven en la fila.
+
+    Se implementó al llegar su disparador: «pares de piezas que se clavan» es un producto, y ninguna
+    medida de proceso lo necesitaba. `modo` sigue sin usuario: `"izquierda"` traería el concepto de
+    NULO, que es la peor verruga de SQL, y no hace falta para nada de lo que existe.
+    """
+    izq, der = paso[1], paso[2]
+    modo = paso[3] if len(paso) > 3 else "todos"
+    if modo != "todos":
+        raise OperadorNoImplementado(
+            f"«unir» en modo «{modo}» todavía no tiene usuario. Se implementa cuando aparezca una "
+            "medida de AUSENCIA (p. ej. módulos sin ningún importador), y con ella hay que decidir "
+            "cómo se representa un valor que falta — ver «ausencia» en la especificación")
+    for lado in (izq, der):
+        if lado[0] not in FUENTES:
+            raise ErrorDeAlgebra(f"«unir» toma fuentes, y recibió «{lado[0]}»")
+
+    filas_izq = aplicar(izq, [], evidencia)
+    filas_der = aplicar(der, [], evidencia)
+    salida = []
+    for a in filas_izq:
+        for b in filas_der:
+            comunes = set(a) & set(b)
+            if comunes:
+                raise ErrorDeAlgebra(f"«unir» con alias repetido: {sorted(comunes)}")
+            salida.append({**a, **b})
+    return salida
 
 
 def aplicar(paso, filas: list[dict], evidencia: dict) -> list[dict]:
@@ -137,6 +168,8 @@ def aplicar(paso, filas: list[dict], evidencia: dict) -> list[dict]:
     if op == "de":
         relacion, alias = paso[1], paso[2]
         return _de(evidencia, relacion, alias)
+    if op == "unir":
+        return _unir(paso, evidencia)
     if op == "donde":
         return [f for f in filas if evaluar_expr(paso[1], f)]
     if op in DISPARADORES:
@@ -152,9 +185,9 @@ def desde(tuberia, evidencia: dict) -> list[dict]:
         raise ErrorDeAlgebra("una tubería empieza con «desde»")
     filas: list[dict] = []
     for i, paso in enumerate(tuberia[1:]):
+        if i == 0 and paso[0] not in FUENTES:
+            raise ErrorDeAlgebra(f"el primer paso tiene que ser una fuente {FUENTES}")
         filas = aplicar(paso, filas, evidencia)
-        if i == 0 and paso[0] != "de" and paso[0] not in DISPARADORES:
-            raise ErrorDeAlgebra("el primer paso tiene que ser una fuente («de»)")
     return filas
 
 

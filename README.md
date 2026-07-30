@@ -80,20 +80,33 @@ mal» cuando el verde no se movió.
 
 ## Estado
 
-**Paso 3 de 5.** Están el [corpus](corpus/) (18 casos), la [especificación](ESPECIFICACION.md) del
-álgebra, el evaluador (`nucleo/`), 8 medidas en [`catalogos/`](catalogos/) —**como archivos de datos,
-no como código**— y el sensor de mutación de medidas.
+**Paso 4 de 5.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+el evaluador (`nucleo/`), **12 medidas en dos dominios** dentro de [`catalogos/`](catalogos/) —como
+archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
 ```bash
 python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
+python tools/diferencial.py                      # el álgebra vs una implementación independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 48 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # 53 tests, cero dependencias
 ```
 
-Los 9 casos de defecto **se ponen en rojo**, los 7 `verde_correcto` salen **verdes**, y los 2 con
-hueco declarado siguen verdes a propósito. Corre además el nivel L2: el catálogo servido como
-relación y medido por una medida, sin ningún mecanismo nuevo.
+9 defectos en rojo · 7 verdes correctos · 3 huecos declarados · **1200 veredictos de geometría
+coincidiendo con una implementación independiente** · 44 mutantes, 44 muertos.
+
+### Dos dominios, un álgebra
+
+Es el criterio que decide si esto es general o si es una cosa disfrazada de otra:
+
+| Dominio | Qué mide | Cómo se verifica |
+|---|---|---|
+| **proceso** | un agente construyendo herramientas: mutantes, afirmaciones, verificaciones vencidas | el corpus de fallas reales |
+| **geometría** | piezas en un nivel: interpenetración, bounds, snap a grilla y yaw | 1200 veredictos contra los oráculos escritos a mano de Jam |
+
+No se parecen en nada, y usan **los mismos operadores sin un solo adaptador**. La prueba diferencial
+la genera Jam (`tools/emitir_diferencial.py`) con código que no comparte una línea con este álgebra;
+lo único que viaja entre los repos es un archivo de hechos.
 
 ### El bucle cerrado
 
@@ -102,8 +115,9 @@ relación y medido por una medida, sin ningún mecanismo nuevo.
 **una medida del catálogo**, `proceso.test_con_mutante_que_lo_mata`. El sensor no dicta veredictos:
 produce evidencia, y el álgebra la mide.
 
-Hoy: **28 mutantes, 28 muertos**. Un sobreviviente sería un aspecto de la medida que el corpus no
-fija, y por lo tanto algo que se podría escribir mal sin que nada frene.
+Hoy: **44 mutantes, 44 muertos** (el corpus y el fixture diferencial se usan los dos como material de
+mutación). Un sobreviviente sería un aspecto de la medida que nada fija, y por lo tanto algo que se
+podría escribir mal sin que nada frene.
 
 ### Las dos polaridades del corpus
 
@@ -112,11 +126,24 @@ causa no era el código: **el corpus tenía sólo defectos**. Con `contar` y umb
 sin filtro sólo da verde si la relación está vacía, así que ningún caso de defecto puede notar que le
 saquen el filtro. Hace falta la otra polaridad — evidencia real donde la medida **debe** decir verde.
 
-Es lo mismo que evaluar un clasificador sólo con positivos. De ahí los 7 casos `verde_correcto`, que
-no son relleno: son lo único que fija el filtro.
+Es lo mismo que evaluar un clasificador sólo con positivos. De ahí los 7 casos `verde_correcto`.
 
-**Tres de los seis operadores están implementados** (`de`, `donde`, `resumen`): son los únicos que
-piden las medidas que existen. Los otros levantan un error que dice su disparador.
+**Corrección, dos pasos después.** Cuando el catálogo de geometría trajo el patrón
+«`donde tol` → `resumen max` → `umbral tol`», aparecieron dos sobrevivientes que eran **mutantes
+equivalentes**: quitar ese filtro no puede cambiar el veredicto nunca —si nada supera la tolerancia el
+máximo sin filtrar sigue por debajo, y si algo la supera sigue por encima—. Sí cambia **los
+testigos**.
+
+De ahí que el sensor compare **veredicto Y testigos**: los testigos son lo que una persona lee para
+actuar, así que el informe también es contrato. Y con ese cambio hay que corregir lo de arriba:
+**ningún mutador del juego actual necesita un caso verde** — `aflojar_umbral` necesita uno ROJO, y el
+resto se detecta por los testigos en cualquiera de las dos polaridades. Los casos verdes siguen
+valiendo por otra razón: son lo único que ataja una medida que se pone roja con entrada correcta, que
+es el modo de falla del caso `008`.
+
+**Cuatro de los seis operadores están implementados**: `de`, `donde`, `resumen`, y `unir` — que entró
+al llegar su disparador, porque «pares de piezas que se clavan» es un producto y ninguna medida de
+proceso lo necesitaba. `con` y `agrupar` siguen levantando un error que dice cuál sería el suyo.
 
 ### Dos oráculos, y ninguno alcanza solo
 
@@ -127,12 +154,12 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 ### Qué falta
 
-- **Paso 3 — el sensor de mutación**: producir hechos `mutante(id, apunta_a, murio)` del repo vivo,
-  con caché frío. Es lo que hace que `proceso.test_con_mutante_que_lo_mata` muerda sobre código real
-  en vez de sobre evidencia guardada.
-- **Paso 4 — el catálogo de geometría**, que es el que prueba que el álgebra es general y el que
-  dispara `unir`.
-- **Paso 5 — cablearlo**: que los verificadores escritos a mano de Jam se re-expresen como medidas.
+- **La otra mitad del paso 3: mutar CÓDIGO Python.** Lo que hay muta *medidas* (datos). Mutar el
+  código es lo que atrapó 3 de los casos del corpus, y ahí sí hace falta el arnés con caché frío.
+- **Paso 5 — cablearlo**: que `relevo.py` y `vault.py` de Jam dejen de ser verificadores a mano y se
+  re-expresen como medidas. Recién cuando el marco ya se probó contra sí mismo.
+- **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
+  no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 
 ## Por qué el corpus va primero
 

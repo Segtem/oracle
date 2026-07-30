@@ -26,8 +26,25 @@ from nucleo.mutacion import correr  # noqa: E402
 
 
 def casos() -> list[dict]:
-    return [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted((RAIZ / "corpus").rglob("*.json"))]
+    """El corpus MÁS la prueba diferencial.
+
+    Sin esto las medidas de geometría quedaban sin mutar: ningún caso del corpus las declara, y su
+    fijación vive en el fixture diferencial. Un mutador que nadie ejercita es peor que no tenerlo,
+    porque el informe diría «todos murieron» dejando cuatro medidas afuera.
+    """
+    salida = [json.loads(p.read_text(encoding="utf-8"))
+              for p in sorted((RAIZ / "corpus").rglob("*.json"))]
+    for f in sorted((RAIZ / "diferencial").glob("*.json")):
+        datos = json.loads(f.read_text(encoding="utf-8"))
+        for mid, entradas in datos["grupos"].items():
+            for i, e in enumerate(entradas):
+                salida.append({
+                    "id": f"{f.stem}/{mid}[{i}]",
+                    "etiqueta": "verde_correcto" if e["esperado_ok"] else "falso_verde",
+                    "medida": mid,
+                    "evidencia": e["evidencia"],
+                })
+    return salida
 
 
 def main() -> int:

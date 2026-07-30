@@ -83,18 +83,18 @@ filas. Los agregados sobre cero filas dan `0`.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
 
-### Implementados: tres de seis
+### Implementados: cuatro de seis
 
 La regla *no se agrega un operador hasta que una segunda medida lo necesite* aplica también a
-**implementarlos**: un operador sin usuario es un operador sin verificar. Hoy corren `de`, `donde` y
-`resumen`, que es todo lo que piden las ocho medidas del catálogo. Los otros tres levantan un error
-que dice su disparador, así que cuando hagan falta no hay que adivinar por qué faltan:
+**implementarlos**: un operador sin usuario es un operador sin verificar. Corren `de`, `donde`,
+`resumen` y `unir`. Los dos que faltan levantan un error que dice su disparador, así que cuando hagan
+falta no hay que adivinar por qué no están:
 
-| Operador | Se implementa cuando aparezca… |
+| Operador | Estado |
 |---|---|
-| `unir` | el catálogo de geometría: «pares de piezas que se clavan» es un producto |
-| `agrupar` | contar por grupo — importadores por módulo, y con eso la «ausencia» de §7 |
-| `con` | una medida que reuse una columna derivada en más de un paso |
+| `unir` | ✅ entró con el catálogo de geometría: «pares de piezas que se clavan» es un producto. El modo `"izquierda"` sigue sin usuario, porque traería el concepto de NULO |
+| `agrupar` | ⏳ contar por grupo — importadores por módulo, y con eso la «ausencia» de §7 |
+| `con` | ⏳ una medida que reuse una columna derivada en más de un paso |
 
 ### Acceso a los datos
 
