@@ -17,6 +17,74 @@ bien. Con un LLM el efecto es más fuerte, por dos razones estructurales:
 De ahí la forma de todo lo que hay acá: las reglas son programas que fallan, no documentos que
 aconsejan.
 
+## La esencia, mirada de cerca
+
+Después de construirlo, lo que queda debajo de todos los mecanismos es una sola frase:
+
+> **Ninguna afirmación vale por sí sola. Tampoco la que dice «esto está verificado».**
+
+Cada pieza es una respuesta a *«¿por qué debería creerte?»* sobre una clase distinta de afirmación:
+
+| La afirmación | Qué se le exige |
+|---|---|
+| «está bien» | contra qué medida, con qué umbral, y **qué no miró** |
+| «el test lo cubre» | ¿qué mutante lo mata? |
+| «corrió verde» | en qué commit, y ¿cambió el código desde entonces? |
+| «esta medida sirve» | ¿qué caso la pone roja? ¿y qué caso la pone verde? |
+| «el marco funciona» | ¿qué medida lo dice? |
+
+### Su naturaleza es negarse
+
+No es un instrumento de medición: es un instrumento de **rechazo**. En 1593 líneas de núcleo hay
+**siete tipos de error declarados y 39 negativas** — 16 de ellas en los 123 renglones del álgebra. No
+calcula calidad: **declina dejar pasar** lo que no se puede sostener.
+
+Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
+`False`, levanta error. La igualdad exacta entre flotantes está prohibida. Un dominio sin defectos
+declarados no genera fixture. Una medida que no discrimina se denuncia sola.
+
+### Lo que produce no es confianza: es confianza ACOTADA
+
+El veredicto no es el producto — el **punto ciego** lo es. Un informe verde termina enumerando lo que
+no miró, y eso es lo que lo hace usable: un «todo bien» sin su alcance no se puede accionar, porque no
+se sabe sobre qué se está callando.
+
+### La asimetría, medida
+
+De los 16 defectos reales del corpus: **14 falsos verdes, 1 falso rojo**. Ésa es la justificación
+empírica de cada decisión de «negarse antes que permitir». Pero un falso rojo enseña a ignorar el
+verificador, y por eso pesa igual de grave: en un solo día lo cometí tres veces.
+
+### El sujeto es el que construye, no lo construido
+
+**20 de los 29 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Y ninguno de los
+16 defectos lo atrapó un verificador propio en el momento: 8 la mutación, 5 una persona, 4 la
+casualidad, 1 una herramienta ajena. Oracle no es un juez de artefactos — es una prótesis para alguien
+que escribe la herramienta y su test con la misma mano y no recuerda ayer.
+
+### El costo, dicho
+
+**1593 líneas de lenguaje.** Contra las medidas escritas en él: **diez a uno** si se cuenta sólo el
+catálogo base, **cinco a uno** contando un proyecto real que lo use. Ésa es la apuesta y ésa es la
+métrica: que el segundo número crezca y el primero no.
+
+*(Los números los mide `python tools/estudio.py`, no están escritos a mano acá. Dos veces los afirmé
+de memoria y las dos veces estaban mal — la proporción del catálogo base la dije «treinta a uno»
+cuando el catálogo tenía la mitad de las medidas que tiene hoy.)*
+
+Es la única medición del proyecto **que no se puede sastrear escribiendo más medidas** — escribir más
+medidas es justamente lo que la mejora. Si en seis meses la proporción no se movió, el lenguaje no
+valió la pena.
+
+### Y la historia lo dice mejor que el código
+
+De 23 commits, **cerca de la mitad tienen por título la corrección de algo que yo mismo había
+afirmado**: un criterio imposible de cumplir, un corpus al que le faltaba una polaridad, 53 tests en
+verde conviviendo con 88 mutantes vivos, un concepto de juego metido en el núcleo, una guía que
+describía un problema ya resuelto. El repositorio es, sobre todo, **el registro de un autor
+equivocándose y siendo atrapado por lo que estaba construyendo**. Que eso sea legible es la única
+prueba de que funciona.
+
 ## Tres influencias, y qué aporta cada una
 
 | | Qué aporta |
