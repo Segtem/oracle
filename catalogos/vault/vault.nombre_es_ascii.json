@@ -1,0 +1,39 @@
+[
+  "medida",
+  "vault.nombre_es_ascii",
+  [
+    "desde",
+    [
+      "de",
+      "documento",
+      "d"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "d",
+          "nombre_es_ascii"
+        ],
+        false
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "un acento en el nombre de archivo rompe enlaces según el sistema de archivos y la normalización Unicode que use cada herramienta"
+  ],
+  [
+    "alcance",
+    "NO ve el TÍTULO, que sí lleva acentos y puntuación a propósito: sólo el nombre de archivo"
+  ]
+]

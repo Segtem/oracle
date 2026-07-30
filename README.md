@@ -80,8 +80,8 @@ mal» cuando el verde no se movió.
 
 ## Estado
 
-**Paso 4 de 5.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **12 medidas en dos dominios** dentro de [`catalogos/`](catalogos/) —como
+**Paso 5 de 5, a medias.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+el evaluador (`nucleo/`), **18 medidas en tres dominios** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
 ```bash
@@ -109,6 +109,7 @@ Es el criterio que decide si esto es general o si es una cosa disfrazada de otra
 |---|---|---|
 | **proceso** | un agente construyendo herramientas: mutantes, afirmaciones, verificaciones vencidas | el corpus de fallas reales |
 | **geometría** | piezas en un nivel: interpenetración, bounds, snap a grilla y yaw | 1200 veredictos contra los oráculos escritos a mano de Jam |
+| **vault** | la documentación de un proyecto: convención de nombres, coherencia del frontmatter, enlaces | 42 veredictos contra `tools/vault.py` de Jam, con un defecto inyectado de cada tipo |
 
 No se parecen en nada, y usan **los mismos operadores sin un solo adaptador**. La prueba diferencial
 la genera Jam (`tools/emitir_diferencial.py`) con código que no comparte una línea con este álgebra;
@@ -160,10 +161,10 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 ### Qué falta
 
-- **La otra mitad del paso 3: mutar CÓDIGO Python.** Lo que hay muta *medidas* (datos). Mutar el
-  código es lo que atrapó 3 de los casos del corpus, y ahí sí hace falta el arnés con caché frío.
-- **Paso 5 — cablearlo**: que `relevo.py` y `vault.py` de Jam dejen de ser verificadores a mano y se
-  re-expresen como medidas. Recién cuando el marco ya se probó contra sí mismo.
+- **La otra mitad del paso 5**: `relevo.py` de Jam todavía es un verificador escrito a mano. `vault.py`
+  ya está re-expresado como seis medidas y verificado por diferencial, pero **sigue en uso** — el
+  reemplazo se hace cuando el diferencial lleve tiempo en verde, no el mismo día.
+- **Los 31 mutantes de código vivos**, de a uno.
 - **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
   no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 

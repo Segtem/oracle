@@ -1,0 +1,39 @@
+[
+  "medida",
+  "vault.enlace_resuelve",
+  [
+    "desde",
+    [
+      "de",
+      "enlace",
+      "e"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "e",
+          "resuelve"
+        ],
+        false
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "un vault con enlaces rotos se degrada en silencio, igual que un test que no discrimina"
+  ],
+  [
+    "alcance",
+    "NO ve si el enlace apunta al documento PERTINENTE, ni detecta documentos que nadie enlaza"
+  ]
+]
