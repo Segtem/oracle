@@ -1,0 +1,56 @@
+{
+  "id": "013-comparadores-del-algebra-sin-ejercitar",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "primera corrida de mutación de código"
+  },
+  "titulo": "53 tests en verde y cuatro de los seis comparadores del álgebra sin verificar",
+  "etiqueta": "falso_verde",
+  "sintoma": "El álgebra define seis comparadores. Los tests sólo ejercitaban `<=` y `>`, y por vías indirectas (a través de medidas). Cambiar `!=` por `==`, `<` por `<=`, `>` por `>=` o `>=` por `>` NO rompía ningún test. Lo mismo el formateo del informe: se había argumentado que «el informe es contrato» y nadie lo verificaba.",
+  "como_se_detecto": "mutacion",
+  "medida": "proceso.test_con_mutante_que_lo_mata",
+  "evidencia": {
+    "mutante": [
+      {
+        "id": "algebra.py:50:27:comparador",
+        "apunta_a": "algebra._cmp",
+        "murio": false
+      },
+      {
+        "id": "algebra.py:51:26:comparador",
+        "apunta_a": "algebra._cmp",
+        "murio": false
+      },
+      {
+        "id": "algebra.py:53:26:comparador",
+        "apunta_a": "algebra._cmp",
+        "murio": false
+      },
+      {
+        "id": "algebra.py:54:27:comparador",
+        "apunta_a": "algebra._cmp",
+        "murio": false
+      },
+      {
+        "id": "medida.py:52:73:constante",
+        "apunta_a": "medida.Veredicto.linea",
+        "murio": false
+      },
+      {
+        "id": "medida.py:53:53:comparador",
+        "apunta_a": "medida.Veredicto.linea",
+        "murio": false
+      }
+    ],
+    "corrida_mutacion": [
+      {
+        "id": "nucleo_primera",
+        "mutantes": 242,
+        "bytecode_frio": true,
+        "resultado_confiable": true
+      }
+    ]
+  },
+  "leccion": "Un conteo de tests no dice nada sobre qué fija. 53 tests verdes convivían con 88 mutantes vivos. Y los mutantes hay que GENERARLOS: si el autor elige cuáles escribir, elige los que sus tests ya atrapan."
+}

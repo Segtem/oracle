@@ -119,6 +119,45 @@ class AlgebraTests(unittest.TestCase):
         filas = desde(["desde", ["de", "pieza", "p"]], EV)
         self.assertEqual(resumir(["resumen", "max", ["campo", "p", "x"]], filas), 7)
 
+    def test_TODOS_los_comparadores_hacen_lo_que_dicen(self) -> None:
+        """La mutación de código delató que sólo `<=` y `>` se ejercitaban: los otros cuatro estaban
+        escritos y sin verificar. Cambiar `!=` por `==` en el álgebra no rompía ningún test."""
+        casos = [("==", 2, 2, True), ("==", 2, 3, False),
+                 ("!=", 2, 3, True), ("!=", 2, 2, False),
+                 ("<", 1, 2, True), ("<", 2, 2, False),
+                 ("<=", 2, 2, True), ("<=", 3, 2, False),
+                 (">", 3, 2, True), (">", 2, 2, False),
+                 (">=", 2, 2, True), (">=", 1, 2, False)]
+        for op, a, b, esperado in casos:
+            with self.subTest(op=op, a=a, b=b):
+                self.assertEqual(evaluar_expr([op, a, b], {}), esperado)
+
+    def test_y_o_no_hacen_lo_que_dicen(self) -> None:
+        self.assertTrue(evaluar_expr(["y", True, True], {}))
+        self.assertFalse(evaluar_expr(["y", True, False], {}))
+        self.assertTrue(evaluar_expr(["o", False, True], {}))
+        self.assertFalse(evaluar_expr(["o", False, False], {}))
+        self.assertTrue(evaluar_expr(["no", False], {}))
+        self.assertFalse(evaluar_expr(["no", True], {}))
+
+    def test_el_decorador_escalar_devuelve_la_funcion_y_le_pone_la_unidad(self) -> None:
+        @algebra.escalar("d_prueba_unidad", "cm")
+        def _f(x):
+            return x * 2
+
+        try:
+            self.assertEqual(_f(3), 6)                    # devuelve la función, no None
+            self.assertEqual(_f.unidad, "cm")
+            self.assertIs(algebra.ESCALARES["d_prueba_unidad"], _f)
+        finally:
+            del algebra.ESCALARES["d_prueba_unidad"]
+
+    def test_promedio_sobre_filas_reales(self) -> None:
+        filas = desde(["desde", ["de", "pieza", "p"]], EV)
+        self.assertEqual(resumir(["resumen", "promedio", ["campo", "p", "x"]], filas), 3.5)
+        self.assertEqual(resumir(["resumen", "suma", ["campo", "p", "x"]], filas), 7)
+        self.assertEqual(resumir(["resumen", "min", ["campo", "p", "x"]], filas), 0)
+
     def test_un_agregado_desconocido_es_error(self) -> None:
         with self.assertRaises(ErrorDeAlgebra):
             resumir(["resumen", "moda", 1], [])
@@ -170,6 +209,39 @@ class MedidaTests(unittest.TestCase):
         texto = evaluar([Medida.de_datos(_medida())], EV).texto()
         self.assertIn("en rojo", texto)
         self.assertNotIn("SIN MIRAR", texto)
+
+    def test_la_linea_del_veredicto_dice_marca_valor_umbral_y_testigos(self) -> None:
+        """El informe es contrato: los testigos son lo que una persona lee para actuar. La mutación
+        de código delató que el formateo no lo verificaba nadie."""
+        v = Medida.de_datos(_medida()).evaluar(EV)
+        linea = v.linea()
+        self.assertTrue(linea.startswith("✗"))
+        self.assertIn("d.prueba", linea)
+        self.assertIn("<= 0", linea)
+        self.assertIn("p=b", linea)          # el testigo, identificado
+
+    def test_un_veredicto_verde_no_lista_testigos(self) -> None:
+        v = Medida.de_datos(_medida(pred=[">", ["campo", "p", "x"], 1000])).evaluar(EV)
+        self.assertTrue(v.linea().startswith("✓"))
+        self.assertNotIn("→", v.linea())
+
+    def test_con_muchos_testigos_muestra_tres_y_cuenta_el_resto(self) -> None:
+        muchos = {"pieza": [{"id": f"n{i}", "x": 9} for i in range(7)]}
+        v = Medida.de_datos(_medida()).evaluar(muchos)
+        linea = v.linea()
+        self.assertEqual(linea.count("p=n"), 3)
+        self.assertIn("+4", linea)
+
+    def test_con_exactamente_tres_testigos_no_dice_mas(self) -> None:
+        tres = {"pieza": [{"id": f"n{i}", "x": 9} for i in range(3)]}
+        self.assertNotIn("+", Medida.de_datos(_medida()).evaluar(tres).linea().split("→")[1])
+
+    def test_el_testigo_se_identifica_por_id_nombre_archivo_o_ruta(self) -> None:
+        from nucleo.medida import _resumir_fila
+        self.assertEqual(_resumir_fila({"a": {"id": "x"}}), "a=x")
+        self.assertEqual(_resumir_fila({"a": {"nombre": "y"}}), "a=y")
+        self.assertEqual(_resumir_fila({"a": {"ruta": "z.py"}}), "a=z.py")
+        self.assertIn("otro", _resumir_fila({"a": {"otro": 1}}))
 
     def test_el_inventario_saca_los_umbrales_con_su_defensa(self) -> None:
         filas = inventario([Medida.de_datos(_medida())])

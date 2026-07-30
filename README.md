@@ -92,8 +92,14 @@ python tools/mutar.py                            # ¿el corpus ALCANZA para fija
 python -m unittest discover -s tests -t . -q     # 53 tests, cero dependencias
 ```
 
-9 defectos en rojo · 7 verdes correctos · 3 huecos declarados · **1200 veredictos de geometría
-coincidiendo con una implementación independiente** · 44 mutantes, 44 muertos.
+10 defectos en rojo · 7 verdes correctos · 3 huecos declarados · **1200 veredictos de geometría
+coincidiendo con una implementación independiente** · 44/44 mutantes de medida · **211/242 mutantes
+de código** · 81 tests.
+
+> **`tools/mutar_codigo.py` sale en ROJO a propósito, y el número está a la vista.** 31 mutantes
+> siguen vivos: código del núcleo que ningún test fija. Se podrían declarar equivalentes en masa para
+> pintar verde — y eso sería exactamente el Goodhart que este repositorio persigue. El número baja
+> escribiendo tests o declarando equivalentes **de a uno y con su razón escrita**.
 
 ### Dos dominios, un álgebra
 
