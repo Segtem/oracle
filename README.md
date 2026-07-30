@@ -81,7 +81,7 @@ mal» cuando el verde no se movió.
 ## Estado
 
 **Los cinco pasos, hechos.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **27 medidas en cuatro dominios** dentro de [`catalogos/`](catalogos/) —como
+el evaluador (`nucleo/`), **32 medidas en seis dominios** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).
@@ -115,6 +115,8 @@ Es el criterio que decide si esto es general o si es una cosa disfrazada de otra
 | **geometría** | piezas en un nivel: interpenetración, bounds, snap a grilla y yaw | 1200 veredictos contra los oráculos escritos a mano de Jam |
 | **vault** | la documentación de un proyecto: convención de nombres, coherencia del frontmatter, enlaces | 42 veredictos contra `tools/vault.py` de Jam, con un defecto inyectado de cada tipo |
 | **relevo** | la entrega de un turno entre dos agentes: testigo completo, agentes conocidos, verificación reproducible | 48 veredictos contra `tools/relevo.py`, sobre repositorios git montados para cada escenario |
+| **cola** | un sistema con recursos limitados: rechazos, esperas — el caso canónico de GPSS | corridas reales de `simuladores/cola.py` |
+| **laberinto** | recorrer una topología con información parcial y presupuesto finito | corridas reales, y la invariante de que nadie alcanza lo que no tiene camino |
 
 No se parecen en nada, y usan **los mismos operadores sin un solo adaptador**.
 
@@ -134,6 +136,29 @@ produce evidencia, y el álgebra la mide.
 Hoy: **44 mutantes, 44 muertos** (el corpus y el fixture diferencial se usan los dos como material de
 mutación). Un sobreviviente sería un aspecto de la medida que nada fija, y por lo tanto algo que se
 podría escribir mal sin que nada frene.
+
+### Modo simulación: la segunda fuente de evidencia
+
+Las primeras cuatro familias consultan **hechos estáticos**. `nucleo/simulacion.py` agrega la otra
+mitad —la de GPSS—: **correr el sistema y medir lo que emerge**. Y no necesita álgebra nueva, porque
+una traza es una relación:
+
+```
+evento(corrida, t, actor, que, …)                          lo que fue pasando
+corrida(id, escenario, semilla, pasos, razon, determinista) cómo terminó
+```
+
+**El contrato no tiene ningún campo de veredicto.** La primera versión traía `gano: bool` y eso era
+un concepto de juego metido adentro del núcleo: un simulador de una cola no «gana», termina por una
+razón. Si esa razón está bien lo dice una medida. El dominio es indiferente — una cola con
+servidores, un recorrido sobre una topología, o los turnos de dos agentes trabajando un repositorio.
+
+**El determinismo se comprueba, no se promete.** Cada corrida se ejecuta **dos veces** con la misma
+semilla y `determinista` es un hecho más. Una corrida irreproducible no es evidencia: es una anécdota.
+
+Y produce el desacuerdo que ningún oráculo de propiedad puede ver: **«existe» y «se llega» no son lo
+mismo**. Un BFS con información perfecta dice que hay camino; un recorrido con visión local y
+presupuesto finito termina por «tope». Los dos tienen razón, y el segundo es el que importa.
 
 ### Las dos polaridades del corpus
 
@@ -181,7 +206,8 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 - **Los 31 mutantes de código vivos**, de a uno.
 - **Los 3 huecos declarados del corpus**: dos son defectos del lenguaje (`004` testigos duplicados,
   `012` umbral duplicado) y uno no tiene forma mecánica conocida (`011`).
-- **El modo simulación** (§5 de la especificación) sigue sin un solo usuario.
+- **Recursión y orden**, las dos preguntas abiertas que Jam pide concretamente: «alcanzable desde»
+  (cierre transitivo) y «piezas consecutivas a lo largo de una curva».
 - **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
   no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 

@@ -1,0 +1,60 @@
+{
+  "id": "202-cola-holgada-reproducible",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "modo simulación"
+  },
+  "titulo": "Los simuladores de referencia son reproducibles",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Tres corridas del mismo escenario con semillas distintas, cada una ejecutada dos veces: trazas idénticas.",
+  "como_se_detecto": "observacion",
+  "medida": "simulacion.corrida_reproducible",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "holgada·s1",
+        "escenario": "holgada",
+        "semilla": 1,
+        "pasos": 40,
+        "razon": "fin_de_ventana",
+        "determinista": true,
+        "cola_maxima": 0,
+        "atendidos": 12,
+        "rechazados": 0,
+        "quedaron": 2,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      },
+      {
+        "id": "holgada·s2",
+        "escenario": "holgada",
+        "semilla": 2,
+        "pasos": 40,
+        "razon": "fin_de_ventana",
+        "determinista": true,
+        "cola_maxima": 0,
+        "atendidos": 17,
+        "rechazados": 0,
+        "quedaron": 1,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      },
+      {
+        "id": "holgada·s3",
+        "escenario": "holgada",
+        "semilla": 3,
+        "pasos": 40,
+        "razon": "fin_de_ventana",
+        "determinista": true,
+        "cola_maxima": 0,
+        "atendidos": 23,
+        "rechazados": 0,
+        "quedaron": 1,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      }
+    ]
+  },
+  "leccion": "El determinismo se verifica en cada corrida, no se declara una vez."
+}

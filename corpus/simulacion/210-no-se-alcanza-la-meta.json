@@ -1,0 +1,45 @@
+{
+  "id": "210-no-se-alcanza-la-meta",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "modo simulación"
+  },
+  "titulo": "El que camina no llega, aunque exista camino",
+  "etiqueta": "falso_verde",
+  "sintoma": "BFS dice resoluble=True. Con tope 40 las tres corridas terminan por «tope» sin alcanzar la meta.",
+  "como_se_detecto": "mutacion",
+  "medida": "laberinto.se_alcanza_la_meta",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "presupuesto-corto·s1",
+        "escenario": "presupuesto-corto",
+        "semilla": 1,
+        "pasos": 40,
+        "razon": "tope",
+        "determinista": true,
+        "visitados": 13
+      },
+      {
+        "id": "presupuesto-corto·s2",
+        "escenario": "presupuesto-corto",
+        "semilla": 2,
+        "pasos": 40,
+        "razon": "tope",
+        "determinista": true,
+        "visitados": 13
+      },
+      {
+        "id": "presupuesto-corto·s3",
+        "escenario": "presupuesto-corto",
+        "semilla": 3,
+        "pasos": 40,
+        "razon": "tope",
+        "determinista": true,
+        "visitados": 17
+      }
+    ]
+  },
+  "leccion": "La polaridad que faltaba: sin un caso ROJO, aflojar el umbral de la medida pasaba inadvertido —un verde no se mueve por más flojo que sea el número—."
+}

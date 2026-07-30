@@ -129,20 +129,30 @@ normales:
 Ese `alcance` es el ejemplo de por qué el campo es obligatorio: la medida es útil y es
 superficialísima, y decirlo evita que se lea como más de lo que es.
 
-## 5. Modo simulación
+## 5. Modo simulación — ✅ IMPLEMENTADO
 
 La segunda fuente de evidencia. En vez de consultar hechos estáticos, se corre el sistema y se
 observan los hechos que emergen:
 
 ```
-evento(t, actor, qué, dónde)
+evento(corrida, t, actor, que, …)
+corrida(id, escenario, semilla, pasos, razon, determinista)
 ```
 
-**No es otro sistema.** Una traza es una relación, y las mismas seis operaciones la miden. La
-simulación es un *productor de hechos*, no un segundo oráculo.
+**No es otro sistema.** Una traza es una relación, y las mismas operaciones la miden sin cambio
+alguno. La simulación es un *productor de hechos*, no un segundo oráculo.
 
-Importa porque es la mitad más resistente a Goodhart: se puede sastrear un umbral, es mucho más
-difícil sastrear un jugador simulado.
+Dos reglas del contrato, y las dos salieron de equivocarse primero:
+
+- **ningún campo de veredicto.** La primera versión tenía `gano: bool`, que es un concepto de un
+  dominio metido adentro del núcleo. Una corrida termina por una `razon`; si esa razón es aceptable lo
+  decide una medida. Lo mismo con «quedó gente en la cola»: es un hecho del resumen, no una razón.
+- **el determinismo se comprueba.** Cada corrida se ejecuta dos veces con la misma semilla y
+  `determinista` es un hecho. Una corrida irreproducible no puede ser material de corpus.
+
+Importa porque es la mitad más resistente a Goodhart: un umbral se afloja cambiando un número; lo que
+emerge de correr el sistema, no. Y produce el desacuerdo que la primera mitad no puede ver: **«existe»
+y «se llega» no son lo mismo.**
 
 ## 6. Criterio de aceptación de esta especificación
 

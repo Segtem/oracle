@@ -1,0 +1,45 @@
+{
+  "id": "208-recorrido-que-si-llega",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "modo simulación"
+  },
+  "titulo": "Sin obstáculos, el que camina llega siempre",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Escenario abierto: las tres semillas alcanzan la meta.",
+  "como_se_detecto": "observacion",
+  "medida": "laberinto.se_alcanza_la_meta",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "abierto·s1",
+        "escenario": "abierto",
+        "semilla": 1,
+        "pasos": 8,
+        "razon": "meta",
+        "determinista": true,
+        "visitados": 9
+      },
+      {
+        "id": "abierto·s2",
+        "escenario": "abierto",
+        "semilla": 2,
+        "pasos": 8,
+        "razon": "meta",
+        "determinista": true,
+        "visitados": 9
+      },
+      {
+        "id": "abierto·s3",
+        "escenario": "abierto",
+        "semilla": 3,
+        "pasos": 8,
+        "razon": "meta",
+        "determinista": true,
+        "visitados": 9
+      }
+    ]
+  },
+  "leccion": "La otra polaridad del recorrido."
+}

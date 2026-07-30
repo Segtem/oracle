@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "simulacion.no_se_agoto_el_presupuesto",
+  "corrida",
+  "c",
+  ["==", ["campo", "c", "razon"], "tope"],
+  "una corrida que se quedó sin pasos no observó el sistema: observó el presupuesto. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló, no de lo simulado",
+  "ve la razón declarada de terminación. NO ve si el presupuesto era razonable, ni si una corrida que terminó a tiempo lo hizo por el motivo correcto"
+]

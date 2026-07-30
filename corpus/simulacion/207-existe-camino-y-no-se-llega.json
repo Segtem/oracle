@@ -1,0 +1,45 @@
+{
+  "id": "207-existe-camino-y-no-se-llega",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "modo simulación"
+  },
+  "titulo": "BFS dice que hay camino y el que camina no llega",
+  "etiqueta": "falso_verde",
+  "sintoma": "El BFS dice resoluble=True: existe camino. Con un presupuesto de 40 pasos, las tres corridas terminan por «tope» sin llegar. Un oráculo de PROPIEDAD daría verde.",
+  "como_se_detecto": "mutacion",
+  "medida": "simulacion.no_se_agoto_el_presupuesto",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "presupuesto-corto·s1",
+        "escenario": "presupuesto-corto",
+        "semilla": 1,
+        "pasos": 40,
+        "razon": "tope",
+        "determinista": true,
+        "visitados": 13
+      },
+      {
+        "id": "presupuesto-corto·s2",
+        "escenario": "presupuesto-corto",
+        "semilla": 2,
+        "pasos": 40,
+        "razon": "tope",
+        "determinista": true,
+        "visitados": 13
+      },
+      {
+        "id": "presupuesto-corto·s3",
+        "escenario": "presupuesto-corto",
+        "semilla": 3,
+        "pasos": 40,
+        "razon": "tope",
+        "determinista": true,
+        "visitados": 17
+      }
+    ]
+  },
+  "leccion": "«Existe» y «se llega» no son lo mismo, y ningún oráculo de propiedad puede ver la diferencia. Es la razón de ser de la mitad de simulación."
+}

@@ -1,0 +1,60 @@
+{
+  "id": "203-cola-saturada-rechaza",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "modo simulación"
+  },
+  "titulo": "Un servidor y capacidad 2 contra llegadas cada paso: rechaza",
+  "etiqueta": "falso_verde",
+  "sintoma": "La capacidad no alcanza para el ritmo de llegada: la cola se llena y alguien es rechazado.",
+  "como_se_detecto": "mutacion",
+  "medida": "cola.no_rechaza_a_nadie",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "saturada·s1",
+        "escenario": "saturada",
+        "semilla": 1,
+        "pasos": 3,
+        "razon": "desborde",
+        "determinista": true,
+        "cola_maxima": 2,
+        "atendidos": 1,
+        "rechazados": 1,
+        "quedaron": 3,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      },
+      {
+        "id": "saturada·s2",
+        "escenario": "saturada",
+        "semilla": 2,
+        "pasos": 3,
+        "razon": "desborde",
+        "determinista": true,
+        "cola_maxima": 2,
+        "atendidos": 1,
+        "rechazados": 1,
+        "quedaron": 3,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      },
+      {
+        "id": "saturada·s3",
+        "escenario": "saturada",
+        "semilla": 3,
+        "pasos": 3,
+        "razon": "desborde",
+        "determinista": true,
+        "cola_maxima": 2,
+        "atendidos": 1,
+        "rechazados": 1,
+        "quedaron": 3,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      }
+    ]
+  },
+  "leccion": "El desborde es la falla visible de un sistema con recursos limitados, y ninguna propiedad estática del escenario la muestra: hay que correrlo."
+}

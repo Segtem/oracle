@@ -1,0 +1,60 @@
+{
+  "id": "206-cola-holgada-sin-espera",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "modo simulación"
+  },
+  "titulo": "Con capacidad de sobra la espera máxima es cero",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Nadie espera: los servidores están libres cuando llega cada entidad.",
+  "como_se_detecto": "observacion",
+  "medida": "cola.nadie_espera_de_mas",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "holgada·s1",
+        "escenario": "holgada",
+        "semilla": 1,
+        "pasos": 40,
+        "razon": "fin_de_ventana",
+        "determinista": true,
+        "cola_maxima": 0,
+        "atendidos": 12,
+        "rechazados": 0,
+        "quedaron": 2,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      },
+      {
+        "id": "holgada·s2",
+        "escenario": "holgada",
+        "semilla": 2,
+        "pasos": 40,
+        "razon": "fin_de_ventana",
+        "determinista": true,
+        "cola_maxima": 0,
+        "atendidos": 17,
+        "rechazados": 0,
+        "quedaron": 1,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      },
+      {
+        "id": "holgada·s3",
+        "escenario": "holgada",
+        "semilla": 3,
+        "pasos": 40,
+        "razon": "fin_de_ventana",
+        "determinista": true,
+        "cola_maxima": 0,
+        "atendidos": 23,
+        "rechazados": 0,
+        "quedaron": 1,
+        "espera_maxima": 0,
+        "espera_promedio": 0.0
+      }
+    ]
+  },
+  "leccion": "La otra polaridad de la medida de espera."
+}
