@@ -21,7 +21,7 @@ MEDIDA = Medida.de_datos(
      "una razón", "NO ve nada más"])
 
 # el «mundo»: una lista de cosas, alguna marcada como mal
-def montar(defecto):
+def montar(defecto, i=0):
     return [{"id": "a", "mal": defecto == "una_mala"}]
 
 def hechos(ctx):
@@ -70,11 +70,23 @@ class GenerarTests(unittest.TestCase):
         self.assertIn("no coinciden", str(e.exception))
 
     def test_se_niega_si_a_una_medida_le_falta_una_polaridad(self) -> None:
-        sin_rojo = Dominio(nombre="d", montar=lambda d: [{"id": "a", "mal": False}],
+        sin_rojo = Dominio(nombre="d", montar=lambda d, i=0: [{"id": "a", "mal": False}],
                            hechos=hechos, referencia=referencia, defectos=("no_hace_nada",))
         with self.assertRaises(DominioMalDeclarado) as e:
             generar(sin_rojo, [MEDIDA])
         self.assertIn("polaridades", str(e.exception))
+
+    def test_la_repeticion_llega_como_segundo_argumento(self) -> None:
+        vistos = []
+
+        def montar_contando(defecto, i):
+            vistos.append((defecto, i))
+            return [{"id": "a", "mal": defecto == "una_mala"}]
+
+        d = Dominio(nombre="d", montar=montar_contando, hechos=hechos, referencia=referencia,
+                    defectos=("una_mala",), repeticiones=2)
+        generar(d, [MEDIDA])
+        self.assertEqual(vistos, [(None, 0), (None, 1), ("una_mala", 0), ("una_mala", 1)])
 
     def test_se_niega_sin_medidas(self) -> None:
         with self.assertRaises(DominioMalDeclarado):

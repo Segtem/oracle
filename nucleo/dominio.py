@@ -10,7 +10,7 @@ declara.
 
     Dominio(
         nombre     = "vault",
-        montar     = lambda defecto: …,   # arma el escenario, con el defecto puesto o sin ninguno
+        montar     = lambda defecto, i: …,  # arma el escenario n° i, con el defecto puesto o sin ninguno
         hechos     = lambda ctx: {...},   # el SENSOR: contexto → relaciones. No juzga.
         referencia = lambda ctx: bool,    # la implementación INDEPENDIENTE: ¿le parece bien?
         defectos   = ("nombre_roto", …),
@@ -50,7 +50,7 @@ class DominioMalDeclarado(ValueError):
 @dataclass(frozen=True)
 class Dominio:
     nombre: str
-    montar: Callable[[str | None], Any]
+    montar: Callable[[str | None, int], Any]
     hechos: Callable[[Any], dict]
     referencia: Callable[[Any], bool]
     defectos: tuple[str, ...] = ()
@@ -92,8 +92,10 @@ def generar(dominio: Dominio, medidas) -> dict:
     escenarios = []
     for defecto in [None, *dominio.defectos]:
         for i in range(dominio.repeticiones):
-            ctx = dominio.montar(defecto) if dominio.repeticiones == 1 else dominio.montar(
-                defecto if i == 0 else f"{defecto}#{i}" if defecto else f"#{i}")
+            # `i` va aparte del defecto: un dominio con azar lo usa de semilla y uno determinista lo
+            # ignora. Antes se le mangleaba el nombre del defecto, que era una forma de pasar dos
+            # cosas por un solo parámetro.
+            ctx = dominio.montar(defecto, i)
             escenarios.append({
                 "id": f"{defecto or 'sin-defecto'}" + (f"·{i}" if dominio.repeticiones > 1 else ""),
                 "defecto": defecto or "",
