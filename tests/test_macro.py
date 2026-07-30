@@ -88,7 +88,8 @@ class ContratoConLaMedidaTests(unittest.TestCase):
 
 
 class CatalogoRealTests(unittest.TestCase):
-    """El catálogo del repo: 26 de 27 medidas están escritas como macro."""
+    """El catálogo BASE del repo. Los dominios particulares se fueron a sus proyectos, así que acá
+    quedan sólo las medidas universales: proceso, meta y simulación."""
 
     def setUp(self) -> None:
         self.catalogo = cargar_catalogo(RAIZ / "catalogos")
@@ -98,7 +99,9 @@ class CatalogoRealTests(unittest.TestCase):
 
     def test_todas_cargan_y_la_mayoria_son_macro(self) -> None:
         macros = sum(1 for d in self.crudos.values() if es_macro(d))
-        self.assertGreaterEqual(macros, 24)
+        # se compara la PROPORCIÓN, no un número absoluto: contar medidas hacía que mover un dominio
+        # a su proyecto rompiera un test que no tenía nada que ver
+        self.assertGreater(macros / len(self.crudos), 0.8)
         self.assertEqual(len(self.catalogo), len(self.crudos))
 
     def test_la_expansion_de_cada_una_vuelve_a_construir_lo_mismo(self) -> None:

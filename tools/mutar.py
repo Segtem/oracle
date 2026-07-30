@@ -23,6 +23,11 @@ sys.path.insert(0, str(RAIZ))
 import catalogos.escalares  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo  # noqa: E402
 from nucleo.mutacion import correr  # noqa: E402
+from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
+                             sin_bandera)  # noqa: E402
+
+PROY = resolver(sys.argv[1:])
+registrar_escalares(PROY)
 
 
 def casos() -> list[dict]:
@@ -33,8 +38,8 @@ def casos() -> list[dict]:
     porque el informe diría «todos murieron» dejando cuatro medidas afuera.
     """
     salida = [json.loads(p.read_text(encoding="utf-8"))
-              for p in sorted((RAIZ / "corpus").rglob("*.json"))]
-    for f in sorted((RAIZ / "diferencial").glob("*.json")):
+              for p in sorted((PROY.corpus).rglob("*.json"))]
+    for f in sorted((PROY.diferencial).glob("*.json")):
         datos = json.loads(f.read_text(encoding="utf-8"))
         for mid, entradas in datos["grupos"].items():
             for i, e in enumerate(entradas):
@@ -48,10 +53,10 @@ def casos() -> list[dict]:
 
 
 def main() -> int:
-    catalogo = cargar_catalogo(RAIZ / "catalogos")
+    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
     evidencia = correr(catalogo, casos())
 
-    if "--hechos" in sys.argv:
+    if "--hechos" in sin_bandera(sys.argv[1:]):
         print(json.dumps(evidencia, ensure_ascii=False, indent=2))
         return 0
 

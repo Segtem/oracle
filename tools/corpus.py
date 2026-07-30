@@ -23,7 +23,11 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[1] / "corpus"
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from nucleo.proyecto import resolver, sin_bandera  # noqa: E402
+
+PROY = resolver(sys.argv[1:])
+RAIZ = PROY.corpus
 
 OBLIGATORIOS = ("id", "fecha", "origen", "titulo", "etiqueta", "sintoma",
                 "como_se_detecto", "medida", "evidencia", "leccion")
@@ -137,7 +141,7 @@ def main() -> int:
             print("  ·", f)
         return 1
     print(f"CORPUS OK · {len(cargados)} casos · esquema, evidencia L0 y trazabilidad en regla")
-    if "--resumen" in sys.argv:
+    if "--resumen" in sin_bandera(sys.argv[1:]):
         resumen(cargados)
     return 0
 

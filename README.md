@@ -78,10 +78,45 @@ La salida son tres señales que no le preguntan al LLM: la **mutación** (mecán
 **prueba diferencial** contra una implementación independiente, y **una persona** que dice «esto está
 mal» cuando el verde no se movió.
 
+## La herramienta y el proyecto
+
+Oracle **no tiene dominios**. Los dominios son de quien construye:
+
+```
+oracle/                        LA HERRAMIENTA
+  nucleo/                      el álgebra, la medida, las macros, el dominio, la simulación
+  tools/                       los instrumentos
+  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion
+  corpus/                      los casos donde la medición dijo bien y no estaba bien
+  ejemplo/                     un banco de pruebas abstracto, no un dominio
+
+<tu-proyecto>/                 TU PROYECTO
+  catalogos/<dominio>/         tus medidas
+  escalares.py                 tus funciones de dominio
+  corpus/  diferencial/        tus casos y tus fixtures
+```
+
+Y las herramientas se apuntan:
+
+```bash
+python <oracle>/tools/diferencial.py --proyecto <tu-proyecto>
+python <oracle>/tools/aceptacion.py  --proyecto <tu-proyecto>
+export ORACLE_PROYECTO=<tu-proyecto>     # para no repetirlo
+```
+
+**El catálogo base viene incluido.** Las medidas de `proceso`, `meta` y `simulacion` valen para
+cualquiera que construya con un LLM —mutantes que sobreviven, afirmaciones sin alcance, verificaciones
+vencidas, corridas irreproducibles— y se cargan junto a las tuyas. Que vengan de fábrica es la
+diferencia entre una herramienta y un repositorio de ejemplos.
+
+Los dominios que estuvieron acá durante el desarrollo —geometría, vault, relevo, una cola, un
+laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
+no abstraer.
+
 ## Estado
 
 **Los cinco pasos, hechos.** El [corpus](corpus/) (19 casos), la [especificación](ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **32 medidas en seis dominios** dentro de [`catalogos/`](catalogos/) —como
+el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).

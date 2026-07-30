@@ -27,15 +27,20 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.medida import cargar_catalogo, como_hechos  # noqa: E402
+from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
+                             sin_bandera)  # noqa: E402
+
+PROY = resolver(sys.argv[1:])
+registrar_escalares(PROY)
 
 
 def casos() -> list[dict]:
     return [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted((RAIZ / "corpus").rglob("*.json"))]
+            for p in sorted((PROY.corpus).rglob("*.json"))]
 
 
 def main() -> int:
-    catalogo = cargar_catalogo(RAIZ / "catalogos")
+    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
     todos = casos()
     fallas: list[str] = []
     rojos = 0

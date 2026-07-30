@@ -1,8 +1,0 @@
-[
-  "medida",
-  "colocacion.interpenetracion",
-  ["desde", ["unir", ["de", "pieza", "a"], ["de", "vecina", "b"]], ["donde", ["y", ["no", ["es_fondo", ["hecho", "b"]]], [">", ["penetracion", ["hecho", "a"], ["hecho", "b"]], 0]]]],
-  ["resumen", "max", ["penetracion", ["hecho", "a"], ["hecho", "b"]]],
-  ["umbral", "<=", 0, "`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da >0, así que el umbral no necesita holgura propia"],
-  ["alcance", "solape de AABB entre piezas de escala comparable. NO ve: solape de la MALLA real (dos AABB pueden solapar sin que los triángulos se toquen, y al revés en mallas cóncavas), oclusión visual, ni si la pieza quedó flotando"]
-]

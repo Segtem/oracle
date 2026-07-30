@@ -132,9 +132,13 @@ def cargar(ruta: Path) -> Medida:
     return Medida.de_datos(json.loads(Path(ruta).read_text(encoding="utf-8")))
 
 
-def cargar_catalogo(directorio: Path) -> dict[str, Medida]:
+def cargar_catalogo(*directorios) -> dict[str, Medida]:
+    """Una o varias carpetas de medidas. Un id repetido entre carpetas es un error, no una
+    sobrescritura silenciosa: si el proyecto quiere cambiar una medida base, la renombra."""
     salida: dict[str, Medida] = {}
-    for p in sorted(Path(directorio).rglob("*.json")):
+    if len(directorios) == 1 and isinstance(directorios[0], (list, tuple)):
+        directorios = directorios[0]
+    for p in sorted(x for d in directorios for x in Path(d).rglob("*.json")):
         m = cargar(p)
         if m.id in salida:
             raise MedidaMalDeclarada(f"el id «{m.id}» está dos veces (último: {p.name})")

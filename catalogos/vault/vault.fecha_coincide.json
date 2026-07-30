@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "vault.fecha_coincide",
-  "documento",
-  "d",
-  ["!=", ["campo", "d", "fecha_en_nombre"], ["campo", "d", "updated"]],
-  "la fecha del nombre es lo que se ve al listar el directorio; si no es la de `updated`, el orden aparente del vault miente",
-  "NO ve si `updated` es cierto — nadie comprueba que el documento se haya tocado ese día"
-]

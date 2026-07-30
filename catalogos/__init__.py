@@ -1,8 +1,7 @@
-"""Registra todas las escalares declaradas. Importar `catalogos` alcanza.
+"""Registra las escalares del catálogo BASE. Un proyecto declara las suyas en su `escalares.py`.
 
-Vive acá para que ninguna herramienta tenga que acordarse de importar cada dominio: una escalar sin
-registrar hace fallar la medida que la usa, y ese error se ve tarde y confunde.
+Acá sólo van las que valen para cualquier dominio. `contiene` está porque la medida meta que exige
+que un `alcance` enuncie algo en negativo la necesita, y esa medida es del propio lenguaje.
 """
 
 from . import escalares  # noqa: F401
-from .geometria import escalares as _geometria  # noqa: F401

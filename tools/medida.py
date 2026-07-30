@@ -28,6 +28,11 @@ sys.path.insert(0, str(RAIZ))
 import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES  # noqa: E402
 from nucleo.medida import Medida, MedidaMalDeclarada, cargar_catalogo  # noqa: E402
+from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
+                             sin_bandera)  # noqa: E402
+
+PROY = resolver(sys.argv[1:])
+registrar_escalares(PROY)
 
 # La plantilla usa la macro `ninguno`, que es la forma del 80% de las medidas. `--expandir` muestra
 # en qué se convierte; y si el caso no encaja, la forma canónica sigue siendo válida.
@@ -47,10 +52,10 @@ PLANTILLA = """\
 def _evidencias() -> list[tuple[str, dict]]:
     """(de dónde salió, evidencia) — del corpus y de los fixtures diferenciales."""
     salida = []
-    for p in sorted((RAIZ / "corpus").rglob("*.json")):
+    for p in sorted((PROY.corpus).rglob("*.json")):
         c = json.loads(p.read_text(encoding="utf-8"))
         salida.append((c["id"], c["evidencia"]))
-    for p in sorted((RAIZ / "diferencial").glob("*.json")):
+    for p in sorted((PROY.diferencial).glob("*.json")):
         d = json.loads(p.read_text(encoding="utf-8"))
         for mid, casos in d["grupos"].items():
             for i, caso in enumerate(casos):
@@ -99,7 +104,7 @@ def nueva(mid: str) -> int:
         print(f"el id va «dominio.nombre» (p. ej. `colocacion.{mid}`), para que se agrupe solo")
         return 1
     dominio = mid.split(".")[0]
-    destino = RAIZ / "catalogos" / dominio / f"{mid}.json"
+    destino = PROY.catalogos / dominio / f"{mid}.json"
     if destino.exists():
         print(f"ya existe: {destino}")
         return 1
@@ -181,7 +186,7 @@ def revisar(ruta: Path) -> int:
 
 
 def main() -> int:
-    args = sys.argv[1:]
+    args = sin_bandera(sys.argv[1:])
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)
         return 0

@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "vault.frontmatter_completo",
-  "documento",
-  "d",
-  ["==", ["campo", "d", "frontmatter_completo"], false],
-  "sin `title`, `tipo`, `version`, `date`, `updated` y `area` el documento no se puede indexar ni ubicar, y las otras medidas no tienen qué comparar",
-  "ve que los campos ESTÉN. NO ve si su contenido es cierto — un `updated` inventado cumple"
-]

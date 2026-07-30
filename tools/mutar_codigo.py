@@ -22,6 +22,11 @@ sys.path.insert(0, str(RAIZ))
 import catalogos  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo  # noqa: E402
 from nucleo.mutacion_codigo import correr  # noqa: E402
+from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
+                             sin_bandera)  # noqa: E402
+
+PROY = resolver(sys.argv[1:])
+registrar_escalares(PROY)
 
 TESTS = [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-q"]
 EQUIVALENTES = RAIZ / "equivalentes.json"
@@ -34,7 +39,7 @@ def main() -> int:
         equivalentes = {e["id"]: e["razon"]
                         for e in json.loads(EQUIVALENTES.read_text(encoding="utf-8"))}
 
-    silencioso = "--hechos" in sys.argv
+    silencioso = "--hechos" in sin_bandera(sys.argv[1:])
     hechos_previos = []
 
     def progreso(fila):
@@ -58,7 +63,7 @@ def main() -> int:
           f"{len(evidencia['mutante']) - len(vivos)} · sobrevivieron {len(vivos)} · "
           f"equivalentes declarados: {len(eq)}")
 
-    catalogo = cargar_catalogo(RAIZ / "catalogos")
+    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
     for mid in ("proceso.test_con_mutante_que_lo_mata", "proceso.arnes_con_bytecode_frio"):
         v = catalogo[mid].evaluar(evidencia)
         print(f"  {'✓' if v.ok else '✗'} {mid:<44} valor {v.valor} ({v.umbral})")

@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "laberinto.se_alcanza_la_meta",
-  "corrida",
-  "c",
-  ["!=", ["campo", "c", "razon"], "meta"],
-  "el escenario existe para ser recorrido: si el que camina no llega, da igual que exista un camino",
-  "NO ve CÓMO se llegó: una corrida que llega dando mil vueltas cuenta igual que la directa"
-]

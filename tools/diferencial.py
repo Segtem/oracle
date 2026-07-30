@@ -23,15 +23,20 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402  registra las escalares de todos los dominios
 from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
+from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
+                             sin_bandera)  # noqa: E402
+
+PROY = resolver(sys.argv[1:])
+registrar_escalares(PROY)
 
 
 def main() -> int:
-    fixtures = sorted((RAIZ / "diferencial").glob("*.json"))
+    fixtures = sorted((PROY.diferencial).glob("*.json"))
     if not fixtures:
         print("no hay fixtures en diferencial/ — los genera `tools/emitir_diferencial.py` en Jam")
         return 1
 
-    catalogo = cargar_catalogo(RAIZ / "catalogos")
+    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
     fallas: list[str] = []
     total = 0
 

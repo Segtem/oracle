@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "cola.no_rechaza_a_nadie",
-  "corrida",
-  "c",
-  ["==", ["campo", "c", "razon"], "desborde"],
-  "rechazar es la falla visible del sistema: alguien llegó y no pudo ser atendido. Cero es el único número defendible cuando la capacidad es una decisión de diseño",
-  "ve el PRIMER rechazo, que corta la corrida. NO ve cuántos más habría habido, ni el costo de los que sí entraron pero esperaron de más"
-]

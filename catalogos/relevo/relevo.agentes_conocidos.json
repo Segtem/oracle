@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "relevo.agentes_conocidos",
-  "agente",
-  "a",
-  ["==", ["campo", "a", "conocido"], false],
-  "un agente que no está en la lista no tiene ni recetas ni trampas escritas para él, así que el relevo no le sirve de nada",
-  "NO ve si el agente nombrado es el que realmente va a trabajar"
-]
