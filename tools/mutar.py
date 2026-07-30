@@ -24,7 +24,7 @@ import catalogos.escalares  # noqa: F401,E402
 from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
 from nucleo.mutacion import correr  # noqa: E402
-from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
+from nucleo.proyecto import (RAIZ_ORACLE, catalogos_a_cargar, registrar_escalares, resolver,
                              sin_bandera)  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
@@ -89,7 +89,9 @@ def main() -> int:
     # que dictaminaba en Python lo mismo que una medida del catálogo ya dice.
     listado = casos(catalogo)
     metas = {mid for mid in catalogo if mid.startswith("meta.")}
-    evidencia.update(hechos_de_uso(catalogo, listado, evidencia["mutante"], evaluadas_aparte=metas))
+    base = cargar_catalogo(RAIZ_ORACLE / "catalogos") if not PROY.es_el_propio_oracle else {}
+    evidencia.update(hechos_de_uso(catalogo, listado, evidencia["mutante"],
+                                   evaluadas_aparte=metas, heredadas=set(base)))
 
     juezas = [catalogo[mid] for mid in ("proceso.test_con_mutante_que_lo_mata",
                                         "meta.toda_medida_esta_ejercitada",

@@ -55,7 +55,8 @@ def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
 
 
 def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None = None,
-                  evaluadas_aparte: set[str] | None = None) -> dict:
+                  evaluadas_aparte: set[str] | None = None,
+                  heredadas: set[str] | None = None) -> dict:
     """Un hecho por medida del catálogo: cuántos casos la evalúan y cuántos mutantes le sobreviven.
 
     `mutantes` son las filas que produce `nucleo.mutacion`; sin ellas, la cuenta de sobrevivientes
@@ -81,7 +82,12 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
             if not m.get("murio", True):
                 vivos[mid] += 1
 
+    # `es_heredada`: vino del catálogo BASE de oracle, no del proyecto. Sin este campo, apuntar la
+    # herramienta a un proyecto ajeno daba falso rojo en «sin ejercitar» para todas las medidas
+    # universales — que están fijadas por el corpus de oracle, no por el del proyecto. Un proyecto
+    # responde por SUS medidas.
+    heredadas = heredadas or set()
     return {"medida_en_uso": [
         {"id": mid, "casos_que_la_evaluan": evalua[mid], "mutantes": total[mid],
-         "mutantes_vivos": vivos[mid]}
+         "mutantes_vivos": vivos[mid], "es_heredada": mid in heredadas}
         for mid in sorted(catalogo)]}
