@@ -82,8 +82,8 @@ class AlgebraTests(unittest.TestCase):
             desde(["desde", ["donde", True]], EV)
 
     def test_los_operadores_sin_usuario_dicen_su_disparador(self) -> None:
-        # `unir` salió de esta lista al llegar su disparador (el catálogo de geometría)
-        for op in ("con", "agrupar"):
+        # `unir` salió al llegar el catálogo de geometría; `agrupar`, al llegar la AUSENCIA
+        for op in ("con",):
             with self.assertRaises(OperadorNoImplementado) as e:
                 desde(["desde", ["de", "pieza", "p"], [op, "x", 1]], EV)
             self.assertIn("se implementa cuando aparezca", str(e.exception).lower())
@@ -106,6 +106,39 @@ class AlgebraTests(unittest.TestCase):
     def test_unir_solo_acepta_fuentes(self) -> None:
         with self.assertRaises(ErrorDeAlgebra):
             desde(["desde", ["unir", ["donde", True], ["de", "pieza", "b"]]], EV)
+
+    def test_agrupar_devuelve_UNA_fila_por_grupo_con_columnas_derivadas(self) -> None:
+        ev = {"cosa": [{"g": "a", "n": 1}, {"g": "a", "n": 2}, {"g": "b", "n": 5}]}
+        filas = desde(["desde", ["de", "cosa", "c"],
+                       ["agrupar", [["grupo", ["campo", "c", "g"]]],
+                                   [["cuantos", "contar", 1], ["total", "suma", ["campo", "c", "n"]]]]],
+                      ev)
+        # un grupo NO es un hecho: no lleva alias, lleva columnas derivadas
+        self.assertEqual(
+            sorted((f["_"]["grupo"], f["_"]["cuantos"], f["_"]["total"]) for f in filas),
+            [("a", 2, 3), ("b", 1, 5)])
+        self.assertNotIn("c", filas[0])
+
+    def test_agrupar_expresa_la_AUSENCIA_sin_nulos(self) -> None:
+        """Era una de las preguntas abiertas de la especificación. El truco no es un LEFT JOIN con
+        nulos: es agrupar sobre el producto SIN filtrar y sumar un predicado — los booleanos suman
+        0 y 1, así que un grupo donde nada casó da cero y sigue existiendo."""
+        ev = {"modulo": [{"nombre": "usado"}, {"nombre": "solo_por_test"}, {"nombre": "huerfano"}],
+              "importa": [{"a": "x", "b": "usado", "es_test": False},
+                          {"a": "t", "b": "solo_por_test", "es_test": True}]}
+        filas = desde(["desde",
+                       ["unir", ["de", "modulo", "m"], ["de", "importa", "i"]],
+                       ["agrupar", [["modulo", ["campo", "m", "nombre"]]],
+                                   [["reales", "suma",
+                                     ["y", ["==", ["campo", "i", "b"], ["campo", "m", "nombre"]],
+                                           ["==", ["campo", "i", "es_test"], False]]]]],
+                       ["donde", ["==", ["col", "reales"], 0]]], ev)
+        self.assertEqual(sorted(f["_"]["modulo"] for f in filas), ["huerfano", "solo_por_test"])
+
+    def test_agrupar_con_un_agregado_desconocido_es_error(self) -> None:
+        with self.assertRaises(ErrorDeAlgebra):
+            desde(["desde", ["de", "pieza", "p"],
+                   ["agrupar", [["k", ["campo", "p", "id"]]], [["x", "moda", 1]]]], EV)
 
     def test_contar_no_evalua_la_expresion(self) -> None:
         filas = desde(["desde", ["de", "pieza", "p"]], EV)

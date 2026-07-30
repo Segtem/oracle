@@ -83,18 +83,21 @@ filas. Los agregados sobre cero filas dan `0`.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
 
-### Implementados: cuatro de seis
+### Implementados: cinco de seis
 
 La regla *no se agrega un operador hasta que una segunda medida lo necesite* aplica también a
 **implementarlos**: un operador sin usuario es un operador sin verificar. Corren `de`, `donde`,
-`resumen` y `unir`. Los dos que faltan levantan un error que dice su disparador, así que cuando hagan
-falta no hay que adivinar por qué no están:
+`resumen`, `unir` y `agrupar`. El que falta levanta un error que dice su disparador:
 
 | Operador | Estado |
 |---|---|
 | `unir` | ✅ entró con el catálogo de geometría: «pares de piezas que se clavan» es un producto. El modo `"izquierda"` sigue sin usuario, porque traería el concepto de NULO |
-| `agrupar` | ⏳ contar por grupo — importadores por módulo, y con eso la «ausencia» de §7 |
+| `agrupar` | ✅ entró con la AUSENCIA — ver §7 |
 | `con` | ⏳ una medida que reuse una columna derivada en más de un paso |
+
+Un grupo **no es un hecho**: es un resumen. Las filas que salen de `agrupar` no llevan alias —los
+hechos se consumieron— sino columnas derivadas, que se leen con `["col", nombre]`. Ese accesor existía
+desde el principio y recién acá encontró su usuario.
 
 ### Acceso a los datos
 
@@ -174,10 +177,22 @@ operadores, se para y se rediseña — no se agregan operadores hasta que entren
 
 Escritas porque una especificación que finge no tener huecos es peor que una con huecos marcados.
 
-- **Ausencia.** «Módulo sin ningún importador» es un anti-join. Hoy se expresa con
-  `unir … "izquierda"` más un test de falta, pero eso mete el concepto de **nulo**, que es la peor
-  verruga de SQL. Alternativa: `agrupar` + `contar == 0`, que evita el nulo a costa de ser más
-  verboso. **Sin resolver.**
+- **Ausencia.** ✅ **RESUELTA, y sin nulos.** «Módulo sin ningún importador REAL» parecía pedir un
+  anti-join, y un `LEFT JOIN` habría metido el concepto de nulo —la peor verruga de SQL—. La solución
+  no necesitó operador nuevo más allá de `agrupar`: se agrupa sobre el producto **sin filtrar** y se
+  agrega con `suma` sobre un predicado. Los booleanos suman 0 y 1, así que **un grupo donde nada casó
+  da cero y sigue existiendo**:
+
+  ```json
+  ["unir", ["de","modulo","m"], ["de","importa","i"]],
+  ["agrupar", [["modulo", ["campo","m","nombre"]]],
+              [["reales","suma", ["y", ["==", ["campo","i","b"], ["campo","m","nombre"]],
+                                       ["==", ["campo","i","es_test"], false]]]]],
+  ["donde", ["==", ["col","reales"], 0]]
+  ```
+
+  Queda un límite, declarado en el `alcance` de la medida que lo usa: si la relación del lado derecho
+  está **vacía**, no hay pares y por lo tanto no hay grupos. Sin resolver, y es honesto decirlo.
 - **Recursión.** «Alcanzable desde» (el cierre de imports, la conectividad de un grafo) no se expresa
   con estos seis operadores. Es la misma pared que hizo falta `WITH RECURSIVE` en SQL. Candidatos: un
   operador `cierre`, o una función escalar que reciba la relación. **Diferido hasta que dos medidas lo

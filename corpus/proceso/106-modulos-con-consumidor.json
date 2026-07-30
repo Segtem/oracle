@@ -7,27 +7,59 @@
   },
   "titulo": "Los módulos del núcleo del oráculo sí tienen importadores",
   "etiqueta": "verde_correcto",
-  "sintoma": "`algebra` y `medida` los importa `mutacion`, y los tres los importan las herramientas. Ninguno está en la situación de `preview2d`.",
+  "sintoma": "Cada módulo del núcleo tiene al menos un importador que NO es un test: `algebra` lo importa `medida`, `medida` lo importan `mutacion` y `dominio`, `marco` lo importan las dos herramientas.",
   "como_se_detecto": "observacion",
   "medida": "proceso.modulo_con_consumidor",
   "evidencia": {
     "modulo": [
       {
         "nombre": "nucleo.algebra",
-        "tests": 16,
-        "importadores": 3
+        "tests": 22,
+        "importadores": 4
       },
       {
         "nombre": "nucleo.medida",
-        "tests": 16,
-        "importadores": 3
+        "tests": 20,
+        "importadores": 5
       },
       {
-        "nombre": "nucleo.mutacion",
+        "nombre": "nucleo.marco",
         "tests": 0,
-        "importadores": 1
+        "importadores": 2
+      }
+    ],
+    "importa": [
+      {
+        "a": "nucleo.medida",
+        "b": "nucleo.algebra",
+        "es_test": false
+      },
+      {
+        "a": "nucleo.mutacion",
+        "b": "nucleo.medida",
+        "es_test": false
+      },
+      {
+        "a": "nucleo.dominio",
+        "b": "nucleo.medida",
+        "es_test": false
+      },
+      {
+        "a": "tools.aceptacion",
+        "b": "nucleo.marco",
+        "es_test": false
+      },
+      {
+        "a": "tools.mutar",
+        "b": "nucleo.marco",
+        "es_test": false
+      },
+      {
+        "a": "tests.test_nucleo",
+        "b": "nucleo.algebra",
+        "es_test": true
       }
     ]
   },
-  "leccion": "La medida cuenta importadores sin distinguir tests, y este caso lo esquiva porque los importadores son reales. El punto ciego sigue declarado en el `alcance`."
+  "leccion": "La otra polaridad, y ahora con hechos de `importa` de verdad: sin ellos el verde era trivial porque sin pares no hay grupos que contar."
 }

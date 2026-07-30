@@ -36,7 +36,7 @@
       }
     ]
   },
-  "leccion": "Un test no es un consumidor. Un módulo cuyos únicos importadores son sus propios tests está verde y no está en uso.",
+  "leccion": "Un test no es un consumidor: un módulo cuyos únicos importadores son sus propios tests está verde y no está en uso. Este caso pidió el operador `agrupar` durante dos días —la medida declaraba no poder distinguirlos— y con la ausencia expresable ya los distingue.",
   "fecha": "2026-07-29",
   "origen": {
     "repo": "Brianholl/jam",

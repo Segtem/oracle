@@ -123,7 +123,6 @@ AGREGADOS: dict[str, Callable[[list], Any]] = {
 
 DISPARADORES = {
     "con": "una medida que necesite una columna derivada reusada en más de un paso",
-    "agrupar": "contar por grupo — p. ej. importadores por módulo (ver «ausencia» en la espec.)",
 }
 
 FUENTES = ("de", "unir")
@@ -163,6 +162,36 @@ def _unir(paso, evidencia: dict) -> list[dict]:
     return salida
 
 
+def _agrupar(paso, filas: list[dict]) -> list[dict]:
+    """`["agrupar", [[nombre, expr]…], [[nombre, agg, expr]…]]` → una fila por grupo.
+
+    Un grupo NO es un hecho: es un resumen. Así que las filas que salen no llevan alias —los hechos
+    se consumieron— sino columnas derivadas, que se leen con `["col", nombre]`. Ese accesor existía
+    desde el principio y recién acá encuentra su usuario.
+
+    **Con esto se expresa la AUSENCIA**, que era una de las preguntas abiertas de la especificación.
+    El truco no es un `LEFT JOIN` con nulos —la peor verruga de SQL— sino agrupar sobre el producto
+    SIN filtrar y agregar con `suma` sobre un predicado: los booleanos suman 0 y 1, así que un grupo
+    donde nada casó da cero y sigue existiendo. Sin nulos y sin operador nuevo.
+    """
+    claves, agregados = paso[1], paso[2]
+    grupos: dict[tuple, list[dict]] = {}
+    for f in filas:
+        k = tuple(evaluar_expr(expr, f) for _nombre, expr in claves)
+        grupos.setdefault(k, []).append(f)
+
+    salida = []
+    for k, miembros in grupos.items():
+        derivadas = {nombre: valor for (nombre, _expr), valor in zip(claves, k)}
+        for nombre, agg, expr in agregados:
+            if agg not in AGREGADOS:
+                raise ErrorDeAlgebra(f"agregado desconocido: «{agg}»")
+            valores = [evaluar_expr(expr, m) for m in miembros]
+            derivadas[nombre] = len(miembros) if agg == "contar" else AGREGADOS[agg](valores)
+        salida.append({ALIAS_DERIVADO: derivadas})
+    return salida
+
+
 def aplicar(paso, filas: list[dict], evidencia: dict) -> list[dict]:
     op = paso[0]
     if op == "de":
@@ -172,6 +201,8 @@ def aplicar(paso, filas: list[dict], evidencia: dict) -> list[dict]:
         return _unir(paso, evidencia)
     if op == "donde":
         return [f for f in filas if evaluar_expr(paso[1], f)]
+    if op == "agrupar":
+        return _agrupar(paso, filas)
     if op in DISPARADORES:
         raise OperadorNoImplementado(
             f"«{op}» está declarado en la especificación y todavía no tiene usuario. "

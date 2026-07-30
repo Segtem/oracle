@@ -233,9 +233,13 @@ es el modo de falla del caso `008`.
 medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
 medidas, expanden a la forma canónica, y `peor` cerró por construcción la deuda del umbral duplicado.
 
-**Cuatro de los seis operadores están implementados**: `de`, `donde`, `resumen`, y `unir` — que entró
-al llegar su disparador, porque «pares de piezas que se clavan» es un producto y ninguna medida de
-proceso lo necesitaba. `con` y `agrupar` siguen levantando un error que dice cuál sería el suyo.
+**Cinco de los seis operadores están implementados**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
+Cada uno entró al llegar su disparador, no antes. Sólo `con` sigue levantando un error que dice cuál
+sería el suyo.
+
+Con `agrupar` quedó resuelta la **ausencia** —«módulos que nadie usa de verdad»— y sin traer el
+concepto de nulo: se agrupa sobre el producto sin filtrar y se suma un predicado, así que un grupo
+donde nada casó da cero y sigue existiendo.
 
 ### Dos oráculos, y ninguno alcanza solo
 
