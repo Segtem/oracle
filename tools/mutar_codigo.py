@@ -26,11 +26,10 @@ import catalogos  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo  # noqa: E402
 from nucleo.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido, LineaBaseFallida,
                                     correr)  # noqa: E402
-from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
-                             sin_bandera)  # noqa: E402
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
+                             escalares_del_proyecto, resolver, sin_bandera)  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
-registrar_escalares(PROY)
 
 TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
@@ -41,6 +40,8 @@ def argumentos(argv: list[str]):
     p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="segundos máximos para la baseline y cada mutante (60 por defecto)")
+    p.add_argument("--confiar-escalares", action="store_true",
+                   help="ejecutar el escalares.py del proyecto externo")
     return p.parse_args(argv)
 
 
@@ -69,8 +70,7 @@ def cargar_equivalentes(ruta: Path) -> dict[str, str]:
     return salida
 
 
-def main() -> int:
-    args = argumentos(sin_bandera(sys.argv[1:]))
+def _ejecutar(args) -> int:
     objetivos = sorted((RAIZ / "nucleo").glob("*.py"))
     silencioso = args.hechos
 
@@ -158,6 +158,16 @@ def main() -> int:
 
     print("\nTodos los mutantes murieron: los tests fijan el código del núcleo.")
     return 0
+
+
+def main() -> int:
+    args = argumentos(sin_bandera(sys.argv[1:]))
+    try:
+        with escalares_del_proyecto(PROY, confiar=args.confiar_escalares):
+            return _ejecutar(args)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}", file=sys.stderr)
+        return 2
 
 
 if __name__ == "__main__":

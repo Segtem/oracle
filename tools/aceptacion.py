@@ -1,6 +1,6 @@
 """La prueba de aceptación del marco: **el corpus juzga al oráculo, no al revés.**
 
-    python tools/aceptacion.py
+    python tools/aceptacion.py [--proyecto <ruta>] [--confiar-escalares]
 
 Criterio 4 de la especificación, ejecutable:
 
@@ -28,11 +28,11 @@ sys.path.insert(0, str(RAIZ))
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.marco import hechos_de_casos  # noqa: E402
 from nucleo.medida import cargar_catalogo, como_hechos, evaluar  # noqa: E402
-from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
-                             sin_bandera)  # noqa: E402
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
+                             confiar_escalares, escalares_del_proyecto, problemas_estructura,
+                             resolver)  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
-registrar_escalares(PROY)
 
 
 def casos() -> list[dict]:
@@ -47,7 +47,11 @@ def _relaciones(m) -> list[str]:
     return [fuente[1]] if fuente[0] == "de" else [fuente[1][1], fuente[2][1]]
 
 
-def main() -> int:
+def _ejecutar() -> int:
+    estructura = problemas_estructura(PROY, ("catalogos", "corpus"))
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
     catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
     todos = casos()
     fallas: list[str] = []
@@ -108,6 +112,19 @@ def main() -> int:
     print(f"\nACEPTACIÓN ✓ — {rojos} defectos en rojo, {verdes} verdes correctos, "
           f"{len(huecos)} huecos declarados sin tapar")
     return 0
+
+
+def main() -> int:
+    argv = sys.argv[1:]
+    if "-h" in argv or "--help" in argv:
+        print(__doc__)
+        return 0
+    try:
+        with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
+            return _ejecutar()
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
 
 
 if __name__ == "__main__":

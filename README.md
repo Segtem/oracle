@@ -40,7 +40,8 @@ núcleo y **106 negativas explícitas** (`raise`). No calcula calidad: **declina
 se puede sostener.
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
-`False`, levanta error. La igualdad exacta entre flotantes está prohibida. Un dominio sin defectos
+`False`, levanta error. La igualdad exacta entre flotantes está prohibida, incluido el umbral final.
+Un dominio sin defectos
 declarados no genera fixture. Una medida que no discrimina se denuncia sola.
 
 ### Lo que produce no es confianza: es confianza ACOTADA
@@ -51,15 +52,15 @@ se sabe sobre qué se está callando.
 
 ### La asimetría, medida
 
-De los 20 defectos reales del corpus: **18 falsos verdes, 1 falso rojo y 1 conclusión causal
+De los 28 defectos reales del corpus: **25 falsos verdes, 2 falsos rojos y 1 conclusión causal
 incorrecta pese a una medida correcta**. Ésa es la justificación empírica de cada decisión de
 «negarse antes que permitir». Pero un falso rojo enseña a ignorar el verificador, y por eso pesa igual
 de grave: en un solo día lo cometí tres veces.
 
 ### El sujeto es el que construye, no lo construido
 
-**28 de los 34 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Los 20 defectos
-salieron a la luz por vías que no aceptan el verde nominal: 9 la mutación, 6 una persona, 4 la
+**33 de los 42 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Los 30 casos no
+observacionales salieron a la luz por vías que no aceptan el verde nominal: 17 la mutación, 8 una persona, 4 la
 casualidad y 1 una herramienta ajena. Oracle no es un juez de artefactos — es una prótesis para alguien
 que escribe la herramienta y su test con la misma mano y no recuerda ayer.
 
@@ -180,10 +181,17 @@ oracle/                        LA HERRAMIENTA
 Y las herramientas se apuntan:
 
 ```bash
-python <oracle>/tools/diferencial.py --proyecto <tu-proyecto>
-python <oracle>/tools/aceptacion.py  --proyecto <tu-proyecto>
+python <oracle>/tools/diferencial.py --proyecto <tu-proyecto> --confiar-escalares
+python <oracle>/tools/aceptacion.py  --proyecto <tu-proyecto> --confiar-escalares
+python <oracle>/tools/mutar.py       --proyecto <tu-proyecto> --confiar-escalares
+python <oracle>/tools/estudio.py --proyecto <tu-proyecto> --confiar-escalares
 export ORACLE_PROYECTO=<tu-proyecto>     # para no repetirlo
 ```
+
+Cada comando exige las carpetas que consume. Ninguno ejecuta un `escalares.py` externo salvo que se
+confirme con `--confiar-escalares`: una UDF es código Python y tiene los permisos del proceso. Ayuda,
+`--relaciones`, `--nueva` y `--escalares` sin confianza son inspecciones seguras; esta última muestra
+el inventario base y avisa que omitió las UDF externas.
 
 **El catálogo base viene incluido.** Las medidas de `proceso`, `meta` y `simulacion` valen para
 cualquiera que construya con un LLM —mutantes que sobreviven, afirmaciones sin alcance, verificaciones
@@ -196,14 +204,14 @@ no abstraer.
 
 ## Estado
 
-> **Estado auditado el 2026-07-30; P0 cerrado.** Los bypasses de simulación, baseline, caché,
+> **Estado auditado el 2026-07-30; P1 cerrado.** Los bypasses de simulación, baseline, caché,
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. El aislamiento automático en una copia, el bloqueo y la restauración
 > atómica siguen en P2. Ver
 > [`AUDITORIA-2026-07-30.md`](AUDITORIA-2026-07-30.md) y
 > [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
 
-**El prototipo contiene los cinco componentes.** El [corpus](corpus/) (34 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+**El prototipo contiene los cinco componentes.** El [corpus](corpus/) (42 casos), la [especificación](ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
 archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
 
@@ -216,13 +224,16 @@ python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
 python tools/diferencial.py                      # el álgebra vs una implementación independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 190 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # 217 tests, cero dependencias
 ```
 
-19 defectos en rojo · 12 verdes correctos · 3 huecos declarados · **269 escenarios de Jam
-coincidiendo con implementaciones independientes** · 48/48 mutantes de medida · 190 tests.
+27 defectos en rojo · 12 verdes correctos · 3 huecos declarados · **269 acuerdos globales de Jam
+con referencias independientes y 1158 veredictos individuales estables** · 128/128 mutantes de
+medida · 217 tests.
 
-> **`tools/mutar_codigo.py` sigue saliendo en ROJO.** El baseline completo y particionado, ejecutado
+> **`tools/mutar_codigo.py` sigue saliendo en ROJO.** La mutación de medidas volvió a verde sin
+> reducir el denominador: ocho casos mínimos fijaron los bordes de umbral y dos fijaron mutaciones
+> internas. El baseline de código completo y particionado, ejecutado
 > sobre copias temporales, dejó 503/616 mutantes muertos y 113 vivos, sin timeout ni error de arnés.
 > Se podrían declarar equivalentes en masa para
 > pintar verde — y eso sería exactamente el Goodhart que este repositorio persigue. El número baja
@@ -249,6 +260,11 @@ sensores distintos, dominios distintos. La prueba diferencial
 la genera Jam (`tools/emitir_diferencial.py`) con código que no comparte una línea con este álgebra;
 lo único que viaja entre los repos es un archivo de hechos.
 
+Esos archivos usan `oracle.diferencial/v1`. Guardan SHA-256 del emisor, las fuentes de referencia, el
+catálogo canónico y la configuración; si alguno cambia, el fixture queda vencido antes de evaluarse.
+`referencia_ok` es el acuerdo global independiente. `oracle_al_generar.por_medida` es una fotografía
+individual para detectar regresiones compensadas: no se presentan como la misma clase de evidencia.
+
 ### El bucle cerrado
 
 `tools/mutar.py` muta las **medidas** —que son datos, así que no se toca ningún archivo y no hay
@@ -256,9 +272,11 @@ lo único que viaja entre los repos es un archivo de hechos.
 **una medida del catálogo**, `proceso.test_con_mutante_que_lo_mata`. El sensor no dicta veredictos:
 produce evidencia, y el álgebra la mide.
 
-Hoy: **48 mutantes, 48 muertos** (el corpus y el fixture diferencial se usan los dos como material de
-mutación). Un sobreviviente sería un aspecto de la medida que nada fija, y por lo tanto algo que se
-podría escribir mal sin que nada frene.
+P1.1 amplió el denominador desde cuatro transformaciones gruesas a **128 mutantes localizados** sobre
+umbral, filtros, fuentes, expresiones, agregados y campos. La primera ronda mató 118 y expuso diez
+libertades que el anterior 48/48 no miraba. Ocho reducciones mínimas fijaron los límites justo en el
+borde; otros dos casos fijaron el comparador interno de `proceso.modulo_con_consumidor` y el `max` de
+`proceso.modulo_alcanzable`. La ronda actual mata **128/128** sin reducir el denominador.
 
 ### Modo simulación: la segunda fuente de evidencia
 
@@ -290,7 +308,7 @@ causa no era el código: **el corpus tenía sólo defectos**. Con `contar` y umb
 sin filtro sólo da verde si la relación está vacía, así que ningún caso de defecto puede notar que le
 saquen el filtro. Hace falta la otra polaridad — evidencia real donde la medida **debe** decir verde.
 
-Es lo mismo que evaluar un clasificador sólo con positivos. De ahí los 7 casos `verde_correcto`.
+Es lo mismo que evaluar un clasificador sólo con positivos. Hoy hay 12 casos `verde_correcto`.
 
 **Corrección, dos pasos después.** Cuando el catálogo de geometría trajo el patrón
 «`donde tol` → `resumen max` → `umbral tol`», aparecieron dos sobrevivientes que eran **mutantes
@@ -299,11 +317,11 @@ máximo sin filtrar sigue por debajo, y si algo la supera sigue por encima—. S
 testigos**.
 
 De ahí que el sensor compare **veredicto Y testigos**: los testigos son lo que una persona lee para
-actuar, así que el informe también es contrato. Y con ese cambio hay que corregir lo de arriba:
-**ningún mutador del juego actual necesita un caso verde** — `aflojar_umbral` necesita uno ROJO, y el
-resto se detecta por los testigos en cualquiera de las dos polaridades. Los casos verdes siguen
-valiendo por otra razón: son lo único que ataja una medida que se pone roja con entrada correcta, que
-es el modo de falla del caso `008`.
+actuar, así que el informe también es contrato. La ampliación de P1.1 volvió más precisa la regla:
+`quitar_filtro` suele necesitar un verde, `aflojar_umbral` necesita un rojo junto al límite y las
+mutaciones internas pueden necesitar combinaciones que ejerciten cada término. Los casos verdes son
+además lo único que ataja una medida que se pone roja con entrada correcta, el modo de falla del caso
+`008`.
 
 **Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
 medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
@@ -338,6 +356,8 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
   la herramienta que abre y cierra los turnos.
 - **Los 113 mutantes de código vivos**, de a uno: test discriminante o equivalencia individual con
   razón revisada.
+- **Los 11 mutantes de medida vivos al aplicar el denominador P1.1 sobre Jam**: sus fixtures necesitan
+  escenarios de borde y combinaciones discriminantes; no se corrigen debilitando el mutador.
 - **Los 3 casos que el corpus aún cuenta sin medida**: `004` y `012` ya están resueltos por
   construcción pero falta reclasificarlos; `011` no tiene una detección mecánica conocida.
 - **Declarar los dos arneses que faltan** en el proyecto de Jam (`relevo`, `geometria`) con

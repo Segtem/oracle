@@ -51,6 +51,10 @@ class AlgebraTests(unittest.TestCase):
             evaluar_expr([">", ["campo", "p", "no_existe"], 0], {"p": {"x": 1}})
         self.assertIn("ausente", str(e.exception))
 
+    def test_comparar_objetos_no_escalares_es_error(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "sólo compara escalares"):
+            evaluar_expr(["==", ["hecho", "p"], ["hecho", "p"]], {"p": {"x": 1}})
+
     def test_la_igualdad_EXACTA_sobre_flotantes_esta_prohibida(self) -> None:
         """La última pregunta abierta de la especificación, resuelta negándose: 0.1+0.2 no es 0.3, y
         una medida que compare así diría verde sin que nadie se enterara."""
@@ -112,6 +116,19 @@ class AlgebraTests(unittest.TestCase):
 
     def test_una_relacion_presente_y_vacia_da_cero_filas(self) -> None:
         self.assertEqual(desde(["desde", ["de", "vacia", "v"]], {"vacia": []}), [])
+
+    def test_una_relacion_es_BOLSA_y_conserva_hechos_repetidos(self) -> None:
+        hecho = {"id": "repetido", "x": 2}
+        filas = desde(["desde", ["de", "pieza", "p"]], {"pieza": [hecho, hecho]})
+        self.assertEqual(resumir(["resumen", "contar", 1], filas), 2)
+
+    def test_agrupar_conserva_la_multiplicidad_de_la_bolsa(self) -> None:
+        ev = {"pieza": [{"grupo": "a", "x": 2}, {"grupo": "a", "x": 2}]}
+        filas = desde(
+            ["desde", ["de", "pieza", "p"],
+             ["agrupar", [["grupo", ["campo", "p", "grupo"]]],
+              [["total", "suma", ["campo", "p", "x"]]]]], ev)
+        self.assertEqual(filas, [{"_": {"grupo": "a", "total": 4}}])
 
     def test_una_tuberia_sin_fuente_se_rechaza(self) -> None:
         with self.assertRaisesRegex(ErrorDeAlgebra, "necesita una fuente"):
@@ -188,6 +205,28 @@ class AlgebraTests(unittest.TestCase):
         for agg in ("max", "min", "suma", "promedio"):
             self.assertEqual(resumir(["resumen", agg, ["campo", "p", "x"]], []), 0)
 
+    def test_los_agregados_rechazan_no_finitos_y_tipos_incompatibles(self) -> None:
+        for agg, valores in (
+                ("suma", [float("inf")]),
+                ("promedio", [float("nan")]),
+                ("max", [1, "dos"]),
+                ("min", [None])):
+            with self.subTest(agregado=agg, valores=valores):
+                filas = [{"p": {"x": valor}} for valor in valores]
+                with self.assertRaises(ErrorDeAlgebra):
+                    resumir(["resumen", agg, ["campo", "p", "x"]], filas)
+
+    def test_un_agregado_rechaza_un_resultado_no_finito(self) -> None:
+        filas = [{"p": {"x": 1e308}}, {"p": {"x": 1e308}}]
+        with self.assertRaisesRegex(ErrorDeAlgebra, "finito"):
+            resumir(["resumen", "suma", ["campo", "p", "x"]], filas)
+
+    def test_suma_y_promedio_aceptan_booleanos_como_indicadores(self) -> None:
+        filas = [{"p": {"x": True}}, {"p": {"x": False}}, {"p": {"x": True}}]
+        self.assertEqual(resumir(["resumen", "suma", ["campo", "p", "x"]], filas), 2)
+        self.assertAlmostEqual(
+            resumir(["resumen", "promedio", ["campo", "p", "x"]], filas), 2 / 3)
+
     def test_max_sobre_filas_reales(self) -> None:
         filas = desde(["desde", ["de", "pieza", "p"]], EV)
         self.assertEqual(resumir(["resumen", "max", ["campo", "p", "x"]], filas), 7)
@@ -221,9 +260,23 @@ class AlgebraTests(unittest.TestCase):
         try:
             self.assertEqual(_f(3), 6)                    # devuelve la función, no None
             self.assertEqual(_f.unidad, "cm")
+            self.assertEqual((_f.aridad_min, _f.aridad_max), (1, 1))
+            self.assertEqual(_f.nombre_escalar, "d_prueba_unidad")
+            self.assertEqual(_f.procedencia_escalar, "oracle")
             self.assertIs(algebra.ESCALARES["d_prueba_unidad"], _f)
         finally:
             del algebra.ESCALARES["d_prueba_unidad"]
+
+    def test_una_escalar_declara_nombre_unidad_y_firma_verificables(self) -> None:
+        for nombre in ("Mayuscula", "con.punto", "con-guion", ""):
+            with self.subTest(nombre=nombre), self.assertRaises(ErrorDeAlgebra):
+                algebra.escalar(nombre)
+        with self.assertRaises(ErrorDeAlgebra):
+            algebra.escalar("unidad_rota", "cm\ninyectado")
+        with self.assertRaises(ErrorDeAlgebra):
+            @algebra.escalar("d_solo_keyword")
+            def _solo_keyword(*, obligatorio):
+                return obligatorio
 
     def test_promedio_sobre_filas_reales(self) -> None:
         filas = desde(["desde", ["de", "pieza", "p"]], EV)
@@ -401,6 +454,25 @@ class MedidaTests(unittest.TestCase):
     def test_un_operador_de_umbral_inventado_no_se_carga(self) -> None:
         with self.assertRaises(MedidaMalDeclarada):
             Medida.de_datos(_medida(umbral=("≈", 0)))
+
+    def test_un_umbral_rechaza_numeros_no_finitos_al_CARGAR(self) -> None:
+        for limite in (float("nan"), float("inf"), float("-inf")):
+            with self.subTest(limite=limite):
+                with self.assertRaisesRegex(MedidaMalDeclarada, "finito"):
+                    Medida.de_datos(_medida(umbral=("<=", limite)))
+
+    def test_la_igualdad_EXACTA_de_umbral_sobre_flotante_esta_prohibida(self) -> None:
+        with self.assertRaisesRegex(MedidaMalDeclarada, "igualdad exacta"):
+            Medida.de_datos(_medida(umbral=("==", 0.3)))
+
+        datos = _medida(umbral=("==", 4))
+        datos[3] = ["resumen", "promedio", ["campo", "p", "x"]]
+        with self.assertRaisesRegex(ErrorDeAlgebra, "igualdad exacta"):
+            Medida.de_datos(datos).evaluar({"pieza": [{"x": 4.0}]})
+
+    def test_el_umbral_rechaza_tipos_incompatibles(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "incompatibles"):
+            Medida.de_datos(_medida(umbral=("<=", "cero"))).evaluar(EV)
 
     def test_falla_al_LEERSE_y_no_al_usarse(self) -> None:
         # la diferencia importa: una medida mal declarada no debe poder existir a medias

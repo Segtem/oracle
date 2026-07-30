@@ -103,62 +103,94 @@ inconclusas en el agregado final.
 
 ### P1.1 Formalizar el contrato del álgebra
 
-- [ ] Decidir mediante una nota de diseño si una relación es conjunto o bolsa.
-- [ ] Si es bolsa, corregir especificación y explicar duplicados; si es conjunto, definir identidad y
+- [x] Decidir mediante una nota de diseño si una relación es conjunto o bolsa.
+- [x] Si es bolsa, corregir especificación y explicar duplicados; si es conjunto, definir identidad y
   deduplicación determinista.
-- [ ] Prohibir `==` y `!=` exactos sobre flotantes también en el umbral final.
-- [ ] Validar números finitos y tipos compatibles en agregados y umbrales.
-- [ ] Sustituir `GRANDE = 1e12` por una mutación independiente de escala y agregar casos por encima y
+- [x] Prohibir `==` y `!=` exactos sobre flotantes también en el umbral final.
+- [x] Validar números finitos y tipos compatibles en agregados y umbrales.
+- [x] Sustituir `GRANDE = 1e12` por una mutación independiente de escala y agregar casos por encima y
   por debajo de ese orden de magnitud.
-- [ ] Ampliar la mutación de medidas a fuentes, expresiones, agregados y campos; documentar claramente
+- [x] Ampliar la mutación de medidas a fuentes, expresiones, agregados y campos; documentar claramente
   el denominador cubierto.
 
 **Criterio de salida:** duplicados y flotantes tienen una semántica única, probada y documentada;
 “aflojar” nunca vuelve un umbral más estricto.
 
+**Estado 2026-07-30:** P1.1 implementado. La especificación 0.3 fija relaciones como bolsas, el
+umbral final comparte el contrato seguro de comparación, agregados y umbrales rechazan no finitos y
+tipos incompatibles, y `aflojar_umbral` avanza una unidad o un flotante representable sin centinela de
+escala. El denominador localizado pasó de 48 a 128 mutantes. Su primera ronda mató 118 y dejó diez
+huecos; ocho reducciones de borde y dos casos internos los cerraron sin reducir el denominador, por
+lo que Oracle queda en 128/128. Contra Jam, el mismo denominador produce 157 mutantes, 146 muertos y
+11 vivos; la regeneración fresca de P1.2 confirmó que pertenecen a la cobertura de sus escenarios y
+no a fixtures vencidos. Se mantienen explícitos para el siguiente bloque de integración.
+
 ### P1.2 Versionar y dar frescura al diferencial
 
-- [ ] Definir una versión de esquema para fixtures.
-- [ ] Guardar huellas SHA-256 del emisor, fuentes de referencia, catálogo y configuración usada.
-- [ ] Rechazar o marcar como vencido un fixture cuya huella no coincide.
-- [ ] Distinguir en datos y salida “acuerdo global del conjunto” de “veredicto individual”.
-- [ ] Añadir una regresión donde dos medidas intercambiadas mantengan el `AND` global, para que el
+- [x] Definir una versión de esquema para fixtures.
+- [x] Guardar huellas SHA-256 del emisor, fuentes de referencia, catálogo y configuración usada.
+- [x] Rechazar o marcar como vencido un fixture cuya huella no coincide.
+- [x] Distinguir en datos y salida “acuerdo global del conjunto” de “veredicto individual”.
+- [x] Añadir una regresión donde dos medidas intercambiadas mantengan el `AND` global, para que el
   límite quede visible o sea corregido.
-- [ ] Reemplazar `hash()` por una semilla estable derivada con SHA-256 en Jam.
-- [ ] Hacer reproducible byte a byte la regeneración de fixtures.
+- [x] Reemplazar `hash()` por una semilla estable derivada con SHA-256 en Jam.
+- [x] Hacer reproducible byte a byte la regeneración de fixtures.
 
 **Criterio de salida:** cambiar una referencia o un emisor vence el fixture; regenerar dos veces sin
 cambios produce el mismo archivo; el informe no llama veredictos individuales a comparaciones globales.
 
+**Estado 2026-07-30:** P1.2 implementado. `oracle.diferencial/v1` firma emisor, referencia, catálogo
+canónico y configuración; una diferencia vence el fixture antes de evaluarlo. Cada escenario separa
+el acuerdo global independiente de la fotografía de veredictos individuales, incluida una regresión
+de permutación compensada. Los tres fixtures de Jam se regeneraron dos veces con SHA-256 idénticos;
+el cierre reporta 269 acuerdos globales y 1158 veredictos individuales estables. Los 11 mutantes de
+medida vivos de Jam permanecen explícitos y no se confundieron con frescura.
+
 ### P1.3 Reparar el camino de autoría y el contrato de proyecto
 
-- [ ] Extraer un lector común de fixtures que entienda formatos versionados `grupos` y `escenarios`.
-- [ ] Hacer funcionar `--relaciones`, revisión de una medida, diferencial y mutación contra
+- [x] Extraer un lector común de fixtures que entienda formatos versionados `grupos` y `escenarios`.
+- [x] Hacer funcionar `--relaciones`, revisión de una medida, diferencial y mutación contra
   `jam/medidas`.
-- [ ] Validar ids con una gramática cerrada y confinar toda ruta creada debajo de `catalogos/` después
+- [x] Validar ids con una gramática cerrada y confinar toda ruta creada debajo de `catalogos/` después
   de resolverla.
-- [ ] Corregir la presentación de rutas para proyectos externos.
-- [ ] Hacer que `tools/estudio.py --proyecto` resuelva escalares externas bajo la misma confirmación
-  explícita de confianza que el resto de las herramientas.
-- [ ] Validar estructura de proyecto según la herramienta: catálogo, corpus y/o diferencial requerido,
+- [x] Corregir la presentación de rutas para proyectos externos.
+- [x] Hacer que `tools/estudio.py --proyecto` resuelva escalares externas mediante una confirmación
+  explícita de confianza.
+- [x] Validar estructura de proyecto según la herramienta: catálogo, corpus y/o diferencial requerido,
   en vez de aceptar siempre sólo `catalogos/`.
-- [ ] Crear un fixture de integración temporal que pruebe el flujo externo completo en tests.
+- [x] Crear un fixture de integración temporal que pruebe el flujo externo completo en tests.
 
 **Criterio de salida:** todos los comandos documentados funcionan sobre Jam y sobre un proyecto mínimo
 creado en un directorio temporal; ningún id puede escribir fuera del proyecto.
 
+**Estado 2026-07-30:** P1.3 implementado. `nucleo/fixtures.py` es el único lector de ambos formatos y
+también aplica frescura cuando lo consumen autoría o mutación. Jam completa inventario, revisión,
+diferencial y mutación sin caminos especiales; un proyecto temporal recorre además corpus,
+aceptación y estudio. Los ids siguen una gramática cerrada, el destino se confina físicamente y un
+symlink exterior tiene regresión. Estudio carga UDF externas sólo con `--confiar-escalares`; P1.4
+llevó luego ese opt-in y la carga dentro de `main` al resto de las herramientas. Al sincronizar el vendor
+apareció la deriva que aún reportaba 80/80 con el mutador antiguo; actualizado, Jam vuelve a mostrar
+el denominador real de 157, con 146 muertos y 11 vivos.
+
 ### P1.4 Hacer explícita la frontera de confianza de las escalares
 
-- [ ] Mover la carga de `escalares.py` dentro de `main`, después de parsear argumentos; `--help` nunca
+- [x] Mover la carga de `escalares.py` dentro de `main`, después de parsear argumentos; `--help` nunca
   debe ejecutar código del proyecto.
-- [ ] Exigir una confirmación o bandera explícita para cargar Python de un proyecto externo no marcado
+- [x] Exigir una confirmación o bandera explícita para cargar Python de un proyecto externo no marcado
   como confiable.
-- [ ] Documentar que una UDF tiene los mismos permisos que Oracle.
-- [ ] Aislar el registro por proyecto y declarar nombre, aridad y unidad verificables.
-- [ ] Evaluar un modo aislado para inspección que no ejecute UDF.
+- [x] Documentar que una UDF tiene los mismos permisos que Oracle.
+- [x] Aislar el registro por proyecto y declarar nombre, aridad y unidad verificables.
+- [x] Evaluar un modo aislado para inspección que no ejecute UDF.
 
 **Criterio de salida:** abrir ayuda o inventariar archivos no ejecuta código externo; toda ejecución de
 UDF es explícita y está documentada como frontera de confianza.
+
+**Estado 2026-07-30:** P1.4 implementado. Seis ayudas y los inventarios `--relaciones` y
+`--escalares` tienen regresiones que demuestran ausencia de ejecución externa. Las operaciones que
+cargan o evalúan un catálogo externo exigen `--confiar-escalares`; el registro se activa en un
+contexto y se restaura siempre. Nombre, unidad, aridad y procedencia se validan al declarar, y un
+`escalares.py` symlink o una inserción que evita `@escalar` falla cerrado. La integración temporal
+usa una UDF real y sólo concede confianza en los cinco comandos que la necesitan.
 
 ### Puerta P1
 
@@ -169,6 +201,10 @@ P1 termina sólo cuando:
 - `--relaciones`, aceptación, diferencial y mutación funcionan sobre Jam;
 - la suite contiene integración real de un proyecto externo temporal;
 - upstream y `vendor/oracle` están sincronizados.
+
+**Estado de la puerta P1:** cumplida. Oracle pasa 217 tests, aceptación y 128/128 mutantes de medida;
+los fixtures reproducibles de Jam conservan 269 acuerdos globales y 1158 veredictos individuales.
+El vendor ejecuta el mismo denominador y expone, sin pintarlos de verde, sus 11 mutantes vivos.
 
 ## P2 — robustez operativa y generalidad demostrada
 

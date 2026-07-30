@@ -6,6 +6,9 @@
     python tools/medida.py <archivo.json>          la revisa y la corre contra el corpus
     python tools/medida.py --expandir <archivo>     ve en qué forma canónica se convierte la macro
 
+Para ejecutar `escalares.py` de otro proyecto hace falta `--confiar-escalares`. Ayuda,
+`--relaciones`, `--nueva` y el inventario base de `--escalares` nunca ejecutan ese archivo.
+
 Existe porque sin esto el lenguaje tiene dueño. Todo el argumento de este repositorio es que quien
 ve un defecto pueda escribir la regla que lo atrapa; si para eso hay que escribir s-expresiones en
 JSON a mano y adivinar qué relaciones existen, el único que puede hacerlo es quien escribió el
@@ -27,12 +30,14 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES  # noqa: E402
+from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  # noqa: E402
 from nucleo.medida import Medida, MedidaMalDeclarada, cargar_catalogo  # noqa: E402
-from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
-                             sin_bandera)  # noqa: E402
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
+                             catalogos_a_cargar, confiar_escalares, escalares_del_proyecto,
+                             presentar_ruta, problemas_estructura, resolver,
+                             ruta_de_medida_nueva, sin_banderas_comunes)  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
-registrar_escalares(PROY)
 
 # La plantilla usa la macro `ninguno`, que es la forma del 80% de las medidas. `--expandir` muestra
 # en qué se convierte; y si el caso no encaja, la forma canónica sigue siendo válida.
@@ -49,17 +54,22 @@ PLANTILLA = """\
 """
 
 
-def _evidencias() -> list[tuple[str, dict]]:
+def _evidencias(*, comprobar_frescura: bool) -> list[tuple[str, dict]]:
     """(de dónde salió, evidencia) — del corpus y de los fixtures diferenciales."""
     salida = []
     for p in sorted((PROY.corpus).rglob("*.json")):
         c = json.loads(p.read_text(encoding="utf-8"))
         salida.append((c["id"], c["evidencia"]))
-    for p in sorted((PROY.diferencial).glob("*.json")):
-        d = json.loads(p.read_text(encoding="utf-8"))
-        for mid, casos in d["grupos"].items():
-            for i, caso in enumerate(casos):
-                salida.append((f"{p.stem}/{mid}[{i}]", caso["evidencia"]))
+    rutas = sorted(PROY.diferencial.glob("*.json"))
+    if comprobar_frescura:
+        catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
+        fixtures, fallas = cargar_fixtures(rutas, raiz=PROY.raiz, catalogo=catalogo)
+    else:
+        fixtures, fallas = cargar_fixtures(rutas)
+    if fallas:
+        raise ValueError("fixtures diferenciales inválidos o vencidos:\n  · " + "\n  · ".join(fallas))
+    for fixture in fixtures:
+        salida.extend(evidencias_fixture(fixture))
     return salida
 
 
@@ -67,7 +77,12 @@ def relaciones() -> int:
     """Los hechos disponibles, DERIVADOS de la evidencia que existe. No es una lista a mano."""
     campos: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
     dondes: dict[str, set] = defaultdict(set)
-    for origen, ev in _evidencias():
+    try:
+        disponibles = _evidencias(comprobar_frescura=False)
+    except (OSError, ValueError, json.JSONDecodeError) as e:
+        print(f"no se pudo inventariar la evidencia: {e}")
+        return 1
+    for origen, ev in disponibles:
         for rel, filas in ev.items():
             dondes[rel].add(origen.split("/")[0])
             for fila in filas:
@@ -84,35 +99,41 @@ def relaciones() -> int:
     return 0
 
 
-def escalares() -> int:
+def escalares(*, externas_omitidas: bool = False) -> int:
     print("FUNCIONES ESCALARES declaradas (el mecanismo de UDF):\n")
     for nombre in sorted(ESCALARES):
         fn = ESCALARES[nombre]
         unidad = f" → {fn.unidad}" if getattr(fn, "unidad", "") else ""
+        maximo = getattr(fn, "aridad_max", "?")
+        aridad = (f"{fn.aridad_min}+" if maximo is None else
+                  str(fn.aridad_min) if fn.aridad_min == maximo else f"{fn.aridad_min}..{maximo}")
         doc = (fn.__doc__ or "").strip().split("\n")[0]
-        print(f"  {nombre}{unidad}\n      {doc}")
+        print(f"  {nombre}/{aridad}{unidad}\n      {doc}")
     print(f"\nCOMPARADORES: {' '.join(COMPARADORES)}")
     print(f"LÓGICOS: y  o  no")
     print(f"AGREGADOS: {' '.join(sorted(AGREGADOS))}")
     print("ACCESORES: [\"campo\", alias, nombre] · [\"hecho\", alias] · [\"col\", nombre]")
     print("OPERADORES: de · donde · unir · resumen   (con y agrupar todavía no tienen usuario)")
+    if externas_omitidas:
+        print(f"\n⚠ {PROY.raiz / 'escalares.py'} no se ejecutó. Para incluir sus UDF: "
+              "`--confiar-escalares`.")
     return 0
 
 
 def nueva(mid: str) -> int:
-    if "." not in mid:
-        print(f"el id va «dominio.nombre» (p. ej. `colocacion.{mid}`), para que se agrupe solo")
+    try:
+        destino = ruta_de_medida_nueva(PROY, mid)
+    except ProyectoInvalido as e:
+        print(f"id inválido: {e}")
         return 1
-    dominio = mid.split(".")[0]
-    destino = PROY.catalogos / dominio / f"{mid}.json"
     if destino.exists():
-        print(f"ya existe: {destino}")
+        print(f"ya existe: {presentar_ruta(PROY, destino)}")
         return 1
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")
-    print(f"creada: {destino}\n")
+    print(f"creada: {presentar_ruta(PROY, destino)}\n")
     print("Reemplazá RELACION, CAMPO y los dos textos en MAYÚSCULAS. Después:")
-    print(f"  python tools/medida.py {destino.relative_to(RAIZ)}")
+    print(f"  python tools/medida.py --proyecto {PROY.raiz} {presentar_ruta(PROY, destino)}")
     return 0
 
 
@@ -149,7 +170,12 @@ def revisar(ruta: Path) -> int:
     rojos = verdes = errores = 0
     primer_error = ""
     ejemplos = []
-    for origen, ev in _evidencias():
+    try:
+        disponibles = _evidencias(comprobar_frescura=True)
+    except (OSError, ValueError, json.JSONDecodeError) as e:
+        print(f"✗ no se pudo cargar la evidencia: {e}")
+        return 1
+    for origen, ev in disponibles:
         try:
             v = medida.evaluar(ev)
         except Exception as e:  # noqa: BLE001
@@ -186,31 +212,54 @@ def revisar(ruta: Path) -> int:
 
 
 def main() -> int:
-    args = sin_bandera(sys.argv[1:])
+    argv = sys.argv[1:]
+    args = sin_banderas_comunes(argv)
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)
         return 0
+    requeridos = (("catalogos",) if args[0] in ("--nueva", "--escalares", "--expandir")
+                  else ("catalogos", "corpus", "diferencial"))
+    estructura = problemas_estructura(PROY, requeridos)
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
     if args[0] == "--relaciones":
         return relaciones()
     if args[0] == "--escalares":
-        return escalares()
+        externas = not PROY.es_el_propio_oracle and (PROY.raiz / "escalares.py").exists()
+        if externas and not confiar_escalares(argv):
+            return escalares(externas_omitidas=True)
+        try:
+            with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
+                return escalares()
+        except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+            print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+            return 1
     if args[0] == "--expandir":
         if len(args) < 2:
             print("falta el archivo: --expandir <archivo.json>")
             return 1
-        return expandir_archivo(Path(args[1]) if Path(args[1]).exists() else RAIZ / args[1])
-    if args[0] == "--nueva":
+        entrada = Path(args[1])
+        accion = lambda: expandir_archivo(entrada if entrada.exists() else PROY.raiz / entrada)
+    elif args[0] == "--nueva":
         if len(args) < 2:
             print("falta el id: --nueva dominio.nombre")
             return 1
         return nueva(args[1])
-    ruta = Path(args[0])
-    if not ruta.exists():
-        ruta = RAIZ / args[0]
-    if not ruta.exists():
-        print(f"no existe: {args[0]}")
+    else:
+        ruta = Path(args[0])
+        if not ruta.exists():
+            ruta = PROY.raiz / args[0]
+        if not ruta.exists():
+            print(f"no existe: {args[0]}")
+            return 1
+        accion = lambda: revisar(ruta)
+    try:
+        with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
+            return accion()
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1
-    return revisar(ruta)
 
 
 if __name__ == "__main__":

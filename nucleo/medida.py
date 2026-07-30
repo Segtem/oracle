@@ -25,8 +25,8 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
-from .algebra import (COMPARADORES, ErrorDeAlgebra, _cmp, desde, resumir,
-                      validar_resumen, validar_tuberia)
+from .algebra import (COMPARADORES, ErrorDeAlgebra, comparar, desde, resumir,
+                      validar_finito, validar_resumen, validar_tuberia)
 from .macro import es_macro, expandir
 
 
@@ -118,6 +118,14 @@ class Medida:
         if not isinstance(limite, (str, int, float, bool)):
             raise MedidaMalDeclarada(
                 f"{mid}: el valor del umbral tiene que ser escalar, no {type(limite).__name__}")
+        try:
+            validar_finito(limite, "el valor del umbral")
+        except ErrorDeAlgebra as e:
+            raise MedidaMalDeclarada(f"{mid}: {e}") from e
+        if op in ("==", "!=") and isinstance(limite, float):
+            raise MedidaMalDeclarada(
+                f"{mid}: la igualdad exacta de umbral sobre un flotante está prohibida; "
+                "usá una comparación de orden con tolerancia")
         # las dos reglas que hacen a esto un oráculo y no un validador
         if not isinstance(porque, str) or not porque.strip():
             raise MedidaMalDeclarada(
@@ -133,7 +141,7 @@ class Medida:
     def evaluar(self, evidencia: dict) -> Veredicto:
         testigos = desde(self.tuberia, evidencia)
         valor = resumir(self.resumen, testigos)
-        return Veredicto(id=self.id, valor=valor, ok=_cmp(self.op)(valor, self.limite),
+        return Veredicto(id=self.id, valor=valor, ok=comparar(self.op, valor, self.limite),
                          umbral=f"{self.op} {self.limite}", porque=self.porque,
                          alcance=self.alcance, testigos=tuple(testigos))
 

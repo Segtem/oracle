@@ -1,6 +1,6 @@
 """Vuelca todo el repositorio a Markdown plano y autocontenido, para subirlo y estudiarlo.
 
-    python tools/estudio.py [--proyecto <ruta>] [--destino estudio]
+    python tools/estudio.py [--proyecto <ruta>] [--destino estudio] [--confiar-escalares]
 
 Pensado para NotebookLM y parientes: ingieren **documentos planos**, no repositorios. Así que acá no
 hay enlaces relativos, ni wikilinks, ni referencias a archivos que el lector no tiene. Cada documento
@@ -31,7 +31,9 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
 from nucleo.medida import Medida, cargar_catalogo, como_hechos  # noqa: E402
-from nucleo.proyecto import resolver  # noqa: E402
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
+                             confiar_escalares, escalares_del_proyecto, problemas_estructura,
+                             resolver)  # noqa: E402
 
 
 def _git(*args) -> str:
@@ -110,9 +112,9 @@ def catalogo_en_prosa(catalogos_dirs) -> str:
     return "\n".join(out)
 
 
-def corpus_en_prosa() -> str:
+def corpus_en_prosa(raiz_corpus: Path) -> str:
     casos = [json.loads(p.read_text(encoding="utf-8"))
-             for p in sorted((RAIZ / "corpus").rglob("*.json"))]
+             for p in sorted(raiz_corpus.rglob("*.json"))]
     et = Counter(c["etiqueta"] for c in casos)
     det = Counter(c["como_se_detecto"] for c in casos)
 
@@ -174,7 +176,7 @@ def diario() -> str:
     return "\n".join(out)
 
 
-def numeros(catalogos_dirs) -> str:
+def numeros(catalogos_dirs, raiz_corpus: Path) -> str:
     cat = cargar_catalogo(catalogos_dirs)
     hechos = como_hechos(cat.values())
     lineas_nucleo = sum(len(p.read_text(encoding="utf-8").splitlines())
@@ -183,7 +185,7 @@ def numeros(catalogos_dirs) -> str:
                           for d in catalogos_dirs for p in Path(d).rglob("*.json"))
     negativas = sum(p.read_text(encoding="utf-8").count("raise ")
                     for p in (RAIZ / "nucleo").glob("*.py"))
-    casos = list((RAIZ / "corpus").rglob("*.json"))
+    casos = list(raiz_corpus.rglob("*.json"))
     return "\n".join([
         "# Los números, y qué dicen", "",
         "| Qué | Cuánto | Qué dice |", "|---|---|---|",
@@ -228,13 +230,8 @@ def indice(archivos) -> str:
         f" · {len(archivos)} documentos.*", ""])
 
 
-def main() -> int:
-    argv = sys.argv[1:]
-    destino = RAIZ / (argv[argv.index("--destino") + 1] if "--destino" in argv else "estudio")
-    proy = resolver(argv)
-    dirs = [RAIZ / "catalogos"]
-    if not proy.es_el_propio_oracle:
-        dirs.append(proy.catalogos)
+def _ejecutar(proy, destino: Path) -> int:
+    dirs = catalogos_a_cargar(proy)
 
     destino.mkdir(parents=True, exist_ok=True)
     docs = {
@@ -242,7 +239,7 @@ def main() -> int:
         "01-el-algebra.md": algebra(),
         "02-escribir-una-medida.md": como_escribir(),
         "03-el-catalogo.md": catalogo_en_prosa(dirs),
-        "04-el-corpus.md": corpus_en_prosa(),
+        "04-el-corpus.md": corpus_en_prosa(proy.corpus),
         "05-el-nucleo.md": modulos(
             "nucleo", "El núcleo, módulo por módulo",
             "Los docstrings enteros: ahí vive el razonamiento y las decisiones descartadas, que es lo "
@@ -252,7 +249,7 @@ def main() -> int:
             "Cada una existe por un motivo que está escrito en su encabezado. Varias nacieron de un "
             "defecto concreto del corpus."),
         "07-el-diario.md": diario(),
-        "08-los-numeros.md": numeros(dirs),
+        "08-los-numeros.md": numeros(dirs, proy.corpus),
     }
     docs["README.md"] = indice(docs)
 
@@ -264,6 +261,33 @@ def main() -> int:
     for nombre in sorted(docs):
         print(f"  {nombre:<28} {len(docs[nombre].splitlines()):>5} líneas")
     return 0
+
+
+def main() -> int:
+    argv = sys.argv[1:]
+    if "-h" in argv or "--help" in argv:
+        print(__doc__)
+        return 0
+    proy = resolver(argv)
+    estructura = problemas_estructura(proy, ("catalogos", "corpus"))
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
+    if "--destino" in argv:
+        i = argv.index("--destino")
+        if i + 1 >= len(argv):
+            print("--destino necesita una ruta")
+            return 1
+        indicado = Path(argv[i + 1]).expanduser()
+        destino = indicado if indicado.is_absolute() else proy.raiz / indicado
+    else:
+        destino = proy.raiz / "estudio"
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
+            return _ejecutar(proy, destino)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
 
 
 if __name__ == "__main__":

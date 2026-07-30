@@ -1,14 +1,17 @@
 # Especificación del álgebra
 
-Versión `0.2`. **Escrita para ser rota**: el criterio de si sirve está al final, y es comprobable.
+Versión `0.3`. **Escrita para ser rota**: el criterio de si sirve está al final, y es comprobable.
 
 > **Qué cambió respecto de `0.1`, y por qué.** La implementación encontró dos cosas.
 > **(a)** El acceso a datos pasó a ser **explícito** (`["campo", alias, nombre]`, `["hecho", alias]`)
 > en vez de la forma corta `["penetracion", "a", "b"]` que publicaba la 0.1: si un string suelto
 > significara «alias», un dato de texto que coincida con un alias cambiaría de sentido según el
 > contexto. Es más verboso y no tiene casos raros.
-> **(b)** Sólo **tres de los seis operadores están implementados**, porque son los únicos que piden
-> las medidas que existen. Es la regla de este documento aplicada a sí mismo — ver §3.
+> **(b)** Los operadores se implementan sólo cuando los piden medidas reales. Hoy corren cinco de
+> seis; `con` sigue declarado con su disparador — ver §3.
+> **(c)** La 0.3 resuelve la contradicción entre “conjunto” y la multiplicidad real: una relación es
+> una **bolsa sin orden semántico**. La decisión completa está en
+> [`DECISION-001-RELACIONES-COMO-BOLSAS.md`](DECISION-001-RELACIONES-COMO-BOLSAS.md).
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
@@ -17,8 +20,8 @@ medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que 
 
 ## 1. Hechos y relaciones (L0)
 
-Un **hecho** es un registro de campos escalares. Una **relación** es un conjunto nombrado de hechos
-del mismo tipo. La evidencia es un mapa de relaciones:
+Un **hecho** es un registro de campos escalares. Una **relación** es una bolsa nombrada de hechos del
+mismo tipo. La evidencia es un mapa de relaciones:
 
 ```json
 {
@@ -29,6 +32,11 @@ del mismo tipo. La evidencia es un mapa de relaciones:
 
 Nada más. Sin objetos, sin punteros, sin nulos implícitos. El **sensor** que produce la evidencia es
 específico de cada dominio y vive con el productor, no acá.
+
+La multiplicidad cuenta y el orden de almacenamiento no. Dos apariciones idénticas son dos hechos:
+`contar` devuelve 2, `suma` usa ambas y un producto conserva ambas. Oracle no deduplica porque no
+puede inventar una identidad genérica; la unicidad, cuando importa, se produce o se mide con una
+clave explícita.
 
 ## 2. Una medida es un dato
 
@@ -59,6 +67,12 @@ Listas anidadas, serializable a JSON. De eso salen cuatro cosas que si no sería
 3. la **mutación** es una transformación de datos, no un `sed` sobre archivos;
 4. las **macros** (una medida que escribe medidas) no necesitan permiso del diseñador del lenguaje.
 
+La mutación de medidas cubre un denominador explícito: umbral y filtros completos; cada fuente que
+puede sustituirse por otra relación nombrada en la misma medida; comparadores, lógicos y booleanos de
+expresiones; un agregado alternativo por sitio; y referencias de campo sustituibles dentro del mismo
+alias o espacio derivado. Los ids incluyen la ruta JSON del sitio. No muta nombres de UDF, aridades,
+defensas ni alcances: las dos primeras fallan al cargar y las dos últimas se miden en L2.
+
 **Los testigos no se declaran.** Son las filas que sobrevivieron al último `donde`. Declararlos
 aparte obliga a recorrer los datos dos veces y a mantener dos definiciones de lo mismo sincronizadas
 a mano — el error concreto que motivó esta especificación (ver
@@ -79,7 +93,9 @@ que una medida consuma la salida de otra sin ningún caso especial.
 | `resumen` | `["resumen", agg, expr]` | colapsa a un escalar — **la medición** |
 
 Agregados: `max`, `min`, `suma`, `promedio`, `contar`. `contar` **no evalúa la expresión**: cuenta
-filas. Los agregados sobre cero filas dan `0`.
+filas. Los agregados sobre cero filas dan `0`. `suma` y `promedio` aceptan números finitos y
+booleanos como indicadores 0/1; `min` y `max` exigen escalares homogéneos y comparables. Un valor no
+finito o una mezcla incompatible es error de álgebra, no un veredicto.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
 
@@ -92,7 +108,7 @@ La regla *no se agrega un operador hasta que una segunda medida lo necesite* apl
 | Operador | Estado |
 |---|---|
 | `unir` | ✅ entró con el catálogo de geometría: «pares de piezas que se clavan» es un producto. El modo `"izquierda"` sigue sin usuario, porque traería el concepto de NULO |
-| `agrupar` | ✅ entró con la AUSENCIA — ver §7 |
+| `agrupar` | ✅ entró con la AUSENCIA — ver §8 |
 | `con` | ⏳ una medida que reuse una columna derivada en más de un paso |
 
 Un grupo **no es un hecho**: es un resumen. Las filas que salen de `agrupar` no llevan alias —los
@@ -115,6 +131,13 @@ hatch honesto: evita inventar un lenguaje que sepa geometría.
 
 Se **declaran**, no se importan sueltas: así aparecen en el inventario y se pueden contar y discutir
 igual que los umbrales.
+
+El contrato declarativo incluye un nombre con gramática cerrada, aridad mínima y máxima (o
+variádica), unidad y procedencia. Una UDF externa sigue siendo **código Python con los mismos permisos
+que Oracle**: sólo se activa con `--confiar-escalares`, durante una operación, y el registro anterior
+se restaura al terminar o fallar. `--help`, `--relaciones`, `--nueva` y `--escalares` sin esa bandera
+son modos de inspección: pueden mostrar archivos o el inventario base, pero no importan código del
+proyecto.
 
 ## 4. Los tres niveles con un solo mecanismo
 
@@ -157,7 +180,26 @@ Importa porque es la mitad más resistente a Goodhart: un umbral se afloja cambi
 emerge de correr el sistema, no. Y produce el desacuerdo que la primera mitad no puede ver: **«existe»
 y «se llega» no son lo mismo.**
 
-## 6. Criterio de aceptación de esta especificación
+## 6. Fixtures diferenciales
+
+El esquema vigente es `oracle.diferencial/v1`. Todo fixture declara su versión y una sección
+`frescura` con cuatro huellas SHA-256: emisor, fuentes de referencia, catálogo canónico de las
+medidas usadas y configuración del dominio. Las rutas son relativas a la raíz del proyecto o a su
+padre inmediato; no se aceptan rutas absolutas ni ancestros arbitrarios. Si una huella actual no
+coincide, el fixture está **vencido** y no se evalúa.
+
+En el formato `escenarios`, `referencia_ok` conserva únicamente la respuesta global de la
+implementación independiente. `oracle_al_generar.global_ok` y
+`oracle_al_generar.por_medida` guardan la fotografía de Oracle al emitirlo. La primera comprueba el
+acuerdo independiente del conjunto; la segunda detecta cambios individuales, incluso si dos errores
+se compensan y el `AND` global permanece igual. Una fotografía individual no se presenta como una
+referencia independiente.
+
+La serialización es JSON canónico con orden estable, sin `NaN`; toda aleatoriedad deriva su semilla
+de SHA-256 y cualquier repositorio temporal fija las fechas que intervienen en sus identificadores.
+Regenerar dos veces con las mismas entradas debe producir exactamente los mismos bytes.
+
+## 7. Criterio de aceptación de esta especificación
 
 Comprobable, y si falla el diseño está mal:
 
@@ -173,7 +215,7 @@ Comprobable, y si falla el diseño está mal:
 **Condición de parada:** si los casos del corpus no se ponen rojos con este juego chico de
 operadores, se para y se rediseña — no se agregan operadores hasta que entren.
 
-## 7. Preguntas abiertas
+## 8. Preguntas abiertas
 
 Escritas porque una especificación que finge no tener huecos es peor que una con huecos marcados.
 
@@ -212,8 +254,9 @@ operadores es la única prueba de que el juego chico alcanzaba.
   función en cada dominio. No es una evasión: es la misma línea que separa el sensor del juez en todo
   lo demás.
 - **Igualdad de flotantes.** ✅ **RESUELTA negándose.** No hizo falta cambiar la forma de `umbral`:
-  **la igualdad exacta sobre flotantes levanta un error.** `0.1 + 0.2` no es `0.3`, y una medida que
-  compare así diría verde sin que nadie se entere.
+  **la igualdad exacta sobre flotantes levanta un error**, tanto dentro de una expresión como en el
+  umbral final. `0.1 + 0.2` no es `0.3`, y una medida que compare así diría verde sin que nadie se
+  entere. Los umbrales y resultados numéricos también tienen que ser finitos y de tipos compatibles.
 
   La igualdad exacta sólo tiene sentido sobre cosas que se **cuentan** o se **nombran** —enteros,
   booleanos, textos—, y ahí sigue permitida. Sobre cosas que se **miden** hace falta una tolerancia,
@@ -226,14 +269,14 @@ operadores es la única prueba de que el juego chico alcanzaba.
   Las comparaciones de ORDEN sobre flotantes siguen permitidas: una tolerancia *es* una comparación
   de orden.
 - **Orden.** ✅ **RESUELTO: es un campo del hecho.** No puede ser una propiedad de la relación, porque
-  L0 dice que una relación es un **conjunto** y los conjuntos no tienen orden. Entonces «consecutivos»
-  es aritmética sobre el campo ordinal, y para eso alcanzó con declarar las escalares `mas` y `menos`.
+  L0 dice que una relación es una **bolsa sin orden semántico**. Entonces «consecutivos» es aritmética
+  sobre el campo ordinal, y para eso alcanzó con declarar las escalares `mas` y `menos`.
 
   Ejemplo real: «la traza no tiene huecos» se expresa agrupando por corrida y comparando la cuenta de
   eventos contra el último instante — `["!=", ["col","registrados"], ["mas", ["col","ultimo"], 1]]`.
   Sin operador nuevo.
 
-## 8. Lo que esta versión deliberadamente no tiene
+## 9. Lo que esta versión deliberadamente no tiene
 
 Sintaxis propia con parser (la forma de dato alcanza), macros (se habilitan cuando aparezca la quinta
 medida con la misma forma), transporte por red (cero consumidores remotos), y optimizador (los

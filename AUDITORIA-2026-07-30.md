@@ -30,13 +30,46 @@ completó P0:
 | A-03, confianza hardcodeada | Corregido para P0: caché comprobado antes y después, estados estructurados, timeout configurable, diagnóstico y equivalentes validados. Se eliminaron los veredictos de confianza autoproducidos y el estado de bytecode que no aplicaba a la mutación en memoria. La mutación automática sobre una copia en vez de fuentes activas sigue en P2. |
 | A-04, verdes vacuos | Corregido en el worktree: ausencia, cero medidas/casos/mutantes y fixtures incompletos fallan de forma explícita. |
 
-Después de esos cambios la suite tiene 190 tests verdes. Oracle conserva 19 defectos en rojo, 12
-verdes correctos, 3 huecos declarados y 48/48 mutantes de medida muertos; contra Jam conserva 269
+Después de P0 la suite tenía 190 tests verdes. Oracle conservaba 19 defectos en rojo, 12
+verdes correctos, 3 huecos declarados y 48/48 mutantes de medida muertos; contra Jam conservaba 269
 comparaciones diferenciales sin desacuerdo y 80/80 mutantes de medida muertos. La aceptación de Jam,
 que no tiene corpus propio, ahora termina como `NO APLICABLE — SIN CASOS` con código distinto de cero.
 El generador de estudio funciona sobre Oracle, pero `tools/estudio.py --proyecto .../jam/medidas`
 todavía falla al validar `volumen` porque no registra las escalares del proyecto; resolverlo sin
 ocultar la ejecución de UDF externas permanece en P1.
+
+P1.1 reemplazó aquella cifra de mutación de medidas: el denominador ahora localiza sitios en fuentes,
+expresiones, agregados y campos, además de los cuatro cambios gruesos originales. Sobre Oracle son
+128 mutantes: la primera ronda mató 118 y expuso 10 vivos explícitos. Ocho reducciones al borde del
+umbral y dos contraejemplos internos los cerraron sin debilitar el denominador; la ronda actual queda
+en 128/128. El corpus tiene ahora 42 casos y aceptación conserva 27 defectos en rojo, 12 verdes
+correctos y 3 huecos declarados. Contra Jam son 157 mutantes, 146 muertos y 11 vivos, mientras el
+diferencial conserva 269 veredictos sin desacuerdo. La suite subió a 202 tests.
+
+P1.2 cerró la frescura del diferencial con el esquema `oracle.diferencial/v1`: los fixtures llevan
+SHA-256 del emisor, fuentes de referencia, catálogo canónico y configuración. El lector recalcula las
+cuatro huellas y rechaza el fixture vencido. El acuerdo global con la referencia y los veredictos
+individuales históricos son datos y salidas distintas; una regresión demuestra que intercambiar dos
+medidas ya no se oculta detrás del mismo `AND`. Los emisores de Jam usan semilla SHA-256, Git con
+fechas fijas y JSON canónico; dos regeneraciones consecutivas dieron archivos idénticos byte a byte.
+Jam verifica 269 acuerdos globales y 1158 veredictos individuales; la suite de Oracle tiene 206 tests.
+
+P1.3 cerró A-07 y el contrato operativo de proyectos. Un lector común valida y normaliza fixtures
+`grupos` y `escenarios`; `--relaciones`, revisión y mutación consumen ese lector y la mutación exige
+también frescura. Los ids de autoría usan una gramática cerrada y el destino se comprueba físicamente
+debajo de `catalogos/`, incluida una regresión contra symlinks exteriores. Cada herramienta valida
+las carpetas que usa. `estudio.py` usa el corpus externo y sólo ejecuta sus escalares con
+`--confiar-escalares`. Una integración temporal recorre los siete comandos externos; la suite tiene
+ahora 212 tests. Contra Jam, inventario y revisión funcionan, el diferencial conserva 269/1158 y la
+mutación informa honestamente 146/157 con 11 vivos. La primera ejecución del vendor todavía dio el
+verde obsoleto 80/80; sincronizar núcleo, herramientas y catálogo base eliminó esa divergencia.
+
+P1.4 cerró la ejecución automática descrita en A-06. Todas las cargas externas ocurren dentro de
+`main` y requieren `--confiar-escalares`; ayuda e inventarios tienen pruebas de ausencia de efectos
+laterales. El registro queda aislado por proyecto y se restaura incluso ante error. El decorador fija
+nombre, unidad, aridad y procedencia verificables, y no se siguen symlinks para encontrar el archivo.
+La suite subió a 217 tests; la integración externa usa una UDF real para demostrar tanto el rechazo
+sin confianza como el flujo explícitamente autorizado.
 
 La mutación de código se repitió de forma particionada sobre copias temporales frescas, nunca sobre
 este worktree. Los cambios descubiertos durante las rondas obligaron a repetir íntegramente cada

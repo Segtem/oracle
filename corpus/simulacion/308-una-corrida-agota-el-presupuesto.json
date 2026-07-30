@@ -1,0 +1,27 @@
+{
+  "id": "308-una-corrida-agota-el-presupuesto",
+  "fecha": "2026-07-30",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "mutación de medidas P1.1"
+  },
+  "titulo": "Una sola corrida que termina por tope observó el presupuesto",
+  "etiqueta": "falso_verde",
+  "sintoma": "Tres agotamientos mataban el umbral original pero no distinguían permitir uno. La reducción conserva exactamente el defecto relevante.",
+  "como_se_detecto": "mutacion",
+  "medida": "simulacion.no_se_agoto_el_presupuesto",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "no-alcanza·s1",
+        "escenario": "no-alcanza",
+        "semilla": 1,
+        "pasos": 10,
+        "razon": "tope",
+        "determinista": true,
+        "falto": 45
+      }
+    ]
+  },
+  "leccion": "El umbral cero no admite una corrida agotada: esa corrida habla del tope, no del sistema."
+}

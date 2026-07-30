@@ -3,16 +3,15 @@
 Una **fila de trabajo** es un mapa `alias → hecho`, más las columnas derivadas bajo la clave
 reservada `_`. Toda operación toma filas y devuelve filas: eso es la clausura.
 
-**Sólo están implementados tres de los seis operadores** —`de`, `donde`, `resumen`— porque son los
-únicos que piden las medidas que existen hoy. La regla de la especificación es *no se agrega un
-operador hasta que una segunda medida lo necesite*, y aplica también a implementarlos: un operador
-sin usuario es un operador sin verificar. Los otros tres levantan un error que dice cuál es su
-disparador, así que el día que hagan falta no hay que adivinar por qué faltan.
+Están implementados cinco de los seis operadores: `de`, `donde`, `resumen`, `unir` y `agrupar`.
+`con` conserva un disparador explícito y levanta error mientras no tenga un segundo usuario real.
 """
 
 from __future__ import annotations
 
 import inspect
+import math
+import re
 from typing import Any, Callable
 
 ALIAS_DERIVADO = "_"
@@ -29,15 +28,48 @@ class OperadorNoImplementado(NotImplementedError):
 # ---- funciones escalares (el mecanismo de UDF) ------------------------------------
 
 ESCALARES: dict[str, Callable[..., Any]] = {}
+NOMBRE_ESCALAR_RE = re.compile(r"^[a-z][a-z0-9_]*$")
+_PROCEDENCIA_ESCALAR = "oracle"
+
+
+def _contrato_de_escalar(fn) -> tuple[int, int | None]:
+    try:
+        parametros = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError) as e:
+        raise ErrorDeAlgebra("una escalar debe publicar una firma inspeccionable") from e
+    minimo = maximo = 0
+    variadica = False
+    for parametro in parametros:
+        if parametro.kind in (parametro.POSITIONAL_ONLY, parametro.POSITIONAL_OR_KEYWORD):
+            maximo += 1
+            if parametro.default is parametro.empty:
+                minimo += 1
+        elif parametro.kind is parametro.VAR_POSITIONAL:
+            variadica = True
+        elif parametro.kind is parametro.KEYWORD_ONLY and parametro.default is parametro.empty:
+            raise ErrorDeAlgebra(
+                f"la escalar tiene un argumento sólo-keyword obligatorio: {parametro.name}")
+    return minimo, None if variadica else maximo
 
 
 def escalar(nombre: str, unidad: str = ""):
     """Registra una función de dominio. Se DECLARA para que aparezca en el inventario: una función
     importada a mano no se puede contar ni discutir, igual que un umbral escondido en una firma."""
+    if not isinstance(nombre, str) or NOMBRE_ESCALAR_RE.fullmatch(nombre) is None:
+        raise ErrorDeAlgebra(
+            "el nombre de una escalar usa minúsculas ASCII, dígitos y `_`, sin puntos")
+    if not isinstance(unidad, str) or "\n" in unidad or "\r" in unidad:
+        raise ErrorDeAlgebra("la unidad de una escalar debe ser texto de una línea")
+
     def envolver(fn):
         if nombre in ESCALARES:
             raise ErrorDeAlgebra(f"la escalar «{nombre}» ya está registrada")
+        aridad_min, aridad_max = _contrato_de_escalar(fn)
+        fn.nombre_escalar = nombre
         fn.unidad = unidad
+        fn.aridad_min = aridad_min
+        fn.aridad_max = aridad_max
+        fn.procedencia_escalar = _PROCEDENCIA_ESCALAR
         ESCALARES[nombre] = fn
         return fn
     return envolver
@@ -62,6 +94,58 @@ COMPARADORES = ("==", "!=", "<", "<=", ">", ">=")
 def _es_flotante(v) -> bool:
     """Un `bool` es `int` en Python, y un entero se compara exacto sin problema."""
     return isinstance(v, float) and not isinstance(v, bool)
+
+
+def _familia_escalar(valor) -> str:
+    """Familia usada para impedir comparaciones que Python acepta de manera accidental.
+
+    `bool` queda separado de los números aunque sea una subclase de `int`. Sólo `suma` y
+    `promedio` lo interpretan explícitamente como indicador 0/1.
+    """
+    if isinstance(valor, bool):
+        return "booleano"
+    if isinstance(valor, (int, float)):
+        return "numero"
+    if isinstance(valor, str):
+        return "texto"
+    if valor is None:
+        return "ausente"
+    return type(valor).__name__
+
+
+def validar_finito(valor, que: str = "el número") -> None:
+    if _es_flotante(valor) and not math.isfinite(valor):
+        raise ErrorDeAlgebra(f"{que} tiene que ser finito, no {valor!r}")
+
+
+def comparar(op: str, a, b):
+    """Compara escalares bajo el contrato del DSL, incluido el umbral final."""
+    if op not in COMPARADORES:
+        raise ErrorDeAlgebra(f"comparador desconocido: «{op}»")
+    if a is None or b is None:
+        raise ErrorDeAlgebra(f"«{op}» sobre un valor ausente: {a!r}, {b!r}")
+
+    validar_finito(a, "el operando izquierdo")
+    validar_finito(b, "el operando derecho")
+    familia_a, familia_b = _familia_escalar(a), _familia_escalar(b)
+    if familia_a not in {"numero", "booleano", "texto"} or familia_b not in {
+            "numero", "booleano", "texto"}:
+        raise ErrorDeAlgebra(
+            f"«{op}» sólo compara escalares, no {familia_a} y {familia_b}")
+    if familia_a != familia_b:
+        raise ErrorDeAlgebra(
+            f"«{op}» recibió tipos incompatibles: {familia_a} y {familia_b}")
+    if op in ("==", "!=") and (_es_flotante(a) or _es_flotante(b)):
+        raise ErrorDeAlgebra(
+            f"«{op}» sobre un flotante ({a!r}, {b!r}): la igualdad exacta entre cantidades "
+            "medidas es una falsedad silenciosa. Usá una comparación de orden con tolerancia")
+    try:
+        return _cmp(op)(a, b)
+    except TypeError as e:
+        raise ErrorDeAlgebra(
+            f"«{op}» no puede comparar {type(a).__name__} con {type(b).__name__}") from e
+
+
 LOGICOS = ("y", "o", "no")
 ACCESORES = ("campo", "hecho", "col")
 LITERALES_ESCALARES = (str, int, float, bool, type(None))
@@ -116,16 +200,13 @@ def validar_expr(expr) -> None:
         if len(expr) != 2:
             raise ErrorDeAlgebra("«no» necesita exactamente un operando")
     elif cabeza in ESCALARES:
-        try:
-            firma = inspect.signature(ESCALARES[cabeza])
-        except (TypeError, ValueError):
-            firma = None                 # algunos callables nativos no publican firma inspeccionable
-        if firma is not None:
-            try:
-                firma.bind(*([None] * len(argumentos)))
-            except TypeError as e:
-                raise ErrorDeAlgebra(
-                    f"la escalar «{cabeza}» no acepta {len(argumentos)} argumento(s): {e}") from e
+        fn = ESCALARES[cabeza]
+        minimo, maximo = fn.aridad_min, fn.aridad_max
+        if len(argumentos) < minimo or (maximo is not None and len(argumentos) > maximo):
+            rango = f"{minimo} o más" if maximo is None else (
+                str(minimo) if minimo == maximo else f"entre {minimo} y {maximo}")
+            raise ErrorDeAlgebra(
+                f"la escalar «{cabeza}» acepta {rango} argumento(s), no {len(argumentos)}")
     else:
         raise ErrorDeAlgebra(
             f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada")
@@ -170,17 +251,7 @@ def _evaluar_expr(expr, fila: dict):
         if a is None or b is None:
             # comparar contra un campo ausente es casi siempre un error de la medida, no un False
             raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}")
-        # La última pregunta abierta de la especificación, resuelta NEGÁNDOSE. `["==", x, 0]` sobre
-        # centímetros es una falsedad esperando: 0.30000000000000004 no es 0.3, y la medida diría
-        # verde sin que nadie se enterara. La igualdad exacta sólo tiene sentido sobre cosas que se
-        # cuentan o se nombran; sobre cosas que se MIDEN hace falta una tolerancia, y declararla es
-        # justamente lo que este lenguaje pide para todo umbral.
-        if cabeza in ("==", "!=") and (_es_flotante(a) or _es_flotante(b)):
-            raise ErrorDeAlgebra(
-                f"«{cabeza}» sobre un flotante ({a!r}, {b!r}): la igualdad exacta entre cantidades "
-                f"medidas es una falsedad silenciosa. Usá una tolerancia: "
-                f'["<=", ["cerca", a, b], tol] o un umbral con «<=»')
-        return _cmp(cabeza)(a, b)
+        return comparar(cabeza, a, b)
     if cabeza == "y":
         return all(_evaluar_expr(x, fila) for x in resto)
     if cabeza == "o":
@@ -204,6 +275,34 @@ AGREGADOS: dict[str, Callable[[list], Any]] = {
     "suma": sum,
     "promedio": lambda xs: (sum(xs) / len(xs)) if xs else 0,
 }
+
+
+def _agregar(agregado: str, valores: list):
+    """Agrega valores comprobando dominio, compatibilidad y finitud antes y después."""
+    if not valores:
+        return 0
+
+    for valor in valores:
+        validar_finito(valor, f"un valor de «{agregado}»")
+
+    familias = {_familia_escalar(valor) for valor in valores}
+    if agregado in ("suma", "promedio"):
+        if not familias <= {"numero", "booleano"}:
+            raise ErrorDeAlgebra(
+                f"«{agregado}» sólo acepta números o indicadores booleanos, no {sorted(familias)}")
+    elif len(familias) != 1:
+        raise ErrorDeAlgebra(
+            f"«{agregado}» recibió tipos incompatibles: {sorted(familias)}")
+    elif not familias <= {"numero", "booleano", "texto"}:
+        raise ErrorDeAlgebra(
+            f"«{agregado}» sólo acepta escalares comparables, no {sorted(familias)}")
+
+    try:
+        resultado = AGREGADOS[agregado](valores)
+    except (TypeError, ValueError, OverflowError) as e:
+        raise ErrorDeAlgebra(f"«{agregado}» no puede agregar esos valores: {e}") from e
+    validar_finito(resultado, f"el resultado de «{agregado}»")
+    return resultado
 
 
 # ---- operadores -------------------------------------------------------------------
@@ -277,8 +376,8 @@ def _agrupar(paso, filas: list[dict]) -> list[dict]:
         for nombre, agg, expr in agregados:
             if agg not in AGREGADOS:
                 raise ErrorDeAlgebra(f"agregado desconocido: «{agg}»")
-            valores = [evaluar_expr(expr, m) for m in miembros]
-            derivadas[nombre] = len(miembros) if agg == "contar" else AGREGADOS[agg](valores)
+            derivadas[nombre] = (len(miembros) if agg == "contar" else
+                                 _agregar(agg, [evaluar_expr(expr, m) for m in miembros]))
         salida.append({ALIAS_DERIVADO: derivadas})
     return salida
 
@@ -407,4 +506,4 @@ def resumir(resumen, filas: list[dict]):
     _, agg, expr = resumen
     if agg == "contar":
         return len(filas)
-    return AGREGADOS[agg]([evaluar_expr(expr, f) for f in filas])
+    return _agregar(agg, [evaluar_expr(expr, f) for f in filas])

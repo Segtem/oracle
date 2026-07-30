@@ -24,7 +24,7 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from nucleo.proyecto import resolver, sin_bandera  # noqa: E402
+from nucleo.proyecto import problemas_estructura, resolver, sin_bandera  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
 RAIZ = PROY.corpus
@@ -134,6 +134,10 @@ def resumen(cargados: list[dict]) -> None:
 
 
 def main() -> int:
+    estructura = problemas_estructura(PROY, ("corpus",))
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
     fallas, cargados = verificar()
     if fallas:
         print(f"CORPUS: {len(fallas)} problema(s)")

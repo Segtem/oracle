@@ -40,6 +40,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Callable
 
+from .diferencial import (ESQUEMA_DIFERENCIAL, Procedencia, crear_frescura)
 from .medida import evaluar
 
 
@@ -71,12 +72,22 @@ def _polaridades(medidas, escenarios: list[dict]) -> dict[str, set]:
     """Por medida, qué veredictos aparecen en el fixture. Es la cobertura, no la corrección."""
     vistos: dict[str, set] = {m.id: set() for m in medidas}
     for esc in escenarios:
-        for v in evaluar(medidas, esc["evidencia"]).veredictos:
-            vistos[v.id].add(v.ok)
+        for mid, ok in esc["oracle_al_generar"]["por_medida"].items():
+            vistos[mid].add(ok)
     return vistos
 
 
-def generar(dominio: Dominio, medidas) -> dict:
+def _configuracion(dominio: Dominio) -> dict:
+    return {
+        "nombre": dominio.nombre,
+        "descripcion": dominio.descripcion,
+        "defectos": list(dominio.defectos),
+        "repeticiones": dominio.repeticiones,
+        "extra": dominio.extra,
+    }
+
+
+def generar(dominio: Dominio, medidas, *, procedencia: Procedencia) -> dict:
     """Corre el dominio contra la referencia y devuelve el fixture. Levanta si no discrimina.
 
     Dos cosas se comprueban y ninguna se promete:
@@ -96,21 +107,27 @@ def generar(dominio: Dominio, medidas) -> dict:
             # ignora. Antes se le mangleaba el nombre del defecto, que era una forma de pasar dos
             # cosas por un solo parámetro.
             ctx = dominio.montar(defecto, i)
+            evidencia = dominio.hechos(ctx)
+            informe = evaluar(medidas, evidencia)
             escenarios.append({
                 "id": f"{defecto or 'sin-defecto'}" + (f"·{i}" if dominio.repeticiones > 1 else ""),
                 "defecto": defecto or "",
-                "evidencia": dominio.hechos(ctx),
+                "evidencia": evidencia,
                 "referencia_ok": bool(dominio.referencia(ctx)),
+                "oracle_al_generar": {
+                    "global_ok": informe.ok,
+                    "por_medida": {v.id: v.ok for v in informe.veredictos},
+                },
             })
 
     desacuerdos = []
     for esc in escenarios:
-        informe = evaluar(medidas, esc["evidencia"])
-        if informe.ok != esc["referencia_ok"]:
-            rojas = [v.id for v in informe.veredictos if not v.ok]
+        oracle = esc["oracle_al_generar"]
+        if oracle["global_ok"] != esc["referencia_ok"]:
+            rojas = [mid for mid, ok in oracle["por_medida"].items() if not ok]
             desacuerdos.append(
                 f"«{esc['id']}»: la referencia dice ok={esc['referencia_ok']} y las medidas dicen "
-                f"{informe.ok}" + (f" (rojas: {rojas})" if rojas else ""))
+                f"{oracle['global_ok']}" + (f" (rojas: {rojas})" if rojas else ""))
     if desacuerdos:
         raise DominioMalDeclarado(
             f"{dominio.nombre}: el sensor y la referencia no coinciden — una de las dos miente:\n  "
@@ -122,10 +139,13 @@ def generar(dominio: Dominio, medidas) -> dict:
             f"{dominio.nombre}: sin las dos polaridades no quedan fijadas {flojas} — "
             "hay que declarar un defecto que las active")
 
-    return {"origen": dominio.descripcion or f"dominio «{dominio.nombre}» vs su referencia",
+    configuracion = _configuracion(dominio)
+    return {"esquema": ESQUEMA_DIFERENCIAL,
+            "origen": dominio.descripcion or f"dominio «{dominio.nombre}» vs su referencia",
             "dominio": dominio.nombre,
             # las medidas van DECLARADAS en el fixture y no se deducen del prefijo del id: el dominio
             # `relevo` usa `proceso.verificacion_vigente`, que es compartida, y deducirla la perdería
             "medidas": [m.id for m in medidas],
             "mundos": len(escenarios),
+            "frescura": crear_frescura(procedencia, medidas, configuracion),
             "escenarios": escenarios}

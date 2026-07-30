@@ -16,18 +16,17 @@ muta la medida y se vuelve a evaluar contra la misma evidencia:
 Los sobrevivientes son la lista de lo que el corpus deja libre — y por lo tanto lo que puedo escribir
 mal sin que nada me frene. Es el mismo argumento que la mutación de tests, un nivel más arriba.
 
-Lo que **no** hace todavía: mutar el código Python del núcleo. Eso hace falta igual —tres de los once
-casos del corpus salieron de ahí— y necesita el arnés con caché frío. Se hace cuando exista, y hasta
-entonces esa mutación se corre a mano.
+El denominador se declara en `mutantes`: además de umbral y filtros completos, recorre fuentes,
+expresiones, agregados y referencias de campo. La mutación del código Python es otro sensor,
+`nucleo.mutacion_codigo`; no se mezcla con ésta porque su arnés y sus fallos posibles son distintos.
 """
 
 from __future__ import annotations
 
 from copy import deepcopy
+import math
 
 from .medida import Medida
-
-GRANDE = 1e12
 
 _INVERSO = {"<=": ">", "<": ">=", ">=": "<", ">": "<=", "==": "!=", "!=": "=="}
 
@@ -37,12 +36,24 @@ def _umbral(datos: list) -> list:
 
 
 def aflojar_umbral(datos: list) -> list | None:
-    """El umbral pasa a ser imposible de violar. Si el caso sigue en rojo, el número no importa."""
+    """Mueve el límite al siguiente valor más permisivo sin imponer una escala universal.
+
+    Los enteros avanzan una unidad y los flotantes un valor representable. A diferencia del antiguo
+    centinela `1e12`, el cambio conserva la dirección incluso cuando el dominio trabaja por encima o
+    por debajo de esa magnitud.
+    """
     d = deepcopy(datos)
-    op = _umbral(d)[1]
+    op, limite = _umbral(d)[1], _umbral(d)[2]
     if op in ("==", "!="):
         return None
-    _umbral(d)[2] = GRANDE if op in ("<=", "<") else -GRANDE
+    if isinstance(limite, bool) or not isinstance(limite, (int, float)):
+        return None
+    direccion = math.inf if op in ("<=", "<") else -math.inf
+    nuevo = limite + (1 if direccion > 0 else -1) if isinstance(limite, int) else math.nextafter(
+        limite, direccion)
+    if isinstance(nuevo, float) and not math.isfinite(nuevo):
+        return None
+    _umbral(d)[2] = nuevo
     return d
 
 
@@ -89,13 +100,165 @@ MUTADORES = {
 }
 
 
+_AGREGADO_ALTERNO = {
+    "max": "min",
+    "min": "max",
+    "suma": "promedio",
+    "promedio": "suma",
+}
+
+
+def _en(datos, ruta: tuple[int, ...]):
+    actual = datos
+    for indice in ruta:
+        actual = actual[indice]
+    return actual
+
+
+def _reemplazar(datos, ruta: tuple[int, ...], valor):
+    copia = deepcopy(datos)
+    padre = _en(copia, ruta[:-1])
+    padre[ruta[-1]] = valor
+    return copia
+
+
+def _ruta(ruta: tuple[int, ...]) -> str:
+    return ".".join(map(str, ruta))
+
+
+def _fuentes(fuente, ruta: tuple[int, ...]):
+    if fuente[0] == "de":
+        yield ruta, fuente
+    elif fuente[0] == "unir":
+        yield from _fuentes(fuente[1], (*ruta, 1))
+        yield from _fuentes(fuente[2], (*ruta, 2))
+
+
+def _raices_de_expresion(datos: list):
+    for indice, paso in enumerate(datos[2][2:], start=2):
+        if paso[0] == "donde":
+            yield (2, indice, 1)
+        elif paso[0] == "con":
+            yield (2, indice, 2)
+        elif paso[0] == "agrupar":
+            for posicion in range(len(paso[1])):
+                yield (2, indice, 1, posicion, 1)
+            for posicion in range(len(paso[2])):
+                yield (2, indice, 2, posicion, 2)
+    yield (3, 2)
+
+
+def _nodos_de_expresion(expr, ruta: tuple[int, ...]):
+    yield ruta, expr
+    if isinstance(expr, list):
+        for indice, argumento in enumerate(expr[1:], start=1):
+            yield from _nodos_de_expresion(argumento, (*ruta, indice))
+
+
+def _mutantes_de_fuentes(datos: list):
+    fuentes = list(_fuentes(datos[2][1], (2, 1)))
+    relaciones = sorted({fuente[1] for _ruta_fuente, fuente in fuentes})
+    for ruta_fuente, fuente in fuentes:
+        for relacion in relaciones:
+            if relacion != fuente[1]:
+                ruta_relacion = (*ruta_fuente, 1)
+                nombre = f"fuente:{_ruta(ruta_relacion)}:{fuente[1]}→{relacion}"
+                yield nombre, _reemplazar(datos, ruta_relacion, relacion)
+
+
+def _mutantes_de_expresiones(datos: list):
+    for raiz in _raices_de_expresion(datos):
+        for ruta_nodo, nodo in _nodos_de_expresion(_en(datos, raiz), raiz):
+            if isinstance(nodo, bool):
+                yield (f"expresion:booleano@{_ruta(ruta_nodo)}",
+                       _reemplazar(datos, ruta_nodo, not nodo))
+            elif isinstance(nodo, list) and nodo:
+                cabeza = nodo[0]
+                if cabeza in _INVERSO:
+                    yield (f"expresion:comparador@{_ruta(ruta_nodo)}:{cabeza}→{_INVERSO[cabeza]}",
+                           _reemplazar(datos, (*ruta_nodo, 0), _INVERSO[cabeza]))
+                elif cabeza in ("y", "o"):
+                    alterno = "o" if cabeza == "y" else "y"
+                    yield (f"expresion:logico@{_ruta(ruta_nodo)}:{cabeza}→{alterno}",
+                           _reemplazar(datos, (*ruta_nodo, 0), alterno))
+                elif cabeza == "no":
+                    yield (f"expresion:quitar_no@{_ruta(ruta_nodo)}",
+                           _reemplazar(datos, ruta_nodo, deepcopy(nodo[1])))
+
+
+def _sitios_de_agregado(datos: list):
+    yield (3, 1), (3, 2), datos[3][1]
+    for indice, paso in enumerate(datos[2][2:], start=2):
+        if paso[0] == "agrupar":
+            for posicion, agregado in enumerate(paso[2]):
+                yield ((2, indice, 2, posicion, 1),
+                       (2, indice, 2, posicion, 2), agregado[1])
+
+
+def _mutantes_de_agregados(datos: list):
+    for ruta_agregado, ruta_expresion, agregado in _sitios_de_agregado(datos):
+        if agregado == "contar":
+            # La expresión de `contar` no tiene semántica. Para que el mutante no sea el equivalente
+            # universal contar→suma(1), lo reemplaza por el agregado nulo suma(0): «no medir».
+            mutada = _reemplazar(datos, ruta_agregado, "suma")
+            mutada = _reemplazar(mutada, ruta_expresion, 0)
+            yield f"agregado:{_ruta(ruta_agregado)}:contar→suma(0)", mutada
+        else:
+            alterno = _AGREGADO_ALTERNO[agregado]
+            yield (f"agregado:{_ruta(ruta_agregado)}:{agregado}→{alterno}",
+                   _reemplazar(datos, ruta_agregado, alterno))
+
+
+def _mutantes_de_campos(datos: list):
+    accesos = []
+    nombres_por_espacio: dict[tuple, set[str]] = {}
+    for raiz in _raices_de_expresion(datos):
+        for ruta_nodo, nodo in _nodos_de_expresion(_en(datos, raiz), raiz):
+            if not (isinstance(nodo, list) and nodo and nodo[0] in ("campo", "col")):
+                continue
+            espacio = ("campo", nodo[1]) if nodo[0] == "campo" else ("col",)
+            posicion_nombre = 2 if nodo[0] == "campo" else 1
+            accesos.append((ruta_nodo, nodo, espacio, posicion_nombre))
+            nombres_por_espacio.setdefault(espacio, set()).add(nodo[posicion_nombre])
+
+    # Una columna derivada puede ser una alternativa aunque todavía no aparezca en otro `col`.
+    for indice, paso in enumerate(datos[2][2:], start=2):
+        if paso[0] == "con":
+            nombres_por_espacio.setdefault(("col",), set()).add(paso[1])
+        elif paso[0] == "agrupar":
+            nombres_por_espacio.setdefault(("col",), set()).update(
+                nombre for nombre, _expr in paso[1])
+            nombres_por_espacio.setdefault(("col",), set()).update(
+                agregado[0] for agregado in paso[2])
+
+    for ruta_nodo, nodo, espacio, posicion_nombre in accesos:
+        actual = nodo[posicion_nombre]
+        for alterno in sorted(nombres_por_espacio[espacio] - {actual}):
+            ruta_nombre = (*ruta_nodo, posicion_nombre)
+            yield (f"campo:{_ruta(ruta_nombre)}:{actual}→{alterno}",
+                   _reemplazar(datos, ruta_nombre, alterno))
+
+
+def _mutantes_estructurales(datos: list):
+    yield from _mutantes_de_fuentes(datos)
+    yield from _mutantes_de_expresiones(datos)
+    yield from _mutantes_de_agregados(datos)
+    yield from _mutantes_de_campos(datos)
+
+
 def mutantes(datos: list) -> list[tuple[str, list]]:
-    """[(nombre del mutador, medida mutada)] — sólo los aplicables a esta medida."""
+    """Mutantes aplicables, con un id estable por categoría y ruta dentro de la medida.
+
+    El denominador cubre umbral, filtros completos, fuentes intercambiables, nodos de expresión,
+    agregados y referencias de campo. No muta UDF, aridad, defensa ni alcance: esos contratos se
+    validan al cargar o se juzgan con medidas meta.
+    """
     salida = []
     for nombre, fn in MUTADORES.items():
         mutada = fn(datos)
         if mutada is not None:
             salida.append((nombre, mutada))
+    salida.extend(_mutantes_estructurales(datos))
     return salida
 
 

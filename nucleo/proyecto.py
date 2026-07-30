@@ -22,6 +22,8 @@ Se resuelve en este orden, y el primero que aparece gana:
 from __future__ import annotations
 
 import os
+import re
+from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -29,6 +31,14 @@ RAIZ_ORACLE = Path(__file__).resolve().parents[1]
 
 
 class ProyectoInvalido(ValueError):
+    pass
+
+
+class EscalaresNoConfiables(ProyectoInvalido):
+    pass
+
+
+class EscalaresInvalidas(ProyectoInvalido):
     pass
 
 
@@ -70,24 +80,129 @@ def catalogos_a_cargar(proy: "Proyecto") -> list[Path]:
     return [base, proy.catalogos]
 
 
-def registrar_escalares(proy: "Proyecto") -> str:
-    """Importa `<proyecto>/escalares.py` si existe, para que sus funciones de dominio queden
-    declaradas. Sin esto, una medida del proyecto que use una escalar propia falla al evaluarse con
-    «no es escalar declarada», y el error aparece lejos de la causa."""
+@contextmanager
+def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False):
+    """Activa temporalmente las UDF de un proyecto explícitamente confiado.
+
+    Restaura el registro aun si la importación o la evaluación falla. El archivo debe ser físico y
+    estar dentro del proyecto: la confianza autoriza su código, no una ruta exterior inesperada.
+    """
     if proy.es_el_propio_oracle:
-        return ""
+        yield ""
+        return
     archivo = proy.raiz / "escalares.py"
     if not archivo.exists():
-        return ""
+        yield ""
+        return
+    if not confiar:
+        raise EscalaresNoConfiables(
+            f"{archivo} es código Python externo; repetí con `--confiar-escalares` para ejecutarlo")
+    raiz = proy.raiz.resolve(strict=True)
+    try:
+        fisica = archivo.resolve(strict=True)
+        fisica.relative_to(raiz)
+    except (OSError, ValueError) as e:
+        raise EscalaresInvalidas(f"`escalares.py` no está confinado en {raiz}") from e
+    if archivo.is_symlink() or not fisica.is_file():
+        raise EscalaresInvalidas("`escalares.py` debe ser un archivo físico, no un symlink")
+
+    import hashlib
     import importlib.util
-    spec = importlib.util.spec_from_file_location(f"escalares_{proy.raiz.name}", archivo)
-    mod = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(mod)
-    return str(archivo)
+    from nucleo import algebra
+
+    huella = hashlib.sha256(str(raiz).encode("utf-8")).hexdigest()[:12]
+    spec = importlib.util.spec_from_file_location(f"oracle_escalares_{huella}", fisica)
+    if spec is None or spec.loader is None:
+        raise EscalaresInvalidas(f"no se pudo preparar la carga de {fisica}")
+    modulo = importlib.util.module_from_spec(spec)
+    anteriores = dict(algebra.ESCALARES)
+    procedencia_anterior = algebra._PROCEDENCIA_ESCALAR
+    algebra._PROCEDENCIA_ESCALAR = f"proyecto:{raiz}"
+    try:
+        try:
+            spec.loader.exec_module(modulo)
+            alteradas = [nombre for nombre, fn in anteriores.items()
+                         if algebra.ESCALARES.get(nombre) is not fn]
+            if alteradas:
+                raise EscalaresInvalidas(
+                    f"escalares.py alteró registros existentes: {sorted(alteradas)}")
+            for nombre in set(algebra.ESCALARES) - set(anteriores):
+                fn = algebra.ESCALARES[nombre]
+                requeridos = ("nombre_escalar", "unidad", "aridad_min", "aridad_max",
+                              "procedencia_escalar")
+                if any(not hasattr(fn, campo) for campo in requeridos):
+                    raise EscalaresInvalidas(
+                        f"la escalar «{nombre}» evitó el decorador `@escalar`")
+        except EscalaresInvalidas:
+            raise
+        except Exception as e:
+            raise EscalaresInvalidas(
+                f"falló {fisica}: {type(e).__name__}: {e}") from e
+        yield str(fisica)
+    finally:
+        algebra.ESCALARES.clear()
+        algebra.ESCALARES.update(anteriores)
+        algebra._PROCEDENCIA_ESCALAR = procedencia_anterior
+
+
+def confiar_escalares(argv: list[str]) -> bool:
+    return "--confiar-escalares" in argv
+
+
+def sin_banderas_comunes(argv: list[str]) -> list[str]:
+    return [a for a in sin_bandera(argv) if a != "--confiar-escalares"]
 
 
 def _valido(ruta: Path) -> bool:
     return (ruta / "catalogos").is_dir()
+
+
+def problemas_estructura(proy: "Proyecto", requeridos: tuple[str, ...]) -> list[str]:
+    """Comprueba las partes que usa una herramienta y que no escapen mediante symlinks."""
+    permitidos = {"catalogos", "corpus", "diferencial"}
+    desconocidos = set(requeridos) - permitidos
+    if desconocidos:
+        raise ValueError(f"componentes de proyecto desconocidos: {sorted(desconocidos)}")
+    raiz = proy.raiz.resolve(strict=True)
+    fallas = []
+    for nombre in requeridos:
+        ruta = proy.raiz / nombre
+        if not ruta.is_dir():
+            fallas.append(f"falta `{nombre}/`")
+            continue
+        try:
+            ruta.resolve(strict=True).relative_to(raiz)
+        except (OSError, ValueError):
+            fallas.append(f"`{nombre}/` no está confinado dentro del proyecto")
+        if ruta.is_symlink():
+            fallas.append(f"`{nombre}/` no puede ser un symlink")
+    return fallas
+
+
+ID_MEDIDA_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
+
+
+def ruta_de_medida_nueva(proy: "Proyecto", mid: str) -> Path:
+    """Resuelve el destino de un id cerrado y demuestra su confinamiento antes de crear nada."""
+    if not isinstance(mid, str) or ID_MEDIDA_RE.fullmatch(mid) is None:
+        raise ProyectoInvalido(
+            "el id debe ser `dominio.nombre`, sólo con minúsculas ASCII, dígitos y `_`")
+    catalogos = proy.catalogos.resolve(strict=True)
+    destino = proy.catalogos / mid.split(".", 1)[0] / f"{mid}.json"
+    try:
+        destino.resolve(strict=False).relative_to(catalogos)
+    except (OSError, ValueError) as e:
+        raise ProyectoInvalido(f"el destino de {mid!r} escapa de `catalogos/`") from e
+    return destino
+
+
+def presentar_ruta(proy: "Proyecto", ruta: Path) -> str:
+    """Ruta estable para humanos: relativa al proyecto si pertenece a él; absoluta si no."""
+    fisica = ruta.resolve(strict=False)
+    try:
+        return fisica.relative_to(proy.raiz.resolve()).as_posix()
+    except ValueError:
+        return str(fisica)
 
 
 def resolver(argv: list[str] | None = None) -> Proyecto:

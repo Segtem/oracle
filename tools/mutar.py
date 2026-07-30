@@ -1,7 +1,7 @@
 """Muta las medidas y mide el resultado CON LAS MEDIDAS. El bucle se cierra acá.
 
-    python tools/mutar.py            → informe
-    python tools/mutar.py --hechos   → volcar la evidencia producida (JSON)
+    python tools/mutar.py [--confiar-escalares]          → informe
+    python tools/mutar.py --hechos [--confiar-escalares] → evidencia JSON
 
 El sensor produce hechos; el álgebra los juzga. Ninguna lógica de veredicto vive en el sensor, que es
 lo que permite que la misma medida —`proceso.test_con_mutante_que_lo_mata`— sirva para los mutantes de
@@ -22,13 +22,14 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
 from nucleo.marco import hechos_de_uso  # noqa: E402
+from nucleo.fixtures import cargar_fixtures, casos_para_mutacion  # noqa: E402
 from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
 from nucleo.mutacion import correr  # noqa: E402
-from nucleo.proyecto import (RAIZ_ORACLE, catalogos_a_cargar, registrar_escalares, resolver,
-                             sin_bandera)  # noqa: E402
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, RAIZ_ORACLE,
+                             catalogos_a_cargar, confiar_escalares, escalares_del_proyecto,
+                             problemas_estructura, resolver, sin_banderas_comunes)  # noqa: E402
 
 PROY = resolver(sys.argv[1:])
-registrar_escalares(PROY)
 
 
 def casos(catalogo) -> list[dict]:
@@ -40,42 +41,29 @@ def casos(catalogo) -> list[dict]:
     """
     salida = [json.loads(p.read_text(encoding="utf-8"))
               for p in sorted((PROY.corpus).rglob("*.json"))]
-    for f in sorted((PROY.diferencial).glob("*.json")):
-        datos = json.loads(f.read_text(encoding="utf-8"))
-
-        # Formato de dominio declarado: no hay expectativa por medida —eso reimplementaba las
-        # medidas—, así que la línea base es el veredicto ACTUAL de cada una. Para mutar es lo
-        # correcto: la pregunta no es «¿acierta?» sino «¿algún escenario nota que la cambiaron?».
-        if "escenarios" in datos:
-            for mid in datos["medidas"]:
-                if mid not in catalogo:
-                    continue
-                for esc in datos["escenarios"]:
-                    ok = catalogo[mid].evaluar(esc["evidencia"]).ok
-                    salida.append({
-                        "id": f"{f.stem}/{mid}[{esc['id']}]",
-                        "etiqueta": "verde_correcto" if ok else "falso_verde",
-                        "medida": mid,
-                        "evidencia": esc["evidencia"],
-                    })
-            continue
-
-        for mid, entradas in datos["grupos"].items():
-            for i, e in enumerate(entradas):
-                salida.append({
-                    "id": f"{f.stem}/{mid}[{i}]",
-                    "etiqueta": "verde_correcto" if e["esperado_ok"] else "falso_verde",
-                    "medida": mid,
-                    "evidencia": e["evidencia"],
-                })
+    fixtures, fallas = cargar_fixtures(
+        sorted(PROY.diferencial.glob("*.json")), raiz=PROY.raiz, catalogo=catalogo)
+    if fallas:
+        raise ValueError("fixtures diferenciales inválidos o vencidos:\n  · " + "\n  · ".join(fallas))
+    for fixture in fixtures:
+        salida.extend(casos_para_mutacion(fixture, catalogo))
     return salida
 
 
-def main() -> int:
+def _ejecutar(args: list[str]) -> int:
+    estructura = problemas_estructura(PROY, ("catalogos", "corpus", "diferencial"))
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
     catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
-    evidencia = correr(catalogo, casos(catalogo))
+    try:
+        listado = casos(catalogo)
+    except ValueError as e:
+        print(f"MUTACIÓN NO CONFIABLE — {e}")
+        return 1
+    evidencia = correr(catalogo, listado)
 
-    if "--hechos" in sin_bandera(sys.argv[1:]):
+    if "--hechos" in args:
         print(json.dumps(evidencia, ensure_ascii=False, indent=2))
         return 0
 
@@ -87,7 +75,6 @@ def main() -> int:
 
     # El bucle: los hechos del sensor, juzgados por MEDIDAS. Antes acá había un `if vivos: return 1`
     # que dictaminaba en Python lo mismo que una medida del catálogo ya dice.
-    listado = casos(catalogo)
     metas = {mid for mid in catalogo if mid.startswith("meta.")}
     base = cargar_catalogo(RAIZ_ORACLE / "catalogos") if not PROY.es_el_propio_oracle else {}
     evidencia.update(hechos_de_uso(catalogo, listado, evidencia["mutante"],
@@ -105,12 +92,27 @@ def main() -> int:
         print("\nlo que el corpus NO fija — ningún caso detecta estas mutaciones:")
         for m in vivos:
             print(f"  · mutar «{m['cambio']}» en {m['apunta_a']} pasa inadvertido")
-        print("\nSe tapa agregando un caso que SÍ lo note, no cambiando la medida. Y si un mutante")
-        print("no lo puede detectar ninguna polaridad, suele faltar el caso de la otra:")
-        print("`quitar_filtro` sólo lo agarra un caso verde; `aflojar_umbral`, sólo uno rojo.")
+        print("\nSe tapa agregando un caso que SÍ lo note o declarando una equivalencia individual")
+        print("demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:")
+        print("`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.")
 
     # el código de salida sale del VEREDICTO, no de un `if` propio
     return 0 if informe.ok else 1
+
+
+def main() -> int:
+    argv = sys.argv[1:]
+    args = sin_banderas_comunes(argv)
+    if not args or "-h" in args or "--help" in args:
+        if "-h" in args or "--help" in args:
+            print(__doc__)
+            return 0
+    try:
+        with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
+            return _ejecutar(args)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
 
 
 if __name__ == "__main__":

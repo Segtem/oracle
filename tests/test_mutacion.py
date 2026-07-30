@@ -19,6 +19,17 @@ BASE = ["medida", "d.prueba",
         ["umbral", "<=", 0, "una razón"],
         ["alcance", "NO ve nada más"]]
 
+COMPLEJA = ["medida", "d.compleja",
+            ["desde", ["unir", ["de", "izquierda", "a"], ["de", "derecha", "b"]],
+             ["donde", ["y", [">", ["campo", "a", "x"], ["campo", "a", "limite"]],
+                         ["==", ["campo", "b", "activo"], True]]],
+             ["agrupar", [["grupo", ["campo", "a", "grupo"]]],
+              [["mayor", "max", ["campo", "a", "x"]],
+               ["total", "suma", ["campo", "a", "limite"]]]]],
+            ["resumen", "promedio", ["col", "mayor"]],
+            ["umbral", "<=", 10, "una razón"],
+            ["alcance", "NO ve nada más"]]
+
 # una fila que ofende y otra que no: es lo que permite que el filtro se pueda fijar
 EV_ROJO = {"cosa": [{"id": "x", "mal": True}, {"id": "y", "mal": False}]}
 EV_VERDE = {"cosa": [{"id": "y", "mal": False}, {"id": "z", "mal": False}]}
@@ -30,19 +41,43 @@ CASO_VERDE = {"id": "c-verde", "etiqueta": "verde_correcto", "medida": "d.prueba
 
 class MutadoresTests(unittest.TestCase):
     def test_todo_mutante_sigue_siendo_una_medida_valida(self) -> None:
-        for nombre, datos in mutacion.mutantes(BASE):
-            with self.subTest(mutador=nombre):
-                Medida.de_datos(datos)   # no debe levantar
+        for medida in (BASE, COMPLEJA):
+            for nombre, datos in mutacion.mutantes(medida):
+                with self.subTest(medida=medida[1], mutador=nombre):
+                    Medida.de_datos(datos)   # no debe levantar
 
     def test_no_toca_la_medida_original(self) -> None:
         antes = str(BASE)
         mutacion.mutantes(BASE)
         self.assertEqual(str(BASE), antes)
 
-    def test_aflojar_umbral_lo_vuelve_imposible_de_violar(self) -> None:
+    def test_el_denominador_cubre_fuentes_expresiones_agregados_y_campos(self) -> None:
+        nombres = [nombre for nombre, _datos in mutacion.mutantes(COMPLEJA)]
+        for categoria in ("fuente:", "expresion:", "agregado:", "campo:"):
+            with self.subTest(categoria=categoria):
+                self.assertTrue(any(nombre.startswith(categoria) for nombre in nombres), nombres)
+        self.assertEqual(len(nombres), len(set(nombres)))
+
+    def test_aflojar_umbral_mueve_el_limite_un_paso_sin_escala_magica(self) -> None:
         d = mutacion.aflojar_umbral(BASE)
-        self.assertEqual(d[4][2], mutacion.GRANDE)
+        self.assertEqual(d[4][2], 1)
         self.assertTrue(Medida.de_datos(d).evaluar(EV_ROJO).ok)
+
+    def test_aflojar_umbral_respeta_magnitudes_mayores_y_menores_que_1e12(self) -> None:
+        for op, limite, esperado in (
+                ("<=", 10**15, 10**15 + 1),
+                ("<", 10**9, 10**9 + 1),
+                (">=", -10**15, -10**15 - 1),
+                (">", -10**9, -10**9 - 1)):
+            with self.subTest(op=op, limite=limite):
+                datos = [*BASE[:4], ["umbral", op, limite, "x"], BASE[5]]
+                self.assertEqual(mutacion.aflojar_umbral(datos)[4][2], esperado)
+
+    def test_aflojar_un_flotante_usa_el_siguiente_representable(self) -> None:
+        datos = [*BASE[:4], ["umbral", "<=", 1e20, "x"], BASE[5]]
+        nuevo = mutacion.aflojar_umbral(datos)[4][2]
+        self.assertGreater(nuevo, 1e20)
+        self.assertLess(nuevo, float("inf"))
 
     def test_aflojar_umbral_no_aplica_a_igualdad(self) -> None:
         d = [*BASE[:4], ["umbral", "==", 0, "x"], BASE[5]]

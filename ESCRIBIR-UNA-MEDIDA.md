@@ -32,6 +32,14 @@ python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
+Si el proyecto declara funciones en `escalares.py`, los comandos que cargan o evalúan su catálogo
+requieren `--confiar-escalares`. Esa bandera autoriza código Python con los mismos permisos del
+proceso. `--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
+
+El id tiene una gramática cerrada: `dominio.nombre`, con segmentos en minúsculas ASCII, dígitos o
+`_`. No se aceptan rutas ni `..`; el archivo se resuelve y confina debajo de `catalogos/` antes de
+crear cualquier directorio.
+
 ## La forma corta: las macros
 
 **26 de las 27 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
