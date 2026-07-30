@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.el_nivel_no_se_confunde_con_el_dominio",
+  "medida",
+  "m",
+  ["!=", ["campo", "m", "es_meta_por_el_nombre"], ["campo", "m", "es_meta_por_lo_que_mide"]],
+  "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca",
+  "compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir"
+]

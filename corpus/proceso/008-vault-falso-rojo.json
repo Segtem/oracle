@@ -4,7 +4,7 @@
   "etiqueta": "falso_rojo",
   "sintoma": "Contaba como enlaces la barra escapada `\\|` obligatoria dentro de tablas de Markdown, y los `[[ejemplos]]` escritos dentro de comillas invertidas en la guía.",
   "como_se_detecto": "accidente",
-  "medida": "meta.verificador_sin_falsos_rojos",
+  "medida": "proceso.verificador_sin_falsos_rojos",
   "evidencia": {
     "hallazgo": [
       {

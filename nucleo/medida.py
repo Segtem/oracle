@@ -191,6 +191,24 @@ def como_hechos(medidas) -> list[dict]:
     Es la pieza que vuelve esto un metalenguaje: no hay mecanismo nuevo, sólo se sirve el catálogo
     como una relación más.
     """
-    return [{"id": m.id, "umbral_op": m.op, "umbral_valor": m.limite, "porque": m.porque,
-             "alcance": m.alcance, "relacion": m.tuberia[1][1] if len(m.tuberia) > 1 else ""}
-            for m in medidas]
+    def relacion_de(m):
+        fuente = m.tuberia[1] if len(m.tuberia) > 1 else []
+        if not fuente:
+            return ""
+        return fuente[1] if fuente[0] == "de" else fuente[1][1]
+
+    salida = []
+    for m in medidas:
+        rel = relacion_de(m)
+        salida.append({
+            "id": m.id, "umbral_op": m.op, "umbral_valor": m.limite, "porque": m.porque,
+            "alcance": m.alcance, "relacion": rel,
+            # Los dos EJES, derivados y no convenidos. El dominio sale del nombre; el NIVEL sale de
+            # sobre qué se mide: una medida es meta cuando su relación es `medida`, no cuando alguien
+            # la guardó en la carpeta `meta/`. Que se puedan comparar es lo que permite verificar que
+            # la convención se cumpla en vez de confiar en ella.
+            "dominio": m.id.split(".")[0],
+            "es_meta_por_el_nombre": m.id.startswith("meta."),
+            "es_meta_por_lo_que_mide": rel == "medida",
+        })
+    return salida

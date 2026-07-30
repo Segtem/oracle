@@ -270,7 +270,22 @@ class CatalogoRealTests(unittest.TestCase):
         hechos = como_hechos(self.catalogo.values())
         self.assertEqual(len(hechos), len(self.catalogo))
         self.assertEqual(sorted(hechos[0]),
-                         ["alcance", "id", "porque", "relacion", "umbral_op", "umbral_valor"])
+                         ["alcance", "dominio", "es_meta_por_el_nombre", "es_meta_por_lo_que_mide",
+                          "id", "porque", "relacion", "umbral_op", "umbral_valor"])
+
+    def test_los_dos_ejes_se_derivan_y_no_se_convienen(self) -> None:
+        """El dominio sale del nombre; el NIVEL sale de sobre qué se mide. Que sean dos campos
+        distintos es lo que permite comprobar que la convención se cumple."""
+        hechos = {h["id"]: h for h in como_hechos(self.catalogo.values())}
+        meta = hechos["meta.alcance_dice_que_no_ve"]
+        self.assertTrue(meta["es_meta_por_el_nombre"])
+        self.assertTrue(meta["es_meta_por_lo_que_mide"])
+        self.assertEqual(meta["relacion"], "medida")
+
+        delMundo = hechos["proceso.verificador_sin_falsos_rojos"]
+        self.assertFalse(delMundo["es_meta_por_el_nombre"])
+        self.assertFalse(delMundo["es_meta_por_lo_que_mide"])
+        self.assertEqual(delMundo["dominio"], "proceso")
 
     def test_el_catalogo_cumple_su_propia_regla_meta(self) -> None:
         meta = self.catalogo["meta.alcance_dice_que_no_ve"]

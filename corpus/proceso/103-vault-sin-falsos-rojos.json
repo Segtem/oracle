@@ -9,7 +9,7 @@
   "etiqueta": "verde_correcto",
   "sintoma": "Tras arreglar los dos falsos positivos (la barra escapada de las tablas y los ejemplos en comillas invertidas), los hallazgos del verificador eran todos reales.",
   "como_se_detecto": "observacion",
-  "medida": "meta.verificador_sin_falsos_rojos",
+  "medida": "proceso.verificador_sin_falsos_rojos",
   "evidencia": {
     "hallazgo": [
       {

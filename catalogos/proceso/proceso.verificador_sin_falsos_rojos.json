@@ -1,6 +1,6 @@
 [
   "ninguno",
-  "meta.verificador_sin_falsos_rojos",
+  "proceso.verificador_sin_falsos_rojos",
   "hallazgo",
   "h",
   ["==", ["campo", "h", "era_real"], false],
