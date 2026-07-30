@@ -56,6 +56,11 @@ def _cmp(op):
 
 
 COMPARADORES = ("==", "!=", "<", "<=", ">", ">=")
+
+
+def _es_flotante(v) -> bool:
+    """Un `bool` es `int` en Python, y un entero se compara exacto sin problema."""
+    return isinstance(v, float) and not isinstance(v, bool)
 LOGICOS = ("y", "o", "no")
 ACCESORES = ("campo", "hecho", "col")
 
@@ -93,6 +98,16 @@ def evaluar_expr(expr, fila: dict):
         if a is None or b is None:
             # comparar contra un campo ausente es casi siempre un error de la medida, no un False
             raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}")
+        # La última pregunta abierta de la especificación, resuelta NEGÁNDOSE. `["==", x, 0]` sobre
+        # centímetros es una falsedad esperando: 0.30000000000000004 no es 0.3, y la medida diría
+        # verde sin que nadie se enterara. La igualdad exacta sólo tiene sentido sobre cosas que se
+        # cuentan o se nombran; sobre cosas que se MIDEN hace falta una tolerancia, y declararla es
+        # justamente lo que este lenguaje pide para todo umbral.
+        if cabeza in ("==", "!=") and (_es_flotante(a) or _es_flotante(b)):
+            raise ErrorDeAlgebra(
+                f"«{cabeza}» sobre un flotante ({a!r}, {b!r}): la igualdad exacta entre cantidades "
+                f"medidas es una falsedad silenciosa. Usá una tolerancia: "
+                f'["<=", ["cerca", a, b], tol] o un umbral con «<=»')
         return _cmp(cabeza)(a, b)
     if cabeza == "y":
         return all(evaluar_expr(x, fila) for x in resto)

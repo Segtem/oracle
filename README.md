@@ -237,6 +237,12 @@ medidas, expanden a la forma canónica, y `peor` cerró por construcción la deu
 Cada uno entró al llegar su disparador, no antes. Sólo `con` sigue levantando un error que dice cuál
 sería el suyo.
 
+**Las cuatro preguntas abiertas de la especificación están cerradas**, y sólo una amplió el álgebra:
+la ausencia trajo `agrupar`. El orden resultó ser un campo del hecho; la recursión salió del álgebra
+hacia el sensor (`alcanzable` es un hecho, no una consulta); y la igualdad exacta sobre flotantes se
+resolvió **prohibiéndola** — `0.1 + 0.2` no es `0.3`, y una medida que compare así diría verde sin que
+nadie se entere.
+
 Con `agrupar` quedó resuelta la **ausencia** —«módulos que nadie usa de verdad»— y sin traer el
 concepto de nulo: se agrupa sobre el producto sin filtrar y se suma un predicado, así que un grupo
 donde nada casó da cero y sigue existiendo.
@@ -257,8 +263,8 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 - **Los 31 mutantes de código vivos**, de a uno.
 - **Los 3 huecos declarados del corpus**: dos son defectos del lenguaje (`004` testigos duplicados,
   `012` umbral duplicado) y uno no tiene forma mecánica conocida (`011`).
-- **La igualdad de flotantes**, la única pregunta abierta que queda de las cuatro: `["==", x, 0]`
-  sobre centímetros es una trampa, y arreglarlo probablemente cambie la forma de `umbral`.
+- **Declarar los dos arneses que faltan** en el proyecto de Jam (`relevo`, `geometria`) con
+  `nucleo.dominio`, como ya se hizo con `vault`.
 - **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
   no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 

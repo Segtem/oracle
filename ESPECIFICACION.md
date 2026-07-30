@@ -177,6 +177,11 @@ operadores, se para y se rediseña — no se agregan operadores hasta que entren
 
 Escritas porque una especificación que finge no tener huecos es peor que una con huecos marcados.
 
+**Las cuatro originales están cerradas**, y sólo una de ellas amplió el álgebra: la ausencia trajo
+`agrupar`. El orden resultó ser un campo del hecho, la recursión salió del álgebra hacia el sensor, y
+la igualdad de flotantes se resolvió prohibiéndola. Que tres de cuatro se cierren sin agregar
+operadores es la única prueba de que el juego chico alcanzaba.
+
 - **Ausencia.** ✅ **RESUELTA, y sin nulos.** «Módulo sin ningún importador REAL» parecía pedir un
   anti-join, y un `LEFT JOIN` habría metido el concepto de nulo —la peor verruga de SQL—. La solución
   no necesitó operador nuevo más allá de `agrupar`: se agrupa sobre el producto **sin filtrar** y se
@@ -206,9 +211,20 @@ Escritas porque una especificación que finge no tener huecos es peor que una co
   BFS para que ningún sensor tenga que reimplementarlo — que era el otro riesgo, acumular la misma
   función en cada dominio. No es una evasión: es la misma línea que separa el sensor del juez en todo
   lo demás.
-- **Igualdad de flotantes.** `["==", x, 0]` sobre medidas en cm es una trampa. Probablemente todo
-  umbral necesite una tolerancia explícita, lo que cambia la forma de `umbral`. **Sigue abierta**, y
-  es la única de las cuatro que queda.
+- **Igualdad de flotantes.** ✅ **RESUELTA negándose.** No hizo falta cambiar la forma de `umbral`:
+  **la igualdad exacta sobre flotantes levanta un error.** `0.1 + 0.2` no es `0.3`, y una medida que
+  compare así diría verde sin que nadie se entere.
+
+  La igualdad exacta sólo tiene sentido sobre cosas que se **cuentan** o se **nombran** —enteros,
+  booleanos, textos—, y ahí sigue permitida. Sobre cosas que se **miden** hace falta una tolerancia,
+  que es justamente lo que el lenguaje pide para todo umbral:
+
+  ```json
+  ["<=", ["cerca", a, b], tolerancia]
+  ```
+
+  Las comparaciones de ORDEN sobre flotantes siguen permitidas: una tolerancia *es* una comparación
+  de orden.
 - **Orden.** ✅ **RESUELTO: es un campo del hecho.** No puede ser una propiedad de la relación, porque
   L0 dice que una relación es un **conjunto** y los conjuntos no tienen orden. Entonces «consecutivos»
   es aritmética sobre el campo ordinal, y para eso alcanzó con declarar las escalares `mas` y `menos`.

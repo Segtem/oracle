@@ -51,6 +51,29 @@ class AlgebraTests(unittest.TestCase):
             evaluar_expr([">", ["campo", "p", "no_existe"], 0], {"p": {"x": 1}})
         self.assertIn("ausente", str(e.exception))
 
+    def test_la_igualdad_EXACTA_sobre_flotantes_esta_prohibida(self) -> None:
+        """La última pregunta abierta de la especificación, resuelta negándose: 0.1+0.2 no es 0.3, y
+        una medida que compare así diría verde sin que nadie se enterara."""
+        for expr in ([" ==".strip(), 0.3, ["mas", 0.1, 0.2]], ["!=", 1.0, 1]):
+            with self.subTest(expr=expr):
+                with self.assertRaises(ErrorDeAlgebra) as e:
+                    evaluar_expr(expr, {})
+                self.assertIn("falsedad silenciosa", str(e.exception))
+
+    def test_pero_los_enteros_y_booleanos_se_comparan_exacto(self) -> None:
+        self.assertTrue(evaluar_expr(["==", 3, 3], {}))
+        self.assertTrue(evaluar_expr(["==", True, True], {}))
+        self.assertFalse(evaluar_expr(["!=", 0, 0], {}))
+
+    def test_y_el_orden_sobre_flotantes_sigue_permitido(self) -> None:
+        # una tolerancia es justamente una comparación de orden: eso está bien
+        self.assertTrue(evaluar_expr(["<=", 0.5, 1.0], {}))
+        self.assertTrue(evaluar_expr([">", 2.5, 1.0], {}))
+
+    def test_cerca_reemplaza_la_igualdad_con_una_tolerancia_a_la_vista(self) -> None:
+        self.assertTrue(evaluar_expr(["<=", ["cerca", ["mas", 0.1, 0.2], 0.3], 1e-9], {}))
+        self.assertFalse(evaluar_expr(["<=", ["cerca", 1.0, 2.0], 0.1], {}))
+
     def test_un_alias_inexistente_no_pasa_en_silencio(self) -> None:
         with self.assertRaises(ErrorDeAlgebra):
             evaluar_expr(["campo", "q", "x"], {"p": {"x": 1}})

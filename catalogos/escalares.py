@@ -30,6 +30,17 @@ def menos(a, b):
     return a - b
 
 
+@escalar("cerca")
+def cerca(a, b):
+    """Distancia absoluta entre dos cantidades. Es el reemplazo de la igualdad exacta.
+
+    Con esto, «a es igual a b» se escribe `["<=", ["cerca", a, b], tolerancia]`, y la tolerancia queda
+    a la vista y con su defensa — que es lo que el lenguaje pide para todo umbral. La igualdad exacta
+    sobre flotantes está prohibida a propósito: ver `_es_flotante` en el álgebra.
+    """
+    return abs(a - b)
+
+
 @escalar("contiene")
 def contiene(texto, aguja) -> bool:
     """¿`aguja` aparece en `texto`? Sensible a mayúsculas a propósito: se usa para exigir que un
