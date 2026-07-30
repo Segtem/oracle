@@ -95,12 +95,15 @@ snapshot inicial y sin `__pycache__` local. Ninguno de estos cambios está inclu
 de la sección siguiente.
 
 P2.3 invalidó este baseline histórico en vez de comparar números incompatibles. Tras mover el mutador
-y los sensores Python a un perfil, el alcance vigente es de 1108 sitios. Se añadió partición explícita
-por objetivo y prioridad de tests seguida siempre por la suite completa. Las primeras seis particiones
-del núcleo y perfil, más `diferencial`, cubren 179/179 sin equivalencias; 18 sobrevivientes iniciales
-se cerraron con casos discriminantes. Además, el manifiesto ahora firma las dependencias de la ronda:
-antes un cambio en los tests podía reutilizar resultados viejos porque sólo se firmaban comando,
-objetivos y motor. La suite actual tiene 250 pruebas.
+y los sensores Python a un perfil, y retirar nueve constantes redundantes de `proyecto`, el alcance
+vigente es de 1099 sitios. Se añadió partición explícita por objetivo y prioridad de tests seguida
+siempre por la suite completa. Ocho particiones del núcleo y perfil cubren 250/250 sin equivalencias;
+los sobrevivientes se cerraron con casos discriminantes. `proyecto` pasó de 43 muertos, 35 vivos y
+2 errores de arnés en la exploración inicial a 71/71 concluyentes. Sus pruebas nuevas fijan selección,
+configuración, confinamiento y el opt-in de código Python externo; también se eliminó el truncado fijo
+de la huella del módulo. Además, el manifiesto ahora firma las dependencias de la ronda: antes un
+cambio en los tests podía reutilizar resultados viejos porque sólo se firmaban comando, objetivos y
+motor. La suite actual tiene 263 pruebas.
 
 | Archivo | Muertos | Total | Vivos |
 |---|---:|---:|---:|

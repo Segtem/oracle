@@ -57,11 +57,11 @@ class ConfiguracionProyecto:
 def configuracion(proy: "Proyecto") -> ConfiguracionProyecto:
     """Lee perfiles explícitos; sin `oracle.json`, el proyecto recibe sólo el núcleo."""
     ruta = proy.raiz / "oracle.json"
-    if not ruta.exists():
+    if not ruta.exists() and not ruta.is_symlink():
         return ConfiguracionProyecto()
-    raiz = proy.raiz.resolve(strict=True)
+    raiz = proy.raiz.resolve()
     try:
-        fisica = ruta.resolve(strict=True)
+        fisica = ruta.resolve()
         fisica.relative_to(raiz)
     except (OSError, ValueError) as e:
         raise ProyectoInvalido("`oracle.json` debe estar dentro del proyecto") from e
@@ -145,9 +145,9 @@ def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False):
     if not confiar:
         raise EscalaresNoConfiables(
             f"{archivo} es código Python externo; repetí con `--confiar-escalares` para ejecutarlo")
-    raiz = proy.raiz.resolve(strict=True)
+    raiz = proy.raiz.resolve()
     try:
-        fisica = archivo.resolve(strict=True)
+        fisica = archivo.resolve()
         fisica.relative_to(raiz)
     except (OSError, ValueError) as e:
         raise EscalaresInvalidas(f"`escalares.py` no está confinado en {raiz}") from e
@@ -158,7 +158,7 @@ def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False):
     import importlib.util
     from nucleo import algebra
 
-    huella = hashlib.sha256(str(raiz).encode("utf-8")).hexdigest()[:12]
+    huella = hashlib.sha256(str(raiz).encode("utf-8")).hexdigest()
     spec = importlib.util.spec_from_file_location(f"oracle_escalares_{huella}", fisica)
     if spec is None or spec.loader is None:
         raise EscalaresInvalidas(f"no se pudo preparar la carga de {fisica}")
@@ -211,7 +211,7 @@ def problemas_estructura(proy: "Proyecto", requeridos: tuple[str, ...]) -> list[
     desconocidos = set(requeridos) - permitidos
     if desconocidos:
         raise ValueError(f"componentes de proyecto desconocidos: {sorted(desconocidos)}")
-    raiz = proy.raiz.resolve(strict=True)
+    raiz = proy.raiz.resolve()
     fallas = []
     for nombre in requeridos:
         ruta = proy.raiz / nombre
@@ -219,7 +219,7 @@ def problemas_estructura(proy: "Proyecto", requeridos: tuple[str, ...]) -> list[
             fallas.append(f"falta `{nombre}/`")
             continue
         try:
-            ruta.resolve(strict=True).relative_to(raiz)
+            ruta.resolve().relative_to(raiz)
         except (OSError, ValueError):
             fallas.append(f"`{nombre}/` no está confinado dentro del proyecto")
         if ruta.is_symlink():
@@ -235,10 +235,10 @@ def ruta_de_medida_nueva(proy: "Proyecto", mid: str) -> Path:
     if not isinstance(mid, str) or ID_MEDIDA_RE.fullmatch(mid) is None:
         raise ProyectoInvalido(
             "el id debe ser `dominio.nombre`, sólo con minúsculas ASCII, dígitos y `_`")
-    catalogos = proy.catalogos.resolve(strict=True)
-    destino = proy.catalogos / mid.split(".", 1)[0] / f"{mid}.json"
+    catalogos = proy.catalogos.resolve()
+    destino = proy.catalogos / mid.split(".")[0] / f"{mid}.json"
     try:
-        destino.resolve(strict=False).relative_to(catalogos)
+        destino.resolve().relative_to(catalogos)
     except (OSError, ValueError) as e:
         raise ProyectoInvalido(f"el destino de {mid!r} escapa de `catalogos/`") from e
     return destino
@@ -246,7 +246,7 @@ def ruta_de_medida_nueva(proy: "Proyecto", mid: str) -> Path:
 
 def presentar_ruta(proy: "Proyecto", ruta: Path) -> str:
     """Ruta estable para humanos: relativa al proyecto si pertenece a él; absoluta si no."""
-    fisica = ruta.resolve(strict=False)
+    fisica = ruta.resolve()
     try:
         return fisica.relative_to(proy.raiz.resolve()).as_posix()
     except ValueError:

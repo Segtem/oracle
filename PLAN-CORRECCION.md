@@ -268,10 +268,13 @@ reproduce las verificaciones y un consumidor independiente completa autoría, di
 **Estado parcial 2026-07-30:** los casos `004` y `012` ya son memoria resuelta y `011` declara una
 frontera humana; el corpus informa cero huecos abiertos. Al no existir dos usuarios reales, `con` y
 la unión izquierda se retiraron de la especificación y del parser activos, con regresiones de rechazo.
-Suite: 250. El alcance actual tiene 1108 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
-el sensor Python de módulos suman 137/137, y `diferencial` aporta otros 42/42: 179/179 ejecutados sin
-equivalencias. Quedan 929 sitios por ejecutar y triar. El manifiesto firma ahora también las fuentes
-de tests y soporte; cambiar la suite invalida la reanudación. Siguen pendientes empaquetado/CI,
+Suite: 263. El alcance actual tiene 1099 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
+el sensor Python de módulos suman 137/137, `diferencial` aporta 42/42 y `proyecto` 71/71: 250/250
+ejecutados sin equivalencias. La partición de proyecto añadió contratos de selección, configuración,
+confinamiento y opt-in de código externo; también retiró nueve constantes redundantes, incluido el
+truncado fijo de la huella del módulo. Quedan 849 sitios por ejecutar y triar. El manifiesto firma
+ahora también las fuentes de tests y soporte; cambiar la suite invalida la reanudación. Siguen
+pendientes empaquetado/CI,
 documentación generada,
 legado de Jam y el segundo consumidor independiente.
 
