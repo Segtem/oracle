@@ -1,0 +1,39 @@
+[
+  "medida",
+  "vault.carpeta_conocida",
+  [
+    "desde",
+    [
+      "de",
+      "documento",
+      "d"
+    ],
+    [
+      "donde",
+      [
+        "==",
+        [
+          "campo",
+          "d",
+          "carpeta_conocida"
+        ],
+        false
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "una carpeta fuera de la lista es una categoría que nadie declaró, y por ahí vuelve la segunda taxonomía incoherente que la reorganización eliminó"
+  ],
+  [
+    "alcance",
+    "NO ve si la lista de carpetas es la correcta ni si falta alguna: sólo que no haya carpetas de más"
+  ]
+]
