@@ -1,0 +1,45 @@
+{
+  "id": "303-el-presupuesto-no-alcanzo",
+  "fecha": "2026-07-30",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "ejemplo abstracto"
+  },
+  "titulo": "Un trabajo grande contra un presupuesto chico: la corrida no observa el sistema",
+  "etiqueta": "falso_verde",
+  "sintoma": "60 unidades de trabajo, rendimiento de hasta 2 por paso y 10 pasos de presupuesto: las tres corridas terminan por «tope» sin completar nada.",
+  "como_se_detecto": "mutacion",
+  "medida": "simulacion.no_se_agoto_el_presupuesto",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "no-alcanza·s1",
+        "escenario": "no-alcanza",
+        "semilla": 1,
+        "pasos": 10,
+        "razon": "tope",
+        "determinista": true,
+        "falto": 45
+      },
+      {
+        "id": "no-alcanza·s2",
+        "escenario": "no-alcanza",
+        "semilla": 2,
+        "pasos": 10,
+        "razon": "tope",
+        "determinista": true,
+        "falto": 47
+      },
+      {
+        "id": "no-alcanza·s3",
+        "escenario": "no-alcanza",
+        "semilla": 3,
+        "pasos": 10,
+        "razon": "tope",
+        "determinista": true,
+        "falto": 46
+      }
+    ]
+  },
+  "leccion": "Una corrida que se quedó sin pasos observó el presupuesto, no el sistema. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló."
+}

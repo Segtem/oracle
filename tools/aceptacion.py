@@ -26,7 +26,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
-from nucleo.medida import cargar_catalogo, como_hechos  # noqa: E402
+from nucleo.marco import hechos_de_casos  # noqa: E402
+from nucleo.medida import cargar_catalogo, como_hechos, evaluar  # noqa: E402
 from nucleo.proyecto import (catalogos_a_cargar, registrar_escalares, resolver,
                              sin_bandera)  # noqa: E402
 
@@ -37,6 +38,13 @@ registrar_escalares(PROY)
 def casos() -> list[dict]:
     return [json.loads(p.read_text(encoding="utf-8"))
             for p in sorted((PROY.corpus).rglob("*.json"))]
+
+
+def _relaciones(m) -> list[str]:
+    fuente = m.tuberia[1] if len(m.tuberia) > 1 else []
+    if not fuente:
+        return []
+    return [fuente[1]] if fuente[0] == "de" else [fuente[1][1], fuente[2][1]]
 
 
 def main() -> int:
@@ -61,10 +69,7 @@ def main() -> int:
         esperado_ok = c["etiqueta"] == "verde_correcto"
         v = catalogo[mid].evaluar(c["evidencia"])
         if v.ok != esperado_ok:
-            que = "VERDE" if v.ok else "ROJO"
-            debia = "verde" if esperado_ok else "rojo"
-            fallas.append(f"{c['id']}: la medida «{mid}» salió {que} y el caso esperaba {debia} "
-                          f"(valor {v.valor}, umbral {v.umbral})")
+            pass          # lo dictamina `meta.el_caso_se_pone_como_debe`, no un `if` de acá
         elif esperado_ok:
             verdes += 1
             print(f"  verde {c['id']:<38} {mid}  (valor {v.valor})")
@@ -77,16 +82,19 @@ def main() -> int:
     for h in huecos:
         print(f"  hueco  {h}")
 
-    # ---- L2: medir las medidas con el mismo álgebra ----
-    print("\nnivel L2 — el catálogo servido como relación:")
-    evidencia_meta = {"medida": como_hechos(catalogo.values())}
-    for mid, m in sorted(catalogo.items()):
-        if not mid.startswith("meta.") or m.tuberia[1][1] != "medida":
-            continue
-        v = m.evaluar(evidencia_meta)
+    # ---- L2: el marco medido con sus propias medidas ----
+    # Antes esto era una lista de `if`s en este archivo. El veredicto sobre el marco es un dato como
+    # cualquier otro: acá sólo se producen los hechos y se imprime lo que las medidas dicen.
+    print("\nnivel meta — el marco medido con sus propias medidas:")
+    evidencia_meta = {"medida": como_hechos(catalogo.values()),
+                      **hechos_de_casos(catalogo, todos)}
+    metas = [m for mid, m in sorted(catalogo.items()) if mid.startswith("meta.")]
+    informe_meta = evaluar([m for m in metas
+                            if all(k in evidencia_meta for k in _relaciones(m))], evidencia_meta)
+    for v in informe_meta.veredictos:
         print(" ", v.linea())
         if not v.ok:
-            fallas.append(f"{mid}: el catálogo no cumple su propia regla meta")
+            fallas.append(f"{v.id}: el marco no cumple su propia regla")
 
     if fallas:
         print(f"\nACEPTACIÓN ✗ — {len(fallas)} problema(s)")

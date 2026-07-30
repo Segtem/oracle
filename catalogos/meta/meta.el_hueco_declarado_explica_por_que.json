@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.el_hueco_declarado_explica_por_que",
+  "caso",
+  "c",
+  ["y", ["==", ["campo", "c", "tiene_medida"], false], ["==", ["campo", "c", "explica_el_hueco"], false]],
+  "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir",
+  "ve que haya una explicación escrita. NO ve si la explicación es cierta ni si el hueco sigue abierto: un hueco ya resuelto que nadie actualizó cumple esta medida"
+]

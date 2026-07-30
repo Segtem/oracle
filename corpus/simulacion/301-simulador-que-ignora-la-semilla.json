@@ -1,0 +1,48 @@
+{
+  "id": "301-simulador-que-ignora-la-semilla",
+  "fecha": "2026-07-30",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "ejemplo abstracto"
+  },
+  "titulo": "Un simulador que ignora la semilla no produce evidencia",
+  "etiqueta": "falso_verde",
+  "sintoma": "El simulador sortea sin usar la semilla: dos ejecuciones idénticas dan trazas distintas. El runner ejecuta cada corrida dos veces y lo marca.",
+  "como_se_detecto": "mutacion",
+  "medida": "simulacion.corrida_reproducible",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "roto·s1",
+        "escenario": "roto",
+        "semilla": 1,
+        "pasos": 1,
+        "razon": "completado",
+        "determinista": false
+      },
+      {
+        "id": "roto·s2",
+        "escenario": "roto",
+        "semilla": 2,
+        "pasos": 1,
+        "razon": "completado",
+        "determinista": false
+      }
+    ],
+    "evento": [
+      {
+        "corrida": "roto·s1",
+        "t": 0,
+        "actor": "x",
+        "que": "azar:254156"
+      },
+      {
+        "corrida": "roto·s2",
+        "t": 0,
+        "actor": "x",
+        "que": "azar:2192"
+      }
+    ]
+  },
+  "leccion": "Una corrida irreproducible no es evidencia, es una anécdota. El runner lo COMPRUEBA en vez de que el simulador lo prometa."
+}

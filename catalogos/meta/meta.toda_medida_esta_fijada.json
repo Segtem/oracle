@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.toda_medida_esta_fijada",
+  "medida_en_uso",
+  "m",
+  ["!=", ["campo", "m", "mutantes_vivos"], 0],
+  "si se puede mutar una medida y ningún caso lo nota, se la podría escribir de otra forma sin que nada frene: el catálogo la contiene pero nada la sostiene",
+  "cuenta mutantes de la propia medida que sobrevivieron. NO ve los mutadores que nadie escribió: una medida puede estar fijada contra los cuatro que hay y floja contra el quinto"
+]

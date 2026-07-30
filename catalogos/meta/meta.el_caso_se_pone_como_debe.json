@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.el_caso_se_pone_como_debe",
+  "caso",
+  "c",
+  ["!=", ["campo", "c", "esperado_ok"], ["campo", "c", "dio_ok"]],
+  "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador",
+  "compara el veredicto contra la polaridad declarada del caso. NO ve si el caso está bien etiquetado, ni si la evidencia que trae es la del defecto que dice traer"
+]

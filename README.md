@@ -28,6 +28,18 @@ aconsejan.
 Los tres se necesitan. Sin el álgebra no compone. Sin la simulación sólo juzga lo estático. **Sin la
 homoiconicidad el lenguaje tiene dueño** — y el dueño sería el LLM, que es exactamente el problema.
 
+## El norte
+
+**Todo el universo de problemas que tienen que ver con crear una herramienta.** Verificar lo que la
+herramienta produce es una parte; las otras son saber qué NO cubre, si los tests la fijan, si el
+corpus fija las medidas, si una afirmación de verde tiene detrás algo que se pueda reproducir, y si
+la entrega a quien sigue deja todo eso en pie.
+
+Una parte de ese universo es **la herramienta misma**, y por eso el marco se mide con sus propias
+medidas: `meta.toda_medida_esta_ejercitada`, `meta.toda_medida_esta_fijada`,
+`meta.el_caso_se_pone_como_debe`. Antes eso eran `if`s dentro de `tools/` — el veredicto sobre el
+marco en código imperativo, mientras el resto del proyecto exige que los veredictos sean datos.
+
 ## Tres niveles, una sola representación
 
 ```

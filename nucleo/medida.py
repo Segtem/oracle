@@ -29,6 +29,17 @@ from .algebra import COMPARADORES, _cmp, desde, resumir
 from .macro import es_macro, expandir
 
 
+# Las relaciones cuyo sujeto es el LENGUAJE, no el mundo. Una medida sobre cualquiera de éstas es de
+# nivel meta, y su nombre tiene que decirlo.
+#
+# La primera versión de la regla decía «es meta si mide sobre `medida`». Alcanzaba para las dos
+# medidas que había y se rompió al aparecer las que miden CASOS: el corpus también es parte del
+# lenguaje, no del mundo. La línea que sí se sostiene es ésta — `medida`, `caso` y `medida_en_uso`
+# hablan del catálogo y de lo que lo fija; `mutante`, `hallazgo` o `afirmacion` hablan del TRABAJO de
+# construir, que es el dominio `proceso`.
+RELACIONES_DEL_LENGUAJE = frozenset({"medida", "caso", "medida_en_uso"})
+
+
 class MedidaMalDeclarada(ValueError):
     pass
 
@@ -209,6 +220,6 @@ def como_hechos(medidas) -> list[dict]:
             # la convención se cumpla en vez de confiar en ella.
             "dominio": m.id.split(".")[0],
             "es_meta_por_el_nombre": m.id.startswith("meta."),
-            "es_meta_por_lo_que_mide": rel == "medida",
+            "es_meta_por_lo_que_mide": rel in RELACIONES_DEL_LENGUAJE,
         })
     return salida
