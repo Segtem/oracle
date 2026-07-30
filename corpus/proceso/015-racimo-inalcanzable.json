@@ -1,0 +1,157 @@
+{
+  "id": "015-racimo-inalcanzable",
+  "fecha": "2026-07-30",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "recursión"
+  },
+  "titulo": "Un racimo de módulos que se importan entre sí y nadie ejecuta",
+  "etiqueta": "falso_verde",
+  "sintoma": "Declarando una sola entrada, hay módulos que se importan unos a otros y aun así no se alcanzan desde ninguna. `proceso.modulo_con_consumidor` los daría por buenos: tienen importadores. Lo que no tienen es camino desde una entrada.",
+  "como_se_detecto": "mutacion",
+  "medida": "proceso.modulo_alcanzable",
+  "evidencia": {
+    "modulo": [
+      {
+        "nombre": "nucleo",
+        "es_test": false,
+        "lineas": 0,
+        "es_paquete_vacio": true
+      },
+      {
+        "nombre": "nucleo.algebra",
+        "es_test": false,
+        "lineas": 232,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.dominio",
+        "es_test": false,
+        "lineas": 129,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.grafo",
+        "es_test": false,
+        "lineas": 52,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.macro",
+        "es_test": false,
+        "lineas": 109,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.marco",
+        "es_test": false,
+        "lineas": 146,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.medida",
+        "es_test": false,
+        "lineas": 225,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.mutacion",
+        "es_test": false,
+        "lineas": 170,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.mutacion_codigo",
+        "es_test": false,
+        "lineas": 269,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.proyecto",
+        "es_test": false,
+        "lineas": 129,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "nucleo.simulacion",
+        "es_test": false,
+        "lineas": 115,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "catalogos",
+        "es_test": false,
+        "lineas": 7,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "catalogos.escalares",
+        "es_test": false,
+        "lineas": 37,
+        "es_paquete_vacio": false
+      },
+      {
+        "nombre": "ejemplo",
+        "es_test": false,
+        "lineas": 0,
+        "es_paquete_vacio": true
+      },
+      {
+        "nombre": "ejemplo.trabajo",
+        "es_test": false,
+        "lineas": 50,
+        "es_paquete_vacio": false
+      }
+    ],
+    "importa": [
+      {
+        "a": "nucleo.dominio",
+        "b": "nucleo.medida",
+        "es_test": false
+      },
+      {
+        "a": "nucleo.marco",
+        "b": "nucleo.grafo",
+        "es_test": false
+      },
+      {
+        "a": "nucleo.medida",
+        "b": "nucleo.algebra",
+        "es_test": false
+      },
+      {
+        "a": "nucleo.medida",
+        "b": "nucleo.macro",
+        "es_test": false
+      },
+      {
+        "a": "nucleo.mutacion",
+        "b": "nucleo.medida",
+        "es_test": false
+      },
+      {
+        "a": "catalogos",
+        "b": "catalogos.escalares",
+        "es_test": false
+      },
+      {
+        "a": "catalogos.escalares",
+        "b": "nucleo.algebra",
+        "es_test": false
+      },
+      {
+        "a": "ejemplo.trabajo",
+        "b": "nucleo.simulacion",
+        "es_test": false
+      }
+    ],
+    "alcanzable": [
+      {
+        "desde": "nucleo.algebra",
+        "hasta": "nucleo.algebra",
+        "saltos": 0
+      }
+    ]
+  },
+  "leccion": "«Tener importadores» y «ser alcanzable» son distintos, y hace falta el cierre TRANSITIVO para ver la diferencia. Se resolvió sin agregar un operador al álgebra: la alcanzabilidad es un HECHO que produce el sensor."
+}

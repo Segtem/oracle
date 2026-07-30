@@ -1,0 +1,8 @@
+[
+  "medida",
+  "simulacion.la_traza_no_tiene_huecos",
+  ["desde", ["de", "evento", "e"], ["agrupar", [["corrida", ["campo", "e", "corrida"]]], [["registrados", "contar", 1], ["ultimo", "max", ["campo", "e", "t"]]]], ["donde", ["!=", ["col", "registrados"], ["mas", ["col", "ultimo"], 1]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"],
+  ["alcance", "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante"]
+]

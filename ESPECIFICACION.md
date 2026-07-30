@@ -193,14 +193,29 @@ Escritas porque una especificación que finge no tener huecos es peor que una co
 
   Queda un límite, declarado en el `alcance` de la medida que lo usa: si la relación del lado derecho
   está **vacía**, no hay pares y por lo tanto no hay grupos. Sin resolver, y es honesto decirlo.
-- **Recursión.** «Alcanzable desde» (el cierre de imports, la conectividad de un grafo) no se expresa
-  con estos seis operadores. Es la misma pared que hizo falta `WITH RECURSIVE` en SQL. Candidatos: un
-  operador `cierre`, o una función escalar que reciba la relación. **Diferido hasta que dos medidas lo
-  pidan.**
+- **Recursión.** ✅ **RESUELTA, y fuera del álgebra.** «Alcanzable desde» no se expresa con los
+  operadores, y es la pared que hizo falta `WITH RECURSIVE` en SQL. Un operador `cierre` habría sido
+  recursión en un lenguaje que se mantiene chico a propósito, con **un solo usuario**. La salida es
+  más fiel a la doctrina: **la alcanzabilidad es un HECHO**, y producir hechos es trabajo del sensor.
+
+  ```
+  alcanzable(desde, hasta, saltos)
+  ```
+
+  El álgebra la mide como cualquier otra relación, sin saber nada de grafos. `nucleo/grafo.py` pone el
+  BFS para que ningún sensor tenga que reimplementarlo — que era el otro riesgo, acumular la misma
+  función en cada dominio. No es una evasión: es la misma línea que separa el sensor del juez en todo
+  lo demás.
 - **Igualdad de flotantes.** `["==", x, 0]` sobre medidas en cm es una trampa. Probablemente todo
-  umbral necesite una tolerancia explícita, lo que cambia la forma de `umbral`.
-- **Orden.** `resumen max` no necesita orden, pero «piezas consecutivas a lo largo de una curva» sí.
-  ¿El orden es un campo del hecho, o una propiedad de la relación?
+  umbral necesite una tolerancia explícita, lo que cambia la forma de `umbral`. **Sigue abierta**, y
+  es la única de las cuatro que queda.
+- **Orden.** ✅ **RESUELTO: es un campo del hecho.** No puede ser una propiedad de la relación, porque
+  L0 dice que una relación es un **conjunto** y los conjuntos no tienen orden. Entonces «consecutivos»
+  es aritmética sobre el campo ordinal, y para eso alcanzó con declarar las escalares `mas` y `menos`.
+
+  Ejemplo real: «la traza no tiene huecos» se expresa agrupando por corrida y comparando la cuenta de
+  eventos contra el último instante — `["!=", ["col","registrados"], ["mas", ["col","ultimo"], 1]]`.
+  Sin operador nuevo.
 
 ## 8. Lo que esta versión deliberadamente no tiene
 

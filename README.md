@@ -257,8 +257,8 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 - **Los 31 mutantes de código vivos**, de a uno.
 - **Los 3 huecos declarados del corpus**: dos son defectos del lenguaje (`004` testigos duplicados,
   `012` umbral duplicado) y uno no tiene forma mecánica conocida (`011`).
-- **Recursión y orden**, las dos preguntas abiertas que Jam pide concretamente: «alcanzable desde»
-  (cierre transitivo) y «piezas consecutivas a lo largo de una curva».
+- **La igualdad de flotantes**, la única pregunta abierta que queda de las cuatro: `["==", x, 0]`
+  sobre centímetros es una trampa, y arreglarlo probablemente cambie la forma de `umbral`.
 - **Los dos huecos declarados del corpus** (`004`, `011`, `012`): dos son defectos del lenguaje y uno
   no tiene forma mecánica conocida. Su número es una métrica y tiene que bajar.
 

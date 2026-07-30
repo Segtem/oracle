@@ -40,3 +40,11 @@ def sin_usar_la_semilla(escenario: dict, semilla: int, tope: int) -> Corrida:
     inventarlo, que es lo que fija `simulacion.corrida_reproducible`."""
     return Corrida([{"t": 0, "actor": "x", "que": f"azar:{random.randrange(10**6)}"}],
                    pasos=1, razon="completado")
+
+
+def con_la_traza_agujereada(escenario: dict, semilla: int, tope: int) -> Corrida:
+    """Roto a propósito: no registra un paso. La traza queda con un hueco y sigue pareciendo sana —
+    sirve para fijar la medida de orden con una observación en vez de con evidencia inventada."""
+    entera = trabajo_con_presupuesto(escenario, semilla, tope)
+    return Corrida([e for e in entera.eventos if e["t"] != 1],
+                   pasos=entera.pasos, razon=entera.razon, resumen=entera.resumen)

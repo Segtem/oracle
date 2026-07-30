@@ -1,0 +1,129 @@
+{
+  "id": "306-traza-completa",
+  "fecha": "2026-07-30",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "orden"
+  },
+  "titulo": "La traza del ejemplo registra todos sus instantes",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Tantos eventos como instantes, del cero al último.",
+  "como_se_detecto": "observacion",
+  "medida": "simulacion.la_traza_no_tiene_huecos",
+  "evidencia": {
+    "corrida": [
+      {
+        "id": "alcanza·s1",
+        "escenario": "alcanza",
+        "semilla": 1,
+        "pasos": 5,
+        "razon": "completado",
+        "determinista": true,
+        "sobro": 15
+      },
+      {
+        "id": "alcanza·s2",
+        "escenario": "alcanza",
+        "semilla": 2,
+        "pasos": 6,
+        "razon": "completado",
+        "determinista": true,
+        "sobro": 14
+      }
+    ],
+    "evento": [
+      {
+        "corrida": "alcanza·s1",
+        "t": 0,
+        "actor": "trabajo",
+        "que": "empieza",
+        "falta": 8
+      },
+      {
+        "corrida": "alcanza·s1",
+        "t": 1,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 7
+      },
+      {
+        "corrida": "alcanza·s1",
+        "t": 2,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 4
+      },
+      {
+        "corrida": "alcanza·s1",
+        "t": 3,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 3
+      },
+      {
+        "corrida": "alcanza·s1",
+        "t": 4,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 1
+      },
+      {
+        "corrida": "alcanza·s1",
+        "t": 5,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 0
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 0,
+        "actor": "trabajo",
+        "que": "empieza",
+        "falta": 8
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 1,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 7
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 2,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 6
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 3,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 5
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 4,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 3
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 5,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 2
+      },
+      {
+        "corrida": "alcanza·s2",
+        "t": 6,
+        "actor": "trabajo",
+        "que": "avanza",
+        "falta": 0
+      }
+    ]
+  },
+  "leccion": "La otra polaridad."
+}
