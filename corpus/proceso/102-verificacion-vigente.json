@@ -1,0 +1,35 @@
+{
+  "id": "102-verificacion-vigente",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Brianholl/jam",
+    "commit": "sesión 2026-07-29"
+  },
+  "titulo": "Después de recorrer el motor, los commits siguientes fueron sólo de documentación",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Se volvió a correr la verificación con motor y a partir de ahí sólo cambiaron documentos. `relevo.py` declaró la verificación vigente, y era cierto.",
+  "como_se_detecto": "observacion",
+  "medida": "proceso.verificacion_vigente",
+  "evidencia": {
+    "verificacion": [
+      {
+        "que": "motor",
+        "commit": "80373ea",
+        "camino": "editor headless"
+      }
+    ],
+    "cambio": [
+      {
+        "archivo": "RELEVO.md",
+        "commiteado": true,
+        "es_codigo_vivo": false
+      },
+      {
+        "archivo": "Vault-kb/README.md",
+        "commiteado": true,
+        "es_codigo_vivo": false
+      }
+    ]
+  },
+  "leccion": "La regla mira QUÉ cambió y no CUÁNTO: por eso los commits de documentación no invalidan una verificación, y eso es lo que la hace usable en vez de molesta."
+}

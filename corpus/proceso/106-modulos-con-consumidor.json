@@ -1,0 +1,33 @@
+{
+  "id": "106-modulos-con-consumidor",
+  "fecha": "2026-07-29",
+  "origen": {
+    "repo": "Brianholl/jam",
+    "commit": "sesión 2026-07-29"
+  },
+  "titulo": "Los módulos del núcleo del oráculo sí tienen importadores",
+  "etiqueta": "verde_correcto",
+  "sintoma": "`algebra` y `medida` los importa `mutacion`, y los tres los importan las herramientas. Ninguno está en la situación de `preview2d`.",
+  "como_se_detecto": "observacion",
+  "medida": "proceso.modulo_con_consumidor",
+  "evidencia": {
+    "modulo": [
+      {
+        "nombre": "nucleo.algebra",
+        "tests": 16,
+        "importadores": 3
+      },
+      {
+        "nombre": "nucleo.medida",
+        "tests": 16,
+        "importadores": 3
+      },
+      {
+        "nombre": "nucleo.mutacion",
+        "tests": 0,
+        "importadores": 1
+      }
+    ]
+  },
+  "leccion": "La medida cuenta importadores sin distinguir tests, y este caso lo esquiva porque los importadores son reales. El punto ciego sigue declarado en el `alcance`."
+}

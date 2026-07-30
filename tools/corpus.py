@@ -33,6 +33,10 @@ ETIQUETAS = {
     "falso_rojo",                         # dijo mal y estaba bien
     "deuda_de_diseño",                    # el lenguaje obliga a algo que se va a romper
     "medida_correcta_conclusion_errada",   # el número era cierto, la causa atribuida no
+    # La OTRA polaridad: evidencia real donde la medida debe decir verde. Sin estos casos una
+    # medida queda floja — `quitar_filtro` sobrevive siempre, porque contar sin filtro sólo da
+    # verde con la relación vacía. Es lo mismo que evaluar un clasificador sólo con positivos.
+    "verde_correcto",
 }
 
 # De dónde vino la detección. Sirve para saber qué mecanismo se paga solo y cuál es decorativo.
@@ -41,6 +45,7 @@ DETECCIONES = {
     "persona",            # alguien lo vio
     "accidente",          # apareció haciendo otra cosa
     "herramienta_ajena",  # lo detectó algo que no era nuestro verificador
+    "observacion",        # no hubo defecto: se observó un verde correcto
 }
 
 ESCALARES = (str, int, float, bool, type(None))

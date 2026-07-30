@@ -80,19 +80,40 @@ mal» cuando el verde no se movió.
 
 ## Estado
 
-**Paso 2 de 5.** Están el [corpus](corpus/) (11 casos), la [especificación](ESPECIFICACION.md) del
-álgebra, el evaluador (`nucleo/`) y 8 medidas en [`catalogos/`](catalogos/) — **como archivos de
-datos, no como código**.
+**Paso 3 de 5.** Están el [corpus](corpus/) (18 casos), la [especificación](ESPECIFICACION.md) del
+álgebra, el evaluador (`nucleo/`), 8 medidas en [`catalogos/`](catalogos/) —**como archivos de datos,
+no como código**— y el sensor de mutación de medidas.
 
 ```bash
 python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
-python -m unittest discover -s tests -t . -q     # 32 tests, cero dependencias
+python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
+python -m unittest discover -s tests -t . -q     # 48 tests, cero dependencias
 ```
 
-Los 9 casos que declaran una medida **se ponen en rojo**; los 2 con hueco declarado siguen verdes a
-propósito y su número tiene que bajar. Corre además el nivel L2: el catálogo servido como relación y
-medido por una medida, sin ningún mecanismo nuevo.
+Los 9 casos de defecto **se ponen en rojo**, los 7 `verde_correcto` salen **verdes**, y los 2 con
+hueco declarado siguen verdes a propósito. Corre además el nivel L2: el catálogo servido como
+relación y medido por una medida, sin ningún mecanismo nuevo.
+
+### El bucle cerrado
+
+`tools/mutar.py` muta las **medidas** —que son datos, así que no se toca ningún archivo y no hay
+`.pyc` que pueda quedar viejo— y produce hechos `mutante(id, apunta_a, murio)`. Esos hechos los juzga
+**una medida del catálogo**, `proceso.test_con_mutante_que_lo_mata`. El sensor no dicta veredictos:
+produce evidencia, y el álgebra la mide.
+
+Hoy: **28 mutantes, 28 muertos**. Un sobreviviente sería un aspecto de la medida que el corpus no
+fija, y por lo tanto algo que se podría escribir mal sin que nada frene.
+
+### Las dos polaridades del corpus
+
+La primera corrida del sensor dejó 10 sobrevivientes, casi todos del mutador `quitar_filtro`. La
+causa no era el código: **el corpus tenía sólo defectos**. Con `contar` y umbral `<= 0`, una medida
+sin filtro sólo da verde si la relación está vacía, así que ningún caso de defecto puede notar que le
+saquen el filtro. Hace falta la otra polaridad — evidencia real donde la medida **debe** decir verde.
+
+Es lo mismo que evaluar un clasificador sólo con positivos. De ahí los 7 casos `verde_correcto`, que
+no son relleno: son lo único que fija el filtro.
 
 **Tres de los seis operadores están implementados** (`de`, `donde`, `resumen`): son los únicos que
 piden las medidas que existen. Los otros levantan un error que dice su disparador.

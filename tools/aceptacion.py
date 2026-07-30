@@ -4,8 +4,10 @@
 
 Criterio 4 de la especificación, ejecutable:
 
-  · todo caso que **declara** una medida tiene que ponerse en **ROJO** con esa medida. Si sale verde,
-    la medida está mal escrita o falta lenguaje — y hay que decir cuál;
+  · todo caso de defecto que **declara** una medida tiene que ponerse en **ROJO** con esa medida;
+  · todo caso `verde_correcto` tiene que salir **VERDE**. Son la otra polaridad, y no son relleno:
+    sin ellos `quitar_filtro` sobrevive siempre, porque contar sin filtro sólo da verde con la
+    relación vacía. Un corpus de puros defectos deja las medidas flojas;
   · los casos con `sin_medida_todavia` **quedan verdes a propósito**: son el hueco declarado. Su
     número es una métrica del marco y tiene que bajar;
   · y al final corre el nivel L2: las medidas del catálogo servidas **como relación**, medidas por
@@ -37,6 +39,7 @@ def main() -> int:
     todos = casos()
     fallas: list[str] = []
     rojos = 0
+    verdes = 0
     huecos: list[str] = []
 
     print(f"catálogo: {len(catalogo)} medidas · corpus: {len(todos)} casos\n")
@@ -50,15 +53,22 @@ def main() -> int:
             fallas.append(f"{c['id']}: reclama la medida «{mid}» y no está en el catálogo")
             continue
 
+        esperado_ok = c["etiqueta"] == "verde_correcto"
         v = catalogo[mid].evaluar(c["evidencia"])
-        if v.ok:
-            fallas.append(f"{c['id']}: la medida «{mid}» salió VERDE y el caso es un defecto real "
-                          f"(valor {v.valor}, umbral {v.umbral}) — medida mal escrita o falta lenguaje")
+        if v.ok != esperado_ok:
+            que = "VERDE" if v.ok else "ROJO"
+            debia = "verde" if esperado_ok else "rojo"
+            fallas.append(f"{c['id']}: la medida «{mid}» salió {que} y el caso esperaba {debia} "
+                          f"(valor {v.valor}, umbral {v.umbral})")
+        elif esperado_ok:
+            verdes += 1
+            print(f"  verde {c['id']:<38} {mid}  (valor {v.valor})")
         else:
             rojos += 1
             print(f"  ROJO  {c['id']:<38} {mid}  (valor {v.valor})")
 
-    print(f"\ncasos que se pusieron rojos: {rojos} · huecos declarados: {len(huecos)}")
+    print(f"\ndefectos que se pusieron rojos: {rojos} · verdes correctos: {verdes} · "
+          f"huecos declarados: {len(huecos)}")
     for h in huecos:
         print(f"  hueco  {h}")
 
@@ -78,7 +88,7 @@ def main() -> int:
         for f in fallas:
             print("  ·", f)
         return 1
-    print(f"\nACEPTACIÓN ✓ — los {rojos} casos con medida se ponen en rojo; "
+    print(f"\nACEPTACIÓN ✓ — {rojos} defectos en rojo, {verdes} verdes correctos, "
           f"{len(huecos)} huecos declarados sin tapar")
     return 0
 
