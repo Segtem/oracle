@@ -30,7 +30,7 @@ PROY = resolver(sys.argv[1:])
 registrar_escalares(PROY)
 
 
-def casos() -> list[dict]:
+def casos(catalogo) -> list[dict]:
     """El corpus MÁS la prueba diferencial.
 
     Sin esto las medidas de geometría quedaban sin mutar: ningún caso del corpus las declara, y su
@@ -41,6 +41,24 @@ def casos() -> list[dict]:
               for p in sorted((PROY.corpus).rglob("*.json"))]
     for f in sorted((PROY.diferencial).glob("*.json")):
         datos = json.loads(f.read_text(encoding="utf-8"))
+
+        # Formato de dominio declarado: no hay expectativa por medida —eso reimplementaba las
+        # medidas—, así que la línea base es el veredicto ACTUAL de cada una. Para mutar es lo
+        # correcto: la pregunta no es «¿acierta?» sino «¿algún escenario nota que la cambiaron?».
+        if "escenarios" in datos:
+            for mid in datos["medidas"]:
+                if mid not in catalogo:
+                    continue
+                for esc in datos["escenarios"]:
+                    ok = catalogo[mid].evaluar(esc["evidencia"]).ok
+                    salida.append({
+                        "id": f"{f.stem}/{mid}[{esc['id']}]",
+                        "etiqueta": "verde_correcto" if ok else "falso_verde",
+                        "medida": mid,
+                        "evidencia": esc["evidencia"],
+                    })
+            continue
+
         for mid, entradas in datos["grupos"].items():
             for i, e in enumerate(entradas):
                 salida.append({
@@ -54,7 +72,7 @@ def casos() -> list[dict]:
 
 def main() -> int:
     catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
-    evidencia = correr(catalogo, casos())
+    evidencia = correr(catalogo, casos(catalogo))
 
     if "--hechos" in sin_bandera(sys.argv[1:]):
         print(json.dumps(evidencia, ensure_ascii=False, indent=2))
