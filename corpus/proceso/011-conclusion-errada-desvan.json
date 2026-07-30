@@ -5,7 +5,8 @@
   "sintoma": "Se midió alcanzabilidad desde un punto de entrada y salió que 34 de 36 módulos no se alcanzaban. Se concluyó «desván, podalo». La causa real era que 25 de 34 no se podían IMPORTAR porque el código apuntaba al monorepo viejo. El número era cierto; la causa atribuida, no.",
   "como_se_detecto": "persona",
   "medida": null,
-  "sin_medida_todavia": "no hay forma mecánica de detectar una atribución causal errada. La única mitigación conocida es exigir que toda conclusión nombre la medición que la sostiene, para que se pueda discutir el salto.",
+  "estado_sin_medida": "limite_humano",
+  "limite_humano": "No hay forma mecánica genérica de validar una atribución causal. Oracle puede exigir trazabilidad entre conclusión y medición, pero una persona debe discutir el salto causal.",
   "evidencia": {
     "modulo": [
       {

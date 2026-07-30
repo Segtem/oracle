@@ -167,12 +167,14 @@ Oracle **no tiene dominios**. Los dominios son de quien construye:
 ```
 oracle/                        LA HERRAMIENTA
   nucleo/                      el álgebra, la medida, las macros, el dominio, la simulación
+  perfiles/python/             AST, imports, mutación de `.py` y garantías de `.pyc`
   tools/                       los instrumentos
   catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion
   corpus/                      los casos donde la medición dijo bien y no estaba bien
   ejemplo/                     un banco de pruebas abstracto, no un dominio
 
 <tu-proyecto>/                 TU PROYECTO
+  oracle.json                  perfiles optativos activados de forma explícita
   catalogos/<dominio>/         tus medidas
   escalares.py                 tus funciones de dominio
   corpus/  diferencial/        tus casos y tus fixtures
@@ -198,16 +200,26 @@ cualquiera que construya con un LLM —mutantes que sobreviven, afirmaciones sin
 vencidas, corridas irreproducibles— y se cargan junto a las tuyas. Que vengan de fábrica es la
 diferencia entre una herramienta y un repositorio de ejemplos.
 
+Los supuestos de plataforma no vienen implícitos. Para analizar imports con AST, mutar `.py` y
+comprobar cachés de CPython, el proyecto lo declara:
+
+```json
+{"esquema": "oracle.proyecto/v1", "perfiles": ["python"]}
+```
+
+Sin `oracle.json`, sólo se carga el catálogo universal. Un perfil desconocido o repetido falla
+cerrado. El propio Oracle declara `python` porque usa ese perfil para probarse.
+
 Los dominios que estuvieron acá durante el desarrollo —geometría, vault, relevo, una cola, un
 laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
 no abstraer.
 
 ## Estado
 
-> **Estado auditado el 2026-07-30; P1 cerrado.** Los bypasses de simulación, baseline, caché,
+> **Estado auditado el 2026-07-30; P2.2 cerrado.** Los bypasses de simulación, baseline, caché,
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
-> distintos de una muerte. El aislamiento automático en una copia, el bloqueo y la restauración
-> atómica siguen en P2. Ver
+> distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
+> subprocesos acotados y reanudación verificable. Ver
 > [`AUDITORIA-2026-07-30.md`](AUDITORIA-2026-07-30.md) y
 > [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
 
@@ -224,17 +236,19 @@ python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
 python tools/diferencial.py                      # el álgebra vs una implementación independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 217 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # 235 tests, cero dependencias
 ```
 
-27 defectos en rojo · 12 verdes correctos · 3 huecos declarados · **269 acuerdos globales de Jam
-con referencias independientes y 1158 veredictos individuales estables** · 128/128 mutantes de
-medida · 217 tests.
+27 defectos en rojo · 12 verdes correctos · 0 huecos abiertos · 2 casos resueltos conservados ·
+1 límite humano · **269 acuerdos globales de Jam
+con referencias independientes y 1158 veredictos individuales estables** · 129/129 mutantes de
+medida · 235 tests.
 
 > **`tools/mutar_codigo.py` sigue saliendo en ROJO.** La mutación de medidas volvió a verde sin
 > reducir el denominador: ocho casos mínimos fijaron los bordes de umbral y dos fijaron mutaciones
-> internas. El baseline de código completo y particionado, ejecutado
-> sobre copias temporales, dejó 503/616 mutantes muertos y 113 vivos, sin timeout ni error de arnés.
+> internas. El baseline de código completo y particionado dejó 503/616 mutantes muertos y 113 vivos,
+> sin timeout ni error de arnés. Las rondas actuales crean su propia copia automáticamente y pueden
+> persistir progreso con `--manifiesto`/`--reanudar`.
 > Se podrían declarar equivalentes en masa para
 > pintar verde — y eso sería exactamente el Goodhart que este repositorio persigue. El número baja
 > escribiendo tests o declarando equivalentes **de a uno y con su razón escrita**.
@@ -276,7 +290,8 @@ P1.1 amplió el denominador desde cuatro transformaciones gruesas a **128 mutant
 umbral, filtros, fuentes, expresiones, agregados y campos. La primera ronda mató 118 y expuso diez
 libertades que el anterior 48/48 no miraba. Ocho reducciones mínimas fijaron los límites justo en el
 borde; otros dos casos fijaron el comparador interno de `proceso.modulo_con_consumidor` y el `max` de
-`proceso.modulo_alcanzable`. La ronda actual mata **128/128** sin reducir el denominador.
+`proceso.modulo_alcanzable`. P2.2 retiró una regla textual normativa y cambió el contrato de
+terminación; el denominador actual mata **129/129**.
 
 ### Modo simulación: la segunda fuente de evidencia
 
@@ -286,13 +301,15 @@ una traza es una relación:
 
 ```
 evento(corrida, t, actor, que, …)                          lo que fue pasando
-corrida(id, escenario, semilla, pasos, razon, determinista) cómo terminó
+corrida(id, escenario, semilla, pasos, razon, presupuesto_agotado, determinista) cómo terminó
 ```
 
 **El contrato no tiene ningún campo de veredicto.** La primera versión traía `gano: bool` y eso era
 un concepto de juego metido adentro del núcleo: un simulador de una cola no «gana», termina por una
 razón. Si esa razón está bien lo dice una medida. El dominio es indiferente — una cola con
 servidores, un recorrido sobre una topología, o los turnos de dos agentes trabajando un repositorio.
+Las razones siguen perteneciendo al dominio: `ContratoTerminacion` declara cuáles significan que el
+presupuesto se agotó; el runner no contiene una razón literal privilegiada.
 
 **El determinismo se comprueba, no se promete.** Cada corrida se ejecuta **dos veces** con la misma
 semilla y `determinista` es un hecho más. Una corrida irreproducible no es evidencia: es una anécdota.
@@ -327,9 +344,9 @@ además lo único que ataja una medida que se pone roja con entrada correcta, el
 medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
 medidas, expanden a la forma canónica, y `peor` cerró por construcción la deuda del umbral duplicado.
 
-**Cinco de los seis operadores están implementados**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
-Cada uno entró al llegar su disparador, no antes. Sólo `con` sigue levantando un error que dice cuál
-sería el suyo.
+**El lenguaje activo tiene cinco operadores**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
+Cada uno entró al llegar su disparador. `con` y la unión izquierda se retiraron: sin dos usuarios
+reales eran superficie ficticia, no capacidades.
 
 **Las cuatro preguntas abiertas de la especificación están cerradas**, y sólo una amplió el álgebra:
 la ausencia trajo `agrupar`. El orden resultó ser un campo del hecho; la recursión salió del álgebra
@@ -358,8 +375,9 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
   razón revisada.
 - **Los 11 mutantes de medida vivos al aplicar el denominador P1.1 sobre Jam**: sus fixtures necesitan
   escenarios de borde y combinaciones discriminantes; no se corrigen debilitando el mutador.
-- **Los 3 casos que el corpus aún cuenta sin medida**: `004` y `012` ya están resueltos por
-  construcción pero falta reclasificarlos; `011` no tiene una detección mecánica conocida.
+- **La frontera humana del caso `011`**: la medición puede exigir trazabilidad, pero una atribución
+  causal no tiene un verificador mecánico genérico. `004` y `012` ya figuran como resueltos y no
+  inflan la deuda abierta.
 - **Declarar los dos arneses que faltan** en el proyecto de Jam (`relevo`, `geometria`) con
   `nucleo.dominio`, como ya se hizo con `vault`.
 

@@ -142,6 +142,8 @@ def corpus_en_prosa(raiz_corpus: Path) -> str:
             out += [f"**Por qué no hay medida todavía.** {c['sin_medida_todavia']}", ""]
         if c.get("resuelto"):
             out += [f"**Resuelto.** {c['resuelto']}", ""]
+        if c.get("limite_humano"):
+            out += [f"**Límite humano.** {c['limite_humano']}", ""]
         ev = "\n".join(f'  "{rel}": ' + json.dumps(filas, ensure_ascii=False)[:1200]
                        for rel, filas in c["evidencia"].items())
         out += ["La evidencia, como relaciones:", "", "```json", "{", ev, "}", "```", ""]

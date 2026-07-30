@@ -8,9 +8,8 @@ Comprueba lo que se degrada solo:
   1. **el esquema** de cada caso, y que el `id` sea el nombre del archivo;
   2. **la forma de la evidencia**: un mapa de relación → filas de campos ESCALARES. Es el contrato
      L0 de la especificación, y si se afloja acá se afloja en todo el resto;
-  3. **que ningún caso se caiga en silencio**: si un caso todavía no tiene medida que lo atrape,
-     tiene que decir POR QUÉ en `sin_medida_todavia`. Un caso sin medida y sin explicación es un caso
-     que alguien va a borrar.
+  3. **que ningún caso se caiga en silencio**: un caso sin medida declara si sigue abierto, quedó
+     resuelto por construcción o documenta un límite humano no automatizable.
 
 La 3 es la que importa. Los casos incómodos —los que el marco todavía no puede medir— son
 justamente los que no hay que perder: son la lista de lo que falta.
@@ -53,6 +52,7 @@ DETECCIONES = {
 }
 
 ESCALARES = (str, int, float, bool, type(None))
+ESTADOS_SIN_MEDIDA = {"abierto", "resuelto", "limite_humano"}
 
 
 def casos() -> list[Path]:
@@ -77,6 +77,20 @@ def revisar_evidencia(nombre: str, evidencia) -> list[str]:
                     fallas.append(f"{nombre}: {relacion}[{i}].{campo} no es escalar "
                                   f"({type(valor).__name__}) — L0 no admite anidamiento")
     return fallas
+
+
+def revisar_estado_sin_medida(nombre: str, caso: dict) -> list[str]:
+    if caso.get("medida"):
+        return []
+    estado = caso.get("estado_sin_medida")
+    if estado not in ESTADOS_SIN_MEDIDA:
+        return [f"{nombre}: `medida` es nula y `estado_sin_medida` no está en "
+                f"{sorted(ESTADOS_SIN_MEDIDA)}"]
+    campo = {"abierto": "sin_medida_todavia", "resuelto": "resuelto",
+             "limite_humano": "limite_humano"}[estado]
+    if not str(caso.get(campo, "")).strip():
+        return [f"{nombre}: estado {estado!r} necesita `{campo}` no vacío"]
+    return []
 
 
 def verificar() -> tuple[list[str], list[dict]]:
@@ -108,9 +122,7 @@ def verificar() -> tuple[list[str], list[dict]]:
             fallas.append(f"{p.name}: como_se_detecto «{c['como_se_detecto']}» "
                           f"no está en {sorted(DETECCIONES)}")
 
-        # un caso sin medida es información valiosa, pero tiene que decir por qué
-        if not c["medida"] and not str(c.get("sin_medida_todavia", "")).strip():
-            fallas.append(f"{p.name}: `medida` es nula y no hay `sin_medida_todavia` que lo explique")
+        fallas += revisar_estado_sin_medida(p.name, c)
 
         fallas += revisar_evidencia(p.name, c["evidencia"])
         cargados.append(c)
@@ -124,10 +136,13 @@ def resumen(cargados: list[dict]) -> None:
         print(f"\n{titulo}:")
         for k, n in Counter(c[clave] for c in cargados).most_common():
             print(f"  {n:2}  {k}")
-    sin = [c["id"] for c in cargados if not c["medida"]]
-    print(f"\nsin medida que los atrape ({len(sin)}) — la lista de lo que falta:")
-    for s in sin:
-        print("  ·", s)
+    for estado, titulo in (("abierto", "huecos abiertos"),
+                           ("resuelto", "casos resueltos conservados como memoria"),
+                           ("limite_humano", "límites humanos no automatizables")):
+        ids = [c["id"] for c in cargados if c.get("estado_sin_medida") == estado]
+        print(f"\n{titulo} ({len(ids)}):")
+        for cid in ids:
+            print("  ·", cid)
     print("\nmedidas que el corpus reclama:")
     for k, n in Counter(c["medida"] for c in cargados if c["medida"]).most_common():
         print(f"  {n:2}  {k}")

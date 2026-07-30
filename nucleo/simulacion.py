@@ -69,12 +69,27 @@ class SimuladorMalContratado(ValueError):
     """El simulador no devolvió lo que el contrato pide."""
 
 
+@dataclass(frozen=True)
+class ContratoTerminacion:
+    """Clasifica razones propias del dominio sin imponer sus nombres al runner."""
+
+    razones_de_agotamiento: frozenset[str]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.razones_de_agotamiento, frozenset):
+            raise SimuladorMalContratado(
+                "`razones_de_agotamiento` debe ser un frozenset explícito")
+        if any(not isinstance(r, str) or not r.strip() for r in self.razones_de_agotamiento):
+            raise SimuladorMalContratado("cada razón de agotamiento debe ser texto no vacío")
+
+
 _ESCALARES_L0 = (str, int, float, bool, type(None))
 
 # Estos campos los certifica el runner. Si el dominio pudiera aportarlos desde `resumen`, podría
 # reemplazar justamente los hechos que el runner calcula (incluido `determinista`).
 _CAMPOS_RESERVADOS_CORRIDA = frozenset({
     "id", "escenario", "semilla", "pasos", "razon", "determinista",
+    "presupuesto_agotado",
 })
 _CAMPOS_RESERVADOS_EVENTO = frozenset({"corrida"})
 
@@ -125,7 +140,8 @@ def _revisar(c) -> Corrida:
 
 
 def correr(simulador: Simulador, escenarios: list[dict], semillas: list[int],
-           tope: int = 500, con_traza: bool = True) -> dict:
+           tope: int = 500, con_traza: bool = True,
+           contrato_terminacion: ContratoTerminacion | None = None) -> dict:
     """Corre el simulador sobre cada (escenario, semilla) y devuelve EVIDENCIA.
 
     Cada combinación se ejecuta **dos veces**: si las dos trazas no coinciden, la corrida se marca
@@ -134,6 +150,10 @@ def correr(simulador: Simulador, escenarios: list[dict], semillas: list[int],
     if not isinstance(tope, int) or isinstance(tope, bool) or tope < 0:
         raise SimuladorMalContratado(
             f"`tope` tiene que ser un entero no negativo (no bool), no {tope!r}")
+    if contrato_terminacion is not None and not isinstance(
+            contrato_terminacion, ContratoTerminacion):
+        raise SimuladorMalContratado(
+            "`contrato_terminacion` debe ser ContratoTerminacion o None")
 
     corridas, eventos = [], []
     ids_corrida: set[str] = set()
@@ -162,8 +182,11 @@ def correr(simulador: Simulador, escenarios: list[dict], semillas: list[int],
             determinista = (a.eventos == b.eventos and a.pasos == b.pasos
                             and a.razon == b.razon and a.resumen == b.resumen)
 
+            agotado = (None if contrato_terminacion is None else
+                       a.razon in contrato_terminacion.razones_de_agotamiento)
             corridas.append({"id": cid, "escenario": eid, "semilla": semilla,
                              "pasos": a.pasos, "razon": a.razon,
+                             "presupuesto_agotado": agotado,
                              "determinista": determinista, **a.resumen})
             if con_traza:
                 for e in a.eventos:

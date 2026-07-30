@@ -1,12 +1,13 @@
 """Tests del mutador de CÓDIGO. Existe porque su primera corrida delató que no los tenía: de 88
 mutantes vivos, 57 eran de este módulo.
 
-La propiedad que más importa acá no es la corrección de los operadores: es que **el archivo original
-se restaure siempre**. Esta herramienta escribe sobre fuentes reales.
+La propiedad que más importa acá no es la corrección de los operadores: es que **el árbol original
+no se escriba nunca**. Cada mutante vive en una copia temporal.
 """
 
 from __future__ import annotations
 
+import json
 import subprocess
 import signal
 import sys
@@ -18,7 +19,7 @@ from unittest import mock
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
-from nucleo import mutacion_codigo as mc
+from perfiles.python import mutacion_codigo as mc
 
 FUENTE = '''\
 def f(x, y):
@@ -238,8 +239,8 @@ class CorrerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             raiz, objetivo = self._entorno(d)
 
-            def resultado_segun_fuente(*_args, **_kwargs):
-                if objetivo.read_text(encoding="utf-8") == FUENTE:
+            def resultado_segun_fuente(_comando, raiz_copia, **_kwargs):
+                if (raiz_copia / "m.py").read_text(encoding="utf-8") == FUENTE:
                     return mc.ResultadoTests(mc.EstadoTests.PASARON, 0)
                 return mc.ResultadoTests(
                     mc.EstadoTests.TIMEOUT, None, stdout="antes del timeout")
@@ -290,8 +291,8 @@ class CorrerTests(unittest.TestCase):
             objetivo.write_text(fuente, encoding="utf-8")
             sitio = mc.sitios_de(objetivo, raiz)[0]
 
-            def resultado_segun_fuente(*_args, **_kwargs):
-                if objetivo.read_text(encoding="utf-8") == fuente:
+            def resultado_segun_fuente(_comando, raiz_copia, **_kwargs):
+                if (raiz_copia / "m.py").read_text(encoding="utf-8") == fuente:
                     return mc.ResultadoTests(mc.EstadoTests.PASARON, 0)
                 return mc.ResultadoTests(mc.EstadoTests.TIMEOUT, None)
 
@@ -320,37 +321,131 @@ class CorrerTests(unittest.TestCase):
                           {"m.py:999:0:retorno": "existió en otra versión"})
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
-    def test_si_MATAN_el_proceso_el_archivo_igual_se_restaura(self) -> None:
-        """El `finally` no alcanza: `timeout` manda SIGTERM y Python termina sin ejecutarlo. Pasó de
-        verdad —una corrida cortada dejó `mutacion_codigo.py` mutado en el árbol— y el daño lo salvó
-        git, no la herramienta. Se prueba lanzando un subproceso y matándolo a mitad."""
+    def test_SIGTERM_no_toca_el_original_y_termina_el_subproceso(self) -> None:
+        """La ronda muta una copia: el original no cambia ni durante ni después de SIGTERM."""
         import os
         import signal as sig
         import time
-        with tempfile.TemporaryDirectory() as d:
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as externo:
             raiz, objetivo = self._entorno(d)
+            marca = Path(externo) / "mutante-iniciado"
+            comando = [
+                sys.executable, "-c",
+                ("from pathlib import Path; import os,time; "
+                 f"mutado = Path('m.py').read_text(encoding='utf-8') != {FUENTE!r}; "
+                 f"Path({str(marca)!r}).write_text(str(os.getpid())) if mutado else None; "
+                 "time.sleep(30) if mutado else None"),
+            ]
             guion = raiz / "correr.py"
             guion.write_text(
-                "import sys, time\n"
+                "import sys\n"
                 f"sys.path.insert(0, {str(RAIZ)!r})\n"
-                "from nucleo import mutacion_codigo as mc\n"
+                "from perfiles.python import mutacion_codigo as mc\n"
                 f"mc.correr({str(raiz)!r} and __import__('pathlib').Path({str(raiz)!r}), "
                 f"[__import__('pathlib').Path({str(objetivo)!r})], "
-                f"{DUERME_SOLO_CON_MUTANTE!r})\n",
+                f"{comando!r})\n",
                 encoding="utf-8")
             proc = subprocess.Popen([sys.executable, str(guion)])
             limite = time.monotonic() + 10
-            while objetivo.read_text(encoding="utf-8") == FUENTE and time.monotonic() < limite:
+            while not marca.exists() and time.monotonic() < limite:
                 if proc.poll() is not None:
-                    self.fail("el subproceso terminó antes de escribir el primer mutante")
+                    self.fail("la ronda terminó antes de ejecutar el primer mutante")
                 time.sleep(0.01)
-            self.assertNotEqual(objetivo.read_text(encoding="utf-8"), FUENTE,
-                                "el subproceso no llegó a escribir el primer mutante")
+            self.assertTrue(marca.exists(), "la ronda no llegó al primer mutante")
+            hijo = int(marca.read_text(encoding="utf-8"))
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
             os.kill(proc.pid, sig.SIGTERM)
             proc.wait(timeout=15)
 
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE,
-                             "el archivo quedó mutado después de matar el proceso")
+                             "SIGTERM alteró la fuente original")
+            with self.assertRaises(ProcessLookupError):
+                os.kill(hijo, 0)
+
+    def test_dos_rondas_no_pueden_tomar_el_mismo_bloqueo(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            with mc._bloqueo_de_ronda(raiz):
+                with self.assertRaises(mc.RondaEnCurso):
+                    with mc._bloqueo_de_ronda(raiz):
+                        pass
+
+    def test_un_fallo_de_escritura_en_la_copia_no_toca_el_original(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            with mock.patch.object(mc.os, "replace", side_effect=OSError("disco roto")):
+                with self.assertRaises(OSError):
+                    mc.correr(raiz, [objetivo], SIEMPRE_PASA)
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
+
+    def test_la_copia_temporal_se_elimina_al_terminar(self) -> None:
+        antes = {p for p in Path(tempfile.gettempdir()).glob("oracle-mutacion-*") if p.is_dir()}
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            ev = mc.correr(raiz, [objetivo], SIEMPRE_PASA)
+        despues = {p for p in Path(tempfile.gettempdir()).glob("oracle-mutacion-*") if p.is_dir()}
+        self.assertEqual(despues, antes)
+        self.assertTrue(ev["corrida_mutacion"][0]["aislada"])
+        self.assertTrue(ev["corrida_mutacion"][0]["fuentes_originales_intactas"])
+
+    def test_una_ronda_interrumpida_reanuda_desde_un_manifiesto_verificado(self) -> None:
+        class Interrumpida(RuntimeError):
+            pass
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            manifiesto = raiz / "progreso.json"
+            vistos = 0
+
+            def cortar(_fila):
+                nonlocal vistos
+                vistos += 1
+                raise Interrumpida("corte simulado")
+
+            with self.assertRaises(Interrumpida):
+                mc.correr(
+                    raiz, [objetivo], SIEMPRE_PASA, al_terminar_uno=cortar,
+                    manifiesto=manifiesto)
+            guardado = json.loads(manifiesto.read_text(encoding="utf-8"))
+            self.assertEqual(guardado["estado"], "en_curso")
+            self.assertEqual(len(guardado["completados"]), 1)
+
+            evidencia = mc.correr(
+                raiz, [objetivo], SIEMPRE_PASA,
+                manifiesto=manifiesto, reanudar=True)
+            final = json.loads(manifiesto.read_text(encoding="utf-8"))
+
+        self.assertEqual(final["estado"], "completa")
+        self.assertEqual(evidencia["corrida_mutacion"][0]["mutantes_reutilizados"], 1)
+        self.assertEqual(len(final["completados"]), len(evidencia["mutante"]))
+
+    def test_reanudar_rechaza_fuentes_cambiadas_o_manifiesto_corrupto(self) -> None:
+        class Interrumpida(RuntimeError):
+            pass
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            manifiesto = raiz / "progreso.json"
+            with self.assertRaises(Interrumpida):
+                mc.correr(
+                    raiz, [objetivo], SIEMPRE_PASA,
+                    al_terminar_uno=lambda _fila: (_ for _ in ()).throw(Interrumpida()),
+                    manifiesto=manifiesto)
+            original_manifiesto = manifiesto.read_text(encoding="utf-8")
+            objetivo.write_text(FUENTE + "\n# cambio\n", encoding="utf-8")
+            with self.assertRaises(mc.ManifiestoInvalido):
+                mc.correr(
+                    raiz, [objetivo], SIEMPRE_PASA,
+                    manifiesto=manifiesto, reanudar=True)
+
+            objetivo.write_text(FUENTE, encoding="utf-8")
+            datos = json.loads(original_manifiesto)
+            datos["completados"][0]["murio"] = not datos["completados"][0]["murio"]
+            manifiesto.write_text(json.dumps(datos), encoding="utf-8")
+            with self.assertRaises(mc.ManifiestoInvalido):
+                mc.correr(
+                    raiz, [objetivo], SIEMPRE_PASA,
+                    manifiesto=manifiesto, reanudar=True)
 
     def test_limpiar_cache_borra_los_pycache(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -460,7 +555,8 @@ class CorrerTests(unittest.TestCase):
                     creado = True
 
             with self.assertRaises(mc.CacheNoLimpio):
-                mc.correr(raiz, [objetivo], SIEMPRE_PASA, al_terminar_uno=reaparecer)
+                mc._correr_en_raiz(
+                    raiz, [objetivo], SIEMPRE_PASA, al_terminar_uno=reaparecer)
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
     def test_correr_tests_lee_el_codigo_de_salida(self) -> None:
@@ -474,16 +570,74 @@ class CorrerTests(unittest.TestCase):
             fallo = mc.ejecutar_tests(SIEMPRE_FALLA, raiz, timeout=1)
             error = mc.ejecutar_tests(SIEMPRE_ERROR_ARNES, raiz, timeout=1)
             timeout = mc.ejecutar_tests(SIEMPRE_DUERME, raiz, timeout=0.05)
-            expirado = subprocess.TimeoutExpired(
-                SIEMPRE_DUERME, 1, output=b"antes", stderr=b"detalle")
-            with mock.patch.object(mc.subprocess, "run", side_effect=expirado):
-                timeout_con_salida = mc.ejecutar_tests(SIEMPRE_DUERME, raiz, timeout=1)
+            duerme_con_diagnostico = [
+                sys.executable, "-c",
+                "import sys,time; print('antes',flush=True); "
+                "print('detalle',file=sys.stderr,flush=True); time.sleep(30)",
+            ]
+            timeout_con_salida = mc.ejecutar_tests(
+                duerme_con_diagnostico, raiz, timeout=0.05)
 
         self.assertEqual(fallo.estado.value, "tests_fallaron")
         self.assertEqual(error.estado.value, "error_arnes")
         self.assertEqual(timeout.estado.value, "timeout")
         self.assertIn("antes", timeout_con_salida.salida)
         self.assertIn("detalle", timeout_con_salida.salida)
+
+    def test_la_salida_del_subproceso_esta_acotada_mientras_se_drena(self) -> None:
+        comando = [
+            sys.executable, "-c",
+            "import sys; print('x' * 10000); print('y' * 10000, file=sys.stderr)",
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            resultado = mc.ejecutar_tests(
+                comando, Path(d), timeout=1, limite_salida=128)
+        self.assertTrue(resultado.pasaron)
+        self.assertLessEqual(len(resultado.stdout.encode()), 128)
+        self.assertLessEqual(len(resultado.stderr.encode()), 128)
+        self.assertTrue(resultado.stdout_truncado)
+        self.assertTrue(resultado.stderr_truncado)
+
+    def test_timeout_mata_tambien_un_nieto_que_ignora_SIGTERM(self) -> None:
+        import os
+        import time
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            pid = raiz / "nieto.pid"
+            hijo = (
+                "import os,signal,time; from pathlib import Path; "
+                "signal.signal(signal.SIGTERM, signal.SIG_IGN); "
+                f"Path({str(pid)!r}).write_text(str(os.getpid())); time.sleep(30)"
+            )
+            comando = [
+                sys.executable, "-c",
+                f"import subprocess,sys,time; subprocess.Popen([sys.executable,'-c',{hijo!r}]); "
+                "time.sleep(30)",
+            ]
+            resultado = mc.ejecutar_tests(comando, raiz, timeout=0.2)
+            self.assertTrue(pid.exists())
+            nieto = int(pid.read_text(encoding="utf-8"))
+            limite = time.monotonic() + 2
+            while time.monotonic() < limite:
+                try:
+                    os.kill(nieto, 0)
+                except ProcessLookupError:
+                    break
+                time.sleep(0.02)
+            else:
+                self.fail("el nieto del arnés quedó vivo después del timeout")
+        self.assertTrue(resultado.timeout)
+
+    def test_importar_el_modulo_no_reemplaza_handlers_de_senal(self) -> None:
+        codigo = (
+            "import signal,sys; "
+            "antes={s:signal.getsignal(s) for s in (signal.SIGTERM,signal.SIGINT,signal.SIGHUP)}; "
+            f"sys.path.insert(0,{str(RAIZ)!r}); import perfiles.python.mutacion_codigo; "
+            "despues={s:signal.getsignal(s) for s in antes}; "
+            "raise SystemExit(0 if antes == despues else 1)"
+        )
+        resultado = subprocess.run([sys.executable, "-c", codigo])
+        self.assertEqual(resultado.returncode, 0)
 
     def test_un_codigo_de_fallo_de_tests_no_puede_ser_una_senal(self) -> None:
         with tempfile.TemporaryDirectory() as d:

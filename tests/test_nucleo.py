@@ -16,9 +16,10 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401  registra `contiene`
 from nucleo import algebra
-from nucleo.algebra import (ErrorDeAlgebra, OperadorNoImplementado, desde, evaluar_expr, resumir)
-from nucleo.medida import (Informe, Medida, MedidaMalDeclarada, cargar_catalogo, como_hechos,
-                           evaluar, inventario, puntos_ciegos)
+from nucleo.algebra import ErrorDeAlgebra, LimitesAlgebra, desde, evaluar_expr, resumir
+from nucleo.medida import (CLASIFICACION_META_BASE, ClasificacionMeta, Informe, Medida,
+                           MedidaMalDeclarada, cargar_catalogo, como_hechos, evaluar, inventario,
+                           puntos_ciegos)
 
 EV = {"pieza": [{"id": "a", "x": 0}, {"id": "b", "x": 7}]}
 
@@ -32,6 +33,30 @@ def _medida(pred=None, porque="una razón", alcance="NO ve nada más", umbral=("
 
 
 class AlgebraTests(unittest.TestCase):
+    def test_los_limites_de_recursos_son_explicitos_y_configurables(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "supera el límite de 2"):
+            desde(["desde", ["de", "pieza", "p"]],
+                  {"pieza": [{"id": 1}, {"id": 2}, {"id": 3}]},
+                  LimitesAlgebra(filas_por_relacion=2))
+
+        producto = ["desde", ["unir", ["de", "a", "a"], ["de", "b", "b"]]]
+        with self.assertRaisesRegex(ErrorDeAlgebra, "producto cartesiano.*4.*límite de 3"):
+            desde(producto, {"a": [{}, {}], "b": [{}, {}]},
+                  LimitesAlgebra(producto_cartesiano=3))
+        self.assertEqual(len(desde(producto, {"a": [{}, {}], "b": [{}, {}]},
+                                   LimitesAlgebra(producto_cartesiano=4))), 4)
+
+        profunda = ["no", ["no", ["no", True]]]
+        with self.assertRaisesRegex(ErrorDeAlgebra, "profundidad máxima"):
+            evaluar_expr(profunda, {}, LimitesAlgebra(profundidad_expresion=2))
+        self.assertFalse(evaluar_expr(profunda, {}, LimitesAlgebra(profundidad_expresion=3)))
+
+    def test_un_limite_invalido_no_se_convierte_en_sin_limite(self) -> None:
+        for invalido in (0, -1, True, 1.5):
+            with self.subTest(invalido=invalido):
+                with self.assertRaises(ErrorDeAlgebra):
+                    LimitesAlgebra(filas_por_relacion=invalido)
+
     def test_un_literal_se_evalua_a_si_mismo(self) -> None:
         for lit in (3, "hola", True, None, 2.5):
             self.assertEqual(evaluar_expr(lit, {}), lit)
@@ -138,12 +163,9 @@ class AlgebraTests(unittest.TestCase):
         with self.assertRaises(ErrorDeAlgebra):
             desde(["desde", ["donde", True]], EV)
 
-    def test_los_operadores_sin_usuario_dicen_su_disparador(self) -> None:
-        # `unir` salió al llegar el catálogo de geometría; `agrupar`, al llegar la AUSENCIA
-        for op in ("con",):
-            with self.assertRaises(OperadorNoImplementado) as e:
-                desde(["desde", ["de", "pieza", "p"], [op, "x", 1]], EV)
-            self.assertIn("se implementa cuando aparezca", str(e.exception).lower())
+    def test_un_operador_sin_usuarios_no_forma_parte_del_lenguaje_activo(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "operador desconocido"):
+            desde(["desde", ["de", "pieza", "p"], ["con", "x", 1]], EV)
 
     def test_unir_hace_el_producto_y_conviven_los_alias(self) -> None:
         filas = desde(["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"]]], EV)
@@ -155,10 +177,9 @@ class AlgebraTests(unittest.TestCase):
             desde(["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "a"]]], EV)
         self.assertIn("alias repetido", str(e.exception))
 
-    def test_unir_en_modo_izquierda_todavia_no_tiene_usuario(self) -> None:
-        with self.assertRaises(OperadorNoImplementado) as e:
+    def test_unir_no_publica_un_modo_izquierda_sin_usuarios(self) -> None:
+        with self.assertRaisesRegex(ErrorDeAlgebra, "unir.*fuente_izq"):
             desde(["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"], "izquierda"]], EV)
-        self.assertIn("ausencia", str(e.exception))
 
     def test_unir_solo_acepta_fuentes(self) -> None:
         with self.assertRaises(ErrorDeAlgebra):
@@ -339,16 +360,12 @@ class MedidaTests(unittest.TestCase):
                 with self.assertRaises(MedidaMalDeclarada):
                     Medida.de_datos(datos)
 
-    def test_expresiones_de_resumen_con_y_agrupar_se_validan_al_CARGAR(self) -> None:
+    def test_expresiones_de_resumen_y_agrupar_se_validan_al_CARGAR(self) -> None:
         medidas_invalidas = []
 
         resumen = _medida()
         resumen[3] = ["resumen", "max", ["campo", "p"]]
         medidas_invalidas.append(resumen)
-
-        con = _medida()
-        con[2].insert(2, ["con", "", ["campo", "p", "x"]])
-        medidas_invalidas.append(con)
 
         agrupar = _medida()
         agrupar[2].insert(2, ["agrupar", [["k", ["campo", "p"]]],
@@ -434,12 +451,11 @@ class MedidaTests(unittest.TestCase):
                 with self.assertRaises(MedidaMalDeclarada):
                     Medida.de_datos(datos)
 
-    def test_con_sigue_declarado_aunque_no_implementado(self) -> None:
+    def test_con_esta_retirado_de_la_declaracion_activa(self) -> None:
         datos = _medida()
         datos[2].insert(2, ["con", "doble", ["campo", "p", "x"]])
-        medida = Medida.de_datos(datos)
-        with self.assertRaises(OperadorNoImplementado):
-            medida.evaluar(EV)
+        with self.assertRaises(MedidaMalDeclarada):
+            Medida.de_datos(datos)
 
     def test_un_umbral_sin_defensa_no_se_carga(self) -> None:
         with self.assertRaises(MedidaMalDeclarada) as e:
@@ -580,20 +596,39 @@ class CatalogoRealTests(unittest.TestCase):
         """El dominio sale del nombre; el NIVEL sale de sobre qué se mide. Que sean dos campos
         distintos es lo que permite comprobar que la convención se cumple."""
         hechos = {h["id"]: h for h in como_hechos(self.catalogo.values())}
-        meta = hechos["meta.alcance_dice_que_no_ve"]
+        meta = hechos["meta.el_caso_se_pone_como_debe"]
         self.assertTrue(meta["es_meta_por_el_nombre"])
         self.assertTrue(meta["es_meta_por_lo_que_mide"])
-        self.assertEqual(meta["relacion"], "medida")
+        self.assertEqual(meta["relacion"], "caso")
 
         delMundo = hechos["proceso.verificador_sin_falsos_rojos"]
         self.assertFalse(delMundo["es_meta_por_el_nombre"])
         self.assertFalse(delMundo["es_meta_por_lo_que_mide"])
         self.assertEqual(delMundo["dominio"], "proceso")
 
-    def test_el_catalogo_cumple_su_propia_regla_meta(self) -> None:
-        meta = self.catalogo["meta.alcance_dice_que_no_ve"]
-        v = meta.evaluar({"medida": como_hechos(self.catalogo.values())})
-        self.assertTrue(v.ok, f"alcances sin negación: {[t['m']['id'] for t in v.testigos]}")
+    def test_el_alcance_no_impone_una_formula_textual_ni_un_idioma(self) -> None:
+        medida = Medida.de_datos(_medida(alcance="Blind spots are documented elsewhere"))
+        self.assertEqual(medida.alcance, "Blind spots are documented elsewhere")
+        self.assertNotIn("meta.alcance_dice_que_no_ve", self.catalogo)
+
+    def test_un_perfil_puede_extender_la_clasificacion_meta(self) -> None:
+        medida = Medida.de_datos([
+            "medida", "revision.regla", ["desde", ["de", "revision", "r"]],
+            ["resumen", "contar", 1], ["umbral", "<=", 0, "una razón"],
+            ["alcance", "a blind spot"],
+        ])
+        base = como_hechos([medida])[0]
+        self.assertFalse(base["es_meta_por_el_nombre"])
+        self.assertFalse(base["es_meta_por_lo_que_mide"])
+
+        ampliada = CLASIFICACION_META_BASE.con(
+            relaciones={"revision"}, prefijos=("revision.",))
+        perfil = como_hechos([medida], ampliada)[0]
+        self.assertTrue(perfil["es_meta_por_el_nombre"])
+        self.assertTrue(perfil["es_meta_por_lo_que_mide"])
+
+        with self.assertRaises(MedidaMalDeclarada):
+            ClasificacionMeta({"revision"})
 
     def test_un_id_repetido_en_el_catalogo_no_pasa(self) -> None:
         import tempfile

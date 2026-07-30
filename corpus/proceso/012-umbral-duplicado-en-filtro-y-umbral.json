@@ -10,7 +10,7 @@
   "sintoma": "En `snap.grilla` el 1.0 cm está en el `donde` (que selecciona los testigos) y otra vez en el `umbral` (que trae su defensa escrita). Si alguien cambia uno y no el otro, la medida queda incoherente: reportaría testigos que el umbral perdona, o al revés.",
   "como_se_detecto": "persona",
   "medida": null,
-  "sin_medida_todavia": "ya no hace falta medida — ver `resuelto`. Se conserva porque un corpus del que se borran los casos arreglados pierde la memoria de por qué las cosas son como son.",
+  "estado_sin_medida": "resuelto",
   "evidencia": {
     "declaracion": [
       {

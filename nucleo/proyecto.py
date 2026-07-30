@@ -21,6 +21,7 @@ Se resuelve en este orden, y el primero que aparece gana:
 
 from __future__ import annotations
 
+import json
 import os
 import re
 from contextlib import contextmanager
@@ -40,6 +41,47 @@ class EscalaresNoConfiables(ProyectoInvalido):
 
 class EscalaresInvalidas(ProyectoInvalido):
     pass
+
+
+ESQUEMA_PROYECTO = "oracle.proyecto/v1"
+PERFILES_INCLUIDOS = {
+    "python": RAIZ_ORACLE / "perfiles" / "python" / "catalogos",
+}
+
+
+@dataclass(frozen=True)
+class ConfiguracionProyecto:
+    perfiles: tuple[str, ...] = ()
+
+
+def configuracion(proy: "Proyecto") -> ConfiguracionProyecto:
+    """Lee perfiles explícitos; sin `oracle.json`, el proyecto recibe sólo el núcleo."""
+    ruta = proy.raiz / "oracle.json"
+    if not ruta.exists():
+        return ConfiguracionProyecto()
+    raiz = proy.raiz.resolve(strict=True)
+    try:
+        fisica = ruta.resolve(strict=True)
+        fisica.relative_to(raiz)
+    except (OSError, ValueError) as e:
+        raise ProyectoInvalido("`oracle.json` debe estar dentro del proyecto") from e
+    if ruta.is_symlink() or not fisica.is_file():
+        raise ProyectoInvalido("`oracle.json` debe ser un archivo físico, no un symlink")
+    try:
+        datos = json.loads(ruta.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as e:
+        raise ProyectoInvalido(f"no se pudo leer `oracle.json`: {e}") from e
+    if not isinstance(datos, dict) or datos.get("esquema") != ESQUEMA_PROYECTO:
+        raise ProyectoInvalido(f"`oracle.json` debe declarar esquema {ESQUEMA_PROYECTO!r}")
+    perfiles = datos.get("perfiles", [])
+    if (not isinstance(perfiles, list)
+            or any(not isinstance(p, str) or not p for p in perfiles)
+            or len(perfiles) != len(set(perfiles))):
+        raise ProyectoInvalido("`perfiles` debe ser una lista sin duplicados de nombres no vacíos")
+    desconocidos = set(perfiles) - set(PERFILES_INCLUIDOS)
+    if desconocidos:
+        raise ProyectoInvalido(f"perfiles desconocidos: {sorted(desconocidos)}")
+    return ConfiguracionProyecto(tuple(perfiles))
 
 
 @dataclass(frozen=True)
@@ -66,6 +108,12 @@ class Proyecto:
         return "oracle (sí mismo)" if self.es_el_propio_oracle else str(self.raiz)
 
 
+def catalogos_base_a_cargar(proy: "Proyecto") -> list[Path]:
+    """Catálogo universal y perfiles incluidos activados por el proyecto."""
+    return [RAIZ_ORACLE / "catalogos", *(
+        PERFILES_INCLUIDOS[nombre] for nombre in configuracion(proy).perfiles)]
+
+
 def catalogos_a_cargar(proy: "Proyecto") -> list[Path]:
     """El catálogo BASE de oracle más el del proyecto.
 
@@ -74,10 +122,10 @@ def catalogos_a_cargar(proy: "Proyecto") -> list[Path]:
     las de su dominio. Que las universales vengan incluidas es la diferencia entre una herramienta y
     un repositorio de ejemplos.
     """
-    base = RAIZ_ORACLE / "catalogos"
-    if proy.catalogos.resolve() == base.resolve():
-        return [base]
-    return [base, proy.catalogos]
+    bases = catalogos_base_a_cargar(proy)
+    if proy.catalogos.resolve() == (RAIZ_ORACLE / "catalogos").resolve():
+        return bases
+    return [*bases, proy.catalogos]
 
 
 @contextmanager

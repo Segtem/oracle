@@ -49,6 +49,7 @@ def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
             "medida_existe": existe,
             "esperado_ok": esperado,
             "dio_ok": dio,
+            "es_hueco_abierto": c.get("estado_sin_medida") == "abierto",
             "explica_el_hueco": bool(str(c.get("sin_medida_todavia", "")).strip()),
         })
     return {"caso": filas}
@@ -99,56 +100,3 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
          "mutantes_vivos": vivos[mid], "es_heredada": mid in heredadas,
          "debe_tener_mutantes": mid not in heredadas and mid not in evaluadas_aparte}
         for mid in sorted(catalogo)]}
-
-
-def hechos_de_modulos(raiz, paquetes, entradas) -> dict:
-    """`modulo`, `importa` y `alcanzable` de un árbol de Python.
-
-    Es el sensor del código propio: qué módulos hay, quién importa a quién, y a qué se llega desde las
-    entradas. La alcanzabilidad se calcula acá —es un hecho— y no en el álgebra, que no sabe de grafos.
-
-    Un módulo puede tener importadores y estar muerto igual: si su racimo entero no se alcanza desde
-    ninguna entrada, nadie lo va a ejecutar nunca. Eso es lo que `modulo_con_consumidor` no puede ver
-    y sí ve una medida sobre `alcanzable`.
-    """
-    import ast
-    from pathlib import Path
-
-    from .grafo import cierre
-
-    raiz = Path(raiz)
-    modulos, importa = [], []
-    for paquete in paquetes:
-        for p in sorted((raiz / paquete).rglob("*.py")):
-            if "__pycache__" in p.parts:
-                continue
-            nombre = ".".join(p.relative_to(raiz).with_suffix("").parts).removesuffix(".__init__")
-            es_test = "test" in p.name or "tests" in p.parts
-            fuente = p.read_text(encoding="utf-8")
-            arbol = ast.parse(fuente)
-            # un `__init__.py` sin sentencias es un marcador de paquete, no un módulo. Es un HECHO,
-            # así que va como campo y la medida decide qué hacer con él — el sensor no excluye nada.
-            modulos.append({"nombre": nombre, "es_test": es_test,
-                            "lineas": len(fuente.splitlines()),
-                            "es_paquete_vacio": p.name == "__init__.py" and not arbol.body})
-            for n in ast.walk(arbol):
-                objetivos = []
-                if isinstance(n, ast.Import):
-                    objetivos = [a.name for a in n.names]
-                elif isinstance(n, ast.ImportFrom):
-                    if n.level:
-                        base = ".".join(nombre.split(".")[:-n.level] or [nombre.split(".")[0]])
-                        # `from . import x` no trae `module`: el nombre está en `names`, y sin esto
-                        # ese import quedaba invisible y el módulo importado salía «no alcanzable»
-                        objetivos = ([f"{base}.{n.module}"] if n.module
-                                     else [f"{base}.{a.name}" for a in n.names])
-                    elif n.module:
-                        objetivos = [n.module]
-                for o in objetivos:
-                    if o.split(".")[0] in paquetes:
-                        importa.append({"a": nombre, "b": o, "es_test": es_test})
-
-    conocidos = {m["nombre"] for m in modulos}
-    aristas = [e for e in importa if e["b"] in conocidos]
-    return {"modulo": modulos, "importa": aristas,
-            "alcanzable": cierre(aristas, [e for e in entradas if e in conocidos])}

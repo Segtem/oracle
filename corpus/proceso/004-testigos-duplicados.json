@@ -5,7 +5,7 @@
   "sintoma": "`INTERPENETRACION` declaraba `mide=penetracion_maxima` y `testigos=piezas_clavadas`: dos funciones que recorren lo mismo con la misma condición escrita dos veces. Nada garantiza que no se separen.",
   "como_se_detecto": "persona",
   "medida": null,
-  "sin_medida_todavia": "es un defecto del LENGUAJE, no del código: se corrige haciendo que los testigos sean las filas que sobrevivieron al filtro. Motiva el punto 2 de la especificación.",
+  "estado_sin_medida": "resuelto",
   "evidencia": {
     "declaracion": [
       {
@@ -17,6 +17,7 @@
     ]
   },
   "leccion": "Si el lenguaje obliga a escribir dos veces la misma condición, el lenguaje está mal. Los testigos no son un cálculo aparte: son el filtro.",
+  "resuelto": "2026-07-29, por construcción: los testigos son las filas que sobrevivieron a la única tubería de la medida; ya no existe una segunda función donde repetir la condición.",
   "fecha": "2026-07-29",
   "origen": {
     "repo": "Brianholl/jam",

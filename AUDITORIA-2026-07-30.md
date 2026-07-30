@@ -71,6 +71,22 @@ nombre, unidad, aridad y procedencia verificables, y no se siguen symlinks para 
 La suite subió a 217 tests; la integración externa usa una UDF real para demostrar tanto el rechazo
 sin confianza como el flujo explícitamente autorizado.
 
+P2.1 cerró el riesgo operativo del mutador descrito en los riesgos medios. La API pública ya no
+escribe objetivos activos: copia la raíz, mapea comando y fuentes, y verifica al final que los bytes
+originales sigan iguales. Hay lock no bloqueante por raíz, reemplazo atómico dentro de la copia,
+timeout y salida acotada por proceso, grupos de proceso terminados ante timeout/SIGTERM y handlers
+instalados sólo durante la ronda. Un manifiesto con huellas de fuentes, motor y configuración permite
+reanudar mutantes terminados y rechaza cambios o corrupción. Ocho regresiones nuevas elevan la suite
+a 225 tests, incluida la terminación forzada de un nieto que ignora SIGTERM.
+
+P2.2 cerró los acoplamientos particulares enumerados en los riesgos medios. El análisis AST, el
+mutador de código Python y las medidas sobre imports/`.pyc` se movieron a `perfiles/python`, que sólo
+se incorpora mediante `oracle.json`. El catálogo universal ya no contiene la razón `tope` ni la regla
+normativa que exigía el token español `NO `. `ContratoTerminacion` clasifica razones aportadas por el
+dominio; `ClasificacionMeta` acepta relaciones y prefijos adicionales; `LimitesAlgebra` impone techos
+configurables y finitos a entradas, productos y profundidad. La suite alcanza 234 tests y la mutación
+de medidas queda en 129/129.
+
 La mutación de código se repitió de forma particionada sobre copias temporales frescas, nunca sobre
 este worktree. Los cambios descubiertos durante las rondas obligaron a repetir íntegramente cada
 partición afectada. El baseline final cubre 616 sitios: 503 muertos reales y 113 vivos, sin timeout ni
@@ -179,7 +195,7 @@ murieron”.
 El comportamiento está fijado por el test
 `test_si_los_tests_siempre_fallan_TODOS_mueren`; por lo tanto, no es sólo una posibilidad teórica.
 
-**Evidencia:** `nucleo/mutacion_codigo.py`, líneas 216–242;
+**Evidencia:** `perfiles/python/mutacion_codigo.py`, líneas 216–242;
 `tests/test_mutacion_codigo.py`, líneas 132–136; `tools/mutar_codigo.py`, líneas 60–80.
 
 ### A-03 — `bytecode_frio` y `resultado_confiable` están hardcodeados
@@ -198,7 +214,7 @@ Se reprodujo con un `__pycache__` enlazado: la función reportó un borrado y el
 existiendo. La medida `proceso.arnes_con_bytecode_frio` confía en el booleano producido por el mismo
 sensor; `resultado_confiable` no es juzgado por ninguna medida.
 
-**Evidencia:** `nucleo/mutacion_codigo.py`, líneas 207–213 y 263–268.
+**Evidencia:** `perfiles/python/mutacion_codigo.py`, líneas 207–213 y 263–268.
 
 ### A-04 — La ausencia y el cero tienden a convertirse en verde
 

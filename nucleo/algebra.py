@@ -3,8 +3,7 @@
 Una **fila de trabajo** es un mapa `alias → hecho`, más las columnas derivadas bajo la clave
 reservada `_`. Toda operación toma filas y devuelve filas: eso es la clausura.
 
-Están implementados cinco de los seis operadores: `de`, `donde`, `resumen`, `unir` y `agrupar`.
-`con` conserva un disparador explícito y levanta error mientras no tenga un segundo usuario real.
+El lenguaje activo tiene cinco operadores: `de`, `donde`, `resumen`, `unir` y `agrupar`.
 """
 
 from __future__ import annotations
@@ -12,6 +11,7 @@ from __future__ import annotations
 import inspect
 import math
 import re
+from dataclasses import dataclass
 from typing import Any, Callable
 
 ALIAS_DERIVADO = "_"
@@ -21,8 +21,37 @@ class ErrorDeAlgebra(ValueError):
     """La expresión o el operador no cumplen el contrato."""
 
 
-class OperadorNoImplementado(NotImplementedError):
-    """Declarado en la especificación, sin usuario todavía."""
+@dataclass(frozen=True)
+class LimitesAlgebra:
+    """Presupuesto explícito para evaluar datos y expresiones no confiables.
+
+    Los límites son parte de cada evaluación, no variables globales: dos consumidores pueden elegir
+    presupuestos distintos en el mismo proceso sin afectarse entre sí.
+    """
+
+    filas_por_relacion: int = 100_000
+    producto_cartesiano: int = 1_000_000
+    profundidad_expresion: int = 64
+
+    def __post_init__(self) -> None:
+        for nombre, valor in (
+                ("filas_por_relacion", self.filas_por_relacion),
+                ("producto_cartesiano", self.producto_cartesiano),
+                ("profundidad_expresion", self.profundidad_expresion)):
+            if not isinstance(valor, int) or isinstance(valor, bool) or valor < 1:
+                raise ErrorDeAlgebra(
+                    f"el límite {nombre} debe ser un entero positivo (no bool), no {valor!r}")
+
+
+LIMITES_PREDETERMINADOS = LimitesAlgebra()
+
+
+def _limites(limites: LimitesAlgebra | None) -> LimitesAlgebra:
+    if limites is None:
+        return LIMITES_PREDETERMINADOS
+    if not isinstance(limites, LimitesAlgebra):
+        raise ErrorDeAlgebra("`limites` debe ser una instancia de LimitesAlgebra")
+    return limites
 
 
 # ---- funciones escalares (el mecanismo de UDF) ------------------------------------
@@ -156,12 +185,17 @@ def _validar_nombre(valor, que: str) -> None:
         raise ErrorDeAlgebra(f"{que} tiene que ser texto no vacío, no {valor!r}")
 
 
-def validar_expr(expr) -> None:
+def validar_expr(expr, limites: LimitesAlgebra | None = None, *, _profundidad: int = 0) -> None:
     """Valida recursivamente la forma de una expresión, sin evaluarla.
 
     Los literales son los escalares que JSON puede representar. Las listas son siempre llamadas del
     DSL: accesor, comparador, lógico o escalar registrada.
     """
+    limites = _limites(limites)
+    if _profundidad > limites.profundidad_expresion:
+        raise ErrorDeAlgebra(
+            "la expresión supera la profundidad máxima declarada "
+            f"({limites.profundidad_expresion})")
     if not isinstance(expr, list):
         if not isinstance(expr, LITERALES_ESCALARES):
             raise ErrorDeAlgebra(
@@ -212,17 +246,17 @@ def validar_expr(expr) -> None:
             f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada")
 
     for argumento in argumentos:
-        validar_expr(argumento)
+        validar_expr(argumento, limites, _profundidad=_profundidad + 1)
 
 
-def evaluar_expr(expr, fila: dict):
+def evaluar_expr(expr, fila: dict, limites: LimitesAlgebra | None = None):
     """Un literal es un literal; el acceso a datos es SIEMPRE explícito.
 
     Se eligió `["campo", alias, nombre]` en vez de la forma corta `"a.x"` (y en vez de dejar que un
     string suelto signifique un alias) porque si no, un valor de texto que coincida con un alias
     cambiaría de significado según el contexto. Es más verboso y no tiene casos raros.
     """
-    validar_expr(expr)
+    validar_expr(expr, limites)
     return _evaluar_expr(expr, fila)
 
 
@@ -307,41 +341,41 @@ def _agregar(agregado: str, valores: list):
 
 # ---- operadores -------------------------------------------------------------------
 
-DISPARADORES = {
-    "con": "una medida que necesite una columna derivada reusada en más de un paso",
-}
-
 FUENTES = ("de", "unir")
 
 
-def _de(evidencia: dict, relacion: str, alias: str) -> list[dict]:
+def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> list[dict]:
     if relacion not in evidencia:
         raise ErrorDeAlgebra(
             f"la relación «{relacion}» no existe en la evidencia; "
             "una relación vacía se declara explícitamente como []")
-    return [{alias: dict(hecho)} for hecho in evidencia[relacion]]
+    hechos = evidencia[relacion]
+    if not isinstance(hechos, list):
+        raise ErrorDeAlgebra(
+            f"la relación «{relacion}» debe ser una lista de hechos, no {type(hechos).__name__}")
+    if len(hechos) > limites.filas_por_relacion:
+        raise ErrorDeAlgebra(
+            f"la relación «{relacion}» tiene {len(hechos)} filas y supera el límite "
+            f"de {limites.filas_por_relacion}")
+    if not all(isinstance(hecho, dict) for hecho in hechos):
+        raise ErrorDeAlgebra(f"la relación «{relacion}» contiene una fila que no es un hecho")
+    return [{alias: dict(hecho)} for hecho in hechos]
 
 
-def _unir(paso, evidencia: dict) -> list[dict]:
-    """`["unir", izq, der, modo?]` → producto. Los alias de los dos lados conviven en la fila.
-
-    Se implementó al llegar su disparador: «pares de piezas que se clavan» es un producto, y ninguna
-    medida de proceso lo necesitaba. `modo` sigue sin usuario: `"izquierda"` traería el concepto de
-    NULO, que es la peor verruga de SQL, y no hace falta para nada de lo que existe.
-    """
+def _unir(paso, evidencia: dict, limites: LimitesAlgebra) -> list[dict]:
+    """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila."""
     izq, der = paso[1], paso[2]
-    modo = paso[3] if len(paso) > 3 else "todos"
-    if modo != "todos":
-        raise OperadorNoImplementado(
-            f"«unir» en modo «{modo}» todavía no tiene usuario. Se implementa cuando aparezca una "
-            "medida de AUSENCIA (p. ej. módulos sin ningún importador), y con ella hay que decidir "
-            "cómo se representa un valor que falta — ver «ausencia» en la especificación")
     for lado in (izq, der):
         if lado[0] not in FUENTES:
             raise ErrorDeAlgebra(f"«unir» toma fuentes, y recibió «{lado[0]}»")
 
-    filas_izq = aplicar(izq, [], evidencia)
-    filas_der = aplicar(der, [], evidencia)
+    filas_izq = aplicar(izq, [], evidencia, limites)
+    filas_der = aplicar(der, [], evidencia, limites)
+    tamano = len(filas_izq) * len(filas_der)
+    if tamano > limites.producto_cartesiano:
+        raise ErrorDeAlgebra(
+            f"el producto cartesiano produciría {tamano} filas y supera el límite "
+            f"de {limites.producto_cartesiano}")
     salida = []
     for a in filas_izq:
         for b in filas_der:
@@ -352,7 +386,7 @@ def _unir(paso, evidencia: dict) -> list[dict]:
     return salida
 
 
-def _agrupar(paso, filas: list[dict]) -> list[dict]:
+def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra) -> list[dict]:
     """`["agrupar", [[nombre, expr]…], [[nombre, agg, expr]…]]` → una fila por grupo.
 
     Un grupo NO es un hecho: es un resumen. Así que las filas que salen no llevan alias —los hechos
@@ -367,7 +401,7 @@ def _agrupar(paso, filas: list[dict]) -> list[dict]:
     claves, agregados = paso[1], paso[2]
     grupos: dict[tuple, list[dict]] = {}
     for f in filas:
-        k = tuple(evaluar_expr(expr, f) for _nombre, expr in claves)
+        k = tuple(evaluar_expr(expr, f, limites) for _nombre, expr in claves)
         grupos.setdefault(k, []).append(f)
 
     salida = []
@@ -377,30 +411,28 @@ def _agrupar(paso, filas: list[dict]) -> list[dict]:
             if agg not in AGREGADOS:
                 raise ErrorDeAlgebra(f"agregado desconocido: «{agg}»")
             derivadas[nombre] = (len(miembros) if agg == "contar" else
-                                 _agregar(agg, [evaluar_expr(expr, m) for m in miembros]))
+                                 _agregar(agg, [evaluar_expr(expr, m, limites) for m in miembros]))
         salida.append({ALIAS_DERIVADO: derivadas})
     return salida
 
 
-def aplicar(paso, filas: list[dict], evidencia: dict) -> list[dict]:
+def aplicar(paso, filas: list[dict], evidencia: dict,
+            limites: LimitesAlgebra | None = None) -> list[dict]:
+    limites = _limites(limites)
     op = paso[0]
     if op == "de":
         relacion, alias = paso[1], paso[2]
-        return _de(evidencia, relacion, alias)
+        return _de(evidencia, relacion, alias, limites)
     if op == "unir":
-        return _unir(paso, evidencia)
+        return _unir(paso, evidencia, limites)
     if op == "donde":
-        return [f for f in filas if evaluar_expr(paso[1], f)]
+        return [f for f in filas if evaluar_expr(paso[1], f, limites)]
     if op == "agrupar":
-        return _agrupar(paso, filas)
-    if op in DISPARADORES:
-        raise OperadorNoImplementado(
-            f"«{op}» está declarado en la especificación y todavía no tiene usuario. "
-            f"Se implementa cuando aparezca: {DISPARADORES[op]}")
+        return _agrupar(paso, filas, limites)
     raise ErrorDeAlgebra(f"operador desconocido: «{op}»")
 
 
-def _validar_fuente(fuente) -> None:
+def _validar_fuente(fuente, limites: LimitesAlgebra | None = None) -> None:
     if not isinstance(fuente, list) or not fuente:
         raise ErrorDeAlgebra("una fuente tiene que ser una lista no vacía")
 
@@ -413,18 +445,15 @@ def _validar_fuente(fuente) -> None:
         _validar_nombre(fuente[2], "el alias de «de»")
         return
     if op == "unir":
-        if len(fuente) not in (3, 4):
-            raise ErrorDeAlgebra("«unir» va ['unir', fuente_izq, fuente_der, modo?]")
-        _validar_fuente(fuente[1])
-        _validar_fuente(fuente[2])
-        if len(fuente) == 4 and fuente[3] not in ("todos", "izquierda"):
-            raise ErrorDeAlgebra(
-                f"modo de «unir» desconocido: {fuente[3]!r} (hay 'todos' e 'izquierda')")
+        if len(fuente) != 3:
+            raise ErrorDeAlgebra("«unir» va ['unir', fuente_izq, fuente_der]")
+        _validar_fuente(fuente[1], limites)
+        _validar_fuente(fuente[2], limites)
         return
     raise ErrorDeAlgebra(f"fuente desconocida: «{op}» (hay {FUENTES})")
 
 
-def _validar_paso(paso) -> None:
+def _validar_paso(paso, limites: LimitesAlgebra | None = None) -> None:
     if not isinstance(paso, list) or not paso:
         raise ErrorDeAlgebra("cada paso de una tubería tiene que ser una lista no vacía")
 
@@ -433,13 +462,7 @@ def _validar_paso(paso) -> None:
     if op == "donde":
         if len(paso) != 2:
             raise ErrorDeAlgebra("«donde» va ['donde', predicado]")
-        validar_expr(paso[1])
-        return
-    if op == "con":
-        if len(paso) != 3:
-            raise ErrorDeAlgebra("«con» va ['con', nombre, expresion]")
-        _validar_nombre(paso[1], "el nombre de la columna de «con»")
-        validar_expr(paso[2])
+        validar_expr(paso[1], limites)
         return
     if op == "agrupar":
         if len(paso) != 3:
@@ -455,32 +478,32 @@ def _validar_paso(paso) -> None:
                 "los agregados de «agrupar» van [[nombre, agregado, expresion], ...]")
         for nombre, expr in claves:
             _validar_nombre(nombre, "el nombre de una clave de «agrupar»")
-            validar_expr(expr)
+            validar_expr(expr, limites)
         for nombre, agg, expr in agregados:
             _validar_nombre(nombre, "el nombre de un agregado de «agrupar»")
             _validar_nombre(agg, "el operador agregado de «agrupar»")
             if agg not in AGREGADOS:
                 raise ErrorDeAlgebra(
                     f"agregado desconocido: {agg!r} (hay {sorted(AGREGADOS)})")
-            validar_expr(expr)
+            validar_expr(expr, limites)
         return
     if op in FUENTES:
         raise ErrorDeAlgebra(f"«{op}» es una fuente y sólo puede ser el primer paso")
     raise ErrorDeAlgebra(f"operador desconocido: «{op}»")
 
 
-def validar_tuberia(tuberia) -> None:
+def validar_tuberia(tuberia, limites: LimitesAlgebra | None = None) -> None:
     """Valida recursivamente la estructura declarada, sin mirar evidencia ni calcular valores."""
     if not isinstance(tuberia, list) or not tuberia or tuberia[0] != "desde":
         raise ErrorDeAlgebra("una tubería empieza con «desde»")
     if len(tuberia) < 2:
         raise ErrorDeAlgebra("una tubería «desde» necesita una fuente")
-    _validar_fuente(tuberia[1])
+    _validar_fuente(tuberia[1], limites)
     for paso in tuberia[2:]:
-        _validar_paso(paso)
+        _validar_paso(paso, limites)
 
 
-def validar_resumen(resumen) -> None:
+def validar_resumen(resumen, limites: LimitesAlgebra | None = None) -> None:
     """Valida la forma `['resumen', agregado, expresion]`."""
     if not isinstance(resumen, list) or len(resumen) != 3 or resumen[0] != "resumen":
         raise ErrorDeAlgebra("un resumen va ['resumen', agregado, expresion]")
@@ -488,22 +511,24 @@ def validar_resumen(resumen) -> None:
     if resumen[1] not in AGREGADOS:
         raise ErrorDeAlgebra(
             f"agregado desconocido: «{resumen[1]}» (hay {sorted(AGREGADOS)})")
-    validar_expr(resumen[2])
+    validar_expr(resumen[2], limites)
 
 
-def desde(tuberia, evidencia: dict) -> list[dict]:
+def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None) -> list[dict]:
     """`["desde", fuente, paso, paso, …]` → las filas que sobrevivieron. **Son los testigos.**"""
-    validar_tuberia(tuberia)
+    limites = _limites(limites)
+    validar_tuberia(tuberia, limites)
     filas: list[dict] = []
     for paso in tuberia[1:]:
-        filas = aplicar(paso, filas, evidencia)
+        filas = aplicar(paso, filas, evidencia, limites)
     return filas
 
 
-def resumir(resumen, filas: list[dict]):
+def resumir(resumen, filas: list[dict], limites: LimitesAlgebra | None = None):
     """`["resumen", agg, expr]` → el escalar. `contar` no evalúa la expresión: cuenta filas."""
-    validar_resumen(resumen)
+    limites = _limites(limites)
+    validar_resumen(resumen, limites)
     _, agg, expr = resumen
     if agg == "contar":
         return len(filas)
-    return _agregar(agg, [evaluar_expr(expr, f) for f in filas])
+    return _agregar(agg, [evaluar_expr(expr, f, limites) for f in filas])

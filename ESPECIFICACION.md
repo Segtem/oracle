@@ -7,8 +7,8 @@ Versión `0.3`. **Escrita para ser rota**: el criterio de si sirve está al fina
 > en vez de la forma corta `["penetracion", "a", "b"]` que publicaba la 0.1: si un string suelto
 > significara «alias», un dato de texto que coincida con un alias cambiaría de sentido según el
 > contexto. Es más verboso y no tiene casos raros.
-> **(b)** Los operadores se implementan sólo cuando los piden medidas reales. Hoy corren cinco de
-> seis; `con` sigue declarado con su disparador — ver §3.
+> **(b)** Los operadores se incorporan sólo cuando los piden medidas reales. `con` y la unión
+> izquierda se retiraron de la especificación activa al no alcanzar dos usuarios — ver §3.
 > **(c)** La 0.3 resuelve la contradicción entre “conjunto” y la multiplicidad real: una relación es
 > una **bolsa sin orden semántico**. La decisión completa está en
 > [`DECISION-001-RELACIONES-COMO-BOLSAS.md`](DECISION-001-RELACIONES-COMO-BOLSAS.md).
@@ -80,15 +80,14 @@ a mano — el error concreto que motivó esta especificación (ver
 
 ## 3. Los operadores
 
-Seis. Cada uno toma relaciones y devuelve una relación: **eso es la clausura**, y es lo que permite
+Cinco. Cada uno toma relaciones y devuelve una relación: **eso es la clausura**, y es lo que permite
 que una medida consuma la salida de otra sin ningún caso especial.
 
 | Operador | Forma | Qué hace |
 |---|---|---|
 | `de` | `["de", relación, alias]` | fuente |
 | `donde` | `["donde", pred]` | filtra — **define los testigos** |
-| `con` | `["con", nombre, expr]` | agrega una columna derivada |
-| `unir` | `["unir", izq, der, modo?]` | producto; `modo` = `"todos"` (default) o `"izquierda"` |
+| `unir` | `["unir", izq, der]` | producto cartesiano |
 | `agrupar` | `["agrupar", [claves], [nombre, agg, expr]]` | agrupa y agrega |
 | `resumen` | `["resumen", agg, expr]` | colapsa a un escalar — **la medición** |
 
@@ -99,17 +98,20 @@ finito o una mezcla incompatible es error de álgebra, no un veredicto.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
 
-### Implementados: cinco de seis
+### Lenguaje activo: cinco operadores
 
 La regla *no se agrega un operador hasta que una segunda medida lo necesite* aplica también a
-**implementarlos**: un operador sin usuario es un operador sin verificar. Corren `de`, `donde`,
-`resumen`, `unir` y `agrupar`. El que falta levanta un error que dice su disparador:
+**publicarlos**: un operador sin usuario es un operador sin verificar. Corren `de`, `donde`,
+`resumen`, `unir` y `agrupar`.
 
 | Operador | Estado |
 |---|---|
-| `unir` | ✅ entró con el catálogo de geometría: «pares de piezas que se clavan» es un producto. El modo `"izquierda"` sigue sin usuario, porque traería el concepto de NULO |
+| `unir` | ✅ entró con el catálogo de geometría: «pares de piezas que se clavan» es un producto |
 | `agrupar` | ✅ entró con la AUSENCIA — ver §8 |
-| `con` | ⏳ una medida que reuse una columna derivada en más de un paso |
+
+`con` y la unión izquierda no son promesas pendientes ni sintaxis aceptada: no tienen dos usuarios
+reales y por eso una declaración que los use falla al cargar. Si aparecen esos usuarios, vuelven con
+sus casos, semántica y mutantes; no como ramas dormidas.
 
 Un grupo **no es un hecho**: es un resumen. Las filas que salen de `agrupar` no llevan alias —los
 hechos se consumieron— sino columnas derivadas, que se leen con `["col", nombre]`. Ese accesor existía
@@ -209,8 +211,8 @@ Comprobable, y si falla el diseño está mal:
 3. el corpus guarda los tres niveles con el mismo formato;
 4. **todo caso del corpus que declara una medida se pone en rojo** con esa medida. El que quede verde
    señala lenguaje faltante o medida mal escrita, y hay que decir cuál. Los casos con
-   `sin_medida_todavia` **siguen verdes a propósito**: son el hueco declarado, no una falla del
-   evaluador — y el número de casos sin medida es una métrica del marco, que tiene que bajar.
+   estado `abierto` **siguen verdes a propósito**: son el hueco declarado, no una falla del
+   evaluador. Los casos `resuelto` y `limite_humano` conservan memoria, pero no cuentan como deuda.
 
 **Condición de parada:** si los casos del corpus no se ponen rojos con este juego chico de
 operadores, se para y se rediseña — no se agregan operadores hasta que entren.
@@ -276,8 +278,18 @@ operadores es la única prueba de que el juego chico alcanzaba.
   eventos contra el último instante — `["!=", ["col","registrados"], ["mas", ["col","ultimo"], 1]]`.
   Sin operador nuevo.
 
-## 9. Lo que esta versión deliberadamente no tiene
+## 9. Presupuesto de evaluación
 
-Sintaxis propia con parser (la forma de dato alcanza), macros (se habilitan cuando aparezca la quinta
-medida con la misma forma), transporte por red (cero consumidores remotos), y optimizador (los
-volúmenes son chicos; el día que no lo sean, ser declarativo es justo lo que permite agregarlo).
+Una medida puede recibir evidencia hostil o simplemente demasiado grande. `LimitesAlgebra` forma
+parte de la llamada de evaluación y acota tres amplificaciones: filas por relación, filas que puede
+materializar un producto cartesiano y profundidad de una expresión. Los valores por defecto son
+finitos; un consumidor puede elegir otros sin alterar un global compartido. Superar un límite es
+`ErrorDeAlgebra`, nunca un veredicto verde ni una evaluación parcial.
+
+Estos techos no son umbrales de una medida: protegen al evaluador y por eso no deciden nada sobre el
+mundo medido.
+
+## 10. Lo que esta versión deliberadamente no tiene
+
+Sintaxis propia con parser (la forma de dato alcanza), transporte por red (cero consumidores remotos)
+y optimizador. Los límites impiden una expansión no acotada; no vuelven eficiente una consulta grande.

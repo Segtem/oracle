@@ -18,6 +18,7 @@
         "semilla": 1,
         "pasos": 10,
         "razon": "tope",
+        "presupuesto_agotado": true,
         "determinista": true,
         "falto": 45
       },
@@ -27,6 +28,7 @@
         "semilla": 2,
         "pasos": 10,
         "razon": "tope",
+        "presupuesto_agotado": true,
         "determinista": true,
         "falto": 47
       },
@@ -36,6 +38,7 @@
         "semilla": 3,
         "pasos": 10,
         "razon": "tope",
+        "presupuesto_agotado": true,
         "determinista": true,
         "falto": 46
       }

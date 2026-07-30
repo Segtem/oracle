@@ -15,7 +15,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
-from nucleo.simulacion import Corrida, SimuladorMalContratado, correr
+from nucleo.simulacion import ContratoTerminacion, Corrida, SimuladorMalContratado, correr
 
 
 ESCENARIO = {"id": "e1"}
@@ -67,7 +67,7 @@ class CamposCertificadosTests(unittest.TestCase):
     def test_resumen_no_puede_reemplazar_campos_de_corrida(self) -> None:
         valores = {
             "id": "forjada", "escenario": "otro", "semilla": 99, "pasos": 0,
-            "razon": "completado", "determinista": True,
+            "razon": "completado", "determinista": True, "presupuesto_agotado": True,
         }
         for campo, valor in valores.items():
             with self.subTest(campo=campo):
@@ -108,6 +108,26 @@ class CamposCertificadosTests(unittest.TestCase):
 
 
 class EntradasDelRunnerTests(unittest.TestCase):
+    def test_la_razon_de_agotamiento_es_un_contrato_y_no_un_literal_del_runner(self) -> None:
+        simulador = lambda e, s, t: Corrida(razon="sin-combustible")
+        sin_contrato = correr(simulador, [ESCENARIO], [1])["corrida"][0]
+        self.assertIsNone(sin_contrato["presupuesto_agotado"])
+
+        contrato = ContratoTerminacion(frozenset({"sin-combustible"}))
+        clasificada = correr(simulador, [ESCENARIO], [1],
+                             contrato_terminacion=contrato)["corrida"][0]
+        self.assertTrue(clasificada["presupuesto_agotado"])
+
+        otra = correr(lambda e, s, t: Corrida(razon="terminado"), [ESCENARIO], [1],
+                      contrato_terminacion=contrato)["corrida"][0]
+        self.assertFalse(otra["presupuesto_agotado"])
+
+    def test_el_contrato_de_terminacion_es_cerrado(self) -> None:
+        for invalido in ({"tope"}, frozenset({""}), frozenset({1})):
+            with self.subTest(invalido=invalido):
+                with self.assertRaises(SimuladorMalContratado):
+                    ContratoTerminacion(invalido)
+
     def test_id_de_escenario_es_escalar_y_no_vacio(self) -> None:
         for invalido in ("", "   ", True, None, [], {}):
             with self.subTest(id=invalido):

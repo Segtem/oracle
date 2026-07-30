@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "meta.alcance_dice_que_no_ve",
-  "medida",
-  "m",
-  ["no", ["contiene", ["campo", "m", "alcance"], "NO "]],
-  "un alcance que no enuncia nada en negativo no es un alcance: es una descripción, y no impide que el verde se lea como «está bien»",
-  "ve si el texto contiene una negación explícita. NO ve si el punto ciego declarado es el importante, ni si están todos"
-]

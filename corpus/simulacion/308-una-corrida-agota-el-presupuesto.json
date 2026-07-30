@@ -18,6 +18,7 @@
         "semilla": 1,
         "pasos": 10,
         "razon": "tope",
+        "presupuesto_agotado": true,
         "determinista": true,
         "falto": 45
       }

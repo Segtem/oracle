@@ -18,7 +18,7 @@ from nucleo.medida import Medida
 from nucleo import algebra
 from nucleo.proyecto import (EscalaresInvalidas, Proyecto, escalares_del_proyecto,
                              sin_bandera)
-from tools.corpus import revisar_evidencia
+from tools.corpus import revisar_estado_sin_medida, revisar_evidencia
 from tools.diferencial import comparar_dominio, validar_fixture
 
 
@@ -67,6 +67,23 @@ class CorpusL0Tests(unittest.TestCase):
 
     def test_el_mapa_de_evidencia_no_puede_estar_vacio(self) -> None:
         self.assertTrue(revisar_evidencia("caso", {}))
+
+    def test_un_caso_sin_medida_distingue_deuda_memoria_y_limite_humano(self) -> None:
+        validos = (
+            {"medida": None, "estado_sin_medida": "abierto",
+             "sin_medida_todavia": "falta una capacidad"},
+            {"medida": None, "estado_sin_medida": "resuelto",
+             "resuelto": "se eliminó la duplicación"},
+            {"medida": None, "estado_sin_medida": "limite_humano",
+             "limite_humano": "requiere juicio causal"},
+        )
+        for caso in validos:
+            self.assertEqual(revisar_estado_sin_medida("caso", caso), [])
+
+        for caso in ({"medida": None},
+                     {"medida": None, "estado_sin_medida": "resuelto"},
+                     {"medida": None, "estado_sin_medida": "inventado", "resuelto": "x"}):
+            self.assertTrue(revisar_estado_sin_medida("caso", caso))
 
 
 class ContratoDiferencialTests(unittest.TestCase):

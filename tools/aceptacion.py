@@ -8,8 +8,8 @@ Criterio 4 de la especificación, ejecutable:
   · todo caso `verde_correcto` tiene que salir **VERDE**. Son la otra polaridad, y no son relleno:
     sin ellos `quitar_filtro` sobrevive siempre, porque contar sin filtro sólo da verde con la
     relación vacía. Un corpus de puros defectos deja las medidas flojas;
-  · los casos con `sin_medida_todavia` **quedan verdes a propósito**: son el hueco declarado. Su
-    número es una métrica del marco y tiene que bajar;
+  · los casos sin medida distinguen `abierto`, `resuelto` y `limite_humano`; sólo los abiertos son
+    deuda del marco y su número tiene que bajar;
   · y al final corre el nivel L2: las medidas del catálogo servidas **como relación**, medidas por
     una medida. Sin mecanismo nuevo — es lo que vuelve esto un metalenguaje.
 
@@ -58,6 +58,7 @@ def _ejecutar() -> int:
     rojos = 0
     verdes = 0
     huecos: list[str] = []
+    archivados = {"resuelto": [], "limite_humano": []}
 
     print(f"catálogo: {len(catalogo)} medidas · corpus: {len(todos)} casos\n")
 
@@ -68,7 +69,11 @@ def _ejecutar() -> int:
     for c in todos:
         mid = c.get("medida")
         if not mid:
-            huecos.append(f"{c['id']} — {c.get('sin_medida_todavia', '')[:70]}")
+            estado = c.get("estado_sin_medida", "abierto")
+            if estado == "abierto":
+                huecos.append(f"{c['id']} — {c.get('sin_medida_todavia', '')[:70]}")
+            elif estado in archivados:
+                archivados[estado].append(c["id"])
             continue
         if mid not in catalogo:
             fallas.append(f"{c['id']}: reclama la medida «{mid}» y no está en el catálogo")
@@ -89,6 +94,9 @@ def _ejecutar() -> int:
           f"huecos declarados: {len(huecos)}")
     for h in huecos:
         print(f"  hueco  {h}")
+    for estado, ids in archivados.items():
+        for cid in ids:
+            print(f"  {estado:<14} {cid}")
 
     # ---- L2: el marco medido con sus propias medidas ----
     # Antes esto era una lista de `if`s en este archivo. El veredicto sobre el marco es un dato como

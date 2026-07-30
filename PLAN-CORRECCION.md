@@ -210,33 +210,50 @@ El vendor ejecuta el mismo denominador y expone, sin pintarlos de verde, sus 11 
 
 ### P2.1 Aislar la mutación de código
 
-- [ ] Mutar una copia o worktree temporal, no las fuentes activas.
-- [ ] Añadir bloqueo de ejecución, restauración atómica y limpieza verificable.
-- [ ] Acotar tiempo y salida de cada subproceso.
-- [ ] Instalar manejadores de señal sólo durante una ronda, sin reemplazar los del proceso al importar.
-- [ ] Reanudar una ronda interrumpida con un manifiesto verificable.
+- [x] Mutar una copia o worktree temporal, no las fuentes activas.
+- [x] Añadir bloqueo de ejecución, restauración atómica y limpieza verificable.
+- [x] Acotar tiempo y salida de cada subproceso.
+- [x] Instalar manejadores de señal sólo durante una ronda, sin reemplazar los del proceso al importar.
+- [x] Reanudar una ronda interrumpida con un manifiesto verificable.
 
 **Criterio de salida:** SIGTERM, timeout, dos invocaciones concurrentes y un fallo de escritura no
 alteran el worktree original ni dejan procesos huérfanos.
 
+**Estado 2026-07-30:** P2.1 implementado. `correr()` valida los objetivos originales, copia el
+proyecto y sólo entrega rutas de la copia al bucle mutante. Las escrituras internas usan
+`os.replace`; un bloqueo estable por raíz rechaza una segunda ronda. Cada subproceso abre una sesión,
+tiene timeout y captura drenada con límite; SIGTERM termina el grupo y los handlers se restauran al
+salir. Un manifiesto atómico firma fuentes, motor y configuración, guarda cada mutante terminado y
+reanuda sólo si todo sigue coincidiendo. Regresiones reales cubren SIGTERM sin hijo huérfano, lock
+doble, escritura fallida, limpieza temporal, salida excesiva, nietos resistentes y
+reanudación/corrupción. Suite: 225.
+
 ### P2.2 Separar lo universal de los perfiles particulares
 
-- [ ] Mover CPython, `.pyc` y análisis AST de imports a un perfil Python optativo.
-- [ ] Reemplazar la razón literal `tope` por un contrato configurable de terminación.
-- [ ] Convertir la heurística `NO ` en una señal no normativa o en estructura declarada.
-- [ ] Volver extensible la clasificación de relaciones meta.
-- [ ] Añadir límites configurables para productos cartesianos, tamaño de entrada y profundidad.
+- [x] Mover CPython, `.pyc` y análisis AST de imports a un perfil Python optativo.
+- [x] Reemplazar la razón literal `tope` por un contrato configurable de terminación.
+- [x] Convertir la heurística `NO ` en una señal no normativa o en estructura declarada.
+- [x] Volver extensible la clasificación de relaciones meta.
+- [x] Añadir límites configurables para productos cartesianos, tamaño de entrada y profundidad.
 
 **Criterio de salida:** el catálogo base no presupone Python, español ni el flujo de Jam; los perfiles
 particulares se cargan explícitamente.
+
+**Estado 2026-07-30:** P2.2 implementado. El AST de imports, las medidas de módulos/CPython y el
+mutador de `.py` viven en `perfiles/python`; `oracle.json` es el único mecanismo que añade ese perfil
+al catálogo universal. La terminación se clasifica mediante `ContratoTerminacion`, no mediante una
+razón literal. Se retiró la medida que convertía el token español `NO ` en requisito normativo y
+`ClasificacionMeta` permite ampliar relaciones/prefijos sin mutar globales. `LimitesAlgebra` acota por
+evaluación filas de entrada, productos y profundidad, con techos finitos por defecto. Oracle pasa
+234 tests, aceptación y 129/129 mutantes de medida.
 
 ### P2.3 Cerrar deuda, empaquetar y probar independencia
 
 - [ ] Triar los 113 mutantes vivos del baseline 503/616: test discriminante o equivalencia individual
   con razón revisada.
-- [ ] Reclasificar los casos `004` y `012` como resueltos sin contarlos como huecos abiertos; definir el
+- [x] Reclasificar los casos `004` y `012` como resueltos sin contarlos como huecos abiertos; definir el
   estado honesto de `011`.
-- [ ] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
+- [x] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
   retirarlos de la especificación activa.
 - [ ] Añadir `pyproject.toml`, versión mínima de Python, entry points, licencia elegida y CI.
 - [ ] Generar cifras del README durante CI en vez de mantenerlas a mano.
@@ -247,6 +264,12 @@ particulares se cargan explícitamente.
 
 **Criterio de salida:** cero mutantes vivos no equivalentes, documentación generada y coherente, CI
 reproduce las verificaciones y un consumidor independiente completa autoría, diferencial y mutación.
+
+**Estado parcial 2026-07-30:** los casos `004` y `012` ya son memoria resuelta y `011` declara una
+frontera humana; el corpus informa cero huecos abiertos. Al no existir dos usuarios reales, `con` y
+la unión izquierda se retiraron de la especificación y del parser activos, con regresiones de rechazo.
+Suite: 235. Siguen pendientes el baseline de 113 mutantes, empaquetado/CI, documentación generada,
+legado de Jam y el segundo consumidor independiente.
 
 ## Primer bloque de trabajo recomendado
 

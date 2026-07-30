@@ -47,18 +47,16 @@ mutación es el único detector que ya se pagó solo, y tres casos la reclaman.
 | `sintoma` | qué dijo la medición y qué era verdad |
 | `como_se_detecto` | `mutacion` · `persona` · `accidente` · `herramienta_ajena` |
 | `medida` | la regla que debería atraparlo, o `null` |
-| `sin_medida_todavia` | **obligatorio si `medida` es null**: por qué todavía no se puede medir |
+| `estado_sin_medida` | si `medida` es null: `abierto`, `resuelto` o `limite_humano` |
+| `sin_medida_todavia` | obligatorio sólo para un estado `abierto` |
+| `resuelto` / `limite_humano` | cierre por construcción o frontera que requiere juicio humano |
 | `evidencia` | mapa de relación → filas de campos **escalares** (el contrato L0) |
 | `leccion` | qué se aprende, en una o dos frases |
 
-`sin_medida_todavia` es la parte que importa del esquema. Los casos incómodos —los que el marco no
-puede medir— son la lista de lo que falta, y son exactamente los que alguien borraría por prolijidad.
-Hoy hay dos:
+El estado explícito evita mezclar deuda abierta con memoria de diseño o con una frontera humana. Hoy
+no hay huecos abiertos: `004` y `012` están resueltos por construcción; `011` conserva el límite de
+una atribución causal que una herramienta genérica no puede validar.
 
-- **`004-testigos-duplicados`** — es un defecto del *lenguaje*, no del código.
-- **`011-conclusion-errada-desvan`** — la medición era correcta y la causa atribuida no. No hay forma
-  mecánica de detectar una atribución causal errada. Se puede exigir que toda conclusión nombre su
-  medición; el salto sigue siendo humano y hay que dejarlo a la vista.
 
 ## Cómo se agrega un caso
 

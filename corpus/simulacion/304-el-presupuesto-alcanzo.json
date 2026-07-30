@@ -18,6 +18,7 @@
         "semilla": 1,
         "pasos": 5,
         "razon": "completado",
+        "presupuesto_agotado": false,
         "determinista": true,
         "sobro": 15
       },
@@ -27,6 +28,7 @@
         "semilla": 2,
         "pasos": 6,
         "razon": "completado",
+        "presupuesto_agotado": false,
         "determinista": true,
         "sobro": 14
       },
@@ -36,6 +38,7 @@
         "semilla": 3,
         "pasos": 4,
         "razon": "completado",
+        "presupuesto_agotado": false,
         "determinista": true,
         "sobro": 16
       }

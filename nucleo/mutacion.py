@@ -18,7 +18,8 @@ mal sin que nada me frene. Es el mismo argumento que la mutación de tests, un n
 
 El denominador se declara en `mutantes`: además de umbral y filtros completos, recorre fuentes,
 expresiones, agregados y referencias de campo. La mutación del código Python es otro sensor,
-`nucleo.mutacion_codigo`; no se mezcla con ésta porque su arnés y sus fallos posibles son distintos.
+`perfiles.python.mutacion_codigo`; no se mezcla con ésta porque su arnés y sus fallos posibles son
+distintos.
 """
 
 from __future__ import annotations
@@ -138,8 +139,6 @@ def _raices_de_expresion(datos: list):
     for indice, paso in enumerate(datos[2][2:], start=2):
         if paso[0] == "donde":
             yield (2, indice, 1)
-        elif paso[0] == "con":
-            yield (2, indice, 2)
         elif paso[0] == "agrupar":
             for posicion in range(len(paso[1])):
                 yield (2, indice, 1, posicion, 1)
@@ -223,9 +222,7 @@ def _mutantes_de_campos(datos: list):
 
     # Una columna derivada puede ser una alternativa aunque todavía no aparezca en otro `col`.
     for indice, paso in enumerate(datos[2][2:], start=2):
-        if paso[0] == "con":
-            nombres_por_espacio.setdefault(("col",), set()).add(paso[1])
-        elif paso[0] == "agrupar":
+        if paso[0] == "agrupar":
             nombres_por_espacio.setdefault(("col",), set()).update(
                 nombre for nombre, _expr in paso[1])
             nombres_por_espacio.setdefault(("col",), set()).update(

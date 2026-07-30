@@ -3,10 +3,10 @@
     python tools/mutar_codigo.py                 → informe
     python tools/mutar_codigo.py --hechos        → volcar la evidencia (JSON)
     python tools/mutar_codigo.py --timeout 90    → límite por ejecución de tests
+    python tools/mutar_codigo.py --manifiesto progreso.json [--reanudar]
 
-Toca archivos reales, así que cada mutante se restaura en un `finally`; cada ejecución aísla el
-bytecode y comprueba el árbol antes y después. Si el proceso se interrumpe a la fuerza, comprobá
-`git status` antes de seguir.
+Cada ronda copia el proyecto a un directorio temporal y sólo muta esa copia. Un bloqueo impide dos
+rondas sobre la misma raíz; timeout y señales terminan el grupo de procesos y limpian el aislamiento.
 
 Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Timeout, error del arnés y fallo de
 tests son estados distintos; sólo el último demuestra que el mutante murió.
@@ -24,8 +24,9 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo  # noqa: E402
-from nucleo.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido, LineaBaseFallida,
-                                    correr)  # noqa: E402
+from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
+                                              LineaBaseFallida, AislamientoRoto,
+                                              ManifiestoInvalido, RondaEnCurso, correr)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              escalares_del_proyecto, resolver, sin_bandera)  # noqa: E402
 
@@ -40,6 +41,12 @@ def argumentos(argv: list[str]):
     p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="segundos máximos para la baseline y cada mutante (60 por defecto)")
+    p.add_argument("--limite-salida-kb", type=int, default=1024,
+                   help="KiB máximos conservados por stdout y stderr en cada ejecución")
+    p.add_argument("--manifiesto", type=Path,
+                   help="guardar progreso atómico para poder reanudar la ronda")
+    p.add_argument("--reanudar", action="store_true",
+                   help="continuar un --manifiesto compatible, revalidando antes la baseline")
     p.add_argument("--confiar-escalares", action="store_true",
                    help="ejecutar el escalares.py del proyecto externo")
     return p.parse_args(argv)
@@ -93,8 +100,11 @@ def _ejecutar(args) -> int:
         equivalentes = cargar_equivalentes(EQUIVALENTES)
         evidencia = correr(
             RAIZ, objetivos, TESTS, equivalentes, al_terminar_uno=progreso,
-            timeout_por_ejecucion=args.timeout)
-    except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, ValueError) as e:
+            timeout_por_ejecucion=args.timeout,
+            limite_salida=args.limite_salida_kb * 1024,
+            manifiesto=args.manifiesto, reanudar=args.reanudar)
+    except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, AislamientoRoto,
+            ManifiestoInvalido, RondaEnCurso, OSError, ValueError) as e:
         error = {"tipo": type(e).__name__, "mensaje": str(e)}
         if isinstance(e, LineaBaseFallida):
             salida = e.resultado.salida
@@ -105,7 +115,8 @@ def _ejecutar(args) -> int:
                 "timeout": e.resultado.timeout,
                 "codigo_salida": e.resultado.codigo_salida,
                 "salida": salida[:16_384],
-                "salida_truncada": len(salida) > 16_384,
+                "salida_truncada": (len(salida) > 16_384 or e.resultado.stdout_truncado
+                                     or e.resultado.stderr_truncado),
             })
         if silencioso:
             print(json.dumps({"error_mutacion": [error]}, ensure_ascii=False, indent=2))
