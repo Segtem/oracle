@@ -30,6 +30,10 @@ from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, comparar, de
 from .macro import es_macro, expandir
 
 
+class MedidaMalDeclarada(ValueError):
+    pass
+
+
 @dataclass(frozen=True)
 class ClasificacionMeta:
     """Contrato extensible para distinguir lenguaje y mundo.
@@ -59,10 +63,6 @@ class ClasificacionMeta:
 
 
 CLASIFICACION_META_BASE = ClasificacionMeta()
-
-
-class MedidaMalDeclarada(ValueError):
-    pass
 
 
 @dataclass(frozen=True)
