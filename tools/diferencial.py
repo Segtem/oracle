@@ -22,7 +22,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402  registra las escalares de todos los dominios
-from nucleo.medida import cargar_catalogo  # noqa: E402
+from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
 
 
 def main() -> int:
@@ -38,6 +38,30 @@ def main() -> int:
     for f in fixtures:
         datos = json.loads(f.read_text(encoding="utf-8"))
         print(f"{f.name} · {datos['mundos']} mundos · origen: {datos['origen']}\n")
+
+        # Formato de DOMINIO DECLARADO (`nucleo.dominio`): un veredicto global por escenario contra la
+        # referencia. No hay expectativa por medida, porque eso reimplementaba las medidas en Python.
+        if "escenarios" in datos:
+            medidas = [catalogo[m] for m in datos["medidas"] if m in catalogo]
+            faltan = [m for m in datos["medidas"] if m not in catalogo]
+            if faltan:
+                fallas.append(f"{f.name}: el fixture reclama medidas que no están: {faltan}")
+            malos = []
+            for esc in datos["escenarios"]:
+                informe = evaluar(medidas, esc["evidencia"])
+                total += 1
+                if informe.ok != esc["referencia_ok"]:
+                    malos.append(esc["id"])
+            marca = "✓" if not malos else "✗"
+            verdes = sum(1 for e in datos["escenarios"] if e["referencia_ok"])
+            print(f"  {marca} {len(medidas)} medidas × {len(datos['escenarios'])} escenarios "
+                  f"({verdes} verdes / {len(datos['escenarios']) - verdes} rojos) · "
+                  f"{len(malos)} desacuerdos")
+            for mid in malos[:5]:
+                fallas.append(f"{f.name}[{mid}]: las medidas y la referencia no coinciden")
+            print()
+            continue
+
         for mid, casos in sorted(datos["grupos"].items()):
             if mid not in catalogo:
                 fallas.append(f"{mid}: el fixture la reclama y no está en el catálogo")
