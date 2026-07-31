@@ -1,4 +1,4 @@
-"""Los supuestos de lenguaje se activan por proyecto y no contaminan el catálogo universal."""
+"""Los supuestos de lenguaje se activan por proyecto y no contaminan el motor neutral."""
 
 from __future__ import annotations
 
@@ -28,10 +28,11 @@ class PerfilesDeProyectoTests(unittest.TestCase):
             }), encoding="utf-8")
         return Proyecto(raiz)
 
-    def test_un_proyecto_sin_declaracion_recibe_solo_el_catalogo_universal(self) -> None:
+    def test_un_proyecto_sin_declaracion_no_recibe_politicas_ni_perfiles(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             proy = self._proyecto(Path(d))
             catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+            self.assertEqual(catalogo, {})
             self.assertNotIn("proceso.arnes_con_bytecode_frio", catalogo)
             self.assertNotIn("proceso.modulo_alcanzable", catalogo)
 
@@ -41,7 +42,7 @@ class PerfilesDeProyectoTests(unittest.TestCase):
             catalogo = cargar_catalogo(catalogos_a_cargar(proy))
             self.assertIn("proceso.arnes_con_bytecode_frio", catalogo)
             self.assertIn("proceso.modulo_alcanzable", catalogo)
-            self.assertEqual(len(catalogos_base_a_cargar(proy)), 2)
+            self.assertEqual(len(catalogos_base_a_cargar(proy)), 1)
 
     def test_un_perfil_desconocido_falla_cerrado(self) -> None:
         with tempfile.TemporaryDirectory() as d:

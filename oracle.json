@@ -1,4 +1,5 @@
 {
   "esquema": "oracle.proyecto/v1",
-  "perfiles": ["python"]
+  "perfiles": ["python"],
+  "catalogo_base": true
 }

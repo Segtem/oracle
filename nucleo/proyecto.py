@@ -116,7 +116,7 @@ def perfiles_incluidos(raices_adicionales=()) -> dict[str, Path]:
 @dataclass(frozen=True)
 class ConfiguracionProyecto:
     perfiles: tuple[str, ...] = ()
-    catalogo_base: bool = True
+    catalogo_base: bool = False
 
 
 def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProyecto:
@@ -148,7 +148,7 @@ def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProye
     desconocidos = set(perfiles) - set(perfiles_incluidos(raices_perfiles))
     if desconocidos:
         raise ProyectoInvalido(f"perfiles desconocidos: {sorted(desconocidos)}")
-    catalogo_base = datos.get("catalogo_base", True)
+    catalogo_base = datos.get("catalogo_base", False)
     if not isinstance(catalogo_base, bool):
         raise ProyectoInvalido("`catalogo_base` debe ser booleano")
     return ConfiguracionProyecto(tuple(perfiles), catalogo_base)
@@ -179,7 +179,7 @@ class Proyecto:
 
 
 def catalogos_base_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
-    """Catálogo universal optativo y perfiles incluidos activados por el proyecto."""
+    """Políticas base y perfiles cargados sólo cuando el proyecto los pide explícitamente."""
     raices = _normalizar_raices_perfiles(raices_perfiles)
     disponibles = perfiles_incluidos(raices)
     config = configuracion(proy, raices_perfiles=raices)
@@ -192,10 +192,9 @@ def catalogos_base_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Pat
 def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
     """Los catálogos base/perfiles declarados más el catálogo del proyecto.
 
-    Oracle trae medidas que valen para cualquiera que construya con un LLM —mutantes que sobreviven,
-    afirmaciones sin alcance, verificaciones vencidas, corridas irreproducibles— y el proyecto agrega
-    las de su dominio. En proyectos v1 las universales vienen incluidas salvo que `oracle.json`
-    declare explícitamente ``"catalogo_base": false``.
+    Oracle ofrece políticas para proyectos construidos con un LLM —mutantes que sobreviven,
+    afirmaciones sin alcance, verificaciones vencidas, corridas irreproducibles— pero el host decide
+    si incorporarlas con ``"catalogo_base": true``. Sin configuración sólo carga su propio catálogo.
     """
     bases = catalogos_base_a_cargar(proy, raices_perfiles=raices_perfiles)
     if proy.catalogos.resolve() == (RAIZ_ORACLE / "catalogos").resolve():

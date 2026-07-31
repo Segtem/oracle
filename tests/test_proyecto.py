@@ -54,20 +54,26 @@ class ProyectoTests(unittest.TestCase):
             })
             self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ("python",))
 
-    def test_el_catalogo_base_es_explicito_y_compatible_con_v1(self) -> None:
+    def test_un_proyecto_nuevo_no_recibe_politicas_base_implicitamente(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = self._raiz(td)
             proy = Proyecto(raiz)
-            self.assertTrue(configuracion(proy).catalogo_base)
+            self.assertFalse(configuracion(proy).catalogo_base)
+            self.assertEqual(catalogos_base_a_cargar(proy), [])
+            self.assertEqual(catalogos_a_cargar(proy), [proy.catalogos])
 
             self._configurar(raiz, {
                 "esquema": modulo.ESQUEMA_PROYECTO,
                 "perfiles": [],
-                "catalogo_base": False,
+                "catalogo_base": True,
             })
-            self.assertFalse(configuracion(proy).catalogo_base)
-            self.assertEqual(catalogos_base_a_cargar(proy), [])
-            self.assertEqual(catalogos_a_cargar(proy), [proy.catalogos])
+            self.assertTrue(configuracion(proy).catalogo_base)
+            self.assertEqual(
+                catalogos_base_a_cargar(proy), [modulo.RAIZ_ORACLE / "catalogos"])
+            self.assertEqual(
+                catalogos_a_cargar(proy),
+                [modulo.RAIZ_ORACLE / "catalogos", proy.catalogos],
+            )
 
     def test_oracle_json_roto_o_no_fisico_falla_cerrado(self) -> None:
         casos = (
@@ -120,7 +126,6 @@ class ProyectoTests(unittest.TestCase):
                 "esquema": modulo.ESQUEMA_PROYECTO, "perfiles": ["python"],
             })
             esperadas = [
-                modulo.RAIZ_ORACLE / "catalogos",
                 perfiles_incluidos()["python"],
             ]
             self.assertEqual(catalogos_base_a_cargar(proy), esperadas)
@@ -157,7 +162,7 @@ class ProyectoTests(unittest.TestCase):
                 self.assertEqual(perfiles_incluidos(), {"lenguaje_nuevo": catalogo_perfil})
                 self.assertEqual(
                     catalogos_base_a_cargar(Proyecto(raiz_proyecto)),
-                    [raiz_oracle / "catalogos", catalogo_perfil],
+                    [catalogo_perfil],
                 )
 
     def test_un_host_puede_aportar_raices_de_perfiles_sin_modificar_oracle(self) -> None:

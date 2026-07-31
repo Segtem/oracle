@@ -370,7 +370,8 @@ inserta rutas ni importa `nucleo.*`, `catalogos.*`, `perfiles.*` o `tools.*`.
 - [x] Introducir `RegistroEscalares` por instancia y hacer que validación y evaluación reciban ese
   registro explícitamente.
 - [x] Demostrar dos motores con UDF homónimas y distintas en el mismo proceso, sin contaminación.
-- [x] Volver explícita la inclusión del catálogo base, con un valor compatible para proyectos v1.
+- [x] Volver explícita la inclusión de las políticas base; un proyecto v1 neutral no las recibe si
+  omite `catalogo_base`.
 - [x] Permitir fuentes de perfiles adicionales sin modificar la instalación de Oracle.
 - [x] Eliminar la resolución de `sys.argv` durante el import de herramientas; `main(argv)` construye
   su sesión después de parsear.
@@ -407,7 +408,8 @@ una ruta explícita; selecciona por relaciones, conserva límites por instancia 
 hay juezas aplicables. `RegistroEscalares` viaja por validación y ejecución; dos proyectos con una UDF
 homónima se construyen y evalúan concurrentemente sin tocar el registro global. La carga externa
 sigue siendo opt-in y una escritura directa al global se rechaza. `oracle.json` acepta
-`catalogo_base: false`, con `true` como valor compatible cuando falta. Un smoke test construye el
+`catalogo_base`; si falta, vale `false`, de modo que la configuración mínima no hereda políticas de
+Oracle. Un smoke test construye el
 wheel, lo inspecciona, lo instala en un venv limpio y usa sólo la fachada desde un cwd vacío. El wheel
 publica exclusivamente `oracle_metalenguaje.*`; el puente `_compat` mantiene el checkout transitorio
 sin instalar `nucleo`, `catalogos`, `perfiles` ni `tools` como paquetes de primer nivel. Las raíces externas de
@@ -417,6 +419,21 @@ resuelve ya proyecto ni argumentos al importarse: sus `main(argv)` crean la sesi
 parsear, probado bajo un `sys.argv` anfitrión inválido. Una instalación no contiene el corpus ni los
 fixtures diferenciales internos y por eso exige un proyecto explícito; la ausencia de fixtures sale
 no-verde y sin traceback. El flujo temporal externo conserva la prueba diferencial positiva. La suite
-cierra 335 tests, la mutación de medidas 129/129 y las particiones modificadas de `proyecto`, `Motor`
+cierra 338 tests, la mutación de medidas 129/129 y las particiones modificadas de `proyecto`, `Motor`
 y `_compat` cierran 100/100, 22/22 y 5/5. Queda fuera de P3 sincronizar el vendor de Jam y migrar su
 oráculo particular.
+
+### Cierre de independencia de dominio — 2026-07-31
+
+El valor compatible anterior (`catalogo_base: true` cuando faltaba la clave) mantenía una política
+implícita: cualquier proyecto externo incorporaba medidas de proceso, meta y simulación de Oracle.
+Se eliminó. Ahora un proyecto sin `oracle.json`, o con la clave omitida, carga exclusivamente su
+propio catálogo. Las políticas provistas por Oracle y los perfiles son capacidades opt-in; el propio
+Oracle declara ambas porque las usa para autocertificarse, y cada consumidor debe tomar la misma
+decisión de manera explícita.
+
+La independencia se protege en tres niveles: una regresión construye un proyecto mínimo y comprueba
+que no aparecen medidas heredadas; otra inspecciona los artefactos productivos y rechaza nombres de
+consumidores o dominios conocidos; y el wheel se prueba desde un proyecto externo y un cwd vacío. El
+corpus y los tests pueden conservar procedencia histórica de Jam: son evidencia de generalidad y no
+se instalan ni participan del runtime de un host.

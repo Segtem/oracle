@@ -192,21 +192,25 @@ confirme con `--confiar-escalares`: una UDF es código Python y tiene los permis
 `--relaciones`, `--nueva` y `--escalares` sin confianza son inspecciones seguras; esta última muestra
 el inventario base y avisa que omitió las UDF externas.
 
-**El catálogo base viene incluido.** Las medidas de `proceso`, `meta` y `simulacion` valen para
-cualquiera que construya con un LLM —mutantes que sobreviven, afirmaciones sin alcance, verificaciones
-vencidas, corridas irreproducibles— y se cargan junto a las tuyas. Que vengan de fábrica es la
-diferencia entre una herramienta y un repositorio de ejemplos.
+**El motor no impone políticas.** Las medidas incluidas de `proceso`, `meta` y `simulacion` sirven
+para proyectos construidos con un LLM —mutantes que sobreviven, afirmaciones sin alcance,
+verificaciones vencidas, corridas irreproducibles—, pero sólo se cargan si el proyecto las pide con
+`"catalogo_base": true`.
 
 Los supuestos de plataforma no vienen implícitos. Para analizar imports con AST, mutar `.py` y
 comprobar cachés de CPython, el proyecto lo declara:
 
 ```json
-{"esquema": "oracle.proyecto/v1", "perfiles": ["python"]}
+{
+  "esquema": "oracle.proyecto/v1",
+  "perfiles": ["python"],
+  "catalogo_base": true
+}
 ```
 
-Sin `oracle.json`, se carga el catálogo universal. Un perfil desconocido o repetido falla cerrado.
-Un proyecto v1 puede declarar `"catalogo_base": false` para trabajar sólo con su catálogo y sus
-perfiles explícitos. El propio Oracle declara `python` porque usa ese perfil para probarse.
+Sin `oracle.json`, se carga únicamente el catálogo del proyecto. Un perfil desconocido o repetido
+falla cerrado. El propio Oracle activa el catálogo base y `python` explícitamente porque los usa para
+autocertificarse; esa elección no se hereda a ningún consumidor.
 
 Los dominios que estuvieron acá durante el desarrollo —geometría, vault, relevo, una cola, un
 laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
@@ -289,7 +293,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 1 límite humano.
 
 <!-- cifras:inicio -->
-336 tests · 129/129 mutantes de medida · **1131 sitios de mutación de código** (926 + 205 del motor Python).
+338 tests · 129/129 mutantes de medida · **1131 sitios de mutación de código** (926 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **`tools/mutar_codigo.py` sale en VERDE.** El baseline histórico 503/616 quedó invalidado cuando

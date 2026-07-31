@@ -84,7 +84,6 @@ def main() -> int:
         (proyecto / "oracle.json").write_text(json.dumps({
             "esquema": "oracle.proyecto/v1",
             "perfiles": ["smoke_externo"],
-            "catalogo_base": False,
         }), encoding="utf-8")
         (proyecto / "escalares.py").write_text(
             "from oracle_metalenguaje import escalar\n\n"
@@ -109,6 +108,7 @@ def main() -> int:
         (proyecto_empaquetado / "oracle.json").write_text(json.dumps({
             "esquema": "oracle.proyecto/v1",
             "perfiles": ["python"],
+            "catalogo_base": True,
         }), encoding="utf-8")
         vacio = temporal / "cwd-vacio"
         vacio.mkdir()
@@ -123,6 +123,7 @@ def main() -> int:
             "informe_b = motor_b.evaluar({'item': [{'valor': 4}]})\n"
             "assert informe_a.ok and informe_a.veredictos[0].valor == 8\n"
             "assert not informe_b.ok and informe_b.veredictos[0].valor == 12\n"
+            "assert {medida.id for medida in motor_a.medidas} == {'demo.instalado'}\n"
             "assert {'doble_instalado', 'mas'} <= set(motor_a.escalares)\n"
             "ids = {medida.id for medida in motor_empaquetado.medidas}\n"
             "assert {'meta.toda_medida_esta_fijada', 'proceso.arnes_con_bytecode_frio'} <= ids\n"

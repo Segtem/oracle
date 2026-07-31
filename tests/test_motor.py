@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -48,6 +49,51 @@ def _proyecto(raiz: Path, incremento: int) -> None:
 
 
 class TestMotor(unittest.TestCase):
+    def test_la_distribucion_productiva_no_nombra_consumidores_conocidos(self):
+        raiz = Path(__file__).resolve().parents[1]
+        productivos = (
+            raiz / "nucleo",
+            raiz / "oracle_metalenguaje",
+            raiz / "catalogos",
+            raiz / "perfiles",
+            raiz / "tools",
+        )
+        particulares = re.compile(
+            r"\b(?:jam|unreal|botoo|placement|snap|kitbash|grilla|al_ras)\b",
+            re.IGNORECASE,
+        )
+        acoplamientos = []
+        for directorio in productivos:
+            for archivo in sorted(directorio.rglob("*")):
+                if archivo.suffix not in {".py", ".json"}:
+                    continue
+                for numero, linea in enumerate(
+                        archivo.read_text(encoding="utf-8").splitlines(), 1):
+                    if particulares.search(linea):
+                        acoplamientos.append(
+                            f"{archivo.relative_to(raiz)}:{numero}: {linea.strip()}")
+
+        self.assertEqual(
+            acoplamientos, [],
+            "la distribución productiva volvió a conocer un consumidor particular:\n"
+            + "\n".join(acoplamientos),
+        )
+
+    def test_un_proyecto_sin_configuracion_solo_carga_sus_medidas(self):
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            catalogo = raiz / "catalogos" / "demo"
+            catalogo.mkdir(parents=True)
+            (catalogo / "demo.valor.json").write_text(
+                json.dumps(_medida()), encoding="utf-8")
+
+            motor = Motor.desde_proyecto(raiz)
+
+            self.assertEqual([medida.id for medida in motor.medidas], ["demo.valor"])
+            self.assertFalse(any(
+                medida.id.startswith(("meta.", "proceso.", "simulacion."))
+                for medida in motor.medidas))
+
     def test_el_puente_namespaced_aliasa_paquete_y_submodulos_sin_duplicarlos(self):
         legado = "_oracle_legado_de_prueba"
         namespaced = "_oracle_paquete_de_prueba." + legado

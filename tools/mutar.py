@@ -3,8 +3,8 @@
     python tools/mutar.py [--confiar-escalares]          → informe
     python tools/mutar.py --hechos [--confiar-escalares] → evidencia JSON
 
-El sensor produce hechos; las medidas aplicables del catálogo los juzgan. Ninguna lógica de veredicto
-ni id de medida vive en el sensor.
+El sensor produce hechos y las políticas aplicables del catálogo pueden juzgarlos. Un proyecto
+neutral no necesita importar esas políticas para obtener el resultado operativo de la mutación.
 
 Sale != 0 si algún mutante sobrevivió, porque un mutante que sobrevive es un aspecto de la medida que
 el corpus no fija.
@@ -79,9 +79,12 @@ def _ejecutar(proy, args: list[str]) -> int:
 
     juezas = medidas_aplicables(catalogo.values(), evidencia)
     informe = evaluar(juezas, evidencia)
-    print("juzgado por las medidas del catálogo:")
-    for v in informe.veredictos:
-        print(" ", v.linea())
+    if informe.veredictos:
+        print("juzgado por las medidas del catálogo:")
+        for v in informe.veredictos:
+            print(" ", v.linea())
+    else:
+        print("sin políticas meta activas — se informa sólo el resultado operativo")
 
     if vivos:
         print("\nlo que el corpus NO fija — ningún caso detecta estas mutaciones:")
@@ -91,8 +94,10 @@ def _ejecutar(proy, args: list[str]) -> int:
         print("demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:")
         print("`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.")
 
-    # el código de salida sale del VEREDICTO, no de un `if` propio
-    return 0 if informe.ok else 1
+    # Que sobreviva un mutante es el contrato operativo de esta herramienta, no una política de
+    # dominio. Las medidas meta, cuando el host las activa, pueden imponer condiciones adicionales.
+    politicas_ok = informe.ok if informe.veredictos else True
+    return 0 if not vivos and politicas_ok else 1
 
 
 def main(argv: list[str] | None = None) -> int:
