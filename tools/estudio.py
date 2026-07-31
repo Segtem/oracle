@@ -1,6 +1,7 @@
 """Vuelca todo el repositorio a Markdown plano y autocontenido, para subirlo y estudiarlo.
 
     python tools/estudio.py [--proyecto <ruta>] [--destino estudio] [--confiar-escalares]
+    python tools/estudio.py --archivo ORACLE-PARA-NOTEBOOKLM.md
 
 Pensado para NotebookLM y parientes: ingieren **documentos planos**, no repositorios. Así que acá no
 hay enlaces relativos, ni wikilinks, ni referencias a archivos que el lector no tiene. Cada documento
@@ -233,10 +234,8 @@ def indice(archivos) -> str:
         f" · {len(archivos)} documentos.*", ""])
 
 
-def _ejecutar(proy, destino: Path) -> int:
+def _documentos(proy) -> dict[str, str]:
     dirs = catalogos_a_cargar(proy)
-
-    destino.mkdir(parents=True, exist_ok=True)
     docs = {
         "00-esencia.md": esencia(),
         "01-el-algebra.md": algebra(),
@@ -255,6 +254,77 @@ def _ejecutar(proy, destino: Path) -> int:
         "08-los-numeros.md": numeros(dirs, proy.corpus),
     }
     docs["README.md"] = indice(docs)
+    return docs
+
+
+def _bajar_titulos(texto: str) -> str:
+    """Anida un Markdown sin tocar comentarios o ejemplos dentro de bloques de código."""
+    salida = []
+    en_bloque = False
+    for linea in texto.splitlines():
+        if linea.lstrip().startswith("```"):
+            en_bloque = not en_bloque
+        if not en_bloque and linea.startswith("#"):
+            linea = "#" + linea
+        salida.append(linea)
+    return "\n".join(salida)
+
+
+def documento_unico(docs: dict[str, str], *, extras=None) -> str:
+    """Compone el paquete de estudio en una única fuente autocontenida para NotebookLM."""
+    if extras is None:
+        extras = (
+            ("09-decision-relaciones-como-bolsas.md",
+             (RAIZ / "DECISION-001-RELACIONES-COMO-BOLSAS.md").read_text(encoding="utf-8")),
+            ("10-auditoria-tecnica.md",
+             (RAIZ / "AUDITORIA-2026-07-30.md").read_text(encoding="utf-8")),
+            ("11-plan-de-correccion.md",
+             (RAIZ / "PLAN-CORRECCION.md").read_text(encoding="utf-8")),
+        )
+    partes = [
+        (nombre, texto) for nombre, texto in sorted(docs.items())
+        if nombre != "README.md"
+    ]
+    partes.extend(extras)
+    fecha = subprocess.run(
+        ["date", "+%Y-%m-%d"], capture_output=True, text=True).stdout.strip()
+    commit = _git("rev-parse", "--short=12", "HEAD").strip() or "desconocido"
+    salida = [
+        "# Oracle — documento integral para NotebookLM",
+        "",
+        "Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autoría, catálogo,",
+        "corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.",
+        "",
+        f"- Generado: `{fecha}`",
+        f"- Revisión de código base: `{commit}`",
+        f"- Partes incluidas: `{len(partes)}`",
+        "",
+        "> Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para",
+        "> explicar cómo evolucionó Oracle. Cuando una cifra histórica difiera del estado actual,",
+        "> prevalecen «Los números» y «Estado» de las primeras partes, generados desde el checkout",
+        "> vigente.",
+        "",
+        "## Orden sugerido",
+        "",
+        "Leé primero la esencia, el álgebra y los números. Después recorré el catálogo y el corpus;",
+        "son la teoría puesta a prueba. El diario, la auditoría y el plan explican las alternativas",
+        "descartadas, los defectos encontrados y las fronteras que todavía no puede cerrar el código.",
+    ]
+    for nombre, texto in partes:
+        salida.extend((
+            "",
+            "---",
+            "",
+            f"<!-- fuente: {nombre} -->",
+            "",
+            _bajar_titulos(texto.rstrip()),
+        ))
+    return "\n".join(salida).rstrip() + "\n"
+
+
+def _ejecutar(proy, destino: Path) -> int:
+    docs = _documentos(proy)
+    destino.mkdir(parents=True, exist_ok=True)
 
     for nombre, texto in docs.items():
         (destino / nombre).write_text(texto.rstrip() + "\n", encoding="utf-8")
@@ -263,6 +333,17 @@ def _ejecutar(proy, destino: Path) -> int:
     print(f"{len(docs)} documentos · {total} líneas · {destino}")
     for nombre in sorted(docs):
         print(f"  {nombre:<28} {len(docs[nombre].splitlines()):>5} líneas")
+    return 0
+
+
+def _ejecutar_archivo(proy, destino: Path) -> int:
+    if destino.suffix.lower() != ".md":
+        print("--archivo debe terminar en .md")
+        return 1
+    texto = documento_unico(_documentos(proy))
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text(texto, encoding="utf-8")
+    print(f"DOCUMENTO INTEGRAL · {len(texto.splitlines())} líneas · {destino}")
     return 0
 
 
@@ -278,7 +359,17 @@ def main(argv: list[str] | None = None) -> int:
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
-    if "--destino" in argv:
+    if "--destino" in argv and "--archivo" in argv:
+        print("usá --destino para el paquete o --archivo para un solo Markdown, no ambos")
+        return 1
+    if "--archivo" in argv:
+        i = argv.index("--archivo")
+        if i + 1 >= len(argv):
+            print("--archivo necesita una ruta .md")
+            return 1
+        indicado = Path(argv[i + 1]).expanduser()
+        archivo = indicado if indicado.is_absolute() else proy.raiz / indicado
+    elif "--destino" in argv:
         i = argv.index("--destino")
         if i + 1 >= len(argv):
             print("--destino necesita una ruta")
@@ -289,6 +380,8 @@ def main(argv: list[str] | None = None) -> int:
         destino = proy.raiz / "estudio"
     try:
         with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
+            if "--archivo" in argv:
+                return _ejecutar_archivo(proy, archivo)
             return _ejecutar(proy, destino)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")

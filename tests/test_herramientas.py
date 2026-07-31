@@ -214,6 +214,19 @@ class ContratoDiferencialTests(unittest.TestCase):
 
 
 class HerramientasCLITests(unittest.TestCase):
+    def test_documento_integral_anida_titulos_sin_alterar_bloques_de_codigo(self) -> None:
+        from tools import estudio
+
+        texto = estudio.documento_unico({
+            "README.md": "índice descartado",
+            "00-prueba.md": "# Título\n\n## Sección\n\n```bash\n# comentario\n```\n",
+        }, extras=())
+
+        self.assertIn("## Título", texto)
+        self.assertIn("### Sección", texto)
+        self.assertIn("```bash\n# comentario\n```", texto)
+        self.assertNotIn("índice descartado", texto)
+
     def test_importar_herramientas_no_interpreta_argv_del_host(self) -> None:
         programa = """
 import sys

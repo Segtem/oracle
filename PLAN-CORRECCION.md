@@ -419,7 +419,7 @@ resuelve ya proyecto ni argumentos al importarse: sus `main(argv)` crean la sesi
 parsear, probado bajo un `sys.argv` anfitrión inválido. Una instalación no contiene el corpus ni los
 fixtures diferenciales internos y por eso exige un proyecto explícito; la ausencia de fixtures sale
 no-verde y sin traceback. El flujo temporal externo conserva la prueba diferencial positiva. La suite
-cierra 338 tests, la mutación de medidas 129/129 y las particiones modificadas de `proyecto`, `Motor`
+cierra 339 tests, la mutación de medidas 129/129 y las particiones modificadas de `proyecto`, `Motor`
 y `_compat` cierran 100/100, 22/22 y 5/5. Queda fuera de P3 sincronizar el vendor de Jam y migrar su
 oráculo particular.
 
