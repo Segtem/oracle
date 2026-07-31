@@ -18,6 +18,8 @@ from nucleo.proyecto import ID_MEDIDA_RE
 
 
 ESCALARES_L0 = (str, int, float, bool, type(None))
+
+
 @dataclass(frozen=True)
 class Fixture:
     ruta: Path
@@ -69,7 +71,7 @@ def _validar_comunes(datos: Any, nombre: str) -> list[str]:
             f"{nombre}: esquema ausente o desconocido; se requiere {ESQUEMA_DIFERENCIAL!r}")
     if not isinstance(datos.get("origen"), str) or not datos.get("origen", "").strip():
         fallas.append(f"{nombre}: falta `origen` no vacío")
-    if type(datos.get("mundos")) is not int or datos.get("mundos", 0) <= 0:
+    if type(datos.get("mundos")) is not int or datos.get("mundos") <= 0:
         fallas.append(f"{nombre}: `mundos` debe ser un entero positivo")
     frescura = datos.get("frescura")
     if not isinstance(frescura, dict):

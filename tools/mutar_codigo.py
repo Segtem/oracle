@@ -39,7 +39,7 @@ PRIORIDADES = {
     "nucleo/algebra.py": ("tests.test_nucleo",),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
     "nucleo/dominio.py": ("tests.test_dominio",),
-    "nucleo/fixtures.py": ("tests.test_herramientas",),
+    "nucleo/fixtures.py": ("tests.test_fixtures", "tests.test_herramientas"),
     "nucleo/grafo.py": ("tests.test_nucleo",),
     "nucleo/macro.py": ("tests.test_macro",),
     "nucleo/marco.py": ("tests.test_marco",),

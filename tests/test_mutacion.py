@@ -30,6 +30,21 @@ COMPLEJA = ["medida", "d.compleja",
             ["umbral", "<=", 10, "una razón"],
             ["alcance", "NO ve nada más"]]
 
+CON_NO = ["medida", "d.con_no",
+          ["desde", ["de", "cosa", "c"],
+           ["donde", ["no", ["==", ["campo", "c", "mal"], True]]]],
+          ["resumen", "contar", 1],
+          ["umbral", "<=", 0, "una razón"],
+          ["alcance", "NO ve nada más"]]
+
+CON_CONTEO_AGRUPADO = ["medida", "d.conteo_agrupado",
+                       ["desde", ["de", "cosa", "c"],
+                        ["agrupar", [["grupo", ["campo", "c", "grupo"]]],
+                         [["cantidad", "contar", 1]]]],
+                       ["resumen", "suma", ["col", "cantidad"]],
+                       ["umbral", "<=", 0, "una razón"],
+                       ["alcance", "NO ve nada más"]]
+
 # una fila que ofende y otra que no: es lo que permite que el filtro se pueda fijar
 EV_ROJO = {"cosa": [{"id": "x", "mal": True}, {"id": "y", "mal": False}]}
 EV_VERDE = {"cosa": [{"id": "y", "mal": False}, {"id": "z", "mal": False}]}
@@ -40,6 +55,30 @@ CASO_VERDE = {"id": "c-verde", "etiqueta": "verde_correcto", "medida": "d.prueba
 
 
 class MutadoresTests(unittest.TestCase):
+    IDS_ESTRUCTURALES_COMPLEJA = [
+        "fuente:2.1.1.1:izquierda→derecha",
+        "fuente:2.1.2.1:derecha→izquierda",
+        "expresion:logico@2.2.1:y→o",
+        "expresion:comparador@2.2.1.1:>→<=",
+        "expresion:comparador@2.2.1.2:==→!=",
+        "expresion:booleano@2.2.1.2.2",
+        "agregado:3.1:promedio→suma",
+        "agregado:2.3.2.0.1:max→min",
+        "agregado:2.3.2.1.1:suma→promedio",
+        "campo:2.2.1.1.1.2:x→grupo",
+        "campo:2.2.1.1.1.2:x→limite",
+        "campo:2.2.1.1.2.2:limite→grupo",
+        "campo:2.2.1.1.2.2:limite→x",
+        "campo:2.3.1.0.1.2:grupo→limite",
+        "campo:2.3.1.0.1.2:grupo→x",
+        "campo:2.3.2.0.2.2:x→grupo",
+        "campo:2.3.2.0.2.2:x→limite",
+        "campo:2.3.2.1.2.2:limite→grupo",
+        "campo:2.3.2.1.2.2:limite→x",
+        "campo:3.2.1:mayor→grupo",
+        "campo:3.2.1:mayor→total",
+    ]
+
     def test_todo_mutante_sigue_siendo_una_medida_valida(self) -> None:
         for medida in (BASE, COMPLEJA):
             for nombre, datos in mutacion.mutantes(medida):
@@ -57,6 +96,45 @@ class MutadoresTests(unittest.TestCase):
             with self.subTest(categoria=categoria):
                 self.assertTrue(any(nombre.startswith(categoria) for nombre in nombres), nombres)
         self.assertEqual(len(nombres), len(set(nombres)))
+
+    def test_los_ids_estructurales_son_estables_y_exhaustivos(self) -> None:
+        estructurales = [nombre for nombre, _datos in mutacion.mutantes(COMPLEJA)
+                         if ":" in nombre]
+        self.assertEqual(estructurales, self.IDS_ESTRUCTURALES_COMPLEJA)
+
+    def test_cada_id_estructural_senala_el_unico_escalar_que_cambia(self) -> None:
+        def diferencias(a, b, ruta=()):
+            if isinstance(a, list) and isinstance(b, list) and len(a) == len(b):
+                return [diferencia for i, (x, y) in enumerate(zip(a, b))
+                        for diferencia in diferencias(x, y, (*ruta, i))]
+            return [] if a == b else [ruta]
+
+        for nombre, datos in mutacion.mutantes(COMPLEJA):
+            if ":" not in nombre:
+                continue
+            if nombre.startswith("expresion:"):
+                tipo, resto = nombre.split("@", 1)
+                ruta = tuple(map(int, resto.split(":", 1)[0].split(".")))
+                if tipo != "expresion:booleano":
+                    ruta = (*ruta, 0)
+            else:
+                ruta = tuple(map(int, nombre.split(":", 2)[1].split(".")))
+            with self.subTest(mutante=nombre):
+                self.assertEqual(diferencias(COMPLEJA, datos), [ruta])
+
+    def test_quitar_no_reemplaza_exactamente_el_nodo_por_su_operando(self) -> None:
+        nombre, datos = next(
+            (nombre, datos) for nombre, datos in mutacion.mutantes(CON_NO)
+            if nombre.startswith("expresion:quitar_no@"))
+        self.assertEqual(nombre, "expresion:quitar_no@2.2.1")
+        self.assertEqual(datos[2][2][1], ["==", ["campo", "c", "mal"], True])
+
+    def test_contar_agrupado_se_vuelve_suma_cero_en_el_mismo_agregado(self) -> None:
+        nombre, datos = next(
+            (nombre, datos) for nombre, datos in mutacion.mutantes(CON_CONTEO_AGRUPADO)
+            if "contar→suma(0)" in nombre and nombre.startswith("agregado:2."))
+        self.assertEqual(nombre, "agregado:2.2.2.0.1:contar→suma(0)")
+        self.assertEqual(datos[2][2][2][0], ["cantidad", "suma", 0])
 
     def test_aflojar_umbral_mueve_el_limite_un_paso_sin_escala_magica(self) -> None:
         d = mutacion.aflojar_umbral(BASE)
@@ -82,6 +160,12 @@ class MutadoresTests(unittest.TestCase):
     def test_aflojar_umbral_no_aplica_a_igualdad(self) -> None:
         d = [*BASE[:4], ["umbral", "==", 0, "x"], BASE[5]]
         self.assertIsNone(mutacion.aflojar_umbral(d))
+
+    def test_aflojar_umbral_rechaza_booleanos_y_no_numeros(self) -> None:
+        for limite in (True, "1", None):
+            with self.subTest(limite=limite):
+                d = [*BASE[:4], ["umbral", "<=", limite, "x"], BASE[5]]
+                self.assertIsNone(mutacion.aflojar_umbral(d))
 
     def test_invertir_comparador(self) -> None:
         self.assertEqual(mutacion.invertir_comparador(BASE)[4][1], ">")

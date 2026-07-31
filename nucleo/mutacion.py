@@ -49,8 +49,9 @@ def aflojar_umbral(datos: list) -> list | None:
         return None
     if isinstance(limite, bool) or not isinstance(limite, (int, float)):
         return None
-    direccion = math.inf if op in ("<=", "<") else -math.inf
-    nuevo = limite + (1 if direccion > 0 else -1) if isinstance(limite, int) else math.nextafter(
+    ascendente = op in ("<=", "<")
+    direccion = math.inf if ascendente else -math.inf
+    nuevo = limite + (1 if ascendente else -1) if isinstance(limite, int) else math.nextafter(
         limite, direccion)
     if isinstance(nuevo, float) and not math.isfinite(nuevo):
         return None
@@ -78,7 +79,7 @@ def quitar_filtro(datos: list) -> list | None:
 def negar_filtro(datos: list) -> list | None:
     d = deepcopy(datos)
     hubo = False
-    for paso in d[2][1:]:
+    for paso in d[2][2:]:
         if paso[0] == "donde":
             paso[1] = ["no", paso[1]]
             hubo = True
@@ -221,7 +222,7 @@ def _mutantes_de_campos(datos: list):
             nombres_por_espacio.setdefault(espacio, set()).add(nodo[posicion_nombre])
 
     # Una columna derivada puede ser una alternativa aunque todavía no aparezca en otro `col`.
-    for indice, paso in enumerate(datos[2][2:], start=2):
+    for paso in datos[2]:
         if paso[0] == "agrupar":
             nombres_por_espacio.setdefault(("col",), set()).update(
                 nombre for nombre, _expr in paso[1])
