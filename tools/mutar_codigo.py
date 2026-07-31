@@ -36,7 +36,7 @@ TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
 
 PRIORIDADES = {
-    "nucleo/algebra.py": ("tests.test_nucleo",),
+    "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo"),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
     "nucleo/dominio.py": ("tests.test_dominio",),
     "nucleo/fixtures.py": ("tests.test_fixtures", "tests.test_herramientas"),

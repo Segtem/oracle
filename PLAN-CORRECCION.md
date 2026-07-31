@@ -268,16 +268,20 @@ reproduce las verificaciones y un consumidor independiente completa autoría, di
 **Estado parcial 2026-07-30:** los casos `004` y `012` ya son memoria resuelta y `011` declara una
 frontera humana; el corpus informa cero huecos abiertos. Al no existir dos usuarios reales, `con` y
 la unión izquierda se retiraron de la especificación y del parser activos, con regresiones de rechazo.
-Suite: 282. El alcance actual tiene 1094 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
+Suite: 292. El alcance actual tiene 1090 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
 el sensor Python de módulos suman 137/137, `diferencial` aporta 42/42, `proyecto` 71/71 y `medida`
-97/97, `fixtures` 128/128 y `mutacion` 147/147: 622/622 ejecutados sin equivalencias. La partición de
-proyecto añadió contratos de selección, configuración, confinamiento y opt-in de código externo;
+97/97, `fixtures` 128/128, `mutacion` 147/147 y `algebra` 237/237: 859/859 ejecutados sin
+equivalencias. La partición de proyecto añadió contratos de selección, configuración, confinamiento
+y opt-in de código externo;
 también retiró nueve constantes redundantes, incluido el truncado fijo de la huella del módulo. La de
 medida fijó validación de la clasificación meta, inmutabilidad de sus cuatro datos públicos, salida
 Unicode y derivación de relaciones; además movió su excepción antes del primer uso. La de fixtures
 fijó cada nivel del esquema, consistencia de fotos y proyección a mutación, y retiró un default
 inobservable. La del mutador de medidas fijó IDs/rutas estructurales, negación y conteo agrupado, y
-retiró cuatro sitios redundantes. Quedan 472 sitios por ejecutar y triar. El manifiesto firma
+retiró cuatro sitios redundantes. La de álgebra fijó límites, firmas escalares, ausencia, aridad,
+agregados mixtos y bordes inclusivos; retiró cuatro sitios redundantes y convirtió nueve roturas de
+inicialización en fallos atribuibles al código. Quedan los 231 sitios de
+`perfiles/python/mutacion_codigo.py` por ejecutar y triar. El manifiesto firma
 ahora también las fuentes de tests y soporte; cambiar la suite invalida la reanudación. Siguen
 pendientes empaquetado/CI,
 documentación generada,

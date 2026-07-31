@@ -216,7 +216,7 @@ no abstraer.
 
 ## Estado
 
-> **Estado auditado el 2026-07-30; P2.2 cerrado.** Los bypasses de simulación, baseline, caché,
+> **Estado auditado el 2026-07-30; P2.3 en curso.** Los bypasses de simulación, baseline, caché,
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
 > subprocesos acotados y reanudación verificable. Ver
@@ -236,21 +236,22 @@ python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
 python tools/diferencial.py                      # el álgebra vs una implementación independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 282 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # 292 tests, cero dependencias
 ```
 
 27 defectos en rojo · 12 verdes correctos · 0 huecos abiertos · 2 casos resueltos conservados ·
 1 límite humano · **269 acuerdos globales de Jam
 con referencias independientes y 1158 veredictos individuales estables** · 129/129 mutantes de
-medida · 282 tests.
+medida · 292 tests.
 
 > **`tools/mutar_codigo.py` sigue saliendo en ROJO.** La mutación de medidas volvió a verde sin
 > reducir el denominador: ocho casos mínimos fijaron los bordes de umbral y dos fijaron mutaciones
 > internas. El baseline histórico de código dejó 503/616 mutantes muertos y 113 vivos,
 > sin timeout ni error de arnés. Las rondas actuales crean su propia copia automáticamente y pueden
 > persistir progreso con `--manifiesto`/`--reanudar`. P2.3 invalidó correctamente ese denominador:
-> el alcance actual incluye los perfiles y suma 1094 sitios. Once particiones fijaron
-> 622/622; quedan 472 sitios por ejecutar y triage, no “113” trasladados por inercia.
+> el alcance actual incluye los perfiles y suma 1090 sitios. Doce particiones fijaron
+> 859/859; quedan los 231 sitios de `perfiles/python/mutacion_codigo.py` por ejecutar y triage,
+> no “113” trasladados por inercia.
 > Se podrían declarar equivalentes en masa para
 > pintar verde — y eso sería exactamente el Goodhart que este repositorio persigue. El número baja
 > escribiendo tests o declarando equivalentes **de a uno y con su razón escrita**.
@@ -373,8 +374,9 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
   verificados por diferencial, y **siguen en uso los originales**. El reemplazo va cuando el
   diferencial lleve tiempo en verde, no el mismo día en que se escribió — y menos `relevo.py`, que es
   la herramienta que abre y cierra los turnos.
-- **El baseline actual de código**: once particiones ya están en 622/622; quedan 472 sitios del
-  denominador de 1094 por ejecutar y triar. El antiguo 503/616 quedó vencido al mover código a perfiles.
+- **El baseline actual de código**: doce particiones ya están en 859/859; quedan los 231 sitios de
+  `perfiles/python/mutacion_codigo.py` por ejecutar y triar. El denominador total es 1090; el antiguo
+  503/616 quedó vencido al mover código a perfiles.
 - **Los 11 mutantes de medida vivos al aplicar el denominador P1.1 sobre Jam**: sus fixtures necesitan
   escenarios de borde y combinaciones discriminantes; no se corrigen debilitando el mutador.
 - **La frontera humana del caso `011`**: la medición puede exigir trazabilidad, pero una atribución

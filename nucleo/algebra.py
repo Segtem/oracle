@@ -304,10 +304,10 @@ def _evaluar_expr(expr, fila: dict):
 
 AGREGADOS: dict[str, Callable[[list], Any]] = {
     "contar": len,
-    "max": lambda xs: max(xs) if xs else 0,
-    "min": lambda xs: min(xs) if xs else 0,
+    "max": max,
+    "min": min,
     "suma": sum,
-    "promedio": lambda xs: (sum(xs) / len(xs)) if xs else 0,
+    "promedio": lambda xs: sum(xs) / len(xs),
 }
 
 
@@ -327,7 +327,7 @@ def _agregar(agregado: str, valores: list):
     elif len(familias) != 1:
         raise ErrorDeAlgebra(
             f"«{agregado}» recibió tipos incompatibles: {sorted(familias)}")
-    elif not familias <= {"numero", "booleano", "texto"}:
+    elif next(iter(familias)) not in {"numero", "booleano", "texto"}:
         raise ErrorDeAlgebra(
             f"«{agregado}» sólo acepta escalares comparables, no {sorted(familias)}")
 
