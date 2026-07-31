@@ -293,7 +293,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 1 límite humano.
 
 <!-- cifras:inicio -->
-339 tests · 129/129 mutantes de medida · **1131 sitios de mutación de código** (926 + 205 del motor Python).
+340 tests · 129/129 mutantes de medida · **1131 sitios de mutación de código** (926 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **`tools/mutar_codigo.py` sale en VERDE.** El baseline histórico 503/616 quedó invalidado cuando

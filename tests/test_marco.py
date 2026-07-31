@@ -5,6 +5,7 @@ from __future__ import annotations
 import sys
 import unittest
 from pathlib import Path
+from types import SimpleNamespace
 
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
@@ -19,7 +20,34 @@ CATALOGO = {MID: object()}
 FIJADA = cargar(RAIZ / "catalogos" / "meta" / "meta.toda_medida_esta_fijada.json")
 
 
+class _MedidaFalsa:
+    """Stub mínimo: sólo lo que `hechos_de_casos` le pide a una medida real."""
+
+    def __init__(self, ok: bool) -> None:
+        self._ok = ok
+
+    def evaluar(self, evidencia: dict) -> SimpleNamespace:
+        return SimpleNamespace(ok=self._ok)
+
+
 class HechosDeCasosTests(unittest.TestCase):
+    def test_esperado_ok_compara_la_etiqueta_no_el_resultado(self) -> None:
+        """Cuando la medida SÍ existe, `esperado_ok` tiene que salir de la etiqueta del caso —
+        no del resultado de la medida, que es independiente y viene fijo en `True` acá."""
+        catalogo = {"dominio.existe": _MedidaFalsa(True)}
+        casos = [
+            {"id": "coincide", "medida": "dominio.existe", "etiqueta": "verde_correcto",
+             "evidencia": {}},
+            {"id": "no_coincide", "medida": "dominio.existe", "etiqueta": "falso_verde",
+             "evidencia": {}},
+        ]
+        filas = {f["id"]: f for f in hechos_de_casos(catalogo, casos)["caso"]}
+
+        self.assertTrue(filas["coincide"]["esperado_ok"])
+        self.assertTrue(filas["coincide"]["dio_ok"])
+        self.assertFalse(filas["no_coincide"]["esperado_ok"])
+        self.assertTrue(filas["no_coincide"]["dio_ok"])
+
     def test_distingue_sin_medida_id_desconocido_y_estado_del_hueco(self) -> None:
         casos = [
             {"id": "abierto", "medida": None, "etiqueta": "falso_verde",
