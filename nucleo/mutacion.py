@@ -292,6 +292,10 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
                     # cambiar el veredicto (es un mutante equivalente en el veredicto), y sí cambia
                     # los testigos. Mirando sólo `ok` esa mutación era invisible.
                     murio, como = True, "cambio_los_testigos"
+                elif v.valor != base.valor:
+                    # El valor publicado también es contrato: explica cuánto y no sólo de qué lado
+                    # cayó. Un max→min que conserva el rojo pero cambia 8 por 2 no es equivalente.
+                    murio, como = True, "cambio_el_valor"
                 else:
                     murio, como = False, "sin_efecto"
             except Exception as e:        # noqa: BLE001  un mutante inválido no es un hallazgo

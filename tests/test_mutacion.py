@@ -210,6 +210,21 @@ class CorrerTests(unittest.TestCase):
         self.assertTrue(d["invirtio"])
         self.assertEqual(d["como"], "cambio_los_testigos")
 
+    def test_un_agregado_que_cambia_el_VALOR_mata_al_mutante_aunque_siga_rojo(self) -> None:
+        datos = ["medida", "d.valor",
+                 ["desde", ["de", "cosa", "c"]],
+                 ["resumen", "max", ["campo", "c", "valor"]],
+                 ["umbral", "<=", 0, "una razón"],
+                 ["alcance", "NO ve nada más"]]
+        caso = {"id": "c-valor", "etiqueta": "falso_verde", "medida": "d.valor",
+                "evidencia": {"cosa": [{"valor": 2}, {"valor": 8}]}}
+
+        ev = mutacion.correr({"d.valor": Medida.de_datos(datos)}, [caso])
+
+        d = next(x for x in ev["deteccion"] if x["mutante"].endswith("max→min"))
+        self.assertTrue(d["invirtio"])
+        self.assertEqual(d["como"], "cambio_el_valor")
+
     def test_aflojar_el_umbral_se_detecta_por_el_VEREDICTO(self) -> None:
         ev = mutacion.correr(self.catalogo, [CASO_ROJO])
         d = next(x for x in ev["deteccion"] if x["mutante"].endswith("aflojar_umbral"))
