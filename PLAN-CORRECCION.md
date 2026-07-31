@@ -328,3 +328,95 @@ P0 quedó cerrado sin saltar todavía a P1:
 
 El siguiente bloque recomendado es P1.1: formalizar semántica de bolsas/conjuntos, flotantes y
 mutación independiente de escala antes de ampliar operadores o migrar formatos de Jam.
+
+## P3 — autonomía de embedding
+
+P2 cerró la independencia semántica: el núcleo ya no conoce Jam, Unreal ni nombres de perfiles o
+juezas particulares. P3 separa otra pregunta que el flujo externo desde el checkout no contestaba:
+si Oracle puede entrar como biblioteca en un proceso ajeno sin que el consumidor importe internals,
+modifique `sys.path` o comparta estado mutable con otro proyecto.
+
+### Hallazgos que abren P3
+
+- El wheel se construye sin dependencias y sus entry points pueden leer un proyecto externo desde un
+  entorno aislado.
+- El paquete instala nombres de primer nivel demasiado genéricos (`nucleo`, `catalogos`, `perfiles`,
+  `tools`) y no publica una fachada estable: `nucleo/__init__.py` está vacío.
+- Un consumidor embebido debe coordinar por su cuenta `Proyecto`, catálogos, escalares, límites,
+  selección de medidas y evaluación.
+- `ESCALARES` sigue siendo un registro global. El contexto de proyecto lo restaura al salir, pero dos
+  motores concurrentes no poseen estado independiente.
+- Las herramientas resuelven `PROY` desde `sys.argv` al importar, lo que mezcla biblioteca y CLI.
+- El wheel incluye catálogos y perfiles, pero no el corpus de autocertificación: instalado sin
+  `--proyecto`, `oracle-aceptacion` falla porque falta `corpus/`. Ese comportamiento debe ser una
+  decisión, no un accidente de empaquetado.
+- El catálogo base se inyecta siempre. Es una política útil, pero un proyecto debe poder declararla u
+  omitirla explícitamente para evitar colisiones de relaciones.
+
+### P3.1 Fijar una fachada pública antes de migrar consumidores
+
+- [x] Publicar `oracle_metalenguaje.Motor` como único punto de entrada recomendado para embedding.
+- [x] Construir un motor desde una ruta de proyecto sin que el consumidor conozca módulos internos.
+- [x] Evaluar evidencia seleccionando medidas por relaciones y devolver el `Informe` vigente.
+- [x] Permitir límites por motor y confianza explícita de escalares externas.
+- [x] Mantener compatibilidad temporal con los imports internos mientras se fija el contrato.
+- [x] Probar la fachada desde un wheel instalado y un directorio de trabajo vacío.
+
+**Criterio de salida:** un consumidor sólo importa `Motor`, entrega hechos y recibe un informe; no
+inserta rutas ni importa `nucleo.*`, `catalogos.*`, `perfiles.*` o `tools.*`.
+
+### P3.2 Aislar estado y composición
+
+- [x] Introducir `RegistroEscalares` por instancia y hacer que validación y evaluación reciban ese
+  registro explícitamente.
+- [x] Demostrar dos motores con UDF homónimas y distintas en el mismo proceso, sin contaminación.
+- [x] Volver explícita la inclusión del catálogo base, con un valor compatible para proyectos v1.
+- [x] Permitir fuentes de perfiles adicionales sin modificar la instalación de Oracle.
+- [x] Eliminar la resolución de `sys.argv` durante el import de herramientas; `main(argv)` construye
+  su sesión después de parsear.
+
+**Criterio de salida:** dos proyectos pueden cargarse y evaluarse intercalados o en paralelo sin que
+catálogos, perfiles, UDF, límites o argumentos de uno alteren al otro.
+
+### P3.3 Namespace y recursos instalables
+
+- [x] Mover la implementación bajo `oracle_metalenguaje/` o proporcionar una transición verificable
+  que elimine los paquetes públicos genéricos.
+- [x] Resolver recursos empaquetados con una raíz de paquete, no con la raíz amplia de
+  `site-packages`.
+- [x] Decidir si el corpus/diferencial de autocertificación se distribuyen o si los comandos instalados
+  siempre exigen `--proyecto`; documentar y probar una sola semántica.
+- [x] Probar wheel, entry points, recursos, proyecto sintético y dos motores desde fuera del checkout.
+
+**Criterio de salida:** instalar Oracle no agrega paquetes genéricos al entorno, todos los recursos se
+resuelven dentro de su distribución y ningún comando depende accidentalmente del checkout fuente.
+
+### Puerta P3
+
+P3 termina sólo cuando:
+
+- Jam puede integrar `Motor` sin conocer la disposición interna de Oracle;
+- dos motores con proyectos y UDF diferentes coexisten sin estado compartido;
+- el wheel se prueba desde un entorno limpio y fuera del checkout;
+- la política de catálogos y perfiles es explícita;
+- la suite, aceptación, diferencial y mutación conservan sus resultados;
+- no se amplía el lenguaje ni se migra todavía ningún oráculo particular de Jam.
+
+**Estado 2026-07-31:** P3 implementado del lado de Oracle. `oracle_metalenguaje.Motor` construye desde datos, medidas o
+una ruta explícita; selecciona por relaciones, conserva límites por instancia y falla cerrado si no
+hay juezas aplicables. `RegistroEscalares` viaja por validación y ejecución; dos proyectos con una UDF
+homónima se construyen y evalúan concurrentemente sin tocar el registro global. La carga externa
+sigue siendo opt-in y una escritura directa al global se rechaza. `oracle.json` acepta
+`catalogo_base: false`, con `true` como valor compatible cuando falta. Un smoke test construye el
+wheel, lo inspecciona, lo instala en un venv limpio y usa sólo la fachada desde un cwd vacío. El wheel
+publica exclusivamente `oracle_metalenguaje.*`; el puente `_compat` mantiene el checkout transitorio
+sin instalar `nucleo`, `catalogos`, `perfiles` ni `tools` como paquetes de primer nivel. Las raíces externas de
+perfiles las aporta el host —el proyecto sólo puede seleccionar nombres— y rechazan symlinks, rutas
+ausentes y nombres ambiguos; el smoke del wheel usa una raíz externa real. Ninguna herramienta
+resuelve ya proyecto ni argumentos al importarse: sus `main(argv)` crean la sesión después de
+parsear, probado bajo un `sys.argv` anfitrión inválido. Una instalación no contiene el corpus ni los
+fixtures diferenciales internos y por eso exige un proyecto explícito; la ausencia de fixtures sale
+no-verde y sin traceback. El flujo temporal externo conserva la prueba diferencial positiva. La suite
+cierra 335 tests, la mutación de medidas 129/129 y las particiones modificadas de `proyecto`, `Motor`
+y `_compat` cierran 100/100, 22/22 y 5/5. Queda fuera de P3 sincronizar el vendor de Jam y migrar su
+oráculo particular.

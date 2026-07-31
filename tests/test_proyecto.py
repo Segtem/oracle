@@ -11,7 +11,7 @@ from pathlib import Path
 from types import SimpleNamespace
 from unittest import mock
 
-from nucleo import proyecto as modulo
+from nucleo import algebra, proyecto as modulo
 from nucleo.proyecto import (ConfiguracionProyecto, EscalaresInvalidas,
                              EscalaresNoConfiables, Proyecto, ProyectoInvalido,
                              catalogos_a_cargar, catalogos_base_a_cargar,
@@ -37,6 +37,8 @@ class ProyectoTests(unittest.TestCase):
         with self.assertRaises(FrozenInstanceError):
             configuracion_vacia.perfiles = ("python",)
         with self.assertRaises(FrozenInstanceError):
+            configuracion_vacia.catalogo_base = False
+        with self.assertRaises(FrozenInstanceError):
             proy.raiz = Path("/otro")
 
     def test_sin_oracle_json_la_configuracion_es_vacia(self) -> None:
@@ -52,6 +54,21 @@ class ProyectoTests(unittest.TestCase):
             })
             self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ("python",))
 
+    def test_el_catalogo_base_es_explicito_y_compatible_con_v1(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            proy = Proyecto(raiz)
+            self.assertTrue(configuracion(proy).catalogo_base)
+
+            self._configurar(raiz, {
+                "esquema": modulo.ESQUEMA_PROYECTO,
+                "perfiles": [],
+                "catalogo_base": False,
+            })
+            self.assertFalse(configuracion(proy).catalogo_base)
+            self.assertEqual(catalogos_base_a_cargar(proy), [])
+            self.assertEqual(catalogos_a_cargar(proy), [proy.catalogos])
+
     def test_oracle_json_roto_o_no_fisico_falla_cerrado(self) -> None:
         casos = (
             [],
@@ -61,6 +78,9 @@ class ProyectoTests(unittest.TestCase):
             {"esquema": modulo.ESQUEMA_PROYECTO, "perfiles": [{"python": True}]},
             {"esquema": modulo.ESQUEMA_PROYECTO, "perfiles": [""]},
             {"esquema": modulo.ESQUEMA_PROYECTO, "perfiles": ["python", "python"]},
+            {"esquema": modulo.ESQUEMA_PROYECTO, "catalogo_base": None},
+            {"esquema": modulo.ESQUEMA_PROYECTO, "catalogo_base": 0},
+            {"esquema": modulo.ESQUEMA_PROYECTO, "catalogo_base": "no"},
         )
         for datos in casos:
             with self.subTest(datos=datos), tempfile.TemporaryDirectory() as td:
@@ -111,6 +131,16 @@ class ProyectoTests(unittest.TestCase):
         self.assertEqual(str(propio), "oracle (sí mismo)")
         self.assertEqual(catalogos_a_cargar(propio), catalogos_base_a_cargar(propio))
 
+    def test_una_instalacion_sin_autocertificacion_exige_proyecto_explicito(self) -> None:
+        with tempfile.TemporaryDirectory() as td_instalacion, tempfile.TemporaryDirectory() as td_cwd:
+            instalacion, cwd = Path(td_instalacion), Path(td_cwd)
+            (instalacion / "catalogos").mkdir()
+            with (mock.patch.object(modulo, "RAIZ_ORACLE", instalacion),
+                  mock.patch.object(Path, "cwd", return_value=cwd),
+                  mock.patch.dict(os.environ, {}, clear=True)):
+                with self.assertRaisesRegex(ProyectoInvalido, "--proyecto"):
+                    resolver([])
+
     def test_los_perfiles_se_descubren_sin_registro_de_nombres_en_el_nucleo(self) -> None:
         with tempfile.TemporaryDirectory() as td_oracle, tempfile.TemporaryDirectory() as td_proyecto:
             raiz_oracle = Path(td_oracle)
@@ -130,14 +160,58 @@ class ProyectoTests(unittest.TestCase):
                     [raiz_oracle / "catalogos", catalogo_perfil],
                 )
 
+    def test_un_host_puede_aportar_raices_de_perfiles_sin_modificar_oracle(self) -> None:
+        with tempfile.TemporaryDirectory() as td_proyecto, tempfile.TemporaryDirectory() as td_fuente:
+            raiz_proyecto = self._raiz(td_proyecto)
+            fuente = Path(td_fuente)
+            catalogo = fuente / "dominio_externo" / "catalogos"
+            catalogo.mkdir(parents=True)
+            self._configurar(raiz_proyecto, {
+                "esquema": modulo.ESQUEMA_PROYECTO,
+                "perfiles": ["dominio_externo"],
+                "catalogo_base": False,
+            })
+            proy = Proyecto(raiz_proyecto)
+
+            with self.assertRaisesRegex(ProyectoInvalido, "desconocidos"):
+                catalogos_a_cargar(proy)
+            self.assertEqual(perfiles_incluidos((fuente,))["dominio_externo"], catalogo)
+            self.assertEqual(
+                catalogos_base_a_cargar(proy, raices_perfiles=(fuente,)), [catalogo])
+            self.assertEqual(
+                catalogos_a_cargar(proy, raices_perfiles=(fuente,)),
+                [catalogo, proy.catalogos],
+            )
+
+    def test_raices_externas_rechazan_ambiguedad_y_rutas_no_fisicas(self) -> None:
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            raiz_a, raiz_b = Path(a), Path(b)
+            (raiz_a / "repetido" / "catalogos").mkdir(parents=True)
+            (raiz_b / "repetido" / "catalogos").mkdir(parents=True)
+            with self.assertRaisesRegex(ProyectoInvalido, "repetido"):
+                perfiles_incluidos((raiz_a, raiz_b))
+
+            enlace = raiz_a / "enlace-a-raiz"
+            enlace.symlink_to(raiz_b, target_is_directory=True)
+            with self.assertRaisesRegex(ProyectoInvalido, "raíz de perfiles"):
+                perfiles_incluidos((enlace,))
+
+            ausente = raiz_a / "ausente"
+            with self.assertRaisesRegex(ProyectoInvalido, "raíz de perfiles"):
+                perfiles_incluidos((ausente,))
+
     def test_descubrir_perfiles_falla_cerrado_ante_raices_y_entradas_no_fisicas(self) -> None:
         with tempfile.TemporaryDirectory() as td_oracle, tempfile.TemporaryDirectory() as td_fuera:
             raiz_oracle = Path(td_oracle)
             with mock.patch.object(modulo, "RAIZ_ORACLE", raiz_oracle):
                 self.assertEqual(perfiles_incluidos(), {})
 
+            (raiz_oracle / "perfiles").mkdir()
+            with (mock.patch.object(modulo, "RAIZ_ORACLE", raiz_oracle),
+                  mock.patch.object(Path, "resolve", side_effect=OSError("sin acceso"))):
+                self.assertEqual(perfiles_incluidos(), {})
+
             perfiles = raiz_oracle / "perfiles"
-            perfiles.mkdir()
             (perfiles / "NombreInvalido" / "catalogos").mkdir(parents=True)
             perfil_externo = Path(td_fuera) / "externo"
             (perfil_externo / "catalogos").mkdir(parents=True)
@@ -163,6 +237,25 @@ class ProyectoTests(unittest.TestCase):
                 with escalares_del_proyecto(Proyecto(raiz)):
                     pass
             self.assertFalse(marca.exists())
+
+    def test_un_registro_de_instancia_revierte_si_falla_el_cuerpo_del_contexto(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            (raiz / "escalares.py").write_text(
+                "from nucleo.algebra import escalar\n"
+                "@escalar('udf_transaccional')\n"
+                "def udf(valor): return valor\n",
+                encoding="utf-8",
+            )
+            registro = algebra.RegistroEscalares()
+
+            with self.assertRaisesRegex(RuntimeError, "fallo posterior"):
+                with escalares_del_proyecto(
+                        Proyecto(raiz), confiar=True, registro=registro):
+                    self.assertIn("udf_transaccional", registro)
+                    raise RuntimeError("fallo posterior")
+
+            self.assertEqual(registro, {})
 
     def test_escalares_rechaza_symlink_aun_si_apunta_dentro_del_proyecto(self) -> None:
         with tempfile.TemporaryDirectory() as td:

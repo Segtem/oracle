@@ -11,6 +11,9 @@ from __future__ import annotations
 import inspect
 import math
 import re
+from collections.abc import Mapping
+from contextlib import contextmanager
+from contextvars import ContextVar
 from dataclasses import dataclass
 from typing import Any, Callable
 
@@ -56,9 +59,43 @@ def _limites(limites: LimitesAlgebra | None) -> LimitesAlgebra:
 
 # ---- funciones escalares (el mecanismo de UDF) ------------------------------------
 
-ESCALARES: dict[str, Callable[..., Any]] = {}
+class RegistroEscalares(dict[str, Callable[..., Any]]):
+    """Registro copiable que un consumidor puede poseer sin compartir estado global."""
+
+    def copiar(self) -> "RegistroEscalares":
+        return RegistroEscalares(self)
+
+
+ESCALARES = RegistroEscalares()
 NOMBRE_ESCALAR_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 _PROCEDENCIA_ESCALAR = "oracle"
+_REGISTRO_ACTIVO: ContextVar[RegistroEscalares | None] = ContextVar(
+    "oracle_registro_escalares", default=None)
+_PROCEDENCIA_ACTIVA: ContextVar[str | None] = ContextVar(
+    "oracle_procedencia_escalar", default=None)
+
+
+def _registro(registro: Mapping[str, Callable[..., Any]] | None = None):
+    if registro is not None:
+        if not isinstance(registro, Mapping):
+            raise ErrorDeAlgebra("`registro` debe ser un mapa de funciones escalares")
+        return registro
+    activo = _REGISTRO_ACTIVO.get()
+    return ESCALARES if activo is None else activo
+
+
+@contextmanager
+def usar_registro(registro: RegistroEscalares, *, procedencia: str | None = None):
+    """Dirige declaraciones con ``@escalar`` a un registro propiedad del consumidor."""
+    if not isinstance(registro, RegistroEscalares):
+        raise ErrorDeAlgebra("el registro activo debe ser RegistroEscalares")
+    token_registro = _REGISTRO_ACTIVO.set(registro)
+    token_procedencia = _PROCEDENCIA_ACTIVA.set(procedencia)
+    try:
+        yield registro
+    finally:
+        _PROCEDENCIA_ACTIVA.reset(token_procedencia)
+        _REGISTRO_ACTIVO.reset(token_registro)
 
 
 def _contrato_de_escalar(fn) -> tuple[int, int | None]:
@@ -81,7 +118,7 @@ def _contrato_de_escalar(fn) -> tuple[int, int | None]:
     return minimo, None if variadica else maximo
 
 
-def escalar(nombre: str, unidad: str = ""):
+def escalar(nombre: str, unidad: str = "", *, registro: RegistroEscalares | None = None):
     """Registra una función de dominio. Se DECLARA para que aparezca en el inventario: una función
     importada a mano no se puede contar ni discutir, igual que un umbral escondido en una firma."""
     if not isinstance(nombre, str) or NOMBRE_ESCALAR_RE.fullmatch(nombre) is None:
@@ -91,15 +128,16 @@ def escalar(nombre: str, unidad: str = ""):
         raise ErrorDeAlgebra("la unidad de una escalar debe ser texto de una línea")
 
     def envolver(fn):
-        if nombre in ESCALARES:
+        destino = _registro(registro)
+        if nombre in destino:
             raise ErrorDeAlgebra(f"la escalar «{nombre}» ya está registrada")
         aridad_min, aridad_max = _contrato_de_escalar(fn)
         fn.nombre_escalar = nombre
         fn.unidad = unidad
         fn.aridad_min = aridad_min
         fn.aridad_max = aridad_max
-        fn.procedencia_escalar = _PROCEDENCIA_ESCALAR
-        ESCALARES[nombre] = fn
+        fn.procedencia_escalar = _PROCEDENCIA_ACTIVA.get() or _PROCEDENCIA_ESCALAR
+        destino[nombre] = fn
         return fn
     return envolver
 
@@ -185,13 +223,16 @@ def _validar_nombre(valor, que: str) -> None:
         raise ErrorDeAlgebra(f"{que} tiene que ser texto no vacío, no {valor!r}")
 
 
-def validar_expr(expr, limites: LimitesAlgebra | None = None, *, _profundidad: int = 0) -> None:
+def validar_expr(expr, limites: LimitesAlgebra | None = None, *,
+                 registro: Mapping[str, Callable[..., Any]] | None = None,
+                 _profundidad: int = 0) -> None:
     """Valida recursivamente la forma de una expresión, sin evaluarla.
 
     Los literales son los escalares que JSON puede representar. Las listas son siempre llamadas del
     DSL: accesor, comparador, lógico o escalar registrada.
     """
     limites = _limites(limites)
+    escalares = _registro(registro)
     if _profundidad > limites.profundidad_expresion:
         raise ErrorDeAlgebra(
             "la expresión supera la profundidad máxima declarada "
@@ -233,8 +274,8 @@ def validar_expr(expr, limites: LimitesAlgebra | None = None, *, _profundidad: i
     elif cabeza == "no":
         if len(expr) != 2:
             raise ErrorDeAlgebra("«no» necesita exactamente un operando")
-    elif cabeza in ESCALARES:
-        fn = ESCALARES[cabeza]
+    elif cabeza in escalares:
+        fn = escalares[cabeza]
         minimo, maximo = fn.aridad_min, fn.aridad_max
         if len(argumentos) < minimo or (maximo is not None and len(argumentos) > maximo):
             rango = f"{minimo} o más" if maximo is None else (
@@ -246,21 +287,24 @@ def validar_expr(expr, limites: LimitesAlgebra | None = None, *, _profundidad: i
             f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada")
 
     for argumento in argumentos:
-        validar_expr(argumento, limites, _profundidad=_profundidad + 1)
+        validar_expr(
+            argumento, limites, registro=escalares, _profundidad=_profundidad + 1)
 
 
-def evaluar_expr(expr, fila: dict, limites: LimitesAlgebra | None = None):
+def evaluar_expr(expr, fila: dict, limites: LimitesAlgebra | None = None, *,
+                 registro: Mapping[str, Callable[..., Any]] | None = None):
     """Un literal es un literal; el acceso a datos es SIEMPRE explícito.
 
     Se eligió `["campo", alias, nombre]` en vez de la forma corta `"a.x"` (y en vez de dejar que un
     string suelto signifique un alias) porque si no, un valor de texto que coincida con un alias
     cambiaría de significado según el contexto. Es más verboso y no tiene casos raros.
     """
-    validar_expr(expr, limites)
-    return _evaluar_expr(expr, fila)
+    escalares = _registro(registro)
+    validar_expr(expr, limites, registro=escalares)
+    return _evaluar_expr(expr, fila, escalares)
 
 
-def _evaluar_expr(expr, fila: dict):
+def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]]):
     if not isinstance(expr, list):
         return expr                                   # número, bool, string, None
 
@@ -281,21 +325,21 @@ def _evaluar_expr(expr, fila: dict):
         return fila.get(ALIAS_DERIVADO, {}).get(nombre)
 
     if cabeza in COMPARADORES:
-        a, b = (_evaluar_expr(x, fila) for x in resto)
+        a, b = (_evaluar_expr(x, fila, escalares) for x in resto)
         if a is None or b is None:
             # comparar contra un campo ausente es casi siempre un error de la medida, no un False
             raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}")
         return comparar(cabeza, a, b)
     if cabeza == "y":
-        return all(_evaluar_expr(x, fila) for x in resto)
+        return all(_evaluar_expr(x, fila, escalares) for x in resto)
     if cabeza == "o":
-        return any(_evaluar_expr(x, fila) for x in resto)
+        return any(_evaluar_expr(x, fila, escalares) for x in resto)
     if cabeza == "no":
         (x,) = resto
-        return not _evaluar_expr(x, fila)
+        return not _evaluar_expr(x, fila, escalares)
 
-    if cabeza in ESCALARES:
-        return ESCALARES[cabeza](*(_evaluar_expr(x, fila) for x in resto))
+    if cabeza in escalares:
+        return escalares[cabeza](*(_evaluar_expr(x, fila, escalares) for x in resto))
 
     raise ErrorDeAlgebra(f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada")
 
@@ -362,15 +406,16 @@ def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> 
     return [{alias: dict(hecho)} for hecho in hechos]
 
 
-def _unir(paso, evidencia: dict, limites: LimitesAlgebra) -> list[dict]:
+def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
+          registro: Mapping[str, Callable[..., Any]]) -> list[dict]:
     """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila."""
     izq, der = paso[1], paso[2]
     for lado in (izq, der):
         if lado[0] not in FUENTES:
             raise ErrorDeAlgebra(f"«unir» toma fuentes, y recibió «{lado[0]}»")
 
-    filas_izq = aplicar(izq, [], evidencia, limites)
-    filas_der = aplicar(der, [], evidencia, limites)
+    filas_izq = aplicar(izq, [], evidencia, limites, registro=registro)
+    filas_der = aplicar(der, [], evidencia, limites, registro=registro)
     tamano = len(filas_izq) * len(filas_der)
     if tamano > limites.producto_cartesiano:
         raise ErrorDeAlgebra(
@@ -386,7 +431,8 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra) -> list[dict]:
     return salida
 
 
-def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra) -> list[dict]:
+def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra,
+             registro: Mapping[str, Callable[..., Any]]) -> list[dict]:
     """`["agrupar", [[nombre, expr]…], [[nombre, agg, expr]…]]` → una fila por grupo.
 
     Un grupo NO es un hecho: es un resumen. Así que las filas que salen no llevan alias —los hechos
@@ -401,7 +447,8 @@ def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra) -> list[dict]:
     claves, agregados = paso[1], paso[2]
     grupos: dict[tuple, list[dict]] = {}
     for f in filas:
-        k = tuple(evaluar_expr(expr, f, limites) for _nombre, expr in claves)
+        k = tuple(evaluar_expr(expr, f, limites, registro=registro)
+                  for _nombre, expr in claves)
         grupos.setdefault(k, []).append(f)
 
     salida = []
@@ -411,24 +458,28 @@ def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra) -> list[dict]:
             if agg not in AGREGADOS:
                 raise ErrorDeAlgebra(f"agregado desconocido: «{agg}»")
             derivadas[nombre] = (len(miembros) if agg == "contar" else
-                                 _agregar(agg, [evaluar_expr(expr, m, limites) for m in miembros]))
+                                 _agregar(agg, [evaluar_expr(
+                                     expr, m, limites, registro=registro) for m in miembros]))
         salida.append({ALIAS_DERIVADO: derivadas})
     return salida
 
 
 def aplicar(paso, filas: list[dict], evidencia: dict,
-            limites: LimitesAlgebra | None = None) -> list[dict]:
+            limites: LimitesAlgebra | None = None, *,
+            registro: Mapping[str, Callable[..., Any]] | None = None) -> list[dict]:
     limites = _limites(limites)
+    escalares = _registro(registro)
     op = paso[0]
     if op == "de":
         relacion, alias = paso[1], paso[2]
         return _de(evidencia, relacion, alias, limites)
     if op == "unir":
-        return _unir(paso, evidencia, limites)
+        return _unir(paso, evidencia, limites, escalares)
     if op == "donde":
-        return [f for f in filas if evaluar_expr(paso[1], f, limites)]
+        return [f for f in filas if evaluar_expr(
+            paso[1], f, limites, registro=escalares)]
     if op == "agrupar":
-        return _agrupar(paso, filas, limites)
+        return _agrupar(paso, filas, limites, escalares)
     raise ErrorDeAlgebra(f"operador desconocido: «{op}»")
 
 
@@ -453,7 +504,8 @@ def _validar_fuente(fuente, limites: LimitesAlgebra | None = None) -> None:
     raise ErrorDeAlgebra(f"fuente desconocida: «{op}» (hay {FUENTES})")
 
 
-def _validar_paso(paso, limites: LimitesAlgebra | None = None) -> None:
+def _validar_paso(paso, limites: LimitesAlgebra | None = None, *,
+                  registro: Mapping[str, Callable[..., Any]] | None = None) -> None:
     if not isinstance(paso, list) or not paso:
         raise ErrorDeAlgebra("cada paso de una tubería tiene que ser una lista no vacía")
 
@@ -462,7 +514,7 @@ def _validar_paso(paso, limites: LimitesAlgebra | None = None) -> None:
     if op == "donde":
         if len(paso) != 2:
             raise ErrorDeAlgebra("«donde» va ['donde', predicado]")
-        validar_expr(paso[1], limites)
+        validar_expr(paso[1], limites, registro=registro)
         return
     if op == "agrupar":
         if len(paso) != 3:
@@ -478,21 +530,22 @@ def _validar_paso(paso, limites: LimitesAlgebra | None = None) -> None:
                 "los agregados de «agrupar» van [[nombre, agregado, expresion], ...]")
         for nombre, expr in claves:
             _validar_nombre(nombre, "el nombre de una clave de «agrupar»")
-            validar_expr(expr, limites)
+            validar_expr(expr, limites, registro=registro)
         for nombre, agg, expr in agregados:
             _validar_nombre(nombre, "el nombre de un agregado de «agrupar»")
             _validar_nombre(agg, "el operador agregado de «agrupar»")
             if agg not in AGREGADOS:
                 raise ErrorDeAlgebra(
                     f"agregado desconocido: {agg!r} (hay {sorted(AGREGADOS)})")
-            validar_expr(expr, limites)
+            validar_expr(expr, limites, registro=registro)
         return
     if op in FUENTES:
         raise ErrorDeAlgebra(f"«{op}» es una fuente y sólo puede ser el primer paso")
     raise ErrorDeAlgebra(f"operador desconocido: «{op}»")
 
 
-def validar_tuberia(tuberia, limites: LimitesAlgebra | None = None) -> None:
+def validar_tuberia(tuberia, limites: LimitesAlgebra | None = None, *,
+                    registro: Mapping[str, Callable[..., Any]] | None = None) -> None:
     """Valida recursivamente la estructura declarada, sin mirar evidencia ni calcular valores."""
     if not isinstance(tuberia, list) or not tuberia or tuberia[0] != "desde":
         raise ErrorDeAlgebra("una tubería empieza con «desde»")
@@ -500,10 +553,11 @@ def validar_tuberia(tuberia, limites: LimitesAlgebra | None = None) -> None:
         raise ErrorDeAlgebra("una tubería «desde» necesita una fuente")
     _validar_fuente(tuberia[1], limites)
     for paso in tuberia[2:]:
-        _validar_paso(paso, limites)
+        _validar_paso(paso, limites, registro=registro)
 
 
-def validar_resumen(resumen, limites: LimitesAlgebra | None = None) -> None:
+def validar_resumen(resumen, limites: LimitesAlgebra | None = None, *,
+                    registro: Mapping[str, Callable[..., Any]] | None = None) -> None:
     """Valida la forma `['resumen', agregado, expresion]`."""
     if not isinstance(resumen, list) or len(resumen) != 3 or resumen[0] != "resumen":
         raise ErrorDeAlgebra("un resumen va ['resumen', agregado, expresion]")
@@ -511,24 +565,29 @@ def validar_resumen(resumen, limites: LimitesAlgebra | None = None) -> None:
     if resumen[1] not in AGREGADOS:
         raise ErrorDeAlgebra(
             f"agregado desconocido: «{resumen[1]}» (hay {sorted(AGREGADOS)})")
-    validar_expr(resumen[2], limites)
+    validar_expr(resumen[2], limites, registro=registro)
 
 
-def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None) -> list[dict]:
+def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None, *,
+          registro: Mapping[str, Callable[..., Any]] | None = None) -> list[dict]:
     """`["desde", fuente, paso, paso, …]` → las filas que sobrevivieron. **Son los testigos.**"""
     limites = _limites(limites)
-    validar_tuberia(tuberia, limites)
+    escalares = _registro(registro)
+    validar_tuberia(tuberia, limites, registro=escalares)
     filas: list[dict] = []
     for paso in tuberia[1:]:
-        filas = aplicar(paso, filas, evidencia, limites)
+        filas = aplicar(paso, filas, evidencia, limites, registro=escalares)
     return filas
 
 
-def resumir(resumen, filas: list[dict], limites: LimitesAlgebra | None = None):
+def resumir(resumen, filas: list[dict], limites: LimitesAlgebra | None = None, *,
+            registro: Mapping[str, Callable[..., Any]] | None = None):
     """`["resumen", agg, expr]` → el escalar. `contar` no evalúa la expresión: cuenta filas."""
     limites = _limites(limites)
-    validar_resumen(resumen, limites)
+    escalares = _registro(registro)
+    validar_resumen(resumen, limites, registro=escalares)
     _, agg, expr = resumen
     if agg == "contar":
         return len(filas)
-    return _agregar(agg, [evaluar_expr(expr, f, limites) for f in filas])
+    return _agregar(agg, [evaluar_expr(
+        expr, f, limites, registro=escalares) for f in filas])

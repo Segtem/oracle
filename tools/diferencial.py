@@ -20,11 +20,9 @@ from nucleo.diferencial import revisar_frescura  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, validar_fixture  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
-                             confiar_escalares, escalares_del_proyecto, problemas_estructura,
-                             resolver)  # noqa: E402
-
-PROY = resolver(sys.argv[1:])
-
+                             confiar_escalares, escalares_del_proyecto,
+                             problemas_estructura)  # noqa: E402
+from tools.sesion import resolver_cli  # noqa: E402
 
 def comparar_dominio(datos: dict, catalogo: dict, nombre: str = "fixture") -> dict:
     """Compara por separado la referencia global y la fotografía individual de Oracle."""
@@ -59,12 +57,12 @@ def comparar_dominio(datos: dict, catalogo: dict, nombre: str = "fixture") -> di
     return resultado
 
 
-def _ejecutar() -> int:
-    estructura = problemas_estructura(PROY, ("catalogos", "diferencial"))
+def _ejecutar(proy) -> int:
+    estructura = problemas_estructura(proy, ("catalogos", "diferencial"))
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
-    rutas = sorted(PROY.diferencial.glob("*.json"))
+    rutas = sorted(proy.diferencial.glob("*.json"))
     if not rutas:
         print("no hay fixtures en diferencial/ — los genera el emisor del proyecto")
         return 1
@@ -76,12 +74,12 @@ def _ejecutar() -> int:
             print("  ·", falla)
         return 1
 
-    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
     total_global = total_individual = 0
     for fixture in fixtures:
         f, datos = fixture.ruta, fixture.datos
         print(f"{f.name} · {datos['mundos']} mundos · origen: {datos['origen']}\n")
-        problemas_frescura = revisar_frescura(datos, PROY.raiz, catalogo)
+        problemas_frescura = revisar_frescura(datos, proy.raiz, catalogo)
         if problemas_frescura:
             fallas += [f"{f.name}: {p}" for p in problemas_frescura]
             print(f"  ✗ fixture vencido · {len(problemas_frescura)} cambio(s) de procedencia\n")
@@ -146,14 +144,17 @@ def _ejecutar() -> int:
     return 0
 
 
-def main() -> int:
-    argv = sys.argv[1:]
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
     if "-h" in argv or "--help" in argv:
         print(__doc__)
         return 0
+    proy = resolver_cli(argv)
+    if proy is None:
+        return 1
     try:
-        with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
-            return _ejecutar()
+        with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
+            return _ejecutar(proy)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1

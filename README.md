@@ -204,8 +204,9 @@ comprobar cachés de CPython, el proyecto lo declara:
 {"esquema": "oracle.proyecto/v1", "perfiles": ["python"]}
 ```
 
-Sin `oracle.json`, sólo se carga el catálogo universal. Un perfil desconocido o repetido falla
-cerrado. El propio Oracle declara `python` porque usa ese perfil para probarse.
+Sin `oracle.json`, se carga el catálogo universal. Un perfil desconocido o repetido falla cerrado.
+Un proyecto v1 puede declarar `"catalogo_base": false` para trabajar sólo con su catálogo y sus
+perfiles explícitos. El propio Oracle declara `python` porque usa ese perfil para probarse.
 
 Los dominios que estuvieron acá durante el desarrollo —geometría, vault, relevo, una cola, un
 laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
@@ -213,7 +214,7 @@ no abstraer.
 
 ## Estado
 
-> **Estado auditado el 2026-07-30; motor de P2.3 cerrado.** Los bypasses de simulación, baseline, caché,
+> **Estado auditado el 2026-07-31; P3 de embedding cerrado del lado de Oracle.** Los bypasses de simulación, baseline, caché,
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
 > subprocesos acotados y reanudación verificable. Ver
@@ -234,20 +235,61 @@ python -m pip install .
 oracle-medida --proyecto /ruta/al/proyecto --relaciones
 ```
 
+El wheel instala sólo paquetes bajo `oracle_metalenguaje.*`; no ocupa los nombres genéricos
+`nucleo`, `catalogos`, `perfiles` ni `tools`. Tampoco distribuye el corpus ni los fixtures de
+autocertificación del checkout. Por eso un comando instalado fuera de un proyecto siempre requiere
+`--proyecto` (o `ORACLE_PROYECTO`) y falla con un diagnóstico breve si no lo recibe.
+
+Como biblioteca, la frontera pública es `oracle_metalenguaje`; el consumidor no necesita importar
+`nucleo`, `catalogos`, `perfiles` ni `tools`:
+
+```python
+from oracle_metalenguaje import Motor
+
+motor = Motor.desde_proyecto("/ruta/al/proyecto", confiar_escalares=True)
+informe = motor.evaluar({"item": [{"id": "a", "valor": 4}]})
+print(informe.ok, informe.texto())
+```
+
+`confiar_escalares=True` ejecuta el `escalares.py` del proyecto y por eso nunca es implícito. Cada
+motor conserva sus propios límites y UDF: dos proyectos pueden declarar el mismo nombre sin
+sobrescribirse. `Motor.desde_datos(...)` y `Motor.desde_medidas(...)` cubren catálogos mantenidos en
+memoria. Si ninguna medida puede consumir las relaciones entregadas, la API levanta
+`SinMedidasAplicables` en vez de fabricar un informe verde vacío.
+
+Un host puede aportar perfiles reutilizables sin escribir dentro de la instalación. Cada raíz tiene
+la forma `<raíz>/<perfil>/catalogos`; `oracle.json` sólo selecciona el nombre y no puede inventarse
+una ruta con autoridad propia:
+
+```python
+motor = Motor.desde_proyecto(
+    "/ruta/al/proyecto",
+    raices_perfiles=("/ruta/a/perfiles-del-host",),
+)
+```
+
+Una raíz ausente o symlink y un nombre presente en dos fuentes se rechazan en vez de elegir por
+orden accidental.
+
 ```bash
 python tools/medida.py --relaciones              # qué se puede medir, derivado de la evidencia real
 python tools/corpus.py --resumen                 # el corpus está en regla
 python tools/aceptacion.py                       # el corpus juzga al oráculo
-python tools/diferencial.py                      # el álgebra vs una implementación independiente
+python tools/diferencial.py --proyecto <proyecto-con-fixtures>  # referencia independiente
 python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # 319 tests, cero dependencias
+python -m unittest discover -s tests -t . -q     # suite sin dependencias
+python tools/verificar_instalacion.py             # wheel + Motor desde un cwd vacío
 ```
+
+Oracle no conserva fixtures diferenciales propios en este repositorio. Ejecutar el diferencial sin
+fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prueba el camino
+positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 27 defectos en rojo · 12 verdes correctos · 0 huecos abiertos · 2 casos resueltos conservados ·
 1 límite humano.
 
 <!-- cifras:inicio -->
-319 tests · 129/129 mutantes de medida · **1073 sitios de mutación de código** (868 + 205 del motor Python).
+335 tests · 129/129 mutantes de medida · **1129 sitios de mutación de código** (924 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **`tools/mutar_codigo.py` sale en VERDE.** El baseline histórico 503/616 quedó invalidado cuando

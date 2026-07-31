@@ -30,24 +30,22 @@ from nucleo.marco import hechos_de_casos  # noqa: E402
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
                            medidas_aplicables)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
-                             confiar_escalares, escalares_del_proyecto, problemas_estructura,
-                             resolver)  # noqa: E402
+                             confiar_escalares, escalares_del_proyecto,
+                             problemas_estructura)  # noqa: E402
+from tools.sesion import resolver_cli  # noqa: E402
 
-PROY = resolver(sys.argv[1:])
-
-
-def casos() -> list[dict]:
+def casos(proy) -> list[dict]:
     return [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted((PROY.corpus).rglob("*.json"))]
+            for p in sorted(proy.corpus.rglob("*.json"))]
 
 
-def _ejecutar() -> int:
-    estructura = problemas_estructura(PROY, ("catalogos", "corpus"))
+def _ejecutar(proy) -> int:
+    estructura = problemas_estructura(proy, ("catalogos", "corpus"))
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
-    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
-    todos = casos()
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+    todos = casos(proy)
     fallas: list[str] = []
     rojos = 0
     verdes = 0
@@ -115,14 +113,17 @@ def _ejecutar() -> int:
     return 0
 
 
-def main() -> int:
-    argv = sys.argv[1:]
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
     if "-h" in argv or "--help" in argv:
         print(__doc__)
         return 0
+    proy = resolver_cli(argv)
+    if proy is None:
+        return 1
     try:
-        with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
-            return _ejecutar()
+        with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
+            return _ejecutar(proy)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1

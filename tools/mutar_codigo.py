@@ -28,33 +28,38 @@ from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
                                               LineaBaseFallida, AislamientoRoto,
                                               ManifiestoInvalido, RondaEnCurso, correr)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
-                             escalares_del_proyecto, resolver, sin_bandera)  # noqa: E402
-
-PROY = resolver(sys.argv[1:])
+                             escalares_del_proyecto, sin_bandera)  # noqa: E402
+from tools.sesion import resolver_cli  # noqa: E402
 
 TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
 
 PRIORIDADES = {
-    "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo"),
+    "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor"),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
     "nucleo/dominio.py": ("tests.test_dominio",),
     "nucleo/fixtures.py": ("tests.test_fixtures", "tests.test_herramientas"),
     "nucleo/grafo.py": ("tests.test_nucleo",),
     "nucleo/macro.py": ("tests.test_macro",),
     "nucleo/marco.py": ("tests.test_marco",),
-    "nucleo/medida.py": ("tests.test_medida", "tests.test_nucleo"),
+    "nucleo/medida.py": ("tests.test_medida", "tests.test_nucleo", "tests.test_motor"),
     "nucleo/mutacion.py": ("tests.test_mutacion",),
     "nucleo/proyecto.py": ("tests.test_proyecto", "tests.test_herramientas",
-                            "tests.test_perfiles"),
+                            "tests.test_perfiles", "tests.test_motor"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
+    "oracle_metalenguaje/_compat.py": ("tests.test_motor",),
+    "oracle_metalenguaje/motor.py": ("tests.test_motor",),
     "perfiles/python/marco.py": ("tests.test_perfiles",),
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
 }
 
 
 def objetivos_disponibles() -> dict[str, Path]:
-    rutas = [*(RAIZ / "nucleo").glob("*.py"), *(RAIZ / "perfiles" / "python").glob("*.py")]
+    rutas = [
+        *(RAIZ / "nucleo").glob("*.py"),
+        *(RAIZ / "oracle_metalenguaje").glob("*.py"),
+        *(RAIZ / "perfiles" / "python").glob("*.py"),
+    ]
     return {ruta.relative_to(RAIZ).as_posix(): ruta for ruta in sorted(rutas)
             if ruta.name != "__init__.py"}
 
@@ -85,7 +90,8 @@ def comando_de_tests(objetivos: list[Path], *, priorizar: bool) -> list[str]:
 
 def dependencias_de_ronda() -> list[Path]:
     """Archivos que pueden cambiar el resultado aunque no sean el objetivo mutado."""
-    carpetas = ("nucleo", "perfiles", "tests", "catalogos", "corpus", "diferencial")
+    carpetas = ("nucleo", "oracle_metalenguaje", "perfiles", "tests", "catalogos", "corpus",
+                "diferencial")
     rutas = [ruta for nombre in carpetas for ruta in (RAIZ / nombre).rglob("*")
              if ruta.is_file() and "__pycache__" not in ruta.parts and ruta.suffix != ".pyc"]
     rutas.append(RAIZ / "tools" / "ejecutar_suite_mutacion.py")
@@ -135,7 +141,7 @@ def cargar_equivalentes(ruta: Path) -> dict[str, str]:
     return salida
 
 
-def _ejecutar(args) -> int:
+def _ejecutar(proy, args) -> int:
     objetivos = resolver_objetivos(args.objetivo)
     comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
     silencioso = args.hechos
@@ -205,7 +211,7 @@ def _ejecutar(args) -> int:
           f"timeout {corrida['timeouts']} · errores de arnés {corrida['errores_arnes']} · "
           f"equivalentes declarados: {len(eq)}")
 
-    catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
     for medida in medidas_aplicables(catalogo.values(), evidencia):
         v = medida.evaluar(evidencia)
         print(f"  {'✓' if v.ok else '✗'} {v.id:<44} valor {v.valor} ({v.umbral})")
@@ -230,11 +236,15 @@ def _ejecutar(args) -> int:
     return 0
 
 
-def main() -> int:
-    args = argumentos(sin_bandera(sys.argv[1:]))
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    args = argumentos(sin_bandera(argv))
+    proy = resolver_cli(argv)
+    if proy is None:
+        return 2
     try:
-        with escalares_del_proyecto(PROY, confiar=args.confiar_escalares):
-            return _ejecutar(args)
+        with escalares_del_proyecto(proy, confiar=args.confiar_escalares):
+            return _ejecutar(proy, args)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}", file=sys.stderr)
         return 2

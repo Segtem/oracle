@@ -34,10 +34,9 @@ from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  #
 from nucleo.medida import Medida, MedidaMalDeclarada, cargar_catalogo  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
                              catalogos_a_cargar, confiar_escalares, escalares_del_proyecto,
-                             presentar_ruta, problemas_estructura, resolver,
+                             presentar_ruta, problemas_estructura,
                              ruta_de_medida_nueva, sin_banderas_comunes)  # noqa: E402
-
-PROY = resolver(sys.argv[1:])
+from tools.sesion import resolver_cli  # noqa: E402
 
 # La plantilla usa la macro `ninguno`, que es la forma del 80% de las medidas. `--expandir` muestra
 # en qué se convierte; y si el caso no encaja, la forma canónica sigue siendo válida.
@@ -54,16 +53,16 @@ PLANTILLA = """\
 """
 
 
-def _evidencias(*, comprobar_frescura: bool) -> list[tuple[str, dict]]:
+def _evidencias(proy, *, comprobar_frescura: bool) -> list[tuple[str, dict]]:
     """(de dónde salió, evidencia) — del corpus y de los fixtures diferenciales."""
     salida = []
-    for p in sorted((PROY.corpus).rglob("*.json")):
+    for p in sorted(proy.corpus.rglob("*.json")):
         c = json.loads(p.read_text(encoding="utf-8"))
         salida.append((c["id"], c["evidencia"]))
-    rutas = sorted(PROY.diferencial.glob("*.json"))
+    rutas = sorted(proy.diferencial.glob("*.json"))
     if comprobar_frescura:
-        catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
-        fixtures, fallas = cargar_fixtures(rutas, raiz=PROY.raiz, catalogo=catalogo)
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+        fixtures, fallas = cargar_fixtures(rutas, raiz=proy.raiz, catalogo=catalogo)
     else:
         fixtures, fallas = cargar_fixtures(rutas)
     if fallas:
@@ -73,12 +72,12 @@ def _evidencias(*, comprobar_frescura: bool) -> list[tuple[str, dict]]:
     return salida
 
 
-def relaciones() -> int:
+def relaciones(proy) -> int:
     """Los hechos disponibles, DERIVADOS de la evidencia que existe. No es una lista a mano."""
     campos: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
     dondes: dict[str, set] = defaultdict(set)
     try:
-        disponibles = _evidencias(comprobar_frescura=False)
+        disponibles = _evidencias(proy, comprobar_frescura=False)
     except (OSError, ValueError, json.JSONDecodeError) as e:
         print(f"no se pudo inventariar la evidencia: {e}")
         return 1
@@ -99,7 +98,7 @@ def relaciones() -> int:
     return 0
 
 
-def escalares(*, externas_omitidas: bool = False) -> int:
+def escalares(proy, *, externas_omitidas: bool = False) -> int:
     print("FUNCIONES ESCALARES declaradas (el mecanismo de UDF):\n")
     for nombre in sorted(ESCALARES):
         fn = ESCALARES[nombre]
@@ -115,25 +114,25 @@ def escalares(*, externas_omitidas: bool = False) -> int:
     print("ACCESORES: [\"campo\", alias, nombre] · [\"hecho\", alias] · [\"col\", nombre]")
     print("OPERADORES: de · donde · unir · resumen   (con y agrupar todavía no tienen usuario)")
     if externas_omitidas:
-        print(f"\n⚠ {PROY.raiz / 'escalares.py'} no se ejecutó. Para incluir sus UDF: "
+        print(f"\n⚠ {proy.raiz / 'escalares.py'} no se ejecutó. Para incluir sus UDF: "
               "`--confiar-escalares`.")
     return 0
 
 
-def nueva(mid: str) -> int:
+def nueva(proy, mid: str) -> int:
     try:
-        destino = ruta_de_medida_nueva(PROY, mid)
+        destino = ruta_de_medida_nueva(proy, mid)
     except ProyectoInvalido as e:
         print(f"id inválido: {e}")
         return 1
     if destino.exists():
-        print(f"ya existe: {presentar_ruta(PROY, destino)}")
+        print(f"ya existe: {presentar_ruta(proy, destino)}")
         return 1
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")
-    print(f"creada: {presentar_ruta(PROY, destino)}\n")
+    print(f"creada: {presentar_ruta(proy, destino)}\n")
     print("Reemplazá RELACION, CAMPO y los dos textos en MAYÚSCULAS. Después:")
-    print(f"  python tools/medida.py --proyecto {PROY.raiz} {presentar_ruta(PROY, destino)}")
+    print(f"  python tools/medida.py --proyecto {proy.raiz} {presentar_ruta(proy, destino)}")
     return 0
 
 
@@ -147,7 +146,7 @@ def expandir_archivo(ruta: Path) -> int:
     return 0
 
 
-def revisar(ruta: Path) -> int:
+def revisar(proy, ruta: Path) -> int:
     try:
         datos = json.loads(ruta.read_text(encoding="utf-8"))
     except json.JSONDecodeError as e:
@@ -171,7 +170,7 @@ def revisar(ruta: Path) -> int:
     primer_error = ""
     ejemplos = []
     try:
-        disponibles = _evidencias(comprobar_frescura=True)
+        disponibles = _evidencias(proy, comprobar_frescura=True)
     except (OSError, ValueError, json.JSONDecodeError) as e:
         print(f"✗ no se pudo cargar la evidencia: {e}")
         return 1
@@ -211,27 +210,30 @@ def revisar(ruta: Path) -> int:
     return 0
 
 
-def main() -> int:
-    argv = sys.argv[1:]
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
     args = sin_banderas_comunes(argv)
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)
         return 0
+    proy = resolver_cli(argv)
+    if proy is None:
+        return 1
     requeridos = (("catalogos",) if args[0] in ("--nueva", "--escalares", "--expandir")
                   else ("catalogos", "corpus", "diferencial"))
-    estructura = problemas_estructura(PROY, requeridos)
+    estructura = problemas_estructura(proy, requeridos)
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
     if args[0] == "--relaciones":
-        return relaciones()
+        return relaciones(proy)
     if args[0] == "--escalares":
-        externas = not PROY.es_el_propio_oracle and (PROY.raiz / "escalares.py").exists()
+        externas = not proy.es_el_propio_oracle and (proy.raiz / "escalares.py").exists()
         if externas and not confiar_escalares(argv):
-            return escalares(externas_omitidas=True)
+            return escalares(proy, externas_omitidas=True)
         try:
-            with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
-                return escalares()
+            with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
+                return escalares(proy)
         except (EscalaresNoConfiables, EscalaresInvalidas) as e:
             print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
             return 1
@@ -240,22 +242,22 @@ def main() -> int:
             print("falta el archivo: --expandir <archivo.json>")
             return 1
         entrada = Path(args[1])
-        accion = lambda: expandir_archivo(entrada if entrada.exists() else PROY.raiz / entrada)
+        accion = lambda: expandir_archivo(entrada if entrada.exists() else proy.raiz / entrada)
     elif args[0] == "--nueva":
         if len(args) < 2:
             print("falta el id: --nueva dominio.nombre")
             return 1
-        return nueva(args[1])
+        return nueva(proy, args[1])
     else:
         ruta = Path(args[0])
         if not ruta.exists():
-            ruta = PROY.raiz / args[0]
+            ruta = proy.raiz / args[0]
         if not ruta.exists():
             print(f"no existe: {args[0]}")
             return 1
-        accion = lambda: revisar(ruta)
+        accion = lambda: revisar(proy, ruta)
     try:
-        with escalares_del_proyecto(PROY, confiar=confiar_escalares(argv)):
+        with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
             return accion()
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")

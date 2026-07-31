@@ -47,16 +47,34 @@ ESQUEMA_PROYECTO = "oracle.proyecto/v1"
 NOMBRE_PERFIL_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 
 
-def perfiles_incluidos() -> dict[str, Path]:
-    """Descubre perfiles empaquetados sin enseñar sus nombres al núcleo.
+def _normalizar_raices_perfiles(raices) -> tuple[Path, ...]:
+    if isinstance(raices, (str, bytes, os.PathLike)):
+        raise ProyectoInvalido("`raices_perfiles` debe ser una colección de directorios")
+    try:
+        candidatas = tuple(raices)
+    except TypeError as e:
+        raise ProyectoInvalido("`raices_perfiles` debe ser una colección de directorios") from e
+    salida = []
+    for candidata in candidatas:
+        try:
+            salida.append(Path(candidata).expanduser())
+        except TypeError as e:
+            raise ProyectoInvalido(f"raíz de perfiles inválida: {candidata!r}") from e
+    return tuple(salida)
 
-    Un perfil es un directorio físico ``perfiles/<nombre>/catalogos``. Añadir otro lenguaje o sensor
-    no exige modificar este módulo; ``oracle.json`` sigue siendo quien decide cuáles se activan.
-    """
-    raiz_perfiles = RAIZ_ORACLE / "perfiles"
-    if not raiz_perfiles.is_dir() or raiz_perfiles.is_symlink():
+
+def _descubrir_perfiles(raiz_perfiles: Path, *, requerida: bool) -> dict[str, Path]:
+    if raiz_perfiles.is_symlink() or not raiz_perfiles.is_dir():
+        if requerida:
+            raise ProyectoInvalido(
+                f"la raíz de perfiles debe ser un directorio físico: {raiz_perfiles}")
         return {}
-    raiz_fisica = RAIZ_ORACLE.resolve()
+    try:
+        raiz_fisica = raiz_perfiles.resolve()
+    except OSError as e:
+        if requerida:
+            raise ProyectoInvalido(f"no se pudo resolver la raíz de perfiles: {raiz_perfiles}") from e
+        return {}
     disponibles = {}
     for perfil in sorted(raiz_perfiles.iterdir()):
         catalogos = perfil / "catalogos"
@@ -72,12 +90,36 @@ def perfiles_incluidos() -> dict[str, Path]:
     return disponibles
 
 
+def perfiles_incluidos(raices_adicionales=()) -> dict[str, Path]:
+    """Descubre perfiles empaquetados y raíces entregadas explícitamente por el host.
+
+    Cada raíz contiene ``<nombre>/catalogos``. Las adicionales nunca salen de ``oracle.json``: el
+    proceso anfitrión les concede autoridad al construir su motor. Un nombre ambiguo falla cerrado.
+    """
+    raices = _normalizar_raices_perfiles(raices_adicionales)
+    fuentes = [
+        (_descubrir_perfiles(RAIZ_ORACLE / "perfiles", requerida=False), "oracle"),
+        *[(_descubrir_perfiles(raiz, requerida=True), str(raiz.resolve())) for raiz in raices],
+    ]
+    disponibles: dict[str, Path] = {}
+    procedencias: dict[str, str] = {}
+    for encontrados, procedencia in fuentes:
+        for nombre, catalogos in encontrados.items():
+            if nombre in disponibles:
+                raise ProyectoInvalido(
+                    f"perfil ambiguo «{nombre}» en {procedencias[nombre]} y {procedencia}")
+            disponibles[nombre] = catalogos
+            procedencias[nombre] = procedencia
+    return disponibles
+
+
 @dataclass(frozen=True)
 class ConfiguracionProyecto:
     perfiles: tuple[str, ...] = ()
+    catalogo_base: bool = True
 
 
-def configuracion(proy: "Proyecto") -> ConfiguracionProyecto:
+def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProyecto:
     """Lee perfiles explícitos; sin `oracle.json`, el proyecto recibe sólo el núcleo."""
     ruta = proy.raiz / "oracle.json"
     if not ruta.exists() and not ruta.is_symlink():
@@ -103,10 +145,13 @@ def configuracion(proy: "Proyecto") -> ConfiguracionProyecto:
             or len(perfiles) != len(set(perfiles))):
         raise ProyectoInvalido(
             "`perfiles` debe ser una lista sin duplicados de nombres portables")
-    desconocidos = set(perfiles) - set(perfiles_incluidos())
+    desconocidos = set(perfiles) - set(perfiles_incluidos(raices_perfiles))
     if desconocidos:
         raise ProyectoInvalido(f"perfiles desconocidos: {sorted(desconocidos)}")
-    return ConfiguracionProyecto(tuple(perfiles))
+    catalogo_base = datos.get("catalogo_base", True)
+    if not isinstance(catalogo_base, bool):
+        raise ProyectoInvalido("`catalogo_base` debe ser booleano")
+    return ConfiguracionProyecto(tuple(perfiles), catalogo_base)
 
 
 @dataclass(frozen=True)
@@ -133,29 +178,33 @@ class Proyecto:
         return "oracle (sí mismo)" if self.es_el_propio_oracle else str(self.raiz)
 
 
-def catalogos_base_a_cargar(proy: "Proyecto") -> list[Path]:
-    """Catálogo universal y perfiles incluidos activados por el proyecto."""
-    disponibles = perfiles_incluidos()
-    return [RAIZ_ORACLE / "catalogos", *(
-        disponibles[nombre] for nombre in configuracion(proy).perfiles)]
+def catalogos_base_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
+    """Catálogo universal optativo y perfiles incluidos activados por el proyecto."""
+    raices = _normalizar_raices_perfiles(raices_perfiles)
+    disponibles = perfiles_incluidos(raices)
+    config = configuracion(proy, raices_perfiles=raices)
+    return [
+        *([RAIZ_ORACLE / "catalogos"] if config.catalogo_base else []),
+        *(disponibles[nombre] for nombre in config.perfiles),
+    ]
 
 
-def catalogos_a_cargar(proy: "Proyecto") -> list[Path]:
-    """El catálogo BASE de oracle más el del proyecto.
+def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
+    """Los catálogos base/perfiles declarados más el catálogo del proyecto.
 
     Oracle trae medidas que valen para cualquiera que construya con un LLM —mutantes que sobreviven,
     afirmaciones sin alcance, verificaciones vencidas, corridas irreproducibles— y el proyecto agrega
-    las de su dominio. Que las universales vengan incluidas es la diferencia entre una herramienta y
-    un repositorio de ejemplos.
+    las de su dominio. En proyectos v1 las universales vienen incluidas salvo que `oracle.json`
+    declare explícitamente ``"catalogo_base": false``.
     """
-    bases = catalogos_base_a_cargar(proy)
+    bases = catalogos_base_a_cargar(proy, raices_perfiles=raices_perfiles)
     if proy.catalogos.resolve() == (RAIZ_ORACLE / "catalogos").resolve():
         return bases
     return [*bases, proy.catalogos]
 
 
 @contextmanager
-def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False):
+def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False, registro=None):
     """Activa temporalmente las UDF de un proyecto explícitamente confiado.
 
     Restaura el registro aun si la importación o la evaluación falla. El archivo debe ser físico y
@@ -184,24 +233,32 @@ def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False):
     import importlib.util
     from nucleo import algebra
 
+    destino = algebra.ESCALARES if registro is None else registro
+    if not isinstance(destino, algebra.RegistroEscalares):
+        raise EscalaresInvalidas("`registro` debe ser una instancia de RegistroEscalares")
+
     huella = hashlib.sha256(str(raiz).encode("utf-8")).hexdigest()
     spec = importlib.util.spec_from_file_location(f"oracle_escalares_{huella}", fisica)
     if spec is None or spec.loader is None:
         raise EscalaresInvalidas(f"no se pudo preparar la carga de {fisica}")
     modulo = importlib.util.module_from_spec(spec)
-    anteriores = dict(algebra.ESCALARES)
-    procedencia_anterior = algebra._PROCEDENCIA_ESCALAR
-    algebra._PROCEDENCIA_ESCALAR = f"proyecto:{raiz}"
+    anteriores = dict(destino)
+    globales_anteriores = dict(algebra.ESCALARES)
+    carga_confirmada = False
     try:
         try:
-            spec.loader.exec_module(modulo)
+            with algebra.usar_registro(destino, procedencia=f"proyecto:{raiz}"):
+                spec.loader.exec_module(modulo)
             alteradas = [nombre for nombre, fn in anteriores.items()
-                         if algebra.ESCALARES.get(nombre) is not fn]
+                         if destino.get(nombre) is not fn]
             if alteradas:
                 raise EscalaresInvalidas(
                     f"escalares.py alteró registros existentes: {sorted(alteradas)}")
-            for nombre in set(algebra.ESCALARES) - set(anteriores):
-                fn = algebra.ESCALARES[nombre]
+            if destino is not algebra.ESCALARES and dict(algebra.ESCALARES) != globales_anteriores:
+                raise EscalaresInvalidas(
+                    "escalares.py intentó alterar el registro global fuera de su motor")
+            for nombre in set(destino) - set(anteriores):
+                fn = destino[nombre]
                 requeridos = ("nombre_escalar", "unidad", "aridad_min", "aridad_max",
                               "procedencia_escalar")
                 if any(not hasattr(fn, campo) for campo in requeridos):
@@ -213,10 +270,14 @@ def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False):
             raise EscalaresInvalidas(
                 f"falló {fisica}: {type(e).__name__}: {e}") from e
         yield str(fisica)
+        carga_confirmada = True
     finally:
-        algebra.ESCALARES.clear()
-        algebra.ESCALARES.update(anteriores)
-        algebra._PROCEDENCIA_ESCALAR = procedencia_anterior
+        if destino is algebra.ESCALARES or not carga_confirmada:
+            destino.clear()
+            destino.update(anteriores)
+        if destino is not algebra.ESCALARES:
+            algebra.ESCALARES.clear()
+            algebra.ESCALARES.update(globales_anteriores)
 
 
 def confiar_escalares(argv: list[str]) -> bool:
@@ -301,6 +362,9 @@ def resolver(argv: list[str] | None = None) -> Proyecto:
     if _valido(aqui) and aqui != RAIZ_ORACLE:
         return Proyecto(aqui)
 
+    if not (RAIZ_ORACLE / "corpus").is_dir():
+        raise ProyectoInvalido(
+            "esta instalación no incluye el proyecto de autocertificación; indicá `--proyecto`")
     return Proyecto(RAIZ_ORACLE)
 
 

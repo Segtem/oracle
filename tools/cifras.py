@@ -17,13 +17,14 @@ def cifras() -> str:
 
     from nucleo.medida import cargar_catalogo
     from nucleo.mutacion import correr as mutar_medidas
-    from nucleo.proyecto import catalogos_a_cargar
+    from nucleo.proyecto import Proyecto, catalogos_a_cargar
     from perfiles.python.mutacion_codigo import sitios_de
     from tools import mutar as cli_medidas
     from tools.mutar_codigo import objetivos_disponibles
 
-    catalogo = cargar_catalogo(catalogos_a_cargar(cli_medidas.PROY))
-    evidencia = mutar_medidas(catalogo, cli_medidas.casos(catalogo))
+    proy = Proyecto(RAIZ)
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+    evidencia = mutar_medidas(catalogo, cli_medidas.casos(proy, catalogo))
     mutantes_medida = evidencia["mutante"]
     muertos_medida = sum(fila["murio"] for fila in mutantes_medida)
 
@@ -53,11 +54,12 @@ def actualizar(contenido: str, bloque: str) -> str:
     return f"{antes}{inicio}\n{bloque}\n{fin}{despues}"
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
     ruta = RAIZ / "README.md"
     previo = ruta.read_text(encoding="utf-8")
     esperado = actualizar(previo, cifras())
-    if "--actualizar" in sys.argv[1:]:
+    if "--actualizar" in argv:
         ruta.write_text(esperado, encoding="utf-8")
         print("README.md actualizado")
         return 0

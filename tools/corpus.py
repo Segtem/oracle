@@ -23,10 +23,8 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from nucleo.proyecto import problemas_estructura, resolver, sin_bandera  # noqa: E402
-
-PROY = resolver(sys.argv[1:])
-RAIZ = PROY.corpus
+from nucleo.proyecto import problemas_estructura, sin_bandera  # noqa: E402
+from tools.sesion import resolver_cli  # noqa: E402
 
 OBLIGATORIOS = ("id", "fecha", "origen", "titulo", "etiqueta", "sintoma",
                 "como_se_detecto", "medida", "evidencia", "leccion")
@@ -55,8 +53,8 @@ ESCALARES = (str, int, float, bool, type(None))
 ESTADOS_SIN_MEDIDA = {"abierto", "resuelto", "limite_humano"}
 
 
-def casos() -> list[Path]:
-    return sorted(RAIZ.rglob("*.json"))
+def casos(raiz: Path) -> list[Path]:
+    return sorted(raiz.rglob("*.json"))
 
 
 def revisar_evidencia(nombre: str, evidencia) -> list[str]:
@@ -93,12 +91,12 @@ def revisar_estado_sin_medida(nombre: str, caso: dict) -> list[str]:
     return []
 
 
-def verificar() -> tuple[list[str], list[dict]]:
+def verificar(raiz: Path) -> tuple[list[str], list[dict]]:
     fallas: list[str] = []
     cargados: list[dict] = []
     vistos: dict[str, Path] = {}
 
-    for p in casos():
+    for p in casos(raiz):
         try:
             c = json.loads(p.read_text(encoding="utf-8"))
         except json.JSONDecodeError as e:
@@ -148,19 +146,26 @@ def resumen(cargados: list[dict]) -> None:
         print(f"  {n:2}  {k}")
 
 
-def main() -> int:
-    estructura = problemas_estructura(PROY, ("corpus",))
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if "-h" in argv or "--help" in argv:
+        print(__doc__)
+        return 0
+    proy = resolver_cli(argv)
+    if proy is None:
+        return 1
+    estructura = problemas_estructura(proy, ("corpus",))
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
-    fallas, cargados = verificar()
+    fallas, cargados = verificar(proy.corpus)
     if fallas:
         print(f"CORPUS: {len(fallas)} problema(s)")
         for f in fallas:
             print("  ·", f)
         return 1
     print(f"CORPUS OK · {len(cargados)} casos · esquema, evidencia L0 y trazabilidad en regla")
-    if "--resumen" in sin_bandera(sys.argv[1:]):
+    if "--resumen" in sin_bandera(argv):
         resumen(cargados)
     return 0
 

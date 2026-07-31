@@ -11,22 +11,32 @@ requires-python = ">=3.11"
 dependencies = []
 
 [project.scripts]
-oracle-aceptacion = "tools.aceptacion:main"
-oracle-corpus = "tools.corpus:main"
-oracle-diferencial = "tools.diferencial:main"
-oracle-estudio = "tools.estudio:main"
-oracle-medida = "tools.medida:main"
-oracle-mutar = "tools.mutar:main"
-oracle-mutar-codigo = "tools.mutar_codigo:main"
+oracle-aceptacion = "oracle_metalenguaje.tools.aceptacion:main"
+oracle-corpus = "oracle_metalenguaje.tools.corpus:main"
+oracle-diferencial = "oracle_metalenguaje.tools.diferencial:main"
+oracle-estudio = "oracle_metalenguaje.tools.estudio:main"
+oracle-medida = "oracle_metalenguaje.tools.medida:main"
+oracle-mutar = "oracle_metalenguaje.tools.mutar:main"
+oracle-mutar-codigo = "oracle_metalenguaje.tools.mutar_codigo:main"
 
 [tool.setuptools]
 include-package-data = true
+packages = [
+  "oracle_metalenguaje",
+  "oracle_metalenguaje.catalogos",
+  "oracle_metalenguaje.nucleo",
+  "oracle_metalenguaje.perfiles",
+  "oracle_metalenguaje.perfiles.python",
+  "oracle_metalenguaje.tools",
+]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["catalogos*", "nucleo*", "perfiles*", "tools*"]
-namespaces = true
+[tool.setuptools.package-dir]
+"oracle_metalenguaje.catalogos" = "catalogos"
+"oracle_metalenguaje.nucleo" = "nucleo"
+"oracle_metalenguaje.perfiles" = "perfiles"
+"oracle_metalenguaje.perfiles.python" = "perfiles/python"
+"oracle_metalenguaje.tools" = "tools"
 
 [tool.setuptools.package-data]
-catalogos = ["**/*.json"]
-"perfiles.python" = ["catalogos/**/*.json"]
+"oracle_metalenguaje.catalogos" = ["**/*.json"]
+"oracle_metalenguaje.perfiles.python" = ["catalogos/**/*.json"]

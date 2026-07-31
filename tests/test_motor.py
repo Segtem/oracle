@@ -1,0 +1,225 @@
+import json
+import sys
+import tempfile
+import unittest
+from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from types import SimpleNamespace
+from unittest import mock
+
+from nucleo.algebra import ESCALARES, ErrorDeAlgebra, LimitesAlgebra
+from nucleo.medida import Medida
+from nucleo.proyecto import EscalaresNoConfiables
+from oracle_metalenguaje import (ErrorDeMotor, EscalaresInvalidas, Motor,
+                                 SinMedidasAplicables, escalar, registro_base)
+from oracle_metalenguaje import _compat
+
+
+def _medida(mid="demo.valor", *, escalar=None):
+    expresion = ["campo", "i", "valor"]
+    if escalar:
+        expresion = [escalar, expresion]
+    return [
+        "medida", mid,
+        ["desde", ["de", "item", "i"]],
+        ["resumen", "max", expresion],
+        ["umbral", "<=", 10, "el límite es parte del ejemplo verificable"],
+        ["alcance", "NO comprueba propiedades ajenas a `valor`"],
+    ]
+
+
+def _proyecto(raiz: Path, incremento: int) -> None:
+    catalogo = raiz / "catalogos" / "demo"
+    catalogo.mkdir(parents=True)
+    (catalogo / "demo.valor.json").write_text(
+        json.dumps(_medida(escalar="ajustar_motor_aislado")), encoding="utf-8")
+    (raiz / "oracle.json").write_text(json.dumps({
+        "esquema": "oracle.proyecto/v1",
+        "perfiles": [],
+        "catalogo_base": False,
+    }), encoding="utf-8")
+    (raiz / "escalares.py").write_text(
+        "from oracle_metalenguaje import escalar\n\n"
+        "@escalar('ajustar_motor_aislado')\n"
+        "def ajustar(valor):\n"
+        f"    return valor + {incremento}\n",
+        encoding="utf-8",
+    )
+
+
+class TestMotor(unittest.TestCase):
+    def test_el_puente_namespaced_aliasa_paquete_y_submodulos_sin_duplicarlos(self):
+        legado = "_oracle_legado_de_prueba"
+        namespaced = "_oracle_paquete_de_prueba." + legado
+        modulo = SimpleNamespace(__name__=namespaced)
+        hijo = object()
+        sys.modules[namespaced + ".hijo"] = hijo
+        try:
+            with (mock.patch.object(_compat.importlib.util, "find_spec", return_value=object()),
+                  mock.patch.object(_compat.importlib, "import_module", return_value=modulo) as importar):
+                resultado = _compat.cargar_interno(legado, "_oracle_paquete_de_prueba")
+
+            self.assertIs(resultado, modulo)
+            importar.assert_called_once_with("_oracle_paquete_de_prueba." + legado)
+            self.assertIs(sys.modules[legado], modulo)
+            self.assertIs(sys.modules[legado + ".hijo"], hijo)
+        finally:
+            for nombre in (namespaced + ".hijo", legado, legado + ".hijo"):
+                sys.modules.pop(nombre, None)
+
+    def test_el_puente_solo_retrocede_si_falta_el_paquete_namespaced(self):
+        legado, paquete = "_oracle_legado_fallback", "_oracle_paquete_fallback"
+        namespaced = paquete + "." + legado
+        modulo = SimpleNamespace(__name__=legado)
+        ausente = ModuleNotFoundError("ausente", name=namespaced)
+        dependencia = ModuleNotFoundError("dependencia", name="otra_dependencia")
+        try:
+            with (mock.patch.object(_compat.importlib.util, "find_spec", return_value=object()),
+                  mock.patch.object(
+                      _compat.importlib, "import_module", side_effect=(ausente, modulo)) as importar):
+                self.assertIs(_compat.cargar_interno(legado, paquete), modulo)
+            self.assertEqual(
+                [llamada.args[0] for llamada in importar.call_args_list], [namespaced, legado])
+
+            with (mock.patch.object(_compat.importlib.util, "find_spec", return_value=object()),
+                  mock.patch.object(
+                      _compat.importlib, "import_module", side_effect=dependencia) as importar):
+                with self.assertRaises(ModuleNotFoundError) as capturada:
+                    _compat.cargar_interno(legado, paquete)
+            self.assertIs(capturada.exception, dependencia)
+            importar.assert_called_once_with(namespaced)
+        finally:
+            sys.modules.pop(legado, None)
+
+    def test_construccion_publica_es_inmutable_y_valida_su_configuracion(self):
+        motor = Motor.desde_datos([_medida()])
+
+        self.assertEqual([medida.id for medida in motor.medidas], ["demo.valor"])
+        self.assertIsInstance(motor.medidas, tuple)
+        self.assertIn("mas", motor.escalares)
+        self.assertEqual(motor.limites, LimitesAlgebra())
+        self.assertIsNone(motor.proyecto)
+        with self.assertRaises(ErrorDeMotor):
+            Motor()
+        with self.assertRaises(AttributeError):
+            motor.limites = LimitesAlgebra(filas_por_relacion=2)
+
+        with self.assertRaisesRegex(ErrorDeMotor, "instancias de Medida"):
+            Motor.desde_medidas([object()])
+        repetida = Medida.de_datos(_medida())
+        with self.assertRaisesRegex(ErrorDeMotor, "repetidos"):
+            Motor.desde_medidas([repetida, repetida])
+        with self.assertRaisesRegex(ErrorDeMotor, "RegistroEscalares"):
+            Motor.desde_medidas([repetida], registro={})
+        with self.assertRaisesRegex(ErrorDeAlgebra, "LimitesAlgebra"):
+            Motor.desde_medidas([repetida], limites=object())
+
+    def test_un_registro_entregado_se_copia_y_no_contamina_la_base(self):
+        registro = registro_base()
+
+        @escalar("triplicar_motor_aislado", registro=registro)
+        def triplicar(valor):
+            return valor * 3
+
+        motor = Motor.desde_datos(
+            [_medida(escalar="triplicar_motor_aislado")], registro=registro)
+        del registro["triplicar_motor_aislado"]
+
+        self.assertIn("triplicar_motor_aislado", motor.escalares)
+        self.assertEqual(
+            motor.evaluar({"item": [{"valor": 2}]}).veredictos[0].valor, 6)
+        otra_base = registro_base()
+        del otra_base["mas"]
+        self.assertIn("mas", registro_base())
+
+    def test_evalua_medidas_en_memoria_y_respeta_limites(self):
+        medida = Medida.de_datos(_medida())
+        motor = Motor.desde_medidas(
+            [medida],
+            limites=LimitesAlgebra(filas_por_relacion=1),
+        )
+
+        medida.tuberia.append(["donde", False])
+        motor.medidas[0].tuberia.append(["donde", False])
+
+        informe = motor.evaluar({"item": [{"valor": 3}]})
+        self.assertTrue(informe.ok)
+        self.assertEqual(informe.veredictos[0].valor, 3)
+        with self.assertRaisesRegex(ErrorDeAlgebra, "supera el límite"):
+            motor.evaluar({"item": [{"valor": 3}, {"valor": 4}]})
+
+    def test_falla_cerrado_si_no_hay_medidas_aplicables(self):
+        motor = Motor.desde_medidas([Medida.de_datos(_medida())])
+
+        with self.assertRaisesRegex(SinMedidasAplicables, "ninguna medida"):
+            motor.evaluar({"otra_relacion": []})
+
+    def test_dos_proyectos_pueden_declarar_la_misma_udf_sin_contaminarse(self):
+        nombre = "ajustar_motor_aislado"
+        self.assertNotIn(nombre, ESCALARES)
+        with tempfile.TemporaryDirectory() as a, tempfile.TemporaryDirectory() as b:
+            _proyecto(Path(a), 1)
+            _proyecto(Path(b), 100)
+
+            with self.assertRaises(EscalaresNoConfiables):
+                Motor.desde_proyecto(a)
+            with ThreadPoolExecutor(max_workers=2) as ejecutor:
+                futuro_a = ejecutor.submit(
+                    Motor.desde_proyecto, a, confiar_escalares=True)
+                futuro_b = ejecutor.submit(
+                    Motor.desde_proyecto, b, confiar_escalares=True)
+                motor_a, motor_b = futuro_a.result(), futuro_b.result()
+
+            evidencia = {"item": [{"valor": 1}]}
+            self.assertEqual(motor_a.proyecto, Path(a).resolve())
+            self.assertEqual({medida.id for medida in motor_a.medidas}, {"demo.valor"})
+            self.assertIn(nombre, motor_a.escalares)
+            with ThreadPoolExecutor(max_workers=4) as ejecutor:
+                futuros = [
+                    ejecutor.submit(motor.evaluar, evidencia)
+                    for motor in (motor_a, motor_b, motor_a, motor_b) * 10
+                ]
+            resultados = [futuro.result().ok for futuro in futuros]
+            self.assertEqual(resultados, [True, False, True, False] * 10)
+
+        self.assertNotIn(nombre, ESCALARES)
+
+    def test_un_proyecto_no_puede_escribir_fuera_del_registro_del_motor(self):
+        nombre = "intrusa_global_del_motor"
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            (raiz / "escalares.py").write_text(
+                "from nucleo.algebra import ESCALARES\n"
+                f"ESCALARES[{nombre!r}] = lambda valor: valor\n",
+                encoding="utf-8",
+            )
+            with self.assertRaisesRegex(EscalaresInvalidas, "registro global"):
+                Motor.desde_proyecto(raiz, confiar_escalares=True)
+
+        self.assertNotIn(nombre, ESCALARES)
+
+    def test_un_perfil_externo_se_compone_desde_una_raiz_del_host(self):
+        with tempfile.TemporaryDirectory() as td_proyecto, tempfile.TemporaryDirectory() as td_fuente:
+            proyecto, fuente = Path(td_proyecto), Path(td_fuente)
+            (proyecto / "catalogos").mkdir()
+            (proyecto / "oracle.json").write_text(json.dumps({
+                "esquema": "oracle.proyecto/v1",
+                "perfiles": ["perfil_externo"],
+                "catalogo_base": False,
+            }), encoding="utf-8")
+            catalogo = fuente / "perfil_externo" / "catalogos"
+            catalogo.mkdir(parents=True)
+            (catalogo / "perfil.externo.json").write_text(
+                json.dumps(_medida("perfil.externo")), encoding="utf-8")
+
+            motor = Motor.desde_proyecto(
+                proyecto, raices_perfiles=(fuente,))
+
+            self.assertEqual([medida.id for medida in motor.medidas], ["perfil.externo"])
+            self.assertEqual(
+                motor.evaluar({"item": [{"valor": 4}]}).veredictos[0].valor, 4)
+
+
+if __name__ == "__main__":
+    unittest.main()

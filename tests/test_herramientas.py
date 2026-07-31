@@ -214,6 +214,36 @@ class ContratoDiferencialTests(unittest.TestCase):
 
 
 class HerramientasCLITests(unittest.TestCase):
+    def test_importar_herramientas_no_interpreta_argv_del_host(self) -> None:
+        programa = """
+import sys
+sys.argv = ['proceso-anfitrion', '--proyecto', '/ruta/que/no/existe']
+from tools import aceptacion, cifras, corpus, diferencial, estudio, medida, mutar, mutar_codigo
+for modulo in (aceptacion, corpus, diferencial, estudio, medida, mutar):
+    assert modulo.main(['--help']) == 0, modulo.__name__
+print('IMPORTS OK')
+"""
+        resultado = subprocess.run(
+            [sys.executable, "-c", programa], cwd=RAIZ, capture_output=True, text=True)
+
+        self.assertEqual(resultado.returncode, 0, resultado.stdout + resultado.stderr)
+        self.assertIn("IMPORTS OK", resultado.stdout)
+
+    def test_oracle_sin_fixtures_diferenciales_no_se_declara_verde(self) -> None:
+        from tools import diferencial as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            (raiz / "diferencial").mkdir()
+            salida = io.StringIO()
+            with redirect_stdout(salida):
+                codigo = cli._ejecutar(Proyecto(raiz))
+
+        self.assertEqual(codigo, 1)
+        self.assertIn("no hay fixtures", salida.getvalue())
+        self.assertNotIn("DIFERENCIAL ✓", salida.getvalue())
+
     def _proyecto(self, raiz: Path) -> None:
         (raiz / "catalogos").mkdir()
 
@@ -518,13 +548,19 @@ class HerramientasCLITests(unittest.TestCase):
 
         disponibles = cli.objetivos_disponibles()
         self.assertIn("nucleo/algebra.py", disponibles)
+        self.assertIn("oracle_metalenguaje/motor.py", disponibles)
         self.assertIn("perfiles/python/mutacion_codigo.py", disponibles)
         elegidos = cli.resolver_objetivos(["nucleo/algebra.py"])
         self.assertEqual(elegidos, [RAIZ / "nucleo" / "algebra.py"])
         comando = cli.comando_de_tests(elegidos, priorizar=True)
-        self.assertEqual(comando[-2:], ["--prioridad", "tests.test_nucleo"])
+        self.assertEqual(comando[len(cli.TESTS):], [
+            "--prioridad", "tests.test_algebra",
+            "--prioridad", "tests.test_nucleo",
+            "--prioridad", "tests.test_motor",
+        ])
         dependencias = {p.relative_to(RAIZ).as_posix() for p in cli.dependencias_de_ronda()}
         self.assertIn("tests/test_nucleo.py", dependencias)
+        self.assertIn("oracle_metalenguaje/motor.py", dependencias)
         self.assertIn("tools/ejecutar_suite_mutacion.py", dependencias)
 
         for invalido in ("../afuera.py", "/tmp/afuera.py", "nucleo/no_existe.py"):

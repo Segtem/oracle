@@ -32,8 +32,9 @@ sys.path.insert(0, str(RAIZ))
 import catalogos  # noqa: F401,E402
 from nucleo.medida import Medida, cargar_catalogo, como_hechos  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
-                             confiar_escalares, escalares_del_proyecto, problemas_estructura,
-                             resolver)  # noqa: E402
+                             confiar_escalares, escalares_del_proyecto,
+                             problemas_estructura)  # noqa: E402
+from tools.sesion import resolver_cli  # noqa: E402
 
 
 def _git(*args) -> str:
@@ -265,12 +266,14 @@ def _ejecutar(proy, destino: Path) -> int:
     return 0
 
 
-def main() -> int:
-    argv = sys.argv[1:]
+def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
     if "-h" in argv or "--help" in argv:
         print(__doc__)
         return 0
-    proy = resolver(argv)
+    proy = resolver_cli(argv)
+    if proy is None:
+        return 1
     estructura = problemas_estructura(proy, ("catalogos", "corpus"))
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
