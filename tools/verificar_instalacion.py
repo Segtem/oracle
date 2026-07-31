@@ -39,7 +39,7 @@ def main() -> int:
         ruedas = temporal / "ruedas"
         ruedas.mkdir()
         _correr([
-            sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation",
+            sys.executable, "-m", "pip", "wheel", "--no-deps",
             "--wheel-dir", str(ruedas), str(fuente),
         ], cwd=temporal)
         encontradas = tuple(ruedas.glob("oracle_metalenguaje-*.whl"))

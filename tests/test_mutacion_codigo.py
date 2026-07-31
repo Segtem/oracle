@@ -1005,7 +1005,10 @@ class CorrerTests(unittest.TestCase):
                 f"import subprocess,sys,time; subprocess.Popen([sys.executable,'-c',{hijo!r}]); "
                 "time.sleep(30)",
             ]
-            resultado = mc.ejecutar_tests(comando, raiz, timeout=0.2)
+            # 0.2s alcanzaba en una máquina de desarrollo pero no en un runner de CI
+            # compartido: hay que arrancar DOS intérpretes anidados antes de que el nieto
+            # escriba su pid, y bajo carga esa carrera se perdía antes de spawnear nada.
+            resultado = mc.ejecutar_tests(comando, raiz, timeout=1.5)
             self.assertTrue(pid.exists())
             nieto = int(pid.read_text(encoding="utf-8"))
             limite = time.monotonic() + 2
