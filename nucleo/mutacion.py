@@ -321,7 +321,7 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
     return {
         "mutante": list(por_mutante.values()),
         "deteccion": detecciones,
-        "corrida_mutacion": [{
+        "corrida_mutacion_medidas": [{
             "id": "mutacion_de_medidas",
             "mutantes": len(por_mutante),
         }],

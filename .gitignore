@@ -1,4 +1,7 @@
 __pycache__/
-*.pyc
+*.py[cod]
 .venv/
 estudio/
+build/
+dist/
+*.egg-info/

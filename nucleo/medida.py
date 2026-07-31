@@ -226,6 +226,31 @@ def evaluar(medidas, evidencia: dict, limites: LimitesAlgebra | None = None) -> 
 
 # ---- derivados de la declaración: el «OpenAPI» del oráculo ----
 
+def relaciones_de_fuente(fuente) -> tuple[str, ...]:
+    """Relaciones de una fuente canónica, sin inferirlas del id ni del dominio de la medida."""
+    match fuente:
+        case ["de", relacion, _alias]:
+            return (relacion,)
+        case ["unir", izquierda, derecha]:
+            return tuple(dict.fromkeys((
+                *relaciones_de_fuente(izquierda),
+                *relaciones_de_fuente(derecha),
+            )))
+        case _:
+            return ()
+
+
+def relaciones_de_medida(medida) -> tuple[str, ...]:
+    tuberia = medida.tuberia
+    return relaciones_de_fuente(tuberia[1]) if isinstance(tuberia, list) and len(tuberia) > 1 else ()
+
+
+def medidas_aplicables(medidas, evidencia: dict) -> list:
+    """Selecciona juezas por su entrada declarada, no por ids conocidos por la herramienta."""
+    relaciones = set(evidencia)
+    return [medida for medida in medidas
+            if set(relaciones_de_medida(medida)) <= relaciones]
+
 def inventario(medidas) -> list[dict]:
     """Todos los umbrales con su defensa. Antes vivían escondidos en firmas de funciones."""
     return [{"id": m.id, "umbral": f"{m.op} {m.limite}", "porque": m.porque} for m in medidas]
@@ -242,10 +267,8 @@ def como_hechos(medidas, clasificacion: ClasificacionMeta | None = None) -> list
     como una relación más.
     """
     def relacion_de(m):
-        fuente = m.tuberia[1] if len(m.tuberia) > 1 else []
-        if not fuente:
-            return ""
-        return fuente[1] if fuente[0] == "de" else fuente[1][1]
+        relaciones = relaciones_de_medida(m)
+        return relaciones[0] if relaciones else ""
 
     clasificacion = clasificacion or CLASIFICACION_META_BASE
     if not isinstance(clasificacion, ClasificacionMeta):

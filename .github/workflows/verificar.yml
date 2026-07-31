@@ -1,0 +1,51 @@
+name: verificar
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  contratos:
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ["3.11", "3.13"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install --no-deps .
+      - run: python -m unittest discover -s tests -t . -q
+      - run: python tools/corpus.py --resumen
+      - run: python tools/aceptacion.py
+      - run: python tools/diferencial.py
+      - run: python tools/mutar.py
+      - run: python tools/cifras.py
+
+  mutacion-codigo:
+    strategy:
+      fail-fast: false
+      matrix:
+        objetivo:
+          - nucleo/algebra.py
+          - nucleo/diferencial.py
+          - nucleo/dominio.py
+          - nucleo/fixtures.py
+          - nucleo/grafo.py
+          - nucleo/macro.py
+          - nucleo/marco.py
+          - nucleo/medida.py
+          - nucleo/mutacion.py
+          - nucleo/proyecto.py
+          - nucleo/simulacion.py
+          - perfiles/python/marco.py
+          - perfiles/python/mutacion_codigo.py
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python tools/mutar_codigo.py --objetivo "${{ matrix.objetivo }}"

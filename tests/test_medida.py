@@ -83,12 +83,26 @@ class ContratoMedidaTests(unittest.TestCase):
             (medida("d.directa", ["desde", ["de", "pieza", "p"]]), "pieza"),
             (medida("d.compuesta", [
                 "desde",
-                ["unir", ["de", "primera", "a"], ["de", "segunda", "b"], "producto"],
+                ["unir", ["de", "primera", "a"], ["de", "segunda", "b"]],
             ]), "primera"),
         )
         hechos = m.como_hechos([objeto for objeto, _esperada in casos])
         self.assertEqual([hecho["relacion"] for hecho in hechos],
                          [esperada for _objeto, esperada in casos])
+
+    def test_las_juezas_se_seleccionan_por_relaciones_y_no_por_ids_conocidos(self) -> None:
+        m = modulo_medida()
+        self.assertEqual(m.relaciones_de_fuente(None), ())
+        self.assertEqual(m.relaciones_de_fuente(["fuente_desconocida"]), ())
+
+        def medida(mid, fuente):
+            return SimpleNamespace(id=mid, tuberia=["desde", fuente])
+
+        una = medida("cualquier.nombre", ["de", "a", "x"])
+        dos = medida("otro.nombre", ["unir", ["de", "a", "x"], ["de", "b", "y"]])
+        self.assertEqual(m.relaciones_de_medida(dos), ("a", "b"))
+        self.assertEqual(m.medidas_aplicables([una, dos], {"a": []}), [una])
+        self.assertEqual(m.medidas_aplicables([una, dos], {"a": [], "b": []}), [una, dos])
 
 
 if __name__ == "__main__":

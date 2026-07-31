@@ -1,6 +1,6 @@
 """Modo simulación — la segunda fuente de evidencia, y la mitad GPSS del asunto.
 
-Hasta acá el oráculo consulta **hechos estáticos**: piezas colocadas, documentos, mutantes. GPSS hace
+Hasta acá el oráculo consulta **hechos estáticos**: registros, artefactos, mutantes. GPSS hace
 otra cosa: **corre el sistema y reporta lo que pasó**. Eso da una clase de evidencia que la primera
 mitad no puede producir.
 

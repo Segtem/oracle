@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "oracle-metalenguaje"
+version = "0.1.0"
+description = "Metalenguaje para medir evidencia, alcance y mutación sin acoplarse a un dominio"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = []
+
+[project.scripts]
+oracle-aceptacion = "tools.aceptacion:main"
+oracle-corpus = "tools.corpus:main"
+oracle-diferencial = "tools.diferencial:main"
+oracle-estudio = "tools.estudio:main"
+oracle-medida = "tools.medida:main"
+oracle-mutar = "tools.mutar:main"
+oracle-mutar-codigo = "tools.mutar_codigo:main"
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["catalogos*", "nucleo*", "perfiles*", "tools*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+catalogos = ["**/*.json"]
+"perfiles.python" = ["catalogos/**/*.json"]

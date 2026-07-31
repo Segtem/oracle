@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import ast
 import sys
 import tempfile
 import unittest
@@ -63,6 +64,19 @@ class PerfilesDeProyectoTests(unittest.TestCase):
                 {"desde": "paquete", "hasta": "paquete", "saltos": 0},
                 {"desde": "paquete", "hasta": "paquete.usado", "saltos": 1},
             ])
+
+    def test_el_nucleo_no_importa_perfiles(self) -> None:
+        for ruta in sorted((RAIZ / "nucleo").glob("*.py")):
+            arbol = ast.parse(ruta.read_text(encoding="utf-8"))
+            importados = []
+            for nodo in ast.walk(arbol):
+                if isinstance(nodo, ast.Import):
+                    importados.extend(alias.name for alias in nodo.names)
+                elif isinstance(nodo, ast.ImportFrom) and nodo.module:
+                    importados.append(nodo.module)
+            with self.subTest(ruta=ruta.name):
+                self.assertFalse(any(nombre == "perfiles" or nombre.startswith("perfiles.")
+                                     for nombre in importados))
 
     def test_el_sensor_distingue_tests_y_paquetes_vacios_sin_heuristicas_amplias(self) -> None:
         with tempfile.TemporaryDirectory() as d:

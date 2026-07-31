@@ -40,6 +40,7 @@ from __future__ import annotations
 import ast
 import fcntl
 import hashlib
+import io
 import json
 import math
 import os
@@ -90,6 +91,16 @@ class ManifiestoInvalido(ValueError):
 
 
 ESQUEMA_MANIFIESTO = "oracle.mutacion-codigo/v1"
+TIMEOUT_PREDETERMINADO = 60.0
+CODIGOS_FALLO_PREDETERMINADOS = frozenset({1})
+LIMITE_DIAGNOSTICO_PREDETERMINADO = 16_384
+LIMITE_SALIDA_PREDETERMINADO = 1_048_576
+MAX_RUTAS_DIAGNOSTICO = 3
+ESPERA_TERMINACION_SUAVE = 1.0
+ESPERA_TERMINACION_FORZADA = 2.0
+LONGITUD_IDENTIFICADOR_BLOQUEO = 24
+DESPLAZAMIENTO_SALIDA_POR_SENAL = 128
+SENAL_SONDEO_GRUPO = 0
 
 
 class EstadoTests(str, Enum):
@@ -174,8 +185,8 @@ class _Recolector(ast.NodeVisitor):
         self.sitios: list[Sitio] = []
 
     def _añadir(self, nodo, operador, descripcion):
-        self.sitios.append(Sitio(self.archivo, getattr(nodo, "lineno", 0),
-                                 getattr(nodo, "col_offset", 0), operador, descripcion))
+        self.sitios.append(
+            Sitio(self.archivo, nodo.lineno, nodo.col_offset, operador, descripcion))
 
     def visit_Compare(self, nodo):
         for op in nodo.ops:
@@ -216,8 +227,8 @@ class _Aplicador(ast.NodeTransformer):
 
     def _es(self, nodo, operador) -> bool:
         return (not self.aplicado
-                and getattr(nodo, "lineno", -1) == self.objetivo.linea
-                and getattr(nodo, "col_offset", -1) == self.objetivo.columna
+                and nodo.lineno == self.objetivo.linea
+                and nodo.col_offset == self.objetivo.columna
                 and operador == self.objetivo.operador)
 
     def visit_Compare(self, nodo):
@@ -304,6 +315,18 @@ def _caches_bajo(raiz: Path) -> list[Path]:
     return sorted(encontrados, key=lambda p: len(p.parts), reverse=True)
 
 
+def _resolver_existente(ruta: Path) -> Path:
+    """Resuelve una ruta y exige que cada componente exista físicamente."""
+    return ruta.resolve(strict=True)
+
+
+def _muestra_rutas(rutas: list[Path], raiz: Path | None = None) -> str:
+    visibles = rutas[:MAX_RUTAS_DIAGNOSTICO]
+    if raiz is not None:
+        visibles = [ruta.relative_to(raiz) for ruta in visibles]
+    return ", ".join(str(ruta) for ruta in visibles)
+
+
 def limpiar_cache(raiz: Path) -> int:
     """Borra y COMPRUEBA todo `__pycache__` bajo `raiz`.
 
@@ -311,7 +334,7 @@ def limpiar_cache(raiz: Path) -> int:
     proyecto no puede hacer que limpiar su caché borre un directorio ajeno.
     """
     try:
-        raiz_fisica = raiz.resolve(strict=True)
+        raiz_fisica = _resolver_existente(raiz)
     except OSError as e:
         raise CacheNoLimpio(f"no se pudo resolver la raíz de caché «{raiz}»: {e}") from e
 
@@ -324,7 +347,7 @@ def limpiar_cache(raiz: Path) -> int:
         if d.name != "__pycache__":
             raise CacheNoLimpio(f"se rechazó borrar una ruta que no es caché: «{d}»")
         try:
-            d.parent.resolve(strict=True).relative_to(raiz_fisica)
+            _resolver_existente(d.parent).relative_to(raiz_fisica)
         except (OSError, ValueError) as e:
             raise CacheNoLimpio(
                 f"se rechazó borrar un caché fuera de la raíz «{raiz}»: «{d}»") from e
@@ -340,7 +363,7 @@ def limpiar_cache(raiz: Path) -> int:
 
     restantes = _caches_bajo(raiz)
     if restantes:
-        muestra = ", ".join(str(p) for p in restantes[:3])
+        muestra = _muestra_rutas(restantes)
         raise CacheNoLimpio(f"siguen presentes cachés después de limpiar: {muestra}")
     return len(encontrados)
 
@@ -356,13 +379,13 @@ def _terminar_proceso(proceso: subprocess.Popen) -> None:
     except ProcessLookupError:
         return
     try:
-        proceso.wait(timeout=1)
+        proceso.wait(timeout=ESPERA_TERMINACION_SUAVE)
     except subprocess.TimeoutExpired:
         pass
     # El líder puede salir con SIGTERM mientras un nieto lo ignora. El grupo sigue existiendo aunque
     # `wait()` del líder ya haya terminado; se lo mata completo antes de devolver control.
     try:
-        os.killpg(proceso.pid, 0)
+        os.killpg(proceso.pid, SENAL_SONDEO_GRUPO)
     except ProcessLookupError:
         return
     else:
@@ -371,7 +394,7 @@ def _terminar_proceso(proceso: subprocess.Popen) -> None:
         except ProcessLookupError:
             pass
         try:
-            proceso.wait(timeout=2)
+            proceso.wait(timeout=ESPERA_TERMINACION_FORZADA)
         except subprocess.TimeoutExpired:
             pass
 
@@ -386,9 +409,9 @@ def _terminar_activos() -> None:
 def _leer_acotado(canal, limite: int, salida: list[bytes], estado: dict) -> None:
     total = 0
     try:
-        while bloque := canal.read(8192):
-            disponible = max(0, limite - total)
-            if disponible:
+        while bloque := canal.read(io.DEFAULT_BUFFER_SIZE):
+            disponible = limite - total
+            if disponible > 0:
                 salida.append(bloque[:disponible])
             total += len(bloque)
     finally:
@@ -397,8 +420,8 @@ def _leer_acotado(canal, limite: int, salida: list[bytes], estado: dict) -> None
 
 
 def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
-                   codigos_fallo_tests=frozenset({1}), entorno=None,
-                   limite_salida: int = 1_048_576) -> ResultadoTests:
+                   codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS, entorno=None,
+                   limite_salida: int = LIMITE_SALIDA_PREDETERMINADO) -> ResultadoTests:
     """Ejecuta un comando y conserva su categoría y diagnóstico.
 
     El protocolo por defecto reserva 0 para verde y 1 para tests que discriminaron. Otros códigos,
@@ -427,9 +450,9 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
     estado_out, estado_err = {}, {}
     lectores = [
         threading.Thread(target=_leer_acotado,
-                         args=(proceso.stdout, limite_salida, stdout_b, estado_out), daemon=True),
+                         args=(proceso.stdout, limite_salida, stdout_b, estado_out)),
         threading.Thread(target=_leer_acotado,
-                         args=(proceso.stderr, limite_salida, stderr_b, estado_err), daemon=True),
+                         args=(proceso.stderr, limite_salida, stderr_b, estado_err)),
     ]
     with _PROCESOS_GUARDA:
         _PROCESOS_ACTIVOS.add(proceso)
@@ -445,14 +468,14 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
             codigo = None
     finally:
         for lector in lectores:
-            lector.join(timeout=3)
+            lector.join()
         with _PROCESOS_GUARDA:
             _PROCESOS_ACTIVOS.discard(proceso)
 
     stdout = b"".join(stdout_b).decode("utf-8", errors="replace")
     stderr = b"".join(stderr_b).decode("utf-8", errors="replace")
-    truncado_out = estado_out.get("truncado", False)
-    truncado_err = estado_err.get("truncado", False)
+    truncado_out = estado_out["truncado"]
+    truncado_err = estado_err["truncado"]
     if agotado:
         return ResultadoTests(
             EstadoTests.TIMEOUT, None, stdout, stderr, truncado_out, truncado_err)
@@ -466,7 +489,8 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
     return ResultadoTests(estado, codigo, stdout, stderr, truncado_out, truncado_err)
 
 
-def correr_tests(comando: list[str], raiz: Path, timeout: float = 60.0) -> bool:
+def correr_tests(comando: list[str], raiz: Path,
+                 timeout: float = TIMEOUT_PREDETERMINADO) -> bool:
     """Wrapper booleano histórico; la ronda usa `ejecutar_tests` para no perder estados."""
     return ejecutar_tests(comando, raiz, timeout=timeout).pasaron
 
@@ -474,7 +498,7 @@ def correr_tests(comando: list[str], raiz: Path, timeout: float = 60.0) -> bool:
 def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
                     codigos_fallo_tests, etapa: str,
                     permitir_cache_preexistente: bool = False,
-                    limite_salida: int = 1_048_576) -> ResultadoTests:
+                    limite_salida: int = LIMITE_SALIDA_PREDETERMINADO) -> ResultadoTests:
     """Ejecuta una ronda entre dos fronteras comprobadas de caché frío.
 
     `PYTHONPYCACHEPREFIX` apunta a un directorio temporal fresco para que CPython tampoco lea un pyc
@@ -486,8 +510,7 @@ def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
     if not permitir_cache_preexistente:
         reaparecidos_antes = _caches_bajo(raiz)
         if reaparecidos_antes:
-            muestra = ", ".join(
-                str(p.relative_to(raiz)) for p in reaparecidos_antes[:3])
+            muestra = _muestra_rutas(reaparecidos_antes, raiz)
             try:
                 raise CacheNoLimpio(
                     f"reapareció caché antes de ejecutar {etapa}: {muestra}")
@@ -507,7 +530,7 @@ def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
 
         reaparecidos = _caches_bajo(raiz)
         if reaparecidos:
-            muestra = ", ".join(str(p.relative_to(raiz)) for p in reaparecidos[:3])
+            muestra = _muestra_rutas(reaparecidos, raiz)
             error = CacheNoLimpio(
                 f"reapareció caché después de ejecutar {etapa}: {muestra}")
             error.resultado = resultado
@@ -532,7 +555,7 @@ def _comprobar_cierre_frio(raiz: Path) -> None:
     reaparecidos = _caches_bajo(raiz)
     if not reaparecidos:
         return
-    muestra = ", ".join(str(p.relative_to(raiz)) for p in reaparecidos[:3])
+    muestra = _muestra_rutas(reaparecidos, raiz)
     try:
         raise CacheNoLimpio(f"reapareció caché antes de cerrar la ronda: {muestra}")
     finally:
@@ -546,7 +569,7 @@ def _validar_objetivos(raiz: Path, objetivos: list[Path]) -> None:
     ronda mutara temporalmente un archivo ajeno al proyecto y que una interrupción lo dejara roto.
     """
     try:
-        raiz_fisica = raiz.resolve(strict=True)
+        raiz_fisica = _resolver_existente(raiz)
     except (OSError, RuntimeError) as e:
         raise ObjetivoInvalido(f"no se pudo resolver la raíz «{raiz}»: {e}") from e
     if not raiz_fisica.is_dir():
@@ -556,7 +579,7 @@ def _validar_objetivos(raiz: Path, objetivos: list[Path]) -> None:
         if ruta.is_symlink():
             raise ObjetivoInvalido(f"el objetivo de mutación no puede ser un symlink: «{ruta}»")
         try:
-            fisica = ruta.resolve(strict=True)
+            fisica = _resolver_existente(ruta)
         except (OSError, RuntimeError) as e:
             raise ObjetivoInvalido(f"no se pudo resolver el objetivo «{ruta}»: {e}") from e
         try:
@@ -599,8 +622,7 @@ def _escribir_manifiesto(ruta: Path, datos: dict) -> None:
     temporal = Path(temporal)
     try:
         with os.fdopen(descriptor, "w", encoding="utf-8") as archivo:
-            json.dump(datos, archivo, ensure_ascii=False, sort_keys=True, indent=2)
-            archivo.write("\n")
+            archivo.write(_json_canonico(datos) + "\n")
             archivo.flush()
             os.fsync(archivo.fileno())
         os.replace(temporal, ruta)
@@ -640,7 +662,7 @@ def _cargar_reanudacion(ruta: Path, identidad: dict, sitios: dict[str, Sitio]) -
     ids = [fila.get("id") for fila in filas if isinstance(fila, dict)]
     if len(ids) != len(filas) or len(set(ids)) != len(ids) or not set(ids) <= set(sitios):
         raise ManifiestoInvalido("el manifiesto contiene ids inválidos, duplicados o vencidos")
-    requeridos = {"apunta_a", "cambio", "murio", "estado", "tests_fallaron", "error_arnes",
+    requeridos = {"id", "apunta_a", "cambio", "murio", "estado", "tests_fallaron", "error_arnes",
                   "timeout", "codigo_salida", "equivalente_declarado", "razon_equivalente"}
     for fila in filas:
         sitio = sitios[fila["id"]]
@@ -658,17 +680,18 @@ def _cargar_reanudacion(ruta: Path, identidad: dict, sitios: dict[str, Sitio]) -
 
 @contextmanager
 def _bloqueo_de_ronda(raiz: Path):
-    identificador = hashlib.sha256(str(raiz.resolve()).encode("utf-8")).hexdigest()[:24]
+    identificador = hashlib.sha256(str(raiz.resolve()).encode("utf-8")).hexdigest()[
+        :LONGITUD_IDENTIFICADOR_BLOQUEO]
     ruta = Path(tempfile.gettempdir()) / f"oracle-mutacion-{identificador}.lock"
     archivo = ruta.open("a+", encoding="utf-8")
     try:
         try:
             fcntl.flock(archivo.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError as e:
-            archivo.seek(0)
+            archivo.seek(os.SEEK_SET)
             duenio = archivo.read().strip() or "desconocido"
             raise RondaEnCurso(f"ya hay una ronda para {raiz} (pid {duenio})") from e
-        archivo.seek(0)
+        archivo.seek(os.SEEK_SET)
         archivo.truncate()
         archivo.write(str(os.getpid()))
         archivo.flush()
@@ -690,7 +713,7 @@ def _senales_de_ronda():
 
     def terminar(sig, _marco):
         _terminar_activos()
-        raise SystemExit(128 + sig)
+        raise SystemExit(DESPLAZAMIENTO_SALIDA_POR_SENAL + sig)
 
     try:
         for sig in (signal.SIGTERM, signal.SIGINT, signal.SIGHUP):
@@ -727,9 +750,10 @@ def _comando_en_copia(comando: list[str], raiz: Path, copia: Path) -> list[str]:
 
 def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                      equivalentes: dict[str, str] | None = None, al_terminar_uno=None, *,
-                     timeout_por_ejecucion: float = 60.0,
-                     codigos_fallo_tests=frozenset({1}), limite_diagnostico: int = 16_384,
-                     limite_salida: int = 1_048_576,
+                     timeout_por_ejecucion: float = TIMEOUT_PREDETERMINADO,
+                     codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS,
+                     limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
+                     limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
                      filas_previas: list[dict] | None = None) -> dict:
     """Genera y prueba todos los mutantes. Devuelve EVIDENCIA, no un informe.
 
@@ -880,12 +904,13 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
 
 def correr(raiz: Path, objetivos: list[Path], comando: list[str],
            equivalentes: dict[str, str] | None = None, al_terminar_uno=None, *,
-           timeout_por_ejecucion: float = 60.0,
-           codigos_fallo_tests=frozenset({1}), limite_diagnostico: int = 16_384,
-           limite_salida: int = 1_048_576, manifiesto: Path | None = None,
+           timeout_por_ejecucion: float = TIMEOUT_PREDETERMINADO,
+           codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS,
+           limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
+           limite_salida: int = LIMITE_SALIDA_PREDETERMINADO, manifiesto: Path | None = None,
            reanudar: bool = False, dependencias: list[Path] | None = None) -> dict:
     """Muta exclusivamente una copia temporal y comprueba que los objetivos originales no cambien."""
-    raiz = Path(raiz).resolve(strict=True)
+    raiz = _resolver_existente(Path(raiz))
     objetivos = [Path(ruta) if Path(ruta).is_absolute() else raiz / ruta for ruta in objetivos]
     _validar_objetivos(raiz, objetivos)
     dependencias = [Path(ruta) if Path(ruta).is_absolute() else raiz / ruta

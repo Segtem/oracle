@@ -23,7 +23,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
-from nucleo.medida import cargar_catalogo  # noqa: E402
+from nucleo.medida import cargar_catalogo, medidas_aplicables  # noqa: E402
 from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
                                               LineaBaseFallida, AislamientoRoto,
                                               ManifiestoInvalido, RondaEnCurso, correr)  # noqa: E402
@@ -206,10 +206,9 @@ def _ejecutar(args) -> int:
           f"equivalentes declarados: {len(eq)}")
 
     catalogo = cargar_catalogo(catalogos_a_cargar(PROY))
-    for mid in ("proceso.test_con_mutante_que_lo_mata", "proceso.arnes_con_bytecode_frio",
-                "proceso.ronda_mutacion_concluyente"):
-        v = catalogo[mid].evaluar(evidencia)
-        print(f"  {'✓' if v.ok else '✗'} {mid:<44} valor {v.valor} ({v.umbral})")
+    for medida in medidas_aplicables(catalogo.values(), evidencia):
+        v = medida.evaluar(evidencia)
+        print(f"  {'✓' if v.ok else '✗'} {v.id:<44} valor {v.valor} ({v.umbral})")
 
     if ronda_inconclusa:
         print("\nRONDA INCONCLUSA: un timeout o error del arnés no mata un mutante.")

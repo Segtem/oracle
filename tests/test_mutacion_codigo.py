@@ -7,12 +7,14 @@ no se escriba nunca**. Cada mutante vive en una copia temporal.
 
 from __future__ import annotations
 
+import io
 import json
 import subprocess
 import signal
 import sys
 import tempfile
 import unittest
+from dataclasses import FrozenInstanceError
 from pathlib import Path
 from unittest import mock
 
@@ -85,6 +87,21 @@ class SitiosTests(unittest.TestCase):
         s = next(x for x in self._sitios() if x.operador == "booleano")
         self.assertEqual(s.id, f"{s.archivo}:{s.linea}:{s.columna}:booleano")
         self.assertEqual(s.linea, 2)
+
+    def test_sitio_y_resultado_son_inmutables_y_publican_defaults_exactos(self) -> None:
+        sitio = mc.Sitio("m.py", 1, 2, "constante", "1 → 2")
+        resultado = mc.ResultadoTests(mc.EstadoTests.PASARON, 0)
+        self.assertEqual((resultado.stdout_truncado, resultado.stderr_truncado), (False, False))
+        for objeto, campo in ((sitio, "linea"), (resultado, "codigo_salida")):
+            with self.subTest(tipo=type(objeto).__name__), self.assertRaises(FrozenInstanceError):
+                setattr(objeto, campo, 99)
+
+    def test_las_descripciones_de_constantes_dicen_el_cambio_generado(self) -> None:
+        sitios = self._sitios("bandera = True\nnumero = 7\n")
+        self.assertEqual(
+            [sitio.descripcion for sitio in sitios if sitio.operador == "constante"],
+            ["True → False", "7 → 8"],
+        )
 
     def test_no_propone_mutar_un_return_que_ya_es_None(self) -> None:
         self.assertEqual([s for s in self._sitios("def f():\n    return None\n")
@@ -169,6 +186,35 @@ class CorrerTests(unittest.TestCase):
             ev = mc.correr(raiz, [objetivo], SIEMPRE_PASA)
             self.assertTrue(ev["mutante"])
             self.assertTrue(all(not m["murio"] for m in ev["mutante"]))
+            corrida = ev["corrida_mutacion"][0]
+            self.assertEqual(corrida["primer_fallo_id"], "")
+            self.assertEqual(corrida["primer_fallo_estado"], "")
+            self.assertIsNone(corrida["primer_fallo_codigo_salida"])
+            self.assertEqual(corrida["primer_fallo_salida"], "")
+            self.assertIs(corrida["primer_fallo_salida_truncada"], False)
+            self.assertEqual(corrida["primer_inconcluso_id"], "")
+            self.assertEqual(corrida["primer_inconcluso_estado"], "")
+            self.assertIsNone(corrida["primer_inconcluso_codigo_salida"])
+            self.assertEqual(corrida["primer_inconcluso_salida"], "")
+            self.assertIs(corrida["primer_inconcluso_salida_truncada"], False)
+
+    def test_primer_fallo_e_inconcluso_son_los_primeros_reales(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            sitios = mc.sitios_de(objetivo, raiz)
+            resultados = [
+                mc.ResultadoTests(mc.EstadoTests.PASARON, 0),       # línea base
+                mc.ResultadoTests(mc.EstadoTests.PASARON, 0),       # primer mutante
+                mc.ResultadoTests(mc.EstadoTests.TESTS_FALLARON, 1),
+                mc.ResultadoTests(mc.EstadoTests.ERROR_ARNES, 2),
+            ] + [mc.ResultadoTests(mc.EstadoTests.PASARON, 0)] * (len(sitios) - 3)
+            with mock.patch.object(mc, "ejecutar_tests", side_effect=resultados):
+                corrida = mc._correr_en_raiz(
+                    raiz, [objetivo], SIEMPRE_PASA)["corrida_mutacion"][0]
+        self.assertEqual(corrida["primer_fallo_id"], sitios[1].id)
+        self.assertEqual(corrida["primer_fallo_estado"], "tests_fallaron")
+        self.assertEqual(corrida["primer_inconcluso_id"], sitios[2].id)
+        self.assertEqual(corrida["primer_inconcluso_estado"], "error_arnes")
 
     def test_si_la_linea_base_falla_aborta_sin_tocar_la_fuente(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -179,6 +225,11 @@ class CorrerTests(unittest.TestCase):
                           al_terminar_uno=producidos.append)
             self.assertEqual(producidos, [])
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
+
+    def test_una_linea_base_sin_salida_conserva_un_diagnostico_explicito(self) -> None:
+        resultado = mc.ResultadoTests(mc.EstadoTests.ERROR_ARNES, 2)
+        error = mc.LineaBaseFallida(resultado)
+        self.assertIn("(sin salida diagnóstica)", str(error))
 
     def test_rechaza_un_objetivo_symlink_antes_de_escribir_fuera_de_la_raiz(self) -> None:
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as ajeno:
@@ -207,6 +258,9 @@ class CorrerTests(unittest.TestCase):
         self.assertTrue(corrida["bytecode_frio"])
         self.assertNotIn("resultado_confiable", corrida)
         self.assertNotIn("cache_reapariciones", corrida)
+        self.assertEqual(corrida["rondas_ejecutadas"], len(ev["mutante"]) + 1)
+        self.assertEqual(corrida["rondas_cache_verificadas"], len(ev["mutante"]) + 1)
+        self.assertEqual(corrida["mutantes_reutilizados"], 0)
 
     def test_un_fallo_de_tests_es_la_UNICA_muerte_valida(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -321,6 +375,39 @@ class CorrerTests(unittest.TestCase):
                           {"m.py:999:0:retorno": "existió en otra versión"})
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
+    def test_equivalentes_invalidos_se_rechazan_antes_de_copiar(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            sitio = mc.sitios_de(objetivo, raiz)[0]
+            for equivalentes in ({sitio.id: "  "}, {"vencido": "razón"}):
+                with self.subTest(equivalentes=equivalentes), mock.patch.object(
+                        mc, "_copiar_proyecto") as copiar:
+                    with self.assertRaises(mc.EquivalenteInvalido):
+                        mc.correr(raiz, [objetivo], SIEMPRE_PASA, equivalentes)
+                    copiar.assert_not_called()
+
+    def test_la_validacion_interna_rechaza_equivalentes_y_limites_invalidos(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            sitio = mc.sitios_de(objetivo, raiz)[0]
+            for equivalentes in ({sitio.id: "  "}, {"vencido": "razón"}):
+                with self.subTest(equivalentes=equivalentes), self.assertRaises(
+                        mc.EquivalenteInvalido):
+                    mc._correr_en_raiz(
+                        raiz, [objetivo], SIEMPRE_PASA, equivalentes=equivalentes)
+            for limite in (True, 0, -1, 1.5):
+                with self.subTest(limite=limite), self.assertRaises(ValueError):
+                    mc._correr_en_raiz(
+                        raiz, [objetivo], SIEMPRE_PASA, limite_diagnostico=limite)
+
+    def test_linea_base_tolera_y_limpia_cache_preexistente(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "__pycache__").mkdir()
+            evidencia = mc._correr_en_raiz(raiz, [], SIEMPRE_PASA)
+            self.assertTrue(evidencia["corrida_mutacion"][0]["baseline_verde"])
+            self.assertFalse((raiz / "__pycache__").exists())
+
     def test_SIGTERM_no_toca_el_original_y_termina_el_subproceso(self) -> None:
         """La ronda muta una copia: el original no cambia ni durante ni después de SIGTERM."""
         import os
@@ -363,12 +450,71 @@ class CorrerTests(unittest.TestCase):
                 os.kill(hijo, 0)
 
     def test_dos_rondas_no_pueden_tomar_el_mismo_bloqueo(self) -> None:
+        import os
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d)
             with mc._bloqueo_de_ronda(raiz):
-                with self.assertRaises(mc.RondaEnCurso):
+                with self.assertRaises(mc.RondaEnCurso) as atrapado:
                     with mc._bloqueo_de_ronda(raiz):
                         pass
+                self.assertIn(f"pid {os.getpid()}", str(atrapado.exception))
+
+    def test_senales_de_ronda_publican_salida_convencional_y_se_restauran(self) -> None:
+        anterior = signal.getsignal(signal.SIGTERM)
+        with mock.patch.object(mc, "_terminar_activos") as terminar:
+            with mc._senales_de_ronda():
+                handler = signal.getsignal(signal.SIGTERM)
+                with self.assertRaises(SystemExit) as salida:
+                    handler(signal.SIGTERM, None)
+                self.assertEqual(
+                    salida.exception.code,
+                    mc.DESPLAZAMIENTO_SALIDA_POR_SENAL + signal.SIGTERM)
+                terminar.assert_called_once_with()
+        self.assertIs(signal.getsignal(signal.SIGTERM), anterior)
+
+    def test_copiar_proyecto_preserva_enlaces_y_excluye_metadatos(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            base = Path(d)
+            raiz = base / "origen"
+            destino = base / "copia"
+            raiz.mkdir()
+            (raiz / "dato.txt").write_text("dato", encoding="utf-8")
+            (raiz / "enlace").symlink_to("dato.txt")
+            (raiz / ".git").mkdir()
+            (raiz / ".git" / "config").write_text("secreto", encoding="utf-8")
+            (raiz / "__pycache__").mkdir()
+            (raiz / "__pycache__" / "m.pyc").write_bytes(b"cache")
+            mc._copiar_proyecto(raiz, destino)
+            self.assertTrue((destino / "enlace").is_symlink())
+            self.assertEqual((destino / "enlace").readlink(), Path("dato.txt"))
+            self.assertFalse((destino / ".git").exists())
+            self.assertFalse((destino / "__pycache__").exists())
+
+    def test_comando_en_copia_solo_reescribe_rutas_absolutas_internas(self) -> None:
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as e:
+            raiz = Path(d).resolve()
+            copia = raiz.parent / "copia-aislada"
+            interno = raiz / "sub" / "a.py"
+            externo = Path(e).resolve() / "b.py"
+            comando = ["python", str(interno), "relativo.py", str(externo)]
+            self.assertEqual(
+                mc._comando_en_copia(comando, raiz, copia),
+                ["python", str(copia / "sub" / "a.py"), "relativo.py", str(externo)])
+
+    def test_validar_objetivos_rechaza_raiz_y_objetivos_no_fisicos(self) -> None:
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as e:
+            raiz = Path(d)
+            exterior = Path(e) / "m.py"
+            exterior.write_text(FUENTE, encoding="utf-8")
+            directorio = raiz / "directorio.py"
+            directorio.mkdir()
+            for objetivos in ([raiz / "ausente.py"], [directorio], [exterior]):
+                with self.subTest(objetivos=objetivos), self.assertRaises(mc.ObjetivoInvalido):
+                    mc._validar_objetivos(raiz, objetivos)
+            archivo_raiz = raiz / "archivo"
+            archivo_raiz.write_text("x", encoding="utf-8")
+            with self.assertRaises(mc.ObjetivoInvalido):
+                mc._validar_objetivos(archivo_raiz, [])
 
     def test_un_fallo_de_escritura_en_la_copia_no_toca_el_original(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -387,6 +533,30 @@ class CorrerTests(unittest.TestCase):
         self.assertEqual(despues, antes)
         self.assertTrue(ev["corrida_mutacion"][0]["aislada"])
         self.assertTrue(ev["corrida_mutacion"][0]["fuentes_originales_intactas"])
+
+    def test_detecta_por_separado_original_modificado_o_eliminado(self) -> None:
+        class AlterarOriginal:
+            def __init__(self, objetivo: Path, eliminar: bool):
+                self.objetivo = objetivo
+                self.eliminar = eliminar
+                self.hecho = False
+
+            def __call__(self, _fila):
+                if self.hecho:
+                    return
+                if self.eliminar:
+                    self.objetivo.unlink()
+                else:
+                    self.objetivo.write_text("cambio externo\n", encoding="utf-8")
+                self.hecho = True
+
+        for eliminar in (False, True):
+            with self.subTest(eliminar=eliminar), tempfile.TemporaryDirectory() as d:
+                raiz, objetivo = self._entorno(d)
+                with self.assertRaises(mc.AislamientoRoto):
+                    mc.correr(
+                        raiz, [objetivo], SIEMPRE_PASA,
+                        al_terminar_uno=AlterarOriginal(objetivo, eliminar))
 
     def test_una_ronda_interrumpida_reanuda_desde_un_manifiesto_verificado(self) -> None:
         class Interrumpida(RuntimeError):
@@ -456,11 +626,100 @@ class CorrerTests(unittest.TestCase):
                     raiz, [objetivo], SIEMPRE_PASA,
                     manifiesto=manifiesto, reanudar=True, dependencias=[dependencia])
 
+    def test_cargar_reanudacion_rechaza_cada_clase_de_corrupcion(self) -> None:
+        sitio = mc.Sitio("m.py", 1, 0, "retorno", "return <algo> → return None")
+        identidad = {"equivalentes": {}}
+        fila = {
+            "id": sitio.id,
+            "apunta_a": sitio.archivo,
+            "cambio": f"{sitio.operador}: {sitio.descripcion}",
+            "murio": False,
+            "estado": mc.EstadoTests.PASARON.value,
+            "tests_fallaron": False,
+            "error_arnes": False,
+            "timeout": False,
+            "codigo_salida": 0,
+            "equivalente_declarado": False,
+            "razon_equivalente": "",
+        }
+
+        def manifiesto(filas=None):
+            filas = [dict(fila)] if filas is None else filas
+            return {
+                "esquema": mc.ESQUEMA_MANIFIESTO,
+                "identidad": identidad,
+                "huella": mc._huella_json(identidad),
+                "completados": filas,
+                "huella_completados": mc._huella_json(filas),
+            }
+
+        def con_fila(**cambios):
+            alterada = dict(fila)
+            alterada.update(cambios)
+            return manifiesto([alterada])
+
+        casos = {
+            "raiz_no_objeto": [],
+            "esquema": {**manifiesto(), "esquema": "desconocido"},
+            "identidad": {**manifiesto(), "identidad": {"equivalentes": {"x": "y"}}},
+            "huella_identidad": {**manifiesto(), "huella": "0"},
+            "filas_no_lista": {**manifiesto(), "completados": {}},
+            "huella_filas": {**manifiesto(), "huella_completados": "0"},
+            "fila_no_objeto": manifiesto(["fila"]),
+            "id_duplicado": manifiesto([dict(fila), dict(fila)]),
+            "id_vencido": con_fila(id="m.py:9:0:retorno"),
+            "campo_faltante": manifiesto([{k: v for k, v in fila.items() if k != "cambio"}]),
+            "archivo": con_fila(apunta_a="otro.py"),
+            "cambio": con_fila(cambio="constante: otro"),
+            "estado": con_fila(estado="inventado"),
+            "murio_no_bool": con_fila(murio=1, tests_fallaron=1),
+            "muerte_incoherente": con_fila(murio=True),
+            "equivalente_incoherente": con_fila(equivalente_declarado=True),
+            "razon_incoherente": con_fila(razon_equivalente="inventada"),
+        }
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "estado.json"
+            valido = manifiesto()
+            ruta.write_text(json.dumps(valido), encoding="utf-8")
+            datos, filas = mc._cargar_reanudacion(ruta, identidad, {sitio.id: sitio})
+            self.assertEqual(datos, valido)
+            self.assertEqual(filas, [fila])
+            for nombre, datos_corruptos in casos.items():
+                ruta.write_text(json.dumps(datos_corruptos), encoding="utf-8")
+                with self.subTest(nombre=nombre), self.assertRaises(mc.ManifiestoInvalido):
+                    mc._cargar_reanudacion(ruta, identidad, {sitio.id: sitio})
+
     def test_limpiar_cache_borra_los_pycache(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             (Path(d) / "sub" / "__pycache__").mkdir(parents=True)
             self.assertEqual(mc.limpiar_cache(Path(d)), 1)
             self.assertFalse((Path(d) / "sub" / "__pycache__").exists())
+
+    def test_el_recorrido_de_cache_es_fisico_podado_y_profundo_primero(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "__pycache__").mkdir()
+            (raiz / "sub" / "__pycache__").mkdir(parents=True)
+            encontrados = mc._caches_bajo(raiz)
+            self.assertEqual(
+                encontrados,
+                [raiz / "sub" / "__pycache__", raiz / "__pycache__"])
+
+        with mock.patch.object(mc.os, "walk", return_value=[]) as walk:
+            mc._caches_bajo(Path("raiz"))
+        self.assertEqual(walk.call_args.args, (Path("raiz"),))
+        self.assertIs(walk.call_args.kwargs["topdown"], True)
+        self.assertIs(walk.call_args.kwargs["followlinks"], False)
+        self.assertTrue(callable(walk.call_args.kwargs["onerror"]))
+
+    def test_resolver_existente_falla_cerrado_y_la_muestra_esta_acotada(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            with self.assertRaises(FileNotFoundError):
+                mc._resolver_existente(raiz / "ausente")
+            rutas = [raiz / str(i) for i in range(5)]
+            self.assertEqual(mc._muestra_rutas(rutas), ", ".join(map(str, rutas[:3])))
+            self.assertEqual(mc._muestra_rutas(rutas, raiz), "0, 1, 2")
 
     def test_limpiar_cache_desenlaza_un_symlink_sin_borrar_su_destino(self) -> None:
         with tempfile.TemporaryDirectory() as d:
@@ -572,6 +831,129 @@ class CorrerTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             self.assertTrue(mc.correr_tests(SIEMPRE_PASA, Path(d)))
             self.assertFalse(mc.correr_tests(SIEMPRE_FALLA, Path(d)))
+
+    def test_la_politica_operativa_predeterminada_es_unica_y_explicita(self) -> None:
+        self.assertEqual(mc.TIMEOUT_PREDETERMINADO, 60.0)
+        self.assertEqual(mc.CODIGOS_FALLO_PREDETERMINADOS, frozenset({1}))
+        self.assertEqual(mc.LIMITE_DIAGNOSTICO_PREDETERMINADO, 16_384)
+        self.assertEqual(mc.LIMITE_SALIDA_PREDETERMINADO, 1_048_576)
+        self.assertEqual(mc.MAX_RUTAS_DIAGNOSTICO, 3)
+        self.assertEqual(mc.ESPERA_TERMINACION_SUAVE, 1.0)
+        self.assertEqual(mc.ESPERA_TERMINACION_FORZADA, 2.0)
+        self.assertEqual(mc.LONGITUD_IDENTIFICADOR_BLOQUEO, 24)
+        self.assertEqual(mc.DESPLAZAMIENTO_SALIDA_POR_SENAL, 128)
+        self.assertEqual(mc.SENAL_SONDEO_GRUPO, 0)
+
+    def test_ejecutar_tests_rechaza_presupuestos_y_codigos_ambiguos(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            for timeout in (True, 0, -1, float("inf"), "1"):
+                with self.subTest(timeout=timeout), self.assertRaises(ValueError):
+                    mc.ejecutar_tests(SIEMPRE_PASA, raiz, timeout=timeout)
+            for codigos in ({0}, {True}, {1.5}):
+                with self.subTest(codigos=codigos), self.assertRaises(ValueError):
+                    mc.ejecutar_tests(
+                        SIEMPRE_PASA, raiz, timeout=1, codigos_fallo_tests=codigos)
+            for limite in (True, 0, -1, 1.5):
+                with self.subTest(limite=limite), self.assertRaises(ValueError):
+                    mc.ejecutar_tests(
+                        SIEMPRE_PASA, raiz, timeout=1, limite_salida=limite)
+
+            vacio = mc.ejecutar_tests([], raiz, timeout=1)
+            self.assertEqual(vacio.estado, mc.EstadoTests.ERROR_ARNES)
+            self.assertIsNone(vacio.codigo_salida)
+            self.assertIn("vacío", vacio.stderr)
+
+    def test_el_limite_de_captura_es_inclusivo(self) -> None:
+        for limite, esperado in ((3, False), (2, True)):
+            salida, estado = [], {}
+            mc._leer_acotado(io.BytesIO(b"abc"), limite, salida, estado)
+            with self.subTest(limite=limite):
+                self.assertEqual(b"".join(salida), b"abc"[:limite])
+                self.assertIs(estado["truncado"], esperado)
+
+        class CanalPorBloques:
+            def __init__(self):
+                self.bloques = iter((b"a", b"b", b""))
+                self.cerrado = False
+
+            def read(self, _cantidad):
+                return next(self.bloques)
+
+            def close(self):
+                self.cerrado = True
+
+        canal = CanalPorBloques()
+        salida, estado = [], {}
+        mc._leer_acotado(canal, 1, salida, estado)
+        self.assertEqual(salida, [b"a"])
+        self.assertIs(estado["truncado"], True)
+        self.assertTrue(canal.cerrado)
+
+    def test_los_limites_minimos_validos_se_aceptan(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            resultado = mc.ejecutar_tests(
+                [sys.executable, "-c", "print('x', end='')"],
+                raiz, timeout=1, limite_salida=1)
+            self.assertTrue(resultado.pasaron)
+            self.assertEqual(resultado.stdout, "x")
+            evidencia = mc._correr_en_raiz(
+                raiz, [], SIEMPRE_PASA, limite_diagnostico=1)
+            self.assertTrue(evidencia["corrida_mutacion"][0]["baseline_verde"])
+
+    def test_una_ronda_mutante_rechaza_cache_preexistente_por_defecto(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "__pycache__").mkdir()
+            with self.assertRaises(mc.CacheNoLimpio):
+                mc._ejecutar_ronda(
+                    SIEMPRE_PASA, raiz, timeout=1,
+                    codigos_fallo_tests={1}, etapa="mutante")
+            self.assertFalse((raiz / "__pycache__").exists())
+
+    def test_el_diagnostico_conserva_limites_y_marcas_de_captura(self) -> None:
+        limpio = mc.ResultadoTests(mc.EstadoTests.TESTS_FALLARON, 1, stdout="abc")
+        self.assertEqual(mc._diagnostico(limpio, 3), ("abc", False))
+        self.assertEqual(mc._diagnostico(limpio, 2), ("ab\n… salida truncada …", True))
+        for stdout_truncado, stderr_truncado in ((True, False), (False, True)):
+            resultado = mc.ResultadoTests(
+                mc.EstadoTests.TESTS_FALLARON, 1, stdout="abc",
+                stdout_truncado=stdout_truncado, stderr_truncado=stderr_truncado)
+            diagnostico, truncado = mc._diagnostico(resultado, 3)
+            self.assertTrue(truncado)
+            self.assertEqual(diagnostico, "abc\n… salida acotada durante la ejecución …")
+        self.assertEqual(
+            mc._diagnostico(mc.ResultadoTests(mc.EstadoTests.ERROR_ARNES, 2), 99),
+            ("(sin salida diagnóstica)", False))
+
+    def test_json_canonico_huella_y_manifiesto_son_deterministas(self) -> None:
+        datos = {"b": 1, "a": "ñ"}
+        canonico = '{"a":"ñ","b":1}'
+        self.assertEqual(mc._json_canonico(datos), canonico)
+        self.assertEqual(mc._huella_json(datos), mc._huella_json({"a": "ñ", "b": 1}))
+        self.assertNotEqual(mc._huella_json(datos), mc._huella_json({"a": "ñ", "b": 2}))
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "uno" / "dos" / "estado.json"
+            mc._escribir_manifiesto(ruta, datos)
+            self.assertEqual(ruta.read_text(encoding="utf-8"), canonico + "\n")
+
+    def test_terminar_proceso_aplica_escalado_y_esperas_explicitas(self) -> None:
+        proceso = mock.Mock(pid=123)
+        proceso.wait.side_effect = [
+            subprocess.TimeoutExpired("arnes", mc.ESPERA_TERMINACION_SUAVE),
+            None,
+        ]
+        with mock.patch.object(mc.os, "killpg") as killpg:
+            mc._terminar_proceso(proceso)
+        self.assertEqual(
+            killpg.call_args_list,
+            [mock.call(123, signal.SIGTERM), mock.call(123, mc.SENAL_SONDEO_GRUPO),
+             mock.call(123, signal.SIGKILL)])
+        self.assertEqual(
+            proceso.wait.call_args_list,
+            [mock.call(timeout=mc.ESPERA_TERMINACION_SUAVE),
+             mock.call(timeout=mc.ESPERA_TERMINACION_FORZADA)])
 
     def test_ejecutar_tests_distingue_fallo_error_y_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as d:

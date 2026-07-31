@@ -247,20 +247,27 @@ razón literal. Se retiró la medida que convertía el token español `NO ` en r
 evaluación filas de entrada, productos y profundidad, con techos finitos por defecto. Oracle pasa
 234 tests, aceptación y 129/129 mutantes de medida.
 
+**Refuerzo 2026-07-30:** el núcleo ya no enumera perfiles conocidos: descubre cualquier
+`perfiles/<nombre>/catalogos` físico y sólo `oracle.json` lo activa. Las herramientas seleccionan
+medidas juezas por las relaciones declaradas que pueden consumir, no por ids `proceso.*` incorporados
+al código. `nucleo/` tiene una regresión que prohíbe imports hacia perfiles y quedó sin ejemplos de
+dominios Jam en sus módulos.
+
 ### P2.3 Cerrar deuda, empaquetar y probar independencia
 
-- [ ] Reemplazar el baseline vencido 503/616 y triar el denominador actual: test discriminante o
+- [x] Reemplazar el baseline vencido 503/616 y triar el denominador actual: test discriminante o
   equivalencia individual con razón revisada.
 - [x] Reclasificar los casos `004` y `012` como resueltos sin contarlos como huecos abiertos; definir el
   estado honesto de `011`.
 - [x] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
   retirarlos de la especificación activa.
-- [ ] Añadir `pyproject.toml`, versión mínima de Python, entry points, licencia elegida y CI.
-- [ ] Generar cifras del README durante CI en vez de mantenerlas a mano.
-- [ ] Completar la migración o retirar el camino legado `jam.medida`/`jam.catalogo` después de un periodo
-  de sombra.
-- [ ] Validar el flujo con un segundo proyecto que no pertenezca a Jam ni haya sido diseñado junto con
-  Oracle.
+- [x] Añadir `pyproject.toml`, versión mínima de Python, entry points y CI.
+- [ ] Elegir y declarar la licencia (decisión legal del autor, no inferible del repositorio).
+- [x] Generar y comprobar las cifras del README durante CI en vez de mantenerlas a mano.
+- [x] Confirmar que Oracle no importa ni resuelve caminos legados de un consumidor; el corpus conserva
+  procedencia histórica sólo como datos.
+- [x] Validar el flujo completo con un proyecto externo sintético, catálogo y UDF propios.
+- [ ] Obtener evidencia de un consumidor real que no haya sido diseñado junto con Oracle.
 
 **Criterio de salida:** cero mutantes vivos no equivalentes, documentación generada y coherente, CI
 reproduce las verificaciones y un consumidor independiente completa autoría, diferencial y mutación.
@@ -268,9 +275,9 @@ reproduce las verificaciones y un consumidor independiente completa autoría, di
 **Estado parcial 2026-07-30:** los casos `004` y `012` ya son memoria resuelta y `011` declara una
 frontera humana; el corpus informa cero huecos abiertos. Al no existir dos usuarios reales, `con` y
 la unión izquierda se retiraron de la especificación y del parser activos, con regresiones de rechazo.
-Suite: 292. El alcance actual tiene 1090 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
-el sensor Python de módulos suman 137/137, `diferencial` aporta 42/42, `proyecto` 71/71 y `medida`
-97/97, `fixtures` 128/128, `mutacion` 147/147 y `algebra` 237/237: 859/859 ejecutados sin
+Suite: 319. El alcance actual tiene 1073 sitios; `grafo`, `macro`, `marco`, `dominio`, `simulacion` y
+el sensor Python de módulos suman 137/137, `diferencial` aporta 42/42, `proyecto` 79/79 y `medida`
+98/98, `fixtures` 128/128, `mutacion` 147/147 y `algebra` 237/237: 868/868 ejecutados sin
 equivalencias. La partición de proyecto añadió contratos de selección, configuración, confinamiento
 y opt-in de código externo;
 también retiró nueve constantes redundantes, incluido el truncado fijo de la huella del módulo. La de
@@ -280,12 +287,14 @@ fijó cada nivel del esquema, consistencia de fotos y proyección a mutación, y
 inobservable. La del mutador de medidas fijó IDs/rutas estructurales, negación y conteo agrupado, y
 retiró cuatro sitios redundantes. La de álgebra fijó límites, firmas escalares, ausencia, aridad,
 agregados mixtos y bordes inclusivos; retiró cuatro sitios redundantes y convirtió nueve roturas de
-inicialización en fallos atribuibles al código. Quedan los 231 sitios de
-`perfiles/python/mutacion_codigo.py` por ejecutar y triar. El manifiesto firma
-ahora también las fuentes de tests y soporte; cambiar la suite invalida la reanudación. Siguen
-pendientes empaquetado/CI,
-documentación generada,
-legado de Jam y el segundo consumidor independiente.
+inicialización en fallos atribuibles al código. La generalización posterior descubre perfiles sin
+registro central, deriva juezas desde sus relaciones y separa los esquemas de corrida de los dos
+sensores de mutación. Los 205 sitios vigentes de `perfiles/python/mutacion_codigo.py` cerraron
+205/205 sin equivalencias, timeout ni error de arnés: el total queda en 1073/1073. El manifiesto firma
+ahora también las fuentes de tests y soporte; cambiar la suite invalida la reanudación. El paquete se
+construye desde `pyproject.toml`, declara Python >=3.11 y siete entry points; CI reproduce contratos,
+comprueba las cifras derivables y ejecuta las trece particiones mutacionales. Siguen pendientes la
+licencia y la evidencia —necesariamente externa— de un consumidor real independiente.
 
 ## Primer bloque de trabajo recomendado
 

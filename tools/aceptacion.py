@@ -27,7 +27,8 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.marco import hechos_de_casos  # noqa: E402
-from nucleo.medida import cargar_catalogo, como_hechos, evaluar  # noqa: E402
+from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
+                           medidas_aplicables)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto, problemas_estructura,
                              resolver)  # noqa: E402
@@ -38,13 +39,6 @@ PROY = resolver(sys.argv[1:])
 def casos() -> list[dict]:
     return [json.loads(p.read_text(encoding="utf-8"))
             for p in sorted((PROY.corpus).rglob("*.json"))]
-
-
-def _relaciones(m) -> list[str]:
-    fuente = m.tuberia[1] if len(m.tuberia) > 1 else []
-    if not fuente:
-        return []
-    return [fuente[1]] if fuente[0] == "de" else [fuente[1][1], fuente[2][1]]
 
 
 def _ejecutar() -> int:
@@ -105,8 +99,7 @@ def _ejecutar() -> int:
     evidencia_meta = {"medida": como_hechos(catalogo.values()),
                       **hechos_de_casos(catalogo, todos)}
     metas = [m for mid, m in sorted(catalogo.items()) if mid.startswith("meta.")]
-    informe_meta = evaluar([m for m in metas
-                            if all(k in evidencia_meta for k in _relaciones(m))], evidencia_meta)
+    informe_meta = evaluar(medidas_aplicables(metas, evidencia_meta), evidencia_meta)
     for v in informe_meta.veredictos:
         print(" ", v.linea())
         if not v.ok:

@@ -1,7 +1,7 @@
 """Un dominio verificado, declarado en vez de escrito.
 
-Es la parte de «herramienta que crea herramientas». Hoy incorporar un dominio con verificación cuesta
-unas doscientas líneas de instrumento a mano, y los tres que existen son la misma estructura repetida:
+Es la parte de «herramienta que crea herramientas». Incorporar un dominio con verificación suele
+repetir la misma estructura:
 armar el escenario, extraer los hechos, inyectar un defecto, correr la implementación de referencia,
 comprobar las polaridades, escribir el fixture. Igual que las 22 medidas con la misma forma, eso se
 declara.
@@ -9,7 +9,7 @@ declara.
 ## Qué declara un dominio
 
     Dominio(
-        nombre     = "vault",
+        nombre     = "ejemplo",
         montar     = lambda defecto, i: …,  # arma el escenario n° i, con el defecto puesto o sin ninguno
         hechos     = lambda ctx: {...},   # el SENSOR: contexto → relaciones. No juzga.
         referencia = lambda ctx: bool,    # la implementación INDEPENDIENTE: ¿le parece bien?
@@ -32,7 +32,7 @@ información que la referencia no daba.
 Sin evidencia de los dos signos una medida no queda fijada: `aflojar_umbral` sólo lo detecta un caso
 rojo, y quitarle el filtro sólo se nota si hay filas que no ofenden. Así que `generar` **se niega a
 escribir** el fixture si alguna medida del dominio sale siempre igual. Eso lo comprobaban dos de los
-tres arneses; el tercero no, y por eso `vault.nombre_es_ascii` estuvo sin fijar.
+instrumentos existentes; omitirla deja medidas sin fijar aunque el acuerdo global parezca correcto.
 """
 
 from __future__ import annotations
@@ -143,8 +143,8 @@ def generar(dominio: Dominio, medidas, *, procedencia: Procedencia) -> dict:
     return {"esquema": ESQUEMA_DIFERENCIAL,
             "origen": dominio.descripcion or f"dominio «{dominio.nombre}» vs su referencia",
             "dominio": dominio.nombre,
-            # las medidas van DECLARADAS en el fixture y no se deducen del prefijo del id: el dominio
-            # `relevo` usa `proceso.verificacion_vigente`, que es compartida, y deducirla la perdería
+            # Las medidas van DECLARADAS en el fixture y no se deducen del prefijo del id: un dominio
+            # puede usar medidas compartidas cuyo nombre no comparte su prefijo.
             "medidas": [m.id for m in medidas],
             "mundos": len(escenarios),
             "frescura": crear_frescura(procedencia, medidas, configuracion),

@@ -57,8 +57,8 @@ def ninguno(datos: list) -> list:
 def ninguno_par(datos: list) -> list:
     """`["ninguno-par", id, relacion, aliasA, aliasB, predicado, porque, alcance]`
 
-    Lo mismo sobre PARES de filas de la misma relación: homónimos, piezas que se clavan, las dos
-    puntas de un relevo. Expande al producto de la relación consigo misma.
+    Lo mismo sobre PARES de filas de la misma relación: duplicados, solapamientos o cualquier
+    propiedad entre dos hechos. Expande al producto de la relación consigo misma.
     """
     _pide(datos, 8, "ninguno-par", "[id, relacion, aliasA, aliasB, predicado, porque, alcance]")
     _, mid, relacion, a, b, pred, porque, alcance = datos

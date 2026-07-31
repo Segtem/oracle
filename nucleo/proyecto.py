@@ -44,9 +44,32 @@ class EscalaresInvalidas(ProyectoInvalido):
 
 
 ESQUEMA_PROYECTO = "oracle.proyecto/v1"
-PERFILES_INCLUIDOS = {
-    "python": RAIZ_ORACLE / "perfiles" / "python" / "catalogos",
-}
+NOMBRE_PERFIL_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
+
+
+def perfiles_incluidos() -> dict[str, Path]:
+    """Descubre perfiles empaquetados sin enseñar sus nombres al núcleo.
+
+    Un perfil es un directorio físico ``perfiles/<nombre>/catalogos``. Añadir otro lenguaje o sensor
+    no exige modificar este módulo; ``oracle.json`` sigue siendo quien decide cuáles se activan.
+    """
+    raiz_perfiles = RAIZ_ORACLE / "perfiles"
+    if not raiz_perfiles.is_dir() or raiz_perfiles.is_symlink():
+        return {}
+    raiz_fisica = RAIZ_ORACLE.resolve()
+    disponibles = {}
+    for perfil in sorted(raiz_perfiles.iterdir()):
+        catalogos = perfil / "catalogos"
+        if (NOMBRE_PERFIL_RE.fullmatch(perfil.name) is None
+                or perfil.is_symlink() or not perfil.is_dir()
+                or catalogos.is_symlink() or not catalogos.is_dir()):
+            continue
+        try:
+            catalogos.resolve().relative_to(raiz_fisica)
+        except (OSError, ValueError):
+            continue
+        disponibles[perfil.name] = catalogos
+    return disponibles
 
 
 @dataclass(frozen=True)
@@ -75,10 +98,12 @@ def configuracion(proy: "Proyecto") -> ConfiguracionProyecto:
         raise ProyectoInvalido(f"`oracle.json` debe declarar esquema {ESQUEMA_PROYECTO!r}")
     perfiles = datos.get("perfiles", [])
     if (not isinstance(perfiles, list)
-            or any(not isinstance(p, str) or not p for p in perfiles)
+            or any(not isinstance(p, str) or NOMBRE_PERFIL_RE.fullmatch(p) is None
+                   for p in perfiles)
             or len(perfiles) != len(set(perfiles))):
-        raise ProyectoInvalido("`perfiles` debe ser una lista sin duplicados de nombres no vacíos")
-    desconocidos = set(perfiles) - set(PERFILES_INCLUIDOS)
+        raise ProyectoInvalido(
+            "`perfiles` debe ser una lista sin duplicados de nombres portables")
+    desconocidos = set(perfiles) - set(perfiles_incluidos())
     if desconocidos:
         raise ProyectoInvalido(f"perfiles desconocidos: {sorted(desconocidos)}")
     return ConfiguracionProyecto(tuple(perfiles))
@@ -110,8 +135,9 @@ class Proyecto:
 
 def catalogos_base_a_cargar(proy: "Proyecto") -> list[Path]:
     """Catálogo universal y perfiles incluidos activados por el proyecto."""
+    disponibles = perfiles_incluidos()
     return [RAIZ_ORACLE / "catalogos", *(
-        PERFILES_INCLUIDOS[nombre] for nombre in configuracion(proy).perfiles)]
+        disponibles[nombre] for nombre in configuracion(proy).perfiles)]
 
 
 def catalogos_a_cargar(proy: "Proyecto") -> list[Path]:

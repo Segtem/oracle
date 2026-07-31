@@ -157,6 +157,6 @@ medida, o sea que si alguien la escribiera distinta, algún caso lo notaría.
 ## Si te falta un hecho
 
 Si lo que querés medir no está en `--relaciones`, no se agrega acá: se agrega en el **sensor**, que
-vive con el que produce los datos (en Jam, `tools/emitir_hechos_*.py`). El sensor produce hechos y
+vive con el proyecto que produce los datos. El sensor produce hechos y
 **no juzga**; el álgebra juzga y **no mira el mundo**. Mezclarlos es cómo se llega a un verificador
 que nadie puede discutir.

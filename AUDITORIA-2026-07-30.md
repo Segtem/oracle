@@ -1,6 +1,22 @@
 # Auditoría técnica de Oracle — 2026-07-30
 
-## Dictamen
+## Dictamen de cierre
+
+El motor de Oracle quedó **desacoplado del consumidor que le dio origen y verificablemente
+genérico dentro de su contrato**. El núcleo consume relaciones de hechos, descubre perfiles físicos
+sin registrar nombres conocidos y selecciona juezas por esquemas declarados, no por ids particulares.
+El corpus conserva procedencia histórica como datos de regresión; no concede autoridad ni altera la
+ejecución.
+
+| Pregunta | Dictamen vigente |
+|---|---|
+| ¿Está completo? | Sí para el motor y su autocertificación: 319 tests, 129/129 mutantes de medida y 1073/1073 de código. La licencia y la adopción por un consumidor real independiente no son propiedades que el código pueda decidir. |
+| ¿Está abstraído de su origen? | Sí en ejecución: no hay imports, rutas, perfiles ni juezas de aquel consumidor en el núcleo. Las referencias que quedan son evidencia histórica del corpus y esta auditoría. |
+| ¿Funciona de forma genérica? | El flujo externo sintético demuestra catálogo, corpus, diferencial, UDF, mutación y estudio sin modificar Oracle. Falta evidencia social más fuerte: un consumidor real no codiseñado. |
+| ¿Hay Goodhart hardcodeado? | No se encontraron verdes fijados, invariantes vacías, ids jueces privilegiados ni equivalentes masivos. Las políticas operativas restantes son constantes públicas con contratos mutacionales. |
+| ¿Hay una puerta trasera? | No se encontró una puerta trasera. `escalares.py` ejecuta código externo sólo con `--confiar-escalares`, confinado físicamente y con restauración del registro. |
+
+## Dictamen original conservado como línea base
 
 Oracle es un **prototipo sólido, pero todavía no un oráculo confiable ni genérico de punta a
 punta**. El álgebra está razonablemente separada de Jam; el catálogo, las herramientas y la evidencia
@@ -87,6 +103,13 @@ dominio; `ClasificacionMeta` acepta relaciones y prefijos adicionales; `LimitesA
 configurables y finitos a entradas, productos y profundidad. La suite alcanza 234 tests y la mutación
 de medidas queda en 129/129.
 
+Una revisión posterior encontró dos restos estructurales que la primera afirmación no había visto: el
+número de perfiles estaba registrado en `nucleo.proyecto` y los CLI de mutación elegían medidas juezas
+por ids concretos. Ahora los perfiles físicos se descubren por convención y se activan sólo desde
+`oracle.json`; las juezas se derivan de sus relaciones declaradas. Además, los sensores de mutación de
+medidas y de código publican nombres de relación distintos porque sus esquemas de corrida no coinciden.
+Una regresión AST impide que `nucleo/` importe perfiles.
+
 La mutación de código se repitió de forma particionada sobre copias temporales frescas, nunca sobre
 este worktree. Los cambios descubiertos durante las rondas obligaron a repetir íntegramente cada
 partición afectada. El baseline final cubre 616 sitios: 503 muertos reales y 113 vivos, sin timeout ni
@@ -95,13 +118,14 @@ snapshot inicial y sin `__pycache__` local. Ninguno de estos cambios está inclu
 de la sección siguiente.
 
 P2.3 invalidó este baseline histórico en vez de comparar números incompatibles. Tras mover el mutador
-y los sensores Python a un perfil, y retirar redundancias de `proyecto` y `algebra`, el alcance
-vigente es de 1090 sitios. Se añadió partición explícita por objetivo y prioridad de tests seguida
-siempre por la suite completa. Doce particiones del núcleo y perfil cubren 859/859 sin equivalencias;
+y los sensores Python a un perfil, y retirar redundancias de `proyecto`, `algebra` y la política del
+runner, el alcance vigente es de 1073 sitios. Se añadió partición explícita por objetivo y prioridad
+de tests seguida siempre por la suite completa. Doce particiones del núcleo y perfil cubren 868/868
+sin equivalencias;
 los sobrevivientes se cerraron con casos discriminantes. `proyecto` pasó de 43 muertos, 35 vivos y
-2 errores de arnés en la exploración inicial a 71/71 concluyentes. Sus pruebas nuevas fijan selección,
+2 errores de arnés en la exploración inicial a 79/79 concluyentes. Sus pruebas nuevas fijan selección,
 configuración, confinamiento y el opt-in de código Python externo; también se eliminó el truncado fijo
-de la huella del módulo. `medida` pasó de 76 muertos, 14 vivos y 7 errores de importación a 97/97;
+de la huella del módulo. `medida` pasó de 76 muertos, 14 vivos y 7 errores de importación a 98/98;
 la excepción de declaración ahora existe antes de construir la clasificación base y una prioridad
 sin imports tempranos distingue fallos de inicialización sin confundirlos con el arnés. `fixtures`
 pasó de 104/129 a 128/128: ocho pruebas nuevas fijan tipos anidados, bordes, consistencia y proyección,
@@ -112,7 +136,11 @@ pasó de 208 muertos, 24 vivos y 9 errores de importación a 237/237: una priori
 atribuye las roturas de inicialización al código, y diez contratos fijan límites, escalares, ausencia,
 aridad, agregados y bordes. Cuatro sitios redundantes se retiraron. Además, el
 manifiesto ahora firma las dependencias de la ronda: antes un cambio en los tests podía reutilizar
-resultados viejos porque sólo se firmaban comando, objetivos y motor. La suite actual tiene 292 pruebas.
+resultados viejos porque sólo se firmaban comando, objetivos y motor. La partición final del motor
+Python cerró sus 205 sitios: 205/205 muertos, sin equivalencias, timeout ni error de arnés. El total
+vigente es 1073/1073 y la suite actual tiene 319 pruebas. El paquete se construyó e instaló desde
+`pyproject.toml`; declara Python >=3.11 y siete entry points. CI reproduce la suite, aceptación,
+diferencial, mutación de medidas y las trece particiones de código.
 
 **Baseline histórico 503/616, conservado sólo como evidencia de la auditoría inicial:**
 
