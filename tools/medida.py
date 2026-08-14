@@ -34,7 +34,7 @@ from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  #
 from nucleo.medida import Medida, MedidaMalDeclarada, cargar_catalogo  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
                              catalogos_a_cargar, confiar_escalares, escalares_del_proyecto,
-                             presentar_ruta, problemas_estructura,
+                             macros_del_proyecto, presentar_ruta, problemas_estructura,
                              ruta_de_medida_nueva, sin_banderas_comunes)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -61,7 +61,7 @@ def _evidencias(proy, *, comprobar_frescura: bool) -> list[tuple[str, dict]]:
         salida.append((c["id"], c["evidencia"]))
     rutas = sorted(proy.diferencial.glob("*.json"))
     if comprobar_frescura:
-        catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
         fixtures, fallas = cargar_fixtures(rutas, raiz=proy.raiz, catalogo=catalogo)
     else:
         fixtures, fallas = cargar_fixtures(rutas)
@@ -136,12 +136,12 @@ def nueva(proy, mid: str) -> int:
     return 0
 
 
-def expandir_archivo(ruta: Path) -> int:
+def expandir_archivo(ruta: Path, macros=None) -> int:
     datos = json.loads(ruta.read_text(encoding="utf-8"))
     from nucleo.macro import es_macro
-    if not es_macro(datos):
+    if not es_macro(datos, macros):
         print(f"«{datos[1] if len(datos) > 1 else '?'}» ya está en forma canónica.")
-    m = Medida.de_datos(datos)
+    m = Medida.de_datos(datos, macros=macros)
     print(json.dumps(m.a_datos(), ensure_ascii=False, indent=1))
     return 0
 
@@ -152,14 +152,14 @@ def revisar(proy, ruta: Path) -> int:
     except json.JSONDecodeError as e:
         print(f"✗ JSON inválido: {e}")
         return 1
+    macros = macros_del_proyecto(proy)
     try:
-        medida = Medida.de_datos(datos)
+        medida = Medida.de_datos(datos, macros=macros)
     except MedidaMalDeclarada as e:
         print(f"✗ {e}")
         return 1
 
-    from nucleo.macro import MACROS
-    forma = datos[0] if datos[0] in MACROS else "canónica"
+    forma = datos[0] if datos[0] in macros else "canónica"
     print(f"✓ bien declarada: {medida.id}   (forma: {forma})")
     print(f"    umbral   {medida.op} {medida.limite}")
     print(f"    porque   {medida.porque}")
@@ -242,7 +242,9 @@ def main(argv: list[str] | None = None) -> int:
             print("falta el archivo: --expandir <archivo.json>")
             return 1
         entrada = Path(args[1])
-        accion = lambda: expandir_archivo(entrada if entrada.exists() else proy.raiz / entrada)
+        accion = lambda: expandir_archivo(
+            entrada if entrada.exists() else proy.raiz / entrada,
+            macros_del_proyecto(proy))
     elif args[0] == "--nueva":
         if len(args) < 2:
             print("falta el id: --nueva dominio.nombre")

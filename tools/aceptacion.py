@@ -31,6 +31,7 @@ from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
                            medidas_aplicables)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,
+                             macros_del_proyecto,
                              problemas_estructura)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -44,7 +45,7 @@ def _ejecutar(proy) -> int:
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
-    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     todos = casos(proy)
     fallas: list[str] = []
     rojos = 0

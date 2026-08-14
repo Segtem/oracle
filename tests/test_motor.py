@@ -11,9 +11,25 @@ from unittest import mock
 from nucleo.algebra import ESCALARES, ErrorDeAlgebra, LimitesAlgebra
 from nucleo.medida import Medida
 from nucleo.proyecto import EscalaresNoConfiables
-from oracle_metalenguaje import (ErrorDeMotor, EscalaresInvalidas, Motor,
-                                 SinMedidasAplicables, escalar, registro_base)
-from oracle_metalenguaje import _compat
+
+def setUpModule() -> None:
+    """Importa la fachada pública DENTRO de la suite, no al descubrirla.
+
+    `oracle_metalenguaje/__init__.py` alinea los nombres del checkout con los del wheel vía
+    `cargar_interno`, y eso importa `catalogos`, que corre `@escalar`. Con el import al tope, un
+    mutante en `escalar()`, `_registro()` o `_contrato_de_escalar()` rompía el **descubrimiento** de
+    la suite entera y el arnés lo daba por «error» en vez de «muerte»: eran los últimos once
+    mutantes sin veredicto de toda la ronda.
+
+    Se inyectan en `globals()` en vez de reescribir cuarenta usos. La alternativa —volver perezoso el
+    `cargar_interno` del paquete— tocaba la capa de compatibilidad del wheel, cuyo trabajo es
+    justamente ocurrir al importar; el arreglo correcto estaba del lado del test.
+    """
+    global ErrorDeMotor, EscalaresInvalidas, Motor, SinMedidasAplicables
+    global escalar, registro_base, _compat
+    from oracle_metalenguaje import (ErrorDeMotor, EscalaresInvalidas, Motor,  # noqa: F811
+                                     SinMedidasAplicables, escalar, registro_base)
+    from oracle_metalenguaje import _compat  # noqa: F811
 
 
 def _medida(mid="demo.valor", *, escalar=None):

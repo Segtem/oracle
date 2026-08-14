@@ -35,9 +35,12 @@ Cada pieza es una respuesta a *«¿por qué debería creerte?»* sobre una clase
 
 ### Su naturaleza es negarse
 
-No es un instrumento de medición: es un instrumento de **rechazo**. En este corte hay 2202 líneas de
-núcleo y **106 negativas explícitas** (`raise`). No calcula calidad: **declina dejar pasar** lo que no
-se puede sostener.
+No es un instrumento de medición: es un instrumento de **rechazo**. No calcula calidad: **declina
+dejar pasar** lo que no se puede sostener.
+
+<!-- negativas:inicio -->
+En este corte hay 2944 líneas de lenguaje y **171 negativas explícitas** (`raise`).
+<!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
 `False`, levanta error. La igualdad exacta entre flotantes está prohibida, incluido el umbral final.
@@ -52,22 +55,27 @@ se sabe sobre qué se está callando.
 
 ### La asimetría, medida
 
-De los 28 defectos reales del corpus: **25 falsos verdes, 2 falsos rojos y 1 conclusión causal
-incorrecta pese a una medida correcta**. Ésa es la justificación empírica de cada decisión de
+La composición está [contada más abajo](#estado); el reparto es abrumadoramente de un lado: los
+falsos verdes son más de diez veces los falsos rojos. Ésa es la justificación empírica de cada decisión de
 «negarse antes que permitir». Pero un falso rojo enseña a ignorar el verificador, y por eso pesa igual
 de grave: en un solo día lo cometí tres veces.
 
 ### El sujeto es el que construye, no lo construido
 
-**33 de los 42 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Los 30 casos no
-observacionales salieron a la luz por vías que no aceptan el verde nominal: 17 la mutación, 8 una persona, 4 la
-casualidad y 1 una herramienta ajena. Oracle no es un juez de artefactos — es una prótesis para alguien
-que escribe la herramienta y su test con la misma mano y no recuerda ayer.
+<!-- deteccion:inicio -->
+Los 30 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 17 la mutación, 8 una persona, 4 la casualidad, 1 una herramienta ajena.
+<!-- deteccion:fin -->
+
+Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
+una prótesis para alguien que escribe la herramienta y su test con la misma mano y no recuerda ayer.
 
 ### El costo, dicho
 
-**2202 líneas de lenguaje.** Contra las medidas universales escritas en él: **trece a uno**. Ésa es
-la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
+<!-- escala:inicio -->
+**2944 líneas de lenguaje** (`nucleo/`, código y macros) y **171 negativas explícitas** (`raise`). Contra las 18 medidas universales escritas en él (164 líneas): **18,0 a 1**. 15 de las 18 pasan por una macro.
+<!-- escala:fin -->
+
+Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
 metalenguaje. Los catálogos externos no se incorporan al núcleo para mejorar artificialmente la
 proporción.
 
@@ -75,14 +83,21 @@ Es la única medición del proyecto **que no se puede sastrear escribiendo más 
 medidas es justamente lo que la mejora. Si en seis meses la proporción no se movió, el lenguaje no
 valió la pena.
 
-### Y la historia lo dice mejor que el código
+**Y la proporción viene empeorando, dos veces seguidas.**
 
-En el historial, **cerca de la mitad de los commits tienen por título la corrección de algo que yo
-mismo había afirmado**: un criterio imposible de cumplir, un corpus al que le faltaba una polaridad, 53 tests en
-verde conviviendo con 88 mutantes vivos, un concepto de juego metido en el núcleo, una guía que
-describía un problema ya resuelto. El repositorio es, sobre todo, **el registro de un autor
-equivocándose y siendo atrapado por lo que estaba construyendo**. Que eso sea legible es la única
-prueba de que funciona.
+El corte anterior publicaba «2202 líneas» y «trece a uno» escritos a mano; los valores reales ya eran
+2654 y 16,2 a 1, y nada lo detectó, porque el criterio de falsación declarado del proyecto era
+justamente el número que no estaba bajo medición. Desde entonces lo genera `tools/cifras.py` y el CI
+falla si vence.
+
+Después, `defmacro` empeoró la proporción desde 16,2 — y el plan había predicho que la iba a
+**bajar**, porque las tres macros salían del núcleo. Salieron, pero el mecanismo que las reemplaza
+—declaración, guardas, registro, expansión acotada— pesa más que las tres funciones que borró. El
+pago no es este corte: es que la macro número cuatro ya no cuesta ni una línea de núcleo.
+
+El numerador cuenta `nucleo/macros/*.json` junto con el `.py`, a propósito. Si contara sólo código,
+mover Python a datos habría «mejorado» la proporción sin que el lenguaje encogiera un gramo — el
+sastreo exacto contra el que esta medición existe.
 
 ## Tres influencias, y qué aporta cada una
 
@@ -289,18 +304,32 @@ Oracle no conserva fixtures diferenciales propios en este repositorio. Ejecutar 
 fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prueba el camino
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
-27 defectos en rojo · 12 verdes correctos · 0 huecos abiertos · 2 casos resueltos conservados ·
-1 límite humano.
+<!-- corpus:inicio -->
+**42 casos**: 30 defectos y 12 verdes correctos. De los defectos, 27 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 25 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+<!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-340 tests · 129/129 mutantes de medida · **1131 sitios de mutación de código** (926 + 205 del motor Python).
+391 tests · 129/129 mutantes de medida · **1231 sitios de mutación de código** (1026 + 205 del motor Python).
 <!-- cifras:fin -->
 
-> **`tools/mutar_codigo.py` sale en VERDE.** El baseline histórico 503/616 quedó invalidado cuando
-> cambió la arquitectura. El denominador vigente incluye núcleo y perfiles: 868/868 sitios de las
-> doce particiones previas y 205/205 del motor Python: **1073/1073**, sin timeout, error de arnés ni equivalentes
-> declarados. Cada ronda muta una copia, puede persistir progreso con
-> `--manifiesto`/`--reanudar` y firma también sus tests y archivos de soporte.
+> **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
+> del CI —uno por job, que es como se mide— salen en **VERDE**: cero sobrevivientes, cero errores de
+> arnés, **un equivalente declarado** con su razón en [`equivalentes.json`](equivalentes.json). Cada
+> ronda muta una copia, puede persistir progreso con `--manifiesto`/`--reanudar` y firma también sus
+> tests y archivos de soporte.
+>
+> El camino en un solo proceso —`mutar_codigo.py` sin `--objetivo`— deja **un timeout**: el mutante
+> que apaga `start_new_session` no cuelga un test, los enlentece a todos, y el presupuesto de 60 s se
+> agota antes de llegar a la aserción que lo mata. Con `--objetivo` la priorización la corre primero
+> y muere. Se documenta en vez de maquillarse: **un timeout no mata a nadie** (caso `016` del corpus),
+> así que ese eje se mide particionado y se dice cuál de las dos corridas es la que vale.
+>
+> Llegar acá exigió corregir lo que hacía **inmedible** al código, no reclasificar veredictos. La
+> ronda venía con **158 errores de arnés**: trabajo en tiempo de import —constantes de módulo
+> validadas al construirse, `@escalar` corriendo al importar los tests— hacía que un mutante rompiera
+> el *descubrimiento* de la suite, y el arnés reportaba «error» donde había un test capaz de matarlo.
+> Con eso corregido, 158 → **0**. La tentación era contar un `ImportError` como muerte; habría
+> acreditado cobertura real por el motivo equivocado y el hueco seguiría ahí.
 
 ### Tres dominios, un álgebra
 
@@ -385,8 +414,43 @@ además lo único que ataja una medida que se pone roja con entrada correcta, el
 `008`.
 
 **Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
-medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
-medidas, expanden a la forma canónica, y `peor` cerró por construcción la deuda del umbral duplicado.
+medida con la misma forma») sonó con veintidós, cuando los dominios de instancia todavía vivían acá.
+`ninguno`, `ninguno-par` y `peor` expanden a la forma canónica, y `peor` cerró por construcción la
+deuda del umbral duplicado. La cobertura vigente sobre el catálogo universal está en
+[la cifra de escala](#el-costo-dicho); las medidas que no encajan se escriben canónicas y listo.
+
+**Y las macros se declaran EN DATOS.** Hasta el corte anterior `MACROS` era un diccionario de
+funciones de Python: las medidas eran datos, pero los **medios de abstracción** no, así que un
+proyecto que quería una forma propia tenía que editar el núcleo de Oracle. El dueño del lenguaje era
+quien podía editar ese archivo — o sea, el LLM. Ahora una macro es un archivo con la misma forma para
+las que trae Oracle y para las que escribe cualquiera:
+
+```json
+["defmacro", "todos-cumplen",
+  ["id", "relacion", "alias", "predicado", "porque", "alcance"],
+  [],
+  ["medida", ["$", "id"],
+    ["desde", ["de", ["$", "relacion"], ["$", "alias"]],
+     ["donde", ["no", ["$", "predicado"]]]],
+    ["resumen", "contar", 1],
+    ["umbral", "<=", 0, ["$", "porque"]],
+    ["alcance", ["$", "alcance"]]]]
+```
+
+`ninguno`, `ninguno-par` y `peor` viven en [`nucleo/macros/`](nucleo/macros/) y se cargan por el
+mismo camino: son la biblioteca estándar del lenguaje, no un privilegio del núcleo. Un proyecto suma
+las suyas en `<proyecto>/macros/` y no necesita tocar nada de Oracle.
+
+Tres decisiones que valen la pena:
+
+- **Las guardas no traen evaluador nuevo.** `ninguno-par` exige que sus dos alias difieran, y una
+  plantilla pura no lo expresa. La guarda se sustituye y la evalúa `evaluar_expr` **sobre una fila
+  vacía**: una expresión sin accesores nunca toca la fila. De regalo hereda el contrato entero del
+  álgebra, incluida la prohibición de igualdad exacta entre flotantes.
+- **Una macro puede construir sobre otra**, acotada por `expansiones_maximas`. Negarlo obligaría a
+  copiar el cuerpo, que es lo que la macro vino a evitar.
+- **Un parámetro que la plantilla nunca usa no se carga.** Es la misma regla que
+  `meta.toda_medida_esta_ejercitada`: lo que nadie ejercita es decoración.
 
 **El lenguaje activo tiene cinco operadores**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
 Cada uno entró al llegar su disparador. `con` y la unión izquierda se retiraron: sin dos usuarios
@@ -410,6 +474,10 @@ La ronda de mutación dejó algo a la vista: de 6 mutantes del núcleo, los 6 mu
 Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 ### Qué falta
+
+El camino de «formato de datos con buenas defensas» a «lenguaje» está desglosado en
+[`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md): `defmacro` en datos, reificación mecánica del catálogo, la
+decisión sobre composición, y el diferencial propio que hoy está estructuralmente vacío.
 
 - **Elegir una licencia.** El paquete, entry points y CI ya existen, pero la decisión legal no se
   infiere del código ni la toma el agente por el autor.

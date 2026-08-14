@@ -45,6 +45,9 @@ jobs:
           - oracle_metalenguaje/motor.py
           - perfiles/python/marco.py
           - perfiles/python/mutacion_codigo.py
+          # Instrumento que custodia una afirmación: desde que genera los bloques del README, es lo
+          # único que impide que una cifra publicada vuelva a derivar. Ver HERRAMIENTAS_CUSTODIAS.
+          - tools/cifras.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

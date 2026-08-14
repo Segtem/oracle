@@ -6,15 +6,16 @@ from collections.abc import Iterable
 from copy import deepcopy
 from pathlib import Path
 
-import catalogos  # noqa: F401  # declara las escalares universales antes de capturar la base
+import importlib
 
-from nucleo.algebra import (ESCALARES, LIMITES_PREDETERMINADOS, ErrorDeAlgebra,
-                            LimitesAlgebra, RegistroEscalares, validar_resumen,
-                            validar_tuberia)
+from nucleo.algebra import (ESCALARES, ErrorDeAlgebra, LimitesAlgebra,
+                            RegistroEscalares, limites_predeterminados,
+                            validar_resumen, validar_tuberia)
 from nucleo.medida import (Informe, Medida, cargar_catalogo, evaluar,
                            medidas_aplicables)
 from nucleo.proyecto import (Proyecto, ProyectoInvalido, catalogos_a_cargar,
-                             escalares_del_proyecto, problemas_estructura)
+                             escalares_del_proyecto, macros_del_proyecto,
+                             problemas_estructura)
 
 
 class ErrorDeMotor(ValueError):
@@ -25,20 +26,36 @@ class SinMedidasAplicables(ErrorDeMotor):
     """La evidencia no satisface las relaciones de entrada de ninguna medida."""
 
 
-_REGISTRO_BASE = RegistroEscalares({
-    nombre: fn for nombre, fn in ESCALARES.items()
-    if getattr(fn, "__module__", "").endswith("catalogos.escalares")
-})
+_REGISTRO_BASE: RegistroEscalares | None = None
 
 
 def registro_base() -> RegistroEscalares:
-    """Devuelve una copia independiente de las escalares universales empaquetadas."""
+    """Copia independiente de las escalares universales, capturadas al primer uso.
+
+    Antes esto era `import catalogos` más un dict, los dos a nivel de módulo. Como
+    `tests/test_motor.py` importa el paquete al tope, el decorador `@escalar` corría durante el
+    **descubrimiento** de la suite: once mutantes de `escalar()`, `_registro()` y
+    `_contrato_de_escalar()` rompían la importación y el arnés los reportaba como «error» en vez de
+    «muerte». Eran los últimos que quedaban sin veredicto.
+
+    El filtro por `__module__` hace que el orden no importe: se capturan las del catálogo base y
+    ninguna otra, aunque el consumidor ya haya declarado las suyas en el registro global.
+    """
+    global _REGISTRO_BASE
+    if _REGISTRO_BASE is None:
+        importlib.import_module("catalogos")   # declara las escalares universales
+        _REGISTRO_BASE = RegistroEscalares({
+            nombre: fn for nombre, fn in ESCALARES.items()
+            if getattr(fn, "__module__", "").endswith("catalogos.escalares")
+        })
     return _REGISTRO_BASE.copiar()
 
 
 def _limites_propios(limites: LimitesAlgebra | None) -> LimitesAlgebra:
     if limites is None:
-        return LIMITES_PREDETERMINADOS
+        # Se llama, no se importa: importar el valor al tope volvería a construirlo durante el
+        # import de este módulo, que es justo lo que se sacó de `nucleo.algebra`.
+        return limites_predeterminados()
     if not isinstance(limites, LimitesAlgebra):
         raise ErrorDeAlgebra("`limites` debe ser una instancia de LimitesAlgebra")
     return limites
@@ -129,12 +146,14 @@ class Motor:
 
         registro = registro_base()
         limites_propios = _limites_propios(limites)
+        macros = macros_del_proyecto(proy)
         with escalares_del_proyecto(
                 proy, confiar=confiar_escalares, registro=registro):
             catalogo = cargar_catalogo(
                 catalogos_a_cargar(proy, raices_perfiles=raices_perfiles),
                 registro=registro,
                 limites=limites_propios,
+                macros=macros,
             )
         return cls._crear(
             catalogo.values(), registro, limites_propios, proyecto=raiz)

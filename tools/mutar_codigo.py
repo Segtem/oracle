@@ -26,9 +26,11 @@ import catalogos  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo, medidas_aplicables  # noqa: E402
 from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
                                               LineaBaseFallida, AislamientoRoto,
-                                              ManifiestoInvalido, RondaEnCurso, correr)  # noqa: E402
+                                              ManifiestoInvalido, RondaEnCurso, correr,
+                                              sitios_de)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
-                             escalares_del_proyecto, sin_bandera)  # noqa: E402
+                             escalares_del_proyecto, macros_del_proyecto,
+                             sin_bandera)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
 TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
@@ -51,7 +53,19 @@ PRIORIDADES = {
     "oracle_metalenguaje/motor.py": ("tests.test_motor",),
     "perfiles/python/marco.py": ("tests.test_perfiles",),
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
+    "tools/cifras.py": ("tests.test_herramientas",),
 }
+
+
+# `tools/` no entra entero: son instrumentos, y casi todo su cuerpo es plumbing de línea de comandos
+# cuyo veredicto vive en `nucleo/`. Mutarlo completo sumaría 559 sitios —un 47% más de denominador—
+# de muy poco valor. Entran DE A UNO, y sólo cuando el instrumento **custodia una afirmación que
+# nadie más comprueba**: si el instrumento se rompe, la afirmación queda sin nadie que la verifique.
+#
+# `cifras.py` es el primero. Desde que genera los bloques del README es lo único que impide que una
+# cifra publicada vuelva a derivar en silencio, y esa deriva ya ocurrió: el proyecto publicó «trece a
+# uno» durante todo un corte mientras el valor real era 16,2.
+HERRAMIENTAS_CUSTODIAS = ("cifras.py",)
 
 
 def objetivos_disponibles() -> dict[str, Path]:
@@ -59,6 +73,7 @@ def objetivos_disponibles() -> dict[str, Path]:
         *(RAIZ / "nucleo").glob("*.py"),
         *(RAIZ / "oracle_metalenguaje").glob("*.py"),
         *(RAIZ / "perfiles" / "python").glob("*.py"),
+        *(RAIZ / "tools" / nombre for nombre in HERRAMIENTAS_CUSTODIAS),
     ]
     return {ruta.relative_to(RAIZ).as_posix(): ruta for ruta in sorted(rutas)
             if ruta.name != "__init__.py"}
@@ -141,6 +156,33 @@ def cargar_equivalentes(ruta: Path) -> dict[str, str]:
     return salida
 
 
+def equivalentes_del_alcance(equivalentes: dict[str, str], objetivos: list[Path]) -> dict[str, str]:
+    """Recorta las declaraciones a los objetivos de esta ronda, comprobándolas contra TODOS.
+
+    `correr()` exige que cada equivalente apunte a un sitio de la ronda, y con razón: uno que no
+    apunta a nada es una afirmación que sobrevivió al código que la justificaba. Pero `equivalentes.json`
+    es del proyecto, no de la partición, así que el CI —que corre un objetivo por job— hacía fallar
+    todos los jobs salvo el del archivo declarado.
+
+    Así que la vigencia se comprueba contra el inventario completo, y a `correr()` sólo se le pasa lo
+    que le corresponde. Filtrar sin comprobar habría convertido «declaración vencida» en «declaración
+    que nadie mira», que es peor que el error original.
+    """
+    vigentes = {
+        sitio.id
+        for ruta in objetivos_disponibles().values()
+        for sitio in sitios_de(ruta, RAIZ)
+    }
+    vencidos = sorted(set(equivalentes) - vigentes)
+    if vencidos:
+        raise EquivalenteInvalido(
+            f"equivalentes que no apuntan a ningún sitio del proyecto: {vencidos}")
+    del_alcance = {
+        f"{ruta.relative_to(RAIZ).as_posix()}" for ruta in objetivos}
+    return {mid: razon for mid, razon in equivalentes.items()
+            if mid.rsplit(":", 3)[0] in del_alcance}
+
+
 def _ejecutar(proy, args) -> int:
     objetivos = resolver_objetivos(args.objetivo)
     comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
@@ -162,7 +204,8 @@ def _ejecutar(proy, args) -> int:
         print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
 
     try:
-        equivalentes = cargar_equivalentes(EQUIVALENTES)
+        equivalentes = equivalentes_del_alcance(
+            cargar_equivalentes(EQUIVALENTES), objetivos)
         evidencia = correr(
             RAIZ, objetivos, comando_tests, equivalentes, al_terminar_uno=progreso,
             timeout_por_ejecucion=args.timeout,
@@ -211,7 +254,7 @@ def _ejecutar(proy, args) -> int:
           f"timeout {corrida['timeouts']} · errores de arnés {corrida['errores_arnes']} · "
           f"equivalentes declarados: {len(eq)}")
 
-    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     for medida in medidas_aplicables(catalogo.values(), evidencia):
         v = medida.evaluar(evidencia)
         print(f"  {'✓' if v.ok else '✗'} {v.id:<44} valor {v.valor} ({v.umbral})")

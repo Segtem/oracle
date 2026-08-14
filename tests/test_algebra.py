@@ -19,15 +19,19 @@ class ContratoAlgebraTests(unittest.TestCase):
     def test_00_los_limites_predeterminados_son_parte_del_contrato(self) -> None:
         algebra = _algebra()
         self.assertEqual(
-            algebra.LIMITES_PREDETERMINADOS,
+            algebra.limites_predeterminados(),
             algebra.LimitesAlgebra(
                 filas_por_relacion=100_000,
                 producto_cartesiano=1_000_000,
                 profundidad_expresion=64,
+                # Va explícito, como los otros tres. Si se dejara al valor por omisión, los dos lados
+                # de la comparación lo tomarían del mismo lugar y cambiarlo no rompería nada — que es
+                # justo lo que pasó: el mutante `16 → 17` sobrevivió a la ronda completa.
+                expansiones_maximas=16,
             ),
         )
         with self.assertRaises(FrozenInstanceError):
-            algebra.LIMITES_PREDETERMINADOS.filas_por_relacion = 1
+            algebra.limites_predeterminados().filas_por_relacion = 1
 
     def test_cada_limite_exige_un_entero_positivo_y_acepta_uno(self) -> None:
         algebra = _algebra()
@@ -155,7 +159,7 @@ class ContratoAlgebraTests(unittest.TestCase):
                 ["unir", ["donde", True], ["de", "pieza", "p"]],
                 [],
                 {"pieza": []},
-                algebra.LIMITES_PREDETERMINADOS,
+                algebra.limites_predeterminados(),
             )
 
     def test_un_resumen_desconocido_nombra_el_agregado_recibido(self) -> None:

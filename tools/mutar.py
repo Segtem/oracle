@@ -26,7 +26,8 @@ from nucleo.medida import cargar_catalogo, evaluar, medidas_aplicables  # noqa: 
 from nucleo.mutacion import correr  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, RAIZ_ORACLE,
                              catalogos_a_cargar, catalogos_base_a_cargar, confiar_escalares,
-                             escalares_del_proyecto, problemas_estructura,
+                             escalares_del_proyecto, macros_del_proyecto,
+                             problemas_estructura,
                              sin_banderas_comunes)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -52,7 +53,7 @@ def _ejecutar(proy, args: list[str]) -> int:
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
-    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     try:
         listado = casos(proy, catalogo)
     except ValueError as e:
@@ -73,7 +74,8 @@ def _ejecutar(proy, args: list[str]) -> int:
     # El bucle: los hechos del sensor, juzgados por MEDIDAS. Antes acá había un `if vivos: return 1`
     # que dictaminaba en Python lo mismo que una medida del catálogo ya dice.
     metas = {mid for mid in catalogo if mid.startswith("meta.")}
-    base = cargar_catalogo(catalogos_base_a_cargar(proy)) if not proy.es_el_propio_oracle else {}
+    base = (cargar_catalogo(catalogos_base_a_cargar(proy), macros=macros_del_proyecto(proy))
+            if not proy.es_el_propio_oracle else {})
     evidencia.update(hechos_de_uso(catalogo, listado, evidencia["mutante"],
                                    evaluadas_aparte=metas, heredadas=set(base)))
 

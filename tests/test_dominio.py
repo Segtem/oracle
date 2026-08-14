@@ -23,9 +23,19 @@ from nucleo.diferencial import (ESQUEMA_DIFERENCIAL, Procedencia, ProcedenciaInv
 from nucleo.dominio import Dominio, DominioMalDeclarado, generar
 from nucleo.medida import Medida
 
-MEDIDA = Medida.de_datos(
-    ["ninguno", "d.sin_fallas", "cosa", "c", ["==", ["campo", "c", "mal"], True],
-     "una razón", "NO ve nada más"])
+def medida_prueba():
+    """Misma razón que `procedencia_buena()`: se construye DENTRO de cada prueba.
+
+    Como constante de módulo, leer esta medida —expansión de macro, validación de tubería, umbral y
+    alcance— ocurría al importar el archivo de test. Un mutante en ese camino rompía la importación
+    y el arnés lo reportaba como «error» en vez de «muerte»: 155 mutantes de `algebra`, `macro` y
+    `medida` quedaban sin veredicto por esto.
+    """
+    return Medida.de_datos(
+        ["ninguno", "d.sin_fallas", "cosa", "c", ["==", ["campo", "c", "mal"], True],
+         "una razón", "NO ve nada más"])
+
+
 def procedencia_buena():
     """Se construye dentro de cada prueba: un mutante del contrato debe fallar como test, no import."""
     return Procedencia(
@@ -35,8 +45,11 @@ def procedencia_buena():
     )
 
 
-def generar_prueba(dominio, medidas=(MEDIDA,)):
-    return generar(dominio, medidas, procedencia=procedencia_buena())
+def generar_prueba(dominio, medidas=None):
+    # El default se evalúa al IMPORTAR: si fuera `(MEDIDA,)` volvería a meter la construcción de
+    # una medida real en el descubrimiento, que es justo lo que se está sacando de ahí.
+    return generar(dominio, medidas if medidas is not None else (medida_prueba(),),
+                   procedencia=procedencia_buena())
 
 # el «mundo»: una lista de cosas, alguna marcada como mal
 def montar(defecto, i=0):
@@ -217,14 +230,15 @@ class GenerarTests(unittest.TestCase):
             (raiz / "referencia.py").write_text("VERSION = 1\n", encoding="utf-8")
             procedencia = Procedencia(
                 raiz=raiz, emisor=("emisor.py",), referencia=("referencia.py",))
-            fixture = generar(dominio_bueno(), [MEDIDA], procedencia=procedencia)
-            catalogo = {MEDIDA.id: MEDIDA}
+            medida = medida_prueba()
+            fixture = generar(dominio_bueno(), [medida], procedencia=procedencia)
+            catalogo = {medida.id: medida}
             self.assertEqual(revisar_frescura(fixture, raiz, catalogo), [])
 
             faltantes = revisar_frescura(fixture, raiz, {})
             self.assertEqual(len(faltantes), 1)
             self.assertIn("faltan medidas", faltantes[0])
-            self.assertIn(MEDIDA.id, faltantes[0])
+            self.assertIn(medida.id, faltantes[0])
 
             anterior = fixture["frescura"]["huellas"]["emisor"]
             (raiz / "emisor.py").write_text("VERSION = 2\n", encoding="utf-8")

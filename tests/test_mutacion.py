@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib
 import sys
 import unittest
 from pathlib import Path
@@ -9,7 +10,6 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
-import catalogos.escalares  # noqa: F401
 from nucleo import mutacion
 from nucleo.medida import Medida
 
@@ -52,6 +52,17 @@ EV_VERDE = {"cosa": [{"id": "y", "mal": False}, {"id": "z", "mal": False}]}
 CASO_ROJO = {"id": "c-rojo", "etiqueta": "falso_verde", "medida": "d.prueba", "evidencia": EV_ROJO}
 CASO_VERDE = {"id": "c-verde", "etiqueta": "verde_correcto", "medida": "d.prueba",
               "evidencia": EV_VERDE}
+
+
+def setUpModule() -> None:
+    """Registra las escalares del catálogo base DENTRO de la suite, no al importar el módulo.
+
+    Como `import catalogos.escalares` al tope, el decorador `@escalar` corría durante el
+    descubrimiento: un mutante en `escalar()`, `_registro()` o `_contrato_de_escalar()` rompía la
+    importación del archivo de test y el arnés lo reportaba como «error» en vez de «muerte». Once
+    mutantes de `nucleo/algebra.py` quedaban sin veredicto por esto. Acá el fallo es del test.
+    """
+    importlib.import_module("catalogos.escalares")
 
 
 class MutadoresTests(unittest.TestCase):

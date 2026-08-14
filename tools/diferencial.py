@@ -21,6 +21,7 @@ from nucleo.fixtures import cargar_fixtures, validar_fixture  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,
+                             macros_del_proyecto,
                              problemas_estructura)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -74,7 +75,7 @@ def _ejecutar(proy) -> int:
             print("  ·", falla)
         return 1
 
-    catalogo = cargar_catalogo(catalogos_a_cargar(proy))
+    catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     total_global = total_individual = 0
     for fixture in fixtures:
         f, datos = fixture.ruta, fixture.datos

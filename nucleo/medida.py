@@ -62,7 +62,21 @@ class ClasificacionMeta:
             tuple(dict.fromkeys((*self.prefijos_meta, *prefijos))))
 
 
-CLASIFICACION_META_BASE = ClasificacionMeta()
+_CLASIFICACION_BASE: ClasificacionMeta | None = None
+
+
+def clasificacion_meta_base() -> ClasificacionMeta:
+    """El contrato por omisión, construido al primer uso y memorizado.
+
+    Mismo motivo que `limites_predeterminados()` en el álgebra: como constante de módulo, un mutante
+    de `__post_init__` rompía el **import** de `nucleo.medida` —del que cuelga casi toda la suite— y
+    el arnés lo reportaba como «error» en vez de «muerte». Siete mutantes quedaban sin veredicto por
+    una línea que no necesitaba ejecutarse al importar.
+    """
+    global _CLASIFICACION_BASE
+    if _CLASIFICACION_BASE is None:
+        _CLASIFICACION_BASE = ClasificacionMeta()
+    return _CLASIFICACION_BASE
 
 
 @dataclass(frozen=True)
@@ -115,11 +129,11 @@ class Medida:
 
     @classmethod
     def de_datos(cls, d: list, *, registro=None,
-                 limites: LimitesAlgebra | None = None) -> "Medida":
+                 limites: LimitesAlgebra | None = None, macros=None) -> "Medida":
         # Las macros se expanden ANTES de construir, como en LISP: de acá para adentro nadie sabe
         # que existieron, así que el evaluador, la mutación, el inventario y el L2 no cambian.
         fuente = d
-        d = expandir(d)
+        d = expandir(d, macros, limites)
         if not isinstance(d, list) or len(d) != 6 or d[0] != "medida":
             raise MedidaMalDeclarada(
                 "una medida es ['medida', id, tuberia, resumen, umbral, alcance]")
@@ -157,7 +171,7 @@ class Medida:
             raise MedidaMalDeclarada(f"{mid}: falta `alcance` — hay que declarar qué NO ve")
         return cls(id=mid, tuberia=tuberia, resumen=resumen, op=op, limite=limite,
                    porque=porque, alcance=alcance[1],
-                   fuente=tuple(fuente) if es_macro(fuente) else ())
+                   fuente=tuple(fuente) if es_macro(fuente, macros) else ())
 
     def evaluar(self, evidencia: dict, limites: LimitesAlgebra | None = None, *,
                 registro=None) -> Veredicto:
@@ -179,23 +193,31 @@ class Medida:
 
 
 def cargar(ruta: Path, *, registro=None,
-           limites: LimitesAlgebra | None = None) -> Medida:
+           limites: LimitesAlgebra | None = None, macros=None) -> Medida:
     return Medida.de_datos(
         json.loads(Path(ruta).read_text(encoding="utf-8")),
         registro=registro,
         limites=limites,
+        macros=macros,
     )
 
 
 def cargar_catalogo(*directorios, registro=None,
-                    limites: LimitesAlgebra | None = None) -> dict[str, Medida]:
+                    limites: LimitesAlgebra | None = None,
+                    macros=None) -> dict[str, Medida]:
     """Una o varias carpetas de medidas. Un id repetido entre carpetas es un error, no una
-    sobrescritura silenciosa: si el proyecto quiere cambiar una medida base, la renombra."""
+    sobrescritura silenciosa: si el proyecto quiere cambiar una medida base, la renombra.
+
+    `macros` es el registro con el que se expanden: sin él, sólo la biblioteca estándar. Un catálogo
+    que use una macro del proyecto y se cargue sin su registro falla al leerse, que es lo correcto —
+    la alternativa sería tratar la invocación como una medida canónica malformada y culpar al archivo
+    equivocado.
+    """
     salida: dict[str, Medida] = {}
     if len(directorios) == 1 and isinstance(directorios[0], (list, tuple)):
         directorios = directorios[0]
     for p in sorted(x for d in directorios for x in Path(d).rglob("*.json")):
-        m = cargar(p, registro=registro, limites=limites)
+        m = cargar(p, registro=registro, limites=limites, macros=macros)
         if m.id in salida:
             raise MedidaMalDeclarada(f"el id «{m.id}» está dos veces (último: {p.name})")
         salida[m.id] = m
@@ -280,7 +302,7 @@ def como_hechos(medidas, clasificacion: ClasificacionMeta | None = None) -> list
         relaciones = relaciones_de_medida(m)
         return relaciones[0] if relaciones else ""
 
-    clasificacion = clasificacion or CLASIFICACION_META_BASE
+    clasificacion = clasificacion or clasificacion_meta_base()
     if not isinstance(clasificacion, ClasificacionMeta):
         raise MedidaMalDeclarada("`clasificacion` debe ser ClasificacionMeta")
     salida = []

@@ -34,7 +34,7 @@ import catalogos  # noqa: F401,E402
 from nucleo.medida import Medida, cargar_catalogo, como_hechos  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,
-                             problemas_estructura)  # noqa: E402
+                             macros_del_proyecto, problemas_estructura)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
 
@@ -77,8 +77,8 @@ def como_escribir() -> str:
     return re.sub(r"\[([^\]]+)\]\((?!http)[^)]+\)", r"\1", t)
 
 
-def catalogo_en_prosa(catalogos_dirs) -> str:
-    cat = cargar_catalogo(catalogos_dirs)
+def catalogo_en_prosa(catalogos_dirs, macros=None) -> str:
+    cat = cargar_catalogo(catalogos_dirs, macros=macros)
     hechos = {h["id"]: h for h in como_hechos(cat.values())}
     fuentes = {}
     for d in catalogos_dirs:
@@ -180,8 +180,8 @@ def diario() -> str:
     return "\n".join(out)
 
 
-def numeros(catalogos_dirs, raiz_corpus: Path) -> str:
-    cat = cargar_catalogo(catalogos_dirs)
+def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
+    cat = cargar_catalogo(catalogos_dirs, macros=macros)
     hechos = como_hechos(cat.values())
     lineas_nucleo = sum(len(p.read_text(encoding="utf-8").splitlines())
                         for p in (RAIZ / "nucleo").glob("*.py"))
@@ -203,8 +203,10 @@ def numeros(catalogos_dirs, raiz_corpus: Path) -> str:
         f"| medidas | {len(cat)} | de las cuales "
         f"{sum(1 for h in hechos if h['es_meta_por_lo_que_mide'])} miden el lenguaje mismo |",
         f"| casos de corpus | {len(casos)} | fallas reales, con su evidencia |",
-        f"| commits | {len(_git('log', '--format=%H').splitlines())} | cerca de la mitad corrigen "
-        "una afirmación propia |",
+        # Acá decía «cerca de la mitad corrigen una afirmación propia». Era un juicio del autor sin
+        # ningún respaldo mecánico, replicado desde el README. Se retiró de los dos lados: el conteo
+        # de commits es un hecho, la interpretación no lo era.
+        f"| commits | {len(_git('log', '--format=%H').splitlines())} | el historial completo |",
         "",
         "Si en seis meses la proporción no se movió, el lenguaje no valió la pena. Es la única",
         "métrica del proyecto que no se puede sastrear escribiendo más medidas.", ""])
@@ -236,11 +238,12 @@ def indice(archivos) -> str:
 
 def _documentos(proy) -> dict[str, str]:
     dirs = catalogos_a_cargar(proy)
+    macros = macros_del_proyecto(proy)
     docs = {
         "00-esencia.md": esencia(),
         "01-el-algebra.md": algebra(),
         "02-escribir-una-medida.md": como_escribir(),
-        "03-el-catalogo.md": catalogo_en_prosa(dirs),
+        "03-el-catalogo.md": catalogo_en_prosa(dirs, macros),
         "04-el-corpus.md": corpus_en_prosa(proy.corpus),
         "05-el-nucleo.md": modulos(
             "nucleo", "El núcleo, módulo por módulo",
@@ -251,7 +254,7 @@ def _documentos(proy) -> dict[str, str]:
             "Cada una existe por un motivo que está escrito en su encabezado. Varias nacieron de un "
             "defecto concreto del corpus."),
         "07-el-diario.md": diario(),
-        "08-los-numeros.md": numeros(dirs, proy.corpus),
+        "08-los-numeros.md": numeros(dirs, proy.corpus, macros),
     }
     docs["README.md"] = indice(docs)
     return docs

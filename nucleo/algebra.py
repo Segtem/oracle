@@ -35,23 +35,48 @@ class LimitesAlgebra:
     filas_por_relacion: int = 100_000
     producto_cartesiano: int = 1_000_000
     profundidad_expresion: int = 64
+    # Cuántas veces puede una macro expandir a otra antes de declararse bucle. Dieciséis porque una
+    # torre legítima tiene dos o tres pisos —una macro de proyecto sobre `ninguno`— y pasar de eso es
+    # casi seguro recursión, no diseño. El número es alto a propósito: su trabajo es cortar un cuelgue,
+    # no disciplinar el estilo de nadie.
+    expansiones_maximas: int = 16
 
     def __post_init__(self) -> None:
         for nombre, valor in (
                 ("filas_por_relacion", self.filas_por_relacion),
                 ("producto_cartesiano", self.producto_cartesiano),
-                ("profundidad_expresion", self.profundidad_expresion)):
+                ("profundidad_expresion", self.profundidad_expresion),
+                ("expansiones_maximas", self.expansiones_maximas)):
             if not isinstance(valor, int) or isinstance(valor, bool) or valor < 1:
                 raise ErrorDeAlgebra(
                     f"el límite {nombre} debe ser un entero positivo (no bool), no {valor!r}")
 
 
-LIMITES_PREDETERMINADOS = LimitesAlgebra()
+_PREDETERMINADOS: LimitesAlgebra | None = None
+
+
+def limites_predeterminados() -> LimitesAlgebra:
+    """El presupuesto por omisión, construido al primer uso y memorizado.
+
+    Antes era `LIMITES_PREDETERMINADOS = LimitesAlgebra()` a nivel de módulo, y eso volvía inmedible
+    a `__post_init__`: un mutante que rompiera la validación hacía fallar el **import** de
+    `nucleo.algebra` —del que cuelga toda la suite— así que el arnés reportaba «error» y no «muerte».
+    Un mutante sin veredicto es un hueco, y un hueco que además contamina la ronda entera de
+    inconcluso es peor que cualquiera de las dos respuestas.
+
+    Se pierde el autochequeo al importar; no se pierde nada más, porque los defaults ya están fijados
+    por `test_00_los_limites_predeterminados_son_parte_del_contrato`. El objeto es inmutable y
+    compartido, igual que antes.
+    """
+    global _PREDETERMINADOS
+    if _PREDETERMINADOS is None:
+        _PREDETERMINADOS = LimitesAlgebra()
+    return _PREDETERMINADOS
 
 
 def _limites(limites: LimitesAlgebra | None) -> LimitesAlgebra:
     if limites is None:
-        return LIMITES_PREDETERMINADOS
+        return limites_predeterminados()
     if not isinstance(limites, LimitesAlgebra):
         raise ErrorDeAlgebra("`limites` debe ser una instancia de LimitesAlgebra")
     return limites

@@ -1,0 +1,6 @@
+[
+  {
+    "id": "tools/cifras.py:22:16:constante",
+    "razon": "`sys.path.insert(0, RAIZ)` → `insert(1, RAIZ)`. La posición sólo cambia la precedencia frente a `sys.path[0]`, que al correr `python tools/cifras.py` es el propio `tools/`. Ahí no hay ningún `nucleo/`, `catalogos/`, `perfiles/` ni `tools/` que pueda tapar a los de la raíz, y todos los imports del archivo son calificados por paquete, así que resuelven a lo mismo en las dos posiciones. Ningún punto de entrada del proyecto distingue una de otra. Se declara equivalente en vez de inventarle un test: un test que fijara la posición estaría afirmando algo que el proyecto no depende de que sea cierto."
+  }
+]

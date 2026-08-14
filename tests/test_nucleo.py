@@ -7,6 +7,7 @@ tests corriendo durante 8 días. No se repite.)
 from __future__ import annotations
 
 import json
+import importlib
 import sys
 import unittest
 from pathlib import Path
@@ -14,14 +15,24 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
-import catalogos.escalares  # noqa: F401  registra `contiene`
 from nucleo import algebra
 from nucleo.algebra import ErrorDeAlgebra, LimitesAlgebra, desde, evaluar_expr, resumir
-from nucleo.medida import (CLASIFICACION_META_BASE, ClasificacionMeta, Informe, Medida,
+from nucleo.medida import (ClasificacionMeta, Informe, Medida, clasificacion_meta_base,
                            MedidaMalDeclarada, cargar_catalogo, como_hechos, evaluar, inventario,
                            puntos_ciegos)
 
 EV = {"pieza": [{"id": "a", "x": 0}, {"id": "b", "x": 7}]}
+
+
+def setUpModule() -> None:
+    """Registra las escalares del catálogo base DENTRO de la suite, no al importar el módulo.
+
+    Como `import catalogos.escalares` al tope, el decorador `@escalar` corría durante el
+    descubrimiento: un mutante en `escalar()`, `_registro()` o `_contrato_de_escalar()` rompía la
+    importación del archivo de test y el arnés lo reportaba como «error» en vez de «muerte». Once
+    mutantes de `nucleo/algebra.py` quedaban sin veredicto por esto. Acá el fallo es del test.
+    """
+    importlib.import_module("catalogos.escalares")
 
 
 def _medida(pred=None, porque="una razón", alcance="NO ve nada más", umbral=("<=", 0)):
@@ -621,7 +632,7 @@ class CatalogoRealTests(unittest.TestCase):
         self.assertFalse(base["es_meta_por_el_nombre"])
         self.assertFalse(base["es_meta_por_lo_que_mide"])
 
-        ampliada = CLASIFICACION_META_BASE.con(
+        ampliada = clasificacion_meta_base().con(
             relaciones={"revision"}, prefijos=("revision.",))
         perfil = como_hechos([medida], ampliada)[0]
         self.assertTrue(perfil["es_meta_por_el_nombre"])

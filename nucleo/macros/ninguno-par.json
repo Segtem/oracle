@@ -1,0 +1,12 @@
+["defmacro", "ninguno-par",
+  ["id", "relacion", "aliasA", "aliasB", "predicado", "porque", "alcance"],
+  [["guarda", ["!=", ["$", "aliasA"], ["$", "aliasB"]],
+    "los dos alias de «ninguno-par» tienen que ser distintos"]],
+  ["medida", ["$", "id"],
+    ["desde",
+      ["unir", ["de", ["$", "relacion"], ["$", "aliasA"]],
+               ["de", ["$", "relacion"], ["$", "aliasB"]]],
+      ["donde", ["$", "predicado"]]],
+    ["resumen", "contar", 1],
+    ["umbral", "<=", 0, ["$", "porque"]],
+    ["alcance", ["$", "alcance"]]]]

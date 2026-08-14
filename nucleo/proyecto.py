@@ -202,6 +202,31 @@ def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
     return [*bases, proy.catalogos]
 
 
+def macros_del_proyecto(proy: "Proyecto") -> "RegistroMacros":
+    """Biblioteca estándar del lenguaje más las macros que declare el proyecto en `macros/`.
+
+    Las macros son DATOS, no código: se leen y se sustituyen, así que no necesitan la confianza
+    explícita que sí exige `escalares.py`. Lo que sí se exige es lo mismo que a todo lo demás —que el
+    directorio sea físico y esté confinado— y que un nombre no tape al de otra fuente: si un proyecto
+    quiere cambiar `ninguno`, la llama distinto.
+    """
+    from .macro import cargar_macros, macros_base
+
+    registro = macros_base()
+    directorio = proy.raiz / "macros"
+    if not directorio.is_dir():
+        return registro
+    raiz = proy.raiz.resolve()
+    if directorio.is_symlink():
+        raise ProyectoInvalido("`macros/` no puede ser un symlink")
+    try:
+        directorio.resolve().relative_to(raiz)
+    except (OSError, ValueError) as e:
+        raise ProyectoInvalido(f"`macros/` no está confinado en {raiz}") from e
+    cargar_macros(directorio, registro=registro)
+    return registro
+
+
 @contextmanager
 def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False, registro=None):
     """Activa temporalmente las UDF de un proyecto explícitamente confiado.
@@ -293,7 +318,7 @@ def _valido(ruta: Path) -> bool:
 
 def problemas_estructura(proy: "Proyecto", requeridos: tuple[str, ...]) -> list[str]:
     """Comprueba las partes que usa una herramienta y que no escapen mediante symlinks."""
-    permitidos = {"catalogos", "corpus", "diferencial"}
+    permitidos = {"catalogos", "corpus", "diferencial", "macros"}
     desconocidos = set(requeridos) - permitidos
     if desconocidos:
         raise ValueError(f"componentes de proyecto desconocidos: {sorted(desconocidos)}")

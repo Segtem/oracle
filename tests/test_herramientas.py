@@ -18,8 +18,18 @@ from nucleo.medida import Medida
 from nucleo import algebra
 from nucleo.proyecto import (EscalaresInvalidas, Proyecto, escalares_del_proyecto,
                              sin_bandera)
-from tools.corpus import revisar_estado_sin_medida, revisar_evidencia
-from tools.diferencial import comparar_dominio, validar_fixture
+
+def setUpModule() -> None:
+    """Importa las herramientas DENTRO de la suite, no al descubrirla.
+
+    Cada `tools/*.py` hace `import catalogos` al tope —correcto para un CLI, que necesita las
+    escalares registradas apenas arranca— pero traerlas al importar este archivo metía `@escalar` en
+    el **descubrimiento**: un mutante en `escalar()` o `_registro()` rompía la importación y el arnés
+    lo daba por «error» en vez de «muerte».
+    """
+    global revisar_estado_sin_medida, revisar_evidencia, comparar_dominio, validar_fixture
+    from tools.corpus import revisar_estado_sin_medida, revisar_evidencia  # noqa: F811
+    from tools.diferencial import comparar_dominio, validar_fixture  # noqa: F811
 
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -707,6 +717,218 @@ class RunnerMutacionTests(unittest.TestCase):
         r = self._correr("raise SystemExit(1)\n")
         self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
         self.assertIn("SystemExit", r.stdout + r.stderr)
+
+
+class CifrasDelReadme(unittest.TestCase):
+    """Un número tipeado a mano en la prosa es una afirmación que nadie ejercita.
+
+    El corte anterior publicaba «2202 líneas» y «trece a uno» cuando ya iban 2654 y 16,2 — y la
+    proporción es el criterio de falsación declarado del proyecto. Estas regresiones fijan que cada
+    cifra salga de un bloque generado y que borrar la marca no sea la salida barata.
+    """
+
+    def test_los_equivalentes_se_recortan_al_alcance_pero_se_validan_contra_todo(self) -> None:
+        """Un `equivalentes.json` es del proyecto; la ronda puede ser de un archivo. Sin recortar,
+        el CI —un objetivo por job— fallaba todos los jobs salvo el del archivo declarado. Sin
+        validar contra el inventario completo, una declaración vencida no la miraría nadie."""
+        from tools.mutar_codigo import (EQUIVALENTES, RAIZ as RAIZ_MC, cargar_equivalentes,
+                                        equivalentes_del_alcance)
+
+        declarados = cargar_equivalentes(EQUIVALENTES)
+        self.assertTrue(declarados, "el test necesita al menos un equivalente declarado")
+        propio = next(iter(declarados))
+        archivo = propio.rsplit(":", 3)[0]
+
+        dentro = equivalentes_del_alcance(declarados, [RAIZ_MC / archivo])
+        fuera = equivalentes_del_alcance(declarados, [RAIZ_MC / "nucleo/grafo.py"])
+        self.assertIn(propio, dentro)
+        self.assertEqual(fuera, {})
+
+    def test_un_equivalente_que_no_apunta_a_ningun_sitio_se_denuncia(self) -> None:
+        from tools.mutar_codigo import EquivalenteInvalido, RAIZ as RAIZ_MC, equivalentes_del_alcance
+
+        with self.assertRaisesRegex(EquivalenteInvalido, "no apuntan a ningún sitio"):
+            equivalentes_del_alcance(
+                {"nucleo/grafo.py:9999:0:constante": "el código que la justificaba ya no existe"},
+                [RAIZ_MC / "nucleo/grafo.py"])
+
+    def test_todo_objetivo_de_mutacion_declara_sus_tests_prioritarios(self) -> None:
+        """`comando_de_tests` indexa `PRIORIDADES` directo, así que un objetivo sin entrada revienta
+        con `KeyError` recién al correr su job del CI. Pasó al sumar `tools/cifras.py`: quedó en la
+        matriz y fuera del mapa, y el job habría fallado por una causa que no tenía nada que ver con
+        los mutantes."""
+        from tools.mutar_codigo import PRIORIDADES, objetivos_disponibles
+
+        faltantes = sorted(set(objetivos_disponibles()) - set(PRIORIDADES))
+        self.assertEqual(faltantes, [], "objetivos sin tests prioritarios declarados")
+
+    def test_una_marca_de_apertura_ausente_falla_cerrado(self) -> None:
+        from tools import cifras as cli
+
+        with self.assertRaises(ValueError):
+            cli.actualizar("sin marcas\n<!-- x:fin -->", "x", "algo")
+
+    def test_una_marca_de_cierre_ausente_falla_cerrado(self) -> None:
+        from tools import cifras as cli
+
+        with self.assertRaises(ValueError):
+            cli.actualizar("<!-- x:inicio -->\nsin cierre", "x", "algo")
+
+    def test_todo_bloque_declarado_tiene_su_marca_en_el_readme(self) -> None:
+        from tools import cifras as cli
+
+        readme = (RAIZ / "README.md").read_text(encoding="utf-8")
+        for nombre in cli.BLOQUES:
+            self.assertIn(f"<!-- {nombre}:inicio -->", readme, nombre)
+            self.assertIn(f"<!-- {nombre}:fin -->", readme, nombre)
+
+    def test_la_proporcion_publicada_es_la_que_sale_de_los_archivos(self) -> None:
+        """Recalcula el cociente por otra vía: si la fórmula se afloja, esto se cae."""
+        from tools import cifras as cli
+
+        lineas_lenguaje = sum(
+            len(p.read_text(encoding="utf-8").splitlines())
+            for p in list((RAIZ / "nucleo").glob("*.py"))
+                   + list((RAIZ / "nucleo" / "macros").glob("*.json"))
+            if p.name != "__init__.py")
+        lineas_medidas = sum(
+            len(p.read_text(encoding="utf-8").splitlines())
+            for p in list((RAIZ / "catalogos").glob("*/*.json"))
+                   + list((RAIZ / "perfiles").glob("*/catalogos/*/*.json")))
+
+        esperado = f"{lineas_lenguaje / lineas_medidas:.1f}".replace(".", ",")
+        self.assertIn(f"**{esperado} a 1**", cli.escala())
+        self.assertIn(f"**{lineas_lenguaje} líneas", cli.escala())
+
+    def _aislado(self, td, contenido, bloque="hola"):
+        """`main()` sobre un README temporal y un bloque trivial.
+
+        Se aísla porque lo que hay que ejercitar es su CONTROL DE FLUJO —qué devuelve cuando el
+        archivo está al día, cuando venció y cuando se pide actualizar—, no las cifras reales. Sin
+        esto, los `return` y las comparaciones de `main()` no los fija nada: la ronda de mutación
+        dejó vivos catorce mutantes ahí adentro.
+        """
+        from tools import cifras as cli
+
+        ruta = Path(td) / "README.md"
+        ruta.write_text(contenido, encoding="utf-8")
+        return cli, mock.patch.multiple(
+            cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: bloque})
+
+    def test_main_devuelve_cero_cuando_el_readme_esta_al_dia(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            cli, parche = self._aislado(
+                td, "<!-- prueba:inicio -->\nhola\n<!-- prueba:fin -->\n")
+            with parche, redirect_stdout(io.StringIO()):
+                self.assertEqual(cli.main([]), 0)
+
+    def test_main_devuelve_uno_cuando_una_cifra_vencio(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            cli, parche = self._aislado(
+                td, "<!-- prueba:inicio -->\nvencido\n<!-- prueba:fin -->\n")
+            salida = io.StringIO()
+            with parche, redirect_stdout(salida):
+                self.assertEqual(cli.main([]), 1)
+            self.assertIn("vencidas", salida.getvalue())
+
+    def test_main_con_actualizar_reescribe_el_archivo_y_devuelve_cero(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            cli, parche = self._aislado(
+                td, "<!-- prueba:inicio -->\nvencido\n<!-- prueba:fin -->\n")
+            with parche, redirect_stdout(io.StringIO()):
+                self.assertEqual(cli.main(["--actualizar"]), 0)
+                self.assertEqual(cli.main([]), 0)
+            texto = (Path(td) / "README.md").read_text(encoding="utf-8")
+        self.assertIn("hola", texto)
+        self.assertNotIn("vencido", texto)
+
+    def test_main_sin_argv_explicito_lee_los_del_proceso(self) -> None:
+        """`main(None)` tiene que mirar `sys.argv[1:]`, no la lista entera ni ignorarla."""
+        with tempfile.TemporaryDirectory() as td:
+            cli, parche = self._aislado(
+                td, "<!-- prueba:inicio -->\nvencido\n<!-- prueba:fin -->\n")
+            with parche, mock.patch.object(
+                    sys, "argv", ["cifras.py", "--actualizar"]), redirect_stdout(io.StringIO()):
+                self.assertEqual(cli.main(), 0)
+            self.assertIn("hola", (Path(td) / "README.md").read_text(encoding="utf-8"))
+
+    def test_render_aplica_el_bloque_y_devuelve_el_contenido(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            cli, parche = self._aislado(td, "")
+            with parche:
+                salida = cli.render("antes\n<!-- prueba:inicio -->\nx\n<!-- prueba:fin -->\ndespués")
+        self.assertIn("antes", salida)
+        self.assertIn("hola", salida)
+        self.assertIn("después", salida)
+
+    def test_actualizar_conserva_lo_que_rodea_al_bloque(self) -> None:
+        from tools import cifras as cli
+
+        salida = cli.actualizar(
+            "A\n<!-- x:inicio -->\nviejo\n<!-- x:fin -->\nB", "x", "nuevo")
+        self.assertEqual(salida, "A\n<!-- x:inicio -->\nnuevo\n<!-- x:fin -->\nB")
+
+    def test_las_negativas_se_cuentan_una_por_sentencia_raise(self) -> None:
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            fuente = Path(td) / "m.py"
+            fuente.write_text(
+                "def f():\n"
+                "    raise ValueError('una')\n"
+                "    raise KeyError('dos')\n"
+                "# raise en comentario no cuenta\n"
+                "x = 'raise dentro de un texto tampoco'\n",
+                encoding="utf-8")
+            self.assertEqual(cli._negativas([fuente]), 2)
+
+    def test_cada_bloque_produce_texto_no_vacio(self) -> None:
+        """Un generador que devuelve `None` deja el bloque vacío y el README diría nada."""
+        from tools import cifras as cli
+
+        # `cifras` entra igual que los demás: descubrir la suite y mutar las medidas cuesta 0,1 s.
+        # Excluirlo dejaba su `return` sin fijar, y el mutante que lo volvía `None` sobrevivió.
+        for nombre, generar in cli.BLOQUES.items():
+            with self.subTest(bloque=nombre):
+                texto = generar()
+                self.assertIsInstance(texto, str)
+                self.assertTrue(texto.strip())
+
+    def test_la_cuenta_de_macros_distingue_la_forma_canonica(self) -> None:
+        """`por_macro` cuenta las formas que NO son `medida`. Si la comparación se invierte, el
+        número pasa a ser el de las canónicas y nadie se entera."""
+        from tools import cifras as cli
+
+        canonicas = sum(
+            1 for p in cli._medidas_universales()
+            if json.loads(p.read_text(encoding="utf-8"))[0] == "medida")
+        total = len(cli._medidas_universales())
+        self.assertIn(f"{total - canonicas} de las {total} pasan por una macro", cli.escala())
+        self.assertNotEqual(canonicas, total - canonicas, "el test no discrimina si hay empate")
+
+    def test_mover_lenguaje_de_python_a_datos_no_mejora_la_proporcion(self) -> None:
+        """La biblioteca estándar de macros dejó de ser Python y pasó a `nucleo/macros/*.json`. Si
+        el numerador contara sólo `.py`, ese movimiento habría «mejorado» la proporción sin que el
+        lenguaje encogiera nada — el sastreo exacto contra el que esta medición existe."""
+        from tools import cifras as cli
+
+        contadas = {p.name for p in cli._lenguaje()}
+        self.assertTrue({"macro.py", "ninguno.json", "peor.json"} <= contadas)
+
+    def test_el_reparto_del_corpus_suma_todos_los_casos(self) -> None:
+        from tools import cifras as cli
+
+        casos = len(list((RAIZ / "corpus").glob("*/*.json")))
+        self.assertIn(f"**{casos} casos**", cli.corpus())
+
+    def test_las_dos_secciones_no_pueden_contradecirse_en_las_negativas(self) -> None:
+        """`negativas` y `escala` salen de la misma función: el conteo aparece dos veces, medido
+        una. Es la lección del caso 012 aplicada a la prosa."""
+        from tools import cifras as cli
+
+        negativas = cli._negativas(cli._fuentes_del_nucleo())
+        self.assertIn(f"**{negativas} negativas", cli.negativas())
+        self.assertIn(f"**{negativas} negativas", cli.escala())
 
 
 if __name__ == "__main__":

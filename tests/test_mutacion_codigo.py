@@ -938,6 +938,27 @@ class CorrerTests(unittest.TestCase):
             mc._escribir_manifiesto(ruta, datos)
             self.assertEqual(ruta.read_text(encoding="utf-8"), canonico + "\n")
 
+    def test_00_los_tests_corren_en_su_propia_sesion_para_poder_matar_el_grupo(self) -> None:
+        """`start_new_session=True` es lo que vuelve al hijo líder de su grupo, y sin eso los
+        `os.killpg` de `_terminar_proceso` no alcanzan a los nietos: un mutante que lo apaga deja
+        procesos huérfanos y la ronda entera se va a **timeout**.
+
+        Se afirma sobre la llamada, no sobre el comportamiento, justamente por eso: comprobarlo de
+        verdad exigiría colgar el arnés, y un timeout no mata a nadie — el mutante sobreviviría
+        inconcluso. Acá el fallo es inmediato y del test.
+        """
+        with mock.patch.object(mc.subprocess, "Popen") as popen:
+            # Streams REALES: los lectores corren en hilos hasta EOF, y un `Mock` no llega nunca —
+            # el `join()` colgaría el test en vez de fallarlo.
+            popen.return_value.stdout = io.BytesIO(b"")
+            popen.return_value.stderr = io.BytesIO(b"")
+            popen.return_value.wait.return_value = 0
+            with tempfile.TemporaryDirectory() as d:
+                mc.ejecutar_tests(["true"], Path(d), timeout=5)
+
+        self.assertTrue(popen.called)
+        self.assertIs(popen.call_args.kwargs.get("start_new_session"), True)
+
     def test_terminar_proceso_aplica_escalado_y_esperas_explicitas(self) -> None:
         proceso = mock.Mock(pid=123)
         proceso.wait.side_effect = [
