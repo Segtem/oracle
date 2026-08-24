@@ -42,10 +42,14 @@ RELACIONES_DE_CATALOGO = frozenset({
     "requiere",
 })
 
-# Las relaciones de traza viven en `nucleo.algebra.py`, que esta tarea no puede tocar. Se conservan
-# acá como declaración heredada para no mezclar su esquema runtime con la nueva estructura del
-# catálogo.
-RELACIONES_DE_TRAZA = frozenset({"paso", "nodo", "producto"})
+# Relaciones que produce el propio marco al observarse corriendo, no al leer su catálogo: la traza
+# del evaluador (`nucleo/algebra.py`) y las equivalencias metamórficas (`tools/metamorficas.py`).
+#
+# Están declaradas acá y no junto a su productor, y eso es deuda declarada, no diseño: `algebra.py`
+# es el módulo del que cuelga todo y `tools/` no puede importarse desde el núcleo sin invertir la
+# dependencia. Mientras sigan acá, agregar una relación reflexiva nueva cuesta una edición de Python
+# — que es exactamente la traba que la reificación vino a cerrar, cerrada a medias.
+RELACIONES_DE_OBSERVACION = frozenset({"paso", "nodo", "producto", "equivalencia"})
 
 
 class HechosCatalogo(list):
@@ -65,7 +69,7 @@ class HechosCatalogo(list):
 def relaciones_del_lenguaje_declaradas() -> frozenset[str]:
     from .marco import RELACIONES_DEL_LENGUAJE as RELACIONES_DE_MARCO
 
-    return RELACIONES_DE_CATALOGO | RELACIONES_DE_MARCO | RELACIONES_DE_TRAZA
+    return RELACIONES_DE_CATALOGO | RELACIONES_DE_MARCO | RELACIONES_DE_OBSERVACION
 
 
 def evidencia_con_derivadas(evidencia: dict) -> dict:

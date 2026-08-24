@@ -1,0 +1,38 @@
+{
+  "id": "100-donde-no-compone",
+  "titulo": "Donde no compone",
+  "etiqueta": "falso_verde",
+  "sintoma": "Filtrar por P y después por Q dejó filas distintas que filtrar una vez por «P y Q». El veredicto y el valor coincidieron y los testigos no: las dos formas cuentan lo mismo señalando filas distintas, así que una persona que actúe sobre el informe va a mirar el lugar equivocado.",
+  "como_se_detecto": "mutacion",
+  "medida": "meta.donde_compone",
+  "evidencia": {
+    "equivalencia": [
+      {
+        "propiedad": "donde_compone",
+        "caso": "c",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": false
+      },
+      {
+        "propiedad": "unir_conmuta",
+        "caso": "c",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": true
+      }
+    ]
+  },
+  "leccion": "Por eso la propiedad exige las tres coincidencias y no sólo el número. Las filas que sobreviven al último `donde` SON los testigos —no se declaran aparte— y un `y` que ignora su segundo operando produce exactamente este síntoma: mismo conteo, otras filas.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "acfca07"
+  }
+}

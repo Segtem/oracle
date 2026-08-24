@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.unir_conmuta",
+  "equivalencia",
+  "e",
+  ["y", ["==", ["campo", "e", "propiedad"], "unir_conmuta"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]],
+  "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto",
+  "compara `unir A B` contra `unir B A` sobre una sonda construida y sobre las medidas reales que usan `unir`, con la evidencia de sus casos. NO ve `unir` anidados de más de dos lados ni el costo: dos formas equivalentes pueden materializar el mismo producto con presupuestos muy distintos"
+]
