@@ -83,7 +83,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 54 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 39 la mutación, 8 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 57 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 42 la mutación, 8 una persona, 4 la casualidad, 3 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -92,7 +92,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**3716 líneas de lenguaje** (`nucleo/`, código y macros) y **200 negativas explícitas** (`raise`). Contra las 29 medidas universales escritas en él (266 líneas): **14,0 a 1**. 22 de las 29 pasan por una macro.
+**3716 líneas de lenguaje** (`nucleo/`, código y macros) y **200 negativas explícitas** (`raise`). Contra las 30 medidas universales escritas en él (275 líneas): **13,5 a 1**. 23 de las 30 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -367,11 +367,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**79 casos**: 54 defectos y 25 verdes correctos. De los defectos, 51 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 49 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**83 casos**: 57 defectos y 26 verdes correctos. De los defectos, 54 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 52 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-434 tests · 345/345 mutantes de medida · **1342 sitios de mutación de código** (1137 + 205 del motor Python).
+440 tests · 380/380 mutantes de medida · **1342 sitios de mutación de código** (1137 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

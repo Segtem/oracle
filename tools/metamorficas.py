@@ -8,14 +8,14 @@ escribir la misma medida tienen que coincidir**. Por eso atrapa defectos que nad
 falta saber la respuesta, sólo que los dos caminos lleguen al mismo lugar.
 
 `PLAN-LENGUAJE.md` §(e.1) enumeró cinco. Una ya vive como medida sobre la traza
-(`meta.donde_nunca_agrega_filas`); las otras cuatro son equivalencias, y una equivalencia no se lee
-de una traza: hay que **correr las dos formas y comparar**. Eso es lo que hace este sensor.
+(`meta.donde_nunca_agrega_filas`); las demás son equivalencias, y una equivalencia no se lee de una
+traza: hay que **correr las dos formas y comparar**. Eso es lo que hace este sensor.
 
 ## Por qué algunas formas se construyen acá y no salen del catálogo
 
-Medido el 2026-08-24 sobre las 22 medidas publicadas: **cero** usan dos `donde`, **cero** usan
-`agrupar` sin claves, dos usan `unir` y diecinueve están escritas por macro. Así que dos de las
-cuatro propiedades no tienen ningún material real contra el cual comprobarse.
+Medido el 2026-08-24 sobre las medidas publicadas: **cero** usan dos `donde`, **cero** usan
+`agrupar` sin claves, dos usan `unir` y la mayoría están escritas por macro. Así que dos de las
+propiedades no tienen ningún material real contra el cual comprobarse.
 
 Comprobarlas sólo donde el catálogo casualmente las ejercita sería medir la coincidencia, no la
 propiedad: el día que alguien escriba la primera medida con dos `donde`, la propiedad tendría que
@@ -40,10 +40,10 @@ from nucleo.medida import Medida, cargar_catalogo, evaluar, medidas_aplicables  
 from nucleo.mutacion import _huella  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
                              macros_del_proyecto)
+from tools import sintaxis  # noqa: E402
 
 UMBRAL = ["umbral", "<=", 0, "sonda de equivalencia: el umbral no se juzga, se comparan dos formas"]
 ALCANCE = ["alcance", "sonda construida para comprobar una equivalencia. NO mide ningún mundo"]
-
 # Evidencia de las sondas construidas. Tiene filas que pasan cada filtro y filas que no, porque una
 # equivalencia comprobada sólo sobre filas que nadie descarta no ejercita el filtro.
 EV_SONDA = {
@@ -156,12 +156,40 @@ def _macro_equivale_a_su_expansion(catalogo: dict, casos: list[dict], macros) ->
     return filas
 
 
-def hechos(catalogo: dict, casos: list[dict], macros) -> dict:
+def _sintaxis_ida_y_vuelta(proy: Proyecto) -> list[dict]:
+    filas = []
+    for ruta in sintaxis._rutas_catalogo(proy.raiz):
+        caso = str(ruta.relative_to(proy.raiz))
+        try:
+            datos = json.loads(ruta.read_text(encoding="utf-8"))
+            superficie = sintaxis.imprimir(datos)
+            releida = sintaxis.leer(superficie)
+            reimpresa = sintaxis.imprimir(releida)
+        except Exception as e:             # noqa: BLE001
+            filas.append({"propiedad": "sintaxis_ida_y_vuelta", "caso": caso,
+                          "origen": "catalogo", "evaluo": False,
+                          "error": f"{type(e).__name__}: {e}",
+                          "mismo_veredicto": False, "mismo_valor": False,
+                          "mismos_testigos": False})
+            continue
+        filas.append({"propiedad": "sintaxis_ida_y_vuelta", "caso": caso,
+                      "origen": "catalogo", "evaluo": True, "error": "",
+                      # Reusa los nombres genéricos para que las otras medidas sobre `equivalencia`
+                      # puedan evaluar todos sus operandos sin tropezar con campos ausentes.
+                      "mismo_veredicto": releida == datos,
+                      "mismo_valor": reimpresa == superficie,
+                      "mismos_testigos": True})
+    return filas
+
+
+def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = None) -> dict:
+    proy = proy or Proyecto(RAIZ)
     return {"equivalencia": [
         *_donde_compone(),
         *_unir_conmuta(catalogo, casos),
         *_agrupar_sin_claves(),
         *_macro_equivale_a_su_expansion(catalogo, casos, macros),
+        *_sintaxis_ida_y_vuelta(proy),
     ]}
 
 
@@ -172,7 +200,7 @@ def main(argv: list[str] | None = None) -> int:
     catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros)
     casos = [json.loads(p.read_text(encoding="utf-8"))
              for p in sorted(proy.corpus.rglob("*.json"))]
-    evidencia = hechos(catalogo, casos, macros)
+    evidencia = hechos(catalogo, casos, macros, proy)
 
     if "--hechos" in argv:
         print(json.dumps(evidencia, ensure_ascii=False, indent=2))
@@ -194,7 +222,7 @@ def main(argv: list[str] | None = None) -> int:
         print("sin medidas aplicables a las equivalencias")
         return 1
     informe = evaluar(juezas, evidencia)
-    print("juzgado por las medidas del catálogo:")
+    print("juzgado por las medidas aplicables:")
     for v in informe.veredictos:
         print(" ", v.linea())
     return 0 if informe.ok else 1
