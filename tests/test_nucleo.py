@@ -488,9 +488,17 @@ class MedidaTests(unittest.TestCase):
                 with self.assertRaisesRegex(MedidaMalDeclarada, "finito"):
                     Medida.de_datos(_medida(umbral=("<=", limite)))
 
-    def test_la_igualdad_EXACTA_de_umbral_sobre_flotante_esta_prohibida(self) -> None:
-        with self.assertRaisesRegex(MedidaMalDeclarada, "igualdad exacta"):
-            Medida.de_datos(_medida(umbral=("==", 0.3)))
+    def test_la_igualdad_exacta_de_umbral_sobre_flotante_es_politica_no_contrato(self) -> None:
+        """La regla dejó de ser un `raise` de carga: es una POLÍTICA reificada en L2.
+
+        El umbral `== 0.3` está bien formado y se carga; el juicio de que es una mala idea vive en
+        `algebra.comparar` (que sigue fallando cerrado al EVALUAR) y en
+        `meta.ningun_umbral_flotante_de_igualdad` (que lo vuelve inspeccionable). Quitar el `raise`
+        de carga no abre un hueco: la medida no puede producir un verde.
+        """
+        m = Medida.de_datos(_medida(umbral=("==", 0.3)))
+        with self.assertRaisesRegex(ErrorDeAlgebra, "igualdad exacta"):
+            m.evaluar(EV)
 
         datos = _medida(umbral=("==", 4))
         datos[3] = ["resumen", "promedio", ["campo", "p", "x"]]
@@ -633,6 +641,23 @@ class CatalogoRealTests(unittest.TestCase):
     def test_todas_las_medidas_del_repo_cargan(self) -> None:
         self.assertGreaterEqual(len(self.catalogo), 8)
 
+    def test_las_politicas_reificadas_se_cargan_y_juzgan(self) -> None:
+        self.assertIn("meta.ningun_umbral_flotante_de_igualdad", self.catalogo)
+        self.assertIn("meta.ningun_umbral_sin_defensa", self.catalogo)
+        self.assertIn("meta.ninguna_medida_sin_alcance", self.catalogo)
+
+        flotante = self.catalogo["meta.ningun_umbral_flotante_de_igualdad"]
+        ofensa = {"medida": [{"id": "d.x", "umbral_es_flotante": True, "comparador": "=="}]}
+        self.assertFalse(flotante.evaluar(ofensa).ok)
+        sano = {"medida": [{"id": "d.x", "umbral_es_flotante": True, "comparador": "<="}]}
+        self.assertTrue(flotante.evaluar(sano).ok)
+
+        defensa = self.catalogo["meta.ningun_umbral_sin_defensa"]
+        self.assertFalse(defensa.evaluar({"medida": [{"id": "d.x", "porque": ""}]}).ok)
+
+        alcance = self.catalogo["meta.ninguna_medida_sin_alcance"]
+        self.assertFalse(alcance.evaluar({"medida": [{"id": "d.x", "alcance": ""}]}).ok)
+
     def test_ninguna_medida_del_repo_tiene_umbral_sin_defensa(self) -> None:
         for f in inventario(self.catalogo.values()):
             self.assertTrue(f["porque"].strip(), f["id"])
@@ -643,7 +668,8 @@ class CatalogoRealTests(unittest.TestCase):
         self.assertEqual(sorted(hechos[0]),
                          ["agregado", "alcance", "comparador", "declara_requiere", "dominio",
                           "es_meta_por_el_nombre", "es_meta_por_lo_que_mide", "id", "pasos",
-                          "porque", "relacion", "umbral", "umbral_op", "umbral_valor"])
+                          "porque", "relacion", "umbral", "umbral_es_flotante",
+                          "umbral_op", "umbral_valor"])
         self.assertEqual(sorted(hechos.por_relacion),
                          ["fuente", "medida", "paso_de_medida", "requiere", "termino"])
         self.assertTrue(hechos.por_relacion["termino"])

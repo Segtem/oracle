@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.ninguna_medida_sin_alcance",
+  "medida",
+  "m",
+  ["==", ["campo", "m", "alcance"], ""],
+  "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa",
+  "ve si el `alcance` está VACÍO. NO impone una fórmula textual ni un idioma, y NO juzga si el punto ciego declarado es el correcto o el completo"
+]
