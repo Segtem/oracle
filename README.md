@@ -116,8 +116,16 @@ Así que la condición de fracaso está prerregistrada **como dato** en
 
 > Si al **2027-01-29** no existen al menos **dos repositorios** que consuman Oracle, mantenidos por
 > otra persona, con sus medidas escritas sin asistencia del autor y **sin ningún cambio a
-> `nucleo/`**, se archiva el metalenguaje general y se conserva únicamente el protocolo
-> `caso + porque + alcance + testigos` como plugin de pytest.
+> `nucleo/`**, se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un
+> consumidor independiente.
+
+Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es
+agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que
+ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto. La auditoría
+proponía algo más duro —archivar el metalenguaje y conservar sólo el protocolo como plugin de
+pytest— y se descartó por decisión del autor; queda registrada en `COMPROMISOS.json` la alternativa
+que **no** se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el
+resultado.
 
 `meta.compromiso_vencido_sin_cumplir` se pone roja sola el día del plazo, y
 `meta.cumplimiento_declarado_sin_respaldo` cierra la salida barata: para apagar la puerta hay que
