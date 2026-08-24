@@ -691,5 +691,64 @@ class CatalogoRealTests(unittest.TestCase):
                 cargar_catalogo(Path(d))
 
 
+class ClaveDeUnicidadEnMedidaTests(unittest.TestCase):
+    """La clave de unicidad declarada por la relación, vista desde quien la mide.
+
+    Es el criterio de éxito de la tarea: un duplicado bajo una clave declarada falla ANTES de medir
+    nombrando la clave y la fila; sin clave, cero cambios de conducta; y la multiplicidad
+    intencional sigue siendo expresable.
+    """
+
+    def _medida_contar(self, relacion="pieza"):
+        return Medida.de_datos([
+            "medida", "d.clave", ["desde", ["de", relacion, "p"]],
+            ["resumen", "contar", 1], ["umbral", "<=", 0, "una razón"],
+            ["alcance", "NO ve nada más"]])
+
+    def test_un_duplicado_bajo_una_clave_declarada_falla_antes_de_medir(self) -> None:
+        evidencia = {"pieza": [["clave", ["id"]], {"id": "a", "x": 9}, {"id": "a", "x": 9}]}
+        with self.assertRaises(ErrorDeAlgebra) as error:
+            self._medida_contar().evaluar(evidencia)
+        mensaje = str(error.exception)
+        self.assertIn("clave (id)", mensaje)
+        self.assertIn("fila 1", mensaje)
+        self.assertIn("fila 0", mensaje)
+
+    def test_sin_clave_la_medida_cuenta_la_bolsa_como_siempre(self) -> None:
+        hecho = {"id": "repetido", "x": 2}
+        v = self._medida_contar().evaluar({"pieza": [hecho, hecho]})
+        self.assertEqual(v.valor, 2)      # la multiplicidad sigue siendo evidencia
+
+    def test_con_clave_y_sin_duplicado_la_medida_sale_como_la_evidencia_dicta(self) -> None:
+        v = self._medida_contar().evaluar(
+            {"pieza": [["clave", ["id"]], {"id": "a", "x": 9}, {"id": "b", "x": 9}]})
+        self.assertEqual(v.valor, 2)
+
+    def test_la_multiplicidad_intencional_se_expresa_no_declarando_clave(self) -> None:
+        # dos observaciones del mismo id pueden ser dos eventos reales distintos: no declarar clave
+        # conserva la semántica de bolsa sin obligar a fingir una identidad que el dominio no tiene
+        v = self._medida_contar().evaluar(
+            {"pieza": [{"id": "mismo", "t": 1}, {"id": "mismo", "t": 2}]})
+        self.assertEqual(v.valor, 2)
+
+    def test_el_lector_de_fixtures_rechaza_el_duplicado_nombrando_la_clave(self) -> None:
+        from nucleo.fixtures import _validar_evidencia
+        fallas = _validar_evidencia(
+            {"pieza": [["clave", ["id"]], {"id": "x"}, {"id": "x"}]}, "demo")
+        self.assertEqual(len(fallas), 1)
+        self.assertIn("clave (id)", fallas[0])
+        self.assertIn("fila 1", fallas[0])
+
+    def test_el_lector_de_fixtures_acepta_una_clave_sin_duplicado(self) -> None:
+        from nucleo.fixtures import _validar_evidencia
+        self.assertEqual(_validar_evidencia(
+            {"pieza": [["clave", ["id"]], {"id": "x"}, {"id": "y"}]}, "demo"), [])
+
+    def test_el_lector_de_fixtures_rechaza_una_clave_mal_declarada(self) -> None:
+        from nucleo.fixtures import _validar_evidencia
+        fallas = _validar_evidencia({"pieza": [["clave", []], {"id": "x"}]}, "demo")
+        self.assertTrue(any("clave" in f for f in fallas))
+
+
 if __name__ == "__main__":
     unittest.main()

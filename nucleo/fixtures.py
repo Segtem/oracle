@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Iterable, Iterator
 
+from nucleo.algebra import ErrorDeAlgebra, separar_clave, validar_unicidad
 from nucleo.diferencial import (ALGORITMO_HUELLA, ESQUEMA_DIFERENCIAL, HUELLA_RE,
                                 revisar_frescura)
 from nucleo.proyecto import ID_MEDIDA_RE
@@ -47,8 +48,15 @@ def _validar_evidencia(evidencia: Any, contexto: str) -> list[str]:
         if not isinstance(filas, list):
             fallas.append(f"{contexto}: la relación «{relacion}» debe ser una lista de filas")
             continue
-        for i, fila in enumerate(filas):
+        try:
+            clave, hechos = separar_clave(filas)
+        except ErrorDeAlgebra as e:
+            fallas.append(f"{contexto}: {relacion}: {e}")
+            continue
+        bien_formados = True
+        for i, fila in enumerate(hechos):
             if not isinstance(fila, dict):
+                bien_formados = False
                 fallas.append(f"{contexto}: {relacion}[{i}] no es una fila")
                 continue
             for campo, valor in fila.items():
@@ -58,6 +66,11 @@ def _validar_evidencia(evidencia: Any, contexto: str) -> list[str]:
                     fallas.append(
                         f"{contexto}: {relacion}[{i}].{campo} no es escalar "
                         f"({type(valor).__name__})")
+        if clave and bien_formados:
+            try:
+                validar_unicidad(relacion, clave, hechos)
+            except ErrorDeAlgebra as e:
+                fallas.append(f"{contexto}: {relacion}: {e}")
     return fallas
 
 

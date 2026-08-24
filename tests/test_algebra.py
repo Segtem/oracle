@@ -204,6 +204,82 @@ class ContratoAlgebraTests(unittest.TestCase):
             algebra.validar_resumen(["resumen", "moda", 1])
 
 
+class ClaveDeUnicidadTests(unittest.TestCase):
+    """La clave de unicidad declarable: un contrato opcional que se valida ANTES de medir.
+
+    Una relación sigue siendo una bolsa; el nodo `clave` es la puerta por la que un dominio que
+    conoce su identidad pide que un duplicado sea un defecto del sensor y no un hecho más.
+    """
+
+    def _de(self, relacion, evidencia):
+        algebra = _algebra()
+        return algebra.desde(["desde", ["de", relacion, "p"]], evidencia)
+
+    def test_sin_clave_la_relacion_sigue_siendo_una_bolsa(self) -> None:
+        hecho = {"id": "repetido", "x": 2}
+        filas = self._de("pieza", {"pieza": [hecho, hecho]})
+        self.assertEqual(len(filas), 2)
+
+    def test_un_duplicado_bajo_una_clave_declarada_nombra_clave_y_fila(self) -> None:
+        algebra = _algebra()
+        evidencia = {"pieza": [["clave", ["id"]], {"id": "x", "v": 1}, {"id": "x", "v": 2}]}
+        with self.assertRaises(algebra.ErrorDeAlgebra) as error:
+            self._de("pieza", evidencia)
+        mensaje = str(error.exception)
+        self.assertIn("«pieza»", mensaje)     # la relación responsable
+        self.assertIn("clave (id)", mensaje)  # la clave responsable
+        self.assertIn("fila 1", mensaje)      # la fila que la viola
+        self.assertIn("fila 0", mensaje)      # y contra quién
+
+    def test_una_clave_declarada_sin_duplicado_mide_con_normalidad(self) -> None:
+        evidencia = {"pieza": [["clave", ["id"]], {"id": "x"}, {"id": "y"}]}
+        self.assertEqual(len(self._de("pieza", evidencia)), 2)
+
+    def test_una_clave_compuesta_solo_repite_cuando_repiten_todos_sus_campos(self) -> None:
+        algebra = _algebra()
+        bien = {"cosa": [["clave", ["a", "b"]], {"a": 1, "b": 2}, {"a": 1, "b": 3}]}
+        self.assertEqual(len(self._de("cosa", bien)), 2)
+        mal = {"cosa": [["clave", ["a", "b"]], {"a": 1, "b": 2}, {"a": 1, "b": 2}]}
+        with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "clave \\(a, b\\)"):
+            self._de("cosa", mal)
+
+    def test_una_clave_mal_declarada_falla_al_leerse(self) -> None:
+        algebra = _algebra()
+        for mala in (
+            ["clave"],
+            ["clave", []],
+            ["clave", [""]],
+            ["clave", [7]],
+            ["clave", ["id", "id"]],
+            ["clave", "id"],
+        ):
+            with self.subTest(clave=mala):
+                with self.assertRaises(algebra.ErrorDeAlgebra):
+                    algebra.separar_clave([mala, {"id": "x"}])
+
+    def test_una_clave_con_un_campo_ausente_falla(self) -> None:
+        algebra = _algebra()
+        evidencia = {"pieza": [["clave", ["id"]], {"id": "x"}, {"otro": 1}]}
+        with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "no trae el campo id"):
+            self._de("pieza", evidencia)
+
+    def test_una_clave_con_un_valor_no_escalar_falla(self) -> None:
+        algebra = _algebra()
+        evidencia = {"pieza": [["clave", ["id"]], {"id": ["x"]}]}
+        with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "no la trae como escalar"):
+            self._de("pieza", evidencia)
+
+    def test_la_clave_no_cuenta_como_fila_para_el_limite(self) -> None:
+        algebra = _algebra()
+        limite = algebra.LimitesAlgebra(filas_por_relacion=2)
+        evidencia = {"pieza": [["clave", ["id"]], {"id": "x"}, {"id": "y"}]}
+        filas = algebra.desde(["desde", ["de", "pieza", "p"]], evidencia, limite)
+        self.assertEqual(len(filas), 2)
+
+    def test_una_clave_sobre_una_relacion_vacia_no_da_ningun_fallo(self) -> None:
+        self.assertEqual(self._de("vacia", {"vacia": [["clave", ["id"]]]}), [])
+
+
 class TrazaDelEvaluador(unittest.TestCase):
     """El evaluador como sensor de sí mismo.
 
