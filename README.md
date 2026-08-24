@@ -63,7 +63,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 39 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 22 la mutación, 9 una persona, 4 la casualidad, 4 una herramienta ajena.
+Los 40 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 23 la mutación, 9 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -83,7 +83,9 @@ Es la única medición del proyecto **que no se puede sastrear escribiendo más 
 medidas es justamente lo que la mejora. Si en seis meses la proporción no se movió, el lenguaje no
 valió la pena.
 
-**Y la proporción viene empeorando, dos veces seguidas.**
+**Y la proporción no se mueve.** Fue 16,2 antes de `defmacro`, subió a 18,2, y volvió a 16,2. Ni
+mejoró ni empeoró: después de meses de trabajo está donde empezó, y las dos veces que se movió fue
+por escribir código de núcleo o por escribir medidas universales — nunca por un consumidor.
 
 El corte anterior publicaba «2202 líneas» y «trece a uno» escritos a mano; los valores reales ya eran
 2654 y 16,2 a 1, y nada lo detectó, porque el criterio de falsación declarado del proyecto era
@@ -102,11 +104,16 @@ sastreo exacto contra el que esta medición existe.
 ### La proporción no alcanza, y por eso hay una puerta
 
 Dos auditorías externas coincidieron en lo mismo: como criterio de falsación, la proporción no puede
-hacer el trabajo. **Ya disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta
+hacer el trabajo. **Disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta
 publicada fue reinterpretarla, que es exactamente la maniobra que este proyecto le prohíbe a todo lo
-demás. Y aunque no se reinterpretara, es inmune a la única señal que importa: los catálogos externos
-no entran a su denominador, así que **ningún éxito de adopción puede mejorarla**. Lo único que la
-mejora es escribir más medidas universales.
+demás. Después volvió a 16,2, y eso no la rehabilita: volvió porque se escribieron más medidas
+universales, que es el único mecanismo que la mueve hacia abajo.
+
+Ahí está el problema, y es estructural. Es inmune a la única señal que importa: los catálogos
+externos no entran a su denominador, así que **ningún éxito de adopción puede mejorarla**. Y también
+es inmune a la migración: al mover una política real de Python al catálogo, el núcleo bajó tres
+líneas y la cifra no se movió — lo que queda en Python es código de sensor, y eso no puede migrar
+nunca. Ni la adopción la mueve, ni la migración la mueve.
 
 Un criterio así no es un criterio: es una nota al pie. Y escribirlo en prosa habría sido peor,
 porque este README arranca diciendo que una regla escrita como consejo se lee y se olvida.
@@ -114,10 +121,25 @@ porque este README arranca diciendo que una regla escrita como consejo se lee y 
 Así que la condición de fracaso está prerregistrada **como dato** en
 [`COMPROMISOS.json`](COMPROMISOS.json) y la juzgan dos medidas del catálogo:
 
-> Si al **2027-01-29** no existen al menos **dos repositorios** que consuman Oracle, mantenidos por
-> otra persona, con sus medidas escritas sin asistencia del autor y **sin ningún cambio a
-> `nucleo/`**, se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un
-> consumidor independiente.
+> Si al **2027-01-29** los catálogos de los proyectos consumidores no suman **80 medidas** (hoy 47)
+> o `nucleo/` superó las **3658 líneas**, se congela el núcleo: cero líneas nuevas hasta que esa
+> proporción mejore.
+
+Esa es **la apuesta declarada del proyecto**, y hasta ahora nada la medía: los catálogos externos no
+entran al denominador de la proporción, así que ningún consumidor podía moverla. Las dos mitades
+cuentan, y basta que falle una — un catálogo que crece a costa de un núcleo que crece más no
+demuestra la tesis, la contradice. El conteo **se mide**, no se declara: el sensor cuenta los
+archivos de los catálogos consumidores y las líneas del núcleo con la misma función que publica las
+cifras de este README.
+
+**La condición anterior era otra, y el cambio está registrado.** Pedía dos consumidores mantenidos
+por otra persona. El 2026-08-24 se decidió mantener el repositorio privado, y con eso esa condición
+pasó de difícil a **imposible**: nadie puede usar lo que no puede encontrar, así que el 2027-01-29
+habría salido roja con certeza y no por la razón que decía medir. Se reemplazó ese mismo día, con
+cinco meses por delante y sin conocer el resultado — hacerlo en enero al verla roja habría sido la
+reinterpretación que esta puerta existe para impedir. Lo que se perdió es la prueba de
+**transferencia**, que es la que distingue «general» de «sobreajustado a su autor»; por eso la
+decisión de publicar quedó como un compromiso aparte, con su propia fecha.
 
 Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es
 agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que
@@ -350,11 +372,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**59 casos**: 39 defectos y 20 verdes correctos. De los defectos, 36 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 34 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**60 casos**: 40 defectos y 20 verdes correctos. De los defectos, 37 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 35 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-436 tests · 206/206 mutantes de medida · **1293 sitios de mutación de código** (1088 + 205 del motor Python).
+440 tests · 213/213 mutantes de medida · **1293 sitios de mutación de código** (1088 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

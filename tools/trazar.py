@@ -14,9 +14,12 @@ medida entra a la mutación, al corpus, al inventario de umbrales y al de puntos
 cualquier otra — y sale del núcleo, que es la única dirección en la que la proporción mejora sin
 sastrearla.
 
-El punto ciego de todo esto, dicho: estas medidas las evalúa el mismo evaluador que vigilan, así que
-un defecto podría taparse a sí mismo. Lo que cierra esa puerta es el diferencial —la implementación
-de referencia evalúa las mismas medidas sobre la misma traza, y ahí hay dos manos distintas.
+El punto ciego que esto tendría si se dejara solo: las medidas las evaluaría el mismo evaluador que
+vigilan, y un defecto podría taparse a sí mismo. Por eso cada propiedad se juzga DOS veces —con
+`nucleo/` y con `diferencial/referencia/evaluador.py`, escrito por otro autor que nunca vio el
+núcleo— y un desacuerdo entre las dos hace fallar la corrida. No es una garantía absoluta: si las dos
+implementaciones comparten el mismo malentendido, las dos callan igual. Es lo que un diferencial
+puede dar.
 """
 
 from __future__ import annotations

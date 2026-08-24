@@ -15,11 +15,18 @@
         "cumplido": false,
         "umbral": 2,
         "observado": 0,
-        "alcanza_el_umbral": false
+        "alcanza_el_umbral": false,
+        "medido": true,
+        "lineas_nucleo": 3558,
+        "nucleo_maximo": 3658,
+        "nucleo_dentro_del_tope": true
       }
     ]
   },
   "leccion": "La proporción no podía hacer el trabajo por dos razones estructurales: los catálogos externos no entran a su denominador, así que ningún éxito de adopción la mejora; y lo único que la mejora es escribir más medidas universales, que es el sastreo contra el que dice existir. Un criterio de fracaso necesita ser una regla observable con fecha y testigo externo, no una métrica. Y necesita ser un programa que falla, no un párrafo: este proyecto arranca diciendo que una regla escrita como consejo se lee y se olvida, y su propio criterio de falsación era exactamente eso.",
   "fecha": "2026-08-24",
-  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "515c723"
+  }
 }

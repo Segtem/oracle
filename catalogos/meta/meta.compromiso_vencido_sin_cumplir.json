@@ -3,7 +3,7 @@
   "meta.compromiso_vencido_sin_cumplir",
   "compromiso",
   "c",
-  ["y", ["==", ["campo", "c", "vencido"], true], ["==", ["campo", "c", "cumplido"], false]],
-  "un criterio de fracaso que llega a su fecha sin cumplirse y no frena nada es exactamente lo que ya pasó con la proporción: disparó dos veces y la respuesta fue reinterpretarlo. La consecuencia está escrita de antemano en `COMPROMISOS.json`, así que a partir de acá seguir es una decisión que hay que tomar y firmar, no la inercia",
-  "ve que la fecha pasó y que nadie declaró el cumplimiento. NO verifica que la condición sea verdadera —eso lo comprueba el testigo nombrado en el compromiso, necesariamente desde afuera— ni puede impedir que alguien edite el archivo: lo que hace es que cambiar de criterio sea un commit fechado y no un párrafo nuevo"
+  ["y", ["==", ["campo", "c", "vencido"], true], ["o", ["==", ["campo", "c", "alcanza_el_umbral"], false], ["==", ["campo", "c", "nucleo_dentro_del_tope"], false]]],
+  "un criterio de fracaso que llega a su fecha sin cumplirse y no frena nada es exactamente lo que ya pasó con la proporción: disparó tres cortes seguidos y la respuesta fue reinterpretarla. Juzga lo OBSERVADO y no el `cumplido` declarado, porque un booleano escrito a mano no es evidencia de nada; y basta con que falle una de las dos mitades —el conteo o el tope del núcleo— porque un catálogo que crece a costa de un núcleo que crece más no demuestra la apuesta, la contradice",
+  "ve que la fecha pasó, que el conteo no llegó al umbral y que el núcleo se pasó del tope. NO verifica que las fuentes declaradas sean los consumidores que dicen ser, ni que las medidas contadas midan algo distinto entre sí: alguien que duplique una medida cambiándole el umbral infla el conteo y esta medida no lo distingue. Eso lo comprueba el testigo, necesariamente a mano"
 ]

@@ -1075,6 +1075,46 @@ class PuertaDeAbandono(unittest.TestCase):
 
         self.assertTrue(cli.leer())
 
+    def test_un_compromiso_medible_no_puede_traer_el_numero_escrito(self) -> None:
+        """Un observado medido y otro declarado no conviven: el declarado gana sin que nadie lo note,
+        y la puerta volvería a depender de que alguien se acuerde de actualizarlo."""
+        from tools import compromisos as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            medible = {**self.BASE["compromisos"][0],
+                       "medicion": {"tipo": "medidas_de_consumidores", "fuentes": [td]}}
+            with self.assertRaises(cli.CompromisoInvalido):
+                cli.leer(self._archivo(td, {**self.BASE, "compromisos": [medible]}))
+            # sin `observado` escrito, el mismo compromiso es válido
+            del medible["observado"]
+            self.assertTrue(cli.leer(self._archivo(td, {**self.BASE, "compromisos": [medible]})))
+
+    def test_una_fuente_declarada_que_no_existe_es_error_y_no_cero(self) -> None:
+        """Un cero silencioso haría que «borré el proyecto» y «el proyecto no creció» dieran el mismo
+        número — y sería la manera más barata de bajar el observado cuando conviene."""
+        from tools import compromisos as cli
+
+        with self.assertRaises(cli.CompromisoInvalido):
+            cli.medidas_de_consumidores(["/no/existe/este/directorio"])
+
+    def test_el_observado_se_cuenta_de_los_catalogos_declarados(self) -> None:
+        from tools import compromisos as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td) / "catalogos" / "dominio"
+            raiz.mkdir(parents=True)
+            for n in range(3):
+                (raiz / f"m{n}.json").write_text("[]", encoding="utf-8")
+            (raiz / "no-es-medida.txt").write_text("x", encoding="utf-8")
+            self.assertEqual(cli.medidas_de_consumidores([str(Path(td) / "catalogos")]), 3)
+
+    def test_el_nucleo_lo_cuenta_la_misma_funcion_que_publica_el_README(self) -> None:
+        """Dos lecturas del mismo número divergen: la puerta estaría midiendo un núcleo distinto del
+        que el README publica, y ninguna de las dos sabría de la otra."""
+        from tools import cifras, compromisos as cli
+
+        self.assertEqual(cli.lineas_del_nucleo(), cifras._lineas(cifras._lenguaje()))
+
     def test_las_salidas_baratas_no_pasan_en_silencio(self) -> None:
         from tools import compromisos as cli
 

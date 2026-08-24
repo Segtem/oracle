@@ -15,11 +15,18 @@
         "cumplido": false,
         "umbral": 2,
         "observado": 0,
-        "alcanza_el_umbral": false
+        "alcanza_el_umbral": false,
+        "medido": true,
+        "lineas_nucleo": 3558,
+        "nucleo_maximo": 3658,
+        "nucleo_dentro_del_tope": true
       }
     ]
   },
   "leccion": "Las dos condiciones tienen que valer a la vez: vencido Y sin cumplir. Sin este caso, quitar el filtro entero o cambiar el `y` por un `o` pasaban inadvertidos —la mutación los reportó como sobrevivientes— y con cualquiera de esas dos escrituras la puerta se pondría roja estando todo en orden. Un falso rojo acá es peor que en otras medidas: enseña a ignorar precisamente el mecanismo que existe para no ser ignorado.",
   "fecha": "2026-08-24",
-  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "515c723"
+  }
 }

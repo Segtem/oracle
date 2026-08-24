@@ -3,21 +3,47 @@
   "porque": "Oracle exige umbral, defensa y testigo para toda afirmación, y no tenía ninguno para sí mismo. El criterio declarado —la proporción— ya disparó en contra dos veces y la respuesta publicada fue reinterpretarlo, no aceptarlo; además es inmune a la adopción, porque los catálogos externos no entran a su denominador. Este archivo fija la condición ANTES de conocer el resultado, que es la única ventana en que un prerregistro vale algo.",
   "compromisos": [
     {
-      "id": "dos-consumidores-independientes",
+      "id": "catalogos-crecen-sin-crecer-el-nucleo",
       "abierto": "2026-08-24",
       "vence": "2027-01-29",
-      "condicion": "Existen al menos DOS repositorios que consumen Oracle, mantenidos por personas que no son Brian Hollweg, cuyas medidas fueron escritas sin su asistencia y sin ningún cambio a `nucleo/`.",
-      "umbral": 2,
+      "condicion": "Los catálogos de los proyectos consumidores suman al menos 80 medidas, y `nucleo/` no superó las 3658 líneas. Es la apuesta declarada del proyecto —«que los catálogos crezcan sin hacer crecer el metalenguaje»— y hasta ahora NADA la medía: los catálogos externos no entran al denominador de la proporción, así que ningún consumidor podía moverla. Arreglar un defecto encontrado cuenta como crecimiento del núcleo: no hay excepción cómoda, porque la que existiera se usaría.",
+      "medicion": {
+        "tipo": "medidas_de_consumidores",
+        "fuentes": [
+          "~/Dev/jam/medidas/catalogos",
+          "~/Dev/games/unreal/LyraGASP/medidas/catalogos"
+        ]
+      },
+      "umbral": 80,
+      "nucleo_maximo": 3658,
+      "cumplido": false,
+      "testigo": "El git de los tres repositorios: `Segtem/jam`, `Brianholl/LyraGASP` y este. Cualquiera con acceso puede contar los archivos de `medidas/catalogos/` y las líneas de `nucleo/` en la fecha, sin preguntarle al autor y sin creerle ningún número.",
+      "consecuencia": "Se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que la proporción entre medidas de consumidores y líneas de núcleo mejore. Oracle sigue existiendo y usándose; deja de crecer hacia una generalidad que ningún catálogo pidió.",
+      "no_cuenta": [
+        "Las 24 medidas universales del propio Oracle: son del metalenguaje, no de un consumidor.",
+        "Duplicar una medida existente cambiándole el umbral: crecer el catálogo tiene que ser medir algo que antes no se medía."
+      ]
+    },
+    {
+      "id": "decision-de-publicacion",
+      "abierto": "2026-08-24",
+      "vence": "2027-01-29",
+      "condicion": "Está tomada y escrita la decisión de publicar Oracle o no. El 2026-08-24 se difirió: el repositorio queda privado y la prueba de transferencia, sin medir. Un diferimiento sin fecha es un abandono silencioso, así que acá tiene fecha.",
+      "umbral": 1,
       "observado": 0,
       "cumplido": false,
-      "testigo": "El git de cada repositorio consumidor: autoría de los archivos de `catalogos/`, y el historial de `nucleo/` de Oracle en el período. Cualquiera puede verificarlo sin preguntarle al autor.",
-      "consecuencia": "Se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un consumidor independiente. Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto.",
-      "no_cuenta": [
-        "El proyecto externo sintético: demuestra desacoplamiento técnico, no adopción.",
-        "Jam: fue codiseñado con Oracle y lo mantiene el mismo autor.",
-        "Un consumidor que para escribir sus medidas necesitó extender `nucleo/`: eso refuta la apuesta en vez de confirmarla."
-      ],
-      "por_que_esta_consecuencia": "La auditoría de Codex proponía archivar el metalenguaje y conservar sólo el protocolo `caso + porque + alcance + testigos` como plugin de pytest. Se descartó el 2026-08-24 por decisión del autor: la tesis se considera viable y archivar es desproporcionado para lo medido. Queda registrada la alternativa que NO se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el resultado."
+      "testigo": "La visibilidad del repositorio en GitHub, y este archivo. Las dos son públicas para cualquiera con acceso y ninguna depende de lo que el autor recuerde haber decidido.",
+      "consecuencia": "Se retira del README la afirmación de que Oracle es un metalenguaje adoptable y se declara lo que el material sostiene: una práctica epistémica personal, empaquetada y con dos consumidores del mismo autor. Es la reducción que la auditoría de DeepSeek llamó «la que no quiere oír», y aplica si la decisión no se toma."
+    }
+  ],
+  "historial": [
+    {
+      "id": "dos-consumidores-independientes",
+      "abierto": "2026-08-24",
+      "reemplazado": "2026-08-24",
+      "condicion_original": "Existen al menos DOS repositorios que consumen Oracle, mantenidos por personas que no son Brian Hollweg, cuyas medidas fueron escritas sin su asistencia y sin ningún cambio a `nucleo/`.",
+      "por_que_se_reemplazo": "El 2026-08-24 se decidió mantener el repositorio PRIVADO y diferir la publicación. Con el repo privado nadie puede encontrarlo, clonarlo ni usarlo, así que «dos consumidores independientes» dejó de ser difícil y pasó a ser imposible: el 2027-01-29 la puerta se habría puesto roja con certeza, y no porque la tesis fallara sino porque nadie pudo intentarlo. Una condición incumplible por construcción no mide nada. Se reemplaza AHORA, con cinco meses de plazo por delante y sin conocer el resultado, que es la única ventana en que un prerregistro vale algo; hacerlo en enero al verla roja habría sido exactamente la reinterpretación que esta puerta existe para impedir. Queda escrito acá para que el cambio se pueda juzgar, y no sólo el resultado.",
+      "que_se_perdio": "La prueba de TRANSFERENCIA. Las dos auditorías la piden y es la única que distingue «este lenguaje es general» de «este lenguaje está sobreajustado a su autor». La condición nueva NO la reemplaza: mide otra cosa, más barata y verificable con el repo privado. Que la transferencia deje de medirse es el costo de la decisión, y por eso la decisión misma quedó como el compromiso `decision-de-publicacion`."
     }
   ]
 }

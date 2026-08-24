@@ -15,11 +15,18 @@
         "cumplido": true,
         "umbral": 2,
         "observado": 2,
-        "alcanza_el_umbral": true
+        "alcanza_el_umbral": true,
+        "medido": true,
+        "lineas_nucleo": 3558,
+        "nucleo_maximo": 3658,
+        "nucleo_dentro_del_tope": true
       }
     ]
   },
   "leccion": "Sin este caso, quitar el filtro o cambiar el `y` por un `o` sobrevivían: la medida se pondría roja al cumplir el compromiso, que es el único desenlace bueno posible. La polaridad verde no es un extra de prolijidad — sin ella el corpus no distingue una medida que denuncia lo que debe de una que denuncia todo.",
   "fecha": "2026-08-24",
-  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "515c723"
+  }
 }

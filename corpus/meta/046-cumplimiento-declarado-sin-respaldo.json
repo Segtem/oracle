@@ -15,11 +15,18 @@
         "cumplido": true,
         "umbral": 2,
         "observado": 0,
-        "alcanza_el_umbral": false
+        "alcanza_el_umbral": false,
+        "medido": true,
+        "lineas_nucleo": 3558,
+        "nucleo_maximo": 3658,
+        "nucleo_dentro_del_tope": true
       }
     ]
   },
   "leccion": "Toda puerta que se cierra con un booleano declarado se abre con el mismo booleano. La segunda medida no arregla eso —nada puede impedir editar un archivo del propio repo— pero obliga a que el número declarado sostenga la declaración: para apagar la puerta hay que escribir `observado: 2`, que es una afirmación concreta, falsable y fechada sobre el mundo, en vez de un `true` que no dice nada. El mecanismo no vuelve honesto a nadie; sube el precio de no serlo.",
   "fecha": "2026-08-24",
-  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "515c723"
+  }
 }
