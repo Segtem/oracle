@@ -26,7 +26,8 @@ mismo tipo. La evidencia es un mapa de relaciones:
 ```json
 {
   "pieza":   [{"id": "Muro_A", "x": 100, "y": 100, "ex": 200, "ey": 25}],
-  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual", "murio": false}]
+  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual",
+               "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
 }
 ```
 
@@ -54,7 +55,9 @@ Una medida real, del catálogo que ya corre — sin `unir`, que todavía no tien
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"],
+    ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+                    ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina…"],
   ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió…"]]
@@ -80,8 +83,16 @@ a mano — el error concreto que motivó esta especificación (ver
 
 ## 3. Los operadores
 
-Cinco. Cada uno toma relaciones y devuelve una relación: **eso es la clausura**, y es lo que permite
-que una medida consuma la salida de otra sin ningún caso especial.
+Cinco. Cuatro toman relaciones y devuelven una relación: **eso es la clausura**, y es lo que permite
+encadenarlos en cualquier orden sin un solo caso especial. `resumen` es el que la rompe a propósito,
+porque colapsa a un escalar: por eso va último y una sola vez, y por eso **la clausura es sobre
+filas, no sobre medidas**.
+
+Conviene decirlo fuerte, porque la versión corta de esta frase engañaba: una medida termina en un
+escalar y un umbral, y ahí se acaba. **Ninguna medida puede consumir los testigos ni el veredicto de
+otra**, y eso no es una limitación pendiente sino una decisión tomada y registrada en
+[`DECISION-002`](DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md). Las preguntas que esa decisión deja
+afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo el catálogo como relación.
 
 | Operador | Forma | Qué hace |
 |---|---|---|

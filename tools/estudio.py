@@ -276,14 +276,23 @@ def _bajar_titulos(texto: str) -> str:
 def documento_unico(docs: dict[str, str], *, extras=None) -> str:
     """Compone el paquete de estudio en una única fuente autocontenida para NotebookLM."""
     if extras is None:
-        extras = (
-            ("09-decision-relaciones-como-bolsas.md",
-             (RAIZ / "DECISION-001-RELACIONES-COMO-BOLSAS.md").read_text(encoding="utf-8")),
-            ("10-auditoria-tecnica.md",
-             (RAIZ / "AUDITORIA-2026-07-30.md").read_text(encoding="utf-8")),
-            ("11-plan-de-correccion.md",
-             (RAIZ / "PLAN-CORRECCION.md").read_text(encoding="utf-8")),
+        # Se declaran acá, y un archivo declarado que no está es un ERROR y no un salto: si faltara
+        # en silencio, sacar un documento del paquete de estudio sería tan barato como borrarlo.
+        # `AUDITORIA-2026-07-30.md` salió de esta lista el 2026-08-24 porque el archivo se movió
+        # fuera del repositorio, a `~/Dev/auditorias/oracle/`, y dejó la referencia colgando.
+        declarados = (
+            ("09-decision-relaciones-como-bolsas.md", "DECISION-001-RELACIONES-COMO-BOLSAS.md"),
+            ("10-decision-sin-composicion.md", "DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md"),
+            ("11-plan-de-correccion.md", "PLAN-CORRECCION.md"),
+            ("12-compromisos-prerregistrados.md", "COMPROMISOS.json"),
         )
+        faltan = [origen for _n, origen in declarados if not (RAIZ / origen).exists()]
+        if faltan:
+            raise FileNotFoundError(
+                f"el paquete de estudio declara documentos que no están: {faltan}")
+        extras = tuple(
+            (nombre, (RAIZ / origen).read_text(encoding="utf-8"))
+            for nombre, origen in declarados)
     partes = [
         (nombre, texto) for nombre, texto in sorted(docs.items())
         if nombre != "README.md"
