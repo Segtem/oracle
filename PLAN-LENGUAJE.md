@@ -204,7 +204,26 @@ porque `Medida.de_datos` valida **después** de expandir, no antes.
 
 ---
 
-## (b) Reificación mecánica del catálogo — lo que justifica la palabra «metalenguaje»
+## (b) Reificación mecánica del catálogo — HECHO
+
+**Cerrado el 2026-08-24.** `como_hechos()` sigue devolviendo una lista de hechos `medida` para no
+romper consumidores existentes, pero esa lista ahora transporta las demás relaciones derivadas de la
+forma canónica del catálogo: `fuente`, `termino`, `requiere` y `paso_de_medida`. `medidas_aplicables`
+y `Medida.evaluar` despliegan esas relaciones antes de seleccionar o ejecutar una medida, así que
+`tools/aceptacion.py` pudo empezar a evaluar medidas nuevas sobre la estructura sin editar la
+herramienta.
+
+La desviación frente al boceto de abajo es deliberada: el plan llamaba `paso` a la relación
+estructural, pero `paso` ya existe como traza runtime del álgebra, con campos `filas_antes` y
+`filas_despues`. Mezclar ambos esquemas haría que las medidas metamórficas de `tools/trazar.py`
+leyeran pasos declarados como si fueran pasos ejecutados. La estructura del catálogo usa
+`paso_de_medida`; para las medidas nuevas alcanzó con `termino`, que recorre todos los nodos y
+escalares de `Medida.a_datos()`.
+
+El criterio falsable se cumplió con tres medidas nuevas escritas como datos:
+`meta.toda_medida_de_ausencia_declara_requiere`, `meta.toda_medida_filtra_o_agrupa` y
+`meta.ningun_umbral_de_igualdad`. Las tres tienen corpus en las dos polaridades y la mutación de
+medidas queda en 246/246 muertos.
 
 **El problema, exacto.** `nucleo/marco.py:98`, `hechos_de_uso()` es una función Python que emite los
 hechos `medida_en_uso` con los campos que Python eligió. El README dice que «L2 no necesita mecanismo

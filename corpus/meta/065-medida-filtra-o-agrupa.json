@@ -1,0 +1,23 @@
+{
+  "id": "065-medida-filtra-o-agrupa",
+  "titulo": "`donde` y `agrupar` bastan por separado como operadores estructurales",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Una medida filtra con `donde` y otra resume con `agrupar`. La regla no exige ambos operadores: cualquiera de los dos demuestra que la medida no se limita a contar la entrada completa.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.toda_medida_filtra_o_agrupa",
+  "evidencia": {
+    "medida": [
+      { "id": "dominio.filtra" },
+      { "id": "dominio.agrupa" }
+    ],
+    "termino": [
+      { "medida": "dominio.filtra", "cabeza": "de" },
+      { "medida": "dominio.filtra", "cabeza": "donde" },
+      { "medida": "dominio.agrupa", "cabeza": "de" },
+      { "medida": "dominio.agrupa", "cabeza": "agrupar" }
+    ]
+  },
+  "leccion": "El verde cubre las dos polaridades internas de la regla: un filtro directo y un agrupamiento. Si la disyunción se endurece por error, este caso se pone rojo.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+}

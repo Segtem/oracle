@@ -28,6 +28,9 @@ hasta que `agrupar` exista se rodea así.
 from __future__ import annotations
 
 
+RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso"})
+
+
 def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
     """Un hecho por caso del corpus: qué esperaba, qué dio, y si su medida existe."""
     filas = []

@@ -1,0 +1,17 @@
+{
+  "id": "066-filtro-sin-terminos-no-concluye",
+  "titulo": "La regla de filtro o agrupamiento no concluye sin `termino`",
+  "etiqueta": "falso_verde",
+  "sintoma": "La evidencia trae medidas, pero la relación que describe su forma viene vacía. Una medida sobre estructura no puede tomar ese vacío como prueba de que todo está en orden.",
+  "como_se_detecto": "mutacion",
+  "medida": "meta.toda_medida_filtra_o_agrupa",
+  "evidencia": {
+    "medida": [
+      { "id": "dominio.sin_terminos" }
+    ],
+    "termino": []
+  },
+  "leccion": "Este caso mata el mutante que quita `requiere`: sin la precondición, la agregación sobre cero filas saldría verde.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+}

@@ -22,7 +22,7 @@ obliga a escribir la misma condición dos veces y a mantenerlas sincronizadas a 
 from __future__ import annotations
 
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 
 from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, comparar, desde, resumir,
@@ -32,6 +32,57 @@ from .macro import es_macro, expandir
 
 class MedidaMalDeclarada(ValueError):
     pass
+
+
+RELACIONES_DE_CATALOGO = frozenset({
+    "medida",
+    "paso_de_medida",
+    "fuente",
+    "termino",
+    "requiere",
+})
+
+# Las relaciones de traza viven en `nucleo.algebra.py`, que esta tarea no puede tocar. Se conservan
+# acá como declaración heredada para no mezclar su esquema runtime con la nueva estructura del
+# catálogo.
+RELACIONES_DE_TRAZA = frozenset({"paso", "nodo", "producto"})
+
+
+class HechosCatalogo(list):
+    """Lista de `medida` con las demás relaciones estructurales colgadas.
+
+    Hereda de `list` para conservar la interfaz histórica: quien esperaba `como_hechos(...)` como
+    relación `medida` sigue recibiendo una lista JSON-serializable.
+    """
+
+    def __init__(self, por_relacion: dict[str, list[dict]]) -> None:
+        if "medida" not in por_relacion:
+            raise ValueError("los hechos de catálogo tienen que traer la relación «medida»")
+        self.por_relacion = {nombre: list(filas) for nombre, filas in por_relacion.items()}
+        super().__init__(self.por_relacion["medida"])
+
+
+def relaciones_del_lenguaje_declaradas() -> frozenset[str]:
+    from .marco import RELACIONES_DEL_LENGUAJE as RELACIONES_DE_MARCO
+
+    return RELACIONES_DE_CATALOGO | RELACIONES_DE_MARCO | RELACIONES_DE_TRAZA
+
+
+def evidencia_con_derivadas(evidencia: dict) -> dict:
+    """Despliega relaciones colgadas en valores de la evidencia."""
+    salida = dict(evidencia)
+    for filas in list(evidencia.values()):
+        por_relacion = getattr(filas, "por_relacion", None)
+        if por_relacion is None:
+            continue
+        for nombre, derivadas in por_relacion.items():
+            if nombre in salida:
+                if salida[nombre] is filas or salida[nombre] == derivadas:
+                    continue
+                raise ValueError(
+                    f"la evidencia trae «{nombre}» dos veces con contenidos distintos")
+            salida[nombre] = derivadas
+    return salida
 
 
 @dataclass(frozen=True)
@@ -44,8 +95,8 @@ class ClasificacionMeta:
 
     # `paso`, `nodo` y `producto` son la traza del evaluador midiéndose a sí mismo: describen lo que
     # hizo el álgebra, no el mundo. Son tan reflexivas como `medida`.
-    relaciones_del_lenguaje: frozenset[str] = frozenset(
-        {"medida", "caso", "medida_en_uso", "paso", "nodo", "producto"})
+    relaciones_del_lenguaje: frozenset[str] = field(
+        default_factory=relaciones_del_lenguaje_declaradas)
     prefijos_meta: tuple[str, ...] = ("meta.",)
 
     def __post_init__(self) -> None:
@@ -205,6 +256,7 @@ class Medida:
 
     def evaluar(self, evidencia: dict, limites: LimitesAlgebra | None = None, *,
                 registro=None) -> Veredicto:
+        evidencia = evidencia_con_derivadas(evidencia)
         # ANTES de medir: si falta con qué, no hay veredicto que dar. Medir igual produciría el
         # agregado sobre cero filas —que es 0— y un umbral `<= 0` lo leería como verde.
         faltante = next((r for r in self.requiere if not evidencia.get(r)), "")
@@ -321,7 +373,7 @@ def relaciones_de_medida(medida) -> tuple[str, ...]:
 
 def medidas_aplicables(medidas, evidencia: dict) -> list:
     """Selecciona juezas por su entrada declarada, no por ids conocidos por la herramienta."""
-    relaciones = set(evidencia)
+    relaciones = set(evidencia_con_derivadas(evidencia))
     return [medida for medida in medidas
             if set(relaciones_de_medida(medida)) <= relaciones]
 
@@ -334,31 +386,134 @@ def puntos_ciegos(medidas) -> list[dict]:
     return [{"id": m.id, "alcance": m.alcance} for m in medidas]
 
 
+def hechos_de_catalogo(medidas, clasificacion: ClasificacionMeta) -> HechosCatalogo:
+    medidas = tuple(medidas)
+    por_relacion = {nombre: [] for nombre in sorted(RELACIONES_DE_CATALOGO)}
+    for medida in medidas:
+        por_relacion["medida"].append(_hecho_medida(medida, clasificacion))
+        por_relacion["paso_de_medida"].extend(_pasos_de(medida))
+        por_relacion["fuente"].extend(_fuentes_de_medida(medida))
+        por_relacion["termino"].extend(_terminos_de_medida(medida))
+        por_relacion["requiere"].extend(_requiere_de(medida))
+    return HechosCatalogo(por_relacion)
+
+
+def _hecho_medida(medida, clasificacion: ClasificacionMeta) -> dict:
+    relaciones = relaciones_de_medida(medida)
+    relacion = relaciones[0] if relaciones else ""
+    return {
+        "id": medida.id,
+        "dominio": medida.id.split(".")[0],
+        "relacion": relacion,
+        "agregado": medida.resumen[1],
+        "comparador": medida.op,
+        "umbral": medida.limite,
+        "umbral_op": medida.op,
+        "umbral_valor": medida.limite,
+        "porque": medida.porque,
+        "alcance": medida.alcance,
+        "pasos": max(0, len(medida.tuberia) - 1),
+        "declara_requiere": bool(medida.requiere),
+        "es_meta_por_el_nombre": medida.id.startswith(clasificacion.prefijos_meta),
+        "es_meta_por_lo_que_mide": bool(
+            relacion and relacion in clasificacion.relaciones_del_lenguaje),
+    }
+
+
+def _ruta(indices: tuple[int, ...]) -> str:
+    return ".".join(str(i) for i in indices)
+
+
+def _tipo(valor) -> str:
+    if isinstance(valor, list):
+        return "lista"
+    if isinstance(valor, bool):
+        return "booleano"
+    if isinstance(valor, (int, float)):
+        return "numero"
+    if isinstance(valor, str):
+        return "texto"
+    if valor is None:
+        return "ausente"
+    return type(valor).__name__
+
+
+def _cabeza(nodo) -> str:
+    return nodo[0] if isinstance(nodo, list) and nodo and isinstance(nodo[0], str) else ""
+
+
+def _terminos_de_medida(medida) -> list[dict]:
+    return list(_terminos(medida.id, medida.a_datos(), ()))
+
+
+def _terminos(medida: str, nodo, ruta: tuple[int, ...]):
+    if isinstance(nodo, list):
+        yield {
+            "medida": medida,
+            "ruta": _ruta(ruta),
+            "tipo": "lista",
+            "cabeza": _cabeza(nodo),
+            "texto": "",
+            "longitud": len(nodo),
+        }
+        for indice, hijo in enumerate(nodo):
+            yield from _terminos(medida, hijo, (*ruta, indice))
+        return
+    yield {
+        "medida": medida,
+        "ruta": _ruta(ruta),
+        "tipo": _tipo(nodo),
+        "cabeza": "",
+        "texto": nodo if isinstance(nodo, str) else "",
+        "longitud": 0,
+    }
+
+
+def _pasos_de(medida) -> list[dict]:
+    pasos = []
+    for indice, paso in enumerate(medida.tuberia[1:]):
+        pasos.append({
+            "medida": medida.id,
+            "indice": indice,
+            "ruta": _ruta((2, indice + 1)),
+            "operador": _cabeza(paso),
+        })
+    return pasos
+
+
+def _fuentes_de_medida(medida) -> list[dict]:
+    return list(_fuentes(medida.id, medida.tuberia[1], (2, 1)))
+
+
+def _fuentes(medida: str, fuente, ruta: tuple[int, ...]):
+    if not isinstance(fuente, list) or not fuente:
+        return
+    if fuente[0] == "de":
+        yield {
+            "medida": medida,
+            "ruta": _ruta(ruta),
+            "relacion": fuente[1],
+            "alias": fuente[2],
+        }
+    elif fuente[0] == "unir":
+        yield from _fuentes(medida, fuente[1], (*ruta, 1))
+        yield from _fuentes(medida, fuente[2], (*ruta, 2))
+
+
+def _requiere_de(medida) -> list[dict]:
+    return [
+        {"medida": medida.id, "indice": indice, "relacion": relacion}
+        for indice, relacion in enumerate(medida.requiere)
+    ]
+
+
 def como_hechos(medidas, clasificacion: ClasificacionMeta | None = None) -> list[dict]:
-    """Las medidas COMO RELACIÓN, para poder medirlas con el mismo álgebra (L2 = L1 sobre L1).
+    """Las medidas COMO RELACIONES, para poder medirlas con el mismo álgebra (L2 = L1 sobre L1).
 
     Es la pieza que vuelve esto un metalenguaje: no hay mecanismo nuevo, sólo se sirve el catálogo
     como una relación más.
     """
-    def relacion_de(m):
-        relaciones = relaciones_de_medida(m)
-        return relaciones[0] if relaciones else ""
-
     clasificacion = clasificacion or clasificacion_meta_base()
     if not isinstance(clasificacion, ClasificacionMeta):
         raise MedidaMalDeclarada("`clasificacion` debe ser ClasificacionMeta")
-    salida = []
-    for m in medidas:
-        rel = relacion_de(m)
-        salida.append({
-            "id": m.id, "umbral_op": m.op, "umbral_valor": m.limite, "porque": m.porque,
-            "alcance": m.alcance, "relacion": rel,
-            # Los dos EJES, derivados y no convenidos. El dominio sale del nombre; el NIVEL sale de
-            # sobre qué se mide: una medida es meta cuando su relación es `medida`, no cuando alguien
-            # la guardó en la carpeta `meta/`. Que se puedan comparar es lo que permite verificar que
-            # la convención se cumpla en vez de confiar en ella.
-            "dominio": m.id.split(".")[0],
-            "es_meta_por_el_nombre": m.id.startswith(clasificacion.prefijos_meta),
-            "es_meta_por_lo_que_mide": rel in clasificacion.relaciones_del_lenguaje,
-        })
-    return salida
+    return hechos_de_catalogo(medidas, clasificacion)

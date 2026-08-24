@@ -641,8 +641,12 @@ class CatalogoRealTests(unittest.TestCase):
         hechos = como_hechos(self.catalogo.values())
         self.assertEqual(len(hechos), len(self.catalogo))
         self.assertEqual(sorted(hechos[0]),
-                         ["alcance", "dominio", "es_meta_por_el_nombre", "es_meta_por_lo_que_mide",
-                          "id", "porque", "relacion", "umbral_op", "umbral_valor"])
+                         ["agregado", "alcance", "comparador", "declara_requiere", "dominio",
+                          "es_meta_por_el_nombre", "es_meta_por_lo_que_mide", "id", "pasos",
+                          "porque", "relacion", "umbral", "umbral_op", "umbral_valor"])
+        self.assertEqual(sorted(hechos.por_relacion),
+                         ["fuente", "medida", "paso_de_medida", "requiere", "termino"])
+        self.assertTrue(hechos.por_relacion["termino"])
 
     def test_los_dos_ejes_se_derivan_y_no_se_convienen(self) -> None:
         """El dominio sale del nombre; el NIVEL sale de sobre qué se mide. Que sean dos campos

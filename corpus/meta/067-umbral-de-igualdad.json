@@ -1,0 +1,16 @@
+{
+  "id": "067-umbral-de-igualdad",
+  "titulo": "Un umbral final usa igualdad exacta",
+  "etiqueta": "falso_verde",
+  "sintoma": "La cabecera estructural de la medida declara `comparador` igual a `==`. Ese umbral no deja borde operativo para fijar la medida con mutación de umbral.",
+  "como_se_detecto": "mutacion",
+  "medida": "meta.ningun_umbral_de_igualdad",
+  "evidencia": {
+    "medida": [
+      { "id": "dominio.igualdad_exacta", "comparador": "==" }
+    ]
+  },
+  "leccion": "La prohibición no depende del valor concreto del límite: el problema es el operador final de umbral.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+}

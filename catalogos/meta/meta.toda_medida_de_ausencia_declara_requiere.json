@@ -1,0 +1,9 @@
+[
+  "medida",
+  "meta.toda_medida_de_ausencia_declara_requiere",
+  ["desde", ["unir", ["de", "medida", "m"], ["de", "termino", "t"]], ["agrupar", [["medida", ["campo", "m", "id"]]], [["usa_unir", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["==", ["campo", "t", "cabeza"], "unir"]]], ["usa_agrupar", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["==", ["campo", "t", "cabeza"], "agrupar"]]], ["declara_requiere", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["==", ["campo", "t", "cabeza"], "requiere"]]]]], ["donde", ["y", [">", ["col", "usa_unir"], 0], [">", ["col", "usa_agrupar"], 0], ["==", ["col", "declara_requiere"], 0]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada"],
+  ["requiere", "termino"],
+  ["alcance", "detecta medidas cuya forma canónica contiene `unir` y `agrupar` pero ningún nodo `requiere`. NO demuestra que toda medida con ese patrón sea realmente de ausencia, ni que la relación requerida elegida sea la correcta"]
+]
