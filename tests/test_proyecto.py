@@ -8,7 +8,6 @@ import tempfile
 import unittest
 from dataclasses import FrozenInstanceError
 from pathlib import Path
-from types import SimpleNamespace
 from unittest import mock
 
 from nucleo import algebra, proyecto as modulo
@@ -262,6 +261,53 @@ class ProyectoTests(unittest.TestCase):
 
             self.assertEqual(registro, {})
 
+    def test_escalares_confiadas_no_leen_ni_escriben_afuera_ni_crean_procesos(self) -> None:
+        with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as afuera:
+            raiz = self._raiz(td)
+            exterior = Path(afuera)
+            centinela = exterior / "centinela.txt"
+            escritura = exterior / "escritura.txt"
+            pid = raiz / "proceso.pid"
+            centinela.write_text("secreto", encoding="utf-8")
+            (raiz / "escalares.py").write_text(
+                "from pathlib import Path\n"
+                "import subprocess\n"
+                "import sys\n"
+                "from nucleo.algebra import escalar\n"
+                "estado = {}\n"
+                f"centinela = Path({str(centinela)!r})\n"
+                f"escritura = Path({str(escritura)!r})\n"
+                f"pid = Path({str(pid)!r})\n"
+                "try:\n"
+                "    estado['lectura'] = centinela.read_text(encoding='utf-8')\n"
+                "except BaseException as e:\n"
+                "    estado['lectura'] = type(e).__name__\n"
+                "try:\n"
+                "    escritura.write_text('afuera', encoding='utf-8')\n"
+                "    estado['escritura'] = 'escribió'\n"
+                "except BaseException as e:\n"
+                "    estado['escritura'] = type(e).__name__\n"
+                "try:\n"
+                "    p = subprocess.Popen([sys.executable, '-c', 'import time; time.sleep(60)'])\n"
+                "    pid.write_text(str(p.pid), encoding='utf-8')\n"
+                "    estado['proceso'] = 'creado'\n"
+                "except BaseException as e:\n"
+                "    estado['proceso'] = type(e).__name__\n"
+                "@escalar('estado_aislamiento')\n"
+                "def estado_aislamiento():\n"
+                "    return estado\n",
+                encoding="utf-8",
+            )
+
+            with escalares_del_proyecto(Proyecto(raiz), confiar=True):
+                estado = algebra.ESCALARES["estado_aislamiento"]()
+
+            self.assertEqual(estado["lectura"], "PermissionError")
+            self.assertEqual(estado["escritura"], "PermissionError")
+            self.assertEqual(estado["proceso"], "PermissionError")
+            self.assertFalse(escritura.exists())
+            self.assertFalse(pid.exists())
+
     def test_escalares_rechaza_symlink_aun_si_apunta_dentro_del_proyecto(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = self._raiz(td)
@@ -272,16 +318,13 @@ class ProyectoTests(unittest.TestCase):
                 with escalares_del_proyecto(Proyecto(raiz), confiar=True):
                     pass
 
-    def test_escalares_rechaza_un_spec_incompleto(self) -> None:
+    def test_escalares_rechaza_un_modulo_con_error_de_sintaxis(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = self._raiz(td)
-            (raiz / "escalares.py").write_text("", encoding="utf-8")
-            for spec in (None, SimpleNamespace(loader=None)):
-                with self.subTest(spec=spec), mock.patch(
-                        "importlib.util.spec_from_file_location", return_value=spec):
-                    with self.assertRaisesRegex(EscalaresInvalidas, "preparar"):
-                        with escalares_del_proyecto(Proyecto(raiz), confiar=True):
-                            pass
+            (raiz / "escalares.py").write_text("def rota(:\n", encoding="utf-8")
+            with self.assertRaisesRegex(EscalaresInvalidas, "SyntaxError"):
+                with escalares_del_proyecto(Proyecto(raiz), confiar=True):
+                    pass
 
     def test_estructura_rechaza_componentes_desconocidos_y_symlinks(self) -> None:
         with tempfile.TemporaryDirectory() as td:

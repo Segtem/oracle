@@ -253,49 +253,33 @@ def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False, registro=
     if archivo.is_symlink() or not fisica.is_file():
         raise EscalaresInvalidas("`escalares.py` debe ser un archivo físico, no un symlink")
 
-    import hashlib
-    import importlib.util
     from nucleo import algebra
+    from nucleo.aislamiento.escalares import (ErrorEscalarAislada,
+                                              registrar_escalares_aisladas)
 
     destino = algebra.ESCALARES if registro is None else registro
     if not isinstance(destino, algebra.RegistroEscalares):
         raise EscalaresInvalidas("`registro` debe ser una instancia de RegistroEscalares")
 
-    huella = hashlib.sha256(str(raiz).encode("utf-8")).hexdigest()
-    spec = importlib.util.spec_from_file_location(f"oracle_escalares_{huella}", fisica)
-    if spec is None or spec.loader is None:
-        raise EscalaresInvalidas(f"no se pudo preparar la carga de {fisica}")
-    modulo = importlib.util.module_from_spec(spec)
     anteriores = dict(destino)
     globales_anteriores = dict(algebra.ESCALARES)
+    trabajador = None
     carga_confirmada = False
     try:
         try:
-            with algebra.usar_registro(destino, procedencia=f"proyecto:{raiz}"):
-                spec.loader.exec_module(modulo)
-            alteradas = [nombre for nombre, fn in anteriores.items()
-                         if destino.get(nombre) is not fn]
-            if alteradas:
-                raise EscalaresInvalidas(
-                    f"escalares.py alteró registros existentes: {sorted(alteradas)}")
-            if destino is not algebra.ESCALARES and dict(algebra.ESCALARES) != globales_anteriores:
-                raise EscalaresInvalidas(
-                    "escalares.py intentó alterar el registro global fuera de su motor")
-            for nombre in set(destino) - set(anteriores):
-                fn = destino[nombre]
-                requeridos = ("nombre_escalar", "unidad", "aridad_min", "aridad_max",
-                              "procedencia_escalar")
-                if any(not hasattr(fn, campo) for campo in requeridos):
-                    raise EscalaresInvalidas(
-                        f"la escalar «{nombre}» evitó el decorador `@escalar`")
-        except EscalaresInvalidas:
-            raise
+            trabajador = registrar_escalares_aisladas(raiz, fisica, destino)
+        except ErrorEscalarAislada as e:
+            raise EscalaresInvalidas(f"falló {fisica}: {e}") from e
         except Exception as e:
             raise EscalaresInvalidas(
                 f"falló {fisica}: {type(e).__name__}: {e}") from e
         yield str(fisica)
         carga_confirmada = True
     finally:
+        conservar = (destino is not algebra.ESCALARES and carga_confirmada
+                     and trabajador is not None and bool(trabajador.declaradas))
+        if trabajador is not None and not conservar:
+            trabajador.cerrar()
         if destino is algebra.ESCALARES or not carga_confirmada:
             destino.clear()
             destino.update(anteriores)
