@@ -1,0 +1,33 @@
+{
+  "id": "054-unir-materializa-el-producto",
+  "titulo": "`unir` devuelve exactamente el producto",
+  "etiqueta": "verde_correcto",
+  "sintoma": "El producto completo, y los dos casos borde que importan: un lado vacío da cero pares. Es exactamente el mecanismo del falso verde de la ausencia (caso 043) visto desde el álgebra, y acá es el comportamiento correcto — lo que estaba mal era la medida que leía ese cero como un mundo en orden.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.unir_materializa_el_producto",
+  "evidencia": {
+    "producto": [
+      {
+        "izquierda": 3,
+        "derecha": 4,
+        "salida": 12
+      },
+      {
+        "izquierda": 2,
+        "derecha": 0,
+        "salida": 0
+      },
+      {
+        "izquierda": 0,
+        "derecha": 5,
+        "salida": 0
+      }
+    ]
+  },
+  "leccion": "Los bordes con cero tienen que salir verdes acá y rojos allá, y no es contradicción: `unir` hace bien su trabajo devolviendo cero pares, y la medida de ausencia hacía mal el suyo concluyendo desde esa nada. Por eso el arreglo fue `requiere` y no tocar `unir`.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "c81a87c"
+  }
+}

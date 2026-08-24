@@ -1,0 +1,36 @@
+{
+  "id": "050-donde-filtra-como-debe",
+  "titulo": "Un `donde` que reduce, y un `de` que puebla",
+  "etiqueta": "verde_correcto",
+  "sintoma": "La tubería normal: `de` puebla desde cero —y por eso crece, que es correcto y la medida no lo mira— y cada `donde` reduce o deja igual. Un `donde` que no descarta nada tampoco es una falla: la evidencia podía ofender entera.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.donde_nunca_agrega_filas",
+  "evidencia": {
+    "paso": [
+      {
+        "t": 0,
+        "operador": "de",
+        "filas_antes": 0,
+        "filas_despues": 3
+      },
+      {
+        "t": 1,
+        "operador": "donde",
+        "filas_antes": 3,
+        "filas_despues": 2
+      },
+      {
+        "t": 2,
+        "operador": "donde",
+        "filas_antes": 2,
+        "filas_despues": 2
+      }
+    ]
+  },
+  "leccion": "Sin esta polaridad, quitar el filtro de operador o negarlo sobrevivían: la medida se pondría roja en cada `de`, que siempre agrega filas. La propiedad es sobre `donde`, no sobre la tubería.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "c81a87c"
+  }
+}

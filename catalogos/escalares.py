@@ -30,6 +30,17 @@ def menos(a, b):
     return a - b
 
 
+@escalar("por")
+def por(a, b):
+    """Producto. Aritmética sobre cantidades medidas, igual que `mas`: no es de ningún dominio.
+
+    Entra con la traza de la evaluación. «`unir` materializa exactamente el producto cartesiano» es
+    una propiedad que vale sin importar la implementación, y enunciarla como medida —en vez de como
+    un test en Python— exige poder multiplicar el tamaño de los dos lados.
+    """
+    return a * b
+
+
 @escalar("cerca")
 def cerca(a, b):
     """Distancia absoluta entre dos cantidades. Es el reemplazo de la igualdad exacta.

@@ -39,7 +39,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 3020 líneas de lenguaje y **173 negativas explícitas** (`raise`).
+En este corte hay 3079 líneas de lenguaje y **173 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -63,7 +63,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 34 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 18 la mutación, 9 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 39 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 22 la mutación, 9 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -72,7 +72,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**3020 líneas de lenguaje** (`nucleo/`, código y macros) y **173 negativas explícitas** (`raise`). Contra las 20 medidas universales escritas en él (184 líneas): **16,4 a 1**. 17 de las 20 pasan por una macro.
+**3079 líneas de lenguaje** (`nucleo/`, código y macros) y **173 negativas explícitas** (`raise`). Contra las 24 medidas universales escritas en él (220 líneas): **14,0 a 1**. 21 de las 24 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -342,11 +342,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**48 casos**: 34 defectos y 14 verdes correctos. De los defectos, 31 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 29 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**57 casos**: 39 defectos y 18 verdes correctos. De los defectos, 36 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 34 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-403 tests · 155/155 mutantes de medida · **1256 sitios de mutación de código** (1051 + 205 del motor Python).
+408 tests · 203/203 mutantes de medida · **1260 sitios de mutación de código** (1055 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

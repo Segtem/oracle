@@ -202,3 +202,68 @@ class ContratoAlgebraTests(unittest.TestCase):
         algebra = _algebra()
         with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "agregado desconocido: «moda»"):
             algebra.validar_resumen(["resumen", "moda", 1])
+
+
+class TrazaDelEvaluador(unittest.TestCase):
+    """El evaluador como sensor de sí mismo.
+
+    No se prueba que las medidas estén verdes —eso lo dice `tools/trazar.py` sobre el corpus— sino
+    que la traza pueda ponerlas ROJAS. Una propiedad que no puede fallar no verifica nada, y acá el
+    riesgo es concreto: el sensor vive dentro de lo que audita.
+    """
+
+    def _traza(self, medida, evidencia):
+        from nucleo.medida import Medida
+
+        algebra = _algebra()
+        with algebra.trazar() as crudos:
+            Medida.de_datos(medida).evaluar(evidencia)
+        salida = {"paso": [], "nodo": [], "producto": []}
+        for clase, campos in crudos:
+            salida[clase].append(dict(campos))
+        return salida
+
+    def test_apagada_no_acumula_nada(self) -> None:
+        """El costo cuando nadie mide tiene que ser una lectura de ContextVar, no una lista."""
+        algebra = _algebra()
+        self.assertIsNone(algebra._TRAZA_ACTIVA.get())
+        algebra._anotar("paso", t=0)                    # sin contexto: se descarta
+        self.assertIsNone(algebra._TRAZA_ACTIVA.get())
+
+    def test_el_contexto_se_restaura_aunque_la_evaluacion_falle(self) -> None:
+        algebra = _algebra()
+        with self.assertRaises(ZeroDivisionError):
+            with algebra.trazar():
+                raise ZeroDivisionError
+        self.assertIsNone(algebra._TRAZA_ACTIVA.get())
+
+    def test_la_traza_registra_cada_paso_de_la_tuberia(self) -> None:
+        medida = ["medida", "d.traza",
+                  ["desde", ["de", "cosa", "c"], ["donde", [">", ["campo", "c", "n"], 1]]],
+                  ["resumen", "contar", 1],
+                  ["umbral", "<=", 0, "una razón"], ["alcance", "NO ve nada más"]]
+        traza = self._traza(medida, {"cosa": [{"n": 1}, {"n": 2}, {"n": 3}]})
+        self.assertEqual([p["operador"] for p in traza["paso"]], ["de", "donde"])
+        donde = traza["paso"][1]
+        self.assertEqual((donde["filas_antes"], donde["filas_despues"]), (3, 2))
+
+    def test_el_producto_se_anota_con_lo_que_unir_devolvio(self) -> None:
+        """La primera versión anotaba dentro de `_unir`, leyendo su propia variable: cualquier
+        defecto entre esa línea y el punto de uso quedaba fuera de la medición."""
+        medida = ["medida", "d.unir",
+                  ["desde", ["unir", ["de", "a", "x"], ["de", "b", "y"]]],
+                  ["resumen", "contar", 1],
+                  ["umbral", "<=", 0, "una razón"], ["alcance", "NO ve nada más"]]
+        traza = self._traza(medida, {"a": [{"n": 1}, {"n": 2}], "b": [{"m": 9}]})
+        self.assertEqual(traza["producto"], [{"izquierda": 2, "derecha": 1, "salida": 2}])
+
+    def test_los_logicos_declaran_cuantos_operandos_evaluaron(self) -> None:
+        """El primer operando ya decide y aun así los dos tienen que quedar contados."""
+        medida = ["medida", "d.logico",
+                  ["desde", ["de", "cosa", "c"],
+                   ["donde", ["y", [">", ["campo", "c", "n"], 100],
+                              [">", ["campo", "c", "n"], 0]]]],
+                  ["resumen", "contar", 1],
+                  ["umbral", "<=", 0, "una razón"], ["alcance", "NO ve nada más"]]
+        traza = self._traza(medida, {"cosa": [{"n": 1}]})
+        self.assertEqual(traza["nodo"], [{"cabeza": "y", "declarados": 2, "evaluados": 2}])

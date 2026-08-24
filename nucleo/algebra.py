@@ -167,6 +167,43 @@ def escalar(nombre: str, unidad: str = "", *, registro: RegistroEscalares | None
     return envolver
 
 
+# ---- traza de la evaluación (el evaluador como sensor de sí mismo) ----------------
+#
+# El álgebra no puede evaluarse a sí misma: recorrer un AST es recursión, y la recursión salió del
+# álgebra a propósito (§8). Pero SÍ puede juzgarse ejecutándose, que es la doctrina de este proyecto
+# aplicada al evaluador: el sensor produce hechos y el álgebra los mide.
+#
+# Con esto, las propiedades que valen sin importar la implementación —«`donde` nunca agrega filas»,
+# «`unir` materializa exactamente el producto»— dejan de ser tests en Python y pasan a ser MEDIDAS:
+# entran a la mutación, al corpus y al inventario de puntos ciegos como cualquier otra.
+#
+# Apagada por omisión y sin costo cuando lo está: una lectura de ContextVar por paso.
+
+_TRAZA_ACTIVA: ContextVar[list | None] = ContextVar("oracle_traza", default=None)
+
+
+@contextmanager
+def trazar(destino: list | None = None):
+    """Recolecta los hechos de la evaluación mientras dure el bloque.
+
+    Es un contexto y no un global porque dos consumidores pueden medir a la vez sin pisarse, igual
+    que el registro de escalares.
+    """
+    destino = [] if destino is None else destino
+    token = _TRAZA_ACTIVA.set(destino)
+    try:
+        yield destino
+    finally:
+        _TRAZA_ACTIVA.reset(token)
+
+
+def _anotar(clase: str, **campos) -> None:
+    destino = _TRAZA_ACTIVA.get()
+    if destino is None:
+        return
+    destino.append((clase, campos))
+
+
 # ---- expresiones ------------------------------------------------------------------
 
 def _cmp(op):
@@ -365,7 +402,12 @@ def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]])
         #
         # Se paga evaluando de más en predicados grandes. El presupuesto de §9 ya acota esa
         # amplificación, y una medida que se apoya en el cortocircuito para no romperse está rota.
-        valores = [_evaluar_expr(x, fila, escalares) for x in resto]
+        valores = []
+        for operando in resto:
+            valores.append(_evaluar_expr(operando, fila, escalares))
+        # `declarados` sale del AST y `evaluados` de haber pasado por el bucle: si alguien vuelve a
+        # cortocircuitar, los dos números dejan de coincidir y hay una medida que lo dice.
+        _anotar("nodo", cabeza=cabeza, declarados=len(resto), evaluados=len(valores))
         return all(valores) if cabeza == "y" else any(valores)
     if cabeza == "no":
         (x,) = resto
@@ -440,8 +482,14 @@ def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> 
 
 
 def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
-          registro: Mapping[str, Callable[..., Any]]) -> list[dict]:
-    """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila."""
+          registro: Mapping[str, Callable[..., Any]], _lados: dict | None = None) -> list[dict]:
+    """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila.
+
+    `_lados` es la única concesión a la traza: deja los tamaños de cada lado para que quien llama
+    anote el hecho **con lo que este operador realmente devolvió**. La primera versión anotaba acá
+    adentro, leyendo `salida` antes del `return`, y así no medía nada: cualquier defecto entre esa
+    línea y el punto de uso quedaba fuera. Un sensor que se lee a sí mismo no audita la frontera.
+    """
     izq, der = paso[1], paso[2]
     for lado in (izq, der):
         if lado[0] not in FUENTES:
@@ -461,6 +509,8 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
             if comunes:
                 raise ErrorDeAlgebra(f"«unir» con alias repetido: {sorted(comunes)}")
             salida.append({**a, **b})
+    if _lados is not None:
+        _lados["izquierda"], _lados["derecha"] = len(filas_izq), len(filas_der)
     return salida
 
 
@@ -507,7 +557,12 @@ def aplicar(paso, filas: list[dict], evidencia: dict,
         relacion, alias = paso[1], paso[2]
         return _de(evidencia, relacion, alias, limites)
     if op == "unir":
-        return _unir(paso, evidencia, limites, escalares)
+        # El hecho se anota con lo que el operador DEVOLVIÓ, no con lo que creyó construir.
+        lados: dict = {}
+        filas_unidas = _unir(paso, evidencia, limites, escalares, lados)
+        _anotar("producto", izquierda=lados["izquierda"], derecha=lados["derecha"],
+                salida=len(filas_unidas))
+        return filas_unidas
     if op == "donde":
         return [f for f in filas if evaluar_expr(
             paso[1], f, limites, registro=escalares)]
@@ -608,8 +663,10 @@ def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None, *,
     escalares = _registro(registro)
     validar_tuberia(tuberia, limites, registro=escalares)
     filas: list[dict] = []
-    for paso in tuberia[1:]:
+    for t, paso in enumerate(tuberia[1:]):
+        antes = len(filas)
         filas = aplicar(paso, filas, evidencia, limites, registro=escalares)
+        _anotar("paso", t=t, operador=paso[0], filas_antes=antes, filas_despues=len(filas))
     return filas
 
 

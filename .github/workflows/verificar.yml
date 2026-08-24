@@ -28,6 +28,9 @@ jobs:
       # `COMPROMISOS.json` vence sin cumplirse: un criterio de fracaso que hay que acordarse
       # de mirar es el que ya falló una vez.
       - run: python tools/compromisos.py
+      # El evaluador juzgado por medidas escritas en el propio álgebra: corre el corpus
+      # bajo traza y mide lo que los operadores hicieron, no lo que dijeron hacer.
+      - run: python tools/trazar.py
 
   mutacion-codigo:
     strategy:

@@ -22,7 +22,8 @@ class ContratoMedidaTests(unittest.TestCase):
         m = modulo_medida()
         base = m.ClasificacionMeta()
         self.assertEqual(base.relaciones_del_lenguaje,
-                         frozenset({"medida", "caso", "medida_en_uso", "compromiso"}))
+                         frozenset({"medida", "caso", "medida_en_uso", "compromiso",
+                                    "paso", "nodo", "producto"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (
