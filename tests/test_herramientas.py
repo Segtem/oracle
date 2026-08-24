@@ -96,6 +96,39 @@ class CorpusL0Tests(unittest.TestCase):
             self.assertTrue(revisar_estado_sin_medida("caso", caso))
 
 
+class ClaveEnElCorpus(unittest.TestCase):
+    """El validador L0 del corpus y el del álgebra leen el MISMO contrato.
+
+    Escritos por separado divergen —es el caso `012`— y acá la divergencia tenía una consecuencia
+    concreta: un caso que declaraba una clave era rechazado como «no es un hecho», así que el
+    mecanismo no se podía fijar con casos. En este proyecto todo lo demás se fija con casos.
+    """
+
+    def test_una_relacion_puede_declarar_su_clave(self) -> None:
+        self.assertEqual(
+            revisar_evidencia("caso", {"pieza": [["clave", ["id"]], {"id": "a"}]}), [])
+
+    def test_una_clave_mal_declarada_se_denuncia_como_clave(self) -> None:
+        for malo in ([], [1], ["id", "id"], ["  "]):
+            with self.subTest(malo=malo):
+                fallas = revisar_evidencia("caso", {"pieza": [["clave", malo], {"id": "a"}]})
+                self.assertTrue(fallas)
+                self.assertIn("clave", fallas[0])
+
+    def test_una_fila_que_no_es_hecho_sigue_denunciandose_como_fila(self) -> None:
+        """El nodo `clave` sólo vale a la cabeza: en otra posición es una fila mal formada."""
+        fallas = revisar_evidencia("caso", {"pieza": [{"id": "a"}, ["clave", ["id"]]]})
+        self.assertTrue(fallas)
+        self.assertIn("no es un hecho", fallas[0])
+
+    def test_el_validador_del_corpus_no_reimplementa_la_regla(self) -> None:
+        """Si el corpus tuviera su propia copia, este test se cae al cambiar una sola de las dos."""
+        from nucleo import algebra
+        from tools import corpus as cli
+
+        self.assertIs(cli.separar_clave, algebra.separar_clave)
+
+
 class ContratoDiferencialTests(unittest.TestCase):
     def test_un_fixture_de_dominio_completo_es_valido(self) -> None:
         self.assertEqual(validar_fixture(_dominio()), [])
