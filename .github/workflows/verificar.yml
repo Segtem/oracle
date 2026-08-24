@@ -37,6 +37,7 @@ jobs:
       fail-fast: false
       matrix:
         objetivo:
+          - nucleo/aislamiento/escalares.py
           - nucleo/algebra.py
           - nucleo/diferencial.py
           - nucleo/dominio.py

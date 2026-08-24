@@ -786,11 +786,14 @@ class CifrasDelReadme(unittest.TestCase):
         """Recalcula el cociente por otra vía: si la fórmula se afloja, esto se cae."""
         from tools import cifras as cli
 
+        # `rglob`, igual que el numerador: un módulo dentro de un subpaquete de `nucleo/` es
+        # lenguaje lo mismo que uno suelto, y contarlo sólo si está en la raíz convertía «mover el
+        # archivo una carpeta más adentro» en una manera de sacar código del criterio de falsación.
         lineas_lenguaje = sum(
             len(p.read_text(encoding="utf-8").splitlines())
-            for p in list((RAIZ / "nucleo").glob("*.py"))
+            for p in list((RAIZ / "nucleo").rglob("*.py"))
                    + list((RAIZ / "nucleo" / "macros").glob("*.json"))
-            if p.name != "__init__.py")
+            if p.name != "__init__.py" and "__pycache__" not in p.parts)
         lineas_medidas = sum(
             len(p.read_text(encoding="utf-8").splitlines())
             for p in list((RAIZ / "catalogos").glob("*/*.json"))
@@ -799,6 +802,22 @@ class CifrasDelReadme(unittest.TestCase):
         esperado = f"{lineas_lenguaje / lineas_medidas:.1f}".replace(".", ",")
         self.assertIn(f"**{esperado} a 1**", cli.escala())
         self.assertIn(f"**{lineas_lenguaje} líneas", cli.escala())
+
+    def test_un_subpaquete_de_nucleo_cuenta_como_lenguaje(self) -> None:
+        """Mover un módulo a `nucleo/<subpaquete>/` no puede sacarlo del criterio de falsación.
+
+        Pasó de verdad: 411 líneas del aislamiento de UDF quedaban fuera del numerador y fuera de
+        la mutación de código por vivir una carpeta más adentro. El numerador ya contaba
+        `nucleo/macros/*.json` por el mismo motivo — sólo faltaba que valiera para los `.py`."""
+        from tools import cifras as cli
+
+        contadas = {p.relative_to(RAIZ).as_posix() for p in cli._fuentes_del_nucleo()}
+        en_subpaquetes = {
+            p.relative_to(RAIZ).as_posix() for p in (RAIZ / "nucleo").rglob("*.py")
+            if p.parent != RAIZ / "nucleo" and p.name != "__init__.py"
+            and "__pycache__" not in p.parts}
+        self.assertTrue(en_subpaquetes, "no hay subpaquetes: el test dejó de ejercitar algo")
+        self.assertLessEqual(en_subpaquetes, contadas)
 
     def _aislado(self, td, contenido, bloque="hola"):
         """`main()` sobre un README temporal y un bloque trivial.

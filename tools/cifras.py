@@ -28,7 +28,13 @@ NUCLEO = "nucleo"
 
 
 def _fuentes_del_nucleo() -> list[Path]:
-    return sorted(p for p in (RAIZ / NUCLEO).glob("*.py") if p.name != "__init__.py")
+    """RECURSIVO, y es el punto. Con `glob("*.py")` bastaba con poner un módulo en un subpaquete de
+    `nucleo/` para que dejara de contar en el numerador y de aparecer en la mutación de código:
+    cuatrocientas líneas de lenguaje escondidas moviendo un archivo una carpeta más adentro. Es la
+    misma trampa que el numerador ya evita contando `nucleo/macros/*.json` junto con el `.py`, y no
+    había motivo para que no aplicara también a los subpaquetes."""
+    return sorted(p for p in (RAIZ / NUCLEO).rglob("*.py")
+                  if p.name != "__init__.py" and "__pycache__" not in p.parts)
 
 
 def _lenguaje() -> list[Path]:

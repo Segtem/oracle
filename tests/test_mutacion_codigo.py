@@ -525,11 +525,17 @@ class CorrerTests(unittest.TestCase):
             self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
 
     def test_la_copia_temporal_se_elimina_al_terminar(self) -> None:
-        antes = {p for p in Path(tempfile.gettempdir()).glob("oracle-mutacion-*") if p.is_dir()}
-        with tempfile.TemporaryDirectory() as d:
-            raiz, objetivo = self._entorno(d)
-            ev = mc.correr(raiz, [objetivo], SIEMPRE_PASA)
-        despues = {p for p in Path(tempfile.gettempdir()).glob("oracle-mutacion-*") if p.is_dir()}
+        # El temporal se redirige a una carpeta propia en vez de mirar el `/tmp` compartido. Con el
+        # listado global, cualquier otro proceso que estuviera mutando al mismo tiempo hacía fallar
+        # este test — pasó, corriendo agentes en paralelo. Un test que depende de que nadie más use
+        # la máquina es un falso rojo esperando, y un falso rojo enseña a ignorar el verificador.
+        with tempfile.TemporaryDirectory() as propio:
+            with mock.patch.dict(mc.os.environ, {"TMPDIR": propio}):
+                antes = {p for p in Path(propio).glob("oracle-mutacion-*") if p.is_dir()}
+                with tempfile.TemporaryDirectory(dir=propio) as d:
+                    raiz, objetivo = self._entorno(d)
+                    ev = mc.correr(raiz, [objetivo], SIEMPRE_PASA)
+                despues = {p for p in Path(propio).glob("oracle-mutacion-*") if p.is_dir()}
         self.assertEqual(despues, antes)
         self.assertTrue(ev["corrida_mutacion"][0]["aislada"])
         self.assertTrue(ev["corrida_mutacion"][0]["fuentes_originales_intactas"])
