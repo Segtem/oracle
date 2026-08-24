@@ -217,6 +217,13 @@ def main(argv: list[str] | None = None) -> int:
               f"({construidas} construidas, {len(grupo) - construidas} del catálogo)")
     print()
 
+    # Mismo fail-closed que `tools/trazar.py`: las juezas son medidas «ninguno», así que sin
+    # equivalencias que comparar salen verdes. Una corrida que no comparó nada no es un lenguaje
+    # consistente — es un lenguaje que no se comparó.
+    if not filas:
+        print("SIN EQUIVALENCIAS — no se comparó ni un par de formas.")
+        return 1
+
     juezas = medidas_aplicables(catalogo.values(), evidencia)
     if not juezas:
         print("sin medidas aplicables a las equivalencias")

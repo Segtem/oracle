@@ -5,5 +5,5 @@
   "c",
   ["y", ["==", ["campo", "c", "tiene_medida"], false], ["==", ["campo", "c", "es_hueco_abierto"], true], ["==", ["campo", "c", "explica_el_hueco"], false]],
   "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir",
-  "ve que cada caso marcado explícitamente como hueco abierto tenga una explicación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente"
+  "ve que cada caso marcado explícitamente como hueco abierto tenga una explicación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción"
 ]

@@ -134,6 +134,16 @@ def main(argv: list[str] | None = None) -> int:
     print(f"hechos: {len(evidencia['paso'])} pasos · {len(evidencia['nodo'])} nodos lógicos · "
           f"{len(evidencia['producto'])} productos\n")
 
+    # Fail-closed sobre la traza vacía. Las propiedades son medidas «ninguno»: sin hechos no hay
+    # ofensores y salen verdes, así que una corrida que no trazó NADA publicaba cuatro verdes sobre
+    # la nada y terminaba en 0. El `alcance` de esas medidas dice que este arnés garantiza pasos
+    # trazados — y hasta acá esa garantía era falsa. Ahora es verdadera porque falla si no los hay.
+    vacias = [nombre for nombre, filas in evidencia.items() if not filas]
+    if vacias:
+        print(f"TRAZA VACÍA — no se observó ni un hecho de: {', '.join(sorted(vacias))}.")
+        print("Una corrida sin traza no es un álgebra sana: es un álgebra que no se miró.")
+        return 1
+
     juezas = medidas_aplicables(catalogo.values(), evidencia)
     if not juezas:
         print("sin medidas aplicables a la traza")
