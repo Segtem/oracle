@@ -36,8 +36,24 @@ específico de cada dominio y vive con el productor, no acá.
 
 La multiplicidad cuenta y el orden de almacenamiento no. Dos apariciones idénticas son dos hechos:
 `contar` devuelve 2, `suma` usa ambas y un producto conserva ambas. Oracle no deduplica porque no
-puede inventar una identidad genérica; la unicidad, cuando importa, se produce o se mide con una
-clave explícita.
+puede inventar una identidad genérica.
+
+Un dominio que SÍ conoce su identidad puede **declarar una clave de unicidad** para una relación,
+poniendo a la cabeza de su lista de hechos un nodo `["clave", [<campo>, …]]`:
+
+```json
+{
+  "pieza": [["clave", ["id"]],
+             {"id": "Muro_A", "x": 100}, {"id": "Muro_B", "x": 300}]
+}
+```
+
+La clave es **opcional** y se valida **antes de medir**, fail-closed: si dos hechos repiten la clave
+declarada, la evaluación levanta un error que nombra la clave responsable y la fila que la viola — no
+un veredicto verde, no un error genérico. Un campo de la clave ausente en un hecho también es error:
+una identidad a medias no se puede comprobar, y un nulo implícito la dejaría sin comprobar en
+silencio. Sin el nodo, la relación es exactamente la bolsa de siempre, y la multiplicidad intencional
+sigue siendo expresable sin declarar nada.
 
 ## 2. Una medida es un dato
 

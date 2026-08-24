@@ -30,3 +30,13 @@ regresiones en vez de ser un accidente de usar listas.
 La alternativa de conjunto se rechaza porque exigiría un contrato de identidad nuevo, específico de
 cada relación. Si en el futuro hace falta deduplicar dentro del álgebra, deberá entrar como operador
 explícito con su clave y con dos usuarios reales; no como normalización silenciosa.
+
+## Consecuencia registrada después (2026-08-24)
+
+La cláusula «su sensor debe producirla o una medida debe comprobarla» tenía un hueco: la carga de
+unicidad recaía en cada sensor, y un duplicado accidental inflaba `contar`, `suma` y los testigos sin
+alarma. Se cubre con una **clave de unicidad declarable por relación**, un nodo opcional
+`["clave", [<campo>, …]]` a la cabeza de la lista de hechos. No es un operador ni una normalización
+silenciosa — la bolsa no cambia—: es un contrato que el sensor declara y Oracle valida **antes de
+medir**, fail-closed, nombrando la clave y la fila que la viola. Sin el nodo, cero cambios de
+conducta; la multiplicidad intencional sigue siendo expresable sin declarar nada.

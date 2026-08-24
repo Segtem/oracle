@@ -458,6 +458,69 @@ def _agregar(agregado: str, valores: list):
     return resultado
 
 
+# ---- claves de unicidad -----------------------------------------------------------
+#
+# Una relación es una bolsa (§1): la multiplicidad es evidencia y Oracle no la deduce. Pero un
+# dominio que SÍ conoce su identidad puede declararla como clave de unicidad, y entonces un duplicado
+# deja de ser un hecho más para ser un defecto del sensor. La clave es un nodo opcional a la cabeza
+# de la lista de hechos —`["clave", [<campo>, …]]`—; sin él, la relación es exactamente la bolsa de
+# siempre y no cambia nada.
+
+CLAVE = "clave"
+
+
+def separar_clave(hechos: list) -> tuple[tuple[str, ...], list]:
+    """Separa la declaración opcional de clave de las filas, validándola fail-closed.
+
+    Devuelve `(clave, filas)`: `clave` es la tupla de campos declarados (vacía si la relación no
+    declara nada) y `filas` son los hechos. Un nodo `clave` mal formado levanta, no se ignora: un
+    contrato de identidad que se lee mal se leería como ausencia de contrato, y eso es exactamente
+    el falso verde que la clave existe para cerrar.
+    """
+    if not hechos or not isinstance(hechos[0], list) or not hechos[0] or hechos[0][0] != CLAVE:
+        return (), hechos
+    nodo = hechos[0]
+    if len(nodo) != 2 or not isinstance(nodo[1], list) or not nodo[1]:
+        raise ErrorDeAlgebra(
+            f"«{CLAVE}» va ['{CLAVE}', [<campo>, …]] con al menos un campo, no {nodo!r}")
+    campos = nodo[1]
+    if any(not isinstance(c, str) or not c.strip() for c in campos):
+        raise ErrorDeAlgebra(
+            f"la clave de unicidad lista campos de texto no vacíos, no {campos!r}")
+    if len(set(campos)) != len(campos):
+        raise ErrorDeAlgebra(f"la clave de unicidad repite un campo: {campos}")
+    return tuple(campos), hechos[1:]
+
+
+def validar_unicidad(relacion: str, clave: tuple[str, ...], filas: list) -> None:
+    """Fail-closed: un duplicado bajo la clave declarada es un defecto del sensor, no un hecho más.
+
+    El mensaje nombra la clave responsable y la fila que la viola, para que el sensor pueda corregir
+    su producción sin adivinar qué relación ni qué campo. Un campo de la clave ausente también
+    levanta: una identidad a medias no se puede comprobar, y un nulo implícito la dejaría sin
+    comprobar en silencio.
+    """
+    vistos: dict = {}
+    for i, hecho in enumerate(filas):
+        ausentes = [campo for campo in clave if campo not in hecho]
+        if ausentes:
+            raise ErrorDeAlgebra(
+                f"la relación «{relacion}» declara la clave ({', '.join(clave)}) y la fila {i} "
+                f"no trae el campo {', '.join(ausentes)}")
+        valores = tuple(hecho[campo] for campo in clave)
+        try:
+            hash(valores)
+        except TypeError:
+            raise ErrorDeAlgebra(
+                f"la relación «{relacion}» declara la clave ({', '.join(clave)}) y la fila {i} "
+                f"no la trae como escalar")
+        if valores in vistos:
+            raise ErrorDeAlgebra(
+                f"la relación «{relacion}» declara la clave ({', '.join(clave)}) y la fila {i} "
+                f"la repite: ya la traía la fila {vistos[valores]} — {hecho}")
+        vistos[valores] = i
+
+
 # ---- operadores -------------------------------------------------------------------
 
 FUENTES = ("de", "unir")
@@ -472,13 +535,16 @@ def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> 
     if not isinstance(hechos, list):
         raise ErrorDeAlgebra(
             f"la relación «{relacion}» debe ser una lista de hechos, no {type(hechos).__name__}")
-    if len(hechos) > limites.filas_por_relacion:
+    clave, filas = separar_clave(hechos)
+    if len(filas) > limites.filas_por_relacion:
         raise ErrorDeAlgebra(
-            f"la relación «{relacion}» tiene {len(hechos)} filas y supera el límite "
+            f"la relación «{relacion}» tiene {len(filas)} filas y supera el límite "
             f"de {limites.filas_por_relacion}")
-    if not all(isinstance(hecho, dict) for hecho in hechos):
+    if not all(isinstance(hecho, dict) for hecho in filas):
         raise ErrorDeAlgebra(f"la relación «{relacion}» contiene una fila que no es un hecho")
-    return [{alias: dict(hecho)} for hecho in hechos]
+    if clave:
+        validar_unicidad(relacion, clave, filas)
+    return [{alias: dict(hecho)} for hecho in filas]
 
 
 def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
