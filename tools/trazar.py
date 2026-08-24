@@ -29,7 +29,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
-from nucleo.algebra import trazar  # noqa: E402
+import importlib.util  # noqa: E402
+from nucleo.algebra import ESCALARES, trazar  # noqa: E402
 from nucleo.medida import cargar_catalogo, evaluar, medidas_aplicables  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
                              macros_del_proyecto)
@@ -43,6 +44,40 @@ VIGILANTES = frozenset({
     "meta.unir_materializa_el_producto",
     "meta.los_logicos_evaluan_todos_sus_operandos",
 })
+
+
+REFERENCIA = RAIZ / "diferencial" / "referencia" / "evaluador.py"
+
+
+def cargar_referencia():
+    """La implementación independiente. Su procedencia está en `diferencial/referencia/`."""
+    spec = importlib.util.spec_from_file_location("referencia_trazar", REFERENCIA)
+    modulo = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(modulo)
+    return modulo
+
+
+def contrastar(medidas, evidencia: dict) -> list[str]:
+    """Evalúa cada propiedad con las DOS implementaciones y devuelve los desacuerdos.
+
+    Un desacuerdo no dice cuál de las dos tiene razón. Dice que la especificación no alcanzó, que es
+    justamente lo que un diferencial existe para encontrar.
+    """
+    referencia = cargar_referencia()
+    escalares = dict(ESCALARES)
+    desacuerdos = []
+    for medida in medidas:
+        try:
+            propio = medida.evaluar(evidencia).ok
+        except Exception as e:            # noqa: BLE001
+            propio = f"{type(e).__name__}"
+        try:
+            ajeno = referencia.evaluar(medida.a_datos(), evidencia, escalares)["ok"]
+        except Exception as e:            # noqa: BLE001
+            ajeno = f"{type(e).__name__}"
+        if propio != ajeno:
+            desacuerdos.append(f"{medida.id}: nucleo={propio!r} vs referencia={ajeno!r}")
+    return desacuerdos
 
 
 def casos(proy: Proyecto) -> list[dict]:
@@ -99,6 +134,18 @@ def main(argv: list[str] | None = None) -> int:
     print("el álgebra, juzgada por medidas escritas en el álgebra:")
     for v in informe.veredictos:
         print(" ", v.linea())
+
+    # La segunda mano. Sin esto, el evaluador se estaría examinando solo.
+    desacuerdos = contrastar(juezas, evidencia)
+    print()
+    if desacuerdos:
+        print("DESACUERDO con la implementación de referencia — la especificación no alcanza:")
+        for d in desacuerdos:
+            print(f"  · {d}")
+        return 1
+    print(f"contrastado con la implementación independiente: {len(juezas)} propiedades, "
+          "0 desacuerdos")
+
     print()
     for v in informe.veredictos:
         print(f"  · {v.id}: {v.alcance}")

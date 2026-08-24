@@ -1087,5 +1087,60 @@ class PuertaDeAbandono(unittest.TestCase):
             self.assertTrue(juzgar(cli.hechos(date(2027, 1, 29), self._archivo(td, real))))
 
 
+class ContrasteDeLaTraza(unittest.TestCase):
+    """Las propiedades del álgebra las juzgan DOS implementaciones, no una.
+
+    Sin esto el evaluador se examinaría solo: un defecto en `donde` podría tapar la medida que
+    vigila `donde`. La segunda mano es `diferencial/referencia/evaluador.py`, escrito por otro autor
+    que nunca vio `nucleo/`.
+    """
+
+    def _juezas_y_evidencia(self):
+        from nucleo.medida import cargar_catalogo, medidas_aplicables
+        from nucleo.proyecto import catalogos_a_cargar, macros_del_proyecto
+        from tools import trazar as cli
+
+        proy = Proyecto(RAIZ)
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+        evidencia, _evaluados, _fallidos = cli.hechos(catalogo, cli.casos(proy))
+        return cli, medidas_aplicables(catalogo.values(), evidencia), evidencia
+
+    def test_las_dos_implementaciones_coinciden_sobre_la_traza_real(self) -> None:
+        cli, juezas, evidencia = self._juezas_y_evidencia()
+        self.assertTrue(juezas, "ninguna propiedad se activó con la traza")
+        self.assertEqual(cli.contrastar(juezas, evidencia), [])
+
+    def test_un_desacuerdo_se_denuncia_y_no_se_traga(self) -> None:
+        """Una comprobación que no puede fallar no comprueba nada."""
+        cli, juezas, evidencia = self._juezas_y_evidencia()
+
+        class Discrepante:
+            @staticmethod
+            def evaluar(medida, _evidencia, _escalares=None):
+                return {"ok": False, "valor": 0, "testigos": []}   # nucleo las da verdes
+
+        with mock.patch.object(cli, "cargar_referencia", lambda: Discrepante):
+            desacuerdos = cli.contrastar(juezas, evidencia)
+            self.assertEqual(len(desacuerdos), len(juezas))
+            self.assertIn("nucleo=True vs referencia=False", desacuerdos[0])
+            with redirect_stdout(io.StringIO()) as salida:
+                self.assertEqual(cli.main([]), 1)
+            self.assertIn("DESACUERDO", salida.getvalue())
+
+    def test_una_referencia_que_revienta_cuenta_como_desacuerdo(self) -> None:
+        """No se puede aprobar por incomparecencia: si la referencia no evalúa, eso es el hallazgo."""
+        cli, juezas, evidencia = self._juezas_y_evidencia()
+
+        class Rota:
+            @staticmethod
+            def evaluar(*_a, **_k):
+                raise RuntimeError("no evalúa")
+
+        with mock.patch.object(cli, "cargar_referencia", lambda: Rota):
+            desacuerdos = cli.contrastar(juezas, evidencia)
+        self.assertEqual(len(desacuerdos), len(juezas))
+        self.assertIn("RuntimeError", desacuerdos[0])
+
+
 if __name__ == "__main__":
     unittest.main()
