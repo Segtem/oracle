@@ -1,0 +1,16 @@
+{
+  "id": "403-umbral-sin-defensa",
+  "titulo": "Un umbral final no declara su defensa",
+  "etiqueta": "falso_verde",
+  "sintoma": "La cabecera estructural de la medida trae un `porque` vacío. Un número que nadie puede discutir es una métrica esperando a volverse objetivo: sin defensa, el verde es una orden y no una conclusión.",
+  "como_se_detecto": "persona",
+  "medida": "meta.ningun_umbral_sin_defensa",
+  "evidencia": {
+    "medida": [
+      { "id": "dominio.umbral_mudo", "porque": "" }
+    ]
+  },
+  "leccion": "La regla mira la VACUIDAD de la defensa, no su calidad. Juzgar si una defensa es buena, circular o mentirosa es otra regla; ésta sólo asegura que exista algo que discutir.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+}

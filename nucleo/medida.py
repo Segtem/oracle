@@ -235,10 +235,12 @@ class Medida:
             validar_finito(limite, "el valor del umbral")
         except ErrorDeAlgebra as e:
             raise MedidaMalDeclarada(f"{mid}: {e}") from e
-        if op in ("==", "!=") and isinstance(limite, float):
-            raise MedidaMalDeclarada(
-                f"{mid}: la igualdad exacta de umbral sobre un flotante está prohibida; "
-                "usá una comparación de orden con tolerancia")
+        # La igualdad exacta sobre un flotante NO se valida acá: es una POLÍTICA, no un contrato de
+        # carga. Un umbral `== 3.14` está bien formado y se puede cargar; el juicio de que es una
+        # mala idea vive en dos lugares: `algebra.comparar`, que sigue fallando cerrado al EVALUAR, y
+        # `meta.ningun_umbral_flotante_de_igualdad`, que lo vuelve inspeccionable en L2. Quitar el
+        # `raise` de carga no abre un hueco: la medida no puede producir un verde porque el álgebra
+        # la frena antes de comparar.
         # las dos reglas que hacen a esto un oráculo y no un validador
         if not isinstance(porque, str) or not porque.strip():
             raise MedidaMalDeclarada(
@@ -414,6 +416,7 @@ def _hecho_medida(medida, clasificacion: ClasificacionMeta) -> dict:
         "umbral": medida.limite,
         "umbral_op": medida.op,
         "umbral_valor": medida.limite,
+        "umbral_es_flotante": isinstance(medida.limite, float),
         "porque": medida.porque,
         "alcance": medida.alcance,
         "pasos": max(0, len(medida.tuberia) - 1),

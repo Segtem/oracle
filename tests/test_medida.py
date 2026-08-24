@@ -118,6 +118,39 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertTrue(any(t["cabeza"] == "requiere"
                             for t in hechos.por_relacion["termino"]))
 
+    def test_como_hechos_marca_si_el_umbral_es_flotante(self) -> None:
+        m = modulo_medida()
+        con_flotante = m.Medida.de_datos([
+            "medida", "d.flotante",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0.5, "una razón"],
+            ["alcance", "NO ve"],
+        ])
+        con_entero = m.Medida.de_datos([
+            "medida", "d.entero",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "una razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = {h["id"]: h for h in m.como_hechos([con_flotante, con_entero])}
+        self.assertTrue(hechos["d.flotante"]["umbral_es_flotante"])
+        self.assertFalse(hechos["d.entero"]["umbral_es_flotante"])
+
+    def test_el_umbral_de_igualdad_sobre_flotante_carga_y_lo_juzga_la_medida(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.igual_flotante",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 0.3, "una razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = m.como_hechos([medida])
+        self.assertTrue(hechos[0]["umbral_es_flotante"])
+        self.assertEqual(hechos[0]["comparador"], "==")
+
     def test_evaluar_y_aplicables_despliegan_relaciones_derivadas(self) -> None:
         m = modulo_medida()
         fuente = m.Medida.de_datos([

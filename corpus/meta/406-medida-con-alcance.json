@@ -1,0 +1,17 @@
+{
+  "id": "406-medida-con-alcance",
+  "titulo": "Una medida con alcance declarado no ofende",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Dos medidas declaran `alcance` no vacíos, incluso en otro idioma. La regla debe dejarlas pasar: el punto ciego está declarado, no importa cómo esté redactado.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.ninguna_medida_sin_alcance",
+  "evidencia": {
+    "medida": [
+      { "id": "dominio.con_alcance", "alcance": "NO ve la malla real" },
+      { "id": "dominio.con_alcance_ajeno", "alcance": "Blind spots are documented elsewhere" }
+    ]
+  },
+  "leccion": "El verde fija que el alcance no impone una fórmula textual ni un idioma. La regla exige presencia, no redacción; endurecerla a un formato cerraría medidas válidas.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+}

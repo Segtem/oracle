@@ -107,7 +107,8 @@ La mutación de medidas cubre un denominador explícito: umbral y filtros comple
 puede sustituirse por otra relación nombrada en la misma medida; comparadores, lógicos y booleanos de
 expresiones; un agregado alternativo por sitio; y referencias de campo sustituibles dentro del mismo
 alias o espacio derivado. Los ids incluyen la ruta JSON del sitio. No muta nombres de UDF, aridades,
-defensas ni alcances: las dos primeras fallan al cargar y las dos últimas se miden en L2.
+defensas ni alcances: las dos primeras fallan al cargar, y las dos últimas fallan al cargar **y**
+además quedan reificadas como medidas de L2 (§4).
 
 **Los testigos no se declaran.** Son las filas que sobrevivieron al último `donde`. Declararlos
 aparte obliga a recorrer los datos dos veces y a mantener dos definiciones de lo mismo sincronizadas
@@ -191,7 +192,7 @@ Como una medida es un hecho, `medida` es una relación más y las medidas sobre 
 normales:
 
 ```json
-["medida", "meta.umbral_sin_defensa",
+["medida", "meta.ningun_umbral_sin_defensa",
   ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "porque"], ""]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un número que nadie puede discutir es una métrica esperando a volverse objetivo"],
@@ -200,6 +201,13 @@ normales:
 
 Ese `alcance` es el ejemplo de por qué el campo es obligatorio: la medida es útil y es
 superficialísima, y decirlo evita que se lea como más de lo que es.
+
+Tres reglas que antes eran `raise` de `nucleo/medida.py` quedaron reificadas así, como medidas del
+catálogo base: `meta.ningun_umbral_sin_defensa`, `meta.ninguna_medida_sin_alcance` y
+`meta.ningun_umbral_flotante_de_igualdad`. Las dos primeras conservan el `raise` de carga además de
+la medida — son contratos fail-closed, y la medida las vuelve inspeccionables y discutibles —; la
+tercera sólo vive en la medida y en `algebra.comparar`, porque un umbral `== 3.14` está bien formado
+y su rechazo es un juicio, no un contrato. La distinción completa está en `INFORME.md`.
 
 ## 5. Modo simulación — ✅ IMPLEMENTADO
 
@@ -312,10 +320,12 @@ operadores es la única prueba de que el juego chico alcanzaba.
   BFS para que ningún sensor tenga que reimplementarlo — que era el otro riesgo, acumular la misma
   función en cada dominio. No es una evasión: es la misma línea que separa el sensor del juez en todo
   lo demás.
-- **Igualdad de flotantes.** ✅ **RESUELTA negándose.** No hizo falta cambiar la forma de `umbral`:
-  **la igualdad exacta sobre flotantes levanta un error**, tanto dentro de una expresión como en el
-  umbral final. `0.1 + 0.2` no es `0.3`, y una medida que compare así diría verde sin que nadie se
-  entere. Los umbrales y resultados numéricos también tienen que ser finitos y de tipos compatibles.
+- **Igualdad de flotantes.** ✅ **RESUELTA negándose — y la prohibición ahora es L2.** El `raise`
+  de carga que prohibía `==` sobre flotante en el umbral final se retiró: una medida con `== 0.3`
+  está bien formada y se carga. El juicio de que es una mala idea vive en dos lugares: `algebra.comparar`
+  sigue fallando cerrado al EVALUAR (la medida no puede producir un verde), y la política
+  `meta.ningun_umbral_flotante_de_igualdad` la vuelve inspeccionable en L2, con su `porque`, su
+  `alcance`, casos de corpus en las dos polaridades y la mutación probándola.
 
   La igualdad exacta sólo tiene sentido sobre cosas que se **cuentan** o se **nombran** —enteros,
   booleanos, textos—, y ahí sigue permitida. Sobre cosas que se **miden** hace falta una tolerancia,

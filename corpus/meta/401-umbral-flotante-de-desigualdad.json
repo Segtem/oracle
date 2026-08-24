@@ -1,0 +1,16 @@
+{
+  "id": "401-umbral-flotante-de-desigualdad",
+  "titulo": "Un umbral final compara un flotante con desigualdad exacta",
+  "etiqueta": "falso_verde",
+  "sintoma": "La cabecera estructural de la medida declara un umbral `!=` sobre un valor flotante. La desigualdad exacta sufre el mismo vicio de representación que la igualdad: es la negación de una falsedad silenciosa, y por eso también se prohíbe.",
+  "como_se_detecto": "persona",
+  "medida": "meta.ningun_umbral_flotante_de_igualdad",
+  "evidencia": {
+    "medida": [
+      { "id": "dominio.umbral_flotante_distinto", "umbral_es_flotante": true, "comparador": "!=" }
+    ]
+  },
+  "leccion": "La regla cubre las dos igualdades exactas —`==` y `!=`— y no sólo una: una tolerancia mal escrita como `!=` es tan peligrosa como una igualdad mal escrita como `==`.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+}
