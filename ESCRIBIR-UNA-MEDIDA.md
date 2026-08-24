@@ -32,9 +32,16 @@ python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
+### Frontera de confianza
+
 Si el proyecto declara funciones en `escalares.py`, los comandos que cargan o evalúan su catálogo
-requieren `--confiar-escalares`. Esa bandera autoriza código Python con los mismos permisos del
-proceso. `--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
+requieren `--confiar-escalares`. Esa bandera autoriza cargar código Python externo, pero Oracle lo
+ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON. El
+trabajador puede leer el proyecto, Oracle y la biblioteca estándar; sólo puede escribir dentro del
+proyecto, no puede abrir red ni crear procesos. Si una UDF necesita más autoridad, no pertenece a una
+medida: generá ese dato antes y entregalo como evidencia.
+
+`--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
 
 El id tiene una gramática cerrada: `dominio.nombre`, con segmentos en minúsculas ASCII, dígitos o
 `_`. No se aceptan rutas ni `..`; el archivo se resuelve y confina debajo de `catalogos/` antes de
