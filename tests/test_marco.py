@@ -98,14 +98,35 @@ class HechosDeCasosTests(unittest.TestCase):
 
 
 class TodaMedidaEstaFijadaTests(unittest.TestCase):
-    def _evaluar(self, mutantes=(), **politica):
-        evidencia = hechos_de_uso(CATALOGO, [], list(mutantes), **politica)
+    def _evaluar(self, mutantes=(), casos=None, **politica):
+        # Un caso por omisión: la obligación de tener mutantes nace de que ALGÚN caso declare la
+        # medida, porque es ahí donde la mutación puede correr y significar algo.
+        casos = [{"medida": MID}] if casos is None else casos
+        evidencia = hechos_de_uso(CATALOGO, casos, list(mutantes), **politica)
         return evidencia["medida_en_uso"][0], _fijada().evaluar(evidencia)
 
     def test_una_medida_ordinaria_con_CERO_mutantes_no_pasa_vacuamente(self) -> None:
         uso, veredicto = self._evaluar()
         self.assertFalse(uso["es_heredada"])
+        self.assertEqual(uso["casos_que_la_evaluan"], 1)
+        self.assertTrue(uso["debe_tener_mutantes"])
+        self.assertFalse(veredicto.ok)
+
+    def test_sin_ningun_caso_la_obligacion_no_nace_y_de_eso_se_ocupa_otra_medida(self) -> None:
+        """Antes la exención salía del prefijo `meta.` del id; ahora sale de una propiedad
+        comprobable. Una medida que ningún caso declara no puede mutarse, así que exigirle mutantes
+        sería un falso rojo — de que nadie la ejercite se ocupa `meta.toda_medida_esta_ejercitada`,
+        y las dos preguntas quedan separadas en vez de resueltas por una convención de nombre."""
+        uso, veredicto = self._evaluar(casos=[])
         self.assertEqual(uso["casos_que_la_evaluan"], 0)
+        self.assertFalse(uso["debe_tener_mutantes"])
+        self.assertTrue(veredicto.ok)
+
+    def test_estar_evaluada_aparte_no_exime_de_tener_mutantes(self) -> None:
+        """El agujero que cerró esto: las dos cosas iban juntas, así que una medida evaluada por
+        otro arnés salía del denominador aunque tuviera casos de corpus para mutar."""
+        uso, veredicto = self._evaluar(evaluadas_aparte={MID})
+        self.assertEqual(uso["casos_que_la_evaluan"], 2)   # el caso más el crédito del otro arnés
         self.assertTrue(uso["debe_tener_mutantes"])
         self.assertFalse(veredicto.ok)
 
@@ -134,10 +155,12 @@ class TodaMedidaEstaFijadaTests(unittest.TestCase):
         self.assertFalse(uso["debe_tener_mutantes"])
         self.assertTrue(veredicto.ok)
 
-    def test_una_medida_evaluada_aparte_declara_que_no_debe_mutarse(self) -> None:
-        uso, veredicto = self._evaluar(evaluadas_aparte={MID})
-        self.assertEqual(uso["casos_que_la_evaluan"], 1)
-        self.assertFalse(uso["debe_tener_mutantes"])
+    def test_evaluada_aparte_acredita_ejercicio_y_nada_mas(self) -> None:
+        """Lo único que queda de la exención vieja: que otro arnés la evalúe la cuenta como
+        ejercitada. Ya no la saca del denominador de mutación — para eso está el test de arriba."""
+        uso, veredicto = self._evaluar(casos=[], evaluadas_aparte={MID})
+        self.assertEqual(uso["casos_que_la_evaluan"], 1)   # el crédito, sin ningún caso propio
+        self.assertFalse(uso["debe_tener_mutantes"])       # y sin casos no hay nada que mutar
         self.assertTrue(veredicto.ok)
 
     def test_un_mutante_sin_conteos_enteros_no_puede_contarse(self) -> None:
