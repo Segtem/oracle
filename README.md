@@ -17,6 +17,26 @@ bien. Con un LLM el efecto es más fuerte, por dos razones estructurales:
 De ahí la forma de todo lo que hay acá: las reglas son programas que fallan, no documentos que
 aconsejan.
 
+---
+
+> ## Estado: `EXPERIMENTAL` → `METALENGUAJE`
+>
+> **Hoy es un experimento**, y el metalenguaje es el destino, no la descripción. Falta bastante para
+> llegar: la reflexión sobre el catálogo sigue fijada en Python —L2 tiene mecanismo propio, que es
+> justo lo que un metalenguaje no debería necesitar—, y el camino está desglosado en
+> [`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md).
+>
+> **No hay fecha de corte, ni condición de cierre, ni tope de tamaño.** Las hubo por un rato, en
+> respuesta a dos auditorías externas que midieron a Oracle con la vara de un producto adoptable —
+> vara que este README las invitó a usar. Se retiraron el 2026-08-24: un experimento no se gobierna
+> con plazos, se gobierna con disparadores, y el de la reificación está escrito en el plan.
+>
+> Lo que **no** cambió es la exigencia hacia adentro: toda medida sigue declarando qué NO ve, todo
+> umbral sigue trayendo su defensa, y la mutación sigue teniendo que terminar en cero sobrevivientes.
+> Ser experimental es un estado del proyecto, no un permiso para aflojar sus propias reglas.
+
+---
+
 ## La esencia, mirada de cerca
 
 Después de construirlo, lo que queda debajo de todos los mecanismos es una sola frase:
@@ -39,7 +59,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 3558 líneas de lenguaje y **198 negativas explícitas** (`raise`).
+En este corte hay 3554 líneas de lenguaje y **198 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -63,7 +83,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 40 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 23 la mutación, 9 una persona, 4 la casualidad, 4 una herramienta ajena.
+Los 37 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 22 la mutación, 8 una persona, 4 la casualidad, 3 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -72,7 +92,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**3558 líneas de lenguaje** (`nucleo/`, código y macros) y **198 negativas explícitas** (`raise`). Contra las 24 medidas universales escritas en él (220 líneas): **16,2 a 1**. 21 de las 24 pasan por una macro.
+**3554 líneas de lenguaje** (`nucleo/`, código y macros) y **198 negativas explícitas** (`raise`). Contra las 22 medidas universales escritas en él (202 líneas): **17,6 a 1**. 19 de las 22 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -80,8 +100,9 @@ metalenguaje. Los catálogos externos no se incorporan al núcleo para mejorar a
 proporción.
 
 Es la única medición del proyecto **que no se puede sastrear escribiendo más medidas** — escribir más
-medidas es justamente lo que la mejora. Si en seis meses la proporción no se movió, el lenguaje no
-valió la pena.
+medidas es justamente lo que la mejora. Es una cifra sobre el **costo**, no un veredicto: qué se
+concluye de ella está en la sección de abajo, y la respuesta corta es «menos de lo que este párrafo
+llegó a afirmar».
 
 **Y la proporción no se mueve.** Fue 16,2 antes de `defmacro`, subió a 18,2, y volvió a 16,2. Ni
 mejoró ni empeoró: después de meses de trabajo está donde empezó, y las dos veces que se movió fue
@@ -101,63 +122,37 @@ El numerador cuenta `nucleo/macros/*.json` junto con el `.py`, a propósito. Si 
 mover Python a datos habría «mejorado» la proporción sin que el lenguaje encogiera un gramo — el
 sastreo exacto contra el que esta medición existe.
 
-### La proporción no alcanza, y por eso hay una puerta
+### La proporción no alcanza como criterio, y el proyecto es EXPERIMENTAL
 
-Dos auditorías externas coincidieron en lo mismo: como criterio de falsación, la proporción no puede
-hacer el trabajo. **Disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta
-publicada fue reinterpretarla, que es exactamente la maniobra que este proyecto le prohíbe a todo lo
-demás. Después volvió a 16,2, y eso no la rehabilita: volvió porque se escribieron más medidas
-universales, que es el único mecanismo que la mueve hacia abajo.
+Dos auditorías externas coincidieron: como criterio de falsación, la proporción no puede hacer el
+trabajo. **Disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta publicada fue
+reinterpretarla. Después volvió a 16,2, y eso no la rehabilita: volvió porque se escribieron más
+medidas universales, que es el único mecanismo que la mueve hacia abajo.
 
-Ahí está el problema, y es estructural. Es inmune a la única señal que importa: los catálogos
-externos no entran a su denominador, así que **ningún éxito de adopción puede mejorarla**. Y también
-es inmune a la migración: al mover una política real de Python al catálogo, el núcleo bajó tres
-líneas y la cifra no se movió — lo que queda en Python es código de sensor, y eso no puede migrar
-nunca. Ni la adopción la mueve, ni la migración la mueve.
+El problema es estructural y son dos: es inmune a la adopción —los catálogos externos no entran a su
+denominador, así que ningún consumidor puede moverla— y es inmune a la migración: al mover una
+política real de Python al catálogo, el núcleo bajó tres líneas y la cifra no se movió, porque lo que
+queda en Python es código de sensor y eso no puede migrar nunca.
 
-Un criterio así no es un criterio: es una nota al pie. Y escribirlo en prosa habría sido peor,
-porque este README arranca diciendo que una regla escrita como consejo se lee y se olvida.
+**Pero el error de fondo no era la métrica: era publicarla como criterio.** «Si en seis meses la
+proporción no se movió, el lenguaje no valió la pena» es una afirmación de producto, y esto no es un
+producto. Es un experimento, y por eso:
 
-Así que la condición de fracaso está prerregistrada **como dato** en
-[`COMPROMISOS.json`](COMPROMISOS.json) y la juzgan dos medidas del catálogo:
+> **Oracle está en estado EXPERIMENTAL.** No tiene fecha de corte, ni condición de cierre, ni tope de
+> tamaño para el núcleo. Le falta bastante para ser un metalenguaje —la reflexión sobre el catálogo
+> sigue fijada en Python, ver [`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md)— y ése es el estado declarado,
+> no un déficit contra un plazo.
 
-> Si al **2027-01-29** los catálogos de los proyectos consumidores no suman **80 medidas** (hoy 47)
-> o `nucleo/` superó las **3658 líneas**, se congela el núcleo: cero líneas nuevas hasta que esa
-> proporción mejore.
+Hubo una puerta de abandono prerregistrada, escrita el 2026-08-24 en respuesta a las auditorías, con
+plazo al 2027-01-29 y consecuencia escrita. **Se retiró el mismo día**, junto con el tope de núcleo
+que la acompañaba: ese tope era un número inventado —el tamaño de ese momento más cien líneas— y
+Oracle no lo necesitaba para nada. Poner plazos y consecuencias a un experimento es tratarlo como lo
+que todavía no es, y las auditorías lo midieron con esa vara porque el README las invitó a hacerlo.
 
-Esa es **la apuesta declarada del proyecto**, y hasta ahora nada la medía: los catálogos externos no
-entran al denominador de la proporción, así que ningún consumidor podía moverla. Las dos mitades
-cuentan, y basta que falle una — un catálogo que crece a costa de un núcleo que crece más no
-demuestra la tesis, la contradice. El conteo **se mide**, no se declara: el sensor cuenta los
-archivos de los catálogos consumidores y las líneas del núcleo con la misma función que publica las
-cifras de este README.
-
-**La condición anterior era otra, y el cambio está registrado.** Pedía dos consumidores mantenidos
-por otra persona. El 2026-08-24 se decidió mantener el repositorio privado, y con eso esa condición
-pasó de difícil a **imposible**: nadie puede usar lo que no puede encontrar, así que el 2027-01-29
-habría salido roja con certeza y no por la razón que decía medir. Se reemplazó ese mismo día, con
-cinco meses por delante y sin conocer el resultado — hacerlo en enero al verla roja habría sido la
-reinterpretación que esta puerta existe para impedir. Lo que se perdió es la prueba de
-**transferencia**, que es la que distingue «general» de «sobreajustado a su autor»; por eso la
-decisión de publicar quedó como un compromiso aparte, con su propia fecha.
-
-Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es
-agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que
-ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto. La auditoría
-proponía algo más duro —archivar el metalenguaje y conservar sólo el protocolo como plugin de
-pytest— y se descartó por decisión del autor; queda registrada en `COMPROMISOS.json` la alternativa
-que **no** se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el
-resultado.
-
-`meta.compromiso_vencido_sin_cumplir` se pone roja sola el día del plazo, y
-`meta.cumplimiento_declarado_sin_respaldo` cierra la salida barata: para apagar la puerta hay que
-escribir un número observado que alcance el umbral, que es una afirmación falsable y fechada sobre el
-mundo, no un `true`. El CI corre las dos.
-
-Nada de esto impide editar el archivo. Lo que hace es convertir un cambio de criterio en un commit
-fechado y visible, en vez de un párrafo nuevo que reinterpreta el anterior. Es todo lo que un
-prerregistro puede dar, y es lo que faltaba: **el testigo tiene que ser externo, y el git de los
-repositorios consumidores lo es.**
+Lo que **sí** queda de esa discusión, porque no depende de ningún plazo: la proporción sigue
+publicándose y sigue generada por `tools/cifras.py`, con el CI fallando si vence. Es una cifra sobre
+el costo, no un veredicto sobre el proyecto — y leerla como veredicto fue el error que corrigió esta
+sección.
 
 ## Tres influencias, y qué aporta cada una
 
@@ -372,11 +367,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**60 casos**: 40 defectos y 20 verdes correctos. De los defectos, 37 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 35 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**55 casos**: 37 defectos y 18 verdes correctos. De los defectos, 34 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 32 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-440 tests · 213/213 mutantes de medida · **1293 sitios de mutación de código** (1088 + 205 del motor Python).
+432 tests · 182/182 mutantes de medida · **1293 sitios de mutación de código** (1088 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

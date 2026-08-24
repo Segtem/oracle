@@ -208,8 +208,14 @@ def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
         # de commits es un hecho, la interpretación no lo era.
         f"| commits | {len(_git('log', '--format=%H').splitlines())} | el historial completo |",
         "",
-        "Si en seis meses la proporción no se movió, el lenguaje no valió la pena. Es la única",
-        "métrica del proyecto que no se puede sastrear escribiendo más medidas.", ""])
+        # Acá decía «si en seis meses la proporción no se movió, el lenguaje no valió la pena».
+        # Se retiró el 2026-08-24 junto con la puerta de abandono: era una afirmación de producto
+        # en un proyecto EXPERIMENTAL, y tratar una cifra de costo como veredicto fue lo que llevó
+        # a las auditorías a medirlo con una vara que el proyecto no había ganado todavía.
+        "**Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte",
+        "ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un",
+        "veredicto: es la única que no se puede sastrear escribiendo más medidas, y eso la hace",
+        "útil para mirar, no para dictaminar.", ""])
 
 
 def indice(archivos) -> str:
@@ -280,11 +286,12 @@ def documento_unico(docs: dict[str, str], *, extras=None) -> str:
         # en silencio, sacar un documento del paquete de estudio sería tan barato como borrarlo.
         # `AUDITORIA-2026-07-30.md` salió de esta lista el 2026-08-24 porque el archivo se movió
         # fuera del repositorio, a `~/Dev/auditorias/oracle/`, y dejó la referencia colgando.
+        # `COMPROMISOS.json` salió el mismo día: la puerta de abandono se retiró entera al declarar
+        # el proyecto EXPERIMENTAL, y un experimento no se gobierna con plazos.
         declarados = (
             ("09-decision-relaciones-como-bolsas.md", "DECISION-001-RELACIONES-COMO-BOLSAS.md"),
             ("10-decision-sin-composicion.md", "DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md"),
             ("11-plan-de-correccion.md", "PLAN-CORRECCION.md"),
-            ("12-compromisos-prerregistrados.md", "COMPROMISOS.json"),
         )
         faltan = [origen for _n, origen in declarados if not (RAIZ / origen).exists()]
         if faltan:

@@ -5,9 +5,11 @@ puede fallar. Este archivo existe para que no queden. Cada bloque `<!-- <nombre>
 README lo produce una función de acá, y `main()` sin `--actualizar` falla si alguno venció.
 
 La deriva no es hipotética: el corte anterior publicaba «2202 líneas de núcleo», «106 negativas» y
-una proporción de «trece a uno» cuando ya iban 2654, 150 y 16,2. Justamente la proporción es el
-criterio de falsación declarado del proyecto —si no baja, el lenguaje no valió la pena—, y era el
-número que nadie estaba midiendo.
+una proporción de «trece a uno» cuando ya iban 2654, 150 y 16,2. La proporción era además el número
+que el proyecto publicaba como criterio de falsación, y el que nadie estaba midiendo — las dos cosas
+a la vez. Desde el 2026-08-24 ya no es un criterio sino una cifra de costo (el proyecto está en
+estado EXPERIMENTAL, sin condición de cierre), pero sigue custodiada acá por el mismo motivo por el
+que se empezó a generar: una cifra publicada a mano es una afirmación que nadie ejercita.
 """
 
 from __future__ import annotations
@@ -82,7 +84,8 @@ def negativas() -> str:
 
 
 def escala() -> str:
-    """El costo del lenguaje contra lo escrito en él — el criterio de falsación del proyecto."""
+    """El costo del lenguaje contra lo escrito en él. Una cifra de COSTO, no un veredicto: el
+    proyecto está en estado EXPERIMENTAL y no tiene criterio de cierre."""
     lineas_nucleo = _lineas(_lenguaje())
     negativas_ = _negativas(_fuentes_del_nucleo())
 

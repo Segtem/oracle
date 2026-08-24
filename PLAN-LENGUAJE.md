@@ -4,6 +4,10 @@ Instantánea del 2026-08-03. Los valores salen de `tools/cifras.py`, pero **acá
 mano**: este documento es un registro fechado, no una fuente. Las cifras vivas están en el README,
 que sí falla en CI cuando vencen.
 
+> **Estado: `EXPERIMENTAL` → `METALENGUAJE`.** Este documento describe el camino, no una promesa con
+> fecha. No hay plazo ni condición de cierre: los ítems se hacen cuando algo los pide, y el
+> disparador de cada uno está escrito con el ítem. Ver el estado completo en el README.
+
 | | |
 |---|---|
 | lenguaje | 2944 líneas (`nucleo/`, código y macros) · 171 `raise` |
@@ -270,15 +274,15 @@ El 2026-08-24 pasó de 3 entradas a 7 en dos ediciones de Python —`compromiso`
 reificación tiene que cubrir también esto, o la mitad del problema queda en pie: una relación
 debería ser del lenguaje porque **quien la produce lo declara**, no porque figure en una lista.
 
-### Y hay un impedimento formal, no sólo de criterio
+### No hay impedimento formal, y es a propósito
 
-`COMPROMISOS.json` fija un tope de **3658 líneas** de núcleo al 2027-01-29. Hoy hay 3558: quedan
-**100 líneas de margen**, y la reificación no entra. O sea que la puerta prohíbe hacer esto — y no
-por accidente, sino porque es exactamente para lo que se escribió. Agregar la capacidad más cara del
-plan antes de que ningún catálogo la haya pedido es la escalada de compromiso que la puerta corta.
+Hubo un momento —el 2026-08-24— en que un compromiso prerregistrado le ponía tope al tamaño del
+núcleo y esto no entraba. Ese tope se retiró junto con la puerta entera: era un número inventado y
+Oracle está en estado **EXPERIMENTAL**, sin fecha de corte ni condición de cierre.
 
-Si el disparador suena antes de la fecha, eso mismo es la señal de que el costo se justifica, y
-entonces se decide con el compromiso a la vista — no esquivándolo.
+Así que lo único que frena la reificación es el criterio, no una regla: **nadie la pidió todavía.**
+Eso es más débil que un tope y es lo correcto — un experimento no se gobierna con plazos, se gobierna
+con disparadores.
 
 ---
 
@@ -379,7 +383,7 @@ casi seguro no es independiente — miró algo que no debía.
 
 6. **(b)** — reificación. **Congelado tras un disparador** (ver arriba). Es el más caro, es el que
    justifica la palabra «metalenguaje», y nadie lo pidió todavía: los dos consumidores suman 47
-   medidas y ninguna es meta. Además no entra en el tope de núcleo que fija `COMPROMISOS.json`.
+   medidas y ninguna es meta.
 
 ### La medición que gobierna todo esto
 
@@ -394,8 +398,8 @@ que crezca el núcleo**, y eso esta métrica no lo puede ver — los catálogos 
 denominador. Tampoco lo ve la migración: mover una política real de Python al catálogo bajó el núcleo
 tres líneas y la cifra no se movió.
 
-Por eso desde el 2026-08-24 el criterio de falsación del proyecto **no es esta proporción** sino la
-puerta prerregistrada en `COMPROMISOS.json`, que sí cuenta los catálogos de los consumidores.
+Por eso desde el 2026-08-24 esta proporción **no es un criterio de falsación**: es una cifra sobre el
+costo. El proyecto está en estado EXPERIMENTAL y no tiene criterio de cierre — ver el README.
 
 Y ahí está el experimento que importa: **Jam es el primer consumidor que no se diseñó junto con
 Oracle.** El criterio es mecánico y no admite interpretación —

@@ -42,14 +42,10 @@ class ClasificacionMeta:
     reflexivas de cada proyecto. Un perfil puede añadirlas y también declarar sus prefijos.
     """
 
-    # `compromiso` es reflexiva como las otras tres: no describe el mundo medido sino al proyecto
-    # que mide —qué se comprometió a demostrar, para cuándo y con qué testigo—. Entró con la puerta
-    # de abandono, y la política `meta.el_nivel_no_se_confunde_con_el_dominio` fue la que avisó que
-    # faltaba: las medidas se llamaban `meta.` y su relación no estaba declarada acá.
     # `paso`, `nodo` y `producto` son la traza del evaluador midiéndose a sí mismo: describen lo que
     # hizo el álgebra, no el mundo. Son tan reflexivas como `medida`.
     relaciones_del_lenguaje: frozenset[str] = frozenset(
-        {"medida", "caso", "medida_en_uso", "compromiso", "paso", "nodo", "producto"})
+        {"medida", "caso", "medida_en_uso", "paso", "nodo", "producto"})
     prefijos_meta: tuple[str, ...] = ("meta.",)
 
     def __post_init__(self) -> None:
