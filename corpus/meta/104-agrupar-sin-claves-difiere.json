@@ -1,0 +1,28 @@
+{
+  "id": "104-agrupar-sin-claves-difiere",
+  "titulo": "Agrupar sin claves difiere",
+  "etiqueta": "falso_verde",
+  "sintoma": "Agrupar sin claves y agregar sobre todo dieron números distintos. Sin claves hay un solo grupo, así que los dos caminos tienen que llegar al mismo valor; si no, `agrupar` pierde o inventa filas al colapsar y todo agregado calculado sobre ese grupo es un número sin evidencia detrás.",
+  "como_se_detecto": "mutacion",
+  "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+  "evidencia": {
+    "equivalencia": [
+      {
+        "propiedad": "agrupar_sin_claves_es_el_resumen_global",
+        "caso": "c",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": false,
+        "mismos_testigos": false
+      }
+    ]
+  },
+  "leccion": "El caso trae `mismos_testigos` en falso además del valor, y eso NO es lo que la medida juzga: los testigos difieren siempre en esta propiedad, porque un grupo no es un hecho. La medida mira veredicto y valor, y este caso la pone roja por el valor.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "acfca07"
+  }
+}

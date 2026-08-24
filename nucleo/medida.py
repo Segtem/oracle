@@ -45,7 +45,7 @@ class ClasificacionMeta:
     # `paso`, `nodo` y `producto` son la traza del evaluador midiéndose a sí mismo: describen lo que
     # hizo el álgebra, no el mundo. Son tan reflexivas como `medida`.
     relaciones_del_lenguaje: frozenset[str] = frozenset(
-        {"medida", "caso", "medida_en_uso", "paso", "nodo", "producto"})
+        {"medida", "caso", "medida_en_uso", "paso", "nodo", "producto", "equivalencia"})
     prefijos_meta: tuple[str, ...] = ("meta.",)
 
     def __post_init__(self) -> None:

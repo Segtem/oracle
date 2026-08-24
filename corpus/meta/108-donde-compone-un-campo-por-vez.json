@@ -1,0 +1,48 @@
+{
+  "id": "108-donde-compone-un-campo-por-vez",
+  "titulo": "donde_compone: cada campo del contrato falla por separado",
+  "etiqueta": "falso_verde",
+  "como_se_detecto": "mutacion",
+  "medida": "meta.donde_compone",
+  "sintoma": "Tres equivalencias de la misma propiedad, cada una fallando en UN solo campo del contrato: una difiere sólo en el veredicto, otra sólo en el valor, otra sólo en los testigos. Las tres tienen que contarse como ofensa, y por separado.",
+  "evidencia": {
+    "equivalencia": [
+      {
+        "propiedad": "donde_compone",
+        "caso": "solo-veredicto",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": false,
+        "mismo_valor": true,
+        "mismos_testigos": true
+      },
+      {
+        "propiedad": "donde_compone",
+        "caso": "solo-valor",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": false,
+        "mismos_testigos": true
+      },
+      {
+        "propiedad": "donde_compone",
+        "caso": "solo-testigos",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": false
+      }
+    ]
+  },
+  "leccion": "La mutación pidió este caso y explica por qué: con un predicado que es un `o` de tres comparaciones sobre tres campos distintos, sustituir un campo por otro pasa inadvertido mientras todos los casos tengan los tres campos con el mismo valor. Diecisiete mutantes sobrevivían por eso. Aislar un campo por fila es lo que vuelve distinguibles a los tres, y es el mismo patrón que el caso `057`: la polaridad no alcanza cuando lo que hay que fijar es un borde.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "acfca07"
+  }
+}

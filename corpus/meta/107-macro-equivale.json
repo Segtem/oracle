@@ -1,0 +1,38 @@
+{
+  "id": "107-macro-equivale",
+  "titulo": "Macro equivale",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Dos medidas escritas por macro coinciden con su expansión canónica en veredicto, valor y testigos, sobre la evidencia real de sus casos.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.una_macro_equivale_a_su_expansion",
+  "evidencia": {
+    "equivalencia": [
+      {
+        "propiedad": "una_macro_equivale_a_su_expansion",
+        "caso": "uno",
+        "origen": "catalogo",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": true
+      },
+      {
+        "propiedad": "una_macro_equivale_a_su_expansion",
+        "caso": "otro",
+        "origen": "catalogo",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": true
+      }
+    ]
+  },
+  "leccion": "El alcance de esta propiedad tiene un hueco que conviene tener presente: si una macro expandiera SIEMPRE mal de la misma manera, las dos formas coincidirían igual y esta medida callaría. Comprueba que las dos formas sean la misma, no que la forma sea la correcta.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "acfca07"
+  }
+}

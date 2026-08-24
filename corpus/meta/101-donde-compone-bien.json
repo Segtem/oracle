@@ -1,0 +1,38 @@
+{
+  "id": "101-donde-compone-bien",
+  "titulo": "Donde compone bien",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Las dos formas del filtro coinciden en veredicto, valor y testigos. La segunda fila es de otra propiedad y no coincide en testigos: está para fijar que el filtro por `propiedad` filtre de verdad.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.donde_compone",
+  "evidencia": {
+    "equivalencia": [
+      {
+        "propiedad": "donde_compone",
+        "caso": "c",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": true
+      },
+      {
+        "propiedad": "agrupar_sin_claves_es_el_resumen_global",
+        "caso": "c",
+        "origen": "construido",
+        "evaluo": true,
+        "error": "",
+        "mismo_veredicto": true,
+        "mismo_valor": true,
+        "mismos_testigos": false
+      }
+    ]
+  },
+  "leccion": "Sin esta polaridad, quitar el filtro por `propiedad` sobrevivía: la medida se pondría roja por una equivalencia que no es la suya. Cada propiedad juzga sólo sus propios hechos.",
+  "fecha": "2026-08-24",
+  "origen": {
+    "repo": "Segtem/oracle",
+    "commit": "acfca07"
+  }
+}

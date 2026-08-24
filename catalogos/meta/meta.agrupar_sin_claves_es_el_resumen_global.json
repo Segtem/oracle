@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.agrupar_sin_claves_es_el_resumen_global",
+  "equivalencia",
+  "e",
+  ["y", ["==", ["campo", "e", "propiedad"], "agrupar_sin_claves_es_el_resumen_global"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false]]],
+  "sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el mismo número. Si no coinciden, `agrupar` pierde o inventa filas al colapsar, y todo agregado calculado sobre un grupo así es un número sin evidencia detrás. NO se exigen los mismos testigos, y no es una concesión: un grupo no es un hecho, los hechos se consumieron al agruparse, así que las dos formas señalan cosas distintas a propósito",
+  "compara las dos formas para los cinco agregados, sobre una sonda construida. NO compara testigos —difieren por diseño— ni cubre `agrupar` CON claves, donde la equivalencia no aplica porque hay más de un grupo"
+]
