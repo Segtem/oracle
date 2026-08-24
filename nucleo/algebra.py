@@ -355,10 +355,18 @@ def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]])
             # comparar contra un campo ausente es casi siempre un error de la medida, no un False
             raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}")
         return comparar(cabeza, a, b)
-    if cabeza == "y":
-        return all(_evaluar_expr(x, fila, escalares) for x in resto)
-    if cabeza == "o":
-        return any(_evaluar_expr(x, fila, escalares) for x in resto)
+    if cabeza in ("y", "o"):
+        # SIN cortocircuito, y es deliberado. `all`/`any` sobre un generador dejan de evaluar apenas
+        # el resultado está decidido, y eso tapaba exactamente el error que el `raise` de arriba
+        # existe para levantar: `["y", <falso>, ["==", ["campo","a","typo"], 1]]` no llegaba nunca a
+        # mirar el campo inexistente y devolvía un `False` silencioso — el verde que §3 de la
+        # especificación prohíbe. Peor todavía, dependía de los datos: la misma medida rota
+        # levantaba el error con una evidencia y lo escondía con otra.
+        #
+        # Se paga evaluando de más en predicados grandes. El presupuesto de §9 ya acota esa
+        # amplificación, y una medida que se apoya en el cortocircuito para no romperse está rota.
+        valores = [_evaluar_expr(x, fila, escalares) for x in resto]
+        return all(valores) if cabeza == "y" else any(valores)
     if cabeza == "no":
         (x,) = resto
         return not _evaluar_expr(x, fila, escalares)

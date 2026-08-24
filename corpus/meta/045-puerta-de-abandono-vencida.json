@@ -1,0 +1,25 @@
+{
+  "id": "045-puerta-de-abandono-vencida",
+  "titulo": "El criterio de fracaso llegó a su fecha y no frenó nada",
+  "etiqueta": "falso_verde",
+  "sintoma": "Oracle declaró un criterio de falsación —«si en seis meses la proporción no se movió, el lenguaje no valió la pena»— y la proporción empeoró dos cortes seguidos: 16,2 → 18,0 → 18,2. La respuesta publicada no fue aceptarlo sino reinterpretarlo: «el pago no es este corte, es que la macro número cuatro ya no cuesta ni una línea de núcleo». Nada en el repositorio se puso rojo. Un criterio que dispara y no frena no es un criterio: es una nota al pie.",
+  "como_se_detecto": "herramienta_ajena",
+  "medida": "meta.compromiso_vencido_sin_cumplir",
+  "evidencia": {
+    "compromiso": [
+      {
+        "id": "dos-consumidores-independientes",
+        "vence": "2027-01-29",
+        "dias_restantes": -1,
+        "vencido": true,
+        "cumplido": false,
+        "umbral": 2,
+        "observado": 0,
+        "alcanza_el_umbral": false
+      }
+    ]
+  },
+  "leccion": "La proporción no podía hacer el trabajo por dos razones estructurales: los catálogos externos no entran a su denominador, así que ningún éxito de adopción la mejora; y lo único que la mejora es escribir más medidas universales, que es el sastreo contra el que dice existir. Un criterio de fracaso necesita ser una regla observable con fecha y testigo externo, no una métrica. Y necesita ser un programa que falla, no un párrafo: este proyecto arranca diciendo que una regla escrita como consejo se lee y se olvida, y su propio criterio de falsación era exactamente eso.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+}

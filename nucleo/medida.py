@@ -42,7 +42,12 @@ class ClasificacionMeta:
     reflexivas de cada proyecto. Un perfil puede añadirlas y también declarar sus prefijos.
     """
 
-    relaciones_del_lenguaje: frozenset[str] = frozenset({"medida", "caso", "medida_en_uso"})
+    # `compromiso` es reflexiva como las otras tres: no describe el mundo medido sino al proyecto
+    # que mide —qué se comprometió a demostrar, para cuándo y con qué testigo—. Entró con la puerta
+    # de abandono, y la política `meta.el_nivel_no_se_confunde_con_el_dominio` fue la que avisó que
+    # faltaba: las medidas se llamaban `meta.` y su relación no estaba declarada acá.
+    relaciones_del_lenguaje: frozenset[str] = frozenset(
+        {"medida", "caso", "medida_en_uso", "compromiso"})
     prefijos_meta: tuple[str, ...] = ("meta.",)
 
     def __post_init__(self) -> None:
@@ -91,8 +96,15 @@ class Veredicto:
     porque: str
     alcance: str
     testigos: tuple
+    # Qué relación declarada como necesaria vino vacía. No es un rojo cualquiera: un rojo dice «el
+    # mundo está mal», y esto dice «no hay con qué mirar». `ok` sigue en False porque lo único
+    # inaceptable es que salga verde.
+    sin_evidencia: str = ""
 
     def linea(self) -> str:
+        if self.sin_evidencia:
+            return (f"⊘ {self.id:<44} {'SIN EVIDENCIA':>8} "
+                    f"(«{self.sin_evidencia}» vacía; no se midió)")
         marca = "✓" if self.ok else "✗"
         base = f"{marca} {self.id:<44} {self.valor:>8} ({self.umbral})"
         if self.testigos and not self.ok:
@@ -104,6 +116,7 @@ class Veredicto:
     def a_dict(self) -> dict:
         return {"id": self.id, "valor": self.valor, "ok": self.ok, "umbral": self.umbral,
                 "porque": self.porque, "alcance": self.alcance,
+                "sin_evidencia": self.sin_evidencia,
                 "testigos": [dict(t) for t in self.testigos]}
 
 
@@ -125,6 +138,12 @@ class Medida:
     limite: float
     porque: str
     alcance: str
+    # Relaciones sin las cuales esta medida no puede concluir nada. Es el espejo de `alcance`: uno
+    # declara qué NO ve, y éste declara qué NECESITA ver. Existe porque el álgebra no puede
+    # expresarlo: `unir` con un lado vacío no produce pares, y sin pares no hay grupos, así que la
+    # medida más fuerte —«un módulo que nadie importa»— salía VERDE justo cuando el mundo estaba
+    # peor. Declararlo en el `alcance` volvía visible el hueco; no lo cerraba.
+    requiere: tuple = ()
     fuente: tuple = ()          # cómo estaba escrita: macro o canónica
 
     @classmethod
@@ -134,10 +153,16 @@ class Medida:
         # que existieron, así que el evaluador, la mutación, el inventario y el L2 no cambian.
         fuente = d
         d = expandir(d, macros, limites)
-        if not isinstance(d, list) or len(d) != 6 or d[0] != "medida":
+        if not isinstance(d, list) or len(d) not in (6, 7) or d[0] != "medida":
             raise MedidaMalDeclarada(
-                "una medida es ['medida', id, tuberia, resumen, umbral, alcance]")
-        _, mid, tuberia, resumen, umbral, alcance = d
+                "una medida es ['medida', id, tuberia, resumen, umbral, [requiere,] alcance]")
+        # `requiere` es OPCIONAL y va antes de `alcance`: las medidas que no lo declaran no cambian,
+        # y las rutas de mutación —que indexan tubería, resumen y umbral— tampoco se corren.
+        if len(d) == 7:
+            _, mid, tuberia, resumen, umbral, requiere, alcance = d
+        else:
+            _, mid, tuberia, resumen, umbral, alcance = d
+            requiere = ["requiere"]
         if not isinstance(mid, str) or not mid.strip() or " " in mid:
             raise MedidaMalDeclarada(f"id inválido: «{mid}»")
         try:
@@ -169,12 +194,26 @@ class Medida:
         if not (isinstance(alcance, list) and len(alcance) == 2 and alcance[0] == "alcance"
                 and isinstance(alcance[1], str) and alcance[1].strip()):
             raise MedidaMalDeclarada(f"{mid}: falta `alcance` — hay que declarar qué NO ve")
+        if not (isinstance(requiere, list) and requiere and requiere[0] == "requiere"
+                and all(isinstance(r, str) and r.strip() for r in requiere[1:])):
+            raise MedidaMalDeclarada(
+                f"{mid}: `requiere` es ['requiere', <relación>, …] con nombres no vacíos")
+        nombres = tuple(requiere[1:])
+        if len(set(nombres)) != len(nombres):
+            raise MedidaMalDeclarada(f"{mid}: `requiere` repite una relación: {list(nombres)}")
         return cls(id=mid, tuberia=tuberia, resumen=resumen, op=op, limite=limite,
-                   porque=porque, alcance=alcance[1],
+                   porque=porque, alcance=alcance[1], requiere=nombres,
                    fuente=tuple(fuente) if es_macro(fuente, macros) else ())
 
     def evaluar(self, evidencia: dict, limites: LimitesAlgebra | None = None, *,
                 registro=None) -> Veredicto:
+        # ANTES de medir: si falta con qué, no hay veredicto que dar. Medir igual produciría el
+        # agregado sobre cero filas —que es 0— y un umbral `<= 0` lo leería como verde.
+        faltante = next((r for r in self.requiere if not evidencia.get(r)), "")
+        if faltante:
+            return Veredicto(id=self.id, valor=0, ok=False,
+                             umbral=f"{self.op} {self.limite}", porque=self.porque,
+                             alcance=self.alcance, testigos=(), sin_evidencia=faltante)
         testigos = desde(self.tuberia, evidencia, limites, registro=registro)
         valor = resumir(self.resumen, testigos, limites, registro=registro)
         return Veredicto(id=self.id, valor=valor, ok=comparar(self.op, valor, self.limite),
@@ -184,8 +223,13 @@ class Medida:
     def a_datos(self) -> list:
         """La forma CANÓNICA, siempre. Es lo que muta el sensor: mutar la expansión llega más lejos
         que mutar la invocación de la macro."""
-        return ["medida", self.id, self.tuberia, self.resumen,
-                ["umbral", self.op, self.limite, self.porque], ["alcance", self.alcance]]
+        canonica = ["medida", self.id, self.tuberia, self.resumen,
+                    ["umbral", self.op, self.limite, self.porque]]
+        # Una medida sin `requiere` NO emite el nodo: la forma canónica de las que ya existían no
+        # cambia, y con ella no cambian sus huellas ni las rutas de sus mutantes.
+        if self.requiere:
+            canonica.append(["requiere", *self.requiere])
+        return [*canonica, ["alcance", self.alcance]]
 
     def a_fuente(self) -> list:
         """Cómo está escrita en el archivo: la macro si vino de una, la canónica si no."""

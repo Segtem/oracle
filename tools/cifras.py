@@ -183,37 +183,57 @@ BLOQUES = {"cifras": cifras, "escala": escala, "corpus": corpus, "negativas": ne
            "deteccion": deteccion}
 
 
-def actualizar(contenido: str, nombre: str, bloque: str) -> str:
+def actualizar(contenido: str, nombre: str, bloque: str, ruta: str = "README.md") -> str:
     inicio = f"<!-- {nombre}:inicio -->"
     fin = f"<!-- {nombre}:fin -->"
     antes, separador, resto = contenido.partition(inicio)
     if not separador:
-        raise ValueError(f"falta {inicio} en README.md")
+        raise ValueError(f"falta {inicio} en {ruta}")
     _viejo, separador, despues = resto.partition(fin)
     if not separador:
-        raise ValueError(f"falta {fin} en README.md")
+        raise ValueError(f"falta {fin} en {ruta}")
     return f"{antes}{inicio}\n{bloque}\n{fin}{despues}"
 
 
-def render(contenido: str) -> str:
-    """Aplica todos los bloques declarados. Un bloque ausente en el README es un error, no un salto:
-    borrar la marca no puede ser la manera de librarse de la medición."""
+def render(contenido: str, ruta: str = "README.md") -> str:
+    """Aplica los bloques que el documento declara con sus marcas.
+
+    Un bloque **marcado** que no se puede generar es un error, no un salto: borrar la marca no puede
+    ser la manera de librarse de la medición. Pero no todo documento publica todas las cifras, así
+    que un bloque que el documento no marca simplemente no le aplica.
+    """
     for nombre, generar in BLOQUES.items():
-        contenido = actualizar(contenido, nombre, generar())
+        if f"<!-- {nombre}:inicio -->" not in contenido:
+            continue
+        contenido = actualizar(contenido, nombre, generar(), ruta=ruta)
     return contenido
+
+
+# Todo documento derivado que publique cifras se custodia acá. Que el CI vigilara sólo el README era
+# la razón mecánica por la que la deriva revivía en los derivados: la cifra vencida no tenía dueño.
+DOCUMENTOS = ("README.md", "estudio/00-esencia.md")
 
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    ruta = RAIZ / "README.md"
-    previo = ruta.read_text(encoding="utf-8")
-    esperado = render(previo)
-    if "--actualizar" in argv:
-        ruta.write_text(esperado, encoding="utf-8")
-        print("README.md actualizado")
+    actualizar_todo = "--actualizar" in argv
+    vencidos = []
+    for nombre in DOCUMENTOS:
+        ruta = RAIZ / nombre
+        previo = ruta.read_text(encoding="utf-8")
+        esperado = render(previo, ruta=nombre)
+        if actualizar_todo:
+            if previo != esperado:
+                ruta.write_text(esperado, encoding="utf-8")
+                print(f"{nombre} actualizado")
+            continue
+        if previo != esperado:
+            vencidos.append(nombre)
+    if actualizar_todo:
         return 0
-    if previo != esperado:
-        print("README.md tiene cifras vencidas; ejecutá `python tools/cifras.py --actualizar`")
+    if vencidos:
+        print(f"cifras vencidas en {', '.join(vencidos)}; "
+              "ejecutá `python tools/cifras.py --actualizar`")
         return 1
     print("CIFRAS OK")
     for nombre, generar in BLOQUES.items():

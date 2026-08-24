@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.cumplimiento_declarado_sin_respaldo",
+  "compromiso",
+  "c",
+  ["y", ["==", ["campo", "c", "cumplido"], true], ["==", ["campo", "c", "alcanza_el_umbral"], false]],
+  "declarar cumplido un compromiso que no llega a su propio umbral es la manera barata de desactivar la puerta sin tocar la fecha ni la condición: el número declarado tiene que sostener la declaración",
+  "compara el conteo observado contra el umbral prerregistrado. NO ve si el conteo observado es cierto —un número inflado a mano pasa— ni si los consumidores contados cumplen la condición escrita; eso lo verifica el testigo"
+]

@@ -240,8 +240,21 @@ operadores es la única prueba de que el juego chico alcanzaba.
   ["donde", ["==", ["col","reales"], 0]]
   ```
 
-  Queda un límite, declarado en el `alcance` de la medida que lo usa: si la relación del lado derecho
-  está **vacía**, no hay pares y por lo tanto no hay grupos. Sin resolver, y es honesto decirlo.
+  Quedaba un límite, y era peor de lo que la palabra «límite» sugiere: si la relación del lado
+  derecho está **vacía**, no hay pares, no hay grupos, el agregado sobre cero filas da `0` y un
+  umbral `<= 0` lo lee como éxito. La medida **se ponía más verde cuanto peor estaba el mundo** —con
+  un importador señalaba los módulos muertos; con ninguno, verde—. Declararlo en el `alcance` lo
+  volvía visible sin cerrarlo, y esta sección lo llamaba RESUELTO tres líneas después de admitirlo
+  (ver [`043-ausencia-total-sale-verde`](corpus/proceso/)).
+
+  **Cerrado con `requiere`, y no con un operador.** No era expresable con los cinco: sin join no hay
+  correlación, y `DECISION-002` prohíbe que una medida consuma la salida de otra. `["requiere",
+  <relación>, …]` es un nodo opcional de la medida y el espejo exacto de `alcance` —uno declara qué
+  NO ve, el otro qué NECESITA ver—; el evaluador comprueba la precondición **antes** de medir y
+  emite `SIN EVIDENCIA`, que no es verde ni un rojo del mundo. El álgebra queda intacta.
+
+  El caso general que esto expone: **un agregado sobre cero filas es indistinguible de un agregado
+  que dio cero**, y sólo la medida sabe cuál de las dos cosas es.
 - **Recursión.** ✅ **RESUELTA, y fuera del álgebra.** «Alcanzable desde» no se expresa con los
   operadores, y es la pared que hizo falta `WITH RECURSIVE` en SQL. Un operador `cierre` habría sido
   recursión en un lenguaje que se mantiene chico a propósito, con **un solo usuario**. La salida es

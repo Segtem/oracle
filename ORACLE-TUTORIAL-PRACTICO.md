@@ -234,7 +234,7 @@ consumieron en el resumen). Se leen con `["col", "<nombre>"]`.
 
 ## 4. Las macros: la forma corta
 
-**26 de las 27 medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
+**15 de las 18 medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
 sintáctica que se expande a la forma canónica ANTES de construir la medida — el evaluador, la
 mutación y el inventario nunca se enteran de que hubo una macro. `python tools/medida.py --expandir
 <archivo>` te muestra la expansión.

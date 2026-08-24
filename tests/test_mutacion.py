@@ -53,6 +53,22 @@ CASO_ROJO = {"id": "c-rojo", "etiqueta": "falso_verde", "medida": "d.prueba", "e
 CASO_VERDE = {"id": "c-verde", "etiqueta": "verde_correcto", "medida": "d.prueba",
               "evidencia": EV_VERDE}
 
+# Dos campos de TIPOS distintos en el mismo alias: sustituir uno por el otro produce una
+# comparación incomparable, y el mutante muere sin que ningún caso lo haya discriminado. Es el
+# mecanismo exacto de los mutantes que mueren sólo por excepción en el catálogo real.
+TIPOS = ["medida", "d.tipos",
+         ["desde", ["de", "cosa", "c"],
+          ["donde", ["y", ["==", ["campo", "c", "n"], 1],
+                     ["==", ["campo", "c", "s"], "x"]]]],
+         ["resumen", "contar", 1],
+         ["umbral", "<=", 0, "una razón"],
+         ["alcance", "NO ve nada más"]]
+
+CASO_TIPOS_ROJO = {"id": "c-tipos-rojo", "etiqueta": "falso_verde", "medida": "d.tipos",
+                   "evidencia": {"cosa": [{"n": 1, "s": "x"}, {"n": 1, "s": "z"}]}}
+CASO_TIPOS_VERDE = {"id": "c-tipos-verde", "etiqueta": "verde_correcto", "medida": "d.tipos",
+                    "evidencia": {"cosa": [{"n": 9, "s": "z"}]}}
+
 
 def setUpModule() -> None:
     """Registra las escalares del catálogo base DENTRO de la suite, no al importar el módulo.
@@ -205,7 +221,24 @@ class CorrerTests(unittest.TestCase):
         self.assertNotIn("resultado_confiable", ev["corrida_mutacion_medidas"][0])
         for fila in ev["mutante"]:
             self.assertEqual(sorted(fila),
-                             ["apunta_a", "cambio", "casos_que_lo_detectan", "id", "murio"])
+                             ["apunta_a", "cambio", "casos_que_lo_detectan", "id", "murio",
+                              "murio_por_conducta"])
+
+    def test_morir_por_excepcion_no_es_morir_por_conducta(self) -> None:
+        """Un mutante que el álgebra rechaza no lo discriminó ningún caso: contarlo como muerte
+        conductual publica una capacidad de detección que el corpus no tiene."""
+        ev = mutacion.correr({"d.tipos": Medida.de_datos(TIPOS)},
+                             [CASO_TIPOS_ROJO, CASO_TIPOS_VERDE])
+        por_excepcion = [m for m in ev["mutante"] if m["murio"] and not m["murio_por_conducta"]]
+        self.assertEqual(sorted(m["cambio"] for m in por_excepcion),
+                         ["campo:2.2.1.1.1.2:n→s", "campo:2.2.1.2.1.2:s→n"])
+        # y la razón registrada es una excepción, no una inversión de veredicto
+        razones = {d["como"] for d in ev["deteccion"]
+                   if d["invirtio"] and d["mutante"].endswith("campo:2.2.1.1.1.2:n→s")}
+        self.assertEqual(razones, {"error:ErrorDeAlgebra"})
+        # el resto sí murió por conducta: la distinción separa, no marca todo igual
+        self.assertTrue(all(m["murio_por_conducta"] for m in ev["mutante"]
+                            if not m["cambio"].startswith("campo:")))
 
     def test_un_mutante_muere_si_ALGUN_caso_lo_detecta(self) -> None:
         ev = mutacion.correr(self.catalogo, [CASO_ROJO, CASO_VERDE])

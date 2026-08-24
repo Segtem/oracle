@@ -67,8 +67,14 @@ def _ejecutar(proy, args: list[str]) -> int:
 
     mutantes = evidencia["mutante"]
     vivos = [m for m in mutantes if not m["murio"]]
+    solo_excepcion = [m for m in mutantes if m["murio"] and not m["murio_por_conducta"]]
+    conductuales = len(mutantes) - len(vivos) - len(solo_excepcion)
     print(f"mutantes de medida (medida × mutador): {len(mutantes)} · "
           f"murieron {len(mutantes) - len(vivos)} · sobrevivieron {len(vivos)}")
+    # La cifra que se puede publicar sin inflar: sólo la primera dice que un caso discriminó.
+    print(f"  de los muertos: {conductuales} por conducta "
+          f"(invirtió el veredicto, cambió testigos o cambió el valor) · "
+          f"{len(solo_excepcion)} rechazados por el álgebra sin evaluar")
     print(f"detecciones evaluadas (mutante × caso): {len(evidencia['deteccion'])}\n")
 
     # El bucle: los hechos del sensor, juzgados por MEDIDAS. Antes acá había un `if vivos: return 1`

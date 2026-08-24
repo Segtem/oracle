@@ -76,6 +76,20 @@ def quitar_filtro(datos: list) -> list | None:
     return d
 
 
+def quitar_requiere(datos: list) -> list | None:
+    """Sin la precondición, una relación necesaria y vacía vuelve a leerse como un mundo en orden.
+
+    `requiere` no es como `alcance` ni como la defensa del umbral —esos se validan al cargar o se
+    juzgan en L2—: éste **cambia el veredicto**, así que tiene que estar en el denominador. Un
+    mutador que nadie escribió no puede producir un sobreviviente, y sacar esta línea reabre el
+    falso verde de la ausencia sin que nada lo note.
+    """
+    d = deepcopy(datos)
+    if len(d) != 7:
+        return None
+    return [*d[:5], d[6]]
+
+
 def negar_filtro(datos: list) -> list | None:
     d = deepcopy(datos)
     hubo = False
@@ -98,6 +112,7 @@ MUTADORES = {
     "aflojar_umbral": aflojar_umbral,
     "invertir_comparador": invertir_comparador,
     "quitar_filtro": quitar_filtro,
+    "quitar_requiere": quitar_requiere,
     "negar_filtro": negar_filtro,
 }
 
@@ -309,6 +324,12 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
             })
 
     # el hecho que juzga la medida: un mutante y si algún caso lo agarró
+    #
+    # `murio` y `murio_por_conducta` NO son lo mismo, y confundirlos infla el puntaje. Un mutante
+    # que el álgebra rechaza con una excepción —un campo que no existe en ese alias, una fuente que
+    # no casa— muere sin que ningún caso lo haya discriminado: no es un test que mide, es un
+    # mutante que ni siquiera evalúa. Contarlo como muerte conductual publica una capacidad de
+    # detección que el corpus no tiene. El dato ya estaba en `como`; lo que faltaba era no aplastarlo.
     por_mutante: dict[str, dict] = {}
     for d in detecciones:
         f = por_mutante.setdefault(d["mutante"], {
@@ -316,11 +337,14 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
             "apunta_a": d["mutante"].split("·")[0],
             "cambio": d["mutante"].split("·")[1],
             "murio": False,
+            "murio_por_conducta": False,
             "casos_que_lo_detectan": 0,
         })
         if d["invirtio"]:
             f["murio"] = True
             f["casos_que_lo_detectan"] += 1
+            if not d["como"].startswith("error:"):
+                f["murio_por_conducta"] = True
 
     return {
         "mutante": list(por_mutante.values()),

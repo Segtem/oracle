@@ -112,6 +112,42 @@ class ContratoAlgebraTests(unittest.TestCase):
                 with self.assertRaisesRegex(algebra.ErrorDeAlgebra, mensaje):
                     algebra.validar_expr(expresion)
 
+    def test_los_logicos_no_cortocircuitan_sobre_un_campo_ausente(self) -> None:
+        """Un `y`/`o` no puede tapar el error que §3 manda levantar.
+
+        `all`/`any` sobre un generador dejaban de evaluar apenas el resultado estaba decidido, así
+        que un campo mal escrito dentro de un `y` devolvía un `False` silencioso —un verde— en vez
+        de romper. Dependía de los datos: la misma medida rota levantaba el error con una evidencia
+        y lo escondía con otra, que es la peor forma del defecto.
+        """
+        algebra = _algebra()
+        fila = {"a": {"n": 1}}
+        casos = (
+            # el primer operando ya decide, y aun así hay que mirar el segundo
+            ["y", ["==", ["campo", "a", "n"], 999], ["==", ["campo", "a", "typo"], 1]],
+            ["o", ["==", ["campo", "a", "n"], 1], ["==", ["campo", "a", "typo"], 1]],
+            # y el error no depende de en qué posición cayó el campo inexistente
+            ["y", ["==", ["campo", "a", "typo"], 1], ["==", ["campo", "a", "n"], 999]],
+        )
+        for expresion in casos:
+            with self.subTest(expresion=expresion):
+                with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "sobre un valor ausente"):
+                    algebra._evaluar_expr(expresion, fila, {})
+
+        # y sigue combinando bien cuando no hay nada roto
+        self.assertIs(
+            algebra._evaluar_expr(
+                ["y", ["==", ["campo", "a", "n"], 1], ["==", ["campo", "a", "n"], 1]], fila, {}),
+            True)
+        self.assertIs(
+            algebra._evaluar_expr(
+                ["o", ["==", ["campo", "a", "n"], 9], ["==", ["campo", "a", "n"], 1]], fila, {}),
+            True)
+        self.assertIs(
+            algebra._evaluar_expr(
+                ["y", ["==", ["campo", "a", "n"], 1], ["==", ["campo", "a", "n"], 9]], fila, {}),
+            False)
+
     def test_ausencia_y_objetos_no_escalares_conservan_su_diagnostico(self) -> None:
         algebra = _algebra()
         with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "sobre un valor ausente"):

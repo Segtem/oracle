@@ -813,7 +813,8 @@ class CifrasDelReadme(unittest.TestCase):
         ruta = Path(td) / "README.md"
         ruta.write_text(contenido, encoding="utf-8")
         return cli, mock.patch.multiple(
-            cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: bloque})
+            cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: bloque},
+            DOCUMENTOS=("README.md",))
 
     def test_main_devuelve_cero_cuando_el_readme_esta_al_dia(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -851,6 +852,51 @@ class CifrasDelReadme(unittest.TestCase):
                     sys, "argv", ["cifras.py", "--actualizar"]), redirect_stdout(io.StringIO()):
                 self.assertEqual(cli.main(), 0)
             self.assertIn("hola", (Path(td) / "README.md").read_text(encoding="utf-8"))
+
+    def test_main_custodia_todos_los_documentos_declarados(self) -> None:
+        """La deriva revivía en los derivados porque el CI vigilaba sólo el README."""
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "README.md").write_text(
+                "<!-- prueba:inicio -->\nhola\n<!-- prueba:fin -->\n", encoding="utf-8")
+            derivado = Path(td) / "derivado.md"
+            derivado.write_text(
+                "<!-- prueba:inicio -->\nvencido\n<!-- prueba:fin -->\n", encoding="utf-8")
+            parche = mock.patch.multiple(
+                cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: "hola"},
+                DOCUMENTOS=("README.md", "derivado.md"))
+            salida = io.StringIO()
+            with parche, redirect_stdout(salida):
+                # el README está al día y aun así falla: el derivado también es contrato
+                self.assertEqual(cli.main([]), 1)
+                self.assertEqual(cli.main(["--actualizar"]), 0)
+                self.assertEqual(cli.main([]), 0)
+            self.assertIn("derivado.md", salida.getvalue())
+            self.assertIn("hola", derivado.read_text(encoding="utf-8"))
+
+    def test_un_documento_declarado_que_no_existe_es_un_error(self) -> None:
+        """Borrar el archivo no puede ser la manera de librarse de la medición."""
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "README.md").write_text(
+                "<!-- prueba:inicio -->\nhola\n<!-- prueba:fin -->\n", encoding="utf-8")
+            parche = mock.patch.multiple(
+                cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: "hola"},
+                DOCUMENTOS=("README.md", "borrado.md"))
+            with parche, redirect_stdout(io.StringIO()):
+                with self.assertRaises(FileNotFoundError):
+                    cli.main([])
+
+    def test_un_documento_sin_la_marca_no_inventa_el_bloque(self) -> None:
+        """No todo documento publica todas las cifras; el que no la marca, no la lleva."""
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            cli_, parche = self._aislado(td, "sin ninguna marca\n")
+            with parche, redirect_stdout(io.StringIO()):
+                self.assertEqual(cli_.main([]), 0)
 
     def test_render_aplica_el_bloque_y_devuelve_el_contenido(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -929,6 +975,116 @@ class CifrasDelReadme(unittest.TestCase):
         negativas = cli._negativas(cli._fuentes_del_nucleo())
         self.assertIn(f"**{negativas} negativas", cli.negativas())
         self.assertIn(f"**{negativas} negativas", cli.escala())
+
+
+class PuertaDeAbandono(unittest.TestCase):
+    """El prerregistro de `COMPROMISOS.json`, que es la única afirmación de Oracle sobre sí mismo.
+
+    Nada acá puede impedir que alguien edite el archivo. Lo que se prueba es que las salidas
+    baratas —vaciarlo, borrarle la defensa, correr la fecha, declarar cumplido sin respaldo— no
+    pasen en silencio.
+    """
+
+    BASE = {
+        "esquema": "oracle.compromisos/v1",
+        "porque": "una defensa",
+        "compromisos": [{
+            "id": "x", "abierto": "2026-08-24", "vence": "2027-01-29",
+            "condicion": "una condición", "umbral": 2, "observado": 0,
+            "cumplido": False, "testigo": "un testigo", "consecuencia": "una consecuencia",
+        }],
+    }
+
+    def _archivo(self, td, datos):
+        ruta = Path(td) / "COMPROMISOS.json"
+        ruta.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+        return ruta
+
+    def test_el_archivo_publicado_es_valido(self) -> None:
+        from tools import compromisos as cli
+
+        self.assertTrue(cli.leer())
+
+    def test_las_salidas_baratas_no_pasan_en_silencio(self) -> None:
+        from tools import compromisos as cli
+
+        malos = {
+            "sin compromisos": {**self.BASE, "compromisos": []},
+            "sin esquema": {**self.BASE, "esquema": "otro"},
+            "sin defensa": {**self.BASE, "porque": "   "},
+            "condición vacía": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "condicion": " "}]},
+            "testigo vacío": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "testigo": ""}]},
+            "vence antes de abrir": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "vence": "2026-08-01"}]},
+            "cumplido no booleano": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "cumplido": "sí"}]},
+            "umbral negativo": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "umbral": -1}]},
+            "id repetido": {**self.BASE, "compromisos": [
+                self.BASE["compromisos"][0], self.BASE["compromisos"][0]]},
+        }
+        with tempfile.TemporaryDirectory() as td:
+            for etiqueta, datos in malos.items():
+                with self.subTest(etiqueta):
+                    with self.assertRaises(cli.CompromisoInvalido):
+                        cli.leer(self._archivo(td, datos))
+
+    def test_los_hechos_no_traen_ningun_veredicto(self) -> None:
+        """`vencido` es aritmética de fechas y `alcanza_el_umbral` una comparación. Si esa
+        combinación es aceptable lo dice una medida, no el sensor."""
+        from datetime import date
+
+        from tools import compromisos as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            ruta = self._archivo(td, self.BASE)
+            antes = cli.hechos(date(2026, 12, 1), ruta)["compromiso"][0]
+            self.assertFalse(antes["vencido"])
+            self.assertEqual(antes["dias_restantes"], 59)
+            despues = cli.hechos(date(2027, 1, 29), ruta)["compromiso"][0]
+            self.assertTrue(despues["vencido"])          # el día que vence YA cuenta
+            self.assertEqual(despues["dias_restantes"], 0)
+            self.assertNotIn("ok", despues)
+            self.assertFalse(despues["alcanza_el_umbral"])
+
+            cumplido = {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "observado": 2, "cumplido": True}]}
+            fila = cli.hechos(date(2027, 1, 29), self._archivo(td, cumplido))["compromiso"][0]
+            self.assertTrue(fila["alcanza_el_umbral"])
+
+    def test_la_puerta_se_pone_roja_sola_al_vencer(self) -> None:
+        """La prueba que importa: el día del plazo, sin cumplir, el CI tiene que fallar."""
+        from datetime import date
+
+        from nucleo.medida import cargar_catalogo, evaluar, medidas_aplicables
+        from nucleo.proyecto import catalogos_a_cargar, macros_del_proyecto
+        from tools import compromisos as cli
+
+        proy = Proyecto(RAIZ)
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+
+        def juzgar(evidencia):
+            juezas = medidas_aplicables(catalogo.values(), evidencia)
+            self.assertTrue(juezas, "ninguna medida se activó con la relación `compromiso`")
+            return evaluar(juezas, evidencia).ok
+
+        with tempfile.TemporaryDirectory() as td:
+            ruta = self._archivo(td, self.BASE)
+            self.assertTrue(juzgar(cli.hechos(date(2026, 12, 1), ruta)))   # en plazo
+            self.assertFalse(juzgar(cli.hechos(date(2027, 1, 29), ruta)))  # vencido
+            self.assertFalse(juzgar(cli.hechos(date(2028, 6, 1), ruta)))   # y sigue rojo
+
+            # declarar cumplido sin llegar al umbral no la apaga
+            trucado = {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "cumplido": True}]}
+            self.assertFalse(juzgar(cli.hechos(date(2027, 1, 29), self._archivo(td, trucado))))
+
+            # cumplirlo de verdad sí
+            real = {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "cumplido": True, "observado": 2}]}
+            self.assertTrue(juzgar(cli.hechos(date(2027, 1, 29), self._archivo(td, real))))
 
 
 if __name__ == "__main__":

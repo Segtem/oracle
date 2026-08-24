@@ -42,7 +42,7 @@ crear cualquier directorio.
 
 ## La forma corta: las macros
 
-**26 de las 27 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
+**15 de las 18 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
 canónica —`--expandir` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 

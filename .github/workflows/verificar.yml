@@ -24,6 +24,10 @@ jobs:
       # La suite cubre un diferencial externo positivo y exige no-verde si no hay fixtures propios.
       - run: python tools/mutar.py
       - run: python tools/cifras.py
+      # La puerta de abandono prerregistrada. Se pone roja sola el día que el plazo de
+      # `COMPROMISOS.json` vence sin cumplirse: un criterio de fracaso que hay que acordarse
+      # de mirar es el que ya falló una vez.
+      - run: python tools/compromisos.py
 
   mutacion-codigo:
     strategy:

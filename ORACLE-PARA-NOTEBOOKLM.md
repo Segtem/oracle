@@ -410,7 +410,7 @@ además lo único que ataja una medida que se pone roja con entrada correcta, el
 `008`.
 
 **Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
-medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
+medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 15 de las 18
 medidas, expanden a la forma canónica, y `peor` cerró por construcción la deuda del umbral duplicado.
 
 **El lenguaje activo tiene cinco operadores**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
@@ -436,8 +436,9 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 #### Qué falta
 
-- **Elegir una licencia.** El paquete, entry points y CI ya existen, pero la decisión legal no se
-  infiere del código ni la toma el agente por el autor.
+- ~~**Elegir una licencia.**~~ **HECHO.** MIT, en `LICENSE` y en los metadatos del paquete
+  (`License-Expression: MIT`, con el archivo incluido en el wheel): un tercero puede identificar los
+  permisos automáticamente y redistribuirlo.
 - **Un consumidor real independiente.** El proyecto externo sintético demuestra desacoplamiento
   técnico; la adopción por un proyecto no diseñado junto con Oracle sigue siendo evidencia externa,
   no algo que este repositorio pueda fabricar.
@@ -799,7 +800,7 @@ crear cualquier directorio.
 
 ### La forma corta: las macros
 
-**26 de las 27 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
+**15 de las 18 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
 canónica —`--expandir` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
@@ -4592,7 +4593,7 @@ dominios Jam en sus módulos.
 - [x] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
   retirarlos de la especificación activa.
 - [x] Añadir `pyproject.toml`, versión mínima de Python, entry points y CI.
-- [ ] Elegir y declarar la licencia (decisión legal del autor, no inferible del repositorio).
+- [x] Elegir y declarar la licencia — MIT, en `LICENSE` y en `pyproject.toml` (verificado en el wheel).
 - [x] Generar y comprobar las cifras del README durante CI en vez de mantenerlas a mano.
 - [x] Confirmar que Oracle no importa ni resuelve caminos legados de un consumidor; el corpus conserva
   procedencia histórica sólo como datos.
