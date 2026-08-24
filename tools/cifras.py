@@ -211,9 +211,15 @@ def render(contenido: str, ruta: str = "README.md") -> str:
     return contenido
 
 
-# Todo documento derivado que publique cifras se custodia acá. Que el CI vigilara sólo el README era
-# la razón mecánica por la que la deriva revivía en los derivados: la cifra vencida no tenía dueño.
-DOCUMENTOS = ("README.md", "estudio/00-esencia.md")
+# Todo documento VERSIONADO que publique cifras se custodia acá. Sólo versionado, y el test
+# `test_solo_se_custodian_documentos_versionados` lo hace cumplir: `estudio/` estuvo un rato en esta
+# lista y era un error que las siete verificaciones locales no podían ver, porque la carpeta existe
+# en el disco de quien la generó y está en `.gitignore`. En un checkout limpio —el CI— reventaba.
+#
+# Custodiar un artefacto generado además no sirve: `estudio/` y `ORACLE-PARA-NOTEBOOKLM.md` salen de
+# `tools/estudio.py`, así que una cifra vencida ahí es un síntoma de que la fuente venció, y la
+# fuente es el README, que sí está acá. Se arregla regenerando, no vigilando la copia.
+DOCUMENTOS = ("README.md",)
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -898,6 +898,24 @@ class CifrasDelReadme(unittest.TestCase):
             with parche, redirect_stdout(io.StringIO()):
                 self.assertEqual(cli_.main([]), 0)
 
+    def test_solo_se_custodian_documentos_versionados(self) -> None:
+        """Un documento gitignoreado no existe en un checkout limpio, y custodiarlo rompe el CI
+        sin que ninguna verificación local lo note: la carpeta está en el disco de quien la generó.
+        Pasó con `estudio/00-esencia.md`. Este test convierte esa clase de error en imposible."""
+        import subprocess
+
+        from tools import cifras as cli
+
+        seguidos = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", *cli.DOCUMENTOS],
+            cwd=RAIZ, capture_output=True, text=True)
+        self.assertEqual(
+            seguidos.returncode, 0,
+            f"`DOCUMENTOS` lista algo que git no sigue: {seguidos.stderr.strip()}")
+        for nombre in cli.DOCUMENTOS:
+            with self.subTest(nombre=nombre):
+                self.assertTrue((RAIZ / nombre).exists())
+
     def test_render_aplica_el_bloque_y_devuelve_el_contenido(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             cli, parche = self._aislado(td, "")
