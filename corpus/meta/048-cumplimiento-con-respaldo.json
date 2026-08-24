@@ -1,0 +1,25 @@
+{
+  "id": "048-cumplimiento-con-respaldo",
+  "titulo": "Un compromiso cumplido que sí alcanza su umbral",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Declarar cumplido un compromiso cuyo conteo observado alcanza el umbral prerregistrado tiene que salir VERDE: es exactamente el caso que la puerta existe para permitir. La medida denuncia el cumplimiento SIN respaldo, no el cumplimiento. Es la polaridad que fija que el filtro filtre.",
+  "como_se_detecto": "observacion",
+  "medida": "meta.cumplimiento_declarado_sin_respaldo",
+  "evidencia": {
+    "compromiso": [
+      {
+        "id": "dos-consumidores-independientes",
+        "vence": "2027-01-29",
+        "dias_restantes": 158,
+        "vencido": false,
+        "cumplido": true,
+        "umbral": 2,
+        "observado": 2,
+        "alcanza_el_umbral": true
+      }
+    ]
+  },
+  "leccion": "Sin este caso, quitar el filtro o cambiar el `y` por un `o` sobrevivían: la medida se pondría roja al cumplir el compromiso, que es el único desenlace bueno posible. La polaridad verde no es un extra de prolijidad — sin ella el corpus no distingue una medida que denuncia lo que debe de una que denuncia todo.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+}

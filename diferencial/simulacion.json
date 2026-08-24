@@ -1,0 +1,195 @@
+{
+  "escenarios": [
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "sigue",
+            "t": 1
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 2
+          }
+        ]
+      },
+      "id": "todo-en-orden",
+      "oracle_al_generar": {
+        "global_ok": true,
+        "por_medida": {
+          "simulacion.corrida_reproducible": true,
+          "simulacion.la_traza_no_tiene_huecos": true,
+          "simulacion.no_se_agoto_el_presupuesto": true
+        }
+      },
+      "referencia_ok": true
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": false,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ]
+      },
+      "id": "corrida-que-no-se-reproduce",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_reproducible": false,
+          "simulacion.la_traza_no_tiene_huecos": true,
+          "simulacion.no_se_agoto_el_presupuesto": true
+        }
+      },
+      "referencia_ok": false
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": true,
+            "razon": "sin_pasos",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ]
+      },
+      "id": "presupuesto-agotado",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_reproducible": true,
+          "simulacion.la_traza_no_tiene_huecos": true,
+          "simulacion.no_se_agoto_el_presupuesto": false
+        }
+      },
+      "referencia_ok": false
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 2
+          }
+        ]
+      },
+      "id": "traza-con-un-hueco",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_reproducible": true,
+          "simulacion.la_traza_no_tiene_huecos": false,
+          "simulacion.no_se_agoto_el_presupuesto": true
+        }
+      },
+      "referencia_ok": false
+    }
+  ],
+  "esquema": "oracle.diferencial/v1",
+  "frescura": {
+    "algoritmo": "sha256",
+    "configuracion": {
+      "dominio": "simulacion"
+    },
+    "fuentes": {
+      "emisor": [
+        "tools/generar_diferencial.py"
+      ],
+      "referencia": [
+        "diferencial/referencia/evaluador.py"
+      ]
+    },
+    "huellas": {
+      "catalogo": "319f16d5dfb7eca4f8de954d9cdf1a82e807aa2207dd25674be87088f344cfe1",
+      "configuracion": "52c043490ec55bfa4cf7fd11a7a594420143fcc2aa6a6f71c5488d01c873a4d6",
+      "emisor": "9b9f81d8824bbc42785759b708d78b1719e3cbff5d653bf3d7aa14470d87480f",
+      "referencia": "4cfe8ae10bea161b5cd2c7511b09e45ba01cf7c6608ceb9dfd0c965347746495"
+    },
+    "raiz_fuentes": "."
+  },
+  "medidas": [
+    "simulacion.corrida_reproducible",
+    "simulacion.la_traza_no_tiene_huecos",
+    "simulacion.no_se_agoto_el_presupuesto"
+  ],
+  "mundos": 4,
+  "origen": "implementación independiente (Codex gpt-5.5) escrita sólo desde ESPECIFICACION.md"
+}

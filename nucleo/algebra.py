@@ -167,6 +167,43 @@ def escalar(nombre: str, unidad: str = "", *, registro: RegistroEscalares | None
     return envolver
 
 
+# ---- traza de la evaluación (el evaluador como sensor de sí mismo) ----------------
+#
+# El álgebra no puede evaluarse a sí misma: recorrer un AST es recursión, y la recursión salió del
+# álgebra a propósito (§8). Pero SÍ puede juzgarse ejecutándose, que es la doctrina de este proyecto
+# aplicada al evaluador: el sensor produce hechos y el álgebra los mide.
+#
+# Con esto, las propiedades que valen sin importar la implementación —«`donde` nunca agrega filas»,
+# «`unir` materializa exactamente el producto»— dejan de ser tests en Python y pasan a ser MEDIDAS:
+# entran a la mutación, al corpus y al inventario de puntos ciegos como cualquier otra.
+#
+# Apagada por omisión y sin costo cuando lo está: una lectura de ContextVar por paso.
+
+_TRAZA_ACTIVA: ContextVar[list | None] = ContextVar("oracle_traza", default=None)
+
+
+@contextmanager
+def trazar(destino: list | None = None):
+    """Recolecta los hechos de la evaluación mientras dure el bloque.
+
+    Es un contexto y no un global porque dos consumidores pueden medir a la vez sin pisarse, igual
+    que el registro de escalares.
+    """
+    destino = [] if destino is None else destino
+    token = _TRAZA_ACTIVA.set(destino)
+    try:
+        yield destino
+    finally:
+        _TRAZA_ACTIVA.reset(token)
+
+
+def _anotar(clase: str, **campos) -> None:
+    destino = _TRAZA_ACTIVA.get()
+    if destino is None:
+        return
+    destino.append((clase, campos))
+
+
 # ---- expresiones ------------------------------------------------------------------
 
 def _cmp(op):
@@ -355,10 +392,23 @@ def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]])
             # comparar contra un campo ausente es casi siempre un error de la medida, no un False
             raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}")
         return comparar(cabeza, a, b)
-    if cabeza == "y":
-        return all(_evaluar_expr(x, fila, escalares) for x in resto)
-    if cabeza == "o":
-        return any(_evaluar_expr(x, fila, escalares) for x in resto)
+    if cabeza in ("y", "o"):
+        # SIN cortocircuito, y es deliberado. `all`/`any` sobre un generador dejan de evaluar apenas
+        # el resultado está decidido, y eso tapaba exactamente el error que el `raise` de arriba
+        # existe para levantar: `["y", <falso>, ["==", ["campo","a","typo"], 1]]` no llegaba nunca a
+        # mirar el campo inexistente y devolvía un `False` silencioso — el verde que §3 de la
+        # especificación prohíbe. Peor todavía, dependía de los datos: la misma medida rota
+        # levantaba el error con una evidencia y lo escondía con otra.
+        #
+        # Se paga evaluando de más en predicados grandes. El presupuesto de §9 ya acota esa
+        # amplificación, y una medida que se apoya en el cortocircuito para no romperse está rota.
+        valores = []
+        for operando in resto:
+            valores.append(_evaluar_expr(operando, fila, escalares))
+        # `declarados` sale del AST y `evaluados` de haber pasado por el bucle: si alguien vuelve a
+        # cortocircuitar, los dos números dejan de coincidir y hay una medida que lo dice.
+        _anotar("nodo", cabeza=cabeza, declarados=len(resto), evaluados=len(valores))
+        return all(valores) if cabeza == "y" else any(valores)
     if cabeza == "no":
         (x,) = resto
         return not _evaluar_expr(x, fila, escalares)
@@ -408,6 +458,69 @@ def _agregar(agregado: str, valores: list):
     return resultado
 
 
+# ---- claves de unicidad -----------------------------------------------------------
+#
+# Una relación es una bolsa (§1): la multiplicidad es evidencia y Oracle no la deduce. Pero un
+# dominio que SÍ conoce su identidad puede declararla como clave de unicidad, y entonces un duplicado
+# deja de ser un hecho más para ser un defecto del sensor. La clave es un nodo opcional a la cabeza
+# de la lista de hechos —`["clave", [<campo>, …]]`—; sin él, la relación es exactamente la bolsa de
+# siempre y no cambia nada.
+
+CLAVE = "clave"
+
+
+def separar_clave(hechos: list) -> tuple[tuple[str, ...], list]:
+    """Separa la declaración opcional de clave de las filas, validándola fail-closed.
+
+    Devuelve `(clave, filas)`: `clave` es la tupla de campos declarados (vacía si la relación no
+    declara nada) y `filas` son los hechos. Un nodo `clave` mal formado levanta, no se ignora: un
+    contrato de identidad que se lee mal se leería como ausencia de contrato, y eso es exactamente
+    el falso verde que la clave existe para cerrar.
+    """
+    if not hechos or not isinstance(hechos[0], list) or not hechos[0] or hechos[0][0] != CLAVE:
+        return (), hechos
+    nodo = hechos[0]
+    if len(nodo) != 2 or not isinstance(nodo[1], list) or not nodo[1]:
+        raise ErrorDeAlgebra(
+            f"«{CLAVE}» va ['{CLAVE}', [<campo>, …]] con al menos un campo, no {nodo!r}")
+    campos = nodo[1]
+    if any(not isinstance(c, str) or not c.strip() for c in campos):
+        raise ErrorDeAlgebra(
+            f"la clave de unicidad lista campos de texto no vacíos, no {campos!r}")
+    if len(set(campos)) != len(campos):
+        raise ErrorDeAlgebra(f"la clave de unicidad repite un campo: {campos}")
+    return tuple(campos), hechos[1:]
+
+
+def validar_unicidad(relacion: str, clave: tuple[str, ...], filas: list) -> None:
+    """Fail-closed: un duplicado bajo la clave declarada es un defecto del sensor, no un hecho más.
+
+    El mensaje nombra la clave responsable y la fila que la viola, para que el sensor pueda corregir
+    su producción sin adivinar qué relación ni qué campo. Un campo de la clave ausente también
+    levanta: una identidad a medias no se puede comprobar, y un nulo implícito la dejaría sin
+    comprobar en silencio.
+    """
+    vistos: dict = {}
+    for i, hecho in enumerate(filas):
+        ausentes = [campo for campo in clave if campo not in hecho]
+        if ausentes:
+            raise ErrorDeAlgebra(
+                f"la relación «{relacion}» declara la clave ({', '.join(clave)}) y la fila {i} "
+                f"no trae el campo {', '.join(ausentes)}")
+        valores = tuple(hecho[campo] for campo in clave)
+        try:
+            hash(valores)
+        except TypeError:
+            raise ErrorDeAlgebra(
+                f"la relación «{relacion}» declara la clave ({', '.join(clave)}) y la fila {i} "
+                f"no la trae como escalar")
+        if valores in vistos:
+            raise ErrorDeAlgebra(
+                f"la relación «{relacion}» declara la clave ({', '.join(clave)}) y la fila {i} "
+                f"la repite: ya la traía la fila {vistos[valores]} — {hecho}")
+        vistos[valores] = i
+
+
 # ---- operadores -------------------------------------------------------------------
 
 FUENTES = ("de", "unir")
@@ -422,18 +535,27 @@ def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> 
     if not isinstance(hechos, list):
         raise ErrorDeAlgebra(
             f"la relación «{relacion}» debe ser una lista de hechos, no {type(hechos).__name__}")
-    if len(hechos) > limites.filas_por_relacion:
+    clave, filas = separar_clave(hechos)
+    if len(filas) > limites.filas_por_relacion:
         raise ErrorDeAlgebra(
-            f"la relación «{relacion}» tiene {len(hechos)} filas y supera el límite "
+            f"la relación «{relacion}» tiene {len(filas)} filas y supera el límite "
             f"de {limites.filas_por_relacion}")
-    if not all(isinstance(hecho, dict) for hecho in hechos):
+    if not all(isinstance(hecho, dict) for hecho in filas):
         raise ErrorDeAlgebra(f"la relación «{relacion}» contiene una fila que no es un hecho")
-    return [{alias: dict(hecho)} for hecho in hechos]
+    if clave:
+        validar_unicidad(relacion, clave, filas)
+    return [{alias: dict(hecho)} for hecho in filas]
 
 
 def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
-          registro: Mapping[str, Callable[..., Any]]) -> list[dict]:
-    """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila."""
+          registro: Mapping[str, Callable[..., Any]], _lados: dict | None = None) -> list[dict]:
+    """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila.
+
+    `_lados` es la única concesión a la traza: deja los tamaños de cada lado para que quien llama
+    anote el hecho **con lo que este operador realmente devolvió**. La primera versión anotaba acá
+    adentro, leyendo `salida` antes del `return`, y así no medía nada: cualquier defecto entre esa
+    línea y el punto de uso quedaba fuera. Un sensor que se lee a sí mismo no audita la frontera.
+    """
     izq, der = paso[1], paso[2]
     for lado in (izq, der):
         if lado[0] not in FUENTES:
@@ -453,6 +575,8 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
             if comunes:
                 raise ErrorDeAlgebra(f"«unir» con alias repetido: {sorted(comunes)}")
             salida.append({**a, **b})
+    if _lados is not None:
+        _lados["izquierda"], _lados["derecha"] = len(filas_izq), len(filas_der)
     return salida
 
 
@@ -499,7 +623,12 @@ def aplicar(paso, filas: list[dict], evidencia: dict,
         relacion, alias = paso[1], paso[2]
         return _de(evidencia, relacion, alias, limites)
     if op == "unir":
-        return _unir(paso, evidencia, limites, escalares)
+        # El hecho se anota con lo que el operador DEVOLVIÓ, no con lo que creyó construir.
+        lados: dict = {}
+        filas_unidas = _unir(paso, evidencia, limites, escalares, lados)
+        _anotar("producto", izquierda=lados["izquierda"], derecha=lados["derecha"],
+                salida=len(filas_unidas))
+        return filas_unidas
     if op == "donde":
         return [f for f in filas if evaluar_expr(
             paso[1], f, limites, registro=escalares)]
@@ -600,8 +729,10 @@ def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None, *,
     escalares = _registro(registro)
     validar_tuberia(tuberia, limites, registro=escalares)
     filas: list[dict] = []
-    for paso in tuberia[1:]:
+    for t, paso in enumerate(tuberia[1:]):
+        antes = len(filas)
         filas = aplicar(paso, filas, evidencia, limites, registro=escalares)
+        _anotar("paso", t=t, operador=paso[0], filas_antes=antes, filas_despues=len(filas))
     return filas
 
 

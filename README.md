@@ -39,7 +39,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 2944 líneas de lenguaje y **171 negativas explícitas** (`raise`).
+En este corte hay 3558 líneas de lenguaje y **198 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -63,7 +63,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 30 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 17 la mutación, 8 una persona, 4 la casualidad, 1 una herramienta ajena.
+Los 39 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 22 la mutación, 9 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -72,7 +72,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**2944 líneas de lenguaje** (`nucleo/`, código y macros) y **171 negativas explícitas** (`raise`). Contra las 18 medidas universales escritas en él (164 líneas): **18,0 a 1**. 15 de las 18 pasan por una macro.
+**3558 líneas de lenguaje** (`nucleo/`, código y macros) y **198 negativas explícitas** (`raise`). Contra las 24 medidas universales escritas en él (220 líneas): **16,2 a 1**. 21 de las 24 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -98,6 +98,44 @@ pago no es este corte: es que la macro número cuatro ya no cuesta ni una línea
 El numerador cuenta `nucleo/macros/*.json` junto con el `.py`, a propósito. Si contara sólo código,
 mover Python a datos habría «mejorado» la proporción sin que el lenguaje encogiera un gramo — el
 sastreo exacto contra el que esta medición existe.
+
+### La proporción no alcanza, y por eso hay una puerta
+
+Dos auditorías externas coincidieron en lo mismo: como criterio de falsación, la proporción no puede
+hacer el trabajo. **Ya disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta
+publicada fue reinterpretarla, que es exactamente la maniobra que este proyecto le prohíbe a todo lo
+demás. Y aunque no se reinterpretara, es inmune a la única señal que importa: los catálogos externos
+no entran a su denominador, así que **ningún éxito de adopción puede mejorarla**. Lo único que la
+mejora es escribir más medidas universales.
+
+Un criterio así no es un criterio: es una nota al pie. Y escribirlo en prosa habría sido peor,
+porque este README arranca diciendo que una regla escrita como consejo se lee y se olvida.
+
+Así que la condición de fracaso está prerregistrada **como dato** en
+[`COMPROMISOS.json`](COMPROMISOS.json) y la juzgan dos medidas del catálogo:
+
+> Si al **2027-01-29** no existen al menos **dos repositorios** que consuman Oracle, mantenidos por
+> otra persona, con sus medidas escritas sin asistencia del autor y **sin ningún cambio a
+> `nucleo/`**, se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un
+> consumidor independiente.
+
+Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es
+agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que
+ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto. La auditoría
+proponía algo más duro —archivar el metalenguaje y conservar sólo el protocolo como plugin de
+pytest— y se descartó por decisión del autor; queda registrada en `COMPROMISOS.json` la alternativa
+que **no** se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el
+resultado.
+
+`meta.compromiso_vencido_sin_cumplir` se pone roja sola el día del plazo, y
+`meta.cumplimiento_declarado_sin_respaldo` cierra la salida barata: para apagar la puerta hay que
+escribir un número observado que alcance el umbral, que es una afirmación falsable y fechada sobre el
+mundo, no un `true`. El CI corre las dos.
+
+Nada de esto impide editar el archivo. Lo que hace es convertir un cambio de criterio en un commit
+fechado y visible, en vez de un párrafo nuevo que reinterpreta el anterior. Es todo lo que un
+prerregistro puede dar, y es lo que faltaba: **el testigo tiene que ser externo, y el git de los
+repositorios consumidores lo es.**
 
 ## Tres influencias, y qué aporta cada una
 
@@ -139,6 +177,7 @@ apuntado a L1.
 medición   un escalar del mundo
 umbral     una comparación — con su DEFENSA escrita
 testigos   las filas que ofenden  (no se calculan aparte: son las que pasaron el filtro)
+requiere   qué NECESITA ver para concluir  ← opcional
 alcance    qué NO ve esta medida  ← OBLIGATORIO
 ```
 
@@ -147,6 +186,12 @@ que merece. Acá un informe en verde **termina enumerando lo que no miró**.
 
 El umbral lleva su defensa por el mismo motivo: un número que nadie puede discutir es una métrica
 esperando a volverse objetivo.
+
+`requiere` es el espejo de `alcance`, y entró porque declarar un hueco no es cerrarlo. Un agregado
+sobre cero filas da `0`, que es indistinguible de un agregado que dio cero: la medida de ausencia
+salía **verde justo cuando el mundo estaba peor** —ningún importador, ningún par, ningún grupo—.
+Cuando una relación declarada acá viene vacía, el veredicto es `SIN EVIDENCIA`: no es verde y
+tampoco es un rojo del mundo, porque no se midió nada.
 
 ## Lo que NO es
 
@@ -305,11 +350,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**42 casos**: 30 defectos y 12 verdes correctos. De los defectos, 27 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 25 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**59 casos**: 39 defectos y 20 verdes correctos. De los defectos, 36 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 34 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-391 tests · 129/129 mutantes de medida · **1231 sitios de mutación de código** (1026 + 205 del motor Python).
+436 tests · 206/206 mutantes de medida · **1293 sitios de mutación de código** (1088 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -479,8 +524,9 @@ El camino de «formato de datos con buenas defensas» a «lenguaje» está desgl
 [`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md): `defmacro` en datos, reificación mecánica del catálogo, la
 decisión sobre composición, y el diferencial propio que hoy está estructuralmente vacío.
 
-- **Elegir una licencia.** El paquete, entry points y CI ya existen, pero la decisión legal no se
-  infiere del código ni la toma el agente por el autor.
+- ~~**Elegir una licencia.**~~ **HECHO.** MIT, en [`LICENSE`](LICENSE) y en los metadatos del
+  paquete (`License-Expression: MIT`, con el archivo incluido en el wheel): un tercero puede
+  identificar los permisos automáticamente y redistribuirlo.
 - **Un consumidor real independiente.** El proyecto externo sintético demuestra desacoplamiento
   técnico; la adopción por un proyecto no diseñado junto con Oracle sigue siendo evidencia externa,
   no algo que este repositorio pueda fabricar.

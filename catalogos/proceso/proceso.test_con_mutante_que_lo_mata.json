@@ -3,7 +3,7 @@
   "proceso.test_con_mutante_que_lo_mata",
   "mutante",
   "m",
-  ["==", ["campo", "m", "murio"], false],
-  "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada",
-  "cuenta mutantes cuya muerte no fue demostrada: sobrevivientes, timeouts y errores del arnés conservan `murio=false`. NO ve los mutantes que nadie generó: una función sin ningún mutante apuntado da cero y sale verde"
+  ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
+  "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar",
+  "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano"
 ]

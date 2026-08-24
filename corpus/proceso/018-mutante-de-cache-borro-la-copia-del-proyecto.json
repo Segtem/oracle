@@ -15,7 +15,8 @@
       {
         "id": "mutacion_codigo.py:enumerador_cache_sin_guarda",
         "apunta_a": "nucleo.mutacion_codigo.limpiar_cache",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       }
     ]
   },

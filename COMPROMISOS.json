@@ -1,0 +1,23 @@
+{
+  "esquema": "oracle.compromisos/v1",
+  "porque": "Oracle exige umbral, defensa y testigo para toda afirmación, y no tenía ninguno para sí mismo. El criterio declarado —la proporción— ya disparó en contra dos veces y la respuesta publicada fue reinterpretarlo, no aceptarlo; además es inmune a la adopción, porque los catálogos externos no entran a su denominador. Este archivo fija la condición ANTES de conocer el resultado, que es la única ventana en que un prerregistro vale algo.",
+  "compromisos": [
+    {
+      "id": "dos-consumidores-independientes",
+      "abierto": "2026-08-24",
+      "vence": "2027-01-29",
+      "condicion": "Existen al menos DOS repositorios que consumen Oracle, mantenidos por personas que no son Brian Hollweg, cuyas medidas fueron escritas sin su asistencia y sin ningún cambio a `nucleo/`.",
+      "umbral": 2,
+      "observado": 0,
+      "cumplido": false,
+      "testigo": "El git de cada repositorio consumidor: autoría de los archivos de `catalogos/`, y el historial de `nucleo/` de Oracle en el período. Cualquiera puede verificarlo sin preguntarle al autor.",
+      "consecuencia": "Se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un consumidor independiente. Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto.",
+      "no_cuenta": [
+        "El proyecto externo sintético: demuestra desacoplamiento técnico, no adopción.",
+        "Jam: fue codiseñado con Oracle y lo mantiene el mismo autor.",
+        "Un consumidor que para escribir sus medidas necesitó extender `nucleo/`: eso refuta la apuesta en vez de confirmarla."
+      ],
+      "por_que_esta_consecuencia": "La auditoría de Codex proponía archivar el metalenguaje y conservar sólo el protocolo `caso + porque + alcance + testigos` como plugin de pytest. Se descartó el 2026-08-24 por decisión del autor: la tesis se considera viable y archivar es desproporcionado para lo medido. Queda registrada la alternativa que NO se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el resultado."
+    }
+  ]
+}

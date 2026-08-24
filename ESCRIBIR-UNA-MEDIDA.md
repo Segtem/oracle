@@ -32,9 +32,16 @@ python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
+### Frontera de confianza
+
 Si el proyecto declara funciones en `escalares.py`, los comandos que cargan o evalúan su catálogo
-requieren `--confiar-escalares`. Esa bandera autoriza código Python con los mismos permisos del
-proceso. `--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
+requieren `--confiar-escalares`. Esa bandera autoriza cargar código Python externo, pero Oracle lo
+ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON. El
+trabajador puede leer el proyecto, Oracle y la biblioteca estándar; sólo puede escribir dentro del
+proyecto, no puede abrir red ni crear procesos. Si una UDF necesita más autoridad, no pertenece a una
+medida: generá ese dato antes y entregalo como evidencia.
+
+`--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
 
 El id tiene una gramática cerrada: `dominio.nombre`, con segmentos en minúsculas ASCII, dígitos o
 `_`. No se aceptan rutas ni `..`; el archivo se resuelve y confina debajo de `catalogos/` antes de
@@ -42,14 +49,14 @@ crear cualquier directorio.
 
 ## La forma corta: las macros
 
-**26 de las 27 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
+**15 de las 18 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
 canónica —`--expandir` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
 ```json
 ["ninguno", "proceso.test_con_mutante_que_lo_mata",
   "mutante", "m",
-  ["==", ["campo", "m", "murio"], false],
+  ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
   "un mutante que sobrevive es un test que no discrimina",
   "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"]
 ```
@@ -94,7 +101,9 @@ mantenga sincronizadas.
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"],
+   ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+                   ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"],
   ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió"]]

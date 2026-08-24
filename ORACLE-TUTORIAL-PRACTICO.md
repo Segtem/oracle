@@ -80,7 +80,9 @@ El ejemplo más simple posible del propio catálogo de Oracle:
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"],
+   ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+                   ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0,
     "un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto"],
@@ -234,7 +236,7 @@ consumieron en el resumen). Se leen con `["col", "<nombre>"]`.
 
 ## 4. Las macros: la forma corta
 
-**26 de las 27 medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
+**15 de las 18 medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
 sintáctica que se expande a la forma canónica ANTES de construir la medida — el evaluador, la
 mutación y el inventario nunca se enteran de que hubo una macro. `python tools/medida.py --expandir
 <archivo>` te muestra la expansión.
@@ -250,7 +252,8 @@ mutación y el inventario nunca se enteran de que hubo una macro. `python tools/
 ```json
 ["ninguno", "proceso.test_con_mutante_que_lo_mata",
   "mutante", "m",
-  ["==", ["campo", "m", "murio"], false],
+  ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+        ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
   "un mutante que sobrevive es un test que no discrimina",
   "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"]
 ```

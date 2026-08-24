@@ -515,11 +515,52 @@ class MedidaTests(unittest.TestCase):
     def test_el_veredicto_tiene_la_misma_forma_para_cualquier_dominio(self) -> None:
         v = Medida.de_datos(_medida()).evaluar(EV)
         self.assertEqual(sorted(v.a_dict()),
-                         ["alcance", "id", "ok", "porque", "testigos", "umbral", "valor"])
+                         ["alcance", "id", "ok", "porque", "sin_evidencia", "testigos",
+                          "umbral", "valor"])
 
     def test_ida_y_vuelta_a_datos(self) -> None:
         d = _medida()
         self.assertEqual(Medida.de_datos(d).a_datos(), d)
+
+    def test_una_medida_sin_requiere_no_cambia_de_forma_canonica(self) -> None:
+        """`requiere` es opcional y no puede correr las rutas de mutación de lo que ya existía."""
+        m = Medida.de_datos(_medida())
+        self.assertEqual(m.requiere, ())
+        self.assertEqual(len(m.a_datos()), 6)
+        self.assertEqual(m.a_datos()[5][0], "alcance")
+
+    def test_una_relacion_requerida_y_vacia_no_puede_dar_verde(self) -> None:
+        """El falso verde de la ausencia: cuanto PEOR el mundo, más verde salía la medida.
+
+        Con `unir`, un lado vacío no produce pares; sin pares no hay grupos; el agregado sobre cero
+        filas da 0 y un umbral `<= 0` lo lee como verde. La medida más fuerte —«un módulo que no
+        importa nadie»— se ponía verde justo cuando nadie importaba a nadie.
+        """
+        d = _medida()
+        con_requiere = [*d[:5], ["requiere", "pieza"], d[5]]
+        m = Medida.de_datos(con_requiere)
+        self.assertEqual(m.requiere, ("pieza",))
+        self.assertEqual(m.a_datos(), con_requiere)      # round-trip exacto
+
+        for vacia in ({"pieza": []}, {}):
+            with self.subTest(evidencia=vacia):
+                v = m.evaluar(vacia)
+                self.assertFalse(v.ok)                    # lo único inaceptable es el verde
+                self.assertEqual(v.sin_evidencia, "pieza")
+                self.assertEqual(v.testigos, ())
+                self.assertIn("SIN EVIDENCIA", v.linea())
+
+        # y con evidencia sí mide, sin quedar pegada en «sin evidencia»
+        v = m.evaluar(EV)
+        self.assertEqual(v.sin_evidencia, "")
+        self.assertEqual(v.valor, 1)
+
+    def test_requiere_mal_declarado_no_carga(self) -> None:
+        d = _medida()
+        for malo in (["requiere", ""], ["requiere", "a", "a"], ["requiere", 1], ["otra", "a"], "x"):
+            with self.subTest(requiere=malo):
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos([*d[:5], malo, d[5]])
 
     def test_un_informe_verde_enumera_lo_que_no_miro_y_nunca_dice_todo_verde(self) -> None:
         m = Medida.de_datos(_medida(pred=[">", ["campo", "p", "x"], 1000]))
@@ -648,6 +689,65 @@ class CatalogoRealTests(unittest.TestCase):
                 (Path(d) / n).write_text(json.dumps(_medida()), encoding="utf-8")
             with self.assertRaises(MedidaMalDeclarada):
                 cargar_catalogo(Path(d))
+
+
+class ClaveDeUnicidadEnMedidaTests(unittest.TestCase):
+    """La clave de unicidad declarada por la relación, vista desde quien la mide.
+
+    Es el criterio de éxito de la tarea: un duplicado bajo una clave declarada falla ANTES de medir
+    nombrando la clave y la fila; sin clave, cero cambios de conducta; y la multiplicidad
+    intencional sigue siendo expresable.
+    """
+
+    def _medida_contar(self, relacion="pieza"):
+        return Medida.de_datos([
+            "medida", "d.clave", ["desde", ["de", relacion, "p"]],
+            ["resumen", "contar", 1], ["umbral", "<=", 0, "una razón"],
+            ["alcance", "NO ve nada más"]])
+
+    def test_un_duplicado_bajo_una_clave_declarada_falla_antes_de_medir(self) -> None:
+        evidencia = {"pieza": [["clave", ["id"]], {"id": "a", "x": 9}, {"id": "a", "x": 9}]}
+        with self.assertRaises(ErrorDeAlgebra) as error:
+            self._medida_contar().evaluar(evidencia)
+        mensaje = str(error.exception)
+        self.assertIn("clave (id)", mensaje)
+        self.assertIn("fila 1", mensaje)
+        self.assertIn("fila 0", mensaje)
+
+    def test_sin_clave_la_medida_cuenta_la_bolsa_como_siempre(self) -> None:
+        hecho = {"id": "repetido", "x": 2}
+        v = self._medida_contar().evaluar({"pieza": [hecho, hecho]})
+        self.assertEqual(v.valor, 2)      # la multiplicidad sigue siendo evidencia
+
+    def test_con_clave_y_sin_duplicado_la_medida_sale_como_la_evidencia_dicta(self) -> None:
+        v = self._medida_contar().evaluar(
+            {"pieza": [["clave", ["id"]], {"id": "a", "x": 9}, {"id": "b", "x": 9}]})
+        self.assertEqual(v.valor, 2)
+
+    def test_la_multiplicidad_intencional_se_expresa_no_declarando_clave(self) -> None:
+        # dos observaciones del mismo id pueden ser dos eventos reales distintos: no declarar clave
+        # conserva la semántica de bolsa sin obligar a fingir una identidad que el dominio no tiene
+        v = self._medida_contar().evaluar(
+            {"pieza": [{"id": "mismo", "t": 1}, {"id": "mismo", "t": 2}]})
+        self.assertEqual(v.valor, 2)
+
+    def test_el_lector_de_fixtures_rechaza_el_duplicado_nombrando_la_clave(self) -> None:
+        from nucleo.fixtures import _validar_evidencia
+        fallas = _validar_evidencia(
+            {"pieza": [["clave", ["id"]], {"id": "x"}, {"id": "x"}]}, "demo")
+        self.assertEqual(len(fallas), 1)
+        self.assertIn("clave (id)", fallas[0])
+        self.assertIn("fila 1", fallas[0])
+
+    def test_el_lector_de_fixtures_acepta_una_clave_sin_duplicado(self) -> None:
+        from nucleo.fixtures import _validar_evidencia
+        self.assertEqual(_validar_evidencia(
+            {"pieza": [["clave", ["id"]], {"id": "x"}, {"id": "y"}]}, "demo"), [])
+
+    def test_el_lector_de_fixtures_rechaza_una_clave_mal_declarada(self) -> None:
+        from nucleo.fixtures import _validar_evidencia
+        fallas = _validar_evidencia({"pieza": [["clave", []], {"id": "x"}]}, "demo")
+        self.assertTrue(any("clave" in f for f in fallas))
 
 
 if __name__ == "__main__":

@@ -4,5 +4,6 @@
   ["desde", ["unir", ["de", "modulo", "m"], ["de", "importa", "i"]], ["agrupar", [["modulo", ["campo", "m", "nombre"]]], [["importadores_reales", "suma", ["y", ["==", ["campo", "i", "b"], ["campo", "m", "nombre"]], ["==", ["campo", "i", "es_test"], false]]]]], ["donde", ["==", ["col", "importadores_reales"], 0]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"],
-  ["alcance", "cuenta importadores que no son tests, agrupando por módulo. NO ve nada si la relación `importa` está vacía —sin pares no hay grupos— ni distingue un importador que usa el módulo de uno que lo importa y no lo llama"]
+  ["requiere", "importa"],
+  ["alcance", "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama"]
 ]

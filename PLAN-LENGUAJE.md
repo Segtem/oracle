@@ -321,7 +321,7 @@ casi seguro no es independiente — miró algo que no debía.
 
 ### La medición que gobierna todo esto
 
-**La proporción, hoy 17,6 a 1.** (a) ya la subió —contra lo que este plan predecía— y (b) va a
+**La proporción, hoy 18,0 a 1.** (a) ya la subió —contra lo que este plan predecía— y (b) va a
 subirla otra vez. Ninguna de las dos la mueve en la dirección buena: el movimiento real llega cuando
 **los catálogos crezcan sin que crezca el núcleo**, y eso todavía no se puede demostrar desde acá
 adentro.

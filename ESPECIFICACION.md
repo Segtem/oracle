@@ -26,7 +26,8 @@ mismo tipo. La evidencia es un mapa de relaciones:
 ```json
 {
   "pieza":   [{"id": "Muro_A", "x": 100, "y": 100, "ex": 200, "ey": 25}],
-  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual", "murio": false}]
+  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual",
+               "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
 }
 ```
 
@@ -35,8 +36,24 @@ específico de cada dominio y vive con el productor, no acá.
 
 La multiplicidad cuenta y el orden de almacenamiento no. Dos apariciones idénticas son dos hechos:
 `contar` devuelve 2, `suma` usa ambas y un producto conserva ambas. Oracle no deduplica porque no
-puede inventar una identidad genérica; la unicidad, cuando importa, se produce o se mide con una
-clave explícita.
+puede inventar una identidad genérica.
+
+Un dominio que SÍ conoce su identidad puede **declarar una clave de unicidad** para una relación,
+poniendo a la cabeza de su lista de hechos un nodo `["clave", [<campo>, …]]`:
+
+```json
+{
+  "pieza": [["clave", ["id"]],
+             {"id": "Muro_A", "x": 100}, {"id": "Muro_B", "x": 300}]
+}
+```
+
+La clave es **opcional** y se valida **antes de medir**, fail-closed: si dos hechos repiten la clave
+declarada, la evaluación levanta un error que nombra la clave responsable y la fila que la viola — no
+un veredicto verde, no un error genérico. Un campo de la clave ausente en un hecho también es error:
+una identidad a medias no se puede comprobar, y un nulo implícito la dejaría sin comprobar en
+silencio. Sin el nodo, la relación es exactamente la bolsa de siempre, y la multiplicidad intencional
+sigue siendo expresable sin declarar nada.
 
 ## 2. Una medida es un dato
 
@@ -54,7 +71,9 @@ Una medida real, del catálogo que ya corre — sin `unir`, que todavía no tien
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"],
+    ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+                    ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina…"],
   ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió…"]]
@@ -80,8 +99,16 @@ a mano — el error concreto que motivó esta especificación (ver
 
 ## 3. Los operadores
 
-Cinco. Cada uno toma relaciones y devuelve una relación: **eso es la clausura**, y es lo que permite
-que una medida consuma la salida de otra sin ningún caso especial.
+Cinco. Cuatro toman relaciones y devuelven una relación: **eso es la clausura**, y es lo que permite
+encadenarlos en cualquier orden sin un solo caso especial. `resumen` es el que la rompe a propósito,
+porque colapsa a un escalar: por eso va último y una sola vez, y por eso **la clausura es sobre
+filas, no sobre medidas**.
+
+Conviene decirlo fuerte, porque la versión corta de esta frase engañaba: una medida termina en un
+escalar y un umbral, y ahí se acaba. **Ninguna medida puede consumir los testigos ni el veredicto de
+otra**, y eso no es una limitación pendiente sino una decisión tomada y registrada en
+[`DECISION-002`](DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md). Las preguntas que esa decisión deja
+afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo el catálogo como relación.
 
 | Operador | Forma | Qué hace |
 |---|---|---|
@@ -240,8 +267,21 @@ operadores es la única prueba de que el juego chico alcanzaba.
   ["donde", ["==", ["col","reales"], 0]]
   ```
 
-  Queda un límite, declarado en el `alcance` de la medida que lo usa: si la relación del lado derecho
-  está **vacía**, no hay pares y por lo tanto no hay grupos. Sin resolver, y es honesto decirlo.
+  Quedaba un límite, y era peor de lo que la palabra «límite» sugiere: si la relación del lado
+  derecho está **vacía**, no hay pares, no hay grupos, el agregado sobre cero filas da `0` y un
+  umbral `<= 0` lo lee como éxito. La medida **se ponía más verde cuanto peor estaba el mundo** —con
+  un importador señalaba los módulos muertos; con ninguno, verde—. Declararlo en el `alcance` lo
+  volvía visible sin cerrarlo, y esta sección lo llamaba RESUELTO tres líneas después de admitirlo
+  (ver [`043-ausencia-total-sale-verde`](corpus/proceso/)).
+
+  **Cerrado con `requiere`, y no con un operador.** No era expresable con los cinco: sin join no hay
+  correlación, y `DECISION-002` prohíbe que una medida consuma la salida de otra. `["requiere",
+  <relación>, …]` es un nodo opcional de la medida y el espejo exacto de `alcance` —uno declara qué
+  NO ve, el otro qué NECESITA ver—; el evaluador comprueba la precondición **antes** de medir y
+  emite `SIN EVIDENCIA`, que no es verde ni un rojo del mundo. El álgebra queda intacta.
+
+  El caso general que esto expone: **un agregado sobre cero filas es indistinguible de un agregado
+  que dio cero**, y sólo la medida sabe cuál de las dos cosas es.
 - **Recursión.** ✅ **RESUELTA, y fuera del álgebra.** «Alcanzable desde» no se expresa con los
   operadores, y es la pared que hizo falta `WITH RECURSIVE` en SQL. Un operador `cierre` habría sido
   recursión en un lenguaje que se mantiene chico a propósito, con **un solo usuario**. La salida es

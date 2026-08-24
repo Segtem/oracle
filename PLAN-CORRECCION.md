@@ -262,7 +262,7 @@ dominios Jam en sus módulos.
 - [x] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
   retirarlos de la especificación activa.
 - [x] Añadir `pyproject.toml`, versión mínima de Python, entry points y CI.
-- [ ] Elegir y declarar la licencia (decisión legal del autor, no inferible del repositorio).
+- [x] Elegir y declarar la licencia — MIT, en `LICENSE` y en `pyproject.toml` (verificado en el wheel).
 - [x] Generar y comprobar las cifras del README durante CI en vez de mantenerlas a mano.
 - [x] Confirmar que Oracle no importa ni resuelve caminos legados de un consumidor; el corpus conserva
   procedencia histórica sólo como datos.

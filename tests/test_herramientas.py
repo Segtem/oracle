@@ -96,6 +96,39 @@ class CorpusL0Tests(unittest.TestCase):
             self.assertTrue(revisar_estado_sin_medida("caso", caso))
 
 
+class ClaveEnElCorpus(unittest.TestCase):
+    """El validador L0 del corpus y el del álgebra leen el MISMO contrato.
+
+    Escritos por separado divergen —es el caso `012`— y acá la divergencia tenía una consecuencia
+    concreta: un caso que declaraba una clave era rechazado como «no es un hecho», así que el
+    mecanismo no se podía fijar con casos. En este proyecto todo lo demás se fija con casos.
+    """
+
+    def test_una_relacion_puede_declarar_su_clave(self) -> None:
+        self.assertEqual(
+            revisar_evidencia("caso", {"pieza": [["clave", ["id"]], {"id": "a"}]}), [])
+
+    def test_una_clave_mal_declarada_se_denuncia_como_clave(self) -> None:
+        for malo in ([], [1], ["id", "id"], ["  "]):
+            with self.subTest(malo=malo):
+                fallas = revisar_evidencia("caso", {"pieza": [["clave", malo], {"id": "a"}]})
+                self.assertTrue(fallas)
+                self.assertIn("clave", fallas[0])
+
+    def test_una_fila_que_no_es_hecho_sigue_denunciandose_como_fila(self) -> None:
+        """El nodo `clave` sólo vale a la cabeza: en otra posición es una fila mal formada."""
+        fallas = revisar_evidencia("caso", {"pieza": [{"id": "a"}, ["clave", ["id"]]]})
+        self.assertTrue(fallas)
+        self.assertIn("no es un hecho", fallas[0])
+
+    def test_el_validador_del_corpus_no_reimplementa_la_regla(self) -> None:
+        """Si el corpus tuviera su propia copia, este test se cae al cambiar una sola de las dos."""
+        from nucleo import algebra
+        from tools import corpus as cli
+
+        self.assertIs(cli.separar_clave, algebra.separar_clave)
+
+
 class ContratoDiferencialTests(unittest.TestCase):
     def test_un_fixture_de_dominio_completo_es_valido(self) -> None:
         self.assertEqual(validar_fixture(_dominio()), [])
@@ -786,11 +819,14 @@ class CifrasDelReadme(unittest.TestCase):
         """Recalcula el cociente por otra vía: si la fórmula se afloja, esto se cae."""
         from tools import cifras as cli
 
+        # `rglob`, igual que el numerador: un módulo dentro de un subpaquete de `nucleo/` es
+        # lenguaje lo mismo que uno suelto, y contarlo sólo si está en la raíz convertía «mover el
+        # archivo una carpeta más adentro» en una manera de sacar código del criterio de falsación.
         lineas_lenguaje = sum(
             len(p.read_text(encoding="utf-8").splitlines())
-            for p in list((RAIZ / "nucleo").glob("*.py"))
+            for p in list((RAIZ / "nucleo").rglob("*.py"))
                    + list((RAIZ / "nucleo" / "macros").glob("*.json"))
-            if p.name != "__init__.py")
+            if p.name != "__init__.py" and "__pycache__" not in p.parts)
         lineas_medidas = sum(
             len(p.read_text(encoding="utf-8").splitlines())
             for p in list((RAIZ / "catalogos").glob("*/*.json"))
@@ -799,6 +835,22 @@ class CifrasDelReadme(unittest.TestCase):
         esperado = f"{lineas_lenguaje / lineas_medidas:.1f}".replace(".", ",")
         self.assertIn(f"**{esperado} a 1**", cli.escala())
         self.assertIn(f"**{lineas_lenguaje} líneas", cli.escala())
+
+    def test_un_subpaquete_de_nucleo_cuenta_como_lenguaje(self) -> None:
+        """Mover un módulo a `nucleo/<subpaquete>/` no puede sacarlo del criterio de falsación.
+
+        Pasó de verdad: 411 líneas del aislamiento de UDF quedaban fuera del numerador y fuera de
+        la mutación de código por vivir una carpeta más adentro. El numerador ya contaba
+        `nucleo/macros/*.json` por el mismo motivo — sólo faltaba que valiera para los `.py`."""
+        from tools import cifras as cli
+
+        contadas = {p.relative_to(RAIZ).as_posix() for p in cli._fuentes_del_nucleo()}
+        en_subpaquetes = {
+            p.relative_to(RAIZ).as_posix() for p in (RAIZ / "nucleo").rglob("*.py")
+            if p.parent != RAIZ / "nucleo" and p.name != "__init__.py"
+            and "__pycache__" not in p.parts}
+        self.assertTrue(en_subpaquetes, "no hay subpaquetes: el test dejó de ejercitar algo")
+        self.assertLessEqual(en_subpaquetes, contadas)
 
     def _aislado(self, td, contenido, bloque="hola"):
         """`main()` sobre un README temporal y un bloque trivial.
@@ -813,7 +865,8 @@ class CifrasDelReadme(unittest.TestCase):
         ruta = Path(td) / "README.md"
         ruta.write_text(contenido, encoding="utf-8")
         return cli, mock.patch.multiple(
-            cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: bloque})
+            cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: bloque},
+            DOCUMENTOS=("README.md",))
 
     def test_main_devuelve_cero_cuando_el_readme_esta_al_dia(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -851,6 +904,69 @@ class CifrasDelReadme(unittest.TestCase):
                     sys, "argv", ["cifras.py", "--actualizar"]), redirect_stdout(io.StringIO()):
                 self.assertEqual(cli.main(), 0)
             self.assertIn("hola", (Path(td) / "README.md").read_text(encoding="utf-8"))
+
+    def test_main_custodia_todos_los_documentos_declarados(self) -> None:
+        """La deriva revivía en los derivados porque el CI vigilaba sólo el README."""
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "README.md").write_text(
+                "<!-- prueba:inicio -->\nhola\n<!-- prueba:fin -->\n", encoding="utf-8")
+            derivado = Path(td) / "derivado.md"
+            derivado.write_text(
+                "<!-- prueba:inicio -->\nvencido\n<!-- prueba:fin -->\n", encoding="utf-8")
+            parche = mock.patch.multiple(
+                cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: "hola"},
+                DOCUMENTOS=("README.md", "derivado.md"))
+            salida = io.StringIO()
+            with parche, redirect_stdout(salida):
+                # el README está al día y aun así falla: el derivado también es contrato
+                self.assertEqual(cli.main([]), 1)
+                self.assertEqual(cli.main(["--actualizar"]), 0)
+                self.assertEqual(cli.main([]), 0)
+            self.assertIn("derivado.md", salida.getvalue())
+            self.assertIn("hola", derivado.read_text(encoding="utf-8"))
+
+    def test_un_documento_declarado_que_no_existe_es_un_error(self) -> None:
+        """Borrar el archivo no puede ser la manera de librarse de la medición."""
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "README.md").write_text(
+                "<!-- prueba:inicio -->\nhola\n<!-- prueba:fin -->\n", encoding="utf-8")
+            parche = mock.patch.multiple(
+                cli, RAIZ=Path(td), BLOQUES={"prueba": lambda: "hola"},
+                DOCUMENTOS=("README.md", "borrado.md"))
+            with parche, redirect_stdout(io.StringIO()):
+                with self.assertRaises(FileNotFoundError):
+                    cli.main([])
+
+    def test_un_documento_sin_la_marca_no_inventa_el_bloque(self) -> None:
+        """No todo documento publica todas las cifras; el que no la marca, no la lleva."""
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            cli_, parche = self._aislado(td, "sin ninguna marca\n")
+            with parche, redirect_stdout(io.StringIO()):
+                self.assertEqual(cli_.main([]), 0)
+
+    def test_solo_se_custodian_documentos_versionados(self) -> None:
+        """Un documento gitignoreado no existe en un checkout limpio, y custodiarlo rompe el CI
+        sin que ninguna verificación local lo note: la carpeta está en el disco de quien la generó.
+        Pasó con `estudio/00-esencia.md`. Este test convierte esa clase de error en imposible."""
+        import subprocess
+
+        from tools import cifras as cli
+
+        seguidos = subprocess.run(
+            ["git", "ls-files", "--error-unmatch", *cli.DOCUMENTOS],
+            cwd=RAIZ, capture_output=True, text=True)
+        self.assertEqual(
+            seguidos.returncode, 0,
+            f"`DOCUMENTOS` lista algo que git no sigue: {seguidos.stderr.strip()}")
+        for nombre in cli.DOCUMENTOS:
+            with self.subTest(nombre=nombre):
+                self.assertTrue((RAIZ / nombre).exists())
 
     def test_render_aplica_el_bloque_y_devuelve_el_contenido(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -929,6 +1045,171 @@ class CifrasDelReadme(unittest.TestCase):
         negativas = cli._negativas(cli._fuentes_del_nucleo())
         self.assertIn(f"**{negativas} negativas", cli.negativas())
         self.assertIn(f"**{negativas} negativas", cli.escala())
+
+
+class PuertaDeAbandono(unittest.TestCase):
+    """El prerregistro de `COMPROMISOS.json`, que es la única afirmación de Oracle sobre sí mismo.
+
+    Nada acá puede impedir que alguien edite el archivo. Lo que se prueba es que las salidas
+    baratas —vaciarlo, borrarle la defensa, correr la fecha, declarar cumplido sin respaldo— no
+    pasen en silencio.
+    """
+
+    BASE = {
+        "esquema": "oracle.compromisos/v1",
+        "porque": "una defensa",
+        "compromisos": [{
+            "id": "x", "abierto": "2026-08-24", "vence": "2027-01-29",
+            "condicion": "una condición", "umbral": 2, "observado": 0,
+            "cumplido": False, "testigo": "un testigo", "consecuencia": "una consecuencia",
+        }],
+    }
+
+    def _archivo(self, td, datos):
+        ruta = Path(td) / "COMPROMISOS.json"
+        ruta.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+        return ruta
+
+    def test_el_archivo_publicado_es_valido(self) -> None:
+        from tools import compromisos as cli
+
+        self.assertTrue(cli.leer())
+
+    def test_las_salidas_baratas_no_pasan_en_silencio(self) -> None:
+        from tools import compromisos as cli
+
+        malos = {
+            "sin compromisos": {**self.BASE, "compromisos": []},
+            "sin esquema": {**self.BASE, "esquema": "otro"},
+            "sin defensa": {**self.BASE, "porque": "   "},
+            "condición vacía": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "condicion": " "}]},
+            "testigo vacío": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "testigo": ""}]},
+            "vence antes de abrir": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "vence": "2026-08-01"}]},
+            "cumplido no booleano": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "cumplido": "sí"}]},
+            "umbral negativo": {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "umbral": -1}]},
+            "id repetido": {**self.BASE, "compromisos": [
+                self.BASE["compromisos"][0], self.BASE["compromisos"][0]]},
+        }
+        with tempfile.TemporaryDirectory() as td:
+            for etiqueta, datos in malos.items():
+                with self.subTest(etiqueta):
+                    with self.assertRaises(cli.CompromisoInvalido):
+                        cli.leer(self._archivo(td, datos))
+
+    def test_los_hechos_no_traen_ningun_veredicto(self) -> None:
+        """`vencido` es aritmética de fechas y `alcanza_el_umbral` una comparación. Si esa
+        combinación es aceptable lo dice una medida, no el sensor."""
+        from datetime import date
+
+        from tools import compromisos as cli
+
+        with tempfile.TemporaryDirectory() as td:
+            ruta = self._archivo(td, self.BASE)
+            antes = cli.hechos(date(2026, 12, 1), ruta)["compromiso"][0]
+            self.assertFalse(antes["vencido"])
+            self.assertEqual(antes["dias_restantes"], 59)
+            despues = cli.hechos(date(2027, 1, 29), ruta)["compromiso"][0]
+            self.assertTrue(despues["vencido"])          # el día que vence YA cuenta
+            self.assertEqual(despues["dias_restantes"], 0)
+            self.assertNotIn("ok", despues)
+            self.assertFalse(despues["alcanza_el_umbral"])
+
+            cumplido = {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "observado": 2, "cumplido": True}]}
+            fila = cli.hechos(date(2027, 1, 29), self._archivo(td, cumplido))["compromiso"][0]
+            self.assertTrue(fila["alcanza_el_umbral"])
+
+    def test_la_puerta_se_pone_roja_sola_al_vencer(self) -> None:
+        """La prueba que importa: el día del plazo, sin cumplir, el CI tiene que fallar."""
+        from datetime import date
+
+        from nucleo.medida import cargar_catalogo, evaluar, medidas_aplicables
+        from nucleo.proyecto import catalogos_a_cargar, macros_del_proyecto
+        from tools import compromisos as cli
+
+        proy = Proyecto(RAIZ)
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+
+        def juzgar(evidencia):
+            juezas = medidas_aplicables(catalogo.values(), evidencia)
+            self.assertTrue(juezas, "ninguna medida se activó con la relación `compromiso`")
+            return evaluar(juezas, evidencia).ok
+
+        with tempfile.TemporaryDirectory() as td:
+            ruta = self._archivo(td, self.BASE)
+            self.assertTrue(juzgar(cli.hechos(date(2026, 12, 1), ruta)))   # en plazo
+            self.assertFalse(juzgar(cli.hechos(date(2027, 1, 29), ruta)))  # vencido
+            self.assertFalse(juzgar(cli.hechos(date(2028, 6, 1), ruta)))   # y sigue rojo
+
+            # declarar cumplido sin llegar al umbral no la apaga
+            trucado = {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "cumplido": True}]}
+            self.assertFalse(juzgar(cli.hechos(date(2027, 1, 29), self._archivo(td, trucado))))
+
+            # cumplirlo de verdad sí
+            real = {**self.BASE, "compromisos": [
+                {**self.BASE["compromisos"][0], "cumplido": True, "observado": 2}]}
+            self.assertTrue(juzgar(cli.hechos(date(2027, 1, 29), self._archivo(td, real))))
+
+
+class ContrasteDeLaTraza(unittest.TestCase):
+    """Las propiedades del álgebra las juzgan DOS implementaciones, no una.
+
+    Sin esto el evaluador se examinaría solo: un defecto en `donde` podría tapar la medida que
+    vigila `donde`. La segunda mano es `diferencial/referencia/evaluador.py`, escrito por otro autor
+    que nunca vio `nucleo/`.
+    """
+
+    def _juezas_y_evidencia(self):
+        from nucleo.medida import cargar_catalogo, medidas_aplicables
+        from nucleo.proyecto import catalogos_a_cargar, macros_del_proyecto
+        from tools import trazar as cli
+
+        proy = Proyecto(RAIZ)
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+        evidencia, _evaluados, _fallidos = cli.hechos(catalogo, cli.casos(proy))
+        return cli, medidas_aplicables(catalogo.values(), evidencia), evidencia
+
+    def test_las_dos_implementaciones_coinciden_sobre_la_traza_real(self) -> None:
+        cli, juezas, evidencia = self._juezas_y_evidencia()
+        self.assertTrue(juezas, "ninguna propiedad se activó con la traza")
+        self.assertEqual(cli.contrastar(juezas, evidencia), [])
+
+    def test_un_desacuerdo_se_denuncia_y_no_se_traga(self) -> None:
+        """Una comprobación que no puede fallar no comprueba nada."""
+        cli, juezas, evidencia = self._juezas_y_evidencia()
+
+        class Discrepante:
+            @staticmethod
+            def evaluar(medida, _evidencia, _escalares=None):
+                return {"ok": False, "valor": 0, "testigos": []}   # nucleo las da verdes
+
+        with mock.patch.object(cli, "cargar_referencia", lambda: Discrepante):
+            desacuerdos = cli.contrastar(juezas, evidencia)
+            self.assertEqual(len(desacuerdos), len(juezas))
+            self.assertIn("nucleo=True vs referencia=False", desacuerdos[0])
+            with redirect_stdout(io.StringIO()) as salida:
+                self.assertEqual(cli.main([]), 1)
+            self.assertIn("DESACUERDO", salida.getvalue())
+
+    def test_una_referencia_que_revienta_cuenta_como_desacuerdo(self) -> None:
+        """No se puede aprobar por incomparecencia: si la referencia no evalúa, eso es el hallazgo."""
+        cli, juezas, evidencia = self._juezas_y_evidencia()
+
+        class Rota:
+            @staticmethod
+            def evaluar(*_a, **_k):
+                raise RuntimeError("no evalúa")
+
+        with mock.patch.object(cli, "cargar_referencia", lambda: Rota):
+            desacuerdos = cli.contrastar(juezas, evidencia)
+        self.assertEqual(len(desacuerdos), len(juezas))
+        self.assertIn("RuntimeError", desacuerdos[0])
 
 
 if __name__ == "__main__":

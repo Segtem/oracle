@@ -61,8 +61,16 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
     """Un hecho por medida del catálogo: cuántos casos la evalúan y cuántos mutantes le sobreviven.
 
     `debe_tener_mutantes` declara la política: una medida propia y ordinaria tiene que generar al
-    menos uno; una heredada responde ante el corpus de origen, y una evaluada aparte queda fuera de
-    esta ronda. Así «cero mutantes» no se confunde con «todos sus mutantes murieron».
+    menos uno; una heredada responde ante el corpus de origen. Así «cero mutantes» no se confunde con
+    «todos sus mutantes murieron».
+
+    **Estar evaluada aparte NO exime de tener mutantes**, y confundir las dos cosas era un agujero
+    del denominador. `evaluadas_aparte` responde «¿alguien la ejercita?» —y sí: las medidas meta las
+    evalúa `tools/aceptacion.py` sobre el catálogo mismo—. Que deba tener mutantes es otra pregunta,
+    y su respuesta es comprobable: **la tiene que tener si algún caso del corpus la declara**, porque
+    ahí la mutación puede correr y significa algo. Mientras las dos iban juntas, escribir una medida
+    con prefijo `meta.` la sacaba del denominador aunque tuviera casos, y una clase entera de medidas
+    quedaba sin mutar por una convención de nombre en vez de por una propiedad verificable.
     """
     evaluadas_aparte = evaluadas_aparte or set()
     heredadas = heredadas or set()
@@ -70,12 +78,12 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
     # Las medidas de nivel meta no las evalúa ningún caso del corpus: se evalúan sobre el catálogo
     # mismo. Se declaran acá en vez de exceptuarlas, para que «ejercitada» siga significando lo mismo
     # para todas.
-    evalua: dict[str, int] = {mid: (1 if mid in evaluadas_aparte else 0)
-                              for mid in catalogo}
+    por_casos: dict[str, int] = {mid: 0 for mid in catalogo}
     for c in casos:
         mid = c.get("medida") or ""
-        if mid in evalua:
-            evalua[mid] += 1
+        if mid in por_casos:
+            por_casos[mid] += 1
+    evalua = {mid: por_casos[mid] + (1 if mid in evaluadas_aparte else 0) for mid in catalogo}
 
     total: dict[str, int] = {mid: 0 for mid in catalogo}
     vivos: dict[str, int] = {mid: 0 for mid in catalogo}
@@ -85,10 +93,15 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
         mid = m.get("apunta_a")
         if not isinstance(mid, str) or mid not in total:
             raise ValueError(f"mutante[{i}].apunta_a no identifica una medida del catálogo: {mid!r}")
-        if type(m.get("murio")) is not bool:
-            raise ValueError(f"mutante[{i}].murio tiene que ser booleano")
+        conteos = (m.get("detecciones_conductuales"), m.get("rechazos_del_algebra"))
+        if any(type(c) is not int or c < 0 for c in conteos):
+            raise ValueError(
+                f"mutante[{i}] tiene que traer `detecciones_conductuales` y "
+                "`rechazos_del_algebra` como enteros no negativos")
         total[mid] += 1
-        if not m["murio"]:
+        # Cero observaciones de cualquier tipo: nadie lo notó. Es aritmética, no la política de qué
+        # cuenta como muerte — eso lo declara `proceso.test_con_mutante_que_lo_mata`, con defensa.
+        if not any(conteos):
             vivos[mid] += 1
 
     # `es_heredada`: vino del catálogo BASE de oracle, no del proyecto. Sin este campo, apuntar la
@@ -98,5 +111,5 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
     return {"medida_en_uso": [
         {"id": mid, "casos_que_la_evaluan": evalua[mid], "mutantes": total[mid],
          "mutantes_vivos": vivos[mid], "es_heredada": mid in heredadas,
-         "debe_tener_mutantes": mid not in heredadas and mid not in evaluadas_aparte}
+         "debe_tener_mutantes": mid not in heredadas and por_casos[mid] > 0}
         for mid in sorted(catalogo)]}

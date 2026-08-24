@@ -23,6 +23,7 @@ from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from nucleo.algebra import ErrorDeAlgebra, separar_clave  # noqa: E402
 from nucleo.proyecto import problemas_estructura, sin_bandera  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -58,13 +59,25 @@ def casos(raiz: Path) -> list[Path]:
 
 
 def revisar_evidencia(nombre: str, evidencia) -> list[str]:
-    """L0: relación → filas planas. Sin objetos anidados, sin listas dentro de un campo."""
+    """L0: relación → filas planas. Sin objetos anidados, sin listas dentro de un campo.
+
+    Una relación puede encabezarse con `["clave", [<campo>, …]]`, la declaración opcional de
+    unicidad. Se valida con la misma función que usa el álgebra —no con una copia de la regla acá—
+    porque dos lecturas del mismo contrato terminan divergiendo, que es el caso `012` del corpus.
+    Sin esto, un caso que declarara una clave era rechazado como «no es un hecho» y el mecanismo no
+    se podía fijar con casos, que es como este proyecto fija todo lo demás.
+    """
     fallas = []
     if not isinstance(evidencia, dict) or not evidencia:
         return [f"{nombre}: `evidencia` tiene que ser un mapa de relación → filas, y no estar vacío"]
     for relacion, filas in evidencia.items():
         if not isinstance(filas, list):
             fallas.append(f"{nombre}: la relación «{relacion}» no es una lista de filas")
+            continue
+        try:
+            _clave, filas = separar_clave(filas)
+        except ErrorDeAlgebra as e:
+            fallas.append(f"{nombre}: la relación «{relacion}» declara mal su clave: {e}")
             continue
         for i, fila in enumerate(filas):
             if not isinstance(fila, dict):

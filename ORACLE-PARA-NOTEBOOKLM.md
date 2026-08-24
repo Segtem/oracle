@@ -3,9 +3,9 @@
 Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autoría, catálogo,
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
-- Generado: `2026-07-31`
-- Revisión de código base: `e096a3751fc9`
-- Partes incluidas: `12`
+- Generado: `2026-08-24`
+- Revisión de código base: `a110606cc59f`
+- Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
 > explicar cómo evolucionó Oracle. Cuando una cifra histórica difiera del estado actual,
@@ -60,9 +60,12 @@ Cada pieza es una respuesta a *«¿por qué debería creerte?»* sobre una clase
 
 #### Su naturaleza es negarse
 
-No es un instrumento de medición: es un instrumento de **rechazo**. En este corte hay 2202 líneas de
-núcleo y **106 negativas explícitas** (`raise`). No calcula calidad: **declina dejar pasar** lo que no
-se puede sostener.
+No es un instrumento de medición: es un instrumento de **rechazo**. No calcula calidad: **declina
+dejar pasar** lo que no se puede sostener.
+
+<!-- negativas:inicio -->
+En este corte hay 3076 líneas de lenguaje y **173 negativas explícitas** (`raise`).
+<!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
 `False`, levanta error. La igualdad exacta entre flotantes está prohibida, incluido el umbral final.
@@ -77,22 +80,27 @@ se sabe sobre qué se está callando.
 
 #### La asimetría, medida
 
-De los 28 defectos reales del corpus: **25 falsos verdes, 2 falsos rojos y 1 conclusión causal
-incorrecta pese a una medida correcta**. Ésa es la justificación empírica de cada decisión de
+La composición está contada más abajo; el reparto es abrumadoramente de un lado: los
+falsos verdes son más de diez veces los falsos rojos. Ésa es la justificación empírica de cada decisión de
 «negarse antes que permitir». Pero un falso rojo enseña a ignorar el verificador, y por eso pesa igual
 de grave: en un solo día lo cometí tres veces.
 
 #### El sujeto es el que construye, no lo construido
 
-**33 de los 42 casos del corpus son sobre el propio trabajo**, no sobre el artefacto. Los 30 casos no
-observacionales salieron a la luz por vías que no aceptan el verde nominal: 17 la mutación, 8 una persona, 4 la
-casualidad y 1 una herramienta ajena. Oracle no es un juez de artefactos — es una prótesis para alguien
-que escribe la herramienta y su test con la misma mano y no recuerda ayer.
+<!-- deteccion:inicio -->
+Los 39 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 22 la mutación, 9 una persona, 4 la casualidad, 4 una herramienta ajena.
+<!-- deteccion:fin -->
+
+Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
+una prótesis para alguien que escribe la herramienta y su test con la misma mano y no recuerda ayer.
 
 #### El costo, dicho
 
-**2202 líneas de lenguaje.** Contra las medidas universales escritas en él: **trece a uno**. Ésa es
-la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
+<!-- escala:inicio -->
+**3076 líneas de lenguaje** (`nucleo/`, código y macros) y **173 negativas explícitas** (`raise`). Contra las 24 medidas universales escritas en él (220 líneas): **14,0 a 1**. 21 de las 24 pasan por una macro.
+<!-- escala:fin -->
+
+Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
 metalenguaje. Los catálogos externos no se incorporan al núcleo para mejorar artificialmente la
 proporción.
 
@@ -100,14 +108,59 @@ Es la única medición del proyecto **que no se puede sastrear escribiendo más 
 medidas es justamente lo que la mejora. Si en seis meses la proporción no se movió, el lenguaje no
 valió la pena.
 
-#### Y la historia lo dice mejor que el código
+**Y la proporción viene empeorando, dos veces seguidas.**
 
-En el historial, **cerca de la mitad de los commits tienen por título la corrección de algo que yo
-mismo había afirmado**: un criterio imposible de cumplir, un corpus al que le faltaba una polaridad, 53 tests en
-verde conviviendo con 88 mutantes vivos, un concepto de juego metido en el núcleo, una guía que
-describía un problema ya resuelto. El repositorio es, sobre todo, **el registro de un autor
-equivocándose y siendo atrapado por lo que estaba construyendo**. Que eso sea legible es la única
-prueba de que funciona.
+El corte anterior publicaba «2202 líneas» y «trece a uno» escritos a mano; los valores reales ya eran
+2654 y 16,2 a 1, y nada lo detectó, porque el criterio de falsación declarado del proyecto era
+justamente el número que no estaba bajo medición. Desde entonces lo genera `tools/cifras.py` y el CI
+falla si vence.
+
+Después, `defmacro` empeoró la proporción desde 16,2 — y el plan había predicho que la iba a
+**bajar**, porque las tres macros salían del núcleo. Salieron, pero el mecanismo que las reemplaza
+—declaración, guardas, registro, expansión acotada— pesa más que las tres funciones que borró. El
+pago no es este corte: es que la macro número cuatro ya no cuesta ni una línea de núcleo.
+
+El numerador cuenta `nucleo/macros/*.json` junto con el `.py`, a propósito. Si contara sólo código,
+mover Python a datos habría «mejorado» la proporción sin que el lenguaje encogiera un gramo — el
+sastreo exacto contra el que esta medición existe.
+
+#### La proporción no alcanza, y por eso hay una puerta
+
+Dos auditorías externas coincidieron en lo mismo: como criterio de falsación, la proporción no puede
+hacer el trabajo. **Ya disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta
+publicada fue reinterpretarla, que es exactamente la maniobra que este proyecto le prohíbe a todo lo
+demás. Y aunque no se reinterpretara, es inmune a la única señal que importa: los catálogos externos
+no entran a su denominador, así que **ningún éxito de adopción puede mejorarla**. Lo único que la
+mejora es escribir más medidas universales.
+
+Un criterio así no es un criterio: es una nota al pie. Y escribirlo en prosa habría sido peor,
+porque este README arranca diciendo que una regla escrita como consejo se lee y se olvida.
+
+Así que la condición de fracaso está prerregistrada **como dato** en
+`COMPROMISOS.json` y la juzgan dos medidas del catálogo:
+
+> Si al **2027-01-29** no existen al menos **dos repositorios** que consuman Oracle, mantenidos por
+> otra persona, con sus medidas escritas sin asistencia del autor y **sin ningún cambio a
+> `nucleo/`**, se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un
+> consumidor independiente.
+
+Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es
+agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que
+ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto. La auditoría
+proponía algo más duro —archivar el metalenguaje y conservar sólo el protocolo como plugin de
+pytest— y se descartó por decisión del autor; queda registrada en `COMPROMISOS.json` la alternativa
+que **no** se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el
+resultado.
+
+`meta.compromiso_vencido_sin_cumplir` se pone roja sola el día del plazo, y
+`meta.cumplimiento_declarado_sin_respaldo` cierra la salida barata: para apagar la puerta hay que
+escribir un número observado que alcance el umbral, que es una afirmación falsable y fechada sobre el
+mundo, no un `true`. El CI corre las dos.
+
+Nada de esto impide editar el archivo. Lo que hace es convertir un cambio de criterio en un commit
+fechado y visible, en vez de un párrafo nuevo que reinterpreta el anterior. Es todo lo que un
+prerregistro puede dar, y es lo que faltaba: **el testigo tiene que ser externo, y el git de los
+repositorios consumidores lo es.**
 
 ### Tres influencias, y qué aporta cada una
 
@@ -149,6 +202,7 @@ apuntado a L1.
 medición   un escalar del mundo
 umbral     una comparación — con su DEFENSA escrita
 testigos   las filas que ofenden  (no se calculan aparte: son las que pasaron el filtro)
+requiere   qué NECESITA ver para concluir  ← opcional
 alcance    qué NO ve esta medida  ← OBLIGATORIO
 ```
 
@@ -157,6 +211,12 @@ que merece. Acá un informe en verde **termina enumerando lo que no miró**.
 
 El umbral lleva su defensa por el mismo motivo: un número que nadie puede discutir es una métrica
 esperando a volverse objetivo.
+
+`requiere` es el espejo de `alcance`, y entró porque declarar un hueco no es cerrarlo. Un agregado
+sobre cero filas da `0`, que es indistinguible de un agregado que dio cero: la medida de ausencia
+salía **verde justo cuando el mundo estaba peor** —ningún importador, ningún par, ningún grupo—.
+Cuando una relación declarada acá viene vacía, el veredicto es `SIN EVIDENCIA`: no es verde y
+tampoco es un rojo del mundo, porque no se midió nada.
 
 ### Lo que NO es
 
@@ -314,18 +374,32 @@ Oracle no conserva fixtures diferenciales propios en este repositorio. Ejecutar 
 fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prueba el camino
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
-27 defectos en rojo · 12 verdes correctos · 0 huecos abiertos · 2 casos resueltos conservados ·
-1 límite humano.
+<!-- corpus:inicio -->
+**58 casos**: 39 defectos y 19 verdes correctos. De los defectos, 36 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 34 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+<!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-339 tests · 129/129 mutantes de medida · **1131 sitios de mutación de código** (926 + 205 del motor Python).
+408 tests · 206/206 mutantes de medida · **1261 sitios de mutación de código** (1056 + 205 del motor Python).
 <!-- cifras:fin -->
 
-> **`tools/mutar_codigo.py` sale en VERDE.** El baseline histórico 503/616 quedó invalidado cuando
-> cambió la arquitectura. El denominador vigente incluye núcleo y perfiles: 868/868 sitios de las
-> doce particiones previas y 205/205 del motor Python: **1073/1073**, sin timeout, error de arnés ni equivalentes
-> declarados. Cada ronda muta una copia, puede persistir progreso con
-> `--manifiesto`/`--reanudar` y firma también sus tests y archivos de soporte.
+> **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
+> del CI —uno por job, que es como se mide— salen en **VERDE**: cero sobrevivientes, cero errores de
+> arnés, **un equivalente declarado** con su razón en `equivalentes.json`. Cada
+> ronda muta una copia, puede persistir progreso con `--manifiesto`/`--reanudar` y firma también sus
+> tests y archivos de soporte.
+>
+> El camino en un solo proceso —`mutar_codigo.py` sin `--objetivo`— deja **un timeout**: el mutante
+> que apaga `start_new_session` no cuelga un test, los enlentece a todos, y el presupuesto de 60 s se
+> agota antes de llegar a la aserción que lo mata. Con `--objetivo` la priorización la corre primero
+> y muere. Se documenta en vez de maquillarse: **un timeout no mata a nadie** (caso `016` del corpus),
+> así que ese eje se mide particionado y se dice cuál de las dos corridas es la que vale.
+>
+> Llegar acá exigió corregir lo que hacía **inmedible** al código, no reclasificar veredictos. La
+> ronda venía con **158 errores de arnés**: trabajo en tiempo de import —constantes de módulo
+> validadas al construirse, `@escalar` corriendo al importar los tests— hacía que un mutante rompiera
+> el *descubrimiento* de la suite, y el arnés reportaba «error» donde había un test capaz de matarlo.
+> Con eso corregido, 158 → **0**. La tentación era contar un `ImportError` como muerte; habría
+> acreditado cobertura real por el motivo equivocado y el hueco seguiría ahí.
 
 #### Tres dominios, un álgebra
 
@@ -410,8 +484,43 @@ además lo único que ataja una medida que se pone roja con entrada correcta, el
 `008`.
 
 **Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
-medida con la misma forma») sonó con **22**. `ninguno`, `ninguno-par` y `peor` cubren 26 de las 27
-medidas, expanden a la forma canónica, y `peor` cerró por construcción la deuda del umbral duplicado.
+medida con la misma forma») sonó con veintidós, cuando los dominios de instancia todavía vivían acá.
+`ninguno`, `ninguno-par` y `peor` expanden a la forma canónica, y `peor` cerró por construcción la
+deuda del umbral duplicado. La cobertura vigente sobre el catálogo universal está en
+la cifra de escala; las medidas que no encajan se escriben canónicas y listo.
+
+**Y las macros se declaran EN DATOS.** Hasta el corte anterior `MACROS` era un diccionario de
+funciones de Python: las medidas eran datos, pero los **medios de abstracción** no, así que un
+proyecto que quería una forma propia tenía que editar el núcleo de Oracle. El dueño del lenguaje era
+quien podía editar ese archivo — o sea, el LLM. Ahora una macro es un archivo con la misma forma para
+las que trae Oracle y para las que escribe cualquiera:
+
+```json
+["defmacro", "todos-cumplen",
+  ["id", "relacion", "alias", "predicado", "porque", "alcance"],
+  [],
+  ["medida", ["$", "id"],
+    ["desde", ["de", ["$", "relacion"], ["$", "alias"]],
+     ["donde", ["no", ["$", "predicado"]]]],
+    ["resumen", "contar", 1],
+    ["umbral", "<=", 0, ["$", "porque"]],
+    ["alcance", ["$", "alcance"]]]]
+```
+
+`ninguno`, `ninguno-par` y `peor` viven en `nucleo/macros/` y se cargan por el
+mismo camino: son la biblioteca estándar del lenguaje, no un privilegio del núcleo. Un proyecto suma
+las suyas en `<proyecto>/macros/` y no necesita tocar nada de Oracle.
+
+Tres decisiones que valen la pena:
+
+- **Las guardas no traen evaluador nuevo.** `ninguno-par` exige que sus dos alias difieran, y una
+  plantilla pura no lo expresa. La guarda se sustituye y la evalúa `evaluar_expr` **sobre una fila
+  vacía**: una expresión sin accesores nunca toca la fila. De regalo hereda el contrato entero del
+  álgebra, incluida la prohibición de igualdad exacta entre flotantes.
+- **Una macro puede construir sobre otra**, acotada por `expansiones_maximas`. Negarlo obligaría a
+  copiar el cuerpo, que es lo que la macro vino a evitar.
+- **Un parámetro que la plantilla nunca usa no se carga.** Es la misma regla que
+  `meta.toda_medida_esta_ejercitada`: lo que nadie ejercita es decoración.
 
 **El lenguaje activo tiene cinco operadores**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
 Cada uno entró al llegar su disparador. `con` y la unión izquierda se retiraron: sin dos usuarios
@@ -436,8 +545,13 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 #### Qué falta
 
-- **Elegir una licencia.** El paquete, entry points y CI ya existen, pero la decisión legal no se
-  infiere del código ni la toma el agente por el autor.
+El camino de «formato de datos con buenas defensas» a «lenguaje» está desglosado en
+`PLAN-LENGUAJE.md`: `defmacro` en datos, reificación mecánica del catálogo, la
+decisión sobre composición, y el diferencial propio que hoy está estructuralmente vacío.
+
+- ~~**Elegir una licencia.**~~ **HECHO.** MIT, en `LICENSE` y en los metadatos del
+  paquete (`License-Expression: MIT`, con el archivo incluido en el wheel): un tercero puede
+  identificar los permisos automáticamente y redistribuirlo.
 - **Un consumidor real independiente.** El proyecto externo sintético demuestra desacoplamiento
   técnico; la adopción por un proyecto no diseñado junto con Oracle sigue siendo evidencia externa,
   no algo que este repositorio pueda fabricar.
@@ -483,7 +597,8 @@ mismo tipo. La evidencia es un mapa de relaciones:
 ```json
 {
   "pieza":   [{"id": "Muro_A", "x": 100, "y": 100, "ex": 200, "ey": 25}],
-  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual", "murio": false}]
+  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual",
+               "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
 }
 ```
 
@@ -511,7 +626,9 @@ Una medida real, del catálogo que ya corre — sin `unir`, que todavía no tien
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"],
+    ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+                    ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina…"],
   ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió…"]]
@@ -537,8 +654,16 @@ a mano — el error concreto que motivó esta especificación (ver
 
 ### 3. Los operadores
 
-Cinco. Cada uno toma relaciones y devuelve una relación: **eso es la clausura**, y es lo que permite
-que una medida consuma la salida de otra sin ningún caso especial.
+Cinco. Cuatro toman relaciones y devuelven una relación: **eso es la clausura**, y es lo que permite
+encadenarlos en cualquier orden sin un solo caso especial. `resumen` es el que la rompe a propósito,
+porque colapsa a un escalar: por eso va último y una sola vez, y por eso **la clausura es sobre
+filas, no sobre medidas**.
+
+Conviene decirlo fuerte, porque la versión corta de esta frase engañaba: una medida termina en un
+escalar y un umbral, y ahí se acaba. **Ninguna medida puede consumir los testigos ni el veredicto de
+otra**, y eso no es una limitación pendiente sino una decisión tomada y registrada en
+[`DECISION-002`](DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md). Las preguntas que esa decisión deja
+afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo el catálogo como relación.
 
 | Operador | Forma | Qué hace |
 |---|---|---|
@@ -697,8 +822,21 @@ operadores es la única prueba de que el juego chico alcanzaba.
   ["donde", ["==", ["col","reales"], 0]]
   ```
 
-  Queda un límite, declarado en el `alcance` de la medida que lo usa: si la relación del lado derecho
-  está **vacía**, no hay pares y por lo tanto no hay grupos. Sin resolver, y es honesto decirlo.
+  Quedaba un límite, y era peor de lo que la palabra «límite» sugiere: si la relación del lado
+  derecho está **vacía**, no hay pares, no hay grupos, el agregado sobre cero filas da `0` y un
+  umbral `<= 0` lo lee como éxito. La medida **se ponía más verde cuanto peor estaba el mundo** —con
+  un importador señalaba los módulos muertos; con ninguno, verde—. Declararlo en el `alcance` lo
+  volvía visible sin cerrarlo, y esta sección lo llamaba RESUELTO tres líneas después de admitirlo
+  (ver [`043-ausencia-total-sale-verde`](corpus/proceso/)).
+
+  **Cerrado con `requiere`, y no con un operador.** No era expresable con los cinco: sin join no hay
+  correlación, y `DECISION-002` prohíbe que una medida consuma la salida de otra. `["requiere",
+  <relación>, …]` es un nodo opcional de la medida y el espejo exacto de `alcance` —uno declara qué
+  NO ve, el otro qué NECESITA ver—; el evaluador comprueba la precondición **antes** de medir y
+  emite `SIN EVIDENCIA`, que no es verde ni un rojo del mundo. El álgebra queda intacta.
+
+  El caso general que esto expone: **un agregado sobre cero filas es indistinguible de un agregado
+  que dio cero**, y sólo la medida sabe cuál de las dos cosas es.
 - **Recursión.** ✅ **RESUELTA, y fuera del álgebra.** «Alcanzable desde» no se expresa con los
   operadores, y es la pared que hizo falta `WITH RECURSIVE` en SQL. Un operador `cierre` habría sido
   recursión en un lenguaje que se mantiene chico a propósito, con **un solo usuario**. La salida es
@@ -799,14 +937,14 @@ crear cualquier directorio.
 
 ### La forma corta: las macros
 
-**26 de las 27 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
+**15 de las 18 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
 canónica —`--expandir` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
 ```json
 ["ninguno", "proceso.test_con_mutante_que_lo_mata",
   "mutante", "m",
-  ["==", ["campo", "m", "murio"], false],
+  ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
   "un mutante que sobrevive es un test que no discrimina",
   "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"]
 ```
@@ -851,7 +989,9 @@ mantenga sincronizadas.
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"],
+   ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
+                   ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"],
   ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió"]]
@@ -929,6 +1069,142 @@ escrita (a veces con una macro) y en qué se expande. Y los dos campos que este 
 exige y ningún otro verificador pide: **la defensa del umbral** y **el punto ciego**.
 
 ### Dominio `meta` — mide el LENGUAJE mismo
+
+#### meta.agrupar_no_agranda_la_relacion
+
+- **mide sobre** la relación `paso`
+- **umbral**: `<= 0`
+- **por qué ese número**: agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás
+- **qué NO ve**: compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.agrupar_no_agranda_la_relacion",
+  "paso",
+  "p",
+  ["y", ["==", ["campo", "p", "operador"], "agrupar"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]],
+  "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás",
+  "compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.agrupar_no_agranda_la_relacion",
+  ["desde", ["de", "paso", "p"], ["donde", ["y", ["==", ["campo", "p", "operador"], "agrupar"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás"],
+  ["alcance", "compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada"]
+]
+```
+
+#### meta.compromiso_vencido_sin_cumplir
+
+- **mide sobre** la relación `compromiso`
+- **umbral**: `<= 0`
+- **por qué ese número**: un criterio de fracaso que llega a su fecha sin cumplirse y no frena nada es exactamente lo que ya pasó con la proporción: disparó dos veces y la respuesta fue reinterpretarlo. La consecuencia está escrita de antemano en `COMPROMISOS.json`, así que a partir de acá seguir es una decisión que hay que tomar y firmar, no la inercia
+- **qué NO ve**: ve que la fecha pasó y que nadie declaró el cumplimiento. NO verifica que la condición sea verdadera —eso lo comprueba el testigo nombrado en el compromiso, necesariamente desde afuera— ni puede impedir que alguien edite el archivo: lo que hace es que cambiar de criterio sea un commit fechado y no un párrafo nuevo
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.compromiso_vencido_sin_cumplir",
+  "compromiso",
+  "c",
+  ["y", ["==", ["campo", "c", "vencido"], true], ["==", ["campo", "c", "cumplido"], false]],
+  "un criterio de fracaso que llega a su fecha sin cumplirse y no frena nada es exactamente lo que ya pasó con la proporción: disparó dos veces y la respuesta fue reinterpretarlo. La consecuencia está escrita de antemano en `COMPROMISOS.json`, así que a partir de acá seguir es una decisión que hay que tomar y firmar, no la inercia",
+  "ve que la fecha pasó y que nadie declaró el cumplimiento. NO verifica que la condición sea verdadera —eso lo comprueba el testigo nombrado en el compromiso, necesariamente desde afuera— ni puede impedir que alguien edite el archivo: lo que hace es que cambiar de criterio sea un commit fechado y no un párrafo nuevo"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.compromiso_vencido_sin_cumplir",
+  ["desde", ["de", "compromiso", "c"], ["donde", ["y", ["==", ["campo", "c", "vencido"], true], ["==", ["campo", "c", "cumplido"], false]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un criterio de fracaso que llega a su fecha sin cumplirse y no frena nada es exactamente lo que ya pasó con la proporción: disparó dos veces y la respuesta fue reinterpretarlo. La consecuencia está escrita de antemano en `COMPROMISOS.json`, así que a partir de acá seguir es una decisión que hay que tomar y firmar, no la inercia"],
+  ["alcance", "ve que la fecha pasó y que nadie declaró el cumplimiento. NO verifica que la condición sea verdadera —eso lo comprueba el testigo nombrado en el compromiso, necesariamente desde afuera— ni puede impedir que alguien edite el archivo: lo que hace es que cambiar de criterio sea un commit fechado y no un párrafo nuevo"]
+]
+```
+
+#### meta.cumplimiento_declarado_sin_respaldo
+
+- **mide sobre** la relación `compromiso`
+- **umbral**: `<= 0`
+- **por qué ese número**: declarar cumplido un compromiso que no llega a su propio umbral es la manera barata de desactivar la puerta sin tocar la fecha ni la condición: el número declarado tiene que sostener la declaración
+- **qué NO ve**: compara el conteo observado contra el umbral prerregistrado. NO ve si el conteo observado es cierto —un número inflado a mano pasa— ni si los consumidores contados cumplen la condición escrita; eso lo verifica el testigo
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.cumplimiento_declarado_sin_respaldo",
+  "compromiso",
+  "c",
+  ["y", ["==", ["campo", "c", "cumplido"], true], ["==", ["campo", "c", "alcanza_el_umbral"], false]],
+  "declarar cumplido un compromiso que no llega a su propio umbral es la manera barata de desactivar la puerta sin tocar la fecha ni la condición: el número declarado tiene que sostener la declaración",
+  "compara el conteo observado contra el umbral prerregistrado. NO ve si el conteo observado es cierto —un número inflado a mano pasa— ni si los consumidores contados cumplen la condición escrita; eso lo verifica el testigo"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.cumplimiento_declarado_sin_respaldo",
+  ["desde", ["de", "compromiso", "c"], ["donde", ["y", ["==", ["campo", "c", "cumplido"], true], ["==", ["campo", "c", "alcanza_el_umbral"], false]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "declarar cumplido un compromiso que no llega a su propio umbral es la manera barata de desactivar la puerta sin tocar la fecha ni la condición: el número declarado tiene que sostener la declaración"],
+  ["alcance", "compara el conteo observado contra el umbral prerregistrado. NO ve si el conteo observado es cierto —un número inflado a mano pasa— ni si los consumidores contados cumplen la condición escrita; eso lo verifica el testigo"]
+]
+```
+
+#### meta.donde_nunca_agrega_filas
+
+- **mide sobre** la relación `paso`
+- **umbral**: `<= 0`
+- **por qué ese número**: un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender
+- **qué NO ve**: compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.donde_nunca_agrega_filas",
+  "paso",
+  "p",
+  ["y", ["==", ["campo", "p", "operador"], "donde"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]],
+  "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender",
+  "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.donde_nunca_agrega_filas",
+  ["desde", ["de", "paso", "p"], ["donde", ["y", ["==", ["campo", "p", "operador"], "donde"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender"],
+  ["alcance", "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza"]
+]
+```
 
 #### meta.el_caso_reclama_una_medida_que_existe
 
@@ -1066,6 +1342,40 @@ En qué se expande:
 ]
 ```
 
+#### meta.los_logicos_evaluan_todos_sus_operandos
+
+- **mide sobre** la relación `nodo`
+- **umbral**: `<= 0`
+- **por qué ese número**: un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra
+- **qué NO ve**: cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.los_logicos_evaluan_todos_sus_operandos",
+  "nodo",
+  "n",
+  ["!=", ["campo", "n", "evaluados"], ["campo", "n", "declarados"]],
+  "un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra",
+  "cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.los_logicos_evaluan_todos_sus_operandos",
+  ["desde", ["de", "nodo", "n"], ["donde", ["!=", ["campo", "n", "evaluados"], ["campo", "n", "declarados"]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra"],
+  ["alcance", "cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza"]
+]
+```
+
 #### meta.toda_medida_esta_ejercitada
 
 - **mide sobre** la relación `medida_en_uso`
@@ -1131,6 +1441,40 @@ En qué se expande:
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"],
   ["alcance", "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió"]
+]
+```
+
+#### meta.unir_materializa_el_producto
+
+- **mide sobre** la relación `producto`
+- **umbral**: `<= 0`
+- **por qué ese número**: `unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma
+- **qué NO ve**: compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.unir_materializa_el_producto",
+  "producto",
+  "u",
+  ["!=", ["campo", "u", "salida"], ["por", ["campo", "u", "izquierda"], ["campo", "u", "derecha"]]],
+  "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma",
+  "compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.unir_materializa_el_producto",
+  ["desde", ["de", "producto", "u"], ["donde", ["!=", ["campo", "u", "salida"], ["por", ["campo", "u", "izquierda"], ["campo", "u", "derecha"]]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma"],
+  ["alcance", "compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa"]
 ]
 ```
 
@@ -1209,7 +1553,7 @@ En qué se expande:
 - **mide sobre** la relación `modulo`
 - **umbral**: `<= 0`
 - **por qué ese número**: un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto
-- **qué NO ve**: sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y NO ve nada si la relación `alcanzable` está vacía
+- **qué NO ve**: sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde
 
 Como está escrita:
 
@@ -1220,7 +1564,8 @@ Como está escrita:
   ["desde", ["unir", ["de", "modulo", "m"], ["de", "alcanzable", "r"]], ["agrupar", [["modulo", ["campo", "m", "nombre"]]], [["veces_alcanzado", "suma", ["==", ["campo", "r", "hasta"], ["campo", "m", "nombre"]]], ["es_paquete_vacio", "max", ["campo", "m", "es_paquete_vacio"]]]], ["donde", ["y", ["==", ["col", "veces_alcanzado"], 0], ["==", ["col", "es_paquete_vacio"], false]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto"],
-  ["alcance", "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y NO ve nada si la relación `alcanzable` está vacía"]
+  ["requiere", "alcanzable"],
+  ["alcance", "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde"]
 ]
 ```
 
@@ -1229,7 +1574,7 @@ Como está escrita:
 - **mide sobre** la relación `modulo`
 - **umbral**: `<= 0`
 - **por qué ese número**: un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite
-- **qué NO ve**: cuenta importadores que no son tests, agrupando por módulo. NO ve nada si la relación `importa` está vacía —sin pares no hay grupos— ni distingue un importador que usa el módulo de uno que lo importa y no lo llama
+- **qué NO ve**: cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama
 
 Como está escrita:
 
@@ -1240,7 +1585,8 @@ Como está escrita:
   ["desde", ["unir", ["de", "modulo", "m"], ["de", "importa", "i"]], ["agrupar", [["modulo", ["campo", "m", "nombre"]]], [["importadores_reales", "suma", ["y", ["==", ["campo", "i", "b"], ["campo", "m", "nombre"]], ["==", ["campo", "i", "es_test"], false]]]]], ["donde", ["==", ["col", "importadores_reales"], 0]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"],
-  ["alcance", "cuenta importadores que no son tests, agrupando por módulo. NO ve nada si la relación `importa` está vacía —sin pares no hay grupos— ni distingue un importador que usa el módulo de uno que lo importa y no lo llama"]
+  ["requiere", "importa"],
+  ["alcance", "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama"]
 ]
 ```
 
@@ -1316,8 +1662,8 @@ En qué se expande:
 
 - **mide sobre** la relación `mutante`
 - **umbral**: `<= 0`
-- **por qué ese número**: un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada
-- **qué NO ve**: cuenta mutantes cuya muerte no fue demostrada: sobrevivientes, timeouts y errores del arnés conservan `murio=false`. NO ve los mutantes que nadie generó: una función sin ningún mutante apuntado da cero y sale verde
+- **por qué ese número**: un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar
+- **qué NO ve**: cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano
 
 Como está escrita:
 
@@ -1327,9 +1673,9 @@ Como está escrita:
   "proceso.test_con_mutante_que_lo_mata",
   "mutante",
   "m",
-  ["==", ["campo", "m", "murio"], false],
-  "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada",
-  "cuenta mutantes cuya muerte no fue demostrada: sobrevivientes, timeouts y errores del arnés conservan `murio=false`. NO ve los mutantes que nadie generó: una función sin ningún mutante apuntado da cero y sale verde"
+  ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
+  "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar",
+  "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano"
 ]
 ```
 
@@ -1339,10 +1685,10 @@ En qué se expande:
 [
   "medida",
   "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"], ["donde", ["==", ["campo", "m", "murio"], false]]],
+  ["desde", ["de", "mutante", "m"], ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada"],
-  ["alcance", "cuenta mutantes cuya muerte no fue demostrada: sobrevivientes, timeouts y errores del arnés conservan `murio=false`. NO ve los mutantes que nadie generó: una función sin ningún mutante apuntado da cero y sale verde"]
+  ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar"],
+  ["alcance", "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano"]
 ]
 ```
 
@@ -1518,23 +1864,283 @@ medidas, cada caso de defecto tiene que ponerse rojo y cada caso correcto, verde
 
 | Etiqueta | Cuántos |
 |---|---|
-| falso_verde | 25 |
-| verde_correcto | 12 |
+| falso_verde | 34 |
+| verde_correcto | 19 |
 | deuda_de_diseño | 2 |
 | falso_rojo | 2 |
 | medida_correcta_conclusion_errada | 1 |
 
 | Cómo se detectó | Cuántos |
 |---|---|
-| mutacion | 17 |
-| observacion | 12 |
-| persona | 8 |
+| mutacion | 22 |
+| observacion | 19 |
+| persona | 9 |
+| herramienta_ajena | 4 |
 | accidente | 4 |
-| herramienta_ajena | 1 |
 
 **Cada caso registra cómo se detectó.** Una suite verde y una mutación, una persona o
 un accidente son señales distintas; mezclarlas borraría justo la evidencia que el
 corpus intenta conservar.
+
+### 045-puerta-de-abandono-vencida
+
+**El criterio de fracaso llegó a su fecha y no frenó nada**
+
+- etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- medida que lo atrapa: `meta.compromiso_vencido_sin_cumplir`
+- de dónde salió: Segtem/oracle · 515c723
+
+**Qué pasó.** Oracle declaró un criterio de falsación —«si en seis meses la proporción no se movió, el lenguaje no valió la pena»— y la proporción empeoró dos cortes seguidos: 16,2 → 18,0 → 18,2. La respuesta publicada no fue aceptarlo sino reinterpretarlo: «el pago no es este corte, es que la macro número cuatro ya no cuesta ni una línea de núcleo». Nada en el repositorio se puso rojo. Un criterio que dispara y no frena no es un criterio: es una nota al pie.
+
+**Qué se aprendió.** La proporción no podía hacer el trabajo por dos razones estructurales: los catálogos externos no entran a su denominador, así que ningún éxito de adopción la mejora; y lo único que la mejora es escribir más medidas universales, que es el sastreo contra el que dice existir. Un criterio de fracaso necesita ser una regla observable con fecha y testigo externo, no una métrica. Y necesita ser un programa que falla, no un párrafo: este proyecto arranca diciendo que una regla escrita como consejo se lee y se olvida, y su propio criterio de falsación era exactamente eso.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "compromiso": [{"id": "dos-consumidores-independientes", "vence": "2027-01-29", "dias_restantes": -1, "vencido": true, "cumplido": false, "umbral": 2, "observado": 0, "alcanza_el_umbral": false}]
+}
+```
+
+### 046-cumplimiento-declarado-sin-respaldo
+
+**Desactivar la puerta declarando cumplido lo que no llega al umbral**
+
+- etiqueta: `falso_verde` · se detectó por: `persona`
+- medida que lo atrapa: `meta.cumplimiento_declarado_sin_respaldo`
+- de dónde salió: Segtem/oracle · 515c723
+
+**Qué pasó.** Con la puerta ya vencida y sin consumidores, poner `cumplido: true` en `COMPROMISOS.json` la apaga entera: la medida del plazo mira `vencido` y `cumplido`, y con el segundo en verdadero deja de contar. No hace falta tocar la fecha ni reescribir la condición ni explicar nada — una palabra alcanza para que el CI vuelva a verde con cero consumidores reales.
+
+**Qué se aprendió.** Toda puerta que se cierra con un booleano declarado se abre con el mismo booleano. La segunda medida no arregla eso —nada puede impedir editar un archivo del propio repo— pero obliga a que el número declarado sostenga la declaración: para apagar la puerta hay que escribir `observado: 2`, que es una afirmación concreta, falsable y fechada sobre el mundo, en vez de un `true` que no dice nada. El mecanismo no vuelve honesto a nadie; sube el precio de no serlo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "compromiso": [{"id": "dos-consumidores-independientes", "vence": "2027-01-29", "dias_restantes": -1, "vencido": true, "cumplido": true, "umbral": 2, "observado": 0, "alcanza_el_umbral": false}]
+}
+```
+
+### 047-puerta-abierta-a-tiempo
+
+**Un compromiso todavía en plazo no es un fracaso**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.compromiso_vencido_sin_cumplir`
+- de dónde salió: Segtem/oracle · 515c723
+
+**Qué pasó.** Un compromiso prerregistrado que aún no llegó a su fecha, sin cumplir todavía, tiene que salir VERDE. La puerta mide que el plazo venció sin cumplirse, no que falte cumplir: confundir las dos cosas volvería roja la medida el día que se escribe el compromiso, y un criterio que arranca en rojo se ignora desde el primer día. Es la polaridad que fija que el filtro filtre.
+
+**Qué se aprendió.** Las dos condiciones tienen que valer a la vez: vencido Y sin cumplir. Sin este caso, quitar el filtro entero o cambiar el `y` por un `o` pasaban inadvertidos —la mutación los reportó como sobrevivientes— y con cualquiera de esas dos escrituras la puerta se pondría roja estando todo en orden. Un falso rojo acá es peor que en otras medidas: enseña a ignorar precisamente el mecanismo que existe para no ser ignorado.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "compromiso": [{"id": "dos-consumidores-independientes", "vence": "2027-01-29", "dias_restantes": 158, "vencido": false, "cumplido": false, "umbral": 2, "observado": 0, "alcanza_el_umbral": false}]
+}
+```
+
+### 048-cumplimiento-con-respaldo
+
+**Un compromiso cumplido que sí alcanza su umbral**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.cumplimiento_declarado_sin_respaldo`
+- de dónde salió: Segtem/oracle · 515c723
+
+**Qué pasó.** Declarar cumplido un compromiso cuyo conteo observado alcanza el umbral prerregistrado tiene que salir VERDE: es exactamente el caso que la puerta existe para permitir. La medida denuncia el cumplimiento SIN respaldo, no el cumplimiento. Es la polaridad que fija que el filtro filtre.
+
+**Qué se aprendió.** Sin este caso, quitar el filtro o cambiar el `y` por un `o` sobrevivían: la medida se pondría roja al cumplir el compromiso, que es el único desenlace bueno posible. La polaridad verde no es un extra de prolijidad — sin ella el corpus no distingue una medida que denuncia lo que debe de una que denuncia todo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "compromiso": [{"id": "dos-consumidores-independientes", "vence": "2027-01-29", "dias_restantes": 158, "vencido": false, "cumplido": true, "umbral": 2, "observado": 2, "alcanza_el_umbral": true}]
+}
+```
+
+### 049-donde-agrego-filas
+
+**Un `donde` que devolvió más filas de las que recibió**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.donde_nunca_agrega_filas`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** La traza de la evaluación registró un `donde` con 3 filas de entrada y 4 de salida. Un filtro que agrega filas no filtró: los testigos que publica la medida no son los que sobrevivieron al predicado, así que el informe nombra filas que nunca se demostró que ofendieran.
+
+**Qué se aprendió.** Es la primera propiedad metamórfica de PLAN-LENGUAJE (e.1) enunciada como medida en vez de como test en Python. La diferencia no es qué se verifica sino dónde vive la regla: como medida entra a la mutación, al corpus y al inventario de puntos ciegos, y sale del núcleo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "paso": [{"t": 0, "operador": "de", "filas_antes": 0, "filas_despues": 3}, {"t": 1, "operador": "donde", "filas_antes": 3, "filas_despues": 4}]
+}
+```
+
+### 050-donde-filtra-como-debe
+
+**Un `donde` que reduce, y un `de` que puebla**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.donde_nunca_agrega_filas`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** La tubería normal: `de` puebla desde cero —y por eso crece, que es correcto y la medida no lo mira— y cada `donde` reduce o deja igual. Un `donde` que no descarta nada tampoco es una falla: la evidencia podía ofender entera.
+
+**Qué se aprendió.** Sin esta polaridad, quitar el filtro de operador o negarlo sobrevivían: la medida se pondría roja en cada `de`, que siempre agrega filas. La propiedad es sobre `donde`, no sobre la tubería.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "paso": [{"t": 0, "operador": "de", "filas_antes": 0, "filas_despues": 3}, {"t": 1, "operador": "donde", "filas_antes": 3, "filas_despues": 2}, {"t": 2, "operador": "donde", "filas_antes": 2, "filas_despues": 2}]
+}
+```
+
+### 051-agrupar-invento-un-grupo
+
+**`agrupar` devolvió más grupos que filas de entrada**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.agrupar_no_agranda_la_relacion`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** Cuatro filas entraron a `agrupar` y salieron cinco grupos. Un grupo es un resumen de filas: no puede haber más grupos que filas que los originen. Si sale agrandando, hay al menos un grupo que ninguna fila sostiene, y todo agregado calculado sobre él es un número sin evidencia detrás.
+
+**Qué se aprendió.** El caso 043 mostró que un agregado sobre cero filas es indistinguible de uno que dio cero. Éste es el otro extremo del mismo problema: un agregado sobre un grupo inventado tampoco se distingue de uno legítimo mirando sólo el número.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "paso": [{"t": 0, "operador": "unir", "filas_antes": 0, "filas_despues": 4}, {"t": 1, "operador": "agrupar", "filas_antes": 4, "filas_despues": 5}]
+}
+```
+
+### 052-agrupar-colapsa-como-debe
+
+**`agrupar` colapsa filas en grupos**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.agrupar_no_agranda_la_relacion`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** Seis filas colapsan en dos grupos, y un `agrupar` sobre dos filas ya agrupadas devuelve dos: colapsar a la misma cantidad es legítimo cuando cada fila es su propio grupo.
+
+**Qué se aprendió.** La igualdad tiene que pasar. Un umbral que exigiera reducción estricta daría falso rojo cada vez que las claves de agrupación son únicas, que es un caso común y correcto.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "paso": [{"t": 0, "operador": "unir", "filas_antes": 0, "filas_despues": 6}, {"t": 1, "operador": "agrupar", "filas_antes": 6, "filas_despues": 2}, {"t": 2, "operador": "agrupar", "filas_antes": 2, "filas_despues": 2}]
+}
+```
+
+### 053-unir-perdio-un-par
+
+**`unir` devolvió menos pares que el producto**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.unir_materializa_el_producto`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** Tres filas por cuatro son doce pares, y `unir` devolvió once. Perder un par esconde una ofensa: si la fila que faltaba era la que disparaba el predicado, la medida sale verde sin haber mirado el mundo entero.
+
+**Qué se aprendió.** Este defecto se escapó de la primera versión de la instrumentación, y por un motivo que vale más que el defecto: el hecho se anotaba DENTRO de `_unir`, leyendo su propia variable antes del `return`. Un sensor que se lee a sí mismo no audita la frontera — cualquier cosa que pase entre esa línea y el punto de uso queda fuera de la medición. Se movió al punto donde el operador devuelve.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "producto": [{"izquierda": 3, "derecha": 4, "salida": 11}]
+}
+```
+
+### 054-unir-materializa-el-producto
+
+**`unir` devuelve exactamente el producto**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.unir_materializa_el_producto`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** El producto completo, y los dos casos borde que importan: un lado vacío da cero pares. Es exactamente el mecanismo del falso verde de la ausencia (caso 043) visto desde el álgebra, y acá es el comportamiento correcto — lo que estaba mal era la medida que leía ese cero como un mundo en orden.
+
+**Qué se aprendió.** Los bordes con cero tienen que salir verdes acá y rojos allá, y no es contradicción: `unir` hace bien su trabajo devolviendo cero pares, y la medida de ausencia hacía mal el suyo concluyendo desde esa nada. Por eso el arreglo fue `requiere` y no tocar `unir`.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "producto": [{"izquierda": 3, "derecha": 4, "salida": 12}, {"izquierda": 2, "derecha": 0, "salida": 0}, {"izquierda": 0, "derecha": 5, "salida": 0}]
+}
+```
+
+### 055-logico-cortocircuito
+
+**Un `y` que evaluó un solo operando de dos**
+
+- etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- medida que lo atrapa: `meta.los_logicos_evaluan_todos_sus_operandos`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** `all()`/`any()` sobre generadores cortan apenas el resultado está decidido, así que un campo mal escrito dentro de un `y` nunca se evaluaba y devolvía un False silencioso. La especificación dice en §3 que comparar contra un campo ausente levanta error justamente porque un False silencioso lo convierte en un verde.
+
+**Qué se aprendió.** El defecto lo encontró el diferencial: dos de tres implementaciones independientes, escritas sólo desde la especificación, evaluaban todos los operandos. Y era peor que un verde fijo: dependía de los datos, así que la misma medida rota levantaba el error con una evidencia y lo escondía con otra.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "nodo": [{"cabeza": "y", "declarados": 2, "evaluados": 1}, {"cabeza": "o", "declarados": 2, "evaluados": 1}]
+}
+```
+
+### 056-logico-evalua-todo
+
+**Los lógicos evalúan todos sus operandos**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.los_logicos_evaluan_todos_sus_operandos`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** Cada `y` y cada `o` evaluó tantos operandos como declara su AST, sin importar que el primero ya decidiera el resultado.
+
+**Qué se aprendió.** Se paga evaluando de más en predicados grandes, y el presupuesto de §9 ya acota esa amplificación. Una medida que se apoya en el cortocircuito para no romperse está rota: lo que el cortocircuito le ahorraba era el error.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "nodo": [{"cabeza": "y", "declarados": 2, "evaluados": 2}, {"cabeza": "o", "declarados": 3, "evaluados": 3}, {"cabeza": "y", "declarados": 1, "evaluados": 1}]
+}
+```
+
+### 057-un-solo-cortocircuito
+
+**Un único `y` cortocircuitado, pegado al umbral**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.los_logicos_evaluan_todos_sus_operandos`
+- de dónde salió: Segtem/oracle · c81a87c
+
+**Qué pasó.** Una sola evaluación en toda la corrida dejó un operando sin evaluar: dos declarados, uno evaluado. El resto de los nodos lógicos está sano. Es el borde exacto del umbral —un ofensor contra `<= 0`— y es la forma en que este defecto aparece en la realidad: no como una implementación que cortocircuita siempre, sino como una expresión donde los datos hicieron que el primer operando decidiera.
+
+**Qué se aprendió.** El umbral es `<= 0` y no admite tolerancia, porque un solo operando sin evaluar es un error sin levantar. Sin este caso, aflojar el umbral a `<= 1` sobrevivía —la mutación lo reportó— y con esa escritura la medida dejaría pasar exactamente el caso que motivó escribirla. Un mutante de umbral sólo lo mata un caso pegado al límite: la polaridad no alcanza, hace falta el borde.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "nodo": [{"cabeza": "y", "declarados": 2, "evaluados": 1}, {"cabeza": "y", "declarados": 2, "evaluados": 2}, {"cabeza": "o", "declarados": 3, "evaluados": 3}]
+}
+```
 
 ### 001-verde-acumulativo
 
@@ -1573,7 +2179,7 @@ La evidencia, como relaciones:
 ```json
 {
   "test": [{"id": "test_la_firma_sale_en_el_orden_en_que_se_ven_los_pines", "archivo": "tests/test_funcion.py", "cubre": "funcion._orden_visual"}]
-  "mutante": [{"id": "orden_por_id", "apunta_a": "funcion._orden_visual", "cambio": "clave de sort: (y,x,id) -> id", "murio": false}]
+  "mutante": [{"id": "orden_por_id", "apunta_a": "funcion._orden_visual", "cambio": "clave de sort: (y,x,id) -> id", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
 }
 ```
 
@@ -1593,7 +2199,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "mutante": [{"id": "sin_filtro_fondo", "apunta_a": "catalogo._vecinas", "cambio": "quitar el filtro es_fondo", "murio": false}]
+  "mutante": [{"id": "sin_filtro_fondo", "apunta_a": "catalogo._vecinas", "cambio": "quitar el filtro es_fondo", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
   "generador": [{"id": "_mundo", "produce": "pieza", "cubre_caso_fondo": false}]
 }
 ```
@@ -1636,7 +2242,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "mutante": [{"id": "umbral_yaw_flojo", "apunta_a": "catalogo.YAW", "cambio": "umbral <= 0.5 -> <= 5.0", "murio": false}]
+  "mutante": [{"id": "umbral_yaw_flojo", "apunta_a": "catalogo.YAW", "cambio": "umbral <= 0.5 -> <= 5.0", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
   "generador": [{"id": "_snappeable", "produce": "pieza", "cubre_franja_0.5_a_5_grados": false}]
   "desvio_yaw_generado": [{"grados": 0.0}, {"grados": 0.4}, {"grados": 45.0}]
 }
@@ -1806,7 +2412,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "mutante": [{"id": "algebra.py:50:27:comparador", "apunta_a": "algebra._cmp", "murio": false}, {"id": "algebra.py:51:26:comparador", "apunta_a": "algebra._cmp", "murio": false}, {"id": "algebra.py:53:26:comparador", "apunta_a": "algebra._cmp", "murio": false}, {"id": "algebra.py:54:27:comparador", "apunta_a": "algebra._cmp", "murio": false}, {"id": "medida.py:52:73:constante", "apunta_a": "medida.Veredicto.linea", "murio": false}, {"id": "medida.py:53:53:comparador", "apunta_a": "medida.Veredicto.linea", "murio": false}]
+  "mutante": [{"id": "algebra.py:50:27:comparador", "apunta_a": "algebra._cmp", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}, {"id": "algebra.py:51:26:comparador", "apunta_a": "algebra._cmp", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}, {"id": "algebra.py:53:26:comparador", "apunta_a": "algebra._cmp", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}, {"id": "algebra.py:54:27:comparador", "apunta_a": "algebra._cmp", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}, {"id": "medida.py:52:73:constante", "apunta_a": "medida.Veredicto.linea", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}, {"id": "medida.py:53:53:comparador", "apunta_a": "medida.Veredicto.linea", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
   "corrida_mutacion": [{"id": "nucleo_primera", "mutantes": 242, "bytecode_frio": true, "resultado_confiable": true}]
 }
 ```
@@ -1827,7 +2433,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "mutante": [{"id": "mutacion_codigo.py:sin_manejador_de_señales", "apunta_a": "mutacion_codigo._restaurar_todo", "murio": false}]
+  "mutante": [{"id": "mutacion_codigo.py:sin_manejador_de_señales", "apunta_a": "mutacion_codigo._restaurar_todo", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
   "test": [{"id": "test_restaura_el_archivo_EXACTAMENTE", "archivo": "tests/test_mutacion_codigo.py", "cubre": "el camino normal, no la terminación forzada"}]
 }
 ```
@@ -1910,7 +2516,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "mutante": [{"id": "mutacion_codigo.py:enumerador_cache_sin_guarda", "apunta_a": "nucleo.mutacion_codigo.limpiar_cache", "murio": false}]
+  "mutante": [{"id": "mutacion_codigo.py:enumerador_cache_sin_guarda", "apunta_a": "nucleo.mutacion_codigo.limpiar_cache", "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
 }
 ```
 
@@ -2036,6 +2642,68 @@ La evidencia, como relaciones:
 }
 ```
 
+### 043-ausencia-total-sale-verde
+
+**La medida de ausencia se ponía más verde cuanto peor estaba el mundo**
+
+- etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- medida que lo atrapa: `proceso.modulo_con_consumidor`
+- de dónde salió: Segtem/oracle · 515c723
+
+**Qué pasó.** Con tres módulos y UN importador real, `proceso.modulo_con_consumidor` salía roja y señalaba los dos módulos muertos. Con los mismos tres módulos y NINGÚN importador —el mundo estrictamente peor— salía verde. `unir` con un lado vacío no produce pares, sin pares no hay grupos, el agregado sobre cero filas da 0 y el umbral `<= 0` lo lee como éxito. La medida no era monótona: empeorar el mundo la mejoraba.
+
+**Qué se aprendió.** El `alcance` de la medida ya declaraba este hueco —«NO ve nada si la relación `importa` está vacía»— y declararlo lo volvía visible sin cerrarlo: la especificación llamaba RESUELTA a la ausencia y admitía el caso abierto tres líneas después. No es expresable con los cinco operadores: sin join no hay correlación, y DECISION-002 prohíbe que una medida consuma la salida de otra. Se cerró con `requiere`, el espejo de `alcance`: uno declara qué NO ve la medida, el otro qué NECESITA ver, y el evaluador falla cerrado antes de medir. La lección general es que un agregado sobre cero filas es indistinguible de un agregado que dio cero, y sólo la medida sabe cuál de las dos cosas es.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "modulo": [{"nombre": "jam.a", "tests": 4, "importadores": 0}, {"nombre": "jam.b", "tests": 7, "importadores": 0}, {"nombre": "jam.c", "tests": 2, "importadores": 0}]
+  "importa": []
+}
+```
+
+### 044-sin-grafo-de-alcance-sale-verde
+
+**Sin grafo de alcance, «todo módulo es alcanzable»**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `proceso.modulo_alcanzable`
+- de dónde salió: Segtem/oracle · 515c723
+
+**Qué pasó.** El sensor que produce la relación `alcanzable` falló y devolvió cero filas —no declaró entradas, o el análisis de imports se rompió—. `proceso.modulo_alcanzable` salía verde con tres módulos que nadie puede ejecutar: sin pares no hay grupos, el conteo da 0 y el umbral `<= 0` lo aprueba. El mismo defecto que `043`, en la otra medida que usa el patrón de ausencia, y lo encontró el mutador `quitar_requiere` como sobreviviente: la medida tenía la precondición pero ningún caso la fijaba.
+
+**Qué se aprendió.** Un sensor que falla en silencio es indistinguible de un mundo en orden cuando la medida agrega sobre cero filas. Declarar `requiere` no alcanza si ningún caso lo fija: el mutador es lo que convierte la precondición en algo verificado y no sólo en algo escrito. Toda medida que use el patrón de ausencia —`unir` más `agrupar` sobre un predicado— necesita las dos cosas, la precondición y su caso.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "modulo": [{"nombre": "jam.entrada", "es_test": false, "lineas": 40, "es_paquete_vacio": false}, {"nombre": "jam.medio", "es_test": false, "lineas": 25, "es_paquete_vacio": false}, {"nombre": "jam.hoja", "es_test": false, "lineas": 12, "es_paquete_vacio": false}]
+  "alcanzable": []
+}
+```
+
+### 058-rechazo-del-algebra-no-es-deteccion
+
+**Un mutante que el álgebra rechaza no lo discriminó ningún caso**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
+- de dónde salió: Segtem/oracle · a694954
+
+**Qué pasó.** Sustituir un campo por otro del mismo alias pero de otro tipo produce una comparación incomparable: el mutante levanta `ErrorDeAlgebra` antes de evaluar nada. No queda vivo —no hay riesgo de que pase inadvertido— pero tampoco lo discriminó ningún caso: ni siquiera llegó a producir un veredicto que comparar. Contarlo junto a las muertes conductuales publica una capacidad de detección que el corpus no tiene, y así el 129/129 declaraba 100% cuando lo conductual era 105.
+
+**Qué se aprendió.** El caso es verde porque ninguno de los tres quedó sin observar, y eso es lo correcto: la medida denuncia sobrevivientes, no rechazos. Pero es el caso que fija la SEGUNDA condición del predicado. La mutación lo pidió: sin él, cambiar `rechazos_del_algebra` por `detecciones_conductuales` en la segunda comparación pasaba inadvertido, porque ningún caso tenía un mutante con rechazos y cero conducta. Es también el caso que sólo existe porque la política salió de Python: mientras `murio` era un booleano calculado en el sensor, esta distinción no era un hecho que un caso pudiera fijar.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "mutante": [{"id": "d.x·campo:2.2.1.1.1.2:n→s", "apunta_a": "d.x", "cambio": "campo:n→s", "detecciones_conductuales": 0, "rechazos_del_algebra": 3}, {"id": "d.x·quitar_filtro", "apunta_a": "d.x", "cambio": "quitar_filtro", "detecciones_conductuales": 2, "rechazos_del_algebra": 0}, {"id": "d.x·aflojar_umbral", "apunta_a": "d.x", "cambio": "aflojar_umbral", "detecciones_conductuales": 1, "rechazos_del_algebra": 1}]
+}
+```
+
 ### 101-mutantes-todos-muertos
 
 **Los seis mutantes del núcleo murieron: el verde acá es correcto**
@@ -2052,7 +2720,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "mutante": [{"id": "M1_umbral_siempre_cumple", "apunta_a": "algebra._cmp", "murio": true}, {"id": "M2_donde_no_filtra", "apunta_a": "algebra.aplicar", "murio": true}, {"id": "M3_contar_da_cero", "apunta_a": "algebra.resumir", "murio": true}, {"id": "M4_campo_ausente_False", "apunta_a": "algebra.evaluar_expr", "murio": true}, {"id": "M5_sin_defensa", "apunta_a": "medida.de_datos", "murio": true}, {"id": "M6_sin_alcance", "apunta_a": "medida.de_datos", "murio": true}]
+  "mutante": [{"id": "M1_umbral_siempre_cumple", "apunta_a": "algebra._cmp", "detecciones_conductuales": 1, "rechazos_del_algebra": 0}, {"id": "M2_donde_no_filtra", "apunta_a": "algebra.aplicar", "detecciones_conductuales": 1, "rechazos_del_algebra": 0}, {"id": "M3_contar_da_cero", "apunta_a": "algebra.resumir", "detecciones_conductuales": 1, "rechazos_del_algebra": 0}, {"id": "M4_campo_ausente_False", "apunta_a": "algebra.evaluar_expr", "detecciones_conductuales": 1, "rechazos_del_algebra": 0}, {"id": "M5_sin_defensa", "apunta_a": "medida.de_datos", "detecciones_conductuales": 1, "rechazos_del_algebra": 0}, {"id": "M6_sin_alcance", "apunta_a": "medida.de_datos", "detecciones_conductuales": 1, "rechazos_del_algebra": 0}]
 }
 ```
 
@@ -2414,7 +3082,7 @@ Los docstrings enteros: ahí vive el razonamiento y las decisiones descartadas, 
 
 ### `nucleo/algebra.py`
 
-*593 líneas*
+*683 líneas*
 
 El álgebra: relaciones, expresiones y los operadores. Sin dependencias.
 
@@ -2510,39 +3178,55 @@ mundo y no opina; el álgebra opina y no mira el mundo.
 
 ### `nucleo/macro.py`
 
-*109 líneas*
+*298 líneas*
 
-Macros: medidas que escriben medidas.
+Macros: medidas que escriben medidas — y que ahora se declaran EN DATOS.
 
-De las 27 medidas del catálogo, **22 tenían exactamente la misma forma**:
+### Por qué cambió
 
-    ["desde", ["de", R, x], ["donde", P]] · ["resumen","contar",1] · ["umbral","<=",0, …]
+Hasta este corte `MACROS` era un diccionario de funciones de Python acá adentro. O sea: las medidas
+eran datos, pero **los medios de abstracción no**. Un proyecto que quería una forma propia tenía que
+editar el núcleo de Oracle, y eso contradice de frente lo que el repositorio afirma de sí mismo — que
+sin homoiconicidad el lenguaje tiene dueño, y que el dueño sería el LLM. El dueño *era* quien podía
+editar este archivo.
 
-La regla del repositorio decía que las macros se habilitan «cuando aparezca la quinta medida con la
-misma forma». Aparecieron veintidós. Sin macro, escribir la medida 28 es la misma ceremonia que la 1,
-y cambiar esa forma alguna vez serían 22 archivos.
+Ahora una macro es un archivo de datos, con la misma forma para las que trae Oracle y para las que
+escribe un proyecto:
 
-### Por qué esto no cuesta inspeccionabilidad
+```json
+["defmacro", "<nombre>",
+  ["<parametro>", ...],
+  [["guarda", <expresion>, "<mensaje>"], ...],
+  <plantilla>]
+```
+
+La plantilla es la forma canónica con huecos `["$", "<parametro>"]`. Expandir es sustituir. Las tres
+macros universales —`ninguno`, `ninguno-par`, `peor`— viven en `nucleo/macros/` y se cargan como
+cualquier otra: son la biblioteca estándar del lenguaje, no un privilegio del núcleo.
+
+### Las guardas no traen evaluador nuevo
+
+`ninguno-par` exige que sus dos alias difieran, y una plantilla pura no sabe expresar eso. La guarda
+se sustituye primero y se evalúa después con `evaluar_expr` del álgebra sobre una **fila vacía**: una
+expresión sin accesores nunca toca la fila, así que el mecanismo ya existía. De regalo hereda todo el
+contrato del álgebra — comparación entre familias incompatibles, prohibición de igualdad exacta entre
+flotantes, límites de profundidad.
+
+### Esto no cuesta inspeccionabilidad
 
 Una macro **expande a los mismos datos**, igual que en LISP: la expansión ocurre antes de construir la
 medida, así que el evaluador, la mutación, el inventario y el nivel L2 siguen viendo formas canónicas
 y no se enteran de que hubo macro. `tools/medida.py --expandir` muestra el resultado.
 
-### `peor` cierra una deuda de diseño
-
-El caso `012` del corpus anotaba que en el patrón «`donde tol` → `max` → `umbral tol`» la tolerancia
-aparecía **dos veces** y nada las mantenía juntas. La macro la recibe **una sola vez** y genera las
-dos. La deuda desaparece por construcción, que es mejor que comprobarla.
-
 ### Las macros son azúcar, no un embudo
 
-La forma canónica sigue siendo válida y hay medidas que no pasan por macro (`colocacion.interpenetracion`
-une DOS relaciones distintas y resume por `max`). Un sistema de macros que obliga a todo a pasar por él
-se vuelve una camisa de fuerza: si la forma no encaja, se escribe canónica y listo.
+La forma canónica sigue siendo válida y hay medidas que no pasan por macro. Un sistema de macros que
+obliga a todo a pasar por él se vuelve una camisa de fuerza: si la forma no encaja, se escribe
+canónica y listo.
 
 ### `nucleo/marco.py`
 
-*102 líneas*
+*107 líneas*
 
 Sensores del propio marco: hechos sobre los casos y sobre el uso de cada medida.
 
@@ -2572,7 +3256,7 @@ hasta que `agrupar` exista se rodea así.
 
 ### `nucleo/medida.py`
 
-*300 líneas*
+*368 líneas*
 
 La medida: un dato que se lee, se evalúa y se puede medir a su vez.
 
@@ -2596,7 +3280,7 @@ obliga a escribir la misma condición dos veces y a mantenerlas sincronizadas a 
 
 ### `nucleo/mutacion.py`
 
-*332 líneas*
+*348 líneas*
 
 Mutación de MEDIDAS — la prueba de si el corpus alcanza para fijarlas.
 
@@ -2623,7 +3307,7 @@ distintos.
 
 ### `nucleo/proyecto.py`
 
-*381 líneas*
+*406 líneas*
 
 A qué proyecto se le mide. Oracle es la herramienta; el proyecto es de otro.
 
@@ -2695,7 +3379,7 @@ Cada una existe por un motivo que está escrito en su encabezado. Varias naciero
 
 ### `tools/aceptacion.py`
 
-*133 líneas*
+*134 líneas*
 
 La prueba de aceptación del marco: **el corpus juzga al oráculo, no al revés.**
 
@@ -2716,9 +3400,39 @@ Sale != 0 si algún caso que debía ponerse rojo salió verde.
 
 ### `tools/cifras.py`
 
-*74 líneas*
+*247 líneas*
 
-Genera y comprueba las cifras técnicas publicadas en el README de Oracle.
+Genera y comprueba las cifras publicadas en el README de Oracle.
+
+Un número escrito a mano en la prosa es una afirmación sin medida: nadie lo ejercita, así que no
+puede fallar. Este archivo existe para que no queden. Cada bloque `<!-- <nombre>:inicio -->` del
+README lo produce una función de acá, y `main()` sin `--actualizar` falla si alguno venció.
+
+La deriva no es hipotética: el corte anterior publicaba «2202 líneas de núcleo», «106 negativas» y
+una proporción de «trece a uno» cuando ya iban 2654, 150 y 16,2. Justamente la proporción es el
+criterio de falsación declarado del proyecto —si no baja, el lenguaje no valió la pena—, y era el
+número que nadie estaba midiendo.
+
+### `tools/compromisos.py`
+
+*147 líneas*
+
+Sensor de los compromisos prerregistrados: la puerta de abandono del propio Oracle.
+
+    python tools/compromisos.py            → informe
+    python tools/compromisos.py --hechos   → evidencia JSON
+
+Oracle le exige a toda afirmación un umbral, una defensa escrita y un testigo. No tenía ninguno para
+sí mismo, y su criterio declarado —la proporción— ya disparó en contra dos veces sin que nada
+frenara: la respuesta publicada fue reinterpretarlo. Un prerregistro en prosa habría corrido la misma
+suerte, porque este proyecto arranca diciendo que **una regla escrita como consejo se lee y se
+olvida**. Así que la puerta es una medida, y la corre el CI.
+
+Lo que el mecanismo puede y lo que no: no impide editar `COMPROMISOS.json` —nada puede—, pero
+convierte cambiar de criterio en un commit fechado y visible en vez de un párrafo nuevo que
+reinterpreta el anterior. Eso es todo lo que un prerregistro da, y es lo que faltaba.
+
+El sensor produce HECHOS y no juzga: si la fecha pasó lo decide una medida.
 
 ### `tools/corpus.py`
 
@@ -2742,7 +3456,7 @@ justamente los que no hay que perder: son la lista de lo que falta.
 
 ### `tools/diferencial.py`
 
-*164 líneas*
+*165 líneas*
 
 La prueba diferencial: el álgebra contra una implementación independiente.
 
@@ -2764,7 +3478,7 @@ la que permite atribuir al mutante un error posterior dentro del código ejercit
 
 ### `tools/estudio.py`
 
-*392 líneas*
+*404 líneas*
 
 Vuelca todo el repositorio a Markdown plano y autocontenido, para subirlo y estudiarlo.
 
@@ -2785,9 +3499,26 @@ mantenida a mano:
      justo lo que más sirve para entender por qué las cosas son como son.
   3. **los docstrings del núcleo tienen el razonamiento**, no el código. Van enteros.
 
+### `tools/generar_diferencial.py`
+
+*168 líneas*
+
+Emite los fixtures `oracle.diferencial/v1` desde la implementación de referencia.
+
+    python tools/generar_diferencial.py            → comprueba que lo versionado esté al día
+    python tools/generar_diferencial.py --escribir → reescribe los fixtures
+
+Quién decide `referencia_ok` es `diferencial/referencia/evaluador.py`, escrito por otro autor que
+nunca vio `nucleo/` (ver `diferencial/referencia/PROCEDENCIA.md`). Oracle no se copia a sí mismo: si
+las dos implementaciones ya discrepan al generar, **no se emite el fixture**, porque un fixture que
+nace en desacuerdo congela el desacuerdo en vez de exponerlo.
+
+Regenerar dos veces con las mismas entradas produce exactamente los mismos bytes: la serialización es
+JSON canónico con orden estable y sin `NaN`.
+
 ### `tools/medida.py`
 
-*268 líneas*
+*270 líneas*
 
 Escribir una medida sin pedirle permiso a nadie.
 
@@ -2810,7 +3541,7 @@ fixtures. Si aparece un hecho nuevo, aparece acá solo.
 
 ### `tools/mutar.py`
 
-*122 líneas*
+*132 líneas*
 
 Muta las medidas y mide el resultado CON LAS MEDIDAS. El bucle se cierra acá.
 
@@ -2825,7 +3556,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*254 líneas*
+*297 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -2845,6 +3576,30 @@ tests son estados distintos; sólo el último demuestra que el mutante murió.
 *15 líneas*
 
 Frontera común entre errores de proyecto y los códigos de salida de los entry points.
+
+### `tools/trazar.py`
+
+*109 líneas*
+
+El evaluador como sensor de sí mismo: corre el corpus bajo traza y mide lo que el álgebra hizo.
+
+    python tools/trazar.py            → informe
+    python tools/trazar.py --hechos   → evidencia JSON
+
+Oracle no puede evaluarse a sí mismo —recorrer un AST es recursión, y la recursión salió del álgebra
+a propósito (`ESPECIFICACION.md` §8)— pero sí puede **juzgarse ejecutándose**. Es la doctrina del
+proyecto aplicada al evaluador: el sensor produce hechos, el álgebra los mide, y acá el sensor es el
+evaluador.
+
+Lo que cambia con esto no es qué se verifica, sino DÓNDE vive la regla. «`donde` nunca agrega filas»
+como test en Python es una afirmación que nadie muta y que no aparece en ningún inventario. Como
+medida entra a la mutación, al corpus, al inventario de umbrales y al de puntos ciegos, igual que
+cualquier otra — y sale del núcleo, que es la única dirección en la que la proporción mejora sin
+sastrearla.
+
+El punto ciego de todo esto, dicho: estas medidas las evalúa el mismo evaluador que vigilan, así que
+un defecto podría taparse a sí mismo. Lo que cierra esa puerta es el diferencial —la implementación
+de referencia evalúa las mismas medidas sobre la misma traza, y ahí hay dos manos distintas.
 
 ### `tools/verificar_instalacion.py`
 
@@ -3837,6 +4592,392 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 
 *commit e096a37*
 
+
+
+### 2026-07-31 — Genera el estudio integral de Oracle
+
+*commit d4ca54b*
+
+
+
+### 2026-07-31 — Repara el CI: diferencial/ vacío, setuptools en 3.13, timeout flaky
+
+*commit c558c4f*
+
+`diferencial/` se quedó vacío tras dab72cb (los dominios se mudaron a
+jam/medidas/) pero al ser un directorio vacío git no lo trackeaba, así que
+en un checkout limpio `tools/mutar.py` fallaba con "falta diferencial/".
+Se agrega `.gitkeep`.
+
+`verificar_instalacion.py` usaba `pip wheel --no-build-isolation`, que
+exige setuptools ya instalado en el intérprete. Las imágenes de Python 3.13
+de actions/setup-python ya no lo traen preinstalado (las de 3.11 sí),
+así que fallaba solo en esa versión. Se saca la bandera: el build aislado
+además refleja mejor lo que vive un consumidor real.
+
+`test_timeout_mata_tambien_un_nieto_que_ignora_SIGTERM` usaba timeout=0.2s,
+insuficiente para arrancar dos intérpretes anidados bajo la carga de un
+runner de GitHub Actions — el nieto no llegaba a escribir su pid antes de
+que el harness disparara el timeout. Se sube a 1.5s.
+
+Los tres bloqueaban el CI de main en el 100% de las corridas desde que se
+agregó — y main es lo que Jam trae con `git subtree pull`.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+
+### 2026-07-31 — Tapa el mutante que sobrevivía en marco.py: esperado_ok sin ejercitar
+
+*commit 8424743*
+
+El único test de hechos_de_casos nunca pasaba por la rama existe=True —
+todos sus casos usaban una medida inexistente o None, donde
+`dio = esperado` se autoiguala aunque el `==` de la línea 37 se mute a
+`!=`. El mutador (ya corriendo en CI tras el fix anterior) lo encontró:
+nucleo/marco.py:37 comparador Eq→NotEq sobrevivía.
+
+Se agrega un caso con una medida real (falsa, vía stub) para pinchar la
+polaridad: etiqueta que coincide vs. que no coincide, con dio_ok fijo e
+independiente. cifras.py actualiza el README con el nuevo conteo de tests.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+
+### 2026-07-31 — Agrega tutorial práctico de sintaxis, complementario al estudio integral
+
+*commit ff1be61*
+
+ORACLE-PARA-NOTEBOOKLM.md es el volcado integral (filosofía, especificación,
+auditoría, historia). Este es distinto a propósito: aprender haciendo, de
+menor a mayor complejidad, con ejemplos reales verificados contra el
+evaluador — tanto del propio catálogo como del catálogo de geometría de Jam
+en producción. Incluye un proyecto de punta a punta armado desde cero.
+
+Co-Authored-By: Claude Sonnet 5 <noreply@anthropic.com>
+
+### 2026-08-14 — Tres ítems del plan de lenguaje: cifras medidas, defmacro en datos, composición rechazada
+
+*commit 515c723*
+
+Trabajo del 2026-08-03 que había quedado sin commitear. Verificado entero antes
+de entrar: 391 tests, aceptación 27 rojos / 12 verdes / 0 huecos, mutación de
+medidas 129/129, y la matriz de mutación de código 16/16 en VERDE — 1230
+mutantes muertos más el equivalente declarado, que son los 1231 sitios que el
+README publica.
+
+(d) Ninguna cifra tipeada a mano
+`tools/cifras.py` genera cinco bloques del README y el CI falla si vencen.
+Encontró cuatro derivas que nadie había detectado, y la peor es la que define al
+proyecto: el README publicaba «2202 líneas / 106 raise / trece a uno» cuando los
+valores reales eran 2654 / 150 / 16,2. El criterio de falsación declarado era
+justamente el número que no estaba bajo medición. Otra afirmación —«sale en
+VERDE, 1073/1073»— había sobrevivido a un cambio de denominador: el caso 021 del
+corpus, cometido sobre el propio README.
+
+Dos afirmaciones sin respaldo mecánico posible se borraron por decisión de Brian.
+Una de ellas estaba replicada en `tools/estudio.py`, que la inyectaba en el
+paquete de estudio: sacarla sólo del README la habría dejado publicándose.
+
+`tools/cifras.py` entra a la matriz de mutación, y con la regla escrita en
+HERRAMIENTAS_CUSTODIAS: los instrumentos entran de a uno y sólo cuando custodian
+una afirmación que nadie más comprueba. Mutar `tools/` entero habría sumado 559
+sitios de plumbing de CLI cuyo veredicto vive en `nucleo/`.
+
+(a) defmacro en datos
+Las tres macros salen de Python a `nucleo/macros/*.json`. El criterio se cumple
+—una macro nueva no cuesta núcleo— pero la proporción EMPEORÓ, de 16,2 a 18,0, y
+el plan había predicho lo contrario: el mecanismo que las reemplaza pesa más que
+las tres funciones que borró. Queda publicado así, sin maquillar.
+
+El numerador cuenta los `.json` junto con el `.py` a propósito: contando sólo
+código, mover Python a datos habría «mejorado» la proporción sin que el lenguaje
+encogiera un gramo — el sastreo exacto contra el que esta medición existe.
+
+(c) Composición de medidas — RECHAZADA
+DECISION-002. Una medida no puede consumir el resultado, los testigos ni el
+veredicto de otra. No es costo: es el modo de falla que Oracle existe para
+evitar, porque permite que las medidas se cubran entre sí y vuelve el `alcance`
+incomprobable a mano. Lo importante no es el rechazo sino que una ausencia pasó
+a ser una decisión, con su disparador de reversión escrito: dos medidas reales
+en un proyecto consumidor que no se puedan expresar sin composición.
+
+PLAN-LENGUAJE.md deja los dos ítems que faltan: (e.1) propiedades metamórficas y
+(b) reificación mecánica del catálogo, que es lo que justifica la palabra
+«metalenguaje» — hoy L2 tiene mecanismo propio y se llama `marco.py`.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+### 2026-08-24 — Responde las dos auditorías externas: licencia, diferencial poblado y puerta de abandono
+
+*commit c81a87c*
+
+Dos auditorías independientes (Codex gpt-5.5 y DeepSeek, agosto 2026) coincidieron en
+cuatro bloqueantes. Este commit los cierra y agrega los hallazgos que aparecieron al
+hacerlo.
+
+### Licencia (bloqueante en las dos)
+
+MIT en LICENSE y en los metadatos del paquete. Verificado en el wheel:
+`License-Expression: MIT` con el archivo incluido, así que un tercero puede identificar
+los permisos automáticamente y redistribuirlo.
+
+### El diferencial ya no está vacío
+
+`diferencial/` contenía un `.gitkeep` de 0 bytes: la única de las tres «señales externas»
+que podía romper el círculo de autoría estaba estructuralmente vacía.
+
+Se escribieron tres implementaciones independientes del álgebra —Codex, Agy y DeepSeek V4
+Pro— en directorios aislados, sólo con ESPECIFICACION.md y las dos DECISION, sin acceso a
+`nucleo/`. Se versiona la de Codex en `diferencial/referencia/`, con PROCEDENCIA.md
+declarando qué archivos vio: eso es el artefacto, porque desde afuera una implementación
+independiente y una que espió se ven igual.
+
+`tools/generar_diferencial.py` emite el fixture y se NIEGA a emitirlo si la referencia y
+Oracle ya discrepan — un fixture que nace en desacuerdo congela el desacuerdo.
+
+Sobre los 39 casos del corpus las cuatro implementaciones coinciden en todo, y eso no es
+tranquilizador: el corpus no hace ninguna pregunta difícil. Los desacuerdos aparecieron
+con 26 sondas dirigidas a los rincones que los propios autores declararon ambiguos, y se
+separan en tres clases: la especificación no decide (las independientes se dividen entre
+sí), `nucleo/` contra todas, y bugs de contrato de las implementaciones.
+
+### El cortocircuito de `y`/`o` — un falso verde en el evaluador publicado
+
+`all()`/`any()` sobre generadores cortocircuitan, así que un campo mal escrito dentro de
+un `y` devolvía un False silencioso: exactamente el verde que §3 prohíbe, tres líneas
+debajo del `raise` que existe para levantarlo. Y dependía de los datos — la misma medida
+rota rompía con una evidencia y se escondía con otra.
+
+Medido antes de tocar nada: 0 de 39 casos del corpus cambian de veredicto. El arreglo sólo
+afecta a medidas rotas.
+
+### `requiere`: el falso verde de la ausencia, cerrado
+
+`unir` con un lado vacío no produce pares, sin pares no hay grupos, el agregado sobre cero
+filas da 0 y un umbral `<= 0` lo lee como éxito. La medida más fuerte —«un módulo que
+nadie importa»— salía VERDE justo cuando el mundo estaba peor. No es expresable con los
+cinco operadores, y DECISION-002 prohíbe componer medidas.
+
+Entra `["requiere", <relación>]`, nodo opcional y espejo de `alcance`: uno declara qué NO
+ve la medida, el otro qué NECESITA ver. Fail-closed antes de medir, con veredicto
+SIN EVIDENCIA. El álgebra queda intacta y las medidas sin `requiere` no cambian de forma
+canónica, así que no se corren sus rutas de mutación.
+
+El mutador `quitar_requiere` lo pone en el denominador: dejó un sobreviviente en
+`proceso.modulo_alcanzable` —tenía la precondición y ningún caso la fijaba— y lo tapó el
+caso 044.
+
+### La puerta de abandono prerregistrada
+
+Oracle exige umbral, defensa y testigo a toda afirmación, y no tenía ninguno para sí
+mismo. Su criterio declarado —la proporción— ya disparó en contra tres cortes seguidos
+(16,2 → 18,0 → 18,2) y la respuesta publicada fue reinterpretarlo. Y aunque no se
+reinterpretara, es inmune a la adopción: los catálogos externos no entran a su
+denominador, así que ningún consumidor puede mejorarla.
+
+`COMPROMISOS.json` prerregistra la condición como dato, y la juzgan dos medidas: si al
+2027-01-29 no hay dos consumidores independientes, se archiva el DSL y se conserva el
+protocolo `caso + porque + alcance + testigos`.
+`meta.cumplimiento_declarado_sin_respaldo` cierra la salida barata: para apagar la puerta
+hay que escribir un número que alcance el umbral, no un `true`. El CI las corre.
+
+No impide editar el archivo. Convierte cambiar de criterio en un commit fechado y visible
+en vez de un párrafo que reinterpreta el anterior.
+
+Al agregarlas, `meta.el_nivel_no_se_confunde_con_el_dominio` se puso roja y señaló las dos
+por nombre: se llamaban `meta.` y su relación no estaba declarada como del lenguaje. Se
+corrigió declarando `compromiso` reflexiva — describe al proyecto que mide, no al mundo
+medido.
+
+### Informe mutacional y deriva documental
+
+`murio` y `murio_por_conducta` dejan de ser lo mismo: 24 de los 129 mutantes morían sólo
+porque el álgebra los rechaza con una excepción, sin que ningún caso los discriminara.
+El informe publica las dos cifras.
+
+`tools/cifras.py` custodia ahora `estudio/00-esencia.md`, que ya tenía las marcas y nadie
+las miraba; un documento declarado que no existe es error, para que borrar el archivo no
+sea la manera de librarse de la medición. Corregida la deriva «26 de 27» → «15 de 18» en
+cuatro documentos y la contradicción 17,6 / 18,0 en PLAN-LENGUAJE.
+
+### Verificación
+
+403 tests OK · CIFRAS OK · CORPUS OK (48 casos)
+ACEPTACIÓN 31 defectos en rojo, 14 verdes correctos, 0 huecos sin tapar
+DIFERENCIAL 4 acuerdos globales con referencia independiente
+MUTACIÓN 155/155 — 131 por conducta, 24 rechazados por el álgebra
+COMPROMISOS en plazo, faltan 158 días
+
+La proporción quedó en 16,4 a 1. Subió a 18,2 por los arreglos al núcleo y bajó a 16,4 al
+sumar las dos medidas de la puerta: con un denominador de 20 medidas, dos archivos la
+mueven un 10%. Como criterio de falsación es demasiado sensible para significar algo, que
+es precisamente por qué la puerta no depende de ella.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+### 2026-08-24 — El evaluador como sensor de sí mismo: las propiedades del álgebra, escritas en el álgebra
+
+*commit a694954*
+
+Oracle no puede evaluarse a sí mismo —recorrer un AST es recursión, y la recursión salió
+del álgebra a propósito (§8), igual que DECISION-002 sacó la composición— así que el
+bootstrap clásico no se completa nunca. Pero sí puede juzgarse ejecutándose, que es la
+doctrina del proyecto aplicada al evaluador: el sensor produce hechos, el álgebra los mide,
+y acá el sensor es el evaluador.
+
+### La traza
+
+`nucleo/algebra.py` emite tres relaciones bajo el contexto `trazar()`, apagado por omisión
+y con costo de una lectura de ContextVar cuando lo está:
+
+    paso(t, operador, filas_antes, filas_despues)
+    nodo(cabeza, declarados, evaluados)
+    producto(izquierda, derecha, salida)
+
+### Las cuatro propiedades, como medidas y no como tests
+
+Las de `PLAN-LENGUAJE` (e.1) nunca se habían implementado. Ahora son catálogo:
+
+    meta.donde_nunca_agrega_filas
+    meta.agrupar_no_agranda_la_relacion
+    meta.unir_materializa_el_producto
+    meta.los_logicos_evaluan_todos_sus_operandos
+
+Lo que cambia no es qué se verifica sino dónde vive la regla. Como test en Python son
+afirmaciones que nadie muta y que no figuran en ningún inventario. Como medidas entran a la
+mutación, al corpus y al inventario de puntos ciegos igual que cualquier otra.
+
+`tools/trazar.py` corre el corpus bajo traza y las evalúa. Entra al CI.
+
+### Que muerdan, verificado inyectando el defecto
+
+Una propiedad que no puede fallar no verifica nada, y acá el riesgo es concreto porque el
+sensor vive dentro de lo que audita. Con cada defecto inyectado por separado:
+
+    cortocircuito en `y`/`o`      → los_logicos_evaluan_todos_sus_operandos
+    `donde` duplica una fila      → donde_nunca_agrega_filas
+    `unir` pierde un par          → unir_materializa_el_producto
+    `agrupar` inventa un grupo    → agrupar_no_agranda_la_relacion
+
+y ninguna roja con el álgebra sana.
+
+La tercera no mordía en el primer intento, y el motivo vale más que el defecto: el hecho se
+anotaba DENTRO de `_unir`, leyendo su propia variable antes del `return`, así que cualquier
+cosa entre esa línea y el punto de uso quedaba fuera de la medición. Un sensor que se lee a
+sí mismo no audita la frontera. Se movió al punto donde el operador devuelve.
+
+### Nueve casos de corpus
+
+Ocho de las cuatro medidas en ambas polaridades, más `057`, que la mutación pidió
+explícitamente: `aflojar_umbral` sobrevivía porque ningún caso caía pegado al límite. Un
+mutante de umbral sólo lo mata un caso en el borde — la polaridad no alcanza.
+
+Al escribirlos apareció un agujero que preexiste a este cambio: `tools/mutar.py` exime del
+denominador a toda medida con prefijo `meta.`, y las cuatro nuevas heredaron la exención
+gratis. Los casos las meten igual; la exención en bloque sigue abierta y merece su propio
+trabajo.
+
+### Escala
+
+    mutantes de medida  155 → 203   (171 por conducta, 32 rechazados por el álgebra)
+    corpus               48 → 57 casos
+    proporción         16,4 → 14,0 a 1
+
+La proporción se movió en la dirección buena, y hay que decir por qué con precisión: NO
+porque el núcleo encogiera. El núcleo creció 59 líneas de instrumentación; el denominador
+creció más, en proporción. Es el mecanismo que el README ya reconoce —escribir medidas
+mejora la cifra—, no la demostración de que la apuesta paga.
+
+La demostración de verdad sería borrar Python al escribir la medida que lo reemplaza. Acá
+no había Python que borrar: estas propiedades nunca se habían implementado. Queda como la
+prueba pendiente.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+### 2026-08-24 — Primera migración real: la política de mutación sale de Python al catálogo
+
+*commit b2c9ec7*
+
+`nucleo/mutacion.py` abre diciendo, textual: «Devuelve EVIDENCIA (relaciones), no un
+informe… un sensor no juzga, produce hechos». Veinte líneas más abajo juzgaba:
+
+    if v.ok != esperado_ok:            murio, como = True, "invirtio_el_veredicto"
+    elif huella cambió:                murio, como = True, "cambio_los_testigos"
+    elif valor cambió:                 murio, como = True, "cambio_el_valor"
+    except Exception:                  murio, como = True, f"error:{...}"
+
+`murio` no es un hecho: es una política sobre cuatro observaciones. La prueba de que lo
+era es que Codex la auditó como política —contar un rechazo del álgebra como muerte infla
+el puntaje— y corregirla exigió editar Python.
+
+### Qué se movió
+
+El sensor publica ahora las cuatro observaciones crudas por detección
+(`invirtio_el_veredicto`, `cambio_los_testigos`, `cambio_el_valor`,
+`rechazado_por_el_algebra`) y por mutante los dos conteos que resumen a las cuatro
+(`detecciones_conductuales`, `rechazos_del_algebra`). Ningún campo dictamina.
+
+Quién sobrevive lo decide `proceso.test_con_mutante_que_lo_mata`, que además tiene que
+defender el criterio: la justificación que era un comentario de Python es ahora su
+`porque`, donde es obligatoria, aparece en el inventario de umbrales y se puede discutir.
+
+### Lo que la mutación pidió, y sólo era pedible después de migrar
+
+Con la política adentro de Python, «rechazado por el álgebra» no era un hecho que un caso
+pudiera fijar. Al volverse hecho, el mutador `campo:rechazos_del_algebra→
+detecciones_conductuales` quedó vivo: ningún caso tenía un mutante con rechazos y cero
+conducta. Lo tapa `058`, que existe porque la política salió de Python.
+
+### El resultado honesto: la proporción NO se movió
+
+    nucleo/mutacion.py   356 → 348
+    nucleo/marco.py      102 → 107   (validar dos enteros es más largo que un booleano)
+    núcleo total        3079 → 3076   (−3 líneas)
+    proporción          14,0 → 14,0   (sin cambio)
+
+Ésta era la prueba pendiente que el commit anterior dejó planteada —«la demostración de
+verdad sería borrar Python al escribir la medida que lo reemplaza»— y salió negativa.
+
+El motivo es estructural y vale más que el número. Lo que quedó en Python es código de
+SENSOR: observar si el veredicto cambió, si los testigos cambiaron, si hubo excepción.
+Eso no puede migrar nunca, porque producir hechos es por definición trabajo del sensor.
+Lo único que puede migrar son los JUICIOS, y un juicio en Python es un if/elif de cuatro
+líneas mientras la medida que lo reemplaza son siete líneas de JSON.
+
+Es decir: cada migración quita menos del numerador de lo que agrega al denominador. La
+proporción mejora, pero por el mecanismo que el README ya reconoce —escribir más medidas—
+y no por el que la apuesta declara: que los catálogos crezcan sin que crezca el núcleo.
+
+Sumado a que los catálogos externos tampoco entran al denominador, la proporción no puede
+demostrar lo que dice demostrar: ni la adopción la mueve, ni la migración la mueve. Es
+evidencia adicional para el hallazgo 12 de la auditoría de DeepSeek, y una razón más para
+que la puerta de abandono no dependa de esa cifra.
+
+### Verificación
+
+408 tests OK · CIFRAS OK · CORPUS OK (58 casos)
+ACEPTACIÓN 36 rojos, 19 verdes · DIFERENCIAL ✓ · COMPROMISOS ✓ · TRAZAR ✓
+MUTACIÓN 206/206 — 174 por conducta, 32 rechazados por el álgebra
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+### 2026-08-24 — Cambia la consecuencia de la puerta: congelar el núcleo en vez de archivar el DSL
+
+*commit a110606*
+
+Archivar el metalenguaje y quedarse sólo con el protocolo era la propuesta de la auditoría
+de Codex. Se descarta por decisión del autor: la tesis se considera viable y la
+consecuencia es desproporcionada para lo medido.
+
+La puerta conserva su condición, su fecha y su testigo; cambia sólo qué pasa si no se
+cumple. Cero líneas nuevas en `nucleo/` hasta que haya un consumidor independiente —
+arreglar un defecto no cuenta como agregar capacidad. Se corta la escalada de compromiso,
+no el proyecto.
+
+La alternativa descartada queda registrada en `COMPROMISOS.json` junto con el motivo, para
+que dentro de seis meses se pueda juzgar la decisión y no sólo el resultado. Una puerta sin
+consecuencia vuelve a ser la nota al pie que la proporción ya era.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -3845,14 +4986,14 @@ Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 2654 | el lenguaje |
-| líneas de medidas escritas en él | 164 | lo escrito en el lenguaje |
-| proporción | 16 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 19 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 150 | su naturaleza es rechazar, no medir |
-| medidas | 18 | de las cuales 6 miden el lenguaje mismo |
-| casos de corpus | 42 | fallas reales, con su evidencia |
-| commits | 37 | cerca de la mitad corrigen una afirmación propia |
+| líneas del núcleo | 3047 | el lenguaje |
+| líneas de medidas escritas en él | 220 | lo escrito en el lenguaje |
+| proporción | 14 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 16 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 173 | su naturaleza es rechazar, no medir |
+| medidas | 24 | de las cuales 12 miden el lenguaje mismo |
+| casos de corpus | 58 | fallas reales, con su evidencia |
+| commits | 46 | el historial completo |
 
 Si en seis meses la proporción no se movió, el lenguaje no valió la pena. Es la única
 métrica del proyecto que no se puede sastrear escribiendo más medidas.
@@ -3896,433 +5037,78 @@ explícito con su clave y con dos usuarios reales; no como normalización silenc
 
 ---
 
-<!-- fuente: 10-auditoria-tecnica.md -->
-
-## Auditoría técnica de Oracle — 2026-07-30
-
-### Dictamen de cierre
-
-El motor de Oracle quedó **desacoplado del consumidor que le dio origen y verificablemente
-genérico dentro de su contrato**. El núcleo consume relaciones de hechos, descubre perfiles físicos
-sin registrar nombres conocidos y selecciona juezas por esquemas declarados, no por ids particulares.
-El corpus conserva procedencia histórica como datos de regresión; no concede autoridad ni altera la
-ejecución.
-
-| Pregunta | Dictamen vigente |
-|---|---|
-| ¿Está completo? | Sí para el motor y su autocertificación: 319 tests, 129/129 mutantes de medida y 1073/1073 de código. La licencia y la adopción por un consumidor real independiente no son propiedades que el código pueda decidir. |
-| ¿Está abstraído de su origen? | Sí en ejecución: no hay imports, rutas, perfiles ni juezas de aquel consumidor en el núcleo. Las referencias que quedan son evidencia histórica del corpus y esta auditoría. |
-| ¿Funciona de forma genérica? | El flujo externo sintético demuestra catálogo, corpus, diferencial, UDF, mutación y estudio sin modificar Oracle. Falta evidencia social más fuerte: un consumidor real no codiseñado. |
-| ¿Hay Goodhart hardcodeado? | No se encontraron verdes fijados, invariantes vacías, ids jueces privilegiados ni equivalentes masivos. Las políticas operativas restantes son constantes públicas con contratos mutacionales. |
-| ¿Hay una puerta trasera? | No se encontró una puerta trasera. `escalares.py` ejecuta código externo sólo con `--confiar-escalares`, confinado físicamente y con restauración del registro. |
-
-### Dictamen original conservado como línea base
-
-Oracle es un **prototipo sólido, pero todavía no un oráculo confiable ni genérico de punta a
-punta**. El álgebra está razonablemente separada de Jam; el catálogo, las herramientas y la evidencia
-conservan supuestos de ese origen y existen caminos concretos para obtener un verde vacío,
-autodeclarado o vencido.
-
-| Pregunta | Dictamen |
-|---|---|
-| ¿Está completo? | No. Hay contratos incompletos, 31 mutantes de código vivos declarados y caminos principales rotos. |
-| ¿Está abstraído de Jam? | El álgebra, bastante. El producto completo y su validación, todavía no. |
-| ¿Funciona de forma genérica? | El núcleo puede reutilizarse sobre hechos planos, pero sólo fue probado dentro del ecosistema Jam/Python/LLM. |
-| ¿Hay Goodhart hardcodeado? | Sí: hay afirmaciones de confianza fijadas a `True`, invariantes vacías y mutaciones dependientes de una escala elegida a mano. |
-| ¿Hay una puerta trasera? | No se encontró evidencia de una puerta trasera maliciosa. Sí hay ejecución automática de código de proyectos y riesgos de integridad. |
-
-Esta auditoría no invalida lo que Oracle ya consiguió. Distingue tres cosas que el informe anterior
-mezclaba: que el código corra, que el diseño sea reusable y que un verde sea evidencia suficiente.
-
-### Seguimiento posterior a la auditoría
-
-Los hallazgos describen el commit auditado y se conservan como línea base. El worktree posterior
-completó P0:
-
-| Hallazgo | Estado posterior |
-|---|---|
-| A-01, campos certificados de simulación | Corregido en el worktree: colisiones rechazadas y 18 tests directos nuevos. |
-| A-02, mutación sin línea base | Corregido en el worktree: una baseline roja levanta `LineaBaseFallida` antes de tocar fuentes. |
-| A-03, confianza hardcodeada | Corregido para P0: caché comprobado antes y después, estados estructurados, timeout configurable, diagnóstico y equivalentes validados. Se eliminaron los veredictos de confianza autoproducidos y el estado de bytecode que no aplicaba a la mutación en memoria. La mutación automática sobre una copia en vez de fuentes activas sigue en P2. |
-| A-04, verdes vacuos | Corregido en el worktree: ausencia, cero medidas/casos/mutantes y fixtures incompletos fallan de forma explícita. |
-
-Después de P0 la suite tenía 190 tests verdes. Oracle conservaba 19 defectos en rojo, 12
-verdes correctos, 3 huecos declarados y 48/48 mutantes de medida muertos; contra Jam conservaba 269
-comparaciones diferenciales sin desacuerdo y 80/80 mutantes de medida muertos. La aceptación de Jam,
-que no tiene corpus propio, ahora termina como `NO APLICABLE — SIN CASOS` con código distinto de cero.
-El generador de estudio funciona sobre Oracle, pero `tools/estudio.py --proyecto .../jam/medidas`
-todavía falla al validar `volumen` porque no registra las escalares del proyecto; resolverlo sin
-ocultar la ejecución de UDF externas permanece en P1.
-
-P1.1 reemplazó aquella cifra de mutación de medidas: el denominador ahora localiza sitios en fuentes,
-expresiones, agregados y campos, además de los cuatro cambios gruesos originales. Sobre Oracle son
-128 mutantes: la primera ronda mató 118 y expuso 10 vivos explícitos. Ocho reducciones al borde del
-umbral y dos contraejemplos internos los cerraron sin debilitar el denominador; la ronda actual queda
-en 128/128. El corpus tiene ahora 42 casos y aceptación conserva 27 defectos en rojo, 12 verdes
-correctos y 3 huecos declarados. Contra Jam son 157 mutantes, 146 muertos y 11 vivos, mientras el
-diferencial conserva 269 veredictos sin desacuerdo. La suite subió a 202 tests.
-
-P1.2 cerró la frescura del diferencial con el esquema `oracle.diferencial/v1`: los fixtures llevan
-SHA-256 del emisor, fuentes de referencia, catálogo canónico y configuración. El lector recalcula las
-cuatro huellas y rechaza el fixture vencido. El acuerdo global con la referencia y los veredictos
-individuales históricos son datos y salidas distintas; una regresión demuestra que intercambiar dos
-medidas ya no se oculta detrás del mismo `AND`. Los emisores de Jam usan semilla SHA-256, Git con
-fechas fijas y JSON canónico; dos regeneraciones consecutivas dieron archivos idénticos byte a byte.
-Jam verifica 269 acuerdos globales y 1158 veredictos individuales; la suite de Oracle tiene 206 tests.
-
-P1.3 cerró A-07 y el contrato operativo de proyectos. Un lector común valida y normaliza fixtures
-`grupos` y `escenarios`; `--relaciones`, revisión y mutación consumen ese lector y la mutación exige
-también frescura. Los ids de autoría usan una gramática cerrada y el destino se comprueba físicamente
-debajo de `catalogos/`, incluida una regresión contra symlinks exteriores. Cada herramienta valida
-las carpetas que usa. `estudio.py` usa el corpus externo y sólo ejecuta sus escalares con
-`--confiar-escalares`. Una integración temporal recorre los siete comandos externos; la suite tiene
-ahora 212 tests. Contra Jam, inventario y revisión funcionan, el diferencial conserva 269/1158 y la
-mutación informa honestamente 146/157 con 11 vivos. La primera ejecución del vendor todavía dio el
-verde obsoleto 80/80; sincronizar núcleo, herramientas y catálogo base eliminó esa divergencia.
-
-P1.4 cerró la ejecución automática descrita en A-06. Todas las cargas externas ocurren dentro de
-`main` y requieren `--confiar-escalares`; ayuda e inventarios tienen pruebas de ausencia de efectos
-laterales. El registro queda aislado por proyecto y se restaura incluso ante error. El decorador fija
-nombre, unidad, aridad y procedencia verificables, y no se siguen symlinks para encontrar el archivo.
-La suite subió a 217 tests; la integración externa usa una UDF real para demostrar tanto el rechazo
-sin confianza como el flujo explícitamente autorizado.
-
-P2.1 cerró el riesgo operativo del mutador descrito en los riesgos medios. La API pública ya no
-escribe objetivos activos: copia la raíz, mapea comando y fuentes, y verifica al final que los bytes
-originales sigan iguales. Hay lock no bloqueante por raíz, reemplazo atómico dentro de la copia,
-timeout y salida acotada por proceso, grupos de proceso terminados ante timeout/SIGTERM y handlers
-instalados sólo durante la ronda. Un manifiesto con huellas de fuentes, motor y configuración permite
-reanudar mutantes terminados y rechaza cambios o corrupción. Ocho regresiones nuevas elevan la suite
-a 225 tests, incluida la terminación forzada de un nieto que ignora SIGTERM.
-
-P2.2 cerró los acoplamientos particulares enumerados en los riesgos medios. El análisis AST, el
-mutador de código Python y las medidas sobre imports/`.pyc` se movieron a `perfiles/python`, que sólo
-se incorpora mediante `oracle.json`. El catálogo universal ya no contiene la razón `tope` ni la regla
-normativa que exigía el token español `NO `. `ContratoTerminacion` clasifica razones aportadas por el
-dominio; `ClasificacionMeta` acepta relaciones y prefijos adicionales; `LimitesAlgebra` impone techos
-configurables y finitos a entradas, productos y profundidad. La suite alcanza 234 tests y la mutación
-de medidas queda en 129/129.
-
-Una revisión posterior encontró dos restos estructurales que la primera afirmación no había visto: el
-número de perfiles estaba registrado en `nucleo.proyecto` y los CLI de mutación elegían medidas juezas
-por ids concretos. Ahora los perfiles físicos se descubren por convención y se activan sólo desde
-`oracle.json`; las juezas se derivan de sus relaciones declaradas. Además, los sensores de mutación de
-medidas y de código publican nombres de relación distintos porque sus esquemas de corrida no coinciden.
-Una regresión AST impide que `nucleo/` importe perfiles.
-
-La mutación de código se repitió de forma particionada sobre copias temporales frescas, nunca sobre
-este worktree. Los cambios descubiertos durante las rondas obligaron a repetir íntegramente cada
-partición afectada. El baseline final cubre 616 sitios: 503 muertos reales y 113 vivos, sin timeout ni
-error de arnés. Cada copia terminó con los 11 archivos de `nucleo/*.py` idénticos byte a byte a su
-snapshot inicial y sin `__pycache__` local. Ninguno de estos cambios está incluido en el hash auditado
-de la sección siguiente.
-
-P2.3 invalidó este baseline histórico en vez de comparar números incompatibles. Tras mover el mutador
-y los sensores Python a un perfil, y retirar redundancias de `proyecto`, `algebra` y la política del
-runner, el alcance vigente es de 1073 sitios. Se añadió partición explícita por objetivo y prioridad
-de tests seguida siempre por la suite completa. Doce particiones del núcleo y perfil cubren 868/868
-sin equivalencias;
-los sobrevivientes se cerraron con casos discriminantes. `proyecto` pasó de 43 muertos, 35 vivos y
-2 errores de arnés en la exploración inicial a 79/79 concluyentes. Sus pruebas nuevas fijan selección,
-configuración, confinamiento y el opt-in de código Python externo; también se eliminó el truncado fijo
-de la huella del módulo. `medida` pasó de 76 muertos, 14 vivos y 7 errores de importación a 98/98;
-la excepción de declaración ahora existe antes de construir la clasificación base y una prioridad
-sin imports tempranos distingue fallos de inicialización sin confundirlos con el arnés. `fixtures`
-pasó de 104/129 a 128/128: ocho pruebas nuevas fijan tipos anidados, bordes, consistencia y proyección,
-y un default inobservable se retiró en vez de declararlo equivalente. `mutacion` pasó de 119/151 a
-147/147; los IDs estructurales ahora prueban que cada ruta apunta al único escalar modificado, y se
-cubrieron explícitamente `no` y `contar` agrupado. Cuatro sitios redundantes se retiraron. `algebra`
-pasó de 208 muertos, 24 vivos y 9 errores de importación a 237/237: una prioridad sin import temprano
-atribuye las roturas de inicialización al código, y diez contratos fijan límites, escalares, ausencia,
-aridad, agregados y bordes. Cuatro sitios redundantes se retiraron. Además, el
-manifiesto ahora firma las dependencias de la ronda: antes un cambio en los tests podía reutilizar
-resultados viejos porque sólo se firmaban comando, objetivos y motor. La partición final del motor
-Python cerró sus 205 sitios: 205/205 muertos, sin equivalencias, timeout ni error de arnés. El total
-vigente es 1073/1073 y la suite actual tiene 319 pruebas. El paquete se construyó e instaló desde
-`pyproject.toml`; declara Python >=3.11 y siete entry points. CI reproduce la suite, aceptación,
-diferencial, mutación de medidas y las trece particiones de código.
-
-**Baseline histórico 503/616, conservado sólo como evidencia de la auditoría inicial:**
-
-| Archivo | Muertos | Total | Vivos |
-|---|---:|---:|---:|
-| `algebra.py` | 183 | 186 | 3 |
-| `dominio.py` | 11 | 18 | 7 |
-| `grafo.py` | 0 | 4 | 4 |
-| `macro.py` | 18 | 21 | 3 |
-| `marco.py` | 24 | 43 | 19 |
-| `medida.py` | 69 | 80 | 11 |
-| `mutacion.py` | 47 | 50 | 3 |
-| `mutacion_codigo.py` | 94 | 140 | 46 |
-| `proyecto.py` | 18 | 34 | 16 |
-| `simulacion.py` | 39 | 40 | 1 |
-| **Total** | **503** | **616** | **113** |
-
-Al repetir la ronda durante P0 apareció un riesgo nuevo en la propia instrumentación: mutar el
-predicado que enumera `__pycache__` hizo que la limpieza interpretara casi todas las rutas como caché
-y borrara una copia temporal completa. El worktree real no estuvo expuesto. El punto de borrado ahora
-revalida, de forma independiente, el nombre exacto y el confinamiento físico de cada ruta; dos
-regresiones demuestran que ni un enumerador corrompido ni una ruta exterior reciben autoridad de
-borrado. El incidente quedó registrado como caso `018` y refuerza que el aislamiento definitivo de
-P2 no es una mejora cosmética.
-
-La misma repetición encontró un segundo caso operativo: mutar el comparador que reconoce
-`--proyecto` podía quitar también `--hechos` y `--timeout`, lanzar recursivamente otra ronda completa
-y agotar el límite de 60 segundos. El estado nuevo lo clasificó como inconcluso, no como muerte. Una
-regresión directa fija el parser y el runner se detiene en la primera discriminación; al repetir los
-34 sitios de `proyecto.py`, ese mutante terminó como `tests_fallaron` y no quedó ningún timeout ni
-error de arnés.
-
-Una revisión cruzada posterior reprodujo otros cuatro bypasses antes del cierre: un objetivo symlink
-podía llevar la escritura fuera de la raíz; un error de importación creado como `_FailedTest` salía
-con el mismo código que una discriminación; un timeout de un equivalente desaparecía del cálculo de
-la CLI; y una ronda con cero mutantes devolvía éxito. Los cuatro tienen regresiones y fallan cerrado.
-También se prohibieron códigos de señal como supuestos fallos de tests y se validan formato,
-unicidad y razones de `equivalentes.json` antes de convertirlo en mapa. El caso vacuo quedó registrado
-como `019`.
-
-### Estado auditado y alcance
-
-- Repositorio: `/home/workstation/Dev/oracle`.
-- Commit auditado: `2bddacb4731aacc08c71d052528893fd16a1fab4` (`main`).
-- Proyecto de contraste: `/home/workstation/Dev/jam/medidas`.
-- Copia vendorizada de Jam: split `5278ebf2f70906e8fe05b94668461ddfde3a2d3d`.
-- El núcleo y las herramientas compartidas entre upstream y vendor eran iguales; Jam estaba un commit
-  documental por detrás.
-- Se revisaron código, catálogo, corpus, tests, historia Git, emisores diferenciales de Jam y la
-  integración real `--proyecto`.
-- No se volvió a ejecutar la ronda completa de `tools/mutar_codigo.py`: escribe temporalmente sobre
-  fuentes reales. El número 31/242 se tomó del estado declarado por Oracle y por el relevo actual de
-  Jam; el código que produce esa medición sí fue auditado.
-- Jam tenía modificaciones locales ajenas a `vendor/oracle/` y `medidas/`. Las comprobaciones de la
-  auditoría no editaron fuentes de Oracle ni archivos de Jam; este documento y el plan son los únicos
-  cambios derivados de la revisión.
-
-### Verificaciones ejecutadas
-
-| Verificación | Resultado observado |
-|---|---|
-| `python -m unittest discover -s tests -t . -v` | 112 tests, todos verdes |
-| `python tools/corpus.py --resumen` | 29 casos; esquema aceptado |
-| `python tools/aceptacion.py` | 15 defectos rojos, 11 verdes correctos, 3 huecos declarados |
-| `python tools/mutar.py` | 44/44 mutantes de medida muertos |
-| `python tools/diferencial.py` en Oracle | falla: Oracle no contiene fixtures diferenciales |
-| diferencial contra `jam/medidas` | 269 comparaciones globales, 0 desacuerdos |
-| mutación de medidas contra `jam/medidas` | 80/80 mutantes muertos |
-| aceptación contra `jam/medidas` | verde vacuo: 0 casos, 0 rojos, 0 verdes |
-| `tools/medida.py --relaciones --proyecto .../jam/medidas` | falla con `KeyError: 'grupos'` |
-
-Los resultados verdes prueban que los caminos ejercitados funcionan con el material actual. No
-cierran los hallazgos siguientes.
-
-### Hallazgos críticos
-
-#### A-01 — Un simulador puede falsificar los hechos certificados por Oracle
-
-**Severidad:** crítica para la integridad del modo simulación.
-
-`nucleo/simulacion.py` calcula `id`, `escenario`, `semilla`, `pasos`, `razon` y `determinista`, pero
-después expande `**a.resumen`. El resumen controlado por el simulador puede sobrescribir todos esos
-campos. Del mismo modo, un evento puede sobrescribir el campo `corrida` que le asigna el runner.
-
-Se reprodujo con dos ejecuciones diferentes. El simulador devolvió
-`resumen={"determinista": True, "id": "falso"}` y un evento con `corrida="inyectada"`; la evidencia
-final afirmó exactamente esos valores. Esto permite eludir las medidas de reproducibilidad,
-presupuesto y continuidad de traza.
-
-**Evidencia:** `nucleo/simulacion.py`, construcción de `corridas` y `eventos`, líneas 104–110. No hay
-tests directos del módulo en la suite actual.
-
-#### A-02 — La mutación de código puede dar verde si la suite original ya está roja
-
-**Severidad:** crítica para la afirmación de que los tests fijan el código.
-
-El mutador no ejecuta una línea base sobre el código original. Para cada mutante interpreta cualquier
-código de salida distinto de cero como “mutante muerto”. Un `ImportError`, un fallo ambiental o una
-suite que falla siempre puede matar todos los mutantes y producir el mensaje “Todos los mutantes
-murieron”.
-
-El comportamiento está fijado por el test
-`test_si_los_tests_siempre_fallan_TODOS_mueren`; por lo tanto, no es sólo una posibilidad teórica.
-
-**Evidencia:** `perfiles/python/mutacion_codigo.py`, líneas 216–242;
-`tests/test_mutacion_codigo.py`, líneas 132–136; `tools/mutar_codigo.py`, líneas 60–80.
-
-#### A-03 — `bytecode_frio` y `resultado_confiable` están hardcodeados
-
-**Severidad:** crítica como caso directo de Goodhart autorreferencial.
-
-`limpiar_cache` usa `shutil.rmtree(..., ignore_errors=True)`, incrementa el contador aunque el borrado
-falle y no comprueba que el caché haya desaparecido. Aun así, la evidencia emite incondicionalmente:
-
-```python
-"bytecode_frio": True,
-"resultado_confiable": True,
-```
-
-Se reprodujo con un `__pycache__` enlazado: la función reportó un borrado y el directorio seguía
-existiendo. La medida `proceso.arnes_con_bytecode_frio` confía en el booleano producido por el mismo
-sensor; `resultado_confiable` no es juzgado por ninguna medida.
-
-**Evidencia:** `perfiles/python/mutacion_codigo.py`, líneas 207–213 y 263–268.
-
-#### A-04 — La ausencia y el cero tienden a convertirse en verde
-
-**Severidad:** alta, transversal al álgebra y las herramientas.
-
-Una fuente usa `evidencia.get(relacion, [])`. Una relación ausente o mal escrita es indistinguible de
-una relación presente sin filas. Con la forma predominante `contar <= 0`, el resultado es verde.
-
-También se comprobaron estas invariantes vacías:
-
-- `evaluar([], {})` produce un informe verde por `all([])`;
-- una tubería `['desde']` carga y termina con cero filas;
-- una medida con cero mutantes aplicables satisface `meta.toda_medida_esta_fijada`, porque sólo se
-  comprueba que haya cero mutantes vivos;
-- la aceptación de Jam devuelve éxito con cero casos;
-- un fixture diferencial existente con cero medidas y cero escenarios no es rechazado por esquema o
-  cardinalidad.
-
-**Evidencia:** `nucleo/algebra.py`, líneas 146–147; `nucleo/medida.py`, líneas 164–176;
-`catalogos/meta/meta.toda_medida_esta_fijada.json`; `tools/aceptacion.py`, líneas 38–105;
-`tools/diferencial.py`, líneas 43–66.
-
-### Hallazgos altos
-
-#### A-05 — El diferencial es replay de una foto, no verificación independiente actual
-
-Los fixtures guardan `referencia_ok`, pero no la fecha, el commit o hash de la referencia, el hash del
-emisor ni el hash del catálogo. `tools/diferencial.py` relee el JSON; no ejecuta ni comprueba la
-implementación de referencia actual. Un verificador manual puede cambiar y el fixture viejo seguir
-verde.
-
-En el formato `Dominio`, la comparación además es global: compara el `AND` de todas las medidas contra
-un booleano. Dos medidas intercambiadas, una medida demasiado amplia o dos errores que se compensan
-pueden mantener el acuerdo global. El cierre de Jam tampoco gatea diferencial y mutación de Oracle.
-
-El emisor geométrico de Jam usa `hash((defecto, i))` como semilla. El hash de strings está salado por
-proceso, por lo que regenerar el mismo fixture puede producir mundos distintos sin cambios de código.
-
-**Evidencia:** `nucleo/dominio.py`, líneas 106–131; `tools/diferencial.py`, líneas 43–66;
-`/home/workstation/Dev/jam/tools/emitir_diferencial.py`, línea 61.
-
-#### A-06 — Apuntar a un proyecto ejecuta código de ese proyecto
-
-`registrar_escalares` importa y ejecuta automáticamente `<proyecto>/escalares.py` mediante
-`exec_module`. El proyecto también puede elegirse implícitamente por el directorio actual si contiene
-`catalogos/`. Cinco herramientas hacen la carga antes de entrar a su `main`, incluso para operaciones
-que sólo pretenden inspeccionar o mostrar ayuda.
-
-Es una extensión UDF intencional, no una puerta trasera. Sin embargo, equivale a ejecución de código
-arbitrario con los privilegios del usuario y la frontera de confianza no está advertida ni es opt-in.
-El `escalares.py` actual de Jam sólo registra funciones matemáticas; no se encontró un payload.
-
-**Evidencia:** `nucleo/proyecto.py`, líneas 73–86 y 93–115; carga temprana en `aceptacion.py`,
-`diferencial.py`, `medida.py`, `mutar.py` y `mutar_codigo.py`.
-
-#### A-07 — El camino de autoría no funciona contra el primer proyecto real
-
-`tools/medida.py` sólo entiende fixtures antiguos con la clave `grupos`; los tres fixtures actuales de
-Jam usan `escenarios`. Por eso el comando recomendado `--relaciones` falla con `KeyError`.
-
-`--nueva` tiene otro problema: sólo exige que el id contenga un punto y usa el id crudo para construir
-una ruta. Un id absoluto o con `../` puede crear un JSON fuera de `catalogos`. Para un proyecto externo,
-el intento posterior de mostrar la ruta relativa a Oracle también puede fallar después de escribir.
-
-**Evidencia:** `tools/medida.py`, líneas 52–63 y 102–115.
-
-#### A-08 — Hay bypasses y contradicciones en la semántica del álgebra
-
-- La especificación define una relación como conjunto; la implementación conserva duplicados. La
-  semántica real es de bolsas y afecta conteos, sumas, promedios, productos y testigos.
-- La igualdad exacta de flotantes se prohíbe dentro de expresiones, pero el umbral final usa `_cmp`
-  directamente. Una medida puede declarar `umbral == 0.3` y obtener un falso rojo silencioso por
-  redondeo.
-- `aflojar_umbral` usa `GRANDE = 1e12`. Para un límite `<= 1e15`, la supuesta relajación cambia el
-  umbral a `<= 1e12` y lo vuelve más estricto, matando artificialmente el mutante.
-- La validación de una medida al cargarla es superficial: estructura, aridades y tipos se descubren al
-  evaluar, a veces sólo si existe una fila que alcance la expresión.
-
-**Evidencia:** `ESPECIFICACION.md`, sección 1; `nucleo/algebra.py`, líneas 146–147;
-`nucleo/medida.py`, líneas 95–129; `nucleo/mutacion.py`, líneas 30–46.
-
-### Riesgos medios y operativos
-
-- Los equivalentes de mutación se excluyen por presencia del id aunque su razón sea una cadena vacía.
-  No existe actualmente `equivalentes.json`, por lo que no hay exclusiones ocultas activas.
-- El mutador escribe sobre fuentes reales sin bloqueo ni escritura atómica. Dos instancias concurrentes,
-  `SIGKILL`, OOM o pérdida de energía pueden dejar código mutado. Instala manejadores globales de señal
-  al importar el módulo y no aplica timeout ni límite de salida al subproceso de tests.
-- `unir` materializa el producto cartesiano completo. No hay límites de tamaño, profundidad de
-  expresiones o tiempo de simulación impuesto por Oracle; el `tope` sólo se pasa al simulador.
-- Las relaciones de nivel meta están fijadas en código a `medida`, `caso` y `medida_en_uso`.
-- El catálogo llamado universal contiene convenciones de CPython (`.pyc`), análisis de imports Python,
-  la palabra española `tope` y la heurística textual `NO ` para reconocer un alcance.
-- `como_hechos` deriva el dominio del prefijo del id y sólo observa la primera fuente de una unión.
-
-### Completitud y generalidad
-
-#### Lo que sí quedó abstraído
-
-- `nucleo/` no importa Jam, Unreal ni BotOO.
-- Los dominios geometría, vault y relevo viven en `jam/medidas`.
-- Proyecto, catálogo y escalares pueden resolverse mediante `--proyecto`, `ORACLE_PROYECTO` o el
-  directorio actual.
-- La misma representación evaluó hechos de geometría, documentos y repositorios Git.
-- El proyecto no tiene dependencias de terceros y los 112 tests actuales pasan.
-
-#### Lo que todavía impide llamarlo genérico
-
-- Jam es el único consumidor real y todos los dominios de prueba nacieron en el mismo proyecto, con el
-  mismo autor y durante la misma sesión.
-- Oracle nació como generalización conceptual del `Medida`/`Umbral`/`Veredicto` creado primero dentro
-  de Jam. De los 29 casos del corpus, 18 declaran origen Jam y 11 Oracle.
-- Jam conserva dos caminos declarativos: `jam.medida`/`jam.catalogo` y Oracle JSON. Sus tests dinámicos
-  de geometría prueban el camino legado, no el núcleo Oracle.
-- Los verificadores manuales de vault y relevo siguen siendo los productivos; quedan otros oráculos de
-  Jam por reexpresar.
-- `con` y el modo izquierdo de `unir` siguen sin implementar.
-- El repositorio no declara versión mínima de Python, paquete instalable, CI, licencia ni release.
-- Cola y laberinto se usaron durante el desarrollo, pero ya no permanecen como pruebas de regresión.
-- No existe todavía un segundo proyecto independiente que pruebe el flujo completo de autoría,
-  diferencial, corpus, mutación y entrega.
-
-### Deriva documental observada
-
-- El README habla en distintos lugares de 19 y 29 casos, 53, 81 y 112 tests, y resultados de
-  diferenciales ya movidos a Jam.
-- El docstring del álgebra todavía dice tres operadores aunque hay cinco implementados.
-- `tools/medida.py --escalares` afirma que `agrupar` no tiene usuario.
-- Dos de los tres “huecos sin tapar” (`004` y `012`) se describen en sus propios casos como resueltos
-  por construcción; el informe sigue contándolos como huecos abiertos.
-- Jam manda ejecutar `vendor/oracle/tools/estudio.py`, pero su subtree está un commit atrás y no contiene
-  ese archivo.
-
-### Revisión de puerta trasera
-
-No se encontró evidencia de una puerta trasera activa en el árbol o el historial inspeccionado:
-
-- no hay red, telemetría, descarga o persistencia;
-- no hay `shell=True`, `eval`, pickle, marshal o YAML inseguro;
-- no hay hooks Git activos, submódulos o symlinks versionados;
-- no se encontraron claves, tokens o contraseñas;
-- los subprocess se invocan con listas, no mediante un shell;
-- no hay dependencias externas ni ejecutables privilegiados;
-- el núcleo vendorizado en Jam coincide con upstream: no aparece una modificación oculta durante la
-  extracción.
-
-La ausencia de una backdoor detectable no vuelve segura la ejecución sobre proyectos no confiables:
-`escalares.py` sigue siendo código Python ejecutado deliberadamente.
-
-### Conclusión
-
-Oracle ya demuestra una idea reusable: representar medidas como datos, exigir defensa y alcance, y
-producir testigos con un álgebra común. Todavía no demuestra que sus propios verdes sean siempre
-fail-closed. Antes de ampliar el lenguaje o reemplazar verificadores de Jam hay que corregir la cadena
-de confianza: integridad del sensor, línea base de mutación, invariantes no vacías, frescura del
-diferencial y frontera de ejecución de proyectos.
-
-El orden de trabajo y sus criterios de salida están en [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
+<!-- fuente: 10-decision-sin-composicion.md -->
+
+## Decisión 002 — las medidas no componen
+
+**Estado:** rechazada la composición el 2026-08-03.
+
+### Contexto
+
+El álgebra cierra sobre **filas**: `de`, `donde`, `unir` y `agrupar` toman filas y devuelven filas, y
+`resumen` las colapsa en un escalar. Esa clausura es lo que permite escribir tres dominios que no se
+parecen en nada con los mismos operadores y sin un solo adaptador.
+
+Pero **no cierra sobre medidas**. Una medida termina en un escalar y un umbral, y ahí se acaba: no hay
+forma de que una medida consuma los testigos o el veredicto de otra. Eso deja preguntas naturales sin
+escribir —«¿qué medidas comparten testigos?», «¿qué medida se pone roja siempre que esta otra se pone
+roja?»— y obliga a que el nivel L2 se apoye en hechos que produce Python (`nucleo/marco.py`) en vez de
+en el álgebra.
+
+Una auditoría del 2026-08-03 lo señaló como el hueco de diseño más visible del proyecto: el álgebra
+tiene clausura sobre la evidencia pero no sobre lo que enuncia sobre ella.
+
+### Decisión
+
+**La composición de medidas no entra al lenguaje.** Una medida no puede tomar como fuente el
+resultado, los testigos ni el veredicto de otra medida.
+
+### Por qué se rechaza, y no es por costo
+
+No es una decisión de implementación diferida: el mecanismo sería barato. Se rechaza porque **es el
+modo de falla que Oracle existe para evitar**.
+
+Componer medidas permite que las medidas **se cubran entre sí**. Una medida que consume los testigos
+de otra hereda su punto ciego sin declararlo, y el `alcance` —que es obligatorio justamente para que
+un verde no se pueda leer como «todo bien»— deja de ser comprobable a mano: habría que recorrer la
+cadena entera para saber qué no se miró. El README lo dice de la única forma que importa:
+
+> Un conjunto de medidas puede ser internamente impecable y colectivamente ciego, y ninguna cantidad
+> de reflexión lo detecta desde adentro.
+
+La composición hace ese estado **más fácil de alcanzar y más difícil de ver**. Un conjunto de medidas
+que se apoyan unas en otras produce mucho verde con poca evidencia independiente, que es exactamente
+la forma que toma Goodhart cuando el que escribe la herramienta escribe también su verificador.
+
+Hay además una razón de procedimiento, y en este repositorio pesa: **nada entra al lenguaje hasta que
+una medida real lo necesite**. Hoy ninguna de las 18 medidas universales lo necesita. `con` y la unión
+izquierda se retiraron por no alcanzar ese disparador, y la composición no está ni cerca de
+alcanzarlo.
+
+### Consecuencias
+
+- El álgebra sigue cerrando sobre filas y no sobre medidas. Es una limitación **declarada**, no una
+  ausencia por olvido — que es la única diferencia que importa entre las dos cosas.
+- El nivel L2 sigue necesitando que alguien reifique el catálogo como hechos. Hoy eso lo hace
+  `nucleo/marco.py` en Python, y ese acoplamiento es el problema que ataca el ítem (b) del
+  [plan](PLAN-LENGUAJE.md) — **reificación mecánica, no composición**. Son dos caminos distintos para
+  el mismo síntoma, y se elige el que no permite que las medidas se cubran entre sí.
+- Una pregunta que hoy sólo se contestaría componiendo se contesta produciendo un **hecho nuevo** con
+  un sensor, y midiéndolo con el álgebra que ya existe. Es más trabajo y deja la evidencia a la vista,
+  que es el intercambio buscado.
+
+### Qué evidencia revierte esta decisión
+
+**Dos medidas reales, en un proyecto consumidor, que no se puedan expresar sin composición**, y cuya
+ausencia quede registrada como hueco declarado en el corpus de ese proyecto.
+
+Dos, no una: es el mismo disparador que aplicaron `con` y la unión izquierda, y que no alcanzaron.
+Jam es el primer candidato con derecho a producir ese caso, porque es el primer consumidor que no se
+diseñó junto con Oracle.
+
+Si alguna vez entra, tiene que entrar con una regla que hoy no existe: **una medida compuesta debe
+declarar el alcance acumulado de su cadena**, no sólo el propio. Sin eso, el `alcance` deja de
+significar lo que significa hoy.
 
 ---
 
@@ -4592,7 +5378,7 @@ dominios Jam en sus módulos.
 - [x] Implementar `con` y unión izquierda sólo si existen al menos dos usuarios reales; de lo contrario,
   retirarlos de la especificación activa.
 - [x] Añadir `pyproject.toml`, versión mínima de Python, entry points y CI.
-- [ ] Elegir y declarar la licencia (decisión legal del autor, no inferible del repositorio).
+- [x] Elegir y declarar la licencia — MIT, en `LICENSE` y en `pyproject.toml` (verificado en el wheel).
 - [x] Generar y comprobar las cifras del README durante CI en vez de mantenerlas a mano.
 - [x] Confirmar que Oracle no importa ni resuelve caminos legados de un consumidor; el corpus conserva
   procedencia histórica sólo como datos.
@@ -4767,3 +5553,31 @@ que no aparecen medidas heredadas; otra inspecciona los artefactos productivos y
 consumidores o dominios conocidos; y el wheel se prueba desde un proyecto externo y un cwd vacío. El
 corpus y los tests pueden conservar procedencia histórica de Jam: son evidencia de generalidad y no
 se instalan ni participan del runtime de un host.
+
+---
+
+<!-- fuente: 12-compromisos-prerregistrados.md -->
+
+{
+  "esquema": "oracle.compromisos/v1",
+  "porque": "Oracle exige umbral, defensa y testigo para toda afirmación, y no tenía ninguno para sí mismo. El criterio declarado —la proporción— ya disparó en contra dos veces y la respuesta publicada fue reinterpretarlo, no aceptarlo; además es inmune a la adopción, porque los catálogos externos no entran a su denominador. Este archivo fija la condición ANTES de conocer el resultado, que es la única ventana en que un prerregistro vale algo.",
+  "compromisos": [
+    {
+      "id": "dos-consumidores-independientes",
+      "abierto": "2026-08-24",
+      "vence": "2027-01-29",
+      "condicion": "Existen al menos DOS repositorios que consumen Oracle, mantenidos por personas que no son Brian Hollweg, cuyas medidas fueron escritas sin su asistencia y sin ningún cambio a `nucleo/`.",
+      "umbral": 2,
+      "observado": 0,
+      "cumplido": false,
+      "testigo": "El git de cada repositorio consumidor: autoría de los archivos de `catalogos/`, y el historial de `nucleo/` de Oracle en el período. Cualquiera puede verificarlo sin preguntarle al autor.",
+      "consecuencia": "Se congela el núcleo: cero líneas nuevas en `nucleo/` hasta que aparezca un consumidor independiente. Oracle sigue existiendo, sigue usándose y sigue manteniéndose —arreglar un defecto encontrado no es agregar capacidad y no cuenta contra el congelamiento—, pero deja de crecer hacia una generalidad que ningún usuario pidió. Lo que se corta es la escalada de compromiso, no el proyecto.",
+      "no_cuenta": [
+        "El proyecto externo sintético: demuestra desacoplamiento técnico, no adopción.",
+        "Jam: fue codiseñado con Oracle y lo mantiene el mismo autor.",
+        "Un consumidor que para escribir sus medidas necesitó extender `nucleo/`: eso refuta la apuesta en vez de confirmarla."
+      ],
+      "por_que_esta_consecuencia": "La auditoría de Codex proponía archivar el metalenguaje y conservar sólo el protocolo `caso + porque + alcance + testigos` como plugin de pytest. Se descartó el 2026-08-24 por decisión del autor: la tesis se considera viable y archivar es desproporcionado para lo medido. Queda registrada la alternativa que NO se tomó, para que dentro de seis meses se pueda juzgar la decisión y no sólo el resultado."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "id": "058-rechazo-del-algebra-no-es-deteccion",
+  "titulo": "Un mutante que el álgebra rechaza no lo discriminó ningún caso",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Sustituir un campo por otro del mismo alias pero de otro tipo produce una comparación incomparable: el mutante levanta `ErrorDeAlgebra` antes de evaluar nada. No queda vivo —no hay riesgo de que pase inadvertido— pero tampoco lo discriminó ningún caso: ni siquiera llegó a producir un veredicto que comparar. Contarlo junto a las muertes conductuales publica una capacidad de detección que el corpus no tiene, y así el 129/129 declaraba 100% cuando lo conductual era 105.",
+  "como_se_detecto": "observacion",
+  "medida": "proceso.test_con_mutante_que_lo_mata",
+  "evidencia": {
+    "mutante": [
+      { "id": "d.x·campo:2.2.1.1.1.2:n→s", "apunta_a": "d.x", "cambio": "campo:n→s", "detecciones_conductuales": 0, "rechazos_del_algebra": 3 },
+      { "id": "d.x·quitar_filtro", "apunta_a": "d.x", "cambio": "quitar_filtro", "detecciones_conductuales": 2, "rechazos_del_algebra": 0 },
+      { "id": "d.x·aflojar_umbral", "apunta_a": "d.x", "cambio": "aflojar_umbral", "detecciones_conductuales": 1, "rechazos_del_algebra": 1 }
+    ]
+  },
+  "leccion": "El caso es verde porque ninguno de los tres quedó sin observar, y eso es lo correcto: la medida denuncia sobrevivientes, no rechazos. Pero es el caso que fija la SEGUNDA condición del predicado. La mutación lo pidió: sin él, cambiar `rechazos_del_algebra` por `detecciones_conductuales` en la segunda comparación pasaba inadvertido, porque ningún caso tenía un mutante con rechazos y cero conducta. Es también el caso que sólo existe porque la política salió de Python: mientras `murio` era un booleano calculado en el sensor, esta distinción no era un hecho que un caso pudiera fijar.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "a694954" }
+}

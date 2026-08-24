@@ -28,7 +28,13 @@ NUCLEO = "nucleo"
 
 
 def _fuentes_del_nucleo() -> list[Path]:
-    return sorted(p for p in (RAIZ / NUCLEO).glob("*.py") if p.name != "__init__.py")
+    """RECURSIVO, y es el punto. Con `glob("*.py")` bastaba con poner un módulo en un subpaquete de
+    `nucleo/` para que dejara de contar en el numerador y de aparecer en la mutación de código:
+    cuatrocientas líneas de lenguaje escondidas moviendo un archivo una carpeta más adentro. Es la
+    misma trampa que el numerador ya evita contando `nucleo/macros/*.json` junto con el `.py`, y no
+    había motivo para que no aplicara también a los subpaquetes."""
+    return sorted(p for p in (RAIZ / NUCLEO).rglob("*.py")
+                  if p.name != "__init__.py" and "__pycache__" not in p.parts)
 
 
 def _lenguaje() -> list[Path]:
@@ -163,7 +169,9 @@ def cifras() -> str:
     catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     evidencia = mutar_medidas(catalogo, cli_medidas.casos(proy, catalogo))
     mutantes_medida = evidencia["mutante"]
-    muertos_medida = sum(fila["murio"] for fila in mutantes_medida)
+    muertos_medida = sum(
+        1 for fila in mutantes_medida
+        if fila["detecciones_conductuales"] or fila["rechazos_del_algebra"])
 
     por_objetivo = {
         nombre: len(sitios_de(ruta, RAIZ))
@@ -183,37 +191,63 @@ BLOQUES = {"cifras": cifras, "escala": escala, "corpus": corpus, "negativas": ne
            "deteccion": deteccion}
 
 
-def actualizar(contenido: str, nombre: str, bloque: str) -> str:
+def actualizar(contenido: str, nombre: str, bloque: str, ruta: str = "README.md") -> str:
     inicio = f"<!-- {nombre}:inicio -->"
     fin = f"<!-- {nombre}:fin -->"
     antes, separador, resto = contenido.partition(inicio)
     if not separador:
-        raise ValueError(f"falta {inicio} en README.md")
+        raise ValueError(f"falta {inicio} en {ruta}")
     _viejo, separador, despues = resto.partition(fin)
     if not separador:
-        raise ValueError(f"falta {fin} en README.md")
+        raise ValueError(f"falta {fin} en {ruta}")
     return f"{antes}{inicio}\n{bloque}\n{fin}{despues}"
 
 
-def render(contenido: str) -> str:
-    """Aplica todos los bloques declarados. Un bloque ausente en el README es un error, no un salto:
-    borrar la marca no puede ser la manera de librarse de la medición."""
+def render(contenido: str, ruta: str = "README.md") -> str:
+    """Aplica los bloques que el documento declara con sus marcas.
+
+    Un bloque **marcado** que no se puede generar es un error, no un salto: borrar la marca no puede
+    ser la manera de librarse de la medición. Pero no todo documento publica todas las cifras, así
+    que un bloque que el documento no marca simplemente no le aplica.
+    """
     for nombre, generar in BLOQUES.items():
-        contenido = actualizar(contenido, nombre, generar())
+        if f"<!-- {nombre}:inicio -->" not in contenido:
+            continue
+        contenido = actualizar(contenido, nombre, generar(), ruta=ruta)
     return contenido
+
+
+# Todo documento VERSIONADO que publique cifras se custodia acá. Sólo versionado, y el test
+# `test_solo_se_custodian_documentos_versionados` lo hace cumplir: `estudio/` estuvo un rato en esta
+# lista y era un error que las siete verificaciones locales no podían ver, porque la carpeta existe
+# en el disco de quien la generó y está en `.gitignore`. En un checkout limpio —el CI— reventaba.
+#
+# Custodiar un artefacto generado además no sirve: `estudio/` y `ORACLE-PARA-NOTEBOOKLM.md` salen de
+# `tools/estudio.py`, así que una cifra vencida ahí es un síntoma de que la fuente venció, y la
+# fuente es el README, que sí está acá. Se arregla regenerando, no vigilando la copia.
+DOCUMENTOS = ("README.md",)
 
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    ruta = RAIZ / "README.md"
-    previo = ruta.read_text(encoding="utf-8")
-    esperado = render(previo)
-    if "--actualizar" in argv:
-        ruta.write_text(esperado, encoding="utf-8")
-        print("README.md actualizado")
+    actualizar_todo = "--actualizar" in argv
+    vencidos = []
+    for nombre in DOCUMENTOS:
+        ruta = RAIZ / nombre
+        previo = ruta.read_text(encoding="utf-8")
+        esperado = render(previo, ruta=nombre)
+        if actualizar_todo:
+            if previo != esperado:
+                ruta.write_text(esperado, encoding="utf-8")
+                print(f"{nombre} actualizado")
+            continue
+        if previo != esperado:
+            vencidos.append(nombre)
+    if actualizar_todo:
         return 0
-    if previo != esperado:
-        print("README.md tiene cifras vencidas; ejecutá `python tools/cifras.py --actualizar`")
+    if vencidos:
+        print(f"cifras vencidas en {', '.join(vencidos)}; "
+              "ejecutá `python tools/cifras.py --actualizar`")
         return 1
     print("CIFRAS OK")
     for nombre, generar in BLOQUES.items():

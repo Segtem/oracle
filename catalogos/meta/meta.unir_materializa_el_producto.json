@@ -1,0 +1,9 @@
+[
+  "ninguno",
+  "meta.unir_materializa_el_producto",
+  "producto",
+  "u",
+  ["!=", ["campo", "u", "salida"], ["por", ["campo", "u", "izquierda"], ["campo", "u", "derecha"]]],
+  "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma",
+  "compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa"
+]

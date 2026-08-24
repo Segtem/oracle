@@ -1,0 +1,25 @@
+{
+  "id": "046-cumplimiento-declarado-sin-respaldo",
+  "titulo": "Desactivar la puerta declarando cumplido lo que no llega al umbral",
+  "etiqueta": "falso_verde",
+  "sintoma": "Con la puerta ya vencida y sin consumidores, poner `cumplido: true` en `COMPROMISOS.json` la apaga entera: la medida del plazo mira `vencido` y `cumplido`, y con el segundo en verdadero deja de contar. No hace falta tocar la fecha ni reescribir la condición ni explicar nada — una palabra alcanza para que el CI vuelva a verde con cero consumidores reales.",
+  "como_se_detecto": "persona",
+  "medida": "meta.cumplimiento_declarado_sin_respaldo",
+  "evidencia": {
+    "compromiso": [
+      {
+        "id": "dos-consumidores-independientes",
+        "vence": "2027-01-29",
+        "dias_restantes": -1,
+        "vencido": true,
+        "cumplido": true,
+        "umbral": 2,
+        "observado": 0,
+        "alcanza_el_umbral": false
+      }
+    ]
+  },
+  "leccion": "Toda puerta que se cierra con un booleano declarado se abre con el mismo booleano. La segunda medida no arregla eso —nada puede impedir editar un archivo del propio repo— pero obliga a que el número declarado sostenga la declaración: para apagar la puerta hay que escribir `observado: 2`, que es una afirmación concreta, falsable y fechada sobre el mundo, en vez de un `true` que no dice nada. El mecanismo no vuelve honesto a nadie; sube el precio de no serlo.",
+  "fecha": "2026-08-24",
+  "origen": { "repo": "Segtem/oracle", "commit": "515c723" }
+}

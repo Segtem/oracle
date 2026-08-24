@@ -76,6 +76,20 @@ def quitar_filtro(datos: list) -> list | None:
     return d
 
 
+def quitar_requiere(datos: list) -> list | None:
+    """Sin la precondición, una relación necesaria y vacía vuelve a leerse como un mundo en orden.
+
+    `requiere` no es como `alcance` ni como la defensa del umbral —esos se validan al cargar o se
+    juzgan en L2—: éste **cambia el veredicto**, así que tiene que estar en el denominador. Un
+    mutador que nadie escribió no puede producir un sobreviviente, y sacar esta línea reabre el
+    falso verde de la ausencia sin que nada lo note.
+    """
+    d = deepcopy(datos)
+    if len(d) != 7:
+        return None
+    return [*d[:5], d[6]]
+
+
 def negar_filtro(datos: list) -> list | None:
     d = deepcopy(datos)
     hubo = False
@@ -98,6 +112,7 @@ MUTADORES = {
     "aflojar_umbral": aflojar_umbral,
     "invertir_comparador": invertir_comparador,
     "quitar_filtro": quitar_filtro,
+    "quitar_requiere": quitar_requiere,
     "negar_filtro": negar_filtro,
 }
 
@@ -282,45 +297,46 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
             continue                      # el caso no está en su estado esperado: no fija nada
         base = original.evaluar(caso["evidencia"])
         for nombre, datos in mutantes(original.a_datos()):
+            # Cuatro OBSERVACIONES crudas. Cuál cuenta como muerte, y por qué, lo declara y lo
+            # defiende `proceso.test_con_mutante_que_lo_mata`: acá no se decide nada.
             try:
                 v = Medida.de_datos(datos).evaluar(caso["evidencia"])
-                if v.ok != esperado_ok:
-                    murio, como = True, "invirtio_el_veredicto"
-                elif _huella(v.testigos) != _huella(base.testigos):
-                    # El informe también es contrato: los testigos son lo que una persona LEE para
-                    # actuar. En el patrón «donde tol → max → umbral tol» quitar el filtro no puede
-                    # cambiar el veredicto (es un mutante equivalente en el veredicto), y sí cambia
-                    # los testigos. Mirando sólo `ok` esa mutación era invisible.
-                    murio, como = True, "cambio_los_testigos"
-                elif v.valor != base.valor:
-                    # El valor publicado también es contrato: explica cuánto y no sólo de qué lado
-                    # cayó. Un max→min que conserva el rojo pero cambia 8 por 2 no es equivalente.
-                    murio, como = True, "cambio_el_valor"
-                else:
-                    murio, como = False, "sin_efecto"
-            except Exception as e:        # noqa: BLE001  un mutante inválido no es un hallazgo
-                murio, como = True, f"error:{type(e).__name__}"
+                invirtio = v.ok != esperado_ok
+                cambio_testigos = _huella(v.testigos) != _huella(base.testigos)
+                cambio_valor = v.valor != base.valor
+                rechazado = False
+            except Exception:             # noqa: BLE001  un mutante inválido no es un hallazgo
+                invirtio = cambio_testigos = cambio_valor = False
+                rechazado = True
             detecciones.append({
                 "mutante": f"{mid}·{nombre}",
                 "caso": caso["id"],
                 "polaridad": "verde" if esperado_ok else "rojo",
-                "invirtio": murio,
-                "como": como,
+                "invirtio_el_veredicto": invirtio,
+                "cambio_los_testigos": cambio_testigos,
+                "cambio_el_valor": cambio_valor,
+                "rechazado_por_el_algebra": rechazado,
             })
 
-    # el hecho que juzga la medida: un mutante y si algún caso lo agarró
+    # El hecho por mutante: CUÁNTAS veces se lo observó de cada manera. Son conteos, no un dictamen.
+    #
+    # La distinción que los conteos preservan y `murio` aplastaba: un mutante que el álgebra rechaza
+    # con una excepción —un campo que no existe en ese alias, una fuente que no casa— no lo
+    # discriminó ningún caso; ni siquiera llegó a evaluar. Sumarlo a las muertes conductuales publica
+    # una capacidad de detección que el corpus no tiene.
     por_mutante: dict[str, dict] = {}
     for d in detecciones:
         f = por_mutante.setdefault(d["mutante"], {
             "id": d["mutante"],
             "apunta_a": d["mutante"].split("·")[0],
             "cambio": d["mutante"].split("·")[1],
-            "murio": False,
-            "casos_que_lo_detectan": 0,
+            "detecciones_conductuales": 0,
+            "rechazos_del_algebra": 0,
         })
-        if d["invirtio"]:
-            f["murio"] = True
-            f["casos_que_lo_detectan"] += 1
+        if d["invirtio_el_veredicto"] or d["cambio_los_testigos"] or d["cambio_el_valor"]:
+            f["detecciones_conductuales"] += 1
+        if d["rechazado_por_el_algebra"]:
+            f["rechazos_del_algebra"] += 1
 
     return {
         "mutante": list(por_mutante.values()),

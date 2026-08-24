@@ -15,7 +15,8 @@
       {
         "id": "mutacion_codigo.py:sin_manejador_de_señales",
         "apunta_a": "mutacion_codigo._restaurar_todo",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       }
     ],
     "test": [
