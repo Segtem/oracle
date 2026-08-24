@@ -240,6 +240,46 @@ un campo en `marco.py` para cualquiera de ellas, no.
 campos elegidos a mano que borra (~40). A corto plazo la proporción no mejora; el pago está en que la
 pregunta meta número 20 no cueste Python.
 
+### El disparador — escrito el 2026-08-24, y todavía no sonó
+
+Esto NO se hace hasta que suene. La regla que gobierna el álgebra desde el principio —«no se agrega
+un operador hasta que una segunda medida lo necesite»— aplica igual acá: **no se agrega reflexión
+hasta que una segunda pregunta meta la necesite, y la necesite un consumidor.**
+
+> **Suena cuando alguien —no el autor— quiere escribir una medida meta que hoy exige editar Python.**
+
+Hasta hoy no sonó nunca, y conviene ser preciso sobre quién detectó el límite: lo detectamos desde
+adentro. Los dos consumidores suman 47 medidas —geometría, malla, física, scatter, recarga, ML
+deformer— y **ninguna es meta**. Nadie chocó contra esto todavía.
+
+### La deuda, medida el 2026-08-24
+
+Lo que L2 ve de una medida son nueve campos que `como_hechos()` eligió a mano: `id`, `dominio`,
+`relacion`, `umbral_op`, `umbral_valor`, `porque`, `alcance`, `es_meta_por_el_nombre`,
+`es_meta_por_lo_que_mide`. Todo lo demás de la estructura es invisible.
+
+La demostración más clara la dio el propio trabajo del día: **`requiere` se agregó al lenguaje el
+2026-08-24, cambia veredictos, tiene su propio mutador — y L2 no lo ve.** No se puede escribir
+`meta.toda_medida_de_ausencia_declara_requiere` sin agregar un campo en Python primero. Lo mismo con
+«¿qué medidas usan `unir`?» o «¿cuántos filtros tiene?».
+
+Y hay un segundo mecanismo propio que la sección de arriba no nombraba:
+`ClasificacionMeta.relaciones_del_lenguaje` en `nucleo/medida.py` es un `frozenset` escrito a mano.
+El 2026-08-24 pasó de 3 entradas a 7 en dos ediciones de Python —`compromiso` primero, después
+`paso`, `nodo` y `producto`—: cada relación reflexiva nueva cuesta una edición del núcleo. La
+reificación tiene que cubrir también esto, o la mitad del problema queda en pie: una relación
+debería ser del lenguaje porque **quien la produce lo declara**, no porque figure en una lista.
+
+### Y hay un impedimento formal, no sólo de criterio
+
+`COMPROMISOS.json` fija un tope de **3658 líneas** de núcleo al 2027-01-29. Hoy hay 3558: quedan
+**100 líneas de margen**, y la reificación no entra. O sea que la puerta prohíbe hacer esto — y no
+por accidente, sino porque es exactamente para lo que se escribió. Agregar la capacidad más cara del
+plan antes de que ningún catálogo la haya pedido es la escalada de compromiso que la puerta corta.
+
+Si el disparador suena antes de la fecha, eso mismo es la señal de que el costo se justifica, y
+entonces se decide con el compromiso a la vista — no esquivándolo.
+
 ---
 
 ## (c) Composición de medidas — HECHO (rechazada)
@@ -315,16 +355,47 @@ casi seguro no es independiente — miró algo que no debía.
 2. ~~**(c)**~~ **HECHO el 2026-08-03.** Rechazada y registrada en `DECISION-002`.
 3. ~~**(a)** — `defmacro`.~~ **HECHO el 2026-08-03.** Criterio cumplido; la proporción subió en vez
    de bajar (ver arriba).
-4. **(e.1)** — propiedades metamórficas.
-5. **(b)** — reificación. El más caro y el que justifica la palabra «metalenguaje».
-6. **(e.2)** — segunda implementación. El más caro de todos; hacerlo cuando el álgebra esté quieta.
+4. ~~**(e.2)** — segunda implementación.~~ **HECHO el 2026-08-24**, y antes que (e.1) contra lo que
+   este orden predecía. Tres implementaciones independientes escritas sólo desde `ESPECIFICACION.md`,
+   por agentes que nunca vieron `nucleo/`; la de Codex quedó versionada en `diferencial/referencia/`
+   con su procedencia declarada. `diferencial/` dejó de estar vacío.
+
+   Encontró lo que tenía que encontrar: sobre los 39 casos del corpus las cuatro implementaciones
+   coincidían en todo —**el corpus no hace ninguna pregunta difícil**— y los desacuerdos aparecieron
+   recién con 26 sondas dirigidas a los rincones que los propios autores declararon ambiguos. Uno de
+   esos desacuerdos era un defecto real de `nucleo/`: los lógicos cortocircuitaban, así que un campo
+   mal escrito dentro de un `y` devolvía un `False` silencioso — el verde que §3 prohíbe.
+
+5. **(e.1)** — propiedades metamórficas. **PARCIAL al 2026-08-24**, y conviene el detalle:
+   de las cinco listadas arriba está implementada **una** —«`contar` después de `donde` ≤ `contar`
+   antes», como `meta.donde_nunca_agrega_filas`—. Las otras cuatro siguen pendientes: la composición
+   de dos `donde`, la conmutatividad de `unir`, `agrupar` sin claves ≡ el resumen global, y la
+   equivalencia de una macro con su expansión canónica.
+
+   A cambio entraron tres que esta lista no tenía, porque las pidió la traza y no la teoría:
+   `agrupar_no_agranda_la_relacion`, `unir_materializa_el_producto` y
+   `los_logicos_evaluan_todos_sus_operandos`. Las cuatro se verificaron inyectando el defecto que
+   cada una debe atrapar, y las juzgan las DOS implementaciones: un desacuerdo hace fallar la corrida.
+
+6. **(b)** — reificación. **Congelado tras un disparador** (ver arriba). Es el más caro, es el que
+   justifica la palabra «metalenguaje», y nadie lo pidió todavía: los dos consumidores suman 47
+   medidas y ninguna es meta. Además no entra en el tope de núcleo que fija `COMPROMISOS.json`.
 
 ### La medición que gobierna todo esto
 
-**La proporción, hoy 18,0 a 1.** (a) ya la subió —contra lo que este plan predecía— y (b) va a
-subirla otra vez. Ninguna de las dos la mueve en la dirección buena: el movimiento real llega cuando
-**los catálogos crezcan sin que crezca el núcleo**, y eso todavía no se puede demostrar desde acá
-adentro.
+**La proporción — la cifra viva está en el README, no acá.** Este documento es un registro fechado y
+copiar el número otra vez sería garantizarle una tercera deriva: ya publicó 17,6 y 18,0 a la vez.
+
+Lo que sí se puede fijar es el movimiento, porque ya ocurrió: (a) la subió —contra lo que este plan
+predecía—, y al 2026-08-24 había vuelto a donde estaba antes de `defmacro`. **Ni mejoró ni empeoró**,
+y las dos veces que se movió fue por escribir núcleo o por escribir medidas universales. Nunca por un
+consumidor, y ahí está el problema: el movimiento real llegaría cuando **los catálogos crezcan sin
+que crezca el núcleo**, y eso esta métrica no lo puede ver — los catálogos externos no entran a su
+denominador. Tampoco lo ve la migración: mover una política real de Python al catálogo bajó el núcleo
+tres líneas y la cifra no se movió.
+
+Por eso desde el 2026-08-24 el criterio de falsación del proyecto **no es esta proporción** sino la
+puerta prerregistrada en `COMPROMISOS.json`, que sí cuenta los catálogos de los consumidores.
 
 Y ahí está el experimento que importa: **Jam es el primer consumidor que no se diseñó junto con
 Oracle.** El criterio es mecánico y no admite interpretación —
