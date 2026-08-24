@@ -15,32 +15,38 @@
       {
         "id": "algebra.py:50:27:comparador",
         "apunta_a": "algebra._cmp",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "algebra.py:51:26:comparador",
         "apunta_a": "algebra._cmp",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "algebra.py:53:26:comparador",
         "apunta_a": "algebra._cmp",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "algebra.py:54:27:comparador",
         "apunta_a": "algebra._cmp",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "medida.py:52:73:constante",
         "apunta_a": "medida.Veredicto.linea",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "medida.py:53:53:comparador",
         "apunta_a": "medida.Veredicto.linea",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       }
     ],
     "corrida_mutacion": [

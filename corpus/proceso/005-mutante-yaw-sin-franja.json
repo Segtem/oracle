@@ -11,7 +11,8 @@
         "id": "umbral_yaw_flojo",
         "apunta_a": "catalogo.YAW",
         "cambio": "umbral <= 0.5 -> <= 5.0",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       }
     ],
     "generador": [

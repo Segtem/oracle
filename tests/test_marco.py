@@ -114,14 +114,16 @@ class TodaMedidaEstaFijadaTests(unittest.TestCase):
         self.assertEqual(evidencia["medida_en_uso"][0]["casos_que_la_evaluan"], 1)
 
     def test_una_medida_con_un_mutante_vivo_no_esta_fijada(self) -> None:
-        uso, veredicto = self._evaluar([{"apunta_a": MID, "murio": False}])
+        uso, veredicto = self._evaluar(
+            [{"apunta_a": MID, "detecciones_conductuales": 0, "rechazos_del_algebra": 0}])
         self.assertEqual((uso["mutantes"], uso["mutantes_vivos"]), (1, 1))
         self.assertFalse(veredicto.ok)
 
     def test_una_medida_con_todos_sus_mutantes_muertos_esta_fijada(self) -> None:
         uso, veredicto = self._evaluar([
-            {"apunta_a": MID, "murio": True},
-            {"apunta_a": MID, "murio": True},
+            {"apunta_a": MID, "detecciones_conductuales": 3, "rechazos_del_algebra": 0},
+            # el rechazo del álgebra tampoco lo deja vivo: nadie lo notó es CERO de las dos formas
+            {"apunta_a": MID, "detecciones_conductuales": 0, "rechazos_del_algebra": 1},
         ])
         self.assertEqual((uso["mutantes"], uso["mutantes_vivos"]), (2, 0))
         self.assertTrue(veredicto.ok)
@@ -138,9 +140,13 @@ class TodaMedidaEstaFijadaTests(unittest.TestCase):
         self.assertFalse(uso["debe_tener_mutantes"])
         self.assertTrue(veredicto.ok)
 
-    def test_un_mutante_sin_resultado_booleano_no_puede_contar_como_muerto(self) -> None:
-        for mutante in ({"apunta_a": MID}, {"apunta_a": MID, "murio": "si"},
-                        {"apunta_a": "otra.medida", "murio": True}, None):
+    def test_un_mutante_sin_conteos_enteros_no_puede_contarse(self) -> None:
+        sano = {"detecciones_conductuales": 1, "rechazos_del_algebra": 0}
+        for mutante in ({"apunta_a": MID},
+                        {"apunta_a": MID, **sano, "detecciones_conductuales": "si"},
+                        {"apunta_a": MID, **sano, "rechazos_del_algebra": -1},
+                        {"apunta_a": MID, "detecciones_conductuales": 1},
+                        {"apunta_a": "otra.medida", **sano}, None):
             with self.subTest(mutante=mutante):
                 with self.assertRaises(ValueError):
                     hechos_de_uso(CATALOGO, [], [mutante])

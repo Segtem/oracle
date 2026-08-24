@@ -66,9 +66,11 @@ def _ejecutar(proy, args: list[str]) -> int:
         return 0
 
     mutantes = evidencia["mutante"]
-    vivos = [m for m in mutantes if not m["murio"]]
-    solo_excepcion = [m for m in mutantes if m["murio"] and not m["murio_por_conducta"]]
-    conductuales = len(mutantes) - len(vivos) - len(solo_excepcion)
+    vivos = [m for m in mutantes
+             if not m["detecciones_conductuales"] and not m["rechazos_del_algebra"]]
+    conductuales = sum(1 for m in mutantes if m["detecciones_conductuales"])
+    solo_excepcion = [m for m in mutantes
+                      if not m["detecciones_conductuales"] and m["rechazos_del_algebra"]]
     print(f"mutantes de medida (medida × mutador): {len(mutantes)} · "
           f"murieron {len(mutantes) - len(vivos)} · sobrevivieron {len(vivos)}")
     # La cifra que se puede publicar sin inflar: sólo la primera dice que un caso discriminó.

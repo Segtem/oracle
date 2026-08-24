@@ -221,38 +221,42 @@ class CorrerTests(unittest.TestCase):
         self.assertNotIn("resultado_confiable", ev["corrida_mutacion_medidas"][0])
         for fila in ev["mutante"]:
             self.assertEqual(sorted(fila),
-                             ["apunta_a", "cambio", "casos_que_lo_detectan", "id", "murio",
-                              "murio_por_conducta"])
+                             ["apunta_a", "cambio", "detecciones_conductuales", "id",
+                              "rechazos_del_algebra"])
 
     def test_morir_por_excepcion_no_es_morir_por_conducta(self) -> None:
         """Un mutante que el álgebra rechaza no lo discriminó ningún caso: contarlo como muerte
         conductual publica una capacidad de detección que el corpus no tiene."""
         ev = mutacion.correr({"d.tipos": Medida.de_datos(TIPOS)},
                              [CASO_TIPOS_ROJO, CASO_TIPOS_VERDE])
-        por_excepcion = [m for m in ev["mutante"] if m["murio"] and not m["murio_por_conducta"]]
+        por_excepcion = [m for m in ev["mutante"]
+                         if m["rechazos_del_algebra"] and not m["detecciones_conductuales"]]
         self.assertEqual(sorted(m["cambio"] for m in por_excepcion),
                          ["campo:2.2.1.1.1.2:n→s", "campo:2.2.1.2.1.2:s→n"])
         # y la razón registrada es una excepción, no una inversión de veredicto
-        razones = {d["como"] for d in ev["deteccion"]
-                   if d["invirtio"] and d["mutante"].endswith("campo:2.2.1.1.1.2:n→s")}
-        self.assertEqual(razones, {"error:ErrorDeAlgebra"})
+        del_mutante = [d for d in ev["deteccion"]
+                       if d["mutante"].endswith("campo:2.2.1.1.1.2:n→s")]
+        self.assertTrue(all(d["rechazado_por_el_algebra"] for d in del_mutante))
+        self.assertFalse(any(d["invirtio_el_veredicto"] or d["cambio_los_testigos"]
+                             or d["cambio_el_valor"] for d in del_mutante))
         # el resto sí murió por conducta: la distinción separa, no marca todo igual
-        self.assertTrue(all(m["murio_por_conducta"] for m in ev["mutante"]
+        self.assertTrue(all(m["detecciones_conductuales"] for m in ev["mutante"]
                             if not m["cambio"].startswith("campo:")))
 
     def test_un_mutante_muere_si_ALGUN_caso_lo_detecta(self) -> None:
         ev = mutacion.correr(self.catalogo, [CASO_ROJO, CASO_VERDE])
         quitar = next(m for m in ev["mutante"] if m["cambio"] == "quitar_filtro")
-        self.assertTrue(quitar["murio"])
-        self.assertEqual(quitar["casos_que_lo_detectan"], 2)
+        # el conteo, no un booleano: los DOS casos lo notaron, y eso es lo que el hecho publica
+        self.assertEqual(quitar["detecciones_conductuales"], 2)
+        self.assertEqual(quitar["rechazos_del_algebra"], 0)
 
     def test_quitar_el_filtro_se_detecta_por_los_TESTIGOS_no_por_el_veredicto(self) -> None:
         """En el caso rojo, contar sin filtro sigue dando >0: el veredicto no se mueve. Lo que
         cambia es QUIÉNES son los testigos, y el informe también es contrato."""
         ev = mutacion.correr(self.catalogo, [CASO_ROJO])
         d = next(x for x in ev["deteccion"] if x["mutante"].endswith("quitar_filtro"))
-        self.assertTrue(d["invirtio"])
-        self.assertEqual(d["como"], "cambio_los_testigos")
+        self.assertTrue(d["cambio_los_testigos"])
+        self.assertFalse(d["invirtio_el_veredicto"])
 
     def test_un_agregado_que_cambia_el_VALOR_mata_al_mutante_aunque_siga_rojo(self) -> None:
         datos = ["medida", "d.valor",
@@ -266,23 +270,23 @@ class CorrerTests(unittest.TestCase):
         ev = mutacion.correr({"d.valor": Medida.de_datos(datos)}, [caso])
 
         d = next(x for x in ev["deteccion"] if x["mutante"].endswith("max→min"))
-        self.assertTrue(d["invirtio"])
-        self.assertEqual(d["como"], "cambio_el_valor")
+        self.assertTrue(d["cambio_el_valor"])
+        self.assertFalse(d["invirtio_el_veredicto"])
 
     def test_aflojar_el_umbral_se_detecta_por_el_VEREDICTO(self) -> None:
         ev = mutacion.correr(self.catalogo, [CASO_ROJO])
         d = next(x for x in ev["deteccion"] if x["mutante"].endswith("aflojar_umbral"))
-        self.assertEqual(d["como"], "invirtio_el_veredicto")
+        self.assertTrue(d["invirtio_el_veredicto"])
 
     def test_aflojar_umbral_sigue_necesitando_un_caso_ROJO(self) -> None:
         """Aflojar un umbral no mueve un verde ni le cambia los testigos: hace falta un caso ROJO.
         Es al revés de lo que yo suponía cuando agregué los casos verdes."""
         solo_verde = mutacion.correr(self.catalogo, [CASO_VERDE])
         self.assertFalse(next(m for m in solo_verde["mutante"]
-                              if m["cambio"] == "aflojar_umbral")["murio"])
+                              if m["cambio"] == "aflojar_umbral")["detecciones_conductuales"])
         solo_rojo = mutacion.correr(self.catalogo, [CASO_ROJO])
         self.assertTrue(next(m for m in solo_rojo["mutante"]
-                             if m["cambio"] == "aflojar_umbral")["murio"])
+                             if m["cambio"] == "aflojar_umbral")["detecciones_conductuales"])
 
     def test_un_caso_que_no_esta_en_su_estado_esperado_se_saltea(self) -> None:
         # etiquetado verde pero su evidencia da rojo: no fija nada y no debe contaminar
@@ -309,8 +313,7 @@ class CorrerTests(unittest.TestCase):
             mutacion.MUTADORES["negar_filtro"] = lambda d: malo
             ev = mutacion.correr(catalogo, [CASO_ROJO])
             d = next(x for x in ev["deteccion"] if x["mutante"].endswith("negar_filtro"))
-            self.assertTrue(d["invirtio"])
-            self.assertTrue(d["como"].startswith("error:"))
+            self.assertTrue(d["rechazado_por_el_algebra"])
         finally:
             mutacion.MUTADORES["negar_filtro"] = original
 

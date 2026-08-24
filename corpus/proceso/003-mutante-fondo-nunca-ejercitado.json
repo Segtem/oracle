@@ -11,7 +11,8 @@
         "id": "sin_filtro_fondo",
         "apunta_a": "catalogo._vecinas",
         "cambio": "quitar el filtro es_fondo",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       }
     ],
     "generador": [

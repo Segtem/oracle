@@ -15,32 +15,38 @@
       {
         "id": "M1_umbral_siempre_cumple",
         "apunta_a": "algebra._cmp",
-        "murio": true
+        "detecciones_conductuales": 1,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "M2_donde_no_filtra",
         "apunta_a": "algebra.aplicar",
-        "murio": true
+        "detecciones_conductuales": 1,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "M3_contar_da_cero",
         "apunta_a": "algebra.resumir",
-        "murio": true
+        "detecciones_conductuales": 1,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "M4_campo_ausente_False",
         "apunta_a": "algebra.evaluar_expr",
-        "murio": true
+        "detecciones_conductuales": 1,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "M5_sin_defensa",
         "apunta_a": "medida.de_datos",
-        "murio": true
+        "detecciones_conductuales": 1,
+        "rechazos_del_algebra": 0
       },
       {
         "id": "M6_sin_alcance",
         "apunta_a": "medida.de_datos",
-        "murio": true
+        "detecciones_conductuales": 1,
+        "rechazos_del_algebra": 0
       }
     ]
   },

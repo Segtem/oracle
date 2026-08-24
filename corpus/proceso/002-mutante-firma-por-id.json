@@ -18,7 +18,8 @@
         "id": "orden_por_id",
         "apunta_a": "funcion._orden_visual",
         "cambio": "clave de sort: (y,x,id) -> id",
-        "murio": false
+        "detecciones_conductuales": 0,
+        "rechazos_del_algebra": 0
       }
     ]
   },

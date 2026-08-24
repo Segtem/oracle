@@ -39,7 +39,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 3079 líneas de lenguaje y **173 negativas explícitas** (`raise`).
+En este corte hay 3076 líneas de lenguaje y **173 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -72,7 +72,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**3079 líneas de lenguaje** (`nucleo/`, código y macros) y **173 negativas explícitas** (`raise`). Contra las 24 medidas universales escritas en él (220 líneas): **14,0 a 1**. 21 de las 24 pasan por una macro.
+**3076 líneas de lenguaje** (`nucleo/`, código y macros) y **173 negativas explícitas** (`raise`). Contra las 24 medidas universales escritas en él (220 líneas): **14,0 a 1**. 21 de las 24 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -342,11 +342,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**57 casos**: 39 defectos y 18 verdes correctos. De los defectos, 36 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 34 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**58 casos**: 39 defectos y 19 verdes correctos. De los defectos, 36 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 34 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-408 tests · 203/203 mutantes de medida · **1260 sitios de mutación de código** (1055 + 205 del motor Python).
+408 tests · 206/206 mutantes de medida · **1261 sitios de mutación de código** (1056 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

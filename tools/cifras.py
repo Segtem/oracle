@@ -163,7 +163,9 @@ def cifras() -> str:
     catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     evidencia = mutar_medidas(catalogo, cli_medidas.casos(proy, catalogo))
     mutantes_medida = evidencia["mutante"]
-    muertos_medida = sum(fila["murio"] for fila in mutantes_medida)
+    muertos_medida = sum(
+        1 for fila in mutantes_medida
+        if fila["detecciones_conductuales"] or fila["rechazos_del_algebra"])
 
     por_objetivo = {
         nombre: len(sitios_de(ruta, RAIZ))

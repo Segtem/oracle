@@ -85,10 +85,15 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
         mid = m.get("apunta_a")
         if not isinstance(mid, str) or mid not in total:
             raise ValueError(f"mutante[{i}].apunta_a no identifica una medida del catálogo: {mid!r}")
-        if type(m.get("murio")) is not bool:
-            raise ValueError(f"mutante[{i}].murio tiene que ser booleano")
+        conteos = (m.get("detecciones_conductuales"), m.get("rechazos_del_algebra"))
+        if any(type(c) is not int or c < 0 for c in conteos):
+            raise ValueError(
+                f"mutante[{i}] tiene que traer `detecciones_conductuales` y "
+                "`rechazos_del_algebra` como enteros no negativos")
         total[mid] += 1
-        if not m["murio"]:
+        # Cero observaciones de cualquier tipo: nadie lo notó. Es aritmética, no la política de qué
+        # cuenta como muerte — eso lo declara `proceso.test_con_mutante_que_lo_mata`, con defensa.
+        if not any(conteos):
             vivos[mid] += 1
 
     # `es_heredada`: vino del catálogo BASE de oracle, no del proyecto. Sin este campo, apuntar la
