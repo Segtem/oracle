@@ -67,6 +67,23 @@ sigue siendo expresable sin declarar nada.
   ["alcance", "solape de AABB. NO ve la malla real, ni oclusión, ni si quedó flotando"]]
 ```
 
+**La forma canónica admite un nodo opcional `requiere`, y va antes de `alcance`:**
+
+```json
+["medida", "<id>", <tubería>, <resumen>, <umbral>,
+  ["requiere", "<relación>", …],
+  ["alcance", "<qué NO ve>"]]
+```
+
+Es el espejo de `alcance`: uno declara qué NO ve la medida, el otro **qué NECESITA ver para
+concluir**. Si alguna de las relaciones listadas viene vacía, la evaluación no mide: devuelve
+`SIN EVIDENCIA`, que no es verde y tampoco es un rojo del mundo. Existe porque el álgebra no puede
+expresarlo —un agregado sobre cero filas da `0` y un umbral `<= 0` lo lee como éxito— y la ausencia
+total salía verde justo cuando el mundo estaba peor; el caso completo está en §8.
+
+Una medida sin el nodo se comporta exactamente como antes y su forma canónica **no cambia**: son seis
+elementos, no siete. Un evaluador tiene que aceptar las dos longitudes.
+
 Una medida real, del catálogo que ya corre — sin `unir`, que todavía no tiene usuario:
 
 ```json

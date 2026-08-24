@@ -77,6 +77,11 @@ SALIDA = RAIZ / "diferencial" / "simulacion.json"
 def cargar_referencia():
     spec = importlib.util.spec_from_file_location("referencia_diferencial", REFERENCIA)
     modulo = importlib.util.module_from_spec(spec)
+    # Registrarlo ANTES de ejecutarlo no es ceremonia: `@dataclass` resuelve sus anotaciones
+    # buscando el módulo en `sys.modules`, y sin esto revienta con un AttributeError que no dice
+    # nada. Una referencia escrita por otro autor puede usar cualquier cosa del lenguaje, y el
+    # cargador no puede exigirle que se limite a lo que hoy funciona por casualidad.
+    sys.modules[spec.name] = modulo
     spec.loader.exec_module(modulo)
     return modulo
 

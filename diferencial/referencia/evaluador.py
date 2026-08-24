@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 import math
 from typing import Any, Callable
 
@@ -14,6 +15,26 @@ Row = dict[str, Any]
 
 _AGREGADOS = {"max", "min", "suma", "promedio", "contar"}
 _COMPARADORES = {"==", "!=", "<", "<=", ">", ">="}
+_SIN_EVIDENCIA = "SIN EVIDENCIA"
+
+
+@dataclass(frozen=True)
+class LimitesAlgebra:
+    filas_por_relacion: int = 100_000
+    filas_materializadas: int = 1_000_000
+    profundidad_expr: int = 100
+
+    def __post_init__(self) -> None:
+        for nombre, valor in (
+            ("filas_por_relacion", self.filas_por_relacion),
+            ("filas_materializadas", self.filas_materializadas),
+            ("profundidad_expr", self.profundidad_expr),
+        ):
+            if not isinstance(valor, int) or isinstance(valor, bool) or valor < 1:
+                raise ErrorDeAlgebra(f"{nombre} debe ser un entero positivo")
+
+
+_LIMITES = LimitesAlgebra()
 
 
 def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dict:
@@ -25,13 +46,22 @@ def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dic
 
     escalares = {} if escalares is None else escalares
     _validar_escalares(escalares)
-    medida_id, desde, resumen, umbral, alcance = _parsear_medida(medida)
+    medida_id, desde, resumen, umbral, requiere, alcance = _parsear_medida(medida)
     _ = alcance
+    evidencia = _normalizar_evidencia(evidencia, _LIMITES)
 
-    filas, testigos = _evaluar_desde(desde, evidencia, escalares)
+    if _sin_evidencia_requerida(requiere, evidencia):
+        return {
+            "id": medida_id,
+            "valor": _SIN_EVIDENCIA,
+            "ok": False,
+            "testigos": [],
+        }
+
+    filas, testigos = _evaluar_desde(desde, evidencia, escalares, _LIMITES)
 
     _, agregado, expr_resumen = resumen
-    valor = _agregar(filas, agregado, expr_resumen, escalares)
+    valor = _agregar(filas, agregado, expr_resumen, escalares, _LIMITES)
 
     _, op_umbral, valor_umbral, _porque = umbral
     valor_umbral = _validar_escalar(valor_umbral, "valor de umbral")
@@ -45,16 +75,22 @@ def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dic
     }
 
 
-def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list]:
-    if not isinstance(medida, list) or len(medida) != 6:
-        raise ErrorDeAlgebra("una medida debe tener seis elementos")
+def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list]:
+    if not isinstance(medida, list) or len(medida) not in {6, 7}:
+        raise ErrorDeAlgebra("una medida debe tener seis o siete elementos")
     if medida[0] != "medida":
         raise ErrorDeAlgebra("la medida debe empezar con 'medida'")
     medida_id = medida[1]
     if not isinstance(medida_id, str):
         raise ErrorDeAlgebra("el id de medida debe ser texto")
 
-    desde, resumen, umbral, alcance = medida[2], medida[3], medida[4], medida[5]
+    desde, resumen, umbral = medida[2], medida[3], medida[4]
+    if len(medida) == 6:
+        requiere: list[str] = []
+        alcance = medida[5]
+    else:
+        requiere = _parsear_requiere(medida[5])
+        alcance = medida[6]
     if not _es_lista_con_tag(desde, "desde") or len(desde) < 2:
         raise ErrorDeAlgebra("seccion desde invalida")
     if not _es_lista_con_tag(resumen, "resumen") or len(resumen) != 3:
@@ -65,19 +101,124 @@ def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list]:
         raise ErrorDeAlgebra("seccion umbral invalida")
     if umbral[1] not in _COMPARADORES:
         raise ErrorDeAlgebra(f"comparador desconocido: {umbral[1]}")
+    _validar_escalar(umbral[2], "valor de umbral")
     if not isinstance(umbral[3], str):
         raise ErrorDeAlgebra("la defensa del umbral debe ser texto")
     if not _es_lista_con_tag(alcance, "alcance") or len(alcance) != 2:
         raise ErrorDeAlgebra("seccion alcance invalida")
     if not isinstance(alcance[1], str):
         raise ErrorDeAlgebra("el alcance debe ser texto")
-    return medida_id, desde, resumen, umbral, alcance
+    return medida_id, desde, resumen, umbral, requiere, alcance
+
+
+def _parsear_requiere(requiere: Any) -> list[str]:
+    if not _es_lista_con_tag(requiere, "requiere") or len(requiere) < 2:
+        raise ErrorDeAlgebra("seccion requiere invalida")
+    relaciones: list[str] = []
+    for nombre in requiere[1:]:
+        if not isinstance(nombre, str) or nombre == "":
+            raise ErrorDeAlgebra("requiere espera nombres de relacion no vacios")
+        relaciones.append(nombre)
+    return relaciones
+
+
+def _sin_evidencia_requerida(
+    requiere: list[str], evidencia: dict[str, list[dict[str, Scalar]]]
+) -> bool:
+    return any(not evidencia.get(nombre) for nombre in requiere)
+
+
+def _normalizar_evidencia(
+    evidencia: Any, limites: LimitesAlgebra
+) -> dict[str, list[dict[str, Scalar]]]:
+    if not isinstance(evidencia, dict):
+        raise ErrorDeAlgebra("la evidencia debe ser un diccionario")
+
+    normalizada: dict[str, list[dict[str, Scalar]]] = {}
+    for nombre, relacion in evidencia.items():
+        if not isinstance(nombre, str) or nombre == "":
+            raise ErrorDeAlgebra("los nombres de relacion deben ser texto no vacio")
+        normalizada[nombre] = _normalizar_relacion(nombre, relacion, limites)
+    return normalizada
+
+
+def _normalizar_relacion(
+    nombre: str, relacion: Any, limites: LimitesAlgebra
+) -> list[dict[str, Scalar]]:
+    if not isinstance(relacion, list):
+        raise ErrorDeAlgebra(f"la relacion {nombre} debe ser una lista")
+
+    clave, comienzo_hechos = _extraer_clave(nombre, relacion)
+    hechos_brutos = relacion[comienzo_hechos:]
+    if len(hechos_brutos) > limites.filas_por_relacion:
+        raise ErrorDeAlgebra(f"la relacion {nombre} supera el limite de filas")
+
+    hechos: list[dict[str, Scalar]] = []
+    for indice, hecho in enumerate(hechos_brutos, start=comienzo_hechos):
+        if not isinstance(hecho, dict):
+            raise ErrorDeAlgebra(f"la relacion {nombre} contiene un hecho no dict en fila {indice}")
+        hecho_copiado: dict[str, Scalar] = {}
+        for campo, valor in hecho.items():
+            if not isinstance(campo, str):
+                raise ErrorDeAlgebra("los nombres de campo deben ser texto")
+            hecho_copiado[campo] = _validar_escalar(valor, f"campo {campo}")
+        hechos.append(hecho_copiado)
+
+    if clave is not None:
+        _validar_clave_unica(nombre, clave, hechos, comienzo_hechos)
+    return hechos
+
+
+def _extraer_clave(nombre: str, relacion: list) -> tuple[list[str] | None, int]:
+    if not relacion or not _es_lista_con_tag(relacion[0], "clave"):
+        return None, 0
+    nodo = relacion[0]
+    if len(nodo) != 2 or not isinstance(nodo[1], list):
+        raise ErrorDeAlgebra(f"clave invalida en relacion {nombre}")
+    campos: list[str] = []
+    vistos: set[str] = set()
+    for campo in nodo[1]:
+        if not isinstance(campo, str) or campo == "":
+            raise ErrorDeAlgebra(f"clave invalida en relacion {nombre}")
+        if campo in vistos:
+            raise ErrorDeAlgebra(f"campo duplicado en clave de relacion {nombre}: {campo}")
+        vistos.add(campo)
+        campos.append(campo)
+    if not campos:
+        raise ErrorDeAlgebra(f"clave vacia en relacion {nombre}")
+    return campos, 1
+
+
+def _validar_clave_unica(
+    nombre: str, campos: list[str], hechos: list[dict[str, Scalar]], comienzo_hechos: int
+) -> None:
+    vistos: dict[tuple[tuple[type, Scalar], ...], int] = {}
+    clave_texto = ", ".join(campos)
+    for offset, hecho in enumerate(hechos):
+        indice = comienzo_hechos + offset
+        valores: list[tuple[type, Scalar]] = []
+        for campo in campos:
+            if campo not in hecho:
+                raise ErrorDeAlgebra(
+                    f"campo de clave ausente en relacion {nombre} ({clave_texto}) fila {indice}: {campo}"
+                )
+            valores.append((type(hecho[campo]), hecho[campo]))
+        valor_clave = tuple(valores)
+        if valor_clave in vistos:
+            raise ErrorDeAlgebra(
+                f"clave duplicada en relacion {nombre} ({clave_texto}) fila {indice}; "
+                f"primera fila {vistos[valor_clave]}"
+            )
+        vistos[valor_clave] = indice
 
 
 def _evaluar_desde(
-    desde: list, evidencia: dict, escalares: dict[str, Callable[..., Any]]
+    desde: list,
+    evidencia: dict[str, list[dict[str, Scalar]]],
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
 ) -> tuple[list[Row], list[Row]]:
-    filas = _evaluar_relacion(desde[1], evidencia, escalares)
+    filas = _evaluar_relacion(desde[1], evidencia, escalares, limites)
     ultimos_testigos: list[Row] | None = None
 
     for paso in desde[2:]:
@@ -85,10 +226,10 @@ def _evaluar_desde(
             raise ErrorDeAlgebra("paso de tuberia invalido")
         operador = paso[0]
         if operador == "donde":
-            filas = _aplicar_donde(filas, paso, escalares)
+            filas = _aplicar_donde(filas, paso, escalares, limites)
             ultimos_testigos = _copiar_filas(filas)
         elif operador == "agrupar":
-            filas = _aplicar_agrupar(filas, paso, escalares)
+            filas = _aplicar_agrupar(filas, paso, escalares, limites)
         elif operador in {"de", "unir", "resumen"}:
             raise ErrorDeAlgebra(f"{operador} no es un paso valido de desde")
         else:
@@ -100,7 +241,10 @@ def _evaluar_desde(
 
 
 def _evaluar_relacion(
-    expr: Any, evidencia: dict, escalares: dict[str, Callable[..., Any]]
+    expr: Any,
+    evidencia: dict[str, list[dict[str, Scalar]]],
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
 ) -> list[Row]:
     if not isinstance(expr, list) or not expr:
         raise ErrorDeAlgebra("relacion invalida")
@@ -113,11 +257,11 @@ def _evaluar_relacion(
     if operador == "unir":
         if len(expr) != 3:
             raise ErrorDeAlgebra("unir espera dos relaciones")
-        izquierda = _evaluar_relacion(expr[1], evidencia, escalares)
-        derecha = _evaluar_relacion(expr[2], evidencia, escalares)
-        return _unir(izquierda, derecha)
+        izquierda = _evaluar_relacion(expr[1], evidencia, escalares, limites)
+        derecha = _evaluar_relacion(expr[2], evidencia, escalares, limites)
+        return _unir(izquierda, derecha, limites)
     if operador == "desde":
-        filas, _testigos = _evaluar_desde(expr, evidencia, escalares)
+        filas, _testigos = _evaluar_desde(expr, evidencia, escalares, limites)
         return filas
     if operador in {"donde", "agrupar"}:
         raise ErrorDeAlgebra(f"{operador} solo puede aparecer como paso de desde")
@@ -126,33 +270,26 @@ def _evaluar_relacion(
     raise ErrorDeAlgebra(f"operador desconocido: {operador}")
 
 
-def _relacion_de(nombre: Any, alias: Any, evidencia: dict) -> list[Row]:
+def _relacion_de(
+    nombre: Any, alias: Any, evidencia: dict[str, list[dict[str, Scalar]]]
+) -> list[Row]:
     if not isinstance(nombre, str) or not isinstance(alias, str):
         raise ErrorDeAlgebra("de espera nombres de texto")
     if alias == "":
         raise ErrorDeAlgebra("el alias no puede ser vacio")
-    if not isinstance(evidencia, dict):
-        raise ErrorDeAlgebra("la evidencia debe ser un diccionario")
     if nombre not in evidencia:
         raise ErrorDeAlgebra(f"relacion ausente: {nombre}")
     relacion = evidencia[nombre]
-    if not isinstance(relacion, list):
-        raise ErrorDeAlgebra(f"la relacion {nombre} debe ser una lista")
 
     filas: list[Row] = []
     for hecho in relacion:
-        if not isinstance(hecho, dict):
-            raise ErrorDeAlgebra(f"la relacion {nombre} contiene un hecho no dict")
-        hecho_copiado: dict[str, Scalar] = {}
-        for campo, valor in hecho.items():
-            if not isinstance(campo, str):
-                raise ErrorDeAlgebra("los nombres de campo deben ser texto")
-            hecho_copiado[campo] = _validar_escalar(valor, f"campo {campo}")
-        filas.append({alias: hecho_copiado})
+        filas.append({alias: dict(hecho)})
     return filas
 
 
-def _unir(izquierda: list[Row], derecha: list[Row]) -> list[Row]:
+def _unir(izquierda: list[Row], derecha: list[Row], limites: LimitesAlgebra) -> list[Row]:
+    if len(izquierda) * len(derecha) > limites.filas_materializadas:
+        raise ErrorDeAlgebra("unir supera el limite de filas materializadas")
     filas: list[Row] = []
     for fila_izq in izquierda:
         for fila_der in derecha:
@@ -168,14 +305,17 @@ def _unir(izquierda: list[Row], derecha: list[Row]) -> list[Row]:
 
 
 def _aplicar_donde(
-    filas: list[Row], paso: list, escalares: dict[str, Callable[..., Any]]
+    filas: list[Row],
+    paso: list,
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
 ) -> list[Row]:
     if len(paso) != 2:
         raise ErrorDeAlgebra("donde espera un predicado")
     predicado = paso[1]
     filtradas: list[Row] = []
     for fila in filas:
-        valor = _evaluar_expr(predicado, fila, escalares)
+        valor = _evaluar_expr(predicado, fila, escalares, limites)
         if not isinstance(valor, bool):
             raise ErrorDeAlgebra("donde espera un predicado booleano")
         if valor:
@@ -184,7 +324,10 @@ def _aplicar_donde(
 
 
 def _aplicar_agrupar(
-    filas: list[Row], paso: list, escalares: dict[str, Callable[..., Any]]
+    filas: list[Row],
+    paso: list,
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
 ) -> list[Row]:
     if len(paso) != 3:
         raise ErrorDeAlgebra("agrupar espera claves y agregados")
@@ -198,7 +341,7 @@ def _aplicar_agrupar(
     for fila in filas:
         valores_clave: list[Scalar] = []
         for _nombre, expr in claves:
-            valores_clave.append(_validar_escalar(_evaluar_expr(expr, fila, escalares), "clave"))
+            valores_clave.append(_validar_escalar(_evaluar_expr(expr, fila, escalares, limites), "clave"))
         clave = tuple((type(valor), valor) for valor in valores_clave)
         if clave not in grupos:
             grupos[clave] = []
@@ -216,7 +359,7 @@ def _aplicar_agrupar(
         for nombre, agregado, expr in agregados:
             if nombre in fila_salida:
                 raise ErrorDeAlgebra(f"columna duplicada en agrupar: {nombre}")
-            fila_salida[nombre] = _agregar(grupos[clave], agregado, expr, escalares)
+            fila_salida[nombre] = _agregar(grupos[clave], agregado, expr, escalares, limites)
         salida.append(fila_salida)
     return salida
 
@@ -261,7 +404,11 @@ def _parece_agregado_grupo(valor: Any) -> bool:
 
 
 def _agregar(
-    filas: list[Row], agregado: str, expr: Any, escalares: dict[str, Callable[..., Any]]
+    filas: list[Row],
+    agregado: str,
+    expr: Any,
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
 ) -> Scalar:
     if agregado not in _AGREGADOS:
         raise ErrorDeAlgebra(f"agregado desconocido: {agregado}")
@@ -270,7 +417,7 @@ def _agregar(
     if not filas:
         return 0
 
-    valores = [_evaluar_expr(expr, fila, escalares) for fila in filas]
+    valores = [_evaluar_expr(expr, fila, escalares, limites) for fila in filas]
     if agregado == "suma":
         return _sumar(valores)
     if agregado == "promedio":
@@ -310,8 +457,14 @@ def _min_max(valores: list[Any], agregado: str) -> Scalar:
 
 
 def _evaluar_expr(
-    expr: Any, fila: Row, escalares: dict[str, Callable[..., Any]]
+    expr: Any,
+    fila: Row,
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
+    profundidad: int = 0,
 ) -> Any:
+    if profundidad > limites.profundidad_expr:
+        raise ErrorDeAlgebra("expresion supera el limite de profundidad")
     if not isinstance(expr, list):
         return _validar_escalar(expr, "literal")
     if not expr:
@@ -327,28 +480,32 @@ def _evaluar_expr(
     if cabeza in _COMPARADORES:
         if len(expr) != 3:
             raise ErrorDeAlgebra(f"{cabeza} espera dos operandos")
-        return _comparar(cabeza, _evaluar_expr(expr[1], fila, escalares), _evaluar_expr(expr[2], fila, escalares))
+        return _comparar(
+            cabeza,
+            _evaluar_expr(expr[1], fila, escalares, limites, profundidad + 1),
+            _evaluar_expr(expr[2], fila, escalares, limites, profundidad + 1),
+        )
     if cabeza == "y":
         if len(expr) < 3:
             raise ErrorDeAlgebra("y espera al menos dos operandos")
-        valores = [_evaluar_expr(arg, fila, escalares) for arg in expr[1:]]
+        valores = [_evaluar_expr(arg, fila, escalares, limites, profundidad + 1) for arg in expr[1:]]
         _validar_booleanos(valores, "y")
         return all(valores)
     if cabeza == "o":
         if len(expr) < 3:
             raise ErrorDeAlgebra("o espera al menos dos operandos")
-        valores = [_evaluar_expr(arg, fila, escalares) for arg in expr[1:]]
+        valores = [_evaluar_expr(arg, fila, escalares, limites, profundidad + 1) for arg in expr[1:]]
         _validar_booleanos(valores, "o")
         return any(valores)
     if cabeza == "no":
         if len(expr) != 2:
             raise ErrorDeAlgebra("no espera un operando")
-        valor = _evaluar_expr(expr[1], fila, escalares)
+        valor = _evaluar_expr(expr[1], fila, escalares, limites, profundidad + 1)
         if not isinstance(valor, bool):
             raise ErrorDeAlgebra("no espera un booleano")
         return not valor
     if isinstance(cabeza, str) and cabeza in escalares:
-        argumentos = [_evaluar_expr(arg, fila, escalares) for arg in expr[1:]]
+        argumentos = [_evaluar_expr(arg, fila, escalares, limites, profundidad + 1) for arg in expr[1:]]
         try:
             resultado = escalares[cabeza](*argumentos)
         except Exception as exc:  # noqa: BLE001 - se normaliza la API publica
@@ -465,6 +622,8 @@ def _validar_escalar(valor: Any, contexto: str) -> Scalar:
 
 def _tipo_escalar_comparable(valor: Any) -> type:
     _validar_escalar(valor, "valor de min/max")
+    if isinstance(valor, bool):
+        raise ErrorDeAlgebra("min/max exige valores ordenables")
     return type(valor)
 
 

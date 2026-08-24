@@ -68,3 +68,47 @@ Seccion ambigua: relacion entre operadores y tuberia.
 Decision: `de`, `unir` y `desde` son fuentes o subexpresiones de relacion. Los pasos que consumen la
 relacion corriente son `donde` y `agrupar`. `resumen` queda fuera de la tuberia por la decision
 anterior.
+
+## Codificacion de `SIN EVIDENCIA`
+
+Seccion ambigua: `requiere` dice que la evaluacion "devuelve SIN EVIDENCIA", pero la API publica
+sigue siendo `{"id","valor","ok","testigos"}` y no agrega un campo de estado.
+
+Decision: cuando falta evidencia requerida, `valor` es el texto `"SIN EVIDENCIA"`, `ok` es `False`
+y `testigos` es la lista vacia. Asi el resultado no queda verde, y el consumidor puede distinguirlo
+de un rojo del mundo mirando el valor.
+
+## Relacion requerida ausente
+
+Seccion ambigua: `requiere` habla de relaciones vacias, pero no explicita si una relacion ausente en
+el mapa de evidencia es un error de algebra o ausencia de evidencia.
+
+Decision: para `requiere`, una relacion ausente equivale a una relacion vacia y devuelve
+`SIN EVIDENCIA`. Para `["de", relacion, alias]`, una relacion ausente sigue siendo error de algebra.
+
+## Validacion de claves declaradas
+
+Seccion ambigua: la clave declarada se valida antes de medir, pero no dice si alcanza con validar las
+relaciones usadas por la medida.
+
+Decision: se validan todas las claves declaradas en la evidencia recibida antes de medir, incluso si
+la relacion no aparece en la tuberia. El nodo `["clave", campos]` no cuenta como hecho. Los campos de
+clave deben ser textos no vacios, no repetidos, y una clave sin campos es invalida. La fila informada
+en errores es el indice dentro de la lista JSON de la relacion, contando el nodo `clave` si existe.
+
+## Limites con API fija
+
+Seccion ambigua: la especificacion dice que `LimitesAlgebra` forma parte de la llamada, pero la tarea
+fija la API publica como `evaluar(medida, evidencia, escalares=None)`.
+
+Decision: el evaluador mantiene la firma publica y usa limites finitos internos: 100000 filas por
+relacion, 1000000 filas materializadas por producto cartesiano y profundidad maxima de expresion 100.
+Superarlos levanta `ErrorDeAlgebra`.
+
+## `min`/`max` sobre booleanos
+
+Seccion ambigua: los agregados `suma` y `promedio` aceptan booleanos como indicadores 0/1, pero
+`min` y `max` solo piden escalares homogeneos y comparables.
+
+Decision: los booleanos no se consideran ordenables para `min`/`max`. Si una medida necesita medir
+booleanos como indicadores, debe usar `suma` o `promedio`.
