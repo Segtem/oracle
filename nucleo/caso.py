@@ -11,6 +11,7 @@ import json
 import re
 from pathlib import Path
 
+from .proyecto import ID_CASO_RE
 from .sintaxis import ErrorSintaxis, fragmento_de_error
 
 IND = "    "
@@ -294,7 +295,11 @@ class _Parser:
         m = ENCABEZADO_RE.fullmatch(encabezado)
         if not m:
             _fallar(n, 1, "encabezado «caso <id>:»", encabezado)
-        datos = {"id": m.group(1)}
+        cid = m.group(1)
+        if ID_CASO_RE.fullmatch(cid) is None:
+            _fallar(n, encabezado.find(cid) + 1,
+                    "id «NNN-descripcion», sólo con minúsculas ASCII, dígitos y `-`", cid)
+        datos = {"id": cid}
         self.i += 1
 
         datos["fecha"] = _json_valor(*self._exigir_campo("fecha"))
@@ -333,6 +338,10 @@ def imprimir(datos: dict) -> str:
         raise ValueError("un caso tiene que ser un objeto JSON")
     if "id" not in datos:
         raise ValueError("un caso necesita `id`")
+    if not isinstance(datos["id"], str) or ID_CASO_RE.fullmatch(datos["id"]) is None:
+        raise ValueError(
+            f"id inválido: «{datos['id']}» — debe ser `NNN-descripcion`, sólo con minúsculas "
+            "ASCII, dígitos y `-`")
     lineas = [f"caso {datos['id']}:"]
     lineas.append(f"{IND}fecha: {_escalar(datos['fecha'])}")
     lineas.append(f"{IND}origen:")
@@ -407,6 +416,11 @@ def cargar_fuente_caso(ruta: Path) -> dict:
             f"formato de caso no soportado: {ruta} (esperaba .json o .caso)")
     if not isinstance(datos, dict):
         raise CasoMalDeclarado(f"{ruta}: la raíz del caso debe ser un objeto")
+    cid = datos.get("id")
+    if not isinstance(cid, str) or ID_CASO_RE.fullmatch(cid) is None:
+        raise CasoMalDeclarado(
+            f"{ruta}: id inválido: «{cid}» — debe ser `NNN-descripcion`, sólo con minúsculas "
+            "ASCII, dígitos y `-`")
     return datos
 
 

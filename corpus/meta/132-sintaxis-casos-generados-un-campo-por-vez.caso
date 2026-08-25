@@ -1,0 +1,19 @@
+caso 132-sintaxis-casos-generados-un-campo-por-vez:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis de casos generados fija un campo por vez"
+    etiqueta: falso_verde
+    sintoma:
+        Cada campo que la medida de completitud generada mira puede fallar solo. La propiedad no queda fijada si todos los rojos fallan por el mismo campo.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_casos_cubre_casos
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_cubre_casos", "no-evaluo", "construido", false, "", true, true, true
+            "sintaxis_casos_cubre_casos", "json-no-vuelve", "construido", true, "", false, true, true
+            "sintaxis_casos_cubre_casos", "texto-no-vuelve", "construido", true, "", true, false, true
+            "sintaxis_casos_cubre_casos", "testigos-no-vuelven", "construido", true, "", true, true, false
+    leccion:
+        La completitud generada también se fija con polaridad fina: no alcanza con un único caso rojo que mezcle todos los motivos de falla.

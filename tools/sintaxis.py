@@ -26,6 +26,7 @@ from nucleo.sintaxis import (  # noqa: E402,F401
     leer_con_mapa,
     ubicar_ruta,
 )
+from nucleo import caso as sintaxis_caso  # noqa: E402
 from nucleo.medida import cargar_fuente_medida, rutas_de_catalogo  # noqa: E402
 
 
@@ -43,6 +44,10 @@ def _rutas_macros(raiz: Path = RAIZ) -> list[Path]:
 
     return sorted(p for p in (raiz / "nucleo" / "macros").iterdir()
                   if p.suffix in EXTENSIONES_DE_MACRO and p.is_file())
+
+
+def _rutas_corpus(raiz: Path = RAIZ) -> list[Path]:
+    return sintaxis_caso.rutas_de_corpus(raiz / "corpus")
 
 
 def _puntuacion(texto: str) -> int:
@@ -67,13 +72,32 @@ def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
     }
 
 
+def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
+    datos = sintaxis_caso.cargar_fuente_caso(ruta)
+    superficie = sintaxis_caso.imprimir(datos)
+    releida = sintaxis_caso.leer(superficie)
+    reimpresa = sintaxis_caso.imprimir(releida)
+    json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
+    return {
+        "ruta": str(ruta.relative_to(raiz)),
+        "json_igual": releida == datos,
+        "texto_igual": reimpresa == superficie,
+        "caracteres_json": len(json_compacto),
+        "caracteres_superficie": len(superficie),
+        "puntuacion_json": _puntuacion(json_compacto),
+        "puntuacion_superficie": _puntuacion(superficie),
+    }
+
+
 def verificar_catalogo(raiz: Path = RAIZ) -> dict:
     filas_medidas = [_fila_verificacion(r, raiz) for r in _rutas_catalogo(raiz)]
     filas_macros = [_fila_verificacion(r, raiz) for r in _rutas_macros(raiz)]
-    filas = filas_medidas + filas_macros
+    filas_casos = [_fila_verificacion_caso(r, raiz) for r in _rutas_corpus(raiz)]
+    filas = filas_medidas + filas_macros + filas_casos
     total = {
         "medidas": len(filas_medidas),
         "macros": len(filas_macros),
+        "casos": len(filas_casos),
         "json_igual": all(f["json_igual"] for f in filas),
         "texto_igual": all(f["texto_igual"] for f in filas),
         "caracteres_json": sum(f["caracteres_json"] for f in filas),
@@ -164,9 +188,11 @@ def main(argv: list[str] | None = None) -> int:
         informe = verificar_catalogo()
         docs = verificar_documentos()
         ok = (informe["json_igual"] and informe["texto_igual"] and informe["medidas"] > 0
-              and informe["macros"] > 0 and not docs["fallas"] and docs["ejecutables"] > 0)
+              and informe["macros"] > 0 and informe["casos"] > 0 and not docs["fallas"]
+              and docs["ejecutables"] > 0)
         print(f"medidas convertidas: {informe['medidas']}")
         print(f"macros convertidas: {informe['macros']}")
+        print(f"casos convertidos: {informe['casos']}")
         print(f"ida JSON: {'OK' if informe['json_igual'] else 'FALLA'}")
         print(f"vuelta texto: {'OK' if informe['texto_igual'] else 'FALLA'}")
         print(f"caracteres: JSON {informe['caracteres_json']} · superficie "

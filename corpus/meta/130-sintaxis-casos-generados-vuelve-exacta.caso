@@ -1,0 +1,20 @@
+caso 130-sintaxis-casos-generados-vuelve-exacta:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis de casos generados vuelve exacta"
+    etiqueta: verde_correcto
+    sintoma:
+        Casos sintéticos con relación ausente, relación vacía, tres relaciones y `medida: null` sobreviven la ida y vuelta canónica sin cambiar.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_casos_cubre_casos
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_cubre_casos", "900-generado-relacion-ausente", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "902-generado-2-relaciones", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "903-generado-3-relaciones", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "904-generado-sin-medida", "construido", true, "", true, true, true
+            "sintaxis_casos_ida_y_vuelta", "corpus-ok", "corpus", true, "", true, true, true
+    leccion:
+        Generar casos desde la forma L0 amplía la garantía de reversibilidad a bordes que no conviene esperar a que aparezcan por accidente en el corpus.

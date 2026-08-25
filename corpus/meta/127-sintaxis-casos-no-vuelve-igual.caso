@@ -1,0 +1,17 @@
+caso 127-sintaxis-casos-no-vuelve-igual:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis de casos no vuelve igual"
+    etiqueta: falso_verde
+    sintoma:
+        Un caso del corpus se imprime y se relee, pero vuelve con el nulo convertido en texto. La herramienta de sintaxis declara verde una superficie que ya no representa el mismo caso.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_casos_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_ida_y_vuelta", "corpus/meta/ejemplo.caso", "corpus", true, "", false, true, true
+            "sintaxis_casos_ida_y_vuelta", "corpus/meta/otro.caso", "corpus", true, "", true, true, true
+    leccion:
+        El corpus también es superficie publicada. Si un caso cambia de datos al pasar por el impresor, después las medidas se fijan contra otra evidencia.
