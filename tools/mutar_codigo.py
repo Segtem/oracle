@@ -23,6 +23,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
+from nucleo.algebra import ErrorDeAlgebra  # noqa: E402
 from nucleo.medida import cargar_catalogo, medidas_aplicables  # noqa: E402
 from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
                                               LineaBaseFallida, AislamientoRoto,
@@ -258,9 +259,32 @@ def _ejecutar(proy, args) -> int:
           f"equivalentes declarados: {len(eq)}")
 
     catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+    # `medidas_aplicables` filtra por RELACIÓN presente, no por campo. Un mutante de código y uno de
+    # medida son las dos cosas `mutante`, pero no tienen los mismos campos: el de código no trae
+    # `detecciones_conductuales`. Así, una medida escrita para la mutación de MEDIDAS se declaraba
+    # aplicable acá y reventaba dentro del `donde`.
+    #
+    # El error escapaba sin atajar y la ronda entera terminaba en un traceback de Python, después de
+    # una hora de trabajo y con el informe a medio imprimir. Eso es peor que un rojo: la herramienta
+    # que juzga a todas las demás era la única que no sabía informar su propio fracaso. Su contrato
+    # dice «sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa» — un traceback no es
+    # ninguno de los dos.
+    #
+    # Una medida que no puede juzgar esta evidencia se declara y se cuenta; no se saltea en silencio
+    # ni se lleva puesta la ronda.
+    no_juzgaron = []
     for medida in medidas_aplicables(catalogo.values(), evidencia):
-        v = medida.evaluar(evidencia)
+        try:
+            v = medida.evaluar(evidencia)
+        except ErrorDeAlgebra as e:
+            no_juzgaron.append((medida.id, str(e)))
+            continue
         print(f"  {'✓' if v.ok else '✗'} {v.id:<44} valor {v.valor} ({v.umbral})")
+    if no_juzgaron:
+        print(f"\n  {len(no_juzgaron)} medida(s) NO pudieron juzgar esta evidencia — la relación "
+              "estaba, los campos no:")
+        for mid, motivo in no_juzgaron:
+            print(f"    · {mid}: {motivo}")
 
     if ronda_inconclusa:
         print("\nRONDA INCONCLUSA: un timeout o error del arnés no mata un mutante.")

@@ -951,23 +951,50 @@ class CifrasDelReadme(unittest.TestCase):
             with parche, redirect_stdout(io.StringIO()):
                 self.assertEqual(cli_.main([]), 0)
 
-    def test_solo_se_custodian_documentos_versionados(self) -> None:
-        """Un documento gitignoreado no existe en un checkout limpio, y custodiarlo rompe el CI
-        sin que ninguna verificación local lo note: la carpeta está en el disco de quien la generó.
-        Pasó con `estudio/00-esencia.md`. Este test convierte esa clase de error en imposible."""
-        import subprocess
+    def test_todo_documento_custodiado_existe(self) -> None:
+        """Lo único que se puede afirmar sin git, y por eso es lo único que afirma este test.
 
+        La comprobación fuerte —que git los siga— vive en `tools/cifras.py`, que corre en el árbol
+        real. Estuvo acá y no funcionaba: el arnés de `mutar_codigo.py` copia el proyecto SIN `.git`
+        y el test leía ese error de entorno como una falla, dejando la línea base roja y la ronda
+        INCONCLUSA. Es el caso `017` del corpus: un error del arnés no es una muerte.
+        """
         from tools import cifras as cli
 
-        seguidos = subprocess.run(
-            ["git", "ls-files", "--error-unmatch", *cli.DOCUMENTOS],
-            cwd=RAIZ, capture_output=True, text=True)
-        self.assertEqual(
-            seguidos.returncode, 0,
-            f"`DOCUMENTOS` lista algo que git no sigue: {seguidos.stderr.strip()}")
+        self.assertTrue(cli.DOCUMENTOS)
         for nombre in cli.DOCUMENTOS:
             with self.subTest(nombre=nombre):
                 self.assertTrue((RAIZ / nombre).exists())
+
+    def test_la_herramienta_denuncia_un_documento_que_git_no_sigue(self) -> None:
+        """Que la comprobación se haya mudado no la vuelve opcional: acá se ejercita.
+
+        HERMÉTICO: arma su propio repositorio en un temporal en vez de preguntarle al de alrededor.
+        Dos intentos anteriores dependían del árbol ambiente y los dos rompieron la línea base de
+        `mutar_codigo.py`, que corre sobre una copia SIN `.git`. Un test que necesita el entorno de
+        su autor no es un test, es una coincidencia.
+        """
+        import subprocess
+        import tempfile
+
+        from tools import cifras as cli
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "seguido.md").write_text("x\n", encoding="utf-8")
+            (raiz / "generado.md").write_text("y\n", encoding="utf-8")
+            for orden in (["init", "-q"], ["add", "seguido.md"]):
+                subprocess.run(["git", *orden], cwd=raiz, check=True,
+                               capture_output=True, text=True)
+            fuera = cli.custodiados_sin_versionar(
+                raiz, ("seguido.md", "generado.md"))
+            self.assertEqual(fuera, ["generado.md"])
+
+        with tempfile.TemporaryDirectory() as d:
+            # Sin repositorio no afirma nada, que es distinto de afirmar que está todo bien: el
+            # `main` de la herramienta corre igual y la comprobación fuerte queda para el árbol real.
+            self.assertEqual(
+                cli.custodiados_sin_versionar(Path(d), ("cualquiera.md",)), [])
 
     def test_render_aplica_el_bloque_y_devuelve_el_contenido(self) -> None:
         with tempfile.TemporaryDirectory() as td:

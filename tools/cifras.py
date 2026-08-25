@@ -249,9 +249,44 @@ def render(contenido: str, ruta: str = "README.md") -> str:
 DOCUMENTOS = ("README.md",)
 
 
+def custodiados_sin_versionar(raiz: Path | None = None, documentos=None) -> list[str]:
+    """Los `DOCUMENTOS` que git no sigue. Vive en la HERRAMIENTA y no en un test, a propósito.
+
+    Un documento gitignoreado no existe en un checkout limpio y rompe el CI sin que nada local lo
+    note: la carpeta está en el disco de quien la generó. Pasó con `estudio/00-esencia.md`.
+
+    Como test no servía: el arnés de `mutar_codigo.py` copia el proyecto SIN `.git` —a propósito— y
+    ahí preguntarle a git no devuelve «no», devuelve un error de entorno. El test lo leía como falla,
+    la línea base salía roja y la ronda entera quedaba INCONCLUSA: el caso `017` del corpus con otro
+    traje. Acá corre donde la pregunta tiene sentido —el árbol real, en la secuencia de
+    verificación— y sin repositorio no afirma nada en vez de afirmar algo falso.
+    """
+    import subprocess
+
+    # `RAIZ` se resuelve al LLAMAR y no al definir: los tests aislados la parchean para trabajar
+    # sobre un temporal, y un default evaluado en la definición los mandaba a preguntarle al
+    # repositorio real por archivos que sólo existen en el temporal.
+    raiz = RAIZ if raiz is None else raiz
+    if subprocess.run(["git", "rev-parse", "--git-dir"], cwd=raiz,
+                      capture_output=True, text=True).returncode != 0:
+        return []
+    fuera = []
+    for nombre in (DOCUMENTOS if documentos is None else documentos):
+        seguido = subprocess.run(["git", "ls-files", "--error-unmatch", nombre],
+                                 cwd=raiz, capture_output=True, text=True)
+        if seguido.returncode != 0:
+            fuera.append(nombre)
+    return fuera
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     actualizar_todo = "--actualizar" in argv
+    sin_versionar = custodiados_sin_versionar()
+    if sin_versionar:
+        print(f"`DOCUMENTOS` custodia algo que git no sigue: {', '.join(sin_versionar)}. "
+              "Un documento generado no existe en un checkout limpio.")
+        return 1
     vencidos = []
     for nombre in DOCUMENTOS:
         ruta = RAIZ / nombre
