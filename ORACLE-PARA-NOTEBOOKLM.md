@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `f623d0c9ee66`
+- Revisión de código base: `db5f23704031`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -108,7 +108,7 @@ de grave: en un solo día lo cometí tres veces.
 #### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 67 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 48 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 70 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 51 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,7 a 1**. 29 de las 36 pasan por una macro.
+**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **24,9 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -403,11 +403,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**99 casos**: 67 defectos y 32 verdes correctos. De los defectos, 64 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 62 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**104 casos**: 70 defectos y 34 verdes correctos. De los defectos, 67 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 65 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-528 tests · 535/535 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
+528 tests · 547/547 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -2160,6 +2160,27 @@ En qué se expande:
 ]
 ```
 
+#### proceso.codigo_con_mutante_que_lo_mata
+
+- **mide sobre** la relación `mutante`
+- **umbral**: `<= 0`
+- **por qué ese número**: un mutante de código que sobrevive es una modificación sintáctica del núcleo que ningún test detecta: la suite completa pasa con el código alterado, lo que demuestra que los tests tienen un punto ciego y no están fijando ese comportamiento. El umbral tiene que ser cero porque tolerar sobrevivientes no declarados equivale a publicar como verificada una base de código cuyo comportamiento real no está garantizado. Un mutante equivalente declarado con su razón escrita no cuenta como sobreviviente porque documenta una decisión explícita, no una omisión de los tests
+- **qué NO ve**: cuenta mutantes de código de la ronda cuyo estado fue «pasaron» sin estar declarados como equivalentes. NO ve los mutadores que nadie escribió ni los operadores que el perfil de mutación no contempla: un mutante que no existe no puede sobrevivir. Tampoco juzga por sí sola si la ronda fue concluyente —eso lo mide proceso.ronda_mutacion_concluyente— ni si el bytecode estaba frío. Si mutante viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—
+
+Como está escrita:
+
+```json
+[
+  "medida",
+  "proceso.codigo_con_mutante_que_lo_mata",
+  ["desde", ["de", "mutante", "m"], ["donde", ["y", ["==", ["campo", "m", "estado"], "pasaron"], ["==", ["campo", "m", "equivalente_declarado"], false]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un mutante de código que sobrevive es una modificación sintáctica del núcleo que ningún test detecta: la suite completa pasa con el código alterado, lo que demuestra que los tests tienen un punto ciego y no están fijando ese comportamiento. El umbral tiene que ser cero porque tolerar sobrevivientes no declarados equivale a publicar como verificada una base de código cuyo comportamiento real no está garantizado. Un mutante equivalente declarado con su razón escrita no cuenta como sobreviviente porque documenta una decisión explícita, no una omisión de los tests"],
+  ["requiere", "mutante"],
+  ["alcance", "cuenta mutantes de código de la ronda cuyo estado fue «pasaron» sin estar declarados como equivalentes. NO ve los mutadores que nadie escribió ni los operadores que el perfil de mutación no contempla: un mutante que no existe no puede sobrevivir. Tampoco juzga por sí sola si la ronda fue concluyente —eso lo mide proceso.ronda_mutacion_concluyente— ni si el bytecode estaba frío. Si mutante viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—"]
+]
+```
+
 #### proceso.modulo_alcanzable
 
 - **mide sobre** la relación `modulo`
@@ -2451,16 +2472,16 @@ medidas, cada caso de defecto tiene que ponerse rojo y cada caso correcto, verde
 
 | Etiqueta | Cuántos |
 |---|---|
-| falso_verde | 62 |
-| verde_correcto | 32 |
+| falso_verde | 65 |
+| verde_correcto | 34 |
 | deuda_de_diseño | 2 |
 | falso_rojo | 2 |
 | medida_correcta_conclusion_errada | 1 |
 
 | Cómo se detectó | Cuántos |
 |---|---|
-| mutacion | 48 |
-| observacion | 32 |
+| mutacion | 51 |
+| observacion | 34 |
 | persona | 12 |
 | accidente | 4 |
 | herramienta_ajena | 3 |
@@ -3976,6 +3997,66 @@ La evidencia, como relaciones:
 }
 ```
 
+### 025-mutante-de-codigo-sobreviviente
+
+**Un mutante de código sobrevivió a la suite de tests**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** La ronda de mutación de código detectó un mutante donde los tests pasaron sin fallar. La medida debe ponerse roja y contar el sobreviviente.
+
+**Qué se aprendió.** Un test que pasa con el código mutado es un punto ciego de la suite. La medida debe contarlo como ofensa y ponerse roja.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "mutante": [{"id": "nucleo/caso.py:53:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: False → True", "estado": "pasaron", "murio": false, "tests_fallaron": false, "error_arnes": false, "timeout": false, "codigo_salida": 0, "equivalente_declarado": false, "razon_equivalente": ""}, {"id": "nucleo/caso.py:14:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: 1 → 2", "estado": "tests_fallaron", "murio": true, "tests_fallaron": true, "error_arnes": false, "timeout": false, "codigo_salida": 1, "equivalente_declarado": false, "razon_equivalente": ""}]
+}
+```
+
+### 026-mutante-de-codigo-equivalente-no-cuenta-como-muerte-ni-sobreviviente
+
+**Un mutante equivalente declarado con su razón no cuenta como sobreviviente ni como muerte**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Una ronda con un sobreviviente real, un mutante muerto y un mutante declarado equivalente. La medida debe contar exactamente un sobreviviente, ignorando la exclusión declarada sin ocultar la ofensa real.
+
+**Qué se aprendió.** Declarar un mutante equivalente documenta una decisión legítima que no debe contar como sobreviviente ni como muerte, y no debe enmascarar a los sobrevivientes reales.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "mutante": [{"id": "nucleo/caso.py:53:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: False → True", "estado": "pasaron", "murio": false, "tests_fallaron": false, "error_arnes": false, "timeout": false, "codigo_salida": 0, "equivalente_declarado": false, "razon_equivalente": ""}, {"id": "nucleo/caso.py:14:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: 1 → 2", "estado": "tests_fallaron", "murio": true, "tests_fallaron": true, "error_arnes": false, "timeout": false, "codigo_salida": 1, "equivalente_declarado": false, "razon_equivalente": ""}, {"id": "tools/cifras.py:23:16:constante", "apunta_a": "tools/cifras.py", "cambio": "constante: 0 → 1", "estado": "pasaron", "murio": false, "tests_fallaron": false, "error_arnes": false, "timeout": false, "codigo_salida": 0, "equivalente_declarado": true, "razon_equivalente": "precedencia de sys.path"}]
+}
+```
+
+### 027-ronda-de-codigo-sin-mutantes-no-concluye
+
+**Una ronda de mutación de código sin mutantes no concluye**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Cero mutantes en la relación. Sin la precondición `requiere`, la medida agregaría sobre cero filas y devolvería verde vacilante sobre la nada.
+
+**Qué se aprendió.** Sin mutantes de código no hay evidencia de fijación. La medida debe exigir la presencia de la relación y no concluir verde en el vacío.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "mutante": []
+}
+```
+
 ### 043-ausencia-total-sale-verde
 
 **La medida de ausencia se ponía más verde cuanto peor estaba el mundo**
@@ -4218,6 +4299,46 @@ La evidencia, como relaciones:
 ```json
 {
   "corrida_mutacion": [{"id": "ronda-concluyente", "mutantes": 3, "baseline_verde": true, "bytecode_frio": true, "tests_fallaron": 2, "errores_arnes": 0, "timeouts": 0}]
+}
+```
+
+### 109-mutantes-de-codigo-todos-muertos
+
+**Todos los mutantes de código murieron bajo la suite**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Todos los mutantes de código fueron detectados por los tests (estado tests_fallaron). La medida debe dar verde y con quitar_filtro dar rojo.
+
+**Qué se aprendió.** Un verde correcto fija que cuando los mutantes son detectados y eliminados, la medida dictamina conformidad.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "mutante": [{"id": "nucleo/caso.py:14:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: 1 → 2", "estado": "tests_fallaron", "murio": true, "tests_fallaron": true, "error_arnes": false, "timeout": false, "codigo_salida": 1, "equivalente_declarado": false, "razon_equivalente": ""}, {"id": "nucleo/caso.py:27:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: 4 → 5", "estado": "tests_fallaron", "murio": true, "tests_fallaron": true, "error_arnes": false, "timeout": false, "codigo_salida": 1, "equivalente_declarado": false, "razon_equivalente": ""}]
+}
+```
+
+### 110-mutante-de-codigo-equivalente-declarado-verde
+
+**Un mutante de código declarado equivalente no impide el verde legítimo**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Una ronda donde todos los mutantes reales murieron y el único que no murió está declarado equivalente con su razón. La medida debe salir verde.
+
+**Qué se aprendió.** Un mutante equivalente declarado con razón no debe reportarse como sobreviviente cuando no hay otros defectos.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "mutante": [{"id": "nucleo/caso.py:14:1:constante", "apunta_a": "nucleo/caso.py", "cambio": "constante: 1 → 2", "estado": "tests_fallaron", "murio": true, "tests_fallaron": true, "error_arnes": false, "timeout": false, "codigo_salida": 1, "equivalente_declarado": false, "razon_equivalente": ""}, {"id": "tools/cifras.py:23:16:constante", "apunta_a": "tools/cifras.py", "cambio": "constante: 0 → 1", "estado": "pasaron", "murio": false, "tests_fallaron": false, "error_arnes": false, "timeout": false, "codigo_salida": 0, "equivalente_declarado": true, "razon_equivalente": "precedencia de sys.path"}]
 }
 ```
 
@@ -5008,7 +5129,7 @@ El sensor produce HECHOS y no juzga: si una equivalencia que falla es aceptable 
 
 ### `tools/mutar.py`
 
-*153 líneas*
+*166 líneas*
 
 Muta las medidas y mide el resultado CON LAS MEDIDAS. El bucle se cierra acá.
 
@@ -7896,6 +8017,55 @@ SINTAXIS · MUTACIÓN de medidas 535/535 — 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — El README publicaba un «cero sobrevivientes» que hoy no se puede volver a obtener
+
+*commit e9e9989*
+
+La nota decía, con fecha 2026-08-03: «los 16 objetivos de la matriz del CI salen
+en VERDE: cero sobrevivientes, cero errores de arnés». Desde entonces el núcleo
+pasó de ~2900 a más de 5500 líneas —la superficie infija y la del corpus son casi
+1400— y ese código **nunca se mutó**.
+
+Al intentarlo aparecieron tres cosas encadenadas, y las tres están arregladas en
+los commits anteriores:
+
+  1. la ronda no arrancaba (línea base roja: un test le preguntaba a git dentro de
+     una copia sin `.git`);
+  2. arreglado eso, crasheaba con un traceback en vez de dar un veredicto;
+  3. arreglado eso, 51 de 193 mutantes salían «error de arnés» porque el tipo de
+     error del lenguaje no se podía re-lanzar desde Python.
+
+La cuarta corrida fue concluyente: **193 mutantes · 136 muertos · 57 sobrevivientes
+· 0 timeouts · 0 errores de arnés**.
+
+Los 57 quedan publicados con su reparto —38 constantes de posición, 9 comparadores
+de borde, 8 booleanos, 2 retornos— en vez de dejar arriba una afirmación verde de
+hace tres semanas sobre un código que en su mayoría todavía no existía.
+
+Una cifra que no se puede volver a obtener no es una medición, es un recuerdo. Y
+el proyecto tiene una medida para eso: `proceso.verificacion_vigente`.
+
+528 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — proceso: incorporar medida proceso.codigo_con_mutante_que_lo_mata y sus casos de corpus
+
+*commit 1cb53c1*
+
+
+
+## 2026-08-25 — Saca el informe
+
+*commit bf231f9*
+
+
+
+## 2026-08-25 — Merge branch 'juzga-codigo'
+
+*commit db5f237*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7905,13 +8075,13 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | Qué | Cuánto | Qué dice |
 |---|---|---|
 | líneas del núcleo | 5172 | el lenguaje |
-| líneas de medidas escritas en él | 218 | lo escrito en el lenguaje |
-| proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 27 a 1 | sin ningún proyecto que lo use |
+| líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
+| proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
 | negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
-| medidas | 36 | de las cuales 24 miden el lenguaje mismo |
-| casos de corpus | 99 | fallas reales, con su evidencia |
-| commits | 105 | el historial completo |
+| medidas | 37 | de las cuales 24 miden el lenguaje mismo |
+| casos de corpus | 104 | fallas reales, con su evidencia |
+| commits | 109 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
