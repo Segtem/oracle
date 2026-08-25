@@ -49,6 +49,7 @@ PRIORIDADES = {
     "nucleo/proyecto.py": ("tests.test_proyecto", "tests.test_herramientas",
                             "tests.test_perfiles", "tests.test_motor"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
+    "nucleo/version.py": ("tests.test_herramientas",),
     "oracle_metalenguaje/_compat.py": ("tests.test_motor",),
     "oracle_metalenguaje/motor.py": ("tests.test_motor",),
     "perfiles/python/marco.py": ("tests.test_perfiles",),

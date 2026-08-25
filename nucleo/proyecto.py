@@ -28,6 +28,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
+from .version import VersionInvalida, compatible, del_nucleo, parsear
+
 RAIZ_ORACLE = Path(__file__).resolve().parents[1]
 
 
@@ -151,6 +153,21 @@ def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProye
     catalogo_base = datos.get("catalogo_base", False)
     if not isinstance(catalogo_base, bool):
         raise ProyectoInvalido("`catalogo_base` debe ser booleano")
+    # Un proyecto puede declarar qué versión del álgebra necesita. Es OPCIONAL: quien no la declara
+    # sigue funcionando (los consumidores existentes no se rompen), pero quien la declara y no coincide
+    # falla cerrado acá, antes de cargar ni una medida — con un mensaje que dice cuál hay y cuál se
+    # pidió.
+    algebra = datos.get("algebra")
+    if algebra is not None:
+        try:
+            necesitada = parsear(algebra)
+        except VersionInvalida as e:
+            raise ProyectoInvalido(f"`oracle.json`: {e}") from e
+        disponible = del_nucleo()
+        if not compatible(necesitada, disponible):
+            raise ProyectoInvalido(
+                f"`oracle.json` pide el álgebra {necesitada} y este núcleo implementa {disponible}; "
+                "un proyecto que declara una versión incompatible no se evalúa")
     return ConfiguracionProyecto(tuple(perfiles), catalogo_base)
 
 

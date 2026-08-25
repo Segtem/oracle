@@ -1,6 +1,9 @@
 # Especificación del álgebra
 
-Versión `0.3`. **Escrita para ser rota**: el criterio de si sirve está al final, y es comprobable.
+Versión `0.3`, declarada de forma **legible por máquina** en `nucleo/version.py`
+(`VERSION_ALGEBRA`). Esta prosa la cita, no la define: la define el dato, y la regla de qué cambio
+sube qué parte del número está en §0. **Escrita para ser rota**: el criterio de si sirve está al
+final, y es comprobable.
 
 > **Qué cambió respecto de `0.1`, y por qué.** La implementación encontró dos cosas.
 > **(a)** El acceso a datos pasó a ser **explícito** (`["campo", alias, nombre]`, `["hecho", alias]`)
@@ -15,6 +18,34 @@ Versión `0.3`. **Escrita para ser rota**: el criterio de si sirve está al fina
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
+
+---
+
+## 0. La versión del lenguaje
+
+La versión es un dato, no una frase. Vive en `nucleo/version.py` como `VERSION_ALGEBRA`, con la
+forma `MAYOR.MENOR` (dos enteros). Sin una regla que diga qué cambio sube qué parte, el número es
+decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
+
+**`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
+nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
+escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;
+quien *implementa el álgebra completo* —una referencia independiente— quedó incompleto y tiene que
+volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`).
+
+**`MAYOR` sube** cuando cambia el **significado o el contrato** de algo que ya existía: la semántica
+de un operador (qué hace `min`/`max` con booleanos), la forma canónica de una medida, una validación
+que hacía cargar lo que ahora se rechaza, o quitar/renombrar un operador. Eso rompe a todo
+consumidor, use o no la parte cambiada. De `0.3` a `1.0`, y la menor vuelve a `0`.
+
+**Cómo se comprueba.** El núcleo publica lo que implementa. Un proyecto puede declarar en
+`oracle.json` la versión que necesita (`"algebra": "0.3"`); si no es compatible, la carga falla
+cerrado con un mensaje que dice cuál hay y cuál se pidió, y quien no la declara sigue funcionando.
+La compatibilidad es la del párrafo anterior: misma `MAYOR` y `MENOR` al menos tan nueva como la
+pedida. Una implementación de referencia, en cambio, declara contra qué versión se escribió y el
+arnés del diferencial la compara con la del núcleo antes de emitir un fixture: la referencia se fija
+a una versión **exacta**, porque un agregado puede no romper a un consumidor y sí a un evaluador que
+no conoce el nodo nuevo.
 
 ---
 
