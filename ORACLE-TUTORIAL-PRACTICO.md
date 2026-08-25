@@ -7,7 +7,7 @@ repositorio y de un proyecto que ya lo usa en producción (Jam, un plugin de Unr
 `ORACLE-PARA-NOTEBOOKLM.md` responde «¿por qué existe Oracle?», este documento responde «¿cómo
 escribo la primera medida, y la segunda, y la que necesita algo más complicado?».
 
-- Generado: `2026-07-31`
+- Generado: `2026-08-24`
 - Todos los ejemplos de sintaxis fueron verificados contra el código fuente vigente de
   `Segtem/oracle` (rama `main`) y contra medidas reales en producción del proyecto Jam.
 
@@ -15,11 +15,13 @@ escribo la primera medida, y la segunda, y la que necesita algo más complicado?
 
 ## 0. Oracle en una frase
 
+**La superficie infija es cómo se escribe; el JSON es cómo se guarda.**
+
 Oracle es un **lenguaje de datos** (no una biblioteca de funciones) para escribir *medidas*: reglas
 que toman hechos sobre lo que se construyó, calculan un número, lo comparan contra un umbral, y si el
-umbral se viola, señalan exactamente qué filas lo violaron. Una medida se guarda como JSON — es datos,
-no código — y por eso se puede inspeccionar, mutar, contar y medir con las mismas herramientas que
-mide cualquier otra cosa.
+umbral se viola, señalan exactamente qué filas lo violaron. Una medida se escribe en una superficie
+infija clara y se guarda como JSON —es datos, no código— y por eso se puede inspeccionar, mutar,
+contar y medir con las mismas herramientas que mide cualquier otra cosa.
 
 Si nunca escribiste una medida, la meta de este documento es que después de leerlo puedas escribir la
 tuya sin haber leído el evaluador.
@@ -55,43 +57,73 @@ decir también qué no miró.
 
 ## 2. Anatomía de una medida
 
-Toda medida, en su forma completa (**canónica**), tiene esta forma — una lista de 6 elementos:
+Toda medida, en su forma completa (**canónica**), se escribe así en la superficie infija:
 
-```json
-["medida", "<id>",
-  ["desde", <fuente>, <paso>, <paso>, "..."],
-  ["resumen", "<agregado>", <expresion>],
-  ["umbral", "<comparador>", <valor>, "<por qué ese número>"],
-  ["alcance", "<qué NO ve esta medida>"]]
+```oracle
+medida <id>:
+    de <relacion> <alias>
+    [unir <relacion2> <alias2>]
+    [donde <predicado>]
+    [agrupar:
+        clave <nombre> = <expresion>
+        agregado <nombre> = <agregado>(<expresion>)]
+    resumen <agregado>(<expresion>)
+    umbral <comparador> <valor> porque "<por qué ese número>"
+    [requiere <relaciones>]
+    alcance "<qué NO ve esta medida>"
 ```
 
 | Pieza | Qué es | Obligatorio |
 |---|---|---|
 | `id` | `dominio.nombre`, minúsculas ASCII, dígitos y `_` | sí |
-| `desde …` | la tubería: de dónde salen los datos y qué filtros pasan | sí |
+| `de …` | la fuente: de dónde salen los datos y qué alias reciben | sí |
+| `unir …` | producto cartesiano con otra fuente | opcional |
+| `donde …` | el filtro de lo que ofende — **acá se definen los testigos** | opcional |
+| `agrupar:` | agrupa filas por claves y calcula agregados intermedios | opcional |
 | `resumen` | cómo se colapsa la tubería a UN escalar — la medición en sí | sí |
-| `umbral` | comparador + valor + **defensa en texto** de por qué ese valor | sí, con defensa no vacía |
+| `umbral` | comparador + valor + **defensa en texto** (`porque`) de por qué ese valor | sí, con defensa no vacía |
+| `requiere` | declara qué relaciones de evidencia son indispensables | opcional (obligatorio en medidas de ausencia) |
 | `alcance` | qué NO mira esta medida, en texto | sí, no puede estar vacío |
 
-Dos reglas no son estilo, son validación dura: **una medida sin defensa del umbral no carga, y una
-medida sin `alcance` no carga.** Fallan al leerse, no al usarse — antes de evaluar un solo hecho.
+Tres reglas no son estilo, son validación dura:
+1. **Una medida sin defensa del umbral no carga, y una medida sin `alcance` no carga.** Fallan al leerse, no al usarse — antes de evaluar un solo hecho.
+2. **Un umbral de igualdad (`==`) está prohibido.** La regla universal `meta.ningun_umbral_de_igualdad` exige umbrales de orden (`<=`, `>=`, `<`, `>`).
+3. **Si una medida declara `requiere <relacion>`, la relación no puede faltar ni venir vacía.** Si no hay evidencia requerida, la evaluación devuelve `SIN EVIDENCIA` y no un verde espurio.
+
+### El almacenamiento: por qué JSON
+
+La superficie infija es la forma legible para escribir y revisar. En el disco (dentro de `catalogos/`), la medida se guarda como una lista JSON homoicónica que representa su AST directamente:
+
+```json
+["medida", "<id>",
+  ["desde", ["de", "<relacion>", "<alias>"],
+            ["donde", <predicado>]],
+  ["resumen", "<agregado>", <expresion>],
+  ["umbral", "<comparador>", <valor>, "<por qué ese número>"],
+  ["requiere", "<relacion>"],
+  ["alcance", "<qué NO ve esta medida>"]]
+```
+
+Para traducir entre la superficie infija y el archivo JSON tenés la herramienta `tools/sintaxis.py`:
+
+```bash
+python tools/sintaxis.py --imprimir catalogos/proceso/proceso.test_con_mutante_que_lo_mata.json  # JSON -> superficie
+python tools/sintaxis.py --leer medida.oracle > catalogos/dominio/dominio.regla.json              # superficie -> JSON
+```
 
 El ejemplo más simple posible del propio catálogo de Oracle:
 
-```json
-["medida", "proceso.test_con_mutante_que_lo_mata",
-  ["desde", ["de", "mutante", "m"],
-   ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
-                   ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
-  ["resumen", "contar", 1],
-  ["umbral", "<=", 0,
-    "un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto"],
-  ["alcance",
-    "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutadores que nadie escribió"]]
+```oracle
+medida proceso.test_con_mutante_que_lo_mata:
+    de mutante m
+    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    resumen contar(1)
+    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto"
+    alcance "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutadores que nadie escribió"
 ```
 
 Léelo en voz alta y ya sabés leer el 90% de las medidas que vas a encontrar: **«de la relación
-`mutante`, alias `m`, quedate con los que tienen `murio == false`; contá cuántos quedaron; si son más
+`mutante`, alias `m`, quedate con los que sobrevivieron (`detecciones == 0` y `rechazos == 0`); contá cuántos quedaron; si son más
 de 0, rojo — porque un mutante vivo es un test que no discrimina; y esto no ve los mutantes que nadie
 llegó a escribir».**
 
@@ -101,6 +133,8 @@ exactamente las filas que sobrevivieron al último `donde`. No hay una segunda f
 porque escribir la misma condición dos veces es exactamente cómo se desincroniza (fue un defecto real
 del proyecto — ver §7).
 
+Tampoco hay composición de medidas (`DECISION-002`): una medida no puede invocar el resultado de otra medida. Cada medida juzga hechos directos del dominio.
+
 ---
 
 ## 3. El álgebra: cinco operadores, y nada más
@@ -108,30 +142,29 @@ del proyecto — ver §7).
 Toda la sintaxis sale de combinar **cinco operadores**. Cada uno toma filas (o hace de fuente) y
 devuelve filas: esa clausura es lo que permite encadenarlos sin casos especiales.
 
-| Operador | Forma | Qué hace |
+| Operador | Superficie | Qué hace |
 |---|---|---|
-| `de` | `["de", "<relacion>", "<alias>"]` | fuente: trae una relación y la etiqueta con un alias |
-| `donde` | `["donde", <predicado>]` | filtra — **acá se definen los testigos** |
-| `unir` | `["unir", <fuente_izq>, <fuente_der>]` | producto cartesiano de dos fuentes |
-| `agrupar` | `["agrupar", [<claves>], [<agregados>]]` | agrupa filas y las resume a una fila por grupo |
-| `resumen` | `["resumen", "<agregado>", <expresion>]` | colapsa TODA la tubería a un único escalar |
+| `de` | `de <relacion> <alias>` | fuente: trae una relación y la etiqueta con un alias |
+| `donde` | `donde <predicado>` | filtra — **acá se definen los testigos** |
+| `unir` | `unir <relacion> <alias>` | producto cartesiano con otra fuente |
+| `agrupar` | `agrupar:\n    clave ...\n    agregado ...` | agrupa filas y las resume a una fila por grupo |
+| `resumen` | `resumen <agregado>(<expresion>)` | colapsa TODA la tubería a un único escalar |
 
-`resumen` no es un paso de la tubería: es lo último que se aplica, fuera de `desde`. Los primeros
-cuatro sí van dentro de `["desde", …]`.
+`resumen` no es un paso de la tubería: es lo último que se aplica para obtener el escalar de juicio.
 
 ### 3.1 `de` — la fuente
 
-```json
-["de", "pieza", "a"]
+```oracle
+de pieza a
 ```
 
 Trae todos los hechos de la relación `pieza` y los etiqueta con el alias `a`. A partir de acá, cada
-fila de la tubería tiene una clave `"a"` con el hecho completo.
+fila de la tubería tiene acceso a los campos del hecho `a`.
 
 ### 3.2 `donde` — el filtro (y los testigos)
 
-```json
-["donde", [">", ["campo", "a", "volumen"], 0]]
+```oracle
+donde a.volumen > 0
 ```
 
 Se queda sólo con las filas donde el predicado da `true`. **Es el único lugar donde se definen los
@@ -139,17 +172,17 @@ testigos**: lo que sobrevive acá es lo que se le muestra a un humano cuando la 
 
 ### 3.3 Acceso a los datos: siempre explícito
 
-No hay azúcar corta tipo `"a.x"`. Tres accesores, y son los únicos que leen datos de una fila:
+Tres accesores leen datos de una fila:
 
-| Accesor | Forma | Devuelve |
-|---|---|---|
-| `campo` | `["campo", "<alias>", "<nombre>"]` | un campo de un hecho |
-| `hecho` | `["hecho", "<alias>"]` | el hecho ENTERO (para pasarlo a una escalar) |
-| `col` | `["col", "<nombre>"]` | una columna derivada por `agrupar` |
+| Accesor | Superficie | En AST (JSON) | Devuelve |
+|---|---|---|---|
+| Campo | `a.volumen` | `["campo", "a", "volumen"]` | un campo de un hecho con alias `a` |
+| Hecho | `hecho(a)` | `["hecho", "a"]` | el hecho ENTERO (para pasarlo a una escalar) |
+| Columna | `col(reales)` o `reales` | `["col", "reales"]` | una columna o agregado derivado por `agrupar` |
 
-`["campo", "a", "volumen"]` — "en la fila actual, tomá el hecho con alias `a` y devolvé su campo
-`volumen`". Comparar contra un campo que no existe **es un error**, no da `false`: así un nombre de
-campo mal escrito no se disfraza de verde silencioso.
+`a.volumen` — "en la fila actual, tomá el hecho con alias `a` y devolvé su campo `volumen`". Comparar
+contra un campo que no existe **es un error**, no da `false`: así un nombre de campo mal escrito no se
+disfraza de verde silencioso.
 
 ### 3.4 Comparadores y lógicos
 
@@ -159,46 +192,44 @@ campo mal escrito no se disfraza de verde silencioso.
 
 Reglas del álgebra que sorprenden si vienen de Python:
 
-- **`bool` no es número.** `True == 1` da error acá, aunque en Python valga. Sólo `suma` y `promedio`
+- **`bool` no es número.** `true == 1` da error acá, aunque en Python valga. Sólo `suma` y `promedio`
   tratan un booleano como indicador 0/1, y de forma explícita.
 - **Igualdad exacta sobre flotantes está PROHIBIDA**, tanto en una expresión como en el umbral final.
-  `["==", x, 3.0]` no carga. La razón: `0.1 + 0.2 != 0.3` en punto flotante, y una medida que compare
+  `x == 3.0` no carga. La razón: `0.1 + 0.2 != 0.3` en punto flotante, y una medida que compare
   así puede decir verde sin que nadie se entere. Usá una comparación de orden con tolerancia:
-  `["<=", ["distancia", a, b], 0.5]`.
+  `distancia(hecho(a), hecho(b)) <= 0.5`.
 - **Los dos lados de una comparación tienen que ser del mismo tipo.** Comparar un número contra texto
   es error de álgebra, no `false`.
-- `y` / `o` aceptan dos O MÁS operandos: `["y", p1, p2, p3]`.
+- `y` / `o` se encadenan de forma infija: `a.x == 1 y a.y == 2 y a.z == 3`.
 
 ### 3.5 `resumen` y los agregados
 
-```json
-["resumen", "contar", 1]
-["resumen", "max", ["campo", "a", "volumen"]]
+```oracle
+resumen contar(1)
+resumen max(a.volumen)
 ```
 
 Cinco agregados: `contar`, `max`, `min`, `suma`, `promedio`. `contar` es especial: **no evalúa la
-expresión**, sólo cuenta filas — por eso la convención es escribir `["resumen", "contar", 1]` (el `1`
+expresión**, sólo cuenta filas — por eso la convención es escribir `resumen contar(1)` (el `1`
 es un relleno que nunca se mira). Sobre cero filas, cualquier agregado da `0`. `suma` y `promedio`
 aceptan números o booleanos (0/1); `min` y `max` exigen valores del mismo tipo y comparables.
 
 ### 3.6 `unir` — comparar filas entre sí
 
-```json
-["desde",
-  ["unir", ["de", "documento", "a"], ["de", "documento", "b"]],
-  ["donde", ["y",
-    ["==", ["campo", "a", "nombre"], ["campo", "b", "nombre"]],
-    ["!=", ["campo", "a", "carpeta"], ["campo", "b", "carpeta"]]]]]
+```oracle
+de documento a
+unir documento b
+donde a.nombre == b.nombre y a.carpeta != b.carpeta
 ```
 
-`unir` hace el producto cartesiano de dos fuentes: cada fila resultante tiene AMBOS alias
-(`a` y `b`) disponibles. Es así como se comparan hechos entre sí — piezas que se tocan, documentos
-homónimos, las dos puntas de un relevo. Acá: «dos documentos con el mismo nombre en carpetas
-distintas» — el defecto real que motiva `vault.nombre_unico_en_el_vault` (un wikilink resuelve por
-nombre, y dos homónimos lo dejan ambiguo).
+`unir` hace el producto cartesiano: cada fila resultante tiene AMBOS alias (`a` y `b`) disponibles.
+Es así como se comparan hechos entre sí — piezas que se tocan, documentos homónimos, las dos puntas de
+un relevo. Acá: «dos documentos con el mismo nombre en carpetas distintas» — el defecto real que motiva
+`vault.nombre_unico_en_el_vault` (un wikilink resuelve por nombre, y dos homónimos lo dejan ambiguo).
 
-Un `unir` consigo misma cuenta cada par dos veces (`(a,b)` y `(b,a)`) y también se empareja consigo
-misma (`a==a`); normalmente hay que filtrar eso en el `donde` si el dominio lo requiere.
+Un `unir` sobre la misma relación cuenta cada par dos veces (`(a,b)` y `(b,a)`) y también empareja cada
+fila consigo misma (`a == b`); normalmente hay que filtrar eso en el `donde` (por ejemplo exigiendo
+`a.carpeta != b.carpeta` o `a.id != b.id`).
 
 ### 3.7 `agrupar` — cómo se expresa la AUSENCIA sin usar `null`
 
@@ -206,15 +237,13 @@ Este es el operador que más cuesta la primera vez, porque resuelve algo que en 
 `LEFT JOIN` con nulos — y acá **no hay nulos**. La pregunta es «¿qué módulos no tienen NINGÚN
 importador real?» — una ausencia, no una presencia.
 
-```json
-["desde",
-  ["unir", ["de", "modulo", "m"], ["de", "importa", "i"]],
-  ["agrupar",
-    [["modulo", ["campo", "m", "nombre"]]],
-    [["reales", "suma",
-      ["y", ["==", ["campo", "i", "b"], ["campo", "m", "nombre"]],
-            ["==", ["campo", "i", "es_test"], false]]]]],
-  ["donde", ["==", ["col", "reales"], 0]]]
+```oracle
+de modulo m
+unir importa i
+agrupar:
+    clave modulo = m.nombre
+    agregado reales = suma(i.b == m.nombre y i.es_test == false)
+donde reales == 0
 ```
 
 El truco: se agrupa sobre el PRODUCTO sin filtrar primero, y se agrega con `suma` sobre un predicado
@@ -223,39 +252,39 @@ grupo **sigue existiendo**, porque nunca se filtró antes de agrupar. Sin necesi
 
 Forma general:
 
-```json
-["agrupar",
-  [["<nombre_clave>", <expresion>], "..."],
-  [["<nombre_agregado>", "<agregado>", <expresion>], "..."]]
+```oracle
+agrupar:
+    clave <nombre_clave> = <expresion>
+    agregado <nombre_agregado> = <agregado>(<expresion>)
 ```
 
 Después de `agrupar`, las filas ya NO tienen los alias originales (`m`, `i` desaparecen: se
-consumieron en el resumen). Se leen con `["col", "<nombre>"]`.
+consumieron en el resumen). Las claves y agregados derivados se leen directamente por su nombre o con
+`col(nombre)`.
 
 ---
 
 ## 4. Las macros: la forma corta
 
-**15 de las 18 medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
+**La mayoría de las medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
 sintáctica que se expande a la forma canónica ANTES de construir la medida — el evaluador, la
 mutación y el inventario nunca se enteran de que hubo una macro. `python tools/medida.py --expandir
 <archivo>` te muestra la expansión.
 
-| Macro | Forma | Para qué |
+| Macro | Superficie | Para qué |
 |---|---|---|
-| `ninguno` | `["ninguno", id, relacion, alias, predicado, porque, alcance]` | ninguna fila debe cumplir el predicado — el 80% de los casos |
-| `ninguno-par` | `["ninguno-par", id, relacion, aliasA, aliasB, predicado, porque, alcance]` | lo mismo, sobre PARES de la misma relación (envuelve un `unir` consigo misma) |
-| `peor` | `["peor", id, relacion, alias, expresion, tolerancia, porque, alcance]` | el peor caso de una magnitud no puede pasar de una tolerancia |
+| `ninguno` | `ninguno <id>:\n    de <rel> <alias>\n    donde <pred>\n    umbral <= 0 porque "..."\n    alcance "..."` | ninguna fila debe cumplir el predicado — el 80% de los casos |
+| `ninguno-par` | `ninguno-par <id>:\n    de <rel> <a1>, <a2>\n    donde <pred>\n    umbral <= 0 porque "..."\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
+| `peor` | `peor <id>:\n    de <rel> <alias>\n    expresion <expr>\n    tolerancia <tol>\n    umbral <= <tol> porque "..."\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
 
 ### `ninguno` — el caso común
 
-```json
-["ninguno", "proceso.test_con_mutante_que_lo_mata",
-  "mutante", "m",
-  ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
-        ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
-  "un mutante que sobrevive es un test que no discrimina",
-  "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"]
+```oracle
+ninguno proceso.test_con_mutante_que_lo_mata:
+    de mutante m
+    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina"
+    alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
 
 Expande EXACTO a la forma canónica de §2. `ninguno` cubre todo lo que se reduce a «filtrás lo que
@@ -263,13 +292,13 @@ ofende, contás, cero es el único número aceptable».
 
 ### `peor` — cuando el número importa, no la cuenta
 
-```json
-["peor", "snap.grilla",
-  "pieza", "a",
-  ["desvio_de_grilla", ["hecho", "a"], 100.0],
-  1.0,
-  "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m",
-  "desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla"]
+```oracle
+peor snap.grilla:
+    de pieza a
+    expresion desvio_de_grilla(hecho(a), 100.0)
+    tolerancia 1.0
+    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m"
+    alcance "desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla"
 ```
 
 Ejemplo real, en producción, del catálogo de geometría de Jam. Fijate el problema que resuelve
@@ -280,30 +309,27 @@ que sigan sincronizadas si alguien cambia una y no la otra. Ese fue un defecto r
 
 Expande a:
 
-```json
-["medida", "snap.grilla",
-  ["desde", ["de", "pieza", "a"],
-    ["donde", [">", ["desvio_de_grilla", ["hecho", "a"], 100.0], 1.0]]],
-  ["resumen", "max", ["desvio_de_grilla", ["hecho", "a"], 100.0]],
-  ["umbral", "<=", 1.0, "por debajo de 1 cm el desvío no se ve…"],
-  ["alcance", "desvío del PIVOTE…"]]
+```oracle
+medida snap.grilla:
+    de pieza a
+    donde desvio_de_grilla(hecho(a), 100.0) > 1.0
+    resumen max(desvio_de_grilla(hecho(a), 100.0))
+    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m"
+    alcance "desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla"
 ```
 
 ### `ninguno-par`
 
-```json
-["ninguno-par", "tareas.misma_persona_sobrecargada_el_mismo_dia",
-  "tarea", "a", "b",
-  ["y",
-    ["==", ["campo", "a", "dueño"], ["campo", "b", "dueño"]],
-    ["==", ["campo", "a", "vence"], ["campo", "b", "vence"]],
-    ["!=", ["campo", "a", "id"], ["campo", "b", "id"]]],
-  "dos tareas del mismo día para la misma persona compiten por las mismas horas",
-  "ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual"]
+```oracle
+ninguno-par tareas.misma_persona_sobrecargada_el_mismo_dia:
+    de tarea a, b
+    donde a.dueno == b.dueno y a.vence == b.vence y a.id != b.id
+    umbral <= 0 porque "dos tareas del mismo día para la misma persona compiten por las mismas horas"
+    alcance "ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual"
 ```
 
 (Ejemplo ilustrativo, con la misma forma que `vault.nombre_unico_en_el_vault` del catálogo real de
-Jam.) El patrón general de `ninguno-par`: **igualar el campo que define el conflicto** (`dueño` +
+Jam.) El patrón general de `ninguno-par`: **igualar el campo que define el conflicto** (`dueno` +
 `vence`) **y exigir que difieran en la identidad** (`id`) — si no, cada tarea se empareja consigo
 misma y el predicado da siempre verdadero.
 
@@ -323,17 +349,17 @@ catálogo de geometría de Jam (un consumidor real e independiente).
 ### 5.1 Contar lo que ofende (el patrón más común)
 
 Ya lo viste en §2 (`proceso.test_con_mutante_que_lo_mata`). Receta: filtrás lo malo con `donde`,
-contás con `resumen contar`, umbral `<= 0`.
+contás con `resumen contar(1)`, umbral `<= 0`.
 
 ### 5.2 Medir una magnitud con una función de dominio (`peor` + escalar)
 
-```json
-["peor", "snap.yaw",
-  "pieza", "a",
-  ["desvio_de_paso", ["campo", "a", "yaw"], 90.0],
-  0.5,
-  "medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista",
-  "sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto"]
+```oracle
+peor snap.yaw:
+    de pieza a
+    expresion desvio_de_paso(a.yaw, 90.0)
+    tolerancia 0.5
+    umbral <= 0.5 porque "medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista"
+    alcance "sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto"
 ```
 
 `desvio_de_paso` no es parte del álgebra: es una **función escalar** (UDF) que el proyecto Jam
@@ -342,18 +368,14 @@ declaradas y comparar sus resultados.
 
 ### 5.3 Comparar filas entre sí con `unir` (forma canónica, sin macro)
 
-```json
-["medida", "colocacion.interpenetracion",
-  ["desde",
-    ["unir", ["de", "pieza", "a"], ["de", "vecina", "b"]],
-    ["donde", ["y",
-      ["no", ["es_fondo", ["hecho", "b"]]],
-      [">", ["penetracion", ["hecho", "a"], ["hecho", "b"]], 0]]]],
-  ["resumen", "max", ["penetracion", ["hecho", "a"], ["hecho", "b"]]],
-  ["umbral", "<=", 0,
-    "`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da >0"],
-  ["alcance",
-    "solape de AABB entre piezas de escala comparable. NO ve la malla real, oclusión visual, ni si la pieza quedó flotando"]]
+```oracle
+medida colocacion.interpenetracion:
+    de pieza a
+    unir vecina b
+    donde no es_fondo(hecho(b)) y penetracion(hecho(a), hecho(b)) > 0
+    resumen max(penetracion(hecho(a), hecho(b)))
+    umbral <= 0 porque "`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da >0"
+    alcance "solape de AABB entre piezas de escala comparable. NO ve la malla real, oclusión visual, ni si la pieza quedó flotando"
 ```
 
 Por qué NO es una macro: `unir` combina DOS relaciones distintas (`pieza` y `vecina`), no la misma
@@ -365,14 +387,13 @@ escenografía (un SkySphere gigante) y la medida daría rojo siempre — un caso
 
 ### 5.4 `unir` sin `donde`, resumiendo con `min`
 
-```json
-["medida", "snap.comparte_cara",
-  ["desde", ["unir", ["de", "pieza", "a"], ["de", "objetivo", "b"]]],
-  ["resumen", "min", ["solape_lateral_minimo", ["hecho", "a"], ["hecho", "b"]]],
-  ["umbral", ">", 1.0,
-    "el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta"],
-  ["alcance",
-    "solape de AABB en los dos ejes laterales. NO ve cuánto de la cara real de la malla coincide"]]
+```oracle
+medida snap.comparte_cara:
+    de pieza a
+    unir objetivo b
+    resumen min(solape_lateral_minimo(hecho(a), hecho(b)))
+    umbral > 1.0 porque "el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta"
+    alcance "solape de AABB en los dos ejes laterales. NO ve cuánto de la cara real de la malla coincide"
 ```
 
 No todos los `desde` tienen `donde`: acá no hace falta filtrar, sólo unir y resumir directo con `min`.
@@ -380,18 +401,18 @@ Fijate también el umbral `>` en vez de `<=` — el comparador lo elige la medid
 
 ### 5.5 `agrupar` en un caso real: que la traza de una simulación no tenga huecos
 
-```json
-["medida", "simulacion.la_traza_no_tiene_huecos",
-  ["desde", ["de", "evento", "e"],
-    ["agrupar",
-      [["corrida", ["campo", "e", "corrida"]]],
-      [["registrados", "contar", 1], ["ultimo", "max", ["campo", "e", "t"]]]],
-    ["donde", ["!=", ["col", "registrados"], ["mas", ["col", "ultimo"], 1]]]],
-  ["resumen", "contar", 1],
-  ["umbral", "<=", 0,
-    "una traza con huecos describe otra corrida que la que ocurrió"],
-  ["alcance",
-    "compara cuántos eventos hay contra el instante final, asumiendo que arranca en 0 y avanza de a 1. NO ve trazas con eventos simultáneos"]]
+```oracle
+medida simulacion.la_traza_no_tiene_huecos:
+    de evento e
+    agrupar:
+        clave corrida = e.corrida
+        agregado registrados = contar(1)
+        agregado ultimo = max(e.t)
+    donde registrados != mas(ultimo, 1)
+    resumen contar(1)
+    umbral <= 0 porque "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
+    requiere evento
+    alcance "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."
 ```
 
 `mas` es una escalar del núcleo (`+1`) — así se expresa aritmética sobre un campo ordinal
@@ -400,16 +421,12 @@ no una propiedad implícita del almacenamiento.
 
 ### 5.6 L2: una medida sobre medidas
 
-```json
-["ninguno", "meta.toda_medida_esta_fijada",
-  "medida_en_uso", "m",
-  ["y",
-    ["==", ["campo", "m", "debe_tener_mutantes"], true],
-    ["o",
-      ["==", ["campo", "m", "mutantes"], 0],
-      ["!=", ["campo", "m", "mutantes_vivos"], 0]]],
-  "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven",
-  "exige al menos un mutante y ninguno vivo sólo cuando corresponde. NO exige nada de medidas heredadas ni evaluadas aparte"]
+```oracle
+ninguno meta.toda_medida_esta_fijada:
+    de medida_en_uso m
+    donde m.debe_tener_mutantes == true y (m.mutantes == 0 o m.mutantes_vivos != 0)
+    umbral <= 0 porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
+    alcance "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción"
 ```
 
 Ninguna sintaxis nueva: `medida_en_uso` es una relación como cualquier otra (la produce
@@ -456,8 +473,8 @@ Reglas:
   `python tools/medida.py --escalares`, y se puede contar cuántas escalares tiene un proyecto.
 - El nombre usa minúsculas ASCII, dígitos y `_`, **sin puntos** (para no confundirse con un id de
   medida).
-- Una escalar recibe hechos completos con `["hecho", alias]` (como `penetracion(a, b)` arriba) o
-  campos sueltos con `["campo", alias, nombre]` (como `desvio_de_paso(valor, paso)`).
+- En la superficie infija, una escalar recibe hechos completos con `hecho(alias)` (como `penetracion(hecho(a), hecho(b))` arriba) o
+  campos sueltos con `alias.nombre` (como `desvio_de_paso(a.yaw, 90.0)`).
 - Es **código Python con los mismos permisos que el proceso**. Por eso ninguna herramienta la ejecuta
   salvo que se pase explícitamente `--confiar-escalares`. Sin esa bandera, `--relaciones`,
   `--escalares` (sólo el inventario base) y `--nueva` siguen siendo seguros — nunca importan el
@@ -472,8 +489,8 @@ no es prolijidad:
 
 1. una medida escrita primero se escribe *para pasar*, no para atrapar el defecto real;
 2. la herramienta puede decirte si tu medida está bien **formada**, pero no puede saber qué quisiste
-   decir. Una condición invertida —que selecciona lo que está BIEN en vez de lo que ofende— pasa todas
-   las comprobaciones automáticas igual. El caso del corpus es lo único que la detecta.
+    decir. Una condición invertida —que selecciona lo que está BIEN en vez de lo que ofende— pasa todas
+    las comprobaciones automáticas igual. El caso del corpus es lo único que la detecta.
 
 Un caso es un archivo JSON con esta forma (ejemplo real, un `falso_verde`):
 
@@ -603,21 +620,21 @@ def dias_de_atraso(tarea: dict) -> int:
 
 ### 8.4 La medida
 
-Con la macro `ninguno` — el caso más común:
+La escribís en la superficie infija (con la macro `ninguno` — el caso más común):
 
-```json
-["ninguno", "tareas.vencida_sin_dueño",
-  "tarea", "t",
-  ["y",
-    ["==", ["campo", "t", "vencida"], true],
-    ["==", ["campo", "t", "asignada"], false]],
-  "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano",
-  "ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está"]
+```oracle
+ninguno tareas.vencida_sin_dueño:
+    de tarea t
+    donde t.vencida == true y t.asignada == false
+    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano"
+    alcance "ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está"
 ```
 
-Guardala en `catalogos/tareas/tareas.vencida_sin_dueño.json`. (En un proyecto real, generás el
-esqueleto con `python <oracle>/tools/medida.py --nueva tareas.vencida_sin_dueño --proyecto
-mi-proyecto` y editás los `RELACION`/`CAMPO`/textos en mayúsculas que deja puestos.)
+Y la traducís a su archivo de almacenamiento JSON con `tools/sintaxis.py`:
+
+```bash
+python <ruta-a-oracle>/tools/sintaxis.py --leer tareas.vencida_sin_dueño.oracle > catalogos/tareas/tareas.vencida_sin_dueño.json
+```
 
 ### 8.5 El corpus — las dos polaridades
 
@@ -686,6 +703,9 @@ print(informe.texto())
 
 | Comando | Para qué |
 |---|---|
+| `tools/sintaxis.py --imprimir <archivo.json>` | lee el JSON de catálogo y muestra la superficie infija |
+| `tools/sintaxis.py --leer <archivo.oracle>` | traduce de superficie infija al JSON de almacenamiento |
+| `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo |
 | `tools/medida.py --relaciones` | ver qué hechos existen HOY (derivado de evidencia real, no una lista a mano) |
 | `tools/medida.py --escalares` | ver las funciones de dominio, operadores y agregados disponibles |
 | `tools/medida.py --nueva <id>` | crear el esqueleto de una medida nueva |
@@ -729,12 +749,14 @@ va primero: es lo único que lee la intención.
 
 | Término | Definición corta |
 |---|---|
+| **superficie infija** | la forma humana y legible en que se escriben las medidas (`.oracle`) |
 | **hecho** | un registro de campos escalares (sin objetos anidados) |
 | **relación** | una bolsa nombrada de hechos del mismo tipo — el equivalente a una tabla |
 | **evidencia** | el mapa completo `relación → lista de hechos` que se le pasa a una medida |
-| **medida** | un dato (JSON) que describe cómo medir algo: tubería + resumen + umbral + alcance |
+| **medida** | un dato que describe cómo medir algo: tubería + resumen + umbral + alcance |
 | **testigos** | las filas que sobrevivieron al último `donde` — se muestran cuando la medida da rojo |
-| **umbral** | el límite contra el que se compara el valor medido, con su defensa en texto |
+| **umbral** | el límite contra el que se compara el valor medido, con su defensa en texto (`porque`) |
+| **requiere** | declaración explícita de relaciones necesarias para no emitir veredictos vacíos |
 | **alcance** | lo que la medida explícitamente NO mira — obligatorio, no puede estar vacío |
 | **escalar (UDF)** | una función de dominio declarada con `@escalar`, para lo que el álgebra no sabe hacer sola |
 | **macro** | azúcar sintáctica (`ninguno`, `ninguno-par`, `peor`) que expande a la forma canónica |
