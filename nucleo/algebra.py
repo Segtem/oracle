@@ -23,6 +23,70 @@ ALIAS_DERIVADO = "_"
 class ErrorDeAlgebra(ValueError):
     """La expresión o el operador no cumplen el contrato."""
 
+    def __init__(self, mensaje: object = "", *, ruta: tuple[int, ...] | str | None = None):
+        super().__init__(mensaje)
+        self._ruta = _normalizar_ruta(ruta)
+
+    @property
+    def ruta(self) -> str | None:
+        if self._ruta is None:
+            return None
+        return _texto_ruta(self._ruta)
+
+    @property
+    def ruta_indices(self) -> tuple[int, ...] | None:
+        return self._ruta
+
+    def con_ruta_actual(self) -> "ErrorDeAlgebra":
+        if self._ruta is None:
+            self._ruta = ()
+        return self
+
+    def prefijar_ruta(self, prefijo: tuple[int, ...] | str | None) -> "ErrorDeAlgebra":
+        indices = _normalizar_ruta(prefijo)
+        if indices is None:
+            return self
+        self._ruta = indices if self._ruta is None else (*indices, *self._ruta)
+        return self
+
+    def descartar_ruta(self) -> "ErrorDeAlgebra":
+        self._ruta = None
+        return self
+
+    def __str__(self) -> str:
+        texto = super().__str__()
+        if self._ruta is None:
+            return texto
+        ruta = _texto_ruta(self._ruta)
+        return f"{texto} en `{ruta}`" if ruta else f"{texto} en la raíz"
+
+
+def _normalizar_ruta(ruta: tuple[int, ...] | str | None) -> tuple[int, ...] | None:
+    if ruta is None:
+        return None
+    if isinstance(ruta, str):
+        if ruta == "":
+            return ()
+        partes: tuple[object, ...] = tuple(ruta.split("."))
+    else:
+        partes = tuple(ruta)
+    salida = []
+    for parte in partes:
+        if isinstance(parte, bool):
+            raise ValueError(f"ruta inválida: {ruta!r}")
+        try:
+            indice = int(parte)
+        except (TypeError, ValueError) as e:
+            raise ValueError(f"ruta inválida: {ruta!r}") from e
+        if indice < 0:
+            raise ValueError(f"ruta inválida: {ruta!r}")
+        salida.append(indice)
+    return tuple(salida)
+
+
+def _texto_ruta(ruta: tuple[int, ...]) -> str:
+    return ".".join(str(indice) for indice in ruta)
+
 
 @dataclass(frozen=True)
 class LimitesAlgebra:
@@ -354,7 +418,8 @@ def validar_expr(expr, limites: LimitesAlgebra | None = None, *,
 
 
 def evaluar_expr(expr, fila: dict, limites: LimitesAlgebra | None = None, *,
-                 registro: Mapping[str, Callable[..., Any]] | None = None):
+                 registro: Mapping[str, Callable[..., Any]] | None = None,
+                 ruta: tuple[int, ...] | str | None = None):
     """Un literal es un literal; el acceso a datos es SIEMPRE explícito.
 
     Se eligió `["campo", alias, nombre]` en vez de la forma corta `"a.x"` (y en vez de dejar que un
@@ -362,8 +427,24 @@ def evaluar_expr(expr, fila: dict, limites: LimitesAlgebra | None = None, *,
     cambiaría de significado según el contexto. Es más verboso y no tiene casos raros.
     """
     escalares = _registro(registro)
-    validar_expr(expr, limites, registro=escalares)
-    return _evaluar_expr(expr, fila, escalares)
+    try:
+        validar_expr(expr, limites, registro=escalares)
+        return _evaluar_expr(expr, fila, escalares)
+    except ErrorDeAlgebra as e:
+        if ruta is None:
+            e.descartar_ruta()
+        else:
+            e.con_ruta_actual().prefijar_ruta(ruta)
+        raise
+
+
+def _evaluar_hijo(expr: list, indice: int, fila: dict,
+                  escalares: Mapping[str, Callable[..., Any]]):
+    try:
+        return _evaluar_expr(expr[indice], fila, escalares)
+    except ErrorDeAlgebra as e:
+        e.con_ruta_actual().prefijar_ruta((indice,))
+        raise
 
 
 def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]]):
@@ -375,23 +456,28 @@ def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]])
     if cabeza == "campo":
         alias, nombre = resto
         if alias not in fila:
-            raise ErrorDeAlgebra(f"el alias «{alias}» no existe en la fila")
+            raise ErrorDeAlgebra(f"el alias «{alias}» no existe en la fila", ruta=())
         return fila[alias].get(nombre)
     if cabeza == "hecho":
         (alias,) = resto
         if alias not in fila:
-            raise ErrorDeAlgebra(f"el alias «{alias}» no existe en la fila")
+            raise ErrorDeAlgebra(f"el alias «{alias}» no existe en la fila", ruta=())
         return fila[alias]
     if cabeza == "col":
         (nombre,) = resto
         return fila.get(ALIAS_DERIVADO, {}).get(nombre)
 
     if cabeza in COMPARADORES:
-        a, b = (_evaluar_expr(x, fila, escalares) for x in resto)
+        a = _evaluar_hijo(expr, 1, fila, escalares)
+        b = _evaluar_hijo(expr, 2, fila, escalares)
         if a is None or b is None:
             # comparar contra un campo ausente es casi siempre un error de la medida, no un False
-            raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}")
-        return comparar(cabeza, a, b)
+            raise ErrorDeAlgebra(f"«{cabeza}» sobre un valor ausente: {expr}", ruta=())
+        try:
+            return comparar(cabeza, a, b)
+        except ErrorDeAlgebra as e:
+            e.con_ruta_actual()
+            raise
     if cabeza in ("y", "o"):
         # SIN cortocircuito, y es deliberado. `all`/`any` sobre un generador dejan de evaluar apenas
         # el resultado está decidido, y eso tapaba exactamente el error que el `raise` de arriba
@@ -403,20 +489,26 @@ def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]])
         # Se paga evaluando de más en predicados grandes. El presupuesto de §9 ya acota esa
         # amplificación, y una medida que se apoya en el cortocircuito para no romperse está rota.
         valores = []
-        for operando in resto:
-            valores.append(_evaluar_expr(operando, fila, escalares))
+        for indice in range(1, len(expr)):
+            valores.append(_evaluar_hijo(expr, indice, fila, escalares))
         # `declarados` sale del AST y `evaluados` de haber pasado por el bucle: si alguien vuelve a
         # cortocircuitar, los dos números dejan de coincidir y hay una medida que lo dice.
         _anotar("nodo", cabeza=cabeza, declarados=len(resto), evaluados=len(valores))
         return all(valores) if cabeza == "y" else any(valores)
     if cabeza == "no":
-        (x,) = resto
-        return not _evaluar_expr(x, fila, escalares)
+        return not _evaluar_hijo(expr, 1, fila, escalares)
 
     if cabeza in escalares:
-        return escalares[cabeza](*(_evaluar_expr(x, fila, escalares) for x in resto))
+        argumentos = [_evaluar_hijo(expr, indice, fila, escalares)
+                      for indice in range(1, len(expr))]
+        try:
+            return escalares[cabeza](*argumentos)
+        except ErrorDeAlgebra as e:
+            e.con_ruta_actual()
+            raise
 
-    raise ErrorDeAlgebra(f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada")
+    raise ErrorDeAlgebra(
+        f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada", ruta=())
 
 
 # ---- agregados --------------------------------------------------------------------
@@ -548,7 +640,8 @@ def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> 
 
 
 def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
-          registro: Mapping[str, Callable[..., Any]], _lados: dict | None = None) -> list[dict]:
+          registro: Mapping[str, Callable[..., Any]], _lados: dict | None = None, *,
+          ruta: tuple[int, ...] | None = None) -> list[dict]:
     """`["unir", izq, der]` → producto. Los alias de ambos lados conviven en la fila.
 
     `_lados` es la única concesión a la traza: deja los tamaños de cada lado para que quien llama
@@ -561,8 +654,10 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
         if lado[0] not in FUENTES:
             raise ErrorDeAlgebra(f"«unir» toma fuentes, y recibió «{lado[0]}»")
 
-    filas_izq = aplicar(izq, [], evidencia, limites, registro=registro)
-    filas_der = aplicar(der, [], evidencia, limites, registro=registro)
+    ruta_izq = (*ruta, 1) if ruta is not None else None
+    ruta_der = (*ruta, 2) if ruta is not None else None
+    filas_izq = aplicar(izq, [], evidencia, limites, registro=registro, ruta=ruta_izq)
+    filas_der = aplicar(der, [], evidencia, limites, registro=registro, ruta=ruta_der)
     tamano = len(filas_izq) * len(filas_der)
     if tamano > limites.producto_cartesiano:
         raise ErrorDeAlgebra(
@@ -581,7 +676,8 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
 
 
 def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra,
-             registro: Mapping[str, Callable[..., Any]]) -> list[dict]:
+             registro: Mapping[str, Callable[..., Any]], *,
+             ruta: tuple[int, ...] | None = None) -> list[dict]:
     """`["agrupar", [[nombre, expr]…], [[nombre, agg, expr]…]]` → una fila por grupo.
 
     Un grupo NO es un hecho: es un resumen. Así que las filas que salen no llevan alias —los hechos
@@ -594,28 +690,37 @@ def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra,
     donde nada casó da cero y sigue existiendo. Sin nulos y sin operador nuevo.
     """
     claves, agregados = paso[1], paso[2]
+    rutas_clave = [(*ruta, 1, posicion, 1) for posicion in range(len(claves))] if (
+        ruta is not None) else [None] * len(claves)
+    rutas_agregado = [(*ruta, 2, posicion, 2) for posicion in range(len(agregados))] if (
+        ruta is not None) else [None] * len(agregados)
     grupos: dict[tuple, list[dict]] = {}
     for f in filas:
-        k = tuple(evaluar_expr(expr, f, limites, registro=registro)
-                  for _nombre, expr in claves)
+        valores_clave = []
+        for ruta_expr, (_nombre, expr) in zip(rutas_clave, claves):
+            valores_clave.append(evaluar_expr(
+                expr, f, limites, registro=registro, ruta=ruta_expr))
+        k = tuple(valores_clave)
         grupos.setdefault(k, []).append(f)
 
     salida = []
     for k, miembros in grupos.items():
         derivadas = {nombre: valor for (nombre, _expr), valor in zip(claves, k)}
-        for nombre, agg, expr in agregados:
+        for ruta_expr, (nombre, agg, expr) in zip(rutas_agregado, agregados):
             if agg not in AGREGADOS:
                 raise ErrorDeAlgebra(f"agregado desconocido: «{agg}»")
             derivadas[nombre] = (len(miembros) if agg == "contar" else
                                  _agregar(agg, [evaluar_expr(
-                                     expr, m, limites, registro=registro) for m in miembros]))
+                                     expr, m, limites, registro=registro, ruta=ruta_expr)
+                                     for m in miembros]))
         salida.append({ALIAS_DERIVADO: derivadas})
     return salida
 
 
 def aplicar(paso, filas: list[dict], evidencia: dict,
             limites: LimitesAlgebra | None = None, *,
-            registro: Mapping[str, Callable[..., Any]] | None = None) -> list[dict]:
+            registro: Mapping[str, Callable[..., Any]] | None = None,
+            ruta: tuple[int, ...] | None = None) -> list[dict]:
     limites = _limites(limites)
     escalares = _registro(registro)
     op = paso[0]
@@ -625,15 +730,16 @@ def aplicar(paso, filas: list[dict], evidencia: dict,
     if op == "unir":
         # El hecho se anota con lo que el operador DEVOLVIÓ, no con lo que creyó construir.
         lados: dict = {}
-        filas_unidas = _unir(paso, evidencia, limites, escalares, lados)
+        filas_unidas = _unir(paso, evidencia, limites, escalares, lados, ruta=ruta)
         _anotar("producto", izquierda=lados["izquierda"], derecha=lados["derecha"],
                 salida=len(filas_unidas))
         return filas_unidas
     if op == "donde":
+        ruta_expr = (*ruta, 1) if ruta is not None else None
         return [f for f in filas if evaluar_expr(
-            paso[1], f, limites, registro=escalares)]
+            paso[1], f, limites, registro=escalares, ruta=ruta_expr)]
     if op == "agrupar":
-        return _agrupar(paso, filas, limites, escalares)
+        return _agrupar(paso, filas, limites, escalares, ruta=ruta)
     raise ErrorDeAlgebra(f"operador desconocido: «{op}»")
 
 
@@ -731,13 +837,14 @@ def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None, *,
     filas: list[dict] = []
     for t, paso in enumerate(tuberia[1:]):
         antes = len(filas)
-        filas = aplicar(paso, filas, evidencia, limites, registro=escalares)
+        filas = aplicar(paso, filas, evidencia, limites, registro=escalares, ruta=(2, t + 1))
         _anotar("paso", t=t, operador=paso[0], filas_antes=antes, filas_despues=len(filas))
     return filas
 
 
 def resumir(resumen, filas: list[dict], limites: LimitesAlgebra | None = None, *,
-            registro: Mapping[str, Callable[..., Any]] | None = None):
+            registro: Mapping[str, Callable[..., Any]] | None = None,
+            ruta: tuple[int, ...] | None = (3,)):
     """`["resumen", agg, expr]` → el escalar. `contar` no evalúa la expresión: cuenta filas."""
     limites = _limites(limites)
     escalares = _registro(registro)
@@ -745,5 +852,6 @@ def resumir(resumen, filas: list[dict], limites: LimitesAlgebra | None = None, *
     _, agg, expr = resumen
     if agg == "contar":
         return len(filas)
+    ruta_expr = (*ruta, 2) if ruta is not None else None
     return _agregar(agg, [evaluar_expr(
-        expr, f, limites, registro=escalares) for f in filas])
+        expr, f, limites, registro=escalares, ruta=ruta_expr) for f in filas])

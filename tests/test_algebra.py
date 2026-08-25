@@ -172,6 +172,25 @@ class ContratoAlgebraTests(unittest.TestCase):
                     algebra.evaluar_expr(expresion, {"p": {}})
                 self.assertIn(str(expresion), str(error.exception))
 
+    def test_un_error_de_evaluacion_nombra_la_ruta_del_nodo(self) -> None:
+        algebra = _algebra()
+        tuberia = [
+            "desde",
+            ["de", "pieza", "p"],
+            ["donde", ["y",
+                       [">", ["campo", "p", "x"], 0],
+                       ["==", ["campo", "p", "typo"], 2]]],
+        ]
+
+        with self.assertRaises(algebra.ErrorDeAlgebra) as error:
+            algebra.desde(tuberia, {"pieza": [{"x": 1}]})
+
+        mensaje = str(error.exception)
+        self.assertEqual(error.exception.ruta, "2.2.1.2")
+        self.assertIn("en `2.2.1.2`", mensaje)
+        self.assertIn("«==» sobre un valor ausente", mensaje)
+        self.assertIn("['==', ['campo', 'p', 'typo'], 2]", mensaje)
+
     def test_suma_y_promedio_aceptan_una_mezcla_de_numeros_e_indicadores(self) -> None:
         algebra = _algebra()
         filas = [{"p": {"x": True}}, {"p": {"x": 2}}]

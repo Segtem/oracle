@@ -64,6 +64,31 @@ class SintaxisInfijaTests(unittest.TestCase):
         self.assertEqual(e.exception.linea, 3)
         self.assertIn("se esperaba expresión", str(e.exception))
 
+    def test_una_ruta_de_error_se_traduce_a_linea_columna_y_fragmento(self) -> None:
+        from nucleo import algebra
+
+        texto = "\n".join([
+            "medida d.rota:",
+            "    de pieza p",
+            "    donde p.x > 0 y p.typo == 2",
+            "    resumen contar(1)",
+            "    umbral <= 0 porque \"razón\"",
+            "    alcance \"NO ve otros campos\"",
+        ])
+        lectura = sintaxis.leer_con_mapa(texto)
+
+        with self.assertRaises(algebra.ErrorDeAlgebra) as e:
+            algebra.desde(lectura.datos[2], {"pieza": [{"x": 1}]})
+
+        self.assertEqual(e.exception.ruta, "2.2.1.2")
+        ubicacion = lectura.ubicacion(e.exception.ruta)
+        self.assertEqual((ubicacion.linea, ubicacion.columna), (3, 28))
+
+        fragmento = sintaxis.fragmento_de_error(e.exception, texto)
+        self.assertIn("en `2.2.1.2`", fragmento)
+        self.assertIn("   3 |     donde p.x > 0 y p.typo == 2", fragmento)
+        self.assertTrue(fragmento.endswith("^"))
+
     def test_la_metamorfica_de_sintaxis_juzga_todo_el_catalogo(self) -> None:
         from nucleo.medida import Medida
         from nucleo.proyecto import Proyecto
