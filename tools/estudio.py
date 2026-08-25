@@ -31,6 +31,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
+from nucleo.caso import cargar_casos, rutas_de_corpus  # noqa: E402
 from nucleo.medida import (Medida, cargar_catalogo, cargar_fuente_medida, como_hechos,  # noqa: E402
                            rutas_de_catalogo)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
@@ -115,8 +116,7 @@ def catalogo_en_prosa(catalogos_dirs, macros=None) -> str:
 
 
 def corpus_en_prosa(raiz_corpus: Path) -> str:
-    casos = [json.loads(p.read_text(encoding="utf-8"))
-             for p in sorted(raiz_corpus.rglob("*.json"))]
+    casos = cargar_casos(raiz_corpus)
     et = Counter(c["etiqueta"] for c in casos)
     det = Counter(c["como_se_detecto"] for c in casos)
 
@@ -189,7 +189,7 @@ def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
                           for p in rutas_de_catalogo(catalogos_dirs))
     negativas = sum(p.read_text(encoding="utf-8").count("raise ")
                     for p in (RAIZ / "nucleo").glob("*.py"))
-    casos = list(raiz_corpus.rglob("*.json"))
+    casos = rutas_de_corpus(raiz_corpus)
     return "\n".join([
         "# Los números, y qué dicen", "",
         "| Qué | Cuánto | Qué dice |", "|---|---|---|",

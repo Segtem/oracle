@@ -1,0 +1,16 @@
+caso 022-un-falso-rojo-ya-rompe-el-verificador:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "mutación de medidas P1.1"
+    titulo: "Un falso rojo basta para volver indigno de confianza al verificador"
+    etiqueta: falso_rojo
+    sintoma:
+        El caso original contenía dos falsos hallazgos y no distinguía un umbral que permitiera uno. El defecto mínimo sigue enseñando al usuario a ignorar la herramienta.
+    como_se_detecto: mutacion
+    medida: proceso.verificador_sin_falsos_rojos
+    evidencia:
+        hallazgo: verificador, objetivo, era_real
+            "vault", "un enlace válido", false
+    leccion:
+        El presupuesto aceptable de falsos rojos es cero; reducir el ruido no autoriza a conservar uno.

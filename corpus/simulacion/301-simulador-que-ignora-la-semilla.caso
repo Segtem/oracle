@@ -1,0 +1,20 @@
+caso 301-simulador-que-ignora-la-semilla:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "ejemplo abstracto"
+    titulo: "Un simulador que ignora la semilla no produce evidencia"
+    etiqueta: falso_verde
+    sintoma:
+        El simulador sortea sin usar la semilla: dos ejecuciones idénticas dan trazas distintas. El runner ejecuta cada corrida dos veces y lo marca.
+    como_se_detecto: mutacion
+    medida: simulacion.corrida_reproducible
+    evidencia:
+        corrida: id, escenario, semilla, pasos, razon, determinista
+            "roto·s1", "roto", 1, 1, "completado", false
+            "roto·s2", "roto", 2, 1, "completado", false
+        evento: corrida, t, actor, que
+            "roto·s1", 0, "x", "azar:254156"
+            "roto·s2", 0, "x", "azar:2192"
+    leccion:
+        Una corrida irreproducible no es evidencia, es una anécdota. El runner lo COMPRUEBA en vez de que el simulador lo prometa.

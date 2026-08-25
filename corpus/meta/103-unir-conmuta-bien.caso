@@ -1,0 +1,17 @@
+caso 103-unir-conmuta-bien:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "acfca07"
+    titulo: "Unir conmuta bien"
+    etiqueta: verde_correcto
+    sintoma:
+        Las dos formas coinciden, tanto sobre la sonda construida como sobre una medida real del catálogo con la evidencia de su caso.
+    como_se_detecto: observacion
+    medida: meta.unir_conmuta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "unir_conmuta", "c", "construido", true, "", true, true, true
+            "unir_conmuta", "real", "catalogo", true, "", true, true, true
+    leccion:
+        Los dos orígenes conviven en la misma relación y el hecho lo declara. Importa: una propiedad comprobada sólo donde el catálogo casualmente la ejercita mide la coincidencia, no la propiedad.

@@ -1,0 +1,18 @@
+caso 121-sintaxis-vuelve-exacta:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "b250e6c"
+    titulo: "Sintaxis vuelve exacta"
+    etiqueta: verde_correcto
+    sintoma:
+        Tres medidas vuelven exactas: una canónica, una escrita por macro y una con `requiere`. Las tres formas de almacenamiento sobreviven la ida y vuelta sin cambio.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_ida_y_vuelta", "canonica", "catalogo", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "por-macro", "catalogo", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "con-requiere", "catalogo", true, "", true, true, true
+    leccion:
+        Las tres están a propósito. Una superficie que sólo conserve la forma canónica serviría para 7 de las 29 medidas: el resto se escribe con la macro `ninguno`, y `requiere` es un nodo opcional que un lector distraído puede tragarse sin avisar.

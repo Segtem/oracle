@@ -20,6 +20,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
+from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, casos_para_mutacion  # noqa: E402
 from nucleo.medida import (cargar_catalogo, evaluar, medidas_aplicables,  # noqa: E402
@@ -58,8 +59,7 @@ def casos(proy, catalogo) -> list[dict]:
     Las medidas fijadas por un diferencial pueden no aparecer en el corpus. Un mutador que omite esos
     escenarios es peor que no tenerlo, porque publicaría «todos murieron» dejando medidas afuera.
     """
-    salida = [json.loads(p.read_text(encoding="utf-8"))
-              for p in sorted(proy.corpus.rglob("*.json"))]
+    salida = cargar_casos(proy.corpus)
     fixtures, fallas = cargar_fixtures(
         sorted(proy.diferencial.glob("*.json")), raiz=proy.raiz, catalogo=catalogo)
     if fallas:

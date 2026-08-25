@@ -1,0 +1,16 @@
+caso 053-unir-perdio-un-par:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "c81a87c"
+    titulo: "`unir` devolvió menos pares que el producto"
+    etiqueta: falso_verde
+    sintoma:
+        Tres filas por cuatro son doce pares, y `unir` devolvió once. Perder un par esconde una ofensa: si la fila que faltaba era la que disparaba el predicado, la medida sale verde sin haber mirado el mundo entero.
+    como_se_detecto: mutacion
+    medida: meta.unir_materializa_el_producto
+    evidencia:
+        producto: izquierda, derecha, salida
+            3, 4, 11
+    leccion:
+        Este defecto se escapó de la primera versión de la instrumentación, y por un motivo que vale más que el defecto: el hecho se anotaba DENTRO de `_unir`, leyendo su propia variable antes del `return`. Un sensor que se lee a sí mismo no audita la frontera — cualquier cosa que pase entre esa línea y el punto de uso queda fuera de la medición. Se movió al punto donde el operador devuelve.

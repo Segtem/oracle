@@ -1,0 +1,18 @@
+caso 302-corridas-reproducibles:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "ejemplo abstracto"
+    titulo: "El ejemplo de referencia es reproducible con cualquier semilla"
+    etiqueta: verde_correcto
+    sintoma:
+        Tres semillas, cada una ejecutada dos veces: trazas idénticas.
+    como_se_detecto: observacion
+    medida: simulacion.corrida_reproducible
+    evidencia:
+        corrida: id, escenario, semilla, pasos, razon, determinista, sobro
+            "alcanza·s1", "alcanza", 1, 5, "completado", true, 15
+            "alcanza·s2", "alcanza", 2, 6, "completado", true, 14
+            "alcanza·s3", "alcanza", 3, 4, "completado", true, 16
+    leccion:
+        La otra polaridad. El determinismo se verifica en cada corrida, no se declara una vez.

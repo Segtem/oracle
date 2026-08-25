@@ -1,0 +1,17 @@
+caso 105-agrupar-sin-claves-coincide:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "acfca07"
+    titulo: "Agrupar sin claves coincide"
+    etiqueta: verde_correcto
+    sintoma:
+        Las dos formas coinciden en veredicto y valor, y NO coinciden en testigos. Eso es lo correcto y es la polaridad que lo fija: `agrupar` consume los hechos, así que la forma agrupada señala un grupo y la directa señala las filas originales.
+    como_se_detecto: observacion
+    medida: meta.agrupar_sin_claves_es_el_resumen_global
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "agrupar_sin_claves_es_el_resumen_global", "c", "construido", true, "", true, true, false
+            "agrupar_sin_claves_es_el_resumen_global", "otro-agregado", "construido", true, "", true, true, false
+    leccion:
+        Es el caso que impide endurecer la medida por prolijidad. Si alguien agregara `mismos_testigos` al predicado —para que las cuatro propiedades se parezcan— esta medida se pondría roja con el álgebra sana, y un falso rojo enseña a ignorar el verificador.

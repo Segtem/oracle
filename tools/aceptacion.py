@@ -18,7 +18,6 @@ Sale != 0 si algún caso que debía ponerse rojo salió verde.
 
 from __future__ import annotations
 
-import json
 import sys
 from pathlib import Path
 
@@ -26,6 +25,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
+from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.marco import hechos_de_casos  # noqa: E402
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
                            medidas_aplicables)  # noqa: E402
@@ -36,8 +36,7 @@ from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogo
 from tools.sesion import resolver_cli  # noqa: E402
 
 def casos(proy) -> list[dict]:
-    return [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted(proy.corpus.rglob("*.json"))]
+    return cargar_casos(proy.corpus)
 
 
 def _ejecutar(proy) -> int:

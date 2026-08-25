@@ -1,0 +1,15 @@
+caso 201-presupuesto-sin-ninguna-corrida:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "acfca07"
+    titulo: "Presupuesto sin ninguna corrida"
+    etiqueta: falso_verde
+    sintoma:
+        Cero corridas. Sin `requiere`, «ninguna corrida agotó su presupuesto» sale verde sobre la nada, y esa afirmación es la que después justifica confiar en lo que la simulación mostró.
+    como_se_detecto: mutacion
+    medida: simulacion.no_se_agoto_el_presupuesto
+    evidencia:
+        corrida:
+    leccion:
+        Es el mismo hueco que `200` en otra medida sobre la misma relación. Que las dos lo tengan no lo hace menos grave: significa que toda conclusión sobre esa simulación descansaba en dos verdes vacuos.

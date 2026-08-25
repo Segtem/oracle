@@ -1,0 +1,41 @@
+caso 015-racimo-inalcanzable:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "recursión"
+    titulo: "Un racimo de módulos que se importan entre sí y nadie ejecuta"
+    etiqueta: falso_verde
+    sintoma:
+        Declarando una sola entrada, hay módulos que se importan unos a otros y aun así no se alcanzan desde ninguna. `proceso.modulo_con_consumidor` los daría por buenos: tienen importadores. Lo que no tienen es camino desde una entrada.
+    como_se_detecto: mutacion
+    medida: proceso.modulo_alcanzable
+    evidencia:
+        modulo: nombre, es_test, lineas, es_paquete_vacio
+            "nucleo", false, 0, true
+            "nucleo.algebra", false, 232, false
+            "nucleo.dominio", false, 129, false
+            "nucleo.grafo", false, 52, false
+            "nucleo.macro", false, 109, false
+            "nucleo.marco", false, 146, false
+            "nucleo.medida", false, 225, false
+            "nucleo.mutacion", false, 170, false
+            "nucleo.mutacion_codigo", false, 269, false
+            "nucleo.proyecto", false, 129, false
+            "nucleo.simulacion", false, 115, false
+            "catalogos", false, 7, false
+            "catalogos.escalares", false, 37, false
+            "ejemplo", false, 0, true
+            "ejemplo.trabajo", false, 50, false
+        importa: a, b, es_test
+            "nucleo.dominio", "nucleo.medida", false
+            "nucleo.marco", "nucleo.grafo", false
+            "nucleo.medida", "nucleo.algebra", false
+            "nucleo.medida", "nucleo.macro", false
+            "nucleo.mutacion", "nucleo.medida", false
+            "catalogos", "catalogos.escalares", false
+            "catalogos.escalares", "nucleo.algebra", false
+            "ejemplo.trabajo", "nucleo.simulacion", false
+        alcanzable: desde, hasta, saltos
+            "nucleo.algebra", "nucleo.algebra", 0
+    leccion:
+        «Tener importadores» y «ser alcanzable» son distintos, y hace falta el cierre TRANSITIVO para ver la diferencia. Se resolvió sin agregar un operador al álgebra: la alcanzabilidad es un HECHO que produce el sensor.

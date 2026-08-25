@@ -1,0 +1,17 @@
+caso 008-vault-falso-rojo:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "f738f07"
+    titulo: "El verificador del vault reportaba roto lo que estaba bien"
+    etiqueta: falso_rojo
+    sintoma:
+        Contaba como enlaces la barra escapada `\|` obligatoria dentro de tablas de Markdown, y los `[[ejemplos]]` escritos dentro de comillas invertidas en la guía.
+    como_se_detecto: accidente
+    medida: proceso.verificador_sin_falsos_rojos
+    evidencia:
+        hallazgo: verificador, objetivo, era_real
+            "vault", "tabla con \\|", false
+            "vault", "[[ejemplo]] en backticks", false
+    leccion:
+        Un falso rojo es peor que no verificar: enseña a ignorar el verificador. Se arregla el verificador, nunca el documento.

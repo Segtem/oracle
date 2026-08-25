@@ -1,0 +1,61 @@
+caso 116-todo-el-nucleo-es-alcanzable:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "recursión"
+    titulo: "Con las entradas reales declaradas, no hay módulo muerto"
+    etiqueta: verde_correcto
+    sintoma:
+        Desde las entradas de verdad —las que importan las herramientas— se llega a todos los módulos. Los `__init__.py` vacíos no cuentan: son marcadores de paquete, y eso va como hecho.
+    como_se_detecto: observacion
+    medida: proceso.modulo_alcanzable
+    evidencia:
+        modulo: nombre, es_test, lineas, es_paquete_vacio
+            "nucleo", false, 0, true
+            "nucleo.algebra", false, 232, false
+            "nucleo.dominio", false, 129, false
+            "nucleo.grafo", false, 52, false
+            "nucleo.macro", false, 109, false
+            "nucleo.marco", false, 146, false
+            "nucleo.medida", false, 225, false
+            "nucleo.mutacion", false, 170, false
+            "nucleo.mutacion_codigo", false, 269, false
+            "nucleo.proyecto", false, 129, false
+            "nucleo.simulacion", false, 115, false
+            "catalogos", false, 7, false
+            "catalogos.escalares", false, 37, false
+            "ejemplo", false, 0, true
+            "ejemplo.trabajo", false, 50, false
+        importa: a, b, es_test
+            "nucleo.dominio", "nucleo.medida", false
+            "nucleo.marco", "nucleo.grafo", false
+            "nucleo.medida", "nucleo.algebra", false
+            "nucleo.medida", "nucleo.macro", false
+            "nucleo.mutacion", "nucleo.medida", false
+            "catalogos", "catalogos.escalares", false
+            "catalogos.escalares", "nucleo.algebra", false
+            "ejemplo.trabajo", "nucleo.simulacion", false
+        alcanzable: desde, hasta, saltos
+            "nucleo.medida", "nucleo.algebra", 1
+            "nucleo.medida", "nucleo.macro", 1
+            "nucleo.medida", "nucleo.medida", 0
+            "nucleo.dominio", "nucleo.algebra", 2
+            "nucleo.dominio", "nucleo.dominio", 0
+            "nucleo.dominio", "nucleo.macro", 2
+            "nucleo.dominio", "nucleo.medida", 1
+            "nucleo.marco", "nucleo.grafo", 1
+            "nucleo.marco", "nucleo.marco", 0
+            "nucleo.mutacion", "nucleo.algebra", 2
+            "nucleo.mutacion", "nucleo.macro", 2
+            "nucleo.mutacion", "nucleo.medida", 1
+            "nucleo.mutacion", "nucleo.mutacion", 0
+            "nucleo.mutacion_codigo", "nucleo.mutacion_codigo", 0
+            "nucleo.proyecto", "nucleo.proyecto", 0
+            "nucleo.simulacion", "nucleo.simulacion", 0
+            "catalogos", "catalogos", 0
+            "catalogos", "catalogos.escalares", 1
+            "catalogos", "nucleo.algebra", 2
+            "ejemplo.trabajo", "ejemplo.trabajo", 0
+            "ejemplo.trabajo", "nucleo.simulacion", 1
+    leccion:
+        La otra polaridad, con el grafo de imports real del repositorio.

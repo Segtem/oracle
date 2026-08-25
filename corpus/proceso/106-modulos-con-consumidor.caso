@@ -1,0 +1,25 @@
+caso 106-modulos-con-consumidor:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "sesión 2026-07-29"
+    titulo: "Los módulos del núcleo del oráculo sí tienen importadores"
+    etiqueta: verde_correcto
+    sintoma:
+        Cada módulo del núcleo tiene al menos un importador que NO es un test: `algebra` lo importa `medida`, `medida` lo importan `mutacion` y `dominio`, `marco` lo importan las dos herramientas.
+    como_se_detecto: observacion
+    medida: proceso.modulo_con_consumidor
+    evidencia:
+        modulo: nombre, tests, importadores
+            "nucleo.algebra", 22, 4
+            "nucleo.medida", 20, 5
+            "nucleo.marco", 0, 2
+        importa: a, b, es_test
+            "nucleo.medida", "nucleo.algebra", false
+            "nucleo.mutacion", "nucleo.medida", false
+            "nucleo.dominio", "nucleo.medida", false
+            "tools.aceptacion", "nucleo.marco", false
+            "tools.mutar", "nucleo.marco", false
+            "tests.test_nucleo", "nucleo.algebra", true
+    leccion:
+        La otra polaridad, y ahora con hechos de `importa` de verdad: sin ellos el verde era trivial porque sin pares no hay grupos que contar.

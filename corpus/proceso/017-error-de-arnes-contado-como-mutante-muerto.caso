@@ -1,0 +1,16 @@
+caso 017-error-de-arnes-contado-como-mutante-muerto:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "auditoría P0"
+    titulo: "Un error del arnés no demuestra que un test haya discriminado"
+    etiqueta: falso_verde
+    sintoma:
+        Un ejecutable inexistente, un código de protocolo inesperado o una colección que no llegó a establecerse podían confundirse con un test que mató al mutante.
+    como_se_detecto: persona
+    medida: proceso.ronda_mutacion_concluyente
+    evidencia:
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
+            "ronda-con-error", 3, true, true, 2, 1, 0
+    leccion:
+        El protocolo del runner es parte de la evidencia: un código desconocido deja la ronda inconclusa, nunca más verde.

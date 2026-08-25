@@ -1,0 +1,22 @@
+caso 011-conclusion-errada-desvan:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "24d5e07"
+    titulo: "Medición correcta, conclusión equivocada: «88% sin usar» era «88% no importable»"
+    etiqueta: medida_correcta_conclusion_errada
+    sintoma:
+        Se midió alcanzabilidad desde un punto de entrada y salió que 34 de 36 módulos no se alcanzaban. Se concluyó «desván, podalo». La causa real era que 25 de 34 no se podían IMPORTAR porque el código apuntaba al monorepo viejo. El número era cierto; la causa atribuida, no.
+    como_se_detecto: persona
+    medida: null
+    estado_sin_medida: limite_humano
+    limite_humano:
+        No hay forma mecánica genérica de validar una atribución causal. Oracle puede exigir trazabilidad entre conclusión y medición, pero una persona debe discutir el salto causal.
+    evidencia:
+        modulo: nombre, alcanzable, importable
+            "oraculo.mazes.spacegraph_channels", false, false
+            "oraculo.mazes.descriptors", false, false
+        conclusion: texto, medicion, causa_atribuida, causa_real
+            "88% desván, podalo", "alcanzabilidad", "desuso", "imports rotos"
+    leccion:
+        Una medición correcta admite varias causas. El oráculo puede exigir que la conclusión nombre su medición; no puede validar la causa. Ese salto es humano y hay que dejarlo a la vista.

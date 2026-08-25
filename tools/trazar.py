@@ -34,6 +34,7 @@ sys.path.insert(0, str(RAIZ))
 import catalogos.escalares  # noqa: F401,E402
 import importlib.util  # noqa: E402
 from nucleo.algebra import ESCALARES, trazar  # noqa: E402
+from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.medida import cargar_catalogo, evaluar, medidas_aplicables  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
                              macros_del_proyecto)
@@ -89,8 +90,7 @@ def contrastar(medidas, evidencia: dict) -> list[str]:
 
 
 def casos(proy: Proyecto) -> list[dict]:
-    return [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted(proy.corpus.rglob("*.json"))]
+    return cargar_casos(proy.corpus)
 
 
 def hechos(catalogo: dict, listado: list[dict]) -> dict:

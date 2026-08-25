@@ -1,0 +1,16 @@
+caso 018-mutante-de-cache-borro-la-copia-del-proyecto:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "auditoría P0, ronda completa en copia temporal"
+    titulo: "Mutar el enumerador de caché hizo que la limpieza borrara la copia del proyecto"
+    etiqueta: falso_verde
+    sintoma:
+        El mutante `nombre == '__pycache__'` a `!=` devolvió casi todas las entradas del repositorio como supuestos cachés. `limpiar_cache` confió en esa lista y borró la copia temporal antes de que el padre pudiera restaurar la fuente. El worktree real no fue tocado porque la ronda estaba aislada.
+    como_se_detecto: mutacion
+    medida: proceso.test_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, detecciones_conductuales, rechazos_del_algebra
+            "mutacion_codigo.py:enumerador_cache_sin_guarda", "nucleo.mutacion_codigo.limpiar_cache", 0, 0
+    leccion:
+        Una lista de rutas no recibe autoridad de borrado por haber salido del enumerador. El punto de borrado vuelve a comprobar nombre exacto y confinamiento físico; como cada mutante cambia un solo sitio, las dos guardas no caen juntas.

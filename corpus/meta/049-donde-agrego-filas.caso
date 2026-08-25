@@ -1,0 +1,17 @@
+caso 049-donde-agrego-filas:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "c81a87c"
+    titulo: "Un `donde` que devolvió más filas de las que recibió"
+    etiqueta: falso_verde
+    sintoma:
+        La traza de la evaluación registró un `donde` con 3 filas de entrada y 4 de salida. Un filtro que agrega filas no filtró: los testigos que publica la medida no son los que sobrevivieron al predicado, así que el informe nombra filas que nunca se demostró que ofendieran.
+    como_se_detecto: mutacion
+    medida: meta.donde_nunca_agrega_filas
+    evidencia:
+        paso: t, operador, filas_antes, filas_despues
+            0, "de", 0, 3
+            1, "donde", 3, 4
+    leccion:
+        Es la primera propiedad metamórfica de PLAN-LENGUAJE (e.1) enunciada como medida en vez de como test en Python. La diferencia no es qué se verifica sino dónde vive la regla: como medida entra a la mutación, al corpus y al inventario de puntos ciegos, y sale del núcleo.

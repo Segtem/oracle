@@ -29,7 +29,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
-from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES  # noqa: E402
+from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES, separar_clave  # noqa: E402
+from nucleo.caso import CasoMalDeclarado, cargar_casos  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  # noqa: E402
 from nucleo.medida import (Medida, MedidaMalDeclarada, cargar_catalogo,  # noqa: E402
                            cargar_fuente_medida)
@@ -56,8 +57,7 @@ ninguno {mid}:
 def _evidencias(proy, *, comprobar_frescura: bool) -> list[tuple[str, dict]]:
     """(de dónde salió, evidencia) — del corpus y de los fixtures diferenciales."""
     salida = []
-    for p in sorted(proy.corpus.rglob("*.json")):
-        c = json.loads(p.read_text(encoding="utf-8"))
+    for c in cargar_casos(proy.corpus):
         salida.append((c["id"], c["evidencia"]))
     rutas = sorted(proy.diferencial.glob("*.json"))
     if comprobar_frescura:
@@ -78,13 +78,14 @@ def relaciones(proy) -> int:
     dondes: dict[str, set] = defaultdict(set)
     try:
         disponibles = _evidencias(proy, comprobar_frescura=False)
-    except (OSError, ValueError, json.JSONDecodeError) as e:
+    except (OSError, ValueError, json.JSONDecodeError, CasoMalDeclarado) as e:
         print(f"no se pudo inventariar la evidencia: {e}")
         return 1
     for origen, ev in disponibles:
         for rel, filas in ev.items():
             dondes[rel].add(origen.split("/")[0])
-            for fila in filas:
+            _clave, hechos = separar_clave(filas)
+            for fila in hechos:
                 for k, v in fila.items():
                     campos[rel][k].add(type(v).__name__)
 
@@ -171,7 +172,7 @@ def revisar(proy, ruta: Path) -> int:
     ejemplos = []
     try:
         disponibles = _evidencias(proy, comprobar_frescura=True)
-    except (OSError, ValueError, json.JSONDecodeError) as e:
+    except (OSError, ValueError, json.JSONDecodeError, CasoMalDeclarado) as e:
         print(f"✗ no se pudo cargar la evidencia: {e}")
         return 1
     for origen, ev in disponibles:

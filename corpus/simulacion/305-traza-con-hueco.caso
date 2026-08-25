@@ -1,0 +1,29 @@
+caso 305-traza-con-hueco:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "orden"
+    titulo: "Un simulador que no registra un paso deja la traza agujereada"
+    etiqueta: falso_verde
+    sintoma:
+        La corrida ocurrió entera pero el instante 1 no quedó registrado: hay menos eventos que instantes, y nada en la traza lo delata a simple vista.
+    como_se_detecto: mutacion
+    medida: simulacion.la_traza_no_tiene_huecos
+    evidencia:
+        corrida: id, escenario, semilla, pasos, razon, determinista, sobro
+            "alcanza·s1", "alcanza", 1, 5, "completado", true, 15
+            "alcanza·s2", "alcanza", 2, 6, "completado", true, 14
+        evento: corrida, t, actor, que, falta
+            "alcanza·s1", 0, "trabajo", "empieza", 8
+            "alcanza·s1", 2, "trabajo", "avanza", 4
+            "alcanza·s1", 3, "trabajo", "avanza", 3
+            "alcanza·s1", 4, "trabajo", "avanza", 1
+            "alcanza·s1", 5, "trabajo", "avanza", 0
+            "alcanza·s2", 0, "trabajo", "empieza", 8
+            "alcanza·s2", 2, "trabajo", "avanza", 6
+            "alcanza·s2", 3, "trabajo", "avanza", 5
+            "alcanza·s2", 4, "trabajo", "avanza", 3
+            "alcanza·s2", 5, "trabajo", "avanza", 2
+            "alcanza·s2", 6, "trabajo", "avanza", 0
+    leccion:
+        El ORDEN es un campo del hecho, no una propiedad de la relación: una relación es un conjunto y los conjuntos no tienen orden. Por eso los huecos se detectan con aritmética sobre el campo ordinal, no con un operador nuevo.

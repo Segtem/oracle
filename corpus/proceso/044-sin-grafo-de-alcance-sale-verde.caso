@@ -1,0 +1,19 @@
+caso 044-sin-grafo-de-alcance-sale-verde:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "515c723"
+    titulo: "Sin grafo de alcance, «todo módulo es alcanzable»"
+    etiqueta: falso_verde
+    sintoma:
+        El sensor que produce la relación `alcanzable` falló y devolvió cero filas —no declaró entradas, o el análisis de imports se rompió—. `proceso.modulo_alcanzable` salía verde con tres módulos que nadie puede ejecutar: sin pares no hay grupos, el conteo da 0 y el umbral `<= 0` lo aprueba. El mismo defecto que `043`, en la otra medida que usa el patrón de ausencia, y lo encontró el mutador `quitar_requiere` como sobreviviente: la medida tenía la precondición pero ningún caso la fijaba.
+    como_se_detecto: mutacion
+    medida: proceso.modulo_alcanzable
+    evidencia:
+        modulo: nombre, es_test, lineas, es_paquete_vacio
+            "jam.entrada", false, 40, false
+            "jam.medio", false, 25, false
+            "jam.hoja", false, 12, false
+        alcanzable:
+    leccion:
+        Un sensor que falla en silencio es indistinguible de un mundo en orden cuando la medida agrega sobre cero filas. Declarar `requiere` no alcanza si ningún caso lo fija: el mutador es lo que convierte la precondición en algo verificado y no sólo en algo escrito. Toda medida que use el patrón de ausencia —`unir` más `agrupar` sobre un predicado— necesita las dos cosas, la precondición y su caso.

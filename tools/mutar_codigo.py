@@ -38,6 +38,7 @@ EQUIVALENTES = RAIZ / "equivalentes.json"
 
 PRIORIDADES = {
     "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor"),
+    "nucleo/caso.py": ("tests.test_sintaxis", "tests.test_herramientas"),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
     "nucleo/dominio.py": ("tests.test_dominio",),
     "nucleo/fixtures.py": ("tests.test_fixtures", "tests.test_herramientas"),

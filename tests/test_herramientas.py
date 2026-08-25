@@ -1044,9 +1044,10 @@ class CifrasDelReadme(unittest.TestCase):
         self.assertTrue(en_disco <= contadas)
 
     def test_el_reparto_del_corpus_suma_todos_los_casos(self) -> None:
+        from nucleo.caso import rutas_de_corpus
         from tools import cifras as cli
 
-        casos = len(list((RAIZ / "corpus").glob("*/*.json")))
+        casos = len(rutas_de_corpus(RAIZ / "corpus"))
         self.assertIn(f"**{casos} casos**", cli.corpus())
 
     def test_las_dos_secciones_no_pueden_contradecirse_en_las_negativas(self) -> None:

@@ -1,0 +1,20 @@
+caso 024-una-variante-no-vacia-inalcanzable:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "mutación de medidas P1.1"
+    titulo: "La bolsa puede contener clasificaciones contradictorias del mismo módulo"
+    etiqueta: falso_verde
+    sintoma:
+        Una relación es una bolsa y no promete unicidad por nombre. Hay un módulo real inalcanzable y dos observaciones de otro nombre, una vacía y otra no vacía. `max` lo descuenta conservadoramente; cambiarlo por `min` agrega un falso testigo.
+    como_se_detecto: mutacion
+    medida: proceso.modulo_alcanzable
+    evidencia:
+        modulo: nombre, es_test, lineas, es_paquete_vacio
+            "real", false, 10, false
+            "ambiguo", false, 0, true
+            "ambiguo", false, 3, false
+        alcanzable: desde, hasta, saltos
+            "entrada", "otro", 1
+    leccion:
+        Sin una restricción de unicidad declarada, el agregado debe conservar la política elegida. Además, un único módulo real inalcanzable ya viola el umbral cero.

@@ -1,0 +1,16 @@
+caso 400-umbral-flotante-de-igualdad:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    titulo: "Un umbral final compara un flotante con igualdad exacta"
+    etiqueta: falso_verde
+    sintoma:
+        La cabecera estructural de la medida declara un umbral `==` sobre un valor flotante. La igualdad exacta entre cantidades medidas es una falsedad silenciosa: 0.1+0.2 no es 0.3, y una medida así diría verde sin que nadie se enterara.
+    como_se_detecto: persona
+    medida: meta.ningun_umbral_flotante_de_igualdad
+    evidencia:
+        medida: id, umbral_es_flotante, comparador
+            "dominio.umbral_flotante_igual", true, "=="
+    leccion:
+        El defecto no está en que el valor sea un número, sino en el operador final: sobre un flotante, `==` y `!=` no tienen borde operativo y hay que pedir una comparación de orden con tolerancia.

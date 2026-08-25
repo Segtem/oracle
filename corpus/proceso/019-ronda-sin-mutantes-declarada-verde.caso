@@ -1,0 +1,16 @@
+caso 019-ronda-sin-mutantes-declarada-verde:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "auditoría P0, revisión cruzada del cierre"
+    titulo: "Una ronda sin ningún mutante podía terminar verde"
+    etiqueta: falso_verde
+    sintoma:
+        Con cero objetivos, cero sitios mutables o todos los sitios excluidos como equivalentes, la baseline pasaba y la CLI devolvía éxito: no había material que demostrara la calidad de los tests.
+    como_se_detecto: persona
+    medida: proceso.ronda_mutacion_concluyente
+    evidencia:
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
+            "ronda-vacia", 0, true, true, 0, 0, 0
+    leccion:
+        Cero mutantes no significa que todos murieron. Sin material de mutación la ronda es inconclusa y debe salir con código distinto de cero.

@@ -1,0 +1,17 @@
+caso 102-unir-no-conmuta:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "acfca07"
+    titulo: "Unir no conmuta"
+    etiqueta: falso_verde
+    sintoma:
+        Voltear los operandos de `unir` cambió el valor y los testigos. El producto cartesiano no tiene lado: si el resultado depende de cuál operando va primero, el operador está haciendo algo posicional y eso no es un producto.
+    como_se_detecto: mutacion
+    medida: meta.unir_conmuta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "unir_conmuta", "c", "construido", true, "", true, false, false
+            "donde_compone", "c", "construido", true, "", true, true, true
+    leccion:
+        El defecto que produce esto es asimétrico —recortar el resultado según el tamaño del lado izquierdo—, y por eso un mutante simétrico no lo revela: quitarle la misma fila a las dos formas las deja coincidiendo. Una propiedad de conmutatividad sólo la rompe un defecto que distinga los lados.

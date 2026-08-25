@@ -1,0 +1,16 @@
+caso 405-medida-sin-alcance:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    titulo: "Una medida no declara qué NO ve"
+    etiqueta: falso_verde
+    sintoma:
+        La cabecera estructural de la medida trae un `alcance` vacío. Un verde que no declara su punto ciego se lee como «está bien», y el informe termina sin poder enumerar lo que no miró.
+    como_se_detecto: persona
+    medida: meta.ninguna_medida_sin_alcance
+    evidencia:
+        medida: id, alcance
+            "dominio.verde_absoluto", ""
+    leccion:
+        La regla mira la VACUIDAD del alcance, no su contenido. No impone una fórmula textual ni un idioma; sólo exige que exista un punto ciego declarado.

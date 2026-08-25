@@ -36,6 +36,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
+from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.medida import (Medida, cargar_catalogo, cargar_fuente_medida, evaluar,  # noqa: E402
                            medidas_aplicables)
 from nucleo.mutacion import _huella  # noqa: E402
@@ -199,8 +200,7 @@ def main(argv: list[str] | None = None) -> int:
     proy = Proyecto(RAIZ)
     macros = macros_del_proyecto(proy)
     catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros)
-    casos = [json.loads(p.read_text(encoding="utf-8"))
-             for p in sorted(proy.corpus.rglob("*.json"))]
+    casos = cargar_casos(proy.corpus)
     evidencia = hechos(catalogo, casos, macros, proy)
 
     if "--hechos" in argv:
