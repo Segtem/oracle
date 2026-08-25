@@ -167,6 +167,190 @@ class SintaxisDeCasosTests(unittest.TestCase):
             "leccion": "La prosa vuelve igual.",
         }
 
+    def _superficie_base(self, evidencia=None) -> str:
+        return sintaxis_caso.imprimir(self._caso_base(evidencia))
+
+    def _texto(self, lineas: list[str]) -> str:
+        return "\n".join(lineas) + "\n"
+
+    def _fragmento_esperado(self, texto: str, linea: int, columna: int,
+                            mensaje: str) -> str:
+        lineas = texto.splitlines()
+        fuente = lineas[linea - 1] if linea <= len(lineas) else ""
+        numero = f"{linea:>4}"
+        marca = " " * max(columna - 1, 0) + "^"
+        return f"{mensaje}\n{numero} | {fuente}\n{' ' * len(numero)} | {marca}"
+
+    def assertErrorDeCaso(self, texto: str, linea: int, columna: int,
+                          mensaje: str) -> None:
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis_caso.leer(texto)
+        self.assertEqual(
+            sintaxis.fragmento_de_error(cm.exception, texto),
+            self._fragmento_esperado(texto, linea, columna, mensaje),
+        )
+
+    def test_los_errores_de_caso_fijan_linea_columna_y_encontrado(self) -> None:
+        base = self._superficie_base()
+
+        def con(reemplazos=(), borrar=()):
+            lineas = base.splitlines()
+            for numero in sorted(borrar, reverse=True):
+                del lineas[numero - 1]
+            for numero, contenido in reemplazos:
+                lineas[numero - 1] = contenido
+            return self._texto(lineas)
+
+        def insertando(*inserciones):
+            lineas = base.splitlines()
+            for numero, contenido in inserciones:
+                lineas.insert(numero - 1, contenido)
+            return self._texto(lineas)
+
+        escape = self._superficie_base({"hecho": [{"id": "a"}]})
+        escape_lineas = escape.splitlines()
+        escape_lineas[12] = "        hecho:"
+        escape_lineas[13] = "            fila nope"
+        fila_json_rota = self._texto(escape_lineas)
+        escape_lineas = escape.splitlines()
+        escape_lineas[12] = "        hecho:"
+        escape_lineas[13] = '            "a"'
+        fila_sin_encabezado = self._texto(escape_lineas)
+
+        casos = [
+            ("entrada vacía", "", 1, 1,
+             "línea 1, columna 1: se esperaba encabezado «caso <id>:»"),
+            ("sólo encabezado", "caso 999-roto:\n", 2, 1,
+             "línea 2, columna 1: se esperaba línea «fecha:»"),
+            ("indentación extra", con([(2, '     fecha: "2026-08-25"')]), 2, 6,
+             "línea 2, columna 6: se esperaba indentación de 4 espacios; llegó '     f'"),
+            ("fecha sin espacio", con([(2, '    fecha:"2026-08-25"')]), 2, 11,
+             "línea 2, columna 11: se esperaba espacio o fin tras ':'; llegó "
+             "'\"2026-08-25\"'"),
+            ("fecha sin valor", con([(2, "    fecha:")]), 2, 11,
+             "línea 2, columna 11: se esperaba valor JSON"),
+            ("fecha no JSON", con([(2, "    fecha: nope")]), 2, 12,
+             "línea 2, columna 12: se esperaba valor JSON; llegó 'nope'"),
+            ("falta titulo", con(borrar=(6,)), 6, 5,
+             "línea 6, columna 5: se esperaba línea «titulo:»; llegó "
+             "'etiqueta: verde_correcto'"),
+            ("bloque sin prosa", con(borrar=(9,)), 9, 1,
+             "línea 9, columna 1: se esperaba prosa para «sintoma»"),
+            ("origen hasta EOF",
+             'caso 999-roto:\n    fecha: "2026-08-25"\n    origen:\n'
+             '        repo: "test"\n',
+             5, 1, "línea 5, columna 1: se esperaba línea «titulo:»"),
+            ("origen sin dos puntos", con([(4, "        repo")]), 4, 9,
+             "línea 4, columna 9: se esperaba campo de origen «nombre: valor»; llegó "
+             "'repo'"),
+            ("origen sin espacio", con([(4, '        repo:"test"')]), 4, 14,
+             "línea 4, columna 14: se esperaba espacio tras ':'; llegó 'repo:\"test\"'"),
+            ("origen repetido", insertando((6, '        repo: "otro"')), 6, 9,
+             "línea 6, columna 9: se esperaba campo de origen sin repetir, no «repo»; "
+             "llegó 'repo: \"otro\"'"),
+            ("origen valor no JSON", con([(4, "        repo: nope")]), 4, 15,
+             "línea 4, columna 15: se esperaba valor JSON; llegó 'nope'"),
+            ("origen vacío", con(borrar=(4, 5)), 4, 1,
+             "línea 4, columna 1: se esperaba origen con al menos un campo"),
+            ("clave sin punto y coma", con([(13, "        hecho: clave(id) id, ok")]),
+             13, 24, "línea 13, columna 24: se esperaba ';' antes de campos; llegó "
+             "'id, ok'"),
+            ("relación sobreindentada", con([(13, "            hecho: id, ok")]), 13, 9,
+             "línea 13, columna 9: se esperaba relación; llegó 'hecho: id, ok'"),
+            ("relación sin dos puntos", con([(13, "        hecho")]), 13, 9,
+             "línea 13, columna 9: se esperaba relación «nombre: campos»; llegó 'hecho'"),
+            ("relación repetida",
+             insertando((15, "        hecho: id, ok"), (16, '            "b", false')),
+             15, 9, "línea 15, columna 9: se esperaba relación sin repetir, no «hecho»; "
+             "llegó 'hecho: id, ok'"),
+            ("campos repetidos", con([(13, "        hecho: id, id")]), 13, 15,
+             "línea 13, columna 15: se esperaba campos sin repetir; llegó 'id, id'"),
+            ("escape con campos",
+             con([(14, '            fila {"id": "a", "ok": true}')]), 14, 13,
+             "línea 14, columna 13: se esperaba fila de tabla, no escape JSON, porque "
+             "hay campos; llegó 'fila {\"id\": \"a\", \"ok\": true}'"),
+            ("fila escape JSON roto", fila_json_rota, 14, 18,
+             "línea 14, columna 18: se esperaba valor JSON; llegó 'nope'"),
+            ("fila de tabla sin encabezado", fila_sin_encabezado, 14, 13,
+             "línea 14, columna 13: se esperaba «fila { ... }» o relación nueva; llegó "
+             "'\"a\"'"),
+            ("fila sin coma", con([(14, '            "a" true')]), 14, 17,
+             "línea 14, columna 17: se esperaba ',' entre valores de fila; llegó 'true'"),
+            ("fila sólo tab", con([(14, "            \t")]), 14, 13,
+             "línea 14, columna 13: se esperaba valores de fila; llegó '\\t'"),
+            ("cantidad de valores", con([(14, '            "a"')]), 14, 13,
+             "línea 14, columna 13: se esperaba 2 valores de fila; llegó '\"a\"'"),
+            ("relación con campos sin filas", con(borrar=(14,)), 13, 15,
+             "línea 13, columna 15: se esperaba filas para una relación con encabezado "
+             "de campos; llegó 'hecho: id, ok'"),
+            ("evidencia vacía", con(borrar=(13, 14)), 13, 1,
+             "línea 13, columna 1: se esperaba al menos una relación de evidencia"),
+            ("falta lección hasta EOF", con(borrar=(15, 16)), 15, 1,
+             "línea 15, columna 1: se esperaba línea «leccion:»"),
+            ("encabezado roto", "caso:\n", 1, 1,
+             "línea 1, columna 1: se esperaba encabezado «caso <id>:»; llegó 'caso:'"),
+            ("id inválido", con([(1, "caso 999_Caso:")]), 1, 6,
+             "línea 1, columna 6: se esperaba id «NNN-descripcion», sólo con minúsculas "
+             "ASCII, dígitos y `-`; llegó '999_Caso'"),
+            ("extra final", base + "    sobra: x\n", 17, 5,
+             "línea 17, columna 5: se esperaba fin de caso; llegó 'sobra: x'"),
+        ]
+        for nombre, texto, linea, columna, mensaje in casos:
+            with self.subTest(nombre=nombre):
+                self.assertErrorDeCaso(texto, linea, columna, mensaje)
+
+    def test_los_bordes_validos_de_casos_tambien_quedan_fijados(self) -> None:
+        con_comentario = "# comentario\n" + self._superficie_base()
+        self.assertEqual(sintaxis_caso.leer(con_comentario)["id"], "999-caso-de-prueba")
+
+        sin_espacio_tras_coma = self._superficie_base().replace('"a", true', '"a",true')
+        self.assertEqual(
+            sintaxis_caso.leer(sin_espacio_tras_coma)["evidencia"]["hecho"],
+            [{"id": "a", "ok": True}],
+        )
+
+        sin_espacio_tras_punto_y_coma = self._superficie_base().replace(
+            "        hecho: id, ok\n"
+            '            "a", true\n',
+            "        hecho: clave(id);ok\n"
+            "            true\n",
+        )
+        self.assertEqual(
+            sintaxis_caso.leer(sin_espacio_tras_punto_y_coma)["evidencia"]["hecho"],
+            [["clave", ["id"]], {"ok": True}],
+        )
+
+    def test_el_impresor_de_casos_falla_cerrado_en_ids_y_claves_invalidas(self) -> None:
+        for cid in (123, "999_Caso"):
+            with self.subTest(cid=cid):
+                datos = self._caso_base()
+                datos["id"] = cid
+                with self.assertRaises(ValueError):
+                    sintaxis_caso.imprimir(datos)
+
+        datos = self._caso_base({"pieza": [["clave", "id"], {"id": "a"}]})
+        with self.assertRaises(ValueError):
+            sintaxis_caso.imprimir(datos)
+
+    def test_el_impresor_no_ascii_y_campos_no_tabulares_van_por_escape(self) -> None:
+        texto = sintaxis_caso.imprimir(
+            self._caso_base({"rel": [{"a,b": "ñ", "ok": True}]}))
+
+        self.assertIn('\n        rel:\n', texto)
+        self.assertIn('            fila {"a,b": "ñ", "ok": true}\n', texto)
+        self.assertEqual(sintaxis_caso.leer(texto)["evidencia"]["rel"],
+                         [{"a,b": "ñ", "ok": True}])
+
+    def test_rutas_de_corpus_distingue_ausencia_y_raiz_no_fisica(self) -> None:
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            self.assertEqual(sintaxis_caso.rutas_de_corpus(raiz / "ausente"), [])
+            archivo = raiz / "corpus"
+            archivo.write_text("", encoding="utf-8")
+            with self.assertRaises(CasoMalDeclarado):
+                sintaxis_caso.rutas_de_corpus(archivo)
+
     def test_todo_el_corpus_vuelve_exacto_en_la_superficie_de_casos(self) -> None:
         rutas = sintaxis_caso.rutas_de_corpus(RAIZ / "corpus")
         self.assertGreater(len(rutas), 0)
