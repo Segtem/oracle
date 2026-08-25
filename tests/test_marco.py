@@ -12,7 +12,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 from nucleo.marco import hechos_de_casos, hechos_de_uso  # noqa: E402
-from nucleo.medida import cargar  # noqa: E402
+from nucleo.medida import cargar, ruta_de_medida  # noqa: E402
 
 
 MID = "dominio.ordinaria"
@@ -43,7 +43,7 @@ def _fijada():
     daba 63 errores de arnés, porque ahí `tests.test_marco` entraba en la carga prioritaria. Un
     resultado que cambia según cómo se corta la corrida no es una medición.
     """
-    return cargar(RAIZ / "catalogos" / "meta" / "meta.toda_medida_esta_fijada.json")
+    return cargar(ruta_de_medida("meta.toda_medida_esta_fijada", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
 
 
 class _MedidaFalsa:

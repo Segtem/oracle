@@ -9,6 +9,7 @@ from pathlib import Path
 
 from nucleo.medida import rutas_de_catalogo
 from nucleo.macro import EXTENSIONES_DE_MACRO
+from nucleo.medida import cargar_fuente_medida, ruta_de_medida
 from tools import sintaxis
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -47,16 +48,17 @@ class SintaxisInfijaTests(unittest.TestCase):
                 self.assertNotIn('glob("*/*.json")', codigo)
 
     def test_una_macro_se_relee_como_macro_y_no_como_expansion(self) -> None:
-        ruta = RAIZ / "catalogos/meta/meta.donde_compone.json"
-        datos = json.loads(ruta.read_text(encoding="utf-8"))
+        # Por el LECTOR común, no por `json.loads`: la medida está guardada en la superficie y el
+        # test habla de la superficie, no del formato en que quedó el archivo.
+        datos = cargar_fuente_medida(ruta_de_medida("meta.donde_compone", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         superficie = sintaxis.imprimir(datos)
 
         self.assertTrue(superficie.startswith("ninguno meta.donde_compone:"))
         self.assertEqual(sintaxis.leer(superficie), datos)
 
     def test_una_medida_canonica_preserva_requiere_y_agrupar(self) -> None:
-        ruta = RAIZ / "perfiles/python/catalogos/proceso/proceso.modulo_con_consumidor.json"
-        datos = json.loads(ruta.read_text(encoding="utf-8"))
+        datos = cargar_fuente_medida(
+            ruta_de_medida("proceso.modulo_con_consumidor", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         releida = sintaxis.leer(sintaxis.imprimir(datos))
 
         self.assertEqual(releida, datos)
@@ -125,9 +127,8 @@ class SintaxisInfijaTests(unittest.TestCase):
         # declarada adentro de `metamorficas.py` —consecuencia de una restricción de la tarea que
         # la escribió— y una medida que vive en Python no entra a la mutación ni al inventario de
         # puntos ciegos, que es justo lo que este proyecto le exige a todas las demás.
-        import json
-        jueza = json.loads(
-            (RAIZ / "catalogos/meta/meta.sintaxis_ida_y_vuelta.json").read_text(encoding="utf-8"))
+        jueza = cargar_fuente_medida(
+            ruta_de_medida("meta.sintaxis_ida_y_vuelta", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         from nucleo.proyecto import macros_del_proyecto
         m = Medida.de_datos(jueza, macros=macros_del_proyecto(Proyecto(RAIZ)))
         self.assertTrue(m.evaluar({"equivalencia": filas}).ok)
@@ -420,6 +421,39 @@ class MacrosEnLaSuperficieTests(unittest.TestCase):
                     if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()]
         self.assertEqual(len(contadas), len(en_disco))
         self.assertGreater(len(contadas), 0)
+
+
+class ElCatalogoRealEjercitaLosDosLectoresTests(unittest.TestCase):
+    """Un lector que sólo ejercitan los tests es un lector a medio probar.
+
+    El catálogo universal está escrito en la superficie —es la forma en que se autoriza a escribir
+    y tiene que ser la forma en que está escrito lo que se publica— pero DOS medidas se dejan a
+    propósito en `.json`. Si todas migraran, el camino `.json` de `cargar_catalogo` dejaría de
+    correrse en el catálogo real y sólo lo tocarían los temporales de esta suite; el día que se
+    rompiera, se enteraría un consumidor —Jam y LyraGASP guardan sus medidas en `.json`— y no acá.
+    """
+
+    def _rutas(self):
+        from nucleo.medida import rutas_de_catalogo
+        return rutas_de_catalogo(RAIZ / "catalogos",
+                                 *sorted((RAIZ / "perfiles").glob("*/catalogos")))
+
+    def test_el_catalogo_publica_medidas_en_los_dos_formatos(self) -> None:
+        sufijos = {r.suffix for r in self._rutas()}
+        self.assertEqual(sufijos, {".oracle", ".json"})
+
+    def test_la_superficie_es_la_forma_dominante_y_no_una_excepcion(self) -> None:
+        """Si quedara una sola en superficie, la afirmación «el catálogo está escrito en el
+        lenguaje» sería falsa y nada la contradiría."""
+        rutas = self._rutas()
+        en_superficie = [r for r in rutas if r.suffix == ".oracle"]
+        self.assertGreater(len(en_superficie), len(rutas) // 2)
+
+    def test_las_dos_que_quedan_en_json_cargan_por_el_mismo_camino(self) -> None:
+        from nucleo.medida import cargar_fuente_medida
+        for ruta in (r for r in self._rutas() if r.suffix == ".json"):
+            with self.subTest(medida=ruta.stem):
+                self.assertEqual(cargar_fuente_medida(ruta)[1], ruta.stem)
 
 
 if __name__ == "__main__":

@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `6361fef2e22c`
+- Revisión de código base: `4214bf3e4459`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5005 líneas de lenguaje y **229 negativas explícitas** (`raise`).
+En este corte hay 5020 líneas de lenguaje y **230 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,12 +117,23 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5005 líneas de lenguaje** (`nucleo/`, código y macros) y **229 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (298 líneas): **16,8 a 1**. 26 de las 33 pasan por una macro.
+**5020 líneas de lenguaje** (`nucleo/`, código y macros) y **230 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (203 líneas): **24,7 a 1**. 26 de las 33 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
 metalenguaje. Los catálogos externos no se incorporan al núcleo para mejorar artificialmente la
 proporción.
+
+> **La proporción es sensible al FORMATO, y eso es un defecto de la métrica.** El 2026-08-25 pasó
+> de **16,8 a 24,7** sin que el lenguaje ganara una capacidad ni las medidas perdieran una regla:
+> el catálogo se pasó de JSON compacto a la superficie infija y las mismas 33 medidas bajaron de
+> 298 líneas a 203. El efecto compone en las dos direcciones a la vez —tener sintaxis suma 900
+> líneas al numerador Y acorta el denominador—, así que **el número de hoy no se compara con el de
+> ayer**. Es de la misma familia que el hallazgo de `indent=2`, que infló la proporción
+> reformateando archivos: mientras el denominador se cuente en LÍNEAS, cambiar cómo se escribe una
+> medida mueve la cifra sin que cambie nada de lo que la cifra dice medir. Queda anotado como
+> defecto abierto y no se arregla acá: cualquier arreglo bajaría el costo publicado, y una métrica
+> no se cambia en el movimiento en que su resultado incomoda.
 
 Es la única medición del proyecto **que no se puede sastrear escribiendo más medidas** — escribir más
 medidas es justamente lo que la mejora. Es una cifra sobre el **costo**, no un veredicto: qué se
@@ -396,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-484 tests · 406/406 mutantes de medida · **2036 sitios de mutación de código** (1831 + 205 del motor Python).
+487 tests · 406/406 mutantes de medida · **2041 sitios de mutación de código** (1836 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4305,7 +4316,7 @@ hasta que `agrupar` exista se rodea así.
 
 ### `nucleo/medida.py`
 
-*599 líneas*
+*614 líneas*
 
 La medida: un dato que se lee, se evalúa y se puede medir a su vez.
 
@@ -6911,6 +6922,83 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — `defmacro` se escribe en la superficie, y la biblioteca estándar se guarda ahí
+
+*commit 4214bf3*
+
+La otra mitad del lenguaje. La superficie infija cubría las medidas y dejaba
+afuera las macros: `nucleo/macros/` se escribía en JSON crudo, con
+`["$", "nombre"]` para cada parámetro. Una sintaxis que cubre una mitad no es la
+sintaxis del lenguaje.
+
+Ahora las tres macros base se leen así, y así se guardan:
+
+    defmacro ninguno-par(id, relacion, aliasA, aliasB, predicado, porque, alcance):
+        guarda $aliasA != $aliasB "los dos alias de «ninguno-par» tienen que ser distintos"
+        medida $id:
+            de $relacion $aliasA
+            unir $relacion $aliasB
+            donde $predicado
+            resumen contar(1)
+            umbral <= 0 porque $porque
+            alcance $alcance
+
+`$x` es un hueco y es atómico —`$x.campo` no se acepta, porque un hueco no es un
+campo—. La plantilla se imprime con el mismo impresor que cualquier medida, que
+es lo correcto: la plantilla de una macro ES una medida con agujeros.
+
+`--verificar` recorre ahora las macros además del catálogo, y `cargar_macros` lee
+los dos formatos con la misma regla que el catálogo: el mismo nombre en `.json` y
+en `.oracle` es un error, no gana ninguno.
+
+Trabajo delegado a DeepSeek V4 Pro 0813 para la superficie y los nueve tests;
+portado a mano porque `tools/sintaxis.py` se había partido en núcleo y CLI
+mientras tanto. Cuatro cosas mías encima:
+
+## 1 · El error tenía que leerse al derecho
+
+`ErrorSintaxis` forzaba «se esperaba X» en todo, y salía «se esperaba parámetro
+«sobra» que la plantilla nunca usa» — que se lee al revés de lo que pasó. Un
+error que hay que descifrar es un error que no sirve. Ahora hay un modo literal
+para los diagnósticos que no son «faltó algo en esta posición»:
+
+    línea 1, columna 61: la macro declara el parámetro «sobra» y la plantilla nunca lo usa
+    línea 3, columna 12: «$inventado» no es un parámetro de la macro
+
+## 2 · El numerador perdía las macros al cambiarles el formato
+
+`tools/cifras.py` contaba `nucleo/macros/*.json`. Pasarlas a `.oracle` las sacó
+del numerador sin una queja: la proporción publicada habría bajado por un
+renombre. Es el mismo sastreo contra el que la medición existe, con otra ropa
+—ya había pasado con `indent=2` en los catálogos—. El inventario de formatos es
+UNO y vive en `nucleo/macro.py`; un directorio de macros vacío ahora es un error
+en vez de un numerador más chico.
+
+El test que lo cuida tampoco fija nombres de archivo: fijar
+`{"ninguno.json", "peor.json"}` a mano habría hecho fallar el test POR EL
+RENOMBRE, no por lo que dice medir.
+
+## 3 · `pyproject.toml` no habría empaquetado la biblioteca estándar
+
+`["macros/*.json"]`. Una instalación por wheel se quedaba sin `ninguno`, y cada
+medida escrita con ella fallaría después con «una medida es [...]», culpando al
+archivo equivocado. Comprobado sobre el wheel construido, no supuesto.
+
+## 4 · Se restauró el fragmento con caret
+
+El puerto trajo la versión de `fragmento_de_error` anterior al mapa de fuente, y
+un `.oracle` roto perdía el `^`. Un test lo agarró.
+
+La proporción sube de 15,9 a **16,8 a 1**. Tener sintaxis cuesta, y el número lo
+dice: es el precio de que alguien pueda escribir una medida sin anidar corchetes.
+
+484 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS 33 medidas + 3 macros + 16 bloques de documentación
+MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -6919,14 +7007,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 4571 | el lenguaje |
-| líneas de medidas escritas en él | 298 | lo escrito en el lenguaje |
-| proporción | 15 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 17 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 207 | su naturaleza es rechazar, no medir |
+| líneas del núcleo | 4586 | el lenguaje |
+| líneas de medidas escritas en él | 203 | lo escrito en el lenguaje |
+| proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 208 | su naturaleza es rechazar, no medir |
 | medidas | 33 | de las cuales 21 miden el lenguaje mismo |
 | casos de corpus | 90 | fallas reales, con su evidencia |
-| commits | 85 | el historial completo |
+| commits | 86 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

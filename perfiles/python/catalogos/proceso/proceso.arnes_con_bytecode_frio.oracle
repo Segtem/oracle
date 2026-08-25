@@ -1,0 +1,5 @@
+ninguno proceso.arnes_con_bytecode_frio:
+    de corrida_mutacion c
+    donde c.bytecode_frio == false
+    umbral <= 0 porque "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado"
+    alcance "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación. Si corrida_mutacion viene vacía significa que no hubo corridas con bytecode caliente en la sesión y verde es correcto"

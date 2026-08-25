@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "meta.donde_compone",
-  "equivalencia",
-  "e",
-  ["y", ["==", ["campo", "e", "propiedad"], "donde_compone"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]],
-  "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»: son la misma pregunta escrita de dos maneras. Se exigen las tres coincidencias y no sólo el veredicto, porque las filas que sobreviven al último `donde` SON los testigos, y dos formas que dan el mismo número señalando filas distintas mandan a una persona a mirar el lugar equivocado",
-  "compara las dos formas sobre una sonda construida con filas que pasan cada filtro y filas que no. NO cubre predicados con UDF ni con `o` anidado, y no dice nada sobre el catálogo publicado: hoy ninguna medida usa dos `donde`, así que esta propiedad se comprueba antes de tener usuario. Si equivalencia viene vacía no hay fallas de composición y verde es correcto; además metamorficas.py construye las sondas por construcción"
-]

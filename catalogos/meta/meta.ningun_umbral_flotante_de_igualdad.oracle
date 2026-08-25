@@ -1,0 +1,5 @@
+ninguno meta.ningun_umbral_flotante_de_igualdad:
+    de medida m
+    donde m.umbral_es_flotante == true y (m.comparador == "==" o m.comparador == "!=")
+    umbral <= 0 porque "un umbral `==` o `!=` sobre un flotante compara cantidades medidas con una exactitud que la representación no garantiza: 0.1+0.2 no es 0.3, y una igualdad exacta ahí es una falsedad silenciosa que se lee como verde. La comparación de orden con tolerancia (`cerca`) deja el margen a la vista y con su defensa"
+    alcance "mira el operador y el tipo del valor final del umbral de cada medida. NO ve igualdades exactas dentro de expresiones o agregados — de ésas se ocupa el álgebra al evaluar — y NO juzga `==` sobre enteros, textos ni booleanos, que se comparan exacto"

@@ -1,0 +1,11 @@
+medida meta.toda_medida_filtra_o_agrupa:
+    de medida m
+    unir termino t
+    agrupar:
+        clave medida = m.id
+        agregado operadores_estructurales = suma(t.medida == m.id y (t.cabeza == "donde" o t.cabeza == "agrupar"))
+    donde operadores_estructurales == 0
+    resumen contar(1)
+    umbral <= 0 porque "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"
+    requiere termino
+    alcance "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional"

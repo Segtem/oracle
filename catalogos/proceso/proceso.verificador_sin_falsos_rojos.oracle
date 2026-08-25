@@ -1,0 +1,5 @@
+ninguno proceso.verificador_sin_falsos_rojos:
+    de hallazgo h
+    donde h.era_real == false
+    umbral <= 0 porque "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno"
+    alcance "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos"

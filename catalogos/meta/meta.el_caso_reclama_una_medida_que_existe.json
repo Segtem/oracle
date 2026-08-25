@@ -1,9 +1,0 @@
-[
-  "ninguno",
-  "meta.el_caso_reclama_una_medida_que_existe",
-  "caso",
-  "c",
-  ["y", ["==", ["campo", "c", "tiene_medida"], true], ["==", ["campo", "c", "medida_existe"], false]],
-  "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto",
-  "ve el id que el caso RECLAMA. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2"
-]

@@ -1,0 +1,5 @@
+ninguno meta.sintaxis_ida_y_vuelta:
+    de equivalencia e
+    donde e.propiedad == "sintaxis_ida_y_vuelta" y (e.mismo_veredicto == false o e.mismo_valor == false o e.mismos_testigos == false o e.error != "")
+    umbral <= 0 porque "la superficie infija es reversible sólo si el JSON de almacenamiento y el texto canónico sobreviven a la ida y vuelta sin cambio"
+    alcance "comprueba las medidas publicadas del catálogo base y perfiles. NO preserva comentarios libres ni demuestra que otra superficie escrita a mano sea la más legible; sólo que la forma canónica impresa por la herramienta vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py comprueba el catálogo por construcción"

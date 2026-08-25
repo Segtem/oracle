@@ -1,9 +1,0 @@
-[
-  "medida",
-  "meta.toda_medida_filtra_o_agrupa",
-  ["desde", ["unir", ["de", "medida", "m"], ["de", "termino", "t"]], ["agrupar", [["medida", ["campo", "m", "id"]]], [["operadores_estructurales", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["o", ["==", ["campo", "t", "cabeza"], "donde"], ["==", ["campo", "t", "cabeza"], "agrupar"]]]]]], ["donde", ["==", ["col", "operadores_estructurales"], 0]]],
-  ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"],
-  ["requiere", "termino"],
-  ["alcance", "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional"]
-]

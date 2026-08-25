@@ -1,9 +1,0 @@
-[
-  "medida",
-  "simulacion.corrida_reproducible",
-  ["desde", ["de", "corrida", "c"], ["donde", ["==", ["campo", "c", "determinista"], false]]],
-  ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota"],
-  ["requiere", "corrida"],
-  ["alcance", "compara dos ejecuciones con la MISMA semilla. NO ve si el resultado depende de algo de afuera —la hora, el orden de un diccionario, un archivo— que hoy casualmente no cambió. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."]
-]

@@ -341,6 +341,21 @@ def rutas_de_catalogo(*directorios) -> list[Path]:
     )
 
 
+def ruta_de_medida(mid: str, *directorios) -> Path:
+    """El archivo de una medida por su id, en el formato en que esté guardada.
+
+    Existe porque una decena de tests apuntaban a `catalogos/<dominio>/<id>.json` a mano, y al
+    pasar el catálogo a `.oracle` fallaron todos por el RENOMBRE en vez de por lo que dicen medir.
+    Un test que se cae cuando cambia el formato de almacenamiento no está midiendo el formato:
+    está acoplado a él sin querer.
+    """
+    candidatos = [r for r in rutas_de_catalogo(*directorios) if r.stem == mid]
+    if len(candidatos) != 1:
+        raise MedidaMalDeclarada(
+            f"«{mid}» no está una sola vez en el catálogo: {len(candidatos)} archivos")
+    return candidatos[0]
+
+
 def cargar_fuente_medida(ruta: Path) -> list:
     """Lee una medida de catálogo y devuelve su forma de datos."""
     ruta = Path(ruta)

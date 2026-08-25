@@ -59,7 +59,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5005 líneas de lenguaje y **229 negativas explícitas** (`raise`).
+En este corte hay 5020 líneas de lenguaje y **230 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -92,12 +92,23 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**5005 líneas de lenguaje** (`nucleo/`, código y macros) y **229 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (298 líneas): **16,8 a 1**. 26 de las 33 pasan por una macro.
+**5020 líneas de lenguaje** (`nucleo/`, código y macros) y **230 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (203 líneas): **24,7 a 1**. 26 de las 33 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
 metalenguaje. Los catálogos externos no se incorporan al núcleo para mejorar artificialmente la
 proporción.
+
+> **La proporción es sensible al FORMATO, y eso es un defecto de la métrica.** El 2026-08-25 pasó
+> de **16,8 a 24,7** sin que el lenguaje ganara una capacidad ni las medidas perdieran una regla:
+> el catálogo se pasó de JSON compacto a la superficie infija y las mismas 33 medidas bajaron de
+> 298 líneas a 203. El efecto compone en las dos direcciones a la vez —tener sintaxis suma 900
+> líneas al numerador Y acorta el denominador—, así que **el número de hoy no se compara con el de
+> ayer**. Es de la misma familia que el hallazgo de `indent=2`, que infló la proporción
+> reformateando archivos: mientras el denominador se cuente en LÍNEAS, cambiar cómo se escribe una
+> medida mueve la cifra sin que cambie nada de lo que la cifra dice medir. Queda anotado como
+> defecto abierto y no se arregla acá: cualquier arreglo bajaría el costo publicado, y una métrica
+> no se cambia en el movimiento en que su resultado incomoda.
 
 Es la única medición del proyecto **que no se puede sastrear escribiendo más medidas** — escribir más
 medidas es justamente lo que la mejora. Es una cifra sobre el **costo**, no un veredicto: qué se
@@ -371,7 +382,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-484 tests · 406/406 mutantes de medida · **2036 sitios de mutación de código** (1831 + 205 del motor Python).
+487 tests · 406/406 mutantes de medida · **2041 sitios de mutación de código** (1836 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

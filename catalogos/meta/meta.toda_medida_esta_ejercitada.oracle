@@ -1,0 +1,5 @@
+ninguno meta.toda_medida_esta_ejercitada:
+    de medida_en_uso m
+    donde m.es_heredada == false y m.casos_que_la_evaluan == 0
+    umbral <= 0 porque "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre"
+    alcance "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción"
