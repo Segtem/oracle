@@ -1127,6 +1127,12 @@ class VersionDelAlgebra(unittest.TestCase):
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
         self.assertEqual(str(del_nucleo()), "0.3")
 
+    def test_la_superficie_declara_su_propia_version_legible_y_estable(self) -> None:
+        from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
+
+        self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
+        self.assertEqual(str(del_nucleo_sintaxis()), "0.1")
+
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear
 
@@ -1202,6 +1208,33 @@ class VersionDelProyecto(unittest.TestCase):
     def test_el_oracle_de_si_mismo_declara_una_version_compatible(self) -> None:
         # El `oracle.json` del propio proyecto carga sin queja: su declaración no es ajena al núcleo.
         self.assertEqual(configuracion(Proyecto(RAIZ)).catalogo_base, True)
+
+    def test_una_sintaxis_compatible_carga_sin_queja(self) -> None:
+        for declarada in ("0.0", "0.1"):
+            with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
+                raiz = self._raiz(td)
+                self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
+                                        "sintaxis": declarada, "perfiles": []})
+                self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
+
+    def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
+        for declarada in ("0.2", "1.0", "9.9"):
+            with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
+                raiz = self._raiz(td)
+                self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
+                                        "sintaxis": declarada, "perfiles": []})
+                with self.assertRaises(ProyectoInvalido) as ctx:
+                    configuracion(Proyecto(raiz))
+                self.assertIn(declarada, str(ctx.exception))
+                self.assertIn("0.1", str(ctx.exception))
+
+    def test_una_sintaxis_mal_declarada_falla_cerrado(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
+                                    "sintaxis": "no-es-version", "perfiles": []})
+            with self.assertRaises(ProyectoInvalido):
+                configuracion(Proyecto(raiz))
 
 
 class VersionDeLaReferencia(unittest.TestCase):

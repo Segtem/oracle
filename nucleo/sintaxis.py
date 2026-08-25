@@ -12,6 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .proyecto import ID_MEDIDA_RE
+from .version import VersionInvalida, parsear
 
 COMPARADORES = ("==", "!=", "<=", ">=", "<", ">")
 LOGICOS = {"y": 2, "o": 1}
@@ -21,6 +22,12 @@ DEFMACRO_RE = re.compile(r"defmacro\s+([^\s(]+)\s*\(([^)]*)\)\s*:")
 NUMERO_RE = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
 IND = "    "
 IND2 = IND * 2
+
+# Un archivo `.oracle` puede declarar, como PRIMERA línea, contra qué versión de la superficie se
+# escribió: `sintaxis MAYOR.MENOR`. Es parte de la superficie —se lee y se valida— y no un comentario
+# pegado arriba; por eso vive en la gramática y no en el filtro de `#`. Es OPCIONAL: quien no la
+# declara sigue cargando, y los 34 archivos de hoy no la declaran.
+VERSION_LINE_RE = re.compile(r"^sintaxis\s+(\S+)$")
 
 
 @dataclass(frozen=True)
@@ -59,6 +66,7 @@ class Ubicacion:
 class Lectura:
     datos: list
     ubicaciones: dict[str, Ubicacion]
+    version: str | None = None
 
     def ubicacion(self, ruta: tuple[int, ...] | str) -> Ubicacion | None:
         return self.ubicaciones.get(_texto_ruta(_normalizar_ruta(ruta)))
@@ -733,11 +741,30 @@ def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, s
 
 
 def leer_con_mapa(texto: str) -> Lectura:
-    """Lee superficie infija y devuelve datos junto con ruta -> línea/columna."""
+    """Lee superficie infija y devuelve datos junto con ruta -> línea/columna.
+
+    Una primera línea opcional `sintaxis MAYOR.MENOR` declara contra qué versión de la superficie se
+    escribió el archivo. La versión se valida con el MISMO parser que el álgebra y se devuelve aparte
+    —no es parte de la medida—; comprobar si es compatible con la de este núcleo es trabajo del que
+    carga, no del lector, que es una función pura.
+    """
     lineas = _lineas(texto)
     if not lineas:
         _fallar(1, 1, "encabezado de medida")
+    version = None
     n, encabezado = lineas[0]
+    m_ver = VERSION_LINE_RE.fullmatch(encabezado)
+    if m_ver:
+        version_txt = m_ver.group(1)
+        try:
+            parsear(version_txt)
+        except VersionInvalida as e:
+            _fallar(n, encabezado.find(version_txt) + 1, str(e), literal=True)
+        version = version_txt
+        lineas = lineas[1:]
+        if not lineas:
+            _fallar(n + 1, 1, "encabezado de medida")
+        n, encabezado = lineas[0]
     m_def = DEFMACRO_RE.fullmatch(encabezado)
     if m_def:
         nombre, params_txt = m_def.groups()
@@ -755,7 +782,7 @@ def leer_con_mapa(texto: str) -> Lectura:
             "0": Ubicacion(n, 1),
             "1": Ubicacion(n, encabezado.find(nombre) + 1),
         }
-        return Lectura(datos, ubicaciones)
+        return Lectura(datos, ubicaciones, version)
     m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", encabezado)
     if not m:
         _fallar(n, 1, "encabezado «medida|ninguno|ninguno-par|peor <id>:»", encabezado)
@@ -780,7 +807,7 @@ def leer_con_mapa(texto: str) -> Lectura:
         datos = _macro_ninguno_par(mid, cuerpo, ubicaciones=ubicaciones)
     else:
         datos = _macro_peor(mid, cuerpo, ubicaciones=ubicaciones)
-    return Lectura(datos, ubicaciones)
+    return Lectura(datos, ubicaciones, version)
 
 
 def leer(texto: str) -> list:

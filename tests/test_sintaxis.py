@@ -456,5 +456,92 @@ class ElCatalogoRealEjercitaLosDosLectoresTests(unittest.TestCase):
                 self.assertEqual(cargar_fuente_medida(ruta)[1], ruta.stem)
 
 
+class VersionDeLaSuperficieTests(unittest.TestCase):
+    """La superficie declara contra qué sintaxis se escribió, y cargarla es fail-closed.
+
+    Es el hueco que el álgebra ya cerró, abierto un nivel más arriba: un `.oracle` es un formato
+    GUARDADO, y hasta hoy nada le decía a nadie si un archivo escrito ayer sigue significando lo
+    mismo. La regla de qué sube cada parte del número está en `ESPECIFICACION.md` §0.
+    """
+
+    CUERPO = (
+        'ninguno d.prueba:\n'
+        '    de pieza p\n'
+        '    donde p.x == true\n'
+        '    umbral <= 0 porque "razón"\n'
+        '    alcance "NO ve otros campos"\n'
+    )
+
+    def test_sin_declarar_no_hay_version(self) -> None:
+        self.assertIsNone(sintaxis.leer_con_mapa(self.CUERPO).version)
+
+    def test_el_lector_devuelve_la_version_declarada(self) -> None:
+        lectura = sintaxis.leer_con_mapa("sintaxis 0.1\n" + self.CUERPO)
+        self.assertEqual(lectura.version, "0.1")
+        self.assertEqual(lectura.datos, sintaxis.leer(self.CUERPO))
+
+    def test_la_version_es_superficie_no_un_comentario_pegado_arriba(self) -> None:
+        comentado = sintaxis.leer_con_mapa("# sintaxis 0.1\n" + self.CUERPO)
+        self.assertIsNone(comentado.version)
+        declarado = sintaxis.leer_con_mapa("sintaxis 0.1\n" + self.CUERPO)
+        self.assertEqual(declarado.version, "0.1")
+
+    def test_una_version_mal_formada_falla_cerrado(self) -> None:
+        for mala in ("basura", "0", "0.3.1", "a.b", "01.2", "-1.0"):
+            with self.subTest(mala=mala):
+                with self.assertRaises(sintaxis.ErrorSintaxis) as e:
+                    sintaxis.leer(f"sintaxis {mala}\n" + self.CUERPO)
+                self.assertIn("MAYOR.MENOR", str(e.exception))
+
+    def _cargar(self, declarada):
+        import tempfile
+        from nucleo.medida import cargar
+        prefijo = f"sintaxis {declarada}\n" if declarada is not None else ""
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "d.prueba.oracle"
+            ruta.write_text(prefijo + self.CUERPO, encoding="utf-8")
+            return cargar(ruta)
+
+    def test_sin_declarar_la_misma_y_una_menor_vieja_cargan(self) -> None:
+        self.assertEqual(self._cargar(None).id, "d.prueba")
+        self.assertEqual(self._cargar("0.1").id, "d.prueba")
+        self.assertEqual(self._cargar("0.0").id, "d.prueba")
+
+    def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
+        import tempfile
+        from nucleo.medida import MedidaMalDeclarada, cargar
+        for declarada in ("0.2", "1.0"):
+            with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
+                ruta = Path(d) / "d.prueba.oracle"
+                ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")
+                with self.assertRaises(MedidaMalDeclarada) as ctx:
+                    cargar(ruta)
+                self.assertIn(declarada, str(ctx.exception))
+                self.assertIn("0.1", str(ctx.exception))
+
+    def test_los_34_archivos_que_hoy_no_declaran_version_siguen_cargando(self) -> None:
+        """Esta tarea no obliga a tocar ningún archivo existente: los 34 `.oracle` de hoy no
+        declaran versión y tienen que seguir cargando igual."""
+        from nucleo.macro import cargar_macros
+        del_catalogo = 0
+        for ruta in sintaxis._rutas_catalogo(RAIZ):
+            if ruta.suffix == ".oracle":
+                cargar_fuente_medida(ruta)
+                del_catalogo += 1
+        macros = cargar_macros(RAIZ / "nucleo" / "macros")
+        self.assertEqual(len(macros), 3)
+        self.assertEqual(del_catalogo + len(macros), 34)
+
+    def test_el_verificador_sigue_en_verde_con_33_3_y_16(self) -> None:
+        informe = sintaxis.verificar_catalogo(RAIZ)
+        docs = sintaxis.verificar_documentos(RAIZ)
+        self.assertEqual(informe["medidas"], 33)
+        self.assertEqual(informe["macros"], 3)
+        self.assertEqual(docs["ejecutables"], 16)
+        self.assertTrue(informe["json_igual"])
+        self.assertTrue(informe["texto_igual"])
+        self.assertEqual(docs["fallas"], [])
+
+
 if __name__ == "__main__":
     unittest.main()
