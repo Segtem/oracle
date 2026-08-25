@@ -469,5 +469,152 @@ class ElCatalogoRealEjercitaLosDosLectoresTests(unittest.TestCase):
                 self.assertEqual(cargar_fuente_medida(ruta)[1], ruta.stem)
 
 
+class VersionDeLaSuperficieTests(unittest.TestCase):
+    """La superficie declara contra qué sintaxis se escribió, y cargarla es fail-closed.
+
+    Es el hueco que el álgebra ya cerró, abierto un nivel más arriba: un `.oracle` es un formato
+    GUARDADO, y hasta hoy nada le decía a nadie si un archivo escrito ayer sigue significando lo
+    mismo. La regla de qué sube cada parte del número está en `ESPECIFICACION.md` §0.
+    """
+
+    CUERPO = (
+        'ninguno d.prueba:\n'
+        '    de pieza p\n'
+        '    donde p.x == true\n'
+        '    umbral <= 0 porque "razón"\n'
+        '    alcance "NO ve otros campos"\n'
+    )
+
+    def test_sin_declarar_no_hay_version(self) -> None:
+        self.assertIsNone(sintaxis.leer_con_mapa(self.CUERPO).version)
+
+    def test_el_lector_devuelve_la_version_declarada(self) -> None:
+        lectura = sintaxis.leer_con_mapa("sintaxis 0.1\n" + self.CUERPO)
+        self.assertEqual(lectura.version, "0.1")
+        self.assertEqual(lectura.datos, sintaxis.leer(self.CUERPO))
+
+    def test_la_version_es_superficie_no_un_comentario_pegado_arriba(self) -> None:
+        comentado = sintaxis.leer_con_mapa("# sintaxis 0.1\n" + self.CUERPO)
+        self.assertIsNone(comentado.version)
+        declarado = sintaxis.leer_con_mapa("sintaxis 0.1\n" + self.CUERPO)
+        self.assertEqual(declarado.version, "0.1")
+
+    def test_una_version_mal_formada_falla_cerrado(self) -> None:
+        for mala in ("basura", "0", "0.3.1", "a.b", "01.2", "-1.0"):
+            with self.subTest(mala=mala):
+                with self.assertRaises(sintaxis.ErrorSintaxis) as e:
+                    sintaxis.leer(f"sintaxis {mala}\n" + self.CUERPO)
+                self.assertIn("MAYOR.MENOR", str(e.exception))
+
+    def _cargar(self, declarada):
+        import tempfile
+        from nucleo.medida import cargar
+        prefijo = f"sintaxis {declarada}\n" if declarada is not None else ""
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "d.prueba.oracle"
+            ruta.write_text(prefijo + self.CUERPO, encoding="utf-8")
+            return cargar(ruta)
+
+    def test_sin_declarar_la_misma_y_una_menor_vieja_cargan(self) -> None:
+        self.assertEqual(self._cargar(None).id, "d.prueba")
+        self.assertEqual(self._cargar("0.1").id, "d.prueba")
+        self.assertEqual(self._cargar("0.0").id, "d.prueba")
+
+    def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
+        import tempfile
+        from nucleo.medida import MedidaMalDeclarada, cargar
+        for declarada in ("0.2", "1.0"):
+            with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
+                ruta = Path(d) / "d.prueba.oracle"
+                ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")
+                with self.assertRaises(MedidaMalDeclarada) as ctx:
+                    cargar(ruta)
+                self.assertIn(declarada, str(ctx.exception))
+                self.assertIn("0.1", str(ctx.exception))
+
+    def test_ningun_archivo_existente_tuvo_que_declarar_version(self) -> None:
+        """Poner versión a la superficie no puede obligar a tocar un archivo ya escrito.
+
+        Contado, no escrito: la versión anterior de este test fijaba «34» a mano y se cayó con la
+        primera medida nueva —por el conteo, no por lo que dice medir—. Es el mismo error que tenía
+        `--verificar` con su `== 29`, y en este repositorio ya tiene nombre.
+        """
+        from nucleo.macro import cargar_macros
+
+        en_superficie = [r for r in sintaxis._rutas_catalogo(RAIZ) if r.suffix == ".oracle"]
+        self.assertTrue(en_superficie)
+        sin_declarar = 0
+        for ruta in en_superficie + sintaxis._rutas_macros(RAIZ):
+            texto = ruta.read_text(encoding="utf-8")
+            if not texto.startswith("sintaxis "):
+                sin_declarar += 1
+                cargar_fuente_medida(ruta) if ruta in en_superficie else None
+        self.assertEqual(sin_declarar, len(en_superficie) + len(sintaxis._rutas_macros(RAIZ)),
+                         "algún archivo del árbol quedó obligado a declarar versión")
+        self.assertEqual(len(cargar_macros(RAIZ / "nucleo" / "macros")),
+                         len(sintaxis._rutas_macros(RAIZ)))
+
+    def test_el_verificador_sigue_en_verde_sobre_todo_lo_que_hay(self) -> None:
+        informe = sintaxis.verificar_catalogo(RAIZ)
+        docs = sintaxis.verificar_documentos(RAIZ)
+        self.assertEqual(informe["medidas"], len(sintaxis._rutas_catalogo(RAIZ)))
+        self.assertEqual(informe["macros"], len(sintaxis._rutas_macros(RAIZ)))
+        self.assertGreater(docs["ejecutables"], 0)
+        self.assertTrue(informe["json_igual"])
+        self.assertTrue(informe["texto_igual"])
+        self.assertEqual(docs["fallas"], [])
+
+
+class NingunaEntradaEsFailOpenTests(unittest.TestCase):
+    """Todas las puertas juzgan la versión, no sólo las que cargan un catálogo.
+
+    `leer()` es puro y no juzga —es la decisión correcta y está defendida en su docstring—, pero
+    `tools/sintaxis.py --leer` también carga un archivo, y traducía en silencio, con exit 0, una
+    superficie escrita contra una sintaxis que este núcleo no implementa. Una salida fail-open al
+    lado de dos fail-closed es peor que no tener ninguna: enseña a confiar.
+    """
+
+    FUTURO = ('sintaxis 9.0\n'
+              'ninguno tareas.mide:\n'
+              '    de tarea t\n'
+              '    donde t.vencida == true\n'
+              '    umbral <= 0 porque "una tarea vencida sin dueño no la hace nadie"\n'
+              '    alcance "ve el par vencida+sin-dueño y nada más"\n')
+
+    def _archivo(self, d, nombre="m.oracle"):
+        ruta = pathlib.Path(d) / nombre
+        ruta.write_text(self.FUTURO, encoding="utf-8")
+        return ruta
+
+    def test_el_cli_leer_rechaza_una_sintaxis_que_este_nucleo_no_implementa(self) -> None:
+        import io
+        import tempfile
+        from contextlib import redirect_stdout
+        with tempfile.TemporaryDirectory() as d:
+            salida = io.StringIO()
+            with redirect_stdout(salida):
+                codigo = sintaxis.main(["--leer", str(self._archivo(d))])
+            self.assertEqual(codigo, 1)
+            self.assertIn("9.0", salida.getvalue())
+            self.assertNotIn('"ninguno"', salida.getvalue())
+
+    def test_las_tres_puertas_coinciden(self) -> None:
+        """El catálogo, las macros y el CLI dan el mismo veredicto sobre el mismo archivo."""
+        import io
+        import tempfile
+        from contextlib import redirect_stdout
+
+        from nucleo.macro import MacroMalDeclarada, cargar_macros
+        from nucleo.medida import MedidaMalDeclarada, cargar_fuente_medida
+        with tempfile.TemporaryDirectory() as d:
+            ruta = self._archivo(d)
+            with self.assertRaises(MedidaMalDeclarada):
+                cargar_fuente_medida(ruta)
+            with self.assertRaises(MacroMalDeclarada):
+                cargar_macros(pathlib.Path(d))
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(sintaxis.main(["--leer", str(ruta)]), 1)
+
+
 if __name__ == "__main__":
     unittest.main()

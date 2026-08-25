@@ -143,11 +143,21 @@ def main(argv: list[str] | None = None) -> int:
         if len(argv) != 2:
             print("uso: python tools/sintaxis.py --leer <medida.oracle>")
             return 1
+        # El LECTOR es puro a propósito y no juzga la versión declarada; eso es trabajo del que
+        # carga. Pero esta rama del CLI también carga: sin la comprobación, `--leer` traducía en
+        # silencio —y con exit 0— un archivo escrito contra una sintaxis que este núcleo no
+        # implementa, mientras `cargar_fuente_medida` y `cargar_macros` lo rechazaban. Una salida
+        # fail-open al lado de dos fail-closed es peor que no tener ninguna: enseña a confiar.
+        from nucleo.version import VersionInvalida, exigir_sintaxis_compatible
+
+        texto = Path(argv[1]).read_text(encoding="utf-8")
         try:
-            datos = leer(Path(argv[1]).read_text(encoding="utf-8"))
-        except ErrorSintaxis as e:
-            print(f"✗ {e}")
+            lectura = leer_con_mapa(texto)
+            exigir_sintaxis_compatible(lectura.version)
+        except (ErrorSintaxis, VersionInvalida) as e:
+            print(f"✗ {fragmento_de_error(e, texto)}")
             return 1
+        datos = lectura.datos
         print(json.dumps(datos, ensure_ascii=False, separators=(",", ":")))
         return 0
     if argv[0] == "--verificar":

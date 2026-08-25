@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `4214bf3e4459`
+- Revisión de código base: `9a3d779988c5`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5020 líneas de lenguaje y **230 negativas explícitas** (`raise`).
+En este corte hay 5100 líneas de lenguaje y **235 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -108,7 +108,7 @@ de grave: en un solo día lo cometí tres veces.
 #### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 61 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 42 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 63 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 44 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5020 líneas de lenguaje** (`nucleo/`, código y macros) y **230 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (203 líneas): **24,7 a 1**. 26 de las 33 pasan por una macro.
+**5100 líneas de lenguaje** (`nucleo/`, código y macros) y **235 negativas explícitas** (`raise`). Contra las 34 medidas universales escritas en él (208 líneas): **24,5 a 1**. 27 de las 34 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -403,11 +403,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**90 casos**: 61 defectos y 29 verdes correctos. De los defectos, 58 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 56 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**93 casos**: 63 defectos y 30 verdes correctos. De los defectos, 60 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 58 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-487 tests · 406/406 mutantes de medida · **2041 sitios de mutación de código** (1836 + 205 del motor Python).
+502 tests · 441/441 mutantes de medida · **2054 sitios de mutación de código** (1849 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -645,6 +645,48 @@ pedida. Una implementación de referencia, en cambio, declara contra qué versi�
 arnés del diferencial la compara con la del núcleo antes de emitir un fixture: la referencia se fija
 a una versión **exacta**, porque un agregado puede no romper a un consumidor y sí a un evaluador que
 no conoce el nodo nuevo.
+
+#### La superficie tiene su propia versión
+
+La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
+misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La distinción que importa es entre el
+**lector** y el **impresor**, y no envejecen igual: un archivo `.oracle` viejo se **lee**; el
+impresor no lo toca. Por eso **una sola versión alcanza**, y alcanza porque la comparación es
+asimétrica —el archivo declara contra qué se escribió y el núcleo declara qué implementa—:
+
+- un archivo viejo leído por un núcleo nuevo es compatible si la mayor coincide y la menor del
+  núcleo es al menos la declarada;
+- un archivo nuevo —que usa una palabra nueva— leído por un núcleo viejo falla cerrado, porque el
+  núcleo declara una menor anterior a la que el archivo pide.
+
+No hacen falta dos números: la ida y vuelta lector↔impresor es un invariante interno que
+`sintaxis.py --verificar` comprueba, y el impresor sólo cambia en dos casos —o el lector aprende una
+forma nueva (MENOR), o deja de aceptar una que ya se publicaba (MAYOR)—.
+
+**`MENOR` sube** cuando el lector **gana** una forma sin cambiar el significado de lo que ya valía:
+una palabra nueva que antes era un error de sintaxis, un separador nuevo. Un archivo escrito contra
+la menor anterior se sigue leyendo idéntico.
+
+**`MAYOR` sube** cuando el lector **cambia** lo que ya aceptaba: una forma que hoy se lee pasa a
+significar otra cosa, o pasa a ser un error de lectura. Eso rompe a todo archivo que la use.
+
+Casos concretos:
+
+1. **Agregar una palabra nueva que antes era un error de sintaxis** → **MENOR**. Quien no la usa no
+   se entera; un archivo viejo sigue cargando.
+2. **Cambiar cómo se imprime algo sin cambiar qué se acepta al leer** → **no sube nada**. El archivo
+   viejo se lee igual porque el lector no cambió, y el que el impresor reescribe lo sigue leyendo un
+   lector viejo porque la forma impresa ya era aceptada. (Si el cambio de impresión mete una forma
+   que el lector tiene que aprender, es el caso 1, MENOR; si hace que una forma ya publicada deje de
+   leerse, es MAYOR.)
+3. **Que una forma que hoy se acepta pase a ser un error** → **MAYOR**. Un archivo que la use deja
+   de cargar.
+
+Un `.oracle` puede declarar contra qué versión se escribió, con una primera línea
+`sintaxis MAYOR.MENOR`. Es opcional —los archivos de hoy no la declaran y siguen cargando— y es
+parte de la superficie, no un comentario pegado arriba. Declarar una versión incompatible falla
+cerrado al cargar, con un mensaje que dice las dos versiones. `oracle.json` puede pedir una versión
+de sintaxis (`"sintaxis": "0.1"`) con la misma regla que pide la del álgebra.
 
 ---
 
@@ -1670,6 +1712,40 @@ En qué se expande:
 ]
 ```
 
+#### meta.sintaxis_cubre_algebra
+
+- **mide sobre** la relación `equivalencia`
+- **umbral**: `<= 0`
+- **por qué ese número**: toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información
+- **qué NO ve**: comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 1 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre agrupar con 0 agregados (la sintaxis exige al menos un agregado en el bloque agrupar:), árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.sintaxis_cubre_algebra",
+  "equivalencia",
+  "e",
+  ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_cubre_algebra"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
+  "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información",
+  "comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 1 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre agrupar con 0 agregados (la sintaxis exige al menos un agregado en el bloque agrupar:), árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.sintaxis_cubre_algebra",
+  ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_cubre_algebra"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información"],
+  ["alcance", "comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 1 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre agrupar con 0 agregados (la sintaxis exige al menos un agregado en el bloque agrupar:), árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"]
+]
+```
+
 #### meta.sintaxis_ida_y_vuelta
 
 - **mide sobre** la relación `equivalencia`
@@ -2277,16 +2353,16 @@ medidas, cada caso de defecto tiene que ponerse rojo y cada caso correcto, verde
 
 | Etiqueta | Cuántos |
 |---|---|
-| falso_verde | 56 |
-| verde_correcto | 29 |
+| falso_verde | 58 |
+| verde_correcto | 30 |
 | deuda_de_diseño | 2 |
 | falso_rojo | 2 |
 | medida_correcta_conclusion_errada | 1 |
 
 | Cómo se detectó | Cuántos |
 |---|---|
-| mutacion | 42 |
-| observacion | 29 |
+| mutacion | 44 |
+| observacion | 30 |
 | persona | 12 |
 | accidente | 4 |
 | herramienta_ajena | 3 |
@@ -2979,6 +3055,66 @@ La evidencia, como relaciones:
 ```json
 {
   "equivalencia": [{"propiedad": "sintaxis_ida_y_vuelta", "caso": "solo-veredicto", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_ida_y_vuelta", "caso": "solo-valor", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": false, "mismos_testigos": true}, {"propiedad": "sintaxis_ida_y_vuelta", "caso": "solo-testigos", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
+}
+```
+
+### 124-sintaxis-cubre-algebra-no-vuelve-igual
+
+**Sintaxis generada no vuelve igual**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.sintaxis_cubre_algebra`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Una medida generada a partir de la gramática del álgebra difiere en su AST al volver de la superficie infija: la superficie está perdiendo información o alterando la estructura del operador.
+
+**Qué se aprendió.** La completitud del metalenguaje exige que cualquier construcción válida para el evaluador sea reversible en la sintaxis infija. Si una construcción válida muta o falla al imprimirse, la superficie no es un reflejo fiel del álgebra sino un dialecto restringido.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_cubre_algebra", "caso": "meta_gen.expr_profunda", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "meta_gen.f_de_req0_umb_lte_0", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_ida_y_vuelta", "caso": "catalogo_ok", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 125-sintaxis-cubre-algebra-vuelve-exacta
+
+**Sintaxis generada vuelve exacta**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.sintaxis_cubre_algebra`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Tres medidas generadas por gramática (una con unir encadenado, una con agrupar multiclave y una con predicados anidados) sobreviven la ida y vuelta canónica sin perder veredicto ni valor.
+
+**Qué se aprendió.** Comprobar la reversibilidad sobre medidas sintéticas derivadas de la gramática extiende la garantía de la superficie más allá de las medidas escritas en el catálogo base.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_cubre_algebra", "caso": "meta_gen.f_unir3_req2_umb_lte_0", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "meta_gen.grp_c2_a2_max_min", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "meta_gen.expr_profunda_5", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_ida_y_vuelta", "caso": "catalogo_ok", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 126-sintaxis-cubre-algebra-un-campo-por-vez
+
+**Cada campo del contrato de sintaxis_cubre_algebra falla por separado**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.sintaxis_cubre_algebra`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Cuatro equivalencias de la propiedad sintaxis_cubre_algebra fallando en UN solo campo del contrato: veredicto, valor, testigos o error.
+
+**Qué se aprendió.** Aislar cada campo del contrato en filas separadas es indispensable para matar los mutantes de sustitución en disyunciones lógicas.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_cubre_algebra", "caso": "solo-veredicto", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "solo-valor", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": false, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "solo-testigos", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}, {"propiedad": "sintaxis_cubre_algebra", "caso": "solo-error", "origen": "construido", "evaluo": false, "error": "ErrorSintaxis", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
 }
 ```
 
@@ -4238,7 +4374,7 @@ mundo y no opina; el álgebra opina y no mira el mundo.
 
 ### `nucleo/macro.py`
 
-*321 líneas*
+*328 líneas*
 
 Macros: medidas que escriben medidas — y que ahora se declaran EN DATOS.
 
@@ -4316,7 +4452,7 @@ hasta que `agrupar` exista se rodea así.
 
 ### `nucleo/medida.py`
 
-*614 líneas*
+*620 líneas*
 
 La medida: un dato que se lee, se evalúa y se puede medir a su vez.
 
@@ -4367,7 +4503,7 @@ distintos.
 
 ### `nucleo/proyecto.py`
 
-*428 líneas*
+*443 líneas*
 
 A qué proyecto se le mide. Oracle es la herramienta; el proyecto es de otro.
 
@@ -4431,7 +4567,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*961 líneas*
+*988 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -4440,21 +4576,23 @@ invocaciones de macro que ya viven en el catálogo.
 
 ### `nucleo/version.py`
 
-*64 líneas*
+*89 líneas*
 
-La versión del álgebra que implementa este núcleo, legible por máquina.
+La versión del álgebra y de la superficie que implementa este núcleo, legible por máquina.
 
 `ESPECIFICACION.md` decía «Versión 0.3» en prosa y el núcleo no la conocía: cada extensión del
 lenguaje apagaba un pedazo del diferencial en silencio, porque la implementación de referencia
 estaba escrita contra una versión anterior y nadie lo comprobaba. Este módulo es el lugar único
-donde el dato vive. De acá lo leen dos consumidores:
+donde los datos viven. De acá los leen los consumidores:
 
 - `nucleo/proyecto.py`, para saber si un proyecto pide una versión compatible con la que hay;
-- `tools/generar_diferencial.py`, para saber si la referencia se escribió contra esta versión.
+- `tools/generar_diferencial.py`, para saber si la referencia se escribió contra esta versión;
+- `nucleo/medida.py` y `nucleo/macro.py`, para comprobar que un `.oracle` guardado no declare una
+  sintaxis que este núcleo ya no lee igual.
 
-La regla sobre qué cambio sube qué parte del número está en `ESPECIFICACION.md` §0. Acá sólo vive la
-maquinaria de comparar y de fallar cerrado: un `None` o un `False` silencioso es la forma en que un
-defecto se disfraza de verde.
+La regla sobre qué cambio sube qué parte de cada número está en `ESPECIFICACION.md` §0. Acá sólo
+vive la maquinaria de comparar y de fallar cerrado: un `None` o un `False` silencioso es la forma en
+que un defecto se disfraza de verde.
 
 ---
 
@@ -4609,7 +4747,7 @@ fixtures. Si aparece un hecho nuevo, aparece acá solo.
 
 ### `tools/metamorficas.py`
 
-*240 líneas*
+*441 líneas*
 
 Propiedades metamórficas: dos caminos que tienen que dar lo mismo.
 
@@ -4678,7 +4816,7 @@ Frontera común entre errores de proyecto y los códigos de salida de los entry 
 
 ### `tools/sintaxis.py`
 
-*178 líneas*
+*188 líneas*
 
 CLI para la superficie infija de autoría.
 
@@ -6999,6 +7137,107 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — El catálogo universal se escribe en el lenguaje: 31 de 33 medidas en superficie
+
+*commit 39b54d5*
+
+Hasta acá la superficie infija existía y no era la sintaxis de nada: una sola
+medida estaba escrita en ella. Un lenguaje cuyo propio catálogo no está escrito
+en él no tiene sintaxis, tiene un traductor.
+
+31 de las 33 medidas universales pasan a `.oracle`. Se ven así:
+
+    ninguno meta.ningun_umbral_de_igualdad:
+        de medida m
+        donde m.comparador == "=="
+        umbral <= 0 porque "un umbral `==` no tiene borde útil para la mutación…"
+        alcance "mira sólo el operador final del umbral de cada medida…"
+
+**Dos se dejan en `.json` a propósito, y hay un test que lo exige.** Si migraran
+todas, el camino `.json` de `cargar_catalogo` dejaría de correrse en el catálogo
+real y sólo lo tocarían los temporales de la suite; el día que se rompiera, se
+enterarían Jam o LyraGASP —que guardan sus 50 medidas en `.json`— y no este
+repositorio.
+
+## Diez tests apuntaban al formato sin querer
+
+`catalogos/meta/meta.donde_compone.json` escrito a mano en el test. Al migrar
+fallaron los diez POR EL RENOMBRE, no por lo que dicen medir. Se agrega
+`ruta_de_medida(mid)` —la medida por su id, en el formato en que esté— y los
+tests que leían con `json.loads` pasan al lector común. Un test que se cae
+cuando cambia el formato de almacenamiento está acoplado a él sin querer.
+
+## Y la proporción se movió sola, que es lo importante de este commit
+
+**16,8 → 24,7** sin que el lenguaje ganara una capacidad ni las medidas
+perdieran una regla. Las mismas 33 medidas bajaron de 298 líneas a 203, porque
+la superficie es más compacta que el JSON compacto.
+
+Es la misma familia que el hallazgo de `indent=2`, que infló la proporción
+reformateando archivos: **mientras el denominador se cuente en LÍNEAS, cambiar
+cómo se escribe una medida mueve la cifra sin que cambie nada de lo que la cifra
+dice medir.** Y acá compone en las dos direcciones a la vez — tener sintaxis
+suma ~900 líneas al numerador Y acorta el denominador.
+
+Queda publicado en el README como defecto ABIERTO de la métrica, y no se
+arregla en este commit a propósito: cualquier arreglo bajaría el costo
+publicado, y una métrica no se cambia en el mismo movimiento en que su resultado
+incomoda. El número de hoy no se compara con el de ayer, y el README lo dice.
+
+487 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS 33 medidas + 3 macros + 16 bloques de documentación
+MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — La superficie deja de creerle al catálogo: una propiedad sobre el álgebra generada
+
+*commit 9a3d779*
+
+`--verificar` decía «33 medidas, ida y vuelta OK» y eso probaba que la superficie
+anda sobre LO QUE HAY ESCRITO — 33 medidas de un solo autor. No probaba que ande
+sobre lo que el álgebra ACEPTA. Las construcciones que a ese autor no se le
+ocurrieron nunca pasaron por el impresor.
+
+`meta.sintaxis_cubre_algebra` cierra eso: un generador derivado de la gramática
+—no una lista escrita a mano, que es el mismo problema una capa más arriba—
+produce 94 medidas válidas y exige que imprimir, releer y reimprimir dé
+exactamente lo mismo. Cubre `unir` encadenado hasta tres niveles, los seis
+comparadores, los tres accesores, `y`/`o`/`no` anidados hasta profundidad 5,
+`agrupar` con 0-2 claves y 1-2 agregados, los cinco agregados de `resumen`,
+`requiere` con 0-2 relaciones, y los literales. Lo que NO cubre está escrito en
+su `alcance`, que es donde va.
+
+## Lo que encontró, reproducido acá antes de integrarlo
+
+Rompiendo el impresor a propósito —que `<` se imprima como `<=`—:
+
+    tools/sintaxis.py --verificar        33 medidas + 3 macros · ida OK · exit 0
+    meta.sintaxis_ida_y_vuelta           ✓ verde
+    meta.sintaxis_cubre_algebra          ✗ ROJO — 13 violaciones
+
+**El aparato entero de verificación de la superficie era ciego a eso**, porque
+ninguna medida del catálogo usa un `<` pelado en un `donde`. El agujero tenía
+exactamente el tamaño de «las construcciones que nadie escribió», que es el modo
+de falla que este repositorio existe para no tener y que ya había aparecido en el
+diferencial vacío.
+
+Tres casos de corpus en vez de dos, y la razón es buena: la medida disyunta sobre
+cuatro condiciones, así que un solo rojo con todo fallando junto deja vivos cuatro
+mutantes de reemplazo de campo. El caso `126` aísla cada rama —la misma lección
+que los casos 108-111 y 123.
+
+Trabajo delegado a Gemini 3.7 Flash (high). El experimento de rotura lo reproduje
+por mi cuenta antes de integrar: no lo tomé de su informe.
+
+488 tests OK · CIFRAS · CORPUS (93 casos) · ACEPTACIÓN · DIFERENCIAL · TRAZAR
+METAMÓRFICAS 213 equivalencias · SINTAXIS 34 medidas + 3 macros + 16 bloques
+MUTACIÓN 441/441 — 1582 detecciones, 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7007,14 +7246,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 4586 | el lenguaje |
-| líneas de medidas escritas en él | 203 | lo escrito en el lenguaje |
-| proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 208 | su naturaleza es rechazar, no medir |
-| medidas | 33 | de las cuales 21 miden el lenguaje mismo |
-| casos de corpus | 90 | fallas reales, con su evidencia |
-| commits | 86 | el historial completo |
+| líneas del núcleo | 4666 | el lenguaje |
+| líneas de medidas escritas en él | 208 | lo escrito en el lenguaje |
+| proporción | 22 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 25 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 213 | su naturaleza es rechazar, no medir |
+| medidas | 34 | de las cuales 22 miden el lenguaje mismo |
+| casos de corpus | 93 | fallas reales, con su evidencia |
+| commits | 88 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

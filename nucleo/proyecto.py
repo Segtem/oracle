@@ -28,7 +28,8 @@ from contextlib import contextmanager
 from dataclasses import dataclass
 from pathlib import Path
 
-from .version import VersionInvalida, compatible, del_nucleo, parsear
+from .version import (VersionInvalida, compatible, del_nucleo, del_nucleo_sintaxis,
+                      parsear)
 
 RAIZ_ORACLE = Path(__file__).resolve().parents[1]
 
@@ -168,6 +169,20 @@ def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProye
             raise ProyectoInvalido(
                 f"`oracle.json` pide el álgebra {necesitada} y este núcleo implementa {disponible}; "
                 "un proyecto que declara una versión incompatible no se evalúa")
+    # Igual que el álgebra: un proyecto puede declarar qué versión de la SUPERFICIE necesita. Es
+    # OPCIONAL y comparte la misma regla de compatibilidad — misma MAYOR y MENOR al menos tan nueva
+    # como la pedida—. Quien no la declara sigue funcionando.
+    sintaxis = datos.get("sintaxis")
+    if sintaxis is not None:
+        try:
+            necesitada = parsear(sintaxis)
+        except VersionInvalida as e:
+            raise ProyectoInvalido(f"`oracle.json`: {e}") from e
+        disponible = del_nucleo_sintaxis()
+        if not compatible(necesitada, disponible):
+            raise ProyectoInvalido(
+                f"`oracle.json` pide la sintaxis {necesitada} y este núcleo implementa "
+                f"{disponible}; un proyecto que declara una versión incompatible no se evalúa")
     return ConfiguracionProyecto(tuple(perfiles), catalogo_base)
 
 

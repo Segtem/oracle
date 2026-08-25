@@ -47,6 +47,48 @@ arnés del diferencial la compara con la del núcleo antes de emitir un fixture:
 a una versión **exacta**, porque un agregado puede no romper a un consumidor y sí a un evaluador que
 no conoce el nodo nuevo.
 
+### La superficie tiene su propia versión
+
+La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
+misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La distinción que importa es entre el
+**lector** y el **impresor**, y no envejecen igual: un archivo `.oracle` viejo se **lee**; el
+impresor no lo toca. Por eso **una sola versión alcanza**, y alcanza porque la comparación es
+asimétrica —el archivo declara contra qué se escribió y el núcleo declara qué implementa—:
+
+- un archivo viejo leído por un núcleo nuevo es compatible si la mayor coincide y la menor del
+  núcleo es al menos la declarada;
+- un archivo nuevo —que usa una palabra nueva— leído por un núcleo viejo falla cerrado, porque el
+  núcleo declara una menor anterior a la que el archivo pide.
+
+No hacen falta dos números: la ida y vuelta lector↔impresor es un invariante interno que
+`sintaxis.py --verificar` comprueba, y el impresor sólo cambia en dos casos —o el lector aprende una
+forma nueva (MENOR), o deja de aceptar una que ya se publicaba (MAYOR)—.
+
+**`MENOR` sube** cuando el lector **gana** una forma sin cambiar el significado de lo que ya valía:
+una palabra nueva que antes era un error de sintaxis, un separador nuevo. Un archivo escrito contra
+la menor anterior se sigue leyendo idéntico.
+
+**`MAYOR` sube** cuando el lector **cambia** lo que ya aceptaba: una forma que hoy se lee pasa a
+significar otra cosa, o pasa a ser un error de lectura. Eso rompe a todo archivo que la use.
+
+Casos concretos:
+
+1. **Agregar una palabra nueva que antes era un error de sintaxis** → **MENOR**. Quien no la usa no
+   se entera; un archivo viejo sigue cargando.
+2. **Cambiar cómo se imprime algo sin cambiar qué se acepta al leer** → **no sube nada**. El archivo
+   viejo se lee igual porque el lector no cambió, y el que el impresor reescribe lo sigue leyendo un
+   lector viejo porque la forma impresa ya era aceptada. (Si el cambio de impresión mete una forma
+   que el lector tiene que aprender, es el caso 1, MENOR; si hace que una forma ya publicada deje de
+   leerse, es MAYOR.)
+3. **Que una forma que hoy se acepta pase a ser un error** → **MAYOR**. Un archivo que la use deja
+   de cargar.
+
+Un `.oracle` puede declarar contra qué versión se escribió, con una primera línea
+`sintaxis MAYOR.MENOR`. Es opcional —los archivos de hoy no la declaran y siguen cargando— y es
+parte de la superficie, no un comentario pegado arriba. Declarar una versión incompatible falla
+cerrado al cargar, con un mensaje que dice las dos versiones. `oracle.json` puede pedir una versión
+de sintaxis (`"sintaxis": "0.1"`) con la misma regla que pide la del álgebra.
+
 ---
 
 ## 1. Hechos y relaciones (L0)
