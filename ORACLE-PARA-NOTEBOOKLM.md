@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `db5f23704031`
+- Revisión de código base: `6e220a20dcd9`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -8066,6 +8066,52 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit db5f237*
 
+
+
+## 2026-08-25 — Merge branch 'juzga-codigo': alguien juzga por fin los sobrevivientes de la mutación de código
+
+*commit 6e220a2*
+
+El proyecto tiene dos mutaciones. La de MEDIDAS la juzga
+`proceso.test_con_mutante_que_lo_mata`. La de CÓDIGO no la juzgaba nadie:
+
+    mutantes: 193 · murieron 136 · sobrevivieron 57
+      ✓ proceso.ronda_mutacion_concluyente     0 (<= 0)
+      ✓ proceso.arnes_con_bytecode_frio        0 (<= 0)
+      1 medida(s) NO pudieron juzgar esta evidencia
+
+**Dos verdes y 57 agujeros adentro.** Las dos que aplicaban comprueban que la
+ronda fue CONCLUYENTE —que no hubo timeouts ni errores de arnés—, que es una
+condición previa y no el resultado. La medida escrita para contar sobrevivientes
+pide `detecciones_conductuales`, un campo que sólo tienen los mutantes de medida.
+
+`proceso.codigo_con_mutante_que_lo_mata` cuenta los que pasaron la suite sin estar
+declarados equivalentes. Verificada contra la evidencia REAL de una ronda, no
+contra una sintética:
+
+    ronda real (193 mutantes)      → ROJO, valor 61
+    ronda sin sobrevivientes       → verde
+    todos declarados equivalentes  → verde
+    ronda vacía                    → SIN EVIDENCIA
+
+Ese último renglón es el caso `019` del corpus: una ronda sin mutantes declarada
+verde. Lo cierra `requiere`.
+
+Cinco casos en las dos polaridades, incluido uno que fija que un equivalente
+declarado **con su razón escrita** no es ni muerte ni sobreviviente: es una
+decisión.
+
+Trabajo delegado a Gemini 3.7 Flash (high). Espejó además en `tools/mutar.py` el
+mismo arreglo que hice en `mutar_codigo.py` —evaluar cada medida sin atajar nada
+terminaba la ronda en un traceback— y tiene razón: era la misma falla en la otra
+mitad.
+
+528 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8081,7 +8127,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 109 | el historial completo |
+| commits | 110 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

@@ -379,6 +379,52 @@ casi seguro no es independiente — miró algo que no debía.
 
 ---
 
+## (f) La superficie infija — HECHO el 2026-08-25
+
+Este plan no lo preveía. Salió de una pregunta directa —«¿por qué frenamos en el AST?»— y en dos
+días cambió qué cosa es Oracle: pasó de un formato de datos con un traductor al costado a un
+lenguaje que se escribe.
+
+    ninguno meta.ningun_umbral_de_igualdad:        caso 309-una-traza-con-un-hueco:
+        de medida m                                    etiqueta: falso_verde
+        donde m.comparador == "=="                     medida: simulacion.la_traza_no_tiene_huecos
+        umbral <= 0 porque "…"                         evidencia:
+        alcance "…"                                        evento: corrida, t, actor, que
+                                                               "r1", 0, "trabajo", "empieza"
+
+**Qué entró**, en orden:
+
+| | dónde |
+|---|---|
+| medidas y macros en superficie | `.oracle`, cargado por `nucleo/medida.py` y `nucleo/macro.py` |
+| casos del corpus en superficie | `.caso`, `nucleo/caso.py` |
+| gramática de id, una sola y ASCII | `ID_MEDIDA_RE` / `ID_CASO_RE` en `nucleo/proyecto.py` |
+| versión del lenguaje | `VERSION_SINTAXIS`, con su regla en `ESPECIFICACION.md §0` |
+| andamio | `medida.py --nueva` y `corpus.py --nuevo`, los dos entregan superficie |
+| documentación verificada mecánicamente | cada bloque ` ```oracle ` y ` ```caso ` lee y vuelve |
+
+**Lo que costó, dicho:** el corpus bajó de 3300 líneas a 1823 y el núcleo subió ~1400. La proporción
+publicada pasó de 13,0 a más de 26 a 1 — y buena parte de ese salto es **formato**, no lenguaje: las
+mismas 33 medidas bajaron de 298 a 203 líneas por escribirse de otra manera. Está anotado en el
+README como defecto ABIERTO de la métrica y no se arregló, porque arreglarlo bajaría el costo
+publicado y una métrica no se cambia en el movimiento en que su resultado incomoda.
+
+**Lo que enseñó, y vale más que la superficie:** dos veces se coló una regla derivada de un solo
+catálogo.
+
+- `--verificar` decía «33 medidas, ida y vuelta OK» y eso probaba que la superficie anda sobre lo que
+  UN autor escribió. Rompiendo el impresor a propósito —que `<` se imprima como `<=`— el verificador
+  entero salía en verde: ninguna medida del catálogo usa un `<` pelado. Lo cerró
+  `meta.sintaxis_cubre_algebra`, sobre medidas generadas de la gramática.
+- `ID_CASO_RE` entró como `^[0-9]{3}-…` porque así se llaman los casos de acá, y **rechazaba 9 casos
+  de un consumidor real** que numera por dominio. No lo vio ninguna verificación propia: se vio al
+  correr Oracle contra un catálogo ajeno.
+
+Las dos son la misma falla con distinto disfraz, y es la que las auditorías vienen marcando: **una
+regla derivada del único catálogo que uno escribió describe al autor, no al lenguaje.**
+
+---
+
 ## Orden y criterio global
 
 1. ~~**(d)**~~ **HECHO el 2026-08-03.** Baseline restaurado; 158 errores de arnés → 0.
@@ -396,7 +442,9 @@ casi seguro no es independiente — miró algo que no debía.
    esos desacuerdos era un defecto real de `nucleo/`: los lógicos cortocircuitaban, así que un campo
    mal escrito dentro de un `y` devolvía un `False` silencioso — el verde que §3 prohíbe.
 
-5. **(e.1)** — propiedades metamórficas. **PARCIAL al 2026-08-24**, y conviene el detalle:
+5. **(e.1)** — propiedades metamórficas. **CERRADO el 2026-08-25**: son ocho, no cinco. Las cuatro
+   que faltaban entraron, y encima se sumaron cuatro que la lista original no preveía —tres las pidió
+   la traza y una la superficie—. El detalle histórico de cuando estaba a medias:
    de las cinco listadas arriba está implementada **una** —«`contar` después de `donde` ≤ `contar`
    antes», como `meta.donde_nunca_agrega_filas`—. Las otras cuatro siguen pendientes: la composición
    de dos `donde`, la conmutatividad de `unir`, `agrupar` sin claves ≡ el resumen global, y la
@@ -434,3 +482,19 @@ Oracle.** El criterio es mecánico y no admite interpretación —
 
 Anotar la proporción antes de empezar con Jam y volver a mirarla después. Es la única medición del
 proyecto que no se puede sastrear escribiendo más medidas.
+
+**Medido el 2026-08-25, y el criterio se cumplió.** Dos consumidores conectados —Jam y LyraGASP— y
+**ni una línea de `nucleo/algebra.py` tocada para que entraran**. La apuesta va ganando en el único
+eje que declaró.
+
+Lo que sí pasó, y es mejor que el número: **una medida universal juzgó un catálogo que su autor no
+escribió y encontró algo real.** `meta.toda_medida_filtra_o_agrupa` denunció tres medidas de Jam sin
+`donde` ni `agrupar`; la consecuencia es concreta y se midió —un rojo entregaba como testigos las
+tres filas, incluidas las dos que no ofendían, en vez de la que falló—. Arreglarlas destapó dos cosas
+más: que `snap.al_ras` daba **verde sobre cero piezas** —el falso verde de la ausencia, cerrado con
+`requiere`— y que el corpus de Jam tenía **cero casos `verde_correcto`**, así que un falso rojo era
+literalmente invisible ahí adentro.
+
+Ésa es la primera evidencia de que el metalenguaje sirve para alguien que no es su autor. Sigue en
+pie el punto abierto de las auditorías —**nadie más que el autor escribió una medida**— pero ahora
+hay una diferencia: la herramienta ya le dijo algo que no sabía a un proyecto que no la escribió.
