@@ -291,7 +291,9 @@ def documento_unico(docs: dict[str, str], *, extras=None) -> str:
         declarados = (
             ("09-decision-relaciones-como-bolsas.md", "DECISION-001-RELACIONES-COMO-BOLSAS.md"),
             ("10-decision-sin-composicion.md", "DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md"),
-            ("11-plan-de-correccion.md", "PLAN-CORRECCION.md"),
+            ("11-decision-sin-parametros-opcionales.md",
+             "DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md"),
+            ("12-plan-de-correccion.md", "PLAN-CORRECCION.md"),
         )
         faltan = [origen for _n, origen in declarados if not (RAIZ / origen).exists()]
         if faltan:

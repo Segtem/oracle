@@ -200,6 +200,13 @@ vacío, así que sin guarda el lenguaje se quedaba sin `ninguno` **en silencio**
 **El riesgo que este plan anotaba quedó cubierto:** una macro no puede esconder un umbral sin defensa,
 porque `Medida.de_datos` valida **después** de expandir, no antes.
 
+**Lo que NO entró, y quedó decidido:** parámetros opcionales con valor por defecto. Se implementaron
+(+23 líneas de núcleo) y se revirtieron el 2026-08-24 —
+[`DECISION-003`](DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md). Eran el primer eslabón de
+una cadena de tres (faltaban splice y omisión condicional, unas 50-70 líneas más) y el caso que los
+motivaba —que `ninguno` emitiera `requiere`— se cubre hoy con **cero líneas de núcleo**, en una macro
+hermana de aridad fija. `defmacro` sigue teniendo aridad fija y sin defaults.
+
 </details>
 
 ---
