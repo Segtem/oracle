@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `a5736852a7a9`
+- Revisión de código base: `f623d0c9ee66`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -428,6 +428,29 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 > el *descubrimiento* de la suite, y el arnés reportaba «error» donde había un test capaz de matarlo.
 > Con eso corregido, 158 → **0**. La tentación era contar un `ImportError` como muerte; habría
 > acreditado cobertura real por el motivo equivocado y el hueco seguiría ahí.
+
+> ⚠️ **Esa foto es del 2026-08-03 y hoy no vale. Medido el 2026-08-25.** El núcleo creció de ~2900
+> a más de 5500 líneas —la superficie infija y la del corpus son casi 1400 de ellas— y ese código
+> **nunca se había mutado**. Cuando se intentó, aparecieron tres cosas, en este orden:
+>
+> 1. **La ronda no arrancaba.** La línea base salía roja porque un test le preguntaba a git, y el
+>    arnés copia el proyecto sin `.git` a propósito. Ninguna ronda era reproducible, así que el
+>    «cero sobrevivientes» de arriba no se podía volver a obtener.
+> 2. **Con eso arreglado, la ronda crasheaba** con un traceback de Python en vez de un veredicto: su
+>    contrato dice «1 si sobrevivió alguno, 2 si fue inconclusa», y un traceback no es ninguno.
+> 3. **Con eso arreglado, 51 de 193 mutantes salían «error de arnés»** —no muertos, no vivos— porque
+>    `ErrorSintaxis` es un `dataclass(frozen=True)` y eso congelaba también `__traceback__`: el tipo
+>    de error del lenguaje no se podía re-lanzar desde Python.
+>
+> Recién la cuarta corrida fue concluyente, y dijo lo que había que decir:
+> **193 mutantes · 136 muertos · 57 sobrevivientes · 0 timeouts · 0 errores de arnés**, todos en
+> `nucleo/caso.py`. Son 38 constantes de posición, 9 comparadores de borde, 8 booleanos y 2 retornos
+> — o sea: la superficie promete decir «archivo, línea y columna» y nada fija que la posición sea la
+> correcta.
+>
+> Se deja escrito así, con el número feo a la vista, porque la alternativa era dejar arriba una
+> afirmación verde de hace tres semanas sobre un código que en su mayoría todavía no existía. **Una
+> cifra que no se puede volver a obtener no es una medición, es un recuerdo.**
 
 #### Tres dominios, un álgebra
 
@@ -7843,6 +7866,36 @@ SINTAXIS · MUTACIÓN de medidas 535/535 — 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — La gramática del id de un caso describía a ESTE catálogo, no al lenguaje
+
+*commit f623d0c*
+
+`ID_CASO_RE` entró como `^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$` porque así se llaman
+los casos de este repositorio: tres dígitos, un guion, palabras.
+
+Un consumidor real numera por dominio —`scatter-004-coberturas-distintas`,
+`physics-tanda-001-…`— y **9 de sus casos dejaban de cargar**. La regresión no la
+vio ninguna verificación de acá: se vio al correr el Oracle nuevo contra un
+catálogo ajeno.
+
+Es la misma trampa que la superficie tenía hasta anteayer, con otro disfraz:
+derivar una regla del único catálogo que uno escribió describe al autor, no al
+lenguaje. Y es exactamente el punto que las auditorías vienen marcando —que nadie
+más que el autor escribió una medida—, apareciendo como un defecto concreto en vez
+de como una observación.
+
+La gramática ahora exige lo que hace falta para que un id sea portable y ordenable
+y nada más: minúsculas ASCII, dígitos y guiones simples, con al menos un número
+adentro. Sigue rechazando `002-vencida-con-dueño`, `Caso-001`, `sin-numero`,
+`doble--guion` y `con_guion_bajo`. Hay un test que carga los ids del consumidor
+para que la gramática no se vuelva a angostar sola.
+
+528 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 535/535 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7858,7 +7911,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
 | medidas | 36 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 99 | fallas reales, con su evidencia |
-| commits | 104 | el historial completo |
+| commits | 105 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
