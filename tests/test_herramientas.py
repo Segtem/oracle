@@ -1185,6 +1185,16 @@ class VersionDelAlgebra(unittest.TestCase):
                 with self.assertRaises(VersionInvalida):
                     parsear(malo)
 
+    def test_version_es_inmutable(self) -> None:
+        from dataclasses import FrozenInstanceError
+        from nucleo.version import Version
+
+        v = Version(1, 2)
+        with self.assertRaises(FrozenInstanceError):
+            v.mayor = 3
+        with self.assertRaises(FrozenInstanceError):
+            v.menor = 4
+
     def test_compatible_exige_la_misma_mayor_y_menor_al_menos_pedida(self) -> None:
         from nucleo.version import compatible, parsear
 
@@ -1193,6 +1203,8 @@ class VersionDelAlgebra(unittest.TestCase):
         self.assertTrue(compatible(parsear("0.3"), parsear("0.4")))
         self.assertFalse(compatible(parsear("0.4"), parsear("0.3")))
         self.assertFalse(compatible(parsear("1.0"), parsear("0.9")))
+        self.assertFalse(compatible(parsear("0.9"), parsear("1.0")))
+
 
 
 class VersionDelProyecto(unittest.TestCase):

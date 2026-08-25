@@ -268,6 +268,17 @@ class DeclaracionTests(unittest.TestCase):
             registro = cargar_macros([Path(a), Path(b)])
         self.assertEqual(sorted(registro), ["otra", "una"])
 
+    def test_cargar_macros_ignora_archivos_sin_extension_declarada_y_subdirectorios(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            (base / "valida.json").write_text(
+                json.dumps(self._macro(nombre="valida")), encoding="utf-8")
+            (base / "ignorado.txt").write_text("no es macro", encoding="utf-8")
+            (base / "carpeta.json").mkdir()
+            registro = cargar_macros(base)
+            self.assertEqual(list(registro.keys()), ["valida"])
+
+
     def test_una_cabeza_que_no_es_texto_no_es_macro_y_no_revienta(self) -> None:
         """`["x", …] in registro` explota si la cabeza no es hasheable. Preguntar por el tipo tiene
         que ir ANTES de preguntar por la pertenencia."""
