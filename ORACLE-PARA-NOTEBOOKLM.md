@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `c35c9d6f350e`
+- Revisión de código base: `21addec1cea9`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5606 líneas de lenguaje y **255 negativas explícitas** (`raise`).
+En este corte hay 5649 líneas de lenguaje y **256 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **24,9 a 1**. 29 de las 37 pasan por una macro.
+**5649 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,1 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-535 tests · 547/547 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
+541 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4617,7 +4617,7 @@ Los docstrings enteros: ahí vive el razonamiento y las decisiones descartadas, 
 
 ### `nucleo/algebra.py`
 
-*872 líneas*
+*884 líneas*
 
 El álgebra: relaciones, expresiones y los operadores. Sin dependencias.
 
@@ -4916,7 +4916,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*1026 líneas*
+*1057 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -8238,6 +8238,61 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit c35c9d6*
 
+
+
+## 2026-08-25 — Merge branch 'mutar-version': `version.py` y `macro.py`, fijados
+
+*commit 4402896*
+
+Dos archivos que la mutación de código nunca había tocado. `version.py` es
+enteramente nuevo —gobierna si un `oracle.json` puede pedir un álgebra que este
+núcleo no implementa, y si un `.oracle` escrito contra otra versión de la
+superficie carga— y `macro.py` cambió 80 líneas en tres días.
+
+    nucleo/version.py    15 mutantes · 15 muertos · 0 sobrevivientes
+    nucleo/macro.py      85 mutantes · 85 muertos · 0 sobrevivientes
+
+Sólo dos sobrevivientes en total, los dos por falta de test, ninguno equivalente,
+ningún bug:
+
+  · `@dataclass(frozen=True)` → `False` en `Version`: nada ejercitaba la
+    inmutabilidad de la clase.
+  · `x.suffix in EXTENSIONES_DE_MACRO and x.is_file()` → `or` en `cargar_macros`:
+    ningún test pasaba un directorio con archivos de otra extensión ni un
+    subdirectorio con nombre de macro.
+
+**Y mi predicción falló, que es lo que hay que decir.** Al encargar la tarea
+apunté a las comparaciones de borde de `version.py` —`MAYOR` igual, `MENOR` mayor
+o igual— porque ahí un `>=` mutado a `>` deja pasar exactamente una versión. No
+sobrevivió ninguna: los tests de compatibilidad ya estaban pegados al límite. La
+zona que yo señalé como frágil era la más firme del archivo.
+
+Corrí la ronda de `version.py` por mi cuenta antes de integrar: mismo resultado.
+
+Trabajo delegado a Gemini 3.7 Flash (high).
+
+535 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de código: version 15/15 · macro 85/85 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — fijar rutas del algebra: 17 mutantes muertos por tests y 4 equivalentes declarados
+
+*commit 5d713a9*
+
+
+
+## 2026-08-25 — wip: ruta del de
+
+*commit 994eca6*
+
+
+
+## 2026-08-25 — Merge branch 'mutar-algebra' into ruta-de
+
+*commit 21addec*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8246,14 +8301,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5172 | el lenguaje |
+| líneas del núcleo | 5215 | el lenguaje |
 | líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
 | proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
 | (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
+| negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 119 | el historial completo |
+| commits | 123 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
