@@ -41,16 +41,15 @@ from tools.sesion import resolver_cli  # noqa: E402
 
 # La plantilla usa la macro `ninguno`, que es la forma del 80% de las medidas. `--expandir` muestra
 # en qué se convierte; y si el caso no encaja, la forma canónica sigue siendo válida.
+# En superficie infija, no en JSON. La plantilla es lo primero que ve alguien que escribe su primera
+# medida, y hasta hoy le decía «tu trabajo es anidar corchetes». Se guarda como `.oracle`, que el
+# catálogo carga igual que un `.json`.
 PLANTILLA = """\
-[
-  "ninguno",
-  "{mid}",
-  "RELACION",
-  "x",
-  ["==", ["campo", "x", "CAMPO"], false],
-  "POR QUE ese numero y no otro. Un umbral sin defensa es una metrica esperando a volverse objetivo.",
-  "QUE NO VE esta medida. Obligatorio: un verde que no dice lo que no mira se lee como «esta bien»."
-]
+ninguno {mid}:
+    de RELACION x
+    donde x.CAMPO == false
+    umbral <= 0 porque "POR QUE ese numero y no otro. Un umbral sin defensa es una metrica esperando a volverse objetivo."
+    alcance "QUE NO VE esta medida. Obligatorio: un verde que no dice lo que no mira se lee como «esta bien»."
 """
 
 

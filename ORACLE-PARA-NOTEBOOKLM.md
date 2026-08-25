@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-24`
-- Revisión de código base: `96330578c009`
+- Revisión de código base: `151ad8ce004a`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 3933 líneas de lenguaje y **206 negativas explícitas** (`raise`).
+En este corte hay 4783 líneas de lenguaje y **226 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**3933 líneas de lenguaje** (`nucleo/`, código y macros) y **206 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (302 líneas): **13,0 a 1**. 26 de las 33 pasan por una macro.
+**4783 líneas de lenguaje** (`nucleo/`, código y macros) y **226 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (298 líneas): **16,1 a 1**. 26 de las 33 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -396,7 +396,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-456 tests · 406/406 mutantes de medida · **1404 sitios de mutación de código** (1199 + 205 del motor Python).
+472 tests · 406/406 mutantes de medida · **1910 sitios de mutación de código** (1705 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -1011,21 +1011,30 @@ escribir medidas directamente en la superficie infija.
 python tools/medida.py --relaciones     # los hechos y sus campos, derivados de la evidencia real
 python tools/medida.py --escalares      # las funciones de dominio, operadores y agregados
 
-# 3. la medida (la escribís en superficie infija y la traducís al JSON de almacenamiento)
-python tools/sintaxis.py --leer medida.oracle > catalogos/colocacion/colocacion.mi_regla.json
-python tools/medida.py catalogos/colocacion/colocacion.mi_regla.json
+# 3. la medida: el andamio ya nace en superficie infija, y el catálogo lo carga tal cual
+python tools/medida.py --nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
+python tools/medida.py catalogos/colocacion/colocacion.mi_regla.oracle
 
 # 4. que todo siga cerrando
 python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
-#### De la superficie al almacenamiento: `tools/sintaxis.py`
+#### Los dos formatos del catálogo
 
-Para pasar de un formato al otro tenés dos comandos:
+El catálogo carga **`.oracle` y `.json` por igual**: una medida en superficie infija no necesita
+traducirse a nada para funcionar. El mismo id en los dos formatos es un error que nombra los dos
+archivos — no gana ninguno, porque un ganador silencioso es una divergencia esperando.
 
-- `python tools/sintaxis.py --imprimir <archivo.json>`: lee el JSON de almacenamiento e imprime la superficie infija legible.
-- `python tools/sintaxis.py --leer <archivo.oracle>`: lee la superficie infija y emite el JSON que se guarda en el catálogo.
+- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio, ya en superficie.
+- `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
+- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso, si alguna vez lo necesitás.
+
+El id tiene gramática cerrada y **ASCII**: `dominio.nombre`, minúsculas, dígitos y `_`. No es que el
+proyecto no sea en español —la prosa de `porque` y de `alcance` lo es entera—: es que el id es
+también un nombre de archivo, y en Unicode `dueño` puede ser dos secuencias de bytes distintas que se
+dibujan idénticas (NFC contra NFD). Dos ids que nadie puede distinguir mirando son una divergencia
+silenciosa, y eso se cierra por gramática.
 
 #### Frontera de confianza
 
@@ -1081,7 +1090,7 @@ Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue sien
 
 ### La forma canónica
 
-```oracle
+```oracle-gramatica
 medida dominio.nombre:
     de relacion x
     donde <lo que OFENDE>
@@ -4296,7 +4305,7 @@ hasta que `agrupar` exista se rodea así.
 
 ### `nucleo/medida.py`
 
-*526 líneas*
+*599 líneas*
 
 La medida: un dato que se lee, se evalúa y se puede medir a su vez.
 
@@ -4347,7 +4356,7 @@ distintos.
 
 ### `nucleo/proyecto.py`
 
-*407 líneas*
+*428 líneas*
 
 A qué proyecto se le mide. Oracle es la herramienta; el proyecto es de otro.
 
@@ -4409,6 +4418,15 @@ significar algo. Así que **cada corrida se ejecuta dos veces con la misma semil
 son idénticas, `determinista` sale `false` — un hecho más, que juzga una medida. No es una promesa del
 docstring: es evidencia.
 
+### `nucleo/sintaxis.py`
+
+*756 líneas*
+
+Superficie infija de autoría para medidas.
+
+El lector devuelve la misma forma de almacenamiento que recibió el impresor, incluidas las
+invocaciones de macro que ya viven en el catálogo.
+
 ### `nucleo/version.py`
 
 *64 líneas*
@@ -4458,7 +4476,7 @@ Sale != 0 si algún caso que debía ponerse rojo salió verde.
 
 ### `tools/cifras.py`
 
-*262 líneas*
+*267 líneas*
 
 Genera y comprueba las cifras publicadas en el README de Oracle.
 
@@ -4531,8 +4549,8 @@ se explica solo.
 Tres cosas que no son «copiar y pegar», y son la razón de que esto sea un generador y no una carpeta
 mantenida a mano:
 
-  1. **el catálogo y el corpus son JSON**, y crudos se leen mal. Acá salen como prosa y tablas, con la
-     medida expandida a su forma canónica al lado de cómo está escrita.
+  1. **el catálogo y el corpus son datos**, y crudos se leen mal. Acá salen como prosa y tablas, con
+     la medida expandida a su forma canónica al lado de cómo está escrita.
   2. **los mensajes de commit tienen buena parte del «por qué»** — las correcciones, los mutantes que
      sobrevivieron, lo que se descubrió a mitad de camino. Si sólo se suben los documentos, se pierde
      justo lo que más sirve para entender por qué las cosas son como son.
@@ -4580,7 +4598,7 @@ fixtures. Si aparece un hecho nuevo, aparece acá solo.
 
 ### `tools/metamorficas.py`
 
-*239 líneas*
+*240 líneas*
 
 Propiedades metamórficas: dos caminos que tienen que dar lo mismo.
 
@@ -4626,7 +4644,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*298 líneas*
+*299 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -4649,17 +4667,13 @@ Frontera común entre errores de proyecto y los códigos de salida de los entry 
 
 ### `tools/sintaxis.py`
 
-*835 líneas*
+*162 líneas*
 
-Superficie infija de autoría para medidas.
+CLI para la superficie infija de autoría.
 
-    python tools/sintaxis.py --imprimir catalogos/meta/meta.donde_compone.json
-    python tools/sintaxis.py --leer medida.oracle
-    python tools/sintaxis.py --verificar
-
-El almacenamiento sigue siendo JSON: esta herramienta sólo traduce entre ese dato y una forma más
-amable para escribirlo a mano. El lector devuelve la misma forma de almacenamiento que recibió el
-impresor, incluidas las invocaciones de macro que ya viven en el catálogo.
+python tools/sintaxis.py --imprimir catalogos/meta/meta.donde_compone.json
+python tools/sintaxis.py --leer medida.oracle
+python tools/sintaxis.py --verificar
 
 ### `tools/trazar.py`
 
@@ -6789,6 +6803,43 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+### 2026-08-24 — docs: ensenar superficie infija primero en guia y tutorial
+
+*commit b6b2027*
+
+Reescribe ESCRIBIR-UNA-MEDIDA.md y ORACLE-TUTORIAL-PRACTICO.md con enfoque
+superficie-primero:
+  - Los ejemplos se presentan en la superficie infija de autoría.
+  - El formato JSON queda documentado como formato de almacenamiento (AST),
+    explicando su homoiconicidad y soporte para nivel L2.
+  - Se documenta el pasaje bidireccional con tools/sintaxis.py (--imprimir y --leer).
+  - Se regenera ORACLE-PARA-NOTEBOOKLM.md con tools/estudio.py.
+
+456 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
+
+### 2026-08-24 — Saca el informe de la rama
+
+*commit 235a360*
+
+
+
+### 2026-08-24 — Haz .oracle formato de catalogo
+
+*commit 9578c76*
+
+
+
+### 2026-08-24 — Saca el informe de la rama
+
+*commit 1e5dc05*
+
+
+
+### 2026-08-24 — Merge branch 'sup-primeraclase'
+
+*commit 151ad8c*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -6797,14 +6848,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 3493 | el lenguaje |
-| líneas de medidas escritas en él | 302 | lo escrito en el lenguaje |
-| proporción | 12 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 13 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 184 | su naturaleza es rechazar, no medir |
+| líneas del núcleo | 4343 | el lenguaje |
+| líneas de medidas escritas en él | 298 | lo escrito en el lenguaje |
+| proporción | 15 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 16 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 204 | su naturaleza es rechazar, no medir |
 | medidas | 33 | de las cuales 21 miden el lenguaje mismo |
 | casos de corpus | 90 | fallas reales, con su evidencia |
-| commits | 79 | el historial completo |
+| commits | 84 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

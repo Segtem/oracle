@@ -25,21 +25,30 @@ escribir medidas directamente en la superficie infija.
 python tools/medida.py --relaciones     # los hechos y sus campos, derivados de la evidencia real
 python tools/medida.py --escalares      # las funciones de dominio, operadores y agregados
 
-# 3. la medida (la escribís en superficie infija y la traducís al JSON de almacenamiento)
-python tools/sintaxis.py --leer medida.oracle > catalogos/colocacion/colocacion.mi_regla.json
-python tools/medida.py catalogos/colocacion/colocacion.mi_regla.json
+# 3. la medida: el andamio ya nace en superficie infija, y el catálogo lo carga tal cual
+python tools/medida.py --nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
+python tools/medida.py catalogos/colocacion/colocacion.mi_regla.oracle
 
 # 4. que todo siga cerrando
 python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
-### De la superficie al almacenamiento: `tools/sintaxis.py`
+### Los dos formatos del catálogo
 
-Para pasar de un formato al otro tenés dos comandos:
+El catálogo carga **`.oracle` y `.json` por igual**: una medida en superficie infija no necesita
+traducirse a nada para funcionar. El mismo id en los dos formatos es un error que nombra los dos
+archivos — no gana ninguno, porque un ganador silencioso es una divergencia esperando.
 
-- `python tools/sintaxis.py --imprimir <archivo.json>`: lee el JSON de almacenamiento e imprime la superficie infija legible.
-- `python tools/sintaxis.py --leer <archivo.oracle>`: lee la superficie infija y emite el JSON que se guarda en el catálogo.
+- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio, ya en superficie.
+- `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
+- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso, si alguna vez lo necesitás.
+
+El id tiene gramática cerrada y **ASCII**: `dominio.nombre`, minúsculas, dígitos y `_`. No es que el
+proyecto no sea en español —la prosa de `porque` y de `alcance` lo es entera—: es que el id es
+también un nombre de archivo, y en Unicode `dueño` puede ser dos secuencias de bytes distintas que se
+dibujan idénticas (NFC contra NFD). Dos ids que nadie puede distinguir mirando son una divergencia
+silenciosa, y eso se cierra por gramática.
 
 ### Frontera de confianza
 
@@ -95,7 +104,7 @@ Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue sien
 
 ## La forma canónica
 
-```oracle
+```oracle-gramatica
 medida dominio.nombre:
     de relacion x
     donde <lo que OFENDE>

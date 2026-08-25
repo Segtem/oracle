@@ -28,6 +28,7 @@ from pathlib import Path
 from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, comparar, desde, resumir,
                       validar_finito, validar_resumen, validar_tuberia)
 from .macro import es_macro, expandir
+from .proyecto import ID_MEDIDA_RE
 
 
 class MedidaMalDeclarada(ValueError):
@@ -217,8 +218,13 @@ class Medida:
         else:
             _, mid, tuberia, resumen, umbral, alcance = d
             requiere = ["requiere"]
-        if not isinstance(mid, str) or not mid.strip() or " " in mid:
-            raise MedidaMalDeclarada(f"id inválido: «{mid}»")
+        # La gramática del id se comprobaba SÓLO al crear el archivo (`ruta_de_medida_nueva`), así
+        # que un catálogo podía guardar ids que la propia herramienta se niega a crear. Se comprueba
+        # también al cargar: la razón del ASCII está escrita al lado de `ID_MEDIDA_RE`.
+        if not isinstance(mid, str) or ID_MEDIDA_RE.fullmatch(mid) is None:
+            raise MedidaMalDeclarada(
+                f"id inválido: «{mid}» — debe ser `dominio.nombre`, sólo con minúsculas ASCII, "
+                "dígitos y `_`")
         try:
             validar_tuberia(tuberia, limites, registro=registro)
             validar_resumen(resumen, limites, registro=registro)

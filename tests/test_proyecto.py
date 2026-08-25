@@ -349,7 +349,7 @@ class ProyectoTests(unittest.TestCase):
             proy = Proyecto(raiz)
             self.assertEqual(
                 ruta_de_medida_nueva(proy, "dominio.nombre_compuesto"),
-                raiz / "catalogos" / "dominio" / "dominio.nombre_compuesto.json")
+                raiz / "catalogos" / "dominio" / "dominio.nombre_compuesto.oracle")
             for mid in (None, 1, "Dominio.nombre", "dominio", "dominio..nombre"):
                 with self.subTest(mid=mid), self.assertRaises(ProyectoInvalido):
                     ruta_de_medida_nueva(proy, mid)

@@ -9,11 +9,14 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
+from .proyecto import ID_MEDIDA_RE
 
 COMPARADORES = ("==", "!=", "<=", ">=", "<", ">")
 LOGICOS = {"y": 2, "o": 1}
 PALABRAS_LITERAL = {"true": True, "false": False, "null": None}
+
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
 NUMERO_RE = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
 IND = "    "
@@ -584,6 +587,12 @@ def leer_con_mapa(texto: str) -> Lectura:
     if not m:
         _fallar(n, 1, "encabezado «medida|ninguno|ninguno-par|peor <id>:»", encabezado)
     clase, mid = m.groups()
+    # `\S+` acepta cualquier cosa sin espacios, y eso dejaba a la superficie escribir ids que el
+    # resto del proyecto rechaza: `tareas.vencida_sin_dueño` se leía sin quejarse pero
+    # `--nuevo` se niega a crearlo. La gramática es una sola y vive en `ID_MEDIDA_RE`.
+    if ID_MEDIDA_RE.fullmatch(mid) is None:
+        _fallar(n, encabezado.find(mid) + 1,
+                "id «dominio.nombre», sólo con minúsculas ASCII, dígitos y `_`", mid)
     ubicaciones: dict[str, Ubicacion] = {
         "": Ubicacion(n, 1),
         "0": Ubicacion(n, 1),

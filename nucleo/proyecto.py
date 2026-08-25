@@ -339,6 +339,27 @@ def problemas_estructura(proy: "Proyecto", requeridos: tuple[str, ...]) -> list[
     return fallas
 
 
+# La superficie infija es cómo se escribe; el JSON es cómo se guarda. Una medida NUEVA nace en
+# la superficie: el formato en el que se autoriza a alguien a escribir es el primer mensaje que
+# da el lenguaje, y hasta hoy ese mensaje era «escribí JSON a mano».
+EXTENSION_DE_AUTORIA = ".oracle"
+
+
+# La gramática del id de una medida: `dominio.nombre`, minúsculas ASCII, dígitos y `_`.
+#
+# El ASCII no es pereza y no es que el proyecto no sea en español —la prosa de `porque` y de
+# `alcance` lo es entera—. Es que un id es también un NOMBRE DE ARCHIVO, y en Unicode dos nombres
+# que se dibujan idénticos pueden ser bytes distintos:
+#
+#     "dueño"  →  b'due\xc3\xb1o'    (ñ precompuesta, NFC)
+#     "dueño"  →  b'duen\xcc\x83o'   (n + tilde combinante, NFD)
+#
+# Son distintos para Python, para git y para un `dict`, y se ven iguales en pantalla. macOS
+# normaliza a NFD al escribir y Linux no toca nada, así que el mismo catálogo clonado en dos
+# máquinas puede tener dos ids que nadie puede distinguir mirando. Eso es una divergencia
+# silenciosa entre dos copias del mismo dato, que es justo la clase de cosa que este repositorio
+# existe para no tener. Se cierra por gramática y no por normalización, porque normalizar es
+# aceptar la ambigüedad y después elegir por el autor.
 ID_MEDIDA_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 
 
@@ -348,7 +369,7 @@ def ruta_de_medida_nueva(proy: "Proyecto", mid: str) -> Path:
         raise ProyectoInvalido(
             "el id debe ser `dominio.nombre`, sólo con minúsculas ASCII, dígitos y `_`")
     catalogos = proy.catalogos.resolve()
-    destino = proy.catalogos / mid.split(".")[0] / f"{mid}.json"
+    destino = proy.catalogos / mid.split(".")[0] / f"{mid}{EXTENSION_DE_AUTORIA}"
     try:
         destino.resolve().relative_to(catalogos)
     except (OSError, ValueError) as e:

@@ -59,7 +59,7 @@ decir también qué no miró.
 
 Toda medida, en su forma completa (**canónica**), se escribe así en la superficie infija:
 
-```oracle
+```oracle-gramatica
 medida <id>:
     de <relacion> <alias>
     [unir <relacion2> <alias2>]
@@ -108,7 +108,8 @@ Para traducir entre la superficie infija y el archivo JSON tenés la herramienta
 
 ```bash
 python tools/sintaxis.py --imprimir catalogos/proceso/proceso.test_con_mutante_que_lo_mata.json  # JSON -> superficie
-python tools/sintaxis.py --leer medida.oracle > catalogos/dominio/dominio.regla.json              # superficie -> JSON
+python tools/medida.py --nueva dominio.regla        # crea el andamio ya en superficie infija
+python tools/sintaxis.py --leer medida.oracle       # superficie -> JSON, si lo necesitás
 ```
 
 El ejemplo más simple posible del propio catálogo de Oracle:
@@ -154,7 +155,7 @@ devuelve filas: esa clausura es lo que permite encadenarlos sin casos especiales
 
 ### 3.1 `de` — la fuente
 
-```oracle
+```oracle-fragmento
 de pieza a
 ```
 
@@ -163,7 +164,7 @@ fila de la tubería tiene acceso a los campos del hecho `a`.
 
 ### 3.2 `donde` — el filtro (y los testigos)
 
-```oracle
+```oracle-fragmento
 donde a.volumen > 0
 ```
 
@@ -204,7 +205,7 @@ Reglas del álgebra que sorprenden si vienen de Python:
 
 ### 3.5 `resumen` y los agregados
 
-```oracle
+```oracle-fragmento
 resumen contar(1)
 resumen max(a.volumen)
 ```
@@ -216,7 +217,7 @@ aceptan números o booleanos (0/1); `min` y `max` exigen valores del mismo tipo 
 
 ### 3.6 `unir` — comparar filas entre sí
 
-```oracle
+```oracle-fragmento
 de documento a
 unir documento b
 donde a.nombre == b.nombre y a.carpeta != b.carpeta
@@ -237,7 +238,7 @@ Este es el operador que más cuesta la primera vez, porque resuelve algo que en 
 `LEFT JOIN` con nulos — y acá **no hay nulos**. La pregunta es «¿qué módulos no tienen NINGÚN
 importador real?» — una ausencia, no una presencia.
 
-```oracle
+```oracle-fragmento
 de modulo m
 unir importa i
 agrupar:
@@ -252,7 +253,7 @@ grupo **sigue existiendo**, porque nunca se filtró antes de agrupar. Sin necesi
 
 Forma general:
 
-```oracle
+```oracle-gramatica
 agrupar:
     clave <nombre_clave> = <expresion>
     agregado <nombre_agregado> = <agregado>(<expresion>)
@@ -588,11 +589,11 @@ mi-proyecto/
   escalares.py
   catalogos/
     tareas/
-      tareas.vencida_sin_dueño.json
+      tareas.vencida_sin_dueno.oracle
   corpus/
     tareas/
       001-vencida-sin-nadie.json
-      002-vencida-con-dueño.json
+      002-vencida-con-dueno.json
 ```
 
 ### 8.2 `oracle.json`
@@ -623,17 +624,18 @@ def dias_de_atraso(tarea: dict) -> int:
 La escribís en la superficie infija (con la macro `ninguno` — el caso más común):
 
 ```oracle
-ninguno tareas.vencida_sin_dueño:
+ninguno tareas.vencida_sin_dueno:
     de tarea t
     donde t.vencida == true y t.asignada == false
     umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano"
     alcance "ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está"
 ```
 
-Y la traducís a su archivo de almacenamiento JSON con `tools/sintaxis.py`:
+Y la guardás tal cual: el catálogo carga `.oracle` igual que `.json`, así que no hay paso de
+traducción.
 
 ```bash
-python <ruta-a-oracle>/tools/sintaxis.py --leer tareas.vencida_sin_dueño.oracle > catalogos/tareas/tareas.vencida_sin_dueño.json
+mv tareas.vencida_sin_dueno.oracle catalogos/tareas/
 ```
 
 ### 8.5 El corpus — las dos polaridades
@@ -646,7 +648,7 @@ python <ruta-a-oracle>/tools/sintaxis.py --leer tareas.vencida_sin_dueño.oracle
   "etiqueta": "falso_verde",
   "sintoma": "El tablero mostraba todo en orden porque nadie miraba las tareas sin dueño.",
   "como_se_detecto": "persona",
-  "medida": "tareas.vencida_sin_dueño",
+  "medida": "tareas.vencida_sin_dueno",
   "evidencia": {
     "tarea": [{"id": "t1", "vencida": true, "asignada": false, "dias_vencida": 3}]
   },
@@ -656,14 +658,14 @@ python <ruta-a-oracle>/tools/sintaxis.py --leer tareas.vencida_sin_dueño.oracle
 ```
 
 ```json
-// corpus/tareas/002-vencida-con-dueño.json
+// corpus/tareas/002-vencida-con-dueno.json
 {
   "id": "002-vencida-con-dueño",
   "titulo": "Vencida pero con alguien encima — no debe dar rojo",
   "etiqueta": "verde_correcto",
   "sintoma": "Una tarea vencida CON dueño asignado no es el defecto que esta medida busca.",
   "como_se_detecto": "observacion",
-  "medida": "tareas.vencida_sin_dueño",
+  "medida": "tareas.vencida_sin_dueno",
   "evidencia": {
     "tarea": [{"id": "t2", "vencida": true, "asignada": true, "dias_vencida": 1}]
   },
@@ -681,7 +683,7 @@ python <ruta-a-oracle>/tools/aceptacion.py --proyecto .              # ¿el corp
 python <ruta-a-oracle>/tools/mutar.py --proyecto .                   # ¿el corpus ALCANZA para fijar la medida?
 ```
 
-`aceptacion.py` tiene que confirmar: el caso `001` se pone ROJO con `tareas.vencida_sin_dueño`, y el
+`aceptacion.py` tiene que confirmar: el caso `001` se pone ROJO con `tareas.vencida_sin_dueno`, y el
 `002` se pone VERDE. Si `mutar.py` encuentra un mutante que sobrevive (por ejemplo, sacarle el `y` y
 dejar sólo `vencida == true`), es que falta un tercer caso que discrimine esa mutación específica —
 una tarea vencida CON dueño, que ya tenemos, o una NO vencida sin dueño, que faltaría agregar.
@@ -704,7 +706,8 @@ print(informe.texto())
 | Comando | Para qué |
 |---|---|
 | `tools/sintaxis.py --imprimir <archivo.json>` | lee el JSON de catálogo y muestra la superficie infija |
-| `tools/sintaxis.py --leer <archivo.oracle>` | traduce de superficie infija al JSON de almacenamiento |
+| `tools/sintaxis.py --leer <archivo.oracle>` | traduce de superficie infija al JSON de almacenamiento (el catálogo carga `.oracle` directo: esto es para cuando querés el dato) |
+| `tools/medida.py --nueva <dominio.nombre>` | crea el andamio de una medida, ya en superficie infija |
 | `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo |
 | `tools/medida.py --relaciones` | ver qué hechos existen HOY (derivado de evidencia real, no una lista a mano) |
 | `tools/medida.py --escalares` | ver las funciones de dominio, operadores y agregados disponibles |
