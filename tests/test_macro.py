@@ -285,69 +285,6 @@ class DeclaracionTests(unittest.TestCase):
         with self.assertRaises(MacroMalDeclarada):
             expandir(["ninguno"], {"ninguno": None})
 
-    def test_macro_con_parametro_opcional_usa_valor_por_defecto(self) -> None:
-        macro = Macro.de_datos([
-            "defmacro", "con-defecto",
-            ["id", ["tolerancia", 0]],
-            [],
-            ["medida", ["$", "id"], ["umbral", "<=", ["$", "tolerancia"], "razon"]]
-        ])
-        expandida = macro.expandir(["con-defecto", "d.p"])
-        self.assertEqual(expandida, ["medida", "d.p", ["umbral", "<=", 0, "razon"]])
-
-    def test_macro_con_parametro_opcional_acepta_argumento_explicito(self) -> None:
-        macro = Macro.de_datos([
-            "defmacro", "con-defecto",
-            ["id", ["tolerancia", 0]],
-            [],
-            ["medida", ["$", "id"], ["umbral", "<=", ["$", "tolerancia"], "razon"]]
-        ])
-        expandida = macro.expandir(["con-defecto", "d.p", 5])
-        self.assertEqual(expandida, ["medida", "d.p", ["umbral", "<=", 5, "razon"]])
-
-    def test_parametro_obligatorio_despues_de_opcional_no_pasa(self) -> None:
-        with self.assertRaisesRegex(MacroMalDeclarada, "obligatorio no puede ir después"):
-            Macro.de_datos([
-                "defmacro", "invalida",
-                [["opcional", 1], "obligatorio"],
-                [],
-                ["medida", ["$", "opcional"], ["$", "obligatorio"]]
-            ])
-
-    def test_parametro_opcional_mal_formado_no_pasa(self) -> None:
-        for param in (["solo-nombre"], ["nombre", 1, "sobra"], [123, "val"], ["", "val"]):
-            with self.subTest(param=param):
-                with self.assertRaises(MacroMalDeclarada):
-                    Macro.de_datos([
-                        "defmacro", "invalida",
-                        ["id", param],
-                        [],
-                        ["medida", ["$", "id"]]
-                    ])
-
-    def test_parametro_opcional_repetido_no_pasa(self) -> None:
-        with self.assertRaisesRegex(MacroMalDeclarada, "repetidos"):
-            Macro.de_datos([
-                "defmacro", "invalida",
-                ["id", ["id", 10]],
-                [],
-                ["medida", ["$", "id"]]
-            ])
-
-    def test_error_de_aridad_con_parametros_opcionales(self) -> None:
-        macro = Macro.de_datos([
-            "defmacro", "con-defecto",
-            ["id", ["op1", 1], ["op2", 2]],
-            [],
-            ["medida", ["$", "id"], ["$", "op1"], ["$", "op2"]]
-        ])
-        with self.assertRaises(MacroMalUsada) as e1:
-            macro.expandir(["con-defecto"])
-        self.assertIn("recibió 0 argumento(s)", str(e1.exception))
-        with self.assertRaises(MacroMalUsada) as e2:
-            macro.expandir(["con-defecto", "a", "b", "c", "d"])
-        self.assertIn("recibió 4 argumento(s)", str(e2.exception))
-
 
 class ProyectoDeclaraLasSuyasTests(unittest.TestCase):
     """El criterio de éxito de todo esto: un proyecto define una forma propia y la usa **sin tocar

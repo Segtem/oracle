@@ -49,7 +49,7 @@ crear cualquier directorio.
 
 ## La forma corta: las macros
 
-**26 de las 33 medidas del catálogo pasan por una macro.** Son azúcar que expande a la forma
+**15 de las 18 medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
 canónica —`--expandir` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
@@ -71,12 +71,8 @@ enteran de que existen.
 escribirla dos veces y nada las mantenía juntas — era el caso `012` del corpus, cerrado por
 construcción.
 
-Además, `defmacro` soporta parámetros opcionales con valor por defecto (`["nombre", valor]`) para
-que un proyecto pueda definir macros extensibles sin duplicar definiciones.
-
-Las macros no son un embudo: si tu caso no encaja (por ejemplo si necesitás `unir` relaciones
-distintas, precondiciones de evidencia no contempladas por la macro, o agregaciones intermedias con `agrupar`),
-la forma canónica sigue siendo válida.
+Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue siendo válida.
+`colocacion.interpenetracion` está escrita así porque une dos relaciones DISTINTAS.
 
 ## La forma canónica
 
