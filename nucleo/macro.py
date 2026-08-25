@@ -118,6 +118,7 @@ class Macro:
     parametros: tuple[str, ...]
     guardas: tuple[tuple, ...]
     plantilla: list
+    valores_por_defecto: tuple[tuple[str, object], ...] = ()
 
     @classmethod
     def de_datos(cls, datos) -> "Macro":
@@ -136,9 +137,27 @@ class Macro:
 
         if not isinstance(parametros, list) or not parametros:
             raise MacroMalDeclarada(f"{nombre}: los parámetros van en una lista no vacía")
+        nombres = []
+        opcionales = []
+        vio_opcional = False
         for parametro in parametros:
-            _texto(parametro, f"{nombre}: el nombre de un parámetro")
-        if len(set(parametros)) != len(parametros):
+            if isinstance(parametro, str):
+                if vio_opcional:
+                    raise MacroMalDeclarada(
+                        f"{nombre}: un parámetro obligatorio no puede ir después de uno opcional")
+                _texto(parametro, f"{nombre}: el nombre de un parámetro")
+                nombres.append(parametro)
+            elif isinstance(parametro, list) and len(parametro) == 2:
+                p_nom, p_def = parametro
+                _texto(p_nom, f"{nombre}: el nombre de un parámetro")
+                vio_opcional = True
+                nombres.append(p_nom)
+                opcionales.append((p_nom, p_def))
+            else:
+                raise MacroMalDeclarada(
+                    f"{nombre}: un parámetro opcional va ['nombre', valor_por_defecto]")
+
+        if len(set(nombres)) != len(nombres):
             raise MacroMalDeclarada(f"{nombre}: hay parámetros repetidos")
 
         if not isinstance(plantilla, list) or not plantilla:
@@ -160,26 +179,30 @@ class Macro:
         for expresion, _mensaje in normalizadas:
             _huecos_de(expresion, usados)
 
-        desconocidos = sorted(usados - set(parametros))
+        desconocidos = sorted(usados - set(nombres))
         if desconocidos:
             raise MacroMalDeclarada(
                 f"{nombre}: usa huecos que no son parámetros: {desconocidos}")
         # Un parámetro que nadie usa es decoración: se pide al invocar, se cuenta en la aridad, y no
         # llega a ninguna parte. Es la misma regla que `meta.toda_medida_esta_ejercitada`.
-        sin_usar = sorted(set(parametros) - usados)
+        sin_usar = sorted(set(nombres) - usados)
         if sin_usar:
             raise MacroMalDeclarada(
                 f"{nombre}: declara parámetros que la plantilla nunca usa: {sin_usar}")
 
-        return cls(nombre, tuple(parametros), tuple(normalizadas), plantilla)
+        return cls(nombre, tuple(nombres), tuple(normalizadas), plantilla, tuple(opcionales))
 
     def expandir(self, datos: list, limites: LimitesAlgebra | None = None) -> list:
-        esperados = len(self.parametros)
-        if len(datos) - 1 != esperados:
+        total = len(self.parametros)
+        obligatorios = total - len(self.valores_por_defecto)
+        recibidos = len(datos) - 1
+        if recibidos < obligatorios or recibidos > total:
             firma = ", ".join(self.parametros)
             raise MacroMalUsada(
-                f"«{self.nombre}» va [{firma}] — recibió {len(datos) - 1} argumento(s)")
-        valores = dict(zip(self.parametros, datos[1:]))
+                f"«{self.nombre}» va [{firma}] — recibió {recibidos} argumento(s)")
+        valores = dict(self.valores_por_defecto)
+        for i in range(recibidos):
+            valores[self.parametros[i]] = datos[1 + i]
 
         for expresion, mensaje in self.guardas:
             sustituida = _sustituir(expresion, valores)
