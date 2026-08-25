@@ -13,6 +13,7 @@ import re
 from dataclasses import dataclass
 from pathlib import Path
 
+from .version import VersionInvalida, del_nucleo, parsear
 
 ESQUEMA_DIFERENCIAL = "oracle.diferencial/v1"
 ALGORITMO_HUELLA = "sha256"
@@ -165,3 +166,27 @@ def revisar_frescura(datos: dict, raiz: Path, catalogo: dict) -> list[str]:
             problemas.append(
                 f"fixture vencido: cambió {clase} ({esperada[:12]}… → {actuales[clase][:12]}…)")
     return problemas
+
+
+def comprobar_version_referencia(modulo) -> list[str]:
+    """La referencia declara contra qué versión del álgebra se escribió; tiene que coincidir con la
+    que implementa el núcleo.
+
+    Es el caso que motivó el versionado: agregar `requiere` y `clave` invalidó en silencio a un
+    evaluador escrito contra una versión anterior, y el contraste siguió publicando «0 desacuerdos»
+    porque los fixtures no ejercitaban lo nuevo. La referencia se fija a una versión EXACTA — no a
+    una compatible—: un agregado no rompe a quien no lo usa, pero sí a quien implementa el álgebra
+    completo y no conoce el nodo.
+    """
+    declarada = getattr(modulo, "VERSION_ALGEBRA", None)
+    if declarada is None:
+        return ["la implementación de referencia no declara `VERSION_ALGEBRA`"]
+    try:
+        version = parsear(declarada)
+    except VersionInvalida as e:
+        return [str(e)]
+    nucleo = del_nucleo()
+    if version != nucleo:
+        return [f"la referencia se escribió contra el álgebra {version} "
+                f"y el núcleo implementa {nucleo}"]
+    return []

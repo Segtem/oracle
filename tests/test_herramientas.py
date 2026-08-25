@@ -16,8 +16,8 @@ from nucleo.diferencial import Procedencia, crear_frescura
 from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture
 from nucleo.medida import Medida
 from nucleo import algebra
-from nucleo.proyecto import (EscalaresInvalidas, Proyecto, escalares_del_proyecto,
-                             sin_bandera)
+from nucleo.proyecto import (ConfiguracionProyecto, EscalaresInvalidas, Proyecto, ProyectoInvalido,
+                             configuracion, escalares_del_proyecto, sin_bandera)
 
 def setUpModule() -> None:
     """Importa las herramientas DENTRO de la suite, no al descubrirla.
@@ -1099,6 +1099,142 @@ class ContrasteDeLaTraza(unittest.TestCase):
             desacuerdos = cli.contrastar(juezas, evidencia)
         self.assertEqual(len(desacuerdos), len(juezas))
         self.assertIn("RuntimeError", desacuerdos[0])
+
+
+class VersionDelAlgebra(unittest.TestCase):
+    """El número del lenguaje es un dato legible por máquina, y su lectura falla cerrada.
+
+    La especificación lo declaraba «en prosa» y el núcleo no lo conocía: una extensión apagaba en
+    silencio un pedazo del diferencial. Estos tests fijan que la versión vive en un solo lugar y que
+    compararla nunca produce un `False` callado.
+    """
+
+    def test_el_nucleo_declara_una_version_legible_y_estable(self) -> None:
+        from nucleo.version import VERSION_ALGEBRA, del_nucleo
+
+        self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
+        self.assertEqual(str(del_nucleo()), "0.3")
+
+    def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
+        from nucleo.version import Version, VersionInvalida, parsear
+
+        self.assertEqual(parsear("0.3"), Version(0, 3))
+        self.assertEqual(parsear("10.20"), Version(10, 20))
+        for malo in (3, None, ["0.3"], "", "3", "0", "0.3.1", "a.b", "0.3-beta",
+                      "01.2", "-1.0", "0."):
+            with self.subTest(malo=malo):
+                with self.assertRaises(VersionInvalida):
+                    parsear(malo)
+
+    def test_compatible_exige_la_misma_mayor_y_menor_al_menos_pedida(self) -> None:
+        from nucleo.version import compatible, parsear
+
+        self.assertTrue(compatible(parsear("0.3"), parsear("0.3")))
+        self.assertTrue(compatible(parsear("0.2"), parsear("0.3")))
+        self.assertTrue(compatible(parsear("0.3"), parsear("0.4")))
+        self.assertFalse(compatible(parsear("0.4"), parsear("0.3")))
+        self.assertFalse(compatible(parsear("1.0"), parsear("0.9")))
+
+
+class VersionDelProyecto(unittest.TestCase):
+    """Un consumidor declara qué versión necesita; si no coincide, falla con un mensaje útil.
+
+    Quien no declara versión sigue funcionando: no se rompe a un proyecto que ya existía.
+    """
+
+    def _raiz(self, base: str) -> Path:
+        raiz = Path(base)
+        (raiz / "catalogos").mkdir()
+        return raiz
+
+    def _configurar(self, raiz: Path, datos) -> None:
+        (raiz / "oracle.json").write_text(json.dumps(datos), encoding="utf-8")
+
+    def test_sin_oracle_json_o_sin_algebra_el_proyecto_sigue_andando(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            self.assertEqual(configuracion(Proyecto(raiz)), ConfiguracionProyecto())
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            self._configurar(raiz, {"esquema": "oracle.proyecto/v1", "perfiles": []})
+            self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
+
+    def test_una_version_compatible_carga_sin_queja(self) -> None:
+        for declarada in ("0.2", "0.3"):
+            with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
+                raiz = self._raiz(td)
+                self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
+                                        "algebra": declarada, "perfiles": []})
+                self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
+
+    def test_una_version_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
+        for declarada in ("0.4", "1.0", "9.9"):
+            with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
+                raiz = self._raiz(td)
+                self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
+                                        "algebra": declarada, "perfiles": []})
+                with self.assertRaises(ProyectoInvalido) as ctx:
+                    configuracion(Proyecto(raiz))
+                self.assertIn(declarada, str(ctx.exception))
+                self.assertIn("0.3", str(ctx.exception))
+
+    def test_una_version_mal_declarada_falla_cerrado(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
+                                    "algebra": "no-es-version", "perfiles": []})
+            with self.assertRaises(ProyectoInvalido):
+                configuracion(Proyecto(raiz))
+
+    def test_el_oracle_de_si_mismo_declara_una_version_compatible(self) -> None:
+        # El `oracle.json` del propio proyecto carga sin queja: su declaración no es ajena al núcleo.
+        self.assertEqual(configuracion(Proyecto(RAIZ)).catalogo_base, True)
+
+
+class VersionDeLaReferencia(unittest.TestCase):
+    """La implementación de referencia declara contra qué versión se escribió, y el arnés la compara.
+
+    Es el caso que motivó todo: agregar `requiere` y `clave` invalidó en silencio a un evaluador
+    anterior, y el contraste seguía publicando «0 desacuerdos» porque los fixtures no lo ejercitaban.
+    """
+
+    def test_la_referencia_versionada_coincide_con_el_nucleo(self) -> None:
+        from types import SimpleNamespace
+
+        from nucleo.diferencial import comprobar_version_referencia
+        from tools import generar_diferencial as gen
+
+        referencia = gen.cargar_referencia()
+        self.assertEqual(comprobar_version_referencia(referencia), [])
+
+    def test_una_referencia_desfasada_o_muda_se_denuncia(self) -> None:
+        from types import SimpleNamespace
+
+        from nucleo.diferencial import comprobar_version_referencia
+
+        for declarada in (None, "0.2", "1.0", "no-version"):
+            with self.subTest(declarada=declarada):
+                problemas = comprobar_version_referencia(
+                    SimpleNamespace(VERSION_ALGEBRA=declarada))
+                self.assertTrue(problemas)
+
+    def test_el_arnes_del_diferencial_aborta_ante_una_referencia_desfasada(self) -> None:
+        from nucleo.medida import cargar_catalogo
+        from nucleo.proyecto import catalogos_a_cargar, macros_del_proyecto
+        from tools import generar_diferencial as gen
+
+        proy = Proyecto(RAIZ)
+        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+
+        class ReferenciaVieja:
+            VERSION_ALGEBRA = "0.2"
+
+        with mock.patch.object(gen, "cargar_referencia", lambda: ReferenciaVieja):
+            with self.assertRaises(SystemExit) as ctx:
+                gen.construir(catalogo)
+        self.assertIn("0.2", str(ctx.exception))
+        self.assertIn("0.3", str(ctx.exception))
 
 
 if __name__ == "__main__":

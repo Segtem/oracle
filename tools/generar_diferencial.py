@@ -23,7 +23,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las UDF declaradas
-from nucleo.diferencial import Procedencia, crear_frescura  # noqa: E402
+from nucleo.diferencial import (Procedencia, comprobar_version_referencia,  # noqa: E402
+                                crear_frescura)
 from nucleo.fixtures import validar_fixture  # noqa: E402
 from nucleo.medida import cargar_catalogo  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
@@ -90,6 +91,14 @@ def construir(catalogo: dict) -> dict:
     from nucleo.algebra import ESCALARES
 
     referencia = cargar_referencia()
+    # ANTES de evaluar nada: la referencia declara contra qué versión se escribió. Si el núcleo
+    # avanzó y la referencia quedó atrás, emitir el fixture congelaría el desacuerdo en vez de
+    # exponerlo — el defecto exacto que este versionado existe para matar.
+    desfasada = comprobar_version_referencia(referencia)
+    if desfasada:
+        raise SystemExit(
+            "NO SE EMITE — la referencia no está a la versión del núcleo:\n  · "
+            + "\n  · ".join(desfasada))
     medidas = [catalogo[mid] for mid in MEDIDAS]
     escenarios = []
     for nombre, evidencia in MUNDOS:

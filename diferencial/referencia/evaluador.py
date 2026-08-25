@@ -17,6 +17,11 @@ _AGREGADOS = {"max", "min", "suma", "promedio", "contar"}
 _COMPARADORES = {"==", "!=", "<", "<=", ">", ">="}
 _SIN_EVIDENCIA = "SIN EVIDENCIA"
 
+# Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
+# la compara con la que declara el nucleo (nucleo/version.py) y falla cerrado si no coinciden: una
+# extension del lenguaje que este evaluador no conoce no debe publicar "0 desacuerdos".
+VERSION_ALGEBRA = "0.3"
+
 
 @dataclass(frozen=True)
 class LimitesAlgebra:
