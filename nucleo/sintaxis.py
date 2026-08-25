@@ -461,13 +461,14 @@ def _leer_nombre(texto: str, linea: int, columna: int):
     return ["$", nombre]
 
 
-def _leer_de(item: tuple[int, str], palabra: str = "de") -> list:
+def _leer_de(item: tuple[int, str], palabra: str = "de", *, con_columna: bool = False):
     resto, col = _exigir_prefijo(item, palabra + " ", 1)
     partes = resto.split()
     if len(partes) != 2:
         _fallar(item[0], col, f"{palabra} <relación> <alias>", resto)
-    return ["de", _leer_nombre(partes[0], item[0], col),
-            _leer_nombre(partes[1], item[0], col + len(partes[0]) + 1)]
+    datos = ["de", _leer_nombre(partes[0], item[0], col),
+             _leer_nombre(partes[1], item[0], col + len(partes[0]) + 1)]
+    return (datos, col) if con_columna else datos
 
 
 def _leer_requiere(item: tuple[int, str]) -> list:
@@ -582,21 +583,51 @@ def _leer_resumen(item: tuple[int, str], *,
     return ["resumen", expr[0], expr[1]]
 
 
+def _rutas_de_fuentes(ubicaciones, fuentes) -> None:
+    """Ubica cada fuente en la ruta que el álgebra le va a dar.
+
+    `unir` es izquierdo-asociativo: `[unir [unir A B] C]`. Visto desde la tubería, `C` cuelga de `2`,
+    `B` de `1.2`, `A` de `1.1`, y así hacia adentro. Se recorre al revés —de la última a la primera—
+    porque la última es la que queda más cerca de la raíz.
+    """
+    if ubicaciones is None:
+        return
+    # `2` es la tubería dentro de la medida y `1` es la fuente dentro de `desde`: toda fuente cuelga
+    # de `2.1`. De ahí para adentro manda la asociatividad izquierda del `unir`.
+    ruta: tuple[int, ...] = (2, 1)
+    for indice in range(len(fuentes) - 1, 0, -1):
+        _, col, item = fuentes[indice]
+        _registrar(ubicaciones, (*ruta, 2), item[0], col)
+        ruta = (*ruta, 1)
+    _, col, item = fuentes[0]
+    _registrar(ubicaciones, ruta, item[0], col)
+
+
 def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
                  ubicaciones: dict[str, Ubicacion] | None = None) -> list:
     if not cuerpo:
         _fallar(2, 1, "cuerpo de medida")
-    fuentes = [_leer_de(cuerpo[0])]
+    fuentes = [(*_leer_de(cuerpo[0], con_columna=True), cuerpo[0])]
     i = 1
     while i < len(cuerpo):
         n, linea = cuerpo[i]
         if not _indentada(linea, 1, n).startswith("unir "):
             break
-        fuentes.append(_leer_de(cuerpo[i], "unir"))
+        fuentes.append((*_leer_de(cuerpo[i], "unir", con_columna=True), cuerpo[i]))
         i += 1
-    fuente = fuentes[0]
-    for siguiente in fuentes[1:]:
-        fuente = ["unir", fuente, siguiente]
+
+    # Las FUENTES también van al mapa. Sin esto, un error del álgebra dentro de un `unir` traía su
+    # ruta —`2.1.2`, el lado derecho— y `ubicar_ruta` no encontraba nada, así que el fragmento decía
+    # «no se encontró la ruta» en vez de señalar la línea. Media promesa cumplida es peor que
+    # ninguna: el error sabía dónde estaba y el mapa no sabía traducirlo.
+    #
+    # El `unir` es izquierdo-asociativo, así que la ruta de cada fuente se arma de afuera hacia
+    # adentro: con tres fuentes, la primera queda en `1.1`, la segunda en `1.2` y la tercera en `2`,
+    # todo colgando de la ruta de la tubería.
+    fuente = fuentes[0][0]
+    for datos_siguiente, _col, _item in fuentes[1:]:
+        fuente = ["unir", fuente, datos_siguiente]
+    _rutas_de_fuentes(ubicaciones, fuentes)
 
     pasos = []
     while i < len(cuerpo):

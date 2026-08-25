@@ -741,7 +741,19 @@ def aplicar(paso, filas: list[dict], evidencia: dict,
     op = paso[0]
     if op == "de":
         relacion, alias = paso[1], paso[2]
-        return _de(evidencia, relacion, alias, limites)
+        # La ruta se le pega al error del `de`, y NO estaba. `_unir` calculaba `ruta_izq` y
+        # `ruta_der` con esmero y las pasaba acá, donde se descartaban: un error en cualquiera de
+        # los dos lados de un `unir` salía SIN ruta, así que `fragmento_de_error` no podía señalar
+        # nada sobre la superficie. El mapa de fuente tenía un agujero del tamaño de `unir`.
+        #
+        # Lo denunció la mutación de código: cuatro mutantes de `ruta_izq`/`ruta_der` sobrevivían
+        # —incluido cambiar el índice 1 por el 2— porque el valor calculado no llegaba a ninguna
+        # parte. Un mutante que no se puede matar porque su resultado no se usa no es equivalente:
+        # es código que quería hacer algo y no lo hacía.
+        try:
+            return _de(evidencia, relacion, alias, limites)
+        except ErrorDeAlgebra as e:
+            raise e.prefijar_ruta(ruta) if ruta is not None else e
     if op == "unir":
         # El hecho se anota con lo que el operador DEVOLVIÓ, no con lo que creyó construir.
         lados: dict = {}
