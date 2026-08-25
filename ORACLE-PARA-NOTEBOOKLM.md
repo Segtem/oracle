@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `9a3d779988c5`
+- Revisión de código base: `762d84c72396`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5100 líneas de lenguaje y **235 negativas explícitas** (`raise`).
+En este corte hay 5525 líneas de lenguaje y **252 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5100 líneas de lenguaje** (`nucleo/`, código y macros) y **235 negativas explícitas** (`raise`). Contra las 34 medidas universales escritas en él (208 líneas): **24,5 a 1**. 27 de las 34 pasan por una macro.
+**5525 líneas de lenguaje** (`nucleo/`, código y macros) y **252 negativas explícitas** (`raise`). Contra las 34 medidas universales escritas en él (208 líneas): **26,6 a 1**. 27 de las 34 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-502 tests · 441/441 mutantes de medida · **2054 sitios de mutación de código** (1849 + 205 del motor Python).
+510 tests · 441/441 mutantes de medida · **2239 sitios de mutación de código** (2034 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4287,6 +4287,16 @@ reservada `_`. Toda operación toma filas y devuelve filas: eso es la clausura.
 
 El lenguaje activo tiene cinco operadores: `de`, `donde`, `resumen`, `unir` y `agrupar`.
 
+### `nucleo/caso.py`
+
+*425 líneas*
+
+Superficie de autoría para casos del corpus.
+
+El almacenamiento histórico del corpus es JSON: un objeto con prosa y evidencia L0. Esta superficie
+mantiene ese contrato y sólo cambia la forma de escribirlo: la prosa queda como prosa y la evidencia
+homogénea queda como tabla.
+
 ### `nucleo/diferencial.py`
 
 *192 líneas*
@@ -4604,7 +4614,7 @@ Cada una existe por un motivo que está escrito en su encabezado. Varias naciero
 
 ### `tools/aceptacion.py`
 
-*134 líneas*
+*133 líneas*
 
 La prueba de aceptación del marco: **el corpus juzga al oráculo, no al revés.**
 
@@ -4724,7 +4734,7 @@ JSON canónico con orden estable y sin `NaN`.
 
 ### `tools/medida.py`
 
-*270 líneas*
+*271 líneas*
 
 Escribir una medida sin pedirle permiso a nadie.
 
@@ -4793,7 +4803,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*299 líneas*
+*300 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -7191,6 +7201,12 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — La superficie declara su versión, como ya hace el álgebra
+
+*commit 40dcb8b*
+
+
+
 ## 2026-08-25 — La superficie deja de creerle al catálogo: una propiedad sobre el álgebra generada
 
 *commit 9a3d779*
@@ -7238,6 +7254,66 @@ MUTACIÓN 441/441 — 1582 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Saca el informe de la rama
+
+*commit 2a0c2b9*
+
+
+
+## 2026-08-25 — Merge branch 'sup-version': la superficie declara su versión
+
+*commit 762d84c*
+
+`.oracle` dejó de ser un formato de tránsito: 31 medidas universales y la
+biblioteca estándar entera viven en él. La ida y vuelta que comprueba
+`--verificar` dice que el lector y el impresor de HOY están de acuerdo entre sí;
+no dice nada sobre un archivo escrito ayer. Es el hueco que el álgebra cerró
+hace cuatro commits, abierto un nivel más arriba.
+
+`VERSION_SINTAXIS = "0.1"`, con la misma maquinaria que el álgebra. Un `.oracle`
+puede abrir con `sintaxis MAYOR.MENOR`; no declarar nada sigue cargando —los 35
+archivos de hoy no declaran— y declarar una incompatible falla cerrado nombrando
+las dos versiones. `oracle.json` también puede pedirla.
+
+## La pregunta difícil, y la respuesta es buena
+
+Pedí que defendiera si hacen falta DOS versiones —lector e impresor— porque no
+envejecen igual. La respuesta es una sola, y el argumento se sostiene: **un
+archivo viejo se LEE; el impresor no lo toca.** No existe el escenario que da
+miedo («cambió cómo se imprime y el lector viejo no entiende») porque si el
+impresor produce una forma que el lector de este núcleo no acepta, `--verificar`
+revienta en el commit que lo cambió; y frente a un lector de otro núcleo, lo que
+decide es la versión que el ARCHIVO declara, no el impresor que lo escribió.
+
+Trabajo delegado a DeepSeek V4 Pro 0813.
+
+## Dos cosas mías encima
+
+**1 · Un fail-open al lado de dos fail-closed.** `cargar_fuente_medida` y
+`cargar_macros` rechazaban una sintaxis futura, pero `tools/sintaxis.py --leer`
+la traducía en silencio y con exit 0:
+
+    $ python tools/sintaxis.py --leer futuro.oracle     # declaraba «sintaxis 9.0»
+    ["ninguno","tareas.mide",…]
+    exit=0
+
+El lector puro no juzga —está bien y está defendido en su docstring—, pero esa
+rama del CLI también carga. Una puerta abierta al lado de dos cerradas es peor
+que ninguna: enseña a confiar. Hay un test que exige que las tres puertas den el
+mismo veredicto sobre el mismo archivo.
+
+**2 · Dos tests fijaban «33» y «34» a mano** y se cayeron al mergear con la
+medida nueva de la rama anterior — por el conteo, no por lo que dicen medir. Es
+el mismo error que tenía `--verificar` con su `== 29`, que en este repositorio ya
+tiene nombre. Ahora se cuentan.
+
+502 tests OK · CIFRAS · CORPUS (93 casos) · ACEPTACIÓN · DIFERENCIAL · TRAZAR
+METAMÓRFICAS 213 equivalencias · SINTAXIS 34 medidas + 3 macros + 16 bloques
+MUTACIÓN 441/441 — 1582 detecciones, 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7246,14 +7322,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 4666 | el lenguaje |
+| líneas del núcleo | 5091 | el lenguaje |
 | líneas de medidas escritas en él | 208 | lo escrito en el lenguaje |
-| proporción | 22 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 25 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 213 | su naturaleza es rechazar, no medir |
+| proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 28 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 230 | su naturaleza es rechazar, no medir |
 | medidas | 34 | de las cuales 22 miden el lenguaje mismo |
 | casos de corpus | 93 | fallas reales, con su evidencia |
-| commits | 88 | el historial completo |
+| commits | 91 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

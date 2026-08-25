@@ -1,0 +1,17 @@
+caso 055-logico-cortocircuito:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "c81a87c"
+    titulo: "Un `y` que evaluó un solo operando de dos"
+    etiqueta: falso_verde
+    sintoma:
+        `all()`/`any()` sobre generadores cortan apenas el resultado está decidido, así que un campo mal escrito dentro de un `y` nunca se evaluaba y devolvía un False silencioso. La especificación dice en §3 que comparar contra un campo ausente levanta error justamente porque un False silencioso lo convierte en un verde.
+    como_se_detecto: herramienta_ajena
+    medida: meta.los_logicos_evaluan_todos_sus_operandos
+    evidencia:
+        nodo: cabeza, declarados, evaluados
+            "y", 2, 1
+            "o", 2, 1
+    leccion:
+        El defecto lo encontró el diferencial: dos de tres implementaciones independientes, escritas sólo desde la especificación, evaluaban todos los operandos. Y era peor que un verde fijo: dependía de los datos, así que la misma medida rota levantaba el error con una evidencia y lo escondía con otra.

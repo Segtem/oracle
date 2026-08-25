@@ -1,0 +1,18 @@
+caso 052-agrupar-colapsa-como-debe:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "c81a87c"
+    titulo: "`agrupar` colapsa filas en grupos"
+    etiqueta: verde_correcto
+    sintoma:
+        Seis filas colapsan en dos grupos, y un `agrupar` sobre dos filas ya agrupadas devuelve dos: colapsar a la misma cantidad es legítimo cuando cada fila es su propio grupo.
+    como_se_detecto: observacion
+    medida: meta.agrupar_no_agranda_la_relacion
+    evidencia:
+        paso: t, operador, filas_antes, filas_despues
+            0, "unir", 0, 6
+            1, "agrupar", 6, 2
+            2, "agrupar", 2, 2
+    leccion:
+        La igualdad tiene que pasar. Un umbral que exigiera reducción estricta daría falso rojo cada vez que las claves de agrupación son únicas, que es un caso común y correcto.

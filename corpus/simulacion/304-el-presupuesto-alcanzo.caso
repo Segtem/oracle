@@ -1,0 +1,18 @@
+caso 304-el-presupuesto-alcanzo:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "ejemplo abstracto"
+    titulo: "Con presupuesto suficiente ninguna corrida se corta"
+    etiqueta: verde_correcto
+    sintoma:
+        Las tres corridas terminan por «completado» antes de agotar los 20 pasos.
+    como_se_detecto: observacion
+    medida: simulacion.no_se_agoto_el_presupuesto
+    evidencia:
+        corrida: id, escenario, semilla, pasos, razon, presupuesto_agotado, determinista, sobro
+            "alcanza·s1", "alcanza", 1, 5, "completado", false, true, 15
+            "alcanza·s2", "alcanza", 2, 6, "completado", false, true, 14
+            "alcanza·s3", "alcanza", 3, 4, "completado", false, true, 16
+    leccion:
+        La otra polaridad: sin ella, aflojar el umbral de la medida pasaría inadvertido.

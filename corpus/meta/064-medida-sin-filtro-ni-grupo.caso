@@ -1,0 +1,20 @@
+caso 064-medida-sin-filtro-ni-grupo:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    titulo: "Una medida cuenta la relación entera"
+    etiqueta: falso_verde
+    sintoma:
+        La forma estructural de la medida no contiene `donde` ni `agrupar`. Está contando todo lo que entra, sin declarar qué condición separa una ofensa de una fila normal.
+    como_se_detecto: mutacion
+    medida: meta.toda_medida_filtra_o_agrupa
+    evidencia:
+        medida: id
+            "dominio.conteo_bruto"
+        termino: medida, cabeza
+            "dominio.conteo_bruto", "de"
+            "dominio.conteo_bruto", "resumen"
+            "dominio.conteo_bruto", "umbral"
+    leccion:
+        La forma mínima de una medida que señala defectos necesita un filtro o un agrupamiento que fabrique la condición observable.

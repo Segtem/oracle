@@ -17,13 +17,13 @@ justamente los que no hay que perder: son la lista de lo que falta.
 
 from __future__ import annotations
 
-import json
 import sys
 from collections import Counter
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nucleo.algebra import ErrorDeAlgebra, separar_clave  # noqa: E402
+from nucleo.caso import CasoMalDeclarado, cargar_fuente_caso, rutas_de_corpus  # noqa: E402
 from nucleo.proyecto import problemas_estructura, sin_bandera  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -55,7 +55,7 @@ ESTADOS_SIN_MEDIDA = {"abierto", "resuelto", "limite_humano"}
 
 
 def casos(raiz: Path) -> list[Path]:
-    return sorted(raiz.rglob("*.json"))
+    return rutas_de_corpus(raiz)
 
 
 def revisar_evidencia(nombre: str, evidencia) -> list[str]:
@@ -111,9 +111,9 @@ def verificar(raiz: Path) -> tuple[list[str], list[dict]]:
 
     for p in casos(raiz):
         try:
-            c = json.loads(p.read_text(encoding="utf-8"))
-        except json.JSONDecodeError as e:
-            fallas.append(f"{p.name}: JSON inválido — {e}")
+            c = cargar_fuente_caso(p)
+        except CasoMalDeclarado as e:
+            fallas.append(str(e))
             continue
 
         faltan = [k for k in OBLIGATORIOS if k not in c]

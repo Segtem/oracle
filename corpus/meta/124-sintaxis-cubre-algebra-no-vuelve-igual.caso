@@ -1,0 +1,18 @@
+caso 124-sintaxis-cubre-algebra-no-vuelve-igual:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis generada no vuelve igual"
+    etiqueta: falso_verde
+    sintoma:
+        Una medida generada a partir de la gramática del álgebra difiere en su AST al volver de la superficie infija: la superficie está perdiendo información o alterando la estructura del operador.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_cubre_algebra
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_cubre_algebra", "meta_gen.expr_profunda", "construido", true, "", false, true, true
+            "sintaxis_cubre_algebra", "meta_gen.f_de_req0_umb_lte_0", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "catalogo_ok", "catalogo", true, "", true, true, true
+    leccion:
+        La completitud del metalenguaje exige que cualquier construcción válida para el evaluador sea reversible en la sintaxis infija. Si una construcción válida muta o falla al imprimirse, la superficie no es un reflejo fiel del álgebra sino un dialecto restringido.

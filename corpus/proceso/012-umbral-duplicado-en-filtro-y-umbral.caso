@@ -1,0 +1,20 @@
+caso 012-umbral-duplicado-en-filtro-y-umbral:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "catálogo de geometría"
+    titulo: "El umbral de dominio aparece dos veces en la misma medida y nada los mantiene juntos"
+    etiqueta: deuda_de_diseño
+    sintoma:
+        En `snap.grilla` el 1.0 cm está en el `donde` (que selecciona los testigos) y otra vez en el `umbral` (que trae su defensa escrita). Si alguien cambia uno y no el otro, la medida queda incoherente: reportaría testigos que el umbral perdona, o al revés.
+    como_se_detecto: persona
+    medida: null
+    estado_sin_medida: resuelto
+    resuelto:
+        2026-07-29, por construcción: la macro `peor` recibe la tolerancia UNA vez y genera con ella el filtro y el umbral. No hace falta comprobar que coincidan porque no hay dos copias. Se deja el caso como registro: la deuda existió y así se cerró.
+    evidencia:
+        declaracion: medida, umbral_en_filtro, umbral_declarado, coinciden
+            "snap.grilla", 1.0, 1.0, true
+            "snap.yaw", 0.5, 0.5, true
+    leccion:
+        Un número que aparece dos veces puede divergir. Es el mismo defecto que los testigos duplicados del caso 004, en el otro extremo de la medida.

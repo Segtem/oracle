@@ -14,7 +14,6 @@ que se empezó a generar: una cifra publicada a mano es una afirmación que nadi
 
 from __future__ import annotations
 
-import json
 import sys
 import unittest
 from collections import Counter
@@ -88,8 +87,9 @@ def _negativas(rutas: list[Path]) -> int:
 
 
 def _casos_del_corpus() -> list[dict]:
-    return [json.loads(p.read_text(encoding="utf-8"))
-            for p in sorted((RAIZ / "corpus").glob("*/*.json"))]
+    from nucleo.caso import cargar_casos
+
+    return cargar_casos(RAIZ / "corpus")
 
 
 def negativas() -> str:

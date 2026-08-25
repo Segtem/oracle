@@ -1,0 +1,17 @@
+caso 063-ausencia-sin-terminos-no-concluye:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    titulo: "Sin relación `termino`, la regla de ausencia no puede concluir"
+    etiqueta: falso_verde
+    sintoma:
+        El sensor estructural no entregó ningún término. Una regla que mide la forma del catálogo no debe ponerse verde cuando no recibió la forma que necesita mirar.
+    como_se_detecto: mutacion
+    medida: meta.toda_medida_de_ausencia_declara_requiere
+    evidencia:
+        medida: id
+            "dominio.sin_estructura"
+        termino:
+    leccion:
+        Este caso fija el `requiere` de la propia medida meta: quitarlo vuelve al falso verde sobre cero filas.

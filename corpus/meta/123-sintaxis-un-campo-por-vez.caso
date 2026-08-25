@@ -1,0 +1,18 @@
+caso 123-sintaxis-un-campo-por-vez:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "b250e6c"
+    titulo: "Cada campo del contrato de la ida y vuelta falla por separado"
+    etiqueta: falso_verde
+    sintoma:
+        Tres conversiones fallando en UN solo campo cada una: una difiere sólo en el veredicto, otra sólo en el valor, otra sólo en los testigos. Las tres son ofensas y hay que contarlas por separado.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_ida_y_vuelta", "solo-veredicto", "catalogo", true, "", false, true, true
+            "sintaxis_ida_y_vuelta", "solo-valor", "catalogo", true, "", true, false, true
+            "sintaxis_ida_y_vuelta", "solo-testigos", "catalogo", true, "", true, true, false
+    leccion:
+        Cuarta vez que la mutación pide este caso, y ya es un patrón del proyecto: cuando un predicado es un `o` de comparaciones sobre campos distintos, sustituir un campo por otro pasa inadvertido mientras todos los casos traigan los campos con el mismo valor. La polaridad no alcanza; hay que aislar cada rama. Lo mismo pasó en `057`, en `060` y en `108`–`111`.

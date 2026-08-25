@@ -1,0 +1,17 @@
+caso 309-una-traza-con-un-hueco:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "mutación de medidas P1.1"
+    titulo: "Una única traza agujereada ya invalida la ronda"
+    etiqueta: falso_verde
+    sintoma:
+        El fixture anterior contenía dos corridas con huecos. Una traza con los instantes 0 y 2 demuestra que permitir una corrida defectuosa también sería un falso verde.
+    como_se_detecto: mutacion
+    medida: simulacion.la_traza_no_tiene_huecos
+    evidencia:
+        evento: corrida, t, actor, que
+            "r1", 0, "trabajo", "empieza"
+            "r1", 2, "trabajo", "termina"
+    leccion:
+        La continuidad se exige por corrida. Un solo grupo con menos registros que `ultimo + 1` alcanza para poner la medida en rojo.

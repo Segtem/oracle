@@ -1,0 +1,19 @@
+caso 126-sintaxis-cubre-algebra-un-campo-por-vez:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Cada campo del contrato de sintaxis_cubre_algebra falla por separado"
+    etiqueta: falso_verde
+    sintoma:
+        Cuatro equivalencias de la propiedad sintaxis_cubre_algebra fallando en UN solo campo del contrato: veredicto, valor, testigos o error.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_cubre_algebra
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_cubre_algebra", "solo-veredicto", "construido", true, "", false, true, true
+            "sintaxis_cubre_algebra", "solo-valor", "construido", true, "", true, false, true
+            "sintaxis_cubre_algebra", "solo-testigos", "construido", true, "", true, true, false
+            "sintaxis_cubre_algebra", "solo-error", "construido", false, "ErrorSintaxis", true, true, true
+    leccion:
+        Aislar cada campo del contrato en filas separadas es indispensable para matar los mutantes de sustitución en disyunciones lógicas.

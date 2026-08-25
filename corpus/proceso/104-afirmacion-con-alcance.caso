@@ -1,0 +1,17 @@
+caso 104-afirmacion-con-alcance:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "sesión 2026-07-29"
+    titulo: "La confirmación de Brian se registró con su alcance explícito"
+    etiqueta: verde_correcto
+    sintoma:
+        Al cerrar la frontera de verificación se anotó que era un «todo funciona bien» GLOBAL y no gesto por gesto. La afirmación trae alcance, así que la medida dice verde.
+    como_se_detecto: observacion
+    medida: proceso.afirmacion_declara_alcance
+    evidencia:
+        afirmacion: id, texto, comando, alcance
+            "frontera", "Brian probó el editor y todo funciona", "editor GUI, a mano", "global, no gesto por gesto; lo nuevo de Slate vuelve a nacer sin verificar"
+            "motor", "8/8 tutoriales TODO VERDE", "verifica_ejemplos.py headless", "carga y compilación de los tutoriales; no ejercita gestos de Slate"
+    leccion:
+        Declarar el alcance no es burocracia: es lo que permite que la afirmación siga siendo cierta cuando alguien la lea tres días después.

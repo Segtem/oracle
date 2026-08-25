@@ -7,6 +7,8 @@ import pathlib
 import unittest
 from pathlib import Path
 
+from nucleo import caso as sintaxis_caso
+from nucleo.caso import CasoMalDeclarado
 from nucleo.medida import rutas_de_catalogo
 from nucleo.macro import EXTENSIONES_DE_MACRO
 from nucleo.medida import cargar_fuente_medida, ruta_de_medida
@@ -145,6 +147,130 @@ class SintaxisInfijaTests(unittest.TestCase):
             ruta_de_medida("meta.sintaxis_cubre_algebra", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         m = Medida.de_datos(jueza, macros=macros_del_proyecto(Proyecto(RAIZ)))
         self.assertTrue(m.evaluar({"equivalencia": filas}).ok)
+
+
+class SintaxisDeCasosTests(unittest.TestCase):
+    def _caso_base(self, evidencia=None) -> dict:
+        return {
+            "id": "999-caso-de-prueba",
+            "fecha": "2026-08-25",
+            "origen": {"repo": "test", "commit": "local"},
+            "titulo": "Caso de prueba",
+            "etiqueta": "verde_correcto",
+            "sintoma": "Prosa con `backticks`, comillas \"dobles\" y coma, sin escapar.",
+            "como_se_detecto": "observacion",
+            "medida": "demo.mide",
+            "evidencia": evidencia or {"hecho": [{"id": "a", "ok": True}]},
+            "leccion": "La prosa vuelve igual.",
+        }
+
+    def test_todo_el_corpus_vuelve_exacto_en_la_superficie_de_casos(self) -> None:
+        rutas = sintaxis_caso.rutas_de_corpus(RAIZ / "corpus")
+        self.assertGreater(len(rutas), 0)
+        for ruta in rutas:
+            with self.subTest(caso=ruta.relative_to(RAIZ)):
+                datos = sintaxis_caso.cargar_fuente_caso(ruta)
+                superficie = sintaxis_caso.imprimir(datos)
+                releido = sintaxis_caso.leer(superficie)
+                self.assertEqual(releido, datos)
+                self.assertEqual(sintaxis_caso.imprimir(releido), superficie)
+
+    def test_el_corpus_real_ejercita_los_dos_lectores(self) -> None:
+        rutas = sintaxis_caso.rutas_de_corpus(RAIZ / "corpus")
+        self.assertEqual({r.suffix for r in rutas}, {".caso", ".json"})
+        self.assertEqual(sum(1 for r in rutas if r.suffix == ".json"), 2)
+        self.assertEqual(sum(1 for r in rutas if r.suffix == ".caso"), len(rutas) - 2)
+
+    def test_una_relacion_heterogenea_usa_la_salida_de_escape(self) -> None:
+        datos = self._caso_base({"rel": [{"a": 1}, {"b": "dos", "c": False}]})
+        superficie = sintaxis_caso.imprimir(datos)
+
+        self.assertIn("\n        rel:\n", superficie)
+        self.assertIn('            fila {"a": 1}\n', superficie)
+        self.assertIn('            fila {"b": "dos", "c": false}\n', superficie)
+        self.assertEqual(sintaxis_caso.leer(superficie), datos)
+
+    def test_una_relacion_presente_y_vacia_no_es_una_relacion_ausente(self) -> None:
+        datos = self._caso_base({"presente": []})
+        releido = sintaxis_caso.leer(sintaxis_caso.imprimir(datos))
+
+        self.assertIn("presente", releido["evidencia"])
+        self.assertEqual(releido["evidencia"]["presente"], [])
+        self.assertNotIn("ausente", releido["evidencia"])
+
+    def test_una_relacion_vacia_puede_conservar_clave_declarada(self) -> None:
+        datos = self._caso_base({"pieza": [["clave", ["id"]]]})
+        releido = sintaxis_caso.leer(sintaxis_caso.imprimir(datos))
+
+        self.assertEqual(releido["evidencia"]["pieza"], [["clave", ["id"]]])
+
+    def test_el_mismo_id_en_json_y_caso_es_error(self) -> None:
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "corpus").mkdir()
+            datos = self._caso_base()
+            (raiz / "corpus" / "uno.json").write_text(
+                json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+            (raiz / "corpus" / "dos.caso").write_text(
+                sintaxis_caso.imprimir(datos), encoding="utf-8")
+
+            with self.assertRaises(CasoMalDeclarado) as cm:
+                sintaxis_caso.cargar_casos(raiz / "corpus")
+
+        mensaje = str(cm.exception)
+        self.assertIn("999-caso-de-prueba", mensaje)
+        self.assertIn("uno.json", mensaje)
+        self.assertIn("dos.caso", mensaje)
+
+    def test_un_caso_mal_formado_denuncia_archivo_linea_columna_y_fragmento(self) -> None:
+        import tempfile
+        texto = "\n".join([
+            "caso 999-roto:",
+            '    fecha: "2026-08-25"',
+            "    origen:",
+            '        repo: "test"',
+            '        commit: "local"',
+            '    titulo: "Roto"',
+            "    etiqueta: verde_correcto",
+            "    sintoma:",
+            "        falla",
+            "    como_se_detecto: observacion",
+            "    medida: demo.mide",
+            "    evidencia:",
+            "        hecho: id, ok",
+            '            "a" true',
+            "    leccion:",
+            "        falla",
+        ]) + "\n"
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "roto.caso"
+            ruta.write_text(texto, encoding="utf-8")
+            with self.assertRaises(CasoMalDeclarado) as cm:
+                sintaxis_caso.cargar_fuente_caso(ruta)
+
+        mensaje = str(cm.exception)
+        self.assertIn("roto.caso", mensaje)
+        self.assertIn("línea 14, columna", mensaje)
+        self.assertIn("  14 |", mensaje)
+        self.assertIn("^", mensaje)
+
+    def test_las_herramientas_no_vuelven_a_rglob_json_sobre_corpus(self) -> None:
+        revisadas = (
+            RAIZ / "tools" / "aceptacion.py",
+            RAIZ / "tools" / "cifras.py",
+            RAIZ / "tools" / "corpus.py",
+            RAIZ / "tools" / "estudio.py",
+            RAIZ / "tools" / "medida.py",
+            RAIZ / "tools" / "metamorficas.py",
+            RAIZ / "tools" / "mutar.py",
+            RAIZ / "tools" / "trazar.py",
+        )
+        for ruta in revisadas:
+            with self.subTest(ruta=ruta.name):
+                codigo = ruta.read_text(encoding="utf-8")
+                self.assertNotIn('rglob("*.json")', codigo)
+                self.assertNotIn('glob("*/*.json")', codigo)
 
 
 class GramaticaDelIdTests(unittest.TestCase):

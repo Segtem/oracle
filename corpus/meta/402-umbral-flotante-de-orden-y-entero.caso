@@ -1,0 +1,17 @@
+caso 402-umbral-flotante-de-orden-y-entero:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    titulo: "El orden sobre flotantes y la igualdad sobre enteros no ofenden"
+    etiqueta: verde_correcto
+    sintoma:
+        Una medida compara un flotante con una cota de orden (`<=`) y otra compara un entero con igualdad exacta (`==`). Ninguna de las dos es igualdad exacta sobre un flotante, y la regla debe dejarlas pasar.
+    como_se_detecto: observacion
+    medida: meta.ningun_umbral_flotante_de_igualdad
+    evidencia:
+        medida: id, umbral_es_flotante, comparador
+            "dominio.cota_flotante", true, "<="
+            "dominio.igualdad_entera", false, "=="
+    leccion:
+        El verde cubre las dos maneras de no caer en el defecto: una tolerancia (orden sobre flotante) y una igualdad sobre algo que se cuenta o se nombra (entero). Si la disyunción se endurece, este caso se pone rojo.

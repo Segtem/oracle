@@ -1,0 +1,21 @@
+caso 009-modulo-sin-consumidor:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "535d476"
+    titulo: "Módulos completos, testeados y que nadie importa"
+    etiqueta: falso_verde
+    sintoma:
+        El agente criticó que `preview2d` estuviera entero con cero consumidores en `Source/`, y un turno después escribió `medida.py` y `catalogo.py` con tests en verde y ningún importador. El verde de los tests no distingue «funciona» de «se usa».
+    como_se_detecto: persona
+    medida: proceso.modulo_con_consumidor
+    evidencia:
+        modulo: nombre, tests, importadores
+            "jam.preview2d", 9, 0
+            "jam.medida", 12, 1
+            "jam.catalogo", 12, 1
+        importa: a, b, es_test
+            "tests.test_medida", "jam.medida", true
+            "tests.test_medida", "jam.catalogo", true
+    leccion:
+        Un test no es un consumidor: un módulo cuyos únicos importadores son sus propios tests está verde y no está en uso. Este caso pidió el operador `agrupar` durante dos días —la medida declaraba no poder distinguirlos— y con la ausencia expresable ya los distingue.

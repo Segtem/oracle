@@ -1,0 +1,17 @@
+caso 120-sintaxis-no-vuelve-igual:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "b250e6c"
+    titulo: "Sintaxis no vuelve igual"
+    etiqueta: falso_verde
+    sintoma:
+        Una medida convertida a la superficie infija y de vuelta a JSON dejó de coincidir en testigos. El texto se lee lindo y la medida ya no es la misma: la superficie está perdiendo información en el camino.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_ida_y_vuelta", "una-medida-con-agrupar", "catalogo", true, "", true, true, false
+            "sintaxis_ida_y_vuelta", "c", "catalogo", true, "", true, true, true
+    leccion:
+        Es la propiedad que sostiene toda la apuesta de la sintaxis. El JSON canónico es el almacenamiento —de él dependen la mutación, las macros, la reificación y las huellas de los fixtures— y una superficie que no vuelva exacta no es una forma de escribir lo mismo: es otra cosa parecida. Por eso la ida y vuelta se comprueba sobre TODO el catálogo y no sobre un ejemplo.

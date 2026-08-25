@@ -1,0 +1,19 @@
+caso 125-sintaxis-cubre-algebra-vuelve-exacta:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis generada vuelve exacta"
+    etiqueta: verde_correcto
+    sintoma:
+        Tres medidas generadas por gramática (una con unir encadenado, una con agrupar multiclave y una con predicados anidados) sobreviven la ida y vuelta canónica sin perder veredicto ni valor.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_cubre_algebra
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_cubre_algebra", "meta_gen.f_unir3_req2_umb_lte_0", "construido", true, "", true, true, true
+            "sintaxis_cubre_algebra", "meta_gen.grp_c2_a2_max_min", "construido", true, "", true, true, true
+            "sintaxis_cubre_algebra", "meta_gen.expr_profunda_5", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "catalogo_ok", "catalogo", true, "", true, true, true
+    leccion:
+        Comprobar la reversibilidad sobre medidas sintéticas derivadas de la gramática extiende la garantía de la superficie más allá de las medidas escritas en el catálogo base.

@@ -1,0 +1,25 @@
+caso 062-ausencia-cubierta-o-no-aplica:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    titulo: "El patrón de ausencia pasa cuando declara `requiere`, y los patrones parciales no cuentan"
+    etiqueta: verde_correcto
+    sintoma:
+        Una medida con `unir` y `agrupar` trae el nodo `requiere`; otra usa sólo `unir`; otra usa sólo `agrupar`. Ninguna debe marcarse como ausencia sin precondición.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_de_ausencia_declara_requiere
+    evidencia:
+        medida: id
+            "dominio.ausencia_cubierta"
+            "dominio.solo_union"
+            "dominio.solo_agrupa"
+        termino: medida, cabeza
+            "dominio.ausencia_cubierta", "unir"
+            "dominio.ausencia_cubierta", "agrupar"
+            "dominio.ausencia_cubierta", "requiere"
+            "dominio.solo_union", "unir"
+            "dominio.solo_union", "donde"
+            "dominio.solo_agrupa", "agrupar"
+    leccion:
+        La regla es deliberadamente estrecha: no todo `unir` pide precondición, y no todo `agrupar` expresa ausencia. El rojo nace sólo cuando aparecen los dos y falta el nodo `requiere`.

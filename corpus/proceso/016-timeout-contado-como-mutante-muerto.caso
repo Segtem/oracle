@@ -1,0 +1,16 @@
+caso 016-timeout-contado-como-mutante-muerto:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "auditoría P0"
+    titulo: "Un timeout no demuestra que el test haya discriminado al mutante"
+    etiqueta: falso_verde
+    sintoma:
+        El arnés convertía cualquier ejecución no verde en mutante muerto. Una prueba colgada podía mejorar artificialmente el porcentaje de mutación.
+    como_se_detecto: persona
+    medida: proceso.ronda_mutacion_concluyente
+    evidencia:
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
+            "ronda-inconclusa", 3, true, true, 2, 0, 1
+    leccion:
+        Muerte, timeout y error del arnés son resultados distintos; sólo una aserción fallida es evidencia discriminante.

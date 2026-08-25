@@ -1,0 +1,17 @@
+caso 051-agrupar-invento-un-grupo:
+    fecha: "2026-08-24"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "c81a87c"
+    titulo: "`agrupar` devolvió más grupos que filas de entrada"
+    etiqueta: falso_verde
+    sintoma:
+        Cuatro filas entraron a `agrupar` y salieron cinco grupos. Un grupo es un resumen de filas: no puede haber más grupos que filas que los originen. Si sale agrandando, hay al menos un grupo que ninguna fila sostiene, y todo agregado calculado sobre él es un número sin evidencia detrás.
+    como_se_detecto: mutacion
+    medida: meta.agrupar_no_agranda_la_relacion
+    evidencia:
+        paso: t, operador, filas_antes, filas_despues
+            0, "unir", 0, 4
+            1, "agrupar", 4, 5
+    leccion:
+        El caso 043 mostró que un agregado sobre cero filas es indistinguible de uno que dio cero. Éste es el otro extremo del mismo problema: un agregado sobre un grupo inventado tampoco se distingue de uno legítimo mirando sólo el número.

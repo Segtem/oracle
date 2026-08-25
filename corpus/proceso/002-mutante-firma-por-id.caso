@@ -1,0 +1,18 @@
+caso 002-mutante-firma-por-id:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "19d2593"
+    titulo: "El test de orden de la firma pasaba con el código roto"
+    etiqueta: falso_verde
+    sintoma:
+        `firma()` debe ordenar los pines por POSICIÓN visual. Se mutó a ordenar por id y el test siguió en verde: en los datos del test el id «a» caía justo en el pin de arriba, así que los dos órdenes coincidían.
+    como_se_detecto: mutacion
+    medida: proceso.test_con_mutante_que_lo_mata
+    evidencia:
+        test: id, archivo, cubre
+            "test_la_firma_sale_en_el_orden_en_que_se_ven_los_pines", "tests/test_funcion.py", "funcion._orden_visual"
+        mutante: id, apunta_a, cambio, detecciones_conductuales, rechazos_del_algebra
+            "orden_por_id", "funcion._orden_visual", "clave de sort: (y,x,id) -> id", 0, 0
+    leccion:
+        Un test de ORDEN cuyos datos hacen coincidir dos órdenes distintos no comprueba nada. Los identificadores tienen que ir a propósito al revés que el criterio.

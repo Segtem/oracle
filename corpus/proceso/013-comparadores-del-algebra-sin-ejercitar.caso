@@ -1,0 +1,23 @@
+caso 013-comparadores-del-algebra-sin-ejercitar:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "primera corrida de mutación de código"
+    titulo: "53 tests en verde y cuatro de los seis comparadores del álgebra sin verificar"
+    etiqueta: falso_verde
+    sintoma:
+        El álgebra define seis comparadores. Los tests sólo ejercitaban `<=` y `>`, y por vías indirectas (a través de medidas). Cambiar `!=` por `==`, `<` por `<=`, `>` por `>=` o `>=` por `>` NO rompía ningún test. Lo mismo el formateo del informe: se había argumentado que «el informe es contrato» y nadie lo verificaba.
+    como_se_detecto: mutacion
+    medida: proceso.test_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, detecciones_conductuales, rechazos_del_algebra
+            "algebra.py:50:27:comparador", "algebra._cmp", 0, 0
+            "algebra.py:51:26:comparador", "algebra._cmp", 0, 0
+            "algebra.py:53:26:comparador", "algebra._cmp", 0, 0
+            "algebra.py:54:27:comparador", "algebra._cmp", 0, 0
+            "medida.py:52:73:constante", "medida.Veredicto.linea", 0, 0
+            "medida.py:53:53:comparador", "medida.Veredicto.linea", 0, 0
+        corrida_mutacion: id, mutantes, bytecode_frio, resultado_confiable
+            "nucleo_primera", 242, true, true
+    leccion:
+        Un conteo de tests no dice nada sobre qué fija. 53 tests verdes convivían con 88 mutantes vivos. Y los mutantes hay que GENERARLOS: si el autor elige cuáles escribir, elige los que sus tests ya atrapan.

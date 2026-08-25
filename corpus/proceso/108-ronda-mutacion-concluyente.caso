@@ -1,0 +1,16 @@
+caso 108-ronda-mutacion-concluyente:
+    fecha: "2026-07-30"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "auditoría P0"
+    titulo: "La ronda separó muertes válidas de incidentes del arnés"
+    etiqueta: verde_correcto
+    sintoma:
+        La línea base pasó y todos los subprocesos terminaron dentro del límite; los códigos de fallo declarados fueron las únicas ejecuciones contadas como mutantes muertos.
+    como_se_detecto: observacion
+    medida: proceso.ronda_mutacion_concluyente
+    evidencia:
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
+            "ronda-concluyente", 3, true, true, 2, 0, 0
+    leccion:
+        Una ronda puede encontrar mutantes vivos y seguir siendo confiable; lo que la vuelve inconclusa es no saber qué ocurrió en una ejecución.
