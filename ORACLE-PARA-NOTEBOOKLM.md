@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `762d84c72396`
+- Revisión de código base: `e73b9d4c6d35`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5525 líneas de lenguaje y **252 negativas explícitas** (`raise`).
+En este corte hay 5545 líneas de lenguaje y **254 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -108,7 +108,7 @@ de grave: en un solo día lo cometí tres veces.
 #### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 63 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 44 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 67 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 48 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5525 líneas de lenguaje** (`nucleo/`, código y macros) y **252 negativas explícitas** (`raise`). Contra las 34 medidas universales escritas en él (208 líneas): **26,6 a 1**. 27 de las 34 pasan por una macro.
+**5545 líneas de lenguaje** (`nucleo/`, código y macros) y **254 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,4 a 1**. 29 de las 36 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -279,15 +279,15 @@ oracle/                        LA HERRAMIENTA
   nucleo/                      el álgebra, la medida, las macros, el dominio, la simulación
   perfiles/python/             AST, imports, mutación de `.py` y garantías de `.pyc`
   tools/                       los instrumentos
-  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion
-  corpus/                      los casos donde la medición dijo bien y no estaba bien
+  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion (.oracle y .json)
+  corpus/                      los casos donde la medición dijo bien y no estaba bien (.caso y .json)
   ejemplo/                     un banco de pruebas abstracto, no un dominio
 
 <tu-proyecto>/                 TU PROYECTO
   oracle.json                  perfiles optativos activados de forma explícita
-  catalogos/<dominio>/         tus medidas
+  catalogos/<dominio>/         tus medidas (.oracle y .json)
   escalares.py                 tus funciones de dominio
-  corpus/  diferencial/        tus casos y tus fixtures
+  corpus/  diferencial/        tus casos (.caso y .json) y tus fixtures
 ```
 
 Y las herramientas se apuntan:
@@ -338,12 +338,12 @@ no abstraer.
 > `AUDITORIA-2026-07-30.md` y
 > `PLAN-CORRECCION.md`.
 
-**El paquete contiene los cinco componentes.** El corpus (42 casos), la especificación del álgebra,
+**El paquete contiene los cinco componentes.** El corpus (42 casos, en formato de autoría `.caso` o almacenamiento `.json`), la especificación del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de `catalogos/` —como
-archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
+archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → `ESCRIBIR-UNA-MEDIDA.md`.
-`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `--nueva` crea el archivo.
+`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `tools/corpus.py --nuevo` crea el caso (`.caso`) y `tools/medida.py --nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
 Requiere Python 3.11 o posterior. Se puede usar desde el checkout o instalar sin dependencias:
 
@@ -403,11 +403,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**93 casos**: 63 defectos y 30 verdes correctos. De los defectos, 60 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 58 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**99 casos**: 67 defectos y 32 verdes correctos. De los defectos, 64 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 62 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-510 tests · 441/441 mutantes de medida · **2239 sitios de mutación de código** (2034 + 205 del motor Python).
+519 tests · 535/535 mutantes de medida · **2261 sitios de mutación de código** (2056 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -649,8 +649,10 @@ no conoce el nodo nuevo.
 #### La superficie tiene su propia versión
 
 La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
-misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La distinción que importa es entre el
-**lector** y el **impresor**, y no envejecen igual: un archivo `.oracle` viejo se **lee**; el
+misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La regla aplica a las medidas
+(`.oracle`) y a los casos del corpus (`.caso`): la superficie es cómo se escribe y el JSON es cómo
+se guarda, cargándose ambos por igual. La distinción que importa es entre el **lector** y el
+**impresor**, y no envejecen igual: un archivo `.oracle` o `.caso` viejo se **lee**; el
 impresor no lo toca. Por eso **una sola versión alcanza**, y alcanza porque la comparación es
 asimétrica —el archivo declara contra qué se escribió y el núcleo declara qué implementa—:
 
@@ -932,7 +934,7 @@ Comprobable, y si falla el diseño está mal:
 1. una medida sobre **piezas** y una medida sobre **nodos de un grafo** usan los mismos operadores,
    sin adaptador;
 2. una medida **sobre medidas** no introduce ninguna construcción nueva;
-3. el corpus guarda los tres niveles con el mismo formato;
+3. el corpus guarda los tres niveles con el mismo formato (en superficie `.caso` para autoría o `.json` para almacenamiento);
 4. **todo caso del corpus que declara una medida se pone en rojo** con esa medida. El que quede verde
    señala lenguaje faltante o medida mal escrita, y hay que decir cuál. Los casos con
    estado `abierto` **siguen verdes a propósito**: son el hueco declarado, no una falla del
@@ -1044,8 +1046,9 @@ que quien ve un defecto pueda escribir la regla que lo atrapa; si para eso hay q
 hecho el evaluador, el único que puede escribir reglas es quien lo escribió — y ese es exactamente el
 problema que veníamos a resolver.
 
-**La superficie infija es cómo se escribe; el JSON es cómo se guarda.** Este documento enseña a
-escribir medidas directamente en la superficie infija.
+**La superficie es cómo se escribe; el JSON es cómo se guarda.** Este documento enseña a
+escribir medidas y casos directamente en su superficie de autoría (`.oracle` y `.caso`), que el
+sistema carga por igual sin paso de traducción.
 
 ### El orden importa: primero el caso, después la medida
 
@@ -1058,7 +1061,8 @@ escribir medidas directamente en la superficie infija.
 
 ```bash
 # 1. el caso: la evidencia del defecto, y que se espera ROJO
-#    (corpus/proceso/0NN-lo-que-paso.json — copiá uno que exista y cambialo)
+#    (el andamio ya nace en superficie .caso, o copiá uno que exista)
+python tools/corpus.py --nuevo proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
 
 # 2. mirá con qué contás
 python tools/medida.py --relaciones     # los hechos y sus campos, derivados de la evidencia real
@@ -1073,21 +1077,24 @@ python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
-#### Los dos formatos del catálogo
+#### Los dos formatos del catálogo y del corpus
 
-El catálogo carga **`.oracle` y `.json` por igual**: una medida en superficie infija no necesita
-traducirse a nada para funcionar. El mismo id en los dos formatos es un error que nombra los dos
-archivos — no gana ninguno, porque un ganador silencioso es una divergencia esperando.
+El catálogo y el corpus cargan **superficie (`.oracle`, `.caso`) y `.json` por igual**: los
+archivos en superficie no necesitan traducirse a nada para funcionar. El mismo id en los dos
+formatos es un error que nombra los dos archivos — no gana ninguno, porque un ganador silencioso es
+una divergencia esperando.
 
-- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio, ya en superficie.
+- `python tools/corpus.py --nuevo <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
+- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
 - `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
-- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso, si alguna vez lo necesitás.
+- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
 
-El id tiene gramática cerrada y **ASCII**: `dominio.nombre`, minúsculas, dígitos y `_`. No es que el
-proyecto no sea en español —la prosa de `porque` y de `alcance` lo es entera—: es que el id es
-también un nombre de archivo, y en Unicode `dueño` puede ser dos secuencias de bytes distintas que se
-dibujan idénticas (NFC contra NFD). Dos ids que nadie puede distinguir mirando son una divergencia
-silenciosa, y eso se cierra por gramática.
+El id tiene gramática cerrada y **ASCII**: `dominio.nombre` para medidas y `NNN-descripcion` para
+casos (minúsculas, dígitos y `_`/`-`). No es que el proyecto no sea en español —la prosa de
+`porque` y de `alcance` lo es entera—: es que el id es también un nombre de archivo, y en Unicode
+`dueño` puede ser dos secuencias de bytes distintas que se dibujan idénticas (NFC contra NFD). Dos
+ids que nadie puede distinguir mirando son una divergencia silenciosa, y eso se cierra por
+gramática.
 
 #### Frontera de confianza
 
@@ -1709,6 +1716,74 @@ En qué se expande:
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa"],
   ["alcance", "ve si el `alcance` está VACÍO. NO impone una fórmula textual ni un idioma, y NO juzga si el punto ciego declarado es el correcto o el completo"]
+]
+```
+
+#### meta.sintaxis_casos_cubre_casos
+
+- **mide sobre** la relación `equivalencia`
+- **umbral**: `<= 0`
+- **por qué ese número**: todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida
+- **qué NO ve**: comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto "null", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.sintaxis_casos_cubre_casos",
+  "equivalencia",
+  "e",
+  ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_cubre_casos"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
+  "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida",
+  "comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto \"null\", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.sintaxis_casos_cubre_casos",
+  ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_cubre_casos"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida"],
+  ["alcance", "comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto \"null\", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"]
+]
+```
+
+#### meta.sintaxis_casos_ida_y_vuelta
+
+- **mide sobre** la relación `equivalencia`
+- **umbral**: `<= 0`
+- **por qué ese número**: la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse
+- **qué NO ve**: comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.sintaxis_casos_ida_y_vuelta",
+  "equivalencia",
+  "e",
+  ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_ida_y_vuelta"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
+  "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse",
+  "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.sintaxis_casos_ida_y_vuelta",
+  ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_ida_y_vuelta"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse"],
+  ["alcance", "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción"]
 ]
 ```
 
@@ -2353,16 +2428,16 @@ medidas, cada caso de defecto tiene que ponerse rojo y cada caso correcto, verde
 
 | Etiqueta | Cuántos |
 |---|---|
-| falso_verde | 58 |
-| verde_correcto | 30 |
+| falso_verde | 62 |
+| verde_correcto | 32 |
 | deuda_de_diseño | 2 |
 | falso_rojo | 2 |
 | medida_correcta_conclusion_errada | 1 |
 
 | Cómo se detectó | Cuántos |
 |---|---|
-| mutacion | 44 |
-| observacion | 30 |
+| mutacion | 48 |
+| observacion | 32 |
 | persona | 12 |
 | accidente | 4 |
 | herramienta_ajena | 3 |
@@ -3115,6 +3190,126 @@ La evidencia, como relaciones:
 ```json
 {
   "equivalencia": [{"propiedad": "sintaxis_cubre_algebra", "caso": "solo-veredicto", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "solo-valor", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": false, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "solo-testigos", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}, {"propiedad": "sintaxis_cubre_algebra", "caso": "solo-error", "origen": "construido", "evaluo": false, "error": "ErrorSintaxis", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 127-sintaxis-casos-no-vuelve-igual
+
+**Sintaxis de casos no vuelve igual**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.sintaxis_casos_ida_y_vuelta`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Un caso del corpus se imprime y se relee, pero vuelve con el nulo convertido en texto. La herramienta de sintaxis declara verde una superficie que ya no representa el mismo caso.
+
+**Qué se aprendió.** El corpus también es superficie publicada. Si un caso cambia de datos al pasar por el impresor, después las medidas se fijan contra otra evidencia.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "corpus/meta/ejemplo.caso", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "corpus/meta/otro.caso", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 128-sintaxis-casos-vuelve-exacta
+
+**Sintaxis de casos vuelve exacta**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.sintaxis_casos_ida_y_vuelta`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Tres casos del corpus conservan datos y texto canónico al imprimirse y releerse: uno con relación vacía, uno con clave declarada y uno con filas heterogéneas.
+
+**Qué se aprendió.** La ida y vuelta de casos tiene que mirar las formas incómodas del corpus, no sólo la tabla homogénea común.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "relacion-vacia", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "clave-declarada", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "filas-heterogeneas", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 129-sintaxis-casos-generados-no-vuelve-igual
+
+**Sintaxis de casos generados no vuelve igual**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Un caso construido desde la forma de datos pierde una relación presente y vacía. El corpus real puede no tener justo esa combinación mañana, pero la superficie la acepta y debe conservarla.
+
+**Qué se aprendió.** La completitud de la sintaxis de casos no puede depender de que el corpus real justo tenga todos los bordes. Las sondas generadas fijan las formas que el lector y el impresor prometen aceptar.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_cubre_casos", "caso": "902-generado-2-relaciones", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "901-generado-1-relaciones", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "corpus-ok", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 130-sintaxis-casos-generados-vuelve-exacta
+
+**Sintaxis de casos generados vuelve exacta**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Casos sintéticos con relación ausente, relación vacía, tres relaciones y `medida: null` sobreviven la ida y vuelta canónica sin cambiar.
+
+**Qué se aprendió.** Generar casos desde la forma L0 amplía la garantía de reversibilidad a bordes que no conviene esperar a que aparezcan por accidente en el corpus.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_cubre_casos", "caso": "900-generado-relacion-ausente", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "902-generado-2-relaciones", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "903-generado-3-relaciones", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "904-generado-sin-medida", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "corpus-ok", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 131-sintaxis-casos-un-campo-por-vez
+
+**Sintaxis de casos fija un campo por vez**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.sintaxis_casos_ida_y_vuelta`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Cada campo que la medida de ida y vuelta mira puede fallar solo. Si la medida confundiera `evaluo`, `mismo_veredicto`, `mismo_valor` o `mismos_testigos`, alguno de estos bordes quedaría sin detectar.
+
+**Qué se aprendió.** Una medida con una disyunción larga necesita casos que aíslen cada término. Si dos campos fallan siempre juntos, el corpus no fija cuál estaba escrito.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "no-evaluo", "origen": "corpus", "evaluo": false, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "json-no-vuelve", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "texto-no-vuelve", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": false, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": "testigos-no-vuelven", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
+}
+```
+
+### 132-sintaxis-casos-generados-un-campo-por-vez
+
+**Sintaxis de casos generados fija un campo por vez**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
+- de dónde salió: Segtem/oracle · local
+
+**Qué pasó.** Cada campo que la medida de completitud generada mira puede fallar solo. La propiedad no queda fijada si todos los rojos fallan por el mismo campo.
+
+**Qué se aprendió.** La completitud generada también se fija con polaridad fina: no alcanza con un único caso rojo que mezcle todos los motivos de falla.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_cubre_casos", "caso": "no-evaluo", "origen": "construido", "evaluo": false, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "json-no-vuelve", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": false, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "texto-no-vuelve", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": false, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "testigos-no-vuelven", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
 }
 ```
 
@@ -4289,7 +4484,7 @@ El lenguaje activo tiene cinco operadores: `de`, `donde`, `resumen`, `unir` y `a
 
 ### `nucleo/caso.py`
 
-*425 líneas*
+*439 líneas*
 
 Superficie de autoría para casos del corpus.
 
@@ -4513,7 +4708,7 @@ distintos.
 
 ### `nucleo/proyecto.py`
 
-*443 líneas*
+*449 líneas*
 
 A qué proyecto se le mide. Oracle es la herramienta; el proyecto es de otro.
 
@@ -4635,7 +4830,7 @@ Sale != 0 si algún caso que debía ponerse rojo salió verde.
 
 ### `tools/cifras.py`
 
-*280 líneas*
+*315 líneas*
 
 Genera y comprueba las cifras publicadas en el README de Oracle.
 
@@ -4652,12 +4847,14 @@ que se empezó a generar: una cifra publicada a mano es una afirmación que nadi
 
 ### `tools/corpus.py`
 
-*187 líneas*
+*255 líneas*
 
 Verificador del corpus — la primera regla del repositorio, y se aplica a sí mismo.
 
     python tools/corpus.py            → verifica (sale != 0 si algo está mal)
     python tools/corpus.py --resumen  → verifica y además cuenta qué mecanismo atrapa qué
+    python tools/corpus.py --nuevo meta/999-caso-nuevo
+                                      → crea un caso nuevo en superficie
 
 Comprueba lo que se degrada solo:
 
@@ -4757,7 +4954,7 @@ fixtures. Si aparece un hecho nuevo, aparece acá solo.
 
 ### `tools/metamorficas.py`
 
-*441 líneas*
+*558 líneas*
 
 Propiedades metamórficas: dos caminos que tienen que dar lo mismo.
 
@@ -4803,7 +5000,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*300 líneas*
+*324 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -4826,7 +5023,7 @@ Frontera común entre errores de proyecto y los códigos de salida de los entry 
 
 ### `tools/sintaxis.py`
 
-*188 líneas*
+*214 líneas*
 
 CLI para la superficie infija de autoría.
 
@@ -7201,6 +7398,12 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Agrega superficie de casos del corpus
+
+*commit 5219e6e*
+
+
+
 ## 2026-08-25 — La superficie declara su versión, como ya hace el álgebra
 
 *commit 40dcb8b*
@@ -7314,6 +7517,197 @@ MUTACIÓN 441/441 — 1582 detecciones, 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Saca el informe de la rama
+
+*commit 45a159f*
+
+
+
+## 2026-08-25 — Merge branch 'sup-corpus': el corpus se escribe en una superficie, no en JSON a mano
+
+*commit 90e975b*
+
+`ESCRIBIR-UNA-MEDIDA.md` dice —con razón— «escribí el caso del corpus ANTES que
+la medida», porque una medida escrita primero se escribe para pasar, no para
+atrapar. O sea: lo PRIMERO que escribía un autor seguía siendo JSON crudo. La
+superficie infija había arreglado el segundo paso y dejado el primero como
+estaba.
+
+Y el corpus no es un detalle: el README lo llama lo único que se pierde si no se
+captura el mismo día.
+
+    caso 309-una-traza-con-un-hueco:
+        fecha: "2026-07-30"
+        origen:
+            repo: "Segtem/oracle"
+            commit: "mutación de medidas P1.1"
+        titulo: "Una única traza agujereada ya invalida la ronda"
+        etiqueta: falso_verde
+        sintoma:
+            El fixture anterior contenía dos corridas con huecos. …
+        como_se_detecto: mutacion
+        medida: simulacion.la_traza_no_tiene_huecos
+        evidencia:
+            evento: corrida, t, actor, que
+                "r1", 0, "trabajo", "empieza"
+                "r1", 2, "trabajo", "termina"
+        leccion:
+            La continuidad se exige por corrida. …
+
+**3300 líneas → 1823.** La tabla era el diseño correcto porque las 121 relaciones
+del corpus tienen filas homogéneas — pero eso es un accidente del corpus, no una
+regla del lenguaje: el álgebra dice que una relación es una BOLSA y admite filas
+heterogéneas a propósito (`DECISION-001`). Si la tabla las obligara a compartir
+claves, la superficie quedaría MENOS expresiva que el almacenamiento, que fue un
+bug real hoy mismo con la `ñ` en un id. La salida de escape es `fila { … }`, una
+por hecho, y tiene su test.
+
+También sobreviven las dos distinciones que el corpus necesita y que un formato
+tabular pierde solo: una relación **presente y vacía** no es una relación
+**ausente**, y una relación puede declarar su `clave` en el encabezado
+(`pieza: clave(id); id, v`).
+
+Como el catálogo, **dos casos quedan en `.json` a propósito**: si migraran todos,
+el camino `.json` sólo lo tocarían los temporales de la suite, y el día que se
+rompiera se enterarían Jam o LyraGASP —que escriben su corpus en JSON— y no este
+repositorio.
+
+## La verificación que importa
+
+No confié en la ida y vuelta del código nuevo. Comparé los 90 casos migrados
+contra su JSON **original tomado de git**, campo por campo:
+
+    idénticos al original: 90 · distintos: 0
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh).
+
+Los tres casos que la rama de la propiedad metamórfica agregó mientras tanto los
+migré yo, con la misma comprobación de ida y vuelta antes de borrar el original.
+
+510 tests OK · CIFRAS · CORPUS (93 casos: 91 `.caso` + 2 `.json`) · ACEPTACIÓN
+DIFERENCIAL · TRAZAR · METAMÓRFICAS · SINTAXIS
+MUTACIÓN 441/441 — 1582 detecciones, 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — Agrega red de sintaxis para casos
+
+*commit 8ee635c*
+
+
+
+## 2026-08-25 — Saca el informe
+
+*commit 7f35302*
+
+
+
+## 2026-08-25 — La mutación de código no corría, y la ronda que sí arrancó terminó en un traceback
+
+*commit e451401*
+
+Dos fallas del arnés, encontradas al lanzar la primera ronda sobre `nucleo/caso.py`
+—425 líneas que entraron ayer y nunca se habían mutado—.
+
+## 1 · La línea base salía roja, así que NINGUNA ronda era posible
+
+    MUTACIÓN NO CONFIABLE — LineaBaseFallida
+
+La causa la puse yo esta mañana: `test_solo_se_custodian_documentos_versionados`
+le pregunta a git qué documentos están versionados. El arnés copia el proyecto a
+un temporal **sin `.git`**, a propósito, y ahí git no contesta «no»: contesta un
+error de entorno. El test lo leía como falla.
+
+Es el caso `017` del corpus con otro traje —un error del arnés no es una muerte—
+y significa que el README publicaba «16 objetivos del CI en VERDE, cero
+sobrevivientes» sobre una ronda que hoy no se podía reproducir.
+
+Tres intentos de arreglo fallaron por lo mismo: dependían del árbol de alrededor.
+Lo que quedó:
+
+- **la comprobación fuerte se mudó del test a `tools/cifras.py`**, que corre en el
+  árbol real y en la secuencia de verificación. Un documento custodiado que git no
+  sigue devuelve 1 y lo dice. Sin repositorio no afirma nada, que no es lo mismo
+  que afirmar que está todo bien.
+- **el test que queda arma su propio repositorio git en un temporal.** Un test que
+  necesita el entorno de su autor no es un test, es una coincidencia.
+
+## 2 · Y con la línea base verde, la ronda crasheó
+
+`mutar_codigo.py:262` evaluaba cada medida aplicable sin atajar nada. Un mutante
+de código y uno de medida son las dos cosas `mutante`, pero no tienen los mismos
+campos: el de código no trae `detecciones_conductuales`, y `medidas_aplicables`
+filtra por RELACIÓN presente, no por campo. Así, una medida escrita para la
+mutación de MEDIDAS se declaraba aplicable y reventaba dentro del `donde`.
+
+Resultado: **traceback de Python después de una hora de trabajo**, con el informe
+a medio imprimir. Su propio contrato dice «sale 1 si algún mutante sobrevivió y 2
+si la ronda fue inconclusa»; un traceback no es ninguno de los dos. La herramienta
+que juzga a todas las demás era la única que no sabía informar su propio fracaso.
+
+Ahora una medida que no puede juzgar esa evidencia se declara y se cuenta.
+
+## Lo que la ronda alcanzó a decir antes de morir
+
+**59 mutantes VIVOS sobre 185**, todos en `nucleo/caso.py`. Agrupados: aritmética
+de línea y columna (`1 → 2`), comparadores de borde (`Lt → LtE`, `GtE → Gt`) y
+`and ↔ or` en las validaciones. Traducido: la superficie del corpus promete decir
+«archivo, línea y columna» y ningún test fija que la posición sea la correcta.
+Queda como el trabajo siguiente, con la ronda ya reproducible.
+
+511 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — Merge branch 'caso-red': el corpus recibe la red que ya tenía el catálogo
+
+*commit e73b9d4*
+
+La superficie de casos entró ayer y quedó sin la mitad de la infraestructura que
+protege a la otra. La tabla, comparada:
+
+                                    medidas (.oracle)      casos (.caso)
+    --verificar los recorre         sí                     NO, cero
+    metamórfica de ida y vuelta     sí                     no existía
+    completitud sobre lo generado   sí                     no existía
+    gramática del id                sí, al leer y cargar   ninguna
+    andamio                         --nueva                no existía
+
+Las cinco filas quedan en «sí»:
+
+- `--verificar` cuenta ahora **36 medidas, 3 macros y 99 casos**. Antes ignoraba
+  el 70% de los archivos que esa superficie gobierna.
+- dos medidas nuevas: `meta.sintaxis_casos_ida_y_vuelta` sobre el corpus real y
+  `meta.sintaxis_casos_cubre_casos` sobre casos generados.
+- `ID_CASO_RE`, al lado de `ID_MEDIDA_RE`. El id de un caso es **más** un nombre
+  de archivo que el de una medida —`tools/corpus.py` exige que coincidan— y no
+  tenía gramática: `002-vencida-con-dueño` cargaba sin una queja. Misma razón
+  escrita al lado de la constante: NFC contra NFD.
+- `tools/corpus.py --nuevo <grupo/NNN-descripcion>` crea el andamio en `.caso`.
+
+## El experimento de rotura, que es lo que decide si esto sirve
+
+Rompiendo el impresor de casos —que el texto `"null"` se imprima como el nulo
+JSON—:
+
+    meta.sintaxis_casos_ida_y_vuelta   ✓ verde   (99 casos del corpus real)
+    meta.sintaxis_casos_cubre_casos    ✗ ROJO    (5 violaciones)
+
+El corpus real, entero, era ciego: ningún caso de los 99 tiene el texto `"null"`
+en un campo. Es el mismo resultado que dio el generador de medidas hace dos
+commits, y por la misma razón — lo que nadie escribió, nadie lo prueba.
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh).
+
+519 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR
+METAMÓRFICAS 325 equivalencias · SINTAXIS 36 medidas + 3 macros + 99 casos
+MUTACIÓN de medidas 535/535 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7322,14 +7716,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5091 | el lenguaje |
-| líneas de medidas escritas en él | 208 | lo escrito en el lenguaje |
-| proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 28 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 230 | su naturaleza es rechazar, no medir |
-| medidas | 34 | de las cuales 22 miden el lenguaje mismo |
-| casos de corpus | 93 | fallas reales, con su evidencia |
-| commits | 91 | el historial completo |
+| líneas del núcleo | 5111 | el lenguaje |
+| líneas de medidas escritas en él | 218 | lo escrito en el lenguaje |
+| proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 232 | su naturaleza es rechazar, no medir |
+| medidas | 36 | de las cuales 24 miden el lenguaje mismo |
+| casos de corpus | 99 | fallas reales, con su evidencia |
+| commits | 98 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

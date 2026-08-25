@@ -15,13 +15,13 @@ escribo la primera medida, y la segunda, y la que necesita algo más complicado?
 
 ## 0. Oracle en una frase
 
-**La superficie infija es cómo se escribe; el JSON es cómo se guarda.**
+**La superficie es cómo se escribe; el JSON es cómo se guarda.**
 
 Oracle es un **lenguaje de datos** (no una biblioteca de funciones) para escribir *medidas*: reglas
 que toman hechos sobre lo que se construyó, calculan un número, lo comparan contra un umbral, y si el
-umbral se viola, señalan exactamente qué filas lo violaron. Una medida se escribe en una superficie
-infija clara y se guarda como JSON —es datos, no código— y por eso se puede inspeccionar, mutar,
-contar y medir con las mismas herramientas que mide cualquier otra cosa.
+umbral se viola, señalan exactamente qué filas lo violaron. Las medidas y los casos se escriben en
+una superficie legible y se guardan como JSON —son datos, no código— y por eso se pueden
+inspeccionar, mutar, contar y medir con las mismas herramientas que mide cualquier otra cosa.
 
 Si nunca escribiste una medida, la meta de este documento es que después de leerlo puedas escribir la
 tuya sin haber leído el evaluador.
@@ -493,43 +493,54 @@ no es prolijidad:
     decir. Una condición invertida —que selecciona lo que está BIEN en vez de lo que ofende— pasa todas
     las comprobaciones automáticas igual. El caso del corpus es lo único que la detecta.
 
-Un caso es un archivo JSON con esta forma (ejemplo real, un `falso_verde`):
+Toda la regla de las medidas aplica acá: **la superficie (`.caso`) es cómo se escribe; el JSON es
+cómo se guarda** — y el corpus carga ambos formatos por igual, sin paso de traducción.
 
-```json
-{
-  "id": "001-verde-acumulativo",
-  "titulo": "«489 tests OK» reportado cada turno: un número que sube y nunca significa más",
-  "etiqueta": "falso_verde",
-  "sintoma": "El agente cerró cada entrega con un conteo de tests en verde. El conteo crece monótonamente y no distingue haber cubierto algo nuevo de haber agregado tests a lo ya cubierto.",
-  "como_se_detecto": "persona",
-  "medida": "proceso.afirmacion_declara_alcance",
-  "evidencia": {
-    "afirmacion": [
-      {"id": "a1", "texto": "459 tests OK", "comando": "unittest discover", "alcance": ""},
-      {"id": "a3", "texto": "489 tests OK", "comando": "unittest discover", "alcance": ""}
-    ]
-  },
-  "leccion": "Una afirmación de verde sin alcance declarado no es verificable: es una cifra.",
-  "fecha": "2026-07-29"
-}
+Un caso en superficie tiene esta forma (ejemplo real, un `falso_verde`):
+
+```caso
+caso 001-verde-acumulativo:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "todos"
+    titulo: "«489 tests OK» reportado cada turno: un número que sube y nunca significa más"
+    etiqueta: falso_verde
+    sintoma:
+        El agente cerró cada entrega con un conteo de tests en verde. El conteo crece monótonamente y no distingue haber cubierto algo nuevo de haber agregado tests a lo ya cubierto. Se lee como «está bien» y sólo dice «no se rompió lo de antes».
+    como_se_detecto: persona
+    medida: proceso.afirmacion_declara_alcance
+    evidencia:
+        afirmacion: id, texto, comando, alcance
+            "a1", "459 tests OK", "unittest discover", ""
+            "a2", "477 tests OK", "unittest discover", ""
+            "a3", "489 tests OK", "unittest discover", ""
+    leccion:
+        Una afirmación de verde sin alcance declarado no es una afirmación verificable: es una cifra. El alcance es lo que la vuelve discutible.
 ```
 
 Y uno **`verde_correcto`** — la otra polaridad, igual de necesaria:
 
-```json
-{
-  "id": "102-verificacion-vigente",
-  "titulo": "Después de recorrer el motor, los commits siguientes fueron sólo de documentación",
-  "etiqueta": "verde_correcto",
-  "sintoma": "Se volvió a correr la verificación con motor y a partir de ahí sólo cambiaron documentos. La verificación seguía siendo válida, y era cierto.",
-  "como_se_detecto": "observacion",
-  "medida": "proceso.verificacion_vigente",
-  "evidencia": {
-    "verificacion": [{"que": "motor", "commit": "80373ea", "camino": "editor headless"}],
-    "cambio": [{"archivo": "RELEVO.md", "commiteado": true, "es_codigo_vivo": false}]
-  },
-  "leccion": "La regla mira QUÉ cambió y no CUÁNTO: así los commits de documentación no invalidan una verificación."
-}
+```caso
+caso 102-verificacion-vigente:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "sesión 2026-07-29"
+    titulo: "Después de recorrer el motor, los commits siguientes fueron sólo de documentación"
+    etiqueta: verde_correcto
+    sintoma:
+        Se volvió a correr la verificación con motor y a partir de ahí sólo cambiaron documentos. `relevo.py` declaró la verificación vigente, y era cierto.
+    como_se_detecto: observacion
+    medida: proceso.verificacion_vigente
+    evidencia:
+        verificacion: que, commit, camino
+            "motor", "80373ea", "editor headless"
+        cambio: archivo, commiteado, es_codigo_vivo
+            "RELEVO.md", true, false
+            "Vault-kb/README.md", true, false
+    leccion:
+        La regla mira QUÉ cambió y no CUÁNTO: por eso los commits de documentación no invalidan una verificación, y eso es lo que la hace usable en vez de molesta.
 ```
 
 ### Las etiquetas
@@ -552,7 +563,7 @@ un clasificador únicamente con ejemplos positivos.
 
 ### Casos sin medida: `abierto`, `resuelto`, `limite_humano`
 
-Un caso puede no tener una medida todavía (`"medida": null`). Entonces declara `estado_sin_medida`:
+Un caso puede no tener una medida todavía (`"medida": null` o `medida: null`). Entonces declara `estado_sin_medida`:
 
 - **`abierto`** — es deuda real: el marco todavía no puede atrapar ese defecto. Es la lista de lo que
   falta, y ese número tiene que bajar.
@@ -562,16 +573,26 @@ Un caso puede no tener una medida todavía (`"medida": null`). Entonces declara 
 - **`limite_humano`** — no es automatizable: requiere juicio (por ejemplo, una atribución causal). Se
   documenta para no perderlo, y no cuenta como deuda pendiente.
 
-```json
-{
-  "id": "004-testigos-duplicados",
-  "titulo": "La medición y sus testigos recorrían los datos dos veces, con dos definiciones",
-  "etiqueta": "deuda_de_diseño",
-  "medida": null,
-  "estado_sin_medida": "resuelto",
-  "resuelto": "2026-07-29, por construcción: los testigos son las filas que sobrevivieron a la única tubería de la medida; ya no existe una segunda función donde repetir la condición.",
-  "leccion": "Si el lenguaje obliga a escribir dos veces la misma condición, el lenguaje está mal."
-}
+```caso
+caso 004-testigos-duplicados:
+    fecha: "2026-07-29"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "535d476"
+    titulo: "La medición y sus testigos recorrían los datos dos veces, con dos definiciones"
+    etiqueta: deuda_de_diseño
+    sintoma:
+        `INTERPENETRACION` declaraba `mide=penetracion_maxima` y `testigos=piezas_clavadas`: dos funciones que recorren lo mismo con la misma condición escrita dos veces. Nada garantiza que no se separen.
+    como_se_detecto: persona
+    medida: null
+    estado_sin_medida: resuelto
+    resuelto:
+        2026-07-29, por construcción: los testigos son las filas que sobrevivieron a la única tubería de la medida; ya no existe una segunda función donde repetir la condición.
+    evidencia:
+        declaracion: medida, mide, testigos, condicion_repetida
+            "colocacion.interpenetracion", "penetracion_maxima", "piezas_clavadas", true
+    leccion:
+        Si el lenguaje obliga a escribir dos veces la misma condición, el lenguaje está mal. Los testigos no son un cálculo aparte: son el filtro.
 ```
 
 ---
@@ -592,8 +613,8 @@ mi-proyecto/
       tareas.vencida_sin_dueno.oracle
   corpus/
     tareas/
-      001-vencida-sin-nadie.json
-      002-vencida-con-dueno.json
+      001-vencida-sin-nadie.caso
+      002-vencida-con-dueno.caso
 ```
 
 ### 8.2 `oracle.json`
@@ -640,39 +661,46 @@ mv tareas.vencida_sin_dueno.oracle catalogos/tareas/
 
 ### 8.5 El corpus — las dos polaridades
 
-```json
-// corpus/tareas/001-vencida-sin-nadie.json
-{
-  "id": "001-vencida-sin-nadie",
-  "titulo": "Una tarea vencida hace tres días y sin asignar",
-  "etiqueta": "falso_verde",
-  "sintoma": "El tablero mostraba todo en orden porque nadie miraba las tareas sin dueño.",
-  "como_se_detecto": "persona",
-  "medida": "tareas.vencida_sin_dueno",
-  "evidencia": {
-    "tarea": [{"id": "t1", "vencida": true, "asignada": false, "dias_vencida": 3}]
-  },
-  "leccion": "Una tarea vencida sin dueño no aparece en ningún filtro habitual del tablero.",
-  "fecha": "2026-07-31"
-}
+```caso
+caso 001-vencida-sin-nadie:
+    fecha: "2026-07-31"
+    origen:
+        repo: "mi-proyecto"
+        commit: "ejemplo"
+    titulo: "Una tarea vencida hace tres días y sin asignar"
+    etiqueta: falso_verde
+    sintoma:
+        El tablero mostraba todo en orden porque nadie miraba las tareas sin dueño.
+    como_se_detecto: persona
+    medida: tareas.vencida_sin_dueno
+    evidencia:
+        tarea: id, vencida, asignada, dias_vencida
+            "t1", true, false, 3
+    leccion:
+        Una tarea vencida sin dueño no aparece en ningún filtro habitual del tablero.
 ```
 
-```json
-// corpus/tareas/002-vencida-con-dueno.json
-{
-  "id": "002-vencida-con-dueño",
-  "titulo": "Vencida pero con alguien encima — no debe dar rojo",
-  "etiqueta": "verde_correcto",
-  "sintoma": "Una tarea vencida CON dueño asignado no es el defecto que esta medida busca.",
-  "como_se_detecto": "observacion",
-  "medida": "tareas.vencida_sin_dueno",
-  "evidencia": {
-    "tarea": [{"id": "t2", "vencida": true, "asignada": true, "dias_vencida": 1}]
-  },
-  "leccion": "Sin este caso, quitarle el filtro `asignada` a la medida no lo notaría nadie.",
-  "fecha": "2026-07-31"
-}
+```caso
+caso 002-vencida-con-dueno:
+    fecha: "2026-07-31"
+    origen:
+        repo: "mi-proyecto"
+        commit: "ejemplo"
+    titulo: "Vencida pero con alguien encima — no debe dar rojo"
+    etiqueta: verde_correcto
+    sintoma:
+        Una tarea vencida CON dueño asignado no es el defecto que esta medida busca.
+    como_se_detecto: observacion
+    medida: tareas.vencida_sin_dueno
+    evidencia:
+        tarea: id, vencida, asignada, dias_vencida
+            "t2", true, true, 1
+    leccion:
+        Sin este caso, quitarle el filtro `asignada` a la medida no lo notaría nadie.
 ```
+
+*(El id del caso y del archivo usan `dueno` en ASCII: los identificadores son nombres de archivo y
+por diseño rechazan caracteres no ASCII para evitar divergencias entre normalizaciones NFC/NFD).*
 
 ### 8.6 Correr todo
 
@@ -705,16 +733,16 @@ print(informe.texto())
 
 | Comando | Para qué |
 |---|---|
+| `tools/corpus.py --nuevo <grupo/NNN-descripcion>` | crea el andamio de un caso nuevo, ya en superficie (`.caso`) |
+| `tools/medida.py --nueva <dominio.nombre>` | crea el andamio de una medida, ya en superficie infija (`.oracle`) |
 | `tools/sintaxis.py --imprimir <archivo.json>` | lee el JSON de catálogo y muestra la superficie infija |
 | `tools/sintaxis.py --leer <archivo.oracle>` | traduce de superficie infija al JSON de almacenamiento (el catálogo carga `.oracle` directo: esto es para cuando querés el dato) |
-| `tools/medida.py --nueva <dominio.nombre>` | crea el andamio de una medida, ya en superficie infija |
-| `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo |
+| `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo, macros, corpus y bloques de documentación |
 | `tools/medida.py --relaciones` | ver qué hechos existen HOY (derivado de evidencia real, no una lista a mano) |
 | `tools/medida.py --escalares` | ver las funciones de dominio, operadores y agregados disponibles |
-| `tools/medida.py --nueva <id>` | crear el esqueleto de una medida nueva |
-| `tools/medida.py <archivo.json>` | validar UNA medida y correrla contra el corpus |
+| `tools/medida.py <archivo>` | validar UNA medida (`.oracle` o `.json`) y correrla contra el corpus |
 | `tools/medida.py --expandir <archivo>` | ver a qué forma canónica expande una macro |
-| `tools/corpus.py [--resumen]` | el corpus está bien formado y ningún caso se cae en silencio |
+| `tools/corpus.py [--resumen]` | el corpus (`.caso` y `.json`) está bien formado y ningún caso se cae en silencio |
 | `tools/aceptacion.py` | **el corpus juzga al oráculo**: todo defecto se pone rojo, todo `verde_correcto` se pone verde |
 | `tools/diferencial.py --proyecto <p>` | comparar contra una implementación de referencia independiente |
 | `tools/mutar.py` | ¿el corpus ALCANZA para fijar cada medida? (muta las medidas, no el código) |
@@ -752,7 +780,7 @@ va primero: es lo único que lee la intención.
 
 | Término | Definición corta |
 |---|---|
-| **superficie infija** | la forma humana y legible en que se escriben las medidas (`.oracle`) |
+| **superficie infija** | la forma humana y legible en que se escriben las medidas (`.oracle`) y los casos (`.caso`) |
 | **hecho** | un registro de campos escalares (sin objetos anidados) |
 | **relación** | una bolsa nombrada de hechos del mismo tipo — el equivalente a una tabla |
 | **evidencia** | el mapa completo `relación → lista de hechos` que se le pasa a una medida |

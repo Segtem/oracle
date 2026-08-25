@@ -60,6 +60,7 @@ una atribución causal que una herramienta genérica no puede validar.
 
 ## Cómo se agrega un caso
 
-Cuando una medición diga bien y no lo esté: un JSON acá, con la evidencia mínima que una medida
-necesitaría para atraparlo. **No hace falta que la medida exista** — de hecho es mejor que no exista,
-porque así el caso define la medida y no al revés.
+Cuando una medición diga bien y no lo esté: `python tools/corpus.py --nuevo <grupo/NNN-descripcion>`
+crea el andamio en superficie (`.caso`), o agregá un `.caso`/`.json` acá, con la evidencia mínima
+que una medida necesitaría para atraparlo. **No hace falta que la medida exista** — de hecho es
+mejor que no exista, porque así el caso define la medida y no al revés.
