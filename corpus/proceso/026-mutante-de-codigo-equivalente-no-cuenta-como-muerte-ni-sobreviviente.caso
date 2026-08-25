@@ -1,0 +1,18 @@
+caso 026-mutante-de-codigo-equivalente-no-cuenta-como-muerte-ni-sobreviviente:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Un mutante equivalente declarado con su razón no cuenta como sobreviviente ni como muerte"
+    etiqueta: falso_verde
+    sintoma:
+        Una ronda con un sobreviviente real, un mutante muerto y un mutante declarado equivalente. La medida debe contar exactamente un sobreviviente, ignorando la exclusión declarada sin ocultar la ofensa real.
+    como_se_detecto: mutacion
+    medida: proceso.codigo_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, cambio, estado, murio, tests_fallaron, error_arnes, timeout, codigo_salida, equivalente_declarado, razon_equivalente
+            "nucleo/caso.py:53:1:constante", "nucleo/caso.py", "constante: False → True", "pasaron", false, false, false, false, 0, false, ""
+            "nucleo/caso.py:14:1:constante", "nucleo/caso.py", "constante: 1 → 2", "tests_fallaron", true, true, false, false, 1, false, ""
+            "tools/cifras.py:23:16:constante", "tools/cifras.py", "constante: 0 → 1", "pasaron", false, false, false, false, 0, true, "precedencia de sys.path"
+    leccion:
+        Declarar un mutante equivalente documenta una decisión legítima que no debe contar como sobreviviente ni como muerte, y no debe enmascarar a los sobrevivientes reales.

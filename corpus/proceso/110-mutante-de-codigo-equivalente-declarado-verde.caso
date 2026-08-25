@@ -1,0 +1,17 @@
+caso 110-mutante-de-codigo-equivalente-declarado-verde:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Un mutante de código declarado equivalente no impide el verde legítimo"
+    etiqueta: verde_correcto
+    sintoma:
+        Una ronda donde todos los mutantes reales murieron y el único que no murió está declarado equivalente con su razón. La medida debe salir verde.
+    como_se_detecto: observacion
+    medida: proceso.codigo_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, cambio, estado, murio, tests_fallaron, error_arnes, timeout, codigo_salida, equivalente_declarado, razon_equivalente
+            "nucleo/caso.py:14:1:constante", "nucleo/caso.py", "constante: 1 → 2", "tests_fallaron", true, true, false, false, 1, false, ""
+            "tools/cifras.py:23:16:constante", "tools/cifras.py", "constante: 0 → 1", "pasaron", false, false, false, false, 0, true, "precedencia de sys.path"
+    leccion:
+        Un mutante equivalente declarado con razón no debe reportarse como sobreviviente cuando no hay otros defectos.
