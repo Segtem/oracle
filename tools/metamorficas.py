@@ -36,7 +36,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
-from nucleo.caso import cargar_casos  # noqa: E402
+from nucleo import caso as sintaxis_caso  # noqa: E402
+from nucleo.caso import cargar_casos, cargar_fuente_caso  # noqa: E402
 from nucleo.medida import (Medida, cargar_catalogo, cargar_fuente_medida, evaluar,  # noqa: E402
                            medidas_aplicables)
 from nucleo.mutacion import _huella  # noqa: E402
@@ -384,6 +385,120 @@ def _sintaxis_cubre_algebra() -> list[dict]:
     return filas
 
 
+def _sintaxis_casos_ida_y_vuelta(proy: Proyecto) -> list[dict]:
+    """Cada caso publicado en el corpus debe sobrevivir la misma ida y vuelta que las medidas."""
+    filas = []
+    for ruta in sintaxis._rutas_corpus(proy.raiz):
+        caso = str(ruta.relative_to(proy.raiz))
+        try:
+            datos = cargar_fuente_caso(ruta)
+            superficie = sintaxis_caso.imprimir(datos)
+            releida = sintaxis_caso.leer(superficie)
+            reimpresa = sintaxis_caso.imprimir(releida)
+        except Exception as e:             # noqa: BLE001
+            filas.append({"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": caso,
+                          "origen": "corpus", "evaluo": False,
+                          "error": f"{type(e).__name__}: {e}",
+                          "mismo_veredicto": False, "mismo_valor": False,
+                          "mismos_testigos": False})
+            continue
+        filas.append({"propiedad": "sintaxis_casos_ida_y_vuelta", "caso": caso,
+                      "origen": "corpus", "evaluo": True, "error": "",
+                      "mismo_veredicto": releida == datos,
+                      "mismo_valor": reimpresa == superficie,
+                      "mismos_testigos": True})
+    return filas
+
+
+def _relaciones_de_caso_generadas() -> tuple[tuple[str, list], ...]:
+    """Componentes derivados de la forma L0 de un caso: relación → lista de filas planas."""
+    fila_con_tipos = {
+        "id": "a",
+        "texto": "texto con `backticks`, comillas \"dobles\" y la palabra null",
+        "entero": 7,
+        "float": 2.5,
+        "verdadero": True,
+        "falso": False,
+        "nulo": None,
+        "literal_null": "null",
+    }
+    return (
+        ("homogenea", [fila_con_tipos, {**fila_con_tipos, "id": "b", "entero": 8}]),
+        ("vacia", []),
+        ("heterogenea", [
+            ["clave", ["id"]],
+            {"id": "a", "solo_a": 1},
+            {"id": "b", "solo_b": "dos", "nulo": None},
+        ]),
+    )
+
+
+def _caso_generado(cid: str, evidencia: dict, *, medida: str | None = "meta.sonda") -> dict:
+    datos = {
+        "id": cid,
+        "fecha": "2026-08-25",
+        "origen": {"repo": "generador de metamorficas", "commit": "construido"},
+        "titulo": f"Caso generado {cid}",
+        "etiqueta": "verde_correcto",
+        "sintoma": "Prosa con `backticks`, comillas \"dobles\".\nY un segundo renglón.",
+        "como_se_detecto": "observacion",
+        "medida": medida,
+        "evidencia": evidencia,
+        "leccion": "La superficie de casos conserva prosa, null, relaciones vacías y filas.",
+    }
+    if medida is None:
+        datos["estado_sin_medida"] = "abierto"
+        datos["sin_medida_todavia"] = (
+            "El caso generado fija que `medida: null` vuelva como nulo y no como texto.")
+    return datos
+
+
+def _generar_casos_candidatos() -> list[dict]:
+    """Generador determinista de la forma de un caso, no un catálogo manual de ejemplos."""
+    relaciones = _relaciones_de_caso_generadas()
+    candidatas = []
+
+    # Una relación opcional ausente se representa por no emitir su nombre en el mapa de evidencia.
+    candidatas.append(_caso_generado(
+        "900-generado-relacion-ausente",
+        {"presente": relaciones[0][1]},
+    ))
+    for cantidad in (1, 2, 3):
+        candidatas.append(_caso_generado(
+            f"90{cantidad}-generado-{cantidad}-relaciones",
+            {nombre: filas for nombre, filas in relaciones[:cantidad]},
+        ))
+    candidatas.append(_caso_generado(
+        "904-generado-sin-medida",
+        {nombre: filas for nombre, filas in relaciones},
+        medida=None,
+    ))
+    return candidatas
+
+
+def _sintaxis_casos_cubre_casos() -> list[dict]:
+    """Todo caso válido generado desde su forma de datos debe imprimirse y releerse sin pérdida."""
+    filas = []
+    for datos in _generar_casos_candidatos():
+        try:
+            superficie = sintaxis_caso.imprimir(datos)
+            releida = sintaxis_caso.leer(superficie)
+            reimpresa = sintaxis_caso.imprimir(releida)
+        except Exception as e:             # noqa: BLE001
+            filas.append({"propiedad": "sintaxis_casos_cubre_casos", "caso": datos.get("id", "?"),
+                          "origen": "construido", "evaluo": False,
+                          "error": f"{type(e).__name__}: {e}",
+                          "mismo_veredicto": False, "mismo_valor": False,
+                          "mismos_testigos": False})
+            continue
+        filas.append({"propiedad": "sintaxis_casos_cubre_casos", "caso": datos["id"],
+                      "origen": "construido", "evaluo": True, "error": "",
+                      "mismo_veredicto": releida == datos,
+                      "mismo_valor": reimpresa == superficie,
+                      "mismos_testigos": True})
+    return filas
+
+
 def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = None) -> dict:
     proy = proy or Proyecto(RAIZ)
     return {"equivalencia": [
@@ -393,6 +508,8 @@ def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = No
         *_macro_equivale_a_su_expansion(catalogo, casos, macros),
         *_sintaxis_ida_y_vuelta(proy),
         *_sintaxis_cubre_algebra(),
+        *_sintaxis_casos_ida_y_vuelta(proy),
+        *_sintaxis_casos_cubre_casos(),
     ]}
 
 

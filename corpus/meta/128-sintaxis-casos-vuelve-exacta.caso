@@ -1,0 +1,18 @@
+caso 128-sintaxis-casos-vuelve-exacta:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis de casos vuelve exacta"
+    etiqueta: verde_correcto
+    sintoma:
+        Tres casos del corpus conservan datos y texto canónico al imprimirse y releerse: uno con relación vacía, uno con clave declarada y uno con filas heterogéneas.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_casos_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_ida_y_vuelta", "relacion-vacia", "corpus", true, "", true, true, true
+            "sintaxis_casos_ida_y_vuelta", "clave-declarada", "corpus", true, "", true, true, true
+            "sintaxis_casos_ida_y_vuelta", "filas-heterogeneas", "corpus", true, "", true, true, true
+    leccion:
+        La ida y vuelta de casos tiene que mirar las formas incómodas del corpus, no sólo la tabla homogénea común.

@@ -1,0 +1,18 @@
+caso 129-sintaxis-casos-generados-no-vuelve-igual:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis de casos generados no vuelve igual"
+    etiqueta: falso_verde
+    sintoma:
+        Un caso construido desde la forma de datos pierde una relación presente y vacía. El corpus real puede no tener justo esa combinación mañana, pero la superficie la acepta y debe conservarla.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_casos_cubre_casos
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_cubre_casos", "902-generado-2-relaciones", "construido", true, "", false, true, true
+            "sintaxis_casos_cubre_casos", "901-generado-1-relaciones", "construido", true, "", true, true, true
+            "sintaxis_casos_ida_y_vuelta", "corpus-ok", "corpus", true, "", true, true, true
+    leccion:
+        La completitud de la sintaxis de casos no puede depender de que el corpus real justo tenga todos los bordes. Las sondas generadas fijan las formas que el lector y el impresor prometen aceptar.

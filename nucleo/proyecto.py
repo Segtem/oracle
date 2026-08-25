@@ -377,6 +377,12 @@ EXTENSION_DE_AUTORIA = ".oracle"
 # aceptar la ambigüedad y después elegir por el autor.
 ID_MEDIDA_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 
+# La gramática del id de un caso: `NNN-descripcion`, minúsculas ASCII, dígitos y `-`.
+# Comparte la misma razón que `ID_MEDIDA_RE`: el id es nombre de archivo y no puede depender de
+# cómo normalice Unicode cada sistema operativo. La forma sale del corpus vigente: tres dígitos
+# de serie, un guion y palabras portables separadas por guion.
+ID_CASO_RE = re.compile(r"^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$")
+
 
 def ruta_de_medida_nueva(proy: "Proyecto", mid: str) -> Path:
     """Resuelve el destino de un id cerrado y demuestra su confinamiento antes de crear nada."""

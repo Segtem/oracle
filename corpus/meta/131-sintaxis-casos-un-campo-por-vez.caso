@@ -1,0 +1,19 @@
+caso 131-sintaxis-casos-un-campo-por-vez:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Sintaxis de casos fija un campo por vez"
+    etiqueta: falso_verde
+    sintoma:
+        Cada campo que la medida de ida y vuelta mira puede fallar solo. Si la medida confundiera `evaluo`, `mismo_veredicto`, `mismo_valor` o `mismos_testigos`, alguno de estos bordes quedaría sin detectar.
+    como_se_detecto: mutacion
+    medida: meta.sintaxis_casos_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_ida_y_vuelta", "no-evaluo", "corpus", false, "", true, true, true
+            "sintaxis_casos_ida_y_vuelta", "json-no-vuelve", "corpus", true, "", false, true, true
+            "sintaxis_casos_ida_y_vuelta", "texto-no-vuelve", "corpus", true, "", true, false, true
+            "sintaxis_casos_ida_y_vuelta", "testigos-no-vuelven", "corpus", true, "", true, true, false
+    leccion:
+        Una medida con una disyunción larga necesita casos que aíslen cada término. Si dos campos fallan siempre juntos, el corpus no fija cuál estaba escrito.
