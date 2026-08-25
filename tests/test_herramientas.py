@@ -14,6 +14,7 @@ from unittest import mock
 
 from nucleo.diferencial import Procedencia, crear_frescura
 from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture
+from nucleo.macro import EXTENSIONES_DE_MACRO
 from nucleo.medida import Medida
 from nucleo import algebra
 from nucleo.proyecto import (ConfiguracionProyecto, EscalaresInvalidas, Proyecto, ProyectoInvalido,
@@ -825,7 +826,8 @@ class CifrasDelReadme(unittest.TestCase):
         lineas_lenguaje = sum(
             len(p.read_text(encoding="utf-8").splitlines())
             for p in list((RAIZ / "nucleo").rglob("*.py"))
-                   + list((RAIZ / "nucleo" / "macros").glob("*.json"))
+                   + [x for x in (RAIZ / "nucleo" / "macros").iterdir()
+                      if x.suffix in EXTENSIONES_DE_MACRO and x.is_file()]
             if p.name != "__init__.py" and "__pycache__" not in p.parts)
         lineas_medidas = sum(
             len(p.read_text(encoding="utf-8").splitlines())
@@ -1023,13 +1025,23 @@ class CifrasDelReadme(unittest.TestCase):
         self.assertNotEqual(canonicas, total - canonicas, "el test no discrimina si hay empate")
 
     def test_mover_lenguaje_de_python_a_datos_no_mejora_la_proporcion(self) -> None:
-        """La biblioteca estándar de macros dejó de ser Python y pasó a `nucleo/macros/*.json`. Si
-        el numerador contara sólo `.py`, ese movimiento habría «mejorado» la proporción sin que el
-        lenguaje encogiera nada — el sastreo exacto contra el que esta medición existe."""
+        """La biblioteca estándar de macros dejó de ser Python y pasó a `nucleo/macros/`. Si el
+        numerador contara sólo `.py`, ese movimiento habría «mejorado» la proporción sin que el
+        lenguaje encogiera nada — el sastreo exacto contra el que esta medición existe.
+
+        Y no se fija por nombre de archivo: cuando las tres macros pasaron de `.json` a `.oracle`,
+        una lista de nombres a mano habría hecho fallar el test por el renombre en vez de por lo
+        que dice medir. Se fija que TODAS las de la biblioteca estén contadas, en el formato que
+        sea, que es la afirmación que importa.
+        """
         from tools import cifras as cli
 
         contadas = {p.name for p in cli._lenguaje()}
-        self.assertTrue({"macro.py", "ninguno.json", "peor.json"} <= contadas)
+        self.assertIn("macro.py", contadas)
+        en_disco = {p.name for p in (RAIZ / "nucleo" / "macros").iterdir()
+                    if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()}
+        self.assertTrue(en_disco)
+        self.assertTrue(en_disco <= contadas)
 
     def test_el_reparto_del_corpus_suma_todos_los_casos(self) -> None:
         from tools import cifras as cli

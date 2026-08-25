@@ -42,12 +42,25 @@ def _fuentes_del_nucleo() -> list[Path]:
 def _lenguaje() -> list[Path]:
     """Todo lo que ES el lenguaje, no importa en qué archivo esté escrito.
 
-    La biblioteca estándar de macros vive en `nucleo/macros/*.json` desde que dejó de ser un
-    diccionario de Python. Si el numerador contara sólo `.py`, mover código a datos «mejoraría» la
-    proporción sin que el lenguaje encogiera un gramo — que es exactamente el sastreo contra el que
-    esta medición existe. Se cuenta lo uno y lo otro.
+    La biblioteca estándar de macros vive en `nucleo/macros/` desde que dejó de ser un diccionario
+    de Python. Si el numerador contara sólo `.py`, mover código a datos «mejoraría» la proporción
+    sin que el lenguaje encogiera un gramo — que es exactamente el sastreo contra el que esta
+    medición existe. Se cuenta lo uno y lo otro.
+
+    Y se cuentan **todos los formatos**, no sólo `.json`: cuando las tres macros base pasaron a
+    `.oracle`, un `glob("*.json")` a mano las dejó caer del numerador sin una queja. Bajar la
+    proporción renombrando archivos es el mismo sastreo con otra ropa, así que el inventario de
+    formatos es UNO y vive en `nucleo/macro.py`.
     """
-    return _fuentes_del_nucleo() + sorted((RAIZ / NUCLEO / "macros").glob("*.json"))
+    from nucleo.macro import EXTENSIONES_DE_MACRO
+
+    macros = sorted(p for p in (RAIZ / NUCLEO / "macros").rglob("*")
+                    if p.suffix in EXTENSIONES_DE_MACRO and p.is_file())
+    if not macros:
+        raise SystemExit(
+            f"no hay macros en {NUCLEO}/macros: la biblioteca estándar del lenguaje no puede "
+            "desaparecer del numerador en silencio")
+    return _fuentes_del_nucleo() + macros
 
 
 def _medidas_universales() -> list[Path]:

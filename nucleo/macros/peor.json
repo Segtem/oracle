@@ -1,9 +1,0 @@
-["defmacro", "peor",
-  ["id", "relacion", "alias", "expresion", "tolerancia", "porque", "alcance"],
-  [],
-  ["medida", ["$", "id"],
-    ["desde", ["de", ["$", "relacion"], ["$", "alias"]],
-      ["donde", [">", ["$", "expresion"], ["$", "tolerancia"]]]],
-    ["resumen", "max", ["$", "expresion"]],
-    ["umbral", "<=", ["$", "tolerancia"], ["$", "porque"]],
-    ["alcance", ["$", "alcance"]]]]

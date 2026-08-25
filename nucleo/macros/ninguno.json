@@ -1,8 +1,0 @@
-["defmacro", "ninguno",
-  ["id", "relacion", "alias", "predicado", "porque", "alcance"],
-  [],
-  ["medida", ["$", "id"],
-    ["desde", ["de", ["$", "relacion"], ["$", "alias"]], ["donde", ["$", "predicado"]]],
-    ["resumen", "contar", 1],
-    ["umbral", "<=", 0, ["$", "porque"]],
-    ["alcance", ["$", "alcance"]]]]

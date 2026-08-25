@@ -16,8 +16,8 @@ from .proyecto import ID_MEDIDA_RE
 COMPARADORES = ("==", "!=", "<=", ">=", "<", ">")
 LOGICOS = {"y": 2, "o": 1}
 PALABRAS_LITERAL = {"true": True, "false": False, "null": None}
-
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
+DEFMACRO_RE = re.compile(r"defmacro\s+([^\s(]+)\s*\(([^)]*)\)\s*:")
 NUMERO_RE = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
 IND = "    "
 IND2 = IND * 2
@@ -29,10 +29,16 @@ class ErrorSintaxis(ValueError):
     columna: int
     esperado: str
     encontrado: str = ""
+    # No todo error de sintaxis es «se esperaba X». Un parámetro que la plantilla nunca usa no es
+    # algo que faltó en una posición: es una afirmación sobre la macro entera. Forzar la plantilla
+    # producía «se esperaba parámetro «sobra» que la plantilla nunca usa», que se lee al revés de
+    # lo que pasó. Un error que hay que descifrar es un error que no sirve.
+    literal: bool = False
 
     def __str__(self) -> str:
         visto = f"; llegó {self.encontrado}" if self.encontrado else ""
-        return f"línea {self.linea}, columna {self.columna}: se esperaba {self.esperado}{visto}"
+        cabeza = self.esperado if self.literal else f"se esperaba {self.esperado}"
+        return f"línea {self.linea}, columna {self.columna}: {cabeza}{visto}"
 
 
 @dataclass(frozen=True)
@@ -66,8 +72,10 @@ class _Nodo:
     hijos: tuple["_Nodo", ...] = ()
 
 
-def _fallar(linea: int, columna: int, esperado: str, encontrado: object = "") -> None:
-    raise ErrorSintaxis(linea, columna, esperado, repr(encontrado) if encontrado != "" else "")
+def _fallar(linea: int, columna: int, esperado: str, encontrado: object = "", *,
+            literal: bool = False) -> None:
+    raise ErrorSintaxis(linea, columna, esperado,
+                        repr(encontrado) if encontrado != "" else "", literal)
 
 
 def _normalizar_ruta(ruta: tuple[int, ...] | str) -> tuple[int, ...]:
@@ -154,6 +162,13 @@ def _tokenizar(texto: str, linea: int, columna_base: int) -> list[Token]:
         if c in "(),.":
             tokens.append(Token(c, c, linea, col))
             i += 1
+            continue
+        if c == "$":
+            m = IDENT_RE.match(texto, i + 1)
+            if not m:
+                _fallar(linea, col, "nombre de parámetro después de «$»", c)
+            tokens.append(Token("HUECO", m.group(0), linea, col))
+            i = m.end()
             continue
         m = NUMERO_RE.match(texto, i)
         if m:
@@ -253,6 +268,11 @@ class _Expr:
         if t.tipo == "STRING":
             self.i += 1
             return _hoja(t.valor, t)
+        if t.tipo == "HUECO":
+            self.i += 1
+            return _Nodo(["$", t.valor], t.linea, t.columna,
+                         (_Nodo("$", t.linea, t.columna),
+                          _Nodo(t.valor, t.linea, t.columna)))
         if t.tipo == "IDENT":
             nombre = t.valor
             self.i += 1
@@ -319,13 +339,18 @@ def _leer_expr_en(texto: str, linea: int, columna: int,
     return nodo.valor
 
 
-def _literal_texto(texto: str, linea: int, columna: int) -> str:
+def _literal_texto(texto: str, linea: int, columna: int):
+    """Lee un texto JSON o un hueco: `"x"` queda `"x"`, `$x` queda `["$", "x"]`."""
     tokens = _tokenizar(texto, linea, columna)
-    if tokens[0].tipo != "STRING":
+    if tokens[0].tipo == "STRING":
+        valor = tokens[0].valor
+    elif tokens[0].tipo == "HUECO":
+        valor = ["$", tokens[0].valor]
+    else:
         _fallar(tokens[0].linea, tokens[0].columna, "texto entre comillas", tokens[0].valor)
     if tokens[1].tipo != "EOF":
         _fallar(tokens[1].linea, tokens[1].columna, "fin de línea", tokens[1].valor)
-    return str(tokens[0].valor)
+    return valor
 
 
 def _leer_umbral(texto: str, linea: int, columna: int):
@@ -335,11 +360,19 @@ def _leer_umbral(texto: str, linea: int, columna: int):
     p = _Expr(tokens, 1, detener={"porque"})
     limite = p.expresion()
     porque = p._exigir("IDENT", "porque", "porque")
-    texto_tok = p._exigir("STRING", "texto de defensa del umbral")
+    t = p.actual()
+    if t.tipo == "STRING":
+        defensa = t.valor
+        p.i += 1
+    elif t.tipo == "HUECO":
+        defensa = ["$", t.valor]
+        p.i += 1
+    else:
+        _fallar(t.linea, t.columna, "texto de defensa del umbral", t.valor)
     fin = p.actual()
     if fin.tipo != "EOF":
         _fallar(fin.linea, fin.columna, "fin de línea", fin.valor)
-    return tokens[0].valor, limite.valor, texto_tok.valor, porque.columna
+    return tokens[0].valor, limite.valor, defensa, porque.columna
 
 
 def _lineas(texto: str) -> list[tuple[int, str]]:
@@ -372,12 +405,23 @@ def _contenido(item: tuple[int, str], prefijo: str, nivel: int) -> tuple[str, in
     return texto, item[0], col
 
 
+def _leer_nombre(texto: str, linea: int, columna: int):
+    """Lee un nombre o un hueco: `rel` queda `"rel"`, `$rel` queda `["$", "rel"]`."""
+    if not texto.startswith("$"):
+        return texto
+    nombre = texto[1:]
+    if not nombre or IDENT_RE.fullmatch(nombre) is None:
+        _fallar(linea, columna, "nombre de parámetro después de «$»", texto)
+    return ["$", nombre]
+
+
 def _leer_de(item: tuple[int, str], palabra: str = "de") -> list:
     resto, col = _exigir_prefijo(item, palabra + " ", 1)
     partes = resto.split()
     if len(partes) != 2:
         _fallar(item[0], col, f"{palabra} <relación> <alias>", resto)
-    return ["de", partes[0], partes[1]]
+    return ["de", _leer_nombre(partes[0], item[0], col),
+            _leer_nombre(partes[1], item[0], col + len(partes[0]) + 1)]
 
 
 def _leer_requiere(item: tuple[int, str]) -> list:
@@ -385,7 +429,7 @@ def _leer_requiere(item: tuple[int, str]) -> list:
     partes = [p.strip() for p in resto.split(",")]
     if not partes or any(not p for p in partes):
         _fallar(item[0], col, "una o más relaciones requeridas", resto)
-    return ["requiere", *partes]
+    return ["requiere", *(_leer_nombre(p, item[0], col) for p in partes)]
 
 
 def _macro_ninguno(clase: str, mid: str, cuerpo: list[tuple[int, str]], *,
@@ -577,19 +621,148 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
     return base
 
 
+def _leer_guarda(item: tuple[int, str]) -> list:
+    """Lee `guarda <expresión> "<mensaje>"`. El mensaje es la última cadena de la línea."""
+    n, linea = item
+    resto, col = _exigir_prefijo(item, "guarda ", 1)
+    tokens = _tokenizar(resto, n, col)
+    mensaje_idx = None
+    for idx in range(len(tokens) - 1, -1, -1):
+        if tokens[idx].tipo == "STRING":
+            mensaje_idx = idx
+            break
+    if mensaje_idx is None:
+        _fallar(n, col, "mensaje de la guarda entre comillas", resto)
+    mensaje = tokens[mensaje_idx].valor
+    expr_texto = resto[:tokens[mensaje_idx].columna - col]
+    if not expr_texto.strip():
+        _fallar(n, col, "expresión de la guarda", resto)
+    return ["guarda", _leer_expr(expr_texto, n, col), mensaje]
+
+
+def _leer_plantilla(bloque: list[tuple[int, str]]) -> list:
+    """Lee la plantilla de una macro: una medida (o macro) con huecos, un nivel más adentro."""
+    n0, linea0 = bloque[0]
+    cuerpo0 = _indentada(linea0, 1, n0)
+    m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", cuerpo0)
+    if not m:
+        _fallar(n0, len(linea0) - len(cuerpo0) + 1,
+                "plantilla «medida|ninguno|ninguno-par|peor <id>:»", cuerpo0)
+    clase, mid_txt = m.groups()
+    col_mid = len(linea0) - len(cuerpo0) + len(clase) + 2
+    mid = _leer_nombre(mid_txt, n0, col_mid)
+    cuerpo = [(n, linea[len(IND):]) for n, linea in bloque[1:]]
+    if clase == "medida":
+        return _leer_medida(mid, cuerpo)
+    if clase == "ninguno":
+        return _macro_ninguno(clase, mid, cuerpo)
+    if clase == "ninguno-par":
+        return _macro_ninguno_par(mid, cuerpo)
+    return _macro_peor(mid, cuerpo)
+
+
+def _huecos_en_linea(linea: str) -> list[tuple[str, int]]:
+    """Devuelve (nombre, columna) de cada `$x` fuera de cadenas JSON."""
+    huecos: list[tuple[str, int]] = []
+    en_cadena = False
+    i = 0
+    while i < len(linea):
+        c = linea[i]
+        if en_cadena:
+            if c == "\\":
+                i += 2
+                continue
+            if c == '"':
+                en_cadena = False
+            i += 1
+            continue
+        if c == '"':
+            en_cadena = True
+            i += 1
+            continue
+        if c == "$":
+            m = IDENT_RE.match(linea, i + 1)
+            if m:
+                huecos.append((m.group(0), i + 1))
+                i = m.end()
+                continue
+        i += 1
+    return huecos
+
+
+def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, str]],
+                   n: int) -> list:
+    cuerpo = lineas[1:]
+    i = 0
+    guardas = []
+    while i < len(cuerpo):
+        n2, linea2 = cuerpo[i]
+        if _indentada(linea2, 1, n2).startswith("guarda "):
+            guardas.append(_leer_guarda(cuerpo[i]))
+            i += 1
+        else:
+            break
+    if i >= len(cuerpo):
+        _fallar(cuerpo[-1][0] + 1 if cuerpo else n + 1, 1, "plantilla de la macro")
+    plantilla = _leer_plantilla(cuerpo[i:])
+
+    usados: set[str] = set()
+    # Los huecos se cuentan desde el texto fuente, no desde el JSON: `$x` dentro de una cadena
+    # de mensaje no es un hueco. `_huecos_en_linea` se salta las cadenas JSON.
+    declarados = set(parametros)
+    for _n2, _linea2 in cuerpo:
+        for hueco, _col in _huecos_en_linea(_linea2):
+            usados.add(hueco)
+    desconocidos = sorted(usados - declarados)
+    if desconocidos:
+        for _n2, _linea2 in cuerpo:
+            for hueco, col in _huecos_en_linea(_linea2):
+                if hueco == desconocidos[0]:
+                    _fallar(_n2, col, f"«${hueco}» no es un parámetro de la macro",
+                            _linea2.strip(), literal=True)
+        _fallar(n, 1, f"«${desconocidos[0]}» no es un parámetro de la macro", literal=True)
+    sin_usar = sorted(declarados - usados)
+    if sin_usar:
+        encabezado = lineas[0][1]
+        m_param = re.search(rf"\b{re.escape(sin_usar[0])}\b", encabezado)
+        _fallar(n, m_param.start() + 1 if m_param else 1,
+                f"la macro declara el parámetro «{sin_usar[0]}» y la plantilla nunca lo usa",
+                encabezado, literal=True)
+
+    return ["defmacro", nombre, parametros, guardas, plantilla]
+
+
 def leer_con_mapa(texto: str) -> Lectura:
     """Lee superficie infija y devuelve datos junto con ruta -> línea/columna."""
     lineas = _lineas(texto)
     if not lineas:
         _fallar(1, 1, "encabezado de medida")
     n, encabezado = lineas[0]
+    m_def = DEFMACRO_RE.fullmatch(encabezado)
+    if m_def:
+        nombre, params_txt = m_def.groups()
+        parametros = [p.strip() for p in params_txt.split(",") if p.strip()]
+        if not parametros:
+            _fallar(n, 1, "parámetros de la macro", encabezado)
+        for p in parametros:
+            if IDENT_RE.fullmatch(p) is None:
+                _fallar(n, encabezado.find(p) + 1, f"nombre de parámetro, no «{p}»", encabezado)
+        if len(set(parametros)) != len(parametros):
+            _fallar(n, 1, "parámetros sin repetir", encabezado)
+        datos = _leer_defmacro(nombre, parametros, lineas, n)
+        ubicaciones: dict[str, Ubicacion] = {
+            "": Ubicacion(n, 1),
+            "0": Ubicacion(n, 1),
+            "1": Ubicacion(n, encabezado.find(nombre) + 1),
+        }
+        return Lectura(datos, ubicaciones)
     m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", encabezado)
     if not m:
         _fallar(n, 1, "encabezado «medida|ninguno|ninguno-par|peor <id>:»", encabezado)
     clase, mid = m.groups()
     # `\S+` acepta cualquier cosa sin espacios, y eso dejaba a la superficie escribir ids que el
-    # resto del proyecto rechaza: `tareas.vencida_sin_dueño` se leía sin quejarse pero
-    # `--nuevo` se niega a crearlo. La gramática es una sola y vive en `ID_MEDIDA_RE`.
+    # resto del proyecto rechaza: `tareas.vencida_sin_dueño` se leía sin quejarse pero `--nueva` se
+    # niega a crearlo. La gramática es una sola y vive en `ID_MEDIDA_RE`.
     if ID_MEDIDA_RE.fullmatch(mid) is None:
         _fallar(n, encabezado.find(mid) + 1,
                 "id «dominio.nombre», sólo con minúsculas ASCII, dígitos y `_`", mid)
@@ -621,7 +794,12 @@ def ubicar_ruta(texto: str, ruta: tuple[int, ...] | str) -> Ubicacion | None:
 
 
 def fragmento_de_error(error: Exception, texto: str) -> str:
-    """Muestra el diagnóstico del álgebra con el fragmento de superficie señalado."""
+    """Muestra el diagnóstico con el fragmento de superficie señalado.
+
+    Dos clases de error llegan acá y las dos tienen que salir señaladas: un `ErrorDeAlgebra`, que
+    dice qué NODO ofende y hay que traducir su ruta a línea y columna, y un `ErrorSintaxis`, que ya
+    trae la posición porque falló antes de haber AST que rutear.
+    """
     ruta = getattr(error, "ruta", None)
     if ruta is None:
         linea = getattr(error, "linea", None)
@@ -648,7 +826,24 @@ def _json(valor) -> str:
     return json.dumps(valor, ensure_ascii=False)
 
 
+def _es_hueco(nodo) -> bool:
+    """`["$", "x"]` es un hueco de plantilla, no una llamada a una función `$`."""
+    return isinstance(nodo, list) and len(nodo) == 2 and nodo[0] == "$"
+
+
+def _nombre(nodo) -> str:
+    """Rinde un nombre o un hueco: `"rel"` queda `rel`, `["$", "rel"]` queda `$rel`."""
+    return f"${nodo[1]}" if _es_hueco(nodo) else str(nodo)
+
+
+def _texto_o_hueco(nodo) -> str:
+    """Rinde un texto JSON o un hueco: `"razón"` queda `"razón"`, `["$", "x"]` queda `$x`."""
+    return f"${nodo[1]}" if _es_hueco(nodo) else _json(nodo)
+
+
 def _expr(expr, padre: int = 0) -> str:
+    if _es_hueco(expr):
+        return f"${expr[1]}"
     if not isinstance(expr, list):
         return _json(expr)
     if not expr:
@@ -677,14 +872,14 @@ def _expr(expr, padre: int = 0) -> str:
 
 def _lineas_fuente(fuente) -> list[str]:
     if fuente[0] == "de":
-        return [f"{IND}de {fuente[1]} {fuente[2]}"]
+        return [f"{IND}de {_nombre(fuente[1])} {_nombre(fuente[2])}"]
     if fuente[0] != "unir":
         raise ValueError(f"fuente no imprimible: {fuente!r}")
     lineas = _lineas_fuente(fuente[1])
     derecha = fuente[2]
     if derecha[0] != "de":
         raise ValueError("la superficie sólo imprime `unir` encadenado con fuentes `de`")
-    lineas.append(f"{IND}unir {derecha[1]} {derecha[2]}")
+    lineas.append(f"{IND}unir {_nombre(derecha[1])} {_nombre(derecha[2])}")
     return lineas
 
 
@@ -696,9 +891,9 @@ def _imprimir_pasos(tuberia: list) -> list[str]:
         elif paso[0] == "agrupar":
             salida.append(f"{IND}agrupar:")
             for nombre, expr in paso[1]:
-                salida.append(f"{IND2}clave {nombre} = {_expr(expr)}")
+                salida.append(f"{IND2}clave {_nombre(nombre)} = {_expr(expr)}")
             for nombre, agregado, expr in paso[2]:
-                salida.append(f"{IND2}agregado {nombre} = {agregado}({_expr(expr)})")
+                salida.append(f"{IND2}agregado {_nombre(nombre)} = {_nombre(agregado)}({_expr(expr)})")
         else:
             raise ValueError(f"paso no imprimible: {paso!r}")
     return salida
@@ -712,31 +907,41 @@ def imprimir(datos: list) -> str:
     if clase == "ninguno":
         _c, mid, rel, alias, pred, porque, alcance = datos
         lineas = [
-            f"ninguno {mid}:",
-            f"{IND}de {rel} {alias}",
+            f"ninguno {_nombre(mid)}:",
+            f"{IND}de {_nombre(rel)} {_nombre(alias)}",
             f"{IND}donde {_expr(pred)}",
-            f"{IND}umbral <= 0 porque {_json(porque)}",
-            f"{IND}alcance {_json(alcance)}",
+            f"{IND}umbral <= 0 porque {_texto_o_hueco(porque)}",
+            f"{IND}alcance {_texto_o_hueco(alcance)}",
         ]
     elif clase == "ninguno-par":
         _c, mid, rel, alias_a, alias_b, pred, porque, alcance = datos
         lineas = [
-            f"ninguno-par {mid}:",
-            f"{IND}de {rel} {alias_a}, {alias_b}",
+            f"ninguno-par {_nombre(mid)}:",
+            f"{IND}de {_nombre(rel)} {_nombre(alias_a)}, {_nombre(alias_b)}",
             f"{IND}donde {_expr(pred)}",
-            f"{IND}umbral <= 0 porque {_json(porque)}",
-            f"{IND}alcance {_json(alcance)}",
+            f"{IND}umbral <= 0 porque {_texto_o_hueco(porque)}",
+            f"{IND}alcance {_texto_o_hueco(alcance)}",
         ]
     elif clase == "peor":
         _c, mid, rel, alias, expr, tolerancia, porque, alcance = datos
         lineas = [
-            f"peor {mid}:",
-            f"{IND}de {rel} {alias}",
+            f"peor {_nombre(mid)}:",
+            f"{IND}de {_nombre(rel)} {_nombre(alias)}",
             f"{IND}expresion {_expr(expr)}",
             f"{IND}tolerancia {_expr(tolerancia)}",
-            f"{IND}umbral <= {_expr(tolerancia)} porque {_json(porque)}",
-            f"{IND}alcance {_json(alcance)}",
+            f"{IND}umbral <= {_expr(tolerancia)} porque {_texto_o_hueco(porque)}",
+            f"{IND}alcance {_texto_o_hueco(alcance)}",
         ]
+    elif clase == "defmacro":
+        if len(datos) != 5:
+            raise ValueError(
+                "una macro es ['defmacro', nombre, parametros, guardas, plantilla]")
+        _c, nombre, parametros, guardas, plantilla = datos
+        lineas = [f"defmacro {nombre}({', '.join(parametros)}):"]
+        for guarda in guardas:
+            lineas.append(f"{IND}guarda {_expr(guarda[1])} {_json(guarda[2])}")
+        for sublinea in imprimir(plantilla).rstrip("\n").split("\n"):
+            lineas.append(f"{IND}{sublinea}")
     elif clase == "medida":
         if len(datos) == 7:
             _c, mid, tuberia, resumen, umbral, requiere, alcance = datos
@@ -745,12 +950,12 @@ def imprimir(datos: list) -> str:
             requiere = None
         else:
             raise ValueError("una medida canónica tiene 6 o 7 elementos")
-        lineas = [f"medida {mid}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
-        lineas.append(f"{IND}resumen {resumen[1]}({_expr(resumen[2])})")
-        lineas.append(f"{IND}umbral {umbral[1]} {_expr(umbral[2])} porque {_json(umbral[3])}")
+        lineas = [f"medida {_nombre(mid)}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
+        lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
+        lineas.append(f"{IND}umbral {umbral[1]} {_expr(umbral[2])} porque {_texto_o_hueco(umbral[3])}")
         if requiere is not None:
-            lineas.append(f"{IND}requiere {', '.join(requiere[1:])}")
-        lineas.append(f"{IND}alcance {_json(alcance[1])}")
+            lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in requiere[1:])}")
+        lineas.append(f"{IND}alcance {_texto_o_hueco(alcance[1])}")
     else:
         raise ValueError(f"forma de medida no imprimible: {clase!r}")
     return "\n".join(lineas) + "\n"

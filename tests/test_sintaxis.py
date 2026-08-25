@@ -3,10 +3,12 @@
 from __future__ import annotations
 
 import json
+import pathlib
 import unittest
 from pathlib import Path
 
 from nucleo.medida import rutas_de_catalogo
+from nucleo.macro import EXTENSIONES_DE_MACRO
 from tools import sintaxis
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -248,6 +250,176 @@ class DocumentacionVerificadaTests(unittest.TestCase):
             fallas = sintaxis.verificar_documentos(raiz)["fallas"]
             self.assertTrue(fallas)
             self.assertIn("canónica", fallas[0])
+
+
+class DefmacroSurfaceTests(unittest.TestCase):
+    """La superficie cubre la otra mitad del lenguaje: las macros, no sólo las medidas."""
+
+    def test_las_tres_macros_del_nucleo_vuelven_exactas(self) -> None:
+        informe = sintaxis.verificar_catalogo(RAIZ)
+        del_macros = len([p for p in (RAIZ / "nucleo" / "macros").iterdir()
+                          if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()])
+        self.assertEqual(informe["macros"], del_macros)
+        self.assertTrue(informe["json_igual"])
+        self.assertTrue(informe["texto_igual"])
+
+    def test_cada_macro_del_nucleo_se_lee_igual_al_archivo(self) -> None:
+        for ruta in sorted(p for p in (RAIZ / "nucleo" / "macros").iterdir()
+                           if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()):
+            with self.subTest(macro=ruta.stem):
+                texto = ruta.read_text(encoding="utf-8")
+                datos = (sintaxis.leer(texto) if ruta.suffix == ".oracle"
+                         else json.loads(texto))
+                superficie = sintaxis.imprimir(datos)
+                self.assertTrue(superficie.startswith(f"defmacro {ruta.stem}("))
+                self.assertEqual(sintaxis.leer(superficie), datos)
+                self.assertEqual(sintaxis.imprimir(sintaxis.leer(superficie)), superficie)
+
+    def test_una_macro_con_huecos_se_imprime_como_defmacro(self) -> None:
+        datos = ["defmacro", "todos-cumplen",
+                 ["id", "relacion", "alias", "predicado", "porque", "alcance"],
+                 [],
+                 ["medida", ["$", "id"],
+                  ["desde", ["de", ["$", "relacion"], ["$", "alias"]],
+                   ["donde", ["no", ["$", "predicado"]]]],
+                  ["resumen", "contar", 1],
+                  ["umbral", "<=", 0, ["$", "porque"]],
+                  ["alcance", ["$", "alcance"]]]]
+        superficie = sintaxis.imprimir(datos)
+
+        self.assertTrue(superficie.startswith(
+            "defmacro todos-cumplen(id, relacion, alias, predicado, porque, alcance):"))
+        self.assertIn("\n    medida $id:\n", superficie)
+        self.assertIn("\n        de $relacion $alias\n", superficie)
+        self.assertIn("\n        donde no $predicado\n", superficie)
+        self.assertIn("\n        umbral <= 0 porque $porque\n", superficie)
+        self.assertIn("\n        alcance $alcance\n", superficie)
+        self.assertEqual(sintaxis.leer(superficie), datos)
+
+    def test_una_macro_con_guarda_vuelve_exacta(self) -> None:
+        datos = ["defmacro", "propia",
+                 ["id", "otro"],
+                 [["guarda", ["!=", ["$", "id"], ["$", "otro"]], "distintos"]],
+                 ["medida", ["$", "id"],
+                  ["desde", ["de", "rel", ["$", "otro"]]],
+                  ["resumen", "contar", 1],
+                  ["umbral", "<=", 0, ["$", "id"]],
+                  ["alcance", ["$", "otro"]]]]
+        superficie = sintaxis.imprimir(datos)
+
+        self.assertIn("\n    guarda $id != $otro \"distintos\"\n", superficie)
+        self.assertEqual(sintaxis.leer(superficie), datos)
+
+    def test_la_aridad_de_defmacro_es_cinco(self) -> None:
+        for datos in (["defmacro", "p", ["id"], []],
+                      ["defmacro", "p", ["id"], [], ["medida"], "de+"],
+                      ["no-defmacro", "p", ["id"], [], ["medida"]]):
+            with self.subTest(datos=datos):
+                with self.assertRaises(ValueError):
+                    sintaxis.imprimir(datos)
+
+    def test_una_guarda_mal_formada_trae_linea_y_columna(self) -> None:
+        texto = "\n".join([
+            "defmacro mala(id):",
+            "    guarda $id != 1",
+            "    medida $id:",
+            "        de rel r",
+            "        donde r.x == true",
+            "        resumen contar(1)",
+            "        umbral <= 0 porque \"razón\"",
+            "        alcance \"NO ve\"",
+        ])
+
+        with self.assertRaises(sintaxis.ErrorSintaxis) as e:
+            sintaxis.leer(texto)
+        self.assertEqual(e.exception.linea, 2)
+        self.assertIn("mensaje de la guarda", str(e.exception))
+
+    def test_un_parametro_que_la_plantilla_nunca_usa_no_carga(self) -> None:
+        texto = "\n".join([
+            "defmacro propia(id, sobra):",
+            "    medida $id:",
+            "        de rel r",
+            "        donde r.x == true",
+            "        resumen contar(1)",
+            "        umbral <= 0 porque \"razón\"",
+            "        alcance \"NO ve\"",
+        ])
+
+        with self.assertRaises(sintaxis.ErrorSintaxis) as e:
+            sintaxis.leer(texto)
+        self.assertEqual(e.exception.linea, 1)
+        self.assertIn("nunca lo usa", str(e.exception))
+
+    def test_un_hueco_de_parametro_no_declarado_no_carga(self) -> None:
+        texto = "\n".join([
+            "defmacro propia(id):",
+            "    medida $id:",
+            "        de rel r",
+            "        donde r.x == $inventado",
+            "        resumen contar(1)",
+            "        umbral <= 0 porque \"razón\"",
+            "        alcance \"NO ve\"",
+        ])
+
+        with self.assertRaises(sintaxis.ErrorSintaxis) as e:
+            sintaxis.leer(texto)
+        self.assertEqual(e.exception.linea, 4)
+        self.assertIn("no es un parámetro", str(e.exception))
+
+    def test_un_hueco_dentro_de_una_cadena_no_cuenta_como_hueco(self) -> None:
+        """Un `$x` adentro del mensaje de una guarda es texto, no un hueco: no se lo exige como
+        parámetro ni se lo cuenta como usado."""
+        texto = "\n".join([
+            "defmacro propia(id):",
+            "    guarda $id != 1 \"usá $otro si querés\"",
+            "    medida $id:",
+            "        de rel r",
+            "        donde r.x == true",
+            "        resumen contar(1)",
+            "        umbral <= 0 porque \"razón\"",
+            "        alcance \"NO ve\"",
+        ])
+        datos = sintaxis.leer(texto)
+        self.assertEqual(datos[2], ["id"])
+        self.assertEqual(datos[3][0][2], "usá $otro si querés")
+
+
+class MacrosEnLaSuperficieTests(unittest.TestCase):
+    """La biblioteca estándar del lenguaje también se guarda en la superficie."""
+
+    def test_la_biblioteca_estandar_esta_escrita_en_la_superficie(self) -> None:
+        from nucleo.macro import macros_base
+        base = pathlib.Path(RAIZ / "nucleo" / "macros")
+        self.assertTrue(any(p.suffix == ".oracle" for p in base.iterdir()))
+        self.assertEqual(sorted(macros_base()), ["ninguno", "ninguno-par", "peor"])
+
+    def test_el_mismo_nombre_en_los_dos_formatos_es_un_error(self) -> None:
+        """No gana ninguno: un ganador silencioso es una divergencia esperando."""
+        import tempfile
+        from nucleo.macro import MacroMalDeclarada, cargar_macros
+        cuerpo = (RAIZ / "nucleo" / "macros" / "ninguno.oracle").read_text(encoding="utf-8")
+        with tempfile.TemporaryDirectory() as d:
+            raiz = pathlib.Path(d)
+            (raiz / "ninguno.oracle").write_text(cuerpo, encoding="utf-8")
+            (raiz / "ninguno.json").write_text(
+                json.dumps(sintaxis.leer(cuerpo), ensure_ascii=False), encoding="utf-8")
+            with self.assertRaises(MacroMalDeclarada):
+                cargar_macros(raiz)
+
+    def test_el_numerador_no_pierde_las_macros_al_cambiarles_el_formato(self) -> None:
+        """Bajar la proporción renombrando archivos es sastreo con otra ropa.
+
+        Cuando las tres macros base pasaron a `.oracle`, el `glob("*.json")` a mano de `cifras.py`
+        las dejó caer del numerador sin una queja. El inventario de formatos es UNO.
+        """
+        from nucleo.macro import EXTENSIONES_DE_MACRO
+        from tools import cifras
+        contadas = [p for p in cifras._lenguaje() if p.parent.name == "macros"]
+        en_disco = [p for p in (RAIZ / "nucleo" / "macros").iterdir()
+                    if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()]
+        self.assertEqual(len(contadas), len(en_disco))
+        self.assertGreater(len(contadas), 0)
 
 
 if __name__ == "__main__":

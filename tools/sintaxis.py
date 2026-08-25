@@ -36,29 +36,44 @@ def _rutas_catalogo(raiz: Path = RAIZ) -> list[Path]:
     )
 
 
+def _rutas_macros(raiz: Path = RAIZ) -> list[Path]:
+    """La biblioteca estándar de macros. Una macro es la otra mitad del lenguaje: si la superficie
+    cubre las medidas y no las macros, es la sintaxis de la mitad del lenguaje."""
+    from nucleo.macro import EXTENSIONES_DE_MACRO
+
+    return sorted(p for p in (raiz / "nucleo" / "macros").iterdir()
+                  if p.suffix in EXTENSIONES_DE_MACRO and p.is_file())
+
+
 def _puntuacion(texto: str) -> int:
     return sum(1 for c in texto if unicodedata.category(c).startswith("P"))
 
 
+def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
+    texto = ruta.read_text(encoding="utf-8")
+    datos = leer(texto) if ruta.suffix == ".oracle" else json.loads(texto)
+    superficie = imprimir(datos)
+    releida = leer(superficie)
+    reimpresa = imprimir(releida)
+    json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
+    return {
+        "ruta": str(ruta.relative_to(raiz)),
+        "json_igual": releida == datos,
+        "texto_igual": reimpresa == superficie,
+        "caracteres_json": len(json_compacto),
+        "caracteres_superficie": len(superficie),
+        "puntuacion_json": _puntuacion(json_compacto),
+        "puntuacion_superficie": _puntuacion(superficie),
+    }
+
+
 def verificar_catalogo(raiz: Path = RAIZ) -> dict:
-    filas = []
-    for ruta in _rutas_catalogo(raiz):
-        datos = cargar_fuente_medida(ruta)
-        superficie = imprimir(datos)
-        releida = leer(superficie)
-        reimpresa = imprimir(releida)
-        json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
-        filas.append({
-            "ruta": str(ruta.relative_to(raiz)),
-            "json_igual": releida == datos,
-            "texto_igual": reimpresa == superficie,
-            "caracteres_json": len(json_compacto),
-            "caracteres_superficie": len(superficie),
-            "puntuacion_json": _puntuacion(json_compacto),
-            "puntuacion_superficie": _puntuacion(superficie),
-        })
+    filas_medidas = [_fila_verificacion(r, raiz) for r in _rutas_catalogo(raiz)]
+    filas_macros = [_fila_verificacion(r, raiz) for r in _rutas_macros(raiz)]
+    filas = filas_medidas + filas_macros
     total = {
-        "medidas": len(filas),
+        "medidas": len(filas_medidas),
+        "macros": len(filas_macros),
         "json_igual": all(f["json_igual"] for f in filas),
         "texto_igual": all(f["texto_igual"] for f in filas),
         "caracteres_json": sum(f["caracteres_json"] for f in filas),
@@ -139,8 +154,9 @@ def main(argv: list[str] | None = None) -> int:
         informe = verificar_catalogo()
         docs = verificar_documentos()
         ok = (informe["json_igual"] and informe["texto_igual"] and informe["medidas"] > 0
-              and not docs["fallas"] and docs["ejecutables"] > 0)
+              and informe["macros"] > 0 and not docs["fallas"] and docs["ejecutables"] > 0)
         print(f"medidas convertidas: {informe['medidas']}")
+        print(f"macros convertidas: {informe['macros']}")
         print(f"ida JSON: {'OK' if informe['json_igual'] else 'FALLA'}")
         print(f"vuelta texto: {'OK' if informe['texto_igual'] else 'FALLA'}")
         print(f"caracteres: JSON {informe['caracteres_json']} · superficie "

@@ -212,18 +212,41 @@ class RegistroMacros(dict[str, Macro]):
 DIRECTORIO_BASE = Path(__file__).resolve().parent / "macros"
 
 
+# Los dos formatos de una macro, con la misma regla que el catálogo: `.oracle` es cómo se escribe,
+# `.json` es cómo se guarda. Una macro es la otra mitad del lenguaje —la superficie que cubre las
+# medidas y no las macros es la sintaxis de la mitad del lenguaje— así que se lee de los dos lados.
+EXTENSIONES_DE_MACRO = (".json", ".oracle")
+
+
+def _datos_de_macro(ruta: Path) -> list:
+    try:
+        texto = ruta.read_text(encoding="utf-8")
+    except OSError as e:
+        raise MacroMalDeclarada(f"no se pudo leer la macro {ruta}: {e}") from e
+    if ruta.suffix == ".oracle":
+        from .sintaxis import ErrorSintaxis, fragmento_de_error, leer
+        try:
+            return leer(texto)
+        except ErrorSintaxis as e:
+            raise MacroMalDeclarada(f"{ruta}: {fragmento_de_error(e, texto)}") from e
+    try:
+        return json.loads(texto)
+    except json.JSONDecodeError as e:
+        raise MacroMalDeclarada(f"no se pudo leer la macro {ruta}: {e}") from e
+
+
 def cargar_macros(*directorios, registro: RegistroMacros | None = None) -> RegistroMacros:
-    """Lee `*.json` de cada directorio. Un nombre repetido es un error, no una sobrescritura."""
+    """Lee `.json` y `.oracle` de cada directorio. Un nombre repetido es un error, no una
+    sobrescritura — y eso incluye el mismo nombre en los dos formatos: ahí no gana ninguno, porque
+    un ganador silencioso es una divergencia esperando a que alguien edite la copia equivocada."""
     destino = RegistroMacros() if registro is None else registro
     if len(directorios) == 1 and isinstance(directorios[0], (list, tuple)):
         directorios = directorios[0]
-    for ruta in sorted(x for d in directorios for x in Path(d).rglob("*.json")):
+    rutas = sorted(x for d in directorios for x in Path(d).rglob("*")
+                   if x.suffix in EXTENSIONES_DE_MACRO and x.is_file())
+    for ruta in rutas:
         try:
-            datos = json.loads(ruta.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as e:
-            raise MacroMalDeclarada(f"no se pudo leer la macro {ruta}: {e}") from e
-        try:
-            destino.declarar(Macro.de_datos(datos))
+            destino.declarar(Macro.de_datos(_datos_de_macro(ruta)))
         except MacroMalDeclarada as e:
             raise MacroMalDeclarada(f"{ruta.name}: {e}") from e
     return destino

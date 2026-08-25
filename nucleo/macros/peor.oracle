@@ -1,0 +1,7 @@
+defmacro peor(id, relacion, alias, expresion, tolerancia, porque, alcance):
+    medida $id:
+        de $relacion $alias
+        donde $expresion > $tolerancia
+        resumen max($expresion)
+        umbral <= $tolerancia porque $porque
+        alcance $alcance

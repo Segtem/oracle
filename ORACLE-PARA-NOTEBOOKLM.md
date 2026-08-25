@@ -3,8 +3,8 @@
 Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autoría, catálogo,
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
-- Generado: `2026-08-24`
-- Revisión de código base: `151ad8ce004a`
+- Generado: `2026-08-25`
+- Revisión de código base: `6361fef2e22c`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 4783 líneas de lenguaje y **226 negativas explícitas** (`raise`).
+En este corte hay 5005 líneas de lenguaje y **229 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**4783 líneas de lenguaje** (`nucleo/`, código y macros) y **226 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (298 líneas): **16,1 a 1**. 26 de las 33 pasan por una macro.
+**5005 líneas de lenguaje** (`nucleo/`, código y macros) y **229 negativas explícitas** (`raise`). Contra las 33 medidas universales escritas en él (298 líneas): **16,8 a 1**. 26 de las 33 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -396,7 +396,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-472 tests · 406/406 mutantes de medida · **1910 sitios de mutación de código** (1705 + 205 del motor Python).
+484 tests · 406/406 mutantes de medida · **2036 sitios de mutación de código** (1831 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4227,7 +4227,7 @@ mundo y no opina; el álgebra opina y no mira el mundo.
 
 ### `nucleo/macro.py`
 
-*298 líneas*
+*321 líneas*
 
 Macros: medidas que escriben medidas — y que ahora se declaran EN DATOS.
 
@@ -4420,7 +4420,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*756 líneas*
+*961 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -4476,7 +4476,7 @@ Sale != 0 si algún caso que debía ponerse rojo salió verde.
 
 ### `tools/cifras.py`
 
-*267 líneas*
+*280 líneas*
 
 Genera y comprueba las cifras publicadas en el README de Oracle.
 
@@ -4667,7 +4667,7 @@ Frontera común entre errores de proyecto y los códigos de salida de los entry 
 
 ### `tools/sintaxis.py`
 
-*162 líneas*
+*178 líneas*
 
 CLI para la superficie infija de autoría.
 
@@ -6840,6 +6840,77 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 
 *commit 151ad8c*
 
+
+
+### 2026-08-24 — Una gramática de id, y la documentación deja de creerse a sí misma
+
+*commit 6361fef*
+
+Tres huecos que salieron al hacer de la superficie infija un formato real. Los
+tres son de la misma familia: una afirmación que nadie ejercitaba.
+
+### 1 · El id tenía DOS gramáticas
+
+`ID_MEDIDA_RE` gobernaba la creación de un archivo (`ruta_de_medida_nueva`) y la
+superficie aceptaba `\S+`, cualquier cosa sin espacios. Así:
+
+    tareas.vencida_sin_dueño   →  la superficie lo leía sin una queja
+                               →  `--nueva` se negaba a crearlo
+
+Un catálogo podía guardar ids que la propia herramienta no sabe escribir. Ahora
+la gramática es una sola y se comprueba en los dos lados: al leer la superficie
+y al construir la `Medida`, así que escribir el JSON a mano tampoco la saltea.
+
+Y queda escrita la razón del ASCII, que no es que el proyecto no sea en español
+—la prosa de `porque` y `alcance` lo es entera— sino que un id es también un
+NOMBRE DE ARCHIVO:
+
+    "dueño"  →  b'due\xc3\xb1o'    (ñ precompuesta, NFC)
+    "dueño"  →  b'duen\xcc\x83o'   (n + tilde combinante, NFD)
+
+Se dibujan idénticos y son distintos para Python, para git y para un `dict`.
+macOS normaliza a NFD al escribir y Linux no toca nada, así que el mismo
+catálogo clonado en dos máquinas puede tener dos ids que nadie distingue
+mirando. Se cierra por gramática y no por normalización: normalizar es aceptar
+la ambigüedad y después elegir por el autor. Un test lo demuestra en vez de
+afirmarlo.
+
+Las 83 medidas de los tres catálogos —Oracle, Jam y LyraGASP— ya cumplían la
+gramática, así que exigirla no rompió a nadie.
+
+### 2 · Una medida nueva nace en la superficie
+
+`--nueva` entregaba una plantilla de JSON con corchetes anidados. El formato en
+el que se autoriza a alguien a escribir es el primer mensaje que da el lenguaje,
+y ese mensaje era «tu trabajo es anidar corchetes». Ahora crea un `.oracle` que
+el catálogo carga tal cual, y un test carga la plantilla entregada: una
+plantilla que no parsea manda contra la pared a la primera persona que la usa.
+
+### 3 · La documentación afirmaba estar verificada, y no lo estaba
+
+`ORACLE-TUTORIAL-PRACTICO.md` dice en su encabezado que todos sus ejemplos
+fueron verificados contra el código vigente. Lo sostenía la palabra de quien
+escribió el documento. Ahora `--verificar` lo comprueba: cada bloque ```oracle
+tiene que leer Y volver idéntico a lo que imprime la herramienta —parsear no
+alcanza, porque un ejemplo que lee pero no es canónico enseña una forma que la
+herramienta no produce—.
+
+Los bloques que NO son medidas completas se declaran, y la declaración es el
+punto: ```oracle-gramatica para las plantillas con `<placeholders>`,
+```oracle-fragmento para las líneas sueltas que enseñan un operador por vez.
+8 declarados, 16 verificados. Un documento declarado que no está en el árbol es
+un error, no un salto.
+
+De paso, los documentos quedan al día con `.oracle` como formato de catálogo: ya
+no mandan a traducir a JSON, porque no hace falta.
+
+472 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS 33 medidas + 16 bloques de documentación
+MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -6848,14 +6919,14 @@ MUTACIÓN 406/406 — 1477 detecciones, 0 sobrevivientes
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 4343 | el lenguaje |
+| líneas del núcleo | 4571 | el lenguaje |
 | líneas de medidas escritas en él | 298 | lo escrito en el lenguaje |
 | proporción | 15 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 16 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 204 | su naturaleza es rechazar, no medir |
+| (contando sólo el catálogo base) | 17 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 207 | su naturaleza es rechazar, no medir |
 | medidas | 33 | de las cuales 21 miden el lenguaje mismo |
 | casos de corpus | 90 | fallas reales, con su evidencia |
-| commits | 84 | el historial completo |
+| commits | 85 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
