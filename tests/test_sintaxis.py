@@ -867,5 +867,35 @@ class NingunaEntradaEsFailOpenTests(unittest.TestCase):
                 self.assertEqual(sintaxis.main(["--leer", str(ruta)]), 1)
 
 
+class LosBloquesDeCasoDeLaDocumentacionTambienSeVerificanTests(unittest.TestCase):
+    """Cuando entró la superficie de casos, sus ejemplos quedaron fuera del verificador.
+
+    `verificar_documentos` miraba dos documentos y una sola superficie. Los ejemplos de `.caso`
+    aparecieron en cuatro documentos y ninguno pasaba por el lector: volvían a ser una afirmación
+    sostenida por la palabra de quien la escribió, que es lo que este mecanismo vino a terminar.
+    """
+
+    def test_se_verifican_las_dos_superficies(self) -> None:
+        import re
+        de_caso = 0
+        for nombre in sintaxis.DOCUMENTOS_CON_SUPERFICIE:
+            texto = (RAIZ / nombre).read_text(encoding="utf-8")
+            de_caso += sum(1 for m in sintaxis.BLOQUE_RE.finditer(texto)
+                           if m.group(1) == "caso" and not m.group(2))
+        self.assertGreater(de_caso, 0, "ningún documento muestra un caso ejecutable")
+        self.assertEqual(sintaxis.verificar_documentos(RAIZ)["fallas"], [])
+
+    def test_un_bloque_de_caso_roto_se_denuncia(self) -> None:
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            for nombre in sintaxis.DOCUMENTOS_CON_SUPERFICIE:
+                (raiz / nombre).write_text("```caso\ncaso 999-roto:\n    fecha\n```\n",
+                                           encoding="utf-8")
+            fallas = sintaxis.verificar_documentos(raiz)["fallas"]
+            self.assertEqual(len(fallas), len(sintaxis.DOCUMENTOS_CON_SUPERFICIE))
+            self.assertIn("no lee", fallas[0])
+
+
 if __name__ == "__main__":
     unittest.main()

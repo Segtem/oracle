@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `e73b9d4c6d35`
+- Revisión de código base: `83d2a5407d21`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-519 tests · 535/535 mutantes de medida · **2261 sitios de mutación de código** (2056 + 205 del motor Python).
+521 tests · 535/535 mutantes de medida · **2261 sitios de mutación de código** (2056 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -5023,7 +5023,7 @@ Frontera común entre errores de proyecto y los códigos de salida de los entry 
 
 ### `tools/sintaxis.py`
 
-*214 líneas*
+*222 líneas*
 
 CLI para la superficie infija de autoría.
 
@@ -7708,6 +7708,22 @@ MUTACIÓN de medidas 535/535 — 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — doc: documentar autoría del corpus en superficie (.caso) y andamio
+
+*commit b0052d2*
+
+
+
+## 2026-08-25 — Saca el informe
+
+*commit 147786d*
+
+
+
+## 2026-08-25 — Merge branch 'caso-docs'
+
+*commit 83d2a54*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7723,7 +7739,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 232 | su naturaleza es rechazar, no medir |
 | medidas | 36 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 99 | fallas reales, con su evidencia |
-| commits | 98 | el historial completo |
+| commits | 101 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

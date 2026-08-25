@@ -115,8 +115,14 @@ def verificar_catalogo(raiz: Path = RAIZ) -> dict:
 # ejemplos fueron verificados contra el código vigente, y hasta hoy esa afirmación no la ejercitaba
 # nada: la sostenía la palabra de quien escribió el documento, que es exactamente la clase de
 # afirmación que este repositorio no acepta en ningún otro lado.
-DOCUMENTOS_CON_SUPERFICIE = ("ESCRIBIR-UNA-MEDIDA.md", "ORACLE-TUTORIAL-PRACTICO.md")
-BLOQUE_RE = re.compile(r"```(oracle|oracle-gramatica|oracle-fragmento)\n(.*?)```", re.S)
+# Los cuatro documentos que muestran superficie. Eran dos: al entrar la superficie de CASOS, los
+# ejemplos nuevos aparecieron también en el README y en la especificación, y ahí nadie los miraba.
+DOCUMENTOS_CON_SUPERFICIE = ("ESCRIBIR-UNA-MEDIDA.md", "ORACLE-TUTORIAL-PRACTICO.md",
+                             "README.md", "ESPECIFICACION.md")
+# Dos superficies, dos lectores. `oracle` es una medida y `caso` es un caso del corpus; las
+# etiquetas con sufijo declaran por qué un bloque NO se ejecuta, y esa declaración es el punto.
+BLOQUE_RE = re.compile(
+    r"```(oracle|caso)(-gramatica|-fragmento)?\n(.*?)```", re.S)
 
 
 def verificar_documentos(raiz: Path = RAIZ) -> dict:
@@ -131,18 +137,20 @@ def verificar_documentos(raiz: Path = RAIZ) -> dict:
             continue
         texto = ruta.read_text(encoding="utf-8")
         for m in BLOQUE_RE.finditer(texto):
-            etiqueta, bloque = m.group(1), m.group(2)
+            superficie, sufijo, bloque = m.group(1), m.group(2), m.group(3)
             linea = texto[:m.start()].count("\n") + 1
-            if etiqueta != "oracle":
+            if sufijo:
                 declarados += 1
                 continue
             ejecutables += 1
+            leer_, imprimir_ = ((leer, imprimir) if superficie == "oracle"
+                                else (sintaxis_caso.leer, sintaxis_caso.imprimir))
             try:
-                datos = leer(bloque)
-            except ErrorSintaxis as e:
+                datos = leer_(bloque)
+            except (ErrorSintaxis, sintaxis_caso.CasoMalDeclarado) as e:
                 fallas.append(f"{nombre}:{linea}: no lee — {e}")
                 continue
-            if imprimir(datos) != bloque:
+            if imprimir_(datos) != bloque:
                 fallas.append(f"{nombre}:{linea}: lee pero no es la forma canónica que imprime la "
                               "herramienta")
     return {"ejecutables": ejecutables, "declarados": declarados, "fallas": fallas}

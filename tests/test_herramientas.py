@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import io
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -589,16 +590,28 @@ print('IMPORTS OK')
             ["--hechos"])
 
     def test_mutacion_con_baseline_timeout_emite_error_json_y_falla(self) -> None:
-        r = subprocess.run(
-            [sys.executable, str(RAIZ / "tools" / "mutar_codigo.py"),
-             "--hechos", "--timeout", "0.001"],
-            cwd=RAIZ, capture_output=True, text=True)
+        """Corre sobre una RAÍZ PROPIA, no sobre la del repositorio.
 
-        self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
-        datos = json.loads(r.stdout)
-        self.assertEqual(datos["error_mutacion"][0]["tipo"], "LineaBaseFallida")
-        self.assertIn("timeout", datos["error_mutacion"][0]["mensaje"])
-        self.assertNotIn("Traceback", r.stdout + r.stderr)
+        El bloqueo de `mutar_codigo.py` es por raíz, así que este test fallaba —con
+        `RondaEnCurso` en vez de `LineaBaseFallida`— cada vez que alguien tenía una ronda de verdad
+        andando en el mismo árbol. Es la tercera vez en el día que un test rompe por depender del
+        entorno de alrededor en vez de armarse el suyo, y la lección ya está escrita en los otros
+        dos: un test que necesita el entorno de su autor no es un test, es una coincidencia.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td) / "proyecto"
+            shutil.copytree(RAIZ, raiz, ignore=shutil.ignore_patterns(
+                ".git", "__pycache__", "build", "*.egg-info", "estudio"))
+            r = subprocess.run(
+                [sys.executable, str(raiz / "tools" / "mutar_codigo.py"),
+                 "--hechos", "--timeout", "0.001"],
+                cwd=raiz, capture_output=True, text=True)
+
+            self.assertEqual(r.returncode, 2, r.stdout + r.stderr)
+            datos = json.loads(r.stdout)
+            self.assertEqual(datos["error_mutacion"][0]["tipo"], "LineaBaseFallida")
+            self.assertIn("timeout", datos["error_mutacion"][0]["mensaje"])
+            self.assertNotIn("Traceback", r.stdout + r.stderr)
 
     def test_la_mutacion_de_codigo_incluye_el_perfil_y_particiona_sin_escapar(self) -> None:
         from tools import mutar_codigo as cli
