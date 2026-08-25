@@ -506,6 +506,21 @@ def _evaluar_expr(expr, fila: dict, escalares: Mapping[str, Callable[..., Any]])
         except ErrorDeAlgebra as e:
             e.con_ruta_actual()
             raise
+        except Exception as e:
+            # Una escalar que revienta con una excepción de Python cruda ATRAVESABA el álgebra. El
+            # camino AISLADO ya la envolvía —«falló la escalar externa …»— y el que corre en proceso
+            # no, así que el mismo defecto se veía como un error del dominio o como un `TypeError`
+            # pelado según por dónde entrara. Un `TypeError` que sale del evaluador no le dice a
+            # nadie si el álgebra rechazó algo o si algo explotó, y `mutar.py` no lo podía atajar:
+            # terminaba la ronda en un traceback.
+            #
+            # Lo encontró una corrida sobre un catálogo ajeno: una medida le pasaba a una escalar un
+            # campo que podía venir `null`, y como los lógicos ya no cortocircuitan —§3— la llamada
+            # ocurre siempre. Que el dato sea malo es problema de quien escribió esa medida; que el
+            # error saliera crudo era problema de acá.
+            raise ErrorDeAlgebra(
+                f"la escalar «{cabeza}» falló sobre {argumentos!r}: "
+                f"{type(e).__name__}: {e}").con_ruta_actual() from e
 
     raise ErrorDeAlgebra(
         f"«{cabeza}» no es accesor, comparador, lógico ni escalar declarada", ruta=())

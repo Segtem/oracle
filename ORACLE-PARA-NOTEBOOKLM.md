@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `83d2a5407d21`
+- Revisión de código base: `cbdb75a5bfb1`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5545 líneas de lenguaje y **254 negativas explícitas** (`raise`).
+En este corte hay 5598 líneas de lenguaje y **255 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5545 líneas de lenguaje** (`nucleo/`, código y macros) y **254 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,4 a 1**. 29 de las 36 pasan por una macro.
+**5598 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,7 a 1**. 29 de las 36 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-521 tests · 535/535 mutantes de medida · **2261 sitios de mutación de código** (2056 + 205 del motor Python).
+527 tests · 535/535 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4473,7 +4473,7 @@ Los docstrings enteros: ahí vive el razonamiento y las decisiones descartadas, 
 
 ### `nucleo/algebra.py`
 
-*857 líneas*
+*872 líneas*
 
 El álgebra: relaciones, expresiones y los operadores. Sin dependencias.
 
@@ -4772,7 +4772,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*988 líneas*
+*1026 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -7724,6 +7724,90 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 83d2a54*
 
+
+
+## 2026-08-25 — Merge branch 'caso-docs': la documentación enseña la superficie de casos
+
+*commit 6237b9d*
+
+Los cuatro documentos tenían **cero menciones** de `.caso` el día después de que
+el corpus entero se escribiera en él, y `ORACLE-TUTORIAL-PRACTICO.md` seguía
+enseñando a tipear JSON crudo en su sección 8 — o sea, lo PRIMERO que hace
+alguien siguiendo el tutorial, porque el propio documento manda escribir el caso
+antes que la medida.
+
+Corregido también el id `002-vencida-con-dueño`, que llevaba `ñ`: el id de un
+caso ES el nombre del archivo, y por eso mismo es ASCII.
+
+Trabajo delegado a Gemini 3.7 Flash (high).
+
+## Tres cosas mías encima
+
+**1 · El verificador de documentos miraba una sola superficie y dos documentos.**
+Los ejemplos de `.caso` aparecieron en cuatro y ninguno pasaba por el lector:
+volvían a ser afirmaciones sostenidas por la palabra de quien las escribió, que
+es lo que ese mecanismo vino a terminar. Ahora reconoce ` ```oracle ` y ` ```caso `
+con sus sufijos `-gramatica` y `-fragmento`, sobre los cuatro documentos. De 16
+bloques verificados a **21**.
+
+**2 · Un test que no podía correr mientras la herramienta corría.** El bloqueo de
+`mutar_codigo.py` es por raíz, así que `test_mutacion_con_baseline_timeout…`
+fallaba con `RondaEnCurso` en vez de `LineaBaseFallida` cada vez que había una
+ronda de verdad en el mismo árbol. Ahora se copia su propia raíz.
+
+Es la **tercera vez en el día** que un test rompe por depender del entorno de
+alrededor —el de git, éste, y el intento intermedio— y la lección ya está escrita
+tres veces: un test que necesita el entorno de su autor no es un test, es una
+coincidencia.
+
+**3 · Y una falla de mi propio andamiaje, que anoto porque cuesta plata.** Agy no
+encontró su worktree, salió a buscar `TAREA.md` por todo el disco, encontró el de
+OTRA rama y ejecutó la tarea equivocada —encima de la que DeepSeek ya estaba
+haciendo, en el mismo directorio—. El wrapper hace `cd` al worktree; no alcanzó.
+Relanzado con la ruta absoluta en el prompt, salió bien a la primera.
+
+521 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS 36 medidas + 3 macros + 99 casos + 21 bloques de documentación
+MUTACIÓN de medidas 535/535 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — El error del lenguaje no se podía manipular como un error, y la mutación lo encontró
+
+*commit cbdb75a*
+
+`ErrorSintaxis` es un `dataclass(frozen=True)`. Un dataclass congelado reemplaza
+`__setattr__` por uno que rechaza TODO, y eso alcanza a los dunder que el
+intérprete y las herramientas de traza escriben sobre cualquier excepción:
+
+    e.__traceback__ = tb   →  FrozenInstanceError: cannot assign to field '__traceback__'
+
+CPython los escribe por la API de C al levantar la excepción —por eso un `raise`
+simple andaba y nadie lo notó— pero cualquier código Python que re-lance, encadene
+o inspeccione el error se estrellaba.
+
+**Lo encontró la mutación de código, no una persona.** De 193 mutantes de
+`nucleo/caso.py`, **51 salieron `error_arnes`** en vez de muertos o vivos, con ese
+mismo `FrozenInstanceError` durante el descubrimiento de tests. Un error del arnés
+no es una muerte —caso `017` del corpus—, así que esos 51 no medían nada y la
+ronda entera quedaba INCONCLUSA. El defecto se escondía justamente detrás del
+mecanismo que existe para no dejar pasar cosas escondidas.
+
+La inmutabilidad que se quiere es la de los CAMPOS del error —línea, columna, qué
+se esperaba—, no la de la maquinaria de excepciones de Python. El parche se aplica
+después de la clase porque `dataclass(frozen=True)` se niega a que se declare un
+`__setattr__` propio adentro.
+
+Queda un límite dicho: `copy.copy` sobre uno de estos errores sigue fallando. No
+lo arreglo porque nada en el proyecto copia excepciones —lo verifiqué— y agregar
+maquinaria para un usuario que no existe es lo que este repositorio no hace.
+
+524 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7732,14 +7816,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5111 | el lenguaje |
+| líneas del núcleo | 5164 | el lenguaje |
 | líneas de medidas escritas en él | 218 | lo escrito en el lenguaje |
-| proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 232 | su naturaleza es rechazar, no medir |
+| proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 27 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
 | medidas | 36 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 99 | fallas reales, con su evidencia |
-| commits | 101 | el historial completo |
+| commits | 103 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

@@ -362,3 +362,58 @@ class TrazaDelEvaluador(unittest.TestCase):
                   ["umbral", "<=", 0, "una razón"], ["alcance", "NO ve nada más"]]
         traza = self._traza(medida, {"cosa": [{"n": 1}]})
         self.assertEqual(traza["nodo"], [{"cabeza": "y", "declarados": 2, "evaluados": 2}])
+
+
+class UnaEscalarQueRevientaNoAtraviesaElAlgebraTests(unittest.TestCase):
+    """Un `TypeError` que sale del evaluador no dice si el álgebra rechazó algo o si algo explotó.
+
+    El camino AISLADO ya envolvía la falla de una escalar externa; el que corre en proceso no, así
+    que el mismo defecto se veía como un error del dominio o como una excepción cruda de Python
+    según por dónde entrara. Y crudo no se podía atajar: una ronda de mutación terminaba en un
+    traceback en vez de un veredicto.
+    """
+
+    @staticmethod
+    def _registro(nombre, fn):
+        """Registro propio, con el mismo decorador que usa un proyecto de verdad."""
+        algebra = _algebra()
+        destino = algebra.RegistroEscalares()
+        algebra.escalar(nombre, registro=destino)(fn)
+        return destino
+
+    def test_la_excepcion_de_una_escalar_sale_como_error_de_algebra(self) -> None:
+        algebra = _algebra()
+
+        def explota(_x):
+            raise TypeError("no se puede restar None")
+
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.evaluar_expr(["explota", ["campo", "a", "g"]], {"a": {"g": None}},
+                                 registro=self._registro("explota", explota))
+        self.assertIn("explota", str(cm.exception))
+        self.assertIn("TypeError", str(cm.exception))
+
+    def test_el_mensaje_dice_con_que_argumentos_fallo(self) -> None:
+        """Sin los argumentos, el error obliga a reproducirlo a mano para saber qué entró."""
+        algebra = _algebra()
+
+        def explota(_a, _b):
+            raise ValueError("boom")
+
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.evaluar_expr(["explota", ["campo", "a", "g"], 2], {"a": {"g": None}},
+                                 registro=self._registro("explota", explota))
+        self.assertIn("[None, 2]", str(cm.exception))
+
+    def test_un_error_de_algebra_de_adentro_no_se_re_envuelve(self) -> None:
+        """Una escalar que ya habla el idioma del álgebra conserva su mensaje."""
+        algebra = _algebra()
+
+        def rechaza(_x):
+            raise algebra.ErrorDeAlgebra("el eje no es válido")
+
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.evaluar_expr(["rechaza", ["campo", "a", "g"]], {"a": {"g": 1}},
+                                 registro=self._registro("rechaza", rechaza))
+        self.assertIn("el eje no es válido", str(cm.exception))
+        self.assertNotIn("TypeError", str(cm.exception))
