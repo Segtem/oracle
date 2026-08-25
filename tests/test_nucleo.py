@@ -18,8 +18,8 @@ sys.path.insert(0, str(RAIZ))
 from nucleo import algebra
 from nucleo.algebra import ErrorDeAlgebra, LimitesAlgebra, desde, evaluar_expr, resumir
 from nucleo.medida import (ClasificacionMeta, Informe, Medida, clasificacion_meta_base,
-                           MedidaMalDeclarada, cargar_catalogo, como_hechos, evaluar, inventario,
-                           puntos_ciegos)
+                           MedidaMalDeclarada, cargar, cargar_catalogo, como_hechos, evaluar,
+                           inventario, puntos_ciegos)
 
 EV = {"pieza": [{"id": "a", "x": 0}, {"id": "b", "x": 7}]}
 
@@ -718,6 +718,80 @@ class CatalogoRealTests(unittest.TestCase):
             for n in ("a.json", "b.json"):
                 (Path(d) / n).write_text(json.dumps(_medida()), encoding="utf-8")
             with self.assertRaises(MedidaMalDeclarada):
+                cargar_catalogo(Path(d))
+
+    def test_catalogo_carga_oracle_sin_json(self) -> None:
+        import tempfile
+        from nucleo.sintaxis import imprimir
+
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "d.prueba.oracle"
+            ruta.write_text(imprimir(_medida()), encoding="utf-8")
+
+            catalogo = cargar_catalogo(Path(d))
+
+        self.assertEqual(set(catalogo), {"d.prueba"})
+
+    def test_un_id_repetido_entre_json_y_oracle_nombra_los_dos_archivos(self) -> None:
+        import tempfile
+        from nucleo.sintaxis import imprimir
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "a.json").write_text(json.dumps(_medida()), encoding="utf-8")
+            (raiz / "b.oracle").write_text(imprimir(_medida()), encoding="utf-8")
+
+            with self.assertRaises(MedidaMalDeclarada) as e:
+                cargar_catalogo(raiz)
+
+        mensaje = str(e.exception)
+        self.assertIn("a.json", mensaje)
+        self.assertIn("b.oracle", mensaje)
+
+    def test_oracle_mal_formado_informa_archivo_linea_y_columna(self) -> None:
+        import tempfile
+
+        texto = "\n".join([
+            "medida d.rota:",
+            "    de pieza p",
+            "    donde p.x ==",
+            "    resumen contar(1)",
+            "    umbral <= 0 porque \"razón\"",
+            "    alcance \"NO ve nada más\"",
+        ])
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "rota.oracle"
+            ruta.write_text(texto, encoding="utf-8")
+
+            with self.assertRaises(MedidaMalDeclarada) as e:
+                cargar(ruta)
+
+        mensaje = str(e.exception)
+        self.assertIn("rota.oracle", mensaje)
+        self.assertIn("línea 3", mensaje)
+        self.assertIn("columna", mensaje)
+        self.assertIn("^", mensaje)
+
+    def test_oracle_vacio_no_es_catalogo_de_cero_medidas(self) -> None:
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "vacia.oracle"
+            ruta.write_text("  \n\t\n", encoding="utf-8")
+
+            with self.assertRaises(MedidaMalDeclarada):
+                cargar_catalogo(Path(d))
+
+    def test_catalogo_rechaza_medidas_symlink(self) -> None:
+        import tempfile
+        from nucleo.sintaxis import imprimir
+
+        with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as afuera:
+            real = Path(afuera) / "real.oracle"
+            real.write_text(imprimir(_medida()), encoding="utf-8")
+            (Path(d) / "enlace.oracle").symlink_to(real)
+
+            with self.assertRaisesRegex(MedidaMalDeclarada, "symlink"):
                 cargar_catalogo(Path(d))
 
 

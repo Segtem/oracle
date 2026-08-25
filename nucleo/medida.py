@@ -50,6 +50,7 @@ RELACIONES_DE_CATALOGO = frozenset({
 # dependencia. Mientras sigan acá, agregar una relación reflexiva nueva cuesta una edición de Python
 # — que es exactamente la traba que la reificación vino a cerrar, cerrada a medias.
 RELACIONES_DE_OBSERVACION = frozenset({"paso", "nodo", "producto", "equivalencia"})
+EXTENSIONES_DE_MEDIDA = frozenset({".json", ".oracle"})
 
 
 class HechosCatalogo(list):
@@ -292,10 +293,75 @@ class Medida:
         return list(self.fuente) if self.fuente else self.a_datos()
 
 
+def _normalizar_directorios(directorios) -> tuple:
+    if len(directorios) == 1 and isinstance(directorios[0], (list, tuple)):
+        return tuple(directorios[0])
+    return tuple(directorios)
+
+
+def _rutas_en_catalogo(directorio) -> list[Path]:
+    base = Path(directorio)
+    if not base.exists():
+        return []
+    if base.is_symlink() or not base.is_dir():
+        raise MedidaMalDeclarada(f"el catálogo debe ser un directorio físico: {base}")
+    try:
+        base_fisica = base.resolve()
+    except OSError as e:
+        raise MedidaMalDeclarada(f"no se pudo resolver el catálogo {base}: {e}") from e
+    rutas = []
+    for ruta in base.rglob("*"):
+        if ruta.suffix not in EXTENSIONES_DE_MEDIDA:
+            continue
+        if ruta.is_symlink():
+            raise MedidaMalDeclarada(f"una medida de catálogo no puede ser symlink: {ruta}")
+        try:
+            fisica = ruta.resolve()
+            fisica.relative_to(base_fisica)
+        except (OSError, ValueError) as e:
+            raise MedidaMalDeclarada(f"la medida {ruta} no está confinada en {base_fisica}") from e
+        if not fisica.is_file():
+            raise MedidaMalDeclarada(f"la medida debe ser un archivo físico: {ruta}")
+        rutas.append(ruta)
+    return sorted(rutas)
+
+
+def rutas_de_catalogo(*directorios) -> list[Path]:
+    """Archivos de medidas del catálogo, en todos los formatos declarados."""
+    return sorted(
+        ruta
+        for directorio in _normalizar_directorios(directorios)
+        for ruta in _rutas_en_catalogo(directorio)
+    )
+
+
+def cargar_fuente_medida(ruta: Path) -> list:
+    """Lee una medida de catálogo y devuelve su forma de datos."""
+    ruta = Path(ruta)
+    try:
+        texto = ruta.read_text(encoding="utf-8")
+    except OSError as e:
+        raise MedidaMalDeclarada(f"no se pudo leer la medida {ruta}: {e}") from e
+    if ruta.suffix == ".json":
+        try:
+            return json.loads(texto)
+        except json.JSONDecodeError as e:
+            raise MedidaMalDeclarada(f"{ruta}: JSON inválido — {e}") from e
+    if ruta.suffix == ".oracle":
+        from .sintaxis import ErrorSintaxis, fragmento_de_error, leer
+
+        try:
+            return leer(texto)
+        except ErrorSintaxis as e:
+            raise MedidaMalDeclarada(f"{ruta}: {fragmento_de_error(e, texto)}") from e
+    raise MedidaMalDeclarada(
+        f"formato de medida no soportado: {ruta} (esperaba .json u .oracle)")
+
+
 def cargar(ruta: Path, *, registro=None,
            limites: LimitesAlgebra | None = None, macros=None) -> Medida:
     return Medida.de_datos(
-        json.loads(Path(ruta).read_text(encoding="utf-8")),
+        cargar_fuente_medida(ruta),
         registro=registro,
         limites=limites,
         macros=macros,
@@ -314,13 +380,14 @@ def cargar_catalogo(*directorios, registro=None,
     equivocado.
     """
     salida: dict[str, Medida] = {}
-    if len(directorios) == 1 and isinstance(directorios[0], (list, tuple)):
-        directorios = directorios[0]
-    for p in sorted(x for d in directorios for x in Path(d).rglob("*.json")):
+    fuentes: dict[str, Path] = {}
+    for p in rutas_de_catalogo(*directorios):
         m = cargar(p, registro=registro, limites=limites, macros=macros)
         if m.id in salida:
-            raise MedidaMalDeclarada(f"el id «{m.id}» está dos veces (último: {p.name})")
+            raise MedidaMalDeclarada(
+                f"el id «{m.id}» está dos veces: {fuentes[m.id]} y {p}")
         salida[m.id] = m
+        fuentes[m.id] = p
     return salida
 
 

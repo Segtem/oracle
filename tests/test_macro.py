@@ -17,7 +17,7 @@ from nucleo.algebra import LimitesAlgebra
 from nucleo.macro import (DIRECTORIO_BASE, Macro, MacroMalDeclarada, MacroMalUsada,
                           exigir_biblioteca,
                           RegistroMacros, cargar_macros, es_macro, expandir, macros_base)
-from nucleo.medida import Medida, cargar_catalogo
+from nucleo.medida import Medida, cargar_catalogo, cargar_fuente_medida, rutas_de_catalogo
 
 PRED = ["==", ["campo", "m", "murio"], False]
 
@@ -407,9 +407,10 @@ class CatalogoRealTests(unittest.TestCase):
 
     def setUp(self) -> None:
         self.catalogo = cargar_catalogo(RAIZ / "catalogos")
-        self.crudos = {json.loads(p.read_text(encoding="utf-8"))[1]:
-                       json.loads(p.read_text(encoding="utf-8"))
-                       for p in (RAIZ / "catalogos").rglob("*.json")}
+        self.crudos = {
+            cargar_fuente_medida(p)[1]: cargar_fuente_medida(p)
+            for p in rutas_de_catalogo(RAIZ / "catalogos")
+        }
 
     def test_todas_cargan_y_la_mayoria_son_macro(self) -> None:
         macros = sum(1 for d in self.crudos.values() if es_macro(d))

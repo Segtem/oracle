@@ -52,8 +52,12 @@ def _lenguaje() -> list[Path]:
 
 def _medidas_universales() -> list[Path]:
     """Las medidas que Oracle publica: catálogo base más los perfiles empaquetados."""
-    return sorted((RAIZ / "catalogos").glob("*/*.json")) + sorted(
-        (RAIZ / "perfiles").glob("*/catalogos/*/*.json"))
+    from nucleo.medida import rutas_de_catalogo
+
+    return rutas_de_catalogo(
+        RAIZ / "catalogos",
+        *sorted((RAIZ / "perfiles").glob("*/catalogos")),
+    )
 
 
 def _lineas(rutas: list[Path]) -> int:
@@ -95,8 +99,9 @@ def escala() -> str:
     # publicado, que ya están validadas: la rama `if datos and isinstance(...) else "?"` que había
     # acá era inalcanzable —la mutación la marcó, dos veces— y además convertía un catálogo roto en
     # una categoría silenciosa en vez de un error. Si un archivo no tiene forma de medida, que grite.
-    formas = Counter(
-        json.loads(m.read_text(encoding="utf-8"))[0] for m in medidas)
+    from nucleo.medida import cargar_fuente_medida
+
+    formas = Counter(cargar_fuente_medida(m)[0] for m in medidas)
     por_macro = sum(cantidad for forma, cantidad in formas.items() if forma != "medida")
 
     # Decimal con coma: el README está en español y `16.2` se lee como otra cifra.

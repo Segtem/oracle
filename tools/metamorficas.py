@@ -36,7 +36,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
-from nucleo.medida import Medida, cargar_catalogo, evaluar, medidas_aplicables  # noqa: E402
+from nucleo.medida import (Medida, cargar_catalogo, cargar_fuente_medida, evaluar,  # noqa: E402
+                           medidas_aplicables)
 from nucleo.mutacion import _huella  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
                              macros_del_proyecto)
@@ -161,7 +162,7 @@ def _sintaxis_ida_y_vuelta(proy: Proyecto) -> list[dict]:
     for ruta in sintaxis._rutas_catalogo(proy.raiz):
         caso = str(ruta.relative_to(proy.raiz))
         try:
-            datos = json.loads(ruta.read_text(encoding="utf-8"))
+            datos = cargar_fuente_medida(ruta)
             superficie = sintaxis.imprimir(datos)
             releida = sintaxis.leer(superficie)
             reimpresa = sintaxis.imprimir(releida)

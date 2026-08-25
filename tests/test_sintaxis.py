@@ -6,6 +6,7 @@ import json
 import unittest
 from pathlib import Path
 
+from nucleo.medida import rutas_de_catalogo
 from tools import sintaxis
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -16,13 +17,32 @@ class SintaxisInfijaTests(unittest.TestCase):
         informe = sintaxis.verificar_catalogo(RAIZ)
         # Contado, no escrito: un 29 a mano vence con cada medida nueva y el test empieza a
         # medir cuántas hay en vez de que todas vuelvan exactas, que es lo que dice medir.
-        del_catalogo = len(list((RAIZ / "catalogos").glob("*/*.json"))) + len(
-            list((RAIZ / "perfiles").glob("*/catalogos/*/*.json")))
+        del_catalogo = len(rutas_de_catalogo(
+            RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         self.assertEqual(informe["medidas"], del_catalogo)
         self.assertGreater(del_catalogo, 0)
         self.assertTrue(informe["json_igual"])
         self.assertTrue(informe["texto_igual"])
         self.assertLess(informe["puntuacion_superficie"], informe["puntuacion_json"])
+        self.assertTrue(any(p.suffix == ".oracle" for p in sintaxis._rutas_catalogo(RAIZ)))
+
+    def test_los_inventarios_de_catalogo_no_vuelven_a_rglob_json_a_mano(self) -> None:
+        def bloque(ruta: Path, inicio: str, fin: str) -> str:
+            texto = ruta.read_text(encoding="utf-8")
+            return texto.split(inicio, 1)[1].split(fin, 1)[0]
+
+        revisados = (
+            (RAIZ / "nucleo" / "medida.py", "def rutas_de_catalogo", "def cargar_fuente_medida"),
+            (RAIZ / "tools" / "sintaxis.py", "def _rutas_catalogo", "def _puntuacion"),
+            (RAIZ / "tools" / "cifras.py", "def _medidas_universales", "def _lineas"),
+            (RAIZ / "tools" / "estudio.py", "def catalogo_en_prosa", "def corpus_en_prosa"),
+            (RAIZ / "tools" / "estudio.py", "def numeros", "    casos = "),
+        )
+        for ruta, inicio, fin in revisados:
+            with self.subTest(ruta=ruta.name, inicio=inicio):
+                codigo = bloque(ruta, inicio, fin)
+                self.assertNotIn('rglob("*.json")', codigo)
+                self.assertNotIn('glob("*/*.json")', codigo)
 
     def test_una_macro_se_relee_como_macro_y_no_como_expansion(self) -> None:
         ruta = RAIZ / "catalogos/meta/meta.donde_compone.json"
@@ -95,8 +115,8 @@ class SintaxisInfijaTests(unittest.TestCase):
         from tools import metamorficas
 
         filas = metamorficas._sintaxis_ida_y_vuelta(Proyecto(RAIZ))
-        del_catalogo = len(list((RAIZ / "catalogos").glob("*/*.json"))) + len(
-            list((RAIZ / "perfiles").glob("*/catalogos/*/*.json")))
+        del_catalogo = len(rutas_de_catalogo(
+            RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         self.assertEqual(len(filas), del_catalogo)
         self.assertTrue(all(f["mismo_veredicto"] and f["mismo_valor"] for f in filas))
         # La jueza se busca en el CATÁLOGO, no en el código de la herramienta: estuvo un rato
