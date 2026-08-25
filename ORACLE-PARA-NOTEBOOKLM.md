@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `6e220a20dcd9`
+- Revisión de código base: `47a5fe7fe9ba`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-528 tests · 547/547 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
+533 tests · 547/547 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -8050,6 +8050,12 @@ el proyecto tiene una medida para eso: `proceso.verificacion_vigente`.
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Fija posiciones de la superficie de casos
+
+*commit f5a03b4*
+
+
+
 ## 2026-08-25 — proceso: incorporar medida proceso.codigo_con_mutante_que_lo_mata y sus casos de corpus
 
 *commit 1cb53c1*
@@ -8112,6 +8118,63 @@ SINTAXIS · MUTACIÓN de medidas 547/547 — 0 sobrevivientes
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Merge branch 'main' into matar-vivos
+
+*commit 0e0d900*
+
+# Conflicts:
+#	README.md
+
+## 2026-08-25 — Saca el informe
+
+*commit bf59522*
+
+
+
+## 2026-08-25 — El plan del lenguaje se pone al día: entró un ítem que no preveía
+
+*commit b8ec839*
+
+`PLAN-LENGUAJE.md` mencionaba la superficie una sola vez, el día después de que
+Oracle pasara a escribirse en ella. Entra como ítem **(f)**, con lo que costó y
+con lo que enseñó.
+
+Lo que costó, dicho sin maquillar: el corpus bajó de 3300 líneas a 1823 y el
+núcleo subió ~1400. La proporción publicada pasó de 13,0 a más de 26 a 1, y buena
+parte de ese salto es FORMATO y no lenguaje —las mismas 33 medidas bajaron de 298
+a 203 líneas por escribirse de otra manera—. Queda como defecto abierto de la
+métrica, sin arreglar, porque arreglarlo bajaría el costo publicado.
+
+Lo que enseñó vale más que la superficie, y son dos casos de la MISMA falla:
+
+  · `--verificar` decía «33 medidas, ida y vuelta OK» sobre 33 medidas que
+    escribió una sola persona. Rompiendo el impresor —`<` impreso como `<=`— el
+    verificador entero salía verde: ninguna medida del catálogo usa un `<` pelado.
+  · `ID_CASO_RE` entró como `^[0-9]{3}-…` porque así se llaman los casos de acá, y
+    rechazaba 9 casos de un consumidor real. No lo vio ninguna verificación
+    propia: se vio corriendo Oracle contra un catálogo ajeno.
+
+**Una regla derivada del único catálogo que uno escribió describe al autor, no al
+lenguaje.** Es lo que las auditorías vienen marcando, apareciendo dos veces en dos
+días como defecto concreto.
+
+Y (e.1) deja de estar PARCIAL: son ocho propiedades metamórficas, no cinco.
+
+Al final, la medición que gobierna el plan queda cerrada con su resultado: dos
+consumidores conectados y **ni una línea de `nucleo/algebra.py` tocada para que
+entraran**. Con algo mejor que el número al lado — una medida universal juzgó un
+catálogo que su autor no escribió y encontró tres defectos reales, uno de ellos un
+verde sobre cero evidencia.
+
+528 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — Merge branch 'matar-vivos'
+
+*commit 47a5fe7*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8127,7 +8190,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 110 | el historial completo |
+| commits | 115 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
