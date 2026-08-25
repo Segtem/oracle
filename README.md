@@ -254,15 +254,15 @@ oracle/                        LA HERRAMIENTA
   nucleo/                      el álgebra, la medida, las macros, el dominio, la simulación
   perfiles/python/             AST, imports, mutación de `.py` y garantías de `.pyc`
   tools/                       los instrumentos
-  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion
-  corpus/                      los casos donde la medición dijo bien y no estaba bien
+  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion (.oracle y .json)
+  corpus/                      los casos donde la medición dijo bien y no estaba bien (.caso y .json)
   ejemplo/                     un banco de pruebas abstracto, no un dominio
 
 <tu-proyecto>/                 TU PROYECTO
   oracle.json                  perfiles optativos activados de forma explícita
-  catalogos/<dominio>/         tus medidas
+  catalogos/<dominio>/         tus medidas (.oracle y .json)
   escalares.py                 tus funciones de dominio
-  corpus/  diferencial/        tus casos y tus fixtures
+  corpus/  diferencial/        tus casos (.caso y .json) y tus fixtures
 ```
 
 Y las herramientas se apuntan:
@@ -313,12 +313,12 @@ no abstraer.
 > [`AUDITORIA-2026-07-30.md`](AUDITORIA-2026-07-30.md) y
 > [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
 
-**El paquete contiene los cinco componentes.** El [corpus](corpus/) (42 casos), la [especificación](ESPECIFICACION.md) del álgebra,
+**El paquete contiene los cinco componentes.** El [corpus](corpus/) (42 casos, en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
-archivos de datos, no como código—, el sensor de mutación y la prueba diferencial.
+archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).
-`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `--nueva` crea el archivo.
+`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `tools/corpus.py --nuevo` crea el caso (`.caso`) y `tools/medida.py --nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
 Requiere Python 3.11 o posterior. Se puede usar desde el checkout o instalar sin dependencias:
 

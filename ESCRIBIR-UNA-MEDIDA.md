@@ -5,8 +5,9 @@ que quien ve un defecto pueda escribir la regla que lo atrapa; si para eso hay q
 hecho el evaluador, el único que puede escribir reglas es quien lo escribió — y ese es exactamente el
 problema que veníamos a resolver.
 
-**La superficie infija es cómo se escribe; el JSON es cómo se guarda.** Este documento enseña a
-escribir medidas directamente en la superficie infija.
+**La superficie es cómo se escribe; el JSON es cómo se guarda.** Este documento enseña a
+escribir medidas y casos directamente en su superficie de autoría (`.oracle` y `.caso`), que el
+sistema carga por igual sin paso de traducción.
 
 ## El orden importa: primero el caso, después la medida
 
@@ -19,7 +20,8 @@ escribir medidas directamente en la superficie infija.
 
 ```bash
 # 1. el caso: la evidencia del defecto, y que se espera ROJO
-#    (corpus/proceso/0NN-lo-que-paso.json — copiá uno que exista y cambialo)
+#    (el andamio ya nace en superficie .caso, o copiá uno que exista)
+python tools/corpus.py --nuevo proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
 
 # 2. mirá con qué contás
 python tools/medida.py --relaciones     # los hechos y sus campos, derivados de la evidencia real
@@ -34,21 +36,24 @@ python tools/aceptacion.py    # tu caso tiene que ponerse rojo
 python tools/mutar.py         # y el corpus tiene que fijar tu medida
 ```
 
-### Los dos formatos del catálogo
+### Los dos formatos del catálogo y del corpus
 
-El catálogo carga **`.oracle` y `.json` por igual**: una medida en superficie infija no necesita
-traducirse a nada para funcionar. El mismo id en los dos formatos es un error que nombra los dos
-archivos — no gana ninguno, porque un ganador silencioso es una divergencia esperando.
+El catálogo y el corpus cargan **superficie (`.oracle`, `.caso`) y `.json` por igual**: los
+archivos en superficie no necesitan traducirse a nada para funcionar. El mismo id en los dos
+formatos es un error que nombra los dos archivos — no gana ninguno, porque un ganador silencioso es
+una divergencia esperando.
 
-- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio, ya en superficie.
+- `python tools/corpus.py --nuevo <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
+- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
 - `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
-- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso, si alguna vez lo necesitás.
+- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
 
-El id tiene gramática cerrada y **ASCII**: `dominio.nombre`, minúsculas, dígitos y `_`. No es que el
-proyecto no sea en español —la prosa de `porque` y de `alcance` lo es entera—: es que el id es
-también un nombre de archivo, y en Unicode `dueño` puede ser dos secuencias de bytes distintas que se
-dibujan idénticas (NFC contra NFD). Dos ids que nadie puede distinguir mirando son una divergencia
-silenciosa, y eso se cierra por gramática.
+El id tiene gramática cerrada y **ASCII**: `dominio.nombre` para medidas y `NNN-descripcion` para
+casos (minúsculas, dígitos y `_`/`-`). No es que el proyecto no sea en español —la prosa de
+`porque` y de `alcance` lo es entera—: es que el id es también un nombre de archivo, y en Unicode
+`dueño` puede ser dos secuencias de bytes distintas que se dibujan idénticas (NFC contra NFD). Dos
+ids que nadie puede distinguir mirando son una divergencia silenciosa, y eso se cierra por
+gramática.
 
 ### Frontera de confianza
 

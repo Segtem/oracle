@@ -50,8 +50,10 @@ no conoce el nodo nuevo.
 ### La superficie tiene su propia versión
 
 La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
-misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La distinción que importa es entre el
-**lector** y el **impresor**, y no envejecen igual: un archivo `.oracle` viejo se **lee**; el
+misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La regla aplica a las medidas
+(`.oracle`) y a los casos del corpus (`.caso`): la superficie es cómo se escribe y el JSON es cómo
+se guarda, cargándose ambos por igual. La distinción que importa es entre el **lector** y el
+**impresor**, y no envejecen igual: un archivo `.oracle` o `.caso` viejo se **lee**; el
 impresor no lo toca. Por eso **una sola versión alcanza**, y alcanza porque la comparación es
 asimétrica —el archivo declara contra qué se escribió y el núcleo declara qué implementa—:
 
@@ -333,7 +335,7 @@ Comprobable, y si falla el diseño está mal:
 1. una medida sobre **piezas** y una medida sobre **nodos de un grafo** usan los mismos operadores,
    sin adaptador;
 2. una medida **sobre medidas** no introduce ninguna construcción nueva;
-3. el corpus guarda los tres niveles con el mismo formato;
+3. el corpus guarda los tres niveles con el mismo formato (en superficie `.caso` para autoría o `.json` para almacenamiento);
 4. **todo caso del corpus que declara una medida se pone en rojo** con esa medida. El que quede verde
    señala lenguaje faltante o medida mal escrita, y hay que decir cuál. Los casos con
    estado `abierto` **siguen verdes a propósito**: son el hueco declarado, no una falla del
