@@ -387,12 +387,28 @@ class GramaticaDelIdDeCasoTests(unittest.TestCase):
 
     def test_la_superficie_rechaza_un_id_de_caso_fuera_de_la_gramatica(self) -> None:
         cuerpo = self._texto("999-caso-valido").replace("999-caso-valido", "999-caso-con-dueno")
-        for malo in ("999-caso-con-dueño", "99-corto", "999_Caso", "999-", "abc-caso"):
+        for malo in ("999-caso-con-dueño", "999_Caso", "999-", "abc-caso", "999--doble"):
             with self.subTest(malo=malo):
                 texto = cuerpo.replace("999-caso-con-dueno", malo)
                 with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
                     sintaxis_caso.leer(texto)
                 self.assertIn("minúsculas ASCII", str(cm.exception))
+
+    def test_la_gramatica_no_describe_a_UN_catalogo_sino_al_lenguaje(self) -> None:
+        """Casi entra una gramática derivada de un solo corpus, y rechazaba a un consumidor.
+
+        La primera versión exigía `^[0-9]{3}-…` —tres dígitos y a otra cosa— porque así se llaman
+        los casos de ESTE repositorio. Un consumidor real numera por dominio
+        (`scatter-004-coberturas-distintas`, `physics-tanda-001-…`) y 9 de sus casos dejaban de
+        cargar. Derivar la gramática de un catálogo propio es la misma trampa que medir la
+        superficie contra las medidas que uno mismo escribió: describe al autor, no al lenguaje.
+        """
+        for ajeno in ("scatter-004-coberturas-distintas",
+                      "physics-tanda-001-interpenetracion-en-el-borde",
+                      "geometria-010-comparte-cara-de-sobra-es-verde",
+                      "99-serie-corta"):
+            with self.subTest(ajeno=ajeno):
+                self.assertEqual(sintaxis_caso.leer(self._texto(ajeno))["id"], ajeno)
 
     def test_el_json_no_puede_contrabandear_un_id_de_caso_invalido(self) -> None:
         import tempfile

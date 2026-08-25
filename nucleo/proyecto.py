@@ -377,11 +377,19 @@ EXTENSION_DE_AUTORIA = ".oracle"
 # aceptar la ambigüedad y después elegir por el autor.
 ID_MEDIDA_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
 
-# La gramática del id de un caso: `NNN-descripcion`, minúsculas ASCII, dígitos y `-`.
-# Comparte la misma razón que `ID_MEDIDA_RE`: el id es nombre de archivo y no puede depender de
-# cómo normalice Unicode cada sistema operativo. La forma sale del corpus vigente: tres dígitos
-# de serie, un guion y palabras portables separadas por guion.
-ID_CASO_RE = re.compile(r"^[0-9]{3}-[a-z0-9]+(?:-[a-z0-9]+)*$")
+# La gramática del id de un caso: minúsculas ASCII, dígitos y `-`, con al menos un tramo de
+# dígitos que lo ordene. Comparte la razón de `ID_MEDIDA_RE`: el id es nombre de archivo y no
+# puede depender de cómo normalice Unicode cada sistema operativo.
+#
+# Ojo con cómo se derivó, porque casi entra mal. La primera versión salía SÓLO del corpus de este
+# repositorio —`^[0-9]{3}-…`, tres dígitos y a otra cosa— y rechazaba 9 de los casos de un
+# consumidor real, que numera por dominio: `scatter-004-coberturas-distintas`,
+# `physics-tanda-001-…`. Derivar la gramática de un solo catálogo es la misma trampa que medir la
+# superficie contra las medidas que uno mismo escribió: describe al autor, no al lenguaje.
+#
+# Lo que se exige es lo que hace falta para que el id sea portable y ordenable, y nada más: sin
+# mayúsculas, sin acentos, sin `_`, sin dos guiones seguidos, y con un número adentro.
+ID_CASO_RE = re.compile(r"^(?=.*[0-9])[a-z0-9]+(?:-[a-z0-9]+)*$")
 
 
 def ruta_de_medida_nueva(proy: "Proyecto", mid: str) -> Path:

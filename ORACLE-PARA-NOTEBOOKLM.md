@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `cbdb75a5bfb1`
+- Revisión de código base: `a5736852a7a9`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5598 líneas de lenguaje y **255 negativas explícitas** (`raise`).
+En este corte hay 5606 líneas de lenguaje y **255 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5598 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,7 a 1**. 29 de las 36 pasan por una macro.
+**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,7 a 1**. 29 de las 36 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-527 tests · 535/535 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
+528 tests · 535/535 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4708,7 +4708,7 @@ distintos.
 
 ### `nucleo/proyecto.py`
 
-*449 líneas*
+*457 líneas*
 
 A qué proyecto se le mide. Oracle es la herramienta; el proyecto es de otro.
 
@@ -7808,6 +7808,41 @@ maquinaria para un usuario que no existe es lo que este repositorio no hace.
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Una escalar que revienta ya no atraviesa el álgebra con una excepción cruda
+
+*commit a573685*
+
+`escalares[cabeza](*argumentos)` sólo atajaba `ErrorDeAlgebra`. Cualquier otra
+excepción de Python —un `TypeError` por restarle un float a `None`, por decir la
+más común— salía del evaluador tal cual.
+
+El camino AISLADO ya la envolvía («falló la escalar externa …») y el que corre en
+proceso no, así que **el mismo defecto se veía distinto según por dónde entrara**.
+Y crudo no se podía atajar: quien llamaba al álgebra no tenía forma de distinguir
+«el álgebra rechazó esto» de «algo explotó», y una ronda de mutación terminaba en
+un traceback en vez de un veredicto.
+
+Lo encontró una corrida sobre un catálogo ajeno, no un test de acá: una medida le
+pasaba a una escalar un campo que podía venir `null`, y como los lógicos ya no
+cortocircuitan —§3, corregido esta mañana— la llamada ocurre siempre. Que el dato
+sea malo es problema de quien escribió esa medida; que el error saliera crudo era
+problema del álgebra.
+
+Ahora el mensaje dice qué escalar falló, con qué argumentos y con qué excepción, y
+lleva la ruta del nodo. Una escalar que ya habla el idioma del álgebra conserva su
+mensaje: no se re-envuelve.
+
+De paso, el test `test_la_distribucion_productiva_no_nombra_consumidores_conocidos`
+me atrapó nombrando al consumidor en un comentario del núcleo. Tenía razón: el
+núcleo no puede conocer a sus consumidores, y el comentario ahora dice «un catálogo
+ajeno». Es la clase de regla que sólo sirve si se aplica a quien la escribió.
+
+527 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 535/535 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -7816,14 +7851,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5164 | el lenguaje |
+| líneas del núcleo | 5172 | el lenguaje |
 | líneas de medidas escritas en él | 218 | lo escrito en el lenguaje |
 | proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
 | (contando sólo el catálogo base) | 27 a 1 | sin ningún proyecto que lo use |
 | negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
 | medidas | 36 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 99 | fallas reales, con su evidencia |
-| commits | 103 | el historial completo |
+| commits | 104 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
