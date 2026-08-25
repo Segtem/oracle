@@ -30,6 +30,23 @@ IND2 = IND * 2
 VERSION_LINE_RE = re.compile(r"^sintaxis\s+(\S+)$")
 
 
+# Los atributos que el intérprete y las herramientas de traza escriben sobre CUALQUIER excepción.
+# Un `dataclass(frozen=True)` reemplaza `__setattr__` por uno que rechaza todo, y eso alcanza a
+# éstos: `e.__traceback__ = tb` levanta `FrozenInstanceError`. CPython los escribe por la API de C
+# al levantar la excepción —por eso un `raise` simple anda— pero cualquier código Python que
+# re-lance, encadene o COPIE el error se estrella.
+#
+# La mutación de código lo descubrió: 51 de 193 mutantes de `nucleo/caso.py` no salieron ni muertos
+# ni vivos, salieron **error de arnés**, con `FrozenInstanceError: cannot assign to field
+# '__traceback__'` durante el descubrimiento de tests. Un error del arnés no es una muerte —caso
+# `017` del corpus—, así que la ronda entera quedaba inconclusa y esos 51 mutantes no medían nada.
+#
+# La inmutabilidad que se quiere es la de los CAMPOS del error —línea, columna, qué se esperaba—,
+# no la de la maquinaria de excepciones de Python.
+_ATRIBUTOS_DE_EXCEPCION = ("__traceback__", "__cause__", "__context__", "__suppress_context__",
+                           "__notes__")
+
+
 @dataclass(frozen=True)
 class ErrorSintaxis(ValueError):
     linea: int
@@ -46,6 +63,27 @@ class ErrorSintaxis(ValueError):
         visto = f"; llegó {self.encontrado}" if self.encontrado else ""
         cabeza = self.esperado if self.literal else f"se esperaba {self.esperado}"
         return f"línea {self.linea}, columna {self.columna}: {cabeza}{visto}"
+
+
+def _permitir_atributos_de_excepcion(clase):
+    """Deja pasar los dunder de excepción por el `__setattr__` congelado del dataclass.
+
+    Se aplica DESPUÉS de la clase porque `dataclass(frozen=True)` se niega a que se declare un
+    `__setattr__` propio adentro (`TypeError: Cannot overwrite attribute __setattr__`).
+    """
+    congelado = clase.__setattr__
+
+    def asignar(self, nombre, valor):
+        if nombre in _ATRIBUTOS_DE_EXCEPCION:
+            object.__setattr__(self, nombre, valor)
+            return
+        congelado(self, nombre, valor)
+
+    clase.__setattr__ = asignar
+    return clase
+
+
+_permitir_atributos_de_excepcion(ErrorSintaxis)
 
 
 @dataclass(frozen=True)

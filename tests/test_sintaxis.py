@@ -897,5 +897,49 @@ class LosBloquesDeCasoDeLaDocumentacionTambienSeVerificanTests(unittest.TestCase
             self.assertIn("no lee", fallas[0])
 
 
+class ElErrorDelLenguajeSeManipulaComoUnErrorTests(unittest.TestCase):
+    """`ErrorSintaxis` es un `dataclass(frozen=True)`, y eso congelaba de más.
+
+    Un dataclass congelado reemplaza `__setattr__` por uno que rechaza TODO, incluidos los dunder
+    que el intérprete y las herramientas de traza escriben sobre cualquier excepción. CPython los
+    escribe por la API de C al levantar —por eso un `raise` simple andaba— pero cualquier código
+    Python que re-lance o encadene el error se estrellaba con `FrozenInstanceError`.
+
+    Lo encontró la mutación de código, no una persona: **51 de 193 mutantes** de `nucleo/caso.py` no
+    salieron ni muertos ni vivos, salieron `error_arnes` con
+    `FrozenInstanceError: cannot assign to field '__traceback__'`. Un error del arnés no es una
+    muerte —caso `017` del corpus—, así que esos 51 no medían nada y la ronda quedaba inconclusa.
+    """
+
+    def test_se_le_puede_escribir_la_maquinaria_de_excepciones(self) -> None:
+        for atributo in ("__traceback__", "__cause__", "__context__"):
+            with self.subTest(atributo=atributo):
+                e = sintaxis.ErrorSintaxis(1, 1, "x")
+                setattr(e, atributo, None)
+                self.assertIsNone(getattr(e, atributo))
+
+    def test_los_campos_del_error_siguen_congelados(self) -> None:
+        """La inmutabilidad que se quiere es la de línea, columna y qué se esperaba."""
+        import dataclasses
+        e = sintaxis.ErrorSintaxis(1, 1, "x")
+        for campo in ("linea", "columna", "esperado"):
+            with self.subTest(campo=campo):
+                with self.assertRaises(dataclasses.FrozenInstanceError):
+                    setattr(e, campo, 99)
+
+    def test_se_puede_encadenar_y_relanzar_desde_python(self) -> None:
+        """El camino exacto que el arnés rompía: atrapar, encadenar y volver a levantar."""
+        import traceback
+        try:
+            try:
+                raise sintaxis.ErrorSintaxis(3, 7, "adentro")
+            except sintaxis.ErrorSintaxis as interno:
+                raise sintaxis.ErrorSintaxis(1, 1, "afuera") from interno
+        except sintaxis.ErrorSintaxis as e:
+            texto = "".join(traceback.format_exception(type(e), e, e.__traceback__))
+            self.assertIn("adentro", texto)
+            self.assertIn("afuera", texto)
+
+
 if __name__ == "__main__":
     unittest.main()
