@@ -133,6 +133,19 @@ class SintaxisInfijaTests(unittest.TestCase):
         m = Medida.de_datos(jueza, macros=macros_del_proyecto(Proyecto(RAIZ)))
         self.assertTrue(m.evaluar({"equivalencia": filas}).ok)
 
+    def test_la_metamorfica_de_sintaxis_cubre_algebra(self) -> None:
+        from nucleo.medida import Medida
+        from nucleo.proyecto import Proyecto, macros_del_proyecto
+        from tools import metamorficas
+
+        filas = metamorficas._sintaxis_cubre_algebra()
+        self.assertGreater(len(filas), 0)
+        self.assertTrue(all(f["mismo_veredicto"] and f["mismo_valor"] for f in filas))
+        jueza = cargar_fuente_medida(
+            ruta_de_medida("meta.sintaxis_cubre_algebra", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
+        m = Medida.de_datos(jueza, macros=macros_del_proyecto(Proyecto(RAIZ)))
+        self.assertTrue(m.evaluar({"equivalencia": filas}).ok)
+
 
 class GramaticaDelIdTests(unittest.TestCase):
     """Un id es un nombre de archivo, y la gramática es UNA SOLA.

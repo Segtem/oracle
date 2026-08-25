@@ -183,6 +183,206 @@ def _sintaxis_ida_y_vuelta(proy: Proyecto) -> list[dict]:
     return filas
 
 
+def _generar_candidatas() -> list[list]:
+    """Generador sistemático y determinista derivado de la gramática del álgebra."""
+    fuentes = [
+        ("de", ["de", "cosa", "c"]),
+        ("unir1", ["unir", ["de", "cosa", "c"], ["de", "otra", "o"]]),
+        ("unir2", ["unir", ["unir", ["de", "cosa", "c"], ["de", "otra", "o"]], ["de", "tercera", "t"]]),
+        ("unir3", ["unir", ["unir", ["unir", ["de", "cosa", "c"], ["de", "otra", "o"]], ["de", "tercera", "t"]], ["de", "cuarta", "cu"]]),
+    ]
+
+    acc_campo = ["campo", "c", "n"]
+    acc_hecho = ["hecho", "c"]
+    acc_col = ["col", "col1"]
+
+    cmp_map = {
+        "eq": "==", "neq": "!=", "lt": "<", "lte": "<=", "gt": ">", "gte": ">="
+    }
+    cmps = []
+    for cmp_name, op in cmp_map.items():
+        cmps.append((f"cmp_{cmp_name}_int", [op, acc_campo, 1]))
+
+    cmps.append(("cmp_eq_true", ["==", acc_campo, True]))
+    cmps.append(("cmp_eq_false", ["==", acc_campo, False]))
+    cmps.append(("cmp_eq_null", ["==", acc_campo, None]))
+    cmps.append(("cmp_lt_float", ["<", acc_campo, 3.14]))
+    cmps.append(("cmp_gte_str", [">=", acc_campo, "alfa"]))
+    cmps.append(("cmp_campo_campo", ["==", acc_campo, ["campo", "c", "m"]]))
+    cmps.append(("cmp_hecho", ["!=", acc_hecho, 0]))
+    cmps.append(("cmp_col", [">", acc_col, 5]))
+
+    p1 = ["==", acc_campo, 1]
+    p2 = ["<", ["campo", "c", "m"], 10]
+    p3 = ["==", ["campo", "c", "activo"], True]
+    p4 = ["==", ["campo", "c", "texto"], None]
+
+    logicas = [
+        ("y2", ["y", p1, p2]),
+        ("y3", ["y", p1, p2, p3]),
+        ("o2", ["o", p1, p2]),
+        ("o3", ["o", p1, p2, p4]),
+        ("no", ["no", p1]),
+        ("no_y", ["no", ["y", p1, p2]]),
+        ("no_o", ["no", ["o", p1, p2]]),
+        ("y_de_o", ["y", ["o", p1, p2], ["o", p3, p4]]),
+        ("o_de_y", ["o", ["y", p1, p2], ["y", p3, p4]]),
+        ("no_anidado", ["no", ["no", p1]]),
+        ("profunda_4", ["no", ["o", ["y", ["no", p1], p2], ["y", p3, ["no", p4]]]]),
+        ("profunda_5", ["y", ["no", ["o", ["y", p1, p2], p3]], ["o", ["no", p4], ["==", acc_col, 0]]]),
+    ]
+
+    todas_exprs = cmps + logicas
+
+    claves_opts = [
+        ("c0", []),
+        ("c1", [["k1", acc_campo]]),
+        ("c2", [["k1", acc_campo], ["k2", ["campo", "c", "m"]]]),
+    ]
+
+    aggs_opts = [
+        ("a1_contar", [["a1", "contar", 1]]),
+        ("a1_suma", [["a1", "suma", acc_campo]]),
+        ("a1_max", [["a1", "max", acc_campo]]),
+        ("a1_min", [["a1", "min", acc_campo]]),
+        ("a1_prom", [["a1", "promedio", acc_campo]]),
+        ("a2_contar_suma", [["a1", "contar", 1], ["a2", "suma", ["campo", "c", "m"]]]),
+        ("a2_max_min", [["a1", "max", acc_campo], ["a2", "min", ["campo", "c", "m"]]]),
+    ]
+
+    resumen_opts = [
+        ("res_contar", ["resumen", "contar", 1]),
+        ("res_suma", ["resumen", "suma", acc_campo]),
+        ("res_max", ["resumen", "max", acc_campo]),
+        ("res_min", ["resumen", "min", acc_campo]),
+        ("res_prom", ["resumen", "promedio", acc_campo]),
+        ("res_col", ["resumen", "max", acc_col]),
+    ]
+
+    umbral_opts = [
+        ("umb_lte_0", ["umbral", "<=", 0, "defensa <= 0"]),
+        ("umb_eq_true", ["umbral", "==", True, "defensa == true"]),
+        ("umb_neq_false", ["umbral", "!=", False, "defensa != false"]),
+        ("umb_gt_float", ["umbral", ">", 3.14, "defensa > 3.14"]),
+        ("umb_lt_neg", ["umbral", "<", -5, "defensa < -5"]),
+        ("umb_gte_str", ["umbral", ">=", "alfa", "defensa >= alfa"]),
+    ]
+
+    req_opts = [
+        ("req0", None),
+        ("req1", ["requiere", "cosa"]),
+        ("req2", ["requiere", "cosa", "otra"]),
+    ]
+
+    medidas = []
+
+    # 1. Fuentes combinadas con requiere y umbrales
+    for f_id, fuente in fuentes:
+        for r_id, req in req_opts:
+            for u_id, umb in umbral_opts[:2]:
+                mid = f"meta_gen.f_{f_id}_{r_id}_{u_id}"
+                m = ["medida", mid, ["desde", fuente], ["resumen", "contar", 1], umb]
+                if req:
+                    m.append(req)
+                m.append(["alcance", "sonda generada"])
+                medidas.append(m)
+
+    # 2. Expresiones completas en donde
+    for expr_id, expr in todas_exprs:
+        mid = f"meta_gen.expr_{expr_id}"
+        m = ["medida", mid, ["desde", ["de", "cosa", "c"], ["donde", expr]],
+             ["resumen", "contar", 1], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]]
+        medidas.append(m)
+
+    # 3. Agrupar: claves x agregados
+    for c_id, claves in claves_opts:
+        for a_id, aggs in aggs_opts:
+            mid = f"meta_gen.grp_{c_id}_{a_id}"
+            res = ["resumen", "max", ["col", "a1"]]
+            m = ["medida", mid, ["desde", ["de", "cosa", "c"], ["agrupar", claves, aggs]],
+                 res, ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]]
+            medidas.append(m)
+
+    # 4. Tuberías multi-paso
+    medidas.append(["medida", "meta_gen.paso_dd",
+                    ["desde", ["de", "cosa", "c"], ["donde", p1], ["donde", p2]],
+                    ["resumen", "contar", 1], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+    medidas.append(["medida", "meta_gen.paso_dg",
+                    ["desde", ["de", "cosa", "c"], ["donde", p1], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]]],
+                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+    medidas.append(["medida", "meta_gen.paso_gd",
+                    ["desde", ["de", "cosa", "c"], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]], ["donde", [">", ["col", "a1"], 0]]],
+                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+    medidas.append(["medida", "meta_gen.paso_dgd",
+                    ["desde", ["de", "cosa", "c"], ["donde", p1], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]], ["donde", [">", ["col", "a1"], 0]]],
+                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+    medidas.append(["medida", "meta_gen.paso_g22_d",
+                    ["desde", ["de", "cosa", "c"], ["agrupar", [["k1", acc_campo], ["k2", ["campo", "c", "m"]]], [["a1", "contar", 1], ["a2", "suma", ["campo", "c", "m"]]]], ["donde", ["==", ["col", "k1"], 1]]],
+                    ["resumen", "max", ["col", "a2"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+
+    # 5. Operadores de resumen (los 5)
+    for res_id, res in resumen_opts:
+        mid = f"meta_gen.{res_id}"
+        medidas.append(["medida", mid, ["desde", ["de", "cosa", "c"]], res,
+                        ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+
+    # 6. Operadores de umbral (los 6 con distintos tipos)
+    for umb_id, umb in umbral_opts:
+        mid = f"meta_gen.{umb_id}"
+        medidas.append(["medida", mid, ["desde", ["de", "cosa", "c"]],
+                        ["resumen", "contar", 1], umb, ["alcance", "sonda generada"]])
+
+    # 7. Requiere (0, 1, 2)
+    for req_id, req in req_opts:
+        mid = f"meta_gen.{req_id}"
+        m = ["medida", mid, ["desde", ["de", "cosa", "c"]], ["resumen", "contar", 1],
+             ["umbral", "<=", 0, "defensa"]]
+        if req:
+            m.append(req)
+        m.append(["alcance", "sonda generada"])
+        medidas.append(m)
+
+    # 8. Combinaciones cruzadas de fuentes con agrupar y expresiones
+    for f_id, fuente in fuentes[1:]:
+        mid = f"meta_gen.unir_agrupar_{f_id}"
+        m = ["medida", mid, ["desde", fuente, ["donde", p1], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]]],
+             ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]]
+        medidas.append(m)
+
+    return medidas
+
+
+def _sintaxis_cubre_algebra() -> list[dict]:
+    """Toda medida generada a partir de la gramática que el álgebra acepta, la superficie la
+    imprime, la relee y da exactamente lo mismo."""
+    candidatas = _generar_candidatas()
+    filas = []
+    for datos_candidata in candidatas:
+        try:
+            m = Medida.de_datos(datos_candidata)
+        except Exception:                  # noqa: BLE001
+            # Si el álgebra la rechaza, no es una medida válida: no entra a la propiedad.
+            continue
+        datos = m.a_datos()
+        try:
+            superficie = sintaxis.imprimir(datos)
+            releida = sintaxis.leer(superficie)
+            reimpresa = sintaxis.imprimir(releida)
+        except Exception as e:             # noqa: BLE001
+            filas.append({"propiedad": "sintaxis_cubre_algebra", "caso": m.id,
+                          "origen": "construido", "evaluo": False,
+                          "error": f"{type(e).__name__}: {e}",
+                          "mismo_veredicto": False, "mismo_valor": False,
+                          "mismos_testigos": False})
+            continue
+        filas.append({"propiedad": "sintaxis_cubre_algebra", "caso": m.id,
+                      "origen": "construido", "evaluo": True, "error": "",
+                      "mismo_veredicto": releida == datos,
+                      "mismo_valor": reimpresa == superficie,
+                      "mismos_testigos": True})
+    return filas
+
+
 def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = None) -> dict:
     proy = proy or Proyecto(RAIZ)
     return {"equivalencia": [
@@ -191,6 +391,7 @@ def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = No
         *_agrupar_sin_claves(),
         *_macro_equivale_a_su_expansion(catalogo, casos, macros),
         *_sintaxis_ida_y_vuelta(proy),
+        *_sintaxis_cubre_algebra(),
     ]}
 
 
