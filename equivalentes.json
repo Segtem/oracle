@@ -26,5 +26,21 @@
   {
     "id": "nucleo/caso.py:262:18:comparador",
     "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso."
+  },
+  {
+    "id": "nucleo/algebra.py:672:29:comparador",
+    "razon": "`ruta_izq = (*ruta, 1) if ruta is not None else None` → `if ruta is None else None` en `_unir`. `ruta_izq` sólo se suministra a `aplicar(izq, ..., ruta=ruta_izq)` donde `izq` es obligatoriamente una fuente (`de` o `unir`). Si es `de`, la función `_de` no recibe `ruta` y genera hechos o eleva `ErrorDeAlgebra` sin ruta (`self._ruta = None`). Si es `unir`, recursivamente vuelve a pasar su ruta exclusivamente a fuentes `de` o `unir`. Ningún nodo evaluador de expresiones puede ser fuente de `unir`, por lo que el valor de `ruta_izq` nunca es leído ni propagado en salidas o errores. Ningún test observable puede distinguir si `ruta_izq` es calculada o `None`."
+  },
+  {
+    "id": "nucleo/algebra.py:672:23:constante",
+    "razon": "`(*ruta, 1)` → `(*ruta, 2)` en el cálculo de `ruta_izq` dentro de `_unir`. El valor `ruta_izq` sólo se pasa como argumento `ruta` a `aplicar(izq, ...)`. Debido a que `izq` sólo puede ser `de` o `unir`, y ninguno de estos operadores evalúa expresiones ni adjunta `ruta` a sus excepciones (`self._ruta` permanece `None`), el prefijo de índice `1` nunca es leído, almacenado ni observado en ningún retorno o excepción del álgebra."
+  },
+  {
+    "id": "nucleo/algebra.py:673:29:comparador",
+    "razon": "`ruta_der = (*ruta, 2) if ruta is not None else None` → `if ruta is None else None` en `_unir`. Análogo al lado izquierdo: `ruta_der` sólo se suministra a `aplicar(der, ..., ruta=ruta_der)` donde `der` es necesariamente `de` o `unir`. Al no haber evaluación de expresiones dentro de las fuentes de `unir` y al no asociar `_de` ninguna ruta a sus errores, `ruta_der` no tiene ningún consumidor aguas abajo. Ningún caso de prueba puede observar diferencias."
+  },
+  {
+    "id": "nucleo/algebra.py:673:23:constante",
+    "razon": "`(*ruta, 2)` → `(*ruta, 3)` en el cálculo de `ruta_der` dentro de `_unir`. El valor `ruta_der` se propaga únicamente a `aplicar(der, ...)` cuyo operador es `de` o `unir`. Como `_de` no toma `ruta` y `_unir` no evalúa expresiones ni adjunta rutas a sus diagnósticos, el índice `2` nunca es consultado ni forma parte de ningún resultado o mensaje de error observable."
   }
 ]
