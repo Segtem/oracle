@@ -829,8 +829,7 @@ class CifrasDelReadme(unittest.TestCase):
             if p.name != "__init__.py" and "__pycache__" not in p.parts)
         lineas_medidas = sum(
             len(p.read_text(encoding="utf-8").splitlines())
-            for p in list((RAIZ / "catalogos").glob("*/*.json"))
-                   + list((RAIZ / "perfiles").glob("*/catalogos/*/*.json")))
+            for p in cli._medidas_universales())
 
         esperado = f"{lineas_lenguaje / lineas_medidas:.1f}".replace(".", ",")
         self.assertIn(f"**{esperado} a 1**", cli.escala())
@@ -1014,10 +1013,11 @@ class CifrasDelReadme(unittest.TestCase):
         """`por_macro` cuenta las formas que NO son `medida`. Si la comparación se invierte, el
         número pasa a ser el de las canónicas y nadie se entera."""
         from tools import cifras as cli
+        from nucleo.medida import cargar_fuente_medida
 
         canonicas = sum(
             1 for p in cli._medidas_universales()
-            if json.loads(p.read_text(encoding="utf-8"))[0] == "medida")
+            if cargar_fuente_medida(p)[0] == "medida")
         total = len(cli._medidas_universales())
         self.assertIn(f"{total - canonicas} de las {total} pasan por una macro", cli.escala())
         self.assertNotEqual(canonicas, total - canonicas, "el test no discrimina si hay empate")

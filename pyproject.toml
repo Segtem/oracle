@@ -41,6 +41,6 @@ packages = [
 "oracle_metalenguaje.tools" = "tools"
 
 [tool.setuptools.package-data]
-"oracle_metalenguaje.catalogos" = ["**/*.json"]
+"oracle_metalenguaje.catalogos" = ["**/*.json", "**/*.oracle"]
 "oracle_metalenguaje.nucleo" = ["macros/*.json"]
-"oracle_metalenguaje.perfiles.python" = ["catalogos/**/*.json"]
+"oracle_metalenguaje.perfiles.python" = ["catalogos/**/*.json", "catalogos/**/*.oracle"]

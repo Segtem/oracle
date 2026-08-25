@@ -31,7 +31,8 @@ sys.path.insert(0, str(RAIZ))
 import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  # noqa: E402
-from nucleo.medida import Medida, MedidaMalDeclarada, cargar_catalogo  # noqa: E402
+from nucleo.medida import (Medida, MedidaMalDeclarada, cargar_catalogo,  # noqa: E402
+                           cargar_fuente_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
                              catalogos_a_cargar, confiar_escalares, escalares_del_proyecto,
                              macros_del_proyecto, presentar_ruta, problemas_estructura,
@@ -137,7 +138,7 @@ def nueva(proy, mid: str) -> int:
 
 
 def expandir_archivo(ruta: Path, macros=None) -> int:
-    datos = json.loads(ruta.read_text(encoding="utf-8"))
+    datos = cargar_fuente_medida(ruta)
     from nucleo.macro import es_macro
     if not es_macro(datos, macros):
         print(f"«{datos[1] if len(datos) > 1 else '?'}» ya está en forma canónica.")
@@ -148,9 +149,9 @@ def expandir_archivo(ruta: Path, macros=None) -> int:
 
 def revisar(proy, ruta: Path) -> int:
     try:
-        datos = json.loads(ruta.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as e:
-        print(f"✗ JSON inválido: {e}")
+        datos = cargar_fuente_medida(ruta)
+    except MedidaMalDeclarada as e:
+        print(f"✗ {e}")
         return 1
     macros = macros_del_proyecto(proy)
     try:

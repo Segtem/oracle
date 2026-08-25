@@ -10,8 +10,8 @@ se explica solo.
 Tres cosas que no son «copiar y pegar», y son la razón de que esto sea un generador y no una carpeta
 mantenida a mano:
 
-  1. **el catálogo y el corpus son JSON**, y crudos se leen mal. Acá salen como prosa y tablas, con la
-     medida expandida a su forma canónica al lado de cómo está escrita.
+  1. **el catálogo y el corpus son datos**, y crudos se leen mal. Acá salen como prosa y tablas, con
+     la medida expandida a su forma canónica al lado de cómo está escrita.
   2. **los mensajes de commit tienen buena parte del «por qué»** — las correcciones, los mutantes que
      sobrevivieron, lo que se descubrió a mitad de camino. Si sólo se suben los documentos, se pierde
      justo lo que más sirve para entender por qué las cosas son como son.
@@ -31,7 +31,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
-from nucleo.medida import Medida, cargar_catalogo, como_hechos  # noqa: E402
+from nucleo.medida import (Medida, cargar_catalogo, cargar_fuente_medida, como_hechos,  # noqa: E402
+                           rutas_de_catalogo)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,
                              macros_del_proyecto, problemas_estructura)  # noqa: E402
@@ -81,10 +82,9 @@ def catalogo_en_prosa(catalogos_dirs, macros=None) -> str:
     cat = cargar_catalogo(catalogos_dirs, macros=macros)
     hechos = {h["id"]: h for h in como_hechos(cat.values())}
     fuentes = {}
-    for d in catalogos_dirs:
-        for p in Path(d).rglob("*.json"):
-            crudo = json.loads(p.read_text(encoding="utf-8"))
-            fuentes[crudo[1]] = crudo
+    for p in rutas_de_catalogo(catalogos_dirs):
+        crudo = cargar_fuente_medida(p)
+        fuentes[crudo[1]] = crudo
 
     out = ["# El catálogo de medidas", "",
            "Cada medida es un **archivo de datos**, no código. Se muestran las dos formas: cómo está",
@@ -186,7 +186,7 @@ def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
     lineas_nucleo = sum(len(p.read_text(encoding="utf-8").splitlines())
                         for p in (RAIZ / "nucleo").glob("*.py"))
     lineas_catalogo = sum(len(p.read_text(encoding="utf-8").splitlines())
-                          for d in catalogos_dirs for p in Path(d).rglob("*.json"))
+                          for p in rutas_de_catalogo(catalogos_dirs))
     negativas = sum(p.read_text(encoding="utf-8").count("raise ")
                     for p in (RAIZ / "nucleo").glob("*.py"))
     casos = list(raiz_corpus.rglob("*.json"))
@@ -197,7 +197,7 @@ def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
         f"| líneas de medidas escritas en él | {lineas_catalogo} | lo escrito en el lenguaje |",
         f"| proporción | {lineas_nucleo / max(lineas_catalogo, 1):.0f} a 1 | la apuesta: que el "
         "segundo crezca y el primero no |",
-        f"| (contando sólo el catálogo base) | {lineas_nucleo / max(sum(len(x.read_text(encoding='utf-8').splitlines()) for x in (RAIZ / 'catalogos').rglob('*.json')), 1):.0f} a 1 | "
+        f"| (contando sólo el catálogo base) | {lineas_nucleo / max(sum(len(x.read_text(encoding='utf-8').splitlines()) for x in rutas_de_catalogo(RAIZ / 'catalogos')), 1):.0f} a 1 | "
         "sin ningún proyecto que lo use |",
         f"| negativas en el núcleo (`raise`) | {negativas} | su naturaleza es rechazar, no medir |",
         f"| medidas | {len(cat)} | de las cuales "
