@@ -1,0 +1,17 @@
+caso 109-mutantes-de-codigo-todos-muertos:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Todos los mutantes de código murieron bajo la suite"
+    etiqueta: verde_correcto
+    sintoma:
+        Todos los mutantes de código fueron detectados por los tests (estado tests_fallaron). La medida debe dar verde y con quitar_filtro dar rojo.
+    como_se_detecto: observacion
+    medida: proceso.codigo_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, cambio, estado, murio, tests_fallaron, error_arnes, timeout, codigo_salida, equivalente_declarado, razon_equivalente
+            "nucleo/caso.py:14:1:constante", "nucleo/caso.py", "constante: 1 → 2", "tests_fallaron", true, true, false, false, 1, false, ""
+            "nucleo/caso.py:27:1:constante", "nucleo/caso.py", "constante: 4 → 5", "tests_fallaron", true, true, false, false, 1, false, ""
+    leccion:
+        Un verde correcto fija que cuando los mutantes son detectados y eliminados, la medida dictamina conformidad.

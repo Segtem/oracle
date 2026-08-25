@@ -20,10 +20,11 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
+from nucleo.algebra import ErrorDeAlgebra  # noqa: E402
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, casos_para_mutacion  # noqa: E402
-from nucleo.medida import (cargar_catalogo, evaluar, medidas_aplicables,  # noqa: E402
+from nucleo.medida import (Informe, cargar_catalogo, evaluar, medidas_aplicables,  # noqa: E402
                           relaciones_de_medida)
 from nucleo.mutacion import correr  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, RAIZ_ORACLE,
@@ -109,13 +110,25 @@ def _ejecutar(proy, args: list[str]) -> int:
                                    evaluadas_aparte=metas, heredadas=set(base)))
 
     juezas = medidas_aplicables(catalogo.values(), evidencia)
-    informe = evaluar(juezas, evidencia)
+    no_juzgaron = []
+    veredictos = []
+    for medida in juezas:
+        try:
+            veredictos.append(medida.evaluar(evidencia))
+        except ErrorDeAlgebra as e:
+            no_juzgaron.append((medida.id, str(e)))
+    informe = Informe(tuple(veredictos))
     if informe.veredictos:
         print("juzgado por las medidas del catálogo:")
         for v in informe.veredictos:
             print(" ", v.linea())
     else:
         print("sin políticas meta activas — se informa sólo el resultado operativo")
+    if no_juzgaron:
+        print(f"\n  {len(no_juzgaron)} medida(s) NO pudieron juzgar esta evidencia — la relación "
+              "estaba, los campos no:")
+        for mid, motivo in no_juzgaron:
+            print(f"    · {mid}: {motivo}")
 
     if vivos:
         print("\nlo que el corpus NO fija — ningún caso detecta estas mutaciones:")
