@@ -417,3 +417,173 @@ class UnaEscalarQueRevientaNoAtraviesaElAlgebraTests(unittest.TestCase):
                                  registro=self._registro("rechaza", rechaza))
         self.assertIn("el eje no es válido", str(cm.exception))
         self.assertNotIn("TypeError", str(cm.exception))
+
+
+class RutasDeErrorDelAlgebraTests(unittest.TestCase):
+    """Contratos de ruta de ErrorDeAlgebra: propagación, normalización y asignación exacta."""
+
+    def test_propiedades_y_manipulacion_de_ruta_en_error_de_algebra(self) -> None:
+        algebra = _algebra()
+        err = algebra.ErrorDeAlgebra("fallo")
+        self.assertIsNone(err.ruta)
+        self.assertIsNone(err.ruta_indices)
+        self.assertEqual(str(err), "fallo")
+
+        # prefijar con None devuelve self y no altera la ruta
+        self.assertIs(err.prefijar_ruta(None), err)
+        self.assertIsNone(err.ruta)
+        self.assertIsNone(err.ruta_indices)
+
+        # prefijar con tupla
+        self.assertIs(err.prefijar_ruta((1, 2)), err)
+        self.assertEqual(err.ruta_indices, (1, 2))
+        self.assertEqual(err.ruta, "1.2")
+        self.assertEqual(str(err), "fallo en `1.2`")
+
+        # prefijar nuevamente antepone los nuevos índices
+        self.assertIs(err.prefijar_ruta((3, 4)), err)
+        self.assertEqual(err.ruta_indices, (3, 4, 1, 2))
+        self.assertEqual(err.ruta, "3.4.1.2")
+
+        # descartar ruta resetea a None y devuelve self
+        self.assertIs(err.descartar_ruta(), err)
+        self.assertIsNone(err.ruta)
+        self.assertIsNone(err.ruta_indices)
+        self.assertEqual(str(err), "fallo")
+
+        # con_ruta_actual establece tupla vacía si era None y devuelve self
+        self.assertIs(err.con_ruta_actual(), err)
+        self.assertEqual(err.ruta_indices, ())
+        self.assertEqual(err.ruta, "")
+        self.assertEqual(str(err), "fallo en la raíz")
+        self.assertIs(err.con_ruta_actual(), err)
+        self.assertEqual(err.ruta_indices, ())
+
+    def test_normalizacion_de_rutas_cadena_vacia_cero_y_errores(self) -> None:
+        algebra = _algebra()
+        # cadena vacía normaliza a tupla vacía
+        err_vacio = algebra.ErrorDeAlgebra("fallo", ruta="")
+        self.assertEqual(err_vacio.ruta_indices, ())
+        self.assertEqual(err_vacio.ruta, "")
+        self.assertEqual(str(err_vacio), "fallo en la raíz")
+
+        # índice cero es válido en tupla y en cadena
+        err_cero = algebra.ErrorDeAlgebra("fallo", ruta=(0,))
+        self.assertEqual(err_cero.ruta_indices, (0,))
+        self.assertEqual(err_cero.ruta, "0")
+        self.assertEqual(str(err_cero), "fallo en `0`")
+
+        err_cero_str = algebra.ErrorDeAlgebra("fallo", ruta="0.1")
+        self.assertEqual(err_cero_str.ruta_indices, (0, 1))
+        self.assertEqual(err_cero_str.ruta, "0.1")
+        self.assertEqual(str(err_cero_str), "fallo en `0.1`")
+
+        # ruta normalizada con string de múltiples partes
+        err_mult = algebra.ErrorDeAlgebra("fallo", ruta="1.2")
+        self.assertEqual(err_mult.ruta_indices, (1, 2))
+        self.assertEqual(err_mult.ruta, "1.2")
+
+        # valores inválidos levantan ValueError
+        for invalido in ("-1", (-1,), (0, -1), "0.-1", (True,), [True], "abc", (1, "x")):
+            with self.subTest(invalido=invalido):
+                with self.assertRaisesRegex(ValueError, "ruta inválida"):
+                    algebra.ErrorDeAlgebra("fallo", ruta=invalido)
+
+    def test_agrupar_propaga_la_ruta_exacta_de_claves_y_agregados(self) -> None:
+        algebra = _algebra()
+
+        # 1. Error en primera clave (posicion 0)
+        tuberia_k0 = [
+            "desde",
+            ["de", "pieza", "p"],
+            ["agrupar",
+             [["k0", [">", ["campo", "p", "mal_k0"], 0]],
+              ["k1", ["campo", "p", "y"]]],
+             [["a0", "suma", ["campo", "p", "x"]],
+              ["a1", "suma", ["campo", "p", "y"]]]],
+        ]
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.desde(tuberia_k0, {"pieza": [{"x": 1, "y": 2}]})
+        self.assertEqual(cm.exception.ruta_indices, (2, 2, 1, 0, 1))
+        self.assertEqual(cm.exception.ruta, "2.2.1.0.1")
+
+        # 2. Error en segunda clave (posicion 1)
+        tuberia_k1 = [
+            "desde",
+            ["de", "pieza", "p"],
+            ["agrupar",
+             [["k0", ["campo", "p", "x"]],
+              ["k1", [">", ["campo", "p", "mal_k1"], 0]]],
+             [["a0", "suma", ["campo", "p", "x"]],
+              ["a1", "suma", ["campo", "p", "y"]]]],
+        ]
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.desde(tuberia_k1, {"pieza": [{"x": 1, "y": 2}]})
+        self.assertEqual(cm.exception.ruta_indices, (2, 2, 1, 1, 1))
+        self.assertEqual(cm.exception.ruta, "2.2.1.1.1")
+
+        # 3. Error en primer agregado (posicion 0)
+        tuberia_a0 = [
+            "desde",
+            ["de", "pieza", "p"],
+            ["agrupar",
+             [["k0", ["campo", "p", "x"]],
+              ["k1", ["campo", "p", "y"]]],
+             [["a0", "suma", [">", ["campo", "p", "mal_a0"], 0]],
+              ["a1", "suma", ["campo", "p", "y"]]]],
+        ]
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.desde(tuberia_a0, {"pieza": [{"x": 1, "y": 2}]})
+        self.assertEqual(cm.exception.ruta_indices, (2, 2, 2, 0, 2))
+        self.assertEqual(cm.exception.ruta, "2.2.2.0.2")
+
+        # 4. Error en segundo agregado (posicion 1)
+        tuberia_a1 = [
+            "desde",
+            ["de", "pieza", "p"],
+            ["agrupar",
+             [["k0", ["campo", "p", "x"]],
+              ["k1", ["campo", "p", "y"]]],
+             [["a0", "contar", 1],
+              ["a1", "suma", [">", ["campo", "p", "mal_a1"], 0]]]],
+        ]
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.desde(tuberia_a1, {"pieza": [{"x": 1, "y": 2}]})
+        self.assertEqual(cm.exception.ruta_indices, (2, 2, 2, 1, 2))
+        self.assertEqual(cm.exception.ruta, "2.2.2.1.2")
+
+        # 5. Llamada directa con ruta=None no asigna ruta a la excepción
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.aplicar(
+                ["agrupar", [["k0", [">", ["campo", "p", "mal"], 0]]], [["a0", "contar", 1]]],
+                [{"p": {}}], {"pieza": []}, ruta=None)
+        self.assertIsNone(cm.exception.ruta_indices)
+        self.assertIsNone(cm.exception.ruta)
+
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.aplicar(
+                ["agrupar", [["k0", ["campo", "p", "x"]]], [["a0", "suma", [">", ["campo", "p", "mal"], 0]]]],
+                [{"p": {"x": 1}}], {"pieza": []}, ruta=None)
+        self.assertIsNone(cm.exception.ruta_indices)
+        self.assertIsNone(cm.exception.ruta)
+
+    def test_resumir_propaga_la_ruta_predeterminada_y_personalizada(self) -> None:
+        algebra = _algebra()
+
+        # Ruta predeterminada (3,) -> ruta de la expresion es (3, 2)
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.resumir(["resumen", "suma", [">", ["campo", "p", "mal"], 0]], [{"p": {}}])
+        self.assertEqual(cm.exception.ruta_indices, (3, 2))
+        self.assertEqual(cm.exception.ruta, "3.2")
+
+        # Ruta personalizada (7,) -> ruta de la expresion es (7, 2)
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.resumir(["resumen", "suma", [">", ["campo", "p", "mal"], 0]], [{"p": {}}], ruta=(7,))
+        self.assertEqual(cm.exception.ruta_indices, (7, 2))
+        self.assertEqual(cm.exception.ruta, "7.2")
+
+        # ruta=None descarta ruta
+        with self.assertRaises(algebra.ErrorDeAlgebra) as cm:
+            algebra.resumir(["resumen", "suma", [">", ["campo", "p", "mal"], 0]], [{"p": {}}], ruta=None)
+        self.assertIsNone(cm.exception.ruta_indices)
+        self.assertIsNone(cm.exception.ruta)
