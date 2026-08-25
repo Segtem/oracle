@@ -1141,5 +1141,63 @@ class ElErrorDelLenguajeSeManipulaComoUnErrorTests(unittest.TestCase):
             self.assertIn("afuera", texto)
 
 
+class UnErrorDentroDeUnUnirDiceDondeTests(unittest.TestCase):
+    """El mapa de fuente tenía un agujero del tamaño de `unir`.
+
+    `_unir` calculaba `ruta_izq` y `ruta_der` con esmero y se las pasaba a `aplicar`, donde el brazo
+    del `de` las descartaba. Resultado: un error en cualquiera de los lados de un `unir` salía SIN
+    ruta, y `fragmento_de_error` no podía señalar nada.
+
+    Lo denunció la mutación de código, no una persona: cuatro mutantes sobre `ruta_izq`/`ruta_der`
+    —incluido cambiar el índice `1` por el `2`— sobrevivían porque el valor calculado no llegaba a
+    ninguna parte. Un mutante que no se puede matar porque su resultado no se usa no es equivalente:
+    es código que quería hacer algo y no lo hacía.
+    """
+
+    @staticmethod
+    def _texto(*relaciones):
+        lineas = ["    de %s r0" % relaciones[0]]
+        lineas += ["    unir %s r%d" % (rel, i) for i, rel in enumerate(relaciones[1:], 1)]
+        return ("medida d.mide:\n" + "\n".join(lineas) + "\n"
+                "    donde r0.k == 1\n"
+                "    resumen contar(1)\n"
+                '    umbral <= 0 porque "una defensa suficientemente larga para el validador"\n'
+                '    alcance "no ve nada mas que esto"\n')
+
+    def _falla(self, texto):
+        import catalogos  # noqa: F401
+        from nucleo.algebra import ErrorDeAlgebra
+        from nucleo.medida import Medida
+        with self.assertRaises(ErrorDeAlgebra) as cm:
+            Medida.de_datos(sintaxis.leer(texto)).evaluar(
+                {"pieza": [{"k": 1}], "objetivo": [{"k": 1}]})
+        return cm.exception
+
+    def test_cada_fuente_del_unir_tiene_su_propia_ruta(self) -> None:
+        """Si las tres coincidieran, cambiar el índice 1 por el 2 sería indistinguible."""
+        rutas = {}
+        for posicion, relaciones in enumerate((
+                ("ausente", "objetivo", "pieza"),
+                ("pieza", "ausente", "objetivo"),
+                ("pieza", "objetivo", "ausente"))):
+            rutas[posicion] = self._falla(self._texto(*relaciones)).ruta
+        self.assertEqual(len(set(rutas.values())), 3, "rutas repetidas: %s" % rutas)
+        self.assertIsNotNone(rutas[0])
+
+    def test_la_ruta_se_traduce_a_la_linea_y_la_columna_de_la_fuente(self) -> None:
+        """De punta a punta: del error del álgebra al caret sobre la superficie."""
+        for posicion, relaciones in enumerate((
+                ("ausente", "objetivo"),
+                ("pieza", "ausente"))):
+            with self.subTest(posicion=posicion):
+                texto = self._texto(*relaciones)
+                fragmento = sintaxis.fragmento_de_error(self._falla(texto), texto)
+                self.assertNotIn("no se encontró la ruta", fragmento)
+                senalada = [l for l in fragmento.splitlines() if "|" in l][0]
+                self.assertIn("ausente", senalada)
+                caret = [l for l in fragmento.splitlines() if "^" in l][0]
+                self.assertGreater(caret.index("^"), senalada.index("|") + 2)
+
+
 if __name__ == "__main__":
     unittest.main()
