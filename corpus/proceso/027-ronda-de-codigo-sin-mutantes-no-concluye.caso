@@ -1,0 +1,15 @@
+caso 027-ronda-de-codigo-sin-mutantes-no-concluye:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Una ronda de mutación de código sin mutantes no concluye"
+    etiqueta: falso_verde
+    sintoma:
+        Cero mutantes en la relación. Sin la precondición `requiere`, la medida agregaría sobre cero filas y devolvería verde vacilante sobre la nada.
+    como_se_detecto: mutacion
+    medida: proceso.codigo_con_mutante_que_lo_mata
+    evidencia:
+        mutante:
+    leccion:
+        Sin mutantes de código no hay evidencia de fijación. La medida debe exigir la presencia de la relación y no concluir verde en el vacío.

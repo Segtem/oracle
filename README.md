@@ -83,7 +83,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 67 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 48 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 70 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 51 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -92,7 +92,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 36 medidas universales escritas en él (218 líneas): **25,7 a 1**. 29 de las 36 pasan por una macro.
+**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **24,9 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -378,11 +378,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**99 casos**: 67 defectos y 32 verdes correctos. De los defectos, 64 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 62 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**104 casos**: 70 defectos y 34 verdes correctos. De los defectos, 67 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 65 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-533 tests · 535/535 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
+533 tests · 547/547 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -403,6 +403,29 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 > el *descubrimiento* de la suite, y el arnés reportaba «error» donde había un test capaz de matarlo.
 > Con eso corregido, 158 → **0**. La tentación era contar un `ImportError` como muerte; habría
 > acreditado cobertura real por el motivo equivocado y el hueco seguiría ahí.
+
+> ⚠️ **Esa foto es del 2026-08-03 y hoy no vale. Medido el 2026-08-25.** El núcleo creció de ~2900
+> a más de 5500 líneas —la superficie infija y la del corpus son casi 1400 de ellas— y ese código
+> **nunca se había mutado**. Cuando se intentó, aparecieron tres cosas, en este orden:
+>
+> 1. **La ronda no arrancaba.** La línea base salía roja porque un test le preguntaba a git, y el
+>    arnés copia el proyecto sin `.git` a propósito. Ninguna ronda era reproducible, así que el
+>    «cero sobrevivientes» de arriba no se podía volver a obtener.
+> 2. **Con eso arreglado, la ronda crasheaba** con un traceback de Python en vez de un veredicto: su
+>    contrato dice «1 si sobrevivió alguno, 2 si fue inconclusa», y un traceback no es ninguno.
+> 3. **Con eso arreglado, 51 de 193 mutantes salían «error de arnés»** —no muertos, no vivos— porque
+>    `ErrorSintaxis` es un `dataclass(frozen=True)` y eso congelaba también `__traceback__`: el tipo
+>    de error del lenguaje no se podía re-lanzar desde Python.
+>
+> Recién la cuarta corrida fue concluyente, y dijo lo que había que decir:
+> **193 mutantes · 136 muertos · 57 sobrevivientes · 0 timeouts · 0 errores de arnés**, todos en
+> `nucleo/caso.py`. Son 38 constantes de posición, 9 comparadores de borde, 8 booleanos y 2 retornos
+> — o sea: la superficie promete decir «archivo, línea y columna» y nada fija que la posición sea la
+> correcta.
+>
+> Se deja escrito así, con el número feo a la vista, porque la alternativa era dejar arriba una
+> afirmación verde de hace tres semanas sobre un código que en su mayoría todavía no existía. **Una
+> cifra que no se puede volver a obtener no es una medición, es un recuerdo.**
 
 ### Tres dominios, un álgebra
 

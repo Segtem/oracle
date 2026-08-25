@@ -1,0 +1,17 @@
+caso 025-mutante-de-codigo-sobreviviente:
+    fecha: "2026-08-25"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    titulo: "Un mutante de código sobrevivió a la suite de tests"
+    etiqueta: falso_verde
+    sintoma:
+        La ronda de mutación de código detectó un mutante donde los tests pasaron sin fallar. La medida debe ponerse roja y contar el sobreviviente.
+    como_se_detecto: mutacion
+    medida: proceso.codigo_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, cambio, estado, murio, tests_fallaron, error_arnes, timeout, codigo_salida, equivalente_declarado, razon_equivalente
+            "nucleo/caso.py:53:1:constante", "nucleo/caso.py", "constante: False → True", "pasaron", false, false, false, false, 0, false, ""
+            "nucleo/caso.py:14:1:constante", "nucleo/caso.py", "constante: 1 → 2", "tests_fallaron", true, true, false, false, 1, false, ""
+    leccion:
+        Un test que pasa con el código mutado es un punto ciego de la suite. La medida debe contarlo como ofensa y ponerse roja.
