@@ -14,6 +14,7 @@ import venv
 import zipfile
 from contextlib import redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 from nucleo.proyecto import Proyecto
 from tools import cli
@@ -35,6 +36,40 @@ class OracleCliTests(unittest.TestCase):
         with redirect_stdout(salida):
             resultado = fn(*args, **kw)
         return resultado, salida.getvalue()
+
+    def _cmd_test_oracle_simulado(self, *extras: str, unitarios: int = 0,
+                                  mutacion_codigo: int = 0):
+        from tools import cifras, metamorficas, mutar_codigo, trazar
+
+        def correr_unitarios(proy):
+            print("UNITARIOS OK" if unitarios == 0 else "UNITARIOS ✗")
+            return unitarios
+
+        def correr_mutacion_codigo(proy, args):
+            print("MUTACIÓN DE CÓDIGO OK" if mutacion_codigo == 0 else "MUTACIÓN DE CÓDIGO ✗")
+            return mutacion_codigo
+
+        salida = io.StringIO()
+        with (mock.patch.object(cli, "_ejecutar_unitarios", side_effect=correr_unitarios) as m_unit,
+              mock.patch.object(cli, "cargar_catalogo", return_value={"meta.medida": object()}),
+              mock.patch.object(cli, "rutas_de_corpus",
+                                return_value=[RAIZ / "corpus" / "meta" / "001.caso"]),
+              mock.patch.object(cli.corpus, "verificar", return_value=([], [{"id": "001"}])),
+              mock.patch.object(cli.sintaxis, "verificar_catalogo",
+                                return_value={"json_igual": True, "texto_igual": True,
+                                              "medidas": 1, "macros": 0, "casos": 1}),
+              mock.patch.object(cli.sintaxis, "verificar_documentos", return_value={"fallas": []}),
+              mock.patch.object(cli.aceptacion, "_ejecutar", return_value=0),
+              mock.patch.object(cli.diferencial, "_ejecutar", return_value=0),
+              mock.patch.object(trazar, "main", return_value=0),
+              mock.patch.object(metamorficas, "main", return_value=0),
+              mock.patch.object(cifras, "main", return_value=0),
+              mock.patch.object(cli.mutar, "_ejecutar", return_value=0) as m_mutar,
+              mock.patch.object(mutar_codigo, "_ejecutar",
+                                side_effect=correr_mutacion_codigo) as m_mutar_codigo,
+              redirect_stdout(salida)):
+            rc = cli.main(["test", "--proyecto", str(RAIZ), *extras])
+        return rc, salida.getvalue(), m_unit, m_mutar, m_mutar_codigo
 
 
     def test_ayuda_y_sin_argumentos_devuelven_cero(self) -> None:
@@ -137,7 +172,54 @@ class OracleCliTests(unittest.TestCase):
                 rc_rapido = cli.main(["test", "--proyecto", str(raiz), "--rapido"])
             self.assertEqual(rc_rapido, 0)
             self.assertIn("MUTACIÓN: salteada por --rapido", salida_rapido.getvalue())
-            self.assertIn("VEREDICTO: VERDE (rápido: se salteó la mutación)", salida_rapido.getvalue())
+            self.assertIn(
+                "VEREDICTO: VERDE (se salteó: mutación de medidas (--rapido))",
+                salida_rapido.getvalue())
+
+    def test_test_por_omision_en_oracle_corre_unitarios_y_nombra_codigo_salteado(self) -> None:
+        rc, salida, m_unit, m_mutar, m_mutar_codigo = self._cmd_test_oracle_simulado()
+
+        self.assertEqual(rc, 0)
+        m_unit.assert_called_once()
+        m_mutar.assert_called_once()
+        m_mutar_codigo.assert_not_called()
+        self.assertIn("MUTACIÓN DE CÓDIGO: salteada", salida)
+        self.assertIn("oracle test --todo", salida)
+        self.assertIn(
+            "VEREDICTO: VERDE (se salteó: mutación de código (corré `oracle test --todo`))",
+            salida)
+
+    def test_test_todo_en_oracle_corre_mutacion_de_codigo_y_no_declara_omisiones(self) -> None:
+        rc, salida, m_unit, m_mutar, m_mutar_codigo = self._cmd_test_oracle_simulado("--todo")
+
+        self.assertEqual(rc, 0)
+        m_unit.assert_called_once()
+        m_mutar.assert_called_once()
+        m_mutar_codigo.assert_called_once()
+        self.assertNotIn("se salteó", salida)
+        self.assertIn("VEREDICTO: VERDE (todo: todas las verificaciones en regla", salida)
+
+    def test_rapido_en_oracle_nombra_todo_lo_salteado(self) -> None:
+        rc, salida, m_unit, m_mutar, m_mutar_codigo = self._cmd_test_oracle_simulado("--rapido")
+
+        self.assertEqual(rc, 0)
+        m_unit.assert_not_called()
+        m_mutar.assert_not_called()
+        m_mutar_codigo.assert_not_called()
+        self.assertIn("UNITARIOS: salteados por --rapido", salida)
+        self.assertIn("MUTACIÓN: salteada por --rapido", salida)
+        self.assertIn("MUTACIÓN DE CÓDIGO: salteada por --rapido", salida)
+        self.assertIn("tests unitarios (--rapido)", salida)
+        self.assertIn("mutación de medidas (--rapido)", salida)
+        self.assertIn("mutación de código (corré `oracle test --todo`)", salida)
+
+    def test_un_fallo_de_unitarios_pone_rojo_el_veredicto(self) -> None:
+        rc, salida, m_unit, _, _ = self._cmd_test_oracle_simulado(unitarios=1)
+
+        self.assertEqual(rc, 1)
+        m_unit.assert_called_once()
+        self.assertIn("UNITARIOS ✗", salida)
+        self.assertIn("VEREDICTO: ROJO (falló: unitarios)", salida)
 
     def test_medida_sin_casos_falla_en_test(self) -> None:
         with tempfile.TemporaryDirectory() as td:
