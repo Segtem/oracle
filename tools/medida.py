@@ -3,11 +3,12 @@
     python tools/medida.py --relaciones            qué hechos hay para medir, y sus campos
     python tools/medida.py --escalares             qué funciones de dominio se pueden usar
     python tools/medida.py --nueva dominio.nombre  crea el archivo con la forma puesta
+    python tools/medida.py --listar                lista las medidas con umbral, alcance y fijación
     python tools/medida.py <archivo.json>          la revisa y la corre contra el corpus
     python tools/medida.py --expandir <archivo>     ve en qué forma canónica se convierte la macro
 
 Para ejecutar `escalares.py` de otro proyecto hace falta `--confiar-escalares`. Ayuda,
-`--relaciones`, `--nueva` y el inventario base de `--escalares` nunca ejecutan ese archivo.
+`--relaciones`, `--nueva`, `--listar` y el inventario base de `--escalares` nunca ejecutan ese archivo.
 
 Existe porque sin esto el lenguaje tiene dueño. Todo el argumento de este repositorio es que quien
 ve un defecto pueda escribir la regla que lo atrapa; si para eso hay que escribir s-expresiones en
@@ -211,6 +212,75 @@ def revisar(proy, ruta: Path) -> int:
     return 0
 
 
+def listar(proy, argv: list[str] | None = None) -> int:
+    estructura = problemas_estructura(proy, ("catalogos",))
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
+
+    argv = argv or []
+    confiar = confiar_escalares(argv)
+    if proy.es_el_propio_oracle:
+        directorios = catalogos_a_cargar(proy)
+    else:
+        directorios = [proy.catalogos]
+
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar):
+            catalogo = cargar_catalogo(directorios, macros=macros_del_proyecto(proy))
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
+    except Exception as e:
+        print(f"CATÁLOGO INVÁLIDO — {e}")
+        return 1
+
+    if not catalogo:
+        print(f"CATÁLOGO: 0 medidas en {presentar_ruta(proy, proy.catalogos)}")
+        return 0
+
+    conteo: defaultdict[str, int] = defaultdict(int)
+    if proy.corpus.is_dir():
+        try:
+            for c in cargar_casos(proy.corpus):
+                mid = c.get("medida")
+                if mid:
+                    conteo[mid] += 1
+        except Exception:
+            pass
+
+    fijadas = [m for m in catalogo.values() if conteo[m.id] > 0]
+    sin_fijar = [m for m in catalogo.values() if conteo[m.id] == 0]
+
+    n_medidas = len(catalogo)
+    txt_medidas = "1 medida" if n_medidas == 1 else f"{n_medidas} medidas"
+    if not sin_fijar:
+        print(f"CATÁLOGO ({txt_medidas} · todas fijadas):\n")
+    else:
+        txt_fijadas = "1 fijada" if len(fijadas) == 1 else f"{len(fijadas)} fijadas"
+        txt_sin_fijar = "1 sin fijar" if len(sin_fijar) == 1 else f"{len(sin_fijar)} sin fijar"
+        print(f"CATÁLOGO ({txt_medidas} · {txt_fijadas} · {txt_sin_fijar}):\n")
+
+    for mid in sorted(catalogo):
+        m = catalogo[mid]
+        n = conteo[mid]
+        fijacion = f"{n} caso" if n == 1 else f"{n} casos" if n > 0 else "0 casos  ⚠ SIN FIJAR"
+        print(f"  {m.id}")
+        print(f"    umbral:   {m.op} {m.limite}")
+        print(f"    fijación: {fijacion}")
+        alcance_lineas = (m.alcance or "").strip().splitlines()
+        if not alcance_lineas:
+            print("    alcance:  (no declarado)")
+        elif len(alcance_lineas) == 1:
+            print(f"    alcance:  {alcance_lineas[0]}")
+        else:
+            print(f"    alcance:  {alcance_lineas[0]}")
+            for l in alcance_lineas[1:]:
+                print(f"              {l}")
+        print()
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     args = sin_banderas_comunes(argv)
@@ -220,12 +290,14 @@ def main(argv: list[str] | None = None) -> int:
     proy = resolver_cli(argv)
     if proy is None:
         return 1
-    requeridos = (("catalogos",) if args[0] in ("--nueva", "--escalares", "--expandir")
+    requeridos = (("catalogos",) if args[0] in ("--nueva", "--escalares", "--expandir", "--listar", "listar")
                   else ("catalogos", "corpus", "diferencial"))
     estructura = problemas_estructura(proy, requeridos)
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
+    if args[0] in ("--listar", "listar"):
+        return listar(proy, argv)
     if args[0] == "--relaciones":
         return relaciones(proy)
     if args[0] == "--escalares":
@@ -269,3 +341,4 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
+

@@ -2,6 +2,7 @@
 
     python tools/corpus.py            → verifica (sale != 0 si algo está mal)
     python tools/corpus.py --resumen  → verifica y además cuenta qué mecanismo atrapa qué
+    python tools/corpus.py --listar   → lista los casos del corpus, su etiqueta y qué medida reclaman
     python tools/corpus.py --nuevo meta/999-caso-nuevo
                                       → crea un caso nuevo en superficie
 
@@ -214,6 +215,54 @@ def resumen(cargados: list[dict]) -> None:
         print(f"  {n:2}  {k}")
 
 
+def listar(proy) -> int:
+    estructura = problemas_estructura(proy, ("corpus",))
+    if estructura:
+        print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
+        return 1
+
+    rutas = rutas_de_corpus(proy.corpus)
+    if not rutas:
+        print(f"CORPUS: 0 casos en {presentar_ruta(proy, proy.corpus)}")
+        return 0
+
+    cargados: list[tuple[str, dict]] = []
+    for p in rutas:
+        try:
+            c = cargar_fuente_caso(p)
+            rel = p.relative_to(proy.corpus.resolve()).with_suffix("").as_posix()
+            cargados.append((rel, c))
+        except CasoMalDeclarado as e:
+            print(f"✗ {e}")
+            return 1
+
+    huecos = [c for _, c in cargados if not c.get("medida")]
+    con_medida = [c for _, c in cargados if c.get("medida")]
+
+    n_casos = len(cargados)
+    txt_casos = "1 caso" if n_casos == 1 else f"{n_casos} casos"
+    if not huecos:
+        print(f"CORPUS ({txt_casos} · todos con medida):\n")
+    else:
+        txt_con = "1 con medida" if len(con_medida) == 1 else f"{len(con_medida)} con medida"
+        txt_huecos = "1 hueco declarado" if len(huecos) == 1 else f"{len(huecos)} huecos declarados"
+        print(f"CORPUS ({txt_casos} · {txt_con} · {txt_huecos}):\n")
+
+    ancho_id = max((len(rel) for rel, _ in cargados), default=20)
+    ancho_etiqueta = max((len(c.get("etiqueta", "")) for _, c in cargados), default=15)
+
+    for rel, c in cargados:
+        etiqueta = c.get("etiqueta", "")
+        medida = c.get("medida")
+        if medida:
+            reclamo = medida
+        else:
+            estado = c.get("estado_sin_medida", "sin estado")
+            reclamo = f"⚠ hueco declarado ({estado})"
+        print(f"  {rel:<{ancho_id}}  {etiqueta:<{ancho_etiqueta}}  {reclamo}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     args = sin_bandera(argv)
@@ -227,6 +276,8 @@ def main(argv: list[str] | None = None) -> int:
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         return 1
+    if args and args[0] in ("--listar", "listar"):
+        return listar(proy)
     if args and args[0] == "--nuevo":
         if len(args) != 2:
             print("uso: python tools/corpus.py --nuevo <grupo/NNN-descripcion>")
