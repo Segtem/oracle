@@ -261,6 +261,23 @@ class ProyectoTests(unittest.TestCase):
 
             self.assertEqual(registro, {})
 
+    def test_un_registro_de_instancia_no_deja_sucio_el_registro_global(self) -> None:
+        nombre = "udf_global_sucia_temporal"
+        self.assertNotIn(nombre, algebra.ESCALARES)
+        self.addCleanup(algebra.ESCALARES.pop, nombre, None)
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            (raiz / "escalares.py").write_text("", encoding="utf-8")
+            registro = algebra.RegistroEscalares()
+
+            with escalares_del_proyecto(Proyecto(raiz), confiar=True, registro=registro):
+                algebra.ESCALARES[nombre] = lambda: "sucia"
+                self.assertIn(nombre, algebra.ESCALARES)
+
+            self.assertEqual(registro, {})
+            self.assertNotIn(nombre, algebra.ESCALARES)
+
     def test_escalares_confiadas_no_leen_ni_escriben_afuera_ni_crean_procesos(self) -> None:
         with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as afuera:
             raiz = self._raiz(td)
