@@ -265,6 +265,14 @@ def escalares_del_proyecto(proy: "Proyecto", *, confiar: bool = False, registro=
 
     Restaura el registro aun si la importación o la evaluación falla. El archivo debe ser físico y
     estar dentro del proyecto: la confianza autoriza su código, no una ruta exterior inesperada.
+
+    Shi, Zhang y Cui, *A Programming Paradigm for Spatiotemporal Composability*, §3.1, llaman
+    revertible al efecto que devuelve su inverso y dejan que el runtime lo acumule. En
+    `algebra.trazar` y `algebra.usar_registro`, el token de `ContextVar.set()` es ese inverso. Acá
+    no alcanza un token: hay dos efectos, el registro de escalares y el proceso trabajador, con dos
+    inversos distintos —restaurar la copia previa y cerrar el trabajador—. La restauración por copia
+    es deliberada. Lo que NO se toma del paper es convertir esta ruta en un acumulador general de
+    efectos ni en un ciclo de vida dinámico de componentes: el contrato ya se conserva.
     """
     if proy.es_el_propio_oracle:
         yield ""

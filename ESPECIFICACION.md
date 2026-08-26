@@ -156,6 +156,13 @@ concluir**. Si alguna de las relaciones listadas viene vacía, la evaluación no
 expresarlo —un agregado sobre cero filas da `0` y un umbral `<= 0` lo lee como éxito— y la ausencia
 total salía verde justo cuando el mundo estaba peor; el caso completo está en §8.
 
+En la terminología de Shi, Zhang y Cui, *A Programming Paradigm for Spatiotemporal
+Composability*, §3.2, `requiere` es un **coefecto**: una especificación de dependencias que se
+contrasta contra el contexto disponible antes de ejecutar. Oracle toma sólo esa mitad declarativa.
+No toma la reactividad del paper —clasificar cada cambio del contexto para activar y desactivar
+componentes— porque la evidencia no cambia durante una evaluación; si falta una relación, se corta
+fail-closed con `SIN EVIDENCIA`.
+
 Una medida sin el nodo se comporta exactamente como antes y su forma canónica **no cambia**: son seis
 elementos, no siete. Un evaluador tiene que aceptar las dos longitudes.
 
