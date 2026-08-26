@@ -38,6 +38,7 @@ TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
 
 PRIORIDADES = {
+    "nucleo/aislamiento/escalares.py": ("tests.test_proyecto", "tests.test_herramientas"),
     "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor"),
     "nucleo/caso.py": ("tests.test_sintaxis", "tests.test_herramientas"),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
@@ -73,8 +74,18 @@ HERRAMIENTAS_CUSTODIAS = ("cifras.py",)
 
 
 def objetivos_disponibles() -> dict[str, Path]:
+    # RECURSIVO, y es el punto. Con `glob("*.py")` un módulo dentro de un subpaquete de `nucleo/`
+    # quedaba INVISIBLE para el arnés: no era objetivo, no se mutaba, y nadie lo notaba porque el
+    # informe sólo habla de lo que sí miró. Así estuvo `nucleo/aislamiento/escalares.py` —411 líneas
+    # que son el confinamiento de las UDF de un proyecto: lo único que hace que `--confiar-escalares`
+    # sea distinto de ejecutar código ajeno a ciegas—.
+    #
+    # Es el MISMO defecto que tenía `tools/cifras.py` en su numerador, y se arregló ahí el 2026-08-03
+    # con estas palabras: «mover el archivo una carpeta más adentro» no puede ser una manera de salir
+    # del criterio de falsación. Se arregló el lado que CUENTA y no el que MIDE, así que durante tres
+    # semanas esas líneas figuraban en la proporción publicada y no las fijaba nada.
     rutas = [
-        *(RAIZ / "nucleo").glob("*.py"),
+        *(RAIZ / "nucleo").rglob("*.py"),
         *(RAIZ / "oracle_metalenguaje").glob("*.py"),
         *(RAIZ / "perfiles" / "python").glob("*.py"),
         *(RAIZ / "tools" / nombre for nombre in HERRAMIENTAS_CUSTODIAS),

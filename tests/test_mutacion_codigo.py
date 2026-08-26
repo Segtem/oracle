@@ -1092,3 +1092,46 @@ class CorrerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class NingunModuloDelNucleoQuedaFueraDelArnesTests(unittest.TestCase):
+    """Mover un archivo una carpeta más adentro no puede sacarlo de la mutación.
+
+    `objetivos_disponibles` usaba `glob("*.py")` sobre `nucleo/`, no `rglob`. Con eso
+    `nucleo/aislamiento/escalares.py` —411 líneas, el confinamiento de las UDF de un proyecto: lo
+    único que hace que `--confiar-escalares` sea distinto de ejecutar código ajeno a ciegas— **no
+    era objetivo del arnés**. No se mutaba, y nadie lo notaba porque el informe sólo habla de lo que
+    sí miró.
+
+    Es el MISMO defecto que tenía el numerador de `tools/cifras.py`, arreglado el 2026-08-03 con
+    estas palabras: «mover el archivo una carpeta más adentro» no puede ser una manera de salir del
+    criterio de falsación. Se arregló el lado que CUENTA y no el que MIDE, así que esas líneas
+    figuraban en la proporción publicada y no las fijaba nada.
+    """
+
+    def test_todo_py_de_nucleo_es_objetivo_de_mutacion(self) -> None:
+        from tools.mutar_codigo import objetivos_disponibles
+
+        raiz = Path(__file__).resolve().parents[1]
+        en_disco = {p.relative_to(raiz).as_posix()
+                    for p in (raiz / "nucleo").rglob("*.py")
+                    if p.name != "__init__.py" and "__pycache__" not in p.parts}
+        objetivos = set(objetivos_disponibles())
+        self.assertTrue(en_disco)
+        self.assertEqual(en_disco - objetivos, set(),
+                         "hay módulos del núcleo que el arnés no puede ver")
+
+    def test_un_subpaquete_nuevo_no_se_escapa_solo(self) -> None:
+        """El test de arriba pasa si alguien vuelve a poner `glob`: hay que ver un subpaquete."""
+        from tools.mutar_codigo import objetivos_disponibles
+
+        anidados = [r for r in objetivos_disponibles() if r.count("/") > 1]
+        self.assertTrue(anidados, "ningún objetivo vive en un subpaquete; el test no discrimina")
+
+    def test_todo_objetivo_del_nucleo_declara_sus_tests_prioritarios(self) -> None:
+        """Sin prioridades, un mutante corre la suite entera y la ronda se vuelve impagable."""
+        from tools.mutar_codigo import PRIORIDADES, objetivos_disponibles
+
+        sin_declarar = [r for r in objetivos_disponibles()
+                        if r.startswith("nucleo/") and r not in PRIORIDADES]
+        self.assertEqual(sin_declarar, [])
