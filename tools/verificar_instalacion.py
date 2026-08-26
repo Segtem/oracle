@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -16,18 +17,33 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 
 
-def _correr(argumentos, *, cwd: Path) -> subprocess.CompletedProcess:
-    return subprocess.run(
+def _entorno_limpio() -> dict[str, str]:
+    env = os.environ.copy()
+    env.pop("ORACLE_PROYECTO", None)
+    env.pop("PYTHONPATH", None)
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    return env
+
+
+def _correr(argumentos, *, cwd: Path, env: dict[str, str]) -> subprocess.CompletedProcess:
+    resultado = subprocess.run(
         argumentos,
         cwd=cwd,
-        check=True,
+        env=env,
         capture_output=True,
         text=True,
     )
+    if resultado.returncode != 0:
+        comando = " ".join(str(a) for a in argumentos)
+        raise RuntimeError(
+            f"falló {comando} en {cwd}\nSTDOUT:\n{resultado.stdout}\nSTDERR:\n{resultado.stderr}"
+        )
+    return resultado
 
 
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="oracle-wheel-") as td:
+        env = _entorno_limpio()
         temporal = Path(td)
         fuente = temporal / "fuente"
         shutil.copytree(
@@ -40,8 +56,8 @@ def main() -> int:
         ruedas.mkdir()
         _correr([
             sys.executable, "-m", "pip", "wheel", "--no-deps",
-            "--wheel-dir", str(ruedas), str(fuente),
-        ], cwd=temporal)
+            "--no-build-isolation", "--wheel-dir", str(ruedas), str(fuente),
+        ], cwd=temporal, env=env)
         encontradas = tuple(ruedas.glob("oracle_metalenguaje-*.whl"))
         if len(encontradas) != 1:
             raise RuntimeError(f"se esperaba un wheel de Oracle, no {encontradas}")
@@ -51,21 +67,33 @@ def main() -> int:
         filtrados = sorted(nombre for nombre in nombres if nombre.startswith(genericos))
         if filtrados:
             raise RuntimeError(f"el wheel todavía instala paquetes genéricos: {filtrados[:5]}")
-        if "oracle_metalenguaje/nucleo/algebra.py" not in nombres:
-            raise RuntimeError("el wheel no contiene el núcleo bajo oracle_metalenguaje")
+        esperados = {
+            "oracle_metalenguaje/nucleo/algebra.py",
+            "oracle_metalenguaje/tools/cli.py",
+            "oracle_metalenguaje/nucleo/aislamiento/escalares.py",
+            "oracle_metalenguaje/nucleo/macros/ninguno.oracle",
+            "oracle_metalenguaje/nucleo/macros/ninguno-par.oracle",
+            "oracle_metalenguaje/nucleo/macros/peor.oracle",
+            "oracle_metalenguaje/catalogos/meta/meta.toda_medida_esta_fijada.oracle",
+            "oracle_metalenguaje/perfiles/python/catalogos/proceso/"
+            "proceso.arnes_con_bytecode_frio.oracle",
+        }
+        faltantes = sorted(esperados - nombres)
+        if faltantes:
+            raise RuntimeError("el wheel no contiene datos requeridos: " + ", ".join(faltantes))
 
         entorno = temporal / "entorno"
         venv.EnvBuilder(with_pip=True).create(entorno)
         python = entorno / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
         _correr([
             str(python), "-m", "pip", "install", "--no-deps", str(encontradas[0]),
-        ], cwd=temporal)
+        ], cwd=temporal, env=env)
         _correr([
             str(python), "-I", "-c",
             ("import importlib.util\n"
              "for nombre in ('nucleo', 'catalogos', 'perfiles', 'tools'):\n"
              "    assert importlib.util.find_spec(nombre) is None, nombre\n"),
-        ], cwd=temporal)
+        ], cwd=temporal, env=env)
 
         proyecto = temporal / "proyecto"
         (proyecto / "catalogos").mkdir(parents=True)
@@ -128,7 +156,7 @@ def main() -> int:
             "ids = {medida.id for medida in motor_empaquetado.medidas}\n"
             "assert {'meta.toda_medida_esta_fijada', 'proceso.arnes_con_bytecode_frio'} <= ids\n"
         )
-        _correr([str(python), "-I", "-c", programa], cwd=vacio)
+        _correr([str(python), "-I", "-c", programa], cwd=vacio, env=env)
 
         binarios = entorno / ("Scripts" if sys.platform == "win32" else "bin")
         entry_points = (
@@ -137,23 +165,70 @@ def main() -> int:
             "oracle-medida", "oracle-mutar", "oracle-mutar-codigo",
         )
         for nombre in entry_points:
-            _correr([str(binarios / nombre), "--help"], cwd=vacio)
+            _correr([str(binarios / nombre), "--help"], cwd=vacio, env=env)
         inventario = _correr([
             str(binarios / "oracle-medida"), "--proyecto", str(proyecto),
             "--confiar-escalares", "--escalares",
-        ], cwd=vacio)
+        ], cwd=vacio, env=env)
         if "doble_instalado" not in inventario.stdout:
             raise RuntimeError("oracle-medida no cargó la UDF del proyecto externo")
         sin_proyecto = subprocess.run(
             [str(binarios / "oracle-aceptacion")], cwd=vacio,
-            capture_output=True, text=True)
+            env=env, capture_output=True, text=True)
         diagnostico = sin_proyecto.stdout + sin_proyecto.stderr
         if (sin_proyecto.returncode == 0 or "--proyecto" not in diagnostico
                 or "Traceback" in diagnostico):
             raise RuntimeError(
                 "una instalación sin corpus debe exigir --proyecto: " + diagnostico)
 
-    print("WHEEL OK · namespace, 8 entry points y dos motores aislados fuera del checkout")
+        oracle = binarios / "oracle"
+        proyecto_cli = temporal / "proyecto-cli"
+        _correr([str(oracle), "init", str(proyecto_cli)], cwd=vacio, env=env)
+        vacio_cli = _correr(
+            [str(oracle), "test", "--proyecto", str(proyecto_cli)], cwd=vacio, env=env)
+        if "VEREDICTO: VERDE" not in vacio_cli.stdout or "proyecto vacío" not in vacio_cli.stdout:
+            raise RuntimeError("oracle test no aceptó un proyecto recién inicializado")
+        dominio = proyecto_cli / "catalogos" / "demo"
+        dominio.mkdir()
+        (dominio / "demo.instalado.oracle").write_text(
+            "ninguno demo.instalado:\n"
+            "    de item i\n"
+            "    donde i.mal == true\n"
+            "    umbral <= 0 porque \"ningun item malo pasa\"\n"
+            "    alcance \"NO ve campos distintos de mal\"\n",
+            encoding="utf-8",
+        )
+        casos = proyecto_cli / "corpus" / "demo"
+        casos.mkdir()
+        (casos / "001-rojo.caso").write_text(
+            "caso 001-rojo:\n"
+            "    fecha: \"2026-08-26\"\n"
+            "    origen:\n"
+            "        repo: \"temporal\"\n"
+            "        commit: \"sin-commit\"\n"
+            "    titulo: \"item malo detectado\"\n"
+            "    etiqueta: falso_verde\n"
+            "    sintoma:\n"
+            "        Un item malo tiene que poner roja la medida instalada.\n"
+            "    como_se_detecto: mutacion\n"
+            "    medida: demo.instalado\n"
+            "    evidencia:\n"
+            "        item: id, mal\n"
+            "            \"a\", true\n"
+            "    leccion:\n"
+            "        La macro estándar tiene que estar empaquetada.\n",
+            encoding="utf-8",
+        )
+        con_macro = _correr(
+            [str(oracle), "test", "--proyecto", str(proyecto_cli), "--rapido"],
+            cwd=vacio, env=env)
+        if "VEREDICTO: VERDE" not in con_macro.stdout:
+            raise RuntimeError("oracle test no pudo cargar la macro estándar empaquetada")
+
+    print(
+        "WHEEL OK · namespace, datos, 8 entry points, oracle test y dos motores aislados "
+        "fuera del checkout"
+    )
     return 0
 
 

@@ -9,6 +9,36 @@ problema que veníamos a resolver.
 escribir medidas y casos directamente en su superficie de autoría (`.oracle` y `.caso`), que el
 sistema carga por igual sin paso de traducción.
 
+## Instalación
+
+Requiere Python 3.11 o posterior y no tiene dependencias de runtime. Desde el checkout de Oracle, la
+forma principal de instalar el comando es:
+
+```bash
+uv tool install .
+oracle --help
+```
+
+Para probarlo sin instalar:
+
+```bash
+uvx --from . oracle --help
+```
+
+Si no tenés `uv`, usá una instalación editable con `pip`:
+
+```bash
+python -m pip install -e .
+oracle --help
+```
+
+Después trabajás desde tu proyecto o lo pasás explícitamente:
+
+```bash
+oracle init <tu-proyecto>
+oracle test --proyecto <tu-proyecto> --confiar-escalares
+```
+
 ## El orden importa: primero el caso, después la medida
 
 **Escribí el caso del corpus antes que la medida.** No es prolijidad:
@@ -21,19 +51,18 @@ sistema carga por igual sin paso de traducción.
 ```bash
 # 1. el caso: la evidencia del defecto, y que se espera ROJO
 #    (el andamio ya nace en superficie .caso, o copiá uno que exista)
-python tools/corpus.py --nuevo proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
+oracle caso proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
 
 # 2. mirá con qué contás
-python tools/medida.py --relaciones     # los hechos y sus campos, derivados de la evidencia real
-python tools/medida.py --escalares      # las funciones de dominio, operadores y agregados
+oracle relaciones     # los hechos y sus campos, derivados de la evidencia real
+oracle escalares      # las funciones de dominio, operadores y agregados
 
 # 3. la medida: el andamio ya nace en superficie infija, y el catálogo lo carga tal cual
-python tools/medida.py --nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
-python tools/medida.py catalogos/colocacion/colocacion.mi_regla.oracle
+oracle nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
+oracle revisar catalogos/colocacion/colocacion.mi_regla.oracle
 
 # 4. que todo siga cerrando
-python tools/aceptacion.py    # tu caso tiene que ponerse rojo
-python tools/mutar.py         # y el corpus tiene que fijar tu medida
+oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y mutación de medidas
 ```
 
 ### Los dos formatos del catálogo y del corpus
@@ -43,8 +72,8 @@ archivos en superficie no necesitan traducirse a nada para funcionar. El mismo i
 formatos es un error que nombra los dos archivos — no gana ninguno, porque un ganador silencioso es
 una divergencia esperando.
 
-- `python tools/corpus.py --nuevo <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
-- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
+- `oracle caso <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
+- `oracle nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
 - `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
 - `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
 
@@ -83,7 +112,7 @@ crear cualquier directorio.
 ## La forma corta: las macros
 
 **La mayoría de las medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
-canónica —`python tools/medida.py --expandir <archivo>` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
+canónica —`oracle expandir <archivo>` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
 ```oracle
