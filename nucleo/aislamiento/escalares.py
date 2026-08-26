@@ -1,8 +1,35 @@
 """Ejecución confinada de `escalares.py` externos.
 
 El proceso principal sólo conserva proxies con metadatos. El código del proyecto vive en un
-trabajador separado, con entorno mínimo, canal JSON y una política de auditoría que niega acceso a
-archivos fuera del proyecto, red y creación de procesos.
+trabajador separado, con entorno mínimo, canal JSON y una política de auditoría que niega **leer el
+CONTENIDO** de archivos fuera del proyecto, escribir fuera, abrir red y crear procesos.
+
+## Lo que este confinamiento NO detiene, y no es una omisión
+
+**Los METADATOS del sistema de archivos se leen sin restricción.** `os.stat`, `os.path.exists`,
+`os.path.isdir`, `os.access` y todo lo que se apoya en ellos funcionan sobre cualquier ruta. Una UDF
+hostil puede averiguar si existe `/etc/shadow` o `~/.ssh/id_rsa`, leer tamaños, permisos y fechas, y
+enumerar qué directorios hay en el disco — y devolver todo eso como resultado, que viaja por el canal
+JSON como cualquier otro valor.
+
+No es un descuido del hook: **`os.stat` no emite ningún evento auditable en CPython**. PEP 578 cubre
+`open`, `os.listdir`, `os.scandir`, los que mutan el árbol, los procesos y los sockets, pero no la
+consulta de metadatos. Un `sys.addaudithook` no puede interceptar lo que nunca se anuncia.
+
+Se podría poner un `os.stat` sombra en el trabajador, y sería teatro: `from posix import stat` lo
+esquiva en una línea. Este repositorio prefiere un límite DECLARADO a una defensa que aparenta. La
+frontera real, en una línea:
+
+    lo que una UDF hostil NO puede: leer contenido afuera, escribir afuera, red, procesos, ctypes
+    lo que SÍ puede:                fichar el disco por metadatos, y contártelo en su resultado
+
+Si eso no alcanza para tu caso, la respuesta no es endurecer este hook: es no correr esa `escalares.py`
+—`--confiar-escalares` es opt-in a propósito— o encerrar el proceso entero con algo del sistema
+operativo (namespaces, seccomp), que está fuera de lo que Oracle hace.
+
+Hay un test que fija ESTE límite, incluida la fuga: `test_los_metadatos_se_filtran_y_esta_declarado`.
+Si algún día se cierra de verdad, ese test falla y obliga a actualizar esta declaración en vez de
+dejarla envejecer diciendo de menos.
 """
 
 from __future__ import annotations

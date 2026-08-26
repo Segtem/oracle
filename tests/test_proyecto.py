@@ -278,6 +278,57 @@ class ProyectoTests(unittest.TestCase):
             self.assertEqual(registro, {})
             self.assertNotIn(nombre, algebra.ESCALARES)
 
+    def test_los_metadatos_se_filtran_y_esta_declarado(self) -> None:
+        """Fija el límite REAL del confinamiento, incluida la fuga. No es un test que celebra.
+
+        El hook de auditoría niega leer el CONTENIDO de archivos de afuera, escribir afuera, red y
+        procesos —eso lo fija el test de abajo—. Lo que NO detiene son los METADATOS: `os.stat`,
+        `os.path.exists`, `os.access` y todo lo que se apoya en ellos funcionan sobre cualquier ruta.
+        Una UDF hostil puede averiguar si existe `~/.ssh/id_rsa`, leer tamaños, permisos y fechas, y
+        devolverlo como resultado por el canal JSON.
+
+        **No es un descuido: `os.stat` no emite ningún evento auditable en CPython.** PEP 578 cubre
+        `open`, `os.listdir`, `os.scandir`, los que mutan el árbol, los procesos y los sockets, pero
+        no la consulta de metadatos. Un `sys.addaudithook` no puede interceptar lo que nadie anuncia.
+
+        Este test existe para que el límite no envejezca en silencio en ninguna de las dos
+        direcciones: si algún día la fuga se cierra de verdad, ESTE TEST FALLA y obliga a actualizar
+        la declaración del módulo, en vez de dejarla diciendo de menos.
+        """
+        with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as afuera:
+            raiz = self._raiz(td)
+            exterior = Path(afuera)
+            centinela = exterior / "centinela.txt"
+            centinela.write_text("secreto", encoding="utf-8")
+            (raiz / "escalares.py").write_text(
+                "import os\n"
+                "from nucleo.algebra import escalar\n"
+                "estado = {}\n"
+                f"ruta = {str(centinela)!r}\n"
+                "for nombre, fn in ((\'existe\', lambda: os.path.exists(ruta)),\n"
+                "                   (\'tamano\', lambda: os.stat(ruta).st_size),\n"
+                "                   (\'contenido\', lambda: open(ruta).read())):\n"
+                "    try:\n"
+                "        estado[nombre] = fn()\n"
+                "    except BaseException as e:\n"
+                "        estado[nombre] = type(e).__name__\n"
+                "@escalar(\'sonda_limite\')\n"
+                "def sonda_limite():\n"
+                "    return estado\n",
+                encoding="utf-8",
+            )
+            with escalares_del_proyecto(Proyecto(raiz), confiar=True):
+                estado = algebra.ESCALARES["sonda_limite"]()
+
+        # Lo que el confinamiento SÍ detiene: el contenido.
+        self.assertEqual(estado["contenido"], "PermissionError")
+        # Lo que NO detiene, y queda fijado como límite conocido:
+        self.assertIs(estado["existe"], True,
+                      "si esto falla, la fuga de metadatos se cerró: actualizá el docstring de "
+                      "nucleo/aislamiento/escalares.py y este test")
+        self.assertEqual(estado["tamano"], len("secreto"),
+                         "si esto falla, `os.stat` dejó de pasar: actualizá la declaración")
+
     def test_escalares_confiadas_no_leen_ni_escriben_afuera_ni_crean_procesos(self) -> None:
         with tempfile.TemporaryDirectory() as td, tempfile.TemporaryDirectory() as afuera:
             raiz = self._raiz(td)
