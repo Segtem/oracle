@@ -26,7 +26,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from nucleo.algebra import ErrorDeAlgebra, separar_clave  # noqa: E402
-from nucleo.caso import CasoMalDeclarado, cargar_fuente_caso, rutas_de_corpus  # noqa: E402
+from nucleo.caso import (DETECCIONES, ETIQUETAS, CasoMalDeclarado,
+                         cargar_fuente_caso, rutas_de_corpus)  # noqa: E402
 from nucleo.proyecto import (ID_CASO_RE, ProyectoInvalido, presentar_ruta,
                              problemas_estructura, sin_bandera)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
@@ -42,10 +43,10 @@ caso {cid}:
         repo: "REPO"
         commit: "COMMIT"
     titulo: "TITULO"
-    etiqueta: ETIQUETA
+    etiqueta: falso_verde
     sintoma:
         SINTOMA
-    como_se_detecto: COMO_SE_DETECTO
+    como_se_detecto: mutacion
     medida: DOMINIO.MEDIDA
     evidencia:
         RELACION: CAMPO
@@ -53,26 +54,6 @@ caso {cid}:
     leccion:
         LECCION
 """
-
-ETIQUETAS = {
-    "falso_verde",                        # dijo bien y estaba mal
-    "falso_rojo",                         # dijo mal y estaba bien
-    "deuda_de_diseño",                    # el lenguaje obliga a algo que se va a romper
-    "medida_correcta_conclusion_errada",   # el número era cierto, la causa atribuida no
-    # La OTRA polaridad: evidencia real donde la medida debe decir verde. Sin estos casos una
-    # medida queda floja — `quitar_filtro` sobrevive siempre, porque contar sin filtro sólo da
-    # verde con la relación vacía. Es lo mismo que evaluar un clasificador sólo con positivos.
-    "verde_correcto",
-}
-
-# De dónde vino la detección. Sirve para saber qué mecanismo se paga solo y cuál es decorativo.
-DETECCIONES = {
-    "mutacion",           # se rompió el código a propósito
-    "persona",            # alguien lo vio
-    "accidente",          # apareció haciendo otra cosa
-    "herramienta_ajena",  # lo detectó algo que no era nuestro verificador
-    "observacion",        # no hubo defecto: se observó un verde correcto
-}
 
 ESCALARES = (str, int, float, bool, type(None))
 ESTADOS_SIN_MEDIDA = {"abierto", "resuelto", "limite_humano"}

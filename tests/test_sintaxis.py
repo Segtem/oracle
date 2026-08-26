@@ -898,14 +898,23 @@ class SintaxisDeCasosTests(unittest.TestCase):
              "línea 2, columna 11: se esperaba espacio o fin tras ':'; llegó "
              "'\"2026-08-25\"'"),
             ("fecha sin valor", con([(2, "    fecha:")]), 2, 11,
-             "línea 2, columna 11: se esperaba valor JSON"),
+             "línea 2, columna 11: se esperaba texto entre comillas"),
             ("fecha no JSON", con([(2, "    fecha: nope")]), 2, 12,
-             "línea 2, columna 12: se esperaba valor JSON; llegó 'nope'"),
+             "línea 2, columna 12: se esperaba texto entre comillas; llegó 'nope'"),
+            ("fecha sin comillas", con([(2, "    fecha: 2026-08-26")]), 2, 16,
+             "línea 2, columna 16: se esperaba texto entre comillas; llegó '-08-26'"),
             ("falta titulo", con(borrar=(6,)), 6, 5,
              "línea 6, columna 5: se esperaba línea «titulo:»; llegó "
              "'etiqueta: verde_correcto'"),
+            ("etiqueta inventada", con([(7, "    etiqueta: rojo_feo")]), 7, 15,
+             "línea 7, columna 15: se esperaba etiqueta en ['deuda_de_diseño', "
+             "'falso_rojo', 'falso_verde', 'medida_correcta_conclusion_errada', "
+             "'verde_correcto']; llegó 'rojo_feo'"),
             ("bloque sin prosa", con(borrar=(9,)), 9, 1,
              "línea 9, columna 1: se esperaba prosa para «sintoma»"),
+            ("como_se_detecto inventado", con([(10, "    como_se_detecto: inventado")]), 10, 22,
+             "línea 10, columna 22: se esperaba como_se_detecto en ['accidente', "
+             "'herramienta_ajena', 'mutacion', 'observacion', 'persona']; llegó 'inventado'"),
             ("origen hasta EOF",
              'caso 999-roto:\n    fecha: "2026-08-25"\n    origen:\n'
              '        repo: "test"\n',
@@ -919,12 +928,18 @@ class SintaxisDeCasosTests(unittest.TestCase):
              "línea 6, columna 9: se esperaba campo de origen sin repetir, no «repo»; "
              "llegó 'repo: \"otro\"'"),
             ("origen valor no JSON", con([(4, "        repo: nope")]), 4, 15,
-             "línea 4, columna 15: se esperaba valor JSON; llegó 'nope'"),
+             "línea 4, columna 15: se esperaba texto entre comillas; llegó 'nope'"),
             ("origen vacío", con(borrar=(4, 5)), 4, 1,
              "línea 4, columna 1: se esperaba origen con al menos un campo"),
             ("clave sin punto y coma", con([(13, "        hecho: clave(id) id, ok")]),
              13, 24, "línea 13, columna 24: se esperaba ';' antes de campos; llegó "
              "'id, ok'"),
+            ("clave sin coma", con([(13, "        hecho: clave(id ok); id, ok")]),
+             13, 25, "línea 13, columna 25: se esperaba ',' entre campos de clave; llegó 'ok'"),
+            ("campos sin coma", con([(13, "        hecho: id ok")]), 13, 19,
+             "línea 13, columna 19: se esperaba ',' entre campos; llegó 'ok'"),
+            ("campos sin coma tras clave", con([(13, "        hecho: clave(id, ok); id ok")]), 13, 34,
+             "línea 13, columna 34: se esperaba ',' entre campos; llegó 'ok'"),
             ("relación sobreindentada", con([(13, "            hecho: id, ok")]), 13, 9,
              "línea 13, columna 9: se esperaba relación; llegó 'hecho: id, ok'"),
             ("relación sin dos puntos", con([(13, "        hecho")]), 13, 9,
@@ -940,7 +955,7 @@ class SintaxisDeCasosTests(unittest.TestCase):
              "línea 14, columna 13: se esperaba fila de tabla, no escape JSON, porque "
              "hay campos; llegó 'fila {\"id\": \"a\", \"ok\": true}'"),
             ("fila escape JSON roto", fila_json_rota, 14, 18,
-             "línea 14, columna 18: se esperaba valor JSON; llegó 'nope'"),
+             "línea 14, columna 18: se esperaba texto entre comillas; llegó 'nope'"),
             ("fila de tabla sin encabezado", fila_sin_encabezado, 14, 13,
              "línea 14, columna 13: se esperaba «fila { ... }» o relación nueva; llegó "
              "'\"a\"'"),
@@ -949,7 +964,15 @@ class SintaxisDeCasosTests(unittest.TestCase):
             ("fila sólo tab", con([(14, "            \t")]), 14, 13,
              "línea 14, columna 13: se esperaba valores de fila; llegó '\\t'"),
             ("cantidad de valores", con([(14, '            "a"')]), 14, 13,
-             "línea 14, columna 13: se esperaba 2 valores de fila; llegó '\"a\"'"),
+             "línea 14, columna 13: la relación «hecho» declara 2 campos (id, ok) y "
+             "esta fila trae 1; llegó '\"a\"'"),
+            ("más valores que campos", con([(14, '            "a", true, 9')]), 14, 13,
+             "línea 14, columna 13: la relación «hecho» declara 2 campos (id, ok) y "
+             "esta fila trae 3; llegó '\"a\", true, 9'"),
+            ("relación de un campo con fila de dos valores",
+             con([(13, "        hecho: id"), (14, '            "a", true')]), 14, 13,
+             "línea 14, columna 13: la relación «hecho» declara 1 campo (id) y "
+             "esta fila trae 2; llegó '\"a\", true'"),
             ("relación con campos sin filas", con(borrar=(14,)), 13, 15,
              "línea 13, columna 15: se esperaba filas para una relación con encabezado "
              "de campos; llegó 'hecho: id, ok'"),
@@ -1870,6 +1893,138 @@ class UnErrorDentroDeUnUnirDiceDondeTests(unittest.TestCase):
                 self.assertIn("ausente", senalada)
                 caret = [l for l in fragmento.splitlines() if "^" in l][0]
                 self.assertGreater(caret.index("^"), senalada.index("|") + 2)
+
+
+class LosSeisTropiezosDeCasosFijanMensajeYPosicionTests(unittest.TestCase):
+    """Los seis tropiezos de quien escribe su primer caso del corpus.
+
+    El mensaje tiene que contener lo que hay que hacer, no sólo lo que se esperaba — y la posición
+    tiene que seguir siendo exacta. Un mensaje amable que señala la línea equivocada es peor que uno
+    seco que acierta.
+    """
+
+    def _caso_base(self) -> str:
+        return (
+            "caso 001-prueba:\n"
+            '    fecha: "2026-08-26"\n'
+            "    origen:\n"
+            '        repo: "test"\n'
+            '        commit: "local"\n'
+            '    titulo: "T"\n'
+            "    etiqueta: verde_correcto\n"
+            "    sintoma:\n"
+            "        S\n"
+            "    como_se_detecto: observacion\n"
+            "    medida: demo.mide\n"
+            "    evidencia:\n"
+            "        tarea: id, vencida\n"
+            '            "t-1", true\n'
+            "    leccion:\n"
+            "        L\n"
+        )
+
+    def _falla(self, texto: str) -> sintaxis.ErrorSintaxis:
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis_caso.leer(texto)
+        return cm.exception
+
+    def test_tropiezo_1_olvida_el_origen(self) -> None:
+        texto = (
+            "caso 001-prueba:\n"
+            '    fecha: "2026-08-26"\n'
+            '    titulo: "T"\n'
+            "    etiqueta: verde_correcto\n"
+            "    sintoma:\n"
+            "        S\n"
+            "    como_se_detecto: observacion\n"
+            "    medida: demo.mide\n"
+            "    evidencia:\n"
+            "        tarea: id, vencida\n"
+            '            "t-1", true\n'
+            "    leccion:\n"
+            "        L\n"
+        )
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 3)
+        self.assertEqual(e.columna, 5)
+        self.assertEqual(str(e), "línea 3, columna 5: se esperaba línea «origen:»; llegó 'titulo: \"T\"'")
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("se esperaba línea «origen:»", fragmento)
+        self.assertIn("   3 |     titulo: \"T\"", fragmento)
+
+    def test_tropiezo_2_etiqueta_inventada(self) -> None:
+        texto = self._caso_base().replace("etiqueta: verde_correcto", "etiqueta: rojo_feo")
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 7)
+        self.assertEqual(e.columna, 15)
+        self.assertIn("etiqueta en", str(e))
+        self.assertIn("rojo_feo", str(e))
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("   7 |     etiqueta: rojo_feo", fragmento)
+        self.assertIn("     |               ^", fragmento)
+
+    def test_tropiezo_2b_como_se_detecto_inventado(self) -> None:
+        texto = self._caso_base().replace("como_se_detecto: observacion", "como_se_detecto: inventado")
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 10)
+        self.assertEqual(e.columna, 22)
+        self.assertIn("como_se_detecto en", str(e))
+        self.assertIn("inventado", str(e))
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("  10 |     como_se_detecto: inventado", fragmento)
+        self.assertIn("     |                      ^", fragmento)
+
+    def test_tropiezo_3_fila_con_menos_columnas(self) -> None:
+        texto = self._caso_base().replace('"t-1", true', '"t-1"')
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 14)
+        self.assertEqual(e.columna, 13)
+        self.assertEqual(
+            str(e),
+            "línea 14, columna 13: la relación «tarea» declara 2 campos (id, vencida) y esta fila trae 1; llegó '\"t-1\"'",
+        )
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("  14 |             \"t-1\"", fragmento)
+        self.assertIn("     |             ^", fragmento)
+
+    def test_tropiezo_4_fila_con_mas_columnas(self) -> None:
+        texto = self._caso_base().replace('"t-1", true', '"t-1", true, 9')
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 14)
+        self.assertEqual(e.columna, 13)
+        self.assertEqual(
+            str(e),
+            "línea 14, columna 13: la relación «tarea» declara 2 campos (id, vencida) y esta fila trae 3; llegó '\"t-1\", true, 9'",
+        )
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("  14 |             \"t-1\", true, 9", fragmento)
+        self.assertIn("     |             ^", fragmento)
+
+    def test_tropiezo_5_olvida_las_comillas(self) -> None:
+        texto = self._caso_base().replace('fecha: "2026-08-26"', "fecha: 2026-08-26")
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 2)
+        self.assertEqual(e.columna, 16)
+        self.assertEqual(
+            str(e),
+            "línea 2, columna 16: se esperaba texto entre comillas; llegó '-08-26'",
+        )
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("   2 |     fecha: 2026-08-26", fragmento)
+        self.assertIn("     |                ^", fragmento)
+
+    def test_tropiezo_6_campos_sin_coma(self) -> None:
+        texto = self._caso_base().replace("tarea: id, vencida", "tarea: id vencida")
+        e = self._falla(texto)
+        self.assertEqual(e.linea, 13)
+        self.assertEqual(e.columna, 19)
+        self.assertEqual(
+            str(e),
+            "línea 13, columna 19: se esperaba ',' entre campos; llegó 'vencida'",
+        )
+        fragmento = sintaxis.fragmento_de_error(e, texto)
+        self.assertIn("  13 |         tarea: id vencida", fragmento)
+        self.assertIn("     |                   ^", fragmento)
 
 
 if __name__ == "__main__":

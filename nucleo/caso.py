@@ -19,6 +19,20 @@ IND2 = IND * 2
 IND3 = IND * 3
 EXTENSIONES_DE_CASO = frozenset({".json", ".caso"})
 ENCABEZADO_RE = re.compile(r"caso\s+(\S+):")
+ETIQUETAS = frozenset({
+    "falso_verde",
+    "falso_rojo",
+    "deuda_de_diseño",
+    "medida_correcta_conclusion_errada",
+    "verde_correcto",
+})
+DETECCIONES = frozenset({
+    "mutacion",
+    "persona",
+    "accidente",
+    "herramienta_ajena",
+    "observacion",
+})
 
 
 class CasoMalDeclarado(ValueError):
@@ -43,9 +57,9 @@ def _json_valor(texto: str, linea: int, columna: int):
     try:
         valor, fin = json.JSONDecoder().raw_decode(texto)
     except json.JSONDecodeError as e:
-        _fallar(linea, columna + e.pos, "valor JSON", texto)
+        _fallar(linea, columna + e.pos, "texto entre comillas", texto)
     if texto[fin:].strip():
-        _fallar(linea, columna + fin, "fin de valor JSON", texto[fin:].strip())
+        _fallar(linea, columna + fin, "texto entre comillas", texto[fin:].strip())
     return valor
 
 
@@ -216,22 +230,36 @@ class _Parser:
             _fallar(n + 1, 1, "origen con al menos un campo")
         return origen
 
-    def _parsear_cabecera_relacion(self, texto: str, linea: int, columna: int):
-        texto = texto.strip()
+    def _parsear_cabecera_relacion(self, texto_crudo: str, linea: int, columna: int):
+        texto = texto_crudo.strip()
         clave = None
         if texto.startswith("clave("):
             fin = texto.find(")")
             if fin < 0:
                 _fallar(linea, columna, "')' de clave", texto)
             crudo = texto[len("clave("):fin]
-            clave = [c.strip() for c in crudo.split(",") if c.strip()]
-            if not clave:
+            trozos_clave = [c.strip() for c in crudo.split(",") if c.strip()]
+            if not trozos_clave:
                 _fallar(linea, columna + len("clave("), "campos de clave", crudo)
+            for trozo in crudo.split(","):
+                palabras = trozo.split()
+                if len(palabras) > 1:
+                    idx0 = texto_crudo.find(palabras[0])
+                    idx1 = texto_crudo.find(palabras[1], idx0 + len(palabras[0]))
+                    _fallar(linea, columna + idx1, "',' entre campos de clave", palabras[1])
+            clave = trozos_clave
             texto = texto[fin + 1:].strip()
             if texto:
                 if not texto.startswith(";"):
                     _fallar(linea, columna + fin + 1, "';' antes de campos", texto)
                 texto = texto[1:].strip()
+        for trozo in texto.split(","):
+            palabras = trozo.split()
+            if len(palabras) > 1:
+                punto_inicio = texto_crudo.find(";") + 1 if clave is not None else 0
+                idx0 = texto_crudo.find(palabras[0], punto_inicio)
+                idx1 = texto_crudo.find(palabras[1], idx0 + len(palabras[0]))
+                _fallar(linea, columna + idx1, "',' entre campos", palabras[1])
         campos = [c.strip() for c in texto.split(",") if c.strip()] if texto else []
         if len(set(campos)) != len(campos):
             _fallar(linea, columna, "campos sin repetir", texto)
@@ -255,8 +283,8 @@ class _Parser:
             relacion = relacion.strip()
             if relacion in evidencia:
                 _fallar(n_rel, len(IND2) + 1, f"relación sin repetir, no «{relacion}»", cuerpo)
-            clave, campos = self._parsear_cabecera_relacion(
-                resto_rel, n_rel, len(IND2) + len(relacion) + 2)
+            col_resto = len(IND2) + cuerpo.find(":") + 2
+            clave, campos = self._parsear_cabecera_relacion(resto_rel, n_rel, col_resto)
             self.i += 1
             hechos = []
             while self.i < len(self.lineas):
@@ -276,8 +304,19 @@ class _Parser:
                                 "«fila { ... }» o relación nueva", cuerpo_fila)
                     valores = _valores_fila(cuerpo_fila, n_fila, len(IND3) + 1)
                     if len(valores) != len(campos):
-                        _fallar(n_fila, len(IND3) + 1,
-                                f"{len(campos)} valores de fila", cuerpo_fila)
+                        n_campos = len(campos)
+                        nom_campos = (
+                            f"1 campo ({campos[0]})"
+                            if n_campos == 1
+                            else f"{n_campos} campos ({', '.join(campos)})"
+                        )
+                        _fallar(
+                            n_fila,
+                            len(IND3) + 1,
+                            f"la relación «{relacion}» declara {nom_campos} y esta fila trae {len(valores)}",
+                            cuerpo_fila,
+                            literal=True,
+                        )
                     hechos.append(dict(zip(campos, valores)))
                 self.i += 1
             if campos and not hechos:
@@ -305,9 +344,17 @@ class _Parser:
         datos["fecha"] = _json_valor(*self._exigir_campo("fecha"))
         datos["origen"] = self._leer_origen()
         datos["titulo"] = _json_valor(*self._exigir_campo("titulo"))
-        datos["etiqueta"] = self._exigir_campo("etiqueta")[0]
+        etiqueta, n_etiqueta, col_etiqueta = self._exigir_campo("etiqueta")
+        if etiqueta not in ETIQUETAS:
+            _fallar(n_etiqueta, col_etiqueta,
+                    f"etiqueta en {sorted(ETIQUETAS)}", etiqueta)
+        datos["etiqueta"] = etiqueta
         datos["sintoma"] = self._leer_bloque("sintoma")
-        datos["como_se_detecto"] = self._exigir_campo("como_se_detecto")[0]
+        como_se_detecto, n_det, col_det = self._exigir_campo("como_se_detecto")
+        if como_se_detecto not in DETECCIONES:
+            _fallar(n_det, col_det,
+                    f"como_se_detecto en {sorted(DETECCIONES)}", como_se_detecto)
+        datos["como_se_detecto"] = como_se_detecto
         medida, n_medida, col_medida = self._exigir_campo("medida")
         datos["medida"] = None if medida == "null" else medida
 

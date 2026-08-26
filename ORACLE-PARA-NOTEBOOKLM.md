@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `9158ef2a41ea`
+- Revisión de código base: `eb2797f5f9b4`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -114,7 +114,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5674 líneas de lenguaje y **256 negativas explícitas** (`raise`).
+En este corte hay 5721 líneas de lenguaje y **256 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -147,7 +147,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5674 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,2 a 1**. 29 de las 37 pasan por una macro.
+**5721 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,4 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -427,7 +427,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-598 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
+605 tests · 547/547 mutantes de medida · **2413 sitios de mutación de código** (2208 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4687,7 +4687,7 @@ El lenguaje activo tiene cinco operadores: `de`, `donde`, `resumen`, `unir` y `a
 
 ### `nucleo/caso.py`
 
-*439 líneas*
+*486 líneas*
 
 Superficie de autoría para casos del corpus.
 
@@ -5065,7 +5065,7 @@ oracle expandir <archivo>              muestra la forma canónica de una medida 
 
 ### `tools/corpus.py`
 
-*255 líneas*
+*236 líneas*
 
 Verificador del corpus — la primera regla del repositorio, y se aplica a sí mismo.
 
@@ -8984,6 +8984,65 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 9158ef2*
 
+
+
+## 2026-08-26 — Merge branch 'instalar-uv': `oracle` se instala, y los consumidores tienen su reemplazo
+
+*commit eb2797f*
+
+El comando existía desde ayer y **no había forma dicha de instalarlo**: la única
+documentada seguía siendo invocar por ruta al checkout. Ahora está escrito arriba
+de todo, antes de la primera medida:
+
+    uv tool install .        deja `oracle` en el PATH — 333 ms, medido
+    uvx --from . oracle      probarlo sin instalar nada
+    pip install -e .         para quien no tenga uv
+
+`uv` es lo que corresponde acá con un matiz que conviene decir: el proyecto tiene
+**cero dependencias** (`dependencies = []`, `requires-python = ">=3.11"`), así que
+la ventaja no es la resolución sino que `uv tool install` y `uvx` hacen trivial el
+«probalo sin instalar nada».
+
+**No entra `uv.lock`, y el argumento está escrito**: un lock de runtime sólo
+congelaría la ausencia de dependencias. Lo único que sí se resuelve es el backend
+de build (`setuptools>=68`), que ya está declarado en `[build-system]` y queda
+cubierto por la prueba de wheel.
+
+## El empaquetado, comprobado y no supuesto
+
+Ya hubo un agujero esta semana: `package-data` listaba `macros/*.json` cuando las
+macros habían pasado a `.oracle`, y una instalación por wheel se quedaba sin
+biblioteca estándar. Un empaquetado incompleto no lo nota ningún test de la suite,
+así que ahora hay uno que lo fija —`test_wheel_instalado_trae_datos_y_ejecuta_oracle_test`—
+que construye el wheel, lo instala en un entorno limpio y corre `oracle test` ahí
+adentro.
+
+Lo repetí por mi cuenta antes de integrar: `uv venv` + `uv pip install .` + `init`
++ `nueva` + `test` desde un directorio vacío, todo desde el binario instalado.
+
+## Los consumidores: el reemplazo, comparado veredicto contra veredicto
+
+    antes  python vendor/oracle/tools/{corpus,aceptacion,diferencial,mutar}.py \
+             --proyecto medidas --confiar-escalares        (cuatro comandos)
+    ahora  oracle test --proyecto medidas --confiar-escalares
+
+En Jam los dos dan **ROJO por lo mismo**: `medidas/diferencial/vault.json`
+vencido, que es una deuda previa de Jam y no de Oracle. Que coincidan es la prueba
+de que el comando sirve para alguien que no lo escribió.
+
+Queda dicho un límite del comando: `oracle test` **no regenera fixtures
+diferenciales**. Los dos consumidores tienen emisores propios que hay que correr
+cuando cambia su catálogo o su referencia. Es un hueco del comando, no de ellos.
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh), que no escribió una línea en
+Jam ni en LyraGASP —tienen trabajo del usuario sin commitear— y sólo comparó.
+
+598 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8992,14 +9051,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5213 | el lenguaje |
+| líneas del núcleo | 5260 | el lenguaje |
 | líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
 | proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
 | (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 160 | el historial completo |
+| commits | 161 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
