@@ -319,6 +319,10 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             sintaxis_nucleo._leer_requiere((7, "    requiere $rel, otra")),
             ["requiere", ["$", "rel"], "otra"],
         )
+        self.assertEqual(
+            sintaxis_nucleo._huecos_en_linea('guarda x "a\\n" $hueco'),
+            [("hueco", 16)],
+        )
         ubicaciones: dict[str, sintaxis.Ubicacion] = {}
         self.assertEqual(
             sintaxis_nucleo._leer_resumen(
@@ -361,6 +365,26 @@ class MutacionDeSintaxisTests(unittest.TestCase):
              "línea 7, columna 14: se esperaba una o más relaciones requeridas; llegó 'rel, '"),
             (lambda: sintaxis_nucleo._leer_requiere((7, "    requiere $")), 7, 14,
              "línea 7, columna 14: se esperaba nombre de parámetro después de «$»; llegó '$'"),
+            (lambda: sintaxis_nucleo._leer_umbral('123 <= 0 porque "x"', 2, 5), 2, 5,
+             "línea 2, columna 5: se esperaba comparador de umbral; llegó 123"),
+            (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
+                (10, "    de pieza p"), (11, "    donde p.x == 1"),
+                (12, '    umbral <= 0 porque "defensa valida y suficiente"'),
+                (13, '    alcance "nada"'), (14, "    sobra")]), 13, 1,
+             "línea 13, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
+                (10, "    de pieza p"), (11, "    donde p.x == 1"),
+                (12, '    umbral <= 0 porque "defensa valida y suficiente"')]), 12, 1,
+             "línea 12, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            (lambda: sintaxis_nucleo._macro_ninguno_par("d.m", [
+                (10, "    de pieza a, b"), (11, "    donde a.x == b.x")]), 10, 1,
+             "línea 10, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
+            (lambda: sintaxis_nucleo._macro_peor("d.m", [
+                (20, "    de pieza p"), (21, "    expresion p.x")]), 20, 1,
+             "línea 20, columna 1: se esperaba 5 líneas de cuerpo para peor"),
+            (lambda: sintaxis_nucleo._leer_plantilla([
+                (1, "    medida $123:"), (2, "        de pieza p")]), 1, 12,
+             "línea 1, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$123'"),
         )
         for funcion, linea, columna, mensaje in casos:
             with self.subTest(mensaje=mensaje):
@@ -718,6 +742,45 @@ class MutacionDeSintaxisTests(unittest.TestCase):
         )
 
     def test_impresion_fija_precedencia_y_formas_invalidas(self) -> None:
+        self.assertTrue(sintaxis_nucleo._es_hueco(["$", "param"]))
+        self.assertFalse(sintaxis_nucleo._es_hueco(["param", "$"]))
+        self.assertEqual(sintaxis_nucleo._nombre(["$", "param"]), "$param")
+        self.assertEqual(sintaxis_nucleo._nombre("rel"), "rel")
+        self.assertEqual(sintaxis_nucleo._texto_o_hueco(["$", "param"]), "$param")
+        self.assertEqual(sintaxis_nucleo._texto_o_hueco("razon"), '"razon"')
+        self.assertEqual(sintaxis_nucleo._expr(["$", "param"]), "$param")
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["no", ["col", "x"]]]),
+            "no no x",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["y", True, False]]),
+            "no (true y false)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["o", True, False]]),
+            "no (true o false)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["y", ["o", True, False], True]),
+            "(true o false) y true",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["o", ["y", True, False], True]),
+            "true y false o true",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["contar", 1]]),
+            "no contar(1)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["==", ["contar", 1], 1]),
+            "contar(1) == 1",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["y", ["==", ["col", "x"], 1], ["==", ["col", "y"], 2]]),
+            "x == 1 y y == 2",
+        )
         self.assertEqual(
             sintaxis_nucleo._expr(["==", ["y", True, False], True]),
             "(true y false) == true",
@@ -1795,8 +1858,11 @@ class UnErrorDentroDeUnUnirDiceDondeTests(unittest.TestCase):
         """De punta a punta: del error del álgebra al caret sobre la superficie."""
         for posicion, relaciones in enumerate((
                 ("ausente", "objetivo"),
-                ("pieza", "ausente"))):
-            with self.subTest(posicion=posicion):
+                ("pieza", "ausente"),
+                ("ausente", "objetivo", "pieza"),
+                ("pieza", "ausente", "objetivo"),
+                ("pieza", "objetivo", "ausente"))):
+            with self.subTest(posicion=posicion, relaciones=relaciones):
                 texto = self._texto(*relaciones)
                 fragmento = sintaxis.fragmento_de_error(self._falla(texto), texto)
                 self.assertNotIn("no se encontró la ruta", fragmento)

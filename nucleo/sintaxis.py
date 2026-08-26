@@ -393,16 +393,16 @@ def _literal_texto(texto: str, linea: int, columna: int):
     elif tokens[0].tipo == "HUECO":
         valor = ["$", tokens[0].valor]
     else:
-        _fallar(tokens[0].linea, tokens[0].columna, "texto entre comillas", tokens[0].valor)
+        _fallar(linea, tokens[0].columna, "texto entre comillas", tokens[0].valor)
     if tokens[1].tipo != "EOF":
-        _fallar(tokens[1].linea, tokens[1].columna, "fin de línea", tokens[1].valor)
+        _fallar(linea, tokens[1].columna, "fin de línea", tokens[1].valor)
     return valor
 
 
 def _leer_umbral(texto: str, linea: int, columna: int):
     tokens = _tokenizar(texto, linea, columna)
-    if tokens[0].tipo != "OP" or tokens[0].valor not in COMPARADORES:
-        _fallar(tokens[0].linea, tokens[0].columna, "comparador de umbral", tokens[0].valor)
+    if tokens[0].tipo != "OP":
+        _fallar(linea, tokens[0].columna, "comparador de umbral", tokens[0].valor)
     p = _Expr(tokens, 1, detener={"porque"})
     limite = p.expresion()
     porque = p._exigir("IDENT", "porque", "porque")
@@ -704,8 +704,8 @@ def _leer_guarda(item: tuple[int, str]) -> list:
     resto, col = _exigir_prefijo(item, "guarda ", 1)
     tokens = _tokenizar(resto, n, col)
     mensaje_idx = None
-    for idx in range(len(tokens) - 1, -1, -1):
-        if tokens[idx].tipo == "STRING":
+    for idx, tok in reversed(list(enumerate(tokens))):
+        if tok.tipo == "STRING":
             mensaje_idx = idx
             break
     if mensaje_idx is None:
@@ -960,8 +960,7 @@ def _expr(expr, padre: int = 0) -> str:
         prec = 4
         texto = f"no {_expr(expr[1], prec)}"
     else:
-        prec = 5
-        texto = f"{cabeza}({', '.join(_expr(e) for e in expr[1:])})"
+        return f"{cabeza}({', '.join(_expr(e) for e in expr[1:])})"
     return f"({texto})" if prec < padre else texto
 
 
