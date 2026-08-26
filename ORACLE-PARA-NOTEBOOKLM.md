@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `b1242a932861`
+- Revisión de código base: `6d1262e4d1d1`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -114,7 +114,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5721 líneas de lenguaje y **256 negativas explícitas** (`raise`).
+En este corte hay 5775 líneas de lenguaje y **256 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -147,7 +147,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5721 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,4 a 1**. 29 de las 37 pasan por una macro.
+**5775 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,7 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -427,7 +427,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-605 tests · 547/547 mutantes de medida · **2413 sitios de mutación de código** (2208 + 205 del motor Python).
+638 tests · 547/547 mutantes de medida · **2431 sitios de mutación de código** (2226 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -797,6 +797,13 @@ concluir**. Si alguna de las relaciones listadas viene vacía, la evaluación no
 `SIN EVIDENCIA`, que no es verde y tampoco es un rojo del mundo. Existe porque el álgebra no puede
 expresarlo —un agregado sobre cero filas da `0` y un umbral `<= 0` lo lee como éxito— y la ausencia
 total salía verde justo cuando el mundo estaba peor; el caso completo está en §8.
+
+En la terminología de Shi, Zhang y Cui, *A Programming Paradigm for Spatiotemporal
+Composability*, §3.2, `requiere` es un **coefecto**: una especificación de dependencias que se
+contrasta contra el contexto disponible antes de ejecutar. Oracle toma sólo esa mitad declarativa.
+No toma la reactividad del paper —clasificar cada cambio del contexto para activar y desactivar
+componentes— porque la evidencia no cambia durante una evaluación; si falta una relación, se corta
+fail-closed con `SIN EVIDENCIA`.
 
 Una medida sin el nodo se comporta exactamente como antes y su forma canónica **no cambia**: son seis
 elementos, no siete. Un evaluador tiene que aceptar las dos longitudes.
@@ -4911,7 +4918,7 @@ distintos.
 
 ### `nucleo/proyecto.py`
 
-*457 líneas*
+*465 líneas*
 
 A qué proyecto se le mide. Oracle es la herramienta; el proyecto es de otro.
 
@@ -4975,7 +4982,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*1055 líneas*
+*1094 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -5050,7 +5057,7 @@ que se empezó a generar: una cifra publicada a mano es una afirmación que nadi
 
 ### `tools/cli.py`
 
-*376 líneas*
+*504 líneas*
 
 Entry point único para Oracle.
 
@@ -5058,14 +5065,14 @@ oracle init [ruta]                      inicializa un proyecto con catalogos/, c
 oracle nueva <dominio.nombre>          crea una nueva medida en catalogos/ con plantilla lista
 oracle caso <grupo/id>                 crea un nuevo caso en corpus/ con plantilla lista
 oracle revisar <archivo>               revisa y evalúa una medida suelta contra la evidencia del proyecto
-oracle test [--rapido]                 ejecuta la secuencia completa de verificación con veredicto final
+oracle test [--rapido|--todo]          ejecuta la secuencia completa de verificación con veredicto final
 oracle relaciones                      hechos y campos disponibles derivados de la evidencia
 oracle escalares                       funciones de dominio y operadores disponibles
 oracle expandir <archivo>              muestra la forma canónica de una medida escrita con macros
 
 ### `tools/corpus.py`
 
-*236 líneas*
+*248 líneas*
 
 Verificador del corpus — la primera regla del repositorio, y se aplica a sí mismo.
 
@@ -9125,7 +9132,267 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 ## 2026-08-26 — docs: reemplazar invocaciones por ruta hacia el comando oracle
 
-*commit b1242a9*
+*commit 942593e*
+
+
+
+## 2026-08-26 — `oracle test` deja de dar VERDE callando dos verificaciones
+
+*commit 47e7d45*
+
+Sobre el propio repositorio, el comando terminaba así:
+
+    VEREDICTO: VERDE (rápido: se salteó la mutación)
+
+y **nunca había corrido** los 605 tests unitarios ni la mutación de código —19
+objetivos, 2413 sitios—. Quien ve ese verde tiene derecho a creer que corrió lo
+que hay.
+
+Lo incómodo era que el comando **ya aplicaba el principio correcto** para
+`--rapido` —«un verde que omitió la verificación más fuerte no es el mismo
+verde»— pero sólo a la única verificación que conocía, callando las dos que no
+estaban en él.
+
+Ahora hay tres niveles y el veredicto **siempre enumera lo que quedó afuera**:
+
+    oracle test            todo salvo la mutación de código
+    oracle test --todo     absolutamente todo
+    oracle test --rapido   la ruta rápida de antes
+
+    UNITARIOS: python -m unittest discover -s tests -t . -q
+    CORPUS OK · 104 casos
+    SINTAXIS OK · 37 medidas · 3 macros · 104 casos
+    ACEPTACIÓN ✓ — 67 defectos en rojo, 34 verdes correctos
+    DIFERENCIAL ✓ — 4 acuerdos globales con referencias independientes
+    MUTACIÓN DE CÓDIGO: salteada (corré `oracle test --todo` para incluirla)
+
+    VEREDICTO: VERDE (se salteó: mutación de código (corré `oracle test --todo`))
+
+Con esto **un solo comando reemplaza la lista de nueve** que hasta hoy había que
+saberse de memoria, que era el punto de toda esta tanda.
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh), que se quedó sin cuota antes
+de commitear; rescaté el árbol y lo verifiqué.
+
+## Lo que comprobé antes de integrar
+
+Que un verde no se pueda fingir. Rompí un test a propósito:
+
+    UNITARIOS ✗
+    VEREDICTO: ROJO (falló: unitarios, cifras)
+
+Después lo revertí. Un comando que corre los tests pero no los mira sería peor que
+no correrlos.
+
+609 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Merge branch 'test-completo'
+
+*commit f97c9e7*
+
+
+
+## 2026-08-26 — Saca el informe
+
+*commit 21c8a16*
+
+
+
+## 2026-08-26 — Merge branch 'main' into docs-comando
+
+*commit 76a1ac9*
+
+
+
+## 2026-08-26 — Merge branch 'docs-comando'
+
+*commit e413c56*
+
+
+
+## 2026-08-26 — `oracle convertir`, y los errores amables rehechos tras perderlos en un merge
+
+*commit 6b9b3de*
+
+## Primero lo que salió mal, porque explica la mitad del commit
+
+El trabajo de «errores amables» —cuatro mensajes reescritos, siete tests, seis
+expectativas actualizadas y dos equivalentes reapuntados— se reportó como hecho el
+2026-08-26 y **nunca llegó a `main`**. Se trabajó en un worktree, se verificó ahí,
+y se mergeó **sin haber commiteado**. El merge `834d514` trajo un solo archivo
+generado; después el worktree se borró con `--force` y no quedó nada.
+
+    git show 834d514 --stat
+      ORACLE-PARA-NOTEBOOKLM.md | 49 ++--     ← eso fue todo
+
+O sea: un commit con mensaje detallado describiendo cambios que no existían. Es
+exactamente la clase de verde falso que este repositorio persigue, cometido sobre
+el repositorio mismo.
+
+Rehecho entero, usando ese mensaje como registro de qué era:
+
+    usa = en vez de ==   →  la comparación se escribe «==», no «=»
+    campo con acento     →  «í» no puede ir en un nombre… la prosa de `porque` y
+                            `alcance` sí lleva acentos y eñes
+    falta una línea      →  le falta `alcance`. Su cuerpo son estas 4 líneas,
+                            en este orden: de, donde, umbral, alcance
+    umbral con ==        →  …y llegó «== 0»; un umbral de igualdad está prohibido
+                            —ver `meta.ningun_umbral_de_igualdad`
+
+El último sigue siendo condicional: con `<= 1` no menciona la igualdad, porque
+sumarla mezcla dos problemas.
+
+## Y lo nuevo: `oracle convertir <archivo>`
+
+Era el último paso de autoría que seguía exigiendo el checkout de Oracle. La
+documentación lo dejaba escrito como `python tools/sintaxis.py --imprimir|--leer`
+y estaba bien que lo dejara: no se documenta un comando que no existe.
+
+Ahora existe, y traduce en las tres direcciones **mirando la extensión**:
+
+    .oracle → JSON        .caso → JSON        .json → superficie
+
+Un solo verbo en vez de `--imprimir` y `--leer`: pedirle a la persona que además
+nombre la dirección es hacerle repetir lo que ya escribió. Una extensión
+desconocida no adivina, y un archivo roto sale con el fragmento y el caret.
+
+620 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN `nucleo/sintaxis.py` 641/641
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Merge branch 'oracle-convertir'
+
+*commit 50dd5ec*
+
+
+
+## 2026-08-26 — wip marcadores
+
+*commit d1f0ff4*
+
+
+
+## 2026-08-26 — La plantilla de caso vuelve a tener marcadores, y el andamio dice qué poner
+
+*commit 725d25f*
+
+Reintroduce un cambio que se reportó como hecho el 2026-08-26 y **no llegó a
+`main`**: se editó en un worktree, se verificó ahí, y los commits posteriores
+fueron sólo merges que no levantaron el árbol de trabajo. Es la segunda vez en el
+día con la misma causa —redirigir la salida de `git commit` y no comprobar que
+entró— y por eso queda escrito acá.
+
+El cambio: la plantilla traía `etiqueta: falso_verde` y `como_se_detecto: mutacion`
+puestos, para que parseara. Es un retroceso. Esos dos campos no son decorativos
+—la etiqueta decide la polaridad del caso y `como_se_detecto` alimenta una cifra
+que el README publica— y **un default creíble se queda sin pensar**, que es peor
+que un error.
+
+Vuelven a ser marcadores. Eso hace que la plantilla entregada NO parsee, contra el
+principio que rige la plantilla de medida, y la tensión se resuelve por el otro
+lado: el andamio **lista los valores válidos al crear el archivo**, cuando la
+persona todavía tiene fresco lo que pasó, y el error los enumera igual para quien
+llegue por otro camino.
+
+    $ oracle caso colocacion/001-pieza-flotando
+    Reemplazá los marcadores en MAYÚSCULAS. Dos tienen valores cerrados:
+
+      etiqueta:         deuda_de_diseño · falso_rojo · falso_verde · …
+      como_se_detecto:  accidente · herramienta_ajena · mutacion · observacion · persona
+
+Tres tests fijan ese contrato, y los dos que exigían que la plantilla cargara se
+reemplazan por los que exigen lo contrario, con la razón escrita.
+
+622 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Merge branch 'marcadores-caso'
+
+*commit 22311a1*
+
+
+
+## 2026-08-26 — Documentar coefectos y sandbox
+
+*commit bfdb7c8*
+
+
+
+## 2026-08-26 — `oracle init` creaba proyectos sin ninguna guarda, y el verde no significaba nada
+
+*commit 7351514*
+
+El `oracle.json` que escribía `init` era `{"esquema": "oracle.proyecto/v1"}` — sin
+`catalogo_base`. Con eso el proyecto carga **sólo sus propias medidas** y se queda
+sin las universales: nadie comprueba que un umbral traiga defensa, que una medida
+declare `alcance`, que toda medida esté fijada por un caso, ni —la que más
+importa— que un caso se ponga como su etiqueta declara.
+
+Los dos consumidores lo tienen porque se armaron a mano copiando de Oracle. Quien
+empezaba por el camino documentado se quedaba sin ninguna guarda.
+
+## Cómo se encontró, que es el punto
+
+Probando si una persona puede AUDITAR lo que escribió un modelo. Escribí una
+medida con el predicado **invertido** —selecciona lo que está bien en vez de lo
+que ofende— y su caso, declarado `falso_verde`:
+
+    donde t.vencida == true y t.asignada == true      ← debía ser `== false`
+
+    $ oracle revisar …
+    ⚠ nunca se pone roja. Una medida que no puede fallar no mide nada
+
+    $ oracle test
+    ACEPTACIÓN ✓ — 0 defectos en rojo
+    VEREDICTO: VERDE
+
+`revisar` lo veía y el veredicto de la suite no. Con `catalogo_base`,
+`meta.el_caso_se_pone_como_debe` la pone en **ROJO**.
+
+El `if` vacío de `aceptacion.py` —`if v.ok != esperado_ok: pass`— no es un
+descuido: la política vive en una medida y no en un `if`, y eso está bien. Lo que
+faltaba era que esa medida llegara al proyecto.
+
+## Y un efecto de segundo orden, arreglado
+
+Con `catalogo_base` un proyecto recién creado hereda 34 medidas, así que dejaba de
+contar como «vacío» y el PRIMER `oracle test` de alguien salía ROJO con
+«ACEPTACIÓN NO APLICABLE — SIN CASOS». Ahora el vacío se mide por las medidas
+**propias**: heredar las guardas no es tener un catálogo.
+
+Tres tests fijan esto, incluido el escenario de auditoría completo: medida
+invertida + caso, veredicto ROJO nombrando la medida que lo atrapó.
+
+638 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Saca el informe y el PDF
+
+*commit 0a73a4f*
+
+
+
+## 2026-08-26 — Merge branch 'nomenclatura'
+
+*commit 43c6fad*
+
+
+
+## 2026-08-26 — Merge branch 'init-con-guardas'
+
+*commit 6d1262e*
 
 ---
 
@@ -9135,14 +9402,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5260 | el lenguaje |
+| líneas del núcleo | 5307 | el lenguaje |
 | líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
-| proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
+| proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 27 a 1 | sin ningún proyecto que lo use |
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 166 | el historial completo |
+| commits | 181 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
