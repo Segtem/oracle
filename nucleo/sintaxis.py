@@ -482,7 +482,7 @@ def _macro_ninguno(clase: str, mid: str, cuerpo: list[tuple[int, str]], *,
                    ubicaciones: dict[str, Ubicacion] | None = None) -> list:
     esperado = 4
     if len(cuerpo) != esperado:
-        linea = cuerpo[min(len(cuerpo), esperado - 1)][0] if cuerpo else 2
+        linea = cuerpo[min(len(cuerpo) - 1, esperado - 1)][0] if cuerpo else 2
         _fallar(linea, 1, f"{esperado} líneas de cuerpo para {clase}")
     fuente = _leer_de(cuerpo[0])
     pred_txt, col_pred = _exigir_prefijo(cuerpo[1], "donde ", 1)
@@ -766,12 +766,11 @@ def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, s
                 if hueco == desconocidos[0]:
                     _fallar(_n2, col, f"«${hueco}» no es un parámetro de la macro",
                             _linea2.strip(), literal=True)
-        _fallar(n, 1, f"«${desconocidos[0]}» no es un parámetro de la macro", literal=True)
     sin_usar = sorted(declarados - usados)
     if sin_usar:
         encabezado = lineas[0][1]
         m_param = re.search(rf"\b{re.escape(sin_usar[0])}\b", encabezado)
-        _fallar(n, m_param.start() + 1 if m_param else 1,
+        _fallar(n, m_param.start() + 1,
                 f"la macro declara el parámetro «{sin_usar[0]}» y la plantilla nunca lo usa",
                 encabezado, literal=True)
 
