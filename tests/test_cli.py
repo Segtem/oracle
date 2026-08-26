@@ -4,10 +4,14 @@ from __future__ import annotations
 
 import io
 import json
+import os
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+import venv
+import zipfile
 from contextlib import redirect_stdout
 from pathlib import Path
 
@@ -201,6 +205,15 @@ class OracleCliTests(unittest.TestCase):
             self.assertEqual(rc_sin, 1)
             self.assertIn("--confiar-escalares", salida_sin.getvalue())
 
+            salida_con = io.StringIO()
+            with redirect_stdout(salida_con):
+                rc_con = cli.main([
+                    "test", "--proyecto", str(raiz), "--confiar-escalares", "--rapido",
+                ])
+            self.assertEqual(rc_con, 1)
+            self.assertIn("ACEPTACIÓN ✗", salida_con.getvalue())
+            self.assertNotIn("CATÁLOGO INVÁLIDO", salida_con.getvalue())
+
             salida_rev_sin = io.StringIO()
             with redirect_stdout(salida_rev_sin):
                 rc_rev_sin = cli.main(["revisar", str(medida_path), "--proyecto", str(raiz)])
@@ -214,6 +227,118 @@ class OracleCliTests(unittest.TestCase):
         )
         self.assertEqual(r.returncode, 0)
         self.assertIn("oracle init", r.stdout)
+
+    def test_wheel_instalado_trae_datos_y_ejecuta_oracle_test(self) -> None:
+        with tempfile.TemporaryDirectory(prefix="oracle-wheel-test-") as td:
+            temporal = Path(td)
+            fuente = temporal / "fuente"
+            shutil.copytree(
+                RAIZ,
+                fuente,
+                ignore=shutil.ignore_patterns(
+                    ".git", "build", "dist", "*.egg-info", "__pycache__", "*.pyc"),
+            )
+            ruedas = temporal / "ruedas"
+            ruedas.mkdir()
+            env = os.environ.copy()
+            env.pop("ORACLE_PROYECTO", None)
+            env.pop("PYTHONPATH", None)
+            env["PYTHONDONTWRITEBYTECODE"] = "1"
+
+            wheel = subprocess.run(
+                [
+                    sys.executable, "-m", "pip", "wheel", "--no-deps",
+                    "--no-build-isolation", "--wheel-dir", str(ruedas), str(fuente),
+                ],
+                cwd=temporal, env=env, capture_output=True, text=True,
+            )
+            self.assertEqual(wheel.returncode, 0, wheel.stdout + wheel.stderr)
+            encontradas = tuple(ruedas.glob("oracle_metalenguaje-*.whl"))
+            self.assertEqual(len(encontradas), 1, str(encontradas))
+
+            with zipfile.ZipFile(encontradas[0]) as paquete:
+                nombres = set(paquete.namelist())
+            esperados = {
+                "oracle_metalenguaje/tools/cli.py",
+                "oracle_metalenguaje/nucleo/aislamiento/escalares.py",
+                "oracle_metalenguaje/nucleo/macros/ninguno.oracle",
+                "oracle_metalenguaje/nucleo/macros/ninguno-par.oracle",
+                "oracle_metalenguaje/nucleo/macros/peor.oracle",
+                "oracle_metalenguaje/catalogos/meta/meta.toda_medida_esta_fijada.oracle",
+                "oracle_metalenguaje/perfiles/python/catalogos/proceso/"
+                "proceso.arnes_con_bytecode_frio.oracle",
+            }
+            self.assertFalse(esperados - nombres)
+            genericos = ("nucleo/", "catalogos/", "perfiles/", "tools/")
+            self.assertFalse([nombre for nombre in nombres if nombre.startswith(genericos)])
+
+            entorno = temporal / "entorno"
+            venv.EnvBuilder(with_pip=True).create(entorno)
+            python = entorno / ("Scripts/python.exe" if sys.platform == "win32" else "bin/python")
+            instalar = subprocess.run(
+                [str(python), "-m", "pip", "install", "--no-deps", str(encontradas[0])],
+                cwd=temporal, env=env, capture_output=True, text=True,
+            )
+            self.assertEqual(instalar.returncode, 0, instalar.stdout + instalar.stderr)
+
+            binarios = entorno / ("Scripts" if sys.platform == "win32" else "bin")
+            oracle = binarios / ("oracle.exe" if sys.platform == "win32" else "oracle")
+            cwd_vacio = temporal / "cwd-vacio"
+            cwd_vacio.mkdir()
+            proyecto = temporal / "proyecto"
+
+            init = subprocess.run(
+                [str(oracle), "init", str(proyecto)],
+                cwd=cwd_vacio, env=env, capture_output=True, text=True,
+            )
+            self.assertEqual(init.returncode, 0, init.stdout + init.stderr)
+            vacio = subprocess.run(
+                [str(oracle), "test", "--proyecto", str(proyecto)],
+                cwd=cwd_vacio, env=env, capture_output=True, text=True,
+            )
+            self.assertEqual(vacio.returncode, 0, vacio.stdout + vacio.stderr)
+            self.assertIn("VEREDICTO: VERDE", vacio.stdout)
+            self.assertIn("proyecto vacío", vacio.stdout)
+
+            dominio = proyecto / "catalogos" / "demo"
+            dominio.mkdir()
+            (dominio / "demo.instalado.oracle").write_text(
+                "ninguno demo.instalado:\n"
+                "    de item i\n"
+                "    donde i.mal == true\n"
+                "    umbral <= 0 porque \"ningun item malo pasa\"\n"
+                "    alcance \"NO ve campos distintos de mal\"\n",
+                encoding="utf-8",
+            )
+            casos = proyecto / "corpus" / "demo"
+            casos.mkdir()
+            (casos / "001-rojo.caso").write_text(
+                "caso 001-rojo:\n"
+                "    fecha: \"2026-08-26\"\n"
+                "    origen:\n"
+                "        repo: \"temporal\"\n"
+                "        commit: \"sin-commit\"\n"
+                "    titulo: \"item malo detectado\"\n"
+                "    etiqueta: falso_verde\n"
+                "    sintoma:\n"
+                "        Un item malo tiene que poner roja la medida instalada.\n"
+                "    como_se_detecto: mutacion\n"
+                "    medida: demo.instalado\n"
+                "    evidencia:\n"
+                "        item: id, mal\n"
+                "            \"a\", true\n"
+                "    leccion:\n"
+                "        La macro estándar tiene que estar empaquetada.\n",
+                encoding="utf-8",
+            )
+            con_macro = subprocess.run(
+                [str(oracle), "test", "--proyecto", str(proyecto), "--rapido"],
+                cwd=cwd_vacio, env=env, capture_output=True, text=True,
+            )
+            self.assertEqual(con_macro.returncode, 0, con_macro.stdout + con_macro.stderr)
+            self.assertIn("SINTAXIS OK", con_macro.stdout)
+            self.assertIn("ACEPTACIÓN", con_macro.stdout)
+            self.assertIn("VEREDICTO: VERDE", con_macro.stdout)
 
 
 if __name__ == "__main__":

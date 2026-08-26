@@ -168,7 +168,12 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
 
     macros = macros_del_proyecto(proy)
     try:
-        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros)
+        with escalares_del_proyecto(proy, confiar=confiar):
+            catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        print("\nVEREDICTO: ROJO (escalares.py no pudo cargarse)")
+        return 1
     except Exception as e:
         print(f"CATÁLOGO INVÁLIDO — {e}")
         print("\nVEREDICTO: ROJO (catálogo no pudo cargarse)")

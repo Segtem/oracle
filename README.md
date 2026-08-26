@@ -37,6 +37,36 @@ aconsejan.
 
 ---
 
+## Instalación
+
+Requiere Python 3.11 o posterior y no tiene dependencias de runtime. La forma principal de dejar el
+comando accesible desde cualquier directorio es:
+
+```bash
+uv tool install .
+oracle --help
+```
+
+Para probar el comando sin instalarlo:
+
+```bash
+uvx --from . oracle --help
+```
+
+Si no tenés `uv`, la alternativa editable es:
+
+```bash
+python -m pip install -e .
+oracle --help
+```
+
+Una vez instalado, el flujo normal de un proyecto externo no necesita rutas al checkout:
+
+```bash
+oracle init <tu-proyecto>
+oracle test --proyecto <tu-proyecto> --confiar-escalares
+```
+
 ## La esencia, mirada de cerca
 
 Después de construirlo, lo que queda debajo de todos los mecanismos es una sola frase:
@@ -265,13 +295,12 @@ oracle/                        LA HERRAMIENTA
   corpus/  diferencial/        tus casos (.caso y .json) y tus fixtures
 ```
 
-Y las herramientas se apuntan:
+Y el comando instalado se apunta:
 
 ```bash
-python <oracle>/tools/diferencial.py --proyecto <tu-proyecto> --confiar-escalares
-python <oracle>/tools/aceptacion.py  --proyecto <tu-proyecto> --confiar-escalares
-python <oracle>/tools/mutar.py       --proyecto <tu-proyecto> --confiar-escalares
-python <oracle>/tools/estudio.py --proyecto <tu-proyecto> --confiar-escalares
+oracle test --proyecto <tu-proyecto> --confiar-escalares
+oracle relaciones --proyecto <tu-proyecto>
+oracle revisar catalogos/<dominio>/<dominio.medida>.oracle --proyecto <tu-proyecto> --confiar-escalares
 export ORACLE_PROYECTO=<tu-proyecto>     # para no repetirlo
 ```
 
@@ -318,14 +347,8 @@ el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](c
 archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).
-`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `tools/corpus.py --nuevo` crea el caso (`.caso`) y `tools/medida.py --nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
-
-Requiere Python 3.11 o posterior. Se puede usar desde el checkout o instalar sin dependencias:
-
-```bash
-python -m pip install .
-oracle-medida --proyecto /ruta/al/proyecto --relaciones
-```
+`oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
+`oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
 El wheel instala sólo paquetes bajo `oracle_metalenguaje.*`; no ocupa los nombres genéricos
 `nucleo`, `catalogos`, `perfiles` ni `tools`. Tampoco distribuye el corpus ni los fixtures de
@@ -364,13 +387,10 @@ Una raíz ausente o symlink y un nombre presente en dos fuentes se rechazan en v
 orden accidental.
 
 ```bash
-python tools/medida.py --relaciones              # qué se puede medir, derivado de la evidencia real
-python tools/corpus.py --resumen                 # el corpus está en regla
-python tools/aceptacion.py                       # el corpus juzga al oráculo
-python tools/diferencial.py --proyecto <proyecto-con-fixtures>  # referencia independiente
-python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # suite sin dependencias
-python tools/verificar_instalacion.py             # wheel + Motor desde un cwd vacío
+oracle test --proyecto <proyecto> --confiar-escalares  # secuencia completa del consumidor
+python -m unittest discover -s tests -t . -q            # suite sin dependencias
+python tools/cifras.py                                  # cifras publicadas vigentes
+python tools/verificar_instalacion.py                   # wheel + CLI instalado desde un cwd vacío
 ```
 
 Oracle no conserva fixtures diferenciales propios en este repositorio. Ejecutar el diferencial sin
@@ -382,7 +402,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-597 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
+598 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

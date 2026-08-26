@@ -29,6 +29,7 @@ packages = [
   "oracle_metalenguaje",
   "oracle_metalenguaje.catalogos",
   "oracle_metalenguaje.nucleo",
+  "oracle_metalenguaje.nucleo.aislamiento",
   "oracle_metalenguaje.perfiles",
   "oracle_metalenguaje.perfiles.python",
   "oracle_metalenguaje.tools",
@@ -37,6 +38,7 @@ packages = [
 [tool.setuptools.package-dir]
 "oracle_metalenguaje.catalogos" = "catalogos"
 "oracle_metalenguaje.nucleo" = "nucleo"
+"oracle_metalenguaje.nucleo.aislamiento" = "nucleo/aislamiento"
 "oracle_metalenguaje.perfiles" = "perfiles"
 "oracle_metalenguaje.perfiles.python" = "perfiles/python"
 "oracle_metalenguaje.tools" = "tools"
