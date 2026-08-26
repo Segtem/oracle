@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `f2a20c227ea9`
+- Revisión de código base: `550b9d9e0132`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-559 tests · 547/547 mutantes de medida · **2268 sitios de mutación de código** (2063 + 205 del motor Python).
+564 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -5154,7 +5154,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*324 líneas*
+*335 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -8417,6 +8417,19 @@ SINTAXIS · MUTACIÓN de medidas 547/547
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-25 — Rescate del trabajo de codex sobre nucleo/sintaxis.py
+
+*commit a01ea2a*
+
+605 lineas de tests, tres cambios al nucleo (uno de ellos un IndexError real) y
+la columna esperada de un caso corregida. Codex se quedo sin cuota a mitad.
+
+## 2026-08-25 — Merge branch 'main' into mutar-sintaxis
+
+*commit a44e49b*
+
+
+
 ## 2026-08-25 — `proyecto.py` y `cifras.py`, fijados: 1 sobreviviente entre los dos
 
 *commit f0dcb84*
@@ -8451,6 +8464,31 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 *commit 2a31004*
 
 
+
+## 2026-08-25 — fijar ultimos 15 mutantes de sintaxis.py: 0 sobrevivientes y 2 equivalentes declarados
+
+*commit 4ba99e3*
+
+
+
+## 2026-08-25 — agregar INFORME.md de mutacion de sintaxis.py
+
+*commit 24a02d4*
+
+
+
+## 2026-08-26 — Saca el informe
+
+*commit dd91321*
+
+
+
+## 2026-08-26 — Merge branch 'main' into mutar-sintaxis
+
+*commit 807efb7*
+
+# Conflicts:
+#	README.md
 
 ## 2026-08-26 — El sandbox de UDFs era invisible para la mutación, y promete más de lo que puede
 
@@ -8519,6 +8557,107 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit f2a20c2*
 
+
+
+## 2026-08-26 — Merge branch 'mutar-sintaxis': el archivo más grande del núcleo, en cero
+
+*commit b785e4e*
+
+`nucleo/sintaxis.py` son 1026 líneas —el lector, el parser, el impresor y el mapa
+de fuente de la superficie infija— y hasta anteayer nunca se habían mutado.
+
+    623 mutantes · 623 muertos · 0 sobrevivientes · 2 equivalentes declarados
+
+Salió en dos tandas y con dos agentes distintos. Codex escribió 605 líneas de
+tests y encontró un bug de verdad antes de quedarse sin cuota:
+
+    cuerpo[min(len(cuerpo), esperado - 1)]      →  IndexError crudo
+    cuerpo[min(len(cuerpo) - 1, esperado - 1)]
+
+Un `ninguno` con menos líneas de cuerpo de las esperadas **reventaba con
+`IndexError`** en vez de dar un error de sintaxis: el parser se caía con entrada
+mal formada, que es lo que una superficie no puede hacer. Los otros dos cambios
+suyos sacan ramas inalcanzables.
+
+Gemini 3.7 Flash cerró los 15 que quedaban. Los dos equivalentes que declaró son
+del impresor de expresiones —`padre: int = 0 → 1` y la precedencia de `no`,
+`4 → 5`— y los verifiqué por fuerza bruta antes de aceptarlos: **89.383 árboles
+de expresión generados, cero diferencias de texto**. Son legítimos, y por una
+razón distinta a la del caso de ayer: acá el valor SÍ se usa, sólo que la
+constante cae en un hueco de la escala de precedencia. Si alguna vez entra un
+operador entre los comparadores y `no`, dejan de serlo.
+
+La ronda de verificación la corrí yo sobre la rama ya mergeada con `main`: mismo
+resultado.
+
+559 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de código: sintaxis 623/623
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — El arnés de mutación no veía el subpaquete del núcleo
+
+*commit b385cee*
+
+`objetivos_disponibles()` usaba `glob("*.py")` sobre `nucleo/`, no `rglob`. Con eso
+`nucleo/aislamiento/escalares.py` —411 líneas, el confinamiento de las UDF de un
+proyecto— **no era objetivo del arnés**: no se mutaba, y no se notaba porque el
+informe sólo habla de lo que sí miró.
+
+Es el MISMO defecto que tenía el numerador de `tools/cifras.py`, arreglado el
+2026-08-03 con estas palabras: «mover el archivo una carpeta más adentro» no puede
+ser una manera de salir del criterio de falsación. Se arregló el lado que CUENTA
+y no el que MIDE, así que esas líneas figuraban en la proporción publicada y no
+las fijaba nada.
+
+Tres tests lo cuidan:
+
+  · todo `.py` de `nucleo/` es objetivo del arnés;
+  · **existe al menos un objetivo en un subpaquete** — sin esto el primer test
+    pasaría igual con `glob` y no discriminaría nada;
+  · todo objetivo del núcleo declara sus tests prioritarios, porque sin eso cada
+    mutante corre la suite entera y la ronda se vuelve impagable.
+
+562 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Merge branch 'mutar-aislamiento'
+
+*commit acf0a13*
+
+
+
+## 2026-08-26 — Cierra en cero la mutación de código de los siete módulos restantes del núcleo
+
+*commit 3d3ab5f*
+
+
+
+## 2026-08-26 — Saca el informe
+
+*commit e6d76b6*
+
+
+
+## 2026-08-26 — Merge branch 'main' into mutar-resto
+
+*commit 8344be9*
+
+
+
+## 2026-08-26 — Actualiza las cifras tras traer main
+
+*commit 3e39351*
+
+
+
+## 2026-08-26 — Merge branch 'mutar-resto'
+
+*commit 550b9d9*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8534,7 +8673,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 132 | el historial completo |
+| commits | 146 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
