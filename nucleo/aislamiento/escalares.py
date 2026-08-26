@@ -27,6 +27,13 @@ Si eso no alcanza para tu caso, la respuesta no es endurecer este hook: es no co
 —`--confiar-escalares` es opt-in a propósito— o encerrar el proceso entero con algo del sistema
 operativo (namespaces, seccomp), que está fuera de lo que Oracle hace.
 
+Shi, Zhang y Cui, *A Programming Paradigm for Spatiotemporal Composability*, §6.3, ponen el mismo
+límite: el control de acceso a nivel del lenguaje no alcanza si el componente hostil puede llegar al
+runtime anfitrión; el sandbox necesita una frontera de ejecución por fuera del lenguaje y un puente
+hacia lo que el host provee. Oracle toma la mitad correcta de esa arquitectura —proceso aparte y
+canal JSON—. Lo que NO toma todavía es el borde del sistema operativo: no hay namespaces, seccomp ni
+contenedor que esconda los metadatos del disco.
+
 Hay un test que fija ESTE límite, incluida la fuga: `test_los_metadatos_se_filtran_y_esta_declarado`.
 Si algún día se cierra de verdad, ese test falla y obliga a actualizar esta declaración en vez de
 dejarla envejecer diciendo de menos.
