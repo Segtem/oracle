@@ -53,6 +53,7 @@ Uso:
   oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
+  oracle convertir <archivo>             Traduce entre superficie y JSON (por la extensión)
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle --help                          Muestra esta ayuda
 
@@ -150,6 +151,44 @@ def cmd_expandir(proy: Proyecto, ruta_str: str) -> int:
         print(f"no existe: {ruta_str}")
         return 1
     return medida.expandir_archivo(ruta, macros_del_proyecto(proy))
+
+
+def cmd_convertir(proy: Proyecto, ruta_str: str) -> int:
+    """Traduce entre los dos formatos, mirando la extensión.
+
+    Existía sólo como `python tools/sintaxis.py --imprimir|--leer`, que exige tener el checkout de
+    Oracle y saber dónde está. Era el último paso del recorrido de autoría que seguía obligando a
+    eso, y la documentación tenía que dejarlo escrito así por no inventar un comando que no existía.
+
+    Un solo verbo en vez de dos —`--imprimir` y `--leer`— porque la dirección la dice la extensión
+    del archivo y pedirle a la persona que además la nombre es hacerle repetir lo que ya escribió.
+    """
+    from nucleo import caso as caso_superficie
+    from nucleo.medida import cargar_fuente_medida
+    from nucleo.sintaxis import ErrorSintaxis, fragmento_de_error, imprimir, leer
+
+    ruta = Path(ruta_str)
+    if not ruta.exists():
+        ruta = proy.raiz / ruta_str
+    if not ruta.exists():
+        print(f"no existe: {ruta_str}")
+        return 1
+
+    texto = ruta.read_text(encoding="utf-8")
+    try:
+        if ruta.suffix == ".json":
+            print(imprimir(cargar_fuente_medida(ruta)), end="")
+        elif ruta.suffix == ".oracle":
+            print(json.dumps(leer(texto), ensure_ascii=False, separators=(",", ":")))
+        elif ruta.suffix == ".caso":
+            print(json.dumps(caso_superficie.leer(texto), ensure_ascii=False, indent=2))
+        else:
+            print(f"no sé convertir «{ruta.suffix or ruta.name}»: esperaba .oracle, .caso o .json")
+            return 1
+    except (ErrorSintaxis, caso_superficie.CasoMalDeclarado) as e:
+        print(f"✗ {ruta}: {fragmento_de_error(e, texto)}")
+        return 1
+    return 0
 
 
 COMANDO_UNITARIOS = [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-q"]
@@ -421,6 +460,13 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando in ("escalares", "--escalares"):
         return cmd_escalares(proy, argv)
+
+    if subcomando == "convertir":
+        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+        if not args:
+            print("falta el archivo: oracle convertir <archivo.oracle|.caso|.json>")
+            return 1
+        return cmd_convertir(proy, args[0])
 
     if subcomando in ("expandir", "--expandir"):
         args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
