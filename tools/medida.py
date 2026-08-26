@@ -212,6 +212,30 @@ def revisar(proy, ruta: Path) -> int:
     return 0
 
 
+def _evaluadas_aparte(proy, catalogo) -> set[str]:
+    """Las medidas que ejercita el ARNÉS y no un caso que las nombre.
+
+    Son las que corren sobre el catálogo mismo —el nivel L2—: `aceptacion.py` las evalúa contra los
+    hechos del propio marco. Que ningún caso las nombre no las deja sin ejercitar, y decir lo
+    contrario en una vista de auditoría es un falso rojo.
+    """
+    # Una medida se ejercita aparte si TODAS las relaciones que consume las produce el propio marco:
+    # es decir, si su evidencia no sale del mundo sino del catálogo. Es la misma pregunta que se hace
+    # `nucleo/marco.py`, sin duplicar su política.
+    from nucleo.medida import relaciones_de_medida
+    try:
+        from nucleo.medida import relaciones_del_lenguaje_declaradas
+        del_lenguaje = set(relaciones_del_lenguaje_declaradas())
+    except Exception:
+        return set()
+    aparte = set()
+    for m in catalogo.values():
+        usadas = set(relaciones_de_medida(m))
+        if usadas and usadas <= del_lenguaje:
+            aparte.add(m.id)
+    return aparte
+
+
 def listar(proy, argv: list[str] | None = None) -> int:
     estructura = problemas_estructura(proy, ("catalogos",))
     if estructura:
@@ -249,8 +273,17 @@ def listar(proy, argv: list[str] | None = None) -> int:
         except Exception:
             pass
 
-    fijadas = [m for m in catalogo.values() if conteo[m.id] > 0]
-    sin_fijar = [m for m in catalogo.values() if conteo[m.id] == 0]
+    # «Sin fijar» NO es «ningún caso la nombra». Oracle ya distingue las dos cosas y esta vista
+    # inventaba una tercera, más pobre: reportaba como SIN FIJAR a las seis medidas meta que juzgan
+    # al catálogo mismo —incluida `meta.toda_medida_esta_fijada`, que pasa en verde—. Eran seis
+    # falsos rojos en la herramienta que existe justamente para auditar.
+    #
+    # La noción buena está en `nucleo/marco.py`: una medida puede estar **evaluada aparte** —el arnés
+    # la ejercita sobre el catálogo, no un caso que la nombre— y eso cuenta como ejercicio. Se usa
+    # esa, no una copia.
+    aparte = _evaluadas_aparte(proy, catalogo)
+    fijadas = [m for m in catalogo.values() if conteo[m.id] > 0 or m.id in aparte]
+    sin_fijar = [m for m in catalogo.values() if conteo[m.id] == 0 and m.id not in aparte]
 
     n_medidas = len(catalogo)
     txt_medidas = "1 medida" if n_medidas == 1 else f"{n_medidas} medidas"
@@ -264,7 +297,12 @@ def listar(proy, argv: list[str] | None = None) -> int:
     for mid in sorted(catalogo):
         m = catalogo[mid]
         n = conteo[mid]
-        fijacion = f"{n} caso" if n == 1 else f"{n} casos" if n > 0 else "0 casos  ⚠ SIN FIJAR"
+        if n > 0:
+            fijacion = f"{n} caso" if n == 1 else f"{n} casos"
+        elif mid in aparte:
+            fijacion = "0 casos · la ejercita el arnés sobre el catálogo"
+        else:
+            fijacion = "0 casos  ⚠ SIN FIJAR — ninguna evidencia la pone a prueba"
         print(f"  {m.id}")
         print(f"    umbral:   {m.op} {m.limite}")
         print(f"    fijación: {fijacion}")

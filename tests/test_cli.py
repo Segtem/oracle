@@ -551,7 +551,29 @@ class NounVerbCliTests(OracleCliTests):
         self.assertIn("fijación:", salida)
         self.assertIn("alcance:", salida)
         self.assertIn("meta.el_caso_reclama_una_medida_que_existe", salida)
-        self.assertIn("0 casos  ⚠ SIN FIJAR", salida)
+        # Las medidas L2 —las que juzgan al catálogo mismo— NO se marcan SIN FIJAR aunque ningún
+        # caso las nombre: las ejercita el arnés. Marcarlas era un falso rojo en la herramienta que
+        # existe para auditar, y encima incluía a `meta.toda_medida_esta_fijada`, que pasa en verde.
+        self.assertIn("la ejercita el arnés sobre el catálogo", salida)
+        self.assertNotIn("⚠ SIN FIJAR", salida)
+
+    def test_medida_listar_marca_la_que_de_verdad_no_tiene_evidencia(self) -> None:
+        """Y el aviso tiene que seguir apareciendo cuando corresponde, o no sirve de nada."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+            medida = raiz / "catalogos" / "x" / "x.nadie_la_prueba.oracle"
+            medida.parent.mkdir(parents=True, exist_ok=True)
+            medida.write_text(
+                "ninguno x.nadie_la_prueba:\n"
+                "    de pieza p\n"
+                "    donde p.rota == true\n"
+                '    umbral <= 0 porque "una pieza rota en la escena se ve"\n'
+                '    alcance "mira la bandera declarada. NO ve la malla real"\n',
+                encoding="utf-8")
+            _rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
+            self.assertIn("x.nadie_la_prueba", salida)
+            self.assertIn("⚠ SIN FIJAR", salida)
 
     def test_medida_listar_en_proyecto_vacio_y_con_medidas(self) -> None:
         with tempfile.TemporaryDirectory() as td:
