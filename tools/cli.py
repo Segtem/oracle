@@ -22,7 +22,7 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
 from nucleo.caso import rutas_de_corpus  # noqa: E402
-from nucleo.medida import cargar_catalogo  # noqa: E402
+from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from nucleo.proyecto import (  # noqa: E402
     ESQUEMA_PROYECTO,
     EscalaresInvalidas,
@@ -86,7 +86,18 @@ def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
         corpus_dir.mkdir(parents=True, exist_ok=True)
         diferencial_dir.mkdir(parents=True, exist_ok=True)
         if not oracle_json.exists():
-            datos = {"esquema": ESQUEMA_PROYECTO}
+            # `catalogo_base` NO es opcional en un proyecto nuevo, y es lo más importante que
+            # escribe `init`. Sin él, el proyecto carga SÓLO sus propias medidas y se queda sin las
+            # universales: nadie comprueba que un umbral traiga defensa, que una medida declare
+            # `alcance`, que toda medida esté fijada por un caso, ni —la que más importa— que un
+            # caso se ponga como su etiqueta declara.
+            #
+            # Medido: una medida con el predicado INVERTIDO —que selecciona lo que está bien en vez
+            # de lo que ofende— más un caso que la declara `falso_verde`, daban
+            # «ACEPTACIÓN ✓ · VEREDICTO VERDE». Con `catalogo_base`, `meta.el_caso_se_pone_como_debe`
+            # la pone en rojo. Los dos consumidores lo tenían porque se armaron a mano copiando de
+            # Oracle; quien empezaba por el camino documentado se quedaba sin ninguna guarda.
+            datos = {"esquema": ESQUEMA_PROYECTO, "catalogo_base": True, "perfiles": []}
             oracle_json.write_text(json.dumps(datos, indent=2) + "\n", encoding="utf-8")
     except OSError as e:
         print(f"No se pudo inicializar el proyecto en {raiz}: {e}", file=sys.stderr)
@@ -271,7 +282,12 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         print("UNITARIOS: salteados (sólo aplican al propio Oracle)")
     print()
 
-    if len(catalogo) == 0 and len(casos_archivos) == 0 and len(rutas_diferencial) == 0:
+    # «Vacío» se mide por las medidas PROPIAS, no por las cargadas. Desde que `init` declara
+    # `catalogo_base`, un proyecto recién creado hereda 34 medidas universales y dejaba de contar
+    # como vacío: `aceptacion` decía «SIN CASOS» y el primer `oracle test` de alguien salía ROJO.
+    # Heredar las guardas no es tener un catálogo.
+    propias = rutas_de_catalogo(proy.catalogos)
+    if len(propias) == 0 and len(casos_archivos) == 0 and len(rutas_diferencial) == 0:
         print("CORPUS OK · 0 casos · esquema y evidencia L0 en regla")
         print("SINTAXIS: salteado (sin medidas ni casos todavía)")
         print("ACEPTACIÓN: salteado (sin medidas ni casos todavía)")
