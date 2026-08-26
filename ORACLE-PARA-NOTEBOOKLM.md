@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `21addec1cea9`
+- Revisión de código base: `5daf40a90e09`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-541 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
+549 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -8293,6 +8293,85 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 21addec*
 
+
+
+## 2026-08-25 — Un error dentro de un `unir` no decía dónde: el mapa de fuente tenía un agujero
+
+*commit 22210f9*
+
+`_unir` calculaba `ruta_izq` y `ruta_der` con cuidado y se las pasaba a `aplicar`,
+donde el brazo del `de` las **descartaba**. Un error en cualquiera de los dos
+lados de un `unir` salía sin ruta, y `fragmento_de_error` respondía «no se
+encontró la ruta» en vez de señalar la línea.
+
+    antes:  la relación «ausente» no existe en la evidencia
+            (ruta: None)
+
+    ahora:  la relación «ausente» no existe … en `2.1.2`
+               3 |     unir ausente y
+                 |          ^
+
+## Cómo se encontró, que es la parte que importa
+
+**Lo denunció la mutación de código, no una persona.** Cuatro mutantes sobre
+`ruta_izq`/`ruta_der` sobrevivían —incluido cambiar el índice `1` por el `2`, que
+haría al error señalar el operando equivocado— porque el valor calculado no
+llegaba a ninguna parte.
+
+Y estuvieron a punto de entrar declarados como **equivalentes**, con cuatro
+razones bien argumentadas y **factualmente correctas**: es cierto que ningún test
+podía distinguirlos. Lo comprobé y la conclusión se sostenía.
+
+Pero la lectura era la otra. **Un mutante que no se puede matar porque su
+resultado no se usa no es equivalente: es código que quería hacer algo y no lo
+hacía.** La pregunta correcta no era «¿por qué no lo distingo?» sino «¿por qué
+este cálculo no se observa?», y la respuesta era un defecto. Las cuatro
+declaraciones se retiran de `equivalentes.json`.
+
+Comprobado uno por uno: aplicando cada uno de los cuatro mutantes a mano, los
+cuatro **mueren** ahora.
+
+## Los dos extremos
+
+  · `nucleo/algebra.py` — el brazo del `de` en `aplicar` prefija la ruta que
+    recibe antes de relanzar el error;
+  · `nucleo/sintaxis.py` — las FUENTES entran al mapa. El `unir` es
+    izquierdo-asociativo, así que con tres fuentes la primera queda en `2.1.1.1`,
+    la segunda en `2.1.1.2` y la tercera en `2.1.2`. Media promesa cumplida es
+    peor que ninguna: el error sabía dónde estaba y el mapa no sabía traducirlo.
+
+Un test exige que las tres fuentes den rutas **distintas** —si coincidieran,
+cambiar el índice 1 por el 2 volvería a ser indistinguible— y otro va de punta a
+punta, del error del álgebra al caret debajo del nombre de la relación.
+
+Los 17 tests restantes de la ronda son de Gemini 3.7 Flash (high), que hizo el
+trabajo grueso sobre los otros mutantes.
+
+    nucleo/algebra.py: 323 mutantes · 323 muertos · 0 sobrevivientes
+                       0 equivalentes declarados
+
+541 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — Merge branch 'ruta-de'
+
+*commit 1431bc9*
+
+
+
+## 2026-08-25 — fijar reificación y contratos de medida: 25 mutantes muertos por tests
+
+*commit 8e33b88*
+
+
+
+## 2026-08-25 — Merge branch 'mutar-medida'
+
+*commit 5daf40a*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8308,7 +8387,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 123 | el historial completo |
+| commits | 127 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
