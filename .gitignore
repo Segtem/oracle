@@ -5,3 +5,8 @@ estudio/
 build/
 dist/
 *.egg-info/
+
+# Andamiaje de delegación: se escribe por tarea en el worktree, no vive en el repo
+TAREA.md
+INFORME.md
+DOCTRINA.md
