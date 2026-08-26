@@ -206,6 +206,25 @@ class MutadoresTests(unittest.TestCase):
         self.assertIsNone(mutacion.quitar_filtro(d))
         self.assertIsNone(mutacion.negar_filtro(d))
 
+    def test_quitar_requiere_remueve_el_nodo_conservando_el_resto(self) -> None:
+        con_req = ["medida", "d.req",
+                   ["desde", ["de", "cosa", "c"]],
+                   ["resumen", "contar", 1],
+                   ["umbral", "<=", 0, "una razón"],
+                   ["requiere", "cosa"],
+                   ["alcance", "NO ve nada más"]]
+        sin_req = mutacion.quitar_requiere(con_req)
+        self.assertEqual(len(sin_req), 6)
+        self.assertEqual(sin_req, [
+            "medida", "d.req",
+            ["desde", ["de", "cosa", "c"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "una razón"],
+            ["alcance", "NO ve nada más"]])
+        self.assertIsNone(mutacion.quitar_requiere(BASE))
+        nombres = [nombre for nombre, _ in mutacion.mutantes(con_req)]
+        self.assertIn("quitar_requiere", nombres)
+
     def test_negar_filtro_invierte_el_predicado(self) -> None:
         d = mutacion.negar_filtro(BASE)
         self.assertEqual(Medida.de_datos(d).evaluar(EV_ROJO).valor, 1)   # la fila «y»
@@ -233,6 +252,8 @@ class CorrerTests(unittest.TestCase):
                          if m["rechazos_del_algebra"] and not m["detecciones_conductuales"]]
         self.assertEqual(sorted(m["cambio"] for m in por_excepcion),
                          ["campo:2.2.1.1.1.2:n→s", "campo:2.2.1.2.1.2:s→n"])
+        for m in por_excepcion:
+            self.assertEqual(m["rechazos_del_algebra"], 2)
         # y la razón registrada es una excepción, no una inversión de veredicto
         del_mutante = [d for d in ev["deteccion"]
                        if d["mutante"].endswith("campo:2.2.1.1.1.2:n→s")]
