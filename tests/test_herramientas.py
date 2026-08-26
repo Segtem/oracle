@@ -618,6 +618,7 @@ print('IMPORTS OK')
 
         disponibles = cli.objetivos_disponibles()
         self.assertIn("nucleo/algebra.py", disponibles)
+        self.assertIn("nucleo/aislamiento/escalares.py", disponibles)
         self.assertIn("oracle_metalenguaje/motor.py", disponibles)
         self.assertIn("perfiles/python/mutacion_codigo.py", disponibles)
         elegidos = cli.resolver_objetivos(["nucleo/algebra.py"])

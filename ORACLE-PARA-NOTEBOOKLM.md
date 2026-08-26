@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `550b9d9e0132`
+- Revisión de código base: `887327e022e5`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-564 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
+589 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -5154,7 +5154,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*335 líneas*
+*337 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -8658,6 +8658,46 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 550b9d9*
 
+
+
+## 2026-08-26 — Merge branch 'mutar-resto': los siete módulos que faltaban, en cero
+
+*commit 887327e*
+
+Cierra la matriz de mutación de código salvo el sandbox, que va aparte.
+
+    grafo.py         4/4        marco.py       35/35     dominio.py     19/19
+    diferencial.py  48/48       simulacion.py  50/50     fixtures.py   131/131
+    mutacion.py    153/153
+    ────────────────────────────────────────────────────────────────
+    total          440 mutantes · 440 muertos · 0 sobrevivientes
+
+Sólo cinco sobrevivientes iniciales entre los siete, todos por falta de test:
+cuatro en `mutacion.py` y uno en `fixtures.py`. Cero equivalentes declarados,
+cero código muerto, cero bugs — que era lo esperable: son los módulos más viejos
+y los más ejercitados por el resto de la suite.
+
+`nucleo/mutacion.py` es el que más importaba de los siete: es el mutador de
+MEDIDAS, o sea el mecanismo que mide a todos los catálogos. Que tuviera cuatro
+mutantes vivos quería decir que el medidor no estaba medido.
+
+Trabajo delegado a Gemini 3.7 Flash (high). Corrí por mi cuenta las dos rondas más
+grandes —`mutacion.py` 153/153 y `fixtures.py` 131/131— antes de integrar.
+
+## Y de paso, el motor de mutación mismo
+
+    perfiles/python/mutacion_codigo.py: 205 mutantes · 205 muertos · 0 vivos
+
+984 líneas, el arnés que corre todas las rondas anteriores. Si ahí hubiera
+sobrevivientes, todo el aparato que mide al resto descansaría sobre código que
+nadie fija. No los hay.
+
+564 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8673,7 +8713,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 146 | el historial completo |
+| commits | 147 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
