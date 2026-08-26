@@ -1,13 +1,22 @@
 """Entry point único para Oracle.
 
-    oracle init [ruta]                      inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
-    oracle nueva <dominio.nombre>          crea una nueva medida en catalogos/ con plantilla lista
-    oracle caso <grupo/id>                 crea un nuevo caso en corpus/ con plantilla lista
-    oracle revisar <archivo>               revisa y evalúa una medida suelta contra la evidencia del proyecto
-    oracle test [--rapido|--todo]          ejecuta la secuencia completa de verificación con veredicto final
-    oracle relaciones                      hechos y campos disponibles derivados de la evidencia
-    oracle escalares                       funciones de dominio y operadores disponibles
-    oracle expandir <archivo>              muestra la forma canónica de una medida escrita con macros
+    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto)
+    oracle <sustantivo>                     ayuda del sustantivo con sus verbos
+
+    oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
+    oracle medida revisar <archivo>         revisa y evalúa una medida suelta contra la evidencia
+    oracle medida listar                    lista las medidas del catálogo con umbral, alcance y fijación
+    oracle medida expandir <archivo>        muestra la forma canónica de una medida escrita con macros
+
+    oracle caso nuevo <grupo/id>            crea un nuevo caso en corpus/ con plantilla lista
+    oracle caso listar                      lista los casos del corpus, su etiqueta y qué medida reclaman
+
+    oracle proyecto init [ruta]             inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
+    oracle proyecto test [--rapido|--todo]  ejecuta la secuencia completa de verificación con veredicto final
+    oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
+    oracle proyecto escalares               funciones de dominio y operadores disponibles
+
+    oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 """
 
 from __future__ import annotations
@@ -25,6 +34,7 @@ from nucleo.caso import rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from nucleo.proyecto import (  # noqa: E402
     ESQUEMA_PROYECTO,
+    ID_CASO_RE,
     EscalaresInvalidas,
     EscalaresNoConfiables,
     Proyecto,
@@ -46,6 +56,13 @@ def ayuda() -> None:
     print("""Oracle — metalenguaje para medir evidencia, alcance y mutación.
 
 Uso:
+  oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, listar, expandir)
+  oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar)
+  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
+  oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
+  oracle --help                           Muestra esta ayuda
+
+Atajos directos:
   oracle init [ruta]                      Inicializa un proyecto nuevo
   oracle nueva <dominio.nombre>          Crea una medida con plantilla lista para editar
   oracle caso <grupo/id>                 Crea un caso de prueba en el corpus
@@ -53,15 +70,42 @@ Uso:
   oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
-  oracle convertir <archivo>             Traduce entre superficie y JSON (por la extensión)
   oracle expandir <archivo>              Muestra la forma canónica de una macro
-  oracle --help                          Muestra esta ayuda
 
 Banderas comunes:
   --proyecto <ruta>      Ruta al proyecto (por defecto: directorio actual o $ORACLE_PROYECTO)
   --confiar-escalares    Autoriza la ejecución de funciones en `escalares.py`
   --rapido               En `oracle test`, conserva la ruta rápida histórica
   --todo                 En `oracle test`, incluye la mutación de código del propio Oracle""")
+
+
+def ayuda_medida() -> None:
+    print("""oracle medida — operaciones sobre medidas del catálogo
+
+Uso:
+  oracle medida nueva <dominio.nombre>    Crea una medida con plantilla lista para editar
+  oracle medida revisar <archivo>         Revisa y evalúa una medida suelta
+  oracle medida listar                    Lista las medidas del catálogo con umbral, alcance y fijación
+  oracle medida expandir <archivo>        Muestra la forma canónica de una macro""")
+
+
+def ayuda_caso() -> None:
+    print("""oracle caso — operaciones sobre casos del corpus
+
+Uso:
+  oracle caso nuevo <grupo/id>            Crea un caso de prueba en el corpus con plantilla lista
+  oracle caso listar                      Lista los casos del corpus, su etiqueta y qué medida reclaman""")
+
+
+def ayuda_proyecto() -> None:
+    print("""oracle proyecto — operaciones sobre el proyecto y su entorno
+
+Uso:
+  oracle proyecto init [ruta]             Inicializa un proyecto nuevo
+  oracle proyecto test [--rapido|--todo]  Ejecuta la secuencia completa de verificación
+  oracle proyecto relaciones              Muestra las relaciones y campos observados
+  oracle proyecto escalares               Muestra las funciones escalares y operadores""")
+
 
 
 def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
@@ -119,8 +163,16 @@ def cmd_nueva(proy: Proyecto, mid: str) -> int:
     return medida.nueva(proy, mid)
 
 
+def cmd_medida_listar(proy: Proyecto, argv: list[str]) -> int:
+    return medida.listar(proy, argv)
+
+
 def cmd_caso(proy: Proyecto, ubicacion: str) -> int:
     return corpus.nuevo(proy, ubicacion)
+
+
+def cmd_caso_listar(proy: Proyecto) -> int:
+    return corpus.listar(proy)
 
 
 def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
@@ -428,44 +480,132 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    if not argv or argv[0] in ("-h", "--help", "help"):
+    posicionales = sin_banderas_comunes(argv)
+    if not posicionales or posicionales[0] in ("-h", "--help", "help"):
         ayuda()
         return 0
 
-    subcomando = argv[0]
-    resto = argv[1:]
+    subcomando = posicionales[0]
+    resto = posicionales[1:]
 
+    # 1. Ayudas por sustantivo (devuelven 0 y no requieren proyecto)
+    if subcomando == "medida" and (not resto or resto[0] in ("-h", "--help", "help")):
+        ayuda_medida()
+        return 0
+    if subcomando == "caso" and (not resto or resto[0] in ("-h", "--help", "help")):
+        ayuda_caso()
+        return 0
+    if subcomando == "proyecto" and (not resto or resto[0] in ("-h", "--help", "help")):
+        ayuda_proyecto()
+        return 0
+
+    # 2. Inicialización de proyecto (no requiere proyecto previo)
     if subcomando == "init":
-        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+        args = [a for a in resto if a != "--rapido"]
+        ruta = args[0] if args else None
+        return cmd_init(ruta, argv)
+    if subcomando == "proyecto" and resto and resto[0] == "init":
+        args = [a for a in resto[1:] if a != "--rapido"]
         ruta = args[0] if args else None
         return cmd_init(ruta, argv)
 
-    # Para todos los demás subcomandos, resolvemos el proyecto
+    # 3. Verbos desconocidos de sustantivos
+    if subcomando == "medida" and resto and resto[0] not in (
+        "nueva", "--nueva", "revisar", "--revisar", "listar", "--listar", "expandir", "--expandir"
+    ):
+        print(f"verbo desconocido para «medida»: {resto[0]}")
+        print("Verbos disponibles: nueva, revisar, listar, expandir")
+        return 1
+
+    if subcomando == "caso" and resto and resto[0] not in (
+        "nuevo", "--nuevo", "nueva", "--nueva", "listar", "--listar"
+    ):
+        # Atajo plano `oracle caso <grupo/id>`
+        if "/" not in resto[0] and not ID_CASO_RE.fullmatch(resto[0]):
+            print(f"verbo desconocido para «caso»: {resto[0]}")
+            print("Verbos disponibles: nuevo, listar")
+            return 1
+
+    if subcomando == "proyecto" and resto and resto[0] not in (
+        "init", "test", "relaciones", "--relaciones", "escalares", "--escalares"
+    ):
+        print(f"verbo desconocido para «proyecto»: {resto[0]}")
+        print("Verbos disponibles: init, test, relaciones, escalares")
+        return 1
+
+    # Para todos los demás comandos resolvemos el proyecto
     try:
         proy = resolver(argv)
     except ProyectoInvalido as e:
         print(f"PROYECTO INVÁLIDO — {e}", file=sys.stderr)
         return 1
 
+    # Despacho por sustantivo: medida
+    if subcomando == "medida":
+        verbo = resto[0]
+        args = [a for a in resto[1:] if a != "--rapido"]
+        if verbo in ("nueva", "--nueva"):
+            if not args:
+                print("falta el id: oracle medida nueva <dominio.nombre>")
+                return 1
+            return cmd_nueva(proy, args[0])
+        if verbo in ("revisar", "--revisar"):
+            if not args:
+                print("falta el archivo: oracle medida revisar <archivo>")
+                return 1
+            return cmd_revisar(proy, args[0], argv)
+        if verbo in ("listar", "--listar"):
+            return cmd_medida_listar(proy, argv)
+        if verbo in ("expandir", "--expandir"):
+            if not args:
+                print("falta el archivo: oracle medida expandir <archivo>")
+                return 1
+            return cmd_expandir(proy, args[0])
+
+    # Despacho por sustantivo: caso
+    if subcomando == "caso":
+        verbo = resto[0]
+        args = [a for a in resto[1:] if a != "--rapido"]
+        if verbo in ("nuevo", "--nuevo", "nueva", "--nueva"):
+            if not args:
+                print("falta la ubicación: oracle caso nuevo <grupo/id>")
+                return 1
+            return cmd_caso(proy, args[0])
+        if verbo in ("listar", "--listar"):
+            return cmd_caso_listar(proy)
+        # Atajo directo: oracle caso <grupo/id>
+        return cmd_caso(proy, verbo)
+
+    # Despacho por sustantivo: proyecto
+    if subcomando == "proyecto":
+        verbo = resto[0]
+        if verbo == "test":
+            return cmd_test(proy, argv)
+        if verbo in ("relaciones", "--relaciones"):
+            return cmd_relaciones(proy)
+        if verbo in ("escalares", "--escalares"):
+            return cmd_escalares(proy, argv)
+
+    # Atajos directos históricos (planos)
     if subcomando == "test":
         return cmd_test(proy, argv)
 
     if subcomando in ("nueva", "--nueva"):
-        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+        args = [a for a in resto if a != "--rapido"]
         if not args:
             print("falta el id: oracle nueva <dominio.nombre>")
             return 1
         return cmd_nueva(proy, args[0])
 
-    if subcomando in ("caso", "--caso", "--nuevo"):
-        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+    if subcomando in ("--caso", "--nuevo"):
+        args = [a for a in resto if a != "--rapido"]
         if not args:
             print("falta la ubicación: oracle caso <grupo/id>")
             return 1
         return cmd_caso(proy, args[0])
 
     if subcomando in ("revisar", "--revisar"):
-        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+        args = [a for a in resto if a != "--rapido"]
         if not args:
             print("falta el archivo: oracle revisar <archivo>")
             return 1
@@ -478,14 +618,14 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_escalares(proy, argv)
 
     if subcomando == "convertir":
-        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+        args = [a for a in resto if a != "--rapido"]
         if not args:
             print("falta el archivo: oracle convertir <archivo.oracle|.caso|.json>")
             return 1
         return cmd_convertir(proy, args[0])
 
     if subcomando in ("expandir", "--expandir"):
-        args = [a for a in sin_banderas_comunes(resto) if a != "--rapido"]
+        args = [a for a in resto if a != "--rapido"]
         if not args:
             print("falta el archivo: oracle expandir <archivo>")
             return 1

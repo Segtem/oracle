@@ -507,5 +507,225 @@ class InitDejaLasGuardasPuestasTests(OracleCliTests):
             self.assertIn("ROJO", salida)
 
 
+class NounVerbCliTests(OracleCliTests):
+    def test_ayudas_de_sustantivos_devuelven_cero(self) -> None:
+        for sust, verbos in (
+            ("medida", ("nueva", "revisar", "listar", "expandir")),
+            ("caso", ("nuevo", "listar")),
+            ("proyecto", ("init", "test", "relaciones", "escalares")),
+        ):
+            rc, salida = self._callado(cli.main, [sust])
+            self.assertEqual(rc, 0)
+            self.assertIn(f"oracle {sust}", salida)
+            for v in verbos:
+                self.assertIn(v, salida)
+
+            # También con --help
+            rc_h, salida_h = self._callado(cli.main, [sust, "--help"])
+            self.assertEqual(rc_h, 0)
+            self.assertEqual(salida, salida_h)
+
+    def test_verbos_desconocidos_fallan_y_muestran_disponibles(self) -> None:
+        for sust, verbo_invalido, esperados in (
+            ("medida", "borrar", ("nueva", "revisar", "listar", "expandir")),
+            ("caso", "borrar", ("nuevo", "listar")),
+            ("proyecto", "borrar", ("init", "test", "relaciones", "escalares")),
+        ):
+            rc, salida = self._callado(cli.main, [sust, verbo_invalido])
+            self.assertEqual(rc, 1)
+            self.assertIn(f"verbo desconocido para «{sust}»: {verbo_invalido}", salida)
+            for v in esperados:
+                self.assertIn(v, salida)
+
+        # Subcomando desconocido plano
+        rc_des, salida_des = self._callado(cli.main, ["desconocido"])
+        self.assertEqual(rc_des, 1)
+        self.assertIn("subcomando desconocido: desconocido", salida_des)
+
+    def test_medida_listar_en_propio_oracle(self) -> None:
+        rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
+        self.assertEqual(rc, 0)
+        self.assertIn("CATÁLOGO (37 medidas", salida)
+        self.assertIn("meta.agrupar_no_agranda_la_relacion", salida)
+        self.assertIn("umbral:", salida)
+        self.assertIn("fijación:", salida)
+        self.assertIn("alcance:", salida)
+        self.assertIn("meta.el_caso_reclama_una_medida_que_existe", salida)
+        # Las medidas L2 —las que juzgan al catálogo mismo— NO se marcan SIN FIJAR aunque ningún
+        # caso las nombre: las ejercita el arnés. Marcarlas era un falso rojo en la herramienta que
+        # existe para auditar, y encima incluía a `meta.toda_medida_esta_fijada`, que pasa en verde.
+        self.assertIn("la ejercita el arnés sobre el catálogo", salida)
+        self.assertNotIn("⚠ SIN FIJAR", salida)
+
+    def test_medida_listar_marca_la_que_de_verdad_no_tiene_evidencia(self) -> None:
+        """Y el aviso tiene que seguir apareciendo cuando corresponde, o no sirve de nada."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+            medida = raiz / "catalogos" / "x" / "x.nadie_la_prueba.oracle"
+            medida.parent.mkdir(parents=True, exist_ok=True)
+            medida.write_text(
+                "ninguno x.nadie_la_prueba:\n"
+                "    de pieza p\n"
+                "    donde p.rota == true\n"
+                '    umbral <= 0 porque "una pieza rota en la escena se ve"\n'
+                '    alcance "mira la bandera declarada. NO ve la malla real"\n',
+                encoding="utf-8")
+            _rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
+            self.assertIn("x.nadie_la_prueba", salida)
+            self.assertIn("⚠ SIN FIJAR", salida)
+
+    def test_medida_listar_en_proyecto_vacio_y_con_medidas(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+
+            # Vacío
+            rc_vacio, salida_vacio = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
+            self.assertEqual(rc_vacio, 0)
+            self.assertIn("0 medidas", salida_vacio)
+
+            # Con una medida sin caso
+            self._callado(cli.main, ["medida", "nueva", "demo.prueba", "--proyecto", str(raiz)])
+            (raiz / "catalogos" / "demo" / "demo.prueba.oracle").write_text(
+                "ninguno demo.prueba:\n"
+                "    de item x\n"
+                "    donde x.mal == true\n"
+                "    umbral <= 0 porque \"defensa\"\n"
+                "    alcance \"NO ve otros items\"\n",
+                encoding="utf-8",
+            )
+            rc_sin_caso, salida_sin_caso = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
+            self.assertEqual(rc_sin_caso, 0)
+            self.assertIn("demo.prueba", salida_sin_caso)
+            self.assertIn("0 casos  ⚠ SIN FIJAR", salida_sin_caso)
+            self.assertIn("NO ve otros items", salida_sin_caso)
+            self.assertIn("1 sin fijar", salida_sin_caso)
+
+            # Con un caso que la fija
+            self._callado(cli.main, ["caso", "nuevo", "demo/001-rojo", "--proyecto", str(raiz)])
+            (raiz / "corpus" / "demo" / "001-rojo.caso").write_text(
+                "caso 001-rojo:\n"
+                "    fecha: \"2026-08-26\"\n"
+                "    origen:\n"
+                "        repo: \"demo\"\n"
+                "        commit: \"local\"\n"
+                "    titulo: \"item defectuoso\"\n"
+                "    etiqueta: falso_verde\n"
+                "    sintoma:\n"
+                "        item mal marcado\n"
+                "    como_se_detecto: mutacion\n"
+                "    medida: demo.prueba\n"
+                "    evidencia:\n"
+                "        item: mal\n"
+                "            true\n"
+                "    leccion:\n"
+                "        activa la medida\n",
+                encoding="utf-8",
+            )
+            rc_con_caso, salida_con_caso = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
+            self.assertEqual(rc_con_caso, 0)
+            self.assertIn("demo.prueba", salida_con_caso)
+            self.assertIn("1 caso", salida_con_caso)
+            self.assertIn("todas fijadas", salida_con_caso)
+
+    def test_caso_listar_en_propio_oracle_y_proyecto_vacio(self) -> None:
+        rc, salida = self._callado(cli.main, ["caso", "listar", "--proyecto", str(RAIZ)])
+        self.assertEqual(rc, 0)
+        self.assertIn("CORPUS (104 casos", salida)
+        self.assertIn("huecos declarados", salida)
+        self.assertIn("proceso/004-testigos-duplicados", salida)
+        self.assertIn("⚠ hueco declarado (resuelto)", salida)
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+
+            # Vacío
+            rc_vacio, salida_vacio = self._callado(cli.main, ["caso", "listar", "--proyecto", str(raiz)])
+            self.assertEqual(rc_vacio, 0)
+            self.assertIn("0 casos", salida_vacio)
+
+            # Con un caso válido
+            self._callado(cli.main, ["caso", "nuevo", "demo/001-rojo", "--proyecto", str(raiz)])
+            (raiz / "corpus" / "demo" / "001-rojo.caso").write_text(
+                "caso 001-rojo:\n"
+                "    fecha: \"2026-08-26\"\n"
+                "    origen:\n"
+                "        repo: \"demo\"\n"
+                "        commit: \"local\"\n"
+                "    titulo: \"item defectuoso\"\n"
+                "    etiqueta: falso_verde\n"
+                "    sintoma:\n"
+                "        item mal marcado\n"
+                "    como_se_detecto: mutacion\n"
+                "    medida: demo.prueba\n"
+                "    evidencia:\n"
+                "        item: mal\n"
+                "            true\n"
+                "    leccion:\n"
+                "        activa la medida\n",
+                encoding="utf-8",
+            )
+            rc_uno, salida_uno = self._callado(cli.main, ["caso", "listar", "--proyecto", str(raiz)])
+            self.assertEqual(rc_uno, 0)
+            self.assertIn("demo/001-rojo", salida_uno)
+
+    def test_formas_canonicas_y_atajos_equivalen(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            # init canónico
+            rc_init, _ = self._callado(cli.main, ["proyecto", "init", str(raiz)])
+            self.assertEqual(rc_init, 0)
+
+            # proyecto test canónico sobre proyecto vacío
+            rc_test, _ = self._callado(cli.main, ["proyecto", "test", "--proyecto", str(raiz)])
+            self.assertEqual(rc_test, 0)
+
+            # proyecto relaciones canónico
+            rc_rel, salida_rel = self._callado(cli.main, ["proyecto", "relaciones", "--proyecto", str(raiz)])
+            self.assertEqual(rc_rel, 0)
+            self.assertIn("RELACIONES", salida_rel)
+
+            # proyecto escalares canónico
+            rc_esc, salida_esc = self._callado(cli.main, ["proyecto", "escalares", "--proyecto", str(raiz)])
+            self.assertEqual(rc_esc, 0)
+            self.assertIn("FUNCIONES ESCALARES", salida_esc)
+
+            # medida nueva canónica
+            rc_mn, _ = self._callado(cli.main, ["medida", "nueva", "demo.canon", "--proyecto", str(raiz)])
+            self.assertEqual(rc_mn, 0)
+            self.assertTrue((raiz / "catalogos" / "demo" / "demo.canon.oracle").is_file())
+
+            # caso nuevo canónico
+            rc_cn, _ = self._callado(cli.main, ["caso", "nuevo", "demo/002-otro", "--proyecto", str(raiz)])
+            self.assertEqual(rc_cn, 0)
+            self.assertTrue((raiz / "corpus" / "demo" / "002-otro.caso").is_file())
+
+            # caso atajo con barra
+            rc_ca, _ = self._callado(cli.main, ["caso", "demo/003-atajo", "--proyecto", str(raiz)])
+            self.assertEqual(rc_ca, 0)
+            self.assertTrue((raiz / "corpus" / "demo" / "003-atajo.caso").is_file())
+
+    def test_faltan_argumentos_en_verbos_devuelve_uno(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+
+            for args, mensaje in (
+                (["medida", "nueva", "--proyecto", str(raiz)], "falta el id: oracle medida nueva"),
+                (["medida", "revisar", "--proyecto", str(raiz)], "falta el archivo: oracle medida revisar"),
+                (["medida", "expandir", "--proyecto", str(raiz)], "falta el archivo: oracle medida expandir"),
+                (["caso", "nuevo", "--proyecto", str(raiz)], "falta la ubicación: oracle caso nuevo"),
+                (["convertir", "--proyecto", str(raiz)], "falta el archivo: oracle convertir"),
+                (["nueva", "--proyecto", str(raiz)], "falta el id: oracle nueva"),
+                (["revisar", "--proyecto", str(raiz)], "falta el archivo: oracle revisar"),
+                (["expandir", "--proyecto", str(raiz)], "falta el archivo: oracle expandir"),
+            ):
+                rc, salida = self._callado(cli.main, args)
+                self.assertEqual(rc, 1)
+                self.assertIn(mensaje, salida)
+
+
 if __name__ == "__main__":
     unittest.main()
