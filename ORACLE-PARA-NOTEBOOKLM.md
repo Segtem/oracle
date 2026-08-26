@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `20be004251a8`
+- Revisión de código base: `9158ef2a41ea`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -61,6 +61,36 @@ aconsejan.
 > Ser experimental es un estado del proyecto, no un permiso para aflojar sus propias reglas.
 
 ---
+
+### Instalación
+
+Requiere Python 3.11 o posterior y no tiene dependencias de runtime. La forma principal de dejar el
+comando accesible desde cualquier directorio es:
+
+```bash
+uv tool install .
+oracle --help
+```
+
+Para probar el comando sin instalarlo:
+
+```bash
+uvx --from . oracle --help
+```
+
+Si no tenés `uv`, la alternativa editable es:
+
+```bash
+python -m pip install -e .
+oracle --help
+```
+
+Una vez instalado, el flujo normal de un proyecto externo no necesita rutas al checkout:
+
+```bash
+oracle init <tu-proyecto>
+oracle test --proyecto <tu-proyecto> --confiar-escalares
+```
 
 ### La esencia, mirada de cerca
 
@@ -290,13 +320,12 @@ oracle/                        LA HERRAMIENTA
   corpus/  diferencial/        tus casos (.caso y .json) y tus fixtures
 ```
 
-Y las herramientas se apuntan:
+Y el comando instalado se apunta:
 
 ```bash
-python <oracle>/tools/diferencial.py --proyecto <tu-proyecto> --confiar-escalares
-python <oracle>/tools/aceptacion.py  --proyecto <tu-proyecto> --confiar-escalares
-python <oracle>/tools/mutar.py       --proyecto <tu-proyecto> --confiar-escalares
-python <oracle>/tools/estudio.py --proyecto <tu-proyecto> --confiar-escalares
+oracle test --proyecto <tu-proyecto> --confiar-escalares
+oracle relaciones --proyecto <tu-proyecto>
+oracle revisar catalogos/<dominio>/<dominio.medida>.oracle --proyecto <tu-proyecto> --confiar-escalares
 export ORACLE_PROYECTO=<tu-proyecto>     # para no repetirlo
 ```
 
@@ -343,14 +372,8 @@ el evaluador (`nucleo/`), **las medidas universales** dentro de `catalogos/` —
 archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → `ESCRIBIR-UNA-MEDIDA.md`.
-`python tools/medida.py --relaciones` te dice qué hechos hay para medir; `tools/corpus.py --nuevo` crea el caso (`.caso`) y `tools/medida.py --nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
-
-Requiere Python 3.11 o posterior. Se puede usar desde el checkout o instalar sin dependencias:
-
-```bash
-python -m pip install .
-oracle-medida --proyecto /ruta/al/proyecto --relaciones
-```
+`oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
+`oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
 El wheel instala sólo paquetes bajo `oracle_metalenguaje.*`; no ocupa los nombres genéricos
 `nucleo`, `catalogos`, `perfiles` ni `tools`. Tampoco distribuye el corpus ni los fixtures de
@@ -389,13 +412,10 @@ Una raíz ausente o symlink y un nombre presente en dos fuentes se rechazan en v
 orden accidental.
 
 ```bash
-python tools/medida.py --relaciones              # qué se puede medir, derivado de la evidencia real
-python tools/corpus.py --resumen                 # el corpus está en regla
-python tools/aceptacion.py                       # el corpus juzga al oráculo
-python tools/diferencial.py --proyecto <proyecto-con-fixtures>  # referencia independiente
-python tools/mutar.py                            # ¿el corpus ALCANZA para fijar las medidas?
-python -m unittest discover -s tests -t . -q     # suite sin dependencias
-python tools/verificar_instalacion.py             # wheel + Motor desde un cwd vacío
+oracle test --proyecto <proyecto> --confiar-escalares  # secuencia completa del consumidor
+python -m unittest discover -s tests -t . -q            # suite sin dependencias
+python tools/cifras.py                                  # cifras publicadas vigentes
+python tools/verificar_instalacion.py                   # wheel + CLI instalado desde un cwd vacío
 ```
 
 Oracle no conserva fixtures diferenciales propios en este repositorio. Ejecutar el diferencial sin
@@ -407,7 +427,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-597 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
+598 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -1073,6 +1093,36 @@ problema que veníamos a resolver.
 escribir medidas y casos directamente en su superficie de autoría (`.oracle` y `.caso`), que el
 sistema carga por igual sin paso de traducción.
 
+### Instalación
+
+Requiere Python 3.11 o posterior y no tiene dependencias de runtime. Desde el checkout de Oracle, la
+forma principal de instalar el comando es:
+
+```bash
+uv tool install .
+oracle --help
+```
+
+Para probarlo sin instalar:
+
+```bash
+uvx --from . oracle --help
+```
+
+Si no tenés `uv`, usá una instalación editable con `pip`:
+
+```bash
+python -m pip install -e .
+oracle --help
+```
+
+Después trabajás desde tu proyecto o lo pasás explícitamente:
+
+```bash
+oracle init <tu-proyecto>
+oracle test --proyecto <tu-proyecto> --confiar-escalares
+```
+
 ### El orden importa: primero el caso, después la medida
 
 **Escribí el caso del corpus antes que la medida.** No es prolijidad:
@@ -1085,19 +1135,18 @@ sistema carga por igual sin paso de traducción.
 ```bash
 # 1. el caso: la evidencia del defecto, y que se espera ROJO
 #    (el andamio ya nace en superficie .caso, o copiá uno que exista)
-python tools/corpus.py --nuevo proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
+oracle caso proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
 
 # 2. mirá con qué contás
-python tools/medida.py --relaciones     # los hechos y sus campos, derivados de la evidencia real
-python tools/medida.py --escalares      # las funciones de dominio, operadores y agregados
+oracle relaciones     # los hechos y sus campos, derivados de la evidencia real
+oracle escalares      # las funciones de dominio, operadores y agregados
 
 # 3. la medida: el andamio ya nace en superficie infija, y el catálogo lo carga tal cual
-python tools/medida.py --nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
-python tools/medida.py catalogos/colocacion/colocacion.mi_regla.oracle
+oracle nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
+oracle revisar catalogos/colocacion/colocacion.mi_regla.oracle
 
 # 4. que todo siga cerrando
-python tools/aceptacion.py    # tu caso tiene que ponerse rojo
-python tools/mutar.py         # y el corpus tiene que fijar tu medida
+oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y mutación de medidas
 ```
 
 #### Los dos formatos del catálogo y del corpus
@@ -1107,8 +1156,8 @@ archivos en superficie no necesitan traducirse a nada para funcionar. El mismo i
 formatos es un error que nombra los dos archivos — no gana ninguno, porque un ganador silencioso es
 una divergencia esperando.
 
-- `python tools/corpus.py --nuevo <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
-- `python tools/medida.py --nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
+- `oracle caso <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
+- `oracle nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
 - `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
 - `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
 
@@ -1147,7 +1196,7 @@ crear cualquier directorio.
 ### La forma corta: las macros
 
 **La mayoría de las medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
-canónica —`python tools/medida.py --expandir <archivo>` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
+canónica —`oracle expandir <archivo>` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
 ```oracle
@@ -5001,7 +5050,7 @@ que se empezó a generar: una cifra publicada a mano es una afirmación que nadi
 
 ### `tools/cli.py`
 
-*371 líneas*
+*376 líneas*
 
 Entry point único para Oracle.
 
@@ -5235,7 +5284,7 @@ puede dar.
 
 ### `tools/verificar_instalacion.py`
 
-*161 líneas*
+*236 líneas*
 
 Construye el wheel y prueba la API pública desde un entorno y cwd aislados.
 
@@ -8860,6 +8909,81 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 20be004*
 
+
+
+## 2026-08-26 — Merge branch 'oracle-cli': un solo comando, y el criterio se cumple
+
+*commit 85bf32c*
+
+El objetivo declarado por el dueño del proyecto: «que Oracle sea fácil de
+scriptear y ejecutar los tests, para que pueda ser un humano quien escriba las
+medidas y ejecute los test. Oracle tiene que ser una herramienta compartida entre
+humanos y LLMs.»
+
+No lo era, y no por falta de capacidades: estaban todas, repartidas en 16 archivos
+que había que conocer de antemano. Caminando el recorrido de una persona que
+empieza de cero, la primera pared llegaba en el primer comando:
+
+    $ mkdir mi-proyecto && cd mi-proyecto
+    $ python .../tools/medida.py --proyecto . --nueva tareas.vencida
+    PROYECTO INVÁLIDO — le falta `catalogos/`
+
+Y ahí terminaba: el mensaje dice qué falta, no cómo crearlo, y no existía
+`oracle init`. Después venían ocho comandos que hay que correr en orden y de
+memoria, cada uno con `--proyecto` y a veces `--confiar-escalares`, sin un
+`oracle test` que los junte.
+
+Ahora hay un entry point único que **envuelve lo que ya existe**, sin reescribir
+ninguna herramienta:
+
+    oracle init · nueva · caso · revisar · test · relaciones · escalares · expandir
+
+`oracle test` corre la secuencia, **saltea con una línea explícita lo que no
+aplica** —«DIFERENCIAL: salteado (el proyecto no tiene fixtures todavía)», que no
+es una falla— y cierra con un veredicto de una línea. Con `--rapido` saltea la
+mutación **y lo dice en el veredicto**, porque un verde que omitió la verificación
+más fuerte no es el mismo verde.
+
+## El criterio era falsable, y lo caminé yo
+
+> alguien que nunca vio el repositorio tiene que poder escribir su primera medida,
+> ponerla en rojo con un caso, y verla en verde — sin abrir un archivo de Oracle.
+
+Desde un directorio vacío: `init` → `nueva` → `caso` → llenar las dos plantillas
+→ `test`. **VEREDICTO: VERDE (completo: todas las verificaciones en regla, 0
+mutantes sobrevivientes).** Nunca hubo que abrir el repositorio.
+
+Trabajo delegado a Gemini 3.7 Flash (high).
+
+## Una cosa que arreglé antes de integrar
+
+Los tests del CLI capturaban `cli.main` pero llamaban `cmd_init`, `cmd_nueva` y
+`cmd_caso` **directo**, así que la ayuda del comando salía mezclada con el resumen
+de la suite: `unittest -q | tail -3` mostraba «Creá una medida» en vez de «OK». Un
+test que ensucia la salida hace ilegible justo lo que uno mira cuando algo falla.
+
+597 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Documentar instalacion de oracle
+
+*commit 941b222*
+
+
+
+## 2026-08-26 — Saca el informe
+
+*commit c018f43*
+
+
+
+## 2026-08-26 — Merge branch 'instalar-uv'
+
+*commit 9158ef2*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8875,7 +8999,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 156 | el historial completo |
+| commits | 160 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
