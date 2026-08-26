@@ -393,16 +393,16 @@ def _literal_texto(texto: str, linea: int, columna: int):
     elif tokens[0].tipo == "HUECO":
         valor = ["$", tokens[0].valor]
     else:
-        _fallar(tokens[0].linea, tokens[0].columna, "texto entre comillas", tokens[0].valor)
+        _fallar(linea, tokens[0].columna, "texto entre comillas", tokens[0].valor)
     if tokens[1].tipo != "EOF":
-        _fallar(tokens[1].linea, tokens[1].columna, "fin de línea", tokens[1].valor)
+        _fallar(linea, tokens[1].columna, "fin de línea", tokens[1].valor)
     return valor
 
 
 def _leer_umbral(texto: str, linea: int, columna: int):
     tokens = _tokenizar(texto, linea, columna)
-    if tokens[0].tipo != "OP" or tokens[0].valor not in COMPARADORES:
-        _fallar(tokens[0].linea, tokens[0].columna, "comparador de umbral", tokens[0].valor)
+    if tokens[0].tipo != "OP":
+        _fallar(linea, tokens[0].columna, "comparador de umbral", tokens[0].valor)
     p = _Expr(tokens, 1, detener={"porque"})
     limite = p.expresion()
     porque = p._exigir("IDENT", "porque", "porque")
@@ -483,7 +483,7 @@ def _macro_ninguno(clase: str, mid: str, cuerpo: list[tuple[int, str]], *,
                    ubicaciones: dict[str, Ubicacion] | None = None) -> list:
     esperado = 4
     if len(cuerpo) != esperado:
-        linea = cuerpo[min(len(cuerpo), esperado - 1)][0] if cuerpo else 2
+        linea = cuerpo[min(len(cuerpo) - 1, esperado - 1)][0] if cuerpo else 2
         _fallar(linea, 1, f"{esperado} líneas de cuerpo para {clase}")
     fuente = _leer_de(cuerpo[0])
     pred_txt, col_pred = _exigir_prefijo(cuerpo[1], "donde ", 1)
@@ -704,8 +704,8 @@ def _leer_guarda(item: tuple[int, str]) -> list:
     resto, col = _exigir_prefijo(item, "guarda ", 1)
     tokens = _tokenizar(resto, n, col)
     mensaje_idx = None
-    for idx in range(len(tokens) - 1, -1, -1):
-        if tokens[idx].tipo == "STRING":
+    for idx, tok in reversed(list(enumerate(tokens))):
+        if tok.tipo == "STRING":
             mensaje_idx = idx
             break
     if mensaje_idx is None:
@@ -797,12 +797,11 @@ def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, s
                 if hueco == desconocidos[0]:
                     _fallar(_n2, col, f"«${hueco}» no es un parámetro de la macro",
                             _linea2.strip(), literal=True)
-        _fallar(n, 1, f"«${desconocidos[0]}» no es un parámetro de la macro", literal=True)
     sin_usar = sorted(declarados - usados)
     if sin_usar:
         encabezado = lineas[0][1]
         m_param = re.search(rf"\b{re.escape(sin_usar[0])}\b", encabezado)
-        _fallar(n, m_param.start() + 1 if m_param else 1,
+        _fallar(n, m_param.start() + 1,
                 f"la macro declara el parámetro «{sin_usar[0]}» y la plantilla nunca lo usa",
                 encabezado, literal=True)
 
@@ -961,8 +960,7 @@ def _expr(expr, padre: int = 0) -> str:
         prec = 4
         texto = f"no {_expr(expr[1], prec)}"
     else:
-        prec = 5
-        texto = f"{cabeza}({', '.join(_expr(e) for e in expr[1:])})"
+        return f"{cabeza}({', '.join(_expr(e) for e in expr[1:])})"
     return f"({texto})" if prec < padre else texto
 
 

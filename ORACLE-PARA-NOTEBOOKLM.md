@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `2a3100495a49`
+- Revisión de código base: `f2a20c227ea9`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5649 líneas de lenguaje y **256 negativas explícitas** (`raise`).
+En este corte hay 5674 líneas de lenguaje y **256 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5649 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,1 a 1**. 29 de las 37 pasan por una macro.
+**5674 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,2 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-550 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
+559 tests · 547/547 mutantes de medida · **2268 sitios de mutación de código** (2063 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4926,7 +4926,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*1057 líneas*
+*1055 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -8450,6 +8450,75 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 2a31004*
 
+
+
+## 2026-08-26 — El sandbox de UDFs era invisible para la mutación, y promete más de lo que puede
+
+*commit 9ad2f2a*
+
+Dos hallazgos encadenados sobre `nucleo/aislamiento/escalares.py` —411 líneas que
+son lo único que hace que `--confiar-escalares` sea distinto de ejecutar código
+ajeno a ciegas—.
+
+## 1 · No era objetivo del arnés
+
+`objetivos_disponibles()` usaba `glob("*.py")` sobre `nucleo/`, **no recursivo**.
+El módulo vive en un subpaquete, así que no se mutaba, y nadie lo notaba porque el
+informe sólo habla de lo que sí miró.
+
+Es el MISMO defecto que tenía el numerador de `tools/cifras.py`, arreglado el
+2026-08-03 con estas palabras: «mover el archivo una carpeta más adentro» no puede
+ser una manera de salir del criterio de falsación. **Se arregló el lado que CUENTA
+y no el que MIDE**, así que esas 411 líneas figuraban en la proporción publicada
+y no las fijaba nada.
+
+Tres tests lo cuidan, incluido uno que exige que EXISTA algún objetivo en un
+subpaquete: sin eso el test pasaría igual con `glob`.
+
+Primera ronda: **126 mutantes · 65 muertos · 61 sobrevivientes**. La peor
+proporción del proyecto, en la frontera de seguridad.
+
+## 2 · Y sondeándolo a mano, una fuga real
+
+Una UDF hostil **puede fichar el disco por metadatos**. Medido:
+
+    ¿existe /etc/shadow?          True
+    tamaño de ~/.bashrc           535
+    permisos de /etc/passwd       0o100644
+    ¿cuántos repos en ~/Dev?      4
+
+No lee contenido —eso sí está bloqueado— pero averigua existencia, tamaños,
+permisos y fechas de cualquier ruta, y lo devuelve por el canal JSON como
+cualquier otro valor.
+
+**No es un descuido del hook: `os.stat` no emite ningún evento auditable en
+CPython.** PEP 578 cubre `open`, `os.listdir`, `os.scandir`, los que mutan el
+árbol, procesos y sockets, pero no la consulta de metadatos. Un `addaudithook` no
+puede interceptar lo que nunca se anuncia.
+
+Se podría poner un `os.stat` sombra en el trabajador y sería teatro: `from posix
+import stat` lo esquiva en una línea. Este repositorio prefiere un límite
+DECLARADO a una defensa que aparenta.
+
+Lo que cambia entonces son las afirmaciones, que decían de más:
+
+  · el docstring del módulo decía «niega acceso a archivos fuera del proyecto»;
+  · `ESCRIBIR-UNA-MEDIDA.md` decía que el trabajador «puede leer el proyecto,
+    Oracle y la biblioteca estándar», dando a entender que nada más.
+
+Y hay un test que fija el límite **incluida la fuga**: si algún día se cierra de
+verdad, `test_los_metadatos_se_filtran_y_esta_declarado` FALLA y obliga a
+actualizar la declaración, en vez de dejarla envejecer diciendo de menos.
+
+551 tests OK · SINTAXIS 21 bloques de documentación
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Merge branch 'limite-sandbox'
+
+*commit f2a20c2*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8458,14 +8527,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5215 | el lenguaje |
+| líneas del núcleo | 5213 | el lenguaje |
 | líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
 | proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
 | (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 130 | el historial completo |
+| commits | 132 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

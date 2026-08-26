@@ -8,6 +8,7 @@ import unittest
 from pathlib import Path
 
 from nucleo import caso as sintaxis_caso
+from nucleo import sintaxis as sintaxis_nucleo
 from nucleo.caso import CasoMalDeclarado
 from nucleo.medida import rutas_de_catalogo
 from nucleo.macro import EXTENSIONES_DE_MACRO
@@ -150,6 +151,675 @@ class SintaxisInfijaTests(unittest.TestCase):
             ruta_de_medida("meta.sintaxis_cubre_algebra", RAIZ / "catalogos", *sorted((RAIZ / "perfiles").glob("*/catalogos"))))
         m = Medida.de_datos(jueza, macros=macros_del_proyecto(Proyecto(RAIZ)))
         self.assertTrue(m.evaluar({"equivalencia": filas}).ok)
+
+
+class MutacionDeSintaxisTests(unittest.TestCase):
+    def _texto(self, lineas: list[str]) -> str:
+        return "\n".join(lineas) + "\n"
+
+    def _fragmento_esperado(self, texto: str, linea: int, columna: int,
+                            mensaje: str) -> str:
+        lineas = texto.splitlines()
+        fuente = lineas[linea - 1] if linea <= len(lineas) else ""
+        numero = f"{linea:>4}"
+        marca = " " * max(columna - 1, 0) + "^"
+        return f"{mensaje}\n{numero} | {fuente}\n{' ' * len(numero)} | {marca}"
+
+    def assertErrorDeSintaxis(self, texto: str, linea: int, columna: int,
+                              mensaje: str) -> None:
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis.leer(texto)
+        self.assertEqual(
+            sintaxis.fragmento_de_error(cm.exception, texto),
+            self._fragmento_esperado(texto, linea, columna, mensaje),
+        )
+
+    def assertErrorDirecto(self, funcion, linea: int, columna: int, mensaje: str) -> None:
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            funcion()
+        self.assertEqual(str(cm.exception), mensaje)
+        self.assertEqual((cm.exception.linea, cm.exception.columna), (linea, columna))
+
+    def assertUbicaciones(self, texto: str, esperadas: dict[str, tuple[int, int]]) -> None:
+        lectura = sintaxis.leer_con_mapa(texto)
+        for ruta, ubicacion in esperadas.items():
+            with self.subTest(ruta=ruta):
+                self.assertEqual(lectura.ubicacion(ruta), sintaxis.Ubicacion(*ubicacion))
+
+    def test_los_objetos_de_lectura_son_inmutables_sin_congelar_la_excepcion(self) -> None:
+        from dataclasses import FrozenInstanceError, dataclass
+
+        objetos = (
+            (sintaxis.ErrorSintaxis(1, 2, "x"), "linea", 9),
+            (sintaxis_nucleo.Token("IDENT", "x", 1, 2), "tipo", "NUMBER"),
+            (sintaxis.Ubicacion(1, 2), "columna", 9),
+            (sintaxis.Lectura([], {}), "version", "0.1"),
+            (sintaxis_nucleo._Nodo("x", 1, 2), "valor", "y"),
+        )
+        for objeto, atributo, valor in objetos:
+            with self.subTest(objeto=type(objeto).__name__, atributo=atributo):
+                with self.assertRaises(FrozenInstanceError):
+                    setattr(objeto, atributo, valor)
+
+        self.assertEqual(
+            str(sintaxis.ErrorSintaxis(2, 3, "expresión")),
+            "línea 2, columna 3: se esperaba expresión",
+        )
+        self.assertEqual(
+            str(sintaxis.ErrorSintaxis(2, 3, "mensaje literal", literal=True)),
+            "línea 2, columna 3: mensaje literal",
+        )
+        self.assertEqual(
+            str(sintaxis.ErrorSintaxis(2, 3, "expresión", "x")),
+            "línea 2, columna 3: se esperaba expresión; llegó x",
+        )
+
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis_nucleo._fallar(4, 5, "fin")
+        self.assertEqual(str(cm.exception), "línea 4, columna 5: se esperaba fin")
+
+        @dataclass(frozen=True)
+        class ErrorDePrueba(ValueError):
+            valor: int
+
+        self.assertIs(
+            sintaxis_nucleo._permitir_atributos_de_excepcion(ErrorDePrueba),
+            ErrorDePrueba,
+        )
+        error = ErrorDePrueba(1)
+        error.__traceback__ = None
+        error.__cause__ = None
+        error.__context__ = None
+        error.__suppress_context__ = True
+        error.__notes__ = ["nota"]
+        self.assertEqual(error.__notes__, ["nota"])
+        with self.assertRaises(FrozenInstanceError):
+            error.valor = 2
+
+    def test_rutas_tokens_y_parser_de_expresiones_fijan_bordes(self) -> None:
+        self.assertEqual(sintaxis_nucleo._normalizar_ruta(""), ())
+        self.assertEqual(sintaxis_nucleo._normalizar_ruta("0.2"), (0, 2))
+        self.assertEqual(sintaxis_nucleo._normalizar_ruta((0, "2")), (0, 2))
+        self.assertEqual(sintaxis_nucleo._texto_ruta((0, 2, 3)), "0.2.3")
+        for ruta in ((True,), "1.-1", "a", (-1,)):
+            with self.subTest(ruta=ruta):
+                with self.assertRaises(ValueError):
+                    sintaxis_nucleo._normalizar_ruta(ruta)
+
+        tokens = sintaxis_nucleo._tokenizar("a<=b a<b", 7, 3)
+        self.assertEqual(
+            [(t.tipo, t.valor, t.linea, t.columna) for t in tokens],
+            [
+                ("IDENT", "a", 7, 3),
+                ("OP", "<=", 7, 4),
+                ("IDENT", "b", 7, 6),
+                ("IDENT", "a", 7, 8),
+                ("OP", "<", 7, 9),
+                ("IDENT", "b", 7, 10),
+                ("EOF", "", 7, 11),
+            ],
+        )
+
+        fin = sintaxis_nucleo._Expr(
+            sintaxis_nucleo._tokenizar("porque", 1, 1), detener={"porque"})
+        self.assertIs(fin._fin(), True)
+        no_fin = sintaxis_nucleo._Expr(
+            sintaxis_nucleo._tokenizar("x", 1, 1), detener={"porque"})
+        self.assertIs(no_fin._fin(), False)
+        self.assertIsNone(no_fin._tomar("NUMBER"))
+        self.assertEqual(no_fin.i, 0)
+        self.assertIsNone(no_fin._tomar("IDENT", "otro"))
+        self.assertEqual(no_fin.i, 0)
+        self.assertEqual(no_fin._tomar("IDENT", "x").valor, "x")
+        self.assertEqual(no_fin.i, 1)
+
+        self.assertEqual(sintaxis_nucleo._leer_expr("hecho(alias)", 8, 9),
+                         ["hecho", "alias"])
+        self.assertEqual(sintaxis_nucleo._leer_expr("col(nombre)", 8, 9),
+                         ["col", "nombre"])
+        for expr, mensaje in (
+            ("hecho(1)", "línea 8, columna 9: se esperaba hecho(alias)"),
+            ("hecho(a, b)", "línea 8, columna 9: se esperaba hecho(alias)"),
+            ("col(1)", "línea 8, columna 9: se esperaba col(nombre)"),
+            ("col(a, b)", "línea 8, columna 9: se esperaba col(nombre)"),
+        ):
+            with self.subTest(expr=expr):
+                self.assertErrorDirecto(lambda expr=expr: sintaxis_nucleo._leer_expr(expr, 8, 9),
+                                        8, 9, mensaje)
+
+    def test_helpers_textuales_fallan_cerrado_con_posicion_exacta(self) -> None:
+        self.assertEqual(sintaxis_nucleo._literal_texto("$razon", 3, 7), ["$", "razon"])
+        self.assertEqual(
+            sintaxis_nucleo._leer_umbral('<= 0 porque $porque', 2, 5),
+            ("<=", 0, ["$", "porque"], 10),
+        )
+        self.assertEqual(
+            sintaxis_nucleo._lineas(" \n# comentario\nmedida d.x:  \n"),
+            [(3, "medida d.x:")],
+        )
+        self.assertEqual(sintaxis_nucleo._indentada("    donde x", 1, 3), "donde x")
+        self.assertEqual(
+            sintaxis_nucleo._exigir_prefijo((3, "    donde x"), "donde ", 1),
+            ("x", 11),
+        )
+        self.assertEqual(
+            sintaxis_nucleo._contenido((4, '    alcance "x"'), "alcance ", 1),
+            ('"x"', 4, 13),
+        )
+        self.assertEqual(sintaxis_nucleo._leer_nombre("$rel", 1, 8), ["$", "rel"])
+        self.assertEqual(
+            sintaxis_nucleo._leer_de((6, "    de $rel $alias")),
+            ["de", ["$", "rel"], ["$", "alias"]],
+        )
+        self.assertEqual(
+            sintaxis_nucleo._leer_de((6, "    unir rel r"), "unir"),
+            ["de", "rel", "r"],
+        )
+        self.assertEqual(
+            sintaxis_nucleo._leer_requiere((7, "    requiere $rel, otra")),
+            ["requiere", ["$", "rel"], "otra"],
+        )
+        self.assertEqual(
+            sintaxis_nucleo._huecos_en_linea('guarda x "a\\n" $hueco'),
+            [("hueco", 16)],
+        )
+        ubicaciones: dict[str, sintaxis.Ubicacion] = {}
+        self.assertEqual(
+            sintaxis_nucleo._leer_resumen(
+                (8, "    resumen contar(1)"), ubicaciones=ubicaciones),
+            ["resumen", "contar", 1],
+        )
+        self.assertEqual(ubicaciones["3"], sintaxis.Ubicacion(8, 13))
+        self.assertEqual(ubicaciones["3.0"], sintaxis.Ubicacion(8, 13))
+        self.assertEqual(ubicaciones["3.1"], sintaxis.Ubicacion(8, 13))
+        self.assertEqual(ubicaciones["3.2"], sintaxis.Ubicacion(8, 20))
+
+        casos = (
+            (lambda: sintaxis_nucleo._literal_texto("1", 4, 5), 4, 5,
+             "línea 4, columna 5: se esperaba texto entre comillas; llegó 1"),
+            (lambda: sintaxis_nucleo._literal_texto('"x" 1', 4, 5), 4, 9,
+             "línea 4, columna 9: se esperaba fin de línea; llegó 1"),
+            (lambda: sintaxis_nucleo._leer_umbral('0 porque "x"', 2, 5), 2, 5,
+             "línea 2, columna 5: se esperaba comparador de umbral; llegó 0"),
+            (lambda: sintaxis_nucleo._leer_umbral("<= 0 porque 1", 2, 5), 2, 17,
+             "línea 2, columna 17: se esperaba texto de defensa del umbral; llegó 1"),
+            (lambda: sintaxis_nucleo._leer_umbral('"<= 0" porque "x"', 2, 5), 2, 5,
+             "línea 2, columna 5: se esperaba comparador de umbral; llegó '<= 0'"),
+            (lambda: sintaxis_nucleo._indentada("sin indentación", 1, 5), 5, 1,
+             "línea 5, columna 1: se esperaba indentación de 4 espacios; llegó 's'"),
+            (lambda: sintaxis_nucleo._indentada("     de rel r", 1, 6), 6, 6,
+             "línea 6, columna 6: se esperaba indentación de 4 espacios; llegó '     d'"),
+            (lambda: sintaxis_nucleo._exigir_prefijo((3, "    umbral x"), "donde ", 1), 3, 5,
+             "línea 3, columna 5: se esperaba línea «donde»; llegó 'umbral x'"),
+            (lambda: sintaxis_nucleo._leer_nombre("$", 3, 7), 3, 7,
+             "línea 3, columna 7: se esperaba nombre de parámetro después de «$»; llegó '$'"),
+            (lambda: sintaxis_nucleo._leer_nombre("$1x", 3, 7), 3, 7,
+             "línea 3, columna 7: se esperaba nombre de parámetro después de «$»; llegó '$1x'"),
+            (lambda: sintaxis_nucleo._leer_de((6, "    de rel")), 6, 8,
+             "línea 6, columna 8: se esperaba de <relación> <alias>; llegó 'rel'"),
+            (lambda: sintaxis_nucleo._leer_de((6, "    de $ alias")), 6, 8,
+             "línea 6, columna 8: se esperaba nombre de parámetro después de «$»; llegó '$'"),
+            (lambda: sintaxis_nucleo._leer_de((6, "    de rel $")), 6, 12,
+             "línea 6, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$'"),
+            (lambda: sintaxis_nucleo._leer_requiere((7, "    requiere rel, ")), 7, 14,
+             "línea 7, columna 14: se esperaba una o más relaciones requeridas; llegó 'rel, '"),
+            (lambda: sintaxis_nucleo._leer_requiere((7, "    requiere $")), 7, 14,
+             "línea 7, columna 14: se esperaba nombre de parámetro después de «$»; llegó '$'"),
+            (lambda: sintaxis_nucleo._leer_umbral('123 <= 0 porque "x"', 2, 5), 2, 5,
+             "línea 2, columna 5: se esperaba comparador de umbral; llegó 123"),
+            (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
+                (10, "    de pieza p"), (11, "    donde p.x == 1"),
+                (12, '    umbral <= 0 porque "defensa valida y suficiente"'),
+                (13, '    alcance "nada"'), (14, "    sobra")]), 13, 1,
+             "línea 13, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
+                (10, "    de pieza p"), (11, "    donde p.x == 1"),
+                (12, '    umbral <= 0 porque "defensa valida y suficiente"')]), 12, 1,
+             "línea 12, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            (lambda: sintaxis_nucleo._macro_ninguno_par("d.m", [
+                (10, "    de pieza a, b"), (11, "    donde a.x == b.x")]), 10, 1,
+             "línea 10, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
+            (lambda: sintaxis_nucleo._macro_peor("d.m", [
+                (20, "    de pieza p"), (21, "    expresion p.x")]), 20, 1,
+             "línea 20, columna 1: se esperaba 5 líneas de cuerpo para peor"),
+            (lambda: sintaxis_nucleo._leer_plantilla([
+                (1, "    medida $123:"), (2, "        de pieza p")]), 1, 12,
+             "línea 1, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$123'"),
+        )
+        for funcion, linea, columna, mensaje in casos:
+            with self.subTest(mensaje=mensaje):
+                self.assertErrorDirecto(funcion, linea, columna, mensaje)
+
+    def test_ubicaciones_de_superficie_quedan_fijadas(self) -> None:
+        medida = self._texto([
+            "medida d.completa:",
+            "    de rel r",
+            "    unir otra o",
+            "    donde r.x == true",
+            "    donde o.y > 2",
+            "    agrupar:",
+            "        clave k = r.x",
+            "        agregado total = contar(o.y)",
+            "    resumen max(total)",
+            '    umbral <= 0 porque "razón"',
+            "    requiere rel, otra",
+            '    alcance "NO ve más"',
+        ])
+        self.assertUbicaciones(medida, {
+            "": (1, 1),
+            "0": (1, 1),
+            "1": (1, 8),
+            "2.2": (4, 5),
+            "2.2.0": (4, 5),
+            "2.2.1": (4, 15),
+            "2.2.1.1.2": (4, 13),
+            "2.2.1.2": (4, 18),
+            "2.3": (5, 5),
+            "2.3.1.1.2": (5, 13),
+            "2.4": (6, 5),
+            "2.4.0": (6, 5),
+            "2.4.1.0": (7, 15),
+            "2.4.1.0.1": (7, 19),
+            "2.4.2.0": (8, 18),
+            "2.4.2.0.0": (8, 18),
+            "2.4.2.0.1": (8, 26),
+            "2.4.2.0.2.2": (8, 35),
+            "2.4.1.0.0": (7, 15),
+            "3": (9, 13),
+            "3.0": (9, 13),
+            "3.1": (9, 13),
+            "3.2": (9, 17),
+            "3.2.1": (9, 17),
+        })
+        self.assertEqual(sintaxis.leer_con_mapa(medida).ubicacion((2, 4, 2, 0, 2, 2)),
+                         sintaxis.Ubicacion(8, 35))
+
+        self.assertUbicaciones(self._texto([
+            "ninguno d.n:",
+            "    de rel r",
+            "    donde r.x == true",
+            '    umbral <= 0 porque "razón"',
+            '    alcance "NO ve"',
+        ]), {
+            "1": (1, 9),
+            "4": (3, 15),
+            "4.1.2": (3, 13),
+            "4.2": (3, 18),
+        })
+        self.assertUbicaciones(self._texto([
+            "ninguno-par d.n:",
+            "    de rel a, b",
+            "    donde a.x == b.x",
+            '    umbral <= 0 porque "razón"',
+            '    alcance "NO ve"',
+        ]), {
+            "1": (1, 13),
+            "5": (3, 15),
+            "5.1.2": (3, 13),
+            "5.2.2": (3, 20),
+        })
+        self.assertUbicaciones(self._texto([
+            "peor d.p:",
+            "    de rel r",
+            "    expresion r.x",
+            "    tolerancia 2",
+            '    umbral <= 2 porque "razón"',
+            '    alcance "NO ve"',
+        ]), {
+            "1": (1, 6),
+            "4": (3, 15),
+            "4.2": (3, 17),
+            "5": (4, 16),
+        })
+
+    def test_errores_de_medidas_y_macros_fijan_fragmentos(self) -> None:
+        casos = [
+            ("ninguno sin cuerpo", "ninguno d.n:\n", 2, 1,
+             "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            ("ninguno incompleto", self._texto(["ninguno d.n:", "    de rel r"]), 2, 1,
+             "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            ("ninguno largo", self._texto([
+                "ninguno d.n:", "    de rel r", "    donde r.x == true",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"', "    sobra"]), 5, 1,
+             "línea 5, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+            ("ninguno umbral", self._texto([
+                "ninguno d.n:", "    de rel r", "    donde r.x == true",
+                '    umbral < 0 porque "razón"', '    alcance "NO ve"']), 4, 16,
+             "línea 4, columna 16: se esperaba la macro ninguno con umbral <= 0"),
+            ("ninguno-par sin cuerpo", "ninguno-par d.n:\n", 2, 1,
+             "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
+            ("ninguno-par de", self._texto([
+                "ninguno-par d.n:", "    de rel a b", "    donde a.x == b.x",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 2, 8,
+             "línea 2, columna 8: se esperaba de <relación> <aliasA>, <aliasB>; "
+             "llegó 'rel a b'"),
+            ("ninguno-par umbral operador", self._texto([
+                "ninguno-par d.n:", "    de rel a, b", "    donde a.x == b.x",
+                '    umbral < 0 porque "razón"', '    alcance "NO ve"']), 4, 16,
+             "línea 4, columna 16: se esperaba la macro ninguno-par con umbral <= 0"),
+            ("ninguno-par umbral limite", self._texto([
+                "ninguno-par d.n:", "    de rel a, b", "    donde a.x == b.x",
+                '    umbral <= 1 porque "razón"', '    alcance "NO ve"']), 4, 17,
+             "línea 4, columna 17: se esperaba la macro ninguno-par con umbral <= 0"),
+            ("peor sin cuerpo", "peor d.p:\n", 2, 1,
+             "línea 2, columna 1: se esperaba 5 líneas de cuerpo para peor"),
+            ("peor umbral operador", self._texto([
+                "peor d.p:", "    de rel r", "    expresion r.x", "    tolerancia 2",
+                '    umbral < 2 porque "razón"', '    alcance "NO ve"']), 5, 16,
+             "línea 5, columna 16: se esperaba la macro peor con umbral <= tolerancia"),
+            ("peor umbral", self._texto([
+                "peor d.p:", "    de rel r", "    expresion r.x", "    tolerancia 2",
+                '    umbral <= 3 porque "razón"', '    alcance "NO ve"']), 5, 17,
+             "línea 5, columna 17: se esperaba la macro peor con umbral <= tolerancia"),
+            ("medida vacía", "medida d.vacia:\n", 2, 1,
+             "línea 2, columna 1: se esperaba cuerpo de medida"),
+            ("falta resumen", self._texto(["medida d.r:", "    de rel r"]), 3, 1,
+             "línea 3, columna 1: se esperaba resumen"),
+            ("falta resumen tras unir", self._texto([
+                "medida d.r:", "    de rel r", "    unir otra o"]), 4, 1,
+             "línea 4, columna 1: se esperaba resumen"),
+            ("falta umbral", self._texto([
+                "medida d.r:", "    de rel r", "    resumen contar(1)"]), 4, 1,
+             "línea 4, columna 1: se esperaba umbral"),
+            ("falta alcance", self._texto([
+                "medida d.r:", "    de rel r", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"']), 5, 1,
+             "línea 5, columna 1: se esperaba alcance"),
+            ("extra final", self._texto([
+                "medida d.r:", "    de rel r", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"', "    sobra"]), 6, 5,
+             "línea 6, columna 5: se esperaba fin de medida; llegó 'sobra'"),
+            ("agrupar sin agregado", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:", "        clave k = r.x",
+                "    resumen contar(1)", '    umbral <= 0 porque "razón"',
+                '    alcance "NO ve"']), 3, 5,
+             "línea 3, columna 5: se esperaba al menos un agregado"),
+            ("agrupar hijo malo", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:", "        raro k = r.x",
+                "        agregado total = contar(1)", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 4, 9,
+             "línea 4, columna 9: se esperaba clave o agregado; llegó 'raro k = r.x'"),
+            ("agrupar hasta eof", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:",
+                "        agregado total = contar(1)"]), 5, 1,
+             "línea 5, columna 1: se esperaba resumen"),
+            ("agregado sin separador", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:",
+                "        agregado total contar(1)", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 4, 18,
+             "línea 4, columna 18: se esperaba agregado <nombre> = agregado(expr); "
+             "llegó 'total contar(1)'"),
+            ("agregado sin nombre", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:",
+                "        agregado  = contar(1)", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 4, 18,
+             "línea 4, columna 18: se esperaba agregado <nombre> = agregado(expr); "
+             "llegó ' = contar(1)'"),
+            ("agregado malo", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:",
+                "        agregado total = 1", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 4, 26,
+             "línea 4, columna 26: se esperaba llamada de agregado; llegó '1'"),
+            ("clave sin separador", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:",
+                "        clave k r.x", "        agregado total = contar(1)",
+                "    resumen contar(1)", '    umbral <= 0 porque "razón"',
+                '    alcance "NO ve"']), 4, 15,
+             "línea 4, columna 15: se esperaba clave <nombre> = expresión; llegó 'k r.x'"),
+            ("clave sin nombre", self._texto([
+                "medida d.r:", "    de rel r", "    agrupar:",
+                "        clave  = r.x", "        agregado total = contar(1)",
+                "    resumen contar(1)", '    umbral <= 0 porque "razón"',
+                '    alcance "NO ve"']), 4, 15,
+             "línea 4, columna 15: se esperaba clave <nombre> = expresión; llegó ' = r.x'"),
+            ("resumen malo", self._texto([
+                "medida d.r:", "    de rel r", "    resumen 1",
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 3, 13,
+             "línea 3, columna 13: se esperaba resumen agregado(expr); llegó '1'"),
+            ("requiere mal indentado", self._texto([
+                "medida d.r:", "    de rel r", "    resumen contar(1)",
+                '    umbral <= 0 porque "razón"', "     requiere rel",
+                '    alcance "NO ve"']), 5, 6,
+             "línea 5, columna 6: se esperaba indentación de 4 espacios; llegó '     r'"),
+        ]
+        for nombre, texto, linea, columna, mensaje in casos:
+            with self.subTest(nombre=nombre):
+                self.assertErrorDeSintaxis(texto, linea, columna, mensaje)
+
+    def test_defmacro_cubre_plantillas_guardas_y_huecos(self) -> None:
+        variantes = {
+            "ninguno": self._texto([
+                "defmacro todos(id, rel, alias, pred, porque, alcance):",
+                "    ninguno $id:",
+                "        de $rel $alias",
+                "        donde $pred",
+                "        umbral <= 0 porque $porque",
+                "        alcance $alcance",
+            ]),
+            "ninguno-par": self._texto([
+                "defmacro pares(id, rel, a, b, pred, porque, alcance):",
+                "    ninguno-par $id:",
+                "        de $rel $a, $b",
+                "        donde $pred",
+                "        umbral <= 0 porque $porque",
+                "        alcance $alcance",
+            ]),
+            "peor": self._texto([
+                "defmacro peor-propia(id, rel, alias, expr, tol, porque, alcance):",
+                "    peor $id:",
+                "        de $rel $alias",
+                "        expresion $expr",
+                "        tolerancia $tol",
+                "        umbral <= $tol porque $porque",
+                "        alcance $alcance",
+            ]),
+        }
+        for clase, texto in variantes.items():
+            with self.subTest(clase=clase):
+                datos = sintaxis.leer(texto)
+                self.assertEqual(datos[4][0], clase)
+                self.assertEqual(sintaxis.leer(sintaxis.imprimir(datos)), datos)
+
+        macro = variantes["ninguno"]
+        lectura = sintaxis.leer_con_mapa(macro)
+        self.assertEqual(lectura.ubicacion(""), sintaxis.Ubicacion(1, 1))
+        self.assertEqual(lectura.ubicacion("0"), sintaxis.Ubicacion(1, 1))
+        self.assertEqual(lectura.ubicacion("1"), sintaxis.Ubicacion(1, 10))
+
+        linea = 'guarda $id != "$no \\" $tampoco" y $otro'
+        self.assertEqual(
+            sintaxis_nucleo._huecos_en_linea(linea),
+            [("id", linea.index("$id") + 1), ("otro", linea.index("$otro") + 1)],
+        )
+        empieza_con_hueco = "$id y $otro"
+        self.assertEqual(
+            sintaxis_nucleo._huecos_en_linea(empieza_con_hueco),
+            [("id", 1), ("otro", empieza_con_hueco.index("$otro") + 1)],
+        )
+        cierre_saltado = '"" $visible'
+        self.assertEqual(
+            sintaxis_nucleo._huecos_en_linea(cierre_saltado),
+            [("visible", cierre_saltado.index("$visible") + 1)],
+        )
+        escape = '"\\\\$no" $si'
+        self.assertEqual(
+            sintaxis_nucleo._huecos_en_linea(escape),
+            [("si", escape.index("$si") + 1)],
+        )
+
+        casos = [
+            ("sin cuerpo", "defmacro m(id):\n", 2, 1,
+             "línea 2, columna 1: se esperaba plantilla de la macro"),
+            ("sin plantilla", self._texto([
+                "defmacro m(id):", '    guarda $id != 1 "x"']), 3, 1,
+             "línea 3, columna 1: se esperaba plantilla de la macro"),
+            # La columna es la del TOKEN que ofende —el `"msg"` donde iba la expresión—, no la de
+            # la palabra `guarda`. Señalar la palabra clave manda a mirar lo que está bien.
+            ("guarda sin expresion", self._texto(["defmacro m(id):", '    guarda "msg"']), 2, 12,
+             "línea 2, columna 12: se esperaba expresión de la guarda; llegó '\"msg\"'"),
+            ("plantilla mala", self._texto(["defmacro m(id):", "    nada $id:"]), 2, 5,
+             "línea 2, columna 5: se esperaba plantilla "
+             "«medida|ninguno|ninguno-par|peor <id>:»; llegó 'nada $id:'"),
+            ("plantilla con id hueco invalido", self._texto([
+                "defmacro m(id):", "    medida $:"]), 2, 12,
+             "línea 2, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$'"),
+            ("hueco no declarado", self._texto([
+                "defmacro propia(id):", "    medida $id:", "        de rel r",
+                "        donde r.x == $inventado", "        resumen contar(1)",
+                '        umbral <= 0 porque "razón"', '        alcance "NO ve"']), 4, 22,
+             "línea 4, columna 22: «$inventado» no es un parámetro de la macro; "
+             "llegó 'donde r.x == $inventado'"),
+            ("parametro sin usar", self._texto([
+                "defmacro propia(id, sobra):", "    medida $id:", "        de rel r",
+                "        resumen contar(1)", '        umbral <= 0 porque "razón"',
+                '        alcance "NO ve"']), 1, 21,
+             "línea 1, columna 21: la macro declara el parámetro «sobra» y la plantilla "
+             "nunca lo usa; llegó 'defmacro propia(id, sobra):'"),
+        ]
+        for nombre, texto, linea, columna, mensaje in casos:
+            with self.subTest(nombre=nombre):
+                self.assertErrorDeSintaxis(texto, linea, columna, mensaje)
+
+    def test_encabezados_version_y_fragmentos_fallan_cerrado(self) -> None:
+        cuerpo = self._texto([
+            "ninguno d.n:",
+            "    de rel r",
+            "    donde r.x == true",
+            '    umbral <= 0 porque "razón"',
+            '    alcance "NO ve"',
+        ])
+        lectura = sintaxis.leer_con_mapa("# comentario\nsintaxis 0.1\n" + cuerpo)
+        self.assertEqual(lectura.version, "0.1")
+        self.assertEqual(lectura.ubicacion(""), sintaxis.Ubicacion(3, 1))
+        self.assertEqual(lectura.ubicacion("1"), sintaxis.Ubicacion(3, 9))
+
+        casos = [
+            ("vacio", "", 1, 1,
+             "línea 1, columna 1: se esperaba encabezado de medida"),
+            ("version sola", "sintaxis 0.1\n", 2, 1,
+             "línea 2, columna 1: se esperaba encabezado de medida"),
+            ("version mala", "sintaxis 0\n" + cuerpo, 1, 10,
+             "línea 1, columna 10: versión «'0'» inválida: se espera MAYOR.MENOR con "
+             "enteros no negativos"),
+            ("defmacro sin parametros", "defmacro m():\n", 1, 1,
+             "línea 1, columna 1: se esperaba parámetros de la macro; llegó 'defmacro m():'"),
+            ("defmacro parametro malo", "defmacro m(1x):\n", 1, 12,
+             "línea 1, columna 12: se esperaba nombre de parámetro, no «1x»; "
+             "llegó 'defmacro m(1x):'"),
+            ("defmacro parametro repetido", "defmacro m(x, x):\n", 1, 1,
+             "línea 1, columna 1: se esperaba parámetros sin repetir; llegó 'defmacro m(x, x):'"),
+            ("id malo", cuerpo.replace("ninguno d.n:", "ninguno d:"), 1, 9,
+             "línea 1, columna 9: se esperaba id «dominio.nombre», sólo con minúsculas "
+             "ASCII, dígitos y `_`; llegó 'd'"),
+            ("encabezado malo", "nada\n", 1, 1,
+             "línea 1, columna 1: se esperaba encabezado «medida|ninguno|ninguno-par|peor "
+             "<id>:»; llegó 'nada'"),
+        ]
+        for nombre, texto, linea, columna, mensaje in casos:
+            with self.subTest(nombre=nombre):
+                self.assertErrorDeSintaxis(texto, linea, columna, mensaje)
+
+        self.assertEqual(sintaxis.fragmento_de_error(ValueError("sin posición"), cuerpo),
+                         "sin posición")
+
+        class SoloLinea(Exception):
+            linea = 1
+
+        class SoloColumna(Exception):
+            columna = 1
+
+        self.assertEqual(sintaxis.fragmento_de_error(SoloLinea("sin columna"), cuerpo),
+                         "sin columna")
+        self.assertEqual(sintaxis.fragmento_de_error(SoloColumna("sin línea"), cuerpo),
+                         "sin línea")
+
+        class ErrorConRuta(Exception):
+            ruta = "99.99"
+
+        self.assertEqual(
+            sintaxis.fragmento_de_error(ErrorConRuta("ruta rota"), cuerpo),
+            "ruta rota\n(no se encontró la ruta 99.99)",
+        )
+
+    def test_impresion_fija_precedencia_y_formas_invalidas(self) -> None:
+        self.assertTrue(sintaxis_nucleo._es_hueco(["$", "param"]))
+        self.assertFalse(sintaxis_nucleo._es_hueco(["param", "$"]))
+        self.assertEqual(sintaxis_nucleo._nombre(["$", "param"]), "$param")
+        self.assertEqual(sintaxis_nucleo._nombre("rel"), "rel")
+        self.assertEqual(sintaxis_nucleo._texto_o_hueco(["$", "param"]), "$param")
+        self.assertEqual(sintaxis_nucleo._texto_o_hueco("razon"), '"razon"')
+        self.assertEqual(sintaxis_nucleo._expr(["$", "param"]), "$param")
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["no", ["col", "x"]]]),
+            "no no x",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["y", True, False]]),
+            "no (true y false)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["o", True, False]]),
+            "no (true o false)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["y", ["o", True, False], True]),
+            "(true o false) y true",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["o", ["y", True, False], True]),
+            "true y false o true",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["contar", 1]]),
+            "no contar(1)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["==", ["contar", 1], 1]),
+            "contar(1) == 1",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["y", ["==", ["col", "x"], 1], ["==", ["col", "y"], 2]]),
+            "x == 1 y y == 2",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["==", ["y", True, False], True]),
+            "(true y false) == true",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["no", ["==", ["col", "x"], 1]]),
+            "no (x == 1)",
+        )
+        self.assertEqual(
+            sintaxis_nucleo._expr(["y", ["y", True, False], True]),
+            "true y false y true",
+        )
+        datos = ["medida", "d.impresa",
+                 ["desde", ["unir", ["de", "rel", "r"], ["de", "otra", "o"]],
+                  ["donde", ["==", ["y", True, False], True]],
+                  ["agrupar", [["k", ["campo", "r", "x"]]],
+                   [["total", "contar", ["campo", "o", "y"]]]]],
+                 ["resumen", "max", ["col", "total"]],
+                 ["umbral", "<=", ["no", ["==", ["col", "total"], 1]], "razón"],
+                 ["requiere", "rel", "otra"],
+                 ["alcance", "NO ve"]]
+        texto = sintaxis.imprimir(datos)
+        self.assertIn("    unir otra o\n", texto)
+        self.assertIn("    donde (true y false) == true\n", texto)
+        self.assertIn("        clave k = r.x\n", texto)
+        self.assertIn("        agregado total = contar(o.y)\n", texto)
+        self.assertIn("    requiere rel, otra\n", texto)
+        self.assertEqual(sintaxis.leer(texto), datos)
+
+        for invalido in ([], "x"):
+            with self.subTest(invalido=invalido):
+                with self.assertRaises(ValueError):
+                    sintaxis.imprimir(invalido)
+        with self.assertRaises(ValueError):
+            sintaxis_nucleo._lineas_fuente(["otro"])
+        with self.assertRaises(ValueError):
+            sintaxis_nucleo._lineas_fuente(["unir", ["de", "rel", "r"], ["otra"]])
+        with self.assertRaises(ValueError):
+            sintaxis_nucleo._imprimir_pasos(["desde", ["de", "rel", "r"], ["raro"]])
 
 
 class SintaxisDeCasosTests(unittest.TestCase):
@@ -1188,8 +1858,11 @@ class UnErrorDentroDeUnUnirDiceDondeTests(unittest.TestCase):
         """De punta a punta: del error del álgebra al caret sobre la superficie."""
         for posicion, relaciones in enumerate((
                 ("ausente", "objetivo"),
-                ("pieza", "ausente"))):
-            with self.subTest(posicion=posicion):
+                ("pieza", "ausente"),
+                ("ausente", "objetivo", "pieza"),
+                ("pieza", "ausente", "objetivo"),
+                ("pieza", "objetivo", "ausente"))):
+            with self.subTest(posicion=posicion, relaciones=relaciones):
                 texto = self._texto(*relaciones)
                 fragmento = sintaxis.fragmento_de_error(self._falla(texto), texto)
                 self.assertNotIn("no se encontró la ruta", fragmento)
