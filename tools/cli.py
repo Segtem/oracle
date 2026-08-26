@@ -4,7 +4,7 @@
     oracle nueva <dominio.nombre>          crea una nueva medida en catalogos/ con plantilla lista
     oracle caso <grupo/id>                 crea un nuevo caso en corpus/ con plantilla lista
     oracle revisar <archivo>               revisa y evalúa una medida suelta contra la evidencia del proyecto
-    oracle test [--rapido]                 ejecuta la secuencia completa de verificación con veredicto final
+    oracle test [--rapido|--todo]          ejecuta la secuencia completa de verificación con veredicto final
     oracle relaciones                      hechos y campos disponibles derivados de la evidencia
     oracle escalares                       funciones de dominio y operadores disponibles
     oracle expandir <archivo>              muestra la forma canónica de una medida escrita con macros
@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import json
+import subprocess
 import sys
 from pathlib import Path
 
@@ -49,7 +50,7 @@ Uso:
   oracle nueva <dominio.nombre>          Crea una medida con plantilla lista para editar
   oracle caso <grupo/id>                 Crea un caso de prueba en el corpus
   oracle revisar <archivo>               Revisa y evalúa una medida suelta
-  oracle test [--rapido]                 Ejecuta la secuencia completa de verificación
+  oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle expandir <archivo>              Muestra la forma canónica de una macro
@@ -58,7 +59,8 @@ Uso:
 Banderas comunes:
   --proyecto <ruta>      Ruta al proyecto (por defecto: directorio actual o $ORACLE_PROYECTO)
   --confiar-escalares    Autoriza la ejecución de funciones en `escalares.py`
-  --rapido               En `oracle test`, saltea la mutación de medidas""")
+  --rapido               En `oracle test`, conserva la ruta rápida histórica
+  --todo                 En `oracle test`, incluye la mutación de código del propio Oracle""")
 
 
 def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
@@ -150,9 +152,42 @@ def cmd_expandir(proy: Proyecto, ruta_str: str) -> int:
     return medida.expandir_archivo(ruta, macros_del_proyecto(proy))
 
 
+COMANDO_UNITARIOS = [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-q"]
+
+
+def _imprimir_bloque(texto: str) -> None:
+    if texto:
+        print(texto, end="" if texto.endswith("\n") else "\n")
+
+
+def _ejecutar_unitarios(proy: Proyecto) -> int:
+    print("UNITARIOS: python -m unittest discover -s tests -t . -q")
+    resultado = subprocess.run(
+        COMANDO_UNITARIOS, cwd=proy.raiz, capture_output=True, text=True)
+    _imprimir_bloque(resultado.stdout)
+    _imprimir_bloque(resultado.stderr)
+    print("UNITARIOS OK" if resultado.returncode == 0 else "UNITARIOS ✗")
+    return resultado.returncode
+
+
+def _veredicto_verde(*, todo: bool, omisiones: list[str]) -> None:
+    if omisiones:
+        print(f"VEREDICTO: VERDE (se salteó: {'; '.join(omisiones)})")
+    elif todo:
+        print("VEREDICTO: VERDE (todo: todas las verificaciones en regla, 0 mutantes sobrevivientes)")
+    else:
+        print("VEREDICTO: VERDE (todas las verificaciones aplicables en regla)")
+
+
 def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     rapido = "--rapido" in argv
+    todo = "--todo" in argv
     confiar = confiar_escalares(argv)
+
+    if rapido and todo:
+        print("USO INVÁLIDO — `--rapido` y `--todo` son niveles incompatibles")
+        print("\nVEREDICTO: ROJO (nivel de verificación inválido)")
+        return 1
 
     estructura = problemas_estructura(proy, ("catalogos", "corpus", "diferencial"))
     if estructura:
@@ -181,6 +216,21 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
 
     casos_archivos = rutas_de_corpus(proy.corpus)
     rutas_diferencial = sorted(proy.diferencial.glob("*.json"))
+    fallas_suite: list[str] = []
+    omisiones_veredicto: list[str] = []
+
+    # 0. Tests unitarios de Oracle
+    if proy.es_el_propio_oracle:
+        if rapido:
+            print("UNITARIOS: salteados por --rapido")
+            omisiones_veredicto.append("tests unitarios (--rapido)")
+        else:
+            rc_unitarios = _ejecutar_unitarios(proy)
+            if rc_unitarios != 0:
+                fallas_suite.append("unitarios")
+    else:
+        print("UNITARIOS: salteados (sólo aplican al propio Oracle)")
+    print()
 
     if len(catalogo) == 0 and len(casos_archivos) == 0 and len(rutas_diferencial) == 0:
         print("CORPUS OK · 0 casos · esquema y evidencia L0 en regla")
@@ -188,10 +238,9 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         print("ACEPTACIÓN: salteado (sin medidas ni casos todavía)")
         print("DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)")
         print("MUTACIÓN: salteada (sin medidas todavía)\n")
+        print("MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)\n")
         print("VEREDICTO: VERDE (proyecto vacío: 0 medidas, 0 casos)")
         return 0
-
-    fallas_suite: list[str] = []
 
     # 1. Corpus
     fallas_corpus, cargados_casos = corpus.verificar(proy.corpus)
@@ -282,6 +331,7 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         print("MUTACIÓN: salteada (sin medidas todavía)")
     elif rapido:
         print("MUTACIÓN: salteada por --rapido")
+        omisiones_veredicto.append("mutación de medidas (--rapido)")
     else:
         try:
             with escalares_del_proyecto(proy, confiar=confiar):
@@ -293,15 +343,31 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
             fallas_suite.append("mutación (escalares)")
     print()
 
+    # 7. Mutación de código
+    if proy.es_el_propio_oracle:
+        if todo:
+            from tools import mutar_codigo
+            rc_mutar_codigo = mutar_codigo._ejecutar(proy, mutar_codigo.argumentos([]))
+            if rc_mutar_codigo != 0:
+                fallas_suite.append("mutación de código")
+        else:
+            if rapido:
+                print("MUTACIÓN DE CÓDIGO: salteada por --rapido "
+                      "(corré `oracle test --todo` para incluirla)")
+            else:
+                print("MUTACIÓN DE CÓDIGO: salteada "
+                      "(corré `oracle test --todo` para incluirla)")
+            omisiones_veredicto.append("mutación de código (corré `oracle test --todo`)")
+    else:
+        print("MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)")
+    print()
+
     # Veredicto final
     if fallas_suite:
         print(f"VEREDICTO: ROJO (falló: {', '.join(fallas_suite)})")
         return 1
 
-    if rapido:
-        print("VEREDICTO: VERDE (rápido: se salteó la mutación)")
-    else:
-        print("VEREDICTO: VERDE (completo: todas las verificaciones en regla, 0 mutantes sobrevivientes)")
+    _veredicto_verde(todo=todo, omisiones=omisiones_veredicto)
     return 0
 
 
