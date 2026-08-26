@@ -423,5 +423,89 @@ class OracleCliTests(unittest.TestCase):
             self.assertIn("VEREDICTO: VERDE", con_macro.stdout)
 
 
+class InitDejaLasGuardasPuestasTests(OracleCliTests):
+    """Lo más importante que escribe `init` es `catalogo_base`, y faltaba.
+
+    Sin él un proyecto carga SÓLO sus propias medidas y se queda sin las universales: nadie comprueba
+    que un umbral traiga defensa, que una medida declare `alcance`, que toda medida esté fijada por
+    un caso, ni que un caso se ponga como su etiqueta declara.
+
+    El escenario que lo destapó está fijado abajo, y es el que importa para que una persona pueda
+    AUDITAR lo que escribió un modelo: una medida con el predicado invertido —selecciona lo que está
+    bien en vez de lo que ofende— más un caso que la declara `falso_verde`. Sin guardas eso daba
+    «ACEPTACIÓN ✓ · VEREDICTO: VERDE».
+    """
+
+    MEDIDA_INVERTIDA = (
+        "ninguno tareas.vencida_sin_dueno:\n"
+        "    de tarea t\n"
+        "    donde t.vencida == true y t.asignada == true\n"
+        '    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
+        '    alcance "ve el par vencida+sin-dueño y nada más"\n')
+
+    CASO = (
+        "caso 001-vencida-sin-nadie:\n"
+        '    fecha: "2026-08-26"\n'
+        "    origen:\n"
+        '        repo: "yo/tablero"\n'
+        '        commit: "x"\n'
+        '    titulo: "Una tarea vencida sin dueño pasó desapercibida"\n'
+        "    etiqueta: falso_verde\n"
+        "    sintoma:\n"
+        "        El tablero no mostraba las tareas sin asignar.\n"
+        "    como_se_detecto: persona\n"
+        "    medida: tareas.vencida_sin_dueno\n"
+        "    evidencia:\n"
+        "        tarea: id, vencida, asignada\n"
+        '            "t-1", true, false\n'
+        '            "t-2", false, true\n'
+        "    leccion:\n"
+        "        Una tarea sin dueño no la ve nadie.\n")
+
+    def test_init_declara_el_catalogo_base(self) -> None:
+        import json
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d) / "nuevo"
+            self._callado(cli.cmd_init, str(raiz), [])
+            datos = json.loads((raiz / "oracle.json").read_text(encoding="utf-8"))
+            self.assertIs(datos.get("catalogo_base"), True,
+                          "sin `catalogo_base` el proyecto nace sin ninguna medida universal")
+
+    def test_un_proyecto_recien_creado_ve_las_medidas_universales(self) -> None:
+        """No alcanza con que la bandera esté escrita: tiene que traer medidas de verdad."""
+        import tempfile
+        from nucleo.medida import cargar_catalogo
+        from nucleo.proyecto import Proyecto, catalogos_a_cargar, macros_del_proyecto
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d) / "nuevo"
+            self._callado(cli.cmd_init, str(raiz), [])
+            proy = Proyecto(raiz)
+            catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+            self.assertIn("meta.el_caso_se_pone_como_debe", catalogo)
+            self.assertIn("meta.ningun_umbral_sin_defensa", catalogo)
+
+    def test_una_medida_invertida_con_su_caso_sale_ROJA(self) -> None:
+        """El escenario de auditoría: un modelo escribe una medida al revés y su caso.
+
+        Es la prueba de que una persona puede confiar en el veredicto sin releer cada predicado.
+        """
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d) / "nuevo"
+            self._callado(cli.cmd_init, str(raiz), [])
+            medida = raiz / "catalogos" / "tareas" / "tareas.vencida_sin_dueno.oracle"
+            medida.parent.mkdir(parents=True, exist_ok=True)
+            medida.write_text(self.MEDIDA_INVERTIDA, encoding="utf-8")
+            caso = raiz / "corpus" / "tareas" / "001-vencida-sin-nadie.caso"
+            caso.parent.mkdir(parents=True, exist_ok=True)
+            caso.write_text(self.CASO, encoding="utf-8")
+
+            codigo, salida = self._callado(cli.main, ["test", "--rapido", "--proyecto", str(raiz)])
+            self.assertEqual(codigo, 1, salida)
+            self.assertIn("meta.el_caso_se_pone_como_debe", salida)
+            self.assertIn("ROJO", salida)
+
+
 if __name__ == "__main__":
     unittest.main()
