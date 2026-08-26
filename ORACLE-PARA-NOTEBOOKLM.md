@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-25`
-- Revisión de código base: `47a5fe7fe9ba`
+- Revisión de código base: `5daf40a90e09`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -84,7 +84,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5606 líneas de lenguaje y **255 negativas explícitas** (`raise`).
+En este corte hay 5649 líneas de lenguaje y **256 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -117,7 +117,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5606 líneas de lenguaje** (`nucleo/`, código y macros) y **255 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **24,9 a 1**. 29 de las 37 pasan por una macro.
+**5649 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,1 a 1**. 29 de las 37 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-533 tests · 547/547 mutantes de medida · **2263 sitios de mutación de código** (2058 + 205 del motor Python).
+549 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4617,7 +4617,7 @@ Los docstrings enteros: ahí vive el razonamiento y las decisiones descartadas, 
 
 ### `nucleo/algebra.py`
 
-*872 líneas*
+*884 líneas*
 
 El álgebra: relaciones, expresiones y los operadores. Sin dependencias.
 
@@ -4916,7 +4916,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*1026 líneas*
+*1057 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -8175,6 +8175,203 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 47a5fe7*
 
+
+
+## 2026-08-25 — Merge branch 'matar-vivos': los 57 sobrevivientes de `nucleo/caso.py`, cerrados
+
+*commit 7e9f6a3*
+
+La superficie del corpus entró hace tres días con 425 líneas que nunca se habían
+podido mutar. La primera ronda concluyente dio 57 vivos, casi todos en la
+aritmética de posición: la superficie prometía decir «archivo, línea y columna» y
+nada fijaba que la posición fuera la correcta.
+
+    mutantes: 187 · murieron 187 · sobrevivieron 0 · timeout 0 · errores de arnés 0
+      ✓ proceso.codigo_con_mutante_que_lo_mata     0 (<= 0)
+      ✓ proceso.ronda_mutacion_concluyente         0 (<= 0)
+      ✓ proceso.arnes_con_bytecode_frio            0 (<= 0)
+
+Reparto de los 57: **51 tests nuevos, 6 equivalentes declarados con su razón, 0
+código muerto, 0 bugs.**
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh).
+
+## Lo que verifiqué antes de integrar, y por qué justo eso
+
+Declarar un mutante equivalente es la manera de simular una ronda limpia, así que
+los 6 no se aceptan por argumento. Revisé dos por fuerza bruta:
+
+  · `fin < 0` → `fin < 1` después de `startswith("clave(")`: si el texto empieza
+    con `clave(`, la posición 0 es una `c`, así que `find(")")` no puede dar 0
+    nunca. Imposible por construcción, no por convención.
+  · `while i < len(texto)` → `<=` en `_valores_fila`: reimplementé el bucle con la
+    mutación y comparé contra el original sobre **11.895 entradas generadas**.
+    Cero diferencias de conducta.
+
+Y la ronda la corrí yo, sobre la rama ya mergeada con `main`, en vez de creerle al
+informe: mismo resultado.
+
+Queda una cosa dicha y no tapada: `proceso.test_con_mutante_que_lo_mata` sigue sin
+poder juzgar esta evidencia —pide campos que sólo tienen los mutantes de medida—.
+Ya no importa para el veredicto, porque `proceso.codigo_con_mutante_que_lo_mata`
+cubre ese eje; se informa igual en vez de silenciarse.
+
+533 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547 · de código 187/187 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — fijar mutantes en nucleo/version.py y nucleo/macro.py
+
+*commit faa7b3a*
+
+
+
+## 2026-08-25 — Saca el informe
+
+*commit 83da666*
+
+
+
+## 2026-08-25 — Merge branch 'mutar-version'
+
+*commit c35c9d6*
+
+
+
+## 2026-08-25 — Merge branch 'mutar-version': `version.py` y `macro.py`, fijados
+
+*commit 4402896*
+
+Dos archivos que la mutación de código nunca había tocado. `version.py` es
+enteramente nuevo —gobierna si un `oracle.json` puede pedir un álgebra que este
+núcleo no implementa, y si un `.oracle` escrito contra otra versión de la
+superficie carga— y `macro.py` cambió 80 líneas en tres días.
+
+    nucleo/version.py    15 mutantes · 15 muertos · 0 sobrevivientes
+    nucleo/macro.py      85 mutantes · 85 muertos · 0 sobrevivientes
+
+Sólo dos sobrevivientes en total, los dos por falta de test, ninguno equivalente,
+ningún bug:
+
+  · `@dataclass(frozen=True)` → `False` en `Version`: nada ejercitaba la
+    inmutabilidad de la clase.
+  · `x.suffix in EXTENSIONES_DE_MACRO and x.is_file()` → `or` en `cargar_macros`:
+    ningún test pasaba un directorio con archivos de otra extensión ni un
+    subdirectorio con nombre de macro.
+
+**Y mi predicción falló, que es lo que hay que decir.** Al encargar la tarea
+apunté a las comparaciones de borde de `version.py` —`MAYOR` igual, `MENOR` mayor
+o igual— porque ahí un `>=` mutado a `>` deja pasar exactamente una versión. No
+sobrevivió ninguna: los tests de compatibilidad ya estaban pegados al límite. La
+zona que yo señalé como frágil era la más firme del archivo.
+
+Corrí la ronda de `version.py` por mi cuenta antes de integrar: mismo resultado.
+
+Trabajo delegado a Gemini 3.7 Flash (high).
+
+535 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de código: version 15/15 · macro 85/85 — 0 sobrevivientes
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — fijar rutas del algebra: 17 mutantes muertos por tests y 4 equivalentes declarados
+
+*commit 5d713a9*
+
+
+
+## 2026-08-25 — wip: ruta del de
+
+*commit 994eca6*
+
+
+
+## 2026-08-25 — Merge branch 'mutar-algebra' into ruta-de
+
+*commit 21addec*
+
+
+
+## 2026-08-25 — Un error dentro de un `unir` no decía dónde: el mapa de fuente tenía un agujero
+
+*commit 22210f9*
+
+`_unir` calculaba `ruta_izq` y `ruta_der` con cuidado y se las pasaba a `aplicar`,
+donde el brazo del `de` las **descartaba**. Un error en cualquiera de los dos
+lados de un `unir` salía sin ruta, y `fragmento_de_error` respondía «no se
+encontró la ruta» en vez de señalar la línea.
+
+    antes:  la relación «ausente» no existe en la evidencia
+            (ruta: None)
+
+    ahora:  la relación «ausente» no existe … en `2.1.2`
+               3 |     unir ausente y
+                 |          ^
+
+## Cómo se encontró, que es la parte que importa
+
+**Lo denunció la mutación de código, no una persona.** Cuatro mutantes sobre
+`ruta_izq`/`ruta_der` sobrevivían —incluido cambiar el índice `1` por el `2`, que
+haría al error señalar el operando equivocado— porque el valor calculado no
+llegaba a ninguna parte.
+
+Y estuvieron a punto de entrar declarados como **equivalentes**, con cuatro
+razones bien argumentadas y **factualmente correctas**: es cierto que ningún test
+podía distinguirlos. Lo comprobé y la conclusión se sostenía.
+
+Pero la lectura era la otra. **Un mutante que no se puede matar porque su
+resultado no se usa no es equivalente: es código que quería hacer algo y no lo
+hacía.** La pregunta correcta no era «¿por qué no lo distingo?» sino «¿por qué
+este cálculo no se observa?», y la respuesta era un defecto. Las cuatro
+declaraciones se retiran de `equivalentes.json`.
+
+Comprobado uno por uno: aplicando cada uno de los cuatro mutantes a mano, los
+cuatro **mueren** ahora.
+
+## Los dos extremos
+
+  · `nucleo/algebra.py` — el brazo del `de` en `aplicar` prefija la ruta que
+    recibe antes de relanzar el error;
+  · `nucleo/sintaxis.py` — las FUENTES entran al mapa. El `unir` es
+    izquierdo-asociativo, así que con tres fuentes la primera queda en `2.1.1.1`,
+    la segunda en `2.1.1.2` y la tercera en `2.1.2`. Media promesa cumplida es
+    peor que ninguna: el error sabía dónde estaba y el mapa no sabía traducirlo.
+
+Un test exige que las tres fuentes den rutas **distintas** —si coincidieran,
+cambiar el índice 1 por el 2 volvería a ser indistinguible— y otro va de punta a
+punta, del error del álgebra al caret debajo del nombre de la relación.
+
+Los 17 tests restantes de la ronda son de Gemini 3.7 Flash (high), que hizo el
+trabajo grueso sobre los otros mutantes.
+
+    nucleo/algebra.py: 323 mutantes · 323 muertos · 0 sobrevivientes
+                       0 equivalentes declarados
+
+541 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — Merge branch 'ruta-de'
+
+*commit 1431bc9*
+
+
+
+## 2026-08-25 — fijar reificación y contratos de medida: 25 mutantes muertos por tests
+
+*commit 8e33b88*
+
+
+
+## 2026-08-25 — Merge branch 'mutar-medida'
+
+*commit 5daf40a*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8183,14 +8380,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5172 | el lenguaje |
+| líneas del núcleo | 5215 | el lenguaje |
 | líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
 | proporción | 23 a 1 | la apuesta: que el segundo crezca y el primero no |
 | (contando sólo el catálogo base) | 26 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 233 | su naturaleza es rechazar, no medir |
+| negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 115 | el historial completo |
+| commits | 127 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

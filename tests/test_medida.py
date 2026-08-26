@@ -189,6 +189,167 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertEqual(m.medidas_aplicables([una, dos], {"a": []}), [una])
         self.assertEqual(m.medidas_aplicables([una, dos], {"a": [], "b": []}), [una, dos])
 
+    def test_evidencia_con_derivadas_permite_iguales_y_falla_con_distintos(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.simple",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = m.como_hechos([medida])
+        fuente_igual = list(hechos.por_relacion["fuente"])
+        fuente_distinta = [{"medida": "d.otra", "ruta": "2.1", "relacion": "otra", "alias": "o"}]
+
+        # Si ya existía con contenido idéntico, no debe fallar
+        evidencia_ok = {"medida": hechos, "fuente": fuente_igual}
+        desplegada = m.evidencia_con_derivadas(evidencia_ok)
+        self.assertEqual(desplegada["fuente"], fuente_igual)
+
+        # Si ya existía con contenido distinto, debe fallar
+        evidencia_choque = {"medida": hechos, "fuente": fuente_distinta}
+        with self.assertRaisesRegex(ValueError, "dos veces con contenidos distintos"):
+            m.evidencia_con_derivadas(evidencia_choque)
+
+    def test_evaluar_sin_evidencia_devuelve_veredicto_con_valor_cero(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.requiere_algo",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["requiere", "pieza"],
+            ["alcance", "NO ve"],
+        ])
+        v = medida.evaluar({})
+        self.assertEqual(v.valor, 0)
+        self.assertFalse(v.ok)
+        self.assertEqual(v.sin_evidencia, "pieza")
+
+    def test_rutas_en_catalogo_valida_directorio_existente_y_fisico(self) -> None:
+        m = modulo_medida()
+        # Normalización de argumentos de directorio
+        self.assertEqual(m._normalizar_directorios(["a", "b"]), ("a", "b"))
+        self.assertEqual(m._normalizar_directorios([["a", "b"]]), ("a", "b"))
+        self.assertEqual(m._normalizar_directorios([("a", "b")]), ("a", "b"))
+        self.assertEqual(m._normalizar_directorios(["un_solo_str"]), ("un_solo_str",))
+        self.assertEqual(m._normalizar_directorios([m.Path("un_solo_path")]), (m.Path("un_solo_path"),))
+
+        # Directorio inexistente devuelve lista vacía
+        self.assertEqual(m._rutas_en_catalogo(m.Path("inexistente_xyz_123")), [])
+        self.assertEqual(m.rutas_de_catalogo(m.Path("inexistente_xyz_123")), [])
+
+        # Archivo regular que no es directorio debe fallar
+        with self.assertRaisesRegex(m.MedidaMalDeclarada, "debe ser un directorio físico"):
+            m._rutas_en_catalogo(__file__)
+
+    def test_hecho_medida_pasos_en_medida_sin_pasos(self) -> None:
+        m = modulo_medida()
+        obj = SimpleNamespace(
+            id="d.minima", tuberia=["desde"], resumen=["resumen", "contar", 1],
+            op="<=", limite=0, porque="razón", alcance="alcance", requiere=())
+        hecho = m._hecho_medida(obj, m.clasificacion_meta_base())
+        self.assertEqual(hecho["pasos"], 0)
+
+    def test_ruta_formatea_indices_y_cabeza_extrae_primer_string(self) -> None:
+        m = modulo_medida()
+        self.assertEqual(m._ruta((2, 1, 3)), "2.1.3")
+        self.assertEqual(m._ruta(()), "")
+
+        self.assertEqual(m._cabeza(["de", "pieza", "p"]), "de")
+        self.assertEqual(m._cabeza([]), "")
+        self.assertEqual(m._cabeza([123]), "")
+        self.assertEqual(m._cabeza("no_es_lista"), "")
+        self.assertEqual(m._cabeza(None), "")
+
+    def test_tipo_distingue_todos_los_tipos_en_orden(self) -> None:
+        m = modulo_medida()
+        self.assertEqual(m._tipo([]), "lista")
+        self.assertEqual(m._tipo(True), "booleano")
+        self.assertEqual(m._tipo(False), "booleano")
+        self.assertEqual(m._tipo(0), "numero")
+        self.assertEqual(m._tipo(1.5), "numero")
+        self.assertEqual(m._tipo("hola"), "texto")
+        self.assertEqual(m._tipo(None), "ausente")
+        self.assertEqual(m._tipo((1, 2)), "tuple")
+        self.assertEqual(m._tipo(object()), "object")
+
+        medida = m.Medida.de_datos([
+            "medida", "d.tipos",
+            ["desde", ["de", "pieza", "p"],
+             ["donde", ["y",
+                        ["==", ["campo", "p", "b"], True],
+                        ["==", ["campo", "p", "n"], 42],
+                        ["==", ["campo", "p", "s"], "cadena"],
+                        ["==", ["campo", "p", "f"], 3.14],
+                        ["==", ["campo", "p", "z"], None]]]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = m.como_hechos([medida])
+        terminos = hechos.por_relacion["termino"]
+        tipos = {t["tipo"] for t in terminos}
+        self.assertEqual(tipos, {"lista", "booleano", "numero", "texto", "ausente"})
+        for t in terminos:
+            if t["tipo"] != "lista":
+                self.assertEqual(t["longitud"], 0)
+
+    def test_pasos_de_medida_recorre_todos_los_pasos_con_sus_rutas_e_indices(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.pasos",
+            ["desde",
+             ["de", "pieza", "p"],
+             ["donde", [">", ["campo", "p", "x"], 0]],
+             ["agrupar", [["g", ["campo", "p", "g"]]], [["c", "contar", 1]]]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = m.como_hechos([medida])
+        pasos = hechos.por_relacion["paso_de_medida"]
+        self.assertEqual(pasos, [
+            {"medida": "d.pasos", "indice": 0, "ruta": "2.1", "operador": "de"},
+            {"medida": "d.pasos", "indice": 1, "ruta": "2.2", "operador": "donde"},
+            {"medida": "d.pasos", "indice": 2, "ruta": "2.3", "operador": "agrupar"},
+        ])
+
+    def test_fuentes_de_medida_recorre_fuentes_simples_y_compuestas_con_rutas(self) -> None:
+        m = modulo_medida()
+        # Fuente simple
+        simple = m.Medida.de_datos([
+            "medida", "d.simple",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos_s = m.como_hechos([simple])
+        self.assertEqual(hechos_s.por_relacion["fuente"], [
+            {"medida": "d.simple", "ruta": "2.1", "relacion": "pieza", "alias": "p"},
+        ])
+
+        # Fuente compuesta con unir
+        compuesta = m.Medida.de_datos([
+            "medida", "d.compuesta",
+            ["desde", ["unir", ["de", "primera", "a"], ["de", "segunda", "b"]]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos_c = m.como_hechos([compuesta])
+        self.assertEqual(hechos_c.por_relacion["fuente"], [
+            {"medida": "d.compuesta", "ruta": "2.1.1", "relacion": "primera", "alias": "a"},
+            {"medida": "d.compuesta", "ruta": "2.1.2", "relacion": "segunda", "alias": "b"},
+        ])
+
+        # Casos borde de _fuentes
+        self.assertEqual(list(m._fuentes("d.m", [], (2, 1))), [])
+        self.assertEqual(list(m._fuentes("d.m", "no_es_lista", (2, 1))), [])
+        self.assertEqual(list(m._fuentes("d.m", None, (2, 1))), [])
+
 
 if __name__ == "__main__":
     unittest.main()
