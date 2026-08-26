@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import re
+import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -228,6 +229,18 @@ def _tokenizar(texto: str, linea: int, columna_base: int) -> list[Token]:
             tokens.append(Token("IDENT", m.group(0), linea, col))
             i = m.end()
             continue
+        # Un error de tokenizador es lo primero que ve alguien que se equivoca, y «se esperaba
+        # expresión; llegó '='» no le dice qué hacer. Los dos tropiezos que aparecen apenas
+        # alguien escribe su primera medida tienen nombre y arreglo, así que se dicen.
+        if c == "=" and texto[i:i + 2] != "==":
+            _fallar(linea, col,
+                    "la comparación se escribe «==», no «=»; «=» sola no es un operador del lenguaje",
+                    literal=True)
+        if unicodedata.category(c).startswith("L"):
+            _fallar(linea, col,
+                    f"«{c}» no puede ir en un nombre: relaciones, alias y campos usan minúsculas "
+                    "ASCII, dígitos y `_`. La prosa de `porque` y `alcance` sí lleva acentos y eñes",
+                    literal=True)
         _fallar(linea, col, "expresión", c)
     tokens.append(Token("EOF", "", linea, columna_base + len(texto)))
     return tokens
@@ -479,17 +492,43 @@ def _leer_requiere(item: tuple[int, str]) -> list:
     return ["requiere", *(_leer_nombre(p, item[0], col) for p in partes)]
 
 
+def _falta_o_sobra(cuerpo: list[tuple[int, str]], palabras: tuple[str, ...], clase: str) -> None:
+    """Dice QUÉ línea falta, no sólo cuántas.
+
+    «se esperaba 4 líneas de cuerpo para ninguno» es cierto y no sirve: quien escribió tres no sabe
+    cuál de las cuatro se olvidó. Las macros tienen cuerpo fijo y en orden, así que la línea que
+    falta se puede nombrar — y nombrarla es la diferencia entre releer la documentación y arreglarlo.
+    """
+    presentes = [_indentada(linea, 1, n).split(" ", 1)[0].rstrip(":") for n, linea in cuerpo]
+    faltan = [p for p in palabras if p not in presentes]
+    # Dónde señalar: la línea donde IRÍA la que falta. Con cuerpo, la siguiente a la última escrita;
+    # sin cuerpo, la primera del cuerpo —la 2—, no una línea que no existe.
+    ultima = cuerpo[-1][0] + 1 if cuerpo else 2
+    if faltan:
+        cuales = ", ".join(f"`{x}`" for x in faltan)
+        _fallar(ultima, 1,
+                f"a la macro {clase} le falta {cuales}. Su cuerpo son estas {len(palabras)} líneas, "
+                f"en este orden: {', '.join(palabras)}", literal=True)
+    _fallar(cuerpo[-1][0] if cuerpo else 2, 1,
+            f"la macro {clase} lleva exactamente {len(palabras)} líneas de cuerpo "
+            f"({', '.join(palabras)}) y llegaron {len(cuerpo)}", literal=True)
+
+
 def _macro_ninguno(clase: str, mid: str, cuerpo: list[tuple[int, str]], *,
                    ubicaciones: dict[str, Ubicacion] | None = None) -> list:
-    esperado = 4
-    if len(cuerpo) != esperado:
-        linea = cuerpo[min(len(cuerpo) - 1, esperado - 1)][0] if cuerpo else 2
-        _fallar(linea, 1, f"{esperado} líneas de cuerpo para {clase}")
+    if len(cuerpo) != 4:
+        _falta_o_sobra(cuerpo, ("de", "donde", "umbral", "alcance"), clase)
     fuente = _leer_de(cuerpo[0])
     pred_txt, col_pred = _exigir_prefijo(cuerpo[1], "donde ", 1)
     op, limite, porque, col_umbral = _leer_umbral(*_contenido(cuerpo[2], "umbral ", 1))
     if op != "<=" or limite != 0:
-        _fallar(cuerpo[2][0], col_umbral, "la macro ninguno con umbral <= 0")
+        # El «por qué» de la prohibición está escrito en una medida del catálogo, y decirlo acá
+        # ahorra ir a buscarlo. Pero sólo cuando aplica: sumarlo a un `<= 1` mezcla dos problemas.
+        extra = ("; y un umbral de igualdad está prohibido en todo el catálogo, porque no deja "
+                 "borde para la mutación —ver `meta.ningun_umbral_de_igualdad`") if op == "==" else ""
+        _fallar(cuerpo[2][0], col_umbral,
+                f"la macro {clase} cuenta lo que ofende, así que su umbral es siempre «<= 0» y "
+                f"llegó «{op} {limite}»{extra}", literal=True)
     alcance = _literal_texto(*_contenido(cuerpo[3], "alcance ", 1))
     return [clase, mid, fuente[1], fuente[2],
             _leer_expr_en(pred_txt, cuerpo[1][0], col_pred, ubicaciones, (4,)),

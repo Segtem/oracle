@@ -370,12 +370,14 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
                 (10, "    de pieza p"), (11, "    donde p.x == 1"),
                 (12, '    umbral <= 0 porque "defensa valida y suficiente"'),
-                (13, '    alcance "nada"'), (14, "    sobra")]), 13, 1,
-             "línea 13, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+                (13, '    alcance "nada"'), (14, "    sobra")]), 14, 1,
+             "línea 14, columna 1: la macro ninguno lleva exactamente 4 líneas de cuerpo "
+             "(de, donde, umbral, alcance) y llegaron 5"),
             (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
                 (10, "    de pieza p"), (11, "    donde p.x == 1"),
-                (12, '    umbral <= 0 porque "defensa valida y suficiente"')]), 12, 1,
-             "línea 12, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+                (12, '    umbral <= 0 porque "defensa valida y suficiente"')]), 13, 1,
+             "línea 13, columna 1: a la macro ninguno le falta `alcance`. Su cuerpo son estas "
+             "4 líneas, en este orden: de, donde, umbral, alcance"),
             (lambda: sintaxis_nucleo._macro_ninguno_par("d.m", [
                 (10, "    de pieza a, b"), (11, "    donde a.x == b.x")]), 10, 1,
              "línea 10, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
@@ -474,18 +476,24 @@ class MutacionDeSintaxisTests(unittest.TestCase):
 
     def test_errores_de_medidas_y_macros_fijan_fragmentos(self) -> None:
         casos = [
+            # El mensaje NOMBRA la línea que falta. «se esperaba 4 líneas» es cierto y no dice
+            # cuál de las cuatro se olvidó.
             ("ninguno sin cuerpo", "ninguno d.n:\n", 2, 1,
-             "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
-            ("ninguno incompleto", self._texto(["ninguno d.n:", "    de rel r"]), 2, 1,
-             "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+             "línea 2, columna 1: a la macro ninguno le falta `de`, `donde`, `umbral`, "
+             "`alcance`. Su cuerpo son estas 4 líneas, en este orden: de, donde, umbral, alcance"),
+            ("ninguno incompleto", self._texto(["ninguno d.n:", "    de rel r"]), 3, 1,
+             "línea 3, columna 1: a la macro ninguno le falta `donde`, `umbral`, `alcance`. "
+             "Su cuerpo son estas 4 líneas, en este orden: de, donde, umbral, alcance"),
             ("ninguno largo", self._texto([
                 "ninguno d.n:", "    de rel r", "    donde r.x == true",
-                '    umbral <= 0 porque "razón"', '    alcance "NO ve"', "    sobra"]), 5, 1,
-             "línea 5, columna 1: se esperaba 4 líneas de cuerpo para ninguno"),
+                '    umbral <= 0 porque "razón"', '    alcance "NO ve"', "    sobra"]), 6, 1,
+             "línea 6, columna 1: la macro ninguno lleva exactamente 4 líneas de cuerpo "
+             "(de, donde, umbral, alcance) y llegaron 5"),
             ("ninguno umbral", self._texto([
                 "ninguno d.n:", "    de rel r", "    donde r.x == true",
                 '    umbral < 0 porque "razón"', '    alcance "NO ve"']), 4, 16,
-             "línea 4, columna 16: se esperaba la macro ninguno con umbral <= 0"),
+             "línea 4, columna 16: la macro ninguno cuenta lo que ofende, así que su umbral es "
+             "siempre «<= 0» y llegó «< 0»"),
             ("ninguno-par sin cuerpo", "ninguno-par d.n:\n", 2, 1,
              "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
             ("ninguno-par de", self._texto([
@@ -2025,6 +2033,121 @@ class LosSeisTropiezosDeCasosFijanMensajeYPosicionTests(unittest.TestCase):
         fragmento = sintaxis.fragmento_de_error(e, texto)
         self.assertIn("  13 |         tarea: id vencida", fragmento)
         self.assertIn("     |                   ^", fragmento)
+
+
+class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
+    """Un error que nombra la gramática es correcto y deja a la persona donde estaba.
+
+    Caminando el recorrido de alguien que escribe su primera medida, cuatro de diez tropiezos
+    terminaban en un mensaje cierto e inútil. «se esperaba expresión; llegó \'=\'» no le enseña a
+    nadie que la comparación se escribe `==`.
+
+    Criterio: el mensaje contiene **lo que hay que hacer**, no sólo lo que se esperaba. Y la posición
+    sigue siendo exacta — un mensaje amable que señala la línea equivocada es peor que uno seco que
+    acierta.
+    """
+
+    CUERPO = ('ninguno tareas.vencida:\n'
+              '    de tarea t\n'
+              '    donde t.vencida == true\n'
+              '    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
+              '    alcance "ve el par vencida+sin-dueño y nada más"\n')
+
+    def _error(self, texto):
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis.leer(texto)
+        return cm.exception
+
+    def test_un_igual_solo_ensena_el_doble_igual(self) -> None:
+        e = self._error(self.CUERPO.replace("t.vencida ==", "t.vencida ="))
+        self.assertIn("«==»", str(e))
+        self.assertEqual((e.linea, e.columna), (3, 21))
+
+    def test_un_acento_en_un_nombre_explica_la_gramatica(self) -> None:
+        """Y aclara que la prosa SÍ los lleva: si no, el mensaje asusta de más y alguien
+        termina escribiendo el `porque` sin tildes."""
+        e = self._error(self.CUERPO.replace("t.vencida", "t.vencída"))
+        self.assertIn("minúsculas ASCII", str(e))
+        self.assertIn("porque", str(e))
+        self.assertEqual((e.linea, e.columna), (3, 17))
+
+    def test_la_linea_que_falta_se_nombra(self) -> None:
+        for palabra, quitar in (
+                ("alcance", '    alcance "ve el par vencida+sin-dueño y nada más"\n'),
+                ("donde", "    donde t.vencida == true\n")):
+            with self.subTest(falta=palabra):
+                e = self._error(self.CUERPO.replace(quitar, ""))
+                self.assertIn(f"`{palabra}`", str(e))
+                self.assertIn("de, donde, umbral, alcance", str(e))
+
+    def test_un_cuerpo_de_mas_no_se_confunde_con_uno_de_menos(self) -> None:
+        e = self._error(self.CUERPO + "    sobra\n")
+        self.assertIn("y llegaron 5", str(e))
+        self.assertNotIn("le falta", str(e))
+
+    def test_el_umbral_de_igualdad_dice_por_que_esta_prohibido(self) -> None:
+        e = self._error(self.CUERPO.replace("umbral <= 0", "umbral == 0"))
+        self.assertIn("meta.ningun_umbral_de_igualdad", str(e))
+
+    def test_pero_un_umbral_distinto_de_cero_no_habla_de_igualdad(self) -> None:
+        """Sumar la prohibición a un `<= 1` mezcla dos problemas y confunde."""
+        e = self._error(self.CUERPO.replace("umbral <= 0", "umbral <= 1"))
+        self.assertIn("«<= 1»", str(e))
+        self.assertNotIn("meta.ningun_umbral_de_igualdad", str(e))
+
+    def test_el_cuerpo_vacio_senala_donde_iria_la_primera_linea(self) -> None:
+        """No una línea que no existe: la 2, que es donde empieza el cuerpo."""
+        e = self._error("ninguno d.n:\n")
+        self.assertEqual((e.linea, e.columna), (2, 1))
+
+
+class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
+    """El último paso de autoría que seguía exigiendo el checkout de Oracle.
+
+    Existía sólo como `python tools/sintaxis.py --imprimir|--leer`, y por eso la documentación tenía
+    que dejarlo escrito así: no se documenta un comando que no existe. Ahora es `oracle convertir`,
+    con un solo verbo porque la dirección la dice la extensión.
+    """
+
+    def _correr(self, ruta):
+        import io
+        from contextlib import redirect_stdout
+        from tools import cli
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = cli.main(["convertir", str(ruta), "--proyecto", str(RAIZ)])
+        return codigo, salida.getvalue()
+
+    def test_una_medida_en_superficie_sale_como_json(self) -> None:
+        import json as _json
+        from nucleo.medida import ruta_de_medida
+        ruta = ruta_de_medida("meta.donde_compone", RAIZ / "catalogos",
+                              *sorted((RAIZ / "perfiles").glob("*/catalogos")))
+        codigo, salida = self._correr(ruta)
+        self.assertEqual(codigo, 0)
+        self.assertEqual(_json.loads(salida)[1], "meta.donde_compone")
+
+    def test_una_medida_en_json_sale_como_superficie(self) -> None:
+        from nucleo.medida import rutas_de_catalogo
+        jsons = [r for r in rutas_de_catalogo(RAIZ / "catalogos") if r.suffix == ".json"]
+        self.assertTrue(jsons, "el catálogo dejó de tener medidas en JSON")
+        codigo, salida = self._correr(jsons[0])
+        self.assertEqual(codigo, 0)
+        self.assertEqual(sintaxis.leer(salida)[1], jsons[0].stem)
+
+    def test_una_extension_desconocida_no_adivina(self) -> None:
+        codigo, salida = self._correr(RAIZ / "README.md")
+        self.assertEqual(codigo, 1)
+        self.assertIn(".oracle", salida)
+
+    def test_un_archivo_roto_señala_donde(self) -> None:
+        import tempfile
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / "roto.oracle"
+            ruta.write_text("ninguno d.m:\n    de a\n", encoding="utf-8")
+            codigo, salida = self._correr(ruta)
+            self.assertEqual(codigo, 1)
+            self.assertIn("^", salida)
 
 
 if __name__ == "__main__":
