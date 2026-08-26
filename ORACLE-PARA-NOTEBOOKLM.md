@@ -3,8 +3,8 @@
 Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autoría, catálogo,
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
-- Generado: `2026-08-25`
-- Revisión de código base: `5daf40a90e09`
+- Generado: `2026-08-26`
+- Revisión de código base: `2a3100495a49`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-549 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
+550 tests · 547/547 mutantes de medida · **2280 sitios de mutación de código** (2075 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -1123,9 +1123,19 @@ gramática.
 
 Si el proyecto declara funciones en `escalares.py`, los comandos que cargan o evalúan su catálogo
 requieren `--confiar-escalares`. Esa bandera autoriza cargar código Python externo, pero Oracle lo
-ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON. El
-trabajador puede leer el proyecto, Oracle y la biblioteca estándar; sólo puede escribir dentro del
-proyecto, no puede abrir red ni crear procesos. Si una UDF necesita más autoridad, no pertenece a una
+ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON.
+
+Lo que ese confinamiento **sí** detiene: leer el CONTENIDO de archivos fuera del proyecto, escribir
+fuera, abrir red, crear procesos y usar `ctypes`.
+
+Lo que **no** detiene, y conviene saberlo antes de correr un `escalares.py` ajeno: **los metadatos
+del sistema de archivos**. Una UDF puede preguntar si existe cualquier ruta, leer tamaños, permisos
+y fechas, y devolver eso como resultado. No es un descuido — `os.stat` no emite ningún evento
+auditable en CPython, así que el mecanismo no puede verlo — y está declarado en el docstring de
+`nucleo/aislamiento/escalares.py` con un test que lo fija.
+
+`--confiar-escalares` es opt-in por esto: la pregunta no es si el sandbox es perfecto, es si confiás
+en ese archivo. Si una UDF necesita más autoridad de la que el confinamiento da, no pertenece a una
 medida: generá ese dato antes y entregalo como evidencia.
 
 `--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
@@ -8372,6 +8382,74 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 5daf40a*
 
+
+
+## 2026-08-25 — Merge branch 'mutar-medida': la reificación deja de ser el código menos fijado del núcleo
+
+*commit 6b8d121*
+
+`nucleo/medida.py` cambió 345 líneas en tres días y la ronda dio 25 sobrevivientes.
+No estaban desparramados: **veinte de los veinticinco eran la REIFICACIÓN** —
+`_tipo`, `_pasos_de`, `_fuentes`, `_fuentes_de_medida`, `_hecho_medida`, `_ruta`,
+`_cabeza`, `_terminos`, `evidencia_con_derivadas`—, la maquinaria de
+`como_hechos()` que convierte el catálogo en hechos para que las medidas puedan
+hablar de medidas.
+
+O sea: la mitad que hace de esto un META lenguaje era la peor fijada. Siete
+mutantes vivos en `_tipo` solo: una medida L2 podía clasificar mal el tipo de un
+nodo —decir «numero» donde hay un booleano, y en Python un `bool` ES un `int`— y
+ninguna medida meta se enteraba.
+
+    nucleo/medida.py: 181 mutantes · 181 muertos · 0 sobrevivientes
+                      0 equivalentes declarados
+
+Los 25 cayeron en la misma categoría: **falta un test**. Ninguno equivalente,
+ninguno código muerto, ningún bug. Es un buen resultado y no era el esperado: en
+la ronda de `algebra.py`, hoy mismo, cuatro «equivalentes» resultaron ser un
+defecto de cableado.
+
+Trabajo delegado a Gemini 3.7 Flash (high). Corrí la ronda por mi cuenta antes de
+integrar: mismo resultado.
+
+549 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — `proyecto.py` y `cifras.py`, fijados: 1 sobreviviente entre los dos
+
+*commit f0dcb84*
+
+Dos objetivos de la matriz que nunca se habían mutado, y los dos cambiaron fuerte
+esta semana: `proyecto.py` (84 líneas en 3 días) resuelve y confina las rutas de
+un proyecto y guarda las dos gramáticas de id; `cifras.py` (126 líneas) publica
+los números del README.
+
+    nucleo/proyecto.py   1 sobreviviente · categoría «falta un test»
+    tools/cifras.py      0 sobrevivientes
+
+**El confinamiento aguantó entero.** Pedí explícitamente casos que escaparan de
+verdad —symlinks apuntando afuera, `..` en la ruta— porque la ruta feliz no
+distingue un confinamiento bueno de uno roto, y no sobrevivió ningún mutante ahí.
+Tampoco en las gramáticas de id.
+
+El único hueco estaba en otro lado: la restauración del registro global de
+escalares cuando se usa un registro de instancia (`is not` → `is`). Nada
+ejercitaba esa garantía de limpieza.
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh). El commit lo hice yo: su
+sandbox volvió a no poder escribir el gitdir del worktree.
+
+542 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-25 — Merge branch 'mutar-proyecto'
+
+*commit 2a31004*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8387,7 +8465,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 127 | el historial completo |
+| commits | 130 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

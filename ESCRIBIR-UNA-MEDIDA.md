@@ -59,9 +59,19 @@ gramática.
 
 Si el proyecto declara funciones en `escalares.py`, los comandos que cargan o evalúan su catálogo
 requieren `--confiar-escalares`. Esa bandera autoriza cargar código Python externo, pero Oracle lo
-ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON. El
-trabajador puede leer el proyecto, Oracle y la biblioteca estándar; sólo puede escribir dentro del
-proyecto, no puede abrir red ni crear procesos. Si una UDF necesita más autoridad, no pertenece a una
+ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON.
+
+Lo que ese confinamiento **sí** detiene: leer el CONTENIDO de archivos fuera del proyecto, escribir
+fuera, abrir red, crear procesos y usar `ctypes`.
+
+Lo que **no** detiene, y conviene saberlo antes de correr un `escalares.py` ajeno: **los metadatos
+del sistema de archivos**. Una UDF puede preguntar si existe cualquier ruta, leer tamaños, permisos
+y fechas, y devolver eso como resultado. No es un descuido — `os.stat` no emite ningún evento
+auditable en CPython, así que el mecanismo no puede verlo — y está declarado en el docstring de
+`nucleo/aislamiento/escalares.py` con un test que lo fija.
+
+`--confiar-escalares` es opt-in por esto: la pregunta no es si el sandbox es perfecto, es si confiás
+en ese archivo. Si una UDF necesita más autoridad de la que el confinamiento da, no pertenece a una
 medida: generá ese dato antes y entregalo como evidencia.
 
 `--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
