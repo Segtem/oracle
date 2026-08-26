@@ -108,7 +108,7 @@ Para traducir entre la superficie infija y el archivo JSON tenés la herramienta
 
 ```bash
 python tools/sintaxis.py --imprimir catalogos/proceso/proceso.test_con_mutante_que_lo_mata.json  # JSON -> superficie
-python tools/medida.py --nueva dominio.regla        # crea el andamio ya en superficie infija
+oracle nueva dominio.regla        # crea el andamio ya en superficie infija
 python tools/sintaxis.py --leer medida.oracle       # superficie -> JSON, si lo necesitás
 ```
 
@@ -269,8 +269,8 @@ consumieron en el resumen). Las claves y agregados derivados se leen directament
 
 **La mayoría de las medidas del catálogo de Oracle están escritas con una macro.** Una macro es azúcar
 sintáctica que se expande a la forma canónica ANTES de construir la medida — el evaluador, la
-mutación y el inventario nunca se enteran de que hubo una macro. `python tools/medida.py --expandir
-<archivo>` te muestra la expansión.
+mutación y el inventario nunca se enteran de que hubo una macro. `oracle expandir <archivo>` te muestra
+la expansión.
 
 | Macro | Superficie | Para qué |
 |---|---|---|
@@ -471,7 +471,7 @@ def penetracion(a: dict, b: dict, tol: float = 1.0) -> float:
 Reglas:
 
 - El decorador **registra** la función — no basta con importarla. Así aparece en
-  `python tools/medida.py --escalares`, y se puede contar cuántas escalares tiene un proyecto.
+  `oracle escalares`, y se puede contar cuántas escalares tiene un proyecto.
 - El nombre usa minúsculas ASCII, dígitos y `_`, **sin puntos** (para no confundirse con un id de
   medida).
 - En la superficie infija, una escalar recibe hechos completos con `hecho(alias)` (como `penetracion(hecho(a), hecho(b))` arriba) o
@@ -706,13 +706,12 @@ por diseño rechazan caracteres no ASCII para evitar divergencias entre normaliz
 
 ```bash
 cd mi-proyecto
-python <ruta-a-oracle>/tools/medida.py --proyecto . --relaciones     # ¿qué hechos hay?
-python <ruta-a-oracle>/tools/aceptacion.py --proyecto .              # ¿el corpus se pone rojo/verde como debe?
-python <ruta-a-oracle>/tools/mutar.py --proyecto .                   # ¿el corpus ALCANZA para fijar la medida?
+oracle relaciones     # ¿qué hechos hay?
+oracle test           # secuencia completa: corpus, sintaxis, aceptación y mutación
 ```
 
-`aceptacion.py` tiene que confirmar: el caso `001` se pone ROJO con `tareas.vencida_sin_dueno`, y el
-`002` se pone VERDE. Si `mutar.py` encuentra un mutante que sobrevive (por ejemplo, sacarle el `y` y
+`oracle test` tiene que confirmar: el caso `001` se pone ROJO con `tareas.vencida_sin_dueno`, y el
+`002` se pone VERDE. Si la mutación encuentra un mutante que sobrevive (por ejemplo, sacarle el `y` y
 dejar sólo `vencida == true`), es que falta un tercer caso que discrimine esa mutación específica —
 una tarea vencida CON dueño, que ya tenemos, o una NO vencida sin dueño, que faltaría agregar.
 

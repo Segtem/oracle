@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `eb2797f5f9b4`
+- Revisión de código base: `b1242a932861`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -8968,9 +8968,27 @@ SINTAXIS · MUTACIÓN de medidas 547/547
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-26 — caso: los errores dicen que hacer, validan conjuntos cerrados y conservan posicion exacta
+
+*commit 9371553*
+
+
+
+## 2026-08-26 — docs: informe de mejoras de sintaxis y reporte de errores de casos
+
+*commit aa6537a*
+
+
+
 ## 2026-08-26 — Documentar instalacion de oracle
 
 *commit 941b222*
+
+
+
+## 2026-08-26 — Saca el informe
+
+*commit 72e821e*
 
 
 
@@ -9043,6 +9061,72 @@ SINTAXIS
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-26 — Merge branch 'caso-errores': el `.caso` también dice qué hacer
+
+*commit cce328a*
+
+`ESCRIBIR-UNA-MEDIDA.md` manda escribir el caso del corpus ANTES que la medida —y
+con razón: una medida escrita primero se escribe para pasar, no para atrapar—. O
+sea que un `.caso` es lo PRIMERO que tipea una persona, y ahí un mensaje malo sale
+más caro que en ningún otro lado.
+
+Medí seis tropiezos y cuatro estaban mal. El peor no era feo, era **engañoso**:
+
+    etiqueta inventada
+      antes  ⚠ NO FALLA al leer — el error llegaba recién al correr `oracle test`,
+             con el archivo entero ya escrito
+      ahora  línea 7, columna 15: se esperaba etiqueta en ['deuda_de_diseño',
+             'falso_rojo', 'falso_verde', …]
+
+    campos sin coma  (`tarea: id vencida`)
+      antes  se esperaba 1 valores de fila; llegó '"t-1", true'
+             ← entendía UN campo llamado «id vencida» y contaba 1 sobre una fila
+               de dos: la persona no puede entender eso
+      ahora  se esperaba ',' entre campos; llegó 'vencida'
+
+    fila con menos columnas
+      antes  se esperaba 2 valores de fila
+      ahora  la relación «tarea» declara 2 campos (id, vencida) y esta fila trae 1
+
+    valor sin comillas
+      antes  se esperaba fin de valor JSON; llegó '-08-26'
+      ahora  se esperaba texto entre comillas
+
+Las listas de `etiqueta` y `como_se_detecto` quedan en **una sola fuente**
+(`nucleo/caso.py`), con un test que exige que `tools/corpus.py` use el MISMO
+objeto: dos copias divergen, y eso es el caso `012` del corpus.
+
+Trabajo delegado a Gemini 3.7 Flash (high).
+
+## Una decisión suya que revertí
+
+La plantilla del andamio pasó a traer `etiqueta: falso_verde` y
+`como_se_detecto: mutacion` puestos, para que parseara. Es un retroceso: esos dos
+campos no son decorativos —la etiqueta decide la polaridad del caso y
+`como_se_detecto` alimenta una cifra que el README publica— y **un default creíble
+se queda sin pensar**, que es peor que un error.
+
+Vuelven a ser marcadores. Eso hace que la plantilla entregada NO parsee, contra el
+principio que ya estaba escrito para la plantilla de medida, y la tensión se
+resuelve por el otro lado: **el andamio ahora lista los valores válidos al crear el
+archivo**, cuando la persona todavía tiene fresco lo que pasó, y el error los
+enumera igual para quien llegue por otro camino. Tres tests fijan ese contrato.
+
+    $ oracle caso tareas/001-prueba
+    Reemplazá los marcadores en MAYÚSCULAS. Dos tienen valores cerrados:
+      etiqueta:         deuda_de_diseño · falso_rojo · falso_verde · …
+      como_se_detecto:  accidente · herramienta_ajena · mutacion · observacion · persona
+
+605 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN `nucleo/caso.py` 206/206
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — docs: reemplazar invocaciones por ruta hacia el comando oracle
+
+*commit b1242a9*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -9058,7 +9142,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 161 | el historial completo |
+| commits | 166 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
