@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `b91a3eb068cb`
+- Revisión de código base: `20be004251a8`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -407,7 +407,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-589 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
+597 tests · 547/547 mutantes de medida · **2394 sitios de mutación de código** (2189 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -4999,6 +4999,21 @@ a la vez. Desde el 2026-08-24 ya no es un criterio sino una cifra de costo (el p
 estado EXPERIMENTAL, sin condición de cierre), pero sigue custodiada acá por el mismo motivo por el
 que se empezó a generar: una cifra publicada a mano es una afirmación que nadie ejercita.
 
+### `tools/cli.py`
+
+*371 líneas*
+
+Entry point único para Oracle.
+
+oracle init [ruta]                      inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
+oracle nueva <dominio.nombre>          crea una nueva medida en catalogos/ con plantilla lista
+oracle caso <grupo/id>                 crea un nuevo caso en corpus/ con plantilla lista
+oracle revisar <archivo>               revisa y evalúa una medida suelta contra la evidencia del proyecto
+oracle test [--rapido]                 ejecuta la secuencia completa de verificación con veredicto final
+oracle relaciones                      hechos y campos disponibles derivados de la evidencia
+oracle escalares                       funciones de dominio y operadores disponibles
+oracle expandir <archivo>              muestra la forma canónica de una medida escrita con macros
+
 ### `tools/corpus.py`
 
 *255 líneas*
@@ -5169,6 +5184,12 @@ rondas sobre la misma raíz; timeout y señales terminan el grupo de procesos y 
 Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Timeout, error del arnés y fallo de
 tests son estados distintos; sólo el último demuestra que el mutante murió.
 
+### `tools/oracle.py`
+
+*13 líneas*
+
+Alias directo para tools/cli.py.
+
 ### `tools/sesion.py`
 
 *15 líneas*
@@ -5177,7 +5198,7 @@ Frontera común entre errores de proyecto y los códigos de salida de los entry 
 
 ### `tools/sintaxis.py`
 
-*222 líneas*
+*225 líneas*
 
 CLI para la superficie infija de autoría.
 
@@ -5214,7 +5235,7 @@ puede dar.
 
 ### `tools/verificar_instalacion.py`
 
-*160 líneas*
+*161 líneas*
 
 Construye el wheel y prueba la API pública desde un entorno y cwd aislados.
 
@@ -8743,6 +8764,102 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit b91a3eb*
 
+
+
+## 2026-08-26 — cli: entry point unificado oracle para inicialización, autoría y suite de verificación
+
+*commit 0e09d63*
+
+
+
+## 2026-08-26 — Saca el informe
+
+*commit f7d2a68*
+
+
+
+## 2026-08-26 — Merge branch 'main' into oracle-cli
+
+*commit c15f7ae*
+
+# Conflicts:
+#	README.md
+
+## 2026-08-26 — Los tests del CLI dejan de ensuciar la salida de la suite
+
+*commit ed3235b*
+
+Capturaban `cli.main` pero llamaban `cmd_init`, `cmd_nueva` y `cmd_caso` directo,
+así que la ayuda del comando salía mezclada con el resumen: `unittest -q | tail -3`
+mostraba «Creá una medida» en vez de «OK».
+
+## 2026-08-26 — Merge branch 'errores-amables': el error dice qué hacer, no sólo qué se esperaba
+
+*commit 834d514*
+
+Caminé los diez tropiezos de alguien escribiendo su primera medida. **Cuatro
+terminaban en un mensaje cierto e inútil**: nombran la gramática y dejan a la
+persona en el mismo lugar donde estaba.
+
+    usa = en vez de ==
+      antes  se esperaba expresión; llegó '='
+      ahora  la comparación se escribe «==», no «=»; «=» sola no es un operador
+             del lenguaje
+
+    campo con acento
+      antes  se esperaba expresión; llegó 'í'
+      ahora  «í» no puede ir en un nombre: relaciones, alias y campos usan
+             minúsculas ASCII, dígitos y `_`. La prosa de `porque` y `alcance` sí
+             lleva acentos y eñes
+
+    olvida una línea del cuerpo
+      antes  se esperaba 4 líneas de cuerpo para ninguno
+      ahora  a la macro ninguno le falta `alcance`. Su cuerpo son estas 4 líneas,
+             en este orden: de, donde, umbral, alcance
+
+    umbral con ==
+      antes  se esperaba la macro ninguno con umbral <= 0
+      ahora  …su umbral es siempre «<= 0» y llegó «== 0»; y un umbral de igualdad
+             está prohibido en todo el catálogo, porque no deja borde para la
+             mutación —ver `meta.ningun_umbral_de_igualdad`
+
+Ese último es **condicional**: con `<= 1` no menciona la prohibición de igualdad,
+porque sumarla ahí mezcla dos problemas distintos y confunde.
+
+Dos cuidados que valen tanto como los mensajes:
+
+  · **la posición sigue siendo exacta.** Un mensaje amable que señala la línea
+    equivocada es peor que uno seco que acierta. El caso del cuerpo vacío apuntaba
+    a una línea que no existe; ahora apunta a la 2, donde empieza el cuerpo.
+  · **el del acento aclara que la prosa SÍ los lleva.** Sin esa frase el mensaje
+    asusta de más y alguien termina escribiendo el `porque` sin tildes.
+
+Siete tests fijan cada mensaje Y su posición, con el criterio escrito: tiene que
+contener lo que hay que hacer, no sólo lo que se esperaba.
+
+Dos cosas se rompieron y las dos son el mecanismo funcionando: seis tests fijaban
+los mensajes viejos —actualizados mirando las posiciones reales, no a ojo— y dos
+equivalentes quedaron vencidos porque las ediciones corrieron las líneas del
+archivo. Reapuntados, con la fragilidad del id posicional anotada en su razón.
+
+Ronda de verificación: `nucleo/sintaxis.py` 641 mutantes · 641 muertos · 0 vivos.
+
+589 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Merge branch 'main' into oracle-cli
+
+*commit 50cf4d7*
+
+
+
+## 2026-08-26 — Merge branch 'oracle-cli'
+
+*commit 20be004*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8758,7 +8875,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 149 | el historial completo |
+| commits | 156 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
