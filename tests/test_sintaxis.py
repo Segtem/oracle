@@ -1332,16 +1332,63 @@ class MedidaNuevaNaceEnLaSuperficieTests(unittest.TestCase):
 
 
 class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
-    def test_la_plantilla_de_caso_que_se_entrega_se_lee_y_carga(self) -> None:
-        import tempfile
+    def test_la_plantilla_de_caso_no_trae_una_etiqueta_puesta(self) -> None:
+        """La plantilla de MEDIDA parsea entera; ésta no puede, y es a propósito.
+
+        `etiqueta` y `como_se_detecto` son conjuntos cerrados: cualquier marcador queda fuera del
+        conjunto por definición. Se podría poner un valor plausible —`falso_verde`, `mutacion`— y la
+        plantilla parsearía, pero esos dos campos no son decorativos: la etiqueta decide la polaridad
+        del caso y `como_se_detecto` alimenta una cifra que el README publica. **Un default creíble
+        se queda sin pensar**, que es peor que un error.
+
+        El marcador sólo es aceptable porque el error enseña qué poner y el andamio lo lista al
+        crear el archivo. Eso es lo que fijan los dos tests de abajo.
+        """
         from tools.corpus import PLANTILLA
 
         texto = PLANTILLA.format(cid="999-caso-nuevo")
-        self.assertEqual(sintaxis_caso.leer(texto)["id"], "999-caso-nuevo")
+        self.assertIn("ETIQUETA", texto)
+        self.assertIn("COMO_SE_DETECTO", texto)
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis_caso.leer(texto)
+        self.assertIn("etiqueta en [", str(cm.exception))
+
+    def test_el_error_del_marcador_enumera_los_valores_validos(self) -> None:
+        from nucleo.caso import DETECCIONES, ETIQUETAS
+        from tools.corpus import PLANTILLA
+
+        texto = PLANTILLA.format(cid="999-caso-nuevo")
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis_caso.leer(texto)
+        for valor in ETIQUETAS:
+            self.assertIn(valor, str(cm.exception))
+        con_etiqueta = texto.replace("etiqueta: ETIQUETA", "etiqueta: falso_verde")
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm2:
+            sintaxis_caso.leer(con_etiqueta)
+        for valor in DETECCIONES:
+            self.assertIn(valor, str(cm2.exception))
+
+    def test_el_andamio_lista_los_conjuntos_cerrados_al_crear_el_caso(self) -> None:
+        """El momento de decidirlos es al crear el archivo, no dos comandos después."""
+        import io
+        import tempfile
+        from contextlib import redirect_stdout
+        from nucleo.caso import DETECCIONES, ETIQUETAS
+        from nucleo.proyecto import Proyecto
+        from tools import corpus
+
         with tempfile.TemporaryDirectory() as d:
-            ruta = Path(d) / "999-caso-nuevo.caso"
-            ruta.write_text(texto, encoding="utf-8")
-            self.assertEqual(sintaxis_caso.cargar_fuente_caso(ruta)["id"], "999-caso-nuevo")
+            raiz = Path(d)
+            for sub in ("catalogos", "corpus", "diferencial"):
+                (raiz / sub).mkdir()
+            (raiz / "oracle.json").write_text(
+                '{"esquema":"oracle.proyecto/v1","perfiles":[]}', encoding="utf-8")
+            salida = io.StringIO()
+            with redirect_stdout(salida):
+                corpus.nuevo(Proyecto(raiz), "tareas/001-prueba")
+            texto = salida.getvalue()
+            for valor in (*ETIQUETAS, *DETECCIONES):
+                self.assertIn(valor, texto)
 
     def test_el_andamio_crea_un_caso_en_superficie(self) -> None:
         import io
@@ -1363,8 +1410,11 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
             self.assertTrue(destino.exists())
             self.assertEqual(corpus.ruta_de_caso_nuevo(Proyecto(raiz), "meta/999-caso-nuevo"),
                              destino)
-            self.assertEqual(sintaxis_caso.cargar_fuente_caso(destino)["id"],
-                             "999-caso-nuevo")
+            # NO se comprueba que cargue: la plantilla trae los dos marcadores de conjunto cerrado
+            # sin llenar, a propósito (ver `test_la_plantilla_de_caso_no_trae_una_etiqueta_puesta`).
+            escrito = destino.read_text(encoding="utf-8")
+            self.assertTrue(escrito.startswith("caso 999-caso-nuevo:"))
+            self.assertIn("evidencia:", escrito)
 
 
 class DocumentacionVerificadaTests(unittest.TestCase):

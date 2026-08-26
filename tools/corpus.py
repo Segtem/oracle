@@ -36,6 +36,14 @@ OBLIGATORIOS = ("id", "fecha", "origen", "titulo", "etiqueta", "sintoma",
                 "como_se_detecto", "medida", "evidencia", "leccion")
 GRUPO_CASO_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 
+# Los dos campos de conjunto cerrado van como MARCADOR, no con un valor plausible por defecto.
+# Un `falso_verde` que ya viene puesto se queda sin pensar, y estos dos no son decorativos:
+# `etiqueta` decide la polaridad del caso —si se espera rojo o verde— y `como_se_detecto` alimenta
+# una cifra que el README publica (el reparto de por dónde salió a la luz cada defecto).
+#
+# El marcador es aceptable sólo porque el error que produce enseña qué poner: el lector enumera los
+# valores válidos en el momento, con línea y columna. Y porque el andamio los lista al crear el
+# archivo, que es cuando la persona todavía tiene fresco lo que pasó.
 PLANTILLA = """\
 caso {cid}:
     fecha: "FECHA"
@@ -43,10 +51,10 @@ caso {cid}:
         repo: "REPO"
         commit: "COMMIT"
     titulo: "TITULO"
-    etiqueta: falso_verde
+    etiqueta: ETIQUETA
     sintoma:
         SINTOMA
-    como_se_detecto: mutacion
+    como_se_detecto: COMO_SE_DETECTO
     medida: DOMINIO.MEDIDA
     evidencia:
         RELACION: CAMPO
@@ -96,8 +104,12 @@ def nuevo(proy, ubicacion: str) -> int:
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(PLANTILLA.format(cid=destino.stem), encoding="utf-8")
     print(f"creado: {presentar_ruta(proy, destino)}\n")
-    print("Reemplazá los marcadores en MAYÚSCULAS. Después:")
-    print(f"  oracle test")
+    print("Reemplazá los marcadores en MAYÚSCULAS. Dos tienen valores cerrados:\n")
+    # Se listan acá y no sólo en el error, porque el momento de decidirlos es AHORA —mientras se
+    # tiene fresco lo que pasó— y no dos comandos después.
+    print(f"  etiqueta:         {' · '.join(sorted(ETIQUETAS))}")
+    print(f"  como_se_detecto:  {' · '.join(sorted(DETECCIONES))}\n")
+    print("Después:  oracle test")
     return 0
 
 
