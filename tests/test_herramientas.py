@@ -125,10 +125,12 @@ class ClaveEnElCorpus(unittest.TestCase):
 
     def test_el_validador_del_corpus_no_reimplementa_la_regla(self) -> None:
         """Si el corpus tuviera su propia copia, este test se cae al cambiar una sola de las dos."""
-        from nucleo import algebra
+        from nucleo import algebra, caso
         from tools import corpus as cli
 
         self.assertIs(cli.separar_clave, algebra.separar_clave)
+        self.assertIs(cli.ETIQUETAS, caso.ETIQUETAS)
+        self.assertIs(cli.DETECCIONES, caso.DETECCIONES)
 
 
 class ContratoDiferencialTests(unittest.TestCase):
