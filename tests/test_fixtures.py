@@ -88,6 +88,10 @@ class FixturesTests(unittest.TestCase):
                 self.assertTrue(_validar_evidencia(evidencia, "caso"))
         self.assertEqual(_validar_evidencia({"hecho": []}, "caso"), [])
 
+    def test_fila_malformada_con_clave_no_intenta_validar_unicidad(self) -> None:
+        fallas = _validar_evidencia({"hecho": [["clave", ["id"]], 1]}, "caso")
+        self.assertEqual(fallas, ["caso: hecho[0] no es una fila"])
+
     def test_envelope_comun_rechaza_tipos_bordes_y_rutas_no_confinadas(self) -> None:
         base = _grupos()
         cambios = []
