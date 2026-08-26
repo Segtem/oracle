@@ -4,7 +4,7 @@ Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autor�
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
 - Generado: `2026-08-26`
-- Revisión de código base: `887327e022e5`
+- Revisión de código base: `b91a3eb068cb`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -8698,6 +8698,51 @@ SINTAXIS · MUTACIÓN de medidas 547/547
 Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
 Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
+## 2026-08-26 — El sandbox de UDFs queda fijado: 126/126, y era el peor del proyecto
+
+*commit f7acea9*
+
+`nucleo/aislamiento/escalares.py` son 411 líneas y es lo único que hace que
+`--confiar-escalares` sea distinto de ejecutar código ajeno a ciegas. La primera
+ronda —la primera de su vida, porque el arnés no lo veía— dio **61 sobrevivientes
+de 126: 48%**, contra 6,5% de `algebra.py` y 2,4% de `sintaxis.py`. La frontera de
+seguridad era el código menos fijado que había.
+
+    126 mutantes · 126 muertos · 0 sobrevivientes · 0 equivalentes declarados
+
+878 líneas de tests nuevos en `tests/test_aislamiento_escalares.py`. Los 61
+cayeron todos en «falta un test»: ninguno equivalente, ninguno código muerto, y
+—esto es lo que más quería saber— **ninguna puerta que no cerrara.**
+
+Lo confirmé aparte de la mutación, volviendo a sondear el confinamiento con doce
+intentos de fuga: contenido de archivos, `os.listdir`, `open` por descriptor,
+sockets, `fork`, `shutil.copy`, `/proc/self/environ` y `ctypes` siguen todos en
+`PermissionError`. Lo único que pasa son los metadatos, que es la fuga ya
+declarada y con su test propio.
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh). El commit lo hice yo: su
+sandbox no puede escribir el gitdir del worktree —tercera vez hoy—. Corrí la ronda
+por mi cuenta antes de integrar: mismo resultado.
+
+## Con esto cierra la matriz
+
+    19 de 19 objetivos en cero sobrevivientes
+
+Es la primera vez desde que el núcleo creció de ~2.900 a ~5.700 líneas. La
+afirmación que el README publicaba con fecha del 3 de agosto vuelve a ser cierta,
+y ahora con el sandbox adentro, que en aquel momento ni siquiera era visible para
+el arnés.
+
+576 tests OK · CIFRAS · CORPUS · ACEPTACIÓN · DIFERENCIAL · TRAZAR · METAMÓRFICAS
+SINTAXIS · MUTACIÓN de medidas 547/547 · de código 19/19 objetivos
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — Actualiza cifras y paquete de estudio
+
+*commit b91a3eb*
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -8713,7 +8758,7 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 | negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
 | medidas | 37 | de las cuales 24 miden el lenguaje mismo |
 | casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 147 | el historial completo |
+| commits | 149 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un
