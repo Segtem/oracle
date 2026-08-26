@@ -116,7 +116,7 @@ def nuevo(proy, ubicacion: str) -> int:
     destino.write_text(PLANTILLA.format(cid=destino.stem), encoding="utf-8")
     print(f"creado: {presentar_ruta(proy, destino)}\n")
     print("Reemplazá los marcadores en MAYÚSCULAS. Después:")
-    print(f"  python tools/corpus.py --proyecto {proy.raiz}")
+    print(f"  oracle test")
     return 0
 
 
