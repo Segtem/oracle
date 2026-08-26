@@ -18,6 +18,21 @@ RAIZ = Path(__file__).resolve().parents[1]
 
 
 class OracleCliTests(unittest.TestCase):
+    @staticmethod
+    def _callado(fn, *args, **kw):
+        """Corre una función del CLI sin dejar su salida en la de la suite.
+
+        Los tests capturaban `cli.main` pero llamaban `cmd_init`, `cmd_nueva` y `cmd_caso` DIRECTO,
+        así que la ayuda del comando terminaba mezclada con el resumen de la corrida:
+        `python -m unittest -q | tail -3` mostraba «Creá una medida» en vez de «OK». Un test que
+        ensucia la salida hace ilegible justo lo que uno mira cuando algo falla.
+        """
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            resultado = fn(*args, **kw)
+        return resultado, salida.getvalue()
+
+
     def test_ayuda_y_sin_argumentos_devuelven_cero(self) -> None:
         salida_help = io.StringIO()
         with redirect_stdout(salida_help):
@@ -55,7 +70,7 @@ class OracleCliTests(unittest.TestCase):
     def test_test_distingue_no_aplica_de_falla(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
-            cli.cmd_init(str(raiz), [])
+            _, _ = self._callado(cli.cmd_init, str(raiz), [])
 
             # 1. Sin fixtures diferenciales -> no aplica (salteado)
             salida = io.StringIO()
@@ -76,11 +91,11 @@ class OracleCliTests(unittest.TestCase):
     def test_rapido_saltea_mutacion_y_lo_informa_en_el_veredicto(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
-            cli.cmd_init(str(raiz), [])
+            _, _ = self._callado(cli.cmd_init, str(raiz), [])
 
             # Creamos una medida y un caso válidos
             proy = Proyecto(raiz)
-            cli.cmd_nueva(proy, "demo.prueba")
+            _, _ = self._callado(cli.cmd_nueva, proy, "demo.prueba")
             medida_path = raiz / "catalogos" / "demo" / "demo.prueba.oracle"
             medida_path.write_text(
                 "ninguno demo.prueba:\n"
@@ -90,7 +105,7 @@ class OracleCliTests(unittest.TestCase):
                 "    alcance \"NO ve otros items\"\n",
                 encoding="utf-8",
             )
-            cli.cmd_caso(proy, "demo/001-rojo")
+            _, _ = self._callado(cli.cmd_caso, proy, "demo/001-rojo")
             caso_path = raiz / "corpus" / "demo" / "001-rojo.caso"
             caso_path.write_text(
                 "caso 001-rojo:\n"
@@ -123,9 +138,9 @@ class OracleCliTests(unittest.TestCase):
     def test_medida_sin_casos_falla_en_test(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
-            cli.cmd_init(str(raiz), [])
+            _, _ = self._callado(cli.cmd_init, str(raiz), [])
             proy = Proyecto(raiz)
-            cli.cmd_nueva(proy, "demo.sola")
+            _, _ = self._callado(cli.cmd_nueva, proy, "demo.sola")
             (raiz / "catalogos" / "demo" / "demo.sola.oracle").write_text(
                 "ninguno demo.sola:\n"
                 "    de item x\n"
@@ -144,7 +159,7 @@ class OracleCliTests(unittest.TestCase):
     def test_nueva_y_caso_validan_identificadores(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
-            cli.cmd_init(str(raiz), [])
+            _, _ = self._callado(cli.cmd_init, str(raiz), [])
             proy = Proyecto(raiz)
 
             # Identificadores inválidos
@@ -163,7 +178,7 @@ class OracleCliTests(unittest.TestCase):
     def test_escalares_externas_exigen_confianza_en_test_y_revisar(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
-            cli.cmd_init(str(raiz), [])
+            _, _ = self._callado(cli.cmd_init, str(raiz), [])
             (raiz / "escalares.py").write_text(
                 "from nucleo.algebra import escalar\n"
                 "@escalar('es_malo')\n"
