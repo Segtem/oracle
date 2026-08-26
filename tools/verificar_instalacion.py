@@ -132,6 +132,7 @@ def main() -> int:
 
         binarios = entorno / ("Scripts" if sys.platform == "win32" else "bin")
         entry_points = (
+            "oracle",
             "oracle-aceptacion", "oracle-corpus", "oracle-diferencial", "oracle-estudio",
             "oracle-medida", "oracle-mutar", "oracle-mutar-codigo",
         )
@@ -152,7 +153,7 @@ def main() -> int:
             raise RuntimeError(
                 "una instalación sin corpus debe exigir --proyecto: " + diagnostico)
 
-    print("WHEEL OK · namespace, 7 entry points y dos motores aislados fuera del checkout")
+    print("WHEEL OK · namespace, 8 entry points y dos motores aislados fuera del checkout")
     return 0
 
 

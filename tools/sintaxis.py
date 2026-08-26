@@ -42,7 +42,10 @@ def _rutas_macros(raiz: Path = RAIZ) -> list[Path]:
     cubre las medidas y no las macros, es la sintaxis de la mitad del lenguaje."""
     from nucleo.macro import EXTENSIONES_DE_MACRO
 
-    return sorted(p for p in (raiz / "nucleo" / "macros").iterdir()
+    dir_macros = raiz / "nucleo" / "macros" if (raiz / "nucleo" / "macros").is_dir() else raiz / "macros"
+    if not dir_macros.is_dir():
+        return []
+    return sorted(p for p in dir_macros.iterdir()
                   if p.suffix in EXTENSIONES_DE_MACRO and p.is_file())
 
 

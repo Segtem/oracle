@@ -133,7 +133,7 @@ def nueva(proy, mid: str) -> int:
     destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")
     print(f"creada: {presentar_ruta(proy, destino)}\n")
     print("Reemplazá RELACION, CAMPO y los dos textos en MAYÚSCULAS. Después:")
-    print(f"  python tools/medida.py --proyecto {proy.raiz} {presentar_ruta(proy, destino)}")
+    print(f"  oracle revisar {presentar_ruta(proy, destino)}")
     return 0
 
 
