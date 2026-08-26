@@ -39,6 +39,8 @@ EQUIVALENTES = RAIZ / "equivalentes.json"
 
 PRIORIDADES = {
     "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor"),
+    "nucleo/aislamiento/escalares.py": ("tests.test_aislamiento_escalares",
+                                        "tests.test_proyecto", "tests.test_motor"),
     "nucleo/caso.py": ("tests.test_sintaxis", "tests.test_herramientas"),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
     "nucleo/dominio.py": ("tests.test_dominio",),
@@ -74,7 +76,7 @@ HERRAMIENTAS_CUSTODIAS = ("cifras.py",)
 
 def objetivos_disponibles() -> dict[str, Path]:
     rutas = [
-        *(RAIZ / "nucleo").glob("*.py"),
+        *(RAIZ / "nucleo").rglob("*.py"),
         *(RAIZ / "oracle_metalenguaje").glob("*.py"),
         *(RAIZ / "perfiles" / "python").glob("*.py"),
         *(RAIZ / "tools" / nombre for nombre in HERRAMIENTAS_CUSTODIAS),
