@@ -45,6 +45,8 @@ from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
                              macros_del_proyecto)
 from tools import sintaxis  # noqa: E402
 
+RELACIONES_DEL_LENGUAJE = frozenset({"equivalencia"})
+
 UMBRAL = ["umbral", "<=", 0, "sonda de equivalencia: el umbral no se juzga, se comparan dos formas"]
 ALCANCE = ["alcance", "sonda construida para comprobar una equivalencia. NO mide ningún mundo"]
 # Evidencia de las sondas construidas. Tiene filas que pasan cada filtro y filas que no, porque una

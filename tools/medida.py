@@ -222,12 +222,13 @@ def _evaluadas_aparte(proy, catalogo) -> set[str]:
     # Una medida se ejercita aparte si TODAS las relaciones que consume las produce el propio marco:
     # es decir, si su evidencia no sale del mundo sino del catálogo. Es la misma pregunta que se hace
     # `nucleo/marco.py`, sin duplicar su política.
-    from nucleo.medida import relaciones_de_medida
-    try:
-        from nucleo.medida import relaciones_del_lenguaje_declaradas
-        del_lenguaje = set(relaciones_del_lenguaje_declaradas())
-    except Exception:
-        return set()
+    from nucleo.medida import relaciones_de_medida, relaciones_del_lenguaje_declaradas
+    # Sin `try`, y a propósito. Este `except Exception: return set()` estaba acá y se llevaba puesta
+    # justo la corrección que esta vista existe para tener: si la pregunta «¿qué relaciones son del
+    # lenguaje?» falla, el conjunto vacío hace que las seis medidas L2 salgan «⚠ SIN FIJAR» —seis
+    # falsos rojos, en la herramienta de auditoría, con la causa real escondida—. Que reviente con
+    # el motivo es peor de leer y mucho mejor de arreglar.
+    del_lenguaje = set(relaciones_del_lenguaje_declaradas())
     aparte = set()
     for m in catalogo.values():
         usadas = set(relaciones_de_medida(m))

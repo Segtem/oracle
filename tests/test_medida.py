@@ -350,6 +350,82 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertEqual(list(m._fuentes("d.m", "no_es_lista", (2, 1))), [])
         self.assertEqual(list(m._fuentes("d.m", None, (2, 1))), [])
 
+    def test_derivacion_descubre_emisores_nuevos_sin_editar_listas(self) -> None:
+        import tempfile
+        from pathlib import Path
+        m = modulo_medida()
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "nucleo").mkdir()
+            (raiz / "tools").mkdir()
+            (raiz / "nucleo" / "marco.py").write_text(
+                'RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso"})\n',
+                encoding="utf-8")
+            (raiz / "tools" / "nuevo.py").write_text(
+                'RELACIONES_DEL_LENGUAJE = frozenset({"relacion_nueva"})\n',
+                encoding="utf-8")
+
+            relaciones = m.relaciones_del_lenguaje_declaradas(raiz=raiz)
+            self.assertEqual(relaciones, frozenset({"caso", "medida_en_uso", "relacion_nueva"}))
+
+    def test_derivacion_falla_cerrado_ante_declaraciones_invalidas(self) -> None:
+        import tempfile
+        from pathlib import Path
+        m = modulo_medida()
+
+        invalidas = (
+            'RELACIONES_DEL_LENGUAJE = frozenset({1})\n',
+            'RELACIONES_DEL_LENGUAJE = frozenset({""})\n',
+            'RELACIONES_DEL_LENGUAJE = frozenset({"   "})\n',
+            'RELACIONES_DEL_LENGUAJE = 42\n',
+            'RELACIONES_DEL_LENGUAJE = fn_desconocida({"a"})\n',
+            # Roto Y declarando: el archivo dice ser un emisor, así que no poder leerlo es un error.
+            'RELACIONES_DEL_LENGUAJE = frozenset({"a"})\ndef broken(:\n',
+        )
+        for codigo in invalidas:
+            with tempfile.TemporaryDirectory() as d:
+                raiz = Path(d)
+                (raiz / "tools").mkdir()
+                (raiz / "tools" / "invalido.py").write_text(codigo, encoding="utf-8")
+                with self.subTest(codigo=codigo), self.assertRaises(m.MedidaMalDeclarada):
+                    m.relaciones_del_lenguaje_declaradas(raiz=raiz)
+
+    def test_un_archivo_roto_que_no_declara_nada_no_es_asunto_del_lenguaje(self) -> None:
+        """Un script a medio escribir en `tools/` no puede romper «¿esta medida es meta?».
+
+        Sin el filtro previo, cualquier archivo con un error de sintaxis hacía fallar la derivación
+        entera. El fallo ni siquiera se veía: quien hace la pregunta lo envolvía en un `except` y se
+        quedaba con el conjunto vacío, y de ahí salían seis medidas L2 marcadas «SIN FIJAR».
+        """
+        import tempfile
+        from pathlib import Path
+        m = modulo_medida()
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "tools").mkdir()
+            (raiz / "tools" / "emisor.py").write_text(
+                'RELACIONES_DEL_LENGUAJE = frozenset({"buena"})\n', encoding="utf-8")
+            (raiz / "tools" / "borrador_a_medio_escribir.py").write_text(
+                'def sin_terminar(:\n', encoding="utf-8")
+            self.assertEqual(m.relaciones_del_lenguaje_declaradas(raiz=raiz), frozenset({"buena"}))
+
+    def test_derivacion_soporta_anotaciones_de_tipo_y_operaciones(self) -> None:
+        import tempfile
+        from pathlib import Path
+        m = modulo_medida()
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "tools").mkdir()
+            (raiz / "tools" / "tipado.py").write_text(
+                'RELACIONES_DEL_LENGUAJE: frozenset[str] = frozenset({"r1"}) | {"r2", "r3"}\n'
+                'RELACIONES_DE_EXTRA = ["r4"]\n',
+                encoding="utf-8")
+            relaciones = m.relaciones_del_lenguaje_declaradas(raiz=raiz)
+            self.assertEqual(relaciones, frozenset({"r1", "r2", "r3", "r4"}))
+
 
 if __name__ == "__main__":
     unittest.main()
