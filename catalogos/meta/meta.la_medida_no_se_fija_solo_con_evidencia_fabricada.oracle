@@ -7,5 +7,5 @@ medida meta.la_medida_no_se_fija_solo_con_evidencia_fabricada:
         agregado no_observados = suma(c.procedencia != "observada")
     donde casos == no_observados
     resumen contar(1)
-    umbral <= 0 porque "una medida cuyos casos son todos fabricados puede estar ajustada a ejemplos escritos para que pase, no a evidencia de algo que ocurrio; el limite es cero porque un solo caso observado cambia la naturaleza de la fijacion"
-    alcance "mira lo que el caso declara sobre si mismo; NO verifica que el commit exista ni que la evidencia se corresponda con ese commit. Un caso puede mentir en `procedencia` y esta medida no lo ve"
+    umbral <= 0 porque "una medida cuyos casos son todos fabricados puede estar ajustada a los ejemplos que se escribieron para que pasara, y no a evidencia de algo que ocurrió; el límite es cero y no un margen porque un solo caso observado ya cambia la naturaleza de la fijación"
+    alcance "mira lo que el caso declara sobre sí mismo. NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo. Un caso puede mentir en `procedencia` y esta medida no lo ve"
