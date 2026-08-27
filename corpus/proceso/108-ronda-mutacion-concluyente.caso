@@ -3,6 +3,7 @@ caso 108-ronda-mutacion-concluyente:
     origen:
         repo: "Segtem/oracle"
         commit: "auditoría P0"
+    procedencia: observada
     titulo: "La ronda separó muertes válidas de incidentes del arnés"
     etiqueta: verde_correcto
     sintoma:

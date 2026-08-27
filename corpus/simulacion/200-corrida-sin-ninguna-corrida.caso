@@ -3,6 +3,7 @@ caso 200-corrida-sin-ninguna-corrida:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: observada
     titulo: "Corrida sin ninguna corrida"
     etiqueta: falso_verde
     sintoma:

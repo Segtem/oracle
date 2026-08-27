@@ -3,6 +3,7 @@ caso 009-modulo-sin-consumidor:
     origen:
         repo: "Brianholl/jam"
         commit: "535d476"
+    procedencia: observada
     titulo: "Módulos completos, testeados y que nadie importa"
     etiqueta: falso_verde
     sintoma:

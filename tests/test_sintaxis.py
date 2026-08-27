@@ -1063,6 +1063,32 @@ class SintaxisDeCasosTests(unittest.TestCase):
                 self.assertEqual(releido, datos)
                 self.assertEqual(sintaxis_caso.imprimir(releido), superficie)
 
+    def test_procedencia_de_caso_es_opcional_y_vuelve_exacta(self) -> None:
+        datos = self._caso_base()
+        texto_sin = sintaxis_caso.imprimir(datos)
+        self.assertNotIn("procedencia:", texto_sin)
+        self.assertNotIn("procedencia", sintaxis_caso.leer(texto_sin))
+
+        datos["procedencia"] = "observada"
+        texto_con = sintaxis_caso.imprimir(datos)
+
+        self.assertIn(
+            '        commit: "local"\n    procedencia: observada\n    titulo: "Caso de prueba"',
+            texto_con,
+        )
+        self.assertEqual(sintaxis_caso.leer(texto_con), datos)
+
+    def test_procedencia_de_caso_es_conjunto_cerrado(self) -> None:
+        lineas = self._superficie_base().splitlines()
+        lineas.insert(5, "    procedencia: inventada")
+        texto = self._texto(lineas)
+
+        self.assertErrorDeCaso(
+            texto, 6, 18,
+            "línea 6, columna 18: se esperaba procedencia en ['construida', "
+            "'generada', 'observada']; llegó 'inventada'",
+        )
+
     def test_el_corpus_real_ejercita_los_dos_lectores(self) -> None:
         rutas = sintaxis_caso.rutas_de_corpus(RAIZ / "corpus")
         self.assertEqual({r.suffix for r in rutas}, {".caso", ".json"})
@@ -1335,11 +1361,13 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
     def test_la_plantilla_de_caso_no_trae_una_etiqueta_puesta(self) -> None:
         """La plantilla de MEDIDA parsea entera; ésta no puede, y es a propósito.
 
-        `etiqueta` y `como_se_detecto` son conjuntos cerrados: cualquier marcador queda fuera del
-        conjunto por definición. Se podría poner un valor plausible —`falso_verde`, `mutacion`— y la
-        plantilla parsearía, pero esos dos campos no son decorativos: la etiqueta decide la polaridad
-        del caso y `como_se_detecto` alimenta una cifra que el README publica. **Un default creíble
-        se queda sin pensar**, que es peor que un error.
+        `etiqueta`, `procedencia` y `como_se_detecto` son conjuntos cerrados. Los dos marcadores
+        quedan fuera del conjunto por definición, y `procedencia` queda como comentario para no
+        inventar un valor. Se podría poner un valor plausible —`falso_verde`, `observada`,
+        `mutacion`— y la plantilla parsearía, pero esos campos no son decorativos: la etiqueta decide
+        la polaridad del caso, `procedencia` decide si la evidencia fija mundo o ejemplo fabricado, y
+        `como_se_detecto` alimenta una cifra que el README publica. **Un default creíble se queda sin
+        pensar**, que es peor que un error.
 
         El marcador sólo es aceptable porque el error enseña qué poner y el andamio lo lista al
         crear el archivo. Eso es lo que fijan los dos tests de abajo.
@@ -1348,13 +1376,15 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
 
         texto = PLANTILLA.format(cid="999-caso-nuevo")
         self.assertIn("ETIQUETA", texto)
+        self.assertIn("# procedencia:", texto)
+        self.assertNotIn("    procedencia: observada", texto)
         self.assertIn("COMO_SE_DETECTO", texto)
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis_caso.leer(texto)
         self.assertIn("etiqueta en [", str(cm.exception))
 
     def test_el_error_del_marcador_enumera_los_valores_validos(self) -> None:
-        from nucleo.caso import DETECCIONES, ETIQUETAS
+        from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS
         from tools.corpus import PLANTILLA
 
         texto = PLANTILLA.format(cid="999-caso-nuevo")
@@ -1362,6 +1392,8 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
             sintaxis_caso.leer(texto)
         for valor in ETIQUETAS:
             self.assertIn(valor, str(cm.exception))
+        for valor in PROCEDENCIAS:
+            self.assertIn(valor, texto)
         con_etiqueta = texto.replace("etiqueta: ETIQUETA", "etiqueta: falso_verde")
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm2:
             sintaxis_caso.leer(con_etiqueta)
@@ -1373,7 +1405,7 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
         import io
         import tempfile
         from contextlib import redirect_stdout
-        from nucleo.caso import DETECCIONES, ETIQUETAS
+        from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS
         from nucleo.proyecto import Proyecto
         from tools import corpus
 
@@ -1387,7 +1419,7 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
             with redirect_stdout(salida):
                 corpus.nuevo(Proyecto(raiz), "tareas/001-prueba")
             texto = salida.getvalue()
-            for valor in (*ETIQUETAS, *DETECCIONES):
+            for valor in (*ETIQUETAS, *DETECCIONES, *PROCEDENCIAS):
                 self.assertIn(valor, texto)
 
     def test_el_andamio_crea_un_caso_en_superficie(self) -> None:

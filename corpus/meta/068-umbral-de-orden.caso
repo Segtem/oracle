@@ -3,6 +3,7 @@ caso 068-umbral-de-orden:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Los umbrales de orden no son igualdad exacta"
     etiqueta: verde_correcto
     sintoma:

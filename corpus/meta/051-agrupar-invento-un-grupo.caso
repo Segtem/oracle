@@ -3,6 +3,7 @@ caso 051-agrupar-invento-un-grupo:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "`agrupar` devolvió más grupos que filas de entrada"
     etiqueta: falso_verde
     sintoma:

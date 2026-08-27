@@ -3,6 +3,7 @@ caso 202-traza-sin-ningun-evento:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: observada
     titulo: "Traza sin ningun evento"
     etiqueta: falso_verde
     sintoma:

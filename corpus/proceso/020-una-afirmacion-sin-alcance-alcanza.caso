@@ -3,6 +3,7 @@ caso 020-una-afirmacion-sin-alcance-alcanza:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Una sola afirmación sin alcance ya invalida el cierre"
     etiqueta: falso_verde
     sintoma:

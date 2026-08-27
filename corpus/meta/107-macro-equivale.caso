@@ -3,6 +3,7 @@ caso 107-macro-equivale:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Macro equivale"
     etiqueta: verde_correcto
     sintoma:

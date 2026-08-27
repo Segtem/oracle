@@ -3,6 +3,7 @@ caso 304-el-presupuesto-alcanzo:
     origen:
         repo: "Segtem/oracle"
         commit: "ejemplo abstracto"
+    procedencia: construida
     titulo: "Con presupuesto suficiente ninguna corrida se corta"
     etiqueta: verde_correcto
     sintoma:

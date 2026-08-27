@@ -3,6 +3,7 @@ caso 305-traza-con-hueco:
     origen:
         repo: "Segtem/oracle"
         commit: "orden"
+    procedencia: observada
     titulo: "Un simulador que no registra un paso deja la traza agujereada"
     etiqueta: falso_verde
     sintoma:

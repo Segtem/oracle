@@ -3,6 +3,7 @@ caso 012-umbral-duplicado-en-filtro-y-umbral:
     origen:
         repo: "Segtem/oracle"
         commit: "catálogo de geometría"
+    procedencia: observada
     titulo: "El umbral de dominio aparece dos veces en la misma medida y nada los mantiene juntos"
     etiqueta: deuda_de_diseño
     sintoma:

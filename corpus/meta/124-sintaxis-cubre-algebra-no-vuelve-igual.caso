@@ -3,6 +3,7 @@ caso 124-sintaxis-cubre-algebra-no-vuelve-igual:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: generada
     titulo: "Sintaxis generada no vuelve igual"
     etiqueta: falso_verde
     sintoma:

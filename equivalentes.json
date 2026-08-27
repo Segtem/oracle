@@ -4,28 +4,28 @@
     "razon": "`sys.path.insert(0, RAIZ)` → `insert(1, RAIZ)`. La posición sólo cambia la precedencia frente a `sys.path[0]`, que al correr `python tools/cifras.py` es el propio `tools/`. Ahí no hay ningún `nucleo/`, `catalogos/`, `perfiles/` ni `tools/` que pueda tapar a los de la raíz, y todos los imports del archivo son calificados por paquete, así que resuelven a lo mismo en las dos posiciones. Ningún punto de entrada del proyecto distingue una de otra. Se declara equivalente en vez de inventarle un test: un test que fijara la posición estaría afirmando algo que el proyecto no depende de que sea cierto. (La ruta del id se corrió de la línea 24 a la 23 el 2026-08-25 al retirar un import muerto: el sitio es el mismo `sys.path.insert`. Que un id de equivalente sea posicional lo vuelve frágil ante cualquier edición de arriba, y el mecanismo de frescura fue el que avisó — el equivalente vencido hizo fallar dos tests en vez de pasar inadvertido.)"
   },
   {
-    "id": "nucleo/caso.py:77:10:comparador",
-    "razon": "`while i < len(texto)` → `while i <= len(texto)` en `_valores_fila`. Cuando `i == len(texto)`, el bucle interno de espacios no puede avanzar y la guarda inmediata `if i >= len(texto): break` corta antes de decodificar o modificar `valores`. El mutante sólo agrega una vuelta vacía en el borde de fin de cadena. Ningún texto de fila puede observar una diferencia de salida, error ni estado. (Reapuntado de línea 63 a 77 el 2026-08-26 al declarar conjuntos de etiquetas y detecciones)."
+    "id": "nucleo/caso.py:82:10:comparador",
+    "razon": "`while i < len(texto)` → `while i <= len(texto)` en `_valores_fila`. Cuando `i == len(texto)`, el bucle interno de espacios no puede avanzar y la guarda inmediata `if i >= len(texto): break` corta antes de decodificar o modificar `valores`. El mutante sólo agrega una vuelta vacía en el borde de fin de cadena. Ningún texto de fila puede observar una diferencia de salida, error ni estado. (Reapuntado de línea 77 a 82 el 2026-08-26 al declarar `PROCEDENCIAS`)."
   },
   {
-    "id": "nucleo/caso.py:215:14:comparador",
-    "razon": "`while self.i < len(self.lineas)` → `<=` en `_leer_origen`. En el borde `self.i == len(self.lineas)`, `_actual()` devuelve el sentinela `(len + 1, \"\")` y la línea siguiente corta porque `\"\"` no empieza con la indentación de origen. No consume línea, no agrega campos y no cambia el error posterior. Ningún caso puede distinguir una iteración sentinela que termina en el mismo `break`. (Reapuntado de línea 201 a 215 el 2026-08-26)."
+    "id": "nucleo/caso.py:220:14:comparador",
+    "razon": "`while self.i < len(self.lineas)` → `<=` en `_leer_origen`. En el borde `self.i == len(self.lineas)`, `_actual()` devuelve el sentinela `(len + 1, \"\")` y la línea siguiente corta porque `\"\"` no empieza con la indentación de origen. No consume línea, no agrega campos y no cambia el error posterior. Ningún caso puede distinguir una iteración sentinela que termina en el mismo `break`. (Reapuntado de línea 215 a 220 el 2026-08-26)."
   },
   {
-    "id": "nucleo/caso.py:238:15:comparador",
-    "razon": "`fin < 0` → `fin <= 0` después de comprobar `texto.startswith(\"clave(\")`. Si falta `)`, `find` devuelve `-1`; si existe, la primera posición posible es después de `clave(`, o sea mayor que cero. El valor `0` no pertenece al dominio de esa rama. Por eso los dos predicados aceptan y rechazan exactamente los mismos encabezados. (Reapuntado de línea 224 a 238 el 2026-08-26)."
+    "id": "nucleo/caso.py:243:15:comparador",
+    "razon": "`fin < 0` → `fin <= 0` después de comprobar `texto.startswith(\"clave(\")`. Si falta `)`, `find` devuelve `-1`; si existe, la primera posición posible es después de `clave(`, o sea mayor que cero. El valor `0` no pertenece al dominio de esa rama. Por eso los dos predicados aceptan y rechazan exactamente los mismos encabezados. (Reapuntado de línea 238 a 243 el 2026-08-26)."
   },
   {
-    "id": "nucleo/caso.py:238:21:constante",
-    "razon": "`fin < 0` → `fin < 1` en la misma guarda de `clave(...)`. Por el prefijo `clave(` ya verificado, `find(\")\")` sólo puede dar `-1` o una posición positiva mayor que `0`; nunca `0`. Cambiar el umbral de `0` a `1` no cambia el conjunto de entradas aceptadas ni el diagnóstico producido. (Reapuntado de línea 224 a 238 el 2026-08-26)."
+    "id": "nucleo/caso.py:243:21:constante",
+    "razon": "`fin < 0` → `fin < 1` en la misma guarda de `clave(...)`. Por el prefijo `clave(` ya verificado, `find(\")\")` sólo puede dar `-1` o una posición positiva mayor que `0`; nunca `0`. Cambiar el umbral de `0` a `1` no cambia el conjunto de entradas aceptadas ni el diagnóstico producido. (Reapuntado de línea 238 a 243 el 2026-08-26)."
   },
   {
-    "id": "nucleo/caso.py:273:14:comparador",
-    "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de relaciones de evidencia. En `self.i == len(self.lineas)`, `_actual()` devuelve una línea sentinela vacía y la primera guarda del cuerpo corta porque no empieza con la indentación de relación. No crea relaciones, no avanza el índice y deja idéntico el error posterior. Ningún test puede observar esa vuelta vacía. (Reapuntado de línea 245 a 273 el 2026-08-26 tras validar campos sin coma)."
+    "id": "nucleo/caso.py:278:14:comparador",
+    "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de relaciones de evidencia. En `self.i == len(self.lineas)`, `_actual()` devuelve una línea sentinela vacía y la primera guarda del cuerpo corta porque no empieza con la indentación de relación. No crea relaciones, no avanza el índice y deja idéntico el error posterior. Ningún test puede observar esa vuelta vacía. (Reapuntado de línea 273 a 278 el 2026-08-26)."
   },
   {
-    "id": "nucleo/caso.py:290:18:comparador",
-    "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso. (Reapuntado de línea 262 a 290 el 2026-08-26)."
+    "id": "nucleo/caso.py:295:18:comparador",
+    "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso. (Reapuntado de línea 290 a 295 el 2026-08-26)."
   },
   {
     "id": "nucleo/sintaxis.py:978:29:constante",

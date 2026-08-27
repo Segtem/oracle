@@ -3,6 +3,7 @@ caso 021-un-cambio-vivo-invalida-la-verificacion:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Un solo cambio de código vivo vuelve vieja la verificación"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso 306-traza-completa:
     origen:
         repo: "Segtem/oracle"
         commit: "orden"
+    procedencia: observada
     titulo: "La traza del ejemplo registra todos sus instantes"
     etiqueta: verde_correcto
     sintoma:

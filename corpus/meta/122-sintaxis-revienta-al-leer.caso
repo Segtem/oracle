@@ -3,6 +3,7 @@ caso 122-sintaxis-revienta-al-leer:
     origen:
         repo: "Segtem/oracle"
         commit: "b250e6c"
+    procedencia: observada
     titulo: "Sintaxis revienta al leer"
     etiqueta: falso_verde
     sintoma:

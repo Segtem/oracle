@@ -3,6 +3,7 @@ caso 017-error-de-arnes-contado-como-mutante-muerto:
     origen:
         repo: "Segtem/oracle"
         commit: "auditoría P0"
+    procedencia: observada
     titulo: "Un error del arnés no demuestra que un test haya discriminado"
     etiqueta: falso_verde
     sintoma:

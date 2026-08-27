@@ -3,6 +3,7 @@ caso 014-mutador-dejo-un-archivo-mutado-al-ser-matado:
     origen:
         repo: "Segtem/oracle"
         commit: "corrida de mutación cortada por timeout"
+    procedencia: observada
     titulo: "El mutador de código dejó un archivo del núcleo MUTADO en el árbol de trabajo"
     etiqueta: falso_verde
     sintoma:

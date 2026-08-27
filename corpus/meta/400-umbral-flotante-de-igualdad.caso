@@ -3,6 +3,7 @@ caso 400-umbral-flotante-de-igualdad:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Un umbral final compara un flotante con igualdad exacta"
     etiqueta: falso_verde
     sintoma:

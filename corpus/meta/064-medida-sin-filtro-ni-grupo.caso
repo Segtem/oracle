@@ -3,6 +3,7 @@ caso 064-medida-sin-filtro-ni-grupo:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Una medida cuenta la relación entera"
     etiqueta: falso_verde
     sintoma:

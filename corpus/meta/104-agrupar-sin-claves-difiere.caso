@@ -3,6 +3,7 @@ caso 104-agrupar-sin-claves-difiere:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Agrupar sin claves difiere"
     etiqueta: falso_verde
     sintoma:

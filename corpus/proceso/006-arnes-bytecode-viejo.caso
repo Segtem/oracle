@@ -3,6 +3,7 @@ caso 006-arnes-bytecode-viejo:
     origen:
         repo: "Brianholl/jam"
         commit: "535d476"
+    procedencia: observada
     titulo: "El arnés de mutación corría bytecode mutado sobre código restaurado"
     etiqueta: falso_verde
     sintoma:

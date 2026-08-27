@@ -3,6 +3,7 @@ caso 023-un-import-ajeno-no-es-consumidor:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Que exista otro import real no le da consumidor al módulo objetivo"
     etiqueta: falso_verde
     sintoma:

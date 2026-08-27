@@ -3,6 +3,7 @@ caso 105-agrupar-sin-claves-coincide:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Agrupar sin claves coincide"
     etiqueta: verde_correcto
     sintoma:

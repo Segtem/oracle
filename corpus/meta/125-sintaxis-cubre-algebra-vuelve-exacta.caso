@@ -3,6 +3,7 @@ caso 125-sintaxis-cubre-algebra-vuelve-exacta:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: generada
     titulo: "Sintaxis generada vuelve exacta"
     etiqueta: verde_correcto
     sintoma:

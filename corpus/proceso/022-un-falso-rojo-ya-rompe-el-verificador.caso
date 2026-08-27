@@ -3,6 +3,7 @@ caso 022-un-falso-rojo-ya-rompe-el-verificador:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Un falso rojo basta para volver indigno de confianza al verificador"
     etiqueta: falso_rojo
     sintoma:

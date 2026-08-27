@@ -3,6 +3,7 @@ caso 054-unir-materializa-el-producto:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "`unir` devuelve exactamente el producto"
     etiqueta: verde_correcto
     sintoma:

@@ -3,6 +3,7 @@ caso 002-mutante-firma-por-id:
     origen:
         repo: "Brianholl/jam"
         commit: "19d2593"
+    procedencia: observada
     titulo: "El test de orden de la firma pasaba con el código roto"
     etiqueta: falso_verde
     sintoma:

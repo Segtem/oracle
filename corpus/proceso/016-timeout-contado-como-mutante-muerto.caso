@@ -3,6 +3,7 @@ caso 016-timeout-contado-como-mutante-muerto:
     origen:
         repo: "Segtem/oracle"
         commit: "auditoría P0"
+    procedencia: observada
     titulo: "Un timeout no demuestra que el test haya discriminado al mutante"
     etiqueta: falso_verde
     sintoma:

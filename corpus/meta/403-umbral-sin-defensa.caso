@@ -3,6 +3,7 @@ caso 403-umbral-sin-defensa:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Un umbral final no declara su defensa"
     etiqueta: falso_verde
     sintoma:
