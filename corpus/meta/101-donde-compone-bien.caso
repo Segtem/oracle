@@ -1,18 +1,19 @@
 caso 101-donde-compone-bien:
-    fecha: "2026-08-24"
+    fecha: "2026-08-26"
     origen:
         repo: "Segtem/oracle"
-        commit: "acfca07"
-    procedencia: construida
+        commit: "df8cdd2"
+    procedencia: observada
     titulo: "Donde compone bien"
     etiqueta: verde_correcto
     sintoma:
-        Las dos formas del filtro coinciden en veredicto, valor y testigos. La segunda fila es de otra propiedad y no coincide en testigos: está para fijar que el filtro por `propiedad` filtre de verdad.
+        python tools/metamorficas.py
     como_se_detecto: observacion
     medida: meta.donde_compone
     evidencia:
         equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
-            "donde_compone", "c", "construido", true, "", true, true, true
-            "agrupar_sin_claves_es_el_resumen_global", "c", "construido", true, "", true, true, false
+            "donde_compone", "049-donde-agrego-filas", "catalogo", true, "", true, true, true
+            "donde_compone", "050-donde-filtra-como-debe", "catalogo", true, "", true, true, true
+            "agrupar_sin_claves_es_el_resumen_global", "049-donde-agrego-filas", "catalogo", true, "", true, true, false
     leccion:
         Sin esta polaridad, quitar el filtro por `propiedad` sobrevivía: la medida se pondría roja por una equivalencia que no es la suya. Cada propiedad juzga sólo sus propios hechos.

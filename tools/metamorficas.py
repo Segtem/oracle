@@ -81,15 +81,46 @@ def _sonda(tuberia, resumen) -> Medida:
     return Medida.de_datos(["medida", "sonda.x", tuberia, resumen, UMBRAL, ALCANCE])
 
 
-def _donde_compone() -> list[dict]:
+def _donde_compone(catalogo: dict, casos: list[dict]) -> list[dict]:
     """`donde P` seguido de `donde Q` ≡ `donde ["y", P, Q]`."""
+    filas = []
     P = [">", ["campo", "c", "n"], 1]
     Q = ["<", ["campo", "c", "m"], 30]
     resumen = ["resumen", "contar", 1]
     dos = _sonda(["desde", ["de", "cosa", "c"], ["donde", P], ["donde", Q]], resumen)
     una = _sonda(["desde", ["de", "cosa", "c"], ["donde", ["y", P, Q]]], resumen)
-    return [{"propiedad": "donde_compone", "caso": "dos-filtros-vs-conjuncion",
-             "origen": "construido", **_comparar(dos, una, EV_SONDA)}]
+    filas.append({"propiedad": "donde_compone", "caso": "dos-filtros-vs-conjuncion",
+                  "origen": "construido", **_comparar(dos, una, EV_SONDA)})
+
+    # Y sobre las medidas reales con dos `donde` o con `donde` de `y`, con la evidencia real de sus casos.
+    for caso in casos:
+        mid = caso.get("medida")
+        if not mid or mid not in catalogo or "evidencia" not in caso:
+            continue
+        datos = catalogo[mid].a_datos()
+        tuberia = datos[2]
+        pasos = tuberia[1:]
+
+        # Caso A: donde con "y" -> partir en varios donde
+        for i, paso in enumerate(pasos):
+            if paso[0] == "donde":
+                cond = paso[1]
+                if isinstance(cond, list) and cond and cond[0] == "y" and len(cond) > 2:
+                    partida = json.loads(json.dumps(datos))
+                    nuevos = [["donde", p] for p in cond[1:]]
+                    partida[2] = [tuberia[0]] + pasos[:i] + nuevos + pasos[i+1:]
+                    filas.append({"propiedad": "donde_compone", "caso": caso["id"], "origen": "catalogo",
+                                  **_comparar(catalogo[mid], Medida.de_datos(partida), caso["evidencia"])})
+
+        # Caso B: dos donde encadenados -> unir en un donde con "y"
+        for i in range(len(pasos) - 1):
+            if pasos[i][0] == "donde" and pasos[i+1][0] == "donde":
+                unida = json.loads(json.dumps(datos))
+                nueva_cond = ["y", pasos[i][1], pasos[i+1][1]]
+                unida[2] = [tuberia[0]] + pasos[:i] + [["donde", nueva_cond]] + pasos[i+2:]
+                filas.append({"propiedad": "donde_compone", "caso": caso["id"], "origen": "catalogo",
+                              **_comparar(catalogo[mid], Medida.de_datos(unida), caso["evidencia"])})
+    return filas
 
 
 def _unir_conmuta(catalogo: dict, casos: list[dict]) -> list[dict]:
@@ -120,7 +151,7 @@ def _unir_conmuta(catalogo: dict, casos: list[dict]) -> list[dict]:
     return filas
 
 
-def _agrupar_sin_claves() -> list[dict]:
+def _agrupar_sin_claves(catalogo: dict, casos: list[dict]) -> list[dict]:
     """`agrupar` sin claves seguido de leer la columna ≡ el resumen global directo.
 
     Sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el
@@ -135,6 +166,26 @@ def _agrupar_sin_claves() -> list[dict]:
         directa = _sonda(["desde", ["de", "cosa", "c"]], ["resumen", agg, expr])
         filas.append({"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": agg,
                       "origen": "construido", **_comparar(agrupada, directa, EV_SONDA)})
+
+    # Y sobre las medidas reales sin `agrupar`, con la evidencia real de su caso de corpus.
+    for caso in casos:
+        mid = caso.get("medida")
+        if not mid or mid not in catalogo or "evidencia" not in caso:
+            continue
+        datos = catalogo[mid].a_datos()
+        tuberia = datos[2]
+        pasos = tuberia[1:]
+        if any(isinstance(p, list) and p and p[0] == "agrupar" for p in pasos):
+            continue
+        resumen = datos[3]
+        agg, expr = resumen[1], resumen[2]
+        agrupada_datos = json.loads(json.dumps(datos))
+        col_name = "t"
+        agrupada_datos[2].append(["agrupar", [], [[col_name, agg, expr]]])
+        agrupada_datos[3] = ["resumen", "max", ["col", col_name]]
+        filas.append({"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": caso["id"],
+                      "origen": "catalogo",
+                      **_comparar(catalogo[mid], Medida.de_datos(agrupada_datos), caso["evidencia"])})
     return filas
 
 
@@ -502,9 +553,9 @@ def _sintaxis_casos_cubre_casos() -> list[dict]:
 def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = None) -> dict:
     proy = proy or Proyecto(RAIZ)
     return {"equivalencia": [
-        *_donde_compone(),
+        *_donde_compone(catalogo, casos),
         *_unir_conmuta(catalogo, casos),
-        *_agrupar_sin_claves(),
+        *_agrupar_sin_claves(catalogo, casos),
         *_macro_equivale_a_su_expansion(catalogo, casos, macros),
         *_sintaxis_ida_y_vuelta(proy),
         *_sintaxis_cubre_algebra(),

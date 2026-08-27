@@ -1,18 +1,19 @@
 caso 107-macro-equivale:
-    fecha: "2026-08-24"
+    fecha: "2026-08-26"
     origen:
         repo: "Segtem/oracle"
-        commit: "acfca07"
-    procedencia: construida
+        commit: "df8cdd2"
+    procedencia: observada
     titulo: "Macro equivale"
     etiqueta: verde_correcto
     sintoma:
-        Dos medidas escritas por macro coinciden con su expansión canónica en veredicto, valor y testigos, sobre la evidencia real de sus casos.
+        python tools/metamorficas.py
     como_se_detecto: observacion
     medida: meta.una_macro_equivale_a_su_expansion
     evidencia:
         equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
-            "una_macro_equivale_a_su_expansion", "uno", "catalogo", true, "", true, true, true
-            "una_macro_equivale_a_su_expansion", "otro", "catalogo", true, "", true, true, true
+            "una_macro_equivale_a_su_expansion", "049-donde-agrego-filas", "catalogo", true, "", true, true, true
+            "una_macro_equivale_a_su_expansion", "050-donde-filtra-como-debe", "catalogo", true, "", true, true, true
+            "agrupar_sin_claves_es_el_resumen_global", "049-donde-agrego-filas", "catalogo", true, "", true, true, false
     leccion:
         El alcance de esta propiedad tiene un hueco que conviene tener presente: si una macro expandiera SIEMPRE mal de la misma manera, las dos formas coincidirían igual y esta medida callaría. Comprueba que las dos formas sean la misma, no que la forma sea la correcta.
