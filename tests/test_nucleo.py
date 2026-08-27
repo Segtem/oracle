@@ -671,7 +671,8 @@ class CatalogoRealTests(unittest.TestCase):
                           "porque", "relacion", "umbral", "umbral_es_flotante",
                           "umbral_op", "umbral_valor"])
         self.assertEqual(sorted(hechos.por_relacion),
-                         ["fuente", "medida", "paso_de_medida", "requiere", "termino"])
+                         ["ancestro", "fuente", "medida", "paso_de_medida",
+                          "requiere", "termino"])
         self.assertTrue(hechos.por_relacion["termino"])
 
     def test_los_dos_ejes_se_derivan_y_no_se_convienen(self) -> None:

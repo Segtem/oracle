@@ -667,7 +667,7 @@ class MutacionDeSintaxisTests(unittest.TestCase):
              "línea 2, columna 12: se esperaba expresión de la guarda; llegó '\"msg\"'"),
             ("plantilla mala", self._texto(["defmacro m(id):", "    nada $id:"]), 2, 5,
              "línea 2, columna 5: se esperaba plantilla "
-             "«medida|ninguno|ninguno-par|peor <id>:»; llegó 'nada $id:'"),
+             "«medida|ninguno|ninguno-par|ninguno-unir|peor <id>:»; llegó 'nada $id:'"),
             ("plantilla con id hueco invalido", self._texto([
                 "defmacro m(id):", "    medida $:"]), 2, 12,
              "línea 2, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$'"),
@@ -720,7 +720,8 @@ class MutacionDeSintaxisTests(unittest.TestCase):
              "línea 1, columna 9: se esperaba id «dominio.nombre», sólo con minúsculas "
              "ASCII, dígitos y `_`; llegó 'd'"),
             ("encabezado malo", "nada\n", 1, 1,
-             "línea 1, columna 1: se esperaba encabezado «medida|ninguno|ninguno-par|peor "
+             "línea 1, columna 1: se esperaba encabezado «medida|ninguno|ninguno-par|"
+             "ninguno-unir|peor "
              "<id>:»; llegó 'nada'"),
         ]
         for nombre, texto, linea, columna, mensaje in casos:
@@ -1502,7 +1503,7 @@ class DocumentacionVerificadaTests(unittest.TestCase):
 class DefmacroSurfaceTests(unittest.TestCase):
     """La superficie cubre la otra mitad del lenguaje: las macros, no sólo las medidas."""
 
-    def test_las_tres_macros_del_nucleo_vuelven_exactas(self) -> None:
+    def test_las_macros_del_nucleo_vuelven_exactas(self) -> None:
         informe = sintaxis.verificar_catalogo(RAIZ)
         del_macros = len([p for p in (RAIZ / "nucleo" / "macros").iterdir()
                           if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()])
@@ -1639,7 +1640,8 @@ class MacrosEnLaSuperficieTests(unittest.TestCase):
         from nucleo.macro import macros_base
         base = pathlib.Path(RAIZ / "nucleo" / "macros")
         self.assertTrue(any(p.suffix == ".oracle" for p in base.iterdir()))
-        self.assertEqual(sorted(macros_base()), ["ninguno", "ninguno-par", "peor"])
+        self.assertEqual(sorted(macros_base()), [
+            "ninguno", "ninguno-par", "ninguno-unir", "peor"])
 
     def test_el_mismo_nombre_en_los_dos_formatos_es_un_error(self) -> None:
         """No gana ninguno: un ganador silencioso es una divergencia esperando."""

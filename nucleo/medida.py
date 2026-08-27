@@ -36,6 +36,7 @@ class MedidaMalDeclarada(ValueError):
 
 
 RELACIONES_DE_CATALOGO = frozenset({
+    "ancestro",
     "medida",
     "paso_de_medida",
     "fuente",
@@ -494,6 +495,7 @@ def hechos_de_catalogo(medidas, clasificacion: ClasificacionMeta) -> HechosCatal
         por_relacion["paso_de_medida"].extend(_pasos_de(medida))
         por_relacion["fuente"].extend(_fuentes_de_medida(medida))
         por_relacion["termino"].extend(_terminos_de_medida(medida))
+        por_relacion["ancestro"].extend(_ancestros_de_medida(medida))
         por_relacion["requiere"].extend(_requiere_de(medida))
     return HechosCatalogo(por_relacion)
 
@@ -530,8 +532,10 @@ def _tipo(valor) -> str:
         return "lista"
     if isinstance(valor, bool):
         return "booleano"
-    if isinstance(valor, (int, float)):
-        return "numero"
+    if isinstance(valor, int):
+        return "entero"
+    if isinstance(valor, float):
+        return "flotante"
     if isinstance(valor, str):
         return "texto"
     if valor is None:
@@ -543,31 +547,71 @@ def _cabeza(nodo) -> str:
     return nodo[0] if isinstance(nodo, list) and nodo and isinstance(nodo[0], str) else ""
 
 
+def _texto_literal(valor) -> str:
+    """Representación visible de literales en `termino.texto`.
+
+    Uso un solo campo textual en vez de campos opcionales por tipo: las cadenas quedan como el valor
+    que ya publicaba `termino`, y enteros, flotantes, booleanos y `null` se escriben como JSON
+    compacto. `tipo` desambigua, por ejemplo, el texto `"null"` de un ausente real, sin meter
+    defaults silenciosos para columnas que no aplican.
+    """
+    if isinstance(valor, str):
+        return valor
+    if isinstance(valor, (bool, int, float)) or valor is None:
+        return json.dumps(valor, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    raise MedidaMalDeclarada(f"literal no reificable en `termino`: {type(valor).__name__}")
+
+
 def _terminos_de_medida(medida) -> list[dict]:
-    return list(_terminos(medida.id, medida.a_datos(), ()))
+    return list(_terminos(medida.id, medida.a_datos(), (), (), ""))
 
 
-def _terminos(medida: str, nodo, ruta: tuple[int, ...]):
+def _terminos(medida: str, nodo, ruta: tuple[int, ...],
+              padre: tuple[int, ...], cabeza_padre: str):
+    base = {
+        "medida": medida,
+        "ruta": _ruta(ruta),
+        "padre": _ruta(padre),
+        "cabeza_padre": cabeza_padre,
+    }
     if isinstance(nodo, list):
         yield {
-            "medida": medida,
-            "ruta": _ruta(ruta),
+            **base,
             "tipo": "lista",
             "cabeza": _cabeza(nodo),
             "texto": "",
             "longitud": len(nodo),
         }
         for indice, hijo in enumerate(nodo):
-            yield from _terminos(medida, hijo, (*ruta, indice))
+            yield from _terminos(medida, hijo, (*ruta, indice), ruta, _cabeza(nodo))
         return
     yield {
-        "medida": medida,
-        "ruta": _ruta(ruta),
+        **base,
         "tipo": _tipo(nodo),
         "cabeza": "",
-        "texto": nodo if isinstance(nodo, str) else "",
+        "texto": _texto_literal(nodo),
         "longitud": 0,
     }
+
+
+def _ancestros_de_medida(medida) -> list[dict]:
+    return list(_ancestros(medida.id, medida.a_datos(), (), ()))
+
+
+def _ancestros(medida: str, nodo, ruta: tuple[int, ...],
+               ancestros: tuple[tuple[tuple[int, ...], str], ...]):
+    for ruta_ancestro, cabeza_ancestro in ancestros:
+        yield {
+            "medida": medida,
+            "ruta": _ruta(ruta),
+            "ancestro": _ruta(ruta_ancestro),
+            "cabeza_ancestro": cabeza_ancestro,
+        }
+    if not isinstance(nodo, list):
+        return
+    propios = (*ancestros, (ruta, _cabeza(nodo)))
+    for indice, hijo in enumerate(nodo):
+        yield from _ancestros(medida, hijo, (*ruta, indice), propios)
 
 
 def _pasos_de(medida) -> list[dict]:

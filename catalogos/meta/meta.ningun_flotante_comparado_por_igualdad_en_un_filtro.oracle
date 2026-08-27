@@ -1,0 +1,7 @@
+ninguno-unir meta.ningun_flotante_comparado_por_igualdad_en_un_filtro:
+    de termino t
+    unir ancestro a
+    donde t.tipo == "flotante" y (t.cabeza_padre == "==" o t.cabeza_padre == "!=") y a.medida == t.medida y a.ruta == t.ruta y a.cabeza_ancestro == "donde"
+    umbral <= 0 porque "un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria en una cantidad medida; si esa igualdad queda escrita, el filtro puede aceptar o rechazar por representación y no por el margen que la medida defiende"
+    requiere termino, ancestro
+    alcance "mira literales flotantes escritos en la forma canónica cuando son operandos directos de `==` o `!=` y ese comparador está dentro de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo; tampoco juzga igualdades exactas fuera de filtros"

@@ -49,6 +49,16 @@ class ExpansionTests(unittest.TestCase):
         self.assertEqual(d[3], ["resumen", "contar", 1])
         self.assertEqual(d[4], ["umbral", "<=", 0, "razón"])
 
+    def test_ninguno_unir_declara_las_dos_relaciones_requeridas(self) -> None:
+        d = expandir([
+            "ninguno-unir", "d.p", "termino", "t", "ancestro", "a", PRED,
+            "razón", "NO ve nada",
+        ])
+        self.assertEqual(d[2][1], ["unir", ["de", "termino", "t"], ["de", "ancestro", "a"]])
+        self.assertEqual(d[3], ["resumen", "contar", 1])
+        self.assertEqual(d[4], ["umbral", "<=", 0, "razón"])
+        self.assertEqual(d[5], ["requiere", "termino", "ancestro"])
+
     def test_ninguno_par_con_el_mismo_alias_dos_veces_no_pasa(self) -> None:
         with self.assertRaises(MacroMalUsada) as e:
             expandir(["ninguno-par", "d.p", "doc", "a", "a", PRED, "r", "NO ve"])
@@ -130,7 +140,7 @@ class DeclaracionTests(unittest.TestCase):
     def test_las_tres_universales_salen_de_datos_y_no_de_python(self) -> None:
         archivos = {p.stem for p in DIRECTORIO_BASE.iterdir()
                     if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()}
-        self.assertEqual(archivos, {"ninguno", "ninguno-par", "peor"})
+        self.assertEqual(archivos, {"ninguno", "ninguno-par", "ninguno-unir", "peor"})
         self.assertEqual(set(macros_base()), archivos)
         for macro in macros_base().values():
             self.assertIsInstance(macro, Macro)

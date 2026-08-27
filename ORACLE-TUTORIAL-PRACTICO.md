@@ -336,7 +336,7 @@ misma y el predicado da siempre verdadero.
 
 ### Las macros no son un embudo
 
-Si tu caso no encaja en ninguna de las tres, la forma canónica sigue siendo 100% válida. El ejemplo de
+Si tu caso no encaja en ninguna macro, la forma canónica sigue siendo 100% válida. El ejemplo de
 `colocacion.interpenetracion` en §5.3 usa `unir` sobre DOS relaciones distintas (`pieza` y `vecina`) y
 no tiene macro que lo cubra — se escribe canónico y listo.
 

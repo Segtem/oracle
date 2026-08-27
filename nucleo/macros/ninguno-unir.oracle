@@ -1,0 +1,11 @@
+defmacro ninguno-unir(id, relacionA, aliasA, relacionB, aliasB, predicado, porque, alcance):
+    guarda $aliasA != $aliasB "los dos alias de «ninguno-unir» tienen que ser distintos"
+    guarda $relacionA != $relacionB "«ninguno-unir» declara requiere para dos relaciones distintas; para dos alias de la misma relación usá «ninguno-par»"
+    medida $id:
+        de $relacionA $aliasA
+        unir $relacionB $aliasB
+        donde $predicado
+        resumen contar(1)
+        umbral <= 0 porque $porque
+        requiere $relacionA, $relacionB
+        alcance $alcance

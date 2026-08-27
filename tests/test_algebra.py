@@ -207,6 +207,31 @@ class ContratoAlgebraTests(unittest.TestCase):
         with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "supera el límite de 2"):
             algebra.desde(tuberia, {"pieza": [{}, {}, {}]}, limite)
 
+    def test_unir_seguido_de_donde_filtra_sin_materializar_producto_fuera_de_limite(self) -> None:
+        algebra = _algebra()
+        tuberia = [
+            "desde",
+            ["unir", ["de", "izquierda", "i"], ["de", "derecha", "d"]],
+            ["donde", ["==", ["campo", "i", "k"], ["campo", "d", "k"]]],
+        ]
+        evidencia = {
+            "izquierda": [{"k": 1}, {"k": 2}, {"k": 3}],
+            "derecha": [{"k": 1}, {"k": 2}, {"k": 3}],
+        }
+        limite = algebra.LimitesAlgebra(producto_cartesiano=4)
+
+        with algebra.trazar() as crudos:
+            filas = algebra.desde(tuberia, evidencia, limite)
+
+        self.assertEqual(len(filas), 3)
+        pasos = [campos for clase, campos in crudos if clase == "paso"]
+        productos = [campos for clase, campos in crudos if clase == "producto"]
+        self.assertEqual(productos, [{"izquierda": 3, "derecha": 3, "salida": 9}])
+        self.assertEqual(pasos, [
+            {"t": 0, "operador": "unir", "filas_antes": 0, "filas_despues": 9},
+            {"t": 1, "operador": "donde", "filas_antes": 9, "filas_despues": 3},
+        ])
+
     def test_aplicar_unir_rechaza_el_operador_de_fuente_recibido(self) -> None:
         algebra = _algebra()
         with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "recibió «donde»"):

@@ -664,30 +664,220 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
     adentro, leyendo `salida` antes del `return`, y así no medía nada: cualquier defecto entre esa
     línea y el punto de uso quedaba fuera. Un sensor que se lee a sí mismo no audita la frontera.
     """
+    filas_izq, filas_der, tamano = _lados_de_unir(paso, evidencia, limites, registro, ruta)
+    if tamano > limites.producto_cartesiano:
+        raise ErrorDeAlgebra(
+            f"el producto cartesiano produciría {tamano} filas y supera el límite "
+            f"de {limites.producto_cartesiano}")
+    salida = _producto_de_lados(filas_izq, filas_der)
+    if _lados is not None:
+        _lados["izquierda"], _lados["derecha"] = len(filas_izq), len(filas_der)
+    return salida
+
+
+def _lados_de_unir(paso, evidencia: dict, limites: LimitesAlgebra,
+                   registro: Mapping[str, Callable[..., Any]],
+                   ruta: tuple[int, ...] | None) -> tuple[list[dict], list[dict], int]:
     izq, der = paso[1], paso[2]
     for lado in (izq, der):
-        if lado[0] not in FUENTES:
-            raise ErrorDeAlgebra(f"«unir» toma fuentes, y recibió «{lado[0]}»")
+        if not isinstance(lado, list) or not lado or lado[0] not in FUENTES:
+            cabeza = lado[0] if isinstance(lado, list) and lado else type(lado).__name__
+            raise ErrorDeAlgebra(f"«unir» toma fuentes, y recibió «{cabeza}»")
 
     ruta_izq = (*ruta, 1) if ruta is not None else None
     ruta_der = (*ruta, 2) if ruta is not None else None
     filas_izq = aplicar(izq, [], evidencia, limites, registro=registro, ruta=ruta_izq)
     filas_der = aplicar(der, [], evidencia, limites, registro=registro, ruta=ruta_der)
     tamano = len(filas_izq) * len(filas_der)
-    if tamano > limites.producto_cartesiano:
+    return filas_izq, filas_der, tamano
+
+
+def _fila_unida(a: dict, b: dict) -> dict:
+    comunes = set(a) & set(b)
+    if comunes:
+        raise ErrorDeAlgebra(f"«unir» con alias repetido: {sorted(comunes)}")
+    return {**a, **b}
+
+
+def _producto_de_lados(filas_izq: list[dict], filas_der: list[dict]) -> list[dict]:
+    return [_fila_unida(a, b) for a in filas_izq for b in filas_der]
+
+
+def _conjunciones(expr):
+    if isinstance(expr, list) and expr and expr[0] == "y":
+        for parte in expr[1:]:
+            yield from _conjunciones(parte)
+        return
+    yield expr
+
+
+def _campo_alias(expr) -> tuple[str, str] | None:
+    if (isinstance(expr, list) and len(expr) == 3 and expr[0] == "campo"
+            and isinstance(expr[1], str) and isinstance(expr[2], str)):
+        return expr[1], expr[2]
+    return None
+
+
+def _aliases_de_expr(expr) -> set[str]:
+    campo = _campo_alias(expr)
+    if campo is not None:
+        return {campo[0]}
+    if isinstance(expr, list):
+        salida = set()
+        for parte in expr[1:]:
+            salida.update(_aliases_de_expr(parte))
+        return salida
+    return set()
+
+
+def _igualdad_cruzada(expr, alias_izq: str, alias_der: str) -> tuple[str, str] | None:
+    if not (isinstance(expr, list) and len(expr) == 3 and expr[0] == "=="):
+        return None
+    izq = _campo_alias(expr[1])
+    der = _campo_alias(expr[2])
+    if izq is None or der is None:
+        return None
+    if izq[0] == alias_izq and der[0] == alias_der:
+        return izq[1], der[1]
+    if izq[0] == alias_der and der[0] == alias_izq:
+        return der[1], izq[1]
+    return None
+
+
+def _plan_unir_filtrado(paso, predicado):
+    izq, der = paso[1], paso[2]
+    if not (isinstance(izq, list) and isinstance(der, list)
+            and len(izq) == 3 and len(der) == 3 and izq[0] == "de" and der[0] == "de"):
+        return None
+    alias_izq, alias_der = izq[2], der[2]
+    filtros_izq = []
+    filtros_der = []
+    constantes = []
+    claves: list[tuple[str, str]] = []
+    for parte in _conjunciones(predicado):
+        igualdad = _igualdad_cruzada(parte, alias_izq, alias_der)
+        if igualdad is not None:
+            claves.append(igualdad)
+            continue
+        aliases = _aliases_de_expr(parte)
+        if aliases == {alias_izq}:
+            filtros_izq.append(parte)
+        elif aliases == {alias_der}:
+            filtros_der.append(parte)
+        elif not aliases:
+            constantes.append(parte)
+        else:
+            return None
+    return alias_izq, alias_der, filtros_izq, filtros_der, constantes, claves
+
+
+def _filtrar_alias(filas: list[dict], predicados: list, limites: LimitesAlgebra,
+                   registro: Mapping[str, Callable[..., Any]], ruta) -> list[dict]:
+    salida = []
+    for fila in filas:
+        resultados = [
+            evaluar_expr(predicado, fila, limites, registro=registro, ruta=ruta)
+            for predicado in predicados
+        ]
+        if all(resultados):
+            salida.append(fila)
+    return salida
+
+
+def _valores_campo(filas: list[dict], alias: str, campo: str, limites: LimitesAlgebra,
+                   registro: Mapping[str, Callable[..., Any]], ruta) -> list:
+    return [
+        evaluar_expr(["campo", alias, campo], fila, limites, registro=registro, ruta=ruta)
+        for fila in filas
+    ]
+
+
+def _valor_con_familia(valores: list, familia: str):
+    return next(v for v in valores if _familia_escalar(v) == familia)
+
+
+def _validar_igualdad_indexada(valores_izq: list, valores_der: list) -> None:
+    if not valores_izq or not valores_der:
+        return
+    todos = [*valores_izq, *valores_der]
+    if any(v is None for v in todos):
+        ausente = next(v for v in todos if v is None)
+        otro = next((v for v in todos if v is not None), None)
+        comparar("==", ausente, otro)
+    familias = {_familia_escalar(v) for v in todos}
+    permitidas = {"numero", "booleano", "texto"}
+    if not familias <= permitidas:
+        mala = sorted(familias - permitidas)[0]
+        comparar("==", _valor_con_familia(todos, mala), todos[0])
+    if len(familias) > 1:
+        familias_ordenadas = sorted(familias)
+        comparar("==", _valor_con_familia(todos, familias_ordenadas[0]),
+                 _valor_con_familia(todos, familias_ordenadas[1]))
+    if any(_es_flotante(v) for v in todos):
+        flotante = next(v for v in todos if _es_flotante(v))
+        comparar("==", flotante, todos[0])
+
+
+def _clave_de(fila: dict, alias: str, campos: tuple[str, ...]) -> tuple:
+    hecho = fila[alias]
+    return tuple(hecho[campo] for campo in campos)
+
+
+def _unir_filtrado(filas_izq: list[dict], filas_der: list[dict], tamano: int,
+                   paso, predicado, limites: LimitesAlgebra,
+                   registro: Mapping[str, Callable[..., Any]], *,
+                   ruta_donde: tuple[int, ...]) -> tuple[list[dict], int]:
+    """Evalúa `unir` seguido de `donde` sin materializar un producto fuera de límite.
+
+    Sólo entra si el predicado completo se puede separar en filtros de cada lado y claves de
+    igualdad entre lados. Cada subexpresión de un alias se evalúa igual que en `donde`, y las claves
+    se validan para detectar los errores que una igualdad de campo contra campo habría levantado en
+    el producto completo.
+    """
+    ruta_predicado = (*ruta_donde, 1)
+    plan = _plan_unir_filtrado(paso, predicado)
+    if plan is None:
         raise ErrorDeAlgebra(
             f"el producto cartesiano produciría {tamano} filas y supera el límite "
             f"de {limites.producto_cartesiano}")
+    alias_izq, alias_der, filtros_izq, filtros_der, constantes, claves = plan
+
+    filtradas_izq = _filtrar_alias(filas_izq, filtros_izq, limites, registro, ruta_predicado)
+    filtradas_der = _filtrar_alias(filas_der, filtros_der, limites, registro, ruta_predicado)
+    constantes_ok = all(
+        evaluar_expr(constante, {}, limites, registro=registro, ruta=ruta_predicado)
+        for constante in constantes
+    )
+    campos_izq = tuple(c[0] for c in claves)
+    campos_der = tuple(c[1] for c in claves)
+    for campo_izq, campo_der in claves:
+        valores_izq = _valores_campo(
+            filas_izq, alias_izq, campo_izq, limites, registro, ruta_predicado)
+        valores_der = _valores_campo(
+            filas_der, alias_der, campo_der, limites, registro, ruta_predicado)
+        _validar_igualdad_indexada(valores_izq, valores_der)
+
     salida = []
-    for a in filas_izq:
-        for b in filas_der:
-            comunes = set(a) & set(b)
-            if comunes:
-                raise ErrorDeAlgebra(f"«unir» con alias repetido: {sorted(comunes)}")
-            salida.append({**a, **b})
-    if _lados is not None:
-        _lados["izquierda"], _lados["derecha"] = len(filas_izq), len(filas_der)
-    return salida
+    if constantes_ok:
+        if claves:
+            indice_der: dict[tuple, list[dict]] = {}
+            for fila in filtradas_der:
+                indice_der.setdefault(_clave_de(fila, alias_der, campos_der), []).append(fila)
+            for fila_izq in filtradas_izq:
+                for fila_der in indice_der.get(_clave_de(fila_izq, alias_izq, campos_izq), []):
+                    salida.append(_fila_unida(fila_izq, fila_der))
+                    if len(salida) > limites.producto_cartesiano:
+                        raise ErrorDeAlgebra(
+                            f"el producto filtrado produjo más de "
+                            f"{limites.producto_cartesiano} filas")
+        else:
+            if len(filtradas_izq) * len(filtradas_der) > limites.producto_cartesiano:
+                raise ErrorDeAlgebra(
+                    f"el producto filtrado produciría {len(filtradas_izq) * len(filtradas_der)} "
+                    f"filas y supera el límite de {limites.producto_cartesiano}")
+            salida = _producto_de_lados(filtradas_izq, filtradas_der)
+    _anotar("producto", izquierda=len(filas_izq), derecha=len(filas_der), salida=tamano)
+    return salida, tamano
 
 
 def _agrupar(paso, filas: list[dict], limites: LimitesAlgebra,
@@ -862,10 +1052,35 @@ def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None, *,
     escalares = _registro(registro)
     validar_tuberia(tuberia, limites, registro=escalares)
     filas: list[dict] = []
-    for t, paso in enumerate(tuberia[1:]):
+    pasos = tuberia[1:]
+    t = 0
+    while t < len(pasos):
+        paso = pasos[t]
         antes = len(filas)
-        filas = aplicar(paso, filas, evidencia, limites, registro=escalares, ruta=(2, t + 1))
+        ruta_paso = (2, t + 1)
+        siguiente = pasos[t + 1] if t + 1 < len(pasos) else None
+        if paso[0] == "unir" and isinstance(siguiente, list) and siguiente[0] == "donde":
+            filas_izq, filas_der, tamano = _lados_de_unir(
+                paso, evidencia, limites, escalares, ruta_paso)
+            if tamano <= limites.producto_cartesiano:
+                filas = _producto_de_lados(filas_izq, filas_der)
+                _anotar("producto", izquierda=len(filas_izq), derecha=len(filas_der),
+                        salida=tamano)
+                _anotar("paso", t=t, operador=paso[0],
+                        filas_antes=antes, filas_despues=len(filas))
+                t += 1
+                continue
+            filas, tamano = _unir_filtrado(
+                filas_izq, filas_der, tamano, paso, siguiente[1], limites, escalares,
+                ruta_donde=(2, t + 2))
+            _anotar("paso", t=t, operador=paso[0], filas_antes=antes, filas_despues=tamano)
+            _anotar("paso", t=t + 1, operador=siguiente[0],
+                    filas_antes=tamano, filas_despues=len(filas))
+            t += 2
+            continue
+        filas = aplicar(paso, filas, evidencia, limites, registro=escalares, ruta=ruta_paso)
         _anotar("paso", t=t, operador=paso[0], filas_antes=antes, filas_despues=len(filas))
+        t += 1
     return filas
 
 

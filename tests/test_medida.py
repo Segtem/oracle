@@ -22,7 +22,7 @@ class ContratoMedidaTests(unittest.TestCase):
         m = modulo_medida()
         base = m.ClasificacionMeta()
         self.assertEqual(base.relaciones_del_lenguaje,
-                         frozenset({"medida", "caso", "medida_en_uso",
+                         frozenset({"ancestro", "medida", "caso", "medida_en_uso",
                                     "paso", "nodo", "producto", "equivalencia",
                                     "paso_de_medida", "fuente", "termino", "requiere"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
@@ -268,8 +268,8 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertEqual(m._tipo([]), "lista")
         self.assertEqual(m._tipo(True), "booleano")
         self.assertEqual(m._tipo(False), "booleano")
-        self.assertEqual(m._tipo(0), "numero")
-        self.assertEqual(m._tipo(1.5), "numero")
+        self.assertEqual(m._tipo(0), "entero")
+        self.assertEqual(m._tipo(1.5), "flotante")
         self.assertEqual(m._tipo("hola"), "texto")
         self.assertEqual(m._tipo(None), "ausente")
         self.assertEqual(m._tipo((1, 2)), "tuple")
@@ -291,10 +291,44 @@ class ContratoMedidaTests(unittest.TestCase):
         hechos = m.como_hechos([medida])
         terminos = hechos.por_relacion["termino"]
         tipos = {t["tipo"] for t in terminos}
-        self.assertEqual(tipos, {"lista", "booleano", "numero", "texto", "ausente"})
+        self.assertEqual(tipos, {"lista", "booleano", "entero", "flotante", "texto", "ausente"})
+        textos_por_tipo = {(t["tipo"], t["texto"]) for t in terminos if t["tipo"] != "lista"}
+        self.assertIn(("booleano", "true"), textos_por_tipo)
+        self.assertIn(("entero", "42"), textos_por_tipo)
+        self.assertIn(("flotante", "3.14"), textos_por_tipo)
+        self.assertIn(("texto", "cadena"), textos_por_tipo)
+        self.assertIn(("ausente", "null"), textos_por_tipo)
+        flotante = next(t for t in terminos if t["tipo"] == "flotante")
+        self.assertEqual(flotante["padre"], "2.2.1.4")
+        self.assertEqual(flotante["cabeza_padre"], "==")
         for t in terminos:
             if t["tipo"] != "lista":
                 self.assertEqual(t["longitud"], 0)
+
+    def test_ancestros_de_medida_emite_clausura_con_cabeza(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.ancestros",
+            ["desde", ["de", "pieza", "p"],
+             ["donde", ["==", ["campo", "p", "f"], 3.14]]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = m.como_hechos([medida])
+        ancestros = hechos.por_relacion["ancestro"]
+
+        self.assertIn(
+            {"medida": "d.ancestros", "ruta": "2.2.1.2",
+             "ancestro": "2.2", "cabeza_ancestro": "donde"},
+            ancestros,
+        )
+        self.assertIn(
+            {"medida": "d.ancestros", "ruta": "2.2.1.2",
+             "ancestro": "2.2.1", "cabeza_ancestro": "=="},
+            ancestros,
+        )
+        self.assertFalse(any(a["ruta"] == "" for a in ancestros))
 
     def test_pasos_de_medida_recorre_todos_los_pasos_con_sus_rutas_e_indices(self) -> None:
         m = modulo_medida()
