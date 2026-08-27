@@ -29,6 +29,7 @@ from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.marco import hechos_de_casos  # noqa: E402
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
                            medidas_aplicables)  # noqa: E402
+from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,
                              macros_del_proyecto,
@@ -94,8 +95,11 @@ def _ejecutar(proy) -> int:
     # Antes esto era una lista de `if`s en este archivo. El veredicto sobre el marco es un dato como
     # cualquier otro: acá sólo se producen los hechos y se imprime lo que las medidas dicen.
     print("\nnivel meta — el marco medido con sus propias medidas:")
+    dir_relaciones = proy.raiz / "relaciones"
+    relaciones = cargar_relaciones(dir_relaciones) if dir_relaciones.is_dir() else {}
     evidencia_meta = {"medida": como_hechos(catalogo.values()),
-                      **hechos_de_casos(catalogo, todos)}
+                      **hechos_de_casos(catalogo, todos),
+                      **hechos_de_relaciones(relaciones.values())}
     metas = [m for mid, m in sorted(catalogo.items()) if mid.startswith("meta.")]
     informe_meta = evaluar(medidas_aplicables(metas, evidencia_meta), evidencia_meta)
     for v in informe_meta.veredictos:

@@ -1,0 +1,19 @@
+caso 414-campo-con-unidad-declarada:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "73f4cc0+worktree"
+    procedencia: observada
+    titulo: "Los campos con magnitud o con «sin_unidad» explícito no ofenden"
+    etiqueta: verde_correcto
+    sintoma:
+        La relación real `pieza` declara magnitudes físicas (`cm`, `grados`) y campos sin magnitud física con `sin_unidad` explícito. Todos tienen `tiene_unidad` en true y la regla debe dar verde.
+    como_se_detecto: observacion
+    medida: meta.ningun_campo_sin_unidad_declarada
+    evidencia:
+        campo_declarado: relacion, campo, tipo, unidad, tiene_unidad, es_magnitud, es_sin_unidad
+            "pieza", "id", "texto", "sin_unidad", true, false, true
+            "pieza", "ox", "flotante", "cm", true, true, false
+            "pieza", "yaw", "flotante", "grados", true, true, false
+    leccion:
+        El verde cubre las dos formas válidas de declarar unidad en L−1: magnitudes con dimensión física explícita y campos adimensionales con `sin_unidad`.

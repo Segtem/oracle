@@ -24,7 +24,8 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertEqual(base.relaciones_del_lenguaje,
                          frozenset({"ancestro", "medida", "caso", "medida_en_uso",
                                     "paso", "nodo", "producto", "equivalencia",
-                                    "paso_de_medida", "fuente", "termino", "requiere"}))
+                                    "paso_de_medida", "fuente", "termino", "requiere",
+                                    "campo_declarado", "relacion_declarada"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (

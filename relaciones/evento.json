@@ -1,0 +1,35 @@
+[
+  "relacion",
+  "evento",
+  [
+    "campos",
+    [
+      "campo",
+      "corrida",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "t",
+      "entero",
+      "pasos"
+    ],
+    [
+      "campo",
+      "que",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "actor",
+      "texto",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "lee los eventos registrados de la traza de simulación. NO ve el estado interno ni eventos no emitidos"
+  ]
+]

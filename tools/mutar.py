@@ -39,7 +39,7 @@ from tools.sesion import resolver_cli  # noqa: E402
 # «el id empieza con `meta.`», que exceptuaba por el nombre y no por una propiedad. Con la convención,
 # escribir una medida meta la sacaba del denominador aunque nadie la evaluara en ningún lado.
 ARNESES_APARTE = {
-    "tools/aceptacion.py": frozenset({"medida", "caso"}),
+    "tools/aceptacion.py": frozenset({"medida", "caso", "relacion_declarada", "campo_declarado"}),
     "tools/trazar.py": frozenset({"paso", "nodo", "producto"}),
     # Esta misma herramienta: produce los hechos del uso y los juzga al final de la corrida. Sin
     # declararlo, las dos medidas que miran `medida_en_uso` salían «sin ejercitar» estando
