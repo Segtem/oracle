@@ -31,7 +31,8 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES, separar_clave  # noqa: E402
-from nucleo.caso import CasoMalDeclarado, cargar_casos  # noqa: E402
+from nucleo.caso import CasoMalDeclarado, cargar_casos, leer as leer_caso  # noqa: E402
+from nucleo.sintaxis import ErrorSintaxis  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  # noqa: E402
 from nucleo.medida import (Medida, MedidaMalDeclarada, cargar_catalogo,  # noqa: E402
                            cargar_fuente_medida)
@@ -209,6 +210,95 @@ def revisar(proy, ruta: Path) -> int:
 
     print("\n✓ discrimina: hay evidencia que la pone roja y evidencia que la pone verde.")
     print("  Para que quede fijada, agregá al corpus un caso de cada polaridad.")
+    return 0
+
+
+def probar(proy, ruta: Path, texto_evidencia: str) -> int:
+    """Corre una medida contra unas filas escritas a mano, sin pasar por el corpus.
+
+    Existe por una fricción medida: escribir una medida son 5 líneas y tres comandos, pero para
+    verla ponerse ROJA hay que redactar un caso del corpus de once campos —fecha, origen, repo,
+    commit, procedencia, título, etiqueta, síntoma, cómo se detectó, evidencia y lección—. Para
+    probar una idea eso es llenar un formulario, y ahí se corta el entusiasmo de quien está
+    aprendiendo.
+
+    Esto es el otro lado del corte que Python tiene entre el intérprete y el archivo: acá se
+    explora, en el corpus se registra. Y la evidencia se escribe **con la misma sintaxis** que
+    después va en el caso, así que lo que se prueba se copia y pega sin traducir.
+
+    Lo que NO hace, a propósito: no guarda nada, no reemplaza al corpus y no fija la medida. Una
+    medida probada sigue apareciendo «SIN FIJAR» en el listado, porque lo está.
+    """
+    macros = macros_del_proyecto(proy)
+    try:
+        medida = Medida.de_datos(cargar_fuente_medida(ruta, macros=macros), macros=macros)
+    except MedidaMalDeclarada as e:
+        print(f"✗ {e}")
+        return 1
+
+    # La evidencia se parsea envolviéndola en un caso mínimo: así hay UN solo parser de evidencia
+    # y los errores salen con la misma línea y columna que en un caso de verdad.
+    lineas = [l for l in texto_evidencia.splitlines() if l.strip()]
+    if not lineas:
+        print("✗ no llegó evidencia. Se escribe igual que en un caso:\n"
+              '      pieza: id, alto\n'
+              '          "a", 450.0')
+        return 1
+    sangria = min(len(l) - len(l.lstrip()) for l in lineas)
+    cuerpo = "\n".join(" " * 8 + l[sangria:] for l in lineas)
+    # El caso envoltorio tiene 12 líneas antes de la evidencia, y le agrega 8 espacios de sangría.
+    # Si no se descuentan, el alumno escribe dos líneas y el error le habla de la «línea 14»: la
+    # posición sería correcta respecto de un archivo que él nunca vio. Un error que apunta a un
+    # lugar inexistente es peor que no decir la posición.
+    LINEAS_DE_ENVOLTORIO = 12
+    armado = (
+        "caso 000-probando:\n"
+        '    fecha: "0000-00-00"\n'
+        "    origen:\n"
+        '        repo: "prueba"\n'
+        '        commit: "prueba"\n'
+        '    titulo: "prueba suelta"\n'
+        "    etiqueta: falso_verde\n"
+        "    sintoma:\n"
+        "        prueba suelta\n"
+        "    como_se_detecto: persona\n"
+        f"    medida: {medida.id}\n"
+        "    evidencia:\n" + cuerpo + "\n"
+        "    leccion:\n"
+        "        prueba suelta\n")
+    try:
+        evidencia = leer_caso(armado)["evidencia"]
+    except ErrorSintaxis as e:
+        linea = max(1, getattr(e, "linea", 1) - LINEAS_DE_ENVOLTORIO)
+        columna = max(1, getattr(e, "columna", 1) - 8 + sangria)
+        detalle = str(e).split(": ", 1)[1] if ": " in str(e) else str(e)
+        print(f"✗ la evidencia no se entiende — línea {linea}, columna {columna}: {detalle}")
+        return 1
+    except CasoMalDeclarado as e:
+        print(f"✗ la evidencia no se entiende: {e}")
+        return 1
+
+    try:
+        v = medida.evaluar(evidencia)
+    except Exception as e:  # noqa: BLE001
+        print(f"✗ no se pudo evaluar: {type(e).__name__}: {e}")
+        return 1
+
+    if v.sin_evidencia:
+        print(f"SIN EVIDENCIA — la medida declara `requiere {v.sin_evidencia}` y esa relación "
+              f"vino vacía.\n  No es un verde ni un rojo: es que no había con qué mirar.")
+        return 0
+
+    print(f"{'VERDE' if v.ok else 'ROJO '}  valor {v.valor}  ({v.umbral})\n")
+    if v.testigos:
+        print(f"  testigos ({len(v.testigos)}) — las filas que ofenden, no un resumen:")
+        for fila in v.testigos[:5]:
+            print(f"    {fila}")
+        if len(v.testigos) > 5:
+            print(f"    … y {len(v.testigos) - 5} más")
+    else:
+        print("  sin testigos: ninguna fila pasó el filtro.")
+    print(f"\n  alcance: {v.alcance}")
     return 0
 
 

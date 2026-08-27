@@ -563,6 +563,60 @@ class NounVerbCliTests(OracleCliTests):
         self.assertIn("nucleo.version.VERSION_DISTRIBUCION", texto)
         self.assertNotIn('\nversion = "', texto)
 
+    def _proyecto_con_una_medida(self, raiz):
+        self._callado(cli.main, ["proyecto", "init", str(raiz)])
+        m = raiz / "catalogos" / "juego" / "juego.pieza_muy_alta.oracle"
+        m.parent.mkdir(parents=True, exist_ok=True)
+        m.write_text(
+            "ninguno juego.pieza_muy_alta:\n"
+            "    de pieza p\n"
+            "    donde p.alto > 400.0\n"
+            '    umbral <= 0 porque "cuatro metros es el techo del set"\n'
+            '    alcance "mira el alto declarado. NO mira la malla"\n',
+            encoding="utf-8")
+        return m
+
+    def test_probar_corre_una_medida_sin_pasar_por_el_corpus(self) -> None:
+        """El corte entre explorar y registrar: ver el veredicto sin redactar un caso de 11 campos."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            m = self._proyecto_con_una_medida(raiz)
+            rc, salida = self._callado(cli.main, [
+                "medida", "probar", str(m), "--con",
+                'pieza: id, alto\n    "silla", 90.0\n    "columna", 450.0',
+                "--proyecto", str(raiz)])
+            self.assertEqual(rc, 0)
+            self.assertIn("ROJO", salida)
+            # Los testigos son las filas que ofenden, y se muestran: ahí está la lección.
+            self.assertIn("columna", salida)
+            self.assertNotIn("silla", salida.split("testigos")[1])
+            self.assertIn("alcance:", salida)
+
+    def test_probar_ubica_el_error_en_lo_que_escribio_quien_prueba(self) -> None:
+        """La evidencia se envuelve en un caso sintético; la posición tiene que descontarlo.
+
+        Sin descontar, quien escribe dos líneas recibe «línea 14»: una posición correcta respecto de
+        un archivo que nunca vio. Un error que apunta a un lugar inexistente es peor que ninguno.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            m = self._proyecto_con_una_medida(raiz)
+            rc, salida = self._callado(cli.main, [
+                "medida", "probar", str(m), "--con", 'pieza: id, alto\n    "silla"',
+                "--proyecto", str(raiz)])
+            self.assertEqual(rc, 1)
+            self.assertIn("línea 2", salida)
+            self.assertNotIn("línea 14", salida)
+
+    def test_probar_sin_evidencia_ensena_la_forma(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            m = self._proyecto_con_una_medida(raiz)
+            rc, salida = self._callado(cli.main, ["medida", "probar", str(m),
+                                                  "--proyecto", str(raiz)])
+            self.assertEqual(rc, 1)
+            self.assertIn("igual que en un caso del corpus", salida)
+
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)

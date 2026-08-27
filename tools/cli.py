@@ -68,6 +68,7 @@ Atajos directos:
   oracle nueva <dominio.nombre>          Crea una medida con plantilla lista para editar
   oracle caso <grupo/id>                 Crea un caso de prueba en el corpus
   oracle revisar <archivo>               Revisa y evalúa una medida suelta
+  oracle medida probar <arch> --con <filas>  Corre una medida contra filas escritas a mano
   oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
@@ -194,6 +195,16 @@ def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1
+
+
+def cmd_probar(proy: Proyecto, ruta_str: str, texto: str) -> int:
+    ruta = Path(ruta_str)
+    if not ruta.exists():
+        ruta = proy.raiz / ruta_str
+    if not ruta.exists():
+        print(f"no existe: {ruta_str}")
+        return 1
+    return medida.probar(proy, ruta, texto)
 
 
 def cmd_relaciones(proy: Proyecto) -> int:
@@ -536,10 +547,11 @@ def main(argv: list[str] | None = None) -> int:
 
     # 3. Verbos desconocidos de sustantivos
     if subcomando == "medida" and resto and resto[0] not in (
-        "nueva", "--nueva", "revisar", "--revisar", "listar", "--listar", "expandir", "--expandir"
+        "nueva", "--nueva", "revisar", "--revisar", "listar", "--listar", "expandir", "--expandir",
+        "probar", "--probar"
     ):
         print(f"verbo desconocido para «medida»: {resto[0]}")
-        print("Verbos disponibles: nueva, revisar, listar, expandir")
+        print("Verbos disponibles: nueva, revisar, probar, listar, expandir")
         return 1
 
     if subcomando == "caso" and resto and resto[0] not in (
@@ -579,6 +591,16 @@ def main(argv: list[str] | None = None) -> int:
                 print("falta el archivo: oracle medida revisar <archivo>")
                 return 1
             return cmd_revisar(proy, args[0], argv)
+        if verbo in ("probar", "--probar"):
+            if not args:
+                print("falta el archivo: oracle medida probar <archivo> --con \"<filas>\"")
+                return 1
+            if "--con" not in argv:
+                print("falta la evidencia. Se escribe igual que en un caso del corpus:\n"
+                      "  oracle medida probar <archivo> --con 'pieza: id, alto\n"
+                      '      \"a\", 450.0\'')
+                return 1
+            return cmd_probar(proy, args[0], argv[argv.index("--con") + 1])
         if verbo in ("listar", "--listar"):
             return cmd_medida_listar(proy, argv)
         if verbo in ("expandir", "--expandir"):
