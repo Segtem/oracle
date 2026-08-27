@@ -318,16 +318,19 @@ class ContratoMedidaTests(unittest.TestCase):
         hechos = m.como_hechos([medida])
         ancestros = hechos.por_relacion["ancestro"]
 
-        self.assertIn(
-            {"medida": "d.ancestros", "ruta": "2.2.1.2",
-             "ancestro": "2.2", "cabeza_ancestro": "donde"},
-            ancestros,
-        )
-        self.assertIn(
-            {"medida": "d.ancestros", "ruta": "2.2.1.2",
-             "ancestro": "2.2.1", "cabeza_ancestro": "=="},
-            ancestros,
-        )
+        # Cada fila trae los atributos del NODO repetidos, no sólo la ruta del ancestro. Con eso,
+        # «¿hay un flotante comparado por igualdad dentro de un filtro?» se contesta con un `de` y un
+        # `donde`, sin unir dos relaciones. La forma normalizada obligaba a ese `unir`, y `unir` arma
+        # el producto completo: 1917 × 4699 = 9 millones de pares para quedarse con 1917, por encima
+        # del límite de un millón. La repetición cuesta memoria; el `unir` costaba 228 líneas de
+        # plan indexado en `nucleo/algebra.py` con 31 mutantes de código vivos.
+        def fila(ancestro, cabeza_ancestro):
+            return {"medida": "d.ancestros", "ruta": "2.2.1.2",
+                    "ancestro": ancestro, "cabeza_ancestro": cabeza_ancestro,
+                    "tipo": "flotante", "cabeza": "", "cabeza_padre": "==", "texto": "3.14"}
+
+        self.assertIn(fila("2.2", "donde"), ancestros)
+        self.assertIn(fila("2.2.1", "=="), ancestros)
         self.assertFalse(any(a["ruta"] == "" for a in ancestros))
 
     def test_pasos_de_medida_recorre_todos_los_pasos_con_sus_rutas_e_indices(self) -> None:

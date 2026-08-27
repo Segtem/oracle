@@ -11,9 +11,9 @@ caso 412-catalogo-real-sin-flotante-de-igualdad-en-filtro:
     como_se_detecto: observacion
     medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
     evidencia:
-        termino: medida, ruta, padre, tipo, cabeza_padre, cabeza, texto
-            "meta.toda_medida_de_ausencia_declara_requiere", "2.1", "2", "lista", "desde", "unir", ""
-        ancestro: medida, ruta, ancestro, cabeza_ancestro
-            "meta.toda_medida_de_ausencia_declara_requiere", "2.1", "", "medida"
+        ancestro: medida, ruta, ancestro, cabeza_ancestro, tipo, cabeza_padre, texto
+            "meta.toda_medida_de_ausencia_declara_requiere", "2.1", "2", "desde", "lista", "desde", ""
+            "meta.toda_medida_de_ausencia_declara_requiere", "2.1", "", "medida", "lista", "desde", ""
+            "meta.toda_medida_filtra_o_agrupa", "2.2.1.2.2", "2.2", "donde", "entero", "==", "0"
     leccion:
         El verde no sale de relaciones vacías: hay un término y un ancestro reales, pero no cumplen tipo, padre ni ancestro de filtro. Quitar el filtro de la medida ya no pasa inadvertido.

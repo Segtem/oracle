@@ -589,29 +589,49 @@ def _terminos(medida: str, nodo, ruta: tuple[int, ...],
         **base,
         "tipo": _tipo(nodo),
         "cabeza": "",
-        "texto": _texto_literal(nodo),
+        "texto": "" if isinstance(nodo, list) else _texto_literal(nodo),
         "longitud": 0,
     }
 
 
 def _ancestros_de_medida(medida) -> list[dict]:
-    return list(_ancestros(medida.id, medida.a_datos(), (), ()))
+    return list(_ancestros(medida.id, medida.a_datos(), (), (), ""))
 
 
 def _ancestros(medida: str, nodo, ruta: tuple[int, ...],
-               ancestros: tuple[tuple[tuple[int, ...], str], ...]):
+               ancestros: tuple[tuple[tuple[int, ...], str], ...], cabeza_padre: str):
+    """Un hecho por (nodo, ancestro suyo), CON los atributos del nodo repetidos en cada fila.
+
+    La repetición es deliberada y tiene una razón medida. La forma normalizada —`ancestro` con la
+    ruta sola, y los atributos del nodo sólo en `termino`— obliga a que toda pregunta sobre la
+    estructura una las dos relaciones. Y `unir` arma el producto completo antes de filtrar: sobre
+    este catálogo son 1917 × 4699 = 9 millones de pares para quedarse con 1917, muy por encima del
+    límite de un millón que protege la memoria. La medida no corría.
+
+    Salir de ahí por el lado del evaluador —enseñarle a indexar el `unir` seguido de `donde`— se
+    probó y se midió: 228 líneas nuevas en `nucleo/algebra.py` y 31 mutantes de código vivos, contra
+    0 en todo lo que ya estaba. Código sin vigilar en el módulo donde un error da veredictos
+    equivocados en silencio.
+
+    Repetir cinco campos por fila cuesta memoria y no cuesta mecanismo. La pregunta se contesta con
+    un `de` y un `donde`, que es lo que el lenguaje ya sabía hacer.
+    """
     for ruta_ancestro, cabeza_ancestro in ancestros:
         yield {
             "medida": medida,
             "ruta": _ruta(ruta),
             "ancestro": _ruta(ruta_ancestro),
             "cabeza_ancestro": cabeza_ancestro,
+            "tipo": _tipo(nodo),
+            "cabeza": _cabeza(nodo),
+            "cabeza_padre": cabeza_padre,
+            "texto": "" if isinstance(nodo, list) else _texto_literal(nodo),
         }
     if not isinstance(nodo, list):
         return
     propios = (*ancestros, (ruta, _cabeza(nodo)))
     for indice, hijo in enumerate(nodo):
-        yield from _ancestros(medida, hijo, (*ruta, indice), propios)
+        yield from _ancestros(medida, hijo, (*ruta, indice), propios, _cabeza(nodo))
 
 
 def _pasos_de(medida) -> list[dict]:

@@ -555,29 +555,6 @@ def _macro_ninguno_par(mid: str, cuerpo: list[tuple[int, str]], *,
             porque, alcance]
 
 
-def _macro_ninguno_unir(mid: str, cuerpo: list[tuple[int, str]], *,
-                        ubicaciones: dict[str, Ubicacion] | None = None) -> list:
-    clase = "ninguno-unir"
-    if len(cuerpo) != 6:
-        _falta_o_sobra(cuerpo, ("de", "unir", "donde", "umbral", "requiere", "alcance"), clase)
-    fuente_a = _leer_de(cuerpo[0])
-    fuente_b = _leer_de(cuerpo[1], "unir")
-    pred_txt, col_pred = _exigir_prefijo(cuerpo[2], "donde ", 1)
-    op, limite, porque, col_umbral = _leer_umbral(*_contenido(cuerpo[3], "umbral ", 1))
-    if op != "<=" or limite != 0:
-        _fallar(cuerpo[3][0], col_umbral, "la macro ninguno-unir con umbral <= 0")
-    requiere = _leer_requiere(cuerpo[4])
-    esperado = ["requiere", fuente_a[1], fuente_b[1]]
-    if requiere != esperado:
-        _fallar(cuerpo[4][0], len(IND) + 1,
-                f"`requiere` de ninguno-unir debe declarar {fuente_a[1]}, {fuente_b[1]}",
-                cuerpo[4][1].strip(), literal=True)
-    alcance = _literal_texto(*_contenido(cuerpo[5], "alcance ", 1))
-    return ["ninguno-unir", mid, fuente_a[1], fuente_a[2], fuente_b[1], fuente_b[2],
-            _leer_expr_en(pred_txt, cuerpo[2][0], col_pred, ubicaciones, (6,)),
-            porque, alcance]
-
-
 def _macro_peor(mid: str, cuerpo: list[tuple[int, str]], *,
                 ubicaciones: dict[str, Ubicacion] | None = None) -> list:
     if len(cuerpo) != 5:
@@ -783,10 +760,10 @@ def _leer_plantilla(bloque: list[tuple[int, str]]) -> list:
     """Lee la plantilla de una macro: una medida (o macro) con huecos, un nivel más adentro."""
     n0, linea0 = bloque[0]
     cuerpo0 = _indentada(linea0, 1, n0)
-    m = re.fullmatch(r"(medida|ninguno|ninguno-par|ninguno-unir|peor)\s+(\S+):", cuerpo0)
+    m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", cuerpo0)
     if not m:
         _fallar(n0, len(linea0) - len(cuerpo0) + 1,
-                "plantilla «medida|ninguno|ninguno-par|ninguno-unir|peor <id>:»", cuerpo0)
+                "plantilla «medida|ninguno|ninguno-par|peor <id>:»", cuerpo0)
     clase, mid_txt = m.groups()
     col_mid = len(linea0) - len(cuerpo0) + len(clase) + 2
     mid = _leer_nombre(mid_txt, n0, col_mid)
@@ -797,8 +774,6 @@ def _leer_plantilla(bloque: list[tuple[int, str]]) -> list:
         return _macro_ninguno(clase, mid, cuerpo)
     if clase == "ninguno-par":
         return _macro_ninguno_par(mid, cuerpo)
-    if clase == "ninguno-unir":
-        return _macro_ninguno_unir(mid, cuerpo)
     return _macro_peor(mid, cuerpo)
 
 
@@ -915,10 +890,9 @@ def leer_con_mapa(texto: str) -> Lectura:
             "1": Ubicacion(n, encabezado.find(nombre) + 1),
         }
         return Lectura(datos, ubicaciones, version)
-    m = re.fullmatch(r"(medida|ninguno|ninguno-par|ninguno-unir|peor)\s+(\S+):", encabezado)
+    m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", encabezado)
     if not m:
-        _fallar(n, 1, "encabezado «medida|ninguno|ninguno-par|ninguno-unir|peor <id>:»",
-                encabezado)
+        _fallar(n, 1, "encabezado «medida|ninguno|ninguno-par|peor <id>:»", encabezado)
     clase, mid = m.groups()
     # `\S+` acepta cualquier cosa sin espacios, y eso dejaba a la superficie escribir ids que el
     # resto del proyecto rechaza: `tareas.vencida_sin_dueño` se leía sin quejarse pero `--nueva` se
@@ -938,8 +912,6 @@ def leer_con_mapa(texto: str) -> Lectura:
         datos = _macro_ninguno(clase, mid, cuerpo, ubicaciones=ubicaciones)
     elif clase == "ninguno-par":
         datos = _macro_ninguno_par(mid, cuerpo, ubicaciones=ubicaciones)
-    elif clase == "ninguno-unir":
-        datos = _macro_ninguno_unir(mid, cuerpo, ubicaciones=ubicaciones)
     else:
         datos = _macro_peor(mid, cuerpo, ubicaciones=ubicaciones)
     return Lectura(datos, ubicaciones, version)
@@ -1081,17 +1053,6 @@ def imprimir(datos: list) -> str:
             f"{IND}de {_nombre(rel)} {_nombre(alias_a)}, {_nombre(alias_b)}",
             f"{IND}donde {_expr(pred)}",
             f"{IND}umbral <= 0 porque {_texto_o_hueco(porque)}",
-            f"{IND}alcance {_texto_o_hueco(alcance)}",
-        ]
-    elif clase == "ninguno-unir":
-        _c, mid, rel_a, alias_a, rel_b, alias_b, pred, porque, alcance = datos
-        lineas = [
-            f"ninguno-unir {_nombre(mid)}:",
-            f"{IND}de {_nombre(rel_a)} {_nombre(alias_a)}",
-            f"{IND}unir {_nombre(rel_b)} {_nombre(alias_b)}",
-            f"{IND}donde {_expr(pred)}",
-            f"{IND}umbral <= 0 porque {_texto_o_hueco(porque)}",
-            f"{IND}requiere {_nombre(rel_a)}, {_nombre(rel_b)}",
             f"{IND}alcance {_texto_o_hueco(alcance)}",
         ]
     elif clase == "peor":

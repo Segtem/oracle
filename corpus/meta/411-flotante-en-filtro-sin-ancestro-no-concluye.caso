@@ -11,8 +11,6 @@ caso 411-flotante-en-filtro-sin-ancestro-no-concluye:
     como_se_detecto: mutacion
     medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
     evidencia:
-        termino: medida, ruta, padre, tipo, cabeza_padre, texto
-            "dominio.sin_ancestro", "2.2.1.2", "2.2.1", "flotante", "==", "1.0"
         ancestro:
     leccion:
         `requiere ancestro` no es decoración: sin esa precondición, un join vacío se leería como cero ofensas y la medida saldría verde sobre evidencia incompleta.

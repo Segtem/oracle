@@ -11,9 +11,8 @@ caso 410-flotante-comparado-por-desigualdad-en-filtro:
     como_se_detecto: mutacion
     medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
     evidencia:
-        termino: medida, ruta, padre, tipo, cabeza_padre, texto
-            "dominio.filtro_con_desigualdad_flotante", "2.2.1.2", "2.2.1", "flotante", "!=", "1.0"
-        ancestro: medida, ruta, ancestro, cabeza_ancestro
-            "dominio.filtro_con_desigualdad_flotante", "2.2.1.2", "2.2", "donde"
+        ancestro: medida, ruta, ancestro, cabeza_ancestro, tipo, cabeza_padre, texto
+            "dominio.filtro_con_desigualdad_flotante", "2.2.1.2", "2.2.1", "!=", "flotante", "!=", "1.0"
+            "dominio.filtro_con_desigualdad_flotante", "2.2.1.2", "2.2", "donde", "flotante", "!=", "1.0"
     leccion:
         `==` y `!=` son dos ramas del mismo riesgo. Un caso por rama evita que una mutación deje media condición sin cubrir.
