@@ -49,6 +49,8 @@ VIGILANTES = frozenset({
     "meta.los_logicos_evaluan_todos_sus_operandos",
 })
 
+RELACIONES_DEL_LENGUAJE = frozenset({"paso", "nodo", "producto"})
+
 
 REFERENCIA = RAIZ / "diferencial" / "referencia" / "evaluador.py"
 
