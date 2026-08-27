@@ -1,0 +1,19 @@
+caso relevo-gen-001-verificacion-existe:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en relevo.verificacion_existe"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en relevo.verificacion_existe (mutante: aflojar_umbral, agregado:3.1:contar→suma(0), expresion:booleano@2.2.1.2, expresion:comparador@2.2.1:==→!=, invertir_comparador, negar_filtro, quitar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: relevo.verificacion_existe
+    evidencia:
+        verificacion: es_ancestro
+            false
+            true
+    leccion:
+        Caso generado automáticamente para fijar relevo.verificacion_existe sin depender de evidencia escrita a mano.

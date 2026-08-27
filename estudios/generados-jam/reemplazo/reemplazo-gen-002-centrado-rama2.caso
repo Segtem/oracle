@@ -1,0 +1,19 @@
+caso reemplazo-gen-002-centrado-rama2:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar rama 2 en reemplazo.centrado"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en reemplazo.centrado (mutante: campo:2.2.1.2.1.1.2:d_centro_y→d_centro_x).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: reemplazo.centrado
+    evidencia:
+        reemplazo: d_centro_x, d_centro_y
+            0.0, 3.0
+            0.0, 0.0
+    leccion:
+        Caso generado automáticamente para fijar reemplazo.centrado sin depender de evidencia escrita a mano.

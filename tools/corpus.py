@@ -30,7 +30,8 @@ from nucleo.algebra import ErrorDeAlgebra, separar_clave  # noqa: E402
 from nucleo.caso import (DETECCIONES, ETIQUETAS, PROCEDENCIAS, CasoMalDeclarado,
                          cargar_fuente_caso, rutas_de_corpus)  # noqa: E402
 from nucleo.proyecto import (ID_CASO_RE, ProyectoInvalido, presentar_ruta,
-                             problemas_estructura, sin_bandera)  # noqa: E402
+                             problemas_estructura, sin_bandera,
+                             sin_banderas_comunes)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
 OBLIGATORIOS = ("id", "fecha", "origen", "titulo", "etiqueta", "sintoma",
@@ -117,6 +118,28 @@ def nuevo(proy, ubicacion: str) -> int:
     print(f"  como_se_detecto:  {' · '.join(sorted(DETECCIONES))}\n")
     print("Después:  oracle test")
     return 0
+
+
+def generar(proy, mid: str, argv: list[str] | None = None) -> int:
+    from nucleo.generador import generar_caso
+
+    argv = argv or []
+    confiar = "--confiar-escalares" in argv
+    imprimir_solo = "--imprimir" in argv
+    directorio_destino = None
+    if "--directorio" in argv:
+        idx = argv.index("--directorio")
+        if idx + 1 < len(argv):
+            directorio_destino = Path(argv[idx + 1])
+
+    rc, _ = generar_caso(
+        proy,
+        mid,
+        directorio_destino=directorio_destino,
+        confiar=confiar,
+        imprimir_solo=imprimir_solo,
+    )
+    return rc
 
 
 def revisar_evidencia(nombre: str, evidencia) -> list[str]:
@@ -276,7 +299,7 @@ def listar(proy) -> int:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
-    args = sin_bandera(argv)
+    args = sin_banderas_comunes(argv)
     if "-h" in argv or "--help" in argv:
         print(__doc__)
         return 0
@@ -289,6 +312,11 @@ def main(argv: list[str] | None = None) -> int:
         return 1
     if args and args[0] in ("--listar", "listar"):
         return listar(proy)
+    if args and args[0] in ("--generar", "generar"):
+        if len(args) != 2:
+            print("uso: python tools/corpus.py --generar <dominio.medida>")
+            return 1
+        return generar(proy, args[1], argv)
     if args and args[0] == "--nuevo":
         if len(args) != 2:
             print("uso: python tools/corpus.py --nuevo <grupo/NNN-descripcion>")

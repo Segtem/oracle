@@ -1,0 +1,22 @@
+caso colocacion-gen-099-interpenetracion-verde:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada en el borde verde para fijar colocacion.interpenetracion"
+    etiqueta: verde_correcto
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en colocacion.interpenetracion (mutante: expresion:logico@2.2.1:y→o, quitar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: colocacion.interpenetracion
+    evidencia:
+        pieza: id, ox, oy, oz, ex, ey, ez
+            "p1-v1", 0.0, 0.0, 0.0, 50.0, 50.0, 50.0
+            "p1-v2", 0.0, 0.0, 0.0, 50.0, 50.0, 50.0
+        vecina: ex, ey, ez, id, ox, oy, oz
+            60000.0, 60000.0, 60000.0, "p2-v1", 10.0, 0.0, 0.0
+            60000.0, 60000.0, 60000.0, "p2-v2", 10.0, 0.0, 0.0
+    leccion:
+        Caso generado automáticamente para fijar colocacion.interpenetracion sin depender de evidencia escrita a mano.
