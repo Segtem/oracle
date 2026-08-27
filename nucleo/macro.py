@@ -18,9 +18,9 @@ escribe un proyecto:
   <plantilla>]
 ```
 
-La plantilla es la forma canónica con huecos `["$", "<parametro>"]`. Expandir es sustituir. Las tres
-macros universales —`ninguno`, `ninguno-par`, `peor`— viven en `nucleo/macros/` y se cargan como
-cualquier otra: son la biblioteca estándar del lenguaje, no un privilegio del núcleo.
+La plantilla es la forma canónica con huecos `["$", "<parametro>"]`. Expandir es sustituir. Las
+macros universales viven en `nucleo/macros/` y se cargan como cualquier otra: son la biblioteca
+estándar del lenguaje, no un privilegio del núcleo.
 
 ## Las guardas no traen evaluador nuevo
 

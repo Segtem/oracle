@@ -22,7 +22,7 @@ class ContratoMedidaTests(unittest.TestCase):
         m = modulo_medida()
         base = m.ClasificacionMeta()
         self.assertEqual(base.relaciones_del_lenguaje,
-                         frozenset({"medida", "caso", "medida_en_uso",
+                         frozenset({"ancestro", "medida", "caso", "medida_en_uso",
                                     "paso", "nodo", "producto", "equivalencia",
                                     "paso_de_medida", "fuente", "termino", "requiere"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
@@ -268,8 +268,8 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertEqual(m._tipo([]), "lista")
         self.assertEqual(m._tipo(True), "booleano")
         self.assertEqual(m._tipo(False), "booleano")
-        self.assertEqual(m._tipo(0), "numero")
-        self.assertEqual(m._tipo(1.5), "numero")
+        self.assertEqual(m._tipo(0), "entero")
+        self.assertEqual(m._tipo(1.5), "flotante")
         self.assertEqual(m._tipo("hola"), "texto")
         self.assertEqual(m._tipo(None), "ausente")
         self.assertEqual(m._tipo((1, 2)), "tuple")
@@ -291,10 +291,47 @@ class ContratoMedidaTests(unittest.TestCase):
         hechos = m.como_hechos([medida])
         terminos = hechos.por_relacion["termino"]
         tipos = {t["tipo"] for t in terminos}
-        self.assertEqual(tipos, {"lista", "booleano", "numero", "texto", "ausente"})
+        self.assertEqual(tipos, {"lista", "booleano", "entero", "flotante", "texto", "ausente"})
+        textos_por_tipo = {(t["tipo"], t["texto"]) for t in terminos if t["tipo"] != "lista"}
+        self.assertIn(("booleano", "true"), textos_por_tipo)
+        self.assertIn(("entero", "42"), textos_por_tipo)
+        self.assertIn(("flotante", "3.14"), textos_por_tipo)
+        self.assertIn(("texto", "cadena"), textos_por_tipo)
+        self.assertIn(("ausente", "null"), textos_por_tipo)
+        flotante = next(t for t in terminos if t["tipo"] == "flotante")
+        self.assertEqual(flotante["padre"], "2.2.1.4")
+        self.assertEqual(flotante["cabeza_padre"], "==")
         for t in terminos:
             if t["tipo"] != "lista":
                 self.assertEqual(t["longitud"], 0)
+
+    def test_ancestros_de_medida_emite_clausura_con_cabeza(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.ancestros",
+            ["desde", ["de", "pieza", "p"],
+             ["donde", ["==", ["campo", "p", "f"], 3.14]]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón"],
+            ["alcance", "NO ve"],
+        ])
+        hechos = m.como_hechos([medida])
+        ancestros = hechos.por_relacion["ancestro"]
+
+        # Cada fila trae los atributos del NODO repetidos, no sólo la ruta del ancestro. Con eso,
+        # «¿hay un flotante comparado por igualdad dentro de un filtro?» se contesta con un `de` y un
+        # `donde`, sin unir dos relaciones. La forma normalizada obligaba a ese `unir`, y `unir` arma
+        # el producto completo: 1917 × 4699 = 9 millones de pares para quedarse con 1917, por encima
+        # del límite de un millón. La repetición cuesta memoria; el `unir` costaba 228 líneas de
+        # plan indexado en `nucleo/algebra.py` con 31 mutantes de código vivos.
+        def fila(ancestro, cabeza_ancestro):
+            return {"medida": "d.ancestros", "ruta": "2.2.1.2",
+                    "ancestro": ancestro, "cabeza_ancestro": cabeza_ancestro,
+                    "tipo": "flotante", "cabeza": "", "cabeza_padre": "==", "texto": "3.14"}
+
+        self.assertIn(fila("2.2", "donde"), ancestros)
+        self.assertIn(fila("2.2.1", "=="), ancestros)
+        self.assertFalse(any(a["ruta"] == "" for a in ancestros))
 
     def test_pasos_de_medida_recorre_todos_los_pasos_con_sus_rutas_e_indices(self) -> None:
         m = modulo_medida()

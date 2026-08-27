@@ -1,0 +1,18 @@
+caso 409-flotante-comparado-por-igualdad-en-filtro:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un filtro compara un flotante literal con igualdad exacta"
+    etiqueta: falso_verde
+    sintoma:
+        El literal flotante es operando directo de `==` y ese comparador vive dentro de un `donde`. La medida debe marcarlo aunque el valor concreto parezca inocente.
+    como_se_detecto: mutacion
+    medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+    evidencia:
+        ancestro: medida, ruta, ancestro, cabeza_ancestro, tipo, cabeza_padre, texto
+            "dominio.filtro_con_igualdad_flotante", "2.2.1.2", "2.2.1", "==", "flotante", "==", "1.0"
+            "dominio.filtro_con_igualdad_flotante", "2.2.1.2", "2.2", "donde", "flotante", "==", "1.0"
+    leccion:
+        La prohibición necesita ver tres cosas a la vez: tipo flotante, igualdad exacta como padre inmediato y pertenencia a un filtro. Si cualquiera se pierde, este caso deja de ponerse rojo.

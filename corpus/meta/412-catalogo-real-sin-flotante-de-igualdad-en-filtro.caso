@@ -1,0 +1,19 @@
+caso 412-catalogo-real-sin-flotante-de-igualdad-en-filtro:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "73f4cc0+worktree"
+    procedencia: observada
+    titulo: "Una fila real del catálogo no es un flotante de igualdad en filtro"
+    etiqueta: verde_correcto
+    sintoma:
+        En el catálogo real, `meta.toda_medida_de_ausencia_declara_requiere` tiene un nodo `unir` dentro de su tubería. Esa fila prueba que `termino` y `ancestro` pueden estar presentes sin que haya una ofensa de flotante exacto.
+    como_se_detecto: observacion
+    medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+    evidencia:
+        ancestro: medida, ruta, ancestro, cabeza_ancestro, tipo, cabeza_padre, texto
+            "meta.toda_medida_de_ausencia_declara_requiere", "2.1", "2", "desde", "lista", "desde", ""
+            "meta.toda_medida_de_ausencia_declara_requiere", "2.1", "", "medida", "lista", "desde", ""
+            "meta.toda_medida_filtra_o_agrupa", "2.2.1.2.2", "2.2", "donde", "entero", "==", "0"
+    leccion:
+        El verde no sale de relaciones vacías: hay un término y un ancestro reales, pero no cumplen tipo, padre ni ancestro de filtro. Quitar el filtro de la medida ya no pasa inadvertido.

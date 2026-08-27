@@ -1,0 +1,16 @@
+caso 411-flotante-en-filtro-sin-ancestro-no-concluye:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Sin relación `ancestro`, la medida no puede concluir"
+    etiqueta: falso_verde
+    sintoma:
+        El sensor estructural entregó el término flotante pero no la clausura de ancestría. Sin esa relación, la medida no puede saber si el comparador está dentro de un `donde`.
+    como_se_detecto: mutacion
+    medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+    evidencia:
+        ancestro:
+    leccion:
+        `requiere ancestro` no es decoración: sin esa precondición, un join vacío se leería como cero ofensas y la medida saldría verde sobre evidencia incompleta.

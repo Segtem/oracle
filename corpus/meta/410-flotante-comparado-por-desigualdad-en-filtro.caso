@@ -1,0 +1,18 @@
+caso 410-flotante-comparado-por-desigualdad-en-filtro:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un filtro compara un flotante literal con desigualdad exacta"
+    etiqueta: falso_verde
+    sintoma:
+        El literal flotante es operando directo de `!=` dentro de un `donde`. La desigualdad exacta sobre una cantidad medida tiene el mismo problema que la igualdad: depende de representación, no de una tolerancia defendida.
+    como_se_detecto: mutacion
+    medida: meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+    evidencia:
+        ancestro: medida, ruta, ancestro, cabeza_ancestro, tipo, cabeza_padre, texto
+            "dominio.filtro_con_desigualdad_flotante", "2.2.1.2", "2.2.1", "!=", "flotante", "!=", "1.0"
+            "dominio.filtro_con_desigualdad_flotante", "2.2.1.2", "2.2", "donde", "flotante", "!=", "1.0"
+    leccion:
+        `==` y `!=` son dos ramas del mismo riesgo. Un caso por rama evita que una mutación deje media condición sin cubrir.
