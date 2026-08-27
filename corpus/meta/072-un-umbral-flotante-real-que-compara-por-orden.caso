@@ -1,0 +1,20 @@
+caso 072-un-umbral-flotante-real-que-compara-por-orden:
+    fecha: "2026-08-26"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "535d518"
+    procedencia: observada
+    titulo: "Un umbral flotante real, y compara por orden"
+    etiqueta: verde_correcto
+    sintoma:
+        `snap.al_ras` tiene umbral `<= 1.0`: es flotante de verdad, y por eso es la fila que importa. Satisface la mitad izquierda del filtro —el valor es flotante— y no la derecha —el comparador es de orden—, así que una medida que perdiera uno de los dos conjuntos la marcaría. Las otras tres filas son reales y no son flotantes. Leídas de `Brianholl/jam` en `535d518` y de `Brianholl/LyraGASP` en `4a1ccb3`.
+    como_se_detecto: observacion
+    medida: meta.ningun_umbral_flotante_de_igualdad
+    evidencia:
+        medida: id, comparador, umbral_es_flotante
+            "snap.al_ras", "<=", true
+            "scatter.cobertura", "<=", false
+            "recarga.root_motion_habilitado", "<=", false
+            "ml_deformer.malla_objetivo_fragmentada", "<=", false
+    leccion:
+        El caso construido para esta medida podía elegir sus filas; éste no, y aún así trajo el flotante que hacía falta. Un catálogo real de física y geometría tiene umbrales flotantes por necesidad — es el dominio el que los pone, no el ejemplo.

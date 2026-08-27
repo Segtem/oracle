@@ -1,0 +1,40 @@
+caso 075-las-dos-medidas-reales-de-unir-y-agrupar-declaran-requiere:
+    fecha: "2026-08-26"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "4a4fce9"
+    procedencia: observada
+    titulo: "Las únicas dos medidas reales que usan `unir` con `agrupar` declaran `requiere`"
+    etiqueta: verde_correcto
+    sintoma:
+        Barrí los tres catálogos —38 medidas de este repo, 41 de `Brianholl/jam` en `535d518`, 9 de `Brianholl/LyraGASP` en `4a1ccb3`, en las dos superficies— buscando el patrón que la medida persigue: `unir` junto con `agrupar`. Aparece exactamente dos veces, las dos acá, y las dos declaran `requiere`. La tercera fila es histórica y es la que discrimina: `snap.al_ras` en `Brianholl/jam` `c1fc6e7` usaba `unir` sin `agrupar` y sin `requiere` — cumple la mitad del filtro y no la otra, así que una medida a la que le falte un conjunto la marcaría.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_de_ausencia_declara_requiere
+    evidencia:
+        medida: id
+            "meta.toda_medida_de_ausencia_declara_requiere"
+            "meta.toda_medida_filtra_o_agrupa"
+            "snap.al_ras@c1fc6e7"
+        termino: medida, cabeza
+            "meta.toda_medida_de_ausencia_declara_requiere", "de"
+            "meta.toda_medida_de_ausencia_declara_requiere", "unir"
+            "meta.toda_medida_de_ausencia_declara_requiere", "agrupar"
+            "meta.toda_medida_de_ausencia_declara_requiere", "donde"
+            "meta.toda_medida_de_ausencia_declara_requiere", "resumen"
+            "meta.toda_medida_de_ausencia_declara_requiere", "umbral"
+            "meta.toda_medida_de_ausencia_declara_requiere", "requiere"
+            "meta.toda_medida_filtra_o_agrupa", "de"
+            "meta.toda_medida_filtra_o_agrupa", "unir"
+            "meta.toda_medida_filtra_o_agrupa", "agrupar"
+            "meta.toda_medida_filtra_o_agrupa", "donde"
+            "meta.toda_medida_filtra_o_agrupa", "resumen"
+            "meta.toda_medida_filtra_o_agrupa", "umbral"
+            "meta.toda_medida_filtra_o_agrupa", "requiere"
+            "snap.al_ras@c1fc6e7", "desde"
+            "snap.al_ras@c1fc6e7", "unir"
+            "snap.al_ras@c1fc6e7", "de"
+            "snap.al_ras@c1fc6e7", "resumen"
+            "snap.al_ras@c1fc6e7", "umbral"
+            "snap.al_ras@c1fc6e7", "alcance"
+    leccion:
+        Que el patrón aparezca dos veces en 88 medidas dice algo sobre la medida: no está fijada por casualidad, está fijada por escasez. Y las dos apariciones son medidas meta de este repo, o sea que hoy la regla se cumple sola porque quien la escribió es quien escribe las únicas medidas a las que se aplica. Cuando un consumidor escriba la primera, ahí se sabrá si sirve.

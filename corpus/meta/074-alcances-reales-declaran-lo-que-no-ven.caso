@@ -1,0 +1,19 @@
+caso 074-alcances-reales-declaran-lo-que-no-ven:
+    fecha: "2026-08-26"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "535d518"
+    procedencia: observada
+    titulo: "Tres alcances reales, y los tres nombran su punto ciego"
+    etiqueta: verde_correcto
+    sintoma:
+        El `alcance` de tres medidas reales, transcrito entero: dos de `Brianholl/jam` en `535d518` y una de `Brianholl/LyraGASP` en `4a1ccb3`. Ninguno está vacío, y los tres nombran cosas concretas que la medida NO ve —la geometría dentro del AABB, la uniformidad dentro de la celda, las costuras de UV—.
+    como_se_detecto: observacion
+    medida: meta.ninguna_medida_sin_alcance
+    evidencia:
+        medida: id, alcance
+            "snap.al_ras", "contacto de las caras sobre el eje solicitado. NO ve si las piezas comparten superficie en los otros dos ejes, ni la geometría real dentro del AABB. Si `pieza` u `objetivo` vienen vacías la medida NO concluye —lo declara en `requiere`— y sale SIN EVIDENCIA en vez de un verde que no miró nada"
+            "scatter.cobertura", "fracción de celdas con al menos un centro. NO ve uniformidad dentro de cada celda, distancias entre vecinos, patrones, orientación ni calidad visual. Si `cobertura_scatter` viene vacía la medida NO concluye —lo declara en `requiere`— y sale SIN EVIDENCIA en vez de verde"
+            "ml_deformer.malla_objetivo_fragmentada", "ve la cantidad de componentes conexas de la topologia fuente declarada, contadas sobre los triangulos. NO ve vertices huerfanos, NO ve si dos cascaras se tocan geometricamente sin compartir vertices, NO ve la malla de render ni sus LODs, NO ve costuras de UV o de normales"
+    leccion:
+        La medida sólo comprueba que el texto no esté vacío, y su propio `alcance` lo dice. Lo que este caso agrega es que sobre alcances reales —largos, escritos a mano, en dos idiomas de acentuación distintos— la medida no inventa un rojo.

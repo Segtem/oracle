@@ -1,0 +1,20 @@
+caso 071-catalogos-reales-sin-umbral-de-igualdad:
+    fecha: "2026-08-26"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "4a4fce9"
+    procedencia: observada
+    titulo: "Ninguna medida escrita a mano en tres catálogos usa un umbral de igualdad"
+    etiqueta: verde_correcto
+    sintoma:
+        Transcripción del comparador final de cuatro medidas reales, leídas de los catálogos tal como estaban: dos de `Brianholl/jam` en `535d518`, una de `Brianholl/LyraGASP` en `4a1ccb3` —expandida desde su forma `ninguno`, que canoniza a `<= 0`— y una de este repo. Las cuatro comparan por orden. Se buscó además el contraejemplo en la historia completa de los tres repos y no existe: ninguna medida commiteada usó nunca `==` ni `!=` como comparador de umbral.
+    como_se_detecto: observacion
+    medida: meta.ningun_umbral_de_igualdad
+    evidencia:
+        medida: id, comparador
+            "snap.al_ras", "<="
+            "scatter.cobertura", "<="
+            "recarga.root_motion_habilitado", "<="
+            "meta.ninguna_medida_sin_alcance", "<="
+    leccion:
+        Un verde transcrito del mundo dice algo que un verde construido no puede decir: que la medida no da falsos rojos sobre las medidas que la gente escribió de verdad, incluidas las que llegan por macro y canonizan su umbral en la expansión.

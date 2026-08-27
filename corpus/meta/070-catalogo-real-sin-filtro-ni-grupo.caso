@@ -1,0 +1,53 @@
+caso 070-catalogo-real-sin-filtro-ni-grupo:
+    fecha: "2026-08-26"
+    origen:
+        repo: "Brianholl/jam"
+        commit: "c1fc6e7"
+    procedencia: observada
+    titulo: "Tres medidas de un catálogo real contaban la relación entera"
+    etiqueta: falso_verde
+    sintoma:
+        En `c1fc6e7` (2026-08-09) el catálogo de un consumidor tenía tres medidas sin `donde` ni `agrupar`: `snap.al_ras`, `snap.comparte_cara` y `scatter.cobertura`. Las tres daban veredicto, y ninguna declaraba qué fila ofende. La consecuencia se midió sobre `scatter.cobertura` con tres filas y una mala: sin filtro devolvía las 3 como testigos, con filtro devuelve 1. Un rojo que señala todo no señala nada. En el mismo commit, `scatter.contencion` y `scatter.interpenetracion` sí tenían `donde`, y son las filas que la medida NO debe marcar.
+    como_se_detecto: herramienta_ajena
+    medida: meta.toda_medida_filtra_o_agrupa
+    evidencia:
+        medida: id
+            "snap.al_ras"
+            "snap.comparte_cara"
+            "scatter.cobertura"
+            "scatter.contencion"
+            "scatter.interpenetracion"
+        termino: medida, cabeza
+            "snap.al_ras", "desde"
+            "snap.al_ras", "unir"
+            "snap.al_ras", "de"
+            "snap.al_ras", "resumen"
+            "snap.al_ras", "umbral"
+            "snap.al_ras", "alcance"
+            "snap.comparte_cara", "desde"
+            "snap.comparte_cara", "unir"
+            "snap.comparte_cara", "de"
+            "snap.comparte_cara", "resumen"
+            "snap.comparte_cara", "umbral"
+            "snap.comparte_cara", "alcance"
+            "scatter.cobertura", "desde"
+            "scatter.cobertura", "de"
+            "scatter.cobertura", "resumen"
+            "scatter.cobertura", "umbral"
+            "scatter.cobertura", "alcance"
+            "scatter.contencion", "desde"
+            "scatter.contencion", "unir"
+            "scatter.contencion", "de"
+            "scatter.contencion", "donde"
+            "scatter.contencion", "resumen"
+            "scatter.contencion", "umbral"
+            "scatter.contencion", "alcance"
+            "scatter.interpenetracion", "desde"
+            "scatter.interpenetracion", "unir"
+            "scatter.interpenetracion", "de"
+            "scatter.interpenetracion", "donde"
+            "scatter.interpenetracion", "resumen"
+            "scatter.interpenetracion", "umbral"
+            "scatter.interpenetracion", "alcance"
+    leccion:
+        La medida no se escribió contra un ejemplo: se escribió y después encontró esto en un catálogo que llevaba meses en uso, escrito por alguien que sabía lo que hacía. Se arregló en `e2ce848` agregando el filtro. Que las dos medidas sanas del mismo commit estén en la evidencia no es adorno: sin ellas, quitarle el filtro a la medida sobrevive.

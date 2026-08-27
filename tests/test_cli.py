@@ -656,7 +656,10 @@ class NounVerbCliTests(OracleCliTests):
     def test_caso_listar_en_propio_oracle_y_proyecto_vacio(self) -> None:
         rc, salida = self._callado(cli.main, ["caso", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CORPUS (106 casos", salida)
+        # El conteo se deriva del corpus real: fijarlo a mano hace que agregar un caso —que es la
+        # actividad normal del repo— rompa un test que no tiene nada que ver con lo que cambió.
+        cuantos = sum(1 for p in (RAIZ / "corpus").rglob("*") if p.suffix in (".caso", ".json"))
+        self.assertIn(f"CORPUS ({cuantos} casos", salida)
         self.assertIn("huecos declarados", salida)
         self.assertIn("proceso/004-testigos-duplicados", salida)
         self.assertIn("⚠ hueco declarado (resuelto)", salida)
