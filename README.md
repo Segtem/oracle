@@ -398,7 +398,7 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**112 casos**: 72 defectos y 40 verdes correctos. De los defectos, 69 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 67 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 69 observada, 37 construida, 6 generada y 0 sin declarar.
+**112 casos**: 72 defectos y 40 verdes correctos. De los defectos, 69 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 67 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 73 observada, 33 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
