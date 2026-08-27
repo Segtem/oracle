@@ -415,7 +415,7 @@ def ruta_de_medida(mid: str, *directorios) -> Path:
     return candidatos[0]
 
 
-def cargar_fuente_medida(ruta: Path) -> list:
+def cargar_fuente_medida(ruta: Path, *, macros=None) -> list:
     """Lee una medida de catálogo y devuelve su forma de datos."""
     ruta = Path(ruta)
     try:
@@ -432,7 +432,7 @@ def cargar_fuente_medida(ruta: Path) -> list:
         from .version import VersionInvalida, exigir_sintaxis_compatible
 
         try:
-            lectura = leer_con_mapa(texto)
+            lectura = leer_con_mapa(texto, macros=macros)
         except ErrorSintaxis as e:
             raise MedidaMalDeclarada(f"{ruta}: {fragmento_de_error(e, texto)}") from e
         try:
@@ -447,7 +447,7 @@ def cargar_fuente_medida(ruta: Path) -> list:
 def cargar(ruta: Path, *, registro=None,
            limites: LimitesAlgebra | None = None, macros=None) -> Medida:
     return Medida.de_datos(
-        cargar_fuente_medida(ruta),
+        cargar_fuente_medida(ruta, macros=macros),
         registro=registro,
         limites=limites,
         macros=macros,

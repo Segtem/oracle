@@ -73,6 +73,7 @@ def main() -> int:
             "oracle_metalenguaje/nucleo/aislamiento/escalares.py",
             "oracle_metalenguaje/nucleo/macros/ninguno.oracle",
             "oracle_metalenguaje/nucleo/macros/ninguno-par.oracle",
+            "oracle_metalenguaje/nucleo/macros/ninguno-requiere.oracle",
             "oracle_metalenguaje/nucleo/macros/peor.oracle",
             "oracle_metalenguaje/catalogos/meta/meta.toda_medida_esta_fijada.oracle",
             "oracle_metalenguaje/perfiles/python/catalogos/proceso/"

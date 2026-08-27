@@ -1,0 +1,11 @@
+mutantes de medida (medida × mutador): 588 · murieron 588 · sobrevivieron 0
+  de los muertos: 457 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 131 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 2136
+
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
+  ✓ meta.toda_medida_esta_fijada                        0 (<= 0)
+  ✓ proceso.test_con_mutante_que_lo_mata                0 (<= 0)
+
+  1 medida(s) NO pudieron juzgar esta evidencia — la relación estaba, los campos no:
+    · proceso.codigo_con_mutante_que_lo_mata: «==» sobre un valor ausente: ['==', ['campo', 'm', 'estado'], 'pasaron'] en `2.2.1.1`

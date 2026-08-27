@@ -346,6 +346,7 @@ class OracleCliTests(unittest.TestCase):
                 "oracle_metalenguaje/nucleo/aislamiento/escalares.py",
                 "oracle_metalenguaje/nucleo/macros/ninguno.oracle",
                 "oracle_metalenguaje/nucleo/macros/ninguno-par.oracle",
+                "oracle_metalenguaje/nucleo/macros/ninguno-requiere.oracle",
                 "oracle_metalenguaje/nucleo/macros/peor.oracle",
                 "oracle_metalenguaje/catalogos/meta/meta.toda_medida_esta_fijada.oracle",
                 "oracle_metalenguaje/perfiles/python/catalogos/proceso/"
@@ -734,6 +735,55 @@ class NounVerbCliTests(OracleCliTests):
             rc_ca, _ = self._callado(cli.main, ["caso", "demo/003-atajo", "--proyecto", str(raiz)])
             self.assertEqual(rc_ca, 0)
             self.assertTrue((raiz / "corpus" / "demo" / "003-atajo.caso").is_file())
+
+    def test_convertir_usa_macros_oracle_del_proyecto_en_ambas_direcciones(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+            (raiz / "macros").mkdir()
+            (raiz / "macros" / "sin-fallas.oracle").write_text(
+                "\n".join([
+                    "defmacro sin-fallas(id, relacion, alias, predicado, porque, alcance):",
+                    "    ninguno $id:",
+                    "        relacion $relacion",
+                    "        alias $alias",
+                    "        predicado $predicado",
+                    "        porque $porque",
+                    "        alcance $alcance",
+                    "",
+                ]), encoding="utf-8")
+            catalogo = raiz / "catalogos" / "demo"
+            catalogo.mkdir(parents=True)
+
+            fuente = catalogo / "demo.todo_ok.oracle"
+            fuente.write_text(
+                "\n".join([
+                    "sin-fallas demo.todo_ok:",
+                    "    relacion item",
+                    "    alias i",
+                    "    predicado i.ok == false",
+                    "    porque \"un item falso invalida la entrega entera\"",
+                    "    alcance \"NO ve items que nadie declaró\"",
+                    "",
+                ]), encoding="utf-8")
+
+            rc_oracle, salida_oracle = self._callado(
+                cli.main, ["convertir", str(fuente), "--proyecto", str(raiz)])
+            self.assertEqual(rc_oracle, 0)
+            self.assertEqual(json.loads(salida_oracle), [
+                "sin-fallas", "demo.todo_ok", "item", "i",
+                ["==", ["campo", "i", "ok"], False],
+                "un item falso invalida la entrega entera",
+                "NO ve items que nadie declaró",
+            ])
+
+            canonica = catalogo / "demo.todo_ok.json"
+            canonica.write_text(json.dumps(json.loads(salida_oracle)), encoding="utf-8")
+            rc_json, salida_json = self._callado(
+                cli.main, ["convertir", str(canonica), "--proyecto", str(raiz)])
+            self.assertEqual(rc_json, 0)
+            self.assertTrue(salida_json.startswith("sin-fallas demo.todo_ok:\n"))
+            self.assertIn("    relacion item\n", salida_json)
 
     def test_faltan_argumentos_en_verbos_devuelve_uno(self) -> None:
         with tempfile.TemporaryDirectory() as td:

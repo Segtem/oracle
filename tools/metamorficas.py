@@ -214,13 +214,14 @@ def _macro_equivale_a_su_expansion(catalogo: dict, casos: list[dict], macros) ->
 
 def _sintaxis_ida_y_vuelta(proy: Proyecto) -> list[dict]:
     filas = []
+    macros = macros_del_proyecto(proy)
     for ruta in sintaxis._rutas_catalogo(proy.raiz):
         caso = str(ruta.relative_to(proy.raiz))
         try:
-            datos = cargar_fuente_medida(ruta)
-            superficie = sintaxis.imprimir(datos)
-            releida = sintaxis.leer(superficie)
-            reimpresa = sintaxis.imprimir(releida)
+            datos = cargar_fuente_medida(ruta, macros=macros)
+            superficie = sintaxis.imprimir(datos, macros=macros)
+            releida = sintaxis.leer(superficie, macros=macros)
+            reimpresa = sintaxis.imprimir(releida, macros=macros)
         except Exception as e:             # noqa: BLE001
             filas.append({"propiedad": "sintaxis_ida_y_vuelta", "caso": caso,
                           "origen": "catalogo", "evaluo": False,

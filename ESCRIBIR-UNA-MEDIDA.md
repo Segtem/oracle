@@ -117,26 +117,29 @@ enteran de que existen.
 
 ```oracle
 ninguno proceso.test_con_mutante_que_lo_mata:
-    de mutante m
-    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
-    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina"
+    relacion mutante
+    alias m
+    predicado m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    porque "un mutante que sobrevive es un test que no discrimina"
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
 
 | Macro | Para qué | Cuántas la usan |
 |---|---|---|
-| `ninguno` | ninguna fila debe cumplir el predicado | 26 |
-| `ninguno-par` | lo mismo sobre PARES de la misma relación | 2 |
-| `peor` | el peor caso de una expresión no pasa de una tolerancia | 2 |
+| `ninguno` | ninguna fila debe cumplir el predicado | 29 |
+| `ninguno-requiere` | lo mismo, declarando evidencia indispensable | 4 |
+| `ninguno-par` | lo mismo sobre PARES de la misma relación | 0 |
+| `peor` | el peor caso de una expresión no pasa de una tolerancia | 0 |
 
 **`peor` recibe la tolerancia una sola vez** y genera con ella el filtro y el umbral:
 
 ```oracle
 peor snap.grilla:
-    de pieza a
+    relacion pieza
+    alias a
     expresion desvio_de_grilla(hecho(a), 100.0)
     tolerancia 1.0
-    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve"
+    porque "por debajo de 1 cm el desvío no se ve"
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 

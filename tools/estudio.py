@@ -84,7 +84,7 @@ def catalogo_en_prosa(catalogos_dirs, macros=None) -> str:
     hechos = {h["id"]: h for h in como_hechos(cat.values())}
     fuentes = {}
     for p in rutas_de_catalogo(catalogos_dirs):
-        crudo = cargar_fuente_medida(p)
+        crudo = cargar_fuente_medida(p, macros=macros)
         fuentes[crudo[1]] = crudo
 
     out = ["# El catálogo de medidas", "",
