@@ -542,6 +542,23 @@ class NounVerbCliTests(OracleCliTests):
         self.assertEqual(rc_des, 1)
         self.assertIn("subcomando desconocido: desconocido", salida_des)
 
+    def test_version_dice_las_tres_y_de_donde_sale(self) -> None:
+        """Un binario que no sabe decir qué es se confunde con un CLI roto: pasó, y costó tiempo."""
+        for bandera in ("--version", "-V", "version"):
+            rc, salida = self._callado(cli.main, [bandera])
+            self.assertEqual(rc, 0, bandera)
+            self.assertIn("oracle 0.1.0", salida)
+            self.assertIn("álgebra:", salida)
+            self.assertIn("sintaxis:", salida)
+            self.assertIn("corriendo desde:", salida)
+
+    def test_la_version_del_paquete_es_la_del_nucleo(self) -> None:
+        """`pyproject.toml` la lee de `nucleo/version.py`; si alguien la duplica, esto lo dice."""
+        texto = (RAIZ / "pyproject.toml").read_text(encoding="utf-8")
+        self.assertIn('dynamic = ["version"]', texto)
+        self.assertIn("nucleo.version.VERSION_DISTRIBUCION", texto)
+        self.assertNotIn('\nversion = "', texto)
+
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)

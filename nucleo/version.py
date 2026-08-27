@@ -20,6 +20,12 @@ from __future__ import annotations
 import re
 from dataclasses import dataclass
 
+# Tres versiones, y son tres cosas distintas a propósito: unificarlas mentiría. El álgebra versiona
+# lo que una medida SIGNIFICA; la sintaxis versiona cómo se ESCRIBE (un `.oracle` se lee, y el
+# impresor no lo toca, así que no envejecen juntas); y la distribución versiona el paquete que se
+# instala, que cambia cada vez que se arregla una herramienta sin tocar el lenguaje.
+VERSION_DISTRIBUCION = "0.1.0"
+
 VERSION_ALGEBRA = "0.3"
 
 # La superficie infija declara su versión por separado: no envejece igual que el álgebra, porque un

@@ -61,6 +61,7 @@ Uso:
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
   oracle --help                           Muestra esta ayuda
+  oracle --version                        Versión del paquete, del álgebra y de la sintaxis
 
 Atajos directos:
   oracle init [ruta]                      Inicializa un proyecto nuevo
@@ -478,11 +479,29 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     return 0
 
 
+def version() -> None:
+    """Las tres versiones y de dónde salió este binario.
+
+    Existe por un defecto que costó tiempo: `uv tool install .` deja una COPIA congelada, y el
+    `oracle` del PATH contestaba «subcomando desconocido» a verbos que ya estaban en la rama. Sin
+    forma de preguntarle a un binario qué es, eso se confunde con un bug del CLI. Ahora se pregunta.
+    """
+    from nucleo.proyecto import RAIZ_ORACLE
+    from nucleo.version import VERSION_ALGEBRA, VERSION_DISTRIBUCION, VERSION_SINTAXIS
+    print(f"oracle {VERSION_DISTRIBUCION}")
+    print(f"  álgebra:  {VERSION_ALGEBRA}   (qué SIGNIFICA una medida)")
+    print(f"  sintaxis: {VERSION_SINTAXIS}   (cómo se ESCRIBE)")
+    print(f"  corriendo desde: {RAIZ_ORACLE}")
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     posicionales = sin_banderas_comunes(argv)
     if not posicionales or posicionales[0] in ("-h", "--help", "help"):
         ayuda()
+        return 0
+    if posicionales[0] in ("-V", "--version", "version"):
+        version()
         return 0
 
     subcomando = posicionales[0]
