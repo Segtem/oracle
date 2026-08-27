@@ -166,7 +166,13 @@ def revisar(proy, ruta: Path) -> int:
     print(f"✓ bien declarada: {medida.id}   (forma: {forma})")
     print(f"    umbral   {medida.op} {medida.limite}")
     print(f"    porque   {medida.porque}")
-    print(f"    alcance  {medida.alcance}\n")
+    print(f"    alcance  {medida.alcance}")
+    derivado = alcance_derivado(proy, medida)
+    if derivado:
+        print("\n  lo que NO mira, calculado de las relaciones declaradas:")
+        for l in derivado:
+            print(l)
+    print()
 
     # correrla contra toda la evidencia que hay, para que no se estrene a ciegas
     rojos = verdes = errores = 0
@@ -211,6 +217,78 @@ def revisar(proy, ruta: Path) -> int:
     print("\n✓ discrimina: hay evidencia que la pone roja y evidencia que la pone verde.")
     print("  Para que quede fijada, agregá al corpus un caso de cada polaridad.")
     return 0
+
+
+def alcance_derivado(proy, medida) -> list[str]:
+    """Qué campos DECLARADOS de sus relaciones no toca esta medida.
+
+    El `alcance` de una medida es obligatorio y su comprobación es que no esté vacío: la máquina no
+    puede juzgar si lo que dice es cierto. Pero desde que L2 ve la estructura y L−1 declara los
+    campos, una mitad de esa pregunta **se calcula**: si `pieza` declara once campos y la medida lee
+    seis, los otros cinco son puntos ciegos y Oracle los sabe sin que nadie los narre.
+
+    No reemplaza al `alcance` escrito y no se compara contra él —eso sería juzgar prosa contra
+    estructura, y son cosas distintas—. Se muestra al lado, para que quien escribe la medida decida
+    si alguno de esos campos debería estar mirándose. La otra mitad —lo que el SENSOR no miró del
+    mundo— no se deriva de nada y vive en la declaración de la relación.
+
+    Devuelve líneas listas para imprimir, o vacío si no hay relaciones declaradas: en ese caso no es
+    que la medida lo vea todo, es que nadie declaró qué hay para ver.
+    """
+    from nucleo.relacion import cargar_relaciones
+
+    try:
+        declaradas = cargar_relaciones(proy.raiz / "relaciones")
+    except Exception:  # noqa: BLE001 — sin declaraciones no hay nada que derivar, y no es un error
+        return []
+    if not declaradas:
+        return []
+
+    datos = medida.a_datos()
+    alias_de = {}
+
+    def _fuentes(nodo):
+        if not isinstance(nodo, list) or not nodo:
+            return
+        if nodo[0] == "de":
+            alias_de[nodo[2]] = nodo[1]
+        elif nodo[0] == "unir":
+            _fuentes(nodo[1])
+            _fuentes(nodo[2])
+
+    _fuentes(datos[2][1])
+
+    leidos: set[tuple[str, str]] = set()
+
+    def _campos(nodo):
+        if isinstance(nodo, list) and nodo:
+            if nodo[0] == "campo" and len(nodo) == 3:
+                leidos.add((alias_de.get(nodo[1], ""), nodo[2]))
+            for hijo in nodo[1:]:
+                _campos(hijo)
+
+    _campos(datos)
+
+    lineas = []
+    for alias, relacion in sorted(alias_de.items()):
+        if relacion not in declaradas:
+            lineas.append(f"    de `{relacion}` no se sabe: nadie declaró sus campos")
+            continue
+        nombres = {c.nombre for c in declaradas[relacion].campos}
+        sin_leer = [c.nombre for c in declaradas[relacion].campos
+                    if (relacion, c.nombre) not in leidos]
+        # Un campo LEÍDO y no declarado pesa más que uno declarado y no leído: o la declaración
+        # quedó incompleta, o la medida está leyendo algo que la relación no promete. Las dos
+        # posibilidades importan y ninguna se ve sin cruzar las dos listas.
+        sin_declarar = sorted(c for (r, c) in leidos if r == relacion and c not in nombres)
+        if sin_declarar:
+            lineas.append(f"    ⚠ de `{relacion}` LEE campos que la relación no declara: "
+                          f"{', '.join(sin_declarar)}")
+        if sin_leer:
+            lineas.append(f"    de `{relacion}` NO lee: {', '.join(sin_leer)}")
+        elif not sin_declarar:
+            lineas.append(f"    de `{relacion}` lee todos los campos declarados")
+    return lineas
 
 
 def probar(proy, ruta: Path, texto_evidencia: str) -> int:
@@ -299,6 +377,8 @@ def probar(proy, ruta: Path, texto_evidencia: str) -> int:
     else:
         print("  sin testigos: ninguna fila pasó el filtro.")
     print(f"\n  alcance: {v.alcance}")
+    for l in alcance_derivado(proy, medida):
+        print(l)
     return 0
 
 

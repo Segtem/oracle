@@ -654,6 +654,58 @@ class NounVerbCliTests(OracleCliTests):
             self.assertIn('repo: "REPO"', escrito)
             self.assertNotIn('"FECHA"', escrito)   # la fecha sí se sabe siempre
 
+    def test_alcance_derivado_dice_lo_que_la_medida_no_lee(self) -> None:
+        """La mitad del `alcance` que se calcula: qué campos declarados no toca la medida.
+
+        No se compara contra el `alcance` escrito —sería juzgar prosa contra estructura— sino que se
+        muestra al lado, para que quien escribe decida si alguno debería mirarse.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            m = self._proyecto_con_una_medida(raiz)
+            rel = raiz / "relaciones" / "pieza.json"
+            rel.parent.mkdir(parents=True, exist_ok=True)
+            rel.write_text(json.dumps([
+                "relacion", "pieza",
+                ["campos", ["campo", "id", "texto", "sin_unidad"],
+                 ["campo", "alto", "flotante", "cm"],
+                 ["campo", "yaw", "flotante", "grados"]],
+                ["alcance", "lee el AABB declarado. NO lee la malla"]],
+                ensure_ascii=False), encoding="utf-8")
+            _rc, salida = self._callado(cli.main, [
+                "medida", "probar", str(m), "--con", 'pieza: id, alto\n    "columna", 450.0',
+                "--proyecto", str(raiz)])
+            self.assertIn("de `pieza` NO lee: id, yaw", salida)
+            self.assertNotIn("NO lee: id, alto", salida)
+
+    def test_alcance_derivado_avisa_de_un_campo_leido_sin_declarar(self) -> None:
+        """Pesa más que uno declarado y sin leer: o falta la declaración, o la medida lee humo."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            m = self._proyecto_con_una_medida(raiz)
+            rel = raiz / "relaciones" / "pieza.json"
+            rel.parent.mkdir(parents=True, exist_ok=True)
+            rel.write_text(json.dumps([
+                "relacion", "pieza",
+                ["campos", ["campo", "id", "texto", "sin_unidad"]],
+                ["alcance", "lee el id declarado"]], ensure_ascii=False), encoding="utf-8")
+            _rc, salida = self._callado(cli.main, [
+                "medida", "probar", str(m), "--con", 'pieza: id, alto\n    "columna", 450.0',
+                "--proyecto", str(raiz)])
+            self.assertIn("LEE campos que la relación no declara: alto", salida)
+
+    def test_sin_relaciones_declaradas_no_se_inventa_un_alcance(self) -> None:
+        """Que no haya declaraciones no significa que la medida lo vea todo: significa que nadie
+        declaró qué hay para ver. La diferencia es la misma que entre adimensional y no derivable."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            m = self._proyecto_con_una_medida(raiz)
+            _rc, salida = self._callado(cli.main, [
+                "medida", "probar", str(m), "--con", 'pieza: id, alto\n    "columna", 450.0',
+                "--proyecto", str(raiz)])
+            self.assertNotIn("NO lee:", salida)
+            self.assertNotIn("lee todos los campos", salida)
+
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
