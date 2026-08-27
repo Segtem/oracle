@@ -3,6 +3,7 @@ caso 013-comparadores-del-algebra-sin-ejercitar:
     origen:
         repo: "Segtem/oracle"
         commit: "primera corrida de mutación de código"
+    procedencia: observada
     titulo: "53 tests en verde y cuatro de los seis comparadores del álgebra sin verificar"
     etiqueta: falso_verde
     sintoma:

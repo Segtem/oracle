@@ -152,6 +152,7 @@ class OracleCliTests(unittest.TestCase):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"
@@ -400,6 +401,7 @@ class OracleCliTests(unittest.TestCase):
                 "    origen:\n"
                 "        repo: \"temporal\"\n"
                 "        commit: \"sin-commit\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item malo detectado\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"
@@ -449,6 +451,7 @@ class InitDejaLasGuardasPuestasTests(OracleCliTests):
         "    origen:\n"
         '        repo: "yo/tablero"\n'
         '        commit: "x"\n'
+        "    procedencia: observada\n"
         '    titulo: "Una tarea vencida sin dueño pasó desapercibida"\n'
         "    etiqueta: falso_verde\n"
         "    sintoma:\n"
@@ -545,7 +548,7 @@ class NounVerbCliTests(OracleCliTests):
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (37 medidas", salida)
+        self.assertIn("CATÁLOGO (38 medidas", salida)
         self.assertIn("meta.agrupar_no_agranda_la_relacion", salida)
         self.assertIn("umbral:", salida)
         self.assertIn("fijación:", salida)
@@ -610,6 +613,7 @@ class NounVerbCliTests(OracleCliTests):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"
@@ -632,7 +636,7 @@ class NounVerbCliTests(OracleCliTests):
     def test_caso_listar_en_propio_oracle_y_proyecto_vacio(self) -> None:
         rc, salida = self._callado(cli.main, ["caso", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CORPUS (104 casos", salida)
+        self.assertIn("CORPUS (106 casos", salida)
         self.assertIn("huecos declarados", salida)
         self.assertIn("proceso/004-testigos-duplicados", salida)
         self.assertIn("⚠ hueco declarado (resuelto)", salida)
@@ -654,6 +658,7 @@ class NounVerbCliTests(OracleCliTests):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"

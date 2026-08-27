@@ -3,6 +3,7 @@ caso 127-sintaxis-casos-no-vuelve-igual:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: observada
     titulo: "Sintaxis de casos no vuelve igual"
     etiqueta: falso_verde
     sintoma:

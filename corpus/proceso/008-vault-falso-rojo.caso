@@ -3,6 +3,7 @@ caso 008-vault-falso-rojo:
     origen:
         repo: "Brianholl/jam"
         commit: "f738f07"
+    procedencia: observada
     titulo: "El verificador del vault reportaba roto lo que estaba bien"
     etiqueta: falso_rojo
     sintoma:

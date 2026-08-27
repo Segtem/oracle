@@ -3,6 +3,7 @@ caso 130-sintaxis-casos-generados-vuelve-exacta:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: generada
     titulo: "Sintaxis de casos generados vuelve exacta"
     etiqueta: verde_correcto
     sintoma:

@@ -3,6 +3,7 @@ caso 015-racimo-inalcanzable:
     origen:
         repo: "Segtem/oracle"
         commit: "recursión"
+    procedencia: observada
     titulo: "Un racimo de módulos que se importan entre sí y nadie ejecuta"
     etiqueta: falso_verde
     sintoma:

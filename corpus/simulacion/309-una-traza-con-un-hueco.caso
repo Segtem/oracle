@@ -3,6 +3,7 @@ caso 309-una-traza-con-un-hueco:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Una única traza agujereada ya invalida la ronda"
     etiqueta: falso_verde
     sintoma:

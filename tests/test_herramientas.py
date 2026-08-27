@@ -331,6 +331,7 @@ print('IMPORTS OK')
 
         comunes = {
             "fecha": "2026-07-30", "origen": {"repo": "temporal", "commit": "ninguno"},
+            "procedencia": "observada",
             "titulo": "caso temporal", "sintoma": "prueba", "como_se_detecto": "observacion",
             "medida": medida.id, "leccion": "prueba de integración",
         }

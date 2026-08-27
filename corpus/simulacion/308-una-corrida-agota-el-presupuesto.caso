@@ -3,6 +3,7 @@ caso 308-una-corrida-agota-el-presupuesto:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Una sola corrida que termina por tope observó el presupuesto"
     etiqueta: falso_verde
     sintoma:

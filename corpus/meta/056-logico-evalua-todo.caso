@@ -3,6 +3,7 @@ caso 056-logico-evalua-todo:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "Los lógicos evalúan todos sus operandos"
     etiqueta: verde_correcto
     sintoma:

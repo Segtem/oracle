@@ -3,6 +3,7 @@ caso 100-donde-no-compone:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Donde no compone"
     etiqueta: falso_verde
     sintoma:

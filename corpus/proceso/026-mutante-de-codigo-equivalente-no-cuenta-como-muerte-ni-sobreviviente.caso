@@ -3,6 +3,7 @@ caso 026-mutante-de-codigo-equivalente-no-cuenta-como-muerte-ni-sobreviviente:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: construida
     titulo: "Un mutante equivalente declarado con su razón no cuenta como sobreviviente ni como muerte"
     etiqueta: falso_verde
     sintoma:

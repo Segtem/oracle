@@ -3,6 +3,7 @@ caso 062-ausencia-cubierta-o-no-aplica:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "El patrón de ausencia pasa cuando declara `requiere`, y los patrones parciales no cuentan"
     etiqueta: verde_correcto
     sintoma:

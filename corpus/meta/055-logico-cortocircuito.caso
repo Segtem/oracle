@@ -3,6 +3,7 @@ caso 055-logico-cortocircuito:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "Un `y` que evaluó un solo operando de dos"
     etiqueta: falso_verde
     sintoma:

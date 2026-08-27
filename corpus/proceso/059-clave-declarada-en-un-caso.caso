@@ -3,6 +3,7 @@ caso 059-clave-declarada-en-un-caso:
     origen:
         repo: "Segtem/oracle"
         commit: "6fec96a"
+    procedencia: observada
     titulo: "Una relación que declara su clave sigue midiéndose igual"
     etiqueta: verde_correcto
     sintoma:

@@ -3,6 +3,7 @@ caso 065-medida-filtra-o-agrupa:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "`donde` y `agrupar` bastan por separado como operadores estructurales"
     etiqueta: verde_correcto
     sintoma:

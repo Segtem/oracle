@@ -3,6 +3,7 @@ caso 110-agrupar-sin-claves-es-el-resumen-global-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "agrupar_sin_claves_es_el_resumen_global: cada campo del contrato falla por separado"
     etiqueta: falso_verde
     sintoma:

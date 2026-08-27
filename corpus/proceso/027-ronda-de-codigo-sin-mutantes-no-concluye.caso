@@ -3,6 +3,7 @@ caso 027-ronda-de-codigo-sin-mutantes-no-concluye:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: construida
     titulo: "Una ronda de mutación de código sin mutantes no concluye"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso 303-el-presupuesto-no-alcanzo:
     origen:
         repo: "Segtem/oracle"
         commit: "ejemplo abstracto"
+    procedencia: construida
     titulo: "Un trabajo grande contra un presupuesto chico: la corrida no observa el sistema"
     etiqueta: falso_verde
     sintoma:

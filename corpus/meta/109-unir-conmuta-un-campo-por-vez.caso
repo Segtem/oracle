@@ -3,6 +3,7 @@ caso 109-unir-conmuta-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "unir_conmuta: cada campo del contrato falla por separado"
     etiqueta: falso_verde
     sintoma:

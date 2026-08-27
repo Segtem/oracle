@@ -3,6 +3,7 @@ caso 043-ausencia-total-sale-verde:
     origen:
         repo: "Segtem/oracle"
         commit: "515c723"
+    procedencia: observada
     titulo: "La medida de ausencia se ponía más verde cuanto peor estaba el mundo"
     etiqueta: falso_verde
     sintoma:

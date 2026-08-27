@@ -3,6 +3,7 @@ caso 106-modulos-con-consumidor:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "Los módulos del núcleo del oráculo sí tienen importadores"
     etiqueta: verde_correcto
     sintoma:

@@ -3,6 +3,7 @@ caso 024-una-variante-no-vacia-inalcanzable:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "La bolsa puede contener clasificaciones contradictorias del mismo módulo"
     etiqueta: falso_verde
     sintoma:

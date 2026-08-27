@@ -3,6 +3,7 @@ caso 110-mutante-de-codigo-equivalente-declarado-verde:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: construida
     titulo: "Un mutante de código declarado equivalente no impide el verde legítimo"
     etiqueta: verde_correcto
     sintoma:

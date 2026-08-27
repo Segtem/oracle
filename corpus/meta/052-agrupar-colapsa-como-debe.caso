@@ -3,6 +3,7 @@ caso 052-agrupar-colapsa-como-debe:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "`agrupar` colapsa filas en grupos"
     etiqueta: verde_correcto
     sintoma:

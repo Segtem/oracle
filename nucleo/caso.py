@@ -33,6 +33,11 @@ DETECCIONES = frozenset({
     "herramienta_ajena",
     "observacion",
 })
+PROCEDENCIAS = frozenset({
+    "observada",
+    "construida",
+    "generada",
+})
 
 
 class CasoMalDeclarado(ValueError):
@@ -343,6 +348,13 @@ class _Parser:
 
         datos["fecha"] = _json_valor(*self._exigir_campo("fecha"))
         datos["origen"] = self._leer_origen()
+        procedencia = self._tomar_campo("procedencia")
+        if procedencia is not None:
+            valor, n_proc, col_proc = procedencia
+            if valor not in PROCEDENCIAS:
+                _fallar(n_proc, col_proc,
+                        f"procedencia en {sorted(PROCEDENCIAS)}", valor)
+            datos["procedencia"] = valor
         datos["titulo"] = _json_valor(*self._exigir_campo("titulo"))
         etiqueta, n_etiqueta, col_etiqueta = self._exigir_campo("etiqueta")
         if etiqueta not in ETIQUETAS:
@@ -394,6 +406,8 @@ def imprimir(datos: dict) -> str:
     lineas.append(f"{IND}origen:")
     for clave, valor in datos["origen"].items():
         lineas.append(f"{IND2}{clave}: {_escalar(valor)}")
+    if "procedencia" in datos:
+        lineas.append(f"{IND}procedencia: {datos['procedencia']}")
     lineas.append(f"{IND}titulo: {_escalar(datos['titulo'])}")
     lineas.append(f"{IND}etiqueta: {datos['etiqueta']}")
     lineas.extend(_campo_bloque("sintoma", datos["sintoma"]))

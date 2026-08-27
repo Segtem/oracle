@@ -3,6 +3,7 @@ caso 402-umbral-flotante-de-orden-y-entero:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "El orden sobre flotantes y la igualdad sobre enteros no ofenden"
     etiqueta: verde_correcto
     sintoma:

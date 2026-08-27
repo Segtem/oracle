@@ -3,6 +3,7 @@ caso 005-mutante-yaw-sin-franja:
     origen:
         repo: "Brianholl/jam"
         commit: "535d476"
+    procedencia: observada
     titulo: "Aflojar el umbral de yaw de 0.5° a 5° no rompía ningún test"
     etiqueta: falso_verde
     sintoma:

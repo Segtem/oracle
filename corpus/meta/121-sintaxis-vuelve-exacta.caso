@@ -3,6 +3,7 @@ caso 121-sintaxis-vuelve-exacta:
     origen:
         repo: "Segtem/oracle"
         commit: "b250e6c"
+    procedencia: observada
     titulo: "Sintaxis vuelve exacta"
     etiqueta: verde_correcto
     sintoma:

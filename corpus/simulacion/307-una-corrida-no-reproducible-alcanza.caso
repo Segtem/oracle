@@ -3,6 +3,7 @@ caso 307-una-corrida-no-reproducible-alcanza:
     origen:
         repo: "Segtem/oracle"
         commit: "mutación de medidas P1.1"
+    procedencia: observada
     titulo: "Una corrida no reproducible basta para invalidar la evidencia"
     etiqueta: falso_verde
     sintoma:

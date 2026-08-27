@@ -1,0 +1,19 @@
+caso 408-medida-con-evidencia-observada:
+    fecha: "2026-08-26"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sesion procedencia 2026-08-26"
+    procedencia: observada
+    titulo: "Un caso observado alcanza para que la medida no quede marcada como fabricada"
+    etiqueta: verde_correcto
+    sintoma:
+        `simulacion.corrida_reproducible` combina un caso observado con un caso construido, y el caso sin medida no debe formar un grupo propio aunque su procedencia no sea observada.
+    como_se_detecto: observacion
+    medida: meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
+    evidencia:
+        caso: id, medida, tiene_medida, procedencia
+            "200-corrida-sin-ninguna-corrida", "simulacion.corrida_reproducible", true, "observada"
+            "301-simulador-que-ignora-la-semilla", "simulacion.corrida_reproducible", true, "construida"
+            "012-umbral-duplicado-en-filtro-y-umbral", "", false, "construida"
+    leccion:
+        La regla no exige que todos los casos sean observados: exige que no sean todos fabricados, y que los huecos sin medida no contaminen el agrupamiento.

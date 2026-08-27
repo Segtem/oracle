@@ -3,6 +3,7 @@ caso 201-presupuesto-sin-ninguna-corrida:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: observada
     titulo: "Presupuesto sin ninguna corrida"
     etiqueta: falso_verde
     sintoma:

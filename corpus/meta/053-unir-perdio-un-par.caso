@@ -3,6 +3,7 @@ caso 053-unir-perdio-un-par:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "`unir` devolvió menos pares que el producto"
     etiqueta: falso_verde
     sintoma:

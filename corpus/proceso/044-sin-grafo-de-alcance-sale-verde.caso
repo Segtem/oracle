@@ -3,6 +3,7 @@ caso 044-sin-grafo-de-alcance-sale-verde:
     origen:
         repo: "Segtem/oracle"
         commit: "515c723"
+    procedencia: observada
     titulo: "Sin grafo de alcance, «todo módulo es alcanzable»"
     etiqueta: falso_verde
     sintoma:

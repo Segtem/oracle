@@ -3,6 +3,7 @@ caso 406-medida-con-alcance:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Una medida con alcance declarado no ofende"
     etiqueta: verde_correcto
     sintoma:

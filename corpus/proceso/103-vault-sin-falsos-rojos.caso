@@ -3,6 +3,7 @@ caso 103-vault-sin-falsos-rojos:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "El verificador del vault, ya corregido, no reporta nada falso"
     etiqueta: verde_correcto
     sintoma:

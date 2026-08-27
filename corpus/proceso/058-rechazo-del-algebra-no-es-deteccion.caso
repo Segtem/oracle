@@ -3,6 +3,7 @@ caso 058-rechazo-del-algebra-no-es-deteccion:
     origen:
         repo: "Segtem/oracle"
         commit: "a694954"
+    procedencia: observada
     titulo: "Un mutante que el álgebra rechaza no lo discriminó ningún caso"
     etiqueta: verde_correcto
     sintoma:

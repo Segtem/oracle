@@ -3,6 +3,7 @@ caso 111-una-macro-equivale-a-su-expansion-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "una_macro_equivale_a_su_expansion: cada campo del contrato falla por separado"
     etiqueta: falso_verde
     sintoma:

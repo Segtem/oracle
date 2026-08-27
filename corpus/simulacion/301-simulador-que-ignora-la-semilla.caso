@@ -3,6 +3,7 @@ caso 301-simulador-que-ignora-la-semilla:
     origen:
         repo: "Segtem/oracle"
         commit: "ejemplo abstracto"
+    procedencia: construida
     titulo: "Un simulador que ignora la semilla no produce evidencia"
     etiqueta: falso_verde
     sintoma:

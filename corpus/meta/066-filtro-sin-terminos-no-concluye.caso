@@ -3,6 +3,7 @@ caso 066-filtro-sin-terminos-no-concluye:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "La regla de filtro o agrupamiento no concluye sin `termino`"
     etiqueta: falso_verde
     sintoma:

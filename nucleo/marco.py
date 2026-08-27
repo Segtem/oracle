@@ -8,7 +8,7 @@ veredictos sean datos. Es el mismo pecado que un sensor que juzga, un nivel más
 
 Acá se producen los hechos; el juicio queda en `catalogos/meta/`.
 
-    caso(id, medida, tiene_medida, medida_existe, esperado_ok, dio_ok, explica_el_hueco)
+    caso(id, medida, procedencia, tiene_medida, medida_existe, esperado_ok, dio_ok, explica_el_hueco)
     medida_en_uso(id, casos_que_la_evaluan, mutantes, mutantes_vivos)
 
 ## Por qué no hay nulos
@@ -48,6 +48,7 @@ def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
         filas.append({
             "id": c["id"],
             "medida": mid,
+            "procedencia": c.get("procedencia", "sin_declarar"),
             "tiene_medida": bool(mid),
             "medida_existe": existe,
             "esperado_ok": esperado,

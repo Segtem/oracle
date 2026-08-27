@@ -3,6 +3,7 @@ caso 102-verificacion-vigente:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "Después de recorrer el motor, los commits siguientes fueron sólo de documentación"
     etiqueta: verde_correcto
     sintoma:

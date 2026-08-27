@@ -3,6 +3,7 @@ caso 018-mutante-de-cache-borro-la-copia-del-proyecto:
     origen:
         repo: "Segtem/oracle"
         commit: "auditoría P0, ronda completa en copia temporal"
+    procedencia: observada
     titulo: "Mutar el enumerador de caché hizo que la limpieza borrara la copia del proyecto"
     etiqueta: falso_verde
     sintoma:

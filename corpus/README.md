@@ -41,11 +41,12 @@ mutación es el único detector que ya se pagó solo, y tres casos la reclaman.
 | Campo | Qué es |
 |---|---|
 | `id` | igual al nombre del archivo |
-| `fecha`, `origen` | procedencia: repo y commit donde ocurrió |
+| `fecha`, `origen` | cuándo se capturó y repo/commit o sesión de origen |
+| `procedencia` | `observada` · `construida` · `generada`; si falta, las herramientas la muestran como `sin_declarar` |
 | `titulo` | una línea |
-| `etiqueta` | `falso_verde` · `falso_rojo` · `deuda_de_diseño` · `medida_correcta_conclusion_errada` |
+| `etiqueta` | `falso_verde` · `falso_rojo` · `deuda_de_diseño` · `medida_correcta_conclusion_errada` · `verde_correcto` |
 | `sintoma` | qué dijo la medición y qué era verdad |
-| `como_se_detecto` | `mutacion` · `persona` · `accidente` · `herramienta_ajena` |
+| `como_se_detecto` | `mutacion` · `persona` · `accidente` · `herramienta_ajena` · `observacion` |
 | `medida` | la regla que debería atraparlo, o `null` |
 | `estado_sin_medida` | si `medida` es null: `abierto`, `resuelto` o `limite_humano` |
 | `sin_medida_todavia` | obligatorio sólo para un estado `abierto` |

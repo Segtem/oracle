@@ -3,6 +3,7 @@ caso 401-umbral-flotante-de-desigualdad:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Un umbral final compara un flotante con desigualdad exacta"
     etiqueta: falso_verde
     sintoma:
