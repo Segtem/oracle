@@ -274,17 +274,18 @@ la expansión.
 
 | Macro | Superficie | Para qué |
 |---|---|---|
-| `ninguno` | `ninguno <id>:\n    de <rel> <alias>\n    donde <pred>\n    umbral <= 0 porque "..."\n    alcance "..."` | ninguna fila debe cumplir el predicado — el 80% de los casos |
-| `ninguno-par` | `ninguno-par <id>:\n    de <rel> <a1>, <a2>\n    donde <pred>\n    umbral <= 0 porque "..."\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
-| `peor` | `peor <id>:\n    de <rel> <alias>\n    expresion <expr>\n    tolerancia <tol>\n    umbral <= <tol> porque "..."\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
+| `ninguno` | `ninguno <id>:\n    relacion <rel>\n    alias <alias>\n    predicado <pred>\n    porque "..."\n    alcance "..."` | ninguna fila debe cumplir el predicado — el 80% de los casos |
+| `ninguno-par` | `ninguno-par <id>:\n    relacion <rel>\n    aliasA <a1>\n    aliasB <a2>\n    predicado <pred>\n    porque "..."\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
+| `peor` | `peor <id>:\n    relacion <rel>\n    alias <alias>\n    expresion <expr>\n    tolerancia <tol>\n    porque "..."\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
 
 ### `ninguno` — el caso común
 
 ```oracle
 ninguno proceso.test_con_mutante_que_lo_mata:
-    de mutante m
-    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
-    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina"
+    relacion mutante
+    alias m
+    predicado m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    porque "un mutante que sobrevive es un test que no discrimina"
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
 
@@ -295,10 +296,11 @@ ofende, contás, cero es el único número aceptable».
 
 ```oracle
 peor snap.grilla:
-    de pieza a
+    relacion pieza
+    alias a
     expresion desvio_de_grilla(hecho(a), 100.0)
     tolerancia 1.0
-    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m"
+    porque "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m"
     alcance "desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla"
 ```
 
@@ -323,9 +325,11 @@ medida snap.grilla:
 
 ```oracle
 ninguno-par tareas.misma_persona_sobrecargada_el_mismo_dia:
-    de tarea a, b
-    donde a.dueno == b.dueno y a.vence == b.vence y a.id != b.id
-    umbral <= 0 porque "dos tareas del mismo día para la misma persona compiten por las mismas horas"
+    relacion tarea
+    aliasA a
+    aliasB b
+    predicado a.dueno == b.dueno y a.vence == b.vence y a.id != b.id
+    porque "dos tareas del mismo día para la misma persona compiten por las mismas horas"
     alcance "ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual"
 ```
 
@@ -356,10 +360,11 @@ contás con `resumen contar(1)`, umbral `<= 0`.
 
 ```oracle
 peor snap.yaw:
-    de pieza a
+    relacion pieza
+    alias a
     expresion desvio_de_paso(a.yaw, 90.0)
     tolerancia 0.5
-    umbral <= 0.5 porque "medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista"
+    porque "medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista"
     alcance "sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto"
 ```
 
@@ -424,9 +429,10 @@ no una propiedad implícita del almacenamiento.
 
 ```oracle
 ninguno meta.toda_medida_esta_fijada:
-    de medida_en_uso m
-    donde m.debe_tener_mutantes == true y (m.mutantes == 0 o m.mutantes_vivos != 0)
-    umbral <= 0 porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
+    relacion medida_en_uso
+    alias m
+    predicado m.debe_tener_mutantes == true y (m.mutantes == 0 o m.mutantes_vivos != 0)
+    porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
     alcance "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción"
 ```
 
@@ -649,9 +655,10 @@ La escribís en la superficie infija (con la macro `ninguno` — el caso más co
 
 ```oracle
 ninguno tareas.vencida_sin_dueno:
-    de tarea t
-    donde t.vencida == true y t.asignada == false
-    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano"
+    relacion tarea
+    alias t
+    predicado t.vencida == true y t.asignada == false
+    porque "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano"
     alcance "ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está"
 ```
 
@@ -794,7 +801,7 @@ va primero: es lo único que lee la intención.
 | **requiere** | declaración explícita de relaciones necesarias para no emitir veredictos vacíos |
 | **alcance** | lo que la medida explícitamente NO mira — obligatorio, no puede estar vacío |
 | **escalar (UDF)** | una función de dominio declarada con `@escalar`, para lo que el álgebra no sabe hacer sola |
-| **macro** | azúcar sintáctica (`ninguno`, `ninguno-par`, `peor`) que expande a la forma canónica |
+| **macro** | azúcar sintáctica (`ninguno`, `ninguno-requiere`, `ninguno-par`, `peor`) que expande a la forma canónica |
 | **corpus** | la colección de casos reales (defectos y aciertos) que fija que las medidas midan lo que dicen medir |
 | **dominio** | el conjunto de medidas + escenario + implementación de referencia que verifica un proyecto externo (geometría, vault, etc.) |
 | **fixture diferencial** | evidencia versionada + veredicto de una implementación independiente, para comparar contra Oracle |

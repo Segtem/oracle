@@ -139,7 +139,7 @@ def nueva(proy, mid: str) -> int:
 
 
 def expandir_archivo(ruta: Path, macros=None) -> int:
-    datos = cargar_fuente_medida(ruta)
+    datos = cargar_fuente_medida(ruta, macros=macros)
     from nucleo.macro import es_macro
     if not es_macro(datos, macros):
         print(f"«{datos[1] if len(datos) > 1 else '?'}» ya está en forma canónica.")
@@ -149,12 +149,12 @@ def expandir_archivo(ruta: Path, macros=None) -> int:
 
 
 def revisar(proy, ruta: Path) -> int:
+    macros = macros_del_proyecto(proy)
     try:
-        datos = cargar_fuente_medida(ruta)
+        datos = cargar_fuente_medida(ruta, macros=macros)
     except MedidaMalDeclarada as e:
         print(f"✗ {e}")
         return 1
-    macros = macros_del_proyecto(proy)
     try:
         medida = Medida.de_datos(datos, macros=macros)
     except MedidaMalDeclarada as e:
@@ -396,4 +396,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     sys.exit(main())
-

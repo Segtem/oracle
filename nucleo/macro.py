@@ -218,7 +218,7 @@ DIRECTORIO_BASE = Path(__file__).resolve().parent / "macros"
 EXTENSIONES_DE_MACRO = (".json", ".oracle")
 
 
-def _datos_de_macro(ruta: Path) -> list:
+def _datos_de_macro(ruta: Path, macros: RegistroMacros | None = None) -> list:
     try:
         texto = ruta.read_text(encoding="utf-8")
     except OSError as e:
@@ -228,7 +228,7 @@ def _datos_de_macro(ruta: Path) -> list:
         from .version import VersionInvalida, exigir_sintaxis_compatible
 
         try:
-            lectura = leer_con_mapa(texto)
+            lectura = leer_con_mapa(texto, macros=macros)
         except ErrorSintaxis as e:
             raise MacroMalDeclarada(f"{ruta}: {fragmento_de_error(e, texto)}") from e
         try:
@@ -253,7 +253,7 @@ def cargar_macros(*directorios, registro: RegistroMacros | None = None) -> Regis
                    if x.suffix in EXTENSIONES_DE_MACRO and x.is_file())
     for ruta in rutas:
         try:
-            destino.declarar(Macro.de_datos(_datos_de_macro(ruta)))
+            destino.declarar(Macro.de_datos(_datos_de_macro(ruta, destino)))
         except MacroMalDeclarada as e:
             raise MacroMalDeclarada(f"{ruta.name}: {e}") from e
     return destino

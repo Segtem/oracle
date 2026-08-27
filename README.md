@@ -89,7 +89,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 6656 líneas de lenguaje y **261 negativas explícitas** (`raise`).
+En este corte hay 6976 líneas de lenguaje y **271 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -122,7 +122,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**6656 líneas de lenguaje** (`nucleo/`, código y macros) y **261 negativas explícitas** (`raise`). Contra las 39 medidas universales escritas en él (243 líneas): **27,4 a 1**. 29 de las 39 pasan por una macro.
+**6976 líneas de lenguaje** (`nucleo/`, código y macros) y **271 negativas explícitas** (`raise`). Contra las 39 medidas universales escritas en él (239 líneas): **29,2 a 1**. 33 de las 39 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -157,9 +157,9 @@ falla si vence.
 Después, `defmacro` empeoró la proporción desde 16,2 — y el plan había predicho que la iba a
 **bajar**, porque las tres macros salían del núcleo. Salieron, pero el mecanismo que las reemplaza
 —declaración, guardas, registro, expansión acotada— pesa más que las tres funciones que borró. El
-pago no es este corte: es que la macro número cuatro ya no cuesta ni una línea de núcleo.
+pago empezó cuando entró la cuarta macro: no hizo falta sumar una rama de Python por forma.
 
-El numerador cuenta `nucleo/macros/*.json` junto con el `.py`, a propósito. Si contara sólo código,
+El numerador cuenta `nucleo/macros/` junto con el `.py`, a propósito. Si contara sólo código,
 mover Python a datos habría «mejorado» la proporción sin que el lenguaje encogiera un gramo — el
 sastreo exacto contra el que esta medición existe.
 
@@ -446,7 +446,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-677 tests · 588/588 mutantes de medida · **3016 sitios de mutación de código** (2811 + 205 del motor Python).
+679 tests · 588/588 mutantes de medida · **3187 sitios de mutación de código** (2982 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -575,8 +575,8 @@ además lo único que ataja una medida que se pone roja con entrada correcta, el
 
 **Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
 medida con la misma forma») sonó con veintidós, cuando los dominios de instancia todavía vivían acá.
-`ninguno`, `ninguno-par` y `peor` expanden a la forma canónica, y `peor` cerró por construcción la
-deuda del umbral duplicado. La cobertura vigente sobre el catálogo universal está en
+`ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` expanden a la forma canónica, y `peor` cerró
+por construcción la deuda del umbral duplicado. La cobertura vigente sobre el catálogo universal está en
 [la cifra de escala](#el-costo-dicho); las medidas que no encajan se escriben canónicas y listo.
 
 **Y las macros se declaran EN DATOS.** Hasta el corte anterior `MACROS` era un diccionario de
@@ -597,9 +597,10 @@ las que trae Oracle y para las que escribe cualquiera:
     ["alcance", ["$", "alcance"]]]]
 ```
 
-`ninguno`, `ninguno-par` y `peor` viven en [`nucleo/macros/`](nucleo/macros/) y se cargan por el
-mismo camino: son la biblioteca estándar del lenguaje, no un privilegio del núcleo. Un proyecto suma
-las suyas en `<proyecto>/macros/` y no necesita tocar nada de Oracle.
+`ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` viven en
+[`nucleo/macros/`](nucleo/macros/) y se cargan por el mismo camino: son la biblioteca estándar del
+lenguaje, no un privilegio del núcleo. Un proyecto suma las suyas en `<proyecto>/macros/` y no
+necesita tocar nada de Oracle.
 
 Tres decisiones que valen la pena:
 

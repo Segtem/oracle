@@ -245,10 +245,11 @@ def cmd_convertir(proy: Proyecto, ruta_str: str) -> int:
 
     texto = ruta.read_text(encoding="utf-8")
     try:
+        macros = macros_del_proyecto(proy)
         if ruta.suffix == ".json":
-            print(imprimir(cargar_fuente_medida(ruta)), end="")
+            print(imprimir(cargar_fuente_medida(ruta, macros=macros), macros=macros), end="")
         elif ruta.suffix == ".oracle":
-            print(json.dumps(leer(texto), ensure_ascii=False, separators=(",", ":")))
+            print(json.dumps(leer(texto, macros=macros), ensure_ascii=False, separators=(",", ":")))
         elif ruta.suffix == ".caso":
             print(json.dumps(caso_superficie.leer(texto), ensure_ascii=False, indent=2))
         else:

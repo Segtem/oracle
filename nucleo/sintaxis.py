@@ -20,6 +20,7 @@ LOGICOS = {"y": 2, "o": 1}
 PALABRAS_LITERAL = {"true": True, "false": False, "null": None}
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
 DEFMACRO_RE = re.compile(r"defmacro\s+([^\s(]+)\s*\(([^)]*)\)\s*:")
+ENCABEZADO_RE = re.compile(r"([^\s]+)\s+(\S+):")
 NUMERO_RE = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
 IND = "    "
 IND2 = IND * 2
@@ -495,7 +496,7 @@ def _leer_requiere(item: tuple[int, str]) -> list:
 def _falta_o_sobra(cuerpo: list[tuple[int, str]], palabras: tuple[str, ...], clase: str) -> None:
     """Dice QUÉ línea falta, no sólo cuántas.
 
-    «se esperaba 4 líneas de cuerpo para ninguno» es cierto y no sirve: quien escribió tres no sabe
+    «se esperaba 4 líneas de cuerpo para esta macro» es cierto y no sirve: quien escribió tres no sabe
     cuál de las cuatro se olvidó. Las macros tienen cuerpo fijo y en orden, así que la línea que
     falta se puede nombrar — y nombrarla es la diferencia entre releer la documentación y arreglarlo.
     """
@@ -514,63 +515,370 @@ def _falta_o_sobra(cuerpo: list[tuple[int, str]], palabras: tuple[str, ...], cla
             f"({', '.join(palabras)}) y llegaron {len(cuerpo)}", literal=True)
 
 
-def _macro_ninguno(clase: str, mid: str, cuerpo: list[tuple[int, str]], *,
-                   ubicaciones: dict[str, Ubicacion] | None = None) -> list:
-    if len(cuerpo) != 4:
-        _falta_o_sobra(cuerpo, ("de", "donde", "umbral", "alcance"), clase)
-    fuente = _leer_de(cuerpo[0])
-    pred_txt, col_pred = _exigir_prefijo(cuerpo[1], "donde ", 1)
-    op, limite, porque, col_umbral = _leer_umbral(*_contenido(cuerpo[2], "umbral ", 1))
-    if op != "<=" or limite != 0:
-        # El «por qué» de la prohibición está escrito en una medida del catálogo, y decirlo acá
-        # ahorra ir a buscarlo. Pero sólo cuando aplica: sumarlo a un `<= 1` mezcla dos problemas.
-        extra = ("; y un umbral de igualdad está prohibido en todo el catálogo, porque no deja "
-                 "borde para la mutación —ver `meta.ningun_umbral_de_igualdad`") if op == "==" else ""
-        _fallar(cuerpo[2][0], col_umbral,
-                f"la macro {clase} cuenta lo que ofende, así que su umbral es siempre «<= 0» y "
-                f"llegó «{op} {limite}»{extra}", literal=True)
-    alcance = _literal_texto(*_contenido(cuerpo[3], "alcance ", 1))
-    return [clase, mid, fuente[1], fuente[2],
-            _leer_expr_en(pred_txt, cuerpo[1][0], col_pred, ubicaciones, (4,)),
-            porque, alcance]
+def _registro_macros(macros):
+    if macros is None:
+        from .macro import macros_base
+
+        return macros_base()
+    from .macro import MacroMalDeclarada, RegistroMacros
+
+    if not isinstance(macros, RegistroMacros):
+        raise MacroMalDeclarada("`macros` debe ser una instancia de RegistroMacros")
+    return macros
 
 
-def _macro_ninguno_par(mid: str, cuerpo: list[tuple[int, str]], *,
-                       ubicaciones: dict[str, Ubicacion] | None = None) -> list:
-    if len(cuerpo) != 4:
-        linea = cuerpo[0][0] if cuerpo else 2
-        _fallar(linea, 1, "4 líneas de cuerpo para ninguno-par")
-    resto, col = _exigir_prefijo(cuerpo[0], "de ", 1)
-    m = re.fullmatch(r"(\S+)\s+(\S+)\s*,\s*(\S+)", resto)
+def _linea_tiene_hueco_de(linea: str, parametros: set[str]) -> bool:
+    return any(hueco in parametros for hueco, _col in _huecos_en_linea(linea))
+
+
+def _palabra_de_linea(linea: str) -> str:
+    return _indentada(linea, 1, 1).split(" ", 1)[0].rstrip(":")
+
+
+def _sustituir_huecos(nodo, valores: dict):
+    if _es_hueco(nodo):
+        return valores.get(nodo[1], nodo)
+    if not isinstance(nodo, list):
+        return nodo
+    return [_sustituir_huecos(hijo, valores) for hijo in nodo]
+
+
+def _ubicacion_mas_cercana(ubicaciones: dict[str, Ubicacion] | None,
+                           ruta: tuple[int, ...]) -> Ubicacion:
+    if ubicaciones is None:
+        return Ubicacion(1, 1)
+    actual = ruta
+    while True:
+        ubicacion = ubicaciones.get(_texto_ruta(actual))
+        if ubicacion is not None:
+            return ubicacion
+        if not actual:
+            return Ubicacion(1, 1)
+        actual = actual[:-1]
+
+
+def _fallar_macro_en_ruta(nombre: str, ubicaciones: dict[str, Ubicacion] | None,
+                          ruta: tuple[int, ...], esperado: str, encontrado) -> None:
+    ubicacion = _ubicacion_mas_cercana(ubicaciones, ruta)
+    _fallar(ubicacion.linea, ubicacion.columna,
+            f"la macro {nombre} no coincide con su plantilla declarada: {esperado}",
+            encontrado, literal=True)
+
+
+def _copiar_ubicaciones_hueco(origen: dict[str, Ubicacion],
+                              ruta_origen: tuple[int, ...],
+                              destino: dict[str, Ubicacion] | None,
+                              ruta_destino: tuple[int, ...]) -> None:
+    if destino is None:
+        return
+    prefijo = _texto_ruta(ruta_origen)
+    for texto_ruta, ubicacion in origen.items():
+        if texto_ruta == prefijo:
+            sufijo = ()
+        elif prefijo and texto_ruta.startswith(prefijo + "."):
+            sufijo = _normalizar_ruta(texto_ruta[len(prefijo) + 1:])
+        elif not prefijo:
+            sufijo = _normalizar_ruta(texto_ruta)
+        else:
+            continue
+        destino[_texto_ruta((*ruta_destino, *sufijo))] = ubicacion
+
+
+def _unificar_plantilla(patron, valor, nombre: str, capturas: dict,
+                        ubicaciones_origen: dict[str, Ubicacion],
+                        ubicaciones_salida: dict[str, Ubicacion] | None,
+                        indices: dict[str, int], ruta: tuple[int, ...] = ()) -> None:
+    if _es_hueco(patron):
+        parametro = patron[1]
+        if parametro in capturas:
+            if capturas[parametro] != valor:
+                _fallar_macro_en_ruta(
+                    nombre, ubicaciones_origen, ruta,
+                    f"«${parametro}» aparece más de una vez y las apariciones no coinciden",
+                    valor)
+            return
+        capturas[parametro] = valor
+        if parametro in indices:
+            _copiar_ubicaciones_hueco(
+                ubicaciones_origen, ruta, ubicaciones_salida, (indices[parametro],))
+        return
+    if isinstance(patron, list):
+        if not isinstance(valor, list) or len(valor) != len(patron):
+            _fallar_macro_en_ruta(nombre, ubicaciones_origen, ruta, f"se esperaba {patron!r}", valor)
+        for indice, hijo in enumerate(patron):
+            _unificar_plantilla(hijo, valor[indice], nombre, capturas, ubicaciones_origen,
+                                ubicaciones_salida, indices, (*ruta, indice))
+        return
+    if patron != valor:
+        _fallar_macro_en_ruta(nombre, ubicaciones_origen, ruta, f"se esperaba {patron!r}", valor)
+
+
+def _agregar_tipo_parametro(tipos: dict[str, str], parametro: str, tipo: str) -> None:
+    if tipo not in {"nombre", "expr", "texto"}:
+        raise ValueError(
+            f"el parámetro «{parametro}» ocupa un bloque {tipo} que la superficie no serializa")
+    anterior = tipos.get(parametro)
+    if anterior is not None and anterior != tipo:
+        raise ValueError(
+            f"el parámetro «{parametro}» aparece como {anterior} y como {tipo}")
+    tipos[parametro] = tipo
+
+
+def _tipos_en_plantilla(nodo, macros, tipos: dict[str, str], contexto: str,
+                        visitadas: frozenset[str]) -> None:
+    if _es_hueco(nodo):
+        _agregar_tipo_parametro(tipos, nodo[1], contexto)
+        return
+    if not isinstance(nodo, list) or not nodo:
+        return
+    cabeza = nodo[0]
+    if cabeza == "medida":
+        if len(nodo) >= 2:
+            _tipos_en_plantilla(nodo[1], macros, tipos, "nombre", visitadas)
+        if len(nodo) >= 3:
+            _tipos_en_plantilla(nodo[2], macros, tipos, "fuente", visitadas)
+        if len(nodo) >= 4:
+            _tipos_en_plantilla(nodo[3], macros, tipos, "resumen", visitadas)
+        if len(nodo) >= 5:
+            _tipos_en_plantilla(nodo[4], macros, tipos, "umbral", visitadas)
+        for extra in nodo[5:]:
+            _tipos_en_plantilla(extra, macros, tipos, "medida", visitadas)
+        return
+    if cabeza == "desde":
+        for hijo in nodo[1:]:
+            _tipos_en_plantilla(hijo, macros, tipos, "fuente", visitadas)
+        return
+    if cabeza == "de":
+        for hijo in nodo[1:3]:
+            _tipos_en_plantilla(hijo, macros, tipos, "nombre", visitadas)
+        return
+    if cabeza == "unir":
+        for hijo in nodo[1:3]:
+            _tipos_en_plantilla(hijo, macros, tipos, "fuente", visitadas)
+        return
+    if cabeza == "donde":
+        if len(nodo) >= 2:
+            _tipos_en_plantilla(nodo[1], macros, tipos, "expr", visitadas)
+        return
+    if cabeza == "agrupar":
+        for clave in nodo[1] if len(nodo) > 1 and isinstance(nodo[1], list) else []:
+            if isinstance(clave, list) and len(clave) >= 2:
+                _tipos_en_plantilla(clave[0], macros, tipos, "nombre", visitadas)
+                _tipos_en_plantilla(clave[1], macros, tipos, "expr", visitadas)
+        for agregado in nodo[2] if len(nodo) > 2 and isinstance(nodo[2], list) else []:
+            if isinstance(agregado, list) and len(agregado) >= 3:
+                _tipos_en_plantilla(agregado[0], macros, tipos, "nombre", visitadas)
+                _tipos_en_plantilla(agregado[1], macros, tipos, "nombre", visitadas)
+                _tipos_en_plantilla(agregado[2], macros, tipos, "expr", visitadas)
+        return
+    if cabeza == "resumen":
+        if len(nodo) >= 2:
+            _tipos_en_plantilla(nodo[1], macros, tipos, "nombre", visitadas)
+        if len(nodo) >= 3:
+            _tipos_en_plantilla(nodo[2], macros, tipos, "expr", visitadas)
+        return
+    if cabeza == "umbral":
+        if len(nodo) >= 3:
+            _tipos_en_plantilla(nodo[2], macros, tipos, "expr", visitadas)
+        if len(nodo) >= 4:
+            _tipos_en_plantilla(nodo[3], macros, tipos, "texto", visitadas)
+        return
+    if cabeza == "requiere":
+        for hijo in nodo[1:]:
+            _tipos_en_plantilla(hijo, macros, tipos, "nombre", visitadas)
+        return
+    if cabeza == "alcance":
+        if len(nodo) >= 2:
+            _tipos_en_plantilla(nodo[1], macros, tipos, "texto", visitadas)
+        return
+    if isinstance(cabeza, str):
+        registro = _registro_macros(macros)
+        if cabeza in registro:
+            if cabeza in visitadas:
+                raise ValueError(f"macro recursiva no imprimible: {cabeza}")
+            if len(nodo) - 1 != len(registro[cabeza].parametros):
+                raise ValueError(
+                    f"la plantilla invoca {cabeza} con {len(nodo) - 1} argumento(s), "
+                    f"pero declara {len(registro[cabeza].parametros)}")
+            propios = _tipos_de_parametros(registro[cabeza], registro, visitadas | {cabeza})
+            for parametro, argumento in zip(registro[cabeza].parametros, nodo[1:]):
+                _tipos_en_plantilla(argumento, macros, tipos, propios[parametro], visitadas)
+            return
+    for hijo in nodo[1:]:
+        _tipos_en_plantilla(hijo, macros, tipos, "expr", visitadas)
+
+
+def _tipos_de_parametros(macro, macros, visitadas: frozenset[str] = frozenset()) -> dict[str, str]:
+    tipos: dict[str, str] = {}
+    _tipos_en_plantilla(macro.plantilla, macros, tipos, "expr", visitadas)
+    for expresion, _mensaje in macro.guardas:
+        guardados: dict[str, str] = {}
+        _tipos_en_plantilla(expresion, macros, guardados, "expr", visitadas)
+        for parametro, tipo in guardados.items():
+            if parametro not in tipos:
+                tipos[parametro] = tipo
+    faltan = [parametro for parametro in macro.parametros if parametro not in tipos]
+    if faltan:
+        raise ValueError(
+            f"la macro {macro.nombre} no deja inferir cómo escribir «{faltan[0]}»")
+    return tipos
+
+
+def _leer_argumento_macro(item: tuple[int, str], parametro: str, tipo: str, *,
+                          ubicaciones: dict[str, Ubicacion] | None,
+                          ruta: tuple[int, ...]):
+    resto, col = _exigir_prefijo(item, parametro + " ", 1)
+    if tipo == "nombre":
+        valor = resto.strip()
+        if valor != resto or len(valor.split()) != 1:
+            _fallar(item[0], col, f"{parametro} <nombre>", resto)
+        _registrar(ubicaciones, ruta, item[0], col)
+        return _leer_nombre(valor, item[0], col)
+    if tipo == "texto":
+        _registrar(ubicaciones, ruta, item[0], col)
+        return _literal_texto(resto, item[0], col)
+    return _leer_expr_en(resto, item[0], col, ubicaciones, ruta)
+
+
+def _usa_forma_de_argumentos(cuerpo: list[tuple[int, str]], parametros: tuple[str, ...]) -> bool:
+    esperados = parametros[1:]
+    if not esperados or not cuerpo:
+        return True
+    primera = _indentada(cuerpo[0][1], 1, cuerpo[0][0]).split(" ", 1)[0]
+    return primera == esperados[0]
+
+
+def _leer_macro_por_argumentos(macro, mid, cuerpo: list[tuple[int, str]], *,
+                               macros, ubicaciones: dict[str, Ubicacion] | None = None,
+                               linea_encabezado: int = 1) -> list:
+    parametros = macro.parametros
+    esperados = parametros[1:]
+    if len(cuerpo) != len(esperados):
+        _falta_o_sobra(cuerpo, tuple(esperados), macro.nombre)
+    try:
+        tipos = _tipos_de_parametros(macro, macros, frozenset({macro.nombre}))
+    except ValueError as e:
+        _fallar(linea_encabezado, 1, str(e), literal=True)
+    valores = {parametros[0]: mid}
+    for indice, (parametro, item) in enumerate(zip(esperados, cuerpo), start=2):
+        valores[parametro] = _leer_argumento_macro(
+            item, parametro, tipos[parametro], ubicaciones=ubicaciones, ruta=(indice,))
+    return [macro.nombre, *(valores[parametro] for parametro in parametros)]
+
+
+def _leer_macro_por_plantilla(macro, mid, cuerpo: list[tuple[int, str]], *,
+                              macros, ubicaciones: dict[str, Ubicacion] | None = None,
+                              linea_encabezado: int = 1) -> list:
+    parametros = macro.parametros
+    if not parametros:
+        _fallar(linea_encabezado, 1,
+                f"la macro {macro.nombre} no declara parámetros de superficie", literal=True)
+    visitadas = frozenset({macro.nombre})
+    try:
+        patron = _lineas_de_datos(macro.plantilla, macros, visitadas)
+        patron_con_id = _lineas_de_datos(
+            _sustituir_huecos(macro.plantilla, {parametros[0]: mid}), macros, visitadas)
+    except ValueError as e:
+        _fallar(linea_encabezado, 1, str(e), literal=True)
+
+    parametros_del_cuerpo = set(parametros[1:])
+    variables = {
+        indice
+        for indice, linea in enumerate(patron[1:], start=1)
+        if _linea_tiene_hueco_de(linea, parametros_del_cuerpo)
+    }
+    esperadas = tuple(_palabra_de_linea(patron[indice]) for indice in sorted(variables))
+    if len(cuerpo) != len(variables):
+        _falta_o_sobra(cuerpo, esperadas, macro.nombre)
+
+    reconstruidas = [(linea_encabezado, patron_con_id[0])]
+    siguiente = 0
+    for indice, linea in enumerate(patron_con_id[1:], start=1):
+        if indice in variables:
+            reconstruidas.append(cuerpo[siguiente])
+            siguiente += 1
+        else:
+            numero = cuerpo[siguiente][0] if siguiente < len(cuerpo) else (
+                cuerpo[-1][0] + 1 if cuerpo else linea_encabezado + 1)
+            reconstruidas.append((numero, linea))
+
+    ubicaciones_instancia: dict[str, Ubicacion] = {}
+    instancia = _leer_bloque_forma(
+        reconstruidas, macros=macros, ubicaciones=ubicaciones_instancia,
+        permitir_huecos=True, validar_id=False)
+    capturas = {parametros[0]: mid}
+    indices = {parametro: indice + 1 for indice, parametro in enumerate(parametros)}
+    _unificar_plantilla(
+        macro.plantilla, instancia, macro.nombre, capturas, ubicaciones_instancia,
+        ubicaciones, indices)
+    sin_leer = [parametro for parametro in parametros if parametro not in capturas]
+    if sin_leer:
+        _fallar(linea_encabezado, 1,
+                f"la macro {macro.nombre} no deja leer el parámetro «{sin_leer[0]}» "
+                "desde su plantilla", literal=True)
+    return [macro.nombre, *(capturas[parametro] for parametro in parametros)]
+
+
+def _leer_macro_declarada(macro, mid, cuerpo: list[tuple[int, str]], *,
+                          macros, ubicaciones: dict[str, Ubicacion] | None = None,
+                          linea_encabezado: int = 1) -> list:
+    if _usa_forma_de_argumentos(cuerpo, macro.parametros):
+        return _leer_macro_por_argumentos(
+            macro, mid, cuerpo, macros=macros, ubicaciones=ubicaciones,
+            linea_encabezado=linea_encabezado)
+    return _leer_macro_por_plantilla(
+        macro, mid, cuerpo, macros=macros, ubicaciones=ubicaciones,
+        linea_encabezado=linea_encabezado)
+
+
+def _leer_bloque_forma(lineas: list[tuple[int, str]], *, macros=None,
+                       ubicaciones: dict[str, Ubicacion] | None = None,
+                       permitir_huecos: bool = False,
+                       validar_id: bool = True) -> list:
+    n, encabezado = lineas[0]
+    m = ENCABEZADO_RE.fullmatch(encabezado)
     if not m:
-        _fallar(cuerpo[0][0], col, "de <relación> <aliasA>, <aliasB>", resto)
-    pred_txt, col_pred = _exigir_prefijo(cuerpo[1], "donde ", 1)
-    op, limite, porque, col_umbral = _leer_umbral(*_contenido(cuerpo[2], "umbral ", 1))
-    if op != "<=" or limite != 0:
-        _fallar(cuerpo[2][0], col_umbral, "la macro ninguno-par con umbral <= 0")
-    alcance = _literal_texto(*_contenido(cuerpo[3], "alcance ", 1))
-    rel, alias_a, alias_b = m.groups()
-    return ["ninguno-par", mid, rel, alias_a, alias_b,
-            _leer_expr_en(pred_txt, cuerpo[1][0], col_pred, ubicaciones, (5,)),
-            porque, alcance]
+        _fallar(n, 1, "encabezado «medida|macro declarada <id>:»", encabezado)
+    clase, mid_txt = m.groups()
+    col_mid = encabezado.find(mid_txt) + 1
+    mid = _leer_nombre(mid_txt, n, col_mid) if permitir_huecos else mid_txt
+    if clase != "medida":
+        registro = _registro_macros(macros)
+        if clase not in registro:
+            _fallar(n, 1, "encabezado «medida|macro declarada <id>:»", encabezado)
+    if validar_id and (not isinstance(mid, str) or ID_MEDIDA_RE.fullmatch(mid) is None):
+        _fallar(n, col_mid,
+                "id «dominio.nombre», sólo con minúsculas ASCII, dígitos y `_`", mid)
+    cuerpo = lineas[1:]
+    if clase == "medida":
+        return _leer_medida(mid, cuerpo, ubicaciones=ubicaciones)
+    return _leer_macro_declarada(
+        registro[clase], mid, cuerpo, macros=registro, ubicaciones=ubicaciones,
+        linea_encabezado=n)
 
 
-def _macro_peor(mid: str, cuerpo: list[tuple[int, str]], *,
-                ubicaciones: dict[str, Ubicacion] | None = None) -> list:
-    if len(cuerpo) != 5:
-        linea = cuerpo[0][0] if cuerpo else 2
-        _fallar(linea, 1, "5 líneas de cuerpo para peor")
-    fuente = _leer_de(cuerpo[0])
-    expr_txt, col_expr = _exigir_prefijo(cuerpo[1], "expresion ", 1)
-    tol_txt, col_tol = _exigir_prefijo(cuerpo[2], "tolerancia ", 1)
-    op, limite, porque, col_umbral = _leer_umbral(*_contenido(cuerpo[3], "umbral ", 1))
-    tolerancia = _leer_expr_en(tol_txt, cuerpo[2][0], col_tol, ubicaciones, (5,))
-    if op != "<=" or limite != tolerancia:
-        _fallar(cuerpo[3][0], col_umbral, "la macro peor con umbral <= tolerancia")
-    alcance = _literal_texto(*_contenido(cuerpo[4], "alcance ", 1))
-    return ["peor", mid, fuente[1], fuente[2],
-            _leer_expr_en(expr_txt, cuerpo[1][0], col_expr, ubicaciones, (4,)),
-            tolerancia, porque, alcance]
+def _leer_llamada_agregado(texto: str, linea: int, columna: int, esperado: str) -> _Nodo:
+    tokens = _tokenizar(texto, linea, columna)
+    cabeza = tokens[0]
+    if cabeza.tipo == "IDENT":
+        cabeza_nodo = _Nodo(cabeza.valor, cabeza.linea, cabeza.columna)
+    elif cabeza.tipo == "HUECO":
+        cabeza_nodo = _Nodo(
+            ["$", cabeza.valor], cabeza.linea, cabeza.columna,
+            (_Nodo("$", cabeza.linea, cabeza.columna),
+             _Nodo(cabeza.valor, cabeza.linea, cabeza.columna)))
+    else:
+        _fallar(linea, cabeza.columna, esperado, texto)
+
+    p = _Expr(tokens, 1)
+    p._exigir("(", "'('")
+    argumento = p.expresion()
+    p._exigir(")", "')'")
+    fin = p.actual()
+    if fin.tipo != "EOF":
+        _fallar(fin.linea, fin.columna, "fin de expresión", fin.valor)
+    return _Nodo([cabeza_nodo.valor, argumento.valor], cabeza.linea, cabeza.columna,
+                 (cabeza_nodo, argumento))
 
 
 def _leer_agregado(item: tuple[int, str], *,
@@ -578,18 +886,18 @@ def _leer_agregado(item: tuple[int, str], *,
                    ruta: tuple[int, ...] = ()) -> list:
     resto, col = _exigir_prefijo(item, "agregado ", 2)
     nombre, sep, expr_txt = resto.partition(" = ")
-    if not sep or not nombre.strip():
+    nombre_limpio = nombre.strip()
+    if not sep or not nombre_limpio or nombre_limpio != nombre or len(nombre_limpio.split()) != 1:
         _fallar(item[0], col, "agregado <nombre> = agregado(expr)", resto)
-    nodo = _leer_expr_nodo(expr_txt, item[0], col + len(nombre) + len(sep))
+    nodo = _leer_llamada_agregado(
+        expr_txt, item[0], col + len(nombre) + len(sep), "llamada de agregado")
     expr = nodo.valor
-    if not isinstance(expr, list) or len(expr) != 2:
-        _fallar(item[0], col + len(nombre) + len(sep), "llamada de agregado", expr_txt)
     if ubicaciones is not None:
         _registrar(ubicaciones, ruta, item[0], col)
         _registrar(ubicaciones, (*ruta, 0), item[0], col)
         _registrar_nodo(ubicaciones, (*ruta, 1), nodo.hijos[0])
         _registrar_nodo(ubicaciones, (*ruta, 2), nodo.hijos[1])
-    return [nombre.strip(), expr[0], expr[1]]
+    return [_leer_nombre(nombre_limpio, item[0], col), expr[0], expr[1]]
 
 
 def _leer_clave(item: tuple[int, str], *,
@@ -597,12 +905,13 @@ def _leer_clave(item: tuple[int, str], *,
                 ruta: tuple[int, ...] = ()) -> list:
     resto, col = _exigir_prefijo(item, "clave ", 2)
     nombre, sep, expr_txt = resto.partition(" = ")
-    if not sep or not nombre.strip():
+    nombre_limpio = nombre.strip()
+    if not sep or not nombre_limpio or nombre_limpio != nombre or len(nombre_limpio.split()) != 1:
         _fallar(item[0], col, "clave <nombre> = expresión", resto)
     if ubicaciones is not None:
         _registrar(ubicaciones, ruta, item[0], col)
         _registrar(ubicaciones, (*ruta, 0), item[0], col)
-    return [nombre.strip(), _leer_expr_en(
+    return [_leer_nombre(nombre_limpio, item[0], col), _leer_expr_en(
         expr_txt, item[0], col + len(nombre) + len(sep), ubicaciones, (*ruta, 1))]
 
 
@@ -610,10 +919,8 @@ def _leer_resumen(item: tuple[int, str], *,
                   ubicaciones: dict[str, Ubicacion] | None = None,
                   ruta: tuple[int, ...] = (3,)) -> list:
     resto, col = _exigir_prefijo(item, "resumen ", 1)
-    nodo = _leer_expr_nodo(resto, item[0], col)
+    nodo = _leer_llamada_agregado(resto, item[0], col, "resumen agregado(expr)")
     expr = nodo.valor
-    if not isinstance(expr, list) or len(expr) != 2:
-        _fallar(item[0], col, "resumen agregado(expr)", resto)
     if ubicaciones is not None:
         _registrar(ubicaciones, ruta, item[0], col)
         _registrar(ubicaciones, (*ruta, 0), item[0], col)
@@ -716,14 +1023,21 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
     i += 1
     if i >= len(cuerpo):
         _fallar(cuerpo[-1][0] + 1, 1, "umbral")
+    _registrar(ubicaciones, (4,), cuerpo[i][0], len(IND) + 1)
+    _registrar(ubicaciones, (4, 0), cuerpo[i][0], len(IND) + 1)
     op, limite, porque, _col = _leer_umbral(*_contenido(cuerpo[i], "umbral ", 1))
     i += 1
     requiere = None
     if i < len(cuerpo) and _indentada(cuerpo[i][1], 1, cuerpo[i][0]).startswith("requiere "):
+        _registrar(ubicaciones, (5,), cuerpo[i][0], len(IND) + 1)
+        _registrar(ubicaciones, (5, 0), cuerpo[i][0], len(IND) + 1)
         requiere = _leer_requiere(cuerpo[i])
         i += 1
     if i >= len(cuerpo):
         _fallar(cuerpo[-1][0] + 1, 1, "alcance")
+    ruta_alcance = (6,) if requiere is not None else (5,)
+    _registrar(ubicaciones, ruta_alcance, cuerpo[i][0], len(IND) + 1)
+    _registrar(ubicaciones, (*ruta_alcance, 0), cuerpo[i][0], len(IND) + 1)
     alcance = _literal_texto(*_contenido(cuerpo[i], "alcance ", 1))
     i += 1
     if i != len(cuerpo):
@@ -756,25 +1070,22 @@ def _leer_guarda(item: tuple[int, str]) -> list:
     return ["guarda", _leer_expr(expr_texto, n, col), mensaje]
 
 
-def _leer_plantilla(bloque: list[tuple[int, str]]) -> list:
+def _leer_plantilla(bloque: list[tuple[int, str]], *, macros=None) -> list:
     """Lee la plantilla de una macro: una medida (o macro) con huecos, un nivel más adentro."""
     n0, linea0 = bloque[0]
     cuerpo0 = _indentada(linea0, 1, n0)
-    m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", cuerpo0)
+    m = ENCABEZADO_RE.fullmatch(cuerpo0)
     if not m:
         _fallar(n0, len(linea0) - len(cuerpo0) + 1,
-                "plantilla «medida|ninguno|ninguno-par|peor <id>:»", cuerpo0)
-    clase, mid_txt = m.groups()
-    col_mid = len(linea0) - len(cuerpo0) + len(clase) + 2
-    mid = _leer_nombre(mid_txt, n0, col_mid)
-    cuerpo = [(n, linea[len(IND):]) for n, linea in bloque[1:]]
-    if clase == "medida":
-        return _leer_medida(mid, cuerpo)
-    if clase == "ninguno":
-        return _macro_ninguno(clase, mid, cuerpo)
-    if clase == "ninguno-par":
-        return _macro_ninguno_par(mid, cuerpo)
-    return _macro_peor(mid, cuerpo)
+                "plantilla «medida|macro declarada <id>:»", cuerpo0)
+    lineas = [(n0, cuerpo0), *((n, linea[len(IND):]) for n, linea in bloque[1:])]
+    try:
+        return _leer_bloque_forma(lineas, macros=macros, permitir_huecos=True, validar_id=False)
+    except ErrorSintaxis as e:
+        esperado = e.esperado
+        if esperado.startswith("encabezado «"):
+            esperado = "plantilla " + esperado[len("encabezado "):]
+        raise ErrorSintaxis(e.linea, e.columna + len(IND), esperado, e.encontrado, e.literal) from e
 
 
 def _huecos_en_linea(linea: str) -> list[tuple[str, int]]:
@@ -807,7 +1118,7 @@ def _huecos_en_linea(linea: str) -> list[tuple[str, int]]:
 
 
 def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, str]],
-                   n: int) -> list:
+                   n: int, *, macros=None) -> list:
     cuerpo = lineas[1:]
     i = 0
     guardas = []
@@ -820,7 +1131,7 @@ def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, s
             break
     if i >= len(cuerpo):
         _fallar(cuerpo[-1][0] + 1 if cuerpo else n + 1, 1, "plantilla de la macro")
-    plantilla = _leer_plantilla(cuerpo[i:])
+    plantilla = _leer_plantilla(cuerpo[i:], macros=macros)
 
     usados: set[str] = set()
     # Los huecos se cuentan desde el texto fuente, no desde el JSON: `$x` dentro de una cadena
@@ -847,7 +1158,7 @@ def _leer_defmacro(nombre: str, parametros: list[str], lineas: list[tuple[int, s
     return ["defmacro", nombre, parametros, guardas, plantilla]
 
 
-def leer_con_mapa(texto: str) -> Lectura:
+def leer_con_mapa(texto: str, *, macros=None) -> Lectura:
     """Lee superficie infija y devuelve datos junto con ruta -> línea/columna.
 
     Una primera línea opcional `sintaxis MAYOR.MENOR` declara contra qué versión de la superficie se
@@ -883,48 +1194,32 @@ def leer_con_mapa(texto: str) -> Lectura:
                 _fallar(n, encabezado.find(p) + 1, f"nombre de parámetro, no «{p}»", encabezado)
         if len(set(parametros)) != len(parametros):
             _fallar(n, 1, "parámetros sin repetir", encabezado)
-        datos = _leer_defmacro(nombre, parametros, lineas, n)
+        datos = _leer_defmacro(nombre, parametros, lineas, n, macros=macros)
         ubicaciones: dict[str, Ubicacion] = {
             "": Ubicacion(n, 1),
             "0": Ubicacion(n, 1),
             "1": Ubicacion(n, encabezado.find(nombre) + 1),
         }
         return Lectura(datos, ubicaciones, version)
-    m = re.fullmatch(r"(medida|ninguno|ninguno-par|peor)\s+(\S+):", encabezado)
-    if not m:
-        _fallar(n, 1, "encabezado «medida|ninguno|ninguno-par|peor <id>:»", encabezado)
-    clase, mid = m.groups()
-    # `\S+` acepta cualquier cosa sin espacios, y eso dejaba a la superficie escribir ids que el
-    # resto del proyecto rechaza: `tareas.vencida_sin_dueño` se leía sin quejarse pero `--nueva` se
-    # niega a crearlo. La gramática es una sola y vive en `ID_MEDIDA_RE`.
-    if ID_MEDIDA_RE.fullmatch(mid) is None:
-        _fallar(n, encabezado.find(mid) + 1,
-                "id «dominio.nombre», sólo con minúsculas ASCII, dígitos y `_`", mid)
     ubicaciones: dict[str, Ubicacion] = {
         "": Ubicacion(n, 1),
         "0": Ubicacion(n, 1),
-        "1": Ubicacion(n, encabezado.find(mid) + 1),
     }
-    cuerpo = lineas[1:]
-    if clase == "medida":
-        datos = _leer_medida(mid, cuerpo, ubicaciones=ubicaciones)
-    elif clase == "ninguno":
-        datos = _macro_ninguno(clase, mid, cuerpo, ubicaciones=ubicaciones)
-    elif clase == "ninguno-par":
-        datos = _macro_ninguno_par(mid, cuerpo, ubicaciones=ubicaciones)
-    else:
-        datos = _macro_peor(mid, cuerpo, ubicaciones=ubicaciones)
+    m = ENCABEZADO_RE.fullmatch(encabezado)
+    if m:
+        ubicaciones["1"] = Ubicacion(n, encabezado.find(m.group(2)) + 1)
+    datos = _leer_bloque_forma(lineas, macros=macros, ubicaciones=ubicaciones)
     return Lectura(datos, ubicaciones, version)
 
 
-def leer(texto: str) -> list:
+def leer(texto: str, *, macros=None) -> list:
     """Lee superficie infija y devuelve el JSON de almacenamiento."""
-    return leer_con_mapa(texto).datos
+    return leer_con_mapa(texto, macros=macros).datos
 
 
-def ubicar_ruta(texto: str, ruta: tuple[int, ...] | str) -> Ubicacion | None:
+def ubicar_ruta(texto: str, ruta: tuple[int, ...] | str, *, macros=None) -> Ubicacion | None:
     """Traduce una ruta JSON de la medida a línea y columna de la superficie."""
-    return leer_con_mapa(texto).ubicacion(ruta)
+    return leer_con_mapa(texto, macros=macros).ubicacion(ruta)
 
 
 def fragmento_de_error(error: Exception, texto: str) -> str:
@@ -1032,63 +1327,80 @@ def _imprimir_pasos(tuberia: list) -> list[str]:
     return salida
 
 
-def imprimir(datos: list) -> str:
-    """Devuelve la superficie canónica para una medida almacenada como JSON."""
+def _lineas_medida(datos: list) -> list[str]:
+    if len(datos) == 7:
+        _c, mid, tuberia, resumen, umbral, requiere, alcance = datos
+    elif len(datos) == 6:
+        _c, mid, tuberia, resumen, umbral, alcance = datos
+        requiere = None
+    else:
+        raise ValueError("una medida canónica tiene 6 o 7 elementos")
+    lineas = [f"medida {_nombre(mid)}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
+    lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
+    lineas.append(f"{IND}umbral {umbral[1]} {_expr(umbral[2])} porque {_texto_o_hueco(umbral[3])}")
+    if requiere is not None:
+        lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in requiere[1:])}")
+    lineas.append(f"{IND}alcance {_texto_o_hueco(alcance[1])}")
+    return lineas
+
+
+def _lineas_defmacro(datos: list, macros, visitadas: frozenset[str]) -> list[str]:
+    if len(datos) != 5:
+        raise ValueError(
+            "una macro es ['defmacro', nombre, parametros, guardas, plantilla]")
+    _c, nombre, parametros, guardas, plantilla = datos
+    lineas = [f"defmacro {nombre}({', '.join(parametros)}):"]
+    for guarda in guardas:
+        lineas.append(f"{IND}guarda {_expr(guarda[1])} {_json(guarda[2])}")
+    for sublinea in _lineas_de_datos(plantilla, macros, visitadas):
+        lineas.append(f"{IND}{sublinea}")
+    return lineas
+
+
+def _lineas_macro_declarada(datos: list, macros, visitadas: frozenset[str]) -> list[str]:
+    clase = datos[0]
+    registro = _registro_macros(macros)
+    if clase not in registro:
+        raise ValueError(f"forma de medida no imprimible: {clase!r}")
+    if clase in visitadas:
+        cadena = " -> ".join((*visitadas, clase))
+        raise ValueError(f"macro recursiva no imprimible: {cadena}")
+    macro = registro[clase]
+    esperados = len(macro.parametros)
+    if len(datos) - 1 != esperados:
+        raise ValueError(
+            f"la macro {clase} lleva {esperados} argumento(s) y recibió {len(datos) - 1}")
+
+    try:
+        tipos = _tipos_de_parametros(macro, registro, visitadas | frozenset({clase}))
+    except ValueError as e:
+        raise ValueError(str(e)) from e
+    lineas = [f"{clase} {_nombre(datos[1])}:"]
+    for parametro, valor in zip(macro.parametros[1:], datos[2:]):
+        tipo = tipos[parametro]
+        if tipo == "nombre":
+            superficie = _nombre(valor)
+        elif tipo == "texto":
+            superficie = _texto_o_hueco(valor)
+        else:
+            superficie = _expr(valor)
+        lineas.append(f"{IND}{parametro} {superficie}")
+    return lineas
+
+
+def _lineas_de_datos(datos: list, macros=None,
+                     visitadas: frozenset[str] = frozenset()) -> list[str]:
+    """Devuelve líneas de superficie sin salto final."""
     if not isinstance(datos, list) or not datos:
         raise ValueError("una medida tiene que ser una lista JSON")
     clase = datos[0]
-    if clase == "ninguno":
-        _c, mid, rel, alias, pred, porque, alcance = datos
-        lineas = [
-            f"ninguno {_nombre(mid)}:",
-            f"{IND}de {_nombre(rel)} {_nombre(alias)}",
-            f"{IND}donde {_expr(pred)}",
-            f"{IND}umbral <= 0 porque {_texto_o_hueco(porque)}",
-            f"{IND}alcance {_texto_o_hueco(alcance)}",
-        ]
-    elif clase == "ninguno-par":
-        _c, mid, rel, alias_a, alias_b, pred, porque, alcance = datos
-        lineas = [
-            f"ninguno-par {_nombre(mid)}:",
-            f"{IND}de {_nombre(rel)} {_nombre(alias_a)}, {_nombre(alias_b)}",
-            f"{IND}donde {_expr(pred)}",
-            f"{IND}umbral <= 0 porque {_texto_o_hueco(porque)}",
-            f"{IND}alcance {_texto_o_hueco(alcance)}",
-        ]
-    elif clase == "peor":
-        _c, mid, rel, alias, expr, tolerancia, porque, alcance = datos
-        lineas = [
-            f"peor {_nombre(mid)}:",
-            f"{IND}de {_nombre(rel)} {_nombre(alias)}",
-            f"{IND}expresion {_expr(expr)}",
-            f"{IND}tolerancia {_expr(tolerancia)}",
-            f"{IND}umbral <= {_expr(tolerancia)} porque {_texto_o_hueco(porque)}",
-            f"{IND}alcance {_texto_o_hueco(alcance)}",
-        ]
-    elif clase == "defmacro":
-        if len(datos) != 5:
-            raise ValueError(
-                "una macro es ['defmacro', nombre, parametros, guardas, plantilla]")
-        _c, nombre, parametros, guardas, plantilla = datos
-        lineas = [f"defmacro {nombre}({', '.join(parametros)}):"]
-        for guarda in guardas:
-            lineas.append(f"{IND}guarda {_expr(guarda[1])} {_json(guarda[2])}")
-        for sublinea in imprimir(plantilla).rstrip("\n").split("\n"):
-            lineas.append(f"{IND}{sublinea}")
-    elif clase == "medida":
-        if len(datos) == 7:
-            _c, mid, tuberia, resumen, umbral, requiere, alcance = datos
-        elif len(datos) == 6:
-            _c, mid, tuberia, resumen, umbral, alcance = datos
-            requiere = None
-        else:
-            raise ValueError("una medida canónica tiene 6 o 7 elementos")
-        lineas = [f"medida {_nombre(mid)}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
-        lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
-        lineas.append(f"{IND}umbral {umbral[1]} {_expr(umbral[2])} porque {_texto_o_hueco(umbral[3])}")
-        if requiere is not None:
-            lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in requiere[1:])}")
-        lineas.append(f"{IND}alcance {_texto_o_hueco(alcance[1])}")
-    else:
-        raise ValueError(f"forma de medida no imprimible: {clase!r}")
-    return "\n".join(lineas) + "\n"
+    if clase == "defmacro":
+        return _lineas_defmacro(datos, macros, visitadas)
+    if clase == "medida":
+        return _lineas_medida(datos)
+    return _lineas_macro_declarada(datos, macros, visitadas)
+
+
+def imprimir(datos: list, *, macros=None) -> str:
+    """Devuelve la superficie canónica para una medida almacenada como JSON."""
+    return "\n".join(_lineas_de_datos(datos, macros)) + "\n"

@@ -1,0 +1,8 @@
+defmacro ninguno-requiere(id, relacion, alias, predicado, porque, alcance):
+    medida $id:
+        de $relacion $alias
+        donde $predicado
+        resumen contar(1)
+        umbral <= 0 porque $porque
+        requiere $relacion
+        alcance $alcance

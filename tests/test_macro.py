@@ -128,10 +128,10 @@ class DeclaracionTests(unittest.TestCase):
                 guardas if guardas is not None else [],
                 plantilla if plantilla is not None else ["medida", ["$", "id"]]]
 
-    def test_las_tres_universales_salen_de_datos_y_no_de_python(self) -> None:
+    def test_las_universales_salen_de_datos_y_no_de_python(self) -> None:
         archivos = {p.stem for p in DIRECTORIO_BASE.iterdir()
                     if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()}
-        self.assertEqual(archivos, {"ninguno", "ninguno-par", "peor"})
+        self.assertEqual(archivos, {"ninguno", "ninguno-par", "ninguno-requiere", "peor"})
         self.assertEqual(set(macros_base()), archivos)
         for macro in macros_base().values():
             self.assertIsInstance(macro, Macro)
@@ -346,6 +346,45 @@ class ProyectoDeclaraLasSuyasTests(unittest.TestCase):
         # y los testigos son las filas que ofenden, igual que en cualquier medida canónica
         self.assertEqual(rojo.veredictos[0].testigos[0]["i"]["id"], "b")
 
+    def test_una_macro_oracle_del_proyecto_se_usa_en_superficie(self) -> None:
+        from oracle_metalenguaje import Motor
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "macros").mkdir()
+            (raiz / "macros" / "sin-fallas.oracle").write_text(
+                "\n".join([
+                    "defmacro sin-fallas(id, relacion, alias, predicado, porque, alcance):",
+                    "    ninguno $id:",
+                    "        relacion $relacion",
+                    "        alias $alias",
+                    "        predicado $predicado",
+                    "        porque $porque",
+                    "        alcance $alcance",
+                    "",
+                ]), encoding="utf-8")
+            catalogo = raiz / "catalogos" / "demo"
+            catalogo.mkdir(parents=True)
+            (catalogo / "demo.todo_ok.oracle").write_text(
+                "\n".join([
+                    "sin-fallas demo.todo_ok:",
+                    "    relacion item",
+                    "    alias i",
+                    "    predicado i.ok == false",
+                    "    porque \"un item falso invalida la entrega entera\"",
+                    "    alcance \"NO ve items que nadie declaró\"",
+                    "",
+                ]), encoding="utf-8")
+
+            motor = Motor.desde_proyecto(raiz)
+            verde = motor.evaluar({"item": [{"id": "a", "ok": True}]})
+            rojo = motor.evaluar({"item": [{"id": "a", "ok": False}]})
+
+        self.assertEqual([m.id for m in motor.medidas], ["demo.todo_ok"])
+        self.assertTrue(verde.ok)
+        self.assertFalse(rojo.ok)
+        self.assertEqual(rojo.veredictos[0].testigos[0]["i"]["id"], "a")
+
     def test_la_medida_expandida_es_indistinguible_de_una_canonica(self) -> None:
         """Si el resto del sistema pudiera notar que hubo macro, la macro sería un mecanismo nuevo
         en vez de azúcar. La mutación y el nivel L2 tienen que seguir viendo formas canónicas."""
@@ -429,25 +468,18 @@ class CatalogoRealTests(unittest.TestCase):
     def test_todas_cargan_y_la_mayoria_son_macro(self) -> None:
         """La proporción se mide contra las que PODRÍAN ser macro, y cada excepción se justifica.
 
-        Las macros que hay no expresan `unir`, `agrupar` ni `requiere`: una medida que necesite
-        cualquiera de los tres se escribe entera, y eso no es un descuido. Lo que sí sería un
+        Las macros que hay no expresan todos los usos de `unir` ni `agrupar`: una medida que necesite
+        cualquiera de esos dos se escribe entera, y eso no es un descuido. Lo que sí sería un
         descuido es escribir entera una que podía ser macro, y eso es lo que se comprueba —en vez de
         bajar la barrera cada vez que entra una medida nueva, que sería mover el poste.
-
-        Una de las excepciones NO debería serlo: `meta.ningun_flotante_comparado_por_igualdad_en_un_filtro`
-        sólo necesita `requiere`, y una macro `ninguno-requiere` la resolvería en ocho líneas. No se
-        puede escribir: `nucleo/sintaxis.py` tiene los nombres de macro incrustados en un `fullmatch`
-        y una rama de parseo y de impresión por cada uno, así que la superficie no lee una macro que
-        el proyecto no anticipó —ni la que quisiera definir un consumidor—. Es el mismo defecto que
-        los frozensets escritos a mano que se sacaron el 2026-08-27, en otro módulo.
         """
         macros = sum(1 for d in self.crudos.values() if es_macro(d))
         enteras = {mid: d for mid, d in self.crudos.items() if not es_macro(d)}
         for mid, datos in enteras.items():
             cabezas = set(re.findall(r'"(\w+)"', __import__("json").dumps(datos)))
             self.assertTrue(
-                cabezas & {"unir", "agrupar", "requiere"},
-                f"{mid} se escribió entera y no necesita `unir`, `agrupar` ni `requiere`: "
+                cabezas & {"unir", "agrupar"},
+                f"{mid} se escribió entera y no necesita `unir` ni `agrupar`: "
                 f"podía ser una macro")
         podrian = len(self.crudos) - len(enteras)
         self.assertGreaterEqual(macros / max(1, podrian), 0.8)

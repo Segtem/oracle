@@ -367,23 +367,15 @@ class MutacionDeSintaxisTests(unittest.TestCase):
              "línea 7, columna 14: se esperaba nombre de parámetro después de «$»; llegó '$'"),
             (lambda: sintaxis_nucleo._leer_umbral('123 <= 0 porque "x"', 2, 5), 2, 5,
              "línea 2, columna 5: se esperaba comparador de umbral; llegó 123"),
-            (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
-                (10, "    de pieza p"), (11, "    donde p.x == 1"),
-                (12, '    umbral <= 0 porque "defensa valida y suficiente"'),
-                (13, '    alcance "nada"'), (14, "    sobra")]), 14, 1,
-             "línea 14, columna 1: la macro ninguno lleva exactamente 4 líneas de cuerpo "
-             "(de, donde, umbral, alcance) y llegaron 5"),
-            (lambda: sintaxis_nucleo._macro_ninguno("ninguno", "d.m", [
-                (10, "    de pieza p"), (11, "    donde p.x == 1"),
-                (12, '    umbral <= 0 porque "defensa valida y suficiente"')]), 13, 1,
-             "línea 13, columna 1: a la macro ninguno le falta `alcance`. Su cuerpo son estas "
-             "4 líneas, en este orden: de, donde, umbral, alcance"),
-            (lambda: sintaxis_nucleo._macro_ninguno_par("d.m", [
-                (10, "    de pieza a, b"), (11, "    donde a.x == b.x")]), 10, 1,
-             "línea 10, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
-            (lambda: sintaxis_nucleo._macro_peor("d.m", [
-                (20, "    de pieza p"), (21, "    expresion p.x")]), 20, 1,
-             "línea 20, columna 1: se esperaba 5 líneas de cuerpo para peor"),
+            (lambda: sintaxis_nucleo._falta_o_sobra(
+                [(10, "    relacion pieza"), (11, "    alias p"), (12, "    sobra")],
+                ("relacion", "alias"), "propia"), 12, 1,
+             "línea 12, columna 1: la macro propia lleva exactamente 2 líneas de cuerpo "
+             "(relacion, alias) y llegaron 3"),
+            (lambda: sintaxis_nucleo._falta_o_sobra(
+                [(10, "    relacion pieza")], ("relacion", "alias"), "propia"), 11, 1,
+             "línea 11, columna 1: a la macro propia le falta `alias`. Su cuerpo son estas "
+             "2 líneas, en este orden: relacion, alias"),
             (lambda: sintaxis_nucleo._leer_plantilla([
                 (1, "    medida $123:"), (2, "        de pieza p")]), 1, 12,
              "línea 1, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$123'"),
@@ -450,75 +442,71 @@ class MutacionDeSintaxisTests(unittest.TestCase):
         })
         self.assertUbicaciones(self._texto([
             "ninguno-par d.n:",
-            "    de rel a, b",
-            "    donde a.x == b.x",
-            '    umbral <= 0 porque "razón"',
+            "    relacion rel",
+            "    aliasA a",
+            "    aliasB b",
+            "    predicado a.x == b.x",
+            '    porque "razón"',
             '    alcance "NO ve"',
         ]), {
             "1": (1, 13),
-            "5": (3, 15),
-            "5.1.2": (3, 13),
-            "5.2.2": (3, 20),
+            "5": (5, 19),
+            "5.1.2": (5, 17),
+            "5.2.2": (5, 24),
         })
         self.assertUbicaciones(self._texto([
             "peor d.p:",
-            "    de rel r",
+            "    relacion rel",
+            "    alias r",
             "    expresion r.x",
             "    tolerancia 2",
-            '    umbral <= 2 porque "razón"',
+            '    porque "razón"',
             '    alcance "NO ve"',
         ]), {
             "1": (1, 6),
-            "4": (3, 15),
-            "4.2": (3, 17),
-            "5": (4, 16),
+            "4": (4, 15),
+            "4.2": (4, 17),
+            "5": (5, 16),
         })
 
     def test_errores_de_medidas_y_macros_fijan_fragmentos(self) -> None:
         casos = [
-            # El mensaje NOMBRA la línea que falta. «se esperaba 4 líneas» es cierto y no dice
-            # cuál de las cuatro se olvidó.
+            # El mensaje NOMBRA la línea que falta. «se esperaba 5 líneas» es cierto y no dice
+            # cuál de los parámetros se olvidó.
             ("ninguno sin cuerpo", "ninguno d.n:\n", 2, 1,
-             "línea 2, columna 1: a la macro ninguno le falta `de`, `donde`, `umbral`, "
-             "`alcance`. Su cuerpo son estas 4 líneas, en este orden: de, donde, umbral, alcance"),
-            ("ninguno incompleto", self._texto(["ninguno d.n:", "    de rel r"]), 3, 1,
-             "línea 3, columna 1: a la macro ninguno le falta `donde`, `umbral`, `alcance`. "
-             "Su cuerpo son estas 4 líneas, en este orden: de, donde, umbral, alcance"),
+             "línea 2, columna 1: a la macro ninguno le falta `relacion`, `alias`, "
+             "`predicado`, `porque`, `alcance`. Su cuerpo son estas 5 líneas, en este orden: "
+             "relacion, alias, predicado, porque, alcance"),
+            ("ninguno incompleto", self._texto(["ninguno d.n:", "    relacion rel"]), 3, 1,
+             "línea 3, columna 1: a la macro ninguno le falta `alias`, `predicado`, "
+             "`porque`, `alcance`. Su cuerpo son estas 5 líneas, en este orden: relacion, "
+             "alias, predicado, porque, alcance"),
             ("ninguno largo", self._texto([
-                "ninguno d.n:", "    de rel r", "    donde r.x == true",
-                '    umbral <= 0 porque "razón"', '    alcance "NO ve"', "    sobra"]), 6, 1,
-             "línea 6, columna 1: la macro ninguno lleva exactamente 4 líneas de cuerpo "
-             "(de, donde, umbral, alcance) y llegaron 5"),
-            ("ninguno umbral", self._texto([
-                "ninguno d.n:", "    de rel r", "    donde r.x == true",
-                '    umbral < 0 porque "razón"', '    alcance "NO ve"']), 4, 16,
-             "línea 4, columna 16: la macro ninguno cuenta lo que ofende, así que su umbral es "
-             "siempre «<= 0» y llegó «< 0»"),
+                "ninguno d.n:", "    relacion rel", "    alias r", "    predicado r.x == true",
+                '    porque "razón"', '    alcance "NO ve"', "    sobra"]), 7, 1,
+             "línea 7, columna 1: la macro ninguno lleva exactamente 5 líneas de cuerpo "
+             "(relacion, alias, predicado, porque, alcance) y llegaron 6"),
+            ("ninguno fuera de orden", self._texto([
+                "ninguno d.n:", "    relacion rel", "    predicado r.x == true",
+                "    alias r", '    porque "razón"', '    alcance "NO ve"']), 3, 5,
+             "línea 3, columna 5: se esperaba línea «alias»; llegó 'predicado r.x == true'"),
             ("ninguno-par sin cuerpo", "ninguno-par d.n:\n", 2, 1,
-             "línea 2, columna 1: se esperaba 4 líneas de cuerpo para ninguno-par"),
-            ("ninguno-par de", self._texto([
-                "ninguno-par d.n:", "    de rel a b", "    donde a.x == b.x",
-                '    umbral <= 0 porque "razón"', '    alcance "NO ve"']), 2, 8,
-             "línea 2, columna 8: se esperaba de <relación> <aliasA>, <aliasB>; "
-             "llegó 'rel a b'"),
-            ("ninguno-par umbral operador", self._texto([
-                "ninguno-par d.n:", "    de rel a, b", "    donde a.x == b.x",
-                '    umbral < 0 porque "razón"', '    alcance "NO ve"']), 4, 16,
-             "línea 4, columna 16: se esperaba la macro ninguno-par con umbral <= 0"),
-            ("ninguno-par umbral limite", self._texto([
-                "ninguno-par d.n:", "    de rel a, b", "    donde a.x == b.x",
-                '    umbral <= 1 porque "razón"', '    alcance "NO ve"']), 4, 17,
-             "línea 4, columna 17: se esperaba la macro ninguno-par con umbral <= 0"),
+             "línea 2, columna 1: a la macro ninguno-par le falta `relacion`, `aliasA`, "
+             "`aliasB`, `predicado`, `porque`, `alcance`. Su cuerpo son estas 6 líneas, en "
+             "este orden: relacion, aliasA, aliasB, predicado, porque, alcance"),
+            ("ninguno-par alias mal", self._texto([
+                "ninguno-par d.n:", "    relacion rel", "    aliasA a b", "    aliasB b",
+                "    predicado a.x == b.x", '    porque "razón"', '    alcance "NO ve"']),
+             3, 12, "línea 3, columna 12: se esperaba aliasA <nombre>; llegó 'a b'"),
             ("peor sin cuerpo", "peor d.p:\n", 2, 1,
-             "línea 2, columna 1: se esperaba 5 líneas de cuerpo para peor"),
-            ("peor umbral operador", self._texto([
-                "peor d.p:", "    de rel r", "    expresion r.x", "    tolerancia 2",
-                '    umbral < 2 porque "razón"', '    alcance "NO ve"']), 5, 16,
-             "línea 5, columna 16: se esperaba la macro peor con umbral <= tolerancia"),
-            ("peor umbral", self._texto([
-                "peor d.p:", "    de rel r", "    expresion r.x", "    tolerancia 2",
-                '    umbral <= 3 porque "razón"', '    alcance "NO ve"']), 5, 17,
-             "línea 5, columna 17: se esperaba la macro peor con umbral <= tolerancia"),
+             "línea 2, columna 1: a la macro peor le falta `relacion`, `alias`, `expresion`, "
+             "`tolerancia`, `porque`, `alcance`. Su cuerpo son estas 6 líneas, en este orden: "
+             "relacion, alias, expresion, tolerancia, porque, alcance"),
+            ("peor tolerancia mal", self._texto([
+                "peor d.p:", "    relacion rel", "    alias r", "    expresion r.x",
+                '    umbral <= 2 porque "razón"', '    porque "razón"', '    alcance "NO ve"']),
+             5, 5, "línea 5, columna 5: se esperaba línea «tolerancia»; "
+             "llegó 'umbral <= 2 porque \"razón\"'"),
             ("medida vacía", "medida d.vacia:\n", 2, 1,
              "línea 2, columna 1: se esperaba cuerpo de medida"),
             ("falta resumen", self._texto(["medida d.r:", "    de rel r"]), 3, 1,
@@ -599,26 +587,30 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "ninguno": self._texto([
                 "defmacro todos(id, rel, alias, pred, porque, alcance):",
                 "    ninguno $id:",
-                "        de $rel $alias",
-                "        donde $pred",
-                "        umbral <= 0 porque $porque",
+                "        relacion $rel",
+                "        alias $alias",
+                "        predicado $pred",
+                "        porque $porque",
                 "        alcance $alcance",
             ]),
             "ninguno-par": self._texto([
                 "defmacro pares(id, rel, a, b, pred, porque, alcance):",
                 "    ninguno-par $id:",
-                "        de $rel $a, $b",
-                "        donde $pred",
-                "        umbral <= 0 porque $porque",
+                "        relacion $rel",
+                "        aliasA $a",
+                "        aliasB $b",
+                "        predicado $pred",
+                "        porque $porque",
                 "        alcance $alcance",
             ]),
             "peor": self._texto([
                 "defmacro peor-propia(id, rel, alias, expr, tol, porque, alcance):",
                 "    peor $id:",
-                "        de $rel $alias",
+                "        relacion $rel",
+                "        alias $alias",
                 "        expresion $expr",
                 "        tolerancia $tol",
-                "        umbral <= $tol porque $porque",
+                "        porque $porque",
                 "        alcance $alcance",
             ]),
         }
@@ -667,7 +659,7 @@ class MutacionDeSintaxisTests(unittest.TestCase):
              "línea 2, columna 12: se esperaba expresión de la guarda; llegó '\"msg\"'"),
             ("plantilla mala", self._texto(["defmacro m(id):", "    nada $id:"]), 2, 5,
              "línea 2, columna 5: se esperaba plantilla "
-             "«medida|ninguno|ninguno-par|peor <id>:»; llegó 'nada $id:'"),
+             "«medida|macro declarada <id>:»; llegó 'nada $id:'"),
             ("plantilla con id hueco invalido", self._texto([
                 "defmacro m(id):", "    medida $:"]), 2, 12,
              "línea 2, columna 12: se esperaba nombre de parámetro después de «$»; llegó '$'"),
@@ -720,8 +712,8 @@ class MutacionDeSintaxisTests(unittest.TestCase):
              "línea 1, columna 9: se esperaba id «dominio.nombre», sólo con minúsculas "
              "ASCII, dígitos y `_`; llegó 'd'"),
             ("encabezado malo", "nada\n", 1, 1,
-             "línea 1, columna 1: se esperaba encabezado «medida|ninguno|ninguno-par|peor "
-             "<id>:»; llegó 'nada'"),
+             "línea 1, columna 1: se esperaba encabezado «medida|macro declarada <id>:»; "
+             "llegó 'nada'"),
         ]
         for nombre, texto, linea, columna, mensaje in casos:
             with self.subTest(nombre=nombre):
@@ -1543,6 +1535,51 @@ class DefmacroSurfaceTests(unittest.TestCase):
         self.assertIn("\n        alcance $alcance\n", superficie)
         self.assertEqual(sintaxis.leer(superficie), datos)
 
+    def test_una_macro_con_agrupar_infiere_tipos_de_todos_sus_parametros(self) -> None:
+        from nucleo.macro import Macro, RegistroMacros
+
+        datos = ["defmacro", "por-grupo",
+                 ["id", "relacion", "alias", "clave", "clave_expr", "total",
+                  "agregador", "valor", "limite", "porque", "alcance"],
+                 [],
+                 ["medida", ["$", "id"],
+                  ["desde", ["de", ["$", "relacion"], ["$", "alias"]],
+                   ["agrupar",
+                    [[["$", "clave"], ["$", "clave_expr"]]],
+                    [[["$", "total"], "sumar", ["$", "valor"]]]]],
+                  ["resumen", ["$", "agregador"], ["$", "valor"]],
+                  ["umbral", "<=", ["$", "limite"], ["$", "porque"]],
+                  ["requiere", ["$", "relacion"]],
+                  ["alcance", ["$", "alcance"]]]]
+        superficie = sintaxis.imprimir(datos)
+        self.assertIn("\n            clave $clave = $clave_expr\n", superficie)
+        self.assertIn("\n            agregado $total = sumar($valor)\n", superficie)
+        self.assertIn("\n        requiere $relacion\n", superficie)
+        self.assertEqual(sintaxis.leer(superficie), datos)
+
+        registro = RegistroMacros()
+        registro.declarar(Macro.de_datos(datos))
+        invocacion = "\n".join([
+            "por-grupo demo.por_equipo:",
+            "    relacion tarea",
+            "    alias t",
+            "    clave equipo",
+            "    clave_expr t.equipo",
+            "    total pendientes",
+            "    agregador contar",
+            "    valor 1",
+            "    limite 0",
+            '    porque "quedan tareas"',
+            '    alcance "NO ve tareas no declaradas"',
+        ]) + "\n"
+
+        self.assertEqual(
+            sintaxis.leer(invocacion, macros=registro),
+            ["por-grupo", "demo.por_equipo", "tarea", "t", "equipo",
+             ["campo", "t", "equipo"], "pendientes", "contar", 1, 0,
+             "quedan tareas", "NO ve tareas no declaradas"],
+        )
+
     def test_una_macro_con_guarda_vuelve_exacta(self) -> None:
         datos = ["defmacro", "propia",
                  ["id", "otro"],
@@ -1639,7 +1676,8 @@ class MacrosEnLaSuperficieTests(unittest.TestCase):
         from nucleo.macro import macros_base
         base = pathlib.Path(RAIZ / "nucleo" / "macros")
         self.assertTrue(any(p.suffix == ".oracle" for p in base.iterdir()))
-        self.assertEqual(sorted(macros_base()), ["ninguno", "ninguno-par", "peor"])
+        self.assertEqual(sorted(macros_base()), ["ninguno", "ninguno-par", "ninguno-requiere",
+                                                 "peor"])
 
     def test_el_mismo_nombre_en_los_dos_formatos_es_un_error(self) -> None:
         """No gana ninguno: un ganador silencioso es una divergencia esperando."""
@@ -2130,9 +2168,10 @@ class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
     """
 
     CUERPO = ('ninguno tareas.vencida:\n'
-              '    de tarea t\n'
-              '    donde t.vencida == true\n'
-              '    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
+              '    relacion tarea\n'
+              '    alias t\n'
+              '    predicado t.vencida == true\n'
+              '    porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
               '    alcance "ve el par vencida+sin-dueño y nada más"\n')
 
     def _error(self, texto):
@@ -2143,7 +2182,7 @@ class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
     def test_un_igual_solo_ensena_el_doble_igual(self) -> None:
         e = self._error(self.CUERPO.replace("t.vencida ==", "t.vencida ="))
         self.assertIn("«==»", str(e))
-        self.assertEqual((e.linea, e.columna), (3, 21))
+        self.assertEqual((e.linea, e.columna), (4, 25))
 
     def test_un_acento_en_un_nombre_explica_la_gramatica(self) -> None:
         """Y aclara que la prosa SÍ los lleva: si no, el mensaje asusta de más y alguien
@@ -2151,31 +2190,28 @@ class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
         e = self._error(self.CUERPO.replace("t.vencida", "t.vencída"))
         self.assertIn("minúsculas ASCII", str(e))
         self.assertIn("porque", str(e))
-        self.assertEqual((e.linea, e.columna), (3, 17))
+        self.assertEqual((e.linea, e.columna), (4, 21))
 
     def test_la_linea_que_falta_se_nombra(self) -> None:
         for palabra, quitar in (
                 ("alcance", '    alcance "ve el par vencida+sin-dueño y nada más"\n'),
-                ("donde", "    donde t.vencida == true\n")):
+                ("predicado", "    predicado t.vencida == true\n")):
             with self.subTest(falta=palabra):
                 e = self._error(self.CUERPO.replace(quitar, ""))
                 self.assertIn(f"`{palabra}`", str(e))
-                self.assertIn("de, donde, umbral, alcance", str(e))
+                self.assertIn("relacion, alias, predicado, porque, alcance", str(e))
 
     def test_un_cuerpo_de_mas_no_se_confunde_con_uno_de_menos(self) -> None:
         e = self._error(self.CUERPO + "    sobra\n")
-        self.assertIn("y llegaron 5", str(e))
+        self.assertIn("y llegaron 6", str(e))
         self.assertNotIn("le falta", str(e))
 
-    def test_el_umbral_de_igualdad_dice_por_que_esta_prohibido(self) -> None:
-        e = self._error(self.CUERPO.replace("umbral <= 0", "umbral == 0"))
-        self.assertIn("meta.ningun_umbral_de_igualdad", str(e))
-
-    def test_pero_un_umbral_distinto_de_cero_no_habla_de_igualdad(self) -> None:
-        """Sumar la prohibición a un `<= 1` mezcla dos problemas y confunde."""
-        e = self._error(self.CUERPO.replace("umbral <= 0", "umbral <= 1"))
-        self.assertIn("«<= 1»", str(e))
-        self.assertNotIn("meta.ningun_umbral_de_igualdad", str(e))
+    def test_una_linea_que_no_es_parametro_nombra_la_esperada(self) -> None:
+        e = self._error(self.CUERPO.replace(
+            '    porque "una tarea vencida sin dueño no la va a hacer nadie"\n',
+            '    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie"\n'))
+        self.assertIn("línea «porque»", str(e))
+        self.assertEqual((e.linea, e.columna), (5, 5))
 
     def test_el_cuerpo_vacio_senala_donde_iria_la_primera_linea(self) -> None:
         """No una línea que no existe: la 2, que es donde empieza el cuerpo."""
