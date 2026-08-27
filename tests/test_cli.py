@@ -545,7 +545,10 @@ class NounVerbCliTests(OracleCliTests):
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (37 medidas", salida)
+        self.assertIn("CATÁLOGO (34 medidas", salida)
+        # Las del perfil `python` no viven en `catalogos/`: se heredan, y se ven.
+        self.assertIn("MEDIDAS HEREDADAS", salida)
+        self.assertIn("proceso.modulo_alcanzable", salida)
         self.assertIn("meta.agrupar_no_agranda_la_relacion", salida)
         self.assertIn("umbral:", salida)
         self.assertIn("fijación:", salida)
