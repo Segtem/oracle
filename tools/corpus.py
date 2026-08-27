@@ -20,6 +20,7 @@ justamente los que no hay que perder: son la lista de lo que falta.
 
 from __future__ import annotations
 
+from datetime import date as _date
 import sys
 import re
 from collections import Counter
@@ -51,10 +52,10 @@ GRUPO_CASO_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 PROCEDENCIAS_EN_PLANTILLA = " · ".join(sorted(PROCEDENCIAS))
 PLANTILLA = f"""\
 caso {{cid}}:
-    fecha: "FECHA"
+    fecha: "{{fecha}}"
     origen:
-        repo: "REPO"
-        commit: "COMMIT"
+        repo: "{{repo}}"
+        commit: "{{commit}}"
     # procedencia: {PROCEDENCIAS_EN_PLANTILLA}
     titulo: "TITULO"
     etiqueta: ETIQUETA
@@ -98,6 +99,37 @@ def ruta_de_caso_nuevo(proy, ubicacion: str) -> Path:
     return destino
 
 
+def _del_repositorio(raiz) -> tuple[str, str]:
+    """La fecha y el commit de hoy, leídos de git en vez de pedidos a una persona.
+
+    No es sólo comodidad: es una corrección. De los 112 casos del corpus, 62 tenían el commit en
+    prosa —`"sin-commit"`, `"local"`, `"ejemplo abstracto"`, `"sesión 2026-07-29"`— porque el
+    andamio ponía `"COMMIT"` y había que inventar algo. Un dato que la máquina sabe y le pide a una
+    persona termina siendo peor que el que hubiera puesto la máquina.
+
+    Falla ABIERTO, no cerrado: sin git, o fuera de un repositorio, se dejan los marcadores en
+    mayúsculas y quien escribe los completa. Negarse a crear un caso porque no hay repositorio
+    sería confundir dos cosas —el caso registra un hecho, no un commit—.
+    """
+    import subprocess
+    hoy = _date.today().isoformat()
+    def git(*a):
+        try:
+            r = subprocess.run(["git", "-C", str(raiz), *a], capture_output=True, text=True,
+                               timeout=5)
+        except (OSError, subprocess.SubprocessError):
+            return ""
+        return r.stdout.strip() if r.returncode == 0 else ""
+    commit = git("rev-parse", "--short", "HEAD") or "COMMIT"
+    remoto = git("remote", "get-url", "origin")
+    if remoto:
+        repo = remoto.rstrip("/").removesuffix(".git")
+        repo = repo.split(":")[-1] if ":" in repo else "/".join(repo.split("/")[-2:])
+    else:
+        repo = "REPO"
+    return hoy, repo, commit
+
+
 def nuevo(proy, ubicacion: str) -> int:
     try:
         destino = ruta_de_caso_nuevo(proy, ubicacion)
@@ -108,8 +140,15 @@ def nuevo(proy, ubicacion: str) -> int:
         print(f"ya existe: {presentar_ruta(proy, destino)}")
         return 1
     destino.parent.mkdir(parents=True, exist_ok=True)
-    destino.write_text(PLANTILLA.format(cid=destino.stem), encoding="utf-8")
+    fecha, repo, commit = _del_repositorio(proy.raiz)
+    destino.write_text(
+        PLANTILLA.format(cid=destino.stem, fecha=fecha, repo=repo, commit=commit),
+        encoding="utf-8")
     print(f"creado: {presentar_ruta(proy, destino)}\n")
+    derivados = [n for n, v in (("fecha", fecha), ("repo", repo), ("commit", commit))
+                 if v not in ("REPO", "COMMIT")]
+    if derivados:
+        print(f"Ya completos, leídos del repositorio: {', '.join(derivados)}.")
     print("Reemplazá los marcadores en MAYÚSCULAS. Tres campos tienen valores cerrados:\n")
     # Se listan acá y no sólo en el error, porque el momento de decidirlos es AHORA —mientras se
     # tiene fresco lo que pasó— y no dos comandos después.

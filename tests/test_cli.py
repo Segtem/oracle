@@ -617,6 +617,43 @@ class NounVerbCliTests(OracleCliTests):
             self.assertEqual(rc, 1)
             self.assertIn("igual que en un caso del corpus", salida)
 
+    def test_caso_nuevo_deriva_fecha_y_origen_del_repositorio(self) -> None:
+        """Un dato que la máquina sabe no se le pide a una persona: 62 de 112 casos decían prosa."""
+        import subprocess
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            subprocess.run(["git", "init", "-q", str(raiz)], check=True)
+            subprocess.run(["git", "-C", str(raiz), "remote", "add", "origin",
+                            "git@github.com:Alumno/taller.git"], check=True)
+            (raiz / "a.txt").write_text("x", encoding="utf-8")
+            subprocess.run(["git", "-C", str(raiz), "add", "-A"], check=True)
+            subprocess.run(["git", "-C", str(raiz), "-c", "user.email=a@b", "-c", "user.name=a",
+                            "commit", "-qm", "inicial"], check=True)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+            rc, salida = self._callado(cli.main, ["caso", "nuevo", "juego/001-prueba",
+                                                  "--proyecto", str(raiz)])
+            self.assertEqual(rc, 0)
+            escrito = (raiz / "corpus" / "juego" / "001-prueba.caso").read_text(encoding="utf-8")
+            self.assertIn('repo: "Alumno/taller"', escrito)
+            self.assertNotIn('"COMMIT"', escrito)
+            self.assertNotIn('"FECHA"', escrito)
+            # Los dos juicios NO se derivan: procedencia y etiqueta las decide quien escribe.
+            self.assertIn("# procedencia:", escrito)
+            self.assertIn("etiqueta: ETIQUETA", escrito)
+
+    def test_caso_nuevo_sin_git_falla_abierto(self) -> None:
+        """Sin repositorio se dejan los marcadores. Negarse a crear el caso sería confundir dos
+        cosas: el caso registra un hecho, no un commit."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.main, ["proyecto", "init", str(raiz)])
+            rc, _salida = self._callado(cli.main, ["caso", "nuevo", "juego/001-prueba",
+                                                   "--proyecto", str(raiz)])
+            self.assertEqual(rc, 0)
+            escrito = (raiz / "corpus" / "juego" / "001-prueba.caso").read_text(encoding="utf-8")
+            self.assertIn('repo: "REPO"', escrito)
+            self.assertNotIn('"FECHA"', escrito)   # la fecha sí se sabe siempre
+
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)

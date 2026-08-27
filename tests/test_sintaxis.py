@@ -1366,7 +1366,7 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
         """
         from tools.corpus import PLANTILLA
 
-        texto = PLANTILLA.format(cid="999-caso-nuevo")
+        texto = PLANTILLA.format(cid="999-caso-nuevo", fecha="2026-01-01", repo="REPO", commit="COMMIT")
         self.assertIn("ETIQUETA", texto)
         self.assertIn("# procedencia:", texto)
         self.assertNotIn("    procedencia: observada", texto)
@@ -1379,7 +1379,7 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
         from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS
         from tools.corpus import PLANTILLA
 
-        texto = PLANTILLA.format(cid="999-caso-nuevo")
+        texto = PLANTILLA.format(cid="999-caso-nuevo", fecha="2026-01-01", repo="REPO", commit="COMMIT")
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis_caso.leer(texto)
         for valor in ETIQUETAS:
