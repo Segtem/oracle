@@ -102,6 +102,9 @@ class HechosCatalogo(list):
         super().__init__(self.por_relacion["medida"])
 
 
+MARCA_DE_DECLARACION = "RELACIONES_"
+
+
 def relaciones_del_lenguaje_declaradas(raiz: Path | None = None) -> frozenset[str]:
     """Deriva el conjunto de relaciones del lenguaje a partir de lo que los emisores declaran."""
     raiz_proy = Path(__file__).resolve().parents[1] if raiz is None else Path(raiz)
@@ -113,8 +116,16 @@ def relaciones_del_lenguaje_declaradas(raiz: Path | None = None) -> frozenset[st
         for ruta in sorted(directorio.glob("*.py")):
             if ruta.is_symlink() or not ruta.is_file() or ruta.name.startswith("."):
                 continue
+            fuente = ruta.read_text(encoding="utf-8")
+            # Sólo se parsea un archivo que DICE declarar relaciones. Sin este filtro, cualquier
+            # script a medio escribir en `tools/` —que no tiene nada que ver con el lenguaje—
+            # hace fallar la pregunta «¿esta medida es meta?», y el fallo no se ve: quien la hace
+            # la envuelve en un `except` y se queda con un conjunto vacío. Un archivo que SÍ
+            # declara y no parsea sigue siendo un error, que es el fail-closed que corresponde.
+            if MARCA_DE_DECLARACION not in fuente:
+                continue
             try:
-                arbol = ast.parse(ruta.read_text(encoding="utf-8"), filename=str(ruta))
+                arbol = ast.parse(fuente, filename=str(ruta))
             except Exception as e:
                 raise MedidaMalDeclarada(f"no se pudo parsear {ruta.name}: {e}") from e
             relaciones.update(_extraer_relaciones_de_arbol(arbol))

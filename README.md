@@ -89,7 +89,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 6581 líneas de lenguaje y **260 negativas explícitas** (`raise`).
+En este corte hay 6592 líneas de lenguaje y **260 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -122,7 +122,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**6581 líneas de lenguaje** (`nucleo/`, código y macros) y **260 negativas explícitas** (`raise`). Contra las 38 medidas universales escritas en él (236 líneas): **27,9 a 1**. 29 de las 38 pasan por una macro.
+**6592 líneas de lenguaje** (`nucleo/`, código y macros) y **260 negativas explícitas** (`raise`). Contra las 38 medidas universales escritas en él (236 líneas): **27,9 a 1**. 29 de las 38 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -446,7 +446,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-675 tests · 568/568 mutantes de medida · **3006 sitios de mutación de código** (2801 + 205 del motor Python).
+676 tests · 568/568 mutantes de medida · **3007 sitios de mutación de código** (2802 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
