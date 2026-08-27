@@ -12,5 +12,6 @@
   },
   "leccion": "La prohibición no depende del valor concreto del límite: el problema es el operador final de umbral.",
   "fecha": "2026-08-24",
-  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" }
+  "origen": { "repo": "Segtem/oracle", "commit": "sin-commit" },
+  "procedencia": "construida"
 }

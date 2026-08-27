@@ -3,6 +3,7 @@ caso 404-umbral-con-defensa:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Un umbral con defensa no ofende"
     etiqueta: verde_correcto
     sintoma:

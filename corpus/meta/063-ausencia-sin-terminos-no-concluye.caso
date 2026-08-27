@@ -3,6 +3,7 @@ caso 063-ausencia-sin-terminos-no-concluye:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Sin relación `termino`, la regla de ausencia no puede concluir"
     etiqueta: falso_verde
     sintoma:

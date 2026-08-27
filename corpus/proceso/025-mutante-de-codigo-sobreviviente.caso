@@ -3,6 +3,7 @@ caso 025-mutante-de-codigo-sobreviviente:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: observada
     titulo: "Un mutante de código sobrevivió a la suite de tests"
     etiqueta: falso_verde
     sintoma:

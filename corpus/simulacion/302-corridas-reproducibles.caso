@@ -3,6 +3,7 @@ caso 302-corridas-reproducibles:
     origen:
         repo: "Segtem/oracle"
         commit: "ejemplo abstracto"
+    procedencia: construida
     titulo: "El ejemplo de referencia es reproducible con cualquier semilla"
     etiqueta: verde_correcto
     sintoma:

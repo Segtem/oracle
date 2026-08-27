@@ -3,6 +3,7 @@ caso 101-donde-compone-bien:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Donde compone bien"
     etiqueta: verde_correcto
     sintoma:

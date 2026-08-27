@@ -74,6 +74,19 @@ class HechosDeCasosTests(unittest.TestCase):
         self.assertFalse(filas["no_coincide"]["esperado_ok"])
         self.assertTrue(filas["no_coincide"]["dio_ok"])
 
+    def test_procedencia_ausente_se_expone_como_sin_declarar(self) -> None:
+        catalogo = {"dominio.existe": _MedidaFalsa(True)}
+        casos = [
+            {"id": "declarado", "medida": "dominio.existe", "etiqueta": "verde_correcto",
+             "procedencia": "observada", "evidencia": {}},
+            {"id": "ausente", "medida": "dominio.existe", "etiqueta": "verde_correcto",
+             "evidencia": {}},
+        ]
+        filas = {f["id"]: f for f in hechos_de_casos(catalogo, casos)["caso"]}
+
+        self.assertEqual(filas["declarado"]["procedencia"], "observada")
+        self.assertEqual(filas["ausente"]["procedencia"], "sin_declarar")
+
     def test_distingue_sin_medida_id_desconocido_y_estado_del_hueco(self) -> None:
         casos = [
             {"id": "abierto", "medida": None, "etiqueta": "falso_verde",

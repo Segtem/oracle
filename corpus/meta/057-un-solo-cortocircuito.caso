@@ -3,6 +3,7 @@ caso 057-un-solo-cortocircuito:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "Un único `y` cortocircuitado, pegado al umbral"
     etiqueta: falso_verde
     sintoma:

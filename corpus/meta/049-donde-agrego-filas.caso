@@ -3,6 +3,7 @@ caso 049-donde-agrego-filas:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "Un `donde` que devolvió más filas de las que recibió"
     etiqueta: falso_verde
     sintoma:

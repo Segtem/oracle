@@ -3,6 +3,7 @@ caso 103-unir-conmuta-bien:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Unir conmuta bien"
     etiqueta: verde_correcto
     sintoma:

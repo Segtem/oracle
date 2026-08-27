@@ -3,6 +3,7 @@ caso 010-sed-desindenta:
     origen:
         repo: "Brianholl/jam"
         commit: "24d5e07"
+    procedencia: observada
     titulo: "Una edición en masa desindentó código y lo dejó sintácticamente roto"
     etiqueta: falso_verde
     sintoma:

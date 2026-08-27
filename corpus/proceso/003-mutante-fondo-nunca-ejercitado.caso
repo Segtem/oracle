@@ -3,6 +3,7 @@ caso 003-mutante-fondo-nunca-ejercitado:
     origen:
         repo: "Brianholl/jam"
         commit: "535d476"
+    procedencia: observada
     titulo: "La regla que ignora la escenografía de fondo existía sin estar verificada"
     etiqueta: falso_verde
     sintoma:

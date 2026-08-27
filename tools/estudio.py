@@ -119,6 +119,7 @@ def corpus_en_prosa(raiz_corpus: Path) -> str:
     casos = cargar_casos(raiz_corpus)
     et = Counter(c["etiqueta"] for c in casos)
     det = Counter(c["como_se_detecto"] for c in casos)
+    proc = Counter(c.get("procedencia", "sin_declarar") for c in casos)
 
     out = ["# El corpus: los casos donde la medición dijo bien y no estaba bien", "",
            "Son datos, no anécdotas: cada caso trae su evidencia en forma de relaciones, así que se",
@@ -129,6 +130,8 @@ def corpus_en_prosa(raiz_corpus: Path) -> str:
     out += [f"| {k} | {v} |" for k, v in et.most_common()]
     out += ["", "| Cómo se detectó | Cuántos |", "|---|---|"]
     out += [f"| {k} | {v} |" for k, v in det.most_common()]
+    out += ["", "| Procedencia | Cuántos |", "|---|---|"]
+    out += [f"| {k} | {v} |" for k, v in proc.most_common()]
     out += ["",
             "**Cada caso registra cómo se detectó.** Una suite verde y una mutación, una persona o",
             "un accidente son señales distintas; mezclarlas borraría justo la evidencia que el",
@@ -137,6 +140,7 @@ def corpus_en_prosa(raiz_corpus: Path) -> str:
     for c in casos:
         out += [f"## {c['id']}", "", f"**{c['titulo']}**", "",
                 f"- etiqueta: `{c['etiqueta']}` · se detectó por: `{c['como_se_detecto']}`",
+                f"- procedencia: `{c.get('procedencia', 'sin_declarar')}`",
                 f"- medida que lo atrapa: `{c['medida'] or 'ninguna todavía'}`",
                 f"- de dónde salió: {c['origen'].get('repo', '?')} · {c['origen'].get('commit', '?')}",
                 "", f"**Qué pasó.** {c['sintoma']}", "", f"**Qué se aprendió.** {c['leccion']}", ""]

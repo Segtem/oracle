@@ -3,6 +3,7 @@ caso 069-filtro-no-toma-terminos-ajenos:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Una medida sin filtro no se salva por el `donde` de otra"
     etiqueta: falso_verde
     sintoma:

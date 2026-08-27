@@ -3,6 +3,7 @@ caso 061-ausencia-sin-requiere:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Una medida de ausencia usa `unir` y `agrupar` sin precondición"
     etiqueta: falso_verde
     sintoma:

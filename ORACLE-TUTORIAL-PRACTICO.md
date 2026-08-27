@@ -504,6 +504,7 @@ caso 001-verde-acumulativo:
     origen:
         repo: "Brianholl/jam"
         commit: "todos"
+    procedencia: observada
     titulo: "«489 tests OK» reportado cada turno: un número que sube y nunca significa más"
     etiqueta: falso_verde
     sintoma:
@@ -527,6 +528,7 @@ caso 102-verificacion-vigente:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "Después de recorrer el motor, los commits siguientes fueron sólo de documentación"
     etiqueta: verde_correcto
     sintoma:
@@ -579,6 +581,7 @@ caso 004-testigos-duplicados:
     origen:
         repo: "Brianholl/jam"
         commit: "535d476"
+    procedencia: observada
     titulo: "La medición y sus testigos recorrían los datos dos veces, con dos definiciones"
     etiqueta: deuda_de_diseño
     sintoma:
@@ -667,6 +670,7 @@ caso 001-vencida-sin-nadie:
     origen:
         repo: "mi-proyecto"
         commit: "ejemplo"
+    procedencia: construida
     titulo: "Una tarea vencida hace tres días y sin asignar"
     etiqueta: falso_verde
     sintoma:
@@ -686,6 +690,7 @@ caso 002-vencida-con-dueno:
     origen:
         repo: "mi-proyecto"
         commit: "ejemplo"
+    procedencia: construida
     titulo: "Vencida pero con alguien encima — no debe dar rojo"
     etiqueta: verde_correcto
     sintoma:

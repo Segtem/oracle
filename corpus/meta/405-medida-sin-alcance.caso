@@ -3,6 +3,7 @@ caso 405-medida-sin-alcance:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
+    procedencia: construida
     titulo: "Una medida no declara qué NO ve"
     etiqueta: falso_verde
     sintoma:

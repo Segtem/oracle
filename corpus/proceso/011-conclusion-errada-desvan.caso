@@ -3,6 +3,7 @@ caso 011-conclusion-errada-desvan:
     origen:
         repo: "Brianholl/jam"
         commit: "24d5e07"
+    procedencia: observada
     titulo: "Medición correcta, conclusión equivocada: «88% sin usar» era «88% no importable»"
     etiqueta: medida_correcta_conclusion_errada
     sintoma:

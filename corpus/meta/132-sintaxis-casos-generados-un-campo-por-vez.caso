@@ -3,6 +3,7 @@ caso 132-sintaxis-casos-generados-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: generada
     titulo: "Sintaxis de casos generados fija un campo por vez"
     etiqueta: falso_verde
     sintoma:

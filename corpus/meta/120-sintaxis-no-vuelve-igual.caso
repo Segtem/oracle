@@ -3,6 +3,7 @@ caso 120-sintaxis-no-vuelve-igual:
     origen:
         repo: "Segtem/oracle"
         commit: "b250e6c"
+    procedencia: observada
     titulo: "Sintaxis no vuelve igual"
     etiqueta: falso_verde
     sintoma:

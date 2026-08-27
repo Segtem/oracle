@@ -3,6 +3,7 @@ caso 001-verde-acumulativo:
     origen:
         repo: "Brianholl/jam"
         commit: "todos"
+    procedencia: observada
     titulo: "«489 tests OK» reportado cada turno: un número que sube y nunca significa más"
     etiqueta: falso_verde
     sintoma:

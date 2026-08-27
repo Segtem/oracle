@@ -3,6 +3,7 @@ caso 050-donde-filtra-como-debe:
     origen:
         repo: "Segtem/oracle"
         commit: "c81a87c"
+    procedencia: observada
     titulo: "Un `donde` que reduce, y un `de` que puebla"
     etiqueta: verde_correcto
     sintoma:

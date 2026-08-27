@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "oracle-metalenguaje"
-version = "0.1.0"
+dynamic = ["version"]
 description = "Metalenguaje para medir evidencia, alcance y mutación sin acoplarse a un dominio"
 readme = "README.md"
 license = "MIT"
@@ -22,6 +22,9 @@ oracle-estudio = "oracle_metalenguaje.tools.estudio:main"
 oracle-medida = "oracle_metalenguaje.tools.medida:main"
 oracle-mutar = "oracle_metalenguaje.tools.mutar:main"
 oracle-mutar-codigo = "oracle_metalenguaje.tools.mutar_codigo:main"
+
+[tool.setuptools.dynamic]
+version = { attr = "nucleo.version.VERSION_DISTRIBUCION" }
 
 [tool.setuptools]
 include-package-data = true

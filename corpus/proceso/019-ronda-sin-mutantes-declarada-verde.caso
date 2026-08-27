@@ -3,6 +3,7 @@ caso 019-ronda-sin-mutantes-declarada-verde:
     origen:
         repo: "Segtem/oracle"
         commit: "auditoría P0, revisión cruzada del cierre"
+    procedencia: observada
     titulo: "Una ronda sin ningún mutante podía terminar verde"
     etiqueta: falso_verde
     sintoma:

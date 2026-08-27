@@ -3,6 +3,7 @@ caso 116-todo-el-nucleo-es-alcanzable:
     origen:
         repo: "Segtem/oracle"
         commit: "recursión"
+    procedencia: observada
     titulo: "Con las entradas reales declaradas, no hay módulo muerto"
     etiqueta: verde_correcto
     sintoma:

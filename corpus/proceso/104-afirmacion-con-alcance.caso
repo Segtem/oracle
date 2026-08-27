@@ -3,6 +3,7 @@ caso 104-afirmacion-con-alcance:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "La confirmación de Brian se registró con su alcance explícito"
     etiqueta: verde_correcto
     sintoma:

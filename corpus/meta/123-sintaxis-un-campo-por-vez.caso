@@ -3,6 +3,7 @@ caso 123-sintaxis-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "b250e6c"
+    procedencia: construida
     titulo: "Cada campo del contrato de la ida y vuelta falla por separado"
     etiqueta: falso_verde
     sintoma:

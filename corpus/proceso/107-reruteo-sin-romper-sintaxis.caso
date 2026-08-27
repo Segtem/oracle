@@ -3,6 +3,7 @@ caso 107-reruteo-sin-romper-sintaxis:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "El re-ruteo cuidadoso dejó los 34 archivos parseando"
     etiqueta: verde_correcto
     sintoma:

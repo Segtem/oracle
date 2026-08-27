@@ -244,14 +244,17 @@ def listar(proy, argv: list[str] | None = None) -> int:
 
     argv = argv or []
     confiar = confiar_escalares(argv)
-    if proy.es_el_propio_oracle:
-        directorios = catalogos_a_cargar(proy)
-    else:
-        directorios = [proy.catalogos]
+    # El listado carga lo MISMO que se carga al medir. Antes cargaba las raíces completas sólo
+    # cuando Oracle se juzgaba a sí mismo, y a un consumidor le mostraba nada más sus propias
+    # medidas: en un consumidor medido decía «41 medidas» y ni una `meta.*`, mientras al medir se
+    # cargaban tres raíces. No veía las medidas universales que lo estaban juzgando —incluida la que
+    # lo tenía en rojo—. La herramienta de auditoría le ocultaba al auditado quién lo audita.
+    directorios = catalogos_a_cargar(proy)
 
     try:
         with escalares_del_proyecto(proy, confiar=confiar):
             catalogo = cargar_catalogo(directorios, macros=macros_del_proyecto(proy))
+            del_proyecto = cargar_catalogo([proy.catalogos], macros=macros_del_proyecto(proy))
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1
@@ -282,10 +285,15 @@ def listar(proy, argv: list[str] | None = None) -> int:
     # la ejercita sobre el catálogo, no un caso que la nombre— y eso cuenta como ejercicio. Se usa
     # esa, no una copia.
     aparte = _evaluadas_aparte(proy, catalogo)
-    fijadas = [m for m in catalogo.values() if conteo[m.id] > 0 or m.id in aparte]
-    sin_fijar = [m for m in catalogo.values() if conteo[m.id] == 0 and m.id not in aparte]
+    # Un proyecto responde por SUS medidas. Las heredadas —el catálogo base y el del perfil— las
+    # fija Oracle en su propio corpus; marcarlas «sin fijar» acá sería pedirle al consumidor que
+    # escriba casos para medidas que no escribió. Se muestran, porque lo juzgan, pero aparte.
+    ids_heredados = set(catalogo) - set(del_proyecto)
+    propias = {mid: m for mid, m in catalogo.items() if mid in del_proyecto}
+    fijadas = [m for m in propias.values() if conteo[m.id] > 0 or m.id in aparte]
+    sin_fijar = [m for m in propias.values() if conteo[m.id] == 0 and m.id not in aparte]
 
-    n_medidas = len(catalogo)
+    n_medidas = len(propias)
     txt_medidas = "1 medida" if n_medidas == 1 else f"{n_medidas} medidas"
     if not sin_fijar:
         print(f"CATÁLOGO ({txt_medidas} · todas fijadas):\n")
@@ -294,8 +302,8 @@ def listar(proy, argv: list[str] | None = None) -> int:
         txt_sin_fijar = "1 sin fijar" if len(sin_fijar) == 1 else f"{len(sin_fijar)} sin fijar"
         print(f"CATÁLOGO ({txt_medidas} · {txt_fijadas} · {txt_sin_fijar}):\n")
 
-    for mid in sorted(catalogo):
-        m = catalogo[mid]
+    for mid in sorted(propias):
+        m = propias[mid]
         n = conteo[mid]
         if n > 0:
             fijacion = f"{n} caso" if n == 1 else f"{n} casos"
@@ -315,6 +323,14 @@ def listar(proy, argv: list[str] | None = None) -> int:
             print(f"    alcance:  {alcance_lineas[0]}")
             for l in alcance_lineas[1:]:
                 print(f"              {l}")
+        print()
+
+    if ids_heredados:
+        n = len(ids_heredados)
+        txt = "1 medida heredada" if n == 1 else f"{n} medidas heredadas"
+        print(f"{txt.upper()} — no salen de tu catálogo, pero te juzgan:\n")
+        for mid in sorted(ids_heredados):
+            print(f"  {mid}")
         print()
     return 0
 

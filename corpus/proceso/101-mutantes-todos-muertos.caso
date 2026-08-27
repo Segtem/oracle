@@ -3,6 +3,7 @@ caso 101-mutantes-todos-muertos:
     origen:
         repo: "Brianholl/jam"
         commit: "sesión 2026-07-29"
+    procedencia: observada
     titulo: "Los seis mutantes del núcleo murieron: el verde acá es correcto"
     etiqueta: verde_correcto
     sintoma:

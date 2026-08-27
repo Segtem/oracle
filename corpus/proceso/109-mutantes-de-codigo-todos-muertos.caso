@@ -3,6 +3,7 @@ caso 109-mutantes-de-codigo-todos-muertos:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: observada
     titulo: "Todos los mutantes de código murieron bajo la suite"
     etiqueta: verde_correcto
     sintoma:

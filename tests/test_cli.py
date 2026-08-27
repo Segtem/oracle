@@ -152,6 +152,7 @@ class OracleCliTests(unittest.TestCase):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"
@@ -400,6 +401,7 @@ class OracleCliTests(unittest.TestCase):
                 "    origen:\n"
                 "        repo: \"temporal\"\n"
                 "        commit: \"sin-commit\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item malo detectado\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"
@@ -449,6 +451,7 @@ class InitDejaLasGuardasPuestasTests(OracleCliTests):
         "    origen:\n"
         '        repo: "yo/tablero"\n'
         '        commit: "x"\n'
+        "    procedencia: observada\n"
         '    titulo: "Una tarea vencida sin dueño pasó desapercibida"\n'
         "    etiqueta: falso_verde\n"
         "    sintoma:\n"
@@ -542,10 +545,30 @@ class NounVerbCliTests(OracleCliTests):
         self.assertEqual(rc_des, 1)
         self.assertIn("subcomando desconocido: desconocido", salida_des)
 
+    def test_version_dice_las_tres_y_de_donde_sale(self) -> None:
+        """Un binario que no sabe decir qué es se confunde con un CLI roto: pasó, y costó tiempo."""
+        for bandera in ("--version", "-V", "version"):
+            rc, salida = self._callado(cli.main, [bandera])
+            self.assertEqual(rc, 0, bandera)
+            self.assertIn("oracle 0.1.0", salida)
+            self.assertIn("álgebra:", salida)
+            self.assertIn("sintaxis:", salida)
+            self.assertIn("corriendo desde:", salida)
+
+    def test_la_version_del_paquete_es_la_del_nucleo(self) -> None:
+        """`pyproject.toml` la lee de `nucleo/version.py`; si alguien la duplica, esto lo dice."""
+        texto = (RAIZ / "pyproject.toml").read_text(encoding="utf-8")
+        self.assertIn('dynamic = ["version"]', texto)
+        self.assertIn("nucleo.version.VERSION_DISTRIBUCION", texto)
+        self.assertNotIn('\nversion = "', texto)
+
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (37 medidas", salida)
+        self.assertIn("CATÁLOGO (35 medidas", salida)
+        # Las del perfil `python` no viven en `catalogos/`: se heredan, y se ven.
+        self.assertIn("MEDIDAS HEREDADAS", salida)
+        self.assertIn("proceso.modulo_alcanzable", salida)
         self.assertIn("meta.agrupar_no_agranda_la_relacion", salida)
         self.assertIn("umbral:", salida)
         self.assertIn("fijación:", salida)
@@ -610,6 +633,7 @@ class NounVerbCliTests(OracleCliTests):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"
@@ -632,7 +656,7 @@ class NounVerbCliTests(OracleCliTests):
     def test_caso_listar_en_propio_oracle_y_proyecto_vacio(self) -> None:
         rc, salida = self._callado(cli.main, ["caso", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CORPUS (104 casos", salida)
+        self.assertIn("CORPUS (106 casos", salida)
         self.assertIn("huecos declarados", salida)
         self.assertIn("proceso/004-testigos-duplicados", salida)
         self.assertIn("⚠ hueco declarado (resuelto)", salida)
@@ -654,6 +678,7 @@ class NounVerbCliTests(OracleCliTests):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
                 "    sintoma:\n"

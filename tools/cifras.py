@@ -132,6 +132,7 @@ def corpus() -> str:
     """Composición del corpus: lo que cambia cada vez que se captura un caso nuevo."""
     casos = _casos_del_corpus()
     etiquetas = Counter(c.get("etiqueta") for c in casos)
+    procedencias = Counter(c.get("procedencia", "sin_declarar") for c in casos)
     archivados = Counter(
         c.get("estado_sin_medida") for c in casos if c.get("estado_sin_medida"))
 
@@ -149,7 +150,10 @@ def corpus() -> str:
         f"Por etiqueta: {etiquetas['falso_verde']} falsos verdes, "
         f"{etiquetas['falso_rojo']} falsos rojos, "
         f"{etiquetas['medida_correcta_conclusion_errada']} conclusión causal incorrecta pese a una "
-        f"medida correcta y {etiquetas['deuda_de_diseño']} deudas de diseño."
+        f"medida correcta y {etiquetas['deuda_de_diseño']} deudas de diseño. "
+        f"Por procedencia: {procedencias['observada']} observada, "
+        f"{procedencias['construida']} construida, {procedencias['generada']} generada y "
+        f"{procedencias['sin_declarar']} sin declarar."
     )
 
 

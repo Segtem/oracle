@@ -3,6 +3,7 @@ caso 108-donde-compone-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "donde_compone: cada campo del contrato falla por separado"
     etiqueta: falso_verde
     sintoma:

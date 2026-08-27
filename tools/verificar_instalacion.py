@@ -206,6 +206,7 @@ def main() -> int:
             "    origen:\n"
             "        repo: \"temporal\"\n"
             "        commit: \"sin-commit\"\n"
+            "    procedencia: observada\n"
             "    titulo: \"item malo detectado\"\n"
             "    etiqueta: falso_verde\n"
             "    sintoma:\n"

@@ -3,6 +3,7 @@ caso 126-sintaxis-cubre-algebra-un-campo-por-vez:
     origen:
         repo: "Segtem/oracle"
         commit: "local"
+    procedencia: generada
     titulo: "Cada campo del contrato de sintaxis_cubre_algebra falla por separado"
     etiqueta: falso_verde
     sintoma:

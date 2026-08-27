@@ -3,6 +3,7 @@ caso 007-relevo-verde-arbol-sucio:
     origen:
         repo: "Brianholl/jam"
         commit: "19d2593"
+    procedencia: observada
     titulo: "El verificador de relevo daba verde con el código vivo modificado sin commitear"
     etiqueta: falso_verde
     sintoma:

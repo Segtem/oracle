@@ -3,6 +3,7 @@ caso 106-macro-expande-distinto:
     origen:
         repo: "Segtem/oracle"
         commit: "acfca07"
+    procedencia: construida
     titulo: "Macro expande distinto"
     etiqueta: falso_verde
     sintoma:
