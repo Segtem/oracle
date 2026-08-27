@@ -218,16 +218,60 @@ medidas: `meta.toda_medida_esta_ejercitada`, `meta.toda_medida_esta_fijada`,
 `meta.el_caso_se_pone_como_debe`. Antes eso eran `if`s dentro de `tools/` — el veredicto sobre el
 marco en código imperativo, mientras el resto del proyecto exige que los veredictos sean datos.
 
-## Tres niveles, una sola representación
+## Cinco niveles, una sola representación
 
 ```
-L0   evidencia            pieza(id, aabb) · mutante(id, apunta_a, murio) · evento(t, actor, qué)
-L1   medidas              enunciados sobre L0
-L2   medidas sobre medidas enunciados sobre L1
+L2   medidas sobre medidas   enunciados sobre L1                        ✓ se escribe en el lenguaje
+L1   medidas                 enunciados sobre L0                        ✓
+L0   evidencia               pieza(id, aabb) · evento(t, actor, qué)    ✓
+────────────────────────────────────────────────────────────────────────
+L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✗ hoy en Python
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✗ hoy en Python
+────────────────────────────────────────────────────────────────────────
+     el terreno              no es un nivel: no se representa
 ```
 
-Lo que lo vuelve un metalenguaje no es tener L2: es que **L2 no necesita mecanismo propio**. Es L1
-apuntado a L1.
+Cada nivel es una **representación**, nunca una cosa. L0 no es la escena: son filas. Y bajando vale
+igual — L−1 no es el sensor, es lo que el sensor declara de sí mismo; el sensor es a L−1 lo que la
+escena es a L0.
+
+**Hacia arriba la torre se cierra en L2.** No porque falte trabajo: porque colapsa. Con el catálogo
+reificado como una relación más, una medida sobre medidas sobre medidas se escribe idéntica a una
+medida sobre medidas — mismos cinco operadores, misma álgebra. `meta.ninguna_medida_sin_alcance`
+juzga las medidas del catálogo, **ella incluida**, y no hace falta un L3 para eso. Y no hay paradoja:
+no es un predicado de verdad sobre sí misma, es un cómputo finito sobre una bolsa finita de filas.
+
+Eso es lo que lo vuelve un metalenguaje: no tener L2, sino que **L2 no necesita mecanismo propio**.
+Es L1 apuntado a L1.
+
+**Hacia abajo la torre se cierra en L−2**, y ahí el motivo es otro: se acabó lo representable. L−1
+pregunta cómo se hizo el mapa; L−2 pregunta si el territorio mapeado es el territorio del que habla
+el veredicto. Debajo está el terreno, y lo único honesto que se puede hacer con él es declarar qué
+no se miró — que es exactamente el trabajo de `alcance`, el único campo obligatorio del lenguaje.
+
+### Los dos de abajo ya están habitados, a mano
+
+No son terreno virgen: fallan distinto, se arreglan distinto, y el repo ya los contesta caso por
+caso en Python en vez de en el lenguaje.
+
+| | falla así | ya se contesta acá |
+|---|---|---|
+| **L−1** | el sensor emite el AABB en centímetros y la medida lo espera en metros: fiel, y el verde miente | nada sistemático; sólo la prosa del `alcance` de cada medida |
+| **L−2** | el sensor leyó el asset del disco y el juego embarca la variante cocinada: todo cierto sobre otra cosa | `fixture vencido: cambió referencia`, `proceso.verificacion_vigente` |
+
+Y los dos campos que un caso ya declara caen uno en cada nivel:
+
+```
+origen: {repo, commit}   ← L−2:  qué artefacto, en qué versión
+procedencia: observada   ← L−1:  cómo se produjo esta fila
+```
+
+Los dos los tipea una persona y **ninguno se verifica**. El `alcance` de
+`meta.la_medida_no_se_fija_solo_con_evidencia_fabricada` lo dice con todas las letras: *«NO verifica
+que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió
+`observada` haya observado algo»*. Es la misma situación en la que estaba L2 antes de reificar el
+catálogo, y por eso el orden del trabajo es terminar L2 primero: la maquinaria que lo vuelve
+expresable es la que después alcanza a L−1 y L−2.
 
 ## Lo que una medida declara, siempre
 
