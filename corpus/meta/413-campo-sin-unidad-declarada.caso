@@ -1,0 +1,18 @@
+caso 413-campo-sin-unidad-declarada:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "73f4cc0+worktree"
+    procedencia: construida
+    titulo: "Un campo de una relación no declara unidad"
+    etiqueta: falso_verde
+    sintoma:
+        Una relación entrega un campo con `tiene_unidad` en false (sin magnitud ni «sin unidad» explícito). Sin unidad declarada, una medida puede comparar números en unidades incompatibles en silencio.
+    como_se_detecto: mutacion
+    medida: meta.ningun_campo_sin_unidad_declarada
+    evidencia:
+        campo_declarado: relacion, campo, tipo, unidad, tiene_unidad, es_magnitud, es_sin_unidad
+            "sensor_roto", "distancia", "flotante", "", false, false, false
+            "sensor_roto", "id", "texto", "sin_unidad", true, false, true
+    leccion:
+        Un campo sin unidad no puede pasar desapercibido. La evidencia incluye una fila sana para que la medida no pase con un filtro vacío ni confunda ausencia de ofensa con ausencia de datos.
