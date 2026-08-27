@@ -1,0 +1,18 @@
+caso vault-gen-001-ningun-doc-suelto-en-la-raiz:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    titulo: "Evidencia fabricada para discriminar mutaciones en vault.ningun_doc_suelto_en_la_raiz"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en vault.ningun_doc_suelto_en_la_raiz (mutante: aflojar_umbral, agregado:3.1:contar→suma(0), expresion:comparador@2.2.1:==→!=, invertir_comparador, negar_filtro, quitar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: vault.ningun_doc_suelto_en_la_raiz
+    evidencia:
+        documento: carpeta
+            ""
+            "algo"
+    leccion:
+        Caso generado automáticamente para fijar vault.ningun_doc_suelto_en_la_raiz sin depender de evidencia escrita a mano.

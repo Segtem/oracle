@@ -1,0 +1,18 @@
+caso physics-gen-001-apoyado:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    titulo: "Evidencia fabricada para discriminar mutaciones en physics.apoyado"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en physics.apoyado (mutante: aflojar_umbral, agregado:3.1:contar→suma(0), campo:2.3.1.1.1.2:gap→tiene_suelo, expresion:booleano@2.2.1.2, expresion:comparador@2.2.1:==→!=, negar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: physics.apoyado
+    evidencia:
+        asentamiento: tiene_suelo, gap
+            true, 3.0
+            false, 0.0
+    leccion:
+        Caso generado automáticamente para fijar physics.apoyado sin depender de evidencia escrita a mano.

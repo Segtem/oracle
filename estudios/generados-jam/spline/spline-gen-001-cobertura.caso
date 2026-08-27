@@ -1,0 +1,18 @@
+caso spline-gen-001-cobertura:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    titulo: "Evidencia fabricada para discriminar mutaciones en spline.cobertura"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en spline.cobertura (mutante: aflojar_umbral, agregado:3.1:contar→suma(0), expresion:comparador@2.2.1:<→>=, invertir_comparador, negar_filtro, quitar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: spline.cobertura
+    evidencia:
+        spline_modular: cobertura
+            0.8
+            0.9
+    leccion:
+        Caso generado automáticamente para fijar spline.cobertura sin depender de evidencia escrita a mano.

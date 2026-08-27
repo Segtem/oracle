@@ -1,0 +1,18 @@
+caso reemplazo-gen-002-footprint-rama2:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    titulo: "Evidencia fabricada para discriminar rama 2 en reemplazo.footprint"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en reemplazo.footprint (mutante: campo:2.2.1.2.1.1.2:d_footprint_y→d_footprint_x).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: reemplazo.footprint
+    evidencia:
+        reemplazo: d_footprint_x, d_footprint_y
+            0.0, 4.0
+            0.0, 0.0
+    leccion:
+        Caso generado automáticamente para fijar reemplazo.footprint sin depender de evidencia escrita a mano.

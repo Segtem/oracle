@@ -1,0 +1,18 @@
+caso snap-gen-001-grilla:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    titulo: "Evidencia fabricada para discriminar mutaciones en snap.grilla"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en snap.grilla (mutante: quitar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: snap.grilla
+    evidencia:
+        pieza: lx, ly, lz
+            50.0, 0.0, 0.0
+            100.0, 0.0, 0.0
+    leccion:
+        Caso generado automáticamente para fijar snap.grilla sin depender de evidencia escrita a mano.

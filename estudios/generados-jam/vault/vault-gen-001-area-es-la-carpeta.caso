@@ -1,0 +1,18 @@
+caso vault-gen-001-area-es-la-carpeta:
+    fecha: "2026-08-26"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    titulo: "Evidencia fabricada para discriminar mutaciones en vault.area_es_la_carpeta"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en vault.area_es_la_carpeta (mutante: aflojar_umbral, agregado:3.1:contar→suma(0), campo:2.2.1.1.2:area→carpeta, campo:2.2.1.2.2:carpeta→area, expresion:comparador@2.2.1:!=→==, invertir_comparador, negar_filtro, quitar_filtro).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: vault.area_es_la_carpeta
+    evidencia:
+        documento: area, carpeta
+            "valor_a", "valor_b"
+            "mismo_valor", "mismo_valor"
+    leccion:
+        Caso generado automáticamente para fijar vault.area_es_la_carpeta sin depender de evidencia escrita a mano.

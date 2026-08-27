@@ -57,7 +57,7 @@ def ayuda() -> None:
 
 Uso:
   oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, listar, expandir)
-  oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar)
+  oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
   oracle --help                           Muestra esta ayuda
@@ -94,7 +94,8 @@ def ayuda_caso() -> None:
 
 Uso:
   oracle caso nuevo <grupo/id>            Crea un caso de prueba en el corpus con plantilla lista
-  oracle caso listar                      Lista los casos del corpus, su etiqueta y qué medida reclaman""")
+  oracle caso listar                      Lista los casos del corpus, su etiqueta y qué medida reclaman
+  oracle caso generar <dominio.medida>    Fabrica evidencia discriminante para fijar mutaciones""")
 
 
 def ayuda_proyecto() -> None:
@@ -173,6 +174,10 @@ def cmd_caso(proy: Proyecto, ubicacion: str) -> int:
 
 def cmd_caso_listar(proy: Proyecto) -> int:
     return corpus.listar(proy)
+
+
+def cmd_caso_generar(proy: Proyecto, mid: str, argv: list[str]) -> int:
+    return corpus.generar(proy, mid, argv)
 
 
 def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
@@ -518,12 +523,12 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     if subcomando == "caso" and resto and resto[0] not in (
-        "nuevo", "--nuevo", "nueva", "--nueva", "listar", "--listar"
+        "nuevo", "--nuevo", "nueva", "--nueva", "listar", "--listar", "generar", "--generar"
     ):
         # Atajo plano `oracle caso <grupo/id>`
         if "/" not in resto[0] and not ID_CASO_RE.fullmatch(resto[0]):
             print(f"verbo desconocido para «caso»: {resto[0]}")
-            print("Verbos disponibles: nuevo, listar")
+            print("Verbos disponibles: nuevo, listar, generar")
             return 1
 
     if subcomando == "proyecto" and resto and resto[0] not in (
@@ -573,6 +578,11 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_caso(proy, args[0])
         if verbo in ("listar", "--listar"):
             return cmd_caso_listar(proy)
+        if verbo in ("generar", "--generar"):
+            if not args:
+                print("falta la medida: oracle caso generar <dominio.medida>")
+                return 1
+            return cmd_caso_generar(proy, args[0], argv)
         # Atajo directo: oracle caso <grupo/id>
         return cmd_caso(proy, verbo)
 
