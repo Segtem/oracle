@@ -3,6 +3,7 @@ caso colocacion-gen-099-interpenetracion-verde:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada en el borde verde para fijar colocacion.interpenetracion"
     etiqueta: verde_correcto
     sintoma:

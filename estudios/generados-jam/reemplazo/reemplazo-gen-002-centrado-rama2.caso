@@ -3,6 +3,7 @@ caso reemplazo-gen-002-centrado-rama2:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar rama 2 en reemplazo.centrado"
     etiqueta: falso_verde
     sintoma:

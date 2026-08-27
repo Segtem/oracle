@@ -3,6 +3,7 @@ caso scatter-gen-001-cantidad:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en scatter.cantidad"
     etiqueta: falso_verde
     sintoma:

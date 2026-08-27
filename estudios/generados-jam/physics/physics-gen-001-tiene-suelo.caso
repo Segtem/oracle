@@ -3,6 +3,7 @@ caso physics-gen-001-tiene-suelo:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en physics.tiene_suelo"
     etiqueta: falso_verde
     sintoma:

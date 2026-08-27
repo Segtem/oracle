@@ -3,6 +3,7 @@ caso malla-gen-001-solido-hacia-afuera:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en malla.solido_hacia_afuera"
     etiqueta: falso_verde
     sintoma:

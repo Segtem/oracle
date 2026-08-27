@@ -3,6 +3,7 @@ caso espacio-gen-001-ganable:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en espacio.ganable"
     etiqueta: falso_verde
     sintoma:

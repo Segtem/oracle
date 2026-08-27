@@ -3,6 +3,7 @@ caso reemplazo-gen-001-apoyado:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en reemplazo.apoyado"
     etiqueta: falso_verde
     sintoma:

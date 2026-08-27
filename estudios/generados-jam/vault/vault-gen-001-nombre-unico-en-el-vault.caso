@@ -3,6 +3,7 @@ caso vault-gen-001-nombre-unico-en-el-vault:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.nombre_unico_en_el_vault"
     etiqueta: falso_verde
     sintoma:

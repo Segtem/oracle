@@ -3,6 +3,7 @@ caso relevo-gen-001-el-relevo-tiene-dos-puntas:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en relevo.el_relevo_tiene_dos_puntas"
     etiqueta: falso_verde
     sintoma:

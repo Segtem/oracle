@@ -3,6 +3,7 @@ caso vault-gen-001-ningun-doc-suelto-en-la-raiz:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.ningun_doc_suelto_en_la_raiz"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso spline-gen-001-cobertura:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en spline.cobertura"
     etiqueta: falso_verde
     sintoma:

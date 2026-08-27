@@ -3,6 +3,7 @@ caso espacio-gen-001-inicio-unico:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en espacio.inicio_unico"
     etiqueta: falso_verde
     sintoma:

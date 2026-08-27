@@ -3,6 +3,7 @@ caso relevo-gen-001-testigo-tiene-sus-campos:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en relevo.testigo_tiene_sus_campos"
     etiqueta: falso_verde
     sintoma:

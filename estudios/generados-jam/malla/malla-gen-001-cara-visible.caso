@@ -3,6 +3,7 @@ caso malla-gen-001-cara-visible:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en malla.cara_visible"
     etiqueta: falso_verde
     sintoma:

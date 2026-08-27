@@ -3,6 +3,7 @@ caso malla-gen-001-solido-esta-cerrado:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en malla.solido_esta_cerrado"
     etiqueta: falso_verde
     sintoma:

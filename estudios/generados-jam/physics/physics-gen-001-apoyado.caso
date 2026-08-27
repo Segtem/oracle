@@ -3,6 +3,7 @@ caso physics-gen-001-apoyado:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en physics.apoyado"
     etiqueta: falso_verde
     sintoma:

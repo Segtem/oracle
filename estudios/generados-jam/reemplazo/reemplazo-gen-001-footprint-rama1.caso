@@ -3,6 +3,7 @@ caso reemplazo-gen-001-footprint-rama1:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar rama 1 en reemplazo.footprint"
     etiqueta: falso_verde
     sintoma:

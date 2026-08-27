@@ -3,6 +3,7 @@ caso vault-gen-001-carpeta-conocida:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.carpeta_conocida"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso malla-gen-001-superficie-sin-vueltas:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en malla.superficie_sin_vueltas"
     etiqueta: falso_verde
     sintoma:

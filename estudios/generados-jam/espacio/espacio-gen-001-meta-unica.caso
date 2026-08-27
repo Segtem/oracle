@@ -3,6 +3,7 @@ caso espacio-gen-001-meta-unica:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en espacio.meta_unica"
     etiqueta: falso_verde
     sintoma:

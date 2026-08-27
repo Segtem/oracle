@@ -622,6 +622,10 @@ def construir_caso_final(cand: dict[str, Any], muertos_que_mata: set[str]) -> di
             "repo": "oracle",
             "commit": "generado-por-oracle",
         },
+        # El campo no es decorativo: es lo único que separa esta evidencia —que discrimina un
+        # mutante y no dice nada del mundo— de la que se transcribió de algo que pasó. Sin él, un
+        # corpus generado se cuenta igual que uno observado y el verde deja de significar.
+        "procedencia": "generada",
         "titulo": cand.get("titulo") or f"Evidencia generada para fijar {mid}",
         "etiqueta": cand["etiqueta"],
         "sintoma": (

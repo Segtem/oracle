@@ -3,6 +3,7 @@ caso vault-gen-001-enlace-resuelve:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.enlace_resuelve"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso snap-gen-001-grilla:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en snap.grilla"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso vault-gen-001-area-es-la-carpeta:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.area_es_la_carpeta"
     etiqueta: falso_verde
     sintoma:

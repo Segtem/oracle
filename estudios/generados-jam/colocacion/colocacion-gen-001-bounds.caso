@@ -3,6 +3,7 @@ caso colocacion-gen-001-bounds:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en colocacion.bounds"
     etiqueta: falso_verde
     sintoma:

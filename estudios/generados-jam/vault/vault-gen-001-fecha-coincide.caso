@@ -3,6 +3,7 @@ caso vault-gen-001-fecha-coincide:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.fecha_coincide"
     etiqueta: falso_verde
     sintoma:

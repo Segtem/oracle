@@ -3,6 +3,7 @@ caso vault-gen-001-nombre-sigue-la-convencion:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en vault.nombre_sigue_la_convencion"
     etiqueta: falso_verde
     sintoma:

@@ -3,6 +3,7 @@ caso snap-gen-001-yaw:
     origen:
         repo: "oracle"
         commit: "generado-por-oracle"
+    procedencia: generada
     titulo: "Evidencia fabricada para discriminar mutaciones en snap.yaw"
     etiqueta: falso_verde
     sintoma:
