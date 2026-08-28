@@ -26,6 +26,7 @@ class ContratoMedidaTests(unittest.TestCase):
                                     "paso", "nodo", "producto", "equivalencia",
                                     "paso_de_medida", "fuente", "termino", "requiere",
                                     "campo_declarado", "relacion_declarada",
+                                    "referente_declarado", "referente_comparado",
                                     "cantidad_comparada"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 

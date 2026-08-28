@@ -1,0 +1,17 @@
+caso 427-referente-cambio-despues-de-leer:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "El referente cambió después de producir la evidencia"
+    etiqueta: falso_verde
+    sintoma:
+        La evidencia fue producida con una huella anterior y la declaración actual ya tiene otra. Sin comparar ambas, un veredicto sobre datos vencidos parece vigente.
+    como_se_detecto: persona
+    medida: meta.ninguna_evidencia_se_juzga_con_referente_vencido
+    evidencia:
+        referente_comparado: que, huella_leida, huella_actual, cuando_lectura, cuando_actual
+            "referencia", "fd9fca09", "9a79cad1", "al generar", "ahora"
+    leccion:
+        La comparación vive en la medida: dos declaraciones distintas para la misma identidad producen un rojo.

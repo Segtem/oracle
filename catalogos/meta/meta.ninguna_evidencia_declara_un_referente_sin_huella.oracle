@@ -1,0 +1,6 @@
+ninguno-requiere meta.ninguna_evidencia_declara_un_referente_sin_huella:
+    de referente_declarado r
+    donde r.tiene_huella == false
+    umbral <= 0 segun contrato porque "una evidencia sin huella no se puede comparar después contra la declaración actual del referente: el sensor tiene que dejar una identidad comprobable desde el momento de la lectura"
+    requiere referente_declarado
+    alcance "mira si cada declaración de `referente_declarado` trae `tiene_huella` en false. NO verifica que el referente exista, que la huella corresponda a él, que quien la escribió haya leído algo ni si sigue vigente; sólo exige la huella necesaria para una comparación posterior"

@@ -1,8 +1,8 @@
-"""Contrato de procedencia y frescura de los fixtures diferenciales.
+"""Sensor de procedencia para los fixtures diferenciales.
 
 Las huellas no prueban que una referencia sea correcta. Prueban algo más modesto y necesario: que
-el fixture que se está releyendo fue generado con el emisor, la referencia, el catálogo y la
-configuración que dice haber usado.
+el fixture declara con qué emisor, referencia, catálogo y configuración se generó. Este módulo
+calcula esas huellas; `nucleo.fixtures` las reifica y una medida del lenguaje decide la frescura.
 """
 
 from __future__ import annotations
@@ -140,32 +140,6 @@ def ids_de_medidas(datos: dict) -> list[str]:
     if "escenarios" in datos:
         return list(datos.get("medidas", []))
     return list(datos.get("grupos", {}))
-
-
-def revisar_frescura(datos: dict, raiz: Path, catalogo: dict) -> list[str]:
-    """Recalcula cada huella contra el proyecto actual. Un desacuerdo vence el fixture."""
-    frescura = datos["frescura"]
-    raiz_fuentes = Path(raiz) / frescura["raiz_fuentes"]
-    fuentes = frescura["fuentes"]
-    esperadas = frescura["huellas"]
-    medidas = [catalogo[mid] for mid in ids_de_medidas(datos) if mid in catalogo]
-    faltan = [mid for mid in ids_de_medidas(datos) if mid not in catalogo]
-    if faltan:
-        return [f"fixture vencido: faltan medidas actuales para recalcular el catálogo: {faltan}"]
-
-    actuales = {"catalogo": huella_catalogo(medidas),
-                "configuracion": huella_datos(frescura["configuracion"])}
-    problemas = []
-    for clase in ("emisor", "referencia"):
-        try:
-            actuales[clase] = huella_archivos(raiz_fuentes, fuentes[clase])
-        except (OSError, ProcedenciaInvalida) as e:
-            problemas.append(f"fixture vencido: no se pudo comprobar {clase}: {e}")
-    for clase, esperada in esperadas.items():
-        if clase in actuales and actuales[clase] != esperada:
-            problemas.append(
-                f"fixture vencido: cambió {clase} ({esperada[:12]}… → {actuales[clase][:12]}…)")
-    return problemas
 
 
 def comprobar_version_referencia(modulo) -> list[str]:

@@ -1,0 +1,18 @@
+caso 424-referente-sin-huella:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Una evidencia declara un referente sin huella"
+    etiqueta: falso_verde
+    sintoma:
+        La declaración identifica qué se leyó y cuándo, pero deja vacía la huella. Si después no hay una huella para comparar, una evidencia sobre una variante equivocada puede parecer vigente.
+    como_se_detecto: persona
+    medida: meta.ninguna_evidencia_declara_un_referente_sin_huella
+    evidencia:
+        referente_declarado: que, huella, cuando, tiene_huella
+            "Content/Props/silla.uasset", "", "2026-08-27T09:14:00", false
+            "Content/Props/mesa.uasset", "sha256:abc", "2026-08-27T09:14:01", true
+    leccion:
+        La relación conserva la huella vacía como un hecho y la medida la pone en rojo. No hace falta ni corresponde abrir el referente desde Oracle.

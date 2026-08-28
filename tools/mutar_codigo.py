@@ -54,6 +54,7 @@ PRIORIDADES = {
     "nucleo/mutacion.py": ("tests.test_mutacion",),
     "nucleo/proyecto.py": ("tests.test_proyecto", "tests.test_herramientas",
                             "tests.test_perfiles", "tests.test_motor"),
+    "nucleo/referente.py": ("tests.test_referente", "tests.test_medida"),
     "nucleo/relacion.py": ("tests.test_relacion", "tests.test_nucleo"),
     "nucleo/sintaxis.py": ("tests.test_sintaxis", "tests.test_macro", "tests.test_nucleo"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
