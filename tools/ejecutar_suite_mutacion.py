@@ -26,6 +26,20 @@ def _correr_suite(suite) -> unittest.TestResult:
     return unittest.TextTestRunner(verbosity=1, failfast=True).run(suite)
 
 
+def _sin_modulos(suite: unittest.TestSuite, modulos: list[str]) -> unittest.TestSuite:
+    """Quita del descubrimiento lo que ya corrió como prioridad."""
+    prefijos = tuple(f"{modulo}." for modulo in modulos)
+
+    def casos(contenedor):
+        for caso in contenedor:
+            if isinstance(caso, unittest.TestSuite):
+                yield from casos(caso)
+            elif not modulos or not caso.id().startswith(prefijos):
+                yield caso
+
+    return unittest.TestSuite(casos(suite))
+
+
 def main(argv: list[str] | None = None) -> int:
     args = argumentos(argv)
     try:
@@ -33,6 +47,7 @@ def main(argv: list[str] | None = None) -> int:
         if tope not in sys.path:
             sys.path.insert(0, tope)
         cargador = unittest.TestLoader()
+        tests_prioritarios = 0
         for modulo in args.prioridad:
             suite_prioritaria = cargador.loadTestsFromName(modulo)
             if cargador.errors or any(isinstance(caso, unittest.loader._FailedTest)
@@ -42,11 +57,12 @@ def main(argv: list[str] | None = None) -> int:
                     print(cargador.errors[0], file=sys.stderr)
                 return 2
             resultado_prioritario = _correr_suite(suite_prioritaria)
+            tests_prioritarios += resultado_prioritario.testsRun
             if (resultado_prioritario.failures or resultado_prioritario.errors
                     or resultado_prioritario.unexpectedSuccesses):
                 return 1
-        suite = cargador.discover(
-            start_dir=args.inicio, top_level_dir=args.tope)
+        suite = _sin_modulos(cargador.discover(
+            start_dir=args.inicio, top_level_dir=args.tope), args.prioridad)
         if cargador.errors:
             print("error del arnés durante descubrimiento:", file=sys.stderr)
             print(cargador.errors[0], file=sys.stderr)
@@ -62,7 +78,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"error del arnés durante descubrimiento: {type(e).__name__}: {e}", file=sys.stderr)
         return 2
 
-    if resultado.testsRun == 0:
+    if tests_prioritarios + resultado.testsRun == 0:
         print("error del arnés: se descubrieron cero tests", file=sys.stderr)
         return 2
     if any(isinstance(caso, unittest.loader._FailedTest)

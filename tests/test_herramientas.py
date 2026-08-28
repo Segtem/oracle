@@ -752,6 +752,16 @@ class RunnerMutacionTests(unittest.TestCase):
             "--prioridad", "tests.test_ejemplo")
         self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
 
+    def test_una_prioridad_no_se_repite_en_el_descubrimiento(self) -> None:
+        r = self._correr(
+            "import unittest\n"
+            "class T(unittest.TestCase):\n"
+            "    def test_unica(self): print('PRIORIDAD_EJECUTADA')\n",
+            "--prioridad", "tests.test_ejemplo")
+
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertEqual((r.stdout + r.stderr).count("PRIORIDAD_EJECUTADA"), 1)
+
     def test_una_prioridad_inexistente_es_error_del_arnes(self) -> None:
         r = self._correr(
             "import unittest\nclass T(unittest.TestCase):\n    def test_ok(self): pass\n",
