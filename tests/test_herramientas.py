@@ -499,7 +499,7 @@ print('IMPORTS OK')
                 (proyecto / "catalogos").mkdir()
                 (proyecto / "escalares.py").write_text(
                     "from nucleo.algebra import escalar\n"
-                    f"@escalar('{nombre}', 'unidad')\n"
+                    f"@escalar('{nombre}', 'unidad', unidades_argumentos=('cm',))\n"
                     f"def funcion(x={valor}): return x\n",
                     encoding="utf-8")
                 with escalares_del_proyecto(Proyecto(proyecto), confiar=True):
@@ -507,6 +507,7 @@ print('IMPORTS OK')
                     self.assertEqual(fn(), valor)
                     self.assertEqual((fn.aridad_min, fn.aridad_max), (0, 1))
                     self.assertEqual(fn.unidad, "unidad")
+                    self.assertEqual(fn.unidades_argumentos, ("cm",))
                     self.assertEqual(fn.procedencia_escalar, f"proyecto:{proyecto.resolve()}")
                 self.assertNotIn(nombre, algebra.ESCALARES)
 
@@ -1170,7 +1171,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_ALGEBRA, del_nucleo
 
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
-        self.assertEqual(str(del_nucleo()), "0.4")
+        self.assertEqual(str(del_nucleo()), "0.5")
 
     def test_la_superficie_declara_su_propia_version_legible_y_estable(self) -> None:
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
@@ -1236,7 +1237,7 @@ class VersionDelProyecto(unittest.TestCase):
             self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_compatible_carga_sin_queja(self) -> None:
-        for declarada in ("0.2", "0.3", "0.4"):
+        for declarada in ("0.2", "0.3", "0.4", "0.5"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1244,7 +1245,7 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        for declarada in ("0.5", "1.0", "9.9"):
+        for declarada in ("0.6", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1252,7 +1253,7 @@ class VersionDelProyecto(unittest.TestCase):
                 with self.assertRaises(ProyectoInvalido) as ctx:
                     configuracion(Proyecto(raiz))
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.4", str(ctx.exception))
+                self.assertIn("0.5", str(ctx.exception))
 
     def test_una_version_mal_declarada_falla_cerrado(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -1336,7 +1337,7 @@ class VersionDeLaReferencia(unittest.TestCase):
             with self.assertRaises(SystemExit) as ctx:
                 gen.construir(catalogo)
         self.assertIn("0.2", str(ctx.exception))
-        self.assertIn("0.4", str(ctx.exception))
+        self.assertIn("0.5", str(ctx.exception))
 
 
 if __name__ == "__main__":

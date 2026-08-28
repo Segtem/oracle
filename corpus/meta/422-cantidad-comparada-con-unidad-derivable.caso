@@ -1,0 +1,20 @@
+caso 422-cantidad-comparada-con-unidad-derivable:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "l1-derivar"
+    procedencia: construida
+    titulo: "Las medidas comparan cantidades con unidad derivable"
+    etiqueta: verde_correcto
+    sintoma:
+        Las comparaciones usan campos con unidad declarada, escalares con unidad de retorno o agregados adimensionales (`contar`). Todos tienen `es_derivable` en true y la regla debe dar verde.
+    como_se_detecto: observacion
+    medida: meta.toda_cantidad_comparada_tiene_unidad_derivable
+    evidencia:
+        cantidad_comparada: medida, unidad, es_derivable
+            "snap.yaw", "grados", true
+            "colocacion.bounds", "cm3", true
+            "simulacion.corrida_reproducible", "sin_unidad", true
+            "meta.ninguna_medida_sin_alcance", "adimensional", true
+    leccion:
+        Cubre los casos válidos de derivación: campos de relación, escalares de dominio, campos sin unidad y conteos adimensionales.
