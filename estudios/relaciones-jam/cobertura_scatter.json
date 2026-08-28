@@ -1,0 +1,29 @@
+[
+  "relacion",
+  "cobertura_scatter",
+  [
+    "campos",
+    [
+      "campo",
+      "ocupadas",
+      "entero",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "total",
+      "entero",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "fraccion",
+      "flotante",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "lee los centros XY de las instancias, el rectángulo `centro ± semi` y la grilla de `oracle_scatter_facts._cobertura`; publica celdas ocupadas, celdas totales y su fracción. NO lee uniformidad dentro de cada celda, distancias entre vecinos, tamaño u orientación de las mallas, altura Z, superficies irregulares ni calidad visual"
+  ]
+]
