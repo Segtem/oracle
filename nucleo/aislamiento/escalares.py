@@ -69,7 +69,6 @@ class ErrorEscalarAislada(RuntimeError):
 class EscalarDeclarada:
     nombre: str
     unidad: str
-    unidades_argumentos: tuple[str, ...]
     aridad_min: int
     aridad_max: int | None
     procedencia: str
@@ -172,7 +171,6 @@ class TrabajadorEscalares:
             declaradas.append(EscalarDeclarada(
                 nombre=datos["nombre"],
                 unidad=datos["unidad"],
-                unidades_argumentos=tuple(datos["unidades_argumentos"]),
                 aridad_min=datos["aridad_min"],
                 aridad_max=datos["aridad_max"],
                 procedencia=datos["procedencia"],
@@ -263,7 +261,6 @@ def _proxy(trabajador: TrabajadorEscalares, declarada: EscalarDeclarada):
     llamar.__name__ = declarada.nombre
     llamar.nombre_escalar = declarada.nombre
     llamar.unidad = declarada.unidad
-    llamar.unidades_argumentos = declarada.unidades_argumentos
     llamar.aridad_min = declarada.aridad_min
     llamar.aridad_max = declarada.aridad_max
     llamar.procedencia_escalar = declarada.procedencia
@@ -368,7 +365,7 @@ def _instalar_auditoria(raiz: Path) -> None:
 
 
 def _metadata(fn) -> dict[str, Any]:
-    requeridos = ("nombre_escalar", "unidad", "unidades_argumentos", "aridad_min", "aridad_max",
+    requeridos = ("nombre_escalar", "unidad", "aridad_min", "aridad_max",
                   "procedencia_escalar")
     faltantes = [campo for campo in requeridos if not hasattr(fn, campo)]
     if faltantes:
@@ -376,7 +373,6 @@ def _metadata(fn) -> dict[str, Any]:
     return {
         "nombre": fn.nombre_escalar,
         "unidad": fn.unidad,
-        "unidades_argumentos": fn.unidades_argumentos,
         "aridad_min": fn.aridad_min,
         "aridad_max": fn.aridad_max,
         "procedencia": fn.procedencia_escalar,

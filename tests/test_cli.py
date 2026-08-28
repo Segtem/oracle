@@ -132,16 +132,7 @@ class OracleCliTests(unittest.TestCase):
             raiz = Path(td)
             _, _ = self._callado(cli.cmd_init, str(raiz), [])
 
-            # Creamos relación, medida y caso válidos
-            (raiz / "relaciones").mkdir(exist_ok=True)
-            (raiz / "relaciones" / "item.json").write_text(
-                json.dumps([
-                    "relacion", "item",
-                    ["campos", ["campo", "mal", "booleano", "sin_unidad"]],
-                    ["alcance", "sensor de items"]
-                ]),
-                encoding="utf-8",
-            )
+            # Creamos una medida y un caso válidos
             proy = Proyecto(raiz)
             _, _ = self._callado(cli.cmd_nueva, proy, "demo.prueba")
             medida_path = raiz / "catalogos" / "demo" / "demo.prueba.oracle"
@@ -393,18 +384,6 @@ class OracleCliTests(unittest.TestCase):
             self.assertIn("VEREDICTO: VERDE", vacio.stdout)
             self.assertIn("proyecto vacío", vacio.stdout)
 
-            rels = proyecto / "relaciones"
-            rels.mkdir()
-            (rels / "item.json").write_text(
-                json.dumps([
-                    "relacion", "item",
-                    ["campos",
-                     ["campo", "id", "texto", "sin_unidad"],
-                     ["campo", "mal", "booleano", "sin_unidad"]],
-                    ["alcance", "sensor de items"]
-                ]),
-                encoding="utf-8",
-            )
             dominio = proyecto / "catalogos" / "demo"
             dominio.mkdir()
             (dominio / "demo.instalado.oracle").write_text(
@@ -730,7 +709,7 @@ class NounVerbCliTests(OracleCliTests):
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (39 medidas", salida)
+        self.assertIn("CATÁLOGO (38 medidas", salida)
         # Las del perfil `python` no viven en `catalogos/`: se heredan, y se ven.
         self.assertIn("MEDIDAS HEREDADAS", salida)
         self.assertIn("proceso.modulo_alcanzable", salida)

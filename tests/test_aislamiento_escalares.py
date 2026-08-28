@@ -161,7 +161,7 @@ class HelpersTests(AislamientoTestCase):
         self.assertEqual(modulo.TIEMPO_MAXIMO_SEGUNDOS, 10)
 
     def test_01_escalar_declarada_es_inmutable(self) -> None:
-        declarada = modulo.EscalarDeclarada("n", "u", ("cm",), 0, 1, "p")
+        declarada = modulo.EscalarDeclarada("n", "u", 0, 1, "p")
 
         with self.assertRaises(AttributeError):
             declarada.nombre = "otra"
@@ -235,18 +235,13 @@ class HelpersTests(AislamientoTestCase):
 
         registro = algebra.RegistroEscalares()
         with algebra.usar_registro(registro, procedencia="proyecto:/tmp/demo"):
-            @algebra.escalar(
-                "fijada",
-                "unidad",
-                unidades_argumentos=("sin_unidad", "unidad"),
-            )
+            @algebra.escalar("fijada", "unidad")
             def fijada(a, b=1):
                 return a + b
 
         self.assertEqual(modulo._metadata(fijada), {
             "nombre": "fijada",
             "unidad": "unidad",
-            "unidades_argumentos": ("sin_unidad", "unidad"),
             "aridad_min": 1,
             "aridad_max": 2,
             "procedencia": "proyecto:/tmp/demo",
@@ -319,7 +314,7 @@ class TrabajadorObjetoTests(AislamientoTestCase):
         proc = ProcFalso(stdout=stdout)
         selector = SelectorFalso([])
         respuesta = {"ok": True, "escalares": [{
-            "nombre": "demo", "unidad": "u", "unidades_argumentos": ["cm", "cm"], "aridad_min": 1,
+            "nombre": "demo", "unidad": "u", "aridad_min": 1,
             "aridad_max": 2, "procedencia": "proyecto:/tmp/proyecto",
         }]}
 
@@ -344,9 +339,7 @@ class TrabajadorObjetoTests(AislamientoTestCase):
         self.assertEqual(selector.registrados, [(stdout, selectors.EVENT_READ)])
         self.assertEqual(
             declaradas,
-            (modulo.EscalarDeclarada(
-                "demo", "u", ("cm", "cm"), 1, 2, "proyecto:/tmp/proyecto"
-            ),),
+            (modulo.EscalarDeclarada("demo", "u", 1, 2, "proyecto:/tmp/proyecto"),),
         )
 
     def test_21_iniciar_falla_cerrado_si_no_hay_stdout_o_la_carga_responde_error(self) -> None:
@@ -487,9 +480,7 @@ class TrabajadorObjetoTests(AislamientoTestCase):
                 otro._leer()
 
     def test_26_registrar_escalares_instala_proxies_y_rechaza_repetidas(self) -> None:
-        declarada = modulo.EscalarDeclarada(
-            "externa", "u", ("sin_unidad", "cm"), 1, 2, "proyecto:/tmp/p"
-        )
+        declarada = modulo.EscalarDeclarada("externa", "u", 1, 2, "proyecto:/tmp/p")
         trabajador = mock.Mock()
         trabajador.iniciar.return_value = (declarada,)
         registro = algebra.RegistroEscalares()
@@ -503,7 +494,6 @@ class TrabajadorObjetoTests(AislamientoTestCase):
         self.assertEqual(proxy.__name__, "externa")
         self.assertEqual(proxy.nombre_escalar, "externa")
         self.assertEqual(proxy.unidad, "u")
-        self.assertEqual(proxy.unidades_argumentos, ("sin_unidad", "cm"))
         self.assertEqual((proxy.aridad_min, proxy.aridad_max), (1, 2))
         self.assertEqual(proxy.procedencia_escalar, "proyecto:/tmp/p")
         trabajador.llamar.return_value = 9

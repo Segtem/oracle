@@ -57,7 +57,6 @@ PRIORIDADES = {
     "nucleo/relacion.py": ("tests.test_relacion", "tests.test_nucleo"),
     "nucleo/sintaxis.py": ("tests.test_sintaxis", "tests.test_macro", "tests.test_nucleo"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
-    "nucleo/unidad.py": ("tests.test_unidad", "tests.test_nucleo", "tests.test_medida"),
     "nucleo/version.py": ("tests.test_herramientas",),
     "oracle_metalenguaje/_compat.py": ("tests.test_motor",),
     "oracle_metalenguaje/motor.py": ("tests.test_motor",),

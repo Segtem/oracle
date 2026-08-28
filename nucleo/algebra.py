@@ -207,13 +207,7 @@ def _contrato_de_escalar(fn) -> tuple[int, int | None]:
     return minimo, None if variadica else maximo
 
 
-def escalar(
-    nombre: str,
-    unidad: str = "",
-    *,
-    unidades_argumentos: tuple[str, ...] = (),
-    registro: RegistroEscalares | None = None,
-):
+def escalar(nombre: str, unidad: str = "", *, registro: RegistroEscalares | None = None):
     """Registra una función de dominio. Se DECLARA para que aparezca en el inventario: una función
     importada a mano no se puede contar ni discutir, igual que un umbral escondido en una firma."""
     if not isinstance(nombre, str) or NOMBRE_ESCALAR_RE.fullmatch(nombre) is None:
@@ -221,38 +215,14 @@ def escalar(
             "el nombre de una escalar usa minúsculas ASCII, dígitos y `_`, sin puntos")
     if not isinstance(unidad, str) or "\n" in unidad or "\r" in unidad:
         raise ErrorDeAlgebra("la unidad de una escalar debe ser texto de una línea")
-    if not isinstance(unidades_argumentos, tuple):
-        raise ErrorDeAlgebra("las unidades de los argumentos deben ser una tupla")
-    if any(
-        not isinstance(unidad_argumento, str)
-        or not unidad_argumento.strip()
-        or "\n" in unidad_argumento
-        or "\r" in unidad_argumento
-        for unidad_argumento in unidades_argumentos
-    ):
-        raise ErrorDeAlgebra(
-            "cada unidad de argumento debe ser texto no vacío de una línea; "
-            "usá `sin_unidad` cuando corresponda"
-        )
-    unidades_normalizadas = tuple(u.strip() for u in unidades_argumentos)
 
     def envolver(fn):
         destino = _registro(registro)
         if nombre in destino:
             raise ErrorDeAlgebra(f"la escalar «{nombre}» ya está registrada")
         aridad_min, aridad_max = _contrato_de_escalar(fn)
-        if unidades_normalizadas and aridad_max is None:
-            raise ErrorDeAlgebra(
-                "una escalar variádica no puede declarar unidades posicionales"
-            )
-        if unidades_normalizadas and len(unidades_normalizadas) != aridad_max:
-            raise ErrorDeAlgebra(
-                f"la escalar declara {len(unidades_normalizadas)} unidad(es) para "
-                f"{aridad_max} argumento(s) posicionales"
-            )
         fn.nombre_escalar = nombre
         fn.unidad = unidad
-        fn.unidades_argumentos = unidades_normalizadas
         fn.aridad_min = aridad_min
         fn.aridad_max = aridad_max
         fn.procedencia_escalar = _PROCEDENCIA_ACTIVA.get() or _PROCEDENCIA_ESCALAR

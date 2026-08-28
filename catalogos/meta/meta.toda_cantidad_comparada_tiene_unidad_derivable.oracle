@@ -1,7 +1,0 @@
-ninguno-requiere meta.toda_cantidad_comparada_tiene_unidad_derivable:
-    relacion cantidad_comparada
-    alias c
-    predicado c.es_derivable == false
-    porque "una medida que compara cantidades cuya unidad no se puede derivar —porque una relación no declaró el campo o una escalar no declaró su unidad de retorno— no puede garantizar que las magnitudes comparadas sean compatibles"
-    segun contrato
-    alcance "cree lo que la declaración dice y NO verifica que el sensor emita en esa unidad"

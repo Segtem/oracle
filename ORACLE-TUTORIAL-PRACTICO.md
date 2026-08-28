@@ -451,16 +451,16 @@ el inventario y se puedan discutir igual que un umbral.
 ```python
 from oracle_metalenguaje import escalar
 
-@escalar("volumen", "cm3", unidades_argumentos=("sin_unidad",))
+@escalar("volumen", "cm3")
 def volumen(p: dict) -> float:
     return p["ex"] * p["ey"] * p["ez"]
 
-@escalar("desvio_de_grilla", "cm", unidades_argumentos=("sin_unidad", "cm"))
+@escalar("desvio_de_grilla", "cm")
 def desvio_de_grilla(p: dict, grilla: float) -> float:
     """El peor desvío del PIVOTE respecto de la grilla, sobre los tres ejes."""
     return max(abs(v - round(v / grilla) * grilla) for v in (p["lx"], p["ly"], p["lz"]))
 
-@escalar("penetracion", "cm", unidades_argumentos=("sin_unidad", "sin_unidad", "cm"))
+@escalar("penetracion", "cm")
 def penetracion(a: dict, b: dict, tol: float = 1.0) -> float:
     """Profundidad efectiva en cm después de descontar la tolerancia de contacto."""
     solapes = []
@@ -644,7 +644,7 @@ sólo tu catálogo. Las activás si además vas a medir TU PROCESO de construcci
 # escalares.py
 from oracle_metalenguaje import escalar
 
-@escalar("dias_de_atraso", "dias", unidades_argumentos=("sin_unidad",))
+@escalar("dias_de_atraso", "dias")
 def dias_de_atraso(tarea: dict) -> int:
     return max(0, tarea["dias_vencida"])
 ```
