@@ -63,6 +63,9 @@ PRIORIDADES = {
     "perfiles/python/marco.py": ("tests.test_perfiles",),
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
     "tools/cifras.py": ("tests.test_herramientas",),
+    "tools/cli.py": ("tests.test_cli", "tests.test_herramientas"),
+    "tools/corpus.py": ("tests.test_herramientas", "tests.test_cli"),
+    "tools/medida.py": ("tests.test_herramientas", "tests.test_cli"),
 }
 
 
@@ -74,7 +77,7 @@ PRIORIDADES = {
 # `cifras.py` es el primero. Desde que genera los bloques del README es lo único que impide que una
 # cifra publicada vuelva a derivar en silencio, y esa deriva ya ocurrió: el proyecto publicó «trece a
 # uno» durante todo un corte mientras el valor real era 16,2.
-HERRAMIENTAS_CUSTODIAS = ("cifras.py",)
+HERRAMIENTAS_CUSTODIAS = ("cifras.py", "cli.py", "corpus.py", "medida.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:
