@@ -3,6 +3,9 @@
 > Actualización: el corte operativo quedó superado y `tools/cli.py` ya tuvo dos corridas completas
 > con manifiesto. La evidencia y los 64 sobrevivientes restantes están en
 > `estudios/2026-08-28-cli-tanda-1.md`.
+>
+> Cierre posterior: los 64 fueron tratados y la ronda final dio 308/308, sin vivos ni inconclusos.
+> Ver `estudios/2026-08-28-cli-cerrada.md`.
 
 ## 1. Desacople: Corte de corrida vs. Sobrevivientes observados
 

@@ -379,35 +379,37 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     print()
 
     # 2. Sintaxis
-    if len(catalogo) == 0 and len(casos_archivos) == 0:
+    if not any((catalogo, casos_archivos)):
         print("SINTAXIS: salteado (sin medidas ni casos todavía)")
     else:
         informe_sintaxis = sintaxis.verificar_catalogo(proy.raiz)
-        sintaxis_ok = (informe_sintaxis["json_igual"] and informe_sintaxis["texto_igual"])
+        sintaxis_ok = all((informe_sintaxis["json_igual"], informe_sintaxis["texto_igual"]))
         if not sintaxis_ok:
             print("SINTAXIS ✗ — la conversión de ida y vuelta falló")
             fallas_suite.append("sintaxis")
-        else:
-            docs_ok = True
-            if proy.es_el_propio_oracle:
-                docs = sintaxis.verificar_documentos(proy.raiz)
-                if docs["fallas"]:
-                    docs_ok = False
-                    print(f"SINTAXIS ✗ — {len(docs['fallas'])} falla(s) en documentación")
-                    for f in docs["fallas"]:
-                        print("  ·", f)
-                    fallas_suite.append("sintaxis (documentos)")
-            if docs_ok:
+        elif proy.es_el_propio_oracle:
+            docs = sintaxis.verificar_documentos(proy.raiz)
+            if docs["fallas"]:
+                print(f"SINTAXIS ✗ — {len(docs['fallas'])} falla(s) en documentación")
+                for f in docs["fallas"]:
+                    print("  ·", f)
+                fallas_suite.append("sintaxis (documentos)")
+            else:
                 print(f"SINTAXIS OK · {informe_sintaxis['medidas']} medidas · "
                       f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos")
+        else:
+            print(f"SINTAXIS OK · {informe_sintaxis['medidas']} medidas · "
+                  f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos")
     print()
 
     # 3. Aceptación
-    if len(catalogo) > 0 and len(casos_archivos) == 0:
-        print("ACEPTACIÓN ✗ — sin casos en el corpus: un catálogo con medidas no puede verificarse sin casos")
-        fallas_suite.append("aceptación")
-    elif len(catalogo) == 0 and len(casos_archivos) == 0:
-        print("ACEPTACIÓN: salteado (sin medidas ni casos todavía)")
+    if not casos_archivos:
+        if catalogo:
+            print("ACEPTACIÓN ✗ — sin casos en el corpus: un catálogo con medidas no puede "
+                  "verificarse sin casos")
+            fallas_suite.append("aceptación")
+        else:
+            print("ACEPTACIÓN: salteado (sin medidas ni casos todavía)")
     else:
         try:
             with escalares_del_proyecto(proy, confiar=confiar):
