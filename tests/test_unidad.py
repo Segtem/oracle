@@ -51,9 +51,31 @@ class UnidadTests(unittest.TestCase):
         }
         self.registro = RegistroEscalares()
 
-        @escalar("desvio", "cm", registro=self.registro)
+        @escalar(
+            "desvio",
+            "cm",
+            unidades_argumentos=("sin_unidad", "cm"),
+            registro=self.registro,
+        )
         def desvio(p, g):
             return 0.0
+
+        @escalar("desvio_sin_unidades_de_argumentos", "cm", registro=self.registro)
+        def desvio_sin_unidades_de_argumentos(p, g):
+            return 0.0
+
+        @escalar(
+            "opcional_con_unidad",
+            "cm",
+            unidades_argumentos=("cm",),
+            registro=self.registro,
+        )
+        def opcional_con_unidad(grilla=10.0):
+            return grilla
+
+        @escalar("opcional_sin_unidad", "cm", registro=self.registro)
+        def opcional_sin_unidad(grilla=10.0):
+            return grilla
 
         @escalar("sin_unidad_fn", "", registro=self.registro)
         def sin_unidad_fn(p):
@@ -208,6 +230,62 @@ class UnidadTests(unittest.TestCase):
         self.assertEqual(
             derivar_unidad_nodo(["desvio", ["hecho", "a"], 10], alias_map, self.relaciones, self.registro, self.rel_lenguaje),
             "cm",
+        )
+        self.assertEqual(
+            derivar_unidad_nodo(
+                ["desvio", ["hecho", "a"], ["campo", "a", "ox"]],
+                alias_map,
+                self.relaciones,
+                self.registro,
+                self.rel_lenguaje,
+            ),
+            "cm",
+        )
+        self.assertIsNone(
+            derivar_unidad_nodo(
+                ["desvio", ["hecho", "a"], ["campo", "a", "yaw"]],
+                alias_map,
+                self.relaciones,
+                self.registro,
+                self.rel_lenguaje,
+            )
+        )
+        self.assertIsNone(
+            derivar_unidad_nodo(
+                ["desvio", ["campo", "a", "ox"], 10],
+                alias_map,
+                self.relaciones,
+                self.registro,
+                self.rel_lenguaje,
+            )
+        )
+        self.assertIsNone(
+            derivar_unidad_nodo(
+                ["desvio_sin_unidades_de_argumentos", ["hecho", "a"], 10],
+                alias_map,
+                self.relaciones,
+                self.registro,
+                self.rel_lenguaje,
+            )
+        )
+        self.assertEqual(
+            derivar_unidad_nodo(
+                ["opcional_con_unidad"],
+                alias_map,
+                self.relaciones,
+                self.registro,
+                self.rel_lenguaje,
+            ),
+            "cm",
+        )
+        self.assertIsNone(
+            derivar_unidad_nodo(
+                ["opcional_sin_unidad"],
+                alias_map,
+                self.relaciones,
+                self.registro,
+                self.rel_lenguaje,
+            )
         )
         # Escalar sin unidad explícita pero con propagación aritmética
         # 1. arg1 con unidad, arg2 literal

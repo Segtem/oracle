@@ -89,7 +89,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 7694 líneas de lenguaje y **299 negativas explícitas** (`raise`).
+En este corte hay 7754 líneas de lenguaje y **303 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -122,7 +122,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**7694 líneas de lenguaje** (`nucleo/`, código y macros) y **299 negativas explícitas** (`raise`). Contra las 42 medidas universales escritas en él (261 líneas): **29,5 a 1**. 36 de las 42 pasan por una macro.
+**7754 líneas de lenguaje** (`nucleo/`, código y macros) y **303 negativas explícitas** (`raise`). Contra las 42 medidas universales escritas en él (261 líneas): **29,7 a 1**. 36 de las 42 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -225,7 +225,7 @@ L2   medidas sobre medidas   enunciados sobre L1                        ✓ se e
 L1   medidas                 enunciados sobre L0                        ✓
 L0   evidencia               pieza(id, aabb) · evento(t, actor, qué)    ✓
 ────────────────────────────────────────────────────────────────────────
-L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✗ hoy en Python
+L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✓ se escribe en el lenguaje
 L−2  qué leyó, y en qué      identidad y frescura del referente         ✗ hoy en Python
 ────────────────────────────────────────────────────────────────────────
      el terreno              no es un nivel: no se representa
@@ -446,7 +446,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-715 tests · 613/613 mutantes de medida · **4266 sitios de mutación de código** (4061 + 205 del motor Python).
+715 tests · 613/613 mutantes de medida · **4287 sitios de mutación de código** (4082 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

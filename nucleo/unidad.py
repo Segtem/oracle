@@ -95,6 +95,32 @@ def derivar_unidad_nodo(
         fn = registro[cabeza]
         u = getattr(fn, "unidad", "")
         if isinstance(u, str) and u.strip():
+            unidades_argumentos = getattr(fn, "unidades_argumentos", ())
+            argumentos = nodo[1:]
+            if not isinstance(unidades_argumentos, tuple):
+                return None
+            if len(unidades_argumentos) != getattr(fn, "aridad_max", None):
+                return None
+            for esperado, argumento in zip(unidades_argumentos, argumentos):
+                if not isinstance(argumento, list):
+                    continue
+                if (
+                    len(argumento) == 2
+                    and argumento[0] == "hecho"
+                    and isinstance(argumento[1], str)
+                ):
+                    observado = UNIDAD_SIN_UNIDAD
+                else:
+                    observado = derivar_unidad_nodo(
+                        argumento,
+                        alias_relaciones,
+                        relaciones,
+                        registro,
+                        relaciones_lenguaje,
+                        cols,
+                    )
+                if observado != esperado:
+                    return None
             return u.strip()
         if len(nodo) >= 3:
             u1 = derivar_unidad_nodo(nodo[1], alias_relaciones, relaciones, registro, relaciones_lenguaje, cols)

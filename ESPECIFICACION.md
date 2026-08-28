@@ -1,6 +1,6 @@
 # Especificación del álgebra
 
-Versión `0.4`, declarada de forma **legible por máquina** en `nucleo/version.py`
+Versión `0.5`, declarada de forma **legible por máquina** en `nucleo/version.py`
 (`VERSION_ALGEBRA`). Esta prosa la cita, no la define: la define el dato, y la regla de qué cambio
 sube qué parte del número está en §0. **Escrita para ser rota**: el criterio de si sirve está al
 final, y es comprobable.
@@ -17,6 +17,8 @@ final, y es comprobable.
 > [`DECISION-001-RELACIONES-COMO-BOLSAS.md`](DECISION-001-RELACIONES-COMO-BOLSAS.md).
 > **(d)** La 0.4 hace explícito de dónde sale cada umbral con el campo `segun`: medición,
 > contrato, convención o tanteo.
+> **(e)** La 0.5 permite que una escalar declare la unidad de cada argumento; una declaración vieja
+> sigue cargando, pero su unidad no se considera derivable hasta completar ese dato.
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
@@ -35,6 +37,7 @@ escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo que
 quien *implementa el álgebra completo* —una referencia independiente— quedó incompleto y tiene que
 volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`);
 de `0.3` a `0.4` volvió a subir porque el umbral ganó `segun`.
+De `0.4` a `0.5` subió porque `@escalar` ganó `unidades_argumentos`.
 
 **`MAYOR` sube** cuando cambia el **significado o el contrato** de algo que ya existía: la semántica
 de un operador (qué hace `min`/`max` con booleanos), la forma canónica de una medida, una validación
@@ -42,7 +45,7 @@ que hacía cargar lo que ahora se rechaza, o quitar/renombrar un operador. Eso r
 consumidor, use o no la parte cambiada. De `0.3` a `1.0`, y la menor vuelve a `0`.
 
 **Cómo se comprueba.** El núcleo publica lo que implementa. Un proyecto puede declarar en
-`oracle.json` la versión que necesita (`"algebra": "0.4"`); si no es compatible, la carga falla
+`oracle.json` la versión que necesita (`"algebra": "0.5"`); si no es compatible, la carga falla
 cerrado con un mensaje que dice cuál hay y cuál se pidió, y quien no la declara sigue funcionando.
 La compatibilidad es la del párrafo anterior: misma `MAYOR` y `MENOR` al menos tan nueva como la
 pedida. Una implementación de referencia, en cambio, declara contra qué versión se escribió y el
@@ -258,14 +261,17 @@ siempre un nombre mal escrito, y un `False` silencioso lo convertiría en un ver
 ### Funciones escalares
 
 Los predicados de dominio (`penetracion`, `distancia`, `desvio_de_grilla`) entran como **funciones
-escalares declaradas**, con nombre, aridad y unidad. Es el mecanismo de UDF de SQL, y es el escape
+escalares declaradas**, con nombre, aridad, unidad de retorno y unidad de cada argumento. Es el
+mecanismo de UDF de SQL, y es el escape
 hatch honesto: evita inventar un lenguaje que sepa geometría.
 
 Se **declaran**, no se importan sueltas: así aparecen en el inventario y se pueden contar y discutir
 igual que los umbrales.
 
 El contrato declarativo incluye un nombre con gramática cerrada, aridad mínima y máxima (o
-variádica), unidad y procedencia. Una UDF externa sigue siendo **código Python con los mismos permisos
+variádica), unidad de retorno, `unidades_argumentos` y procedencia. `sin_unidad` se escribe de forma
+explícita para un hecho entero o un texto; omitir la tupla conserva compatibilidad de carga pero deja
+la cantidad como `sin_declarar` en L−1. Una UDF externa sigue siendo **código Python con los mismos permisos
 que Oracle**: sólo se activa con `--confiar-escalares`, durante una operación, y el registro anterior
 se restaura al terminar o fallar. `--help`, `--relaciones`, `--nueva` y `--escalares` sin esa bandera
 son modos de inspección: pueden mostrar archivos o el inventario base, pero no importan código del
