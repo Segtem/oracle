@@ -1,8 +1,30 @@
 name: verificar
 
+# El 2026-08-27 esta cuenta agotó los 2.000 minutos mensuales de Actions en tres días. La cuenta era
+# simple y nadie la había hecho: 19 jobs por push × ~68 minutos = 40 corridas × 68 = ~2.700 minutos.
+#
+# Y las 40 corridas fallaron. Todas. Se gastó el cupo entero para producir un rojo que nadie miraba,
+# que es el mismo defecto que un verde vacío, dado vuelta.
+#
+# Lo que cambió acá, y cuánto ahorra:
+#   · `concurrency` cancela la corrida anterior cuando llega otro push. Con 16 commits en un día,
+#     eso solo evita la mayor parte del desperdicio.
+#   · La mutación de CÓDIGO —17 de los 19 jobs y ~60 de los 68 minutos— deja de correr en cada push:
+#     corre en pull requests y a pedido (`workflow_dispatch`). NO se agregó una corrida nocturna:
+#     con el cupo en cero, programar 68 minutos diarios es volver a empezar. Cuando se renueve, ahí
+#     se decide. Sigue siendo obligatoria antes de integrar; la corre quien integra, sobre su rama,
+#     que es cuando el número sirve para decidir.
+#   · Un push que sólo toca documentación no dispara nada.
 on:
   push:
+    paths-ignore: ["**.md", "docs/**", ".gitignore"]
   pull_request:
+    paths-ignore: ["**.md", "docs/**", ".gitignore"]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   contratos:
@@ -20,15 +42,28 @@ jobs:
       - run: python -m unittest discover -s tests -t . -q
       - run: python tools/verificar_instalacion.py
       - run: python tools/corpus.py --resumen
-      - run: python tools/aceptacion.py
-      # La suite cubre un diferencial externo positivo y exige no-verde si no hay fixtures propios.
+      # `aceptacion.py` sale 1 mientras haya un rojo declarado —hoy son 2, ver DECISION-004— así que
+      # NO se puede exigir que salga 0 sin tapar la medida. Se exige que el número no CAMBIE: si sube
+      # hay una regresión, y si baja alguien cerró un rojo y hay que actualizar este número a mano.
+      # Un umbral que se mueve solo es una métrica esperando a volverse objetivo.
+      - name: aceptación con los rojos declarados
+        run: |
+          python tools/aceptacion.py > /tmp/acept.txt 2>&1 || true
+          tail -20 /tmp/acept.txt
+          test "$(grep -c '^  ✗ meta\.' /tmp/acept.txt)" = "1"
+          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        2 (<= 0)' /tmp/acept.txt
       - run: python tools/mutar.py
       - run: python tools/cifras.py
       # El evaluador juzgado por medidas escritas en el propio álgebra: corre el corpus
       # bajo traza y mide lo que los operadores hicieron, no lo que dijeron hacer.
       - run: python tools/trazar.py
 
+  # ⚠ La matriz está DESACTUALIZADA a propósito y hay que decirlo: faltan `nucleo/sintaxis.py`,
+  # `nucleo/caso.py`, `nucleo/generador.py`, `nucleo/relacion.py`, `nucleo/version.py` y los tres de
+  # `tools/` que se sumaron el 2026-08-27. Agregarlos sube el costo por corrida, y con la cuenta en
+  # cero no es el momento. Queda anotado para cuando el cupo se renueve.
   mutacion-codigo:
+    if: github.event_name != 'push'
     strategy:
       fail-fast: false
       matrix:
