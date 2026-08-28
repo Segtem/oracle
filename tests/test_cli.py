@@ -12,7 +12,7 @@ import tempfile
 import unittest
 import venv
 import zipfile
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 from unittest import mock
 
@@ -109,6 +109,117 @@ class OracleCliTests(CliTestCase):
             self.assertEqual(rc_test, 0)
             self.assertIn("VEREDICTO: VERDE", salida_test.getvalue())
             self.assertIn("proyecto vacío", salida_test.getvalue())
+
+    def test_init_acepta_proyecto_es_idempotente_y_escribe_json_legible(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            destino = Path(td) / "por-bandera"
+
+            rc_primero, _ = self._callado(
+                cli.main, ["init", "--proyecto", str(destino)])
+            rc_segundo, _ = self._callado(
+                cli.main, ["init", "--proyecto", str(destino)])
+
+            self.assertEqual(rc_primero, 0)
+            self.assertEqual(rc_segundo, 0)
+            esperado = json.dumps({
+                "esquema": cli.ESQUEMA_PROYECTO,
+                "catalogo_base": True,
+                "perfiles": [],
+            }, indent=2) + "\n"
+            self.assertEqual((destino / "oracle.json").read_text(encoding="utf-8"), esperado)
+
+    def test_init_falla_cerrado_si_proyecto_no_tiene_ruta(self) -> None:
+        stderr = io.StringIO()
+        with redirect_stderr(stderr):
+            rc, _ = self._callado(cli.main, ["init", "--proyecto"])
+
+        self.assertEqual(rc, 1)
+        self.assertIn("--proyecto necesita una ruta", stderr.getvalue())
+
+    def test_init_propaga_error_de_escritura_como_uno(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            stderr = io.StringIO()
+            with (mock.patch.object(Path, "mkdir", side_effect=PermissionError("solo lectura")),
+                  redirect_stderr(stderr)):
+                rc = cli.cmd_init(str(Path(td) / "sin-permiso"), [])
+
+        self.assertEqual(rc, 1)
+        self.assertIn("No se pudo inicializar", stderr.getvalue())
+
+    def test_wrappers_de_archivo_resuelven_relativos_y_propagan_resultado(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.cmd_init, str(raiz), [])
+            proy = Proyecto(raiz)
+            relativa = Path("catalogos/demo/demo.prueba.oracle")
+            archivo = raiz / relativa
+            archivo.parent.mkdir(parents=True)
+            archivo.write_text("contenido observado", encoding="utf-8")
+
+            with mock.patch.object(cli.medida, "revisar", return_value=1) as revisar:
+                self.assertEqual(cli.cmd_revisar(proy, str(relativa), []), 1)
+                revisar.assert_called_once_with(proy, archivo)
+            with mock.patch.object(cli.medida, "probar", return_value=1) as probar:
+                self.assertEqual(cli.cmd_probar(proy, str(relativa), "item: id"), 1)
+                probar.assert_called_once_with(proy, archivo, "item: id")
+            with mock.patch.object(cli.medida, "expandir_archivo", return_value=1) as expandir:
+                self.assertEqual(cli.cmd_expandir(proy, str(relativa)), 1)
+                self.assertEqual(expandir.call_args.args[0], archivo)
+
+    def test_wrappers_de_archivo_ausente_devuelven_uno(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy = Proyecto(Path(td))
+            for comando, args in (
+                (cli.cmd_revisar, (proy, "ausente.oracle", [])),
+                (cli.cmd_probar, (proy, "ausente.oracle", "item: id")),
+                (cli.cmd_expandir, (proy, "ausente.oracle")),
+            ):
+                rc, salida = self._callado(comando, *args)
+                self.assertEqual(rc, 1)
+                self.assertIn("no existe", salida)
+
+    def test_caso_generar_propaga_el_resultado(self) -> None:
+        proy = Proyecto(RAIZ)
+        with mock.patch.object(cli.corpus, "generar", return_value=1) as generar:
+            rc = cli.cmd_caso_generar(proy, "demo.medida", ["--una-bandera"])
+
+        self.assertEqual(rc, 1)
+        generar.assert_called_once_with(proy, "demo.medida", ["--una-bandera"])
+
+    def test_escalares_externas_se_omiten_sin_confianza_y_propagan_resultado(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.cmd_init, str(raiz), [])
+            (raiz / "escalares.py").write_text("raise RuntimeError('no ejecutar')\n",
+                                                encoding="utf-8")
+            proy = Proyecto(raiz)
+            with mock.patch.object(cli.medida, "escalares", return_value=1) as escalares:
+                rc = cli.cmd_escalares(proy, [])
+
+        self.assertEqual(rc, 1)
+        escalares.assert_called_once_with(proy, externas_omitidas=True)
+
+    def test_escalares_sin_archivo_entran_al_contexto_y_propagan_resultado(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.cmd_init, str(raiz), [])
+            proy = Proyecto(raiz)
+            with mock.patch.object(cli.medida, "escalares", return_value=1) as escalares:
+                rc = cli.cmd_escalares(proy, [])
+
+        self.assertEqual(rc, 1)
+        escalares.assert_called_once_with(proy)
+
+    def test_escalares_invalidas_con_confianza_devuelven_uno(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._callado(cli.cmd_init, str(raiz), [])
+            (raiz / "escalares.py").write_text("esto no es python\n", encoding="utf-8")
+            rc, salida = self._callado(
+                cli.cmd_escalares, Proyecto(raiz), ["--confiar-escalares"])
+
+        self.assertEqual(rc, 1)
+        self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", salida)
 
     def test_test_distingue_no_aplica_de_falla(self) -> None:
         with tempfile.TemporaryDirectory() as td:

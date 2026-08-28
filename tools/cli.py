@@ -27,7 +27,7 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
+sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
 from nucleo.caso import rutas_de_corpus  # noqa: E402
@@ -130,8 +130,8 @@ def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
 
     try:
         catalogos_dir.mkdir(parents=True, exist_ok=True)
-        corpus_dir.mkdir(parents=True, exist_ok=True)
-        diferencial_dir.mkdir(parents=True, exist_ok=True)
+        corpus_dir.mkdir(exist_ok=True)
+        diferencial_dir.mkdir(exist_ok=True)
         if not oracle_json.exists():
             # `catalogo_base` NO es opcional en un proyecto nuevo, y es lo más importante que
             # escribe `init`. Sin él, el proyecto carga SÓLO sus propias medidas y se queda sin las
@@ -692,5 +692,6 @@ def main(argv: list[str] | None = None) -> int:
     return 1
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    sys.exit(_entrada_directa())

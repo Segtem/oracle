@@ -1,5 +1,9 @@
 # Diagnóstico del corte en las corridas de mutación de la CLI (2026-08-28)
 
+> Actualización: el corte operativo quedó superado y `tools/cli.py` ya tuvo dos corridas completas
+> con manifiesto. La evidencia y los 64 sobrevivientes restantes están en
+> `estudios/2026-08-28-cli-tanda-1.md`.
+
 ## 1. Desacople: Corte de corrida vs. Sobrevivientes observados
 
 El problema observado en `estudios/2026-08-28-la-cli-sin-vigilar.md` mezcla dos fenómenos independientes que deben separarse formalmente:
