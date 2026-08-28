@@ -25,7 +25,8 @@ class ContratoMedidaTests(unittest.TestCase):
                          frozenset({"ancestro", "medida", "caso", "medida_en_uso",
                                     "paso", "nodo", "producto", "equivalencia",
                                     "paso_de_medida", "fuente", "termino", "requiere",
-                                    "campo_declarado", "relacion_declarada"}))
+                                    "campo_declarado", "relacion_declarada",
+                                    "referente_declarado"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (

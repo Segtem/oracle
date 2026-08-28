@@ -1,0 +1,17 @@
+caso 426-referente-sin-evidencia-no-concluye:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Sin declaraciones de referente la medida no concluye"
+    etiqueta: falso_verde
+    sintoma:
+        El sensor no entregó la relación que la medida necesita. Si la medida agrega sobre esa ausencia, el cero puede parecer prueba de que ninguna evidencia quedó sin huella.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_evidencia_declara_un_referente_sin_huella
+    evidencia:
+        otra_evidencia: nombre
+            "sensor sin referente"
+    leccion:
+        El nodo `requiere referente_declarado` hace que la ausencia sea un no-veredicto. Este borde mata la mutación que lo quita y evita confundir cero filas con ningún referente sin huella.
