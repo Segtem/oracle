@@ -16,8 +16,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
-from nucleo.diferencial import revisar_frescura  # noqa: E402
-from nucleo.fixtures import cargar_fixtures, validar_fixture  # noqa: F401,E402
+from nucleo.fixtures import (cargar_fixtures, revisar_frescura,
+                             validar_fixture)  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,

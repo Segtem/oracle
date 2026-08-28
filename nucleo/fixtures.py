@@ -3,6 +3,8 @@
 Los consumidores no deben conocer la forma física del fixture. Este módulo valida las dos formas
 de ``oracle.diferencial/v1`` y las proyecta como evidencias o casos asociados a una medida. Así
 ``medida --relaciones``, la revisión, el diferencial y la mutación leen exactamente el mismo dato.
+La frescura usa el mismo camino: reifica las huellas leída y actual como `referente_comparado` y
+delega el veredicto a una medida `.oracle`; no conserva un comparador propio.
 """
 
 from __future__ import annotations
@@ -14,11 +16,14 @@ from typing import Any, Iterable, Iterator
 
 from nucleo.algebra import ErrorDeAlgebra, separar_clave, validar_unicidad
 from nucleo.diferencial import (ALGORITMO_HUELLA, ESQUEMA_DIFERENCIAL, HUELLA_RE,
-                                revisar_frescura)
+                                ProcedenciaInvalida, huella_archivos, huella_catalogo,
+                                huella_datos, ids_de_medidas)
 from nucleo.proyecto import ID_MEDIDA_RE
+from nucleo.referente import Referente, hechos_de_frescura
 
 
 ESCALARES_L0 = (str, int, float, bool, type(None))
+ID_MEDIDA_FRESCURA = "meta.ninguna_evidencia_se_juzga_con_referente_vencido"
 
 
 @dataclass(frozen=True)
@@ -226,6 +231,57 @@ def validar_fixture(datos: Any, nombre: str = "fixture") -> list[str]:
     else:
         fallas.append(f"{nombre}: formato desconocido; falta `escenarios` o `grupos`")
     return fallas
+
+
+def _medida_frescura():
+    """Carga la política escrita en el lenguaje; no reimplementa su comparación en Python."""
+    from nucleo.macro import macros_base
+    from nucleo.medida import cargar
+
+    ruta = (Path(__file__).resolve().parents[1] / "catalogos" / "meta"
+            / f"{ID_MEDIDA_FRESCURA}.oracle")
+    return cargar(ruta, macros=macros_base())
+
+
+def revisar_frescura(datos: dict, raiz: Path, catalogo: dict) -> list[str]:
+    """Recalcula huellas y entrega las dos declaraciones a la medida de L−2."""
+    frescura = datos["frescura"]
+    raiz_fuentes = Path(raiz) / frescura["raiz_fuentes"]
+    fuentes = frescura["fuentes"]
+    esperadas = frescura["huellas"]
+    medidas = [catalogo[mid] for mid in ids_de_medidas(datos) if mid in catalogo]
+    faltan = [mid for mid in ids_de_medidas(datos) if mid not in catalogo]
+    if faltan:
+        return [f"fixture vencido: faltan medidas actuales para recalcular el catálogo: {faltan}"]
+
+    actuales = {
+        "catalogo": huella_catalogo(medidas),
+        "configuracion": huella_datos(frescura["configuracion"]),
+    }
+    problemas = []
+    for clase in ("emisor", "referencia"):
+        try:
+            actuales[clase] = huella_archivos(raiz_fuentes, fuentes[clase])
+        except (OSError, ProcedenciaInvalida) as e:
+            problemas.append(f"fixture vencido: no se pudo comprobar {clase}: {e}")
+    if problemas:
+        return problemas
+
+    evidencia = hechos_de_frescura(
+        [Referente(clase, huella, "al generar")
+         for clase, huella in esperadas.items()],
+        [Referente(clase, huella, "ahora")
+         for clase, huella in actuales.items()],
+    )
+
+    veredicto = _medida_frescura().evaluar(evidencia)
+    for testigo in veredicto.testigos:
+        referente = testigo["r"]
+        problemas.append(
+            f"fixture vencido: cambió {referente['que']} "
+            f"({referente['huella_leida'][:12]}… → {referente['huella_actual'][:12]}…)"
+        )
+    return problemas
 
 
 def cargar_fixtures(rutas: Iterable[Path], *, raiz: Path | None = None,

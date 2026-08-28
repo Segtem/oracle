@@ -5,11 +5,17 @@ from __future__ import annotations
 import unittest
 from dataclasses import FrozenInstanceError
 
-from nucleo.referente import (Referente, ReferenteMalDeclarado, como_hechos,
-                              hechos_de_referentes)
+from nucleo.referente import (RELACIONES_DE_REFERENTE, Referente, ReferenteMalDeclarado,
+                              como_hechos, hechos_de_frescura, hechos_de_referentes)
 
 
 class ReferenteTests(unittest.TestCase):
+    def test_relaciones_publicadas(self) -> None:
+        self.assertEqual(
+            RELACIONES_DE_REFERENTE,
+            frozenset({"referente_declarado", "referente_comparado"}),
+        )
+
     def _datos(self):
         return ["referente", "Content/Props/silla.uasset", "sha256:abc", "2026-08-27T09:14:00"]
 
@@ -55,6 +61,42 @@ class ReferenteTests(unittest.TestCase):
         for invalido in (None, ["no es Referente"]):
             with self.subTest(invalido=invalido), self.assertRaises(ReferenteMalDeclarado):
                 hechos_de_referentes(invalido)
+
+    def test_la_frescura_publica_ambas_huellas_sin_compararlas(self) -> None:
+        leidos = [
+            Referente("emisor", "vieja-a", "al generar"),
+            Referente("referencia", "misma-b", "al generar"),
+        ]
+        actuales = [
+            Referente("emisor", "nueva-a", "ahora"),
+            Referente("referencia", "misma-b", "ahora"),
+        ]
+
+        self.assertEqual(hechos_de_frescura(leidos, actuales), {
+            "referente_comparado": [{
+                "que": "emisor",
+                "huella_leida": "vieja-a",
+                "huella_actual": "nueva-a",
+                "cuando_lectura": "al generar",
+                "cuando_actual": "ahora",
+            }, {
+                "que": "referencia",
+                "huella_leida": "misma-b",
+                "huella_actual": "misma-b",
+                "cuando_lectura": "al generar",
+                "cuando_actual": "ahora",
+            }],
+        })
+
+    def test_la_frescura_exige_identidad_univoca_y_los_mismos_referentes(self) -> None:
+        a = Referente("emisor", "a", "antes")
+        b = Referente("referencia", "b", "ahora")
+        with self.assertRaisesRegex(ReferenteMalDeclarado, "repetido.*al leer"):
+            hechos_de_frescura([a, a], [a])
+        with self.assertRaisesRegex(ReferenteMalDeclarado, "repetido.*actual"):
+            hechos_de_frescura([a], [a, a])
+        with self.assertRaisesRegex(ReferenteMalDeclarado, "faltan.*emisor.*sobran.*referencia"):
+            hechos_de_frescura([a], [b])
 
 
 if __name__ == "__main__":

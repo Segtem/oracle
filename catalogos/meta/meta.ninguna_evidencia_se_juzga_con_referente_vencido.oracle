@@ -1,0 +1,6 @@
+ninguno-requiere meta.ninguna_evidencia_se_juzga_con_referente_vencido:
+    de referente_comparado r
+    donde r.huella_leida != r.huella_actual
+    umbral <= 0 segun contrato porque "un veredicto sólo habla del referente leído mientras la declaración actual conserve la misma huella; si cambió, la evidencia anterior ya no alcanza para juzgarlo"
+    requiere referente_comparado
+    alcance "compara las dos huellas declaradas para cada identidad en `referente_comparado`. NO verifica que el referente exista, que una huella corresponda a su contenido ni que quien la declaró haya leído algo"

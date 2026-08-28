@@ -89,7 +89,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 7460 líneas de lenguaje y **304 negativas explícitas** (`raise`).
+En este corte hay 7532 líneas de lenguaje y **306 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -113,7 +113,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 79 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 56 la mutación, 15 una persona, 4 la casualidad, 4 una herramienta ajena.
+Los 81 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 57 la mutación, 16 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -122,7 +122,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**7460 líneas de lenguaje** (`nucleo/`, código y macros) y **304 negativas explícitas** (`raise`). Contra las 42 medidas universales escritas en él (260 líneas): **28,7 a 1**. 36 de las 42 pasan por una macro.
+**7532 líneas de lenguaje** (`nucleo/`, código y macros) y **306 negativas explícitas** (`raise`). Contra las 43 medidas universales escritas en él (266 líneas): **28,3 a 1**. 37 de las 43 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -225,8 +225,8 @@ L2   medidas sobre medidas   enunciados sobre L1                        ✓ se e
 L1   medidas                 enunciados sobre L0                        ✓
 L0   evidencia               pieza(id, aabb) · evento(t, actor, qué)    ✓
 ────────────────────────────────────────────────────────────────────────
-L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✗ hoy en Python
-L−2  qué leyó, y en qué      identidad y frescura del referente         ✗ hoy en Python
+L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✓ en l1-derivar, sin integrar
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ en esta rama
 ────────────────────────────────────────────────────────────────────────
      el terreno              no es un nivel: no se representa
 ```
@@ -249,15 +249,15 @@ pregunta cómo se hizo el mapa; L−2 pregunta si el territorio mapeado es el te
 el veredicto. Debajo está el terreno, y lo único honesto que se puede hacer con él es declarar qué
 no se miró — que es exactamente el trabajo de `alcance`, el único campo obligatorio del lenguaje.
 
-### Los dos de abajo ya están habitados, a mano
+### Los dos de abajo ya están habitados
 
-No son terreno virgen: fallan distinto, se arreglan distinto, y el repo ya los contesta caso por
-caso en Python en vez de en el lenguaje.
+No son terreno virgen: fallan distinto y se arreglan distinto. Las ramas de cierre sacan al
+lenguaje las respuestas que antes estaban caso por caso en Python.
 
 | | falla así | ya se contesta acá |
 |---|---|---|
-| **L−1** | el sensor emite el AABB en centímetros y la medida lo espera en metros: fiel, y el verde miente | nada sistemático; sólo la prosa del `alcance` de cada medida |
-| **L−2** | el sensor leyó el asset del disco y el juego embarca la variante cocinada: todo cierto sobre otra cosa | `fixture vencido: cambió referencia`, `proceso.verificacion_vigente` |
+| **L−1** | el sensor emite el AABB en centímetros y la medida lo espera en metros: fiel, y el verde miente | declaraciones y derivación en `l1-derivar` |
+| **L−2** | el sensor leyó el asset del disco y el juego embarca la variante cocinada: todo cierto sobre otra cosa | `referente_declarado`, `referente_comparado` y la medida de frescura |
 
 Y los dos campos que un caso ya declara caen uno en cada nivel:
 
@@ -442,11 +442,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**125 casos**: 80 defectos y 45 verdes correctos. De los defectos, 77 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 75 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 78 observada, 41 construida, 6 generada y 0 sin declarar.
+**128 casos**: 82 defectos y 46 verdes correctos. De los defectos, 79 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 77 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 79 observada, 43 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-707 tests · 613/613 mutantes de medida · **4093 sitios de mutación de código** (3888 + 205 del motor Python).
+710 tests · 622/622 mutantes de medida · **4097 sitios de mutación de código** (3892 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

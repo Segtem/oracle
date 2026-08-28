@@ -1,0 +1,17 @@
+caso 428-referente-sigue-vigente:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: observada
+    titulo: "El referente conserva la huella leída"
+    etiqueta: verde_correcto
+    sintoma:
+        La huella declarada al producir la evidencia coincide con la actual. La medida debe dejar pasar esa comparación.
+    como_se_detecto: observacion
+    medida: meta.ninguna_evidencia_se_juzga_con_referente_vencido
+    evidencia:
+        referente_comparado: que, huella_leida, huella_actual, cuando_lectura, cuando_actual
+            "referencia", "9a79cad1", "9a79cad1", "al generar", "ahora"
+    leccion:
+        La fila es la salida observada de `hechos_de_frescura` para las dos declaraciones de arriba. Cambiar el operador o contar también las huellas iguales rompe esta polaridad verde.

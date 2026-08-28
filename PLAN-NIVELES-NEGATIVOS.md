@@ -1,6 +1,6 @@
 # Plan — L−1 y L−2, los dos niveles que miran hacia el mundo
 
-**Estado:** L−1 en construcción (2026-08-27) · L−2 definido, sin empezar.
+**Estado:** L−1 cerrado en `l1-derivar` (sin integrar) · L−2 cerrado en esta rama (2026-08-28).
 La numeración y por qué la torre se cierra en L−2 están en
 [`DECISION-005`](DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md).
 
@@ -9,8 +9,8 @@ L2   medidas sobre medidas   enunciados sobre L1                        ✓
 L1   medidas                 enunciados sobre L0                        ✓
 L0   evidencia               filas                                      ✓
 ────────────────────────────────────────────────────────────────────────
-L−1  qué lee el sensor       su alcance y las unidades de cada campo    ← en construcción
-L−2  qué leyó, y en qué      identidad y frescura del referente         ← definido acá
+L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✓ en l1-derivar
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ en esta rama
 ────────────────────────────────────────────────────────────────────────
      el terreno              no es un nivel: no se representa
 ```
@@ -121,6 +121,23 @@ Poder escribir, en el lenguaje y sin tocar Python:
 Y que **`nucleo/fixtures.py` deje de tener su propio mecanismo de frescura** y use éste. Mientras el
 fixture diferencial siga comparando huellas por su cuenta, L−2 está a medias: sería una capa nueva
 al lado de la vieja en vez de la vieja expresada en el lenguaje.
+
+### Resultado medido el 2026-08-28
+
+`referente_declarado` hace observable la identidad, huella y momento de lectura;
+`referente_comparado` empareja por identidad las declaraciones de lectura y actualidad, sin decidir
+si coinciden. La decisión está escrita en
+`meta.ninguna_evidencia_se_juzga_con_referente_vencido` como
+`r.huella_leida != r.huella_actual`. La misma relación alcanza para el commit de una verificación:
+el sensor de proceso tiene que presentarlo como otra identidad, no hace falta otro campo ni otro
+comparador Python.
+
+`nucleo.diferencial.py` quedó como sensor que calcula huellas. `nucleo/fixtures.py` las presenta a
+la medida y usa sus testigos para el diagnóstico `fixture vencido: cambió …`; ya no compara huellas
+por su cuenta. La prueba diferencial conservó sus 4 acuerdos globales y 12 veredictos individuales.
+
+La pregunta de si L−2 colapsaba dentro de L−1 queda respondida por la implementación: las
+declaraciones de unidad y de referente se producen y se miden por separado. Son dos niveles.
 
 ### La pregunta abierta, que se resuelve construyendo
 

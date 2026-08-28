@@ -709,7 +709,7 @@ class NounVerbCliTests(OracleCliTests):
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (39 medidas", salida)
+        self.assertIn("CATÁLOGO (40 medidas", salida)
         # Las del perfil `python` no viven en `catalogos/`: se heredan, y se ven.
         self.assertIn("MEDIDAS HEREDADAS", salida)
         self.assertIn("proceso.modulo_alcanzable", salida)
