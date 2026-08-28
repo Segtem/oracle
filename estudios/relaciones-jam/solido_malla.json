@@ -1,0 +1,29 @@
+[
+  "relacion",
+  "solido_malla",
+  [
+    "campos",
+    [
+      "campo",
+      "triangulos",
+      "entero",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "volumen_orientado",
+      "flotante",
+      "cm3"
+    ],
+    [
+      "campo",
+      "aristas_sueltas",
+      "entero",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "lee los vértices y el índice de triángulos que recibe `oracle_malla_facts.hechos_solido` y calcula volumen orientado y pares de aristas. NO lee normales de sombreado, UV, materiales, colisión, autointersecciones, caras duplicadas ni intención geométrica del autor"
+  ]
+]
