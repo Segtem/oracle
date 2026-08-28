@@ -3,7 +3,7 @@ caso 422-cantidad-comparada-con-unidad-derivable:
     origen:
         repo: "Segtem/oracle"
         commit: "l1-derivar"
-    procedencia: observada
+    procedencia: construida
     titulo: "Las medidas comparan cantidades con unidad derivable"
     etiqueta: verde_correcto
     sintoma:
