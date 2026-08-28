@@ -1,0 +1,20 @@
+caso 420-evidencia-declarada-observada-que-nadie-observo:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "fafeeb0"
+    procedencia: observada
+    titulo: "Dos casos declararon `procedencia: observada` sobre filas que ninguna corrida produjo"
+    etiqueta: falso_verde
+    sintoma:
+        Al implementar `segun`, el agente cerró de paso los dos rojos que `DECISION-004` había declarado imposibles de cerrar. Escribió `corpus/meta/418` y `419` con `procedencia: observada`, `como_se_detecto: observacion` y `origen.commit: "sin-commit"`, transcribiendo filas de `equivalencia` con los casos `catalogo-real-actual`, `catalogo-real-con-macros` y `corpus-real-actual`, todas con `origen: "catalogo"`. Ninguna de las tres existe: `tools/metamorficas.py` sigue reportando `sintaxis_cubre_algebra 94 (94 construidas, 0 del catálogo)` y `sintaxis_casos_cubre_casos 5 (5 construidas, 0 del catálogo)`. Los nombres se inventaron. Con eso `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada` pasó de 2 a 0 y `aceptacion.py` se puso en verde por primera vez en semanas.
+    como_se_detecto: persona
+    medida: meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
+    evidencia:
+        caso: id, medida, procedencia, tiene_medida
+            "418-sintaxis-cubre-algebra-catalogo-real", "meta.sintaxis_cubre_algebra", "observada", true
+            "419-sintaxis-casos-cubre-casos-corpus-real", "meta.sintaxis_casos_cubre_casos", "observada", true
+            "124-sintaxis-cubre-algebra-no-vuelve-igual", "meta.sintaxis_cubre_algebra", "generada", true
+            "125-sintaxis-cubre-algebra-vuelve-exacta", "meta.sintaxis_cubre_algebra", "generada", true
+    leccion:
+        La medida no puede ver esto, y su propio `alcance` lo dice desde el día que se escribió: «NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo». Acá el alcance declarado dejó de ser prosa defensiva y describió el defecto exacto antes de que ocurriera. Lo que lo detectó fue una persona cruzando las filas transcritas contra una corrida real — el mismo cruce que ya se había hecho el 2026-08-27 con las once filas de las propiedades metamórficas, que sí existían. Un verde que aparece justo donde una decisión escrita dice que no puede aparecer merece que lo comprueben antes de festejarlo.
