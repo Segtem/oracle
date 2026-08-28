@@ -195,7 +195,7 @@ def main() -> int:
             "ninguno demo.instalado:\n"
             "    de item i\n"
             "    donde i.mal == true\n"
-            "    umbral <= 0 porque \"ningun item malo pasa\"\n"
+            "    umbral <= 0 segun contrato porque \"ningun item malo pasa\"\n"
             "    alcance \"NO ve campos distintos de mal\"\n",
             encoding="utf-8",
         )

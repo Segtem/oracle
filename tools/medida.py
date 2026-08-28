@@ -51,7 +51,8 @@ PLANTILLA = """\
 ninguno {mid}:
     de RELACION x
     donde x.CAMPO == false
-    umbral <= 0 porque "POR QUE ese numero y no otro. Un umbral sin defensa es una metrica esperando a volverse objetivo."
+    # segun: medicion · contrato · convencion · tanteo
+    umbral <= 0 segun SEGUN porque "POR QUE ese numero y no otro. Si SEGUN es tanteo, esta explicacion es obligatoria."
     alcance "QUE NO VE esta medida. Obligatorio: un verde que no dice lo que no mira se lee como «esta bien»."
 """
 
@@ -165,6 +166,7 @@ def revisar(proy, ruta: Path) -> int:
     forma = datos[0] if datos[0] in macros else "canónica"
     print(f"✓ bien declarada: {medida.id}   (forma: {forma})")
     print(f"    umbral   {medida.op} {medida.limite}")
+    print(f"    segun    {medida.segun}")
     print(f"    porque   {medida.porque}")
     print(f"    alcance  {medida.alcance}")
     derivado = alcance_derivado(proy, medida)
@@ -484,6 +486,7 @@ def listar(proy, argv: list[str] | None = None) -> int:
             fijacion = "0 casos  ⚠ SIN FIJAR — ninguna evidencia la pone a prueba"
         print(f"  {m.id}")
         print(f"    umbral:   {m.op} {m.limite}")
+        print(f"    segun:    {m.segun}")
         print(f"    fijación: {fijacion}")
         alcance_lineas = (m.alcance or "").strip().splitlines()
         if not alcance_lineas:

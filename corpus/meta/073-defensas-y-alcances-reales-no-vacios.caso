@@ -4,16 +4,16 @@ caso 073-defensas-y-alcances-reales-no-vacios:
         repo: "Brianholl/jam"
         commit: "535d518"
     procedencia: observada
-    titulo: "Tres defensas escritas por una persona, ninguna vacía"
+    titulo: "Tres umbrales reales declaran de dónde sale el número"
     etiqueta: verde_correcto
     sintoma:
-        El `porque` de tres medidas reales, transcrito entero y sin recortar: dos de `Brianholl/jam` en `535d518` y una de `Brianholl/LyraGASP` en `4a1ccb3`. Se buscó el contraejemplo en la historia completa de los tres repos —también en las formas de macro como `ninguno`, donde la defensa es el sexto elemento— y no aparece: ninguna medida commiteada tuvo jamás la defensa vacía.
+        Tres medidas reales del catálogo migrado declaran `segun` con etiquetas del conjunto cerrado. La prosa puede discutirse, pero el origen del número ya no queda implícito.
     como_se_detecto: observacion
-    medida: meta.ningun_umbral_sin_defensa
+    medida: meta.todo_umbral_declara_de_donde_sale
     evidencia:
-        medida: id, porque
-            "snap.al_ras", "hasta 1 cm se considera contacto: evita rechazar ruido de bounds sin aceptar una junta visible"
-            "scatter.cobertura", "cero celdas por debajo del 60%: el contrato operativo considera amontonado un reparto que ocupa menos del 60% de una grilla 3×3, y una sola celda así ya describe un amontonamiento. El umbral es 0 y no un margen porque el número del dominio —el 0,6— ya está en el filtro; ponerlo también acá lo escribiría dos veces y nada mantendría las dos copias iguales (caso `012` del corpus)"
-            "ml_deformer.malla_objetivo_fragmentada", "El umbral es cero cascaras extra porque no hay una cantidad tolerable: con la primera separacion ya hay una junta que ningun metodo de autoria puede cruzar"
+        medida: id, segun, porque
+            "meta.el_nivel_no_se_confunde_con_el_dominio", "convencion", "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca"
+            "proceso.verificacion_vigente", "contrato", "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"
+            "simulacion.corrida_reproducible", "contrato", "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota"
     leccion:
-        Las tres defensas discuten un número concreto y dicen por qué ése y no otro. Que la regla nunca se haya violado en tres repos no la vuelve inútil: la vuelve barata, que es distinto — y este caso es lo único que impide que se afloje sin que nadie lo note.
+        La migración manual no puede terminar con `sin_declarar` escondido en el catálogo real. Este caso fija un verde observado para que la regla no dependa sólo de ejemplos construidos.

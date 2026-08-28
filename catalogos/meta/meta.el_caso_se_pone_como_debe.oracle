@@ -1,5 +1,5 @@
 ninguno meta.el_caso_se_pone_como_debe:
     de caso c
     donde c.esperado_ok != c.dio_ok
-    umbral <= 0 porque "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador"
+    umbral <= 0 segun contrato porque "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador"
     alcance "compara el veredicto contra la polaridad declarada del caso. NO ve si el caso está bien etiquetado, ni si la evidencia que trae es la del defecto que dice traer. Si caso viene vacía no hay desacuerdos de polaridad y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar el nivel meta"

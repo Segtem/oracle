@@ -119,7 +119,7 @@ medida proceso.test_con_mutante_que_lo_mata:
     de mutante m
     donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
     resumen contar(1)
-    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto"
+    umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto"
     alcance "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutadores que nadie escribió"
 ```
 
@@ -380,7 +380,7 @@ medida colocacion.interpenetracion:
     unir vecina b
     donde no es_fondo(hecho(b)) y penetracion(hecho(a), hecho(b)) > 0
     resumen max(penetracion(hecho(a), hecho(b)))
-    umbral <= 0 porque "`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da >0"
+    umbral <= 0 segun contrato porque "`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da >0"
     alcance "solape de AABB entre piezas de escala comparable. NO ve la malla real, oclusión visual, ni si la pieza quedó flotando"
 ```
 
@@ -398,7 +398,7 @@ medida snap.comparte_cara:
     de pieza a
     unir objetivo b
     resumen min(solape_lateral_minimo(hecho(a), hecho(b)))
-    umbral > 1.0 porque "el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta"
+    umbral > 1.0 segun convencion porque "el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta"
     alcance "solape de AABB en los dos ejes laterales. NO ve cuánto de la cara real de la malla coincide"
 ```
 
@@ -416,7 +416,7 @@ medida simulacion.la_traza_no_tiene_huecos:
         agregado ultimo = max(e.t)
     donde registrados != mas(ultimo, 1)
     resumen contar(1)
-    umbral <= 0 porque "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
+    umbral <= 0 segun convencion porque "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
     requiere evento
     alcance "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."
 ```

@@ -1,0 +1,18 @@
+caso 416-umbral-con-segun:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un umbral con origen declarado no ofende"
+    etiqueta: verde_correcto
+    sintoma:
+        Las medidas declaran `segun` con etiquetas del conjunto cerrado. La regla debe dejarlas pasar aunque alguna no tenga prosa: la ausencia que mira es `sin_declarar`.
+    como_se_detecto: observacion
+    medida: meta.todo_umbral_declara_de_donde_sale
+    evidencia:
+        medida: id, segun, porque
+            "dominio.contrato_sin_prosa", "contrato", ""
+            "dominio.convencion_con_prosa", "convencion", "la costumbre del dominio tolera ese margen"
+    leccion:
+        La regla no exige defensa escrita ni juzga la calidad de la etiqueta: sólo falla cuando el origen del número quedó sin declarar.

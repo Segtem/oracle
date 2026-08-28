@@ -1,5 +1,5 @@
 ninguno meta.ningun_campo_sin_unidad_declarada:
     de campo_declarado c
     donde c.tiene_unidad == false
-    umbral <= 0 porque "un campo cuya unidad no se declaró —ni una magnitud física ni un «sin unidad» explícito— permite que una medida compare magnitudes incompatibles en silencio"
+    umbral <= 0 segun contrato porque "un campo cuya unidad no se declaró —ni una magnitud física ni un «sin unidad» explícito— permite que una medida compare magnitudes incompatibles en silencio"
     alcance "ve si cada campo de `campo_declarado` tiene `tiene_unidad` en false. NO juzga si la unidad declarada es la magnitud física correcta que emite el sensor"

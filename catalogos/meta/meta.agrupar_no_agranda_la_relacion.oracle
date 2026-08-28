@@ -1,5 +1,5 @@
 ninguno meta.agrupar_no_agranda_la_relacion:
     de paso p
     donde p.operador == "agrupar" y p.filas_despues > p.filas_antes
-    umbral <= 0 porque "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás"
+    umbral <= 0 segun contrato porque "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás"
     alcance "compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada. Si paso viene vacía no hay pasos observados que agranden la relación y verde es correcto; además el arnés trazar.py garantiza ejecuciones trazadas por construcción"

@@ -1,6 +1,6 @@
 # Especificación del álgebra
 
-Versión `0.3`, declarada de forma **legible por máquina** en `nucleo/version.py`
+Versión `0.4`, declarada de forma **legible por máquina** en `nucleo/version.py`
 (`VERSION_ALGEBRA`). Esta prosa la cita, no la define: la define el dato, y la regla de qué cambio
 sube qué parte del número está en §0. **Escrita para ser rota**: el criterio de si sirve está al
 final, y es comprobable.
@@ -15,6 +15,8 @@ final, y es comprobable.
 > **(c)** La 0.3 resuelve la contradicción entre “conjunto” y la multiplicidad real: una relación es
 > una **bolsa sin orden semántico**. La decisión completa está en
 > [`DECISION-001-RELACIONES-COMO-BOLSAS.md`](DECISION-001-RELACIONES-COMO-BOLSAS.md).
+> **(d)** La 0.4 hace explícito de dónde sale cada umbral con el campo `segun`: medición,
+> contrato, convención o tanteo.
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
@@ -31,7 +33,8 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;
 quien *implementa el álgebra completo* —una referencia independiente— quedó incompleto y tiene que
-volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`).
+volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`);
+de `0.3` a `0.4` volvió a subir porque el umbral ganó `segun`.
 
 **`MAYOR` sube** cuando cambia el **significado o el contrato** de algo que ya existía: la semántica
 de un operador (qué hace `min`/`max` con booleanos), la forma canónica de una medida, una validación
@@ -39,7 +42,7 @@ que hacía cargar lo que ahora se rechaza, o quitar/renombrar un operador. Eso r
 consumidor, use o no la parte cambiada. De `0.3` a `1.0`, y la menor vuelve a `0`.
 
 **Cómo se comprueba.** El núcleo publica lo que implementa. Un proyecto puede declarar en
-`oracle.json` la versión que necesita (`"algebra": "0.3"`); si no es compatible, la carga falla
+`oracle.json` la versión que necesita (`"algebra": "0.4"`); si no es compatible, la carga falla
 cerrado con un mensaje que dice cuál hay y cuál se pidió, y quien no la declara sigue funcionando.
 La compatibilidad es la del párrafo anterior: misma `MAYOR` y `MENOR` al menos tan nueva como la
 pedida. Una implementación de referencia, en cambio, declara contra qué versión se escribió y el
@@ -274,18 +277,19 @@ Como una medida es un hecho, `medida` es una relación más y las medidas sobre 
 normales:
 
 ```json
-["medida", "meta.ningun_umbral_sin_defensa",
-  ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "porque"], ""]]],
+["medida", "meta.todo_tanteo_explica_por_que",
+  ["desde", ["de", "medida", "m"],
+    ["donde", ["y", ["==", ["campo", "m", "segun"], "tanteo"], ["==", ["campo", "m", "porque"], ""]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un número que nadie puede discutir es una métrica esperando a volverse objetivo"],
-  ["alcance", "ve si la defensa está VACÍA. NO ve si la defensa es mala, circular o mentirosa"]]
+  ["umbral", "<=", 0, "si un número es tanteo, decir por qué todavía importa", "contrato"],
+  ["alcance", "ve sólo tanteos sin explicación. NO juzga si la explicación alcanza"]]
 ```
 
 Ese `alcance` es el ejemplo de por qué el campo es obligatorio: la medida es útil y es
 superficialísima, y decirlo evita que se lea como más de lo que es.
 
 Tres reglas que antes eran `raise` de `nucleo/medida.py` quedaron reificadas así, como medidas del
-catálogo base: `meta.ningun_umbral_sin_defensa`, `meta.ninguna_medida_sin_alcance` y
+catálogo base: `meta.todo_umbral_declara_de_donde_sale`, `meta.ninguna_medida_sin_alcance` y
 `meta.ningun_umbral_flotante_de_igualdad`. Las dos primeras conservan el `raise` de carga además de
 la medida — son contratos fail-closed, y la medida las vuelve inspeccionables y discutibles —; la
 tercera sólo vive en la medida y en `algebra.comparar`, porque un umbral `== 3.14` está bien formado

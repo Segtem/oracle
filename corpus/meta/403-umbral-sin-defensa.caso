@@ -1,17 +1,17 @@
 caso 403-umbral-sin-defensa:
-    fecha: "2026-08-24"
+    fecha: "2026-08-27"
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
     procedencia: construida
-    titulo: "Un umbral final no declara su defensa"
+    titulo: "Un tanteo sin defensa queda sin explicación"
     etiqueta: falso_verde
     sintoma:
-        La cabecera estructural de la medida trae un `porque` vacío. Un número que nadie puede discutir es una métrica esperando a volverse objetivo: sin defensa, el verde es una orden y no una conclusión.
+        La cabecera estructural de la medida declara `segun` como `tanteo` y trae un `porque` vacío. La etiqueta dice que se probó hasta que anduvo, pero no deja nada auditable sobre por qué ese número y no otro.
     como_se_detecto: persona
-    medida: meta.ningun_umbral_sin_defensa
+    medida: meta.todo_tanteo_explica_por_que
     evidencia:
-        medida: id, porque
-            "dominio.umbral_mudo", ""
+        medida: id, segun, porque
+            "dominio.umbral_tanteado_mudo", "tanteo", ""
     leccion:
-        La regla mira la VACUIDAD de la defensa, no su calidad. Juzgar si una defensa es buena, circular o mentirosa es otra regla; ésta sólo asegura que exista algo que discutir.
+        La prosa dejó de ser obligatoria para todos los umbrales, pero un `tanteo` sin explicación no compra nada: hay que decir qué se probó o por qué se aceptó el corte.

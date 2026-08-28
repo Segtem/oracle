@@ -1,5 +1,5 @@
 ninguno meta.sintaxis_casos_ida_y_vuelta:
     de equivalencia e
     donde e.propiedad == "sintaxis_casos_ida_y_vuelta" y (e.evaluo == false o e.mismo_veredicto == false o e.mismo_valor == false o e.mismos_testigos == false o e.error != "")
-    umbral <= 0 porque "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse"
+    umbral <= 0 segun contrato porque "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse"
     alcance "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción"

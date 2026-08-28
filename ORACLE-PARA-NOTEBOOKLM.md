@@ -3,8 +3,8 @@
 Fuente única de estudio del metalenguaje Oracle: propósito, semántica, autoría, catálogo,
 corpus, arquitectura, herramientas, historia, decisiones, auditoría y plan de corrección.
 
-- Generado: `2026-08-26`
-- Revisión de código base: `6d1262e4d1d1`
+- Generado: `2026-08-27`
+- Revisión de código base: `41587c536aa4`
 - Partes incluidas: `13`
 
 > Nota de lectura: la auditoría y el plan conservan cifras y hallazgos históricos para
@@ -114,7 +114,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 5775 líneas de lenguaje y **256 negativas explícitas** (`raise`).
+En este corte hay 7373 líneas de lenguaje y **297 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -138,7 +138,7 @@ de grave: en un solo día lo cometí tres veces.
 #### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 70 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 51 la mutación, 12 una persona, 4 la casualidad, 3 una herramienta ajena.
+Los 76 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 55 la mutación, 13 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -147,7 +147,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 #### El costo, dicho
 
 <!-- escala:inicio -->
-**5775 líneas de lenguaje** (`nucleo/`, código y macros) y **256 negativas explícitas** (`raise`). Contra las 37 medidas universales escritas en él (225 líneas): **25,7 a 1**. 29 de las 37 pasan por una macro.
+**7373 líneas de lenguaje** (`nucleo/`, código y macros) y **297 negativas explícitas** (`raise`). Contra las 41 medidas universales escritas en él (254 líneas): **29,0 a 1**. 35 de las 41 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -182,9 +182,9 @@ falla si vence.
 Después, `defmacro` empeoró la proporción desde 16,2 — y el plan había predicho que la iba a
 **bajar**, porque las tres macros salían del núcleo. Salieron, pero el mecanismo que las reemplaza
 —declaración, guardas, registro, expansión acotada— pesa más que las tres funciones que borró. El
-pago no es este corte: es que la macro número cuatro ya no cuesta ni una línea de núcleo.
+pago empezó cuando entró la cuarta macro: no hizo falta sumar una rama de Python por forma.
 
-El numerador cuenta `nucleo/macros/*.json` junto con el `.py`, a propósito. Si contara sólo código,
+El numerador cuenta `nucleo/macros/` junto con el `.py`, a propósito. Si contara sólo código,
 mover Python a datos habría «mejorado» la proporción sin que el lenguaje encogiera un gramo — el
 sastreo exacto contra el que esta medición existe.
 
@@ -243,16 +243,60 @@ medidas: `meta.toda_medida_esta_ejercitada`, `meta.toda_medida_esta_fijada`,
 `meta.el_caso_se_pone_como_debe`. Antes eso eran `if`s dentro de `tools/` — el veredicto sobre el
 marco en código imperativo, mientras el resto del proyecto exige que los veredictos sean datos.
 
-### Tres niveles, una sola representación
+### Cinco niveles, una sola representación
 
 ```
-L0   evidencia            pieza(id, aabb) · mutante(id, apunta_a, murio) · evento(t, actor, qué)
-L1   medidas              enunciados sobre L0
-L2   medidas sobre medidas enunciados sobre L1
+L2   medidas sobre medidas   enunciados sobre L1                        ✓ se escribe en el lenguaje
+L1   medidas                 enunciados sobre L0                        ✓
+L0   evidencia               pieza(id, aabb) · evento(t, actor, qué)    ✓
+────────────────────────────────────────────────────────────────────────
+L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✗ hoy en Python
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✗ hoy en Python
+────────────────────────────────────────────────────────────────────────
+     el terreno              no es un nivel: no se representa
 ```
 
-Lo que lo vuelve un metalenguaje no es tener L2: es que **L2 no necesita mecanismo propio**. Es L1
-apuntado a L1.
+Cada nivel es una **representación**, nunca una cosa. L0 no es la escena: son filas. Y bajando vale
+igual — L−1 no es el sensor, es lo que el sensor declara de sí mismo; el sensor es a L−1 lo que la
+escena es a L0.
+
+**Hacia arriba la torre se cierra en L2.** No porque falte trabajo: porque colapsa. Con el catálogo
+reificado como una relación más, una medida sobre medidas sobre medidas se escribe idéntica a una
+medida sobre medidas — mismos cinco operadores, misma álgebra. `meta.ninguna_medida_sin_alcance`
+juzga las medidas del catálogo, **ella incluida**, y no hace falta un L3 para eso. Y no hay paradoja:
+no es un predicado de verdad sobre sí misma, es un cómputo finito sobre una bolsa finita de filas.
+
+Eso es lo que lo vuelve un metalenguaje: no tener L2, sino que **L2 no necesita mecanismo propio**.
+Es L1 apuntado a L1.
+
+**Hacia abajo la torre se cierra en L−2**, y ahí el motivo es otro: se acabó lo representable. L−1
+pregunta cómo se hizo el mapa; L−2 pregunta si el territorio mapeado es el territorio del que habla
+el veredicto. Debajo está el terreno, y lo único honesto que se puede hacer con él es declarar qué
+no se miró — que es exactamente el trabajo de `alcance`, el único campo obligatorio del lenguaje.
+
+#### Los dos de abajo ya están habitados, a mano
+
+No son terreno virgen: fallan distinto, se arreglan distinto, y el repo ya los contesta caso por
+caso en Python en vez de en el lenguaje.
+
+| | falla así | ya se contesta acá |
+|---|---|---|
+| **L−1** | el sensor emite el AABB en centímetros y la medida lo espera en metros: fiel, y el verde miente | nada sistemático; sólo la prosa del `alcance` de cada medida |
+| **L−2** | el sensor leyó el asset del disco y el juego embarca la variante cocinada: todo cierto sobre otra cosa | `fixture vencido: cambió referencia`, `proceso.verificacion_vigente` |
+
+Y los dos campos que un caso ya declara caen uno en cada nivel:
+
+```
+origen: {repo, commit}   ← L−2:  qué artefacto, en qué versión
+procedencia: observada   ← L−1:  cómo se produjo esta fila
+```
+
+Los dos los tipea una persona y **ninguno se verifica**. El `alcance` de
+`meta.la_medida_no_se_fija_solo_con_evidencia_fabricada` lo dice con todas las letras: *«NO verifica
+que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió
+`observada` haya observado algo»*. Es la misma situación en la que estaba L2 antes de reificar el
+catálogo, y por eso el orden del trabajo es terminar L2 primero: la maquinaria que lo vuelve
+expresable es la que después alcanza a L−1 y L−2.
 
 ### Lo que una medida declara, siempre
 
@@ -423,11 +467,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**104 casos**: 70 defectos y 34 verdes correctos. De los defectos, 67 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 65 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño.
+**123 casos**: 77 defectos y 46 verdes correctos. De los defectos, 74 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 72 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 78 observada, 39 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-638 tests · 547/547 mutantes de medida · **2431 sitios de mutación de código** (2226 + 205 del motor Python).
+701 tests · 605/605 mutantes de medida · **3403 sitios de mutación de código** (3198 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -556,8 +600,8 @@ además lo único que ataja una medida que se pone roja con entrada correcta, el
 
 **Las macros ya existen** — el disparador que la especificación pedía («cuando aparezca la quinta
 medida con la misma forma») sonó con veintidós, cuando los dominios de instancia todavía vivían acá.
-`ninguno`, `ninguno-par` y `peor` expanden a la forma canónica, y `peor` cerró por construcción la
-deuda del umbral duplicado. La cobertura vigente sobre el catálogo universal está en
+`ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` expanden a la forma canónica, y `peor` cerró
+por construcción la deuda del umbral duplicado. La cobertura vigente sobre el catálogo universal está en
 la cifra de escala; las medidas que no encajan se escriben canónicas y listo.
 
 **Y las macros se declaran EN DATOS.** Hasta el corte anterior `MACROS` era un diccionario de
@@ -578,9 +622,10 @@ las que trae Oracle y para las que escribe cualquiera:
     ["alcance", ["$", "alcance"]]]]
 ```
 
-`ninguno`, `ninguno-par` y `peor` viven en `nucleo/macros/` y se cargan por el
-mismo camino: son la biblioteca estándar del lenguaje, no un privilegio del núcleo. Un proyecto suma
-las suyas en `<proyecto>/macros/` y no necesita tocar nada de Oracle.
+`ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` viven en
+`nucleo/macros/` y se cargan por el mismo camino: son la biblioteca estándar del
+lenguaje, no un privilegio del núcleo. Un proyecto suma las suyas en `<proyecto>/macros/` y no
+necesita tocar nada de Oracle.
 
 Tres decisiones que valen la pena:
 
@@ -642,7 +687,7 @@ mismo día en que ocurrieron, antes de existir nada que los midiera.
 
 ## Especificación del álgebra
 
-Versión `0.3`, declarada de forma **legible por máquina** en `nucleo/version.py`
+Versión `0.4`, declarada de forma **legible por máquina** en `nucleo/version.py`
 (`VERSION_ALGEBRA`). Esta prosa la cita, no la define: la define el dato, y la regla de qué cambio
 sube qué parte del número está en §0. **Escrita para ser rota**: el criterio de si sirve está al
 final, y es comprobable.
@@ -657,6 +702,8 @@ final, y es comprobable.
 > **(c)** La 0.3 resuelve la contradicción entre “conjunto” y la multiplicidad real: una relación es
 > una **bolsa sin orden semántico**. La decisión completa está en
 > [`DECISION-001-RELACIONES-COMO-BOLSAS.md`](DECISION-001-RELACIONES-COMO-BOLSAS.md).
+> **(d)** La 0.4 hace explícito de dónde sale cada umbral con el campo `segun`: medición,
+> contrato, convención o tanteo.
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
@@ -673,7 +720,8 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;
 quien *implementa el álgebra completo* —una referencia independiente— quedó incompleto y tiene que
-volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`).
+volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`);
+de `0.3` a `0.4` volvió a subir porque el umbral ganó `segun`.
 
 **`MAYOR` sube** cuando cambia el **significado o el contrato** de algo que ya existía: la semántica
 de un operador (qué hace `min`/`max` con booleanos), la forma canónica de una medida, una validación
@@ -681,7 +729,7 @@ que hacía cargar lo que ahora se rechaza, o quitar/renombrar un operador. Eso r
 consumidor, use o no la parte cambiada. De `0.3` a `1.0`, y la menor vuelve a `0`.
 
 **Cómo se comprueba.** El núcleo publica lo que implementa. Un proyecto puede declarar en
-`oracle.json` la versión que necesita (`"algebra": "0.3"`); si no es compatible, la carga falla
+`oracle.json` la versión que necesita (`"algebra": "0.4"`); si no es compatible, la carga falla
 cerrado con un mensaje que dice cuál hay y cuál se pidió, y quien no la declara sigue funcionando.
 La compatibilidad es la del párrafo anterior: misma `MAYOR` y `MENOR` al menos tan nueva como la
 pedida. Una implementación de referencia, en cambio, declara contra qué versión se escribió y el
@@ -916,18 +964,19 @@ Como una medida es un hecho, `medida` es una relación más y las medidas sobre 
 normales:
 
 ```json
-["medida", "meta.ningun_umbral_sin_defensa",
-  ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "porque"], ""]]],
+["medida", "meta.todo_tanteo_explica_por_que",
+  ["desde", ["de", "medida", "m"],
+    ["donde", ["y", ["==", ["campo", "m", "segun"], "tanteo"], ["==", ["campo", "m", "porque"], ""]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un número que nadie puede discutir es una métrica esperando a volverse objetivo"],
-  ["alcance", "ve si la defensa está VACÍA. NO ve si la defensa es mala, circular o mentirosa"]]
+  ["umbral", "<=", 0, "si un número es tanteo, decir por qué todavía importa", "contrato"],
+  ["alcance", "ve sólo tanteos sin explicación. NO juzga si la explicación alcanza"]]
 ```
 
 Ese `alcance` es el ejemplo de por qué el campo es obligatorio: la medida es útil y es
 superficialísima, y decirlo evita que se lea como más de lo que es.
 
 Tres reglas que antes eran `raise` de `nucleo/medida.py` quedaron reificadas así, como medidas del
-catálogo base: `meta.ningun_umbral_sin_defensa`, `meta.ninguna_medida_sin_alcance` y
+catálogo base: `meta.todo_umbral_declara_de_donde_sale`, `meta.ninguna_medida_sin_alcance` y
 `meta.ningun_umbral_flotante_de_igualdad`. Las dos primeras conservan el `raise` de carga además de
 la medida — son contratos fail-closed, y la medida las vuelve inspeccionables y discutibles —; la
 tercera sólo vive en la medida y en `algebra.comparar`, porque un umbral `== 3.14` está bien formado
@@ -1208,26 +1257,30 @@ enteran de que existen.
 
 ```oracle
 ninguno proceso.test_con_mutante_que_lo_mata:
-    de mutante m
-    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
-    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina"
+    relacion mutante
+    alias m
+    predicado m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    porque "un mutante que sobrevive es un test que no discrimina"
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
 
 | Macro | Para qué | Cuántas la usan |
 |---|---|---|
-| `ninguno` | ninguna fila debe cumplir el predicado | 26 |
-| `ninguno-par` | lo mismo sobre PARES de la misma relación | 2 |
-| `peor` | el peor caso de una expresión no pasa de una tolerancia | 2 |
+| `ninguno` | ninguna fila debe cumplir el predicado | 29 |
+| `ninguno-requiere` | lo mismo, declarando evidencia indispensable | 4 |
+| `ninguno-par` | lo mismo sobre PARES de la misma relación | 0 |
+| `peor` | el peor caso de una expresión no pasa de una tolerancia | 0 |
 
 **`peor` recibe la tolerancia una sola vez** y genera con ella el filtro y el umbral:
 
 ```oracle
 peor snap.grilla:
-    de pieza a
+    relacion pieza
+    alias a
     expresion desvio_de_grilla(hecho(a), 100.0)
     tolerancia 1.0
-    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve"
+    porque "por debajo de 1 cm el desvío no se ve"
+    segun convencion
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 
@@ -1244,14 +1297,14 @@ medida dominio.nombre:
     de relacion x
     donde <lo que OFENDE>
     resumen contar(1)
-    umbral <= 0 porque "por qué ese número y no otro"
+    umbral <= 0 segun contrato porque "por qué ese número y no otro"
     requiere relacion
     alcance "qué NO ve esta medida"
 ```
 
 Las piezas obligatorias están por una razón:
 
-- **`umbral` con `porque`** — un número que nadie puede discutir es una métrica esperando a volverse objetivo. Un umbral de igualdad (`==`) no se usa y está prohibido.
+- **`umbral` con `segun`** — el número declara de dónde sale: `medicion`, `contrato`, `convencion` o `tanteo`. La prosa de `porque` puede quedar vacía, salvo en un `tanteo`, donde sigue haciendo falta explicar qué se probó.
 - **`alcance`** — un verde que no dice lo que no miró se lee como «está bien». Con esto, el informe
   termina enumerando sus propios puntos ciegos.
 - **`requiere`** — declara qué relaciones de evidencia son indispensables para concluir. Si una relación requerida viene vacía o falta, la evaluación no emite un verde espurio sino `SIN EVIDENCIA`.
@@ -1271,7 +1324,7 @@ lista JSON. Por ejemplo, la forma canónica anterior se almacena así:
   ["desde", ["de", "relacion", "x"],
             ["donde", ["==", ["campo", "x", "activo"], false]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "por qué ese número y no otro"],
+  ["umbral", "<=", 0, "por qué ese número y no otro", "contrato"],
   ["requiere", "relacion"],
   ["alcance", "qué NO ve esta medida"]]
 ```
@@ -1289,7 +1342,7 @@ medida proceso.test_con_mutante_que_lo_mata:
     de mutante m
     donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
     resumen contar(1)
-    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"
+    umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"
     alcance "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió"
 ```
 
@@ -1302,7 +1355,7 @@ medida snap.grilla:
     de pieza a
     donde desvio_de_grilla(hecho(a), 100.0) > 1.0
     resumen max(desvio_de_grilla(hecho(a), 100.0))
-    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve"
+    umbral <= 1.0 segun convencion porque "por debajo de 1 cm el desvío no se ve"
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 
@@ -1318,7 +1371,7 @@ medida vault.nombre_unico_en_el_vault:
     unir documento b
     donde a.nombre == b.nombre y a.carpeta != b.carpeta
     resumen contar(1)
-    umbral <= 0 porque "un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz"
+    umbral <= 0 segun contrato porque "un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz"
     alcance "NO ve nombres parecidos pero distintos, que confunden aunque no rompan un enlace"
 ```
 
@@ -1383,6 +1436,7 @@ Como está escrita:
   "p",
   ["y", ["==", ["campo", "p", "operador"], "agrupar"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]],
   "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás",
+  "contrato",
   "compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada. Si paso viene vacía no hay pasos observados que agranden la relación y verde es correcto; además el arnés trazar.py garantiza ejecuciones trazadas por construcción"
 ]
 ```
@@ -1395,7 +1449,7 @@ En qué se expande:
   "meta.agrupar_no_agranda_la_relacion",
   ["desde", ["de", "paso", "p"], ["donde", ["y", ["==", ["campo", "p", "operador"], "agrupar"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás"],
+  ["umbral", "<=", 0, "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás", "contrato"],
   ["alcance", "compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada. Si paso viene vacía no hay pasos observados que agranden la relación y verde es correcto; además el arnés trazar.py garantiza ejecuciones trazadas por construcción"]
 ]
 ```
@@ -1417,6 +1471,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "agrupar_sin_claves_es_el_resumen_global"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false]]],
   "sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el mismo número. Si no coinciden, `agrupar` pierde o inventa filas al colapsar, y todo agregado calculado sobre un grupo así es un número sin evidencia detrás. NO se exigen los mismos testigos, y no es una concesión: un grupo no es un hecho, los hechos se consumieron al agruparse, así que las dos formas señalan cosas distintas a propósito",
+  "contrato",
   "compara las dos formas para los cinco agregados, sobre una sonda construida. NO compara testigos —difieren por diseño— ni cubre `agrupar` CON claves, donde la equivalencia no aplica porque hay más de un grupo. Si equivalencia viene vacía no hay desacuerdos observados y verde es correcto; además metamorficas.py construye las sondas por construcción"
 ]
 ```
@@ -1429,7 +1484,7 @@ En qué se expande:
   "meta.agrupar_sin_claves_es_el_resumen_global",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "agrupar_sin_claves_es_el_resumen_global"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el mismo número. Si no coinciden, `agrupar` pierde o inventa filas al colapsar, y todo agregado calculado sobre un grupo así es un número sin evidencia detrás. NO se exigen los mismos testigos, y no es una concesión: un grupo no es un hecho, los hechos se consumieron al agruparse, así que las dos formas señalan cosas distintas a propósito"],
+  ["umbral", "<=", 0, "sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el mismo número. Si no coinciden, `agrupar` pierde o inventa filas al colapsar, y todo agregado calculado sobre un grupo así es un número sin evidencia detrás. NO se exigen los mismos testigos, y no es una concesión: un grupo no es un hecho, los hechos se consumieron al agruparse, así que las dos formas señalan cosas distintas a propósito", "contrato"],
   ["alcance", "compara las dos formas para los cinco agregados, sobre una sonda construida. NO compara testigos —difieren por diseño— ni cubre `agrupar` CON claves, donde la equivalencia no aplica porque hay más de un grupo. Si equivalencia viene vacía no hay desacuerdos observados y verde es correcto; además metamorficas.py construye las sondas por construcción"]
 ]
 ```
@@ -1451,6 +1506,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "donde_compone"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]],
   "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»: son la misma pregunta escrita de dos maneras. Se exigen las tres coincidencias y no sólo el veredicto, porque las filas que sobreviven al último `donde` SON los testigos, y dos formas que dan el mismo número señalando filas distintas mandan a una persona a mirar el lugar equivocado",
+  "contrato",
   "compara las dos formas sobre una sonda construida con filas que pasan cada filtro y filas que no. NO cubre predicados con UDF ni con `o` anidado, y no dice nada sobre el catálogo publicado: hoy ninguna medida usa dos `donde`, así que esta propiedad se comprueba antes de tener usuario. Si equivalencia viene vacía no hay fallas de composición y verde es correcto; además metamorficas.py construye las sondas por construcción"
 ]
 ```
@@ -1463,7 +1519,7 @@ En qué se expande:
   "meta.donde_compone",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "donde_compone"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»: son la misma pregunta escrita de dos maneras. Se exigen las tres coincidencias y no sólo el veredicto, porque las filas que sobreviven al último `donde` SON los testigos, y dos formas que dan el mismo número señalando filas distintas mandan a una persona a mirar el lugar equivocado"],
+  ["umbral", "<=", 0, "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»: son la misma pregunta escrita de dos maneras. Se exigen las tres coincidencias y no sólo el veredicto, porque las filas que sobreviven al último `donde` SON los testigos, y dos formas que dan el mismo número señalando filas distintas mandan a una persona a mirar el lugar equivocado", "contrato"],
   ["alcance", "compara las dos formas sobre una sonda construida con filas que pasan cada filtro y filas que no. NO cubre predicados con UDF ni con `o` anidado, y no dice nada sobre el catálogo publicado: hoy ninguna medida usa dos `donde`, así que esta propiedad se comprueba antes de tener usuario. Si equivalencia viene vacía no hay fallas de composición y verde es correcto; además metamorficas.py construye las sondas por construcción"]
 ]
 ```
@@ -1485,6 +1541,7 @@ Como está escrita:
   "p",
   ["y", ["==", ["campo", "p", "operador"], "donde"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]],
   "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender",
+  "contrato",
   "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción"
 ]
 ```
@@ -1497,7 +1554,7 @@ En qué se expande:
   "meta.donde_nunca_agrega_filas",
   ["desde", ["de", "paso", "p"], ["donde", ["y", ["==", ["campo", "p", "operador"], "donde"], [">", ["campo", "p", "filas_despues"], ["campo", "p", "filas_antes"]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender"],
+  ["umbral", "<=", 0, "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender", "contrato"],
   ["alcance", "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción"]
 ]
 ```
@@ -1519,6 +1576,7 @@ Como está escrita:
   "c",
   ["y", ["==", ["campo", "c", "tiene_medida"], true], ["==", ["campo", "c", "medida_existe"], false]],
   "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto",
+  "contrato",
   "ve el id que el caso RECLAMA. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2"
 ]
 ```
@@ -1531,7 +1589,7 @@ En qué se expande:
   "meta.el_caso_reclama_una_medida_que_existe",
   ["desde", ["de", "caso", "c"], ["donde", ["y", ["==", ["campo", "c", "tiene_medida"], true], ["==", ["campo", "c", "medida_existe"], false]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto"],
+  ["umbral", "<=", 0, "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto", "contrato"],
   ["alcance", "ve el id que el caso RECLAMA. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2"]
 ]
 ```
@@ -1553,6 +1611,7 @@ Como está escrita:
   "c",
   ["!=", ["campo", "c", "esperado_ok"], ["campo", "c", "dio_ok"]],
   "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador",
+  "contrato",
   "compara el veredicto contra la polaridad declarada del caso. NO ve si el caso está bien etiquetado, ni si la evidencia que trae es la del defecto que dice traer. Si caso viene vacía no hay desacuerdos de polaridad y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar el nivel meta"
 ]
 ```
@@ -1565,7 +1624,7 @@ En qué se expande:
   "meta.el_caso_se_pone_como_debe",
   ["desde", ["de", "caso", "c"], ["donde", ["!=", ["campo", "c", "esperado_ok"], ["campo", "c", "dio_ok"]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador"],
+  ["umbral", "<=", 0, "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador", "contrato"],
   ["alcance", "compara el veredicto contra la polaridad declarada del caso. NO ve si el caso está bien etiquetado, ni si la evidencia que trae es la del defecto que dice traer. Si caso viene vacía no hay desacuerdos de polaridad y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar el nivel meta"]
 ]
 ```
@@ -1587,6 +1646,7 @@ Como está escrita:
   "c",
   ["y", ["==", ["campo", "c", "tiene_medida"], false], ["==", ["campo", "c", "es_hueco_abierto"], true], ["==", ["campo", "c", "explica_el_hueco"], false]],
   "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir",
+  "contrato",
   "ve que cada caso marcado explícitamente como hueco abierto tenga una explicación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción"
 ]
 ```
@@ -1599,7 +1659,7 @@ En qué se expande:
   "meta.el_hueco_declarado_explica_por_que",
   ["desde", ["de", "caso", "c"], ["donde", ["y", ["==", ["campo", "c", "tiene_medida"], false], ["==", ["campo", "c", "es_hueco_abierto"], true], ["==", ["campo", "c", "explica_el_hueco"], false]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir"],
+  ["umbral", "<=", 0, "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir", "contrato"],
   ["alcance", "ve que cada caso marcado explícitamente como hueco abierto tenga una explicación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción"]
 ]
 ```
@@ -1621,6 +1681,7 @@ Como está escrita:
   "m",
   ["!=", ["campo", "m", "es_meta_por_el_nombre"], ["campo", "m", "es_meta_por_lo_que_mide"]],
   "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca",
+  "convencion",
   "compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir. Si medida viene vacía no hay medidas que confundan nivel con dominio y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción"
 ]
 ```
@@ -1633,8 +1694,28 @@ En qué se expande:
   "meta.el_nivel_no_se_confunde_con_el_dominio",
   ["desde", ["de", "medida", "m"], ["donde", ["!=", ["campo", "m", "es_meta_por_el_nombre"], ["campo", "m", "es_meta_por_lo_que_mide"]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca"],
+  ["umbral", "<=", 0, "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca", "convencion"],
   ["alcance", "compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir. Si medida viene vacía no hay medidas que confundan nivel con dominio y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción"]
+]
+```
+
+#### meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
+
+- **mide sobre** la relación `caso`
+- **umbral**: `<= 0`
+- **por qué ese número**: una medida cuyos casos son todos fabricados puede estar ajustada a los ejemplos que se escribieron para que pasara, y no a evidencia de algo que ocurrió; el límite es cero y no un margen porque un solo caso observado ya cambia la naturaleza de la fijación
+- **qué NO ve**: mira lo que el caso declara sobre sí mismo. NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo. Un caso puede mentir en `procedencia` y esta medida no lo ve
+
+Como está escrita:
+
+```json
+[
+  "medida",
+  "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+  ["desde", ["de", "caso", "c"], ["donde", ["==", ["campo", "c", "tiene_medida"], true]], ["agrupar", [["medida", ["campo", "c", "medida"]]], [["casos", "contar", 1], ["no_observados", "suma", ["!=", ["campo", "c", "procedencia"], "observada"]]]], ["donde", ["==", ["col", "casos"], ["col", "no_observados"]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "una medida cuyos casos son todos fabricados puede estar ajustada a los ejemplos que se escribieron para que pasara, y no a evidencia de algo que ocurrió; el límite es cero y no un margen porque un solo caso observado ya cambia la naturaleza de la fijación", "contrato"],
+  ["alcance", "mira lo que el caso declara sobre sí mismo. NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo. Un caso puede mentir en `procedencia` y esta medida no lo ve"]
 ]
 ```
 
@@ -1655,6 +1736,7 @@ Como está escrita:
   "n",
   ["!=", ["campo", "n", "evaluados"], ["campo", "n", "declarados"]],
   "un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra",
+  "contrato",
   "cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza. Si nodo viene vacía no hay cortocircuitos observados y verde es correcto; además trazar.py garantiza nodos trazados por construcción"
 ]
 ```
@@ -1667,8 +1749,79 @@ En qué se expande:
   "meta.los_logicos_evaluan_todos_sus_operandos",
   ["desde", ["de", "nodo", "n"], ["donde", ["!=", ["campo", "n", "evaluados"], ["campo", "n", "declarados"]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra"],
+  ["umbral", "<=", 0, "un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra", "contrato"],
   ["alcance", "cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza. Si nodo viene vacía no hay cortocircuitos observados y verde es correcto; además trazar.py garantiza nodos trazados por construcción"]
+]
+```
+
+#### meta.ningun_campo_sin_unidad_declarada
+
+- **mide sobre** la relación `campo_declarado`
+- **umbral**: `<= 0`
+- **por qué ese número**: un campo cuya unidad no se declaró —ni una magnitud física ni un «sin unidad» explícito— permite que una medida compare magnitudes incompatibles en silencio
+- **qué NO ve**: ve si cada campo de `campo_declarado` tiene `tiene_unidad` en false. NO juzga si la unidad declarada es la magnitud física correcta que emite el sensor
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.ningun_campo_sin_unidad_declarada",
+  "campo_declarado",
+  "c",
+  ["==", ["campo", "c", "tiene_unidad"], false],
+  "un campo cuya unidad no se declaró —ni una magnitud física ni un «sin unidad» explícito— permite que una medida compare magnitudes incompatibles en silencio",
+  "contrato",
+  "ve si cada campo de `campo_declarado` tiene `tiene_unidad` en false. NO juzga si la unidad declarada es la magnitud física correcta que emite el sensor"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.ningun_campo_sin_unidad_declarada",
+  ["desde", ["de", "campo_declarado", "c"], ["donde", ["==", ["campo", "c", "tiene_unidad"], false]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un campo cuya unidad no se declaró —ni una magnitud física ni un «sin unidad» explícito— permite que una medida compare magnitudes incompatibles en silencio", "contrato"],
+  ["alcance", "ve si cada campo de `campo_declarado` tiene `tiene_unidad` en false. NO juzga si la unidad declarada es la magnitud física correcta que emite el sensor"]
+]
+```
+
+#### meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+
+- **mide sobre** la relación `ancestro`
+- **umbral**: `<= 0`
+- **por qué ese número**: un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria sobre una cantidad medida: 0.1 más 0.2 no da 0.3, así que el filtro puede aceptar o rechazar por cómo quedó el número en binario y no por el margen que la medida defiende. El límite es cero y no un margen porque una sola igualdad exacta ya vuelve arbitrario el corte
+- **qué NO ve**: mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`
+
+Como está escrita:
+
+```json
+[
+  "ninguno-requiere",
+  "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+  "ancestro",
+  "a",
+  ["y", ["==", ["campo", "a", "tipo"], "flotante"], ["o", ["==", ["campo", "a", "cabeza_padre"], "=="], ["==", ["campo", "a", "cabeza_padre"], "!="]], ["==", ["campo", "a", "cabeza_ancestro"], "donde"]],
+  "un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria sobre una cantidad medida: 0.1 más 0.2 no da 0.3, así que el filtro puede aceptar o rechazar por cómo quedó el número en binario y no por el margen que la medida defiende. El límite es cero y no un margen porque una sola igualdad exacta ya vuelve arbitrario el corte",
+  "contrato",
+  "mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+  ["desde", ["de", "ancestro", "a"], ["donde", ["y", ["==", ["campo", "a", "tipo"], "flotante"], ["o", ["==", ["campo", "a", "cabeza_padre"], "=="], ["==", ["campo", "a", "cabeza_padre"], "!="]], ["==", ["campo", "a", "cabeza_ancestro"], "donde"]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria sobre una cantidad medida: 0.1 más 0.2 no da 0.3, así que el filtro puede aceptar o rechazar por cómo quedó el número en binario y no por el margen que la medida defiende. El límite es cero y no un margen porque una sola igualdad exacta ya vuelve arbitrario el corte", "contrato"],
+  ["requiere", "ancestro"],
+  ["alcance", "mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`"]
 ]
 ```
 
@@ -1689,6 +1842,7 @@ Como está escrita:
   "m",
   ["==", ["campo", "m", "comparador"], "=="],
   "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden",
+  "contrato",
   "mira sólo el operador final del umbral de cada medida. NO ve igualdades dentro de filtros o agregados, ni decide si `!=` es una política válida para un dominio concreto. Si medida viene vacía significa que no hay medidas en el catálogo que ofendan la regla y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción"
 ]
 ```
@@ -1701,7 +1855,7 @@ En qué se expande:
   "meta.ningun_umbral_de_igualdad",
   ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "comparador"], "=="]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden"],
+  ["umbral", "<=", 0, "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden", "contrato"],
   ["alcance", "mira sólo el operador final del umbral de cada medida. NO ve igualdades dentro de filtros o agregados, ni decide si `!=` es una política válida para un dominio concreto. Si medida viene vacía significa que no hay medidas en el catálogo que ofendan la regla y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción"]
 ]
 ```
@@ -1723,6 +1877,7 @@ Como está escrita:
   "m",
   ["y", ["==", ["campo", "m", "umbral_es_flotante"], true], ["o", ["==", ["campo", "m", "comparador"], "=="], ["==", ["campo", "m", "comparador"], "!="]]],
   "un umbral `==` o `!=` sobre un flotante compara cantidades medidas con una exactitud que la representación no garantiza: 0.1+0.2 no es 0.3, y una igualdad exacta ahí es una falsedad silenciosa que se lee como verde. La comparación de orden con tolerancia (`cerca`) deja el margen a la vista y con su defensa",
+  "contrato",
   "mira el operador y el tipo del valor final del umbral de cada medida. NO ve igualdades exactas dentro de expresiones o agregados — de ésas se ocupa el álgebra al evaluar — y NO juzga `==` sobre enteros, textos ni booleanos, que se comparan exacto"
 ]
 ```
@@ -1735,42 +1890,8 @@ En qué se expande:
   "meta.ningun_umbral_flotante_de_igualdad",
   ["desde", ["de", "medida", "m"], ["donde", ["y", ["==", ["campo", "m", "umbral_es_flotante"], true], ["o", ["==", ["campo", "m", "comparador"], "=="], ["==", ["campo", "m", "comparador"], "!="]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un umbral `==` o `!=` sobre un flotante compara cantidades medidas con una exactitud que la representación no garantiza: 0.1+0.2 no es 0.3, y una igualdad exacta ahí es una falsedad silenciosa que se lee como verde. La comparación de orden con tolerancia (`cerca`) deja el margen a la vista y con su defensa"],
+  ["umbral", "<=", 0, "un umbral `==` o `!=` sobre un flotante compara cantidades medidas con una exactitud que la representación no garantiza: 0.1+0.2 no es 0.3, y una igualdad exacta ahí es una falsedad silenciosa que se lee como verde. La comparación de orden con tolerancia (`cerca`) deja el margen a la vista y con su defensa", "contrato"],
   ["alcance", "mira el operador y el tipo del valor final del umbral de cada medida. NO ve igualdades exactas dentro de expresiones o agregados — de ésas se ocupa el álgebra al evaluar — y NO juzga `==` sobre enteros, textos ni booleanos, que se comparan exacto"]
-]
-```
-
-#### meta.ningun_umbral_sin_defensa
-
-- **mide sobre** la relación `medida`
-- **umbral**: `<= 0`
-- **por qué ese número**: un número que nadie puede discutir es una métrica esperando a volverse objetivo: el `porque` es lo que hace que un verde sea accionable y no una orden que se obedece sin leer
-- **qué NO ve**: ve si la defensa del umbral está VACÍA. NO ve si la defensa es mala, circular o mentirosa — juzgar la calidad de una justificación es otra regla, no ésta
-
-Como está escrita:
-
-```json
-[
-  "ninguno",
-  "meta.ningun_umbral_sin_defensa",
-  "medida",
-  "m",
-  ["==", ["campo", "m", "porque"], ""],
-  "un número que nadie puede discutir es una métrica esperando a volverse objetivo: el `porque` es lo que hace que un verde sea accionable y no una orden que se obedece sin leer",
-  "ve si la defensa del umbral está VACÍA. NO ve si la defensa es mala, circular o mentirosa — juzgar la calidad de una justificación es otra regla, no ésta"
-]
-```
-
-En qué se expande:
-
-```json
-[
-  "medida",
-  "meta.ningun_umbral_sin_defensa",
-  ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "porque"], ""]]],
-  ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un número que nadie puede discutir es una métrica esperando a volverse objetivo: el `porque` es lo que hace que un verde sea accionable y no una orden que se obedece sin leer"],
-  ["alcance", "ve si la defensa del umbral está VACÍA. NO ve si la defensa es mala, circular o mentirosa — juzgar la calidad de una justificación es otra regla, no ésta"]
 ]
 ```
 
@@ -1791,6 +1912,7 @@ Como está escrita:
   "m",
   ["==", ["campo", "m", "alcance"], ""],
   "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa",
+  "contrato",
   "ve si el `alcance` está VACÍO. NO impone una fórmula textual ni un idioma, y NO juzga si el punto ciego declarado es el correcto o el completo"
 ]
 ```
@@ -1803,7 +1925,7 @@ En qué se expande:
   "meta.ninguna_medida_sin_alcance",
   ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "alcance"], ""]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa"],
+  ["umbral", "<=", 0, "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa", "contrato"],
   ["alcance", "ve si el `alcance` está VACÍO. NO impone una fórmula textual ni un idioma, y NO juzga si el punto ciego declarado es el correcto o el completo"]
 ]
 ```
@@ -1825,6 +1947,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_cubre_casos"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
   "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida",
+  "contrato",
   "comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto \"null\", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"
 ]
 ```
@@ -1837,7 +1960,7 @@ En qué se expande:
   "meta.sintaxis_casos_cubre_casos",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_cubre_casos"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida"],
+  ["umbral", "<=", 0, "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida", "contrato"],
   ["alcance", "comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto \"null\", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"]
 ]
 ```
@@ -1859,6 +1982,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_ida_y_vuelta"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
   "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse",
+  "contrato",
   "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción"
 ]
 ```
@@ -1871,7 +1995,7 @@ En qué se expande:
   "meta.sintaxis_casos_ida_y_vuelta",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_casos_ida_y_vuelta"], ["o", ["==", ["campo", "e", "evaluo"], false], ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse"],
+  ["umbral", "<=", 0, "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse", "contrato"],
   ["alcance", "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción"]
 ]
 ```
@@ -1893,6 +2017,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_cubre_algebra"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
   "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información",
+  "contrato",
   "comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 1 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre agrupar con 0 agregados (la sintaxis exige al menos un agregado en el bloque agrupar:), árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"
 ]
 ```
@@ -1905,7 +2030,7 @@ En qué se expande:
   "meta.sintaxis_cubre_algebra",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_cubre_algebra"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información"],
+  ["umbral", "<=", 0, "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información", "contrato"],
   ["alcance", "comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 1 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre agrupar con 0 agregados (la sintaxis exige al menos un agregado en el bloque agrupar:), árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"]
 ]
 ```
@@ -1927,6 +2052,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_ida_y_vuelta"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]],
   "la superficie infija es reversible sólo si el JSON de almacenamiento y el texto canónico sobreviven a la ida y vuelta sin cambio",
+  "contrato",
   "comprueba las medidas publicadas del catálogo base y perfiles. NO preserva comentarios libres ni demuestra que otra superficie escrita a mano sea la más legible; sólo que la forma canónica impresa por la herramienta vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py comprueba el catálogo por construcción"
 ]
 ```
@@ -1939,7 +2065,7 @@ En qué se expande:
   "meta.sintaxis_ida_y_vuelta",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "sintaxis_ida_y_vuelta"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false], ["!=", ["campo", "e", "error"], ""]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "la superficie infija es reversible sólo si el JSON de almacenamiento y el texto canónico sobreviven a la ida y vuelta sin cambio"],
+  ["umbral", "<=", 0, "la superficie infija es reversible sólo si el JSON de almacenamiento y el texto canónico sobreviven a la ida y vuelta sin cambio", "contrato"],
   ["alcance", "comprueba las medidas publicadas del catálogo base y perfiles. NO preserva comentarios libres ni demuestra que otra superficie escrita a mano sea la más legible; sólo que la forma canónica impresa por la herramienta vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py comprueba el catálogo por construcción"]
 ]
 ```
@@ -1959,7 +2085,7 @@ Como está escrita:
   "meta.toda_medida_de_ausencia_declara_requiere",
   ["desde", ["unir", ["de", "medida", "m"], ["de", "termino", "t"]], ["agrupar", [["medida", ["campo", "m", "id"]]], [["usa_unir", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["==", ["campo", "t", "cabeza"], "unir"]]], ["usa_agrupar", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["==", ["campo", "t", "cabeza"], "agrupar"]]], ["declara_requiere", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["==", ["campo", "t", "cabeza"], "requiere"]]]]], ["donde", ["y", [">", ["col", "usa_unir"], 0], [">", ["col", "usa_agrupar"], 0], ["==", ["col", "declara_requiere"], 0]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada"],
+  ["umbral", "<=", 0, "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada", "contrato"],
   ["requiere", "termino"],
   ["alcance", "detecta medidas cuya forma canónica contiene `unir` y `agrupar` pero ningún nodo `requiere`. NO demuestra que toda medida con ese patrón sea realmente de ausencia, ni que la relación requerida elegida sea la correcta"]
 ]
@@ -1982,6 +2108,7 @@ Como está escrita:
   "m",
   ["y", ["==", ["campo", "m", "es_heredada"], false], ["==", ["campo", "m", "casos_que_la_evaluan"], 0]],
   "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre",
+  "contrato",
   "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción"
 ]
 ```
@@ -1994,7 +2121,7 @@ En qué se expande:
   "meta.toda_medida_esta_ejercitada",
   ["desde", ["de", "medida_en_uso", "m"], ["donde", ["y", ["==", ["campo", "m", "es_heredada"], false], ["==", ["campo", "m", "casos_que_la_evaluan"], 0]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre"],
+  ["umbral", "<=", 0, "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre", "contrato"],
   ["alcance", "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción"]
 ]
 ```
@@ -2016,6 +2143,7 @@ Como está escrita:
   "m",
   ["y", ["==", ["campo", "m", "debe_tener_mutantes"], true], ["o", ["==", ["campo", "m", "mutantes"], 0], ["!=", ["campo", "m", "mutantes_vivos"], 0]]],
   "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada",
+  "contrato",
   "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción"
 ]
 ```
@@ -2028,7 +2156,7 @@ En qué se expande:
   "meta.toda_medida_esta_fijada",
   ["desde", ["de", "medida_en_uso", "m"], ["donde", ["y", ["==", ["campo", "m", "debe_tener_mutantes"], true], ["o", ["==", ["campo", "m", "mutantes"], 0], ["!=", ["campo", "m", "mutantes_vivos"], 0]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"],
+  ["umbral", "<=", 0, "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada", "contrato"],
   ["alcance", "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción"]
 ]
 ```
@@ -2048,9 +2176,79 @@ Como está escrita:
   "meta.toda_medida_filtra_o_agrupa",
   ["desde", ["unir", ["de", "medida", "m"], ["de", "termino", "t"]], ["agrupar", [["medida", ["campo", "m", "id"]]], [["operadores_estructurales", "suma", ["y", ["==", ["campo", "t", "medida"], ["campo", "m", "id"]], ["o", ["==", ["campo", "t", "cabeza"], "donde"], ["==", ["campo", "t", "cabeza"], "agrupar"]]]]]], ["donde", ["==", ["col", "operadores_estructurales"], 0]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"],
+  ["umbral", "<=", 0, "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende", "convencion"],
   ["requiere", "termino"],
   ["alcance", "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional"]
+]
+```
+
+#### meta.todo_tanteo_explica_por_que
+
+- **mide sobre** la relación `medida`
+- **umbral**: `<= 0`
+- **por qué ese número**: un tanteo dice que el número se probó hasta que anduvo; sin prosa no queda nada auditable sobre por qué ése y no otro
+- **qué NO ve**: ve sólo tanteos con defensa vacía. NO exige prosa a mediciones, contratos ni convenciones, y NO juzga si la explicación escrita alcanza
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.todo_tanteo_explica_por_que",
+  "medida",
+  "m",
+  ["y", ["==", ["campo", "m", "segun"], "tanteo"], ["==", ["campo", "m", "porque"], ""]],
+  "un tanteo dice que el número se probó hasta que anduvo; sin prosa no queda nada auditable sobre por qué ése y no otro",
+  "contrato",
+  "ve sólo tanteos con defensa vacía. NO exige prosa a mediciones, contratos ni convenciones, y NO juzga si la explicación escrita alcanza"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.todo_tanteo_explica_por_que",
+  ["desde", ["de", "medida", "m"], ["donde", ["y", ["==", ["campo", "m", "segun"], "tanteo"], ["==", ["campo", "m", "porque"], ""]]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "un tanteo dice que el número se probó hasta que anduvo; sin prosa no queda nada auditable sobre por qué ése y no otro", "contrato"],
+  ["alcance", "ve sólo tanteos con defensa vacía. NO exige prosa a mediciones, contratos ni convenciones, y NO juzga si la explicación escrita alcanza"]
+]
+```
+
+#### meta.todo_umbral_declara_de_donde_sale
+
+- **mide sobre** la relación `medida`
+- **umbral**: `<= 0`
+- **por qué ese número**: todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable
+- **qué NO ve**: ve si la etiqueta `segun` quedó en `sin_declarar`. NO juzga si la etiqueta elegida es verdadera ni si el número está bien defendido
+
+Como está escrita:
+
+```json
+[
+  "ninguno",
+  "meta.todo_umbral_declara_de_donde_sale",
+  "medida",
+  "m",
+  ["==", ["campo", "m", "segun"], "sin_declarar"],
+  "todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable",
+  "contrato",
+  "ve si la etiqueta `segun` quedó en `sin_declarar`. NO juzga si la etiqueta elegida es verdadera ni si el número está bien defendido"
+]
+```
+
+En qué se expande:
+
+```json
+[
+  "medida",
+  "meta.todo_umbral_declara_de_donde_sale",
+  ["desde", ["de", "medida", "m"], ["donde", ["==", ["campo", "m", "segun"], "sin_declarar"]]],
+  ["resumen", "contar", 1],
+  ["umbral", "<=", 0, "todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable", "contrato"],
+  ["alcance", "ve si la etiqueta `segun` quedó en `sin_declarar`. NO juzga si la etiqueta elegida es verdadera ni si el número está bien defendido"]
 ]
 ```
 
@@ -2071,6 +2269,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "una_macro_equivale_a_su_expansion"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]],
   "una macro es azúcar: expande a la forma canónica ANTES de construir la medida, así que el evaluador no debería poder distinguir una de otra. Es la propiedad con más en juego del catálogo — diecinueve de veintidós medidas pasan por una macro, y si alguna expandiera distinto de lo que su autor cree, todo lo escrito con ella mediría otra cosa en silencio y sin que ningún caso lo notara",
+  "contrato",
   "compara cada medida escrita por macro contra su expansión canónica, con la evidencia real de sus casos de corpus. NO ve las macros sin ningún caso que las use, ni una expansión que sea consistentemente equivocada: si la macro siempre expande mal de la misma manera, las dos formas coinciden y esta medida calla"
 ]
 ```
@@ -2083,7 +2282,7 @@ En qué se expande:
   "meta.una_macro_equivale_a_su_expansion",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "una_macro_equivale_a_su_expansion"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una macro es azúcar: expande a la forma canónica ANTES de construir la medida, así que el evaluador no debería poder distinguir una de otra. Es la propiedad con más en juego del catálogo — diecinueve de veintidós medidas pasan por una macro, y si alguna expandiera distinto de lo que su autor cree, todo lo escrito con ella mediría otra cosa en silencio y sin que ningún caso lo notara"],
+  ["umbral", "<=", 0, "una macro es azúcar: expande a la forma canónica ANTES de construir la medida, así que el evaluador no debería poder distinguir una de otra. Es la propiedad con más en juego del catálogo — diecinueve de veintidós medidas pasan por una macro, y si alguna expandiera distinto de lo que su autor cree, todo lo escrito con ella mediría otra cosa en silencio y sin que ningún caso lo notara", "contrato"],
   ["alcance", "compara cada medida escrita por macro contra su expansión canónica, con la evidencia real de sus casos de corpus. NO ve las macros sin ningún caso que las use, ni una expansión que sea consistentemente equivocada: si la macro siempre expande mal de la misma manera, las dos formas coinciden y esta medida calla"]
 ]
 ```
@@ -2105,6 +2304,7 @@ Como está escrita:
   "e",
   ["y", ["==", ["campo", "e", "propiedad"], "unir_conmuta"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]],
   "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto",
+  "contrato",
   "compara `unir A B` contra `unir B A` sobre una sonda construida y sobre las medidas reales que usan `unir`, con la evidencia de sus casos. NO ve `unir` anidados de más de dos lados ni el costo: dos formas equivalentes pueden materializar el mismo producto con presupuestos muy distintos. Si equivalencia viene vacía no hay fallas de conmutatividad y verde es correcto; además metamorficas.py construye las sondas por construcción"
 ]
 ```
@@ -2117,7 +2317,7 @@ En qué se expande:
   "meta.unir_conmuta",
   ["desde", ["de", "equivalencia", "e"], ["donde", ["y", ["==", ["campo", "e", "propiedad"], "unir_conmuta"], ["o", ["==", ["campo", "e", "mismo_veredicto"], false], ["==", ["campo", "e", "mismo_valor"], false], ["==", ["campo", "e", "mismos_testigos"], false]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto"],
+  ["umbral", "<=", 0, "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto", "contrato"],
   ["alcance", "compara `unir A B` contra `unir B A` sobre una sonda construida y sobre las medidas reales que usan `unir`, con la evidencia de sus casos. NO ve `unir` anidados de más de dos lados ni el costo: dos formas equivalentes pueden materializar el mismo producto con presupuestos muy distintos. Si equivalencia viene vacía no hay fallas de conmutatividad y verde es correcto; además metamorficas.py construye las sondas por construcción"]
 ]
 ```
@@ -2139,6 +2339,7 @@ Como está escrita:
   "u",
   ["!=", ["campo", "u", "salida"], ["por", ["campo", "u", "izquierda"], ["campo", "u", "derecha"]]],
   "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma",
+  "contrato",
   "compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa. Si producto viene vacía no hay productos defectuosos y verde es correcto; además trazar.py garantiza productos trazados por construcción"
 ]
 ```
@@ -2151,7 +2352,7 @@ En qué se expande:
   "meta.unir_materializa_el_producto",
   ["desde", ["de", "producto", "u"], ["donde", ["!=", ["campo", "u", "salida"], ["por", ["campo", "u", "izquierda"], ["campo", "u", "derecha"]]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma"],
+  ["umbral", "<=", 0, "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma", "contrato"],
   ["alcance", "compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa. Si producto viene vacía no hay productos defectuosos y verde es correcto; además trazar.py garantiza productos trazados por construcción"]
 ]
 ```
@@ -2175,6 +2376,7 @@ Como está escrita:
   "a",
   ["==", ["campo", "a", "alcance"], ""],
   "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»",
+  "contrato",
   "ve si el campo está VACÍO. NO ve si el alcance escrito es honesto, completo ni pertinente"
 ]
 ```
@@ -2187,7 +2389,7 @@ En qué se expande:
   "proceso.afirmacion_declara_alcance",
   ["desde", ["de", "afirmacion", "a"], ["donde", ["==", ["campo", "a", "alcance"], ""]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»"],
+  ["umbral", "<=", 0, "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»", "contrato"],
   ["alcance", "ve si el campo está VACÍO. NO ve si el alcance escrito es honesto, completo ni pertinente"]
 ]
 ```
@@ -2209,6 +2411,7 @@ Como está escrita:
   "c",
   ["==", ["campo", "c", "bytecode_frio"], false],
   "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado",
+  "contrato",
   "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación. Si corrida_mutacion viene vacía significa que no hubo corridas con bytecode caliente en la sesión y verde es correcto"
 ]
 ```
@@ -2221,7 +2424,7 @@ En qué se expande:
   "proceso.arnes_con_bytecode_frio",
   ["desde", ["de", "corrida_mutacion", "c"], ["donde", ["==", ["campo", "c", "bytecode_frio"], false]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado"],
+  ["umbral", "<=", 0, "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado", "contrato"],
   ["alcance", "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación. Si corrida_mutacion viene vacía significa que no hubo corridas con bytecode caliente en la sesión y verde es correcto"]
 ]
 ```
@@ -2237,11 +2440,26 @@ Como está escrita:
 
 ```json
 [
+  "ninguno-requiere",
+  "proceso.codigo_con_mutante_que_lo_mata",
+  "mutante",
+  "m",
+  ["y", ["==", ["campo", "m", "estado"], "pasaron"], ["==", ["campo", "m", "equivalente_declarado"], false]],
+  "un mutante de código que sobrevive es una modificación sintáctica del núcleo que ningún test detecta: la suite completa pasa con el código alterado, lo que demuestra que los tests tienen un punto ciego y no están fijando ese comportamiento. El umbral tiene que ser cero porque tolerar sobrevivientes no declarados equivale a publicar como verificada una base de código cuyo comportamiento real no está garantizado. Un mutante equivalente declarado con su razón escrita no cuenta como sobreviviente porque documenta una decisión explícita, no una omisión de los tests",
+  "contrato",
+  "cuenta mutantes de código de la ronda cuyo estado fue «pasaron» sin estar declarados como equivalentes. NO ve los mutadores que nadie escribió ni los operadores que el perfil de mutación no contempla: un mutante que no existe no puede sobrevivir. Tampoco juzga por sí sola si la ronda fue concluyente —eso lo mide proceso.ronda_mutacion_concluyente— ni si el bytecode estaba frío. Si mutante viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—"
+]
+```
+
+En qué se expande:
+
+```json
+[
   "medida",
   "proceso.codigo_con_mutante_que_lo_mata",
   ["desde", ["de", "mutante", "m"], ["donde", ["y", ["==", ["campo", "m", "estado"], "pasaron"], ["==", ["campo", "m", "equivalente_declarado"], false]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un mutante de código que sobrevive es una modificación sintáctica del núcleo que ningún test detecta: la suite completa pasa con el código alterado, lo que demuestra que los tests tienen un punto ciego y no están fijando ese comportamiento. El umbral tiene que ser cero porque tolerar sobrevivientes no declarados equivale a publicar como verificada una base de código cuyo comportamiento real no está garantizado. Un mutante equivalente declarado con su razón escrita no cuenta como sobreviviente porque documenta una decisión explícita, no una omisión de los tests"],
+  ["umbral", "<=", 0, "un mutante de código que sobrevive es una modificación sintáctica del núcleo que ningún test detecta: la suite completa pasa con el código alterado, lo que demuestra que los tests tienen un punto ciego y no están fijando ese comportamiento. El umbral tiene que ser cero porque tolerar sobrevivientes no declarados equivale a publicar como verificada una base de código cuyo comportamiento real no está garantizado. Un mutante equivalente declarado con su razón escrita no cuenta como sobreviviente porque documenta una decisión explícita, no una omisión de los tests", "contrato"],
   ["requiere", "mutante"],
   ["alcance", "cuenta mutantes de código de la ronda cuyo estado fue «pasaron» sin estar declarados como equivalentes. NO ve los mutadores que nadie escribió ni los operadores que el perfil de mutación no contempla: un mutante que no existe no puede sobrevivir. Tampoco juzga por sí sola si la ronda fue concluyente —eso lo mide proceso.ronda_mutacion_concluyente— ni si el bytecode estaba frío. Si mutante viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—"]
 ]
@@ -2262,7 +2480,7 @@ Como está escrita:
   "proceso.modulo_alcanzable",
   ["desde", ["unir", ["de", "modulo", "m"], ["de", "alcanzable", "r"]], ["agrupar", [["modulo", ["campo", "m", "nombre"]]], [["veces_alcanzado", "suma", ["==", ["campo", "r", "hasta"], ["campo", "m", "nombre"]]], ["es_paquete_vacio", "max", ["campo", "m", "es_paquete_vacio"]]]], ["donde", ["y", ["==", ["col", "veces_alcanzado"], 0], ["==", ["col", "es_paquete_vacio"], false]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto"],
+  ["umbral", "<=", 0, "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto", "contrato"],
   ["requiere", "alcanzable"],
   ["alcance", "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde"]
 ]
@@ -2283,7 +2501,7 @@ Como está escrita:
   "proceso.modulo_con_consumidor",
   ["desde", ["unir", ["de", "modulo", "m"], ["de", "importa", "i"]], ["agrupar", [["modulo", ["campo", "m", "nombre"]]], [["importadores_reales", "suma", ["y", ["==", ["campo", "i", "b"], ["campo", "m", "nombre"]], ["==", ["campo", "i", "es_test"], false]]]]], ["donde", ["==", ["col", "importadores_reales"], 0]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"],
+  ["umbral", "<=", 0, "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite", "contrato"],
   ["requiere", "importa"],
   ["alcance", "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama"]
 ]
@@ -2306,6 +2524,7 @@ Como está escrita:
   "c",
   ["o", ["<=", ["campo", "c", "mutantes"], 0], ["==", ["campo", "c", "baseline_verde"], false], [">", ["campo", "c", "errores_arnes"], 0], [">", ["campo", "c", "timeouts"], 0]],
   "sin mutantes no hay material; un timeout, un error del arnés o una línea base roja dejan la mutación inconclusa: ninguno demuestra que un mutante murió",
+  "contrato",
   "ve los estados estructurados publicados por cada corrida. NO distingue por sí sola si un código no cero fue una aserción o un error: eso depende del protocolo explícito del runner. Si corrida_mutacion viene vacía significa que no hubo rondas de mutación inconclusas y verde es correcto"
 ]
 ```
@@ -2318,7 +2537,7 @@ En qué se expande:
   "proceso.ronda_mutacion_concluyente",
   ["desde", ["de", "corrida_mutacion", "c"], ["donde", ["o", ["<=", ["campo", "c", "mutantes"], 0], ["==", ["campo", "c", "baseline_verde"], false], [">", ["campo", "c", "errores_arnes"], 0], [">", ["campo", "c", "timeouts"], 0]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "sin mutantes no hay material; un timeout, un error del arnés o una línea base roja dejan la mutación inconclusa: ninguno demuestra que un mutante murió"],
+  ["umbral", "<=", 0, "sin mutantes no hay material; un timeout, un error del arnés o una línea base roja dejan la mutación inconclusa: ninguno demuestra que un mutante murió", "contrato"],
   ["alcance", "ve los estados estructurados publicados por cada corrida. NO distingue por sí sola si un código no cero fue una aserción o un error: eso depende del protocolo explícito del runner. Si corrida_mutacion viene vacía significa que no hubo rondas de mutación inconclusas y verde es correcto"]
 ]
 ```
@@ -2340,6 +2559,7 @@ Como está escrita:
   "a",
   ["==", ["campo", "a", "sintaxis_valida"], false],
   "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea",
+  "contrato",
   "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto"
 ]
 ```
@@ -2352,7 +2572,7 @@ En qué se expande:
   "proceso.sintaxis_valida_tras_edicion_masiva",
   ["desde", ["de", "archivo", "a"], ["donde", ["==", ["campo", "a", "sintaxis_valida"], false]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea"],
+  ["umbral", "<=", 0, "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea", "contrato"],
   ["alcance", "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto"]
 ]
 ```
@@ -2374,6 +2594,7 @@ Como está escrita:
   "m",
   ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]],
   "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar",
+  "contrato",
   "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano"
 ]
 ```
@@ -2386,7 +2607,7 @@ En qué se expande:
   "proceso.test_con_mutante_que_lo_mata",
   ["desde", ["de", "mutante", "m"], ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0], ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar"],
+  ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar", "contrato"],
   ["alcance", "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano"]
 ]
 ```
@@ -2408,6 +2629,7 @@ Como está escrita:
   "c",
   ["==", ["campo", "c", "es_codigo_vivo"], true],
   "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir",
+  "contrato",
   "cuenta cambios marcados como código vivo. En v0.1 NO compara fechas ni sabe cuál verificación quedó vieja: cualquier cambio vivo la invalida. Hace falta comparar contra el commit de la verificación. Si cambio viene vacía significa que no hubo cambios recientes, por lo que la verificación sigue vigente"
 ]
 ```
@@ -2420,7 +2642,7 @@ En qué se expande:
   "proceso.verificacion_vigente",
   ["desde", ["de", "cambio", "c"], ["donde", ["==", ["campo", "c", "es_codigo_vivo"], true]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"],
+  ["umbral", "<=", 0, "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir", "contrato"],
   ["alcance", "cuenta cambios marcados como código vivo. En v0.1 NO compara fechas ni sabe cuál verificación quedó vieja: cualquier cambio vivo la invalida. Hace falta comparar contra el commit de la verificación. Si cambio viene vacía significa que no hubo cambios recientes, por lo que la verificación sigue vigente"]
 ]
 ```
@@ -2442,6 +2664,7 @@ Como está escrita:
   "h",
   ["==", ["campo", "h", "era_real"], false],
   "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno",
+  "contrato",
   "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos"
 ]
 ```
@@ -2454,7 +2677,7 @@ En qué se expande:
   "proceso.verificador_sin_falsos_rojos",
   ["desde", ["de", "hallazgo", "h"], ["donde", ["==", ["campo", "h", "era_real"], false]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno"],
+  ["umbral", "<=", 0, "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno", "contrato"],
   ["alcance", "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos"]
 ]
 ```
@@ -2472,11 +2695,26 @@ Como está escrita:
 
 ```json
 [
+  "ninguno-requiere",
+  "simulacion.corrida_reproducible",
+  "corrida",
+  "c",
+  ["==", ["campo", "c", "determinista"], false],
+  "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota",
+  "contrato",
+  "compara dos ejecuciones con la MISMA semilla. NO ve si el resultado depende de algo de afuera —la hora, el orden de un diccionario, un archivo— que hoy casualmente no cambió. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."
+]
+```
+
+En qué se expande:
+
+```json
+[
   "medida",
   "simulacion.corrida_reproducible",
   ["desde", ["de", "corrida", "c"], ["donde", ["==", ["campo", "c", "determinista"], false]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota"],
+  ["umbral", "<=", 0, "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota", "contrato"],
   ["requiere", "corrida"],
   ["alcance", "compara dos ejecuciones con la MISMA semilla. NO ve si el resultado depende de algo de afuera —la hora, el orden de un diccionario, un archivo— que hoy casualmente no cambió. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."]
 ]
@@ -2497,7 +2735,7 @@ Como está escrita:
   "simulacion.la_traza_no_tiene_huecos",
   ["desde", ["de", "evento", "e"], ["agrupar", [["corrida", ["campo", "e", "corrida"]]], [["registrados", "contar", 1], ["ultimo", "max", ["campo", "e", "t"]]]], ["donde", ["!=", ["col", "registrados"], ["mas", ["col", "ultimo"], 1]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"],
+  ["umbral", "<=", 0, "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó", "convencion"],
   ["requiere", "evento"],
   ["alcance", "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."]
 ]
@@ -2514,11 +2752,26 @@ Como está escrita:
 
 ```json
 [
+  "ninguno-requiere",
+  "simulacion.no_se_agoto_el_presupuesto",
+  "corrida",
+  "c",
+  ["==", ["campo", "c", "presupuesto_agotado"], true],
+  "una corrida que se quedó sin pasos no observó el sistema: observó el presupuesto. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló, no de lo simulado",
+  "contrato",
+  "ve la clasificación producida por el contrato de terminación. NO ve si el presupuesto era razonable, ni si una corrida que terminó a tiempo lo hizo por el motivo correcto. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."
+]
+```
+
+En qué se expande:
+
+```json
+[
   "medida",
   "simulacion.no_se_agoto_el_presupuesto",
   ["desde", ["de", "corrida", "c"], ["donde", ["==", ["campo", "c", "presupuesto_agotado"], true]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "una corrida que se quedó sin pasos no observó el sistema: observó el presupuesto. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló, no de lo simulado"],
+  ["umbral", "<=", 0, "una corrida que se quedó sin pasos no observó el sistema: observó el presupuesto. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló, no de lo simulado", "contrato"],
   ["requiere", "corrida"],
   ["alcance", "ve la clasificación producida por el contrato de terminación. NO ve si el presupuesto era razonable, ni si una corrida que terminó a tiempo lo hizo por el motivo correcto. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."]
 ]
@@ -2538,19 +2791,25 @@ medidas, cada caso de defecto tiene que ponerse rojo y cada caso correcto, verde
 
 | Etiqueta | Cuántos |
 |---|---|
-| falso_verde | 65 |
-| verde_correcto | 34 |
+| falso_verde | 72 |
+| verde_correcto | 46 |
 | deuda_de_diseño | 2 |
 | falso_rojo | 2 |
 | medida_correcta_conclusion_errada | 1 |
 
 | Cómo se detectó | Cuántos |
 |---|---|
-| mutacion | 51 |
-| observacion | 34 |
-| persona | 12 |
+| mutacion | 55 |
+| observacion | 47 |
+| persona | 13 |
+| herramienta_ajena | 4 |
 | accidente | 4 |
-| herramienta_ajena | 3 |
+
+| Procedencia | Cuántos |
+|---|---|
+| observada | 78 |
+| construida | 39 |
+| generada | 6 |
 
 **Cada caso registra cómo se detectó.** Una suite verde y una mutación, una persona o
 un accidente son señales distintas; mezclarlas borraría justo la evidencia que el
@@ -2561,6 +2820,7 @@ corpus intenta conservar.
 **Un `donde` que devolvió más filas de las que recibió**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.donde_nunca_agrega_filas`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2581,6 +2841,7 @@ La evidencia, como relaciones:
 **Un `donde` que reduce, y un `de` que puebla**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.donde_nunca_agrega_filas`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2601,6 +2862,7 @@ La evidencia, como relaciones:
 **`agrupar` devolvió más grupos que filas de entrada**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.agrupar_no_agranda_la_relacion`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2621,6 +2883,7 @@ La evidencia, como relaciones:
 **`agrupar` colapsa filas en grupos**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.agrupar_no_agranda_la_relacion`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2641,6 +2904,7 @@ La evidencia, como relaciones:
 **`unir` devolvió menos pares que el producto**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.unir_materializa_el_producto`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2661,6 +2925,7 @@ La evidencia, como relaciones:
 **`unir` devuelve exactamente el producto**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.unir_materializa_el_producto`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2681,6 +2946,7 @@ La evidencia, como relaciones:
 **Un `y` que evaluó un solo operando de dos**
 
 - etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.los_logicos_evaluan_todos_sus_operandos`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2701,6 +2967,7 @@ La evidencia, como relaciones:
 **Los lógicos evalúan todos sus operandos**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.los_logicos_evaluan_todos_sus_operandos`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2721,6 +2988,7 @@ La evidencia, como relaciones:
 **Un único `y` cortocircuitado, pegado al umbral**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.los_logicos_evaluan_todos_sus_operandos`
 - de dónde salió: Segtem/oracle · c81a87c
 
@@ -2741,6 +3009,7 @@ La evidencia, como relaciones:
 **Una medida de ausencia usa `unir` y `agrupar` sin precondición**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_de_ausencia_declara_requiere`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2762,6 +3031,7 @@ La evidencia, como relaciones:
 **El patrón de ausencia pasa cuando declara `requiere`, y los patrones parciales no cuentan**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_de_ausencia_declara_requiere`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2783,6 +3053,7 @@ La evidencia, como relaciones:
 **Sin relación `termino`, la regla de ausencia no puede concluir**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_de_ausencia_declara_requiere`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2804,6 +3075,7 @@ La evidencia, como relaciones:
 **Una medida cuenta la relación entera**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_filtra_o_agrupa`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2825,6 +3097,7 @@ La evidencia, como relaciones:
 **`donde` y `agrupar` bastan por separado como operadores estructurales**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_filtra_o_agrupa`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2846,6 +3119,7 @@ La evidencia, como relaciones:
 **La regla de filtro o agrupamiento no concluye sin `termino`**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_filtra_o_agrupa`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2867,6 +3141,7 @@ La evidencia, como relaciones:
 **Un umbral final usa igualdad exacta**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ningun_umbral_de_igualdad`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2887,6 +3162,7 @@ La evidencia, como relaciones:
 **Los umbrales de orden no son igualdad exacta**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ningun_umbral_de_igualdad`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2907,6 +3183,7 @@ La evidencia, como relaciones:
 **Una medida sin filtro no se salva por el `donde` de otra**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.toda_medida_filtra_o_agrupa`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -2923,11 +3200,140 @@ La evidencia, como relaciones:
 }
 ```
 
+### 070-catalogo-real-sin-filtro-ni-grupo
+
+**Tres medidas de un catálogo real contaban la relación entera**
+
+- etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.toda_medida_filtra_o_agrupa`
+- de dónde salió: Brianholl/jam · c1fc6e7
+
+**Qué pasó.** En `c1fc6e7` (2026-08-09) el catálogo de un consumidor tenía tres medidas sin `donde` ni `agrupar`: `snap.al_ras`, `snap.comparte_cara` y `scatter.cobertura`. Las tres daban veredicto, y ninguna declaraba qué fila ofende. La consecuencia se midió sobre `scatter.cobertura` con tres filas y una mala: sin filtro devolvía las 3 como testigos, con filtro devuelve 1. Un rojo que señala todo no señala nada. En el mismo commit, `scatter.contencion` y `scatter.interpenetracion` sí tenían `donde`, y son las filas que la medida NO debe marcar.
+
+**Qué se aprendió.** La medida no se escribió contra un ejemplo: se escribió y después encontró esto en un catálogo que llevaba meses en uso, escrito por alguien que sabía lo que hacía. Se arregló en `e2ce848` agregando el filtro. Que las dos medidas sanas del mismo commit estén en la evidencia no es adorno: sin ellas, quitarle el filtro a la medida sobrevive.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "snap.al_ras"}, {"id": "snap.comparte_cara"}, {"id": "scatter.cobertura"}, {"id": "scatter.contencion"}, {"id": "scatter.interpenetracion"}]
+  "termino": [{"medida": "snap.al_ras", "cabeza": "desde"}, {"medida": "snap.al_ras", "cabeza": "unir"}, {"medida": "snap.al_ras", "cabeza": "de"}, {"medida": "snap.al_ras", "cabeza": "resumen"}, {"medida": "snap.al_ras", "cabeza": "umbral"}, {"medida": "snap.al_ras", "cabeza": "alcance"}, {"medida": "snap.comparte_cara", "cabeza": "desde"}, {"medida": "snap.comparte_cara", "cabeza": "unir"}, {"medida": "snap.comparte_cara", "cabeza": "de"}, {"medida": "snap.comparte_cara", "cabeza": "resumen"}, {"medida": "snap.comparte_cara", "cabeza": "umbral"}, {"medida": "snap.comparte_cara", "cabeza": "alcance"}, {"medida": "scatter.cobertura", "cabeza": "desde"}, {"medida": "scatter.cobertura", "cabeza": "de"}, {"medida": "scatter.cobertura", "cabeza": "resumen"}, {"medida": "scatter.cobertura", "cabeza": "umbral"}, {"medida": "scatter.cobertura", "cabeza": "alcance"}, {"medida": "scatter.contencion", "cabeza": "desde"}, {"medida": "scatter.contencion", "cabeza": "unir"}, {"medida": "scatter.contencion", "cabeza": "de"}, {"medida": "scatter.contencion", "cabeza": "donde"}, {"medida": "scatter.contencion", "cabeza": "resumen"}, {"medida": "scatter.contencion", "cabeza": "umbral"}, {"medida": "scatter.cont
+}
+```
+
+### 071-catalogos-reales-sin-umbral-de-igualdad
+
+**Ninguna medida escrita a mano en tres catálogos usa un umbral de igualdad**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.ningun_umbral_de_igualdad`
+- de dónde salió: Segtem/oracle · 4a4fce9
+
+**Qué pasó.** Transcripción del comparador final de cuatro medidas reales, leídas de los catálogos tal como estaban: dos de `Brianholl/jam` en `535d518`, una de `Brianholl/LyraGASP` en `4a1ccb3` —expandida desde su forma `ninguno`, que canoniza a `<= 0`— y una de este repo. Las cuatro comparan por orden. Se buscó además el contraejemplo en la historia completa de los tres repos y no existe: ninguna medida commiteada usó nunca `==` ni `!=` como comparador de umbral.
+
+**Qué se aprendió.** Un verde transcrito del mundo dice algo que un verde construido no puede decir: que la medida no da falsos rojos sobre las medidas que la gente escribió de verdad, incluidas las que llegan por macro y canonizan su umbral en la expansión.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "snap.al_ras", "comparador": "<="}, {"id": "scatter.cobertura", "comparador": "<="}, {"id": "recarga.root_motion_habilitado", "comparador": "<="}, {"id": "meta.ninguna_medida_sin_alcance", "comparador": "<="}]
+}
+```
+
+### 072-un-umbral-flotante-real-que-compara-por-orden
+
+**Un umbral flotante real, y compara por orden**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.ningun_umbral_flotante_de_igualdad`
+- de dónde salió: Brianholl/jam · 535d518
+
+**Qué pasó.** `snap.al_ras` tiene umbral `<= 1.0`: es flotante de verdad, y por eso es la fila que importa. Satisface la mitad izquierda del filtro —el valor es flotante— y no la derecha —el comparador es de orden—, así que una medida que perdiera uno de los dos conjuntos la marcaría. Las otras tres filas son reales y no son flotantes. Leídas de `Brianholl/jam` en `535d518` y de `Brianholl/LyraGASP` en `4a1ccb3`.
+
+**Qué se aprendió.** El caso construido para esta medida podía elegir sus filas; éste no, y aún así trajo el flotante que hacía falta. Un catálogo real de física y geometría tiene umbrales flotantes por necesidad — es el dominio el que los pone, no el ejemplo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "snap.al_ras", "comparador": "<=", "umbral_es_flotante": true}, {"id": "scatter.cobertura", "comparador": "<=", "umbral_es_flotante": false}, {"id": "recarga.root_motion_habilitado", "comparador": "<=", "umbral_es_flotante": false}, {"id": "ml_deformer.malla_objetivo_fragmentada", "comparador": "<=", "umbral_es_flotante": false}]
+}
+```
+
+### 073-defensas-y-alcances-reales-no-vacios
+
+**Tres umbrales reales declaran de dónde sale el número**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.todo_umbral_declara_de_donde_sale`
+- de dónde salió: Brianholl/jam · 535d518
+
+**Qué pasó.** Tres medidas reales del catálogo migrado declaran `segun` con etiquetas del conjunto cerrado. La prosa puede discutirse, pero el origen del número ya no queda implícito.
+
+**Qué se aprendió.** La migración manual no puede terminar con `sin_declarar` escondido en el catálogo real. Este caso fija un verde observado para que la regla no dependa sólo de ejemplos construidos.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "meta.el_nivel_no_se_confunde_con_el_dominio", "segun": "convencion", "porque": "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca"}, {"id": "proceso.verificacion_vigente", "segun": "contrato", "porque": "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"}, {"id": "simulacion.corrida_reproducible", "segun": "contrato", "porque": "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota"}]
+}
+```
+
+### 074-alcances-reales-declaran-lo-que-no-ven
+
+**Tres alcances reales, y los tres nombran su punto ciego**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.ninguna_medida_sin_alcance`
+- de dónde salió: Brianholl/jam · 535d518
+
+**Qué pasó.** El `alcance` de tres medidas reales, transcrito entero: dos de `Brianholl/jam` en `535d518` y una de `Brianholl/LyraGASP` en `4a1ccb3`. Ninguno está vacío, y los tres nombran cosas concretas que la medida NO ve —la geometría dentro del AABB, la uniformidad dentro de la celda, las costuras de UV—.
+
+**Qué se aprendió.** La medida sólo comprueba que el texto no esté vacío, y su propio `alcance` lo dice. Lo que este caso agrega es que sobre alcances reales —largos, escritos a mano, en dos idiomas de acentuación distintos— la medida no inventa un rojo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "snap.al_ras", "alcance": "contacto de las caras sobre el eje solicitado. NO ve si las piezas comparten superficie en los otros dos ejes, ni la geometría real dentro del AABB. Si `pieza` u `objetivo` vienen vacías la medida NO concluye —lo declara en `requiere`— y sale SIN EVIDENCIA en vez de un verde que no miró nada"}, {"id": "scatter.cobertura", "alcance": "fracción de celdas con al menos un centro. NO ve uniformidad dentro de cada celda, distancias entre vecinos, patrones, orientación ni calidad visual. Si `cobertura_scatter` viene vacía la medida NO concluye —lo declara en `requiere`— y sale SIN EVIDENCIA en vez de verde"}, {"id": "ml_deformer.malla_objetivo_fragmentada", "alcance": "ve la cantidad de componentes conexas de la topologia fuente declarada, contadas sobre los triangulos. NO ve vertices huerfanos, NO ve si dos cascaras se tocan geometricamente sin compartir vertices, NO ve la malla de render ni sus LODs, NO ve costuras de UV o de normales"}]
+}
+```
+
+### 075-las-dos-medidas-reales-de-unir-y-agrupar-declaran-requiere
+
+**Las únicas dos medidas reales que usan `unir` con `agrupar` declaran `requiere`**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.toda_medida_de_ausencia_declara_requiere`
+- de dónde salió: Segtem/oracle · 4a4fce9
+
+**Qué pasó.** Barrí los tres catálogos —38 medidas de este repo, 41 de `Brianholl/jam` en `535d518`, 9 de `Brianholl/LyraGASP` en `4a1ccb3`, en las dos superficies— buscando el patrón que la medida persigue: `unir` junto con `agrupar`. Aparece exactamente dos veces, las dos acá, y las dos declaran `requiere`. La tercera fila es histórica y es la que discrimina: `snap.al_ras` en `Brianholl/jam` `c1fc6e7` usaba `unir` sin `agrupar` y sin `requiere` — cumple la mitad del filtro y no la otra, así que una medida a la que le falte un conjunto la marcaría.
+
+**Qué se aprendió.** Que el patrón aparezca dos veces en 88 medidas dice algo sobre la medida: no está fijada por casualidad, está fijada por escasez. Y las dos apariciones son medidas meta de este repo, o sea que hoy la regla se cumple sola porque quien la escribió es quien escribe las únicas medidas a las que se aplica. Cuando un consumidor escriba la primera, ahí se sabrá si sirve.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "meta.toda_medida_de_ausencia_declara_requiere"}, {"id": "meta.toda_medida_filtra_o_agrupa"}, {"id": "snap.al_ras@c1fc6e7"}]
+  "termino": [{"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "de"}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "unir"}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "agrupar"}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "donde"}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "resumen"}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "umbral"}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "cabeza": "requiere"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "de"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "unir"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "agrupar"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "donde"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "resumen"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "umbral"}, {"medida": "meta.toda_medida_filtra_o_agrupa", "cabeza": "requiere"}, {"medida": "snap.al_ras@c1fc6e7", "cabeza": "desde"}, {"medida": "snap.al_ras@c1fc6e7", "cabeza": "unir"}, {"medida": "snap.al_ras@c1fc6e7", "cabeza": "de"}, {"me
+}
+```
+
 ### 100-donde-no-compone
 
 **Donde no compone**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.donde_compone`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -2948,10 +3354,11 @@ La evidencia, como relaciones:
 **Donde compone bien**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.donde_compone`
-- de dónde salió: Segtem/oracle · acfca07
+- de dónde salió: Segtem/oracle · df8cdd2
 
-**Qué pasó.** Las dos formas del filtro coinciden en veredicto, valor y testigos. La segunda fila es de otra propiedad y no coincide en testigos: está para fijar que el filtro por `propiedad` filtre de verdad.
+**Qué pasó.** python tools/metamorficas.py
 
 **Qué se aprendió.** Sin esta polaridad, quitar el filtro por `propiedad` sobrevivía: la medida se pondría roja por una equivalencia que no es la suya. Cada propiedad juzga sólo sus propios hechos.
 
@@ -2959,7 +3366,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "equivalencia": [{"propiedad": "donde_compone", "caso": "c", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "c", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
+  "equivalencia": [{"propiedad": "donde_compone", "caso": "049-donde-agrego-filas", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "donde_compone", "caso": "050-donde-filtra-como-debe", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "049-donde-agrego-filas", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
 }
 ```
 
@@ -2968,6 +3375,7 @@ La evidencia, como relaciones:
 **Unir no conmuta**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.unir_conmuta`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -2988,10 +3396,11 @@ La evidencia, como relaciones:
 **Unir conmuta bien**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.unir_conmuta`
-- de dónde salió: Segtem/oracle · acfca07
+- de dónde salió: Segtem/oracle · df8cdd2
 
-**Qué pasó.** Las dos formas coinciden, tanto sobre la sonda construida como sobre una medida real del catálogo con la evidencia de su caso.
+**Qué pasó.** python tools/metamorficas.py
 
 **Qué se aprendió.** Los dos orígenes conviven en la misma relación y el hecho lo declara. Importa: una propiedad comprobada sólo donde el catálogo casualmente la ejercita mide la coincidencia, no la propiedad.
 
@@ -2999,7 +3408,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "equivalencia": [{"propiedad": "unir_conmuta", "caso": "c", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "unir_conmuta", "caso": "real", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+  "equivalencia": [{"propiedad": "unir_conmuta", "caso": "061-ausencia-sin-requiere", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "unir_conmuta", "caso": "062-ausencia-cubierta-o-no-aplica", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "049-donde-agrego-filas", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
 }
 ```
 
@@ -3008,6 +3417,7 @@ La evidencia, como relaciones:
 **Agrupar sin claves difiere**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.agrupar_sin_claves_es_el_resumen_global`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -3028,10 +3438,11 @@ La evidencia, como relaciones:
 **Agrupar sin claves coincide**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.agrupar_sin_claves_es_el_resumen_global`
-- de dónde salió: Segtem/oracle · acfca07
+- de dónde salió: Segtem/oracle · df8cdd2
 
-**Qué pasó.** Las dos formas coinciden en veredicto y valor, y NO coinciden en testigos. Eso es lo correcto y es la polaridad que lo fija: `agrupar` consume los hechos, así que la forma agrupada señala un grupo y la directa señala las filas originales.
+**Qué pasó.** python tools/metamorficas.py
 
 **Qué se aprendió.** Es el caso que impide endurecer la medida por prolijidad. Si alguien agregara `mismos_testigos` al predicado —para que las cuatro propiedades se parezcan— esta medida se pondría roja con el álgebra sana, y un falso rojo enseña a ignorar el verificador.
 
@@ -3039,7 +3450,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "equivalencia": [{"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "c", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}, {"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "otro-agregado", "origen": "construido", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
+  "equivalencia": [{"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "049-donde-agrego-filas", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}, {"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "050-donde-filtra-como-debe", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
 }
 ```
 
@@ -3048,6 +3459,7 @@ La evidencia, como relaciones:
 **Macro expande distinto**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.una_macro_equivale_a_su_expansion`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -3068,10 +3480,11 @@ La evidencia, como relaciones:
 **Macro equivale**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.una_macro_equivale_a_su_expansion`
-- de dónde salió: Segtem/oracle · acfca07
+- de dónde salió: Segtem/oracle · df8cdd2
 
-**Qué pasó.** Dos medidas escritas por macro coinciden con su expansión canónica en veredicto, valor y testigos, sobre la evidencia real de sus casos.
+**Qué pasó.** python tools/metamorficas.py
 
 **Qué se aprendió.** El alcance de esta propiedad tiene un hueco que conviene tener presente: si una macro expandiera SIEMPRE mal de la misma manera, las dos formas coincidirían igual y esta medida callaría. Comprueba que las dos formas sean la misma, no que la forma sea la correcta.
 
@@ -3079,7 +3492,7 @@ La evidencia, como relaciones:
 
 ```json
 {
-  "equivalencia": [{"propiedad": "una_macro_equivale_a_su_expansion", "caso": "uno", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "una_macro_equivale_a_su_expansion", "caso": "otro", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+  "equivalencia": [{"propiedad": "una_macro_equivale_a_su_expansion", "caso": "049-donde-agrego-filas", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "una_macro_equivale_a_su_expansion", "caso": "050-donde-filtra-como-debe", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "agrupar_sin_claves_es_el_resumen_global", "caso": "049-donde-agrego-filas", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": false}]
 }
 ```
 
@@ -3088,6 +3501,7 @@ La evidencia, como relaciones:
 **donde_compone: cada campo del contrato falla por separado**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.donde_compone`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -3108,6 +3522,7 @@ La evidencia, como relaciones:
 **unir_conmuta: cada campo del contrato falla por separado**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.unir_conmuta`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -3128,6 +3543,7 @@ La evidencia, como relaciones:
 **agrupar_sin_claves_es_el_resumen_global: cada campo del contrato falla por separado**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.agrupar_sin_claves_es_el_resumen_global`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -3148,6 +3564,7 @@ La evidencia, como relaciones:
 **una_macro_equivale_a_su_expansion: cada campo del contrato falla por separado**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.una_macro_equivale_a_su_expansion`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -3168,6 +3585,7 @@ La evidencia, como relaciones:
 **Sintaxis no vuelve igual**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.sintaxis_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · b250e6c
 
@@ -3188,6 +3606,7 @@ La evidencia, como relaciones:
 **Sintaxis vuelve exacta**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.sintaxis_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · b250e6c
 
@@ -3208,6 +3627,7 @@ La evidencia, como relaciones:
 **Sintaxis revienta al leer**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.sintaxis_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · b250e6c
 
@@ -3228,6 +3648,7 @@ La evidencia, como relaciones:
 **Cada campo del contrato de la ida y vuelta falla por separado**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.sintaxis_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · b250e6c
 
@@ -3248,6 +3669,7 @@ La evidencia, como relaciones:
 **Sintaxis generada no vuelve igual**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `generada`
 - medida que lo atrapa: `meta.sintaxis_cubre_algebra`
 - de dónde salió: Segtem/oracle · local
 
@@ -3268,6 +3690,7 @@ La evidencia, como relaciones:
 **Sintaxis generada vuelve exacta**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `generada`
 - medida que lo atrapa: `meta.sintaxis_cubre_algebra`
 - de dónde salió: Segtem/oracle · local
 
@@ -3288,6 +3711,7 @@ La evidencia, como relaciones:
 **Cada campo del contrato de sintaxis_cubre_algebra falla por separado**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `generada`
 - medida que lo atrapa: `meta.sintaxis_cubre_algebra`
 - de dónde salió: Segtem/oracle · local
 
@@ -3308,6 +3732,7 @@ La evidencia, como relaciones:
 **Sintaxis de casos no vuelve igual**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.sintaxis_casos_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · local
 
@@ -3328,6 +3753,7 @@ La evidencia, como relaciones:
 **Sintaxis de casos vuelve exacta**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `meta.sintaxis_casos_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · local
 
@@ -3348,6 +3774,7 @@ La evidencia, como relaciones:
 **Sintaxis de casos generados no vuelve igual**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `generada`
 - medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
 - de dónde salió: Segtem/oracle · local
 
@@ -3368,6 +3795,7 @@ La evidencia, como relaciones:
 **Sintaxis de casos generados vuelve exacta**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `generada`
 - medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
 - de dónde salió: Segtem/oracle · local
 
@@ -3388,6 +3816,7 @@ La evidencia, como relaciones:
 **Sintaxis de casos fija un campo por vez**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.sintaxis_casos_ida_y_vuelta`
 - de dónde salió: Segtem/oracle · local
 
@@ -3408,6 +3837,7 @@ La evidencia, como relaciones:
 **Sintaxis de casos generados fija un campo por vez**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `generada`
 - medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
 - de dónde salió: Segtem/oracle · local
 
@@ -3428,6 +3858,7 @@ La evidencia, como relaciones:
 **Un umbral final compara un flotante con igualdad exacta**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ningun_umbral_flotante_de_igualdad`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -3448,6 +3879,7 @@ La evidencia, como relaciones:
 **Un umbral final compara un flotante con desigualdad exacta**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ningun_umbral_flotante_de_igualdad`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -3468,6 +3900,7 @@ La evidencia, como relaciones:
 **El orden sobre flotantes y la igualdad sobre enteros no ofenden**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ningun_umbral_flotante_de_igualdad`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -3485,41 +3918,43 @@ La evidencia, como relaciones:
 
 ### 403-umbral-sin-defensa
 
-**Un umbral final no declara su defensa**
+**Un tanteo sin defensa queda sin explicación**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
-- medida que lo atrapa: `meta.ningun_umbral_sin_defensa`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.todo_tanteo_explica_por_que`
 - de dónde salió: Segtem/oracle · sin-commit
 
-**Qué pasó.** La cabecera estructural de la medida trae un `porque` vacío. Un número que nadie puede discutir es una métrica esperando a volverse objetivo: sin defensa, el verde es una orden y no una conclusión.
+**Qué pasó.** La cabecera estructural de la medida declara `segun` como `tanteo` y trae un `porque` vacío. La etiqueta dice que se probó hasta que anduvo, pero no deja nada auditable sobre por qué ese número y no otro.
 
-**Qué se aprendió.** La regla mira la VACUIDAD de la defensa, no su calidad. Juzgar si una defensa es buena, circular o mentirosa es otra regla; ésta sólo asegura que exista algo que discutir.
+**Qué se aprendió.** La prosa dejó de ser obligatoria para todos los umbrales, pero un `tanteo` sin explicación no compra nada: hay que decir qué se probó o por qué se aceptó el corte.
 
 La evidencia, como relaciones:
 
 ```json
 {
-  "medida": [{"id": "dominio.umbral_mudo", "porque": ""}]
+  "medida": [{"id": "dominio.umbral_tanteado_mudo", "segun": "tanteo", "porque": ""}]
 }
 ```
 
 ### 404-umbral-con-defensa
 
-**Un umbral con defensa no ofende**
+**Un tanteo explicado no ofende**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
-- medida que lo atrapa: `meta.ningun_umbral_sin_defensa`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.todo_tanteo_explica_por_que`
 - de dónde salió: Segtem/oracle · sin-commit
 
-**Qué pasó.** Dos medidas traen `porque` no vacíos. La regla debe dejarlas pasar: existe algo que discutir, aunque no sea la mejor defensa posible.
+**Qué pasó.** Dos medidas declaran `segun: tanteo` y traen `porque` no vacíos. La regla debe dejarlas pasar: existe algo que discutir, aunque la explicación no sea perfecta.
 
-**Qué se aprendió.** El verde fija la polaridad contraria: la regla no exige una defensa perfecta, sólo una defensa presente. Si la condición se invierte, este caso se pone rojo.
+**Qué se aprendió.** El verde fija la polaridad contraria: la regla no exige una defensa perfecta, sólo que el tanteo no quede mudo. Si la condición se invierte, este caso se pone rojo.
 
 La evidencia, como relaciones:
 
 ```json
 {
-  "medida": [{"id": "dominio.con_defensa", "porque": "un número que se puede discutir"}, {"id": "dominio.con_otra_defensa", "porque": "la tolerancia sale del desvío medido"}]
+  "medida": [{"id": "dominio.tanteo_con_defensa", "segun": "tanteo", "porque": "se probó contra tres corridas y éste fue el menor margen estable"}, {"id": "dominio.tanteo_con_otra_defensa", "segun": "tanteo", "porque": "la tolerancia se ajustó hasta dejar de cortar ruido"}]
 }
 ```
 
@@ -3528,6 +3963,7 @@ La evidencia, como relaciones:
 **Una medida no declara qué NO ve**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ninguna_medida_sin_alcance`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -3548,6 +3984,7 @@ La evidencia, como relaciones:
 **Una medida con alcance declarado no ofende**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `meta.ninguna_medida_sin_alcance`
 - de dónde salió: Segtem/oracle · sin-commit
 
@@ -3563,11 +4000,285 @@ La evidencia, como relaciones:
 }
 ```
 
+### 407-medida-solo-con-evidencia-fabricada
+
+**Una medida queda sostenida solo por casos fabricados**
+
+- etiqueta: `falso_verde` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`
+- de dónde salió: Segtem/oracle · sesion procedencia 2026-08-26
+
+**Qué pasó.** Una medida queda reclamada por dos casos construidos y ningun caso observado. La medida puede estar bien escrita, pero su verde todavia no dice que haya atrapado algo que ocurrio fuera del ejemplo.
+
+**Qué se aprendió.** Dos casos alcanzan para fijar polaridad y borde: si todos son no observados, la agrupacion por medida tiene que producir un testigo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "caso": [{"id": "403-umbral-sin-defensa", "medida": "dominio.regla_solo_fabricada", "tiene_medida": true, "procedencia": "construida"}, {"id": "404-umbral-con-defensa", "medida": "dominio.regla_solo_fabricada", "tiene_medida": true, "procedencia": "construida"}]
+}
+```
+
+### 408-medida-con-evidencia-observada
+
+**Un caso observado alcanza para que la medida no quede marcada como fabricada**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`
+- de dónde salió: Segtem/oracle · sesion procedencia 2026-08-26
+
+**Qué pasó.** `simulacion.corrida_reproducible` combina un caso observado con un caso construido, y el caso sin medida no debe formar un grupo propio aunque su procedencia no sea observada.
+
+**Qué se aprendió.** La regla no exige que todos los casos sean observados: exige que no sean todos fabricados, y que los huecos sin medida no contaminen el agrupamiento.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "caso": [{"id": "200-corrida-sin-ninguna-corrida", "medida": "simulacion.corrida_reproducible", "tiene_medida": true, "procedencia": "observada"}, {"id": "301-simulador-que-ignora-la-semilla", "medida": "simulacion.corrida_reproducible", "tiene_medida": true, "procedencia": "construida"}, {"id": "012-umbral-duplicado-en-filtro-y-umbral", "medida": "", "tiene_medida": false, "procedencia": "construida"}]
+}
+```
+
+### 409-flotante-comparado-por-igualdad-en-filtro
+
+**Un filtro compara un flotante literal con igualdad exacta**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.ningun_flotante_comparado_por_igualdad_en_un_filtro`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** El literal flotante es operando directo de `==` y ese comparador vive dentro de un `donde`. La medida debe marcarlo aunque el valor concreto parezca inocente.
+
+**Qué se aprendió.** La prohibición necesita ver tres cosas a la vez: tipo flotante, igualdad exacta como padre inmediato y pertenencia a un filtro. Si cualquiera se pierde, este caso deja de ponerse rojo.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "ancestro": [{"medida": "dominio.filtro_con_igualdad_flotante", "ruta": "2.2.1.2", "ancestro": "2.2.1", "cabeza_ancestro": "==", "tipo": "flotante", "cabeza_padre": "==", "texto": "1.0"}, {"medida": "dominio.filtro_con_igualdad_flotante", "ruta": "2.2.1.2", "ancestro": "2.2", "cabeza_ancestro": "donde", "tipo": "flotante", "cabeza_padre": "==", "texto": "1.0"}]
+}
+```
+
+### 410-flotante-comparado-por-desigualdad-en-filtro
+
+**Un filtro compara un flotante literal con desigualdad exacta**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.ningun_flotante_comparado_por_igualdad_en_un_filtro`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** El literal flotante es operando directo de `!=` dentro de un `donde`. La desigualdad exacta sobre una cantidad medida tiene el mismo problema que la igualdad: depende de representación, no de una tolerancia defendida.
+
+**Qué se aprendió.** `==` y `!=` son dos ramas del mismo riesgo. Un caso por rama evita que una mutación deje media condición sin cubrir.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "ancestro": [{"medida": "dominio.filtro_con_desigualdad_flotante", "ruta": "2.2.1.2", "ancestro": "2.2.1", "cabeza_ancestro": "!=", "tipo": "flotante", "cabeza_padre": "!=", "texto": "1.0"}, {"medida": "dominio.filtro_con_desigualdad_flotante", "ruta": "2.2.1.2", "ancestro": "2.2", "cabeza_ancestro": "donde", "tipo": "flotante", "cabeza_padre": "!=", "texto": "1.0"}]
+}
+```
+
+### 411-flotante-en-filtro-sin-ancestro-no-concluye
+
+**Sin relación `ancestro`, la medida no puede concluir**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.ningun_flotante_comparado_por_igualdad_en_un_filtro`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** El sensor estructural entregó el término flotante pero no la clausura de ancestría. Sin esa relación, la medida no puede saber si el comparador está dentro de un `donde`.
+
+**Qué se aprendió.** `requiere ancestro` no es decoración: sin esa precondición, un join vacío se leería como cero ofensas y la medida saldría verde sobre evidencia incompleta.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "ancestro": []
+}
+```
+
+### 412-catalogo-real-sin-flotante-de-igualdad-en-filtro
+
+**Una fila real del catálogo no es un flotante de igualdad en filtro**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.ningun_flotante_comparado_por_igualdad_en_un_filtro`
+- de dónde salió: Segtem/oracle · 73f4cc0+worktree
+
+**Qué pasó.** En el catálogo real, `meta.toda_medida_de_ausencia_declara_requiere` tiene un nodo `unir` dentro de su tubería. Esa fila prueba que `termino` y `ancestro` pueden estar presentes sin que haya una ofensa de flotante exacto.
+
+**Qué se aprendió.** El verde no sale de relaciones vacías: hay un término y un ancestro reales, pero no cumplen tipo, padre ni ancestro de filtro. Quitar el filtro de la medida ya no pasa inadvertido.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "ancestro": [{"medida": "meta.toda_medida_de_ausencia_declara_requiere", "ruta": "2.1", "ancestro": "2", "cabeza_ancestro": "desde", "tipo": "lista", "cabeza_padre": "desde", "texto": ""}, {"medida": "meta.toda_medida_de_ausencia_declara_requiere", "ruta": "2.1", "ancestro": "", "cabeza_ancestro": "medida", "tipo": "lista", "cabeza_padre": "desde", "texto": ""}, {"medida": "meta.toda_medida_filtra_o_agrupa", "ruta": "2.2.1.2.2", "ancestro": "2.2", "cabeza_ancestro": "donde", "tipo": "entero", "cabeza_padre": "==", "texto": "0"}]
+}
+```
+
+### 413-campo-sin-unidad-declarada
+
+**Un campo de una relación no declara unidad**
+
+- etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.ningun_campo_sin_unidad_declarada`
+- de dónde salió: Segtem/oracle · 73f4cc0+worktree
+
+**Qué pasó.** Una relación entrega un campo con `tiene_unidad` en false (sin magnitud ni «sin unidad» explícito). Sin unidad declarada, una medida puede comparar números en unidades incompatibles en silencio.
+
+**Qué se aprendió.** Un campo sin unidad no puede pasar desapercibido. La evidencia incluye una fila sana para que la medida no pase con un filtro vacío ni confunda ausencia de ofensa con ausencia de datos.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "campo_declarado": [{"relacion": "sensor_roto", "campo": "distancia", "tipo": "flotante", "unidad": "", "tiene_unidad": false, "es_magnitud": false, "es_sin_unidad": false}, {"relacion": "sensor_roto", "campo": "id", "tipo": "texto", "unidad": "sin_unidad", "tiene_unidad": true, "es_magnitud": false, "es_sin_unidad": true}]
+}
+```
+
+### 414-campo-con-unidad-declarada
+
+**Los campos con magnitud o con «sin_unidad» explícito no ofenden**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.ningun_campo_sin_unidad_declarada`
+- de dónde salió: Segtem/oracle · 73f4cc0+worktree
+
+**Qué pasó.** La relación real `pieza` declara magnitudes físicas (`cm`, `grados`) y campos sin magnitud física con `sin_unidad` explícito. Todos tienen `tiene_unidad` en true y la regla debe dar verde.
+
+**Qué se aprendió.** El verde cubre las dos formas válidas de declarar unidad en L−1: magnitudes con dimensión física explícita y campos adimensionales con `sin_unidad`.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "campo_declarado": [{"relacion": "pieza", "campo": "id", "tipo": "texto", "unidad": "sin_unidad", "tiene_unidad": true, "es_magnitud": false, "es_sin_unidad": true}, {"relacion": "pieza", "campo": "ox", "tipo": "flotante", "unidad": "cm", "tiene_unidad": true, "es_magnitud": true, "es_sin_unidad": false}, {"relacion": "pieza", "campo": "yaw", "tipo": "flotante", "unidad": "grados", "tiene_unidad": true, "es_magnitud": true, "es_sin_unidad": false}]
+}
+```
+
+### 415-umbral-sin-segun
+
+**Un umbral no declara de dónde sale el número**
+
+- etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.todo_umbral_declara_de_donde_sale`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** La relación `medida` trae `segun` en `sin_declarar`. Esa ausencia es visible para que una forma vieja o incompleta se ponga roja, no para aceptarla como categoría.
+
+**Qué se aprendió.** La prosa puede existir y aun así faltar lo evaluable: `segun` contesta de dónde salió el número.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "dominio.umbral_sin_origen", "segun": "sin_declarar", "porque": "tiene prosa, pero no etiqueta"}]
+}
+```
+
+### 416-umbral-con-segun
+
+**Un umbral con origen declarado no ofende**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
+- medida que lo atrapa: `meta.todo_umbral_declara_de_donde_sale`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** Las medidas declaran `segun` con etiquetas del conjunto cerrado. La regla debe dejarlas pasar aunque alguna no tenga prosa: la ausencia que mira es `sin_declarar`.
+
+**Qué se aprendió.** La regla no exige defensa escrita ni juzga la calidad de la etiqueta: sólo falla cuando el origen del número quedó sin declarar.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "dominio.contrato_sin_prosa", "segun": "contrato", "porque": ""}, {"id": "dominio.convencion_con_prosa", "segun": "convencion", "porque": "la costumbre del dominio tolera ese margen"}]
+}
+```
+
+### 417-tanteos-reales-explicados-o-ausentes
+
+**El catálogo real no tiene tanteos mudos**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.todo_tanteo_explica_por_que`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** La migración del catálogo base no produjo ningún `segun: tanteo`; los umbrales reales revisados quedaron como contrato o convención. Por eso la regla de tanteos no debe marcar el catálogo por ausencia de prosa.
+
+**Qué se aprendió.** La regla específica para `tanteo` no reinstala la defensa obligatoria para todos. Si no hay tanteo, o si el origen es contrato/convención/medición, la medida no tiene que ofender.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "medida": [{"id": "meta.toda_medida_filtra_o_agrupa", "segun": "convencion", "porque": "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"}, {"id": "simulacion.la_traza_no_tiene_huecos", "segun": "convencion", "porque": "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"}, {"id": "proceso.verificacion_vigente", "segun": "contrato", "porque": "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"}]
+}
+```
+
+### 418-sintaxis-cubre-algebra-catalogo-real
+
+**El catálogo real también fija la cobertura sintáctica del álgebra**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.sintaxis_cubre_algebra`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** Las sondas generadas cubren bordes de gramática, pero la medida también necesita quedar anclada en una observación del catálogo real: las medidas versionadas imprimen, releen y conservan veredicto, valor y testigos.
+
+**Qué se aprendió.** La completitud generada mata bordes, pero una medida del marco no queda sostenida sólo por fabricación: también hay una observación del catálogo que debe permanecer verde.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_cubre_algebra", "caso": "catalogo-real-actual", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_cubre_algebra", "caso": "catalogo-real-con-macros", "origen": "catalogo", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
+### 419-sintaxis-casos-cubre-casos-corpus-real
+
+**El corpus real también fija la cobertura sintáctica de casos**
+
+- etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
+- medida que lo atrapa: `meta.sintaxis_casos_cubre_casos`
+- de dónde salió: Segtem/oracle · sin-commit
+
+**Qué pasó.** Los casos generados ejercitan formas raras, pero el corpus versionado completo también debe sobrevivir la ida y vuelta de la superficie sin perder veredicto, valor ni testigos.
+
+**Qué se aprendió.** La generación amplía el espacio cubierto; el corpus real impide que esa garantía quede justificada sólo por ejemplos fabricados.
+
+La evidencia, como relaciones:
+
+```json
+{
+  "equivalencia": [{"propiedad": "sintaxis_casos_cubre_casos", "caso": "corpus-real-actual", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}, {"propiedad": "sintaxis_casos_cubre_casos", "caso": "corpus-real-con-casos-meta", "origen": "corpus", "evaluo": true, "error": "", "mismo_veredicto": true, "mismo_valor": true, "mismos_testigos": true}]
+}
+```
+
 ### 001-verde-acumulativo
 
 **«489 tests OK» reportado cada turno: un número que sube y nunca significa más**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.afirmacion_declara_alcance`
 - de dónde salió: Brianholl/jam · todos
 
@@ -3588,6 +4299,7 @@ La evidencia, como relaciones:
 **El test de orden de la firma pasaba con el código roto**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Brianholl/jam · 19d2593
 
@@ -3609,6 +4321,7 @@ La evidencia, como relaciones:
 **La regla que ignora la escenografía de fondo existía sin estar verificada**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Brianholl/jam · 535d476
 
@@ -3630,6 +4343,7 @@ La evidencia, como relaciones:
 **La medición y sus testigos recorrían los datos dos veces, con dos definiciones**
 
 - etiqueta: `deuda_de_diseño` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `ninguna todavía`
 - de dónde salió: Brianholl/jam · 535d476
 
@@ -3652,6 +4366,7 @@ La evidencia, como relaciones:
 **Aflojar el umbral de yaw de 0.5° a 5° no rompía ningún test**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Brianholl/jam · 535d476
 
@@ -3674,6 +4389,7 @@ La evidencia, como relaciones:
 **El arnés de mutación corría bytecode mutado sobre código restaurado**
 
 - etiqueta: `falso_verde` · se detectó por: `accidente`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.arnes_con_bytecode_frio`
 - de dónde salió: Brianholl/jam · 535d476
 
@@ -3694,6 +4410,7 @@ La evidencia, como relaciones:
 **El verificador de relevo daba verde con el código vivo modificado sin commitear**
 
 - etiqueta: `falso_verde` · se detectó por: `accidente`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.verificacion_vigente`
 - de dónde salió: Brianholl/jam · 19d2593
 
@@ -3715,6 +4432,7 @@ La evidencia, como relaciones:
 **El verificador del vault reportaba roto lo que estaba bien**
 
 - etiqueta: `falso_rojo` · se detectó por: `accidente`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.verificador_sin_falsos_rojos`
 - de dónde salió: Brianholl/jam · f738f07
 
@@ -3735,6 +4453,7 @@ La evidencia, como relaciones:
 **Módulos completos, testeados y que nadie importa**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_con_consumidor`
 - de dónde salió: Brianholl/jam · 535d476
 
@@ -3756,6 +4475,7 @@ La evidencia, como relaciones:
 **Una edición en masa desindentó código y lo dejó sintácticamente roto**
 
 - etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.sintaxis_valida_tras_edicion_masiva`
 - de dónde salió: Brianholl/jam · 24d5e07
 
@@ -3777,6 +4497,7 @@ La evidencia, como relaciones:
 **Medición correcta, conclusión equivocada: «88% sin usar» era «88% no importable»**
 
 - etiqueta: `medida_correcta_conclusion_errada` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `ninguna todavía`
 - de dónde salió: Brianholl/jam · 24d5e07
 
@@ -3800,6 +4521,7 @@ La evidencia, como relaciones:
 **El umbral de dominio aparece dos veces en la misma medida y nada los mantiene juntos**
 
 - etiqueta: `deuda_de_diseño` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `ninguna todavía`
 - de dónde salió: Segtem/oracle · catálogo de geometría
 
@@ -3822,6 +4544,7 @@ La evidencia, como relaciones:
 **53 tests en verde y cuatro de los seis comparadores del álgebra sin verificar**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · primera corrida de mutación de código
 
@@ -3843,6 +4566,7 @@ La evidencia, como relaciones:
 **El mutador de código dejó un archivo del núcleo MUTADO en el árbol de trabajo**
 
 - etiqueta: `falso_verde` · se detectó por: `accidente`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · corrida de mutación cortada por timeout
 
@@ -3864,6 +4588,7 @@ La evidencia, como relaciones:
 **Un racimo de módulos que se importan entre sí y nadie ejecuta**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_alcanzable`
 - de dónde salió: Segtem/oracle · recursión
 
@@ -3886,6 +4611,7 @@ La evidencia, como relaciones:
 **Un timeout no demuestra que el test haya discriminado al mutante**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.ronda_mutacion_concluyente`
 - de dónde salió: Segtem/oracle · auditoría P0
 
@@ -3906,6 +4632,7 @@ La evidencia, como relaciones:
 **Un error del arnés no demuestra que un test haya discriminado**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.ronda_mutacion_concluyente`
 - de dónde salió: Segtem/oracle · auditoría P0
 
@@ -3926,6 +4653,7 @@ La evidencia, como relaciones:
 **Mutar el enumerador de caché hizo que la limpieza borrara la copia del proyecto**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · auditoría P0, ronda completa en copia temporal
 
@@ -3946,6 +4674,7 @@ La evidencia, como relaciones:
 **Una ronda sin ningún mutante podía terminar verde**
 
 - etiqueta: `falso_verde` · se detectó por: `persona`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.ronda_mutacion_concluyente`
 - de dónde salió: Segtem/oracle · auditoría P0, revisión cruzada del cierre
 
@@ -3966,6 +4695,7 @@ La evidencia, como relaciones:
 **Una sola afirmación sin alcance ya invalida el cierre**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.afirmacion_declara_alcance`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -3986,6 +4716,7 @@ La evidencia, como relaciones:
 **Un solo cambio de código vivo vuelve vieja la verificación**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.verificacion_vigente`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4006,6 +4737,7 @@ La evidencia, como relaciones:
 **Un falso rojo basta para volver indigno de confianza al verificador**
 
 - etiqueta: `falso_rojo` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.verificador_sin_falsos_rojos`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4026,6 +4758,7 @@ La evidencia, como relaciones:
 **Que exista otro import real no le da consumidor al módulo objetivo**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_con_consumidor`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4047,6 +4780,7 @@ La evidencia, como relaciones:
 **La bolsa puede contener clasificaciones contradictorias del mismo módulo**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_alcanzable`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4068,6 +4802,7 @@ La evidencia, como relaciones:
 **Un mutante de código sobrevivió a la suite de tests**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · local
 
@@ -4088,6 +4823,7 @@ La evidencia, como relaciones:
 **Un mutante equivalente declarado con su razón no cuenta como sobreviviente ni como muerte**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · local
 
@@ -4108,6 +4844,7 @@ La evidencia, como relaciones:
 **Una ronda de mutación de código sin mutantes no concluye**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · local
 
@@ -4128,6 +4865,7 @@ La evidencia, como relaciones:
 **La medida de ausencia se ponía más verde cuanto peor estaba el mundo**
 
 - etiqueta: `falso_verde` · se detectó por: `herramienta_ajena`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_con_consumidor`
 - de dónde salió: Segtem/oracle · 515c723
 
@@ -4149,6 +4887,7 @@ La evidencia, como relaciones:
 **Sin grafo de alcance, «todo módulo es alcanzable»**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_alcanzable`
 - de dónde salió: Segtem/oracle · 515c723
 
@@ -4170,6 +4909,7 @@ La evidencia, como relaciones:
 **Un mutante que el álgebra rechaza no lo discriminó ningún caso**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · a694954
 
@@ -4190,6 +4930,7 @@ La evidencia, como relaciones:
 **Una relación que declara su clave sigue midiéndose igual**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · 6fec96a
 
@@ -4210,6 +4951,7 @@ La evidencia, como relaciones:
 **Los seis mutantes del núcleo murieron: el verde acá es correcto**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.test_con_mutante_que_lo_mata`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4230,6 +4972,7 @@ La evidencia, como relaciones:
 **Después de recorrer el motor, los commits siguientes fueron sólo de documentación**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.verificacion_vigente`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4251,6 +4994,7 @@ La evidencia, como relaciones:
 **El verificador del vault, ya corregido, no reporta nada falso**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.verificador_sin_falsos_rojos`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4271,6 +5015,7 @@ La evidencia, como relaciones:
 **La confirmación de Brian se registró con su alcance explícito**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.afirmacion_declara_alcance`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4291,6 +5036,7 @@ La evidencia, como relaciones:
 **La segunda ronda de mutación limpió `__pycache__` entre cada mutante**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.arnes_con_bytecode_frio`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4311,6 +5057,7 @@ La evidencia, como relaciones:
 **Los módulos del núcleo del oráculo sí tienen importadores**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_con_consumidor`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4332,6 +5079,7 @@ La evidencia, como relaciones:
 **El re-ruteo cuidadoso dejó los 34 archivos parseando**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.sintaxis_valida_tras_edicion_masiva`
 - de dónde salió: Brianholl/jam · sesión 2026-07-29
 
@@ -4353,6 +5101,7 @@ La evidencia, como relaciones:
 **La ronda separó muertes válidas de incidentes del arnés**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.ronda_mutacion_concluyente`
 - de dónde salió: Segtem/oracle · auditoría P0
 
@@ -4373,6 +5122,7 @@ La evidencia, como relaciones:
 **Todos los mutantes de código murieron bajo la suite**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · local
 
@@ -4393,6 +5143,7 @@ La evidencia, como relaciones:
 **Un mutante de código declarado equivalente no impide el verde legítimo**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `proceso.codigo_con_mutante_que_lo_mata`
 - de dónde salió: Segtem/oracle · local
 
@@ -4413,6 +5164,7 @@ La evidencia, como relaciones:
 **Con las entradas reales declaradas, no hay módulo muerto**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `proceso.modulo_alcanzable`
 - de dónde salió: Segtem/oracle · recursión
 
@@ -4435,6 +5187,7 @@ La evidencia, como relaciones:
 **Corrida sin ninguna corrida**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.corrida_reproducible`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -4455,6 +5208,7 @@ La evidencia, como relaciones:
 **Presupuesto sin ninguna corrida**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.no_se_agoto_el_presupuesto`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -4475,6 +5229,7 @@ La evidencia, como relaciones:
 **Traza sin ningun evento**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.la_traza_no_tiene_huecos`
 - de dónde salió: Segtem/oracle · acfca07
 
@@ -4495,6 +5250,7 @@ La evidencia, como relaciones:
 **Un simulador que ignora la semilla no produce evidencia**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `simulacion.corrida_reproducible`
 - de dónde salió: Segtem/oracle · ejemplo abstracto
 
@@ -4516,6 +5272,7 @@ La evidencia, como relaciones:
 **El ejemplo de referencia es reproducible con cualquier semilla**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `simulacion.corrida_reproducible`
 - de dónde salió: Segtem/oracle · ejemplo abstracto
 
@@ -4536,6 +5293,7 @@ La evidencia, como relaciones:
 **Un trabajo grande contra un presupuesto chico: la corrida no observa el sistema**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `construida`
 - medida que lo atrapa: `simulacion.no_se_agoto_el_presupuesto`
 - de dónde salió: Segtem/oracle · ejemplo abstracto
 
@@ -4556,6 +5314,7 @@ La evidencia, como relaciones:
 **Con presupuesto suficiente ninguna corrida se corta**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `construida`
 - medida que lo atrapa: `simulacion.no_se_agoto_el_presupuesto`
 - de dónde salió: Segtem/oracle · ejemplo abstracto
 
@@ -4576,6 +5335,7 @@ La evidencia, como relaciones:
 **Un simulador que no registra un paso deja la traza agujereada**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.la_traza_no_tiene_huecos`
 - de dónde salió: Segtem/oracle · orden
 
@@ -4597,6 +5357,7 @@ La evidencia, como relaciones:
 **La traza del ejemplo registra todos sus instantes**
 
 - etiqueta: `verde_correcto` · se detectó por: `observacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.la_traza_no_tiene_huecos`
 - de dónde salió: Segtem/oracle · orden
 
@@ -4618,6 +5379,7 @@ La evidencia, como relaciones:
 **Una corrida no reproducible basta para invalidar la evidencia**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.corrida_reproducible`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4638,6 +5400,7 @@ La evidencia, como relaciones:
 **Una sola corrida que termina por tope observó el presupuesto**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.no_se_agoto_el_presupuesto`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4658,6 +5421,7 @@ La evidencia, como relaciones:
 **Una única traza agujereada ya invalida la ronda**
 
 - etiqueta: `falso_verde` · se detectó por: `mutacion`
+- procedencia: `observada`
 - medida que lo atrapa: `simulacion.la_traza_no_tiene_huecos`
 - de dónde salió: Segtem/oracle · mutación de medidas P1.1
 
@@ -4694,7 +5458,7 @@ El lenguaje activo tiene cinco operadores: `de`, `donde`, `resumen`, `unir` y `a
 
 ### `nucleo/caso.py`
 
-*486 líneas*
+*500 líneas*
 
 Superficie de autoría para casos del corpus.
 
@@ -4762,6 +5526,15 @@ Los consumidores no deben conocer la forma física del fixture. Este módulo val
 de ``oracle.diferencial/v1`` y las proyecta como evidencias o casos asociados a una medida. Así
 ``medida --relaciones``, la revisión, el diferencial y la mutación leen exactamente el mismo dato.
 
+### `nucleo/generador.py`
+
+*738 líneas*
+
+Fabricación de evidencia discriminante a partir del AST de una medida.
+
+Dada una medida del catálogo, fabrica evidencia derivada de su forma (relaciones,
+campos, comparadores, umbrales y agrupaciones) para discriminar mutantes.
+
 ### `nucleo/grafo.py`
 
 *52 líneas*
@@ -4789,7 +5562,7 @@ mundo y no opina; el álgebra opina y no mira el mundo.
 
 ### `nucleo/macro.py`
 
-*328 líneas*
+*349 líneas*
 
 Macros: medidas que escriben medidas — y que ahora se declaran EN DATOS.
 
@@ -4811,9 +5584,9 @@ escribe un proyecto:
   <plantilla>]
 ```
 
-La plantilla es la forma canónica con huecos `["$", "<parametro>"]`. Expandir es sustituir. Las tres
-macros universales —`ninguno`, `ninguno-par`, `peor`— viven en `nucleo/macros/` y se cargan como
-cualquier otra: son la biblioteca estándar del lenguaje, no un privilegio del núcleo.
+La plantilla es la forma canónica con huecos `["$", "<parametro>"]`. Expandir es sustituir. Las
+macros universales viven en `nucleo/macros/` y se cargan como cualquier otra: son la biblioteca
+estándar del lenguaje, no un privilegio del núcleo.
 
 ### Las guardas no traen evaluador nuevo
 
@@ -4837,7 +5610,7 @@ canónica y listo.
 
 ### `nucleo/marco.py`
 
-*118 líneas*
+*119 líneas*
 
 Sensores del propio marco: hechos sobre los casos y sobre el uso de cada medida.
 
@@ -4849,7 +5622,7 @@ veredictos sean datos. Es el mismo pecado que un sensor que juzga, un nivel más
 
 Acá se producen los hechos; el juicio queda en `catalogos/meta/`.
 
-    caso(id, medida, tiene_medida, medida_existe, esperado_ok, dio_ok, explica_el_hueco)
+    caso(id, medida, procedencia, tiene_medida, medida_existe, esperado_ok, dio_ok, explica_el_hueco)
     medida_en_uso(id, casos_que_la_evaluan, mutantes, mutantes_vivos)
 
 ### Por qué no hay nulos
@@ -4867,7 +5640,7 @@ hasta que `agrupar` exista se rodea así.
 
 ### `nucleo/medida.py`
 
-*620 líneas*
+*760 líneas*
 
 La medida: un dato que se lee, se evalúa y se puede medir a su vez.
 
@@ -4877,13 +5650,14 @@ Forma canónica, tal como se guarda en `catalogos/`:
 ["medida", "<id>",
   ["desde", ["de", "<relacion>", "<alias>"], ["donde", <pred>]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "<la defensa del número>"],
+  ["umbral", "<=", 0, "<la defensa del número>", "<de dónde salió>"],
   ["alcance", "<qué NO ve>"]]
 ```
 
 Dos campos son obligatorios y son la razón de ser del módulo: **`alcance`**, para que un informe en
-verde no pueda decir «todo bien» a secas, y **la defensa del umbral**, para que el número se pueda
-discutir. Una medida sin uno de los dos no se carga: falla al leerse, no al usarse.
+verde no pueda decir «todo bien» a secas, y **`segun`**, para que el origen del número sea
+inspeccionable. La defensa en prosa sigue existiendo, pero ya no es obligatoria: dice por qué ése y
+no otro, no de dónde salió.
 
 Los **testigos no se declaran**: son las filas con las que terminó la tubería. Declararlos aparte
 obliga a escribir la misma condición dos veces y a mantenerlas sincronizadas a mano — el caso
@@ -4940,6 +5714,28 @@ Se resuelve en este orden, y el primero que aparece gana:
     el directorio actual     si tiene `catalogos/`
     el repositorio de oracle si no hay nada más — para que oracle pueda medirse a sí mismo
 
+### `nucleo/relacion.py`
+
+*236 líneas*
+
+La declaración de una relación (L−1): qué lee el sensor, en qué unidad, y qué NO miró.
+
+Forma canónica, tal como se guarda en `relaciones/`:
+
+```json
+["relacion", "<nombre>",
+  ["campos",
+    ["campo", "<nombre>", "<tipo>", "<unidad>"],
+    ...
+  ],
+  ["alcance", "<qué NO lee el sensor>"]]
+```
+
+Un campo sin magnitud física —un identificador, un nombre, una clave categórica o booleana—
+declara explícitamente `sin_unidad`. No hay defaults silenciosos: todo campo declara su unidad.
+El `alcance` del sensor es obligatorio por la misma razón que en una medida: delimitar lo que el
+sensor no observó.
+
 ### `nucleo/simulacion.py`
 
 *198 líneas*
@@ -4982,7 +5778,7 @@ docstring: es evidencia.
 
 ### `nucleo/sintaxis.py`
 
-*1094 líneas*
+*1520 líneas*
 
 Superficie infija de autoría para medidas.
 
@@ -4991,7 +5787,7 @@ invocaciones de macro que ya viven en el catálogo.
 
 ### `nucleo/version.py`
 
-*89 líneas*
+*95 líneas*
 
 La versión del álgebra y de la superficie que implementa este núcleo, legible por máquina.
 
@@ -5019,7 +5815,7 @@ Cada una existe por un motivo que está escrito en su encabezado. Varias naciero
 
 ### `tools/aceptacion.py`
 
-*133 líneas*
+*137 líneas*
 
 La prueba de aceptación del marco: **el corpus juzga al oráculo, no al revés.**
 
@@ -5040,7 +5836,7 @@ Sale != 0 si algún caso que debía ponerse rojo salió verde.
 
 ### `tools/cifras.py`
 
-*315 líneas*
+*319 líneas*
 
 Genera y comprueba las cifras publicadas en el README de Oracle.
 
@@ -5057,27 +5853,37 @@ que se empezó a generar: una cifra publicada a mano es una afirmación que nadi
 
 ### `tools/cli.py`
 
-*504 líneas*
+*696 líneas*
 
 Entry point único para Oracle.
 
-oracle init [ruta]                      inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
-oracle nueva <dominio.nombre>          crea una nueva medida en catalogos/ con plantilla lista
-oracle caso <grupo/id>                 crea un nuevo caso en corpus/ con plantilla lista
-oracle revisar <archivo>               revisa y evalúa una medida suelta contra la evidencia del proyecto
-oracle test [--rapido|--todo]          ejecuta la secuencia completa de verificación con veredicto final
-oracle relaciones                      hechos y campos disponibles derivados de la evidencia
-oracle escalares                       funciones de dominio y operadores disponibles
-oracle expandir <archivo>              muestra la forma canónica de una medida escrita con macros
+oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto)
+oracle <sustantivo>                     ayuda del sustantivo con sus verbos
+
+oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
+oracle medida revisar <archivo>         revisa y evalúa una medida suelta contra la evidencia
+oracle medida listar                    lista las medidas del catálogo con umbral, alcance y fijación
+oracle medida expandir <archivo>        muestra la forma canónica de una medida escrita con macros
+
+oracle caso nuevo <grupo/id>            crea un nuevo caso en corpus/ con plantilla lista
+oracle caso listar                      lista los casos del corpus, su etiqueta y qué medida reclaman
+
+oracle proyecto init [ruta]             inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
+oracle proyecto test [--rapido|--todo]  ejecuta la secuencia completa de verificación con veredicto final
+oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
+oracle proyecto escalares               funciones de dominio y operadores disponibles
+
+oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 
 ### `tools/corpus.py`
 
-*248 líneas*
+*377 líneas*
 
 Verificador del corpus — la primera regla del repositorio, y se aplica a sí mismo.
 
     python tools/corpus.py            → verifica (sale != 0 si algo está mal)
     python tools/corpus.py --resumen  → verifica y además cuenta qué mecanismo atrapa qué
+    python tools/corpus.py --listar   → lista los casos del corpus, su etiqueta y qué medida reclaman
     python tools/corpus.py --nuevo meta/999-caso-nuevo
                                       → crea un caso nuevo en superficie
 
@@ -5116,7 +5922,7 @@ la que permite atribuir al mutante un error posterior dentro del código ejercit
 
 ### `tools/estudio.py`
 
-*413 líneas*
+*417 líneas*
 
 Vuelca todo el repositorio a Markdown plano y autocontenido, para subirlo y estudiarlo.
 
@@ -5156,18 +5962,19 @@ JSON canónico con orden estable y sin `NaN`.
 
 ### `tools/medida.py`
 
-*271 líneas*
+*571 líneas*
 
 Escribir una medida sin pedirle permiso a nadie.
 
     python tools/medida.py --relaciones            qué hechos hay para medir, y sus campos
     python tools/medida.py --escalares             qué funciones de dominio se pueden usar
     python tools/medida.py --nueva dominio.nombre  crea el archivo con la forma puesta
+    python tools/medida.py --listar                lista las medidas con umbral, alcance y fijación
     python tools/medida.py <archivo.json>          la revisa y la corre contra el corpus
     python tools/medida.py --expandir <archivo>     ve en qué forma canónica se convierte la macro
 
 Para ejecutar `escalares.py` de otro proyecto hace falta `--confiar-escalares`. Ayuda,
-`--relaciones`, `--nueva` y el inventario base de `--escalares` nunca ejecutan ese archivo.
+`--relaciones`, `--nueva`, `--listar` y el inventario base de `--escalares` nunca ejecutan ese archivo.
 
 Existe porque sin esto el lenguaje tiene dueño. Todo el argumento de este repositorio es que quien
 ve un defecto pueda escribir la regla que lo atrapa; si para eso hay que escribir s-expresiones en
@@ -5179,7 +5986,7 @@ fixtures. Si aparece un hecho nuevo, aparece acá solo.
 
 ### `tools/metamorficas.py`
 
-*558 líneas*
+*617 líneas*
 
 Propiedades metamórficas: dos caminos que tienen que dar lo mismo.
 
@@ -5225,7 +6032,7 @@ el corpus no fija.
 
 ### `tools/mutar_codigo.py`
 
-*337 líneas*
+*339 líneas*
 
 Muta el CÓDIGO del núcleo y mide el resultado con las medidas del catálogo.
 
@@ -5264,7 +6071,7 @@ python tools/sintaxis.py --verificar
 
 ### `tools/trazar.py`
 
-*174 líneas*
+*176 líneas*
 
 El evaluador como sensor de sí mismo: corre el corpus bajo traza y mide lo que el álgebra hizo.
 
@@ -5291,7 +6098,7 @@ puede dar.
 
 ### `tools/verificar_instalacion.py`
 
-*236 líneas*
+*238 líneas*
 
 Construye el wheel y prueba la API pública desde un entorno y cwd aislados.
 
@@ -9394,6 +10201,617 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 *commit 6d1262e*
 
+
+
+## 2026-08-26 — La nomenclatura: `requiere` es un coefecto, y §6.3 respalda el límite del sandbox
+
+*commit cf950d8*
+
+Dos decisiones de Oracle tienen nombre en la literatura y no lo usaban. Se
+documentan; no se cambia una palabra del lenguaje ni una línea de comportamiento.
+
+**`requiere` es un coefecto** (Shi, Zhang y Cui, *A Programming Paradigm for
+Spatiotemporal Composability*, §3.2): una especificación de lo que el componente
+necesita del contexto, contrastada antes de ejecutar. Queda escrito en
+`ESPECIFICACION.md`, junto con **qué mitad NO se toma**: la reactividad —
+clasificar cada cambio del contexto para activar y desactivar componentes— no
+aplica porque la evidencia no cambia durante una evaluación.
+
+**§6.3 respalda el límite del confinamiento de UDF**, que se declaró el 2026-08-26
+después de medir que `os.stat` se filtra:
+
+> «language-level access control is insufficient… Sandboxing requires an execution
+> boundary beyond the reach of language-level means.»
+
+Convierte «lo decidimos así» en «es lo que hace falta según la literatura, y lo
+que hay es la mitad correcta: falta el borde del sistema operativo». La
+arquitectura que Oracle ya tiene —trabajador aparte, canal JSON— es la que el
+paper prescribe.
+
+**Lo que NO se toma, dicho para que no vuelva a discutirse**: el cálculo de
+composición dinámica, el hot module replacement, el ciclo de vida de componentes y
+los grafos de dependencias resuelven un problema que Oracle no tiene. Acá no
+llegan ni se van componentes en tiempo de ejecución.
+
+Trabajo delegado a Codex (gpt-5.5, reasoning xhigh). El PDF vive en
+`~/Dev/papers/leidos/`, no en el repositorio.
+
+638 tests OK
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
+
+## 2026-08-26 — feat(cli): implementar estructura <sustantivo> <verbo> y vistas listar
+
+*commit 30dc676*
+
+
+
+## 2026-08-26 — El listado de medidas deja de dar seis falsos rojos
+
+*commit ec02df2*
+
+`oracle medida listar` inventaba su propia noción de fijación: contaba los casos
+que nombran a cada medida y avisaba «SIN FIJAR» cuando eran cero. Con eso marcaba
+en rojo las seis medidas L2 —las que juzgan al catálogo mismo—, a las que ningún
+caso nombra porque las ejercita el arnés, no el corpus.
+
+Entre las seis marcadas estaba `meta.toda_medida_esta_fijada`, que pasa en verde.
+La herramienta que existe para auditar el catálogo mentía sobre el catálogo.
+
+Oracle ya tenía la noción correcta (`evaluadas_aparte` en `nucleo/marco.py`); el
+listado ahora la usa y dice de dónde sale la evidencia. El aviso sigue saliendo
+para una medida que de verdad no tiene ninguna: hay un test que lo fija.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — Merge branch 'verbos': oracle tiene verbos, y el listado ya no miente
+
+*commit dbd4138*
+
+
+
+## 2026-08-26 — El andamiaje de delegación no vive en el repo
+
+*commit 02e4e65*
+
+TAREA.md, INFORME.md y DOCTRINA.md son papeles de una tarea concreta que se le da
+a un agente en su worktree. Entraron por descuido en el merge de `verbos`. Se van,
+y el .gitignore los deja afuera de acá en adelante.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — El listado le muestra al proyecto quién lo juzga
+
+*commit 0af11ac*
+
+`oracle medida listar` cargaba las raíces completas sólo cuando Oracle se medía a
+sí mismo. A cualquier otro proyecto le mostraba nada más su propio catálogo: en un
+consumidor medido, «41 medidas» y ni una `meta.*`, mientras al medir de verdad se
+cargaban tres raíces —base, perfil y propias—.
+
+El efecto era el peor posible para una herramienta de auditoría: el auditado no
+veía las medidas universales que lo estaban juzgando, incluida la que lo tenía en
+rojo. Ahora el listado carga lo mismo que se carga al medir.
+
+Las heredadas se muestran aparte y no cuentan para «sin fijar»: un proyecto
+responde por las medidas que escribió, no por las que le llegan del catálogo base.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — `oracle --version`: un binario que sabe decir qué es
+
+*commit 9c2cab8*
+
+`uv tool install .` deja una COPIA congelada del repo. El `oracle` del PATH venía
+contestando «subcomando desconocido: medida» a verbos que estaban en main desde
+hacía días, y sin forma de preguntarle a un binario qué versión es, eso se lee
+como un CLI roto en vez de como una instalación vieja.
+
+Ahora `oracle --version` dice las tres versiones —distribución, álgebra, sintaxis,
+que son tres cosas distintas a propósito— y desde qué directorio está corriendo,
+que es el dato que desarma la confusión en un segundo.
+
+La versión de la distribución deja de estar repetida: vive en `nucleo/version.py`
+y `pyproject.toml` la lee de ahí. Hay un test que se queja si alguien la duplica.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — `procedencia`: Oracle distingue lo que pasó de lo que alguien tipeó
+
+*commit 3a20365*
+
+Un caso declaraba `origen: {repo, commit}` y nadie miraba qué decía. De los 104
+casos del corpus, 62 tenían el commit en prosa —"sin-commit", "local", "ejemplo
+abstracto"—. Oracle no podía responder «¿esta medida está fijada por algo que
+pasó, o sólo por filas escritas para que pasara?», y sin esa distinción no puede
+decir cuáles de sus verdes valen algo: es el modo de falla que persigue.
+
+Ahora el caso declara `procedencia` de conjunto cerrado —observada, construida,
+generada—, igual que ya hacían `etiqueta` y `como_se_detecto`. Un caso sin el
+campo cuenta como `sin_declarar`, que es una ausencia visible y no un default
+creíble. Los 104 quedaron en 61 observada, 37 construida, 6 generada.
+
+Y la medida nueva sale ROJA en 12: doce medidas están fijadas sólo con evidencia
+que nadie observó, entre ellas `meta.toda_medida_filtra_o_agrupa`, que es la que
+hoy tiene en rojo a un consumidor. El rojo es correcto y se deja: se arregla
+consiguiendo evidencia observada, no silenciando la medida.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — Merge branch 'procedencia': la evidencia declara si pasó o si la escribieron
+
+*commit 9fd9cda*
+
+Conflictos resueltos: las cifras del README se regeneraron, y el test del listado
+conserva la separación entre medidas propias y heredadas con el conteo nuevo (35).
+
+`tools/aceptacion.py` queda en rojo a propósito, y dice por qué:
+«meta.la_medida_no_se_fija_solo_con_evidencia_fabricada: el marco no cumple su
+propia regla». Doce medidas están sostenidas nada más que por evidencia que nadie
+observó. No se silencia.
+
+## 2026-08-26 — wip: generador de evidencia discriminante (agy)
+
+*commit 8d741c8*
+
+
+
+## 2026-08-26 — Merge main into generador
+
+*commit 23c8779*
+
+
+
+## 2026-08-26 — El caso generado declara que lo fabricó una herramienta
+
+*commit a97b1ea*
+
+`nucleo/generador.py` emite `procedencia: generada`, y los 38 casos del estudio
+sobre Jam lo llevan. No es decorativo: es lo único que separa esta evidencia —que
+discrimina un mutante y no dice nada del mundo— de la que se transcribió de algo
+que pasó. Sin el campo, un corpus generado se cuenta igual que uno observado.
+
+Del estudio se conservan sólo los 38 `.caso` (152K). Las copias de trabajo del
+proyecto consumidor —133 MB— no entran al repo.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — El estudio cuenta lo que pasó, no el titular
+
+*commit 6a99bbd*
+
+El generador no mató ningún mutante sobreviviente: no había ninguno. Lo que cerró
+son diez medidas que nadie ejercitaba —y que por eso no producían mutantes, así
+que su cero se leía igual que un cero verdadero—. 41 de 41 ejercitadas y 77
+mutantes más juzgados es el resultado; «100 % de mutantes muertos» habría sido
+cierto y hueco.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — Merge branch 'generador': `oracle caso generar`, y lo que el estudio mostró
+
+*commit df8cdd2*
+
+El verbo fabrica evidencia discriminante a partir del AST de una medida: bordes de
+umbral, filas que no pasan el `donde`, dos grupos que difieren. Descarta el caso si
+no mata nada nuevo.
+
+Sobre un consumidor real no mató ningún mutante sobreviviente —no había ninguno—;
+cerró en cambio diez medidas que nadie ejercitaba, y que por eso no producían
+mutantes. Su cero se leía igual que un cero verdadero. El detalle honesto, con el
+antes y el después, está en `estudios/generados-jam/README.md`.
+
+## 2026-08-26 — Dos medidas quedan en rojo, y queda escrito por qué
+
+*commit 4a4fce9*
+
+`meta.sintaxis_cubre_algebra` y `meta.sintaxis_casos_cubre_casos` existen para
+cubrir formas del álgebra que nadie escribió todavía, generadas desde la gramática.
+Su sujeto ES la medida generada: una evidencia observada para ellas sería una
+contradicción —si la forma estuviera en el catálogo la cubriría su hermana
+`meta.sintaxis_ida_y_vuelta`, que se fija con 38 filas reales—.
+
+DECISION-004 deja dicho eso, y deja dicho lo que se descartó: una lista de medidas
+eximidas, un campo de excepción, o aflojar el umbral a `<= 2`. Las tres son la
+misma puerta. El costo asumido es que `aceptacion.py` sale con código 1.
+
+De paso, la prosa de la medida nueva estaba sin acentos; el id sigue siendo ASCII
+porque es también un nombre de archivo, la prosa no tiene por qué serlo.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — Cerrar cuatro propiedades metamórficas con observaciones reales del catálogo
+
+*commit cd93434*
+
+
+
+## 2026-08-26 — Seis medidas dejan de estar sostenidas sólo por evidencia fabricada
+
+*commit 1a6b044*
+
+El rojo de `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada` baja de 12 a 6,
+transcribiendo evidencia que ya existía:
+
+- `070` — un ROJO real: en `Brianholl/jam` `c1fc6e7` (2026-08-09), `snap.al_ras`,
+  `snap.comparte_cara` y `scatter.cobertura` no tenían `donde` ni `agrupar`. La
+  consecuencia se había medido: sin filtro, un rojo devolvía las 3 filas como
+  testigos en vez de 1. Se arregló en `e2ce848`. Las dos medidas sanas del mismo
+  commit van en la evidencia porque sin ellas sobrevive `quitar_filtro`.
+- `071`–`075` — verdes transcritos de los catálogos reales de los tres repos.
+
+Sobre las cinco reglas de forma se buscó el contraejemplo en la historia completa
+de los tres repos, también en las formas de macro: ninguna medida commiteada las
+violó jamás. Por eso su evidencia observada sólo puede ser verde, y eso vale menos
+que un rojo real —pero no es nada: dice que la medida no inventa un rojo sobre lo
+que la gente escribió de verdad.
+
+Estos casos NO agregan poder de matar mutantes: esas cinco medidas ya estaban en
+cero sobrevivientes. Agregan fijación observada, que es otra cosa y es la que
+faltaba.
+
+De paso, `test_caso_listar_en_propio_oracle_y_proyecto_vacio` fijaba el conteo del
+corpus a mano, así que agregar un caso —la actividad normal del repo— rompía un
+test ajeno. Ahora lo deriva del corpus.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — Merge branch 'observada-metam': el marco observándose correr cuenta como observación
+
+*commit cf1b4cf*
+
+`_donde_compone` y `_agrupar_sin_claves` sólo construían sondas. Ahora recorren el
+catálogo real igual que `_unir_conmuta`: descomponen una conjunción en pasos
+sucesivos, envuelven un resumen en `agrupar []`, y comparan contra la evidencia
+real del caso que fija esa medida. Pasaron de 0 filas del catálogo a 55 y 86.
+
+Con eso, cuatro propiedades metamórficas quedan fijadas por filas que nadie
+escribió: son la transcripción de lo que pasó al evaluar el catálogo de verdad.
+Verifiqué las once filas transcritas contra una corrida real — las once existen.
+
+El rojo baja de 12 a 2, y los 2 que quedan son exactamente los que DECISION-004
+anticipó antes de empezar: `meta.sintaxis_cubre_algebra` y
+`meta.sintaxis_casos_cubre_casos`, cuya evidencia es generada por definición.
+
+## 2026-08-26 — La numeración de los niveles va de L−2 a L2, y queda escrita
+
+*commit 73f4cc0*
+
+El README decía «tres niveles» y nombraba L0, L1 y L2. Faltaban los dos de abajo,
+que no son especulación: están habitados desde hace tiempo y resueltos de a uno en
+Python —el fixture que declara su referencia vencida, el verde que se invalida con
+el árbol sucio— en vez de en el lenguaje.
+
+L−1 es lo que el sensor declara de sí mismo; L−2 es qué leyó y en qué versión. Son
+dos y no uno porque fallan distinto: L−1 falla con el sensor funcionando bien (el
+AABB en centímetros donde la medida espera metros), L−2 falla con el sensor
+perfecto y bien declarado (leyó el asset del disco y el juego embarca la cocinada).
+
+La torre se cierra en los dos extremos por motivos distintos. Arriba L3 colapsa:
+con el catálogo reificado, una medida sobre medidas sobre medidas se escribe
+idéntica a una medida sobre medidas —`meta.ninguna_medida_sin_alcance` juzga las 38
+del catálogo, ella incluida—. Abajo L−3 no existe porque se acabó lo representable:
+debajo está el terreno, y lo único honesto con el terreno es declarar qué no se
+miró, que es el trabajo de `alcance`.
+
+DECISION-005 guarda además lo que NO se decide —si L−2 es un nivel o un parámetro
+de L−1— y el criterio de terminado de cada uno: poder escribir la medida en el
+lenguaje, sin tocar Python.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-26 — derivar relaciones del lenguaje desde los emisores
+
+*commit e2a0a03*
+
+
+
+## 2026-08-27 — El barrido sólo mira archivos que dicen declarar, y el error deja de esconderse
+
+*commit 7c63c39*
+
+Dos correcciones sobre la derivación:
+
+El barrido parseaba TODOS los `.py` de `nucleo/` y `tools/`. Con eso, un script a
+medio escribir —que no tiene nada que ver con el lenguaje— hacía fallar la
+pregunta «¿qué relaciones son del lenguaje?», y de ahí «¿esta medida es meta?».
+Ahora sólo se parsea un archivo que contiene `RELACIONES_`. Uno que SÍ declara y no
+parsea sigue siendo un error: ése es el fail-closed que corresponde.
+
+Y `tools/medida.py::_evaluadas_aparte` envolvía la pregunta en un
+`except Exception: return set()`. El conjunto vacío hacía salir las seis medidas L2
+como «⚠ SIN FIJAR» —seis falsos rojos en la herramienta de auditoría, con la causa
+real escondida—, que es exactamente el defecto que esa vista se arregló ayer para
+no tener. Se saca el `except`: que reviente con el motivo es peor de leer y mucho
+mejor de arreglar.
+
+Medido antes de sacarlo: con un archivo roto en `tools/`, el listado decía
+«35 medidas · 29 fijadas · 6 sin fijar» en vez de «todas fijadas».
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — Merge branch 'l2-relaciones': la relación del lenguaje se declara donde se emite
+
+*commit dedf07a*
+
+`relaciones_del_lenguaje_declaradas()` era la unión de tres frozensets escritos a
+mano en dos módulos, y decidía si una medida cuenta como meta. El modo de falla era
+silencioso: alguien agrega un emisor reflexivo, se olvida de sumarlo a la lista, y
+las medidas que lo midan dejan de contar como meta sin que nada se ponga rojo.
+
+Ahora cada emisor declara lo que produce en su propio archivo y el conjunto se
+deriva de ahí. Probado con un emisor de juguete: aparece solo, y al borrarlo
+desaparece solo.
+
+Es media victoria y conviene decirlo: agregar un emisor sigue pidiendo escribir un
+frozenset, sólo que local en vez de central. Lo que se ganó es que la declaración
+viva pegada a lo que declara, que es donde no se olvida.
+
+## 2026-08-27 — wip: ancestro como hechos, tipos precisos en termino, y el plan indexado que eso forzó (codex)
+
+*commit 65c20f4*
+
+
+
+## 2026-08-27 — La ancestría se desnormaliza, y el álgebra no se toca
+
+*commit 8a84916*
+
+`ancestro` traía sólo la ruta del ancestro, así que toda pregunta sobre la
+estructura obligaba a unirla con `termino`. Y `unir` arma el producto completo
+antes de filtrar: 1917 × 4699 = 9.007.983 pares para quedarse con 1917, muy por
+encima del límite de un millón que protege la memoria. La medida no corría.
+
+Salir por el lado del evaluador se probó y se midió. Enseñarle a indexar el `unir`
+seguido de `donde` costó 228 líneas nuevas en `nucleo/algebra.py`, y la mutación de
+código dio 444 mutantes con 31 vivos — los 31 en líneas nuevas, cero en lo que ya
+estaba, contra 323/323 muertos en main. Código sin vigilar en el módulo donde un
+error da veredictos equivocados en silencio, y con el guardián de `unir` ciego justo
+ahí: su `alcance` dice que compara el TAMAÑO de la salida, no si los pares son los
+correctos.
+
+Ahora cada fila de `ancestro` repite los atributos del nodo, y la pregunta se
+contesta con un `de` y un `donde`. Mismos cuatro veredictos que la versión con
+`unir`. Cero líneas de álgebra.
+
+También se descartó emitir menos ancestros: bajaba de 7067 a 4699 filas y seguía
+dando 9 millones de pares. Para bajar del millón `ancestro` tendría que quedar por
+debajo de ~520 filas, o sea casi no existir.
+
+Se saca la macro `ninguno-unir`, que existía sólo para esa medida, y con ella las
+43 líneas que había pedido en `nucleo/sintaxis.py`.
+
+El test de proporción de macros pasa a comprobar una propiedad en vez de un número:
+toda medida escrita entera tiene que necesitar `unir`, `agrupar` o `requiere`. Deja
+anotado que una de ellas NO debería estar ahí —sólo necesita `requiere`, y una macro
+`ninguno-requiere` la resolvería en ocho líneas— pero no se puede escribir:
+`nucleo/sintaxis.py` tiene los nombres de macro incrustados y una rama de parseo y de
+impresión por cada uno, así que la superficie no lee una macro que el proyecto no
+anticipó, ni la que quisiera definir un consumidor.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — Merge branch 'l2-sin-unir': L2 ve la estructura, sin tocar el álgebra
+
+*commit b632de7*
+
+
+
+## 2026-08-27 — Plan de los dos niveles que miran hacia el mundo
+
+*commit c57e633*
+
+L−1 arranca hoy; L−2 queda definido y sin empezar, para que no se defina sobre la
+marcha cuando le toque.
+
+Lo que el plan fija de L−2 antes de escribir una línea es su límite: Oracle NO
+puede verificar un referente, nunca —no sabe abrir un `.uasset` ni debe—. Lo único
+que puede hacer es comparar dos declaraciones hechas en momentos distintos, que es
+exactamente lo que `nucleo/fixtures.py` ya hace a mano para un solo caso de uso.
+Escribir eso ahora evita descubrirlo a mitad de camino.
+
+Y fija el criterio de terminado, que no es haber movido plomería: que
+`nucleo/fixtures.py` deje de tener su propio mecanismo de frescura y use el del
+lenguaje. Mientras el fixture siga comparando huellas por su cuenta, L−2 sería una
+capa nueva al lado de la vieja en vez de la vieja expresada.
+
+Queda anotado además lo que ya existe de L−2 disperso —las cuatro huellas SHA-256 de
+`frescura`, `proceso.verificacion_vigente` con su hueco confesado en el `alcance`, y
+el `origen: {repo, commit}` que nadie verifica—, que es el mejor argumento de que el
+nivel es real y no una torre inventada.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — L−1: la relación declara sus campos, sus unidades y qué NO miró el sensor
+
+*commit b714412*
+
+Una medida dice `umbral <= 1.0` pensando en metros y el sensor emite centímetros:
+todo lo de arriba funciona —el sensor es fiel, la evidencia es válida, la medida es
+correcta— y el veredicto está mal. No había dónde escribir la unidad.
+
+`nucleo/relacion.py` la declara: campos con tipo y unidad, o `sin_unidad` explícito
+—nunca un default, que es de lo que el proyecto ya se quemó—, más el `alcance` del
+sensor, obligatorio por la misma razón que en una medida. Se reifica como
+`relacion_declarada` y `campo_declarado`, y se descubre sola: desde el 2026-08-27
+alcanza con declarar lo que se emite en el propio módulo.
+
+Tres relaciones reales declaradas, leyendo los sensores del consumidor. `pieza`:
+diez campos en cm, `yaw` en grados, `id` sin unidad, y un alcance que dice que lee
+el AABB y NO la malla poligonal.
+
+Mutación de código sobre el módulo nuevo: 73 mutantes, 73 muertos, 0 vivos.
+
+Queda sin escribir la segunda medida —«ninguna medida compara contra un umbral de
+otra unidad»—: el umbral no tiene ranura para declarar unidad y agregársela cambia
+la forma canónica de toda medida publicada. Es un cambio del lenguaje y lo decide el
+humano. El detalle y las tres opciones están en la conversación.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — Merge branch 'l1-declaracion': L−1 empieza a escribirse en el lenguaje
+
+*commit 0fe3759*
+
+
+
+## 2026-08-27 — El umbral va a declarar de dónde sale su número
+
+*commit 1cc01f6*
+
+`porque` es obligatorio y lo único que la máquina comprueba es que no esté vacío
+—la propia medida lo confiesa—. Son 87 defensas y 17.369 caracteres en los tres
+catálogos comprando una comprobación de casi cero, y obligar a escribir un párrafo
+produce párrafos escritos por obligación.
+
+`segun medicion|contrato|convencion|tanteo` invierte eso: lo obligatorio pasa a ser
+lo evaluable, y aparece una pregunta que hoy no se puede ni formular —«¿cuántos
+umbrales de este catálogo son puro tanteo?»—. La prosa se vuelve opcional.
+
+Se midió antes de decidir borrarla, y no se borra: la etiqueta dice de dónde salió
+el número y la prosa dice por qué ése y no otro. De tres defensas reales, una ni
+siquiera entra en las cuatro categorías —es una derivación de cómo funciona el
+método— y se quedaría sin explicación.
+
+Agrega al final en vez de cambiar la posición 3, y hay un motivo medido: ninguno de
+los dos consumidores declara `algebra` en su `oracle.json`, así que la maquinaria de
+versiones no los protege. Un cambio mayor no les fallaría cerrado, les daría un
+error de parseo sin causa.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — La superficie lee cualquier macro declarada, sin nombrarla en el código
+
+*commit f23e6d1*
+
+`nucleo/sintaxis.py` tenía `(medida|ninguno|ninguno-par|peor)` incrustado en dos
+`re.fullmatch` y una rama de parseo y de impresión por cada macro. Consecuencia
+medida: una medida del catálogo necesitaba una macro `ninguno-requiere` de ocho
+líneas y no se pudo escribir; y un consumidor no podía extender el lenguaje aunque
+`defmacro` funcionara.
+
+Ahora la forma de superficie se DERIVA del cuerpo de la macro: cada línea del cuerpo
+que lleva un hueco es una línea de superficie. Las macros conocidas siguen
+imprimiéndose igual de lindo, y una macro nueva anda sin tocar nada.
+
+Verificado: una macro definida en `macros/` de un proyecto —no del núcleo— se parsea,
+se imprime y vuelve exacta. Antes era imposible.
+
+Límite conocido: si un parámetro aparece dos veces en el cuerpo, el impresor no puede
+decidir de qué línea leerlo de vuelta y cae a una forma genérica que nombra los
+parámetros. Le pasa a `ninguno-requiere`, que usa `$relacion` en el `de` y en el
+`requiere`.
+
+Mutación de código sobre `nucleo/sintaxis.py`: 812 mutantes, 812 muertos, 0 vivos.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — Merge branch 'superficie-abierta': un consumidor puede extender el lenguaje
+
+*commit 9be2b35*
+
+
+
+## 2026-08-27 — `oracle medida probar`: ver el veredicto sin redactar un caso
+
+*commit 445297a*
+
+Medida la fricción de quien empieza: escribir una medida son 3 comandos y 5 líneas,
+pero para verla ponerse ROJA hay que redactar un caso del corpus de once campos
+—fecha, origen, repo, commit, procedencia, título, etiqueta, síntoma, cómo se
+detectó, evidencia y lección—. Probar una idea era llenar un formulario.
+
+    oracle medida probar <archivo> --con 'pieza: id, alto
+        "silla", 90.0
+        "columna", 450.0'
+
+    ROJO   valor 1  (<= 0)
+      testigos (1) — las filas que ofenden, no un resumen:
+        {'p': {'id': 'columna', 'alto': 450.0}}
+      alcance: mira el alto declarado. NO mira la malla
+
+Es el corte que Python tiene entre el intérprete y el archivo: acá se explora, en el
+corpus se registra. La evidencia se escribe con la MISMA sintaxis que después va en
+el caso, así que lo que se probó se copia y pega sin traducir —y por eso se parsea
+envolviéndola en un caso mínimo, para que haya un solo parser de evidencia.
+
+Eso trajo un defecto propio que hubo que arreglar: el envoltorio corre las líneas, y
+quien escribía dos recibía «línea 14», una posición correcta respecto de un archivo
+que nunca vio. Se descuenta el envoltorio; ahora dice «línea 2, columna 5». Un error
+que apunta a un lugar inexistente es peor que no decir la posición.
+
+Lo que NO hace: no guarda nada, no reemplaza al corpus y no fija la medida. Una
+medida probada sigue apareciendo «SIN FIJAR» en el listado, porque lo está.
+
+⚠ Sin mutación de código: `tools/` está fuera del perfil del arnés —los 22 objetivos
+son `nucleo/`, `oracle_metalenguaje/`, `perfiles/python/` y `tools/cifras.py`—, así
+que toda la CLI, que es lo que toca quien aprende, no tiene esa cobertura. Queda
+declarado, no disimulado.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — El caso nuevo lee de git lo que la máquina ya sabe
+
+*commit 29b9d11*
+
+El andamio ponía `"FECHA"`, `"REPO"` y `"COMMIT"` y había que inventar algo. El
+resultado está medido: de los 112 casos del corpus, 62 tienen el commit en prosa
+—`"sin-commit"`, `"local"`, `"ejemplo abstracto"`, `"sesión 2026-07-29"`—. Un dato
+que la máquina sabe y le pide a una persona termina peor que el que hubiera puesto
+la máquina.
+
+Ahora salen de git:
+
+    fecha:  "2026-08-27"
+    origen:
+        repo:   "Alumno/taller"
+        commit: "cf6eb3a"
+
+Falla ABIERTO: sin git, o fuera de un repositorio, quedan los marcadores y quien
+escribe los completa. Negarse a crear el caso sería confundir dos cosas —el caso
+registra un hecho, no un commit—.
+
+Los dos juicios NO se derivan y no se van a derivar: `procedencia` («¿esto pasó o lo
+escribiste?») y `etiqueta` («¿esto debe dar rojo o verde?») las decide quien escribe.
+El andamio sigue listando sus valores cerrados en el momento de crear el archivo,
+que es cuando la persona todavía tiene fresco lo que pasó.
+
+De once campos a completar quedan nueve, y los dos que se fueron son los que no
+enseñaban nada.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
+## 2026-08-27 — La mitad del `alcance` que se calcula deja de escribirse
+
+*commit 41587c5*
+
+`alcance` es obligatorio y lo único que la máquina comprueba es que no esté vacío.
+Pero desde que L2 ve la estructura y L−1 declara los campos, una mitad de esa
+pregunta se deriva: si `pieza` declara once campos y la medida lee uno, los otros
+diez son puntos ciegos y Oracle los sabe sin que nadie los narre.
+
+    alcance: mira el alto declarado. NO mira la malla
+        ⚠ de `pieza` LEE campos que la relación no declara: alto
+        de `pieza` NO lee: id, ox, oy, oz, ex, ey, ez, lx, ly, lz, yaw
+
+El aviso de arriba salió solo al construirlo, y pesa más que la lista de abajo: un
+campo LEÍDO y no declarado significa que la declaración quedó incompleta o que la
+medida lee algo que la relación no promete. Ninguna de las dos se ve sin cruzar las
+dos listas.
+
+No se compara contra el `alcance` escrito y no lo reemplaza: sería juzgar prosa
+contra estructura, y son cosas distintas. Se muestra al lado, para que quien escribe
+decida si alguno de esos campos debería estar mirándose. La otra mitad —lo que el
+SENSOR no miró del mundo— no se deriva de nada y vive en la declaración de la
+relación.
+
+Y sin declaraciones no se inventa nada: que no haya no significa que la medida lo vea
+todo, significa que nadie declaró qué hay para ver. Es la misma distinción que entre
+adimensional y no derivable, tercera vez que aparece en el proyecto.
+
+Co-Authored-By: Claude Opus 5 <noreply@anthropic.com>
+
 ---
 
 <!-- fuente: 08-los-numeros.md -->
@@ -9402,14 +10820,14 @@ Claude-Session: https://claude.ai/code/session_01GMBJeEvqhpBHY96N2h82LN
 
 | Qué | Cuánto | Qué dice |
 |---|---|---|
-| líneas del núcleo | 5307 | el lenguaje |
-| líneas de medidas escritas en él | 225 | lo escrito en el lenguaje |
-| proporción | 24 a 1 | la apuesta: que el segundo crezca y el primero no |
-| (contando sólo el catálogo base) | 27 a 1 | sin ningún proyecto que lo use |
-| negativas en el núcleo (`raise`) | 234 | su naturaleza es rechazar, no medir |
-| medidas | 37 | de las cuales 24 miden el lenguaje mismo |
-| casos de corpus | 104 | fallas reales, con su evidencia |
-| commits | 181 | el historial completo |
+| líneas del núcleo | 6889 | el lenguaje |
+| líneas de medidas escritas en él | 254 | lo escrito en el lenguaje |
+| proporción | 27 a 1 | la apuesta: que el segundo crezca y el primero no |
+| (contando sólo el catálogo base) | 30 a 1 | sin ningún proyecto que lo use |
+| negativas en el núcleo (`raise`) | 275 | su naturaleza es rechazar, no medir |
+| medidas | 41 | de las cuales 28 miden el lenguaje mismo |
+| casos de corpus | 123 | fallas reales, con su evidencia |
+| commits | 215 | el historial completo |
 
 **Estado: EXPERIMENTAL**, y el destino declarado es un metalenguaje. No hay fecha de corte
 ni condición de cierre. La proporción de arriba es una cifra sobre el COSTO, no un

@@ -7,12 +7,12 @@ caso 407-medida-solo-con-evidencia-fabricada:
     titulo: "Una medida queda sostenida solo por casos fabricados"
     etiqueta: falso_verde
     sintoma:
-        Al migrar la procedencia del corpus, `meta.ningun_umbral_sin_defensa` quedo reclamada por dos casos construidos y ningun caso observado. La medida puede estar bien escrita, pero su verde todavia no dice que haya atrapado algo que ocurrio fuera del ejemplo.
+        Una medida queda reclamada por dos casos construidos y ningun caso observado. La medida puede estar bien escrita, pero su verde todavia no dice que haya atrapado algo que ocurrio fuera del ejemplo.
     como_se_detecto: observacion
     medida: meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
     evidencia:
         caso: id, medida, tiene_medida, procedencia
-            "403-umbral-sin-defensa", "meta.ningun_umbral_sin_defensa", true, "construida"
-            "404-umbral-con-defensa", "meta.ningun_umbral_sin_defensa", true, "construida"
+            "403-umbral-sin-defensa", "dominio.regla_solo_fabricada", true, "construida"
+            "404-umbral-con-defensa", "dominio.regla_solo_fabricada", true, "construida"
     leccion:
         Dos casos alcanzan para fijar polaridad y borde: si todos son no observados, la agrupacion por medida tiene que producir un testigo.

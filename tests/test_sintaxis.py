@@ -291,7 +291,7 @@ class MutacionDeSintaxisTests(unittest.TestCase):
         self.assertEqual(sintaxis_nucleo._literal_texto("$razon", 3, 7), ["$", "razon"])
         self.assertEqual(
             sintaxis_nucleo._leer_umbral('<= 0 porque $porque', 2, 5),
-            ("<=", 0, ["$", "porque"], 10),
+            ("<=", 0, ["$", "porque"], "sin_declarar", False, 10),
         )
         self.assertEqual(
             sintaxis_nucleo._lineas(" \n# comentario\nmedida d.x:  \n"),
@@ -1342,10 +1342,20 @@ class MedidaNuevaNaceEnLaSuperficieTests(unittest.TestCase):
             self.assertEqual(destino.suffix, EXTENSION_DE_AUTORIA)
 
     def test_la_plantilla_que_se_entrega_se_lee_y_carga(self) -> None:
-        """Una plantilla que no parsea manda a la primera persona que la usa contra la pared."""
+        """La plantilla no elige `segun`: deja marcador y enumera las opciones."""
         from nucleo.medida import Medida
         from tools.medida import PLANTILLA
-        datos = sintaxis.leer(PLANTILLA.format(mid="tareas.mide"))
+        plantilla = PLANTILLA.format(mid="tareas.mide")
+        self.assertIn("# segun: medicion", plantilla)
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
+            sintaxis.leer(plantilla)
+        self.assertIn("segun en [", str(cm.exception))
+
+        texto = (plantilla
+                 .replace("RELACION", "tarea")
+                 .replace("CAMPO", "vencida")
+                 .replace("SEGUN", "contrato"))
+        datos = sintaxis.leer(texto)
         self.assertEqual(Medida.de_datos(datos).id, "tareas.mide")
 
 

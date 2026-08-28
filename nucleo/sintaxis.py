@@ -12,6 +12,7 @@ import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
+from .medida import ORIGENES_DE_UMBRAL, SEGUN_SIN_DECLARAR
 from .proyecto import ID_MEDIDA_RE
 from .version import VersionInvalida, parsear
 
@@ -413,12 +414,47 @@ def _literal_texto(texto: str, linea: int, columna: int):
     return valor
 
 
+def _leer_segun(p: _Expr) -> tuple[object, int]:
+    t = p.actual()
+    if t.tipo == "HUECO":
+        p.i += 1
+        return ["$", t.valor], t.columna
+    if t.tipo != "IDENT":
+        _fallar(t.linea, t.columna,
+                f"segun en {sorted(ORIGENES_DE_UMBRAL)}", t.valor)
+    segun = str(t.valor)
+    if segun not in ORIGENES_DE_UMBRAL:
+        _fallar(t.linea, t.columna,
+                f"segun en {sorted(ORIGENES_DE_UMBRAL)}", segun)
+    p.i += 1
+    return segun, t.columna
+
+
 def _leer_umbral(texto: str, linea: int, columna: int):
     tokens = _tokenizar(texto, linea, columna)
     if tokens[0].tipo != "OP":
         _fallar(linea, tokens[0].columna, "comparador de umbral", tokens[0].valor)
-    p = _Expr(tokens, 1, detener={"porque"})
+    p = _Expr(tokens, 1, detener={"porque", "segun"})
     limite = p.expresion()
+    defensa: object = ""
+    segun: object = SEGUN_SIN_DECLARAR
+    tiene_segun = False
+    col_segun = 0
+
+    if p.actual().tipo == "IDENT" and p.actual().valor == "segun":
+        p.i += 1
+        segun, col_segun = _leer_segun(p)
+        tiene_segun = True
+    elif not (p.actual().tipo == "IDENT" and p.actual().valor == "porque"):
+        t = p.actual()
+        _fallar(t.linea, t.columna, "segun o porque", t.valor)
+
+    if not (p.actual().tipo == "IDENT" and p.actual().valor == "porque"):
+        fin = p.actual()
+        if fin.tipo != "EOF":
+            _fallar(fin.linea, fin.columna, "porque o fin de línea", fin.valor)
+        return tokens[0].valor, limite.valor, defensa, segun, tiene_segun, col_segun
+
     porque = p._exigir("IDENT", "porque", "porque")
     t = p.actual()
     if t.tipo == "STRING":
@@ -432,7 +468,7 @@ def _leer_umbral(texto: str, linea: int, columna: int):
     fin = p.actual()
     if fin.tipo != "EOF":
         _fallar(fin.linea, fin.columna, "fin de línea", fin.valor)
-    return tokens[0].valor, limite.valor, defensa, porque.columna
+    return tokens[0].valor, limite.valor, defensa, segun, tiene_segun, porque.columna
 
 
 def _lineas(texto: str) -> list[tuple[int, str]]:
@@ -541,6 +577,15 @@ def _sustituir_huecos(nodo, valores: dict):
     if not isinstance(nodo, list):
         return nodo
     return [_sustituir_huecos(hijo, valores) for hijo in nodo]
+
+
+def _plantilla_legacy_sin_segun(nodo):
+    if not isinstance(nodo, list):
+        return nodo
+    if (len(nodo) == 5 and nodo[0] == "umbral" and _es_hueco(nodo[4])
+            and nodo[4][1] == "segun"):
+        return [_plantilla_legacy_sin_segun(hijo) for hijo in nodo[:4]]
+    return [_plantilla_legacy_sin_segun(hijo) for hijo in nodo]
 
 
 def _ubicacion_mas_cercana(ubicaciones: dict[str, Ubicacion] | None,
@@ -682,6 +727,8 @@ def _tipos_en_plantilla(nodo, macros, tipos: dict[str, str], contexto: str,
             _tipos_en_plantilla(nodo[2], macros, tipos, "expr", visitadas)
         if len(nodo) >= 4:
             _tipos_en_plantilla(nodo[3], macros, tipos, "texto", visitadas)
+        if len(nodo) >= 5:
+            _tipos_en_plantilla(nodo[4], macros, tipos, "nombre", visitadas)
         return
     if cabeza == "requiere":
         for hijo in nodo[1:]:
@@ -696,12 +743,13 @@ def _tipos_en_plantilla(nodo, macros, tipos: dict[str, str], contexto: str,
         if cabeza in registro:
             if cabeza in visitadas:
                 raise ValueError(f"macro recursiva no imprimible: {cabeza}")
-            if len(nodo) - 1 != len(registro[cabeza].parametros):
+            parametros_invocados = _parametros_para_aridad(registro[cabeza], len(nodo) - 1)
+            if parametros_invocados is None:
                 raise ValueError(
                     f"la plantilla invoca {cabeza} con {len(nodo) - 1} argumento(s), "
                     f"pero declara {len(registro[cabeza].parametros)}")
             propios = _tipos_de_parametros(registro[cabeza], registro, visitadas | {cabeza})
-            for parametro, argumento in zip(registro[cabeza].parametros, nodo[1:]):
+            for parametro, argumento in zip(parametros_invocados, nodo[1:]):
                 _tipos_en_plantilla(argumento, macros, tipos, propios[parametro], visitadas)
             return
     for hijo in nodo[1:]:
@@ -724,6 +772,16 @@ def _tipos_de_parametros(macro, macros, visitadas: frozenset[str] = frozenset())
     return tipos
 
 
+def _parametros_para_aridad(macro, cantidad: int) -> tuple[str, ...] | None:
+    esperados = len(macro.parametros)
+    if cantidad == esperados:
+        return macro.parametros
+    if (cantidad == esperados - 1 and len(macro.parametros) >= 2
+            and macro.parametros[-2] == "segun"):
+        return (*macro.parametros[:-2], macro.parametros[-1])
+    return None
+
+
 def _leer_argumento_macro(item: tuple[int, str], parametro: str, tipo: str, *,
                           ubicaciones: dict[str, Ubicacion] | None,
                           ruta: tuple[int, ...]):
@@ -732,6 +790,8 @@ def _leer_argumento_macro(item: tuple[int, str], parametro: str, tipo: str, *,
         valor = resto.strip()
         if valor != resto or len(valor.split()) != 1:
             _fallar(item[0], col, f"{parametro} <nombre>", resto)
+        if parametro == "segun" and not valor.startswith("$") and valor not in ORIGENES_DE_UMBRAL:
+            _fallar(item[0], col, f"segun en {sorted(ORIGENES_DE_UMBRAL)}", valor)
         _registrar(ubicaciones, ruta, item[0], col)
         return _leer_nombre(valor, item[0], col)
     if tipo == "texto":
@@ -751,7 +811,20 @@ def _usa_forma_de_argumentos(cuerpo: list[tuple[int, str]], parametros: tuple[st
 def _leer_macro_por_argumentos(macro, mid, cuerpo: list[tuple[int, str]], *,
                                macros, ubicaciones: dict[str, Ubicacion] | None = None,
                                linea_encabezado: int = 1) -> list:
-    parametros = macro.parametros
+    if len(macro.parametros) >= 2 and macro.parametros[-2] == "segun":
+        esperados_legacy = (*macro.parametros[1:-2], macro.parametros[-1])
+        presentes = [_palabra_de_linea(linea) for _n, linea in cuerpo]
+        if (len(cuerpo) > len(esperados_legacy)
+                and presentes[:len(esperados_legacy)] == list(esperados_legacy)):
+            _falta_o_sobra(cuerpo, tuple(esperados_legacy), macro.nombre)
+    parametros = _parametros_para_aridad(macro, len(cuerpo) + 1)
+    if parametros is None:
+        parametros = macro.parametros
+        esperados_falla = parametros[1:]
+        if (len(cuerpo) < len(esperados_falla) and len(macro.parametros) >= 2
+                and macro.parametros[-2] == "segun"):
+            esperados_falla = (*macro.parametros[1:-2], macro.parametros[-1])
+        _falta_o_sobra(cuerpo, tuple(esperados_falla), macro.nombre)
     esperados = parametros[1:]
     if len(cuerpo) != len(esperados):
         _falta_o_sobra(cuerpo, tuple(esperados), macro.nombre)
@@ -808,15 +881,30 @@ def _leer_macro_por_plantilla(macro, mid, cuerpo: list[tuple[int, str]], *,
         permitir_huecos=True, validar_id=False)
     capturas = {parametros[0]: mid}
     indices = {parametro: indice + 1 for indice, parametro in enumerate(parametros)}
-    _unificar_plantilla(
-        macro.plantilla, instancia, macro.nombre, capturas, ubicaciones_instancia,
-        ubicaciones, indices)
+    try:
+        _unificar_plantilla(
+            macro.plantilla, instancia, macro.nombre, capturas, ubicaciones_instancia,
+            ubicaciones, indices)
+        parametros_salida = parametros
+    except ErrorSintaxis as original:
+        if not (len(parametros) >= 2 and parametros[-2] == "segun"):
+            raise
+        capturas = {parametros[0]: mid}
+        try:
+            _unificar_plantilla(
+                _plantilla_legacy_sin_segun(macro.plantilla), instancia, macro.nombre,
+                capturas, ubicaciones_instancia, ubicaciones, indices)
+        except ErrorSintaxis:
+            raise original
+        parametros_salida = (*parametros[:-2], parametros[-1])
     sin_leer = [parametro for parametro in parametros if parametro not in capturas]
+    if parametros_salida != parametros:
+        sin_leer = [parametro for parametro in sin_leer if parametro != "segun"]
     if sin_leer:
         _fallar(linea_encabezado, 1,
                 f"la macro {macro.nombre} no deja leer el parámetro «{sin_leer[0]}» "
                 "desde su plantilla", literal=True)
-    return [macro.nombre, *(capturas[parametro] for parametro in parametros)]
+    return [macro.nombre, *(capturas[parametro] for parametro in parametros_salida)]
 
 
 def _leer_macro_declarada(macro, mid, cuerpo: list[tuple[int, str]], *,
@@ -1025,7 +1113,8 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
         _fallar(cuerpo[-1][0] + 1, 1, "umbral")
     _registrar(ubicaciones, (4,), cuerpo[i][0], len(IND) + 1)
     _registrar(ubicaciones, (4, 0), cuerpo[i][0], len(IND) + 1)
-    op, limite, porque, _col = _leer_umbral(*_contenido(cuerpo[i], "umbral ", 1))
+    op, limite, porque, segun, tiene_segun, _col = _leer_umbral(
+        *_contenido(cuerpo[i], "umbral ", 1))
     i += 1
     requiere = None
     if i < len(cuerpo) and _indentada(cuerpo[i][1], 1, cuerpo[i][0]).startswith("requiere "):
@@ -1044,7 +1133,10 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
         n, linea = cuerpo[i]
         _fallar(n, len(linea) - len(linea.lstrip()) + 1, "fin de medida", linea.strip())
 
-    base = ["medida", mid, ["desde", fuente, *pasos], resumen, ["umbral", op, limite, porque]]
+    umbral = ["umbral", op, limite, porque]
+    if tiene_segun:
+        umbral.append(segun)
+    base = ["medida", mid, ["desde", fuente, *pasos], resumen, umbral]
     if requiere is not None:
         base.append(requiere)
     base.append(["alcance", alcance])
@@ -1327,6 +1419,27 @@ def _imprimir_pasos(tuberia: list) -> list[str]:
     return salida
 
 
+def _linea_umbral(umbral: list) -> str:
+    if not isinstance(umbral, list) or len(umbral) not in (4, 5):
+        raise ValueError("un umbral imprimible tiene 4 o 5 elementos")
+    linea = f"{IND}umbral {umbral[1]} {_expr(umbral[2])}"
+    if len(umbral) == 5:
+        segun = umbral[4]
+        if _es_hueco(segun):
+            linea += f" segun {_nombre(segun)}"
+        elif segun in ORIGENES_DE_UMBRAL:
+            linea += f" segun {segun}"
+        elif segun != SEGUN_SIN_DECLARAR:
+            raise ValueError(f"`segun` no imprimible: {segun!r}")
+    if umbral[3] != "" or _es_hueco(umbral[3]):
+        linea += f" porque {_texto_o_hueco(umbral[3])}"
+    if len(umbral) == 4 and umbral[3] == "":
+        raise ValueError("un umbral sin `segun` necesita `porque` para imprimirse")
+    if len(umbral) == 5 and umbral[3] == "" and umbral[4] == SEGUN_SIN_DECLARAR:
+        raise ValueError("un umbral sin `segun` ni `porque` no es imprimible")
+    return linea
+
+
 def _lineas_medida(datos: list) -> list[str]:
     if len(datos) == 7:
         _c, mid, tuberia, resumen, umbral, requiere, alcance = datos
@@ -1337,7 +1450,7 @@ def _lineas_medida(datos: list) -> list[str]:
         raise ValueError("una medida canónica tiene 6 o 7 elementos")
     lineas = [f"medida {_nombre(mid)}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
     lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
-    lineas.append(f"{IND}umbral {umbral[1]} {_expr(umbral[2])} porque {_texto_o_hueco(umbral[3])}")
+    lineas.append(_linea_umbral(umbral))
     if requiere is not None:
         lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in requiere[1:])}")
     lineas.append(f"{IND}alcance {_texto_o_hueco(alcance[1])}")
@@ -1366,8 +1479,9 @@ def _lineas_macro_declarada(datos: list, macros, visitadas: frozenset[str]) -> l
         cadena = " -> ".join((*visitadas, clase))
         raise ValueError(f"macro recursiva no imprimible: {cadena}")
     macro = registro[clase]
-    esperados = len(macro.parametros)
-    if len(datos) - 1 != esperados:
+    parametros = _parametros_para_aridad(macro, len(datos) - 1)
+    if parametros is None:
+        esperados = len(macro.parametros)
         raise ValueError(
             f"la macro {clase} lleva {esperados} argumento(s) y recibió {len(datos) - 1}")
 
@@ -1376,7 +1490,7 @@ def _lineas_macro_declarada(datos: list, macros, visitadas: frozenset[str]) -> l
     except ValueError as e:
         raise ValueError(str(e)) from e
     lineas = [f"{clase} {_nombre(datos[1])}:"]
-    for parametro, valor in zip(macro.parametros[1:], datos[2:]):
+    for parametro, valor in zip(parametros[1:], datos[2:]):
         tipo = tipos[parametro]
         if tipo == "nombre":
             superficie = _nombre(valor)

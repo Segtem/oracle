@@ -3,7 +3,7 @@
   "proceso.modulo_alcanzable",
   ["desde", ["unir", ["de", "modulo", "m"], ["de", "alcanzable", "r"]], ["agrupar", [["modulo", ["campo", "m", "nombre"]]], [["veces_alcanzado", "suma", ["==", ["campo", "r", "hasta"], ["campo", "m", "nombre"]]], ["es_paquete_vacio", "max", ["campo", "m", "es_paquete_vacio"]]]], ["donde", ["y", ["==", ["col", "veces_alcanzado"], 0], ["==", ["col", "es_paquete_vacio"], false]]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto"],
+  ["umbral", "<=", 0, "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto", "contrato"],
   ["requiere", "alcanzable"],
   ["alcance", "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde"]
 ]

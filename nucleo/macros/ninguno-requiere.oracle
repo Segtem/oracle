@@ -1,8 +1,10 @@
-defmacro ninguno-requiere(id, relacion, alias, predicado, porque, alcance):
+# `segun` va después de `porque` para no cambiar el significado posicional de las invocaciones
+# existentes; no hay default. La prosa puede ser "", pero la etiqueta del origen siempre se decide.
+defmacro ninguno-requiere(id, relacion, alias, predicado, porque, segun, alcance):
     medida $id:
         de $relacion $alias
         donde $predicado
         resumen contar(1)
-        umbral <= 0 porque $porque
+        umbral <= 0 segun $segun porque $porque
         requiere $relacion
         alcance $alcance

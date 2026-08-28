@@ -8,6 +8,6 @@ medida meta.toda_medida_de_ausencia_declara_requiere:
         agregado declara_requiere = suma(t.medida == m.id y t.cabeza == "requiere")
     donde usa_unir > 0 y usa_agrupar > 0 y declara_requiere == 0
     resumen contar(1)
-    umbral <= 0 porque "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada"
+    umbral <= 0 segun contrato porque "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada"
     requiere termino
     alcance "detecta medidas cuya forma canónica contiene `unir` y `agrupar` pero ningún nodo `requiere`. NO demuestra que toda medida con ese patrón sea realmente de ausencia, ni que la relación requerida elegida sea la correcta"

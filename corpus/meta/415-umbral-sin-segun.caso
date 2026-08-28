@@ -1,0 +1,17 @@
+caso 415-umbral-sin-segun:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un umbral no declara de dónde sale el número"
+    etiqueta: falso_verde
+    sintoma:
+        La relación `medida` trae `segun` en `sin_declarar`. Esa ausencia es visible para que una forma vieja o incompleta se ponga roja, no para aceptarla como categoría.
+    como_se_detecto: persona
+    medida: meta.todo_umbral_declara_de_donde_sale
+    evidencia:
+        medida: id, segun, porque
+            "dominio.umbral_sin_origen", "sin_declarar", "tiene prosa, pero no etiqueta"
+    leccion:
+        La prosa puede existir y aun así faltar lo evaluable: `segun` contesta de dónde salió el número.

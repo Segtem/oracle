@@ -140,7 +140,7 @@ class OracleCliTests(unittest.TestCase):
                 "ninguno demo.prueba:\n"
                 "    de item x\n"
                 "    donde x.mal == true\n"
-                "    umbral <= 0 porque \"ningun item puede estar mal\"\n"
+                "    umbral <= 0 segun contrato porque \"ningun item puede estar mal\"\n"
                 "    alcance \"NO ve otros items\"\n",
                 encoding="utf-8",
             )
@@ -232,7 +232,7 @@ class OracleCliTests(unittest.TestCase):
                 "ninguno demo.sola:\n"
                 "    de item x\n"
                 "    donde x.mal == true\n"
-                "    umbral <= 0 porque \"defensa\"\n"
+                "    umbral <= 0 segun contrato porque \"defensa\"\n"
                 "    alcance \"alcance\"\n",
                 encoding="utf-8",
             )
@@ -278,7 +278,7 @@ class OracleCliTests(unittest.TestCase):
                 "ninguno demo.udf:\n"
                 "    de item x\n"
                 "    donde es_malo(x) == true\n"
-                "    umbral <= 0 porque \"defensa\"\n"
+                "    umbral <= 0 segun contrato porque \"defensa\"\n"
                 "    alcance \"alcance\"\n",
                 encoding="utf-8",
             )
@@ -390,7 +390,7 @@ class OracleCliTests(unittest.TestCase):
                 "ninguno demo.instalado:\n"
                 "    de item i\n"
                 "    donde i.mal == true\n"
-                "    umbral <= 0 porque \"ningun item malo pasa\"\n"
+                "    umbral <= 0 segun contrato porque \"ningun item malo pasa\"\n"
                 "    alcance \"NO ve campos distintos de mal\"\n",
                 encoding="utf-8",
             )
@@ -443,7 +443,7 @@ class InitDejaLasGuardasPuestasTests(OracleCliTests):
         "ninguno tareas.vencida_sin_dueno:\n"
         "    de tarea t\n"
         "    donde t.vencida == true y t.asignada == true\n"
-        '    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
+        '    umbral <= 0 segun contrato porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
         '    alcance "ve el par vencida+sin-dueño y nada más"\n')
 
     CASO = (
@@ -487,7 +487,7 @@ class InitDejaLasGuardasPuestasTests(OracleCliTests):
             proy = Proyecto(raiz)
             catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
             self.assertIn("meta.el_caso_se_pone_como_debe", catalogo)
-            self.assertIn("meta.ningun_umbral_sin_defensa", catalogo)
+            self.assertIn("meta.todo_umbral_declara_de_donde_sale", catalogo)
 
     def test_una_medida_invertida_con_su_caso_sale_ROJA(self) -> None:
         """El escenario de auditoría: un modelo escribe una medida al revés y su caso.
@@ -571,7 +571,7 @@ class NounVerbCliTests(OracleCliTests):
             "ninguno juego.pieza_muy_alta:\n"
             "    de pieza p\n"
             "    donde p.alto > 400.0\n"
-            '    umbral <= 0 porque "cuatro metros es el techo del set"\n'
+            '    umbral <= 0 segun contrato porque "cuatro metros es el techo del set"\n'
             '    alcance "mira el alto declarado. NO mira la malla"\n',
             encoding="utf-8")
         return m
@@ -709,7 +709,7 @@ class NounVerbCliTests(OracleCliTests):
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (37 medidas", salida)
+        self.assertIn("CATÁLOGO (38 medidas", salida)
         # Las del perfil `python` no viven en `catalogos/`: se heredan, y se ven.
         self.assertIn("MEDIDAS HEREDADAS", salida)
         self.assertIn("proceso.modulo_alcanzable", salida)
@@ -735,7 +735,7 @@ class NounVerbCliTests(OracleCliTests):
                 "ninguno x.nadie_la_prueba:\n"
                 "    de pieza p\n"
                 "    donde p.rota == true\n"
-                '    umbral <= 0 porque "una pieza rota en la escena se ve"\n'
+                '    umbral <= 0 segun contrato porque "una pieza rota en la escena se ve"\n'
                 '    alcance "mira la bandera declarada. NO ve la malla real"\n',
                 encoding="utf-8")
             _rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
@@ -758,7 +758,7 @@ class NounVerbCliTests(OracleCliTests):
                 "ninguno demo.prueba:\n"
                 "    de item x\n"
                 "    donde x.mal == true\n"
-                "    umbral <= 0 porque \"defensa\"\n"
+                "    umbral <= 0 segun contrato porque \"defensa\"\n"
                 "    alcance \"NO ve otros items\"\n",
                 encoding="utf-8",
             )

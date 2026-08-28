@@ -26,7 +26,7 @@ from dataclasses import dataclass
 # instala, que cambia cada vez que se arregla una herramienta sin tocar el lenguaje.
 VERSION_DISTRIBUCION = "0.1.0"
 
-VERSION_ALGEBRA = "0.3"
+VERSION_ALGEBRA = "0.4"
 
 # La superficie infija declara su versión por separado: no envejece igual que el álgebra, porque un
 # archivo `.oracle` se LEE y el impresor no lo toca. La regla de qué sube cada parte está en
