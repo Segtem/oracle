@@ -35,6 +35,7 @@ packages = [
   "oracle_metalenguaje.nucleo.aislamiento",
   "oracle_metalenguaje.perfiles",
   "oracle_metalenguaje.perfiles.python",
+  "oracle_metalenguaje.relaciones",
   "oracle_metalenguaje.tools",
 ]
 
@@ -44,9 +45,11 @@ packages = [
 "oracle_metalenguaje.nucleo.aislamiento" = "nucleo/aislamiento"
 "oracle_metalenguaje.perfiles" = "perfiles"
 "oracle_metalenguaje.perfiles.python" = "perfiles/python"
+"oracle_metalenguaje.relaciones" = "relaciones"
 "oracle_metalenguaje.tools" = "tools"
 
 [tool.setuptools.package-data]
 "oracle_metalenguaje.catalogos" = ["**/*.json", "**/*.oracle"]
 "oracle_metalenguaje.nucleo" = ["macros/*.json", "macros/*.oracle"]
 "oracle_metalenguaje.perfiles.python" = ["catalogos/**/*.json", "catalogos/**/*.oracle"]
+"oracle_metalenguaje.relaciones" = ["*.json"]

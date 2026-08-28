@@ -1,6 +1,6 @@
 # Plan — L−1 y L−2, los dos niveles que miran hacia el mundo
 
-**Estado:** L−1 en construcción (2026-08-27) · L−2 definido, sin empezar.
+**Estado:** L−1 cerrado e integrado (2026-08-28) · L−2 cerrado en esta rama.
 La numeración y por qué la torre se cierra en L−2 están en
 [`DECISION-005`](DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md).
 
@@ -9,8 +9,8 @@ L2   medidas sobre medidas   enunciados sobre L1                        ✓
 L1   medidas                 enunciados sobre L0                        ✓
 L0   evidencia               filas                                      ✓
 ────────────────────────────────────────────────────────────────────────
-L−1  qué lee el sensor       su alcance y las unidades de cada campo    ← en construcción
-L−2  qué leyó, y en qué      identidad y frescura del referente         ← definido acá
+L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✓ integrado
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ en esta rama
 ────────────────────────────────────────────────────────────────────────
      el terreno              no es un nivel: no se representa
 ```
@@ -40,6 +40,17 @@ Poder escribir, en el lenguaje y sin tocar Python:
 
 - «ningún campo se entrega sin unidad declarada»;
 - «ninguna medida compara un campo contra un umbral de otra unidad».
+
+### Resultado medido el 2026-08-28
+
+La relación declara la unidad de cada campo y `@escalar` declara la de cada argumento con
+`unidades_argumentos`; un hecho entero o un texto usa `sin_unidad` de forma explícita. La ausencia
+no impide cargar una escalar anterior, pero vuelve `sin_declarar` la cantidad que depende de ella.
+
+Sin modificar Jam, sus 89 cantidades comparadas quedaron en 41 derivables y 48 no derivables. Las
+dos apariciones de `snap.grilla` —filtro y resumen— quedaron no derivables porque
+`desvio_de_grilla(hecho(a), 100.0)` todavía declara sólo el retorno `cm`: ahora el `100.0` sin unidad
+de argumento ya no queda tapado por esa unidad de retorno.
 
 ### Lo que ya se sabe que va a doler
 
@@ -121,6 +132,23 @@ Poder escribir, en el lenguaje y sin tocar Python:
 Y que **`nucleo/fixtures.py` deje de tener su propio mecanismo de frescura** y use éste. Mientras el
 fixture diferencial siga comparando huellas por su cuenta, L−2 está a medias: sería una capa nueva
 al lado de la vieja en vez de la vieja expresada en el lenguaje.
+
+### Resultado medido el 2026-08-28
+
+`referente_declarado` hace observable la identidad, huella y momento de lectura;
+`referente_comparado` empareja por identidad las declaraciones de lectura y actualidad, sin decidir
+si coinciden. La decisión está escrita en
+`meta.ninguna_evidencia_se_juzga_con_referente_vencido` como
+`r.huella_leida != r.huella_actual`. La misma relación alcanza para el commit de una verificación:
+el sensor de proceso tiene que presentarlo como otra identidad, no hace falta otro campo ni otro
+comparador Python.
+
+`nucleo.diferencial.py` quedó como sensor que calcula huellas. `nucleo/fixtures.py` las presenta a
+la medida y usa sus testigos para el diagnóstico `fixture vencido: cambió …`; ya no compara huellas
+por su cuenta. La prueba diferencial conservó sus 4 acuerdos globales y 12 veredictos individuales.
+
+La pregunta de si L−2 colapsaba dentro de L−1 queda respondida por la implementación: las
+declaraciones de unidad y de referente se producen y se miden por separado. Son dos niveles.
 
 ### La pregunta abierta, que se resuelve construyendo
 

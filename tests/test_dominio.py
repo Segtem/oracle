@@ -18,8 +18,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 from nucleo.diferencial import (ESQUEMA_DIFERENCIAL, Procedencia, ProcedenciaInvalida,
-                                _resolver_entrada, huella_archivos, ids_de_medidas, json_canonico,
-                                revisar_frescura)
+                                _resolver_entrada, huella_archivos, ids_de_medidas, json_canonico)
+from nucleo.fixtures import revisar_frescura
 from nucleo.dominio import Dominio, DominioMalDeclarado, generar
 from nucleo.medida import Medida
 
@@ -247,6 +247,12 @@ class GenerarTests(unittest.TestCase):
             self.assertTrue(any("emisor" in p for p in problemas))
             self.assertIn(f"{anterior[:12]}… → {nueva[:12]}…", "\n".join(problemas))
             (raiz / "emisor.py").write_text("VERSION = 1\n", encoding="utf-8")
+
+            (raiz / "referencia.py").unlink()
+            incomprobable = revisar_frescura(fixture, raiz, catalogo)
+            self.assertEqual(len(incomprobable), 1)
+            self.assertIn("no se pudo comprobar referencia", incomprobable[0])
+            (raiz / "referencia.py").write_text("VERSION = 1\n", encoding="utf-8")
 
             cambiada = Medida.de_datos(
                 ["ninguno", "d.sin_fallas", "cosa", "c",

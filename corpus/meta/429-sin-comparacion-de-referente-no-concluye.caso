@@ -1,0 +1,17 @@
+caso 429-sin-comparacion-de-referente-no-concluye:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Sin comparación de referente la frescura no concluye"
+    etiqueta: falso_verde
+    sintoma:
+        Si el sensor no presenta las declaraciones de lectura y actualidad, cero filas no prueba que el referente siga vigente.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_evidencia_se_juzga_con_referente_vencido
+    evidencia:
+        otra_evidencia: nombre
+            "fixture sin comparación"
+    leccion:
+        `requiere referente_comparado` evita convertir la ausencia de la comparación en un verde.
