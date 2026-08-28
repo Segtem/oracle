@@ -1,0 +1,18 @@
+caso 422-cantidad-comparada-con-unidad-derivable:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "l1-derivar"
+    procedencia: observada
+    titulo: "Las medidas comparan cantidades con unidad derivable"
+    etiqueta: verde_correcto
+    sintoma:
+        Las comparaciones usan campos sin unidad física del proceso o agregados adimensionales (`contar`). Ambos tienen `es_derivable` en true y la regla debe dar verde.
+    como_se_detecto: observacion
+    medida: meta.toda_cantidad_comparada_tiene_unidad_derivable
+    evidencia:
+        cantidad_comparada: medida, unidad, es_derivable
+            "simulacion.corrida_reproducible", "sin_unidad", true
+            "meta.ninguna_medida_sin_alcance", "adimensional", true
+    leccion:
+        Cubre dos casos válidos observados en el catálogo propio: campos sin unidad física y conteos adimensionales.

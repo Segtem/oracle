@@ -234,6 +234,22 @@ def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
     return [*bases, proy.catalogos]
 
 
+def relaciones_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> dict[str, Any]:
+    """Carga las relaciones del proyecto más las relaciones base cuando tiene `catalogo_base`."""
+    from .relacion import cargar_relaciones
+
+    rels: dict[str, Any] = {}
+    config = configuracion(proy, raices_perfiles=raices_perfiles)
+    if config.catalogo_base:
+        dir_base = RAIZ_ORACLE / "relaciones"
+        if dir_base.is_dir():
+            rels.update(cargar_relaciones(dir_base))
+    dir_proy = proy.raiz / "relaciones"
+    if dir_proy.is_dir():
+        rels.update(cargar_relaciones(dir_proy))
+    return rels
+
+
 def macros_del_proyecto(proy: "Proyecto") -> "RegistroMacros":
     """Biblioteca estándar del lenguaje más las macros que declare el proyecto en `macros/`.
 

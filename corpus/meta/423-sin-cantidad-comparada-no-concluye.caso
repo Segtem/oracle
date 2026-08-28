@@ -1,0 +1,16 @@
+caso 423-sin-cantidad-comparada-no-concluye:
+    fecha: "2026-08-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "l1-derivar"
+    procedencia: construida
+    titulo: "Sin relación `cantidad_comparada`, la medida no puede concluir"
+    etiqueta: falso_verde
+    sintoma:
+        El sensor de unidades no entregó la relación `cantidad_comparada`. Sin esa relación, la medida no puede saber si las cantidades comparadas tienen unidades derivables y no debe concluir en verde.
+    como_se_detecto: mutacion
+    medida: meta.toda_cantidad_comparada_tiene_unidad_derivable
+    evidencia:
+        cantidad_comparada:
+    leccion:
+        `requiere cantidad_comparada` no es decoración: sin esa precondición, una relación ausente se leería como cero ofensas y la medida saldría verde sobre evidencia vacía.

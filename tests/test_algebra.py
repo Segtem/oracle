@@ -57,6 +57,13 @@ class ContratoAlgebraTests(unittest.TestCase):
             with self.subTest(unidad=unidad):
                 with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "unidad"):
                     algebra.escalar("d_unidad_invalida", unidad)
+        for unidades in ([], "cm", ("",), ("cm\ninyectado",), (None,)):
+            with self.subTest(unidades_argumentos=unidades):
+                with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "unidad"):
+                    algebra.escalar(
+                        "d_unidades_argumentos_invalidas",
+                        unidades_argumentos=unidades,
+                    )
 
         @algebra.escalar("d_contrato_aislado", "cm")
         def escalar_de_prueba(requerido, opcional=1, *extras, etiqueta="prueba"):
@@ -70,11 +77,12 @@ class ContratoAlgebraTests(unittest.TestCase):
             (
                 escalar_de_prueba.nombre_escalar,
                 escalar_de_prueba.unidad,
+                escalar_de_prueba.unidades_argumentos,
                 escalar_de_prueba.aridad_min,
                 escalar_de_prueba.aridad_max,
                 escalar_de_prueba.procedencia_escalar,
             ),
-            ("d_contrato_aislado", "cm", 1, None, "oracle"),
+            ("d_contrato_aislado", "cm", (), 1, None, "oracle"),
         )
         with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "ya está registrada"):
             algebra.escalar("d_contrato_aislado")(lambda: None)
@@ -83,6 +91,30 @@ class ContratoAlgebraTests(unittest.TestCase):
             @algebra.escalar("d_keyword_invalida")
             def _keyword_invalida(*, requerido):
                 return requerido
+
+        @algebra.escalar(
+            "d_unidades_de_argumentos",
+            "cm",
+            unidades_argumentos=("sin_unidad", " cm "),
+        )
+        def _unidades_de_argumentos(pieza, grilla):
+            return pieza, grilla
+
+        self.addCleanup(algebra.ESCALARES.pop, "d_unidades_de_argumentos", None)
+        self.assertEqual(
+            _unidades_de_argumentos.unidades_argumentos,
+            ("sin_unidad", "cm"),
+        )
+
+        with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "variádica"):
+            @algebra.escalar("d_variadica_con_unidades", unidades_argumentos=("cm",))
+            def _variadica_con_unidades(*valores):
+                return valores
+
+        with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "2 argumento"):
+            @algebra.escalar("d_cantidad_de_unidades_invalida", unidades_argumentos=("cm",))
+            def _cantidad_de_unidades_invalida(a, b):
+                return a + b
 
     def test_los_mensajes_de_aridad_distinguen_exacta_rango_y_variadica(self) -> None:
         algebra = _algebra()
