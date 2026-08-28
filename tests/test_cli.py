@@ -22,7 +22,9 @@ from tools import cli
 RAIZ = Path(__file__).resolve().parents[1]
 
 
-class OracleCliTests(unittest.TestCase):
+class CliTestCase(unittest.TestCase):
+    """Ayudas compartidas; no hereda casos concretos entre grupos de pruebas."""
+
     @staticmethod
     def _callado(fn, *args, **kw):
         """Corre una función del CLI sin dejar su salida en la de la suite.
@@ -37,6 +39,8 @@ class OracleCliTests(unittest.TestCase):
             resultado = fn(*args, **kw)
         return resultado, salida.getvalue()
 
+
+class OracleCliTests(CliTestCase):
     def _cmd_test_oracle_simulado(self, *extras: str, unitarios: int = 0,
                                   mutacion_codigo: int = 0):
         from tools import cifras, metamorficas, mutar_codigo, trazar
@@ -426,7 +430,7 @@ class OracleCliTests(unittest.TestCase):
             self.assertIn("VEREDICTO: VERDE", con_macro.stdout)
 
 
-class InitDejaLasGuardasPuestasTests(OracleCliTests):
+class InitDejaLasGuardasPuestasTests(CliTestCase):
     """Lo más importante que escribe `init` es `catalogo_base`, y faltaba.
 
     Sin él un proyecto carga SÓLO sus propias medidas y se queda sin las universales: nadie comprueba
@@ -511,7 +515,7 @@ class InitDejaLasGuardasPuestasTests(OracleCliTests):
             self.assertIn("ROJO", salida)
 
 
-class NounVerbCliTests(OracleCliTests):
+class NounVerbCliTests(CliTestCase):
     def test_ayudas_de_sustantivos_devuelven_cero(self) -> None:
         for sust, verbos in (
             ("medida", ("nueva", "revisar", "listar", "expandir")),
