@@ -1,9 +1,11 @@
-defmacro ninguno-par(id, relacion, aliasA, aliasB, predicado, porque, alcance):
+# `segun` va después de `porque` para no cambiar el significado posicional de las invocaciones
+# existentes; no hay default. La prosa puede ser "", pero la etiqueta del origen siempre se decide.
+defmacro ninguno-par(id, relacion, aliasA, aliasB, predicado, porque, segun, alcance):
     guarda $aliasA != $aliasB "los dos alias de «ninguno-par» tienen que ser distintos"
     medida $id:
         de $relacion $aliasA
         unir $relacion $aliasB
         donde $predicado
         resumen contar(1)
-        umbral <= 0 porque $porque
+        umbral <= 0 segun $segun porque $porque
         alcance $alcance

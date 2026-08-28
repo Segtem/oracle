@@ -20,7 +20,7 @@ _SIN_EVIDENCIA = "SIN EVIDENCIA"
 # Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
 # la compara con la que declara el nucleo (nucleo/version.py) y falla cerrado si no coinciden: una
 # extension del lenguaje que este evaluador no conoce no debe publicar "0 desacuerdos".
-VERSION_ALGEBRA = "0.3"
+VERSION_ALGEBRA = "0.4"
 
 
 @dataclass(frozen=True)
@@ -68,7 +68,7 @@ def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dic
     _, agregado, expr_resumen = resumen
     valor = _agregar(filas, agregado, expr_resumen, escalares, _LIMITES)
 
-    _, op_umbral, valor_umbral, _porque = umbral
+    _, op_umbral, valor_umbral, _porque, *_segun = umbral
     valor_umbral = _validar_escalar(valor_umbral, "valor de umbral")
     ok = _comparar(op_umbral, valor, valor_umbral)
 
@@ -102,13 +102,15 @@ def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list
         raise ErrorDeAlgebra("seccion resumen invalida")
     if resumen[1] not in _AGREGADOS:
         raise ErrorDeAlgebra(f"agregado desconocido: {resumen[1]}")
-    if not _es_lista_con_tag(umbral, "umbral") or len(umbral) != 4:
+    if not _es_lista_con_tag(umbral, "umbral") or len(umbral) not in {4, 5}:
         raise ErrorDeAlgebra("seccion umbral invalida")
     if umbral[1] not in _COMPARADORES:
         raise ErrorDeAlgebra(f"comparador desconocido: {umbral[1]}")
     _validar_escalar(umbral[2], "valor de umbral")
     if not isinstance(umbral[3], str):
         raise ErrorDeAlgebra("la defensa del umbral debe ser texto")
+    if len(umbral) == 5 and not isinstance(umbral[4], str):
+        raise ErrorDeAlgebra("el origen del umbral debe ser texto")
     if not _es_lista_con_tag(alcance, "alcance") or len(alcance) != 2:
         raise ErrorDeAlgebra("seccion alcance invalida")
     if not isinstance(alcance[1], str):

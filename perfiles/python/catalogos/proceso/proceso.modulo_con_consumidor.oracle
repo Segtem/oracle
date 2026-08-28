@@ -6,6 +6,6 @@ medida proceso.modulo_con_consumidor:
         agregado importadores_reales = suma(i.b == m.nombre y i.es_test == false)
     donde importadores_reales == 0
     resumen contar(1)
-    umbral <= 0 porque "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"
+    umbral <= 0 segun contrato porque "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"
     requiere importa
     alcance "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama"

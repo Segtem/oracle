@@ -3,4 +3,5 @@ ninguno-requiere simulacion.corrida_reproducible:
     alias c
     predicado c.determinista == false
     porque "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota"
+    segun contrato
     alcance "compara dos ejecuciones con la MISMA semilla. NO ve si el resultado depende de algo de afuera —la hora, el orden de un diccionario, un archivo— que hoy casualmente no cambió. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."

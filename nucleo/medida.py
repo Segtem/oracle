@@ -6,13 +6,14 @@ Forma canónica, tal como se guarda en `catalogos/`:
 ["medida", "<id>",
   ["desde", ["de", "<relacion>", "<alias>"], ["donde", <pred>]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "<la defensa del número>"],
+  ["umbral", "<=", 0, "<la defensa del número>", "<de dónde salió>"],
   ["alcance", "<qué NO ve>"]]
 ```
 
 Dos campos son obligatorios y son la razón de ser del módulo: **`alcance`**, para que un informe en
-verde no pueda decir «todo bien» a secas, y **la defensa del umbral**, para que el número se pueda
-discutir. Una medida sin uno de los dos no se carga: falla al leerse, no al usarse.
+verde no pueda decir «todo bien» a secas, y **`segun`**, para que el origen del número sea
+inspeccionable. La defensa en prosa sigue existiendo, pero ya no es obligatoria: dice por qué ése y
+no otro, no de dónde salió.
 
 Los **testigos no se declaran**: son las filas con las que terminó la tubería. Declararlos aparte
 obliga a escribir la misma condición dos veces y a mantenerlas sincronizadas a mano — el caso
@@ -46,6 +47,8 @@ RELACIONES_DE_CATALOGO = frozenset({
 })
 
 EXTENSIONES_DE_MEDIDA = frozenset({".json", ".oracle"})
+SEGUN_SIN_DECLARAR = "sin_declarar"
+ORIGENES_DE_UMBRAL = frozenset({"medicion", "contrato", "convencion", "tanteo"})
 
 
 def _extraer_textos_ast(valor: ast.AST) -> set[str]:
@@ -252,6 +255,7 @@ class Medida:
     limite: float
     porque: str
     alcance: str
+    segun: str = SEGUN_SIN_DECLARAR
     # Relaciones sin las cuales esta medida no puede concluir nada. Es el espejo de `alcance`: uno
     # declara qué NO ve, y éste declara qué NECESITA ver. Existe porque el álgebra no puede
     # expresarlo: `unir` con un lado vacío no produce pares, y sin pares no hay grupos, así que la
@@ -289,9 +293,19 @@ class Medida:
             validar_resumen(resumen, limites, registro=registro)
         except ErrorDeAlgebra as e:
             raise MedidaMalDeclarada(f"{mid}: {e}") from e
-        if not (isinstance(umbral, list) and len(umbral) == 4 and umbral[0] == "umbral"):
-            raise MedidaMalDeclarada(f"{mid}: el umbral es ['umbral', op, valor, porque]")
-        _, op, limite, porque = umbral
+        if not (isinstance(umbral, list) and len(umbral) in (4, 5)
+                and umbral[0] == "umbral"):
+            raise MedidaMalDeclarada(
+                f"{mid}: el umbral es ['umbral', op, valor, porque, segun]")
+        if len(umbral) == 5:
+            _, op, limite, porque, segun = umbral
+            if segun != SEGUN_SIN_DECLARAR and segun not in ORIGENES_DE_UMBRAL:
+                raise MedidaMalDeclarada(
+                    f"{mid}: `segun` debe ser uno de {sorted(ORIGENES_DE_UMBRAL)}; "
+                    f"recibió {segun!r}")
+        else:
+            _, op, limite, porque = umbral
+            segun = SEGUN_SIN_DECLARAR
         if op not in COMPARADORES:
             raise MedidaMalDeclarada(f"{mid}: operador «{op}» no está en {list(COMPARADORES)}")
         if not isinstance(limite, (str, int, float, bool)):
@@ -307,11 +321,11 @@ class Medida:
         # `meta.ningun_umbral_flotante_de_igualdad`, que lo vuelve inspeccionable en L2. Quitar el
         # `raise` de carga no abre un hueco: la medida no puede producir un verde porque el álgebra
         # la frena antes de comparar.
-        # las dos reglas que hacen a esto un oráculo y no un validador
-        if not isinstance(porque, str) or not porque.strip():
+        # La prosa ya no es obligatoria: `segun` es lo evaluable. Sigue teniendo que ser texto para
+        # que una medida no pueda esconder datos estructurados en la ranura humana.
+        if not isinstance(porque, str):
             raise MedidaMalDeclarada(
-                f"{mid}: el umbral {op} {limite} no trae defensa — un número que nadie puede "
-                f"discutir es una métrica esperando a volverse objetivo")
+                f"{mid}: la defensa del umbral tiene que ser texto, no {type(porque).__name__}")
         if not (isinstance(alcance, list) and len(alcance) == 2 and alcance[0] == "alcance"
                 and isinstance(alcance[1], str) and alcance[1].strip()):
             raise MedidaMalDeclarada(f"{mid}: falta `alcance` — hay que declarar qué NO ve")
@@ -323,7 +337,7 @@ class Medida:
         if len(set(nombres)) != len(nombres):
             raise MedidaMalDeclarada(f"{mid}: `requiere` repite una relación: {list(nombres)}")
         return cls(id=mid, tuberia=tuberia, resumen=resumen, op=op, limite=limite,
-                   porque=porque, alcance=alcance[1], requiere=nombres,
+                   porque=porque, alcance=alcance[1], segun=segun, requiere=nombres,
                    fuente=tuple(fuente) if es_macro(fuente, macros) else ())
 
     def evaluar(self, evidencia: dict, limites: LimitesAlgebra | None = None, *,
@@ -346,7 +360,7 @@ class Medida:
         """La forma CANÓNICA, siempre. Es lo que muta el sensor: mutar la expansión llega más lejos
         que mutar la invocación de la macro."""
         canonica = ["medida", self.id, self.tuberia, self.resumen,
-                    ["umbral", self.op, self.limite, self.porque]]
+                    ["umbral", self.op, self.limite, self.porque, self.segun]]
         # Una medida sin `requiere` NO emite el nodo: la forma canónica de las que ya existían no
         # cambia, y con ella no cambian sus huellas ni las rutas de sus mutantes.
         if self.requiere:
@@ -538,7 +552,10 @@ def medidas_aplicables(medidas, evidencia: dict) -> list:
 
 def inventario(medidas) -> list[dict]:
     """Todos los umbrales con su defensa. Antes vivían escondidos en firmas de funciones."""
-    return [{"id": m.id, "umbral": f"{m.op} {m.limite}", "porque": m.porque} for m in medidas]
+    return [
+        {"id": m.id, "umbral": f"{m.op} {m.limite}", "porque": m.porque, "segun": m.segun}
+        for m in medidas
+    ]
 
 
 def puntos_ciegos(medidas) -> list[dict]:
@@ -572,6 +589,7 @@ def _hecho_medida(medida, clasificacion: ClasificacionMeta) -> dict:
         "umbral_valor": medida.limite,
         "umbral_es_flotante": isinstance(medida.limite, float),
         "porque": medida.porque,
+        "segun": getattr(medida, "segun", SEGUN_SIN_DECLARAR),
         "alcance": medida.alcance,
         "pasos": max(0, len(medida.tuberia) - 1),
         "declara_requiere": bool(medida.requiere),
@@ -616,7 +634,10 @@ def _texto_literal(valor) -> str:
     if isinstance(valor, str):
         return valor
     if isinstance(valor, (bool, int, float)) or valor is None:
-        return json.dumps(valor, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+        try:
+            return json.dumps(valor, separators=(",", ":"), allow_nan=False)
+        except ValueError as e:
+            raise MedidaMalDeclarada(f"literal no reificable en `termino`: {valor!r}") from e
     raise MedidaMalDeclarada(f"literal no reificable en `termino`: {type(valor).__name__}")
 
 

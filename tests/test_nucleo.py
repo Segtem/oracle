@@ -35,11 +35,12 @@ def setUpModule() -> None:
     importlib.import_module("catalogos.escalares")
 
 
-def _medida(pred=None, porque="una razón", alcance="NO ve nada más", umbral=("<=", 0)):
+def _medida(pred=None, porque="una razón", alcance="NO ve nada más",
+            umbral=("<=", 0), segun="contrato"):
     return ["medida", "d.prueba",
             ["desde", ["de", "pieza", "p"], ["donde", pred or [">", ["campo", "p", "x"], 3]]],
             ["resumen", "contar", 1],
-            ["umbral", umbral[0], umbral[1], porque],
+            ["umbral", umbral[0], umbral[1], porque, segun],
             ["alcance", alcance]]
 
 
@@ -446,7 +447,8 @@ class MedidaTests(unittest.TestCase):
 
     def test_la_forma_del_umbral_se_valida_al_CARGAR(self) -> None:
         for umbral in (None, [], ["umbral", "<=", 0],
-                       ["otra-cosa", "<=", 0, "razon"]):
+                       ["otra-cosa", "<=", 0, "razon"],
+                       ["umbral", "<=", 0, "razon", "inventado"]):
             with self.subTest(umbral=umbral):
                 datos = _medida()
                 datos[4] = umbral
@@ -468,10 +470,17 @@ class MedidaTests(unittest.TestCase):
         with self.assertRaises(MedidaMalDeclarada):
             Medida.de_datos(datos)
 
-    def test_un_umbral_sin_defensa_no_se_carga(self) -> None:
-        with self.assertRaises(MedidaMalDeclarada) as e:
-            Medida.de_datos(_medida(porque="   "))
-        self.assertIn("defensa", str(e.exception))
+    def test_un_umbral_sin_defensa_carga_si_declara_origen(self) -> None:
+        m = Medida.de_datos(_medida(porque=""))
+        self.assertEqual(m.porque, "")
+        self.assertEqual(m.segun, "contrato")
+
+    def test_un_umbral_viejo_sin_segun_queda_sin_declarar(self) -> None:
+        datos = _medida()
+        datos[4] = datos[4][:4]
+        m = Medida.de_datos(datos)
+        self.assertEqual(m.segun, "sin_declarar")
+        self.assertEqual(m.a_datos()[4], ["umbral", "<=", 0, "una razón", "sin_declarar"])
 
     def test_una_medida_sin_alcance_no_se_carga(self) -> None:
         with self.assertRaises(MedidaMalDeclarada) as e:
@@ -626,6 +635,7 @@ class MedidaTests(unittest.TestCase):
         filas = inventario([Medida.de_datos(_medida())])
         self.assertEqual(filas[0]["umbral"], "<= 0")
         self.assertEqual(filas[0]["porque"], "una razón")
+        self.assertEqual(filas[0]["segun"], "contrato")
 
     def test_puntos_ciegos_lista_los_alcances(self) -> None:
         self.assertEqual(puntos_ciegos([Medida.de_datos(_medida())])[0]["alcance"],
@@ -643,7 +653,8 @@ class CatalogoRealTests(unittest.TestCase):
 
     def test_las_politicas_reificadas_se_cargan_y_juzgan(self) -> None:
         self.assertIn("meta.ningun_umbral_flotante_de_igualdad", self.catalogo)
-        self.assertIn("meta.ningun_umbral_sin_defensa", self.catalogo)
+        self.assertIn("meta.todo_umbral_declara_de_donde_sale", self.catalogo)
+        self.assertIn("meta.todo_tanteo_explica_por_que", self.catalogo)
         self.assertIn("meta.ninguna_medida_sin_alcance", self.catalogo)
 
         flotante = self.catalogo["meta.ningun_umbral_flotante_de_igualdad"]
@@ -652,15 +663,20 @@ class CatalogoRealTests(unittest.TestCase):
         sano = {"medida": [{"id": "d.x", "umbral_es_flotante": True, "comparador": "<="}]}
         self.assertTrue(flotante.evaluar(sano).ok)
 
-        defensa = self.catalogo["meta.ningun_umbral_sin_defensa"]
-        self.assertFalse(defensa.evaluar({"medida": [{"id": "d.x", "porque": ""}]}).ok)
+        origen = self.catalogo["meta.todo_umbral_declara_de_donde_sale"]
+        self.assertFalse(origen.evaluar(
+            {"medida": [{"id": "d.x", "segun": "sin_declarar", "porque": "x"}]}).ok)
+
+        tanteo = self.catalogo["meta.todo_tanteo_explica_por_que"]
+        self.assertFalse(tanteo.evaluar(
+            {"medida": [{"id": "d.x", "segun": "tanteo", "porque": ""}]}).ok)
 
         alcance = self.catalogo["meta.ninguna_medida_sin_alcance"]
         self.assertFalse(alcance.evaluar({"medida": [{"id": "d.x", "alcance": ""}]}).ok)
 
-    def test_ninguna_medida_del_repo_tiene_umbral_sin_defensa(self) -> None:
+    def test_ninguna_medida_del_repo_deja_el_origen_sin_declarar(self) -> None:
         for f in inventario(self.catalogo.values()):
-            self.assertTrue(f["porque"].strip(), f["id"])
+            self.assertNotEqual(f["segun"], "sin_declarar", f["id"])
 
     def test_como_hechos_sirve_el_catalogo_como_relacion_L2(self) -> None:
         hechos = como_hechos(self.catalogo.values())
@@ -668,7 +684,7 @@ class CatalogoRealTests(unittest.TestCase):
         self.assertEqual(sorted(hechos[0]),
                          ["agregado", "alcance", "comparador", "declara_requiere", "dominio",
                           "es_meta_por_el_nombre", "es_meta_por_lo_que_mide", "id", "pasos",
-                          "porque", "relacion", "umbral", "umbral_es_flotante",
+                          "porque", "relacion", "segun", "umbral", "umbral_es_flotante",
                           "umbral_op", "umbral_valor"])
         self.assertEqual(sorted(hechos.por_relacion),
                          ["ancestro", "fuente", "medida", "paso_de_medida",

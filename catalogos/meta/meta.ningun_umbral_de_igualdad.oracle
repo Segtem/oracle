@@ -1,5 +1,5 @@
 ninguno meta.ningun_umbral_de_igualdad:
     de medida m
     donde m.comparador == "=="
-    umbral <= 0 porque "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden"
+    umbral <= 0 segun contrato porque "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden"
     alcance "mira sólo el operador final del umbral de cada medida. NO ve igualdades dentro de filtros o agregados, ni decide si `!=` es una política válida para un dominio concreto. Si medida viene vacía significa que no hay medidas en el catálogo que ofendan la regla y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción"

@@ -1,5 +1,5 @@
 ninguno meta.el_hueco_declarado_explica_por_que:
     de caso c
     donde c.tiene_medida == false y c.es_hueco_abierto == true y c.explica_el_hueco == false
-    umbral <= 0 porque "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir"
+    umbral <= 0 segun contrato porque "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir"
     alcance "ve que cada caso marcado explícitamente como hueco abierto tenga una explicación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción"

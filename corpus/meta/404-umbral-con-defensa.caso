@@ -1,18 +1,18 @@
 caso 404-umbral-con-defensa:
-    fecha: "2026-08-24"
+    fecha: "2026-08-27"
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
     procedencia: construida
-    titulo: "Un umbral con defensa no ofende"
+    titulo: "Un tanteo explicado no ofende"
     etiqueta: verde_correcto
     sintoma:
-        Dos medidas traen `porque` no vacíos. La regla debe dejarlas pasar: existe algo que discutir, aunque no sea la mejor defensa posible.
+        Dos medidas declaran `segun: tanteo` y traen `porque` no vacíos. La regla debe dejarlas pasar: existe algo que discutir, aunque la explicación no sea perfecta.
     como_se_detecto: observacion
-    medida: meta.ningun_umbral_sin_defensa
+    medida: meta.todo_tanteo_explica_por_que
     evidencia:
-        medida: id, porque
-            "dominio.con_defensa", "un número que se puede discutir"
-            "dominio.con_otra_defensa", "la tolerancia sale del desvío medido"
+        medida: id, segun, porque
+            "dominio.tanteo_con_defensa", "tanteo", "se probó contra tres corridas y éste fue el menor margen estable"
+            "dominio.tanteo_con_otra_defensa", "tanteo", "la tolerancia se ajustó hasta dejar de cortar ruido"
     leccion:
-        El verde fija la polaridad contraria: la regla no exige una defensa perfecta, sólo una defensa presente. Si la condición se invierte, este caso se pone rojo.
+        El verde fija la polaridad contraria: la regla no exige una defensa perfecta, sólo que el tanteo no quede mudo. Si la condición se invierte, este caso se pone rojo.

@@ -1,0 +1,5 @@
+ninguno meta.todo_tanteo_explica_por_que:
+    de medida m
+    donde m.segun == "tanteo" y m.porque == ""
+    umbral <= 0 segun contrato porque "un tanteo dice que el número se probó hasta que anduvo; sin prosa no queda nada auditable sobre por qué ése y no otro"
+    alcance "ve sólo tanteos con defensa vacía. NO exige prosa a mediciones, contratos ni convenciones, y NO juzga si la explicación escrita alcanza"

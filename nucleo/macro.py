@@ -69,7 +69,7 @@ HUECO = "$"
 # tubería dejaría de significar una sola cosa. Falla cerrado al declararla, no al expandir.
 RESERVADAS = frozenset({
     "defmacro", "guarda", HUECO,
-    "medida", "desde", "resumen", "umbral", "alcance",
+    "medida", "desde", "resumen", "umbral", "segun", "alcance",
     "de", "unir", "donde", "agrupar",
     *COMPARADORES, *LOGICOS, *ACCESORES, *AGREGADOS,
 })
@@ -110,6 +110,16 @@ def _sustituir(nodo, valores: dict):
             raise MacroMalUsada(f"el hueco «{nombre}» no tiene argumento")
         return valores[nombre]
     return [_sustituir(hijo, valores) for hijo in nodo]
+
+
+def _quitar_segun_sin_declarar(nodo) -> None:
+    if not isinstance(nodo, list):
+        return
+    if len(nodo) == 5 and nodo[0] == "umbral" and nodo[4] == "sin_declarar":
+        del nodo[4]
+        return
+    for hijo in nodo:
+        _quitar_segun_sin_declarar(hijo)
 
 
 @dataclass(frozen=True)
@@ -175,10 +185,18 @@ class Macro:
 
     def expandir(self, datos: list, limites: LimitesAlgebra | None = None) -> list:
         esperados = len(self.parametros)
-        if len(datos) - 1 != esperados:
+        recibidos = len(datos) - 1
+        legado_sin_segun = False
+        # Compatibilidad con macros anteriores a `segun`: no se elige una etiqueta creíble, se
+        # conserva la ausencia como `sin_declarar`, igual que un umbral canónico de 4 elementos.
+        if recibidos == esperados - 1 and len(self.parametros) >= 2 and self.parametros[-2] == "segun":
+            datos = [*datos[:-1], "sin_declarar", datos[-1]]
+            recibidos = esperados
+            legado_sin_segun = True
+        if recibidos != esperados:
             firma = ", ".join(self.parametros)
             raise MacroMalUsada(
-                f"«{self.nombre}» va [{firma}] — recibió {len(datos) - 1} argumento(s)")
+                f"«{self.nombre}» va [{firma}] — recibió {recibidos} argumento(s)")
         valores = dict(zip(self.parametros, datos[1:]))
 
         for expresion, mensaje in self.guardas:
@@ -194,7 +212,10 @@ class Macro:
                 # equivalente— y una rama que nada puede ejercitar no se declara, se borra.
                 raise MacroMalUsada(f"{datos[1]}: {mensaje}")
 
-        return _sustituir(self.plantilla, valores)
+        expandida = _sustituir(self.plantilla, valores)
+        if legado_sin_segun:
+            _quitar_segun_sin_declarar(expandida)
+        return expandida
 
 
 class RegistroMacros(dict[str, Macro]):

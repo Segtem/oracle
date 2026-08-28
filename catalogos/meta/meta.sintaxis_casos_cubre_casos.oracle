@@ -1,5 +1,5 @@
 ninguno meta.sintaxis_casos_cubre_casos:
     de equivalencia e
     donde e.propiedad == "sintaxis_casos_cubre_casos" y (e.evaluo == false o e.mismo_veredicto == false o e.mismo_valor == false o e.mismos_testigos == false o e.error != "")
-    umbral <= 0 porque "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida"
+    umbral <= 0 segun contrato porque "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida"
     alcance "comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto \"null\", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción"

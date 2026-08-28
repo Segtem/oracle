@@ -1,5 +1,5 @@
 ninguno meta.toda_medida_esta_fijada:
     de medida_en_uso m
     donde m.debe_tener_mutantes == true y (m.mutantes == 0 o m.mutantes_vivos != 0)
-    umbral <= 0 porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
+    umbral <= 0 segun contrato porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
     alcance "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción"

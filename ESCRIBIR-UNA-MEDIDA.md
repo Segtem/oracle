@@ -140,6 +140,7 @@ peor snap.grilla:
     expresion desvio_de_grilla(hecho(a), 100.0)
     tolerancia 1.0
     porque "por debajo de 1 cm el desvío no se ve"
+    segun convencion
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 
@@ -156,14 +157,14 @@ medida dominio.nombre:
     de relacion x
     donde <lo que OFENDE>
     resumen contar(1)
-    umbral <= 0 porque "por qué ese número y no otro"
+    umbral <= 0 segun contrato porque "por qué ese número y no otro"
     requiere relacion
     alcance "qué NO ve esta medida"
 ```
 
 Las piezas obligatorias están por una razón:
 
-- **`umbral` con `porque`** — un número que nadie puede discutir es una métrica esperando a volverse objetivo. Un umbral de igualdad (`==`) no se usa y está prohibido.
+- **`umbral` con `segun`** — el número declara de dónde sale: `medicion`, `contrato`, `convencion` o `tanteo`. La prosa de `porque` puede quedar vacía, salvo en un `tanteo`, donde sigue haciendo falta explicar qué se probó.
 - **`alcance`** — un verde que no dice lo que no miró se lee como «está bien». Con esto, el informe
   termina enumerando sus propios puntos ciegos.
 - **`requiere`** — declara qué relaciones de evidencia son indispensables para concluir. Si una relación requerida viene vacía o falta, la evaluación no emite un verde espurio sino `SIN EVIDENCIA`.
@@ -183,7 +184,7 @@ lista JSON. Por ejemplo, la forma canónica anterior se almacena así:
   ["desde", ["de", "relacion", "x"],
             ["donde", ["==", ["campo", "x", "activo"], false]]],
   ["resumen", "contar", 1],
-  ["umbral", "<=", 0, "por qué ese número y no otro"],
+  ["umbral", "<=", 0, "por qué ese número y no otro", "contrato"],
   ["requiere", "relacion"],
   ["alcance", "qué NO ve esta medida"]]
 ```
@@ -201,7 +202,7 @@ medida proceso.test_con_mutante_que_lo_mata:
     de mutante m
     donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
     resumen contar(1)
-    umbral <= 0 porque "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"
+    umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"
     alcance "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió"
 ```
 
@@ -214,7 +215,7 @@ medida snap.grilla:
     de pieza a
     donde desvio_de_grilla(hecho(a), 100.0) > 1.0
     resumen max(desvio_de_grilla(hecho(a), 100.0))
-    umbral <= 1.0 porque "por debajo de 1 cm el desvío no se ve"
+    umbral <= 1.0 segun convencion porque "por debajo de 1 cm el desvío no se ve"
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 
@@ -230,7 +231,7 @@ medida vault.nombre_unico_en_el_vault:
     unir documento b
     donde a.nombre == b.nombre y a.carpeta != b.carpeta
     resumen contar(1)
-    umbral <= 0 porque "un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz"
+    umbral <= 0 segun contrato porque "un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz"
     alcance "NO ve nombres parecidos pero distintos, que confunden aunque no rompan un enlace"
 ```
 

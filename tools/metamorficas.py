@@ -47,7 +47,11 @@ from tools import sintaxis  # noqa: E402
 
 RELACIONES_DEL_LENGUAJE = frozenset({"equivalencia"})
 
-UMBRAL = ["umbral", "<=", 0, "sonda de equivalencia: el umbral no se juzga, se comparan dos formas"]
+UMBRAL = [
+    "umbral", "<=", 0,
+    "sonda de equivalencia: el umbral no se juzga, se comparan dos formas",
+    "contrato",
+]
 ALCANCE = ["alcance", "sonda construida para comprobar una equivalencia. NO mide ningún mundo"]
 # Evidencia de las sondas construidas. Tiene filas que pasan cada filtro y filas que no, porque una
 # equivalencia comprobada sólo sobre filas que nadie descarta no ejercita el filtro.
@@ -316,12 +320,12 @@ def _generar_candidatas() -> list[list]:
     ]
 
     umbral_opts = [
-        ("umb_lte_0", ["umbral", "<=", 0, "defensa <= 0"]),
-        ("umb_eq_true", ["umbral", "==", True, "defensa == true"]),
-        ("umb_neq_false", ["umbral", "!=", False, "defensa != false"]),
-        ("umb_gt_float", ["umbral", ">", 3.14, "defensa > 3.14"]),
-        ("umb_lt_neg", ["umbral", "<", -5, "defensa < -5"]),
-        ("umb_gte_str", ["umbral", ">=", "alfa", "defensa >= alfa"]),
+        ("umb_lte_0", ["umbral", "<=", 0, "defensa <= 0", "contrato"]),
+        ("umb_eq_true", ["umbral", "==", True, "defensa == true", "contrato"]),
+        ("umb_neq_false", ["umbral", "!=", False, "defensa != false", "convencion"]),
+        ("umb_gt_float", ["umbral", ">", 3.14, "defensa > 3.14", "medicion"]),
+        ("umb_lt_neg", ["umbral", "<", -5, "", "convencion"]),
+        ("umb_gte_str", ["umbral", ">=", "alfa", "defensa >= alfa", "tanteo"]),
     ]
 
     req_opts = [
@@ -347,7 +351,8 @@ def _generar_candidatas() -> list[list]:
     for expr_id, expr in todas_exprs:
         mid = f"meta_gen.expr_{expr_id}"
         m = ["medida", mid, ["desde", ["de", "cosa", "c"], ["donde", expr]],
-             ["resumen", "contar", 1], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]]
+             ["resumen", "contar", 1], ["umbral", "<=", 0, "defensa", "contrato"],
+             ["alcance", "sonda generada"]]
         medidas.append(m)
 
     # 3. Agrupar: claves x agregados
@@ -356,31 +361,31 @@ def _generar_candidatas() -> list[list]:
             mid = f"meta_gen.grp_{c_id}_{a_id}"
             res = ["resumen", "max", ["col", "a1"]]
             m = ["medida", mid, ["desde", ["de", "cosa", "c"], ["agrupar", claves, aggs]],
-                 res, ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]]
+                 res, ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]]
             medidas.append(m)
 
     # 4. Tuberías multi-paso
     medidas.append(["medida", "meta_gen.paso_dd",
                     ["desde", ["de", "cosa", "c"], ["donde", p1], ["donde", p2]],
-                    ["resumen", "contar", 1], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+                    ["resumen", "contar", 1], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]])
     medidas.append(["medida", "meta_gen.paso_dg",
                     ["desde", ["de", "cosa", "c"], ["donde", p1], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]]],
-                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]])
     medidas.append(["medida", "meta_gen.paso_gd",
                     ["desde", ["de", "cosa", "c"], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]], ["donde", [">", ["col", "a1"], 0]]],
-                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]])
     medidas.append(["medida", "meta_gen.paso_dgd",
                     ["desde", ["de", "cosa", "c"], ["donde", p1], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]], ["donde", [">", ["col", "a1"], 0]]],
-                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+                    ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]])
     medidas.append(["medida", "meta_gen.paso_g22_d",
                     ["desde", ["de", "cosa", "c"], ["agrupar", [["k1", acc_campo], ["k2", ["campo", "c", "m"]]], [["a1", "contar", 1], ["a2", "suma", ["campo", "c", "m"]]]], ["donde", ["==", ["col", "k1"], 1]]],
-                    ["resumen", "max", ["col", "a2"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+                    ["resumen", "max", ["col", "a2"]], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]])
 
     # 5. Operadores de resumen (los 5)
     for res_id, res in resumen_opts:
         mid = f"meta_gen.{res_id}"
         medidas.append(["medida", mid, ["desde", ["de", "cosa", "c"]], res,
-                        ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]])
+                        ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]])
 
     # 6. Operadores de umbral (los 6 con distintos tipos)
     for umb_id, umb in umbral_opts:
@@ -392,7 +397,7 @@ def _generar_candidatas() -> list[list]:
     for req_id, req in req_opts:
         mid = f"meta_gen.{req_id}"
         m = ["medida", mid, ["desde", ["de", "cosa", "c"]], ["resumen", "contar", 1],
-             ["umbral", "<=", 0, "defensa"]]
+             ["umbral", "<=", 0, "defensa", "contrato"]]
         if req:
             m.append(req)
         m.append(["alcance", "sonda generada"])
@@ -402,7 +407,7 @@ def _generar_candidatas() -> list[list]:
     for f_id, fuente in fuentes[1:]:
         mid = f"meta_gen.unir_agrupar_{f_id}"
         m = ["medida", mid, ["desde", fuente, ["donde", p1], ["agrupar", [["k1", acc_campo]], [["a1", "contar", 1]]]],
-             ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa"], ["alcance", "sonda generada"]]
+             ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]]
         medidas.append(m)
 
     return medidas

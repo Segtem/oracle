@@ -306,6 +306,11 @@ class ContratoMedidaTests(unittest.TestCase):
             if t["tipo"] != "lista":
                 self.assertEqual(t["longitud"], 0)
 
+    def test_literal_nan_no_se_reifica_como_json_no_canonico(self) -> None:
+        m = modulo_medida()
+        with self.assertRaises(m.MedidaMalDeclarada):
+            m._texto_literal(float("nan"))
+
     def test_ancestros_de_medida_emite_clausura_con_cabeza(self) -> None:
         m = modulo_medida()
         medida = m.Medida.de_datos([
@@ -448,6 +453,32 @@ class ContratoMedidaTests(unittest.TestCase):
             (raiz / "tools" / "borrador_a_medio_escribir.py").write_text(
                 'def sin_terminar(:\n', encoding="utf-8")
             self.assertEqual(m.relaciones_del_lenguaje_declaradas(raiz=raiz), frozenset({"buena"}))
+
+    def test_derivacion_no_sigue_directorios_ni_archivos_symlink(self) -> None:
+        import tempfile
+        from pathlib import Path
+        m = modulo_medida()
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            destino = raiz / "externo"
+            destino.mkdir()
+            (destino / "emisor.py").write_text(
+                'RELACIONES_DEL_LENGUAJE = frozenset({"externa"})\n', encoding="utf-8")
+            (raiz / "nucleo").symlink_to(destino, target_is_directory=True)
+            (raiz / "tools").mkdir()
+
+            self.assertEqual(m.relaciones_del_lenguaje_declaradas(raiz=raiz), frozenset())
+
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            (raiz / "tools").mkdir()
+            destino = raiz / "emisor.py"
+            destino.write_text(
+                'RELACIONES_DEL_LENGUAJE = frozenset({"externa"})\n', encoding="utf-8")
+            (raiz / "tools" / "emisor.py").symlink_to(destino)
+
+            self.assertEqual(m.relaciones_del_lenguaje_declaradas(raiz=raiz), frozenset())
 
     def test_derivacion_soporta_anotaciones_de_tipo_y_operaciones(self) -> None:
         import tempfile

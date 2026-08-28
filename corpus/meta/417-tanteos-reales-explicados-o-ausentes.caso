@@ -1,0 +1,19 @@
+caso 417-tanteos-reales-explicados-o-ausentes:
+    fecha: "2026-08-27"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: observada
+    titulo: "El catálogo real no tiene tanteos mudos"
+    etiqueta: verde_correcto
+    sintoma:
+        La migración del catálogo base no produjo ningún `segun: tanteo`; los umbrales reales revisados quedaron como contrato o convención. Por eso la regla de tanteos no debe marcar el catálogo por ausencia de prosa.
+    como_se_detecto: observacion
+    medida: meta.todo_tanteo_explica_por_que
+    evidencia:
+        medida: id, segun, porque
+            "meta.toda_medida_filtra_o_agrupa", "convencion", "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"
+            "simulacion.la_traza_no_tiene_huecos", "convencion", "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
+            "proceso.verificacion_vigente", "contrato", "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"
+    leccion:
+        La regla específica para `tanteo` no reinstala la defensa obligatoria para todos. Si no hay tanteo, o si el origen es contrato/convención/medición, la medida no tiene que ofender.
