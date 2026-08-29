@@ -1,0 +1,38 @@
+[
+  "ninguno",
+  "reemplazo.centrado",
+  "reemplazo",
+  "r",
+  [
+    "o",
+    [
+      ">",
+      [
+        "cerca",
+        [
+          "campo",
+          "r",
+          "d_centro_x"
+        ],
+        0.0
+      ],
+      1.0
+    ],
+    [
+      ">",
+      [
+        "cerca",
+        [
+          "campo",
+          "r",
+          "d_centro_y"
+        ],
+        0.0
+      ],
+      1.0
+    ]
+  ],
+  "hasta 1 cm de desvío por eje XY conserva el centro del blockout y evita correr el pasillo o el hueco",
+  "contrato",
+  "centros de AABB en XY. NO ve pivote semántico, orientación visual, silueta, voladizos ni si el centro correcto para el asset era otro"
+]

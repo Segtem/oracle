@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "malla.superficie_sin_vueltas",
+  "superficie_malla",
+  "s",
+  [
+    "<",
+    [
+      "campo",
+      "s",
+      "peor_acuerdo_con_la_superficie"
+    ],
+    0.0
+  ],
+  "compara cada cara contra el lado dominante de la superficie entera. Cero separa las dos poblaciones sin arbitrar: una cinta que curva o sube tiene caras que se apartan del promedio en angulo, pero ninguna cruza al semiespacio contrario salvo que este dada vuelta. El caso del tutorial curva en Y y sube 80 cm en Z y su peor cara siguio siendo positiva",
+  "contrato",
+  "NO ve una superficie invertida ENTERA, que es coherente consigo misma: eso lo cubre malla.cara_visible. NO ve autointersecciones, ni pliegues donde la malla se dobla sobre si misma conservando el lado"
+]

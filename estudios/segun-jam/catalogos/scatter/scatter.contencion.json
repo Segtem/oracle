@@ -1,0 +1,50 @@
+[
+  "medida",
+  "scatter.contencion",
+  [
+    "desde",
+    [
+      "unir",
+      [
+        "de",
+        "instancia",
+        "i"
+      ],
+      [
+        "de",
+        "scatter_config",
+        "c"
+      ]
+    ],
+    [
+      "donde",
+      [
+        "fuera_de_region",
+        [
+          "hecho",
+          "i"
+        ],
+        [
+          "hecho",
+          "c"
+        ]
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "ningún centro puede quedar fuera del rectángulo pedido; se tolera 1 cm de ruido numérico en el borde",
+    "contrato"
+  ],
+  [
+    "alcance",
+    "centros XY contra un rectángulo. NO ve cuánto sobresale la malla por su tamaño, regiones rotadas, altura Z ni superficies irregulares"
+  ]
+]

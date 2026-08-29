@@ -1,0 +1,44 @@
+[
+  "ninguno-par",
+  "relevo.el_relevo_tiene_dos_puntas",
+  "agente",
+  "a",
+  "b",
+  [
+    "y",
+    [
+      "==",
+      [
+        "campo",
+        "a",
+        "rol"
+      ],
+      "saliente"
+    ],
+    [
+      "==",
+      [
+        "campo",
+        "b",
+        "rol"
+      ],
+      "entrante"
+    ],
+    [
+      "==",
+      [
+        "campo",
+        "a",
+        "nombre"
+      ],
+      [
+        "campo",
+        "b",
+        "nombre"
+      ]
+    ]
+  ],
+  "un relevo con el mismo agente de los dos lados no es un relevo: nadie entrega nada y las comprobaciones de llegada se saltean solas",
+  "contrato",
+  "NO ve si el reparto de turnos es el que corresponde, sólo que las dos puntas sean distintas"
+]

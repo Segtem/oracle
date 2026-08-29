@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "vault.enlace_resuelve",
+  "enlace",
+  "e",
+  [
+    "==",
+    [
+      "campo",
+      "e",
+      "resuelve"
+    ],
+    false
+  ],
+  "un vault con enlaces rotos se degrada en silencio, igual que un test que no discrimina",
+  "contrato",
+  "NO ve si el enlace apunta al documento PERTINENTE, ni detecta documentos que nadie enlaza"
+]

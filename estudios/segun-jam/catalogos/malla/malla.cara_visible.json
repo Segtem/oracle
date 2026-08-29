@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "malla.cara_visible",
+  "cara_malla",
+  "c",
+  [
+    "<=",
+    [
+      "campo",
+      "c",
+      "acuerdo"
+    ],
+    0.0
+  ],
+  "el acuerdo es el producto punto entre la cara que dibuja el motor y la normal de sombreado de sus propios vertices: vale +1 cuando miran al mismo lado y -1 cuando estan opuestas. Cero es el unico corte defendible porque no hay grados intermedios legitimos: una cara o le muestra al motor el frente o le muestra el reverso. Medido en UE 5.8.1 el 2026-08-10, el defecto real dio -1 en los 48 triangulos del tutorial",
+  "contrato",
+  "NO ve si la cara es la que el AUTOR queria, solo que sea coherente con la normal declarada; si alguien invierte AMBAS a la vez esto sigue verde. NO ve materiales, huecos, UV, doble cara, ni triangulos que se tapan entre si"
+]

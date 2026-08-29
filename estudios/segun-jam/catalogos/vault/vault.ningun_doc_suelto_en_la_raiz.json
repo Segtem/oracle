@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "vault.ningun_doc_suelto_en_la_raiz",
+  "documento",
+  "d",
+  [
+    "==",
+    [
+      "campo",
+      "d",
+      "carpeta"
+    ],
+    ""
+  ],
+  "la carpeta es la taxonomía: un documento en la raíz no pertenece a ninguna categoría y el índice no sabe dónde ponerlo",
+  "contrato",
+  "NO ve los archivos que no son `.md`, ni el `README.md`, que va en la raíz a propósito"
+]

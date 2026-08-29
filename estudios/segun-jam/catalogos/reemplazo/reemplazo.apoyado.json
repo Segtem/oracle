@@ -1,0 +1,22 @@
+[
+  "ninguno",
+  "reemplazo.apoyado",
+  "reemplazo",
+  "r",
+  [
+    ">",
+    [
+      "cerca",
+      [
+        "campo",
+        "r",
+        "d_base"
+      ],
+      0.0
+    ],
+    1.0
+  ],
+  "hasta 1 cm entre las bases conserva la cota del blockout sin dejar el arte flotando ni hundido",
+  "contrato",
+  "la cara inferior del AABB. NO ve contacto real de malla, pendiente, colisión, socket de apoyo ni terreno bajo el reemplazo"
+]

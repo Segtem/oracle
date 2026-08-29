@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "spline.sin_solape",
+  "junta_spline",
+  "j",
+  [
+    ">",
+    [
+      "campo",
+      "j",
+      "solape"
+    ],
+    1.0
+  ],
+  "hasta 1 cm se considera ruido de junta; por encima dos módulos ocupan el mismo tramo de arco",
+  "contrato",
+  "solape longitudinal nominal entre vecinos. NO ve AABB, triángulos, ancho, curvas cerradas, cruces no adyacentes, jitter visual ni colisión real"
+]

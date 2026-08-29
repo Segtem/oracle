@@ -1,0 +1,38 @@
+[
+  "ninguno",
+  "reemplazo.footprint",
+  "reemplazo",
+  "r",
+  [
+    "o",
+    [
+      ">",
+      [
+        "cerca",
+        [
+          "campo",
+          "r",
+          "d_footprint_x"
+        ],
+        0.0
+      ],
+      2.0
+    ],
+    [
+      ">",
+      [
+        "cerca",
+        [
+          "campo",
+          "r",
+          "d_footprint_y"
+        ],
+        0.0
+      ],
+      2.0
+    ]
+  ],
+  "hasta 2 cm de diferencia por semi-extensión conserva ancho y largo sin angostar ni ensanchar el espacio validado",
+  "contrato",
+  "planta del AABB. NO ve forma cóncava, huecos transitables, altura, orientación, navegación ni volumen ocupado dentro de la caja"
+]

@@ -1,0 +1,18 @@
+[
+  "peor",
+  "snap.grilla",
+  "pieza",
+  "a",
+  [
+    "desvio_de_grilla",
+    [
+      "hecho",
+      "a"
+    ],
+    100.0
+  ],
+  1.0,
+  "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m",
+  "convencion",
+  "desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería estar dentro de la malla: un pivote mal puesto puede caer perfecto en la grilla y la pieza igual quedar corrida"
+]
