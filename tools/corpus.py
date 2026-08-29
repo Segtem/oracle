@@ -26,7 +26,7 @@ import re
 from collections import Counter
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+sys.path = [str(Path(__file__).resolve().parents[1]), *sys.path]
 from nucleo.algebra import ErrorDeAlgebra, separar_clave  # noqa: E402
 from nucleo.caso import (DETECCIONES, ETIQUETAS, PROCEDENCIAS, CasoMalDeclarado,
                          cargar_fuente_caso, rutas_de_corpus)  # noqa: E402
@@ -79,8 +79,6 @@ def casos(raiz: Path) -> list[Path]:
 
 
 def ruta_de_caso_nuevo(proy, ubicacion: str) -> Path:
-    if not isinstance(ubicacion, str) or "/" not in ubicacion:
-        raise ProyectoInvalido("el caso nuevo debe indicarse como `grupo/NNN-descripcion`")
     partes = ubicacion.split("/")
     if len(partes) != 2:
         raise ProyectoInvalido("el caso nuevo debe indicarse como `grupo/NNN-descripcion`")
@@ -99,6 +97,24 @@ def ruta_de_caso_nuevo(proy, ubicacion: str) -> Path:
     return destino
 
 
+def _git_del_repositorio(raiz, *args: str) -> str:
+    """Ejecuta una lectura de Git con el contrato estricto que usa el andamio."""
+    import subprocess
+
+    try:
+        resultado = subprocess.run(
+            ["git", "-C", str(raiz), *args],
+            capture_output=True,
+            text=True,
+            timeout=5,
+        )
+    except (OSError, subprocess.SubprocessError):
+        return ""
+    if resultado.returncode != 0:
+        return ""
+    return resultado.stdout.strip()
+
+
 def _del_repositorio(raiz) -> tuple[str, str]:
     """La fecha y el commit de hoy, leídos de git en vez de pedidos a una persona.
 
@@ -111,20 +127,12 @@ def _del_repositorio(raiz) -> tuple[str, str]:
     mayúsculas y quien escribe los completa. Negarse a crear un caso porque no hay repositorio
     sería confundir dos cosas —el caso registra un hecho, no un commit—.
     """
-    import subprocess
     hoy = _date.today().isoformat()
-    def git(*a):
-        try:
-            r = subprocess.run(["git", "-C", str(raiz), *a], capture_output=True, text=True,
-                               timeout=5)
-        except (OSError, subprocess.SubprocessError):
-            return ""
-        return r.stdout.strip() if r.returncode == 0 else ""
-    commit = git("rev-parse", "--short", "HEAD") or "COMMIT"
-    remoto = git("remote", "get-url", "origin")
+    commit = _git_del_repositorio(raiz, "rev-parse", "--short", "HEAD") or "COMMIT"
+    remoto = _git_del_repositorio(raiz, "remote", "get-url", "origin")
     if remoto:
         repo = remoto.rstrip("/").removesuffix(".git")
-        repo = repo.split(":")[-1] if ":" in repo else "/".join(repo.split("/")[-2:])
+        repo = "/".join(repo.replace(":", "/").split("/")[-2:])
     else:
         repo = "REPO"
     return hoy, repo, commit
@@ -139,7 +147,7 @@ def nuevo(proy, ubicacion: str) -> int:
     if destino.exists():
         print(f"ya existe: {presentar_ruta(proy, destino)}")
         return 1
-    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.parent.mkdir(exist_ok=True)
     fecha, repo, commit = _del_repositorio(proy.raiz)
     destino.write_text(
         PLANTILLA.format(cid=destino.stem, fecha=fecha, repo=repo, commit=commit),
@@ -317,12 +325,12 @@ def listar(proy) -> int:
     if not huecos:
         print(f"CORPUS ({txt_casos} · todos con medida):\n")
     else:
-        txt_con = "1 con medida" if len(con_medida) == 1 else f"{len(con_medida)} con medida"
+        txt_con = f"{len(con_medida)} con medida"
         txt_huecos = "1 hueco declarado" if len(huecos) == 1 else f"{len(huecos)} huecos declarados"
         print(f"CORPUS ({txt_casos} · {txt_con} · {txt_huecos}):\n")
 
-    ancho_id = max((len(rel) for rel, _ in cargados), default=20)
-    ancho_etiqueta = max((len(c.get("etiqueta", "")) for _, c in cargados), default=15)
+    ancho_id = max(len(rel) for rel, _ in cargados)
+    ancho_etiqueta = max(len(c.get("etiqueta", "")) for _, c in cargados)
 
     for rel, c in cargados:
         etiqueta = c.get("etiqueta", "")
@@ -373,5 +381,6 @@ def main(argv: list[str] | None = None) -> int:
     return 0
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    sys.exit(_entrada_directa())
