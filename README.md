@@ -226,7 +226,7 @@ L1   medidas                 enunciados sobre L0                        ✓
 L0   evidencia               pieza(id, aabb) · evento(t, actor, qué)    ✓
 ────────────────────────────────────────────────────────────────────────
 L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✓ integrado
-L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ en esta rama
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ integrado
 ────────────────────────────────────────────────────────────────────────
      el terreno              no es un nivel: no se representa
 ```
@@ -256,8 +256,12 @@ lenguaje las respuestas que antes estaban caso por caso en Python.
 
 | | falla así | ya se contesta acá |
 |---|---|---|
-| **L−1** | el sensor emite el AABB en centímetros y la medida lo espera en metros: fiel, y el verde miente | declaraciones y derivación en `l1-derivar` |
+| **L−1** | el sensor emite el AABB en centímetros y la medida lo espera en metros: fiel, y el verde miente | declaraciones y derivación integradas |
 | **L−2** | el sensor leyó el asset del disco y el juego embarca la variante cocinada: todo cierto sobre otra cosa | `referente_declarado`, `referente_comparado` y la medida de frescura |
+
+Los límites son parte del cierre: L−1 detecta unidades incompatibles pero no convierte ni inventa
+equivalencias para escalares variádicas. L−2 no abre el referente ni demuestra que una huella le
+pertenezca; compara la huella declarada al leer contra la declarada ahora.
 
 Y los dos campos que un caso ya declara caen uno en cada nivel:
 

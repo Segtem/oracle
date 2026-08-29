@@ -1,6 +1,6 @@
 # Plan — L−1 y L−2, los dos niveles que miran hacia el mundo
 
-**Estado:** L−1 cerrado e integrado (2026-08-28) · L−2 cerrado en esta rama.
+**Estado:** L−1 y L−2 cerrados e integrados en `main` (2026-08-28).
 La numeración y por qué la torre se cierra en L−2 están en
 [`DECISION-005`](DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md).
 
@@ -10,7 +10,7 @@ L1   medidas                 enunciados sobre L0                        ✓
 L0   evidencia               filas                                      ✓
 ────────────────────────────────────────────────────────────────────────
 L−1  qué lee el sensor       su alcance y las unidades de cada campo    ✓ integrado
-L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ en esta rama
+L−2  qué leyó, y en qué      identidad y frescura del referente         ✓ integrado
 ────────────────────────────────────────────────────────────────────────
      el terreno              no es un nivel: no se representa
 ```
@@ -25,9 +25,9 @@ Una medida dice `umbral <= 1.0` sobre la altura de una pieza, pensando en **metr
 llena esa evidencia emite **centímetros**. Todo lo de arriba funciona: el sensor es fiel a lo que
 leyó, la evidencia es válida, la medida es correcta, y el veredicto está mal. Nadie se entera.
 
-Hoy no hay dónde escribir «el campo `alto` de `pieza` viene en centímetros», ni «este sensor lee el
-AABB del asset y NO lee la malla real». Lo segundo se escribe en la prosa del `alcance` de cada
-medida que consume esa relación —repetido, y sin que nada compare las copias entre sí.
+Antes de L−1 no había dónde escribir «el campo `alto` de `pieza` viene en centímetros», ni «este
+sensor lee el AABB del asset y NO lee la malla real». Lo segundo quedaba repetido en la prosa del
+`alcance` de cada medida que consumía esa relación, sin que nada comparara las copias entre sí.
 
 ### Qué lo cierra
 
@@ -46,6 +46,10 @@ Poder escribir, en el lenguaje y sin tocar Python:
 La relación declara la unidad de cada campo y `@escalar` declara la de cada argumento con
 `unidades_argumentos`; un hecho entero o un texto usa `sin_unidad` de forma explícita. La ausencia
 no impide cargar una escalar anterior, pero vuelve `sin_declarar` la cantidad que depende de ella.
+
+L−1 **no convierte unidades** ni inventa equivalencias. Tampoco deriva el retorno de una escalar
+variádica: una firma variádica no puede declarar un contrato posicional completo y queda fuera de
+la derivación automática.
 
 Sin modificar Jam, sus 89 cantidades comparadas quedaron en 41 derivables y 48 no derivables. Las
 dos apariciones de `snap.grilla` —filtro y resumen— quedaron no derivables porque
@@ -76,7 +80,7 @@ Tres formas del mismo fallo, las tres reales en este entorno:
 | momento | el estado en memoria del editor | lo que corre en el runtime |
 | caché | un valor guardado antes | el valor de ahora |
 
-### Lo que YA existe de L−2, resuelto de a uno en Python
+### Lo que existía antes de L−2, resuelto de a uno en Python
 
 No es terreno virgen, y ése es el mejor argumento de que el nivel es real:
 
@@ -90,7 +94,7 @@ No es terreno virgen, y ése es el mejor argumento de que el nivel es real:
 - **`origen: {repo, commit}`** en cada caso del corpus — la declaración de referente ya está, y
   **nadie la verifica**: 42 de 112 casos apuntan a un commit que existe, el resto dice prosa.
 
-### La forma que propongo
+### La forma construida
 
 Que **la evidencia declare su referente y su huella**, por relación y no por fila: una relación la
 llena un sensor leyendo un conjunto de referentes, y ésa es la unidad natural.
@@ -120,7 +124,7 @@ empezar para no descubrirlo tarde:
 Es el mismo límite que ya tiene `procedencia`, un nivel más arriba, y por el mismo motivo: **debajo
 está el terreno.**
 
-### Cómo se sabría que está terminado
+### Criterio de cierre
 
 Poder escribir, en el lenguaje y sin tocar Python:
 
@@ -150,13 +154,15 @@ por su cuenta. La prueba diferencial conservó sus 4 acuerdos globales y 12 vere
 La pregunta de si L−2 colapsaba dentro de L−1 queda respondida por la implementación: las
 declaraciones de unidad y de referente se producen y se miden por separado. Son dos niveles.
 
-### La pregunta abierta, que se resuelve construyendo
+### La pregunta que la construcción resolvió
 
-`DECISION-005` la deja anotada y sigue abierta: **¿es L−2 un nivel debajo de L−1, o un parámetro
-suyo?** «A qué le apuntaste» podría ser parte de la declaración del sensor. Se eligió separarlos
-porque los dos modos de falla son independientes —un sensor perfectamente declarado puede apuntar al
-archivo equivocado—, pero si al construirlo resulta que nunca se declaran por separado, entonces era
-uno solo y se colapsan.
+`DECISION-005` dejó abierta la posibilidad de que L−2 fuera un parámetro de L−1. La implementación
+la cerró: las declaraciones de unidades y de referentes se producen y se miden por separado. Un
+sensor puede tener unidades y alcance correctos y, aun así, apuntar a un referente vencido.
+
+L−2 **no demuestra que el referente exista ni que una huella corresponda a su contenido**. Sólo
+compara la huella que el sensor declaró al leer con la que declara ahora; recalcularla sigue siendo
+responsabilidad del sensor.
 
 ---
 

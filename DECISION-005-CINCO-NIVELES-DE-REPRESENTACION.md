@@ -1,7 +1,7 @@
 # Decisión 005 — la numeración va de L−2 a L2, y se cierra en los dos extremos
 
-**Fecha:** 2026-08-26 · **Estado:** vigente · **Alcance:** nomenclatura y hoja de ruta. Ningún
-cambio de código sale de esta decisión; sale de las dos que la siguen.
+**Fecha:** 2026-08-26 · **Estado:** vigente, comprobada por L−1 y L−2 el 2026-08-28 ·
+**Alcance:** nomenclatura y límites de la torre.
 
 ## Lo que se decide
 
@@ -56,28 +56,25 @@ Fallan distinto y se arreglan distinto.
   la variante cocinada. Todo cierto, sobre una cosa que no es la del veredicto. Se arregla con
   identidad y frescura del referente — un hash, una versión.
 
-## Lo que NO se decide, y hay que resolver construyendo
+## Lo que la construcción resolvió
 
-Queda abierta una lectura alternativa: que L−2 no sea un nivel **debajo** de L−1 sino un
-**parámetro** de él —«a qué le apuntaste» como parte de la declaración del sensor—. Se elige
-separarlos porque los dos modos de falla de arriba son independientes, pero si al construirlos
-resulta que nunca se declaran por separado, entonces era uno solo y se colapsan. Eso se sabe
-construyendo, no discutiendo, y esta decisión se revisa entonces.
+La lectura alternativa era que L−2 no fuese un nivel **debajo** de L−1 sino un **parámetro** suyo.
+La implementación mostró que no colapsan: `cantidad_comparada` deriva unidades mientras
+`referente_declarado` y `referente_comparado` presentan identidad y frescura por separado. Los dos
+modos de falla son independientes y se pueden medir sin acoplar sus declaraciones.
 
-## Lo que ya existe de los dos niveles de abajo
+## Lo que existe en los dos niveles de abajo
 
-No son terreno virgen. Están habitados, resueltos de a uno en Python en vez de en el lenguaje:
+Los dos niveles quedaron expresados en el lenguaje:
 
 | | ya se contesta acá |
 |---|---|
-| **L−1** | nada sistemático; sólo la prosa del `alcance` de cada medida |
-| **L−2** | `fixture vencido: cambió referencia (fd9fca09… → 9a79cad1…)` en `nucleo/fixtures.py`; `proceso.verificacion_vigente`, que invalida un verde con el árbol sucio |
+| **L−1** | relaciones con unidad y alcance, más `cantidad_comparada` para derivar la unidad que una medida compara |
+| **L−2** | `referente_declarado`, `referente_comparado` y medidas que exigen huella y comparan frescura |
 
-Y los dos campos que un caso ya declara caen uno en cada nivel: `origen: {repo, commit}` es L−2 y
-`procedencia` es L−1. Los dos los tipea una persona y ninguno se verifica —el `alcance` de
-`meta.la_medida_no_se_fija_solo_con_evidencia_fabricada` lo confiesa—. Es la misma situación en la
-que estaba L2 antes de reificar el catálogo, y de ahí sale el orden del trabajo: **terminar L2
-primero**, porque la maquinaria que lo vuelve expresable es la que después alcanza a L−1 y L−2.
+Los límites siguen a la vista. L−1 no convierte unidades ni inventa equivalencias para escalares
+variádicas. L−2 no verifica que un referente exista ni que una huella corresponda a su contenido:
+compara dos declaraciones; recalcular la huella le corresponde al sensor.
 
 ## Cómo se sabe que un nivel está terminado
 
@@ -90,4 +87,6 @@ medida que hoy no se puede:
   una unidad distinta de la que el sensor emite».
 - **L−2:** «ninguna evidencia se juzga contra un referente que cambió después de leerla».
 
-Mientras esas medidas necesiten un campo nuevo escrito en Python, el nivel está a medias.
+Las medidas de L−1 y L−2 ya se escriben con esas relaciones sin agregar un comparador Python propio;
+ésa es la comprobación de cierre. Extender sensores o declarar nuevas relaciones amplía cobertura,
+pero no abre otro nivel ni cambia el mecanismo.
