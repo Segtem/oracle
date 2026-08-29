@@ -1,0 +1,22 @@
+[
+  "ninguno",
+  "vault.area_es_la_carpeta",
+  "documento",
+  "d",
+  [
+    "!=",
+    [
+      "campo",
+      "d",
+      "area"
+    ],
+    [
+      "campo",
+      "d",
+      "carpeta"
+    ]
+  ],
+  "la carpeta es la taxonomía; un `area` que dice otra cosa reintroduce la segunda taxonomía incoherente que la reorganización eliminó",
+  "contrato",
+  "NO ve si el documento está en la carpeta CORRECTA: sólo que su `area` diga dónde está"
+]

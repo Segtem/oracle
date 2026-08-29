@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "malla.solido_esta_cerrado",
+  "solido_malla",
+  "s",
+  [
+    ">",
+    [
+      "campo",
+      "s",
+      "aristas_sueltas"
+    ],
+    0
+  ],
+  "en un solido cerrado cada arista aparece exactamente dos veces y en sentidos opuestos. Una sola arista sin su par ya es un agujero: el umbral es cero porque no existe un solido medio cerrado. Es la guarda de malla.solido_hacia_afuera, cuyo volumen con signo sobre una malla abierta daria un numero con apariencia de veredicto",
+  "contrato",
+  "NO ve autointersecciones ni caras duplicadas superpuestas, que conservan el conteo de aristas. NO ve si el interior esta hueco por diseno ni juzga la calidad de la topologia"
+]

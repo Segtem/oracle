@@ -1,0 +1,22 @@
+[
+  "ninguno",
+  "scatter.cantidad",
+  "conteo_scatter",
+  "c",
+  [
+    "!=",
+    [
+      "campo",
+      "c",
+      "obtenidas"
+    ],
+    [
+      "campo",
+      "c",
+      "pedidas"
+    ]
+  ],
+  "cero discrepancias: si se pidieron N instancias, una región saturada no puede entregar menos en silencio",
+  "contrato",
+  "compara cantidades declaradas. NO ve si las instancias son las correctas, dónde quedaron ni si el pedido era razonable para el área"
+]

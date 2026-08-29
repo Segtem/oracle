@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "vault.carpeta_conocida",
+  "documento",
+  "d",
+  [
+    "==",
+    [
+      "campo",
+      "d",
+      "carpeta_conocida"
+    ],
+    false
+  ],
+  "una carpeta fuera de la lista es una categoría que nadie declaró, y por ahí vuelve la segunda taxonomía incoherente que la reorganización eliminó",
+  "contrato",
+  "NO ve si la lista de carpetas es la correcta ni si falta alguna: sólo que no haya carpetas de más"
+]

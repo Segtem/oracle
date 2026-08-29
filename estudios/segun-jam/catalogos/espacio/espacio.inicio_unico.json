@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "espacio.inicio_unico",
+  "espacio",
+  "e",
+  [
+    "!=",
+    [
+      "campo",
+      "e",
+      "inicios"
+    ],
+    1
+  ],
+  "una misión de extracción necesita exactamente una entrada para que su estado inicial sea inequívoco",
+  "contrato",
+  "cantidad de nodos marcados como inicio. NO ve dónde está la entrada, si tiene espacio de spawn, navegación, colisión ni visibilidad"
+]

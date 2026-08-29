@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "malla.solido_hacia_afuera",
+  "solido_malla",
+  "s",
+  [
+    "<=",
+    [
+      "campo",
+      "s",
+      "volumen_orientado"
+    ],
+    0.0
+  ],
+  "el volumen con signo de un solido cerrado cambia de signo exactamente cuando sus caras se dan vuelta: no hay zona gris que arbitrar. Cero es ademas el caso degenerado, un solido sin volumen, y cae del lado del defecto a proposito. El signo esta acomodado a la convencion de winding de Unreal y se verifica contra primitivas nativas del motor, no contra la formula de manual",
+  "contrato",
+  "NO ve solidos ABIERTOS: sobre una malla con borde el numero existe pero no significa nada, y por eso va junto a malla.solido_esta_cerrado. NO ve autointersecciones, caras internas sobrantes, escala, ni si el solido es el que el autor queria"
+]

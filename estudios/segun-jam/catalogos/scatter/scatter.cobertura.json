@@ -1,0 +1,44 @@
+[
+  "medida",
+  "scatter.cobertura",
+  [
+    "desde",
+    [
+      "de",
+      "cobertura_scatter",
+      "c"
+    ],
+    [
+      "donde",
+      [
+        "<",
+        [
+          "campo",
+          "c",
+          "fraccion"
+        ],
+        0.6
+      ]
+    ]
+  ],
+  [
+    "resumen",
+    "contar",
+    1
+  ],
+  [
+    "umbral",
+    "<=",
+    0,
+    "cero celdas por debajo del 60%: el contrato operativo considera amontonado un reparto que ocupa menos del 60% de una grilla 3×3, y una sola celda así ya describe un amontonamiento. El umbral es 0 y no un margen porque el número del dominio —el 0,6— ya está en el filtro; ponerlo también acá lo escribiría dos veces y nada mantendría las dos copias iguales (caso `012` del corpus)",
+    "contrato"
+  ],
+  [
+    "requiere",
+    "cobertura_scatter"
+  ],
+  [
+    "alcance",
+    "fracción de celdas con al menos un centro. NO ve uniformidad dentro de cada celda, distancias entre vecinos, patrones, orientación ni calidad visual. Si `cobertura_scatter` viene vacía la medida NO concluye —lo declara en `requiere`— y sale SIN EVIDENCIA en vez de verde"
+  ]
+]

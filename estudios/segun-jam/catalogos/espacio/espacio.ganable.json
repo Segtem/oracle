@@ -1,0 +1,18 @@
+[
+  "ninguno",
+  "espacio.ganable",
+  "espacio",
+  "e",
+  [
+    "==",
+    [
+      "campo",
+      "e",
+      "alcanzable"
+    ],
+    false
+  ],
+  "la extracción debe ser alcanzable desde la entrada recogiendo las llaves antes de cruzar cada puerta que las exige",
+  "contrato",
+  "alcance topológico en el subconjunto vivo de nodos, llaves y puertas. NO ve geometría, distancias, navmesh, movimiento real, switches, hazards, flags, recursos, tareas ni canales"
+]

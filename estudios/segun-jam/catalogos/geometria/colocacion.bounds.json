@@ -1,0 +1,20 @@
+[
+  "ninguno",
+  "colocacion.bounds",
+  "pieza",
+  "a",
+  [
+    "<=",
+    [
+      "volumen",
+      [
+        "hecho",
+        "a"
+      ]
+    ],
+    0.001
+  ],
+  "una malla vacía o degenerada da volumen ~0: la colocación es inútil aunque no choque con nada",
+  "contrato",
+  "volumen del AABB. NO ve si la malla está partida, invertida, ni si tiene geometría adentro del bounding box"
+]
