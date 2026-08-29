@@ -1,0 +1,17 @@
+[
+  "relacion",
+  "reemplazo",
+  [
+    "campos",
+    ["campo", "id", "texto", "sin_unidad"],
+    ["campo", "d_centro_x", "flotante", "cm"],
+    ["campo", "d_centro_y", "flotante", "cm"],
+    ["campo", "d_base", "flotante", "cm"],
+    ["campo", "d_footprint_x", "flotante", "cm"],
+    ["campo", "d_footprint_y", "flotante", "cm"]
+  ],
+  [
+    "alcance",
+    "resta en `oracle_reemplazo_facts.hechos` el origen y las semi-extensiones AABB de la pieza contra `cx`, `cy`, `base`, `ex` y `ey` del objetivo; `geometry.AABB` declara esas coordenadas en cm. NO lee la malla real, orientación, pivote semántico, navegación, colisión compleja, materiales ni volumen ocupado dentro de la caja"
+  ]
+]

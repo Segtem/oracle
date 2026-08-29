@@ -51,7 +51,9 @@ L−1 **no convierte unidades** ni inventa equivalencias. Tampoco deriva el reto
 variádica: una firma variádica no puede declarar un contrato posicional completo y queda fuera de
 la derivación automática.
 
-Sin modificar Jam, sus 89 cantidades comparadas quedaron en 41 derivables y 48 no derivables. Las
+La primera medición, sin modificar Jam, dejó sus 89 cantidades comparadas en 41 derivables y 48 no
+derivables. La segunda tanda declaró las cinco relaciones de mayor impacto y movió el mismo
+denominador a **66 derivables y 23 no derivables**. Las
 dos apariciones de `snap.grilla` —filtro y resumen— quedaron no derivables porque
 `desvio_de_grilla(hecho(a), 100.0)` todavía declara sólo el retorno `cm`: ahora el `100.0` sin unidad
 de argumento ya no queda tapado por esa unidad de retorno.

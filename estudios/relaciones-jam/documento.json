@@ -1,0 +1,22 @@
+[
+  "relacion",
+  "documento",
+  [
+    "campos",
+    ["campo", "nombre", "texto", "sin_unidad"],
+    ["campo", "carpeta", "texto", "sin_unidad"],
+    ["campo", "sigue_convencion", "booleano", "sin_unidad"],
+    ["campo", "tipo_en_nombre", "texto", "sin_unidad"],
+    ["campo", "tipo_declarado", "texto", "sin_unidad"],
+    ["campo", "fecha_en_nombre", "texto", "sin_unidad"],
+    ["campo", "updated", "texto", "sin_unidad"],
+    ["campo", "area", "texto", "sin_unidad"],
+    ["campo", "nombre_es_ascii", "booleano", "sin_unidad"],
+    ["campo", "carpeta_conocida", "booleano", "sin_unidad"],
+    ["campo", "frontmatter_completo", "booleano", "sin_unidad"]
+  ],
+  [
+    "alcance",
+    "lee rutas, nombres, frontmatter y enlaces wiki de los Markdown bajo `Vault-kb` mediante `tools/emitir_hechos_vault.py`; publica texto, presencia y pertenencia a listas como datos sin unidad física. NO lee si el contenido es verdadero o pertinente, archivos que no sean `.md`, el `README.md`, enlaces externos ni la historia efectiva de edición"
+  ]
+]

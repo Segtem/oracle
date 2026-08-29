@@ -1,0 +1,14 @@
+[
+  "relacion",
+  "agente",
+  [
+    "campos",
+    ["campo", "rol", "texto", "sin_unidad"],
+    ["campo", "nombre", "texto", "sin_unidad"],
+    ["campo", "conocido", "booleano", "sin_unidad"]
+  ],
+  [
+    "alcance",
+    "lee del frontmatter del testigo los roles `saliente` y `entrante` y compara sus nombres con la lista `AGENTES` que carga `tools/emitir_hechos_relevo.py`. NO verifica la identidad de quien ejecuta, que vaya a trabajar, sus capacidades, permisos, disponibilidad ni que la lista de agentes sea completa"
+  ]
+]
