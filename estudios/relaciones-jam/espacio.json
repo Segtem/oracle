@@ -1,0 +1,15 @@
+[
+  "relacion",
+  "espacio",
+  [
+    "campos",
+    ["campo", "inicios", "entero", "sin_unidad"],
+    ["campo", "metas", "entero", "sin_unidad"],
+    ["campo", "alcanzable", "booleano", "sin_unidad"],
+    ["campo", "estados_explorados", "entero", "sin_unidad"]
+  ],
+  [
+    "alcance",
+    "cuenta inicios y metas y recorre por BFS estados de nodo y llaves en `oracle_espacio_facts`; publica conteos y alcanzabilidad sin unidad física. NO lee geometría, distancias, navmesh, movimiento real, switches, hazards, flags, recursos, tareas, subgrafos ni canales no representados por ese subconjunto"
+  ]
+]

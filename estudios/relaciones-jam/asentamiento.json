@@ -1,0 +1,15 @@
+[
+  "relacion",
+  "asentamiento",
+  [
+    "campos",
+    ["campo", "pieza", "texto", "sin_unidad"],
+    ["campo", "tiene_suelo", "booleano", "sin_unidad"],
+    ["campo", "gap", "flotante", "cm"],
+    ["campo", "soporte", "texto", "sin_unidad"]
+  ],
+  [
+    "alcance",
+    "lee AABBs en `oracle_physics_facts.hechos`, busca el soporte más alto que solapa en XY y publica el gap entre base y tapa; `geometry.AABB` declara sus coordenadas en cm. NO lee la malla real, landscapes, pendiente, equilibrio, centro de masa, resistencia, rotación, penetración lateral ni colisión Chaos"
+  ]
+]
