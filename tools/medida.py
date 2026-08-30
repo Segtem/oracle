@@ -23,11 +23,12 @@ from __future__ import annotations
 
 import json
 import sys
+import time
 from collections import defaultdict
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
+sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES, separar_clave  # noqa: E402
@@ -384,6 +385,42 @@ def probar(proy, ruta: Path, texto_evidencia: str) -> int:
     return 0
 
 
+def _firma_de_archivo(ruta: Path) -> tuple[int, int, int] | None:
+    """Firma barata que también detecta el reemplazo atómico típico de los editores."""
+    try:
+        estado = ruta.stat()
+    except OSError:
+        return None
+    return estado.st_mtime_ns, estado.st_size, estado.st_ino
+
+
+def vigilar(proy, ruta: Path, texto_evidencia: str, *, intervalo: float = 0.25) -> int:
+    """Reevalúa al guardar la medida hasta que la persona interrumpe con Ctrl-C.
+
+    Cada vuelta vuelve a cargar y parsear el archivo: un error mientras se está escribiendo se
+    muestra, pero no mata la vigilancia. Los editores suelen guardar reemplazando el archivo; por
+    eso la firma incluye inode además de fecha y tamaño.
+    """
+    print(f"VIGILANDO {presentar_ruta(proy, ruta)} — Ctrl-C para terminar", flush=True)
+    anterior: object = object()
+    try:
+        while True:
+            actual = _firma_de_archivo(ruta)
+            if actual != anterior:
+                anterior = actual
+                print("\n────────────────────────────────────────────────────────────────────────")
+                if actual is None:
+                    print("✗ el archivo no está disponible; esperando que vuelva a aparecer…",
+                          flush=True)
+                else:
+                    probar(proy, ruta, texto_evidencia)
+                    sys.stdout.flush()
+            time.sleep(intervalo)
+    except KeyboardInterrupt:
+        print("\nVigilancia terminada.")
+        return 0
+
+
 def _evaluadas_aparte(proy, catalogo) -> set[str]:
     """Las medidas que ejercita el ARNÉS y no un caso que las nombre.
 
@@ -567,5 +604,6 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    sys.exit(_entrada_directa())

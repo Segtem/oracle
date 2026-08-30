@@ -65,9 +65,9 @@ PRIORIDADES = {
     "perfiles/python/marco.py": ("tests.test_perfiles",),
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
     "tools/cifras.py": ("tests.test_herramientas",),
-    "tools/cli.py": ("tests.test_cli", "tests.test_herramientas"),
+    "tools/cli.py": ("tests.test_vigilar", "tests.test_cli", "tests.test_herramientas"),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
-    "tools/medida.py": ("tests.test_herramientas", "tests.test_cli"),
+    "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli"),
 }
 
 

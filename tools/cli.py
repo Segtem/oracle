@@ -69,6 +69,7 @@ Atajos directos:
   oracle caso <grupo/id>                 Crea un caso de prueba en el corpus
   oracle revisar <archivo>               Revisa y evalúa una medida suelta
   oracle medida probar <arch> --con <filas>  Corre una medida contra filas escritas a mano
+      --vigilar                             Repite la prueba cada vez que se guarda la medida
   oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
@@ -87,6 +88,8 @@ def ayuda_medida() -> None:
 Uso:
   oracle medida nueva <dominio.nombre>    Crea una medida con plantilla lista para editar
   oracle medida revisar <archivo>         Revisa y evalúa una medida suelta
+  oracle medida probar <archivo> --con <filas> [--vigilar]
+                                           Prueba filas una vez o al guardar la medida
   oracle medida listar                    Lista las medidas del catálogo con umbral, alcance y fijación
   oracle medida expandir <archivo>        Muestra la forma canónica de una macro""")
 
@@ -197,14 +200,21 @@ def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
         return 1
 
 
-def cmd_probar(proy: Proyecto, ruta_str: str, texto: str) -> int:
+def cmd_probar(proy: Proyecto, ruta_str: str, texto: str, *, argv: list[str] | None = None,
+               vigilar: bool = False) -> int:
     ruta = Path(ruta_str)
     if not ruta.exists():
         ruta = proy.raiz / ruta_str
     if not ruta.exists():
         print(f"no existe: {ruta_str}")
         return 1
-    return medida.probar(proy, ruta, texto)
+    accion = medida.vigilar if vigilar else medida.probar
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar_escalares(argv or [])):
+            return accion(proy, ruta, texto)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
 
 
 def cmd_relaciones(proy: Proyecto) -> int:
@@ -597,12 +607,20 @@ def main(argv: list[str] | None = None) -> int:
             if not args:
                 print("falta el archivo: oracle medida probar <archivo> --con \"<filas>\"")
                 return 1
-            if "--con" not in argv:
+            if ("--con" not in argv
+                    or argv.index("--con") + 1 >= len(argv)
+                    or argv[argv.index("--con") + 1].startswith("--")):
                 print("falta la evidencia. Se escribe igual que en un caso del corpus:\n"
                       "  oracle medida probar <archivo> --con 'pieza: id, alto\n"
                       '      \"a\", 450.0\'')
                 return 1
-            return cmd_probar(proy, args[0], argv[argv.index("--con") + 1])
+            return cmd_probar(
+                proy,
+                args[0],
+                argv[argv.index("--con") + 1],
+                argv=argv,
+                vigilar="--vigilar" in argv,
+            )
         if verbo in ("listar", "--listar"):
             return cmd_medida_listar(proy, argv)
         if verbo in ("expandir", "--expandir"):
