@@ -450,7 +450,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-731 tests · 630/630 mutantes de medida · **4275 sitios de mutación de código** (4070 + 205 del motor Python).
+737 tests · 630/630 mutantes de medida · **4291 sitios de mutación de código** (4086 + 205 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
