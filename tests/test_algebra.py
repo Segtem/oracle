@@ -16,6 +16,13 @@ def _algebra():
 
 
 class ContratoAlgebraTests(unittest.TestCase):
+    def test_forzar_plan_unir_exige_un_booleano_y_restaura_el_contexto(self) -> None:
+        algebra = _algebra()
+        with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "selector.*booleano"):
+            with algebra.forzar_plan_unir(1):
+                pass
+        self.assertIsNone(algebra._PLAN_UNIR_INDEXADO.get())
+
     def test_00_los_limites_predeterminados_son_parte_del_contrato(self) -> None:
         algebra = _algebra()
         self.assertEqual(
@@ -394,6 +401,159 @@ class TrazaDelEvaluador(unittest.TestCase):
                   ["umbral", "<=", 0, "una razón"], ["alcance", "NO ve nada más"]]
         traza = self._traza(medida, {"cosa": [{"n": 1}]})
         self.assertEqual(traza["nodo"], [{"cabeza": "y", "declarados": 2, "evaluados": 2}])
+
+
+class PlanIndexadoDeUnirTests(unittest.TestCase):
+    FUENTE = ["unir", ["de", "izquierda", "a"], ["de", "derecha", "b"]]
+    IGUALDAD = ["==", ["campo", "a", "id"], ["campo", "b", "izquierda_id"]]
+    EVIDENCIA = {
+        "izquierda": [
+            {"id": 2, "nombre": "a2-primera"},
+            {"id": 1, "nombre": "a1"},
+            {"id": 2, "nombre": "a2-segunda"},
+        ],
+        "derecha": [
+            {"izquierda_id": 2, "nombre": "b2-primera"},
+            {"izquierda_id": 3, "nombre": "b3"},
+            {"izquierda_id": 2, "nombre": "b2-segunda"},
+        ],
+    }
+
+    def _tuberia(self, predicado=None):
+        return ["desde", self.FUENTE, ["donde", predicado or self.IGUALDAD]]
+
+    def test_supera_el_limite_logico_sin_materializar_y_conserva_los_testigos(self) -> None:
+        algebra = _algebra()
+        limite = algebra.LimitesAlgebra(producto_cartesiano=4)
+        with algebra.forzar_plan_unir(False):
+            with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "produciría 9.*límite de 4"):
+                algebra.desde(self._tuberia(), self.EVIDENCIA, limite)
+
+        with algebra.forzar_plan_unir(True):
+            filas = algebra.desde(self._tuberia(), self.EVIDENCIA, limite)
+        self.assertEqual(
+            [(f["a"]["nombre"], f["b"]["nombre"]) for f in filas],
+            [
+                ("a2-primera", "b2-primera"),
+                ("a2-primera", "b2-segunda"),
+                ("a2-segunda", "b2-primera"),
+                ("a2-segunda", "b2-segunda"),
+            ],
+        )
+
+    def test_reconoce_la_igualdad_con_los_operandos_invertidos(self) -> None:
+        algebra = _algebra()
+        invertida = ["==", self.IGUALDAD[2], self.IGUALDAD[1]]
+        with algebra.forzar_plan_unir(True):
+            filas = algebra.desde(self._tuberia(invertida), self.EVIDENCIA,
+                                   algebra.LimitesAlgebra(producto_cartesiano=4))
+        self.assertEqual(len(filas), 4)
+
+    def test_sin_igualdad_directa_entre_lados_cae_al_producto_limitado(self) -> None:
+        algebra = _algebra()
+        limite = algebra.LimitesAlgebra(producto_cartesiano=4)
+        predicados = (
+            ["y", self.IGUALDAD, True],
+            ["==", ["campo", "a", "id"], ["campo", "a", "id"]],
+            ["!=", ["campo", "a", "id"], ["campo", "b", "izquierda_id"]],
+        )
+        for predicado in predicados:
+            with self.subTest(predicado=predicado), algebra.forzar_plan_unir(True):
+                with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "producto cartesiano"):
+                    algebra.desde(self._tuberia(predicado), self.EVIDENCIA, limite)
+
+    def test_un_literal_de_un_lado_no_es_clave_y_cae_al_producto(self) -> None:
+        """`donde a.id == 2` no une nada: compara un campo con una constante.
+
+        Sin este caso, la comprobación `a is None or b is None` no se observa —ningún test ponía un
+        literal de un lado— y su mutante sobrevivía. El plan tiene que reconocer que ahí no hay
+        clave cruzada y caer al producto con su límite, no inventar un índice.
+        """
+        algebra = _algebra()
+        limite = algebra.LimitesAlgebra(producto_cartesiano=4)
+        for predicado in (["==", ["campo", "a", "id"], 2],
+                          ["==", 2, ["campo", "b", "izquierda_id"]]):
+            with self.subTest(predicado=predicado), algebra.forzar_plan_unir(True):
+                with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "producto cartesiano"):
+                    algebra.desde(self._tuberia(predicado), self.EVIDENCIA, limite)
+
+    def test_el_plan_no_aplica_si_el_donde_no_viene_pegado_al_unir(self) -> None:
+        """Con un paso en el medio, el filtro ya no habla de los pares recién armados."""
+        algebra = _algebra()
+        tuberia = ["desde", self.FUENTE,
+                   ["agrupar", [["k", ["campo", "a", "id"]]], [["n", "contar", 1]]],
+                   ["donde", ["==", ["col", "k"], ["col", "k"]]]]
+        with algebra.forzar_plan_unir(True):
+            with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "producto cartesiano"):
+                algebra.desde(tuberia, self.EVIDENCIA,
+                              algebra.LimitesAlgebra(producto_cartesiano=4))
+
+    def test_la_traza_mantiene_el_producto_logico_y_el_donde(self) -> None:
+        algebra = _algebra()
+        with algebra.trazar() as hechos, algebra.forzar_plan_unir(True):
+            filas = algebra.desde(
+                self._tuberia(), self.EVIDENCIA,
+                algebra.LimitesAlgebra(producto_cartesiano=4),
+            )
+        productos = [campos for clase, campos in hechos if clase == "producto"]
+        pasos = [campos for clase, campos in hechos if clase == "paso"]
+        self.assertEqual(productos, [{"izquierda": 3, "derecha": 3, "salida": 9}])
+        self.assertEqual(
+            [(p["t"], p["operador"], p["filas_antes"], p["filas_despues"]) for p in pasos],
+            [(0, "unir", 0, 9), (1, "donde", 9, 4)],
+        )
+        self.assertEqual(len(filas), 4)
+
+    def test_los_pasos_posteriores_al_donde_se_siguen_aplicando(self) -> None:
+        """El plan resuelve DOS pasos; si se saltea uno de más, un filtro posterior desaparece.
+
+        Sin este caso, cambiar cuántos pasos consume el plan no se observa: la mutación de esa
+        constante sobrevivía.
+        """
+        algebra = _algebra()
+        tuberia = [
+            "desde", self.FUENTE, ["donde", self.IGUALDAD],
+            ["donde", ["==", ["campo", "a", "nombre"], "a2-primera"]],
+        ]
+        with algebra.forzar_plan_unir(True):
+            filas = algebra.desde(tuberia, self.EVIDENCIA,
+                                  algebra.LimitesAlgebra(producto_cartesiano=4))
+        self.assertEqual([f["b"]["nombre"] for f in filas], ["b2-primera", "b2-segunda"])
+
+    def test_un_error_en_una_fuente_llega_con_su_ruta(self) -> None:
+        """El plan indexado aplica las fuentes por su cuenta: si pierde la ruta, el error del lado
+        derecho se reporta como si fuera del izquierdo."""
+        algebra = _algebra()
+        tuberia = ["desde",
+                   ["unir", ["de", "izquierda", "a"], ["de", "no_declarada", "b"]],
+                   ["donde", self.IGUALDAD]]
+        with algebra.forzar_plan_unir(True):
+            with self.assertRaises(algebra.ErrorDeAlgebra) as capturado:
+                algebra.desde(tuberia, self.EVIDENCIA,
+                              algebra.LimitesAlgebra(producto_cartesiano=4))
+        self.assertIn("2.1.2", str(getattr(capturado.exception, "ruta", "") or
+                                   capturado.exception))
+
+    def test_no_oculta_alias_repetidos_ni_claves_invalidas(self) -> None:
+        algebra = _algebra()
+        limite = algebra.LimitesAlgebra(producto_cartesiano=1)
+        alias_repetido = [
+            "desde",
+            ["unir", ["de", "izquierda", "a"], ["de", "derecha", "a"]],
+            ["donde", ["==", ["campo", "a", "id"], ["campo", "a", "izquierda_id"]]],
+        ]
+        with algebra.forzar_plan_unir(True):
+            with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "alias repetido"):
+                algebra.desde(alias_repetido, self.EVIDENCIA, limite)
+
+        for invalida in (None, 1.5, True):
+            evidencia = {
+                "izquierda": [{"id": invalida}],
+                "derecha": [{"izquierda_id": 1}],
+            }
+            with self.subTest(invalida=invalida), algebra.forzar_plan_unir(True):
+                with self.assertRaises(algebra.ErrorDeAlgebra):
+                    algebra.desde(self._tuberia(), evidencia, limite)
 
 
 class UnaEscalarQueRevientaNoAtraviesaElAlgebraTests(unittest.TestCase):
