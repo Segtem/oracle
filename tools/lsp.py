@@ -26,15 +26,40 @@ ERROR = 1
 AVISO = 2
 
 
-def _rango(linea: int, columna: int) -> dict:
-    inicio = {"line": linea - 1, "character": columna - 1}
-    return {"start": inicio, "end": {"line": inicio["line"],
-                                      "character": inicio["character"] + 1}}
+def _rango(texto: str, linea: int, columna: int) -> dict:
+    """El rango que el editor va a subrayar, con ancho garantizado.
+
+    Un error como «se esperaba segun o porque» señala el lugar donde faltaba algo,
+    y ese lugar suele ser el final de la línea: columna 16 sobre una línea de 15
+    caracteres. Un rango de ancho cero es legal —el protocolo recorta la posición
+    contra el fin de la línea— pero no se ve: el editor lo cuenta y lo marca en la
+    regla lateral, y en el texto no dibuja nada. Se midió en VS Code y el síntoma
+    era exactamente ése.
+
+    Cuando el punto señalado no deja ancho, se subraya la línea entera sin su
+    sangría, que es donde el lector tiene que mirar de todos modos. Si esa línea
+    está en blanco se sube a la última con contenido, porque marcar el vacío del
+    final del archivo tampoco dice nada.
+    """
+    lineas = texto.split("\n") or [""]
+    numero = min(max(linea - 1, 0), len(lineas) - 1)
+    principio = max(columna - 1, 0)
+    fin = min(principio + 1, len(lineas[numero]))
+    if fin > principio:
+        return {"start": {"line": numero, "character": principio},
+                "end": {"line": numero, "character": fin}}
+    while numero > 0 and not lineas[numero].strip():
+        numero -= 1
+    contenido = lineas[numero]
+    sangria = len(contenido) - len(contenido.lstrip())
+    return {"start": {"line": numero, "character": sangria},
+            "end": {"line": numero, "character": max(len(contenido), sangria + 1)}}
 
 
-def _diagnostico(mensaje: str, severidad: int, linea: int = 1, columna: int = 1) -> dict:
+def _diagnostico(texto: str, mensaje: str, severidad: int,
+                 linea: int = 1, columna: int = 1) -> dict:
     return {
-        "range": _rango(linea, columna),
+        "range": _rango(texto, linea, columna),
         "severity": severidad,
         "source": "oracle",
         "message": mensaje,
@@ -63,13 +88,13 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
                     and medida.id not in aparte):
                 ubicacion = lectura.ubicacion("1")
                 return [_diagnostico(
-                    "SIN FIJAR — ninguna evidencia la pone a prueba", AVISO,
+                    texto, "SIN FIJAR — ninguna evidencia la pone a prueba", AVISO,
                     ubicacion.linea, ubicacion.columna)]
         return []
     except ErrorSintaxis as e:
-        return [_diagnostico(str(e), ERROR, e.linea, e.columna)]
+        return [_diagnostico(texto, str(e), ERROR, e.linea, e.columna)]
     except (MedidaMalDeclarada, CasoMalDeclarado, ValueError) as e:
-        return [_diagnostico(str(e), ERROR)]
+        return [_diagnostico(texto, str(e), ERROR)]
 
 
 def _contexto(texto: str, posicion: dict) -> tuple[str, int]:
