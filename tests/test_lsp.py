@@ -1,4 +1,4 @@
-"""Contrato del servidor LSP de diagnósticos."""
+"""Contrato del servidor LSP de diagnósticos y completado."""
 
 from __future__ import annotations
 
@@ -47,6 +47,14 @@ caso 001-alto:
 def _proyecto(raiz: Path) -> tuple[Proyecto, Path]:
     (raiz / "catalogos" / "demo").mkdir(parents=True)
     (raiz / "corpus" / "demo").mkdir(parents=True)
+    (raiz / "relaciones").mkdir()
+    (raiz / "relaciones" / "pieza.json").write_text(json.dumps([
+        "relacion", "pieza", ["campos",
+            ["campo", "id", "texto", "sin_unidad"],
+            ["campo", "alto", "flotante", "cm"],
+            ["campo", "yaw", "flotante", "grados"]],
+        ["alcance", "NO lee la malla"],
+    ]), encoding="utf-8")
     ruta = raiz / "catalogos" / "demo" / "demo.alto.oracle"
     ruta.write_text(MEDIDA, encoding="utf-8")
     return Proyecto(raiz), ruta
@@ -63,6 +71,14 @@ def _mensajes(datos: bytes) -> list[dict]:
     while mensaje := lsp._leer_mensaje(entrada):
         salida.append(mensaje)
     return salida
+
+
+def _posicion(texto: str, aguja: str) -> dict:
+    indice = texto.index(aguja) + len(aguja)
+    antes = texto[:indice]
+    linea = antes.count("\n")
+    prefijo = antes.rsplit("\n", 1)[-1]
+    return {"line": linea, "character": len(prefijo.encode("utf-16-le")) // 2}
 
 
 class DiagnosticosTests(unittest.TestCase):
@@ -161,8 +177,143 @@ class DiagnosticosTests(unittest.TestCase):
             self.assertEqual(lsp.diagnosticar(proy, proy.raiz / "borrador.oracle", MEDIDA), [])
 
 
+class CompletadoTests(unittest.TestCase):
+    def test_conjuntos_cerrados_salen_del_nucleo(self) -> None:
+        from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS
+        from nucleo.medida import ORIGENES_DE_UMBRAL
+
+        contextos = (
+            ("etiqueta: ", ETIQUETAS),
+            ("procedencia: con", PROCEDENCIAS),
+            ("como_se_detecto: ", DETECCIONES),
+        )
+        with tempfile.TemporaryDirectory() as td:
+            proy, _ruta = _proyecto(Path(td))
+            for linea, esperados in contextos:
+                with self.subTest(linea=linea):
+                    items = lsp.completar(
+                        proy, proy.corpus / "demo" / "nuevo.caso", linea,
+                        _posicion(linea, linea))
+                    self.assertEqual([item["label"] for item in items], sorted(esperados))
+
+            linea = "    umbral <= 0 segun con"
+            items = lsp.completar(
+                proy, proy.catalogos / "demo" / "nuevo.oracle", linea,
+                _posicion(linea, linea))
+            self.assertEqual(
+                [item["label"] for item in items], sorted(ORIGENES_DE_UMBRAL))
+
+    def test_relaciones_documentan_alcance_y_campos_muestran_tipo_y_unidad(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            linea_de = "    de pie"
+            self.assertEqual(lsp.completar(
+                proy, ruta, linea_de, _posicion(linea_de, linea_de)), [{
+                    "label": "pieza", "documentation": "NO lee la malla"}])
+
+            incompleta = MEDIDA.replace("donde p.alto > 400", "donde p.")
+            items = lsp.completar(proy, ruta, incompleta, _posicion(incompleta, "p."))
+
+        self.assertEqual(items, [
+            {"label": "id", "detail": "texto · sin_unidad"},
+            {"label": "alto", "detail": "flotante · cm"},
+            {"label": "yaw", "detail": "flotante · grados"},
+        ])
+
+    def test_alias_de_unir_resuelve_su_propia_relacion(self) -> None:
+        texto = """\
+medida demo.alto:
+    de pieza p
+    unir evento e
+    donde e.
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "cuatro metros"
+    alcance "no mira la malla"
+"""
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            (proy.raiz / "relaciones" / "evento.json").write_text(json.dumps([
+                "relacion", "evento", ["campos",
+                    ["campo", "t", "entero", "pasos"]],
+                ["alcance", "NO ve eventos omitidos"],
+            ]), encoding="utf-8")
+            items = lsp.completar(proy, ruta, texto, _posicion(texto, "e."))
+
+        self.assertEqual(items, [{"label": "t", "detail": "entero · pasos"}])
+
+    def test_caso_ofrece_ids_del_catalogo_cargado(self) -> None:
+        texto = "    medida: demo."
+        with tempfile.TemporaryDirectory() as td:
+            proy, _ruta = _proyecto(Path(td))
+            items = lsp.completar(
+                proy, proy.corpus / "demo" / "nuevo.caso", texto,
+                _posicion(texto, texto))
+        self.assertEqual(items, [{"label": "demo.alto"}])
+
+    def test_no_completa_prosa_ni_inventa_un_umbral(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            porque = MEDIDA.replace('porque "cuatro metros"', 'porque "p.')
+            alcance = MEDIDA.replace('alcance "no mira la malla"', 'alcance "p.')
+            self.assertEqual(lsp.completar(
+                proy, ruta, porque, _posicion(porque, 'porque "p.')), [])
+            self.assertEqual(lsp.completar(
+                proy, ruta, alcance, _posicion(alcance, 'alcance "p.')), [])
+            umbral = "    umbral <= "
+            self.assertEqual(lsp.completar(
+                proy, ruta, umbral, _posicion(umbral, umbral)), [])
+
+    def test_contextos_ajenos_e_incompletos_devuelven_lista_vacia(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            caso = proy.corpus / "demo" / "nuevo.caso"
+            self.assertEqual(lsp.completar(
+                proy, caso, "    titulo: ", {"line": 0, "character": 12}), [])
+            self.assertEqual(lsp.completar(
+                proy, proy.raiz / "nota.txt", "    de ",
+                {"line": 0, "character": 7}), [])
+            rota = MEDIDA.replace("donde p.alto > 400", "donde p.").replace(
+                "    umbral", "    linea inválida\n    umbral")
+            self.assertEqual(lsp.completar(
+                proy, ruta, rota, _posicion(rota, "p.")), [])
+
+    def test_errores_de_declaraciones_y_relacion_no_declarada_no_completan(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            caso = proy.corpus / "demo" / "nuevo.caso"
+            ruta.write_text("medida rota", encoding="utf-8")
+            self.assertEqual(lsp.completar(
+                proy, caso, "    medida: ", {"line": 0, "character": 12}), [])
+
+        sin_declarar = MEDIDA.replace("de pieza p", "de fantasma p").replace(
+            "donde p.alto > 400", "donde p.")
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            self.assertEqual(lsp.completar(
+                proy, ruta, sin_declarar, _posicion(sin_declarar, "p.")), [])
+
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            (proy.raiz / "relaciones" / "pieza.json").write_text("mal", encoding="utf-8")
+            self.assertEqual(lsp.completar(
+                proy, ruta, "    de ", {"line": 0, "character": 7}), [])
+            incompleta = MEDIDA.replace("donde p.alto > 400", "donde p.")
+            self.assertEqual(lsp.completar(
+                proy, ruta, incompleta, _posicion(incompleta, "p.")), [])
+
+    def test_posicion_lsp_cuenta_utf16(self) -> None:
+        prefijo, indice = lsp._contexto("😀 etiqueta: ", {"line": 0, "character": 13})
+        self.assertEqual(prefijo, "😀 etiqueta: ")
+        self.assertEqual(indice, 12)
+
+        prefijo, indice = lsp._contexto("\uffffx", {"line": 0, "character": 1})
+        self.assertEqual((prefijo, indice), ("\uffff", 1))
+        prefijo, indice = lsp._contexto("\U00010000x", {"line": 0, "character": 2})
+        self.assertEqual((prefijo, indice), ("\U00010000", 1))
+
+
 class ProtocoloTests(unittest.TestCase):
-    def test_initialize_declara_solo_sincronizacion_y_diagnosticos_push(self) -> None:
+    def test_initialize_declara_sincronizacion_diagnosticos_y_completado(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             proy, ruta = _proyecto(Path(td))
             entrada = b"".join((
@@ -179,7 +330,8 @@ class ProtocoloTests(unittest.TestCase):
         self.assertEqual(respuestas[0], {
             "jsonrpc": "2.0", "id": 1,
             "result": {"capabilities": {
-                "textDocumentSync": {"openClose": True, "change": 1}}},
+                "textDocumentSync": {"openClose": True, "change": 1},
+                "completionProvider": {"triggerCharacters": ["."]}}},
         })
         publicacion = respuestas[1]
         self.assertEqual(publicacion["method"], "textDocument/publishDiagnostics")
@@ -215,6 +367,36 @@ class ProtocoloTests(unittest.TestCase):
                 "params": {"textDocument": {"uri": ruta.as_uri()},
                            "contentChanges": [{"range": {}, "text": MEDIDA}]},
             })
+
+    def test_completion_usa_el_texto_abierto_actualizado_y_cerrar_lo_descarta(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            salida = io.BytesIO()
+            servidor = lsp.Servidor(proy, salida)
+            servidor.manejar({
+                "method": "textDocument/didOpen", "params": {"textDocument": {
+                    "uri": ruta.as_uri(), "text": "    de ", "version": 1}}})
+            servidor.manejar({
+                "method": "textDocument/didChange", "params": {
+                    "textDocument": {"uri": ruta.as_uri(), "version": 2},
+                    "contentChanges": [{"text": "    de pie"}]}})
+            servidor.manejar({
+                "id": 7, "method": "textDocument/completion", "params": {
+                    "textDocument": {"uri": ruta.as_uri()},
+                    "position": {"line": 0, "character": 10}}})
+            servidor.manejar({
+                "method": "textDocument/didClose",
+                "params": {"textDocument": {"uri": ruta.as_uri()}}})
+            servidor.manejar({
+                "id": 8, "method": "textDocument/completion", "params": {
+                    "textDocument": {"uri": ruta.as_uri()},
+                    "position": {"line": 0, "character": 10}}})
+
+        mensajes = _mensajes(salida.getvalue())
+        respuestas = {mensaje["id"]: mensaje["result"] for mensaje in mensajes if "id" in mensaje}
+        self.assertEqual(respuestas[7], [{
+            "label": "pieza", "documentation": "NO lee la malla"}])
+        self.assertEqual(respuestas[8], [])
 
     def test_longitud_cuenta_bytes_utf8_y_rechaza_mensajes_truncados(self) -> None:
         salida = io.BytesIO()

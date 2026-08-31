@@ -222,6 +222,23 @@ def revisar(proy, ruta: Path) -> int:
     return 0
 
 
+def relaciones_por_alias(datos: list) -> dict[str, str]:
+    """Devuelve alias → relación desde la tubería canónica de una medida."""
+    alias_de: dict[str, str] = {}
+
+    def _fuentes(nodo):
+        if not isinstance(nodo, list) or not nodo:
+            return
+        if nodo[0] == "de":
+            alias_de[nodo[2]] = nodo[1]
+        elif nodo[0] == "unir":
+            _fuentes(nodo[1])
+            _fuentes(nodo[2])
+
+    _fuentes(datos[2][1])
+    return alias_de
+
+
 def alcance_derivado(proy, medida) -> list[str]:
     """Qué campos DECLARADOS de sus relaciones no toca esta medida.
 
@@ -248,18 +265,7 @@ def alcance_derivado(proy, medida) -> list[str]:
         return []
 
     datos = medida.a_datos()
-    alias_de = {}
-
-    def _fuentes(nodo):
-        if not isinstance(nodo, list) or not nodo:
-            return
-        if nodo[0] == "de":
-            alias_de[nodo[2]] = nodo[1]
-        elif nodo[0] == "unir":
-            _fuentes(nodo[1])
-            _fuentes(nodo[2])
-
-    _fuentes(datos[2][1])
+    alias_de = relaciones_por_alias(datos)
 
     leidos: set[tuple[str, str]] = set()
 
