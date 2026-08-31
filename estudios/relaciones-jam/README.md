@@ -39,7 +39,7 @@ derivables**: la tanda bajó el rojo visible en 25, sin modificar Jam.
 La medición queda reproducible desde la raíz de Oracle:
 
 ```bash
-python estudios/relaciones-jam/medir.py /home/workstation/Dev/jam
+python estudios/relaciones-jam/medir.py ~/Dev/jam
 ```
 
 Los 23 restantes explican por qué se detuvo acá en vez de declarar las 16 relaciones faltantes de

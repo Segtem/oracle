@@ -38,8 +38,8 @@ Las decisiones con más riesgo se resolvieron así:
 Desde la raíz de Oracle:
 
 ```bash
-python estudios/segun-jam/migrar.py /home/workstation/Dev/jam
-python estudios/segun-jam/migrar.py /home/workstation/Dev/jam --verificar
+python estudios/segun-jam/migrar.py ~/Dev/jam
+python estudios/segun-jam/migrar.py ~/Dev/jam --verificar
 ```
 
 La primera orden sólo escribe bajo este estudio. La segunda no escribe y falla si cambió una fuente,

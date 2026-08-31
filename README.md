@@ -381,14 +381,32 @@ Los dominios que estuvieron acá durante el desarrollo —geometría, vault, rel
 laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
 no abstraer.
 
+## Las decisiones, y por qué
+
+Cada una registra una elección que costó discutir, con lo que se descartó y el motivo. Están en la
+raíz porque son parte del proyecto, no documentación anexa: cuando algo del diseño parece
+arbitrario, la respuesta suele estar acá.
+
+| | |
+|---|---|
+| [001](DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
+| [002](DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
+| [003](DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
+| [004](DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
+| [005](DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
+| [006](DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
+| [007](DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
+| [008](DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
+
 ## Estado
 
 > **Estado auditado el 2026-07-31; P3 de embedding cerrado del lado de Oracle.** Los bypasses de simulación, baseline, caché,
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
-> subprocesos acotados y reanudación verificable. Ver
-> [`AUDITORIA-2026-07-30.md`](AUDITORIA-2026-07-30.md) y
-> [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md).
+> subprocesos acotados y reanudación verificable. El detalle está en
+> [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
+> DeepSeek, agosto 2026) se respondieron en el commit `c81a87c`, y su informe se retiró del
+> árbol cuando dejó de tener puntos abiertos.
 
 **El paquete contiene los cinco componentes.** El [corpus](corpus/) (42 casos, en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
