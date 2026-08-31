@@ -37,6 +37,7 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
 from nucleo import caso as sintaxis_caso  # noqa: E402
+from nucleo.algebra import forzar_plan_unir  # noqa: E402
 from nucleo.caso import cargar_casos, cargar_fuente_caso  # noqa: E402
 from nucleo.medida import (Medida, cargar_catalogo, cargar_fuente_medida, evaluar,  # noqa: E402
                            medidas_aplicables)
@@ -80,6 +81,24 @@ def _comparar(a: Medida, b: Medida, evidencia: dict) -> dict:
         "mismo_valor": va.valor == vb.valor,
         # El orden de una bolsa no es semántico; quiénes son, sí.
         "mismos_testigos": _huella(va.testigos) == _huella(vb.testigos),
+    }
+
+
+def _comparar_planes(medida: Medida, evidencia: dict) -> dict:
+    try:
+        with forzar_plan_unir(False):
+            ingenuo = medida.evaluar(evidencia)
+        with forzar_plan_unir(True):
+            indexado = medida.evaluar(evidencia)
+    except Exception as e:                 # noqa: BLE001
+        return {"evaluo": False, "error": type(e).__name__,
+                "mismo_veredicto": False, "mismo_valor": False, "mismos_testigos": False}
+    return {
+        "evaluo": True,
+        "error": "",
+        "mismo_veredicto": ingenuo.ok == indexado.ok,
+        "mismo_valor": ingenuo.valor == indexado.valor,
+        "mismos_testigos": _huella(ingenuo.testigos) == _huella(indexado.testigos),
     }
 
 
@@ -154,6 +173,32 @@ def _unir_conmuta(catalogo: dict, casos: list[dict]) -> list[dict]:
         volteada[2][1] = ["unir", fuente[2], fuente[1]]
         filas.append({"propiedad": "unir_conmuta", "caso": caso["id"], "origen": "catalogo",
                       **_comparar(catalogo[mid], Medida.de_datos(volteada), caso["evidencia"])})
+    return filas
+
+
+def _usa_unir(fuente) -> bool:
+    if not (isinstance(fuente, list) and fuente):
+        return False
+    return fuente[0] == "unir" or any(_usa_unir(lado) for lado in fuente[1:])
+
+
+def _el_plan_indexado_da_lo_mismo_que_el_producto(
+        catalogo: dict, casos: list[dict]) -> list[dict]:
+    """Compara ambos planes sobre cada medida real con `unir` y su evidencia de corpus."""
+    filas = []
+    for caso in casos:
+        mid = caso.get("medida")
+        if not mid or mid not in catalogo or "evidencia" not in caso:
+            continue
+        medida = catalogo[mid]
+        if not _usa_unir(medida.tuberia[1]):
+            continue
+        filas.append({
+            "propiedad": "el_plan_indexado_da_lo_mismo_que_el_producto",
+            "caso": caso["id"],
+            "origen": "catalogo",
+            **_comparar_planes(medida, caso["evidencia"]),
+        })
     return filas
 
 
@@ -563,6 +608,7 @@ def hechos(catalogo: dict, casos: list[dict], macros, proy: Proyecto | None = No
     return {"equivalencia": [
         *_donde_compone(catalogo, casos),
         *_unir_conmuta(catalogo, casos),
+        *_el_plan_indexado_da_lo_mismo_que_el_producto(catalogo, casos),
         *_agrupar_sin_claves(catalogo, casos),
         *_macro_equivale_a_su_expansion(catalogo, casos, macros),
         *_sintaxis_ida_y_vuelta(proy),

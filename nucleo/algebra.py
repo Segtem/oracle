@@ -274,6 +274,8 @@ def escalar(
 # Apagada por omisión y sin costo cuando lo está: una lectura de ContextVar por paso.
 
 _TRAZA_ACTIVA: ContextVar[list | None] = ContextVar("oracle_traza", default=None)
+_PLAN_UNIR_INDEXADO: ContextVar[bool | None] = ContextVar(
+    "oracle_plan_unir_indexado", default=None)
 
 
 @contextmanager
@@ -289,6 +291,18 @@ def trazar(destino: list | None = None):
         yield destino
     finally:
         _TRAZA_ACTIVA.reset(token)
+
+
+@contextmanager
+def forzar_plan_unir(indexado: bool):
+    """Permite comparar ambos planes sin convertir la elección en sintaxis del lenguaje."""
+    if not isinstance(indexado, bool):
+        raise ErrorDeAlgebra("el selector del plan de «unir» tiene que ser booleano")
+    token = _PLAN_UNIR_INDEXADO.set(indexado)
+    try:
+        yield
+    finally:
+        _PLAN_UNIR_INDEXADO.reset(token)
 
 
 def _anotar(clase: str, **campos) -> None:
@@ -885,16 +899,131 @@ def validar_resumen(resumen, limites: LimitesAlgebra | None = None, *,
     validar_expr(resumen[2], limites, registro=registro)
 
 
+def _ruta_de_paso(indice: int) -> tuple[int, int]:
+    """La ruta de un paso de la tubería dentro de la medida: `["medida", id, ["desde", …]]`.
+
+    Estaba escrita dos veces —una en el bucle de `desde` y otra en el plan indexado— y las dos
+    copias son la misma convención. Duplicar una convención es cómo se desincronizan en silencio:
+    pasó tres veces en este repo. Acá vive una sola vez.
+    """
+    return (2, indice + 1)
+
+
+def _clave_cruzada(predicado, alias_izq: set, alias_der: set):
+    """`["==", ["campo", a, x], ["campo", b, y]]` con un lado de cada fuente, o `None`.
+
+    Es deliberadamente estrecho. Sólo reconoce una igualdad DIRECTA entre dos campos, uno de cada
+    lado: nada de `y`, nada de `!=`, nada de dos campos del mismo alias. Si el filtro no tiene esa
+    forma a la vista, no hay plan y se cae al producto con su límite.
+
+    La tentación es ensanchar esto —«también sirve dentro de un `y`»— y es exactamente donde un
+    optimizador se vuelve incorrecto sin que nadie lo note: el 2026-08-27 un intento de este mismo
+    plan dejó 31 mutantes de código vivos contra 0 en todo lo preexistente, y se descartó entero.
+    """
+    if not (isinstance(predicado, list) and len(predicado) == 3 and predicado[0] == "=="):
+        return None
+    izq, der = predicado[1], predicado[2]
+    def _campo(nodo):
+        # Sin `isinstance` ni `len`: `validar_tuberia` corre antes de `desde` y ya garantiza que un
+        # `campo` es `["campo", alias, nombre]`. Revalidarlo agrega ramas que ningún caso recorre
+        # —se midió: sus mutantes sobrevivían porque el código no se ejecuta nunca—.
+        return (nodo[1], nodo[2]) if (isinstance(nodo, list) and nodo
+                                      and nodo[0] == "campo") else None
+    a, b = _campo(izq), _campo(der)
+    if a is None or b is None:
+        return None
+    if a[0] in alias_izq and b[0] in alias_der:
+        return a, b
+    if b[0] in alias_izq and a[0] in alias_der:
+        return b, a
+    return None
+
+
+def _clave_indexable(valor):
+    """El valor de una clave, o `ErrorDeAlgebra` si no puede compararse por igualdad.
+
+    Sin esto, una clave inválida no rompe: simplemente no casa con nada, el par nunca se arma y el
+    error que el camino ingenuo SÍ levantaría desaparece. Un plan que calla un error que el otro
+    plan da no es una optimización: es otra semántica.
+    """
+    if isinstance(valor, bool) or not isinstance(valor, (int, str)):
+        raise ErrorDeAlgebra(
+            f"«unir» indexado necesita claves enteras o de texto, y recibió {valor!r}")
+    return valor
+
+
+def _unir_donde_indexado(paso_unir, paso_donde, evidencia: dict, limites: LimitesAlgebra,
+                         registro: Mapping[str, Callable[..., Any]],
+                         ruta_unir):
+    """Resuelve `unir` + `donde` de igualdad sin materializar el producto, o devuelve `None`.
+
+    Devuelve `(filas, tamano_logico, lados)`. El tamaño lógico es el que el producto HABRÍA tenido:
+    la traza lo necesita para que `meta.unir_materializa_el_producto` siga midiendo algo. Si el plan
+    reportara el tamaño real, esa medida no se rompería —se volvería trivialmente verde, que es
+    peor—.
+    """
+    # Las fuentes ya las validó `validar_tuberia`; `_unir` tiene su propia comprobación para cuando
+    # se lo llama por el camino de siempre, y duplicarla acá sólo agregaba una rama sin recorrer.
+    izq, der = paso_unir[1], paso_unir[2]
+    filas_izq = aplicar(izq, [], evidencia, limites, registro=registro,
+                        ruta=(*ruta_unir, 1) if ruta_unir is not None else None)
+    filas_der = aplicar(der, [], evidencia, limites, registro=registro,
+                        ruta=(*ruta_unir, 2) if ruta_unir is not None else None)
+    alias_izq = {a for f in filas_izq for a in f}
+    alias_der = {a for f in filas_der for a in f}
+    comunes = alias_izq & alias_der
+    if comunes:
+        raise ErrorDeAlgebra(f"«unir» con alias repetido: {sorted(comunes)}")
+    clave = _clave_cruzada(paso_donde[1], alias_izq, alias_der)
+    if clave is None:
+        return None
+    (alias_a, campo_a), (alias_b, campo_b) = clave
+
+    indice: dict = {}
+    for fila in filas_der:
+        indice.setdefault(_clave_indexable(fila[alias_b].get(campo_b)), []).append(fila)
+    salida = []
+    for a in filas_izq:
+        for b in indice.get(_clave_indexable(a[alias_a].get(campo_a)), ()):
+            salida.append({**a, **b})
+    return salida, len(filas_izq) * len(filas_der), {"izquierda": len(filas_izq),
+                                                     "derecha": len(filas_der)}
+
+
 def desde(tuberia, evidencia: dict, limites: LimitesAlgebra | None = None, *,
           registro: Mapping[str, Callable[..., Any]] | None = None) -> list[dict]:
     """`["desde", fuente, paso, paso, …]` → las filas que sobrevivieron. **Son los testigos.**"""
     limites = _limites(limites)
     escalares = _registro(registro)
     validar_tuberia(tuberia, limites, registro=escalares)
+    # El plan sólo aplica al PRIMER par de pasos, y los índices de la traza salen de ahí en vez de
+    # escribirse dos veces a mano.
+    PASO_UNIR, PASO_DONDE = 0, 1
+    pasos = list(tuberia[1:])
     filas: list[dict] = []
-    for t, paso in enumerate(tuberia[1:]):
+    inicio = 0
+    # El plan indexado sólo existe si el `donde` viene INMEDIATAMENTE después del `unir`: con un
+    # paso en el medio el filtro ya no habla de los pares que el producto acaba de armar.
+    if (_PLAN_UNIR_INDEXADO.get() is not False and len(pasos) > PASO_DONDE
+            and pasos[PASO_UNIR][0] == "unir" and pasos[PASO_DONDE][0] == "donde"):
+        plan = _unir_donde_indexado(pasos[PASO_UNIR], pasos[PASO_DONDE], evidencia, limites,
+                                    escalares, _ruta_de_paso(PASO_UNIR))
+        if plan is not None:
+            filas, tamano_logico, lados = plan
+            # Los dos pasos se anotan por separado y con los números LÓGICOS, para que la traza vea
+            # lo mismo que vería con el producto completo. Fusionarlos en un hecho sería inventar un
+            # operador que el lenguaje no tiene.
+            _anotar("producto", izquierda=lados["izquierda"], derecha=lados["derecha"],
+                    salida=tamano_logico)
+            _anotar("paso", t=PASO_UNIR, operador="unir", filas_antes=0,
+                    filas_despues=tamano_logico)
+            _anotar("paso", t=PASO_DONDE, operador="donde", filas_antes=tamano_logico,
+                    filas_despues=len(filas))
+            inicio = PASO_DONDE + 1
+    for t, paso in enumerate(pasos[inicio:], start=inicio):
         antes = len(filas)
-        filas = aplicar(paso, filas, evidencia, limites, registro=escalares, ruta=(2, t + 1))
+        filas = aplicar(paso, filas, evidencia, limites, registro=escalares,
+                        ruta=_ruta_de_paso(t))
         _anotar("paso", t=t, operador=paso[0], filas_antes=antes, filas_despues=len(filas))
     return filas
 
