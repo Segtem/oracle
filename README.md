@@ -113,7 +113,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 83 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 59 la mutación, 16 una persona, 4 la casualidad, 4 una herramienta ajena.
+Los 84 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 60 la mutación, 16 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -446,7 +446,7 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**131 casos**: 84 defectos y 47 verdes correctos. De los defectos, 81 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 1 límite humano. Por etiqueta: 79 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 80 observada, 45 construida, 6 generada y 0 sin declarar.
+**131 casos**: 84 defectos y 47 verdes correctos. De los defectos, 80 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 79 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 79 observada, 46 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->

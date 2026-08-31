@@ -42,7 +42,8 @@ jobs:
       - run: python -m unittest discover -s tests -t . -q
       - run: python tools/verificar_instalacion.py
       - run: python tools/corpus.py --resumen
-      # `aceptacion.py` sale 1 mientras haya un rojo declarado —hoy son 2, ver DECISION-004— así que
+      # `aceptacion.py` sale 1 mientras haya un rojo declarado —hoy son 3, ver DECISION-004; pasó de
+      # 2 a 3 el 2026-08-31 al corregir un caso que decía `observada` sobre filas de un test— así que
       # NO se puede exigir que salga 0 sin tapar la medida. Se exige que el número no CAMBIE: si sube
       # hay una regresión, y si baja alguien cerró un rojo y hay que actualizar este número a mano.
       # Un umbral que se mueve solo es una métrica esperando a volverse objetivo.
@@ -51,7 +52,7 @@ jobs:
           python tools/aceptacion.py > /tmp/acept.txt 2>&1 || true
           tail -20 /tmp/acept.txt
           test "$(grep -c '^  ✗ meta\.' /tmp/acept.txt)" = "1"
-          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        2 (<= 0)' /tmp/acept.txt
+          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        3 (<= 0)' /tmp/acept.txt
       - run: python tools/mutar.py
       - run: python tools/cifras.py
       # El evaluador juzgado por medidas escritas en el propio álgebra: corre el corpus

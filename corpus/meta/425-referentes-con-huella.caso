@@ -3,12 +3,12 @@ caso 425-referentes-con-huella:
     origen:
         repo: "Segtem/oracle"
         commit: "sin-commit"
-    procedencia: observada
+    procedencia: construida
     titulo: "Las evidencias declaran la huella de cada referente"
     etiqueta: verde_correcto
     sintoma:
-        Cada referente trae una huella declarada al momento de la lectura. La medida debe dejar pasar la relación aunque no pueda comprobar el contenido del archivo.
-    como_se_detecto: observacion
+        Cada referente trae una huella declarada al momento de la lectura. La medida debe dejar pasar la relación aunque no pueda comprobar el contenido del archivo. Las filas son CONSTRUIDAS y salen de `tests/test_referente.py`: `sha256:abc` no es una huella, es un marcador de ocho caracteres. Se marcó `observada` por error al escribirlo y se corrigió el 2026-08-31 cruzándolo contra las corridas reales; ningún sensor de este repo produce todavía un `referente_declarado`.
+    como_se_detecto: mutacion
     medida: meta.ninguna_evidencia_declara_un_referente_sin_huella
     evidencia:
         referente_declarado: que, huella, cuando, tiene_huella

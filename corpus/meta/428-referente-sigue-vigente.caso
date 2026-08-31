@@ -2,16 +2,16 @@ caso 428-referente-sigue-vigente:
     fecha: "2026-08-28"
     origen:
         repo: "Segtem/oracle"
-        commit: "sin-commit"
+        commit: "4d791d3"
     procedencia: observada
     titulo: "El referente conserva la huella leída"
     etiqueta: verde_correcto
     sintoma:
-        La huella declarada al producir la evidencia coincide con la actual. La medida debe dejar pasar esa comparación.
+        La huella declarada al producir la evidencia coincide con la actual. La medida debe dejar pasar esa comparación. La fila se transcribió de la comprobación de frescura de `diferencial/simulacion.json` de ESTE repo: `4ef377cb` es su huella `referencia`, y `"al generar"`/`"ahora"` son los literales que `nucleo/fixtures.py` pasa a `hechos_de_frescura`. Antes decía `9a79cad1`, que también es real pero es la huella de `vault.json` de `Brianholl/jam`: una observación verdadera atribuida al repo equivocado.
     como_se_detecto: observacion
     medida: meta.ninguna_evidencia_se_juzga_con_referente_vencido
     evidencia:
         referente_comparado: que, huella_leida, huella_actual, cuando_lectura, cuando_actual
-            "referencia", "9a79cad1", "9a79cad1", "al generar", "ahora"
+            "referencia", "4ef377cb", "4ef377cb", "al generar", "ahora"
     leccion:
         La fila es la salida observada de `hechos_de_frescura` para las dos declaraciones de arriba. Cambiar el operador o contar también las huellas iguales rompe esta polaridad verde.

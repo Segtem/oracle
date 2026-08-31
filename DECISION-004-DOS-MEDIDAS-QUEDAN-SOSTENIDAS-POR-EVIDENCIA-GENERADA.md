@@ -1,7 +1,7 @@
-# Decisión 004 — dos medidas quedan sostenidas por evidencia generada, y se deja dicho
+# Decisión 004 — tres medidas quedan sostenidas por evidencia fabricada, y se deja dicho
 
-**Fecha:** 2026-08-26 · **Estado:** vigente · **Consecuencia:** `tools/aceptacion.py` sale con
-código 1 mientras esto siga así.
+**Fecha:** 2026-08-26 · **Revisada:** 2026-08-31 (de 2 a 3) · **Estado:** vigente
+**Consecuencia:** `tools/aceptacion.py` sale con código 1 mientras esto siga así.
 
 ## El hecho
 
@@ -11,6 +11,21 @@ existía —un catálogo real que no tenía filtro, corridas reales del marco so
 
 - `meta.sintaxis_cubre_algebra`
 - `meta.sintaxis_casos_cubre_casos`
+
+**Se sumó una tercera el 2026-08-31, y por un motivo distinto:**
+
+- `meta.ninguna_evidencia_declara_un_referente_sin_huella`
+
+Ésa no aparecía porque su caso verde decía `procedencia: observada` sobre filas que salían de
+`tests/test_referente.py` —`sha256:abc` no es una huella, es un marcador de ocho caracteres—. Al
+corregir la procedencia a `construida`, la medida quedó al descubierto. **El rojo nuevo no es una
+regresión: es lo que siempre había, visible por primera vez.**
+
+Y su motivo es más provisorio que el de las otras dos: **hoy ningún sensor de este repo produce un
+`referente_declarado`.** L−2 existe en el lenguaje y todavía no en el mundo, igual que le pasaba a
+L−1 hasta que se declararon las primeras relaciones de un consumidor. En cuanto un sensor emita
+referentes de verdad, esta tercera se cierra transcribiendo — a diferencia de las dos de arriba, que
+no se pueden cerrar nunca.
 
 ## Por qué éstas no se pueden cerrar
 
