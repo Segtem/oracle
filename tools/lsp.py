@@ -19,11 +19,23 @@ from nucleo.proyecto import (Proyecto, catalogos_a_cargar, macros_del_proyecto, 
                              relaciones_del_proyecto)
 from nucleo.sintaxis import IDENT_RE, ErrorSintaxis, leer_con_mapa  # noqa: E402
 from nucleo.version import exigir_sintaxis_compatible  # noqa: E402
-from tools.medida import _evaluadas_aparte, relaciones_por_alias  # noqa: E402
+from tools.medida import (_evaluadas_aparte, ejercicio_del_catalogo,  # noqa: E402
+                          esta_ejercitada, relaciones_por_alias,
+                          texto_de_fijacion)
 from tools.sesion import resolver_cli  # noqa: E402
 
 ERROR = 1
 AVISO = 2
+
+# Dos mensajes porque son dos afirmaciones distintas. Con evidencia completa el aviso es un
+# hecho; con evidencia incompleta —el catálogo no carga sin ejecutar código del proyecto, o un
+# fixture diferencial está vencido— el aviso dice además qué no pudo mirar, que es lo que exige
+# el propio lenguaje de un `alcance`.
+MENSAJE_SIN_FIJAR = {
+    True: "SIN FIJAR — ninguna evidencia la pone a prueba",
+    False: ("SIN FIJAR — ningún caso del corpus la evalúa. No se pudieron leer los "
+            "diferenciales, así que podría estar fijada por uno"),
+}
 
 
 def _rango(texto: str, linea: int, columna: int) -> dict:
@@ -82,19 +94,62 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
         except ValueError:
             pass
         else:
-            casos = cargar_casos(proy.corpus) if proy.corpus.is_dir() else []
-            aparte = _evaluadas_aparte(proy, {medida.id: medida})
-            if (not any(caso.get("medida") == medida.id for caso in casos)
-                    and medida.id not in aparte):
+            # Quién contesta «¿está ejercitada?» es `meta.toda_medida_esta_ejercitada`, no este
+            # archivo. Acá había un `any(caso["medida"] == medida.id ...)` que decía en Python lo
+            # mismo que esa medida ya dice en Oracle, y las dos podían separarse sin que nada
+            # avisara: la medida cuenta también los casos que aportan los fixtures diferenciales,
+            # y aquella línea no los miraba. Es el mismo movimiento que ya hizo `tools/mutar.py`
+            # cuando sacó su `if vivos: return 1`.
+            ejercitada, completa = esta_ejercitada(proy, medida, macros)
+            if ejercitada is False:
                 ubicacion = lectura.ubicacion("1")
-                return [_diagnostico(
-                    texto, "SIN FIJAR — ninguna evidencia la pone a prueba", AVISO,
-                    ubicacion.linea, ubicacion.columna)]
+                return [_diagnostico(texto, MENSAJE_SIN_FIJAR[completa], AVISO,
+                                     ubicacion.linea, ubicacion.columna)]
         return []
     except ErrorSintaxis as e:
         return [_diagnostico(texto, str(e), ERROR, e.linea, e.columna)]
     except (MedidaMalDeclarada, CasoMalDeclarado, ValueError) as e:
         return [_diagnostico(texto, str(e), ERROR)]
+
+
+def lentes(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
+    """La línea que el editor dibuja ARRIBA de la medida: qué la pone a prueba y con qué umbral.
+
+    Es la misma vista que `python tools/medida.py --listar` imprime en la terminal, por archivo.
+    Se arma con `texto_de_fijacion`, la única línea escrita para decirlo: el editor no tiene una
+    segunda opinión sobre cuándo una medida está ejercitada.
+
+    Lo que muestra viene de dos sitios distintos a propósito. «SIN FIJAR» es un VEREDICTO, y lo da
+    `meta.toda_medida_esta_ejercitada`; «3 casos · 1 verde · 2 rojos» es EVIDENCIA del sensor de
+    `nucleo/marco.py`, que se presenta sin juzgarla. Contar filas de una relación no es
+    reimplementar un reclamo; decidir si ese conteo alcanza, sí, y de eso sigue respondiendo la
+    medida.
+    """
+    if ruta.suffix != ".oracle":
+        return []
+    try:
+        macros = macros_del_proyecto(proy)
+        lectura = leer_con_mapa(texto, macros=macros)
+        exigir_sintaxis_compatible(lectura.version)
+        medida = Medida.de_datos(lectura.datos, macros=macros)
+    except (ErrorSintaxis, MedidaMalDeclarada, ValueError):
+        # Una medida que no se puede leer ya tiene su diagnóstico. Un lens con datos a medias
+        # sobre un archivo roto sería ruido encima del error que hay que arreglar primero.
+        return []
+
+    ejercicio = ejercicio_del_catalogo(proy, {medida.id: medida}, macros)
+    partes = [texto_de_fijacion(medida.id, ejercicio)]
+    verdes, rojos = ejercicio.polaridad_por_medida.get(medida.id, (0, 0))
+    if verdes or rojos:
+        partes.append(f"{verdes} verde" + ("s" if verdes != 1 else ""))
+        partes.append(f"{rojos} rojo" + ("s" if rojos != 1 else ""))
+    partes.append(f"umbral {medida.op} {medida.limite} segun {medida.segun}")
+
+    ubicacion = lectura.ubicacion("1")
+    linea = ubicacion.linea - 1
+    return [{"range": {"start": {"line": linea, "character": 0},
+                       "end": {"line": linea, "character": 0}},
+             "command": {"title": " · ".join(partes), "command": ""}}]
 
 
 def _contexto(texto: str, posicion: dict) -> tuple[str, int]:
@@ -257,6 +312,7 @@ class Servidor:
             self._respuesta(mensaje, {"capabilities": {
                 "textDocumentSync": {"openClose": True, "change": 1},
                 "completionProvider": {"triggerCharacters": ["."]},
+                "codeLensProvider": {"resolveProvider": False},
             }})
         elif metodo == "shutdown":
             self.apagado = True
@@ -279,6 +335,11 @@ class Servidor:
             uri = mensaje["params"]["textDocument"]["uri"]
             self.documentos.pop(uri, None)
             self._publicar(uri, None)
+        elif metodo == "textDocument/codeLens":
+            uri = mensaje["params"]["textDocument"]["uri"]
+            texto = self.documentos.get(uri)
+            self._respuesta(mensaje, [] if texto is None else lentes(
+                self.proy, _ruta_de_uri(uri), texto))
         elif metodo == "textDocument/completion":
             params = mensaje["params"]
             uri = params["textDocument"]["uri"]

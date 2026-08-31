@@ -68,7 +68,8 @@ PRIORIDADES = {
     "tools/cli.py": ("tests.test_vigilar", "tests.test_cli", "tests.test_herramientas"),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
     "tools/lsp.py": ("tests.test_lsp",),
-    "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli"),
+    "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
+                        "tests.test_lsp"),
 }
 
 

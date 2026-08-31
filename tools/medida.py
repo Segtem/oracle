@@ -25,6 +25,7 @@ import json
 import sys
 import time
 from collections import defaultdict
+from dataclasses import dataclass
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -34,12 +35,17 @@ import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES, separar_clave  # noqa: E402
 from nucleo.caso import CasoMalDeclarado, cargar_casos, leer as leer_caso  # noqa: E402
 from nucleo.sintaxis import ErrorSintaxis  # noqa: E402
-from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture  # noqa: E402
+from nucleo.fixtures import (cargar_fixtures, casos_para_mutacion,  # noqa: E402
+                             evidencias as evidencias_fixture)
+from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.medida import (Medida, MedidaMalDeclarada, cargar_catalogo,  # noqa: E402
+                           cargar as cargar_medida,
                            cargar_fuente_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
-                             catalogos_a_cargar, confiar_escalares, escalares_del_proyecto,
-                             macros_del_proyecto, presentar_ruta, problemas_estructura,
+                             catalogos_a_cargar, catalogos_base_a_cargar, confiar_escalares,
+                             escalares_del_proyecto,
+                             RAIZ_ORACLE, macros_del_proyecto, presentar_ruta,
+                             problemas_estructura,
                              ruta_de_medida_nueva, sin_banderas_comunes)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
@@ -452,6 +458,174 @@ def _evaluadas_aparte(proy, catalogo) -> set[str]:
     return aparte
 
 
+ID_EJERCITADA = "meta.toda_medida_esta_ejercitada"
+# La misma definición que usa `nucleo/marco.py` para `esperado_ok`. No se relee acá.
+ETIQUETA_VERDE = "verde_correcto"
+
+
+def _catalogo_completo(proy, macros):
+    """El catálogo entero, o None si no se puede cargar sin ejecutar código del proyecto.
+
+    El editor no corre `escalares.py` de nadie. Una medida que usa una escalar declarada por el
+    proyecto no se puede ni siquiera cargar sin ese registro, así que el catálogo completo es un
+    lujo que a veces no hay. Devolver None es la respuesta honesta: no es que no haya medidas, es
+    que no se pueden mirar desde acá.
+    """
+    try:
+        return cargar_catalogo(catalogos_a_cargar(proy), macros=macros)
+    except Exception:  # noqa: BLE001 — cualquier fallo de carga vale lo mismo: no hay catálogo
+        return None
+
+
+def _ids_en(directorios) -> set[str]:
+    """Los ids que hay en esos directorios, leídos del nombre del archivo y sin parsear nada."""
+    return {ruta.stem for d in directorios if d.is_dir()
+            for ruta in d.rglob("*") if ruta.suffix in (".oracle", ".json")}
+
+
+def _heredadas(proy) -> set[str]:
+    """Los ids que vienen del catálogo BASE **y no del propio**.
+
+    Restar las propias no es una precaución: cuando Oracle se mide a sí mismo su catálogo ES el
+    base, y sin esta resta todas sus medidas salían «responde Oracle» —el proyecto declarándose
+    heredero de sí mismo—. Es la misma cuenta que hace `--listar` con `set(catalogo) -
+    set(del_proyecto)`.
+    """
+    return _ids_en(catalogos_base_a_cargar(proy)) - _ids_en([proy.catalogos])
+
+
+@dataclass(frozen=True)
+class Ejercicio:
+    """Qué pone a prueba a cada medida: el juicio y la evidencia, separados a propósito.
+
+    `sin_ejercitar` es un VEREDICTO —los testigos de `meta.toda_medida_esta_ejercitada`— y por eso
+    puede ser falso y hay casos que lo fijan. `casos_por_medida` y `polaridad_por_medida` son
+    EVIDENCIA del sensor de `nucleo/marco.py`: se presentan, no se juzgan. Contar filas no es
+    reimplementar un reclamo; decidir si ese conteo está bien, sí, y eso lo sigue diciendo la
+    medida.
+
+    La polaridad es `(verdes, rojos)` con la definición del propio marco —verde es
+    `etiqueta == "verde_correcto"`, rojo es todo lo demás— y no una tercera lectura de las
+    etiquetas inventada acá.
+    """
+
+    sin_ejercitar: frozenset
+    casos_por_medida: dict
+    polaridad_por_medida: dict
+    heredadas: frozenset
+    aparte: frozenset
+    completa: bool
+    hubo_jueza: bool
+
+
+def _jueza_del_ejercicio(proy, macros):
+    """La medida que define «ejercitada», del proyecto si la tiene y de Oracle si no.
+
+    El catálogo base es opcional PARA LA ACEPTACIÓN del proyecto —`catalogo_base: true`—, y esa
+    opción es sobre qué políticas lo juzgan, no sobre qué saben sus herramientas. Un proyecto que
+    no lo importa igual merece el aviso, y lo recibe de la única definición escrita de
+    «ejercitada»; si tiene la suya, gana la suya. Es el mismo respaldo que ya usa
+    `nucleo/fixtures.py` para cargar su medida de frescura.
+    """
+    donde_buscar = [*catalogos_a_cargar(proy), RAIZ_ORACLE / "catalogos"]
+    return next((cargar_medida(ruta, macros=macros)
+                 for base in donde_buscar if base.is_dir()
+                 for ruta in sorted(base.rglob(f"{ID_EJERCITADA}.*"))), None)
+
+
+def ejercicio_del_catalogo(proy, catalogo, macros, heredadas=None) -> Ejercicio:
+    """Reúne la evidencia UNA vez y deja que la medida juzgue todo el catálogo de una.
+
+    Existe porque la respuesta estaba escrita tres veces: acá, en `tools/lsp.py` y en
+    `--listar`, cada una con su propio `any(caso["medida"] == mid)`. Las tres decían lo mismo
+    hasta que dejaran de decirlo, y ya no lo decían: la medida cuenta los casos que aportan los
+    fixtures diferenciales —`tools/mutar.py` los suma, y avisa en su docstring que «las medidas
+    fijadas por un diferencial pueden no aparecer en el corpus»— y las tres copias miraban sólo
+    el corpus. Una medida así salía amarilla en el editor, amarilla en la auditoría y verde en la
+    aceptación, sin que nada señalara la contradicción.
+    """
+    jueza = _jueza_del_ejercicio(proy, macros)
+    heredadas = frozenset(_heredadas(proy) if heredadas is None else heredadas)
+
+    casos = cargar_casos(proy.corpus) if proy.corpus.is_dir() else []
+    por_medida: defaultdict[str, int] = defaultdict(int)
+    polaridad: defaultdict[str, list] = defaultdict(lambda: [0, 0])
+
+    def _anotar(caso) -> None:
+        mid = caso.get("medida")
+        if not mid:
+            return
+        por_medida[mid] += 1
+        polaridad[mid][0 if caso.get("etiqueta") == ETIQUETA_VERDE else 1] += 1
+
+    for c in casos:
+        _anotar(c)
+
+    completa = True
+    con_escalares = _catalogo_completo(proy, macros)
+    if con_escalares is None:
+        completa = False
+    elif proy.diferencial.is_dir():
+        fixtures, fallas = cargar_fixtures(
+            sorted(proy.diferencial.glob("*.json")), raiz=proy.raiz, catalogo=con_escalares)
+        completa = not fallas
+        for fixture in fixtures:
+            for caso in casos_para_mutacion(fixture, con_escalares):
+                casos.append(caso)
+                _anotar(caso)
+
+    aparte = frozenset(_evaluadas_aparte(proy, catalogo))
+    sin_ejercitar: frozenset = frozenset()
+    if jueza is not None:
+        uso = hechos_de_uso(catalogo, casos, [], evaluadas_aparte=set(aparte),
+                            heredadas=set(heredadas))
+        sin_ejercitar = frozenset(t["m"]["id"] for t in jueza.evaluar(uso).testigos)
+    return Ejercicio(sin_ejercitar, dict(por_medida),
+                     {mid: tuple(par) for mid, par in polaridad.items()},
+                     heredadas, aparte, completa, jueza is not None)
+
+
+def texto_de_fijacion(mid: str, ejercicio: Ejercicio) -> str:
+    """Una línea que dice qué pone a prueba a esta medida. La misma para `--listar` y el editor.
+
+    Una medida HEREDADA no se juzga acá: la fija Oracle en su propio corpus, y pedirle casos al
+    consumidor sería pedirle que escriba pruebas de medidas que no escribió. Se dice de quién
+    responde en vez de callarlo, porque esa medida igual lo está juzgando y saber quién la fija es
+    parte de poder discutirla.
+    """
+    if mid in ejercicio.heredadas:
+        return "responde Oracle"
+    n = ejercicio.casos_por_medida.get(mid, 0)
+    cuenta = f"{n} caso" if n == 1 else f"{n} casos"
+
+    # El VEREDICTO decide si hay aviso; el conteo sólo lo acompaña. Al revés —«si n == 0,
+    # SIN FIJAR»— vuelve a poner la decisión en este archivo, que es de lo que se trataba salir:
+    # una medida puede tener cero casos en el corpus y estar ejercitada igual, por un fixture
+    # diferencial o por el arnés.
+    if not ejercicio.hubo_jueza or mid not in ejercicio.sin_ejercitar:
+        if n == 0 and mid in ejercicio.aparte:
+            return "0 casos · la ejercita el arnés sobre el catálogo"
+        return cuenta
+    if not ejercicio.completa:
+        return (f"{cuenta}  ⚠ SIN FIJAR — ningún caso del corpus la evalúa. No se pudieron leer "
+                "los diferenciales, así que podría estar fijada por uno")
+    return f"{cuenta}  ⚠ SIN FIJAR — ninguna evidencia la pone a prueba"
+
+
+def esta_ejercitada(proy, medida, macros) -> tuple[bool | None, bool]:
+    """¿La pone a prueba alguna evidencia? Lo contesta la MEDIDA, no este código.
+
+    Devuelve `(ejercitada, completa)`. `completa` es falso cuando no se pudo reunir toda la
+    evidencia que la medida sabe mirar —un catálogo que no carga sin ejecutar código del proyecto,
+    un fixture vencido—: el juicio sigue siendo el de la medida, con menos con qué. Devuelve
+    `(None, _)` si no hay jueza: sin ella no hay veredicto, y este código no la reemplaza.
+    """
+    ej = ejercicio_del_catalogo(proy, {medida.id: medida}, macros)
+    if not ej.hubo_jueza:
+        return None, ej.completa
+    return medida.id not in ej.sin_ejercitar, ej.completa
+
+
 def listar(proy, argv: list[str] | None = None) -> int:
     estructura = problemas_estructura(proy, ("catalogos",))
     if estructura:
@@ -482,15 +656,13 @@ def listar(proy, argv: list[str] | None = None) -> int:
         print(f"CATÁLOGO: 0 medidas en {presentar_ruta(proy, proy.catalogos)}")
         return 0
 
-    conteo: defaultdict[str, int] = defaultdict(int)
-    if proy.corpus.is_dir():
-        try:
-            for c in cargar_casos(proy.corpus):
-                mid = c.get("medida")
-                if mid:
-                    conteo[mid] += 1
-        except Exception:
-            pass
+    # El conteo y el juicio salen del MISMO lugar que usa el editor. Acá había un bucle propio
+    # sobre `cargar_casos(proy.corpus)` y su propio `if n > 0 … else SIN FIJAR`: la tercera copia
+    # del mismo reclamo, y con el mismo punto ciego que las otras dos —no miraba los fixtures
+    # diferenciales—. La herramienta de auditoría tenía el defecto que la auditoría busca.
+    ejercicio = ejercicio_del_catalogo(proy, catalogo, macros_del_proyecto(proy),
+                                       heredadas=set(catalogo) - set(del_proyecto))
+    conteo = ejercicio.casos_por_medida
 
     # «Sin fijar» NO es «ningún caso la nombra». Oracle ya distingue las dos cosas y esta vista
     # inventaba una tercera, más pobre: reportaba como SIN FIJAR a las seis medidas meta que juzgan
@@ -500,14 +672,14 @@ def listar(proy, argv: list[str] | None = None) -> int:
     # La noción buena está en `nucleo/marco.py`: una medida puede estar **evaluada aparte** —el arnés
     # la ejercita sobre el catálogo, no un caso que la nombre— y eso cuenta como ejercicio. Se usa
     # esa, no una copia.
-    aparte = _evaluadas_aparte(proy, catalogo)
+    aparte = ejercicio.aparte
     # Un proyecto responde por SUS medidas. Las heredadas —el catálogo base y el del perfil— las
     # fija Oracle en su propio corpus; marcarlas «sin fijar» acá sería pedirle al consumidor que
     # escriba casos para medidas que no escribió. Se muestran, porque lo juzgan, pero aparte.
     ids_heredados = set(catalogo) - set(del_proyecto)
     propias = {mid: m for mid, m in catalogo.items() if mid in del_proyecto}
-    fijadas = [m for m in propias.values() if conteo[m.id] > 0 or m.id in aparte]
-    sin_fijar = [m for m in propias.values() if conteo[m.id] == 0 and m.id not in aparte]
+    sin_fijar = [m for m in propias.values() if m.id in ejercicio.sin_ejercitar]
+    fijadas = [m for m in propias.values() if m.id not in ejercicio.sin_ejercitar]
 
     n_medidas = len(propias)
     txt_medidas = "1 medida" if n_medidas == 1 else f"{n_medidas} medidas"
@@ -520,13 +692,7 @@ def listar(proy, argv: list[str] | None = None) -> int:
 
     for mid in sorted(propias):
         m = propias[mid]
-        n = conteo[mid]
-        if n > 0:
-            fijacion = f"{n} caso" if n == 1 else f"{n} casos"
-        elif mid in aparte:
-            fijacion = "0 casos · la ejercita el arnés sobre el catálogo"
-        else:
-            fijacion = "0 casos  ⚠ SIN FIJAR — ninguna evidencia la pone a prueba"
+        fijacion = texto_de_fijacion(mid, ejercicio)
         print(f"  {m.id}")
         print(f"    umbral:   {m.op} {m.limite}")
         print(f"    segun:    {m.segun}")
@@ -547,7 +713,7 @@ def listar(proy, argv: list[str] | None = None) -> int:
         txt = "1 medida heredada" if n == 1 else f"{n} medidas heredadas"
         print(f"{txt.upper()} — no salen de tu catálogo, pero te juzgan:\n")
         for mid in sorted(ids_heredados):
-            print(f"  {mid}")
+            print(f"  {mid}  ·  {texto_de_fijacion(mid, ejercicio)}")
         print()
     return 0
 

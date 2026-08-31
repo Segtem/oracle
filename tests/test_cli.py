@@ -17,6 +17,7 @@ from pathlib import Path
 from unittest import mock
 
 from nucleo.proyecto import Proyecto
+from nucleo.version import VERSION_DISTRIBUCION
 from tools import cli
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -837,7 +838,11 @@ class NounVerbCliTests(CliTestCase):
         for bandera in ("--version", "-V", "version"):
             rc, salida = self._callado(cli.main, [bandera])
             self.assertEqual(rc, 0, bandera)
-            self.assertIn("oracle 0.1.0", salida)
+            # Contra la constante, no contra un literal: el número sube en cada release y un
+            # literal acá sólo enseña a editar el test junto con el código, que es la forma de
+            # que un test deje de comprobar nada. Lo que se fija es la FORMA de la respuesta.
+            self.assertIn(f"oracle {VERSION_DISTRIBUCION}", salida)
+            self.assertRegex(salida, r"oracle \d+\.\d+\.\d+")
             self.assertIn("álgebra:", salida)
             self.assertIn("sintaxis:", salida)
             self.assertIn("corriendo desde:", salida)

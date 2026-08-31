@@ -13,6 +13,7 @@ from unittest import mock
 
 from nucleo.proyecto import Proyecto
 from tools import lsp
+from tools.sesion import resolver_cli
 
 
 MEDIDA = """\
@@ -313,7 +314,7 @@ medida demo.alto:
 
 
 class ProtocoloTests(unittest.TestCase):
-    def test_initialize_declara_sincronizacion_diagnosticos_y_completado(self) -> None:
+    def test_initialize_declara_sincronizacion_diagnosticos_completado_y_lens(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             proy, ruta = _proyecto(Path(td))
             entrada = b"".join((
@@ -331,7 +332,8 @@ class ProtocoloTests(unittest.TestCase):
             "jsonrpc": "2.0", "id": 1,
             "result": {"capabilities": {
                 "textDocumentSync": {"openClose": True, "change": 1},
-                "completionProvider": {"triggerCharacters": ["."]}}},
+                "completionProvider": {"triggerCharacters": ["."]},
+                "codeLensProvider": {"resolveProvider": False}}},
         })
         publicacion = respuestas[1]
         self.assertEqual(publicacion["method"], "textDocument/publishDiagnostics")
@@ -445,6 +447,30 @@ class ProtocoloTests(unittest.TestCase):
         self.assertEqual([m.get("id") for m in mensajes], [1, None, 2])
         self.assertEqual(mensajes[1]["params"]["diagnostics"][0]["severity"], 2)
 
+    def test_code_lens_viaja_por_el_protocolo(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            uri = ruta.as_uri()
+            entrada = b"".join((
+                _marco({"id": 1, "method": "initialize", "params": {}}),
+                _marco({"method": "textDocument/didOpen", "params": {"textDocument": {
+                    "uri": uri, "text": MEDIDA}}}),
+                _marco({"id": 2, "method": "textDocument/codeLens",
+                        "params": {"textDocument": {"uri": uri}}}),
+                _marco({"id": 3, "method": "textDocument/codeLens",
+                        "params": {"textDocument": {"uri": "file:///no/abierto.oracle"}}}),
+                _marco({"id": 4, "method": "shutdown"}),
+                _marco({"method": "exit"}),
+            ))
+            salida = io.BytesIO()
+            self.assertEqual(lsp.servir(proy, io.BytesIO(entrada), salida), 0)
+
+        por_id = {m.get("id"): m for m in _mensajes(salida.getvalue()) if "id" in m}
+        self.assertIn("codeLensProvider", por_id[1]["result"]["capabilities"])
+        self.assertIn("SIN FIJAR", por_id[2]["result"][0]["command"]["title"])
+        # Un documento que el servidor no tiene abierto no se lee del disco a escondidas.
+        self.assertEqual(por_id[3]["result"], [])
+
     def test_main_propaga_argumentos_y_falla_si_no_resuelve_proyecto(self) -> None:
         with mock.patch.object(lsp, "resolver_cli", return_value=None) as resolver:
             self.assertEqual(lsp.main([]), 1)
@@ -508,6 +534,183 @@ class RangoConAncho(unittest.TestCase):
                             (fin["line"], fin["character"]),
                             (inicio["line"], inicio["character"]),
                             f"rango vacío: {d}")
+
+
+class SinFijarLoDecideLaMedida(unittest.TestCase):
+    """El aviso «SIN FIJAR» es el veredicto de `meta.toda_medida_esta_ejercitada`, no un cálculo
+    propio del servidor.
+
+    Antes acá había un `any(caso["medida"] == mid for caso in casos)` que decía en Python lo mismo
+    que esa medida dice en Oracle. Las dos coincidían, hasta que dejaran de hacerlo: la medida
+    cuenta los casos que aportan los fixtures diferenciales —`tools/mutar.py` los suma al listado,
+    y su docstring avisa que «las medidas fijadas por un diferencial pueden no aparecer en el
+    corpus»— y aquella línea no los miraba. Una medida así salía amarilla en el editor y verde en
+    la aceptación, sin que nada señalara la contradicción.
+    """
+
+    def _con_diferencial(self, raiz: Path, mid: str) -> None:
+        """Escribe un fixture diferencial FRESCO que fija `mid`, sin ningún caso en el corpus."""
+        from nucleo import fixtures as fx
+        from nucleo.medida import cargar as cargar_medida
+        from nucleo.proyecto import macros_del_proyecto
+
+        proy = Proyecto(raiz)
+        medida = cargar_medida(raiz / "catalogos" / "demo" / "demo.alto.oracle",
+                               macros=macros_del_proyecto(proy))
+        (raiz / "diferencial").mkdir(exist_ok=True)
+        (raiz / "emisor.py").write_text("# el generador\n", encoding="utf-8")
+        (raiz / "referencia.py").write_text("# la reimplementación\n", encoding="utf-8")
+        configuracion = {"dominio": "demo"}
+        datos = {
+            "esquema": fx.ESQUEMA_DIFERENCIAL,
+            "origen": "escrito a mano para esta prueba",
+            "mundos": 2,
+            "frescura": {
+                "algoritmo": fx.ALGORITMO_HUELLA,
+                "raiz_fuentes": ".",
+                "configuracion": configuracion,
+                "fuentes": {"emisor": ["emisor.py"], "referencia": ["referencia.py"]},
+                "huellas": {
+                    "catalogo": fx.huella_catalogo([medida]),
+                    "configuracion": fx.huella_datos(configuracion),
+                    "emisor": fx.huella_archivos(raiz, ["emisor.py"]),
+                    "referencia": fx.huella_archivos(raiz, ["referencia.py"]),
+                },
+            },
+            "grupos": {mid: [
+                {"esperado_ok": True,
+                 "evidencia": {"pieza": [{"id": "p1", "alto": 10.0, "yaw": 0.0}]}},
+                {"esperado_ok": False,
+                 "evidencia": {"pieza": [{"id": "p2", "alto": 900.0, "yaw": 0.0}]}},
+            ]},
+        }
+        ruta = raiz / "diferencial" / "demo.json"
+        ruta.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+        self.assertEqual(fx.validar_fixture(datos, "demo.json"), [],
+                         "el fixture de la prueba tiene que ser válido")
+
+    def test_sin_corpus_ni_diferencial_avisa(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            diag = lsp.diagnosticar(proy, ruta, MEDIDA)
+            self.assertEqual([d["message"][:9] for d in diag], ["SIN FIJAR"])
+            self.assertEqual(diag[0]["severity"], 2)
+
+    def test_una_medida_que_fija_solo_un_diferencial_no_sale_sin_fijar(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            proy, ruta = _proyecto(raiz)
+            self.assertTrue(lsp.diagnosticar(proy, ruta, MEDIDA), "control: sin fixture, avisa")
+            self._con_diferencial(raiz, "demo.alto")
+            self.assertEqual(lsp.diagnosticar(Proyecto(raiz), ruta, MEDIDA), [])
+
+    def test_si_el_diferencial_esta_vencido_el_aviso_dice_que_no_lo_pudo_leer(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            proy, ruta = _proyecto(raiz)
+            self._con_diferencial(raiz, "demo.alto")
+            (raiz / "referencia.py").write_text("# otra cosa\n", encoding="utf-8")
+            diag = lsp.diagnosticar(Proyecto(raiz), ruta, MEDIDA)
+            self.assertEqual(len(diag), 1)
+            self.assertIn("no se pudieron leer los diferenciales", diag[0]["message"].lower())
+
+    def test_sin_la_medida_jueza_no_se_inventa_un_veredicto(self) -> None:
+        """Sin jueza no hay aviso. El servidor no tiene una segunda definición de guardia."""
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            with mock.patch.object(lsp, "esta_ejercitada", return_value=(None, True)):
+                self.assertEqual(lsp.diagnosticar(proy, ruta, MEDIDA), [])
+
+
+class LenteSobreLaMedida(unittest.TestCase):
+    """La línea que el editor dibuja arriba de la medida.
+
+    Es la misma vista que `tools/medida.py --listar`, armada con `texto_de_fijacion`: el editor no
+    tiene una segunda opinión sobre cuándo una medida está ejercitada.
+    """
+
+    def test_dice_fijacion_polaridad_y_umbral(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            (proy.corpus / "demo" / "001.caso").write_text(CASO, encoding="utf-8")
+            lente, = lsp.lentes(proy, ruta, MEDIDA)
+            self.assertEqual(lente["command"]["title"],
+                             "1 caso · 1 verde · 0 rojos · umbral <= 0 segun contrato")
+
+    def test_se_ancla_en_la_linea_del_id_y_en_la_columna_cero(self) -> None:
+        """El rango entero, no sólo la línea.
+
+        La columna no la mira ninguno de los dos editores —dibujan el lens sobre la línea y
+        listo—, así que un cambio ahí no rompe nada visible y por eso ningún test lo notaba. Pero
+        el rango es parte de lo que sale por el protocolo, y un tercer cliente sí podría usarlo:
+        el contrato se fija acá en vez de declararlo inobservable.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            lente, = lsp.lentes(proy, ruta, "# un comentario\n\n" + MEDIDA)
+            self.assertEqual(lente["range"], {"start": {"line": 2, "character": 0},
+                                              "end": {"line": 2, "character": 0}})
+
+    def test_una_medida_sin_evidencia_avisa_en_el_lens(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            lente, = lsp.lentes(proy, ruta, MEDIDA)
+            self.assertIn("SIN FIJAR", lente["command"]["title"])
+
+    def _con_casos(self, proy, *etiquetas) -> None:
+        """Escribe un caso por etiqueta, con id propio, todos sobre `demo.alto`."""
+        for i, etiqueta in enumerate(etiquetas):
+            texto = (CASO.replace("etiqueta: verde_correcto", f"etiqueta: {etiqueta}")
+                         .replace("caso 001-alto:", f"caso 00{i + 1}-alto:"))
+            (proy.corpus / "demo" / f"00{i + 1}.caso").write_text(texto, encoding="utf-8")
+
+    def test_singular_y_plural_en_las_dos_polaridades(self) -> None:
+        """El plural se decide por cada conteo por separado. Con un solo caso de cada lado no se
+        distingue una regla correcta de `siempre singular`, así que se prueban las cuatro esquinas."""
+        esperado = {
+            ("verde_correcto",): "1 caso · 1 verde · 0 rojos",
+            ("verde_correcto", "verde_correcto"): "2 casos · 2 verdes · 0 rojos",
+            ("falso_verde",): "1 caso · 0 verdes · 1 rojo",
+            ("verde_correcto", "falso_verde", "falso_rojo"): "3 casos · 1 verde · 2 rojos",
+        }
+        for etiquetas, prefijo in esperado.items():
+            with self.subTest(etiquetas=etiquetas), tempfile.TemporaryDirectory() as td:
+                proy, ruta = _proyecto(Path(td))
+                self._con_casos(proy, *etiquetas)
+                lente, = lsp.lentes(proy, ruta, MEDIDA)
+                self.assertEqual(lente["command"]["title"],
+                                 f"{prefijo} · umbral <= 0 segun contrato")
+
+    def test_sin_ningun_caso_no_dibuja_polaridad(self) -> None:
+        """Cero y cero no se escriben: «0 verdes · 0 rojos» ocupa lugar y no dice nada que
+        «SIN FIJAR» no haya dicho ya."""
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            lente, = lsp.lentes(proy, ruta, MEDIDA)
+            self.assertNotIn("verde", lente["command"]["title"])
+            self.assertNotIn("rojo", lente["command"]["title"])
+
+    def test_una_medida_ilegible_no_dibuja_nada(self) -> None:
+        """El archivo roto ya tiene su diagnóstico; un lens a medias sería ruido encima."""
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto(Path(td))
+            self.assertEqual(lsp.lentes(proy, ruta, "ninguno\n"), [])
+
+    def test_un_caso_no_lleva_lens(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, _ruta = _proyecto(Path(td))
+            caso = proy.corpus / "demo" / "001.caso"
+            caso.write_text(CASO, encoding="utf-8")
+            self.assertEqual(lsp.lentes(proy, caso, CASO), [])
+
+    def test_oracle_no_se_declara_heredero_de_si_mismo(self) -> None:
+        """Cuando Oracle se mide, su catálogo ES el base. Sin restar las propias, todas sus
+        medidas salían «responde Oracle» y el lens no decía nada útil sobre ninguna."""
+        proy = resolver_cli([])
+        ruta = proy.catalogos / "meta" / "meta.donde_compone.oracle"
+        lente, = lsp.lentes(proy, ruta, ruta.read_text(encoding="utf-8"))
+        self.assertNotIn("responde Oracle", lente["command"]["title"])
+        self.assertIn("umbral", lente["command"]["title"])
 
 
 if __name__ == "__main__":
