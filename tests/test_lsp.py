@@ -83,7 +83,7 @@ def _posicion(texto: str, aguja: str) -> dict:
 
 class DiagnosticosTests(unittest.TestCase):
     def test_diagnostico_por_omision_empieza_en_cero(self) -> None:
-        diagnostico = lsp._diagnostico("mal", 1)
+        diagnostico = lsp._diagnostico("ninguno demo.x:", "mal", 1)
         self.assertEqual(diagnostico["severity"], 1)
         self.assertEqual(diagnostico["range"], {
             "start": {"line": 0, "character": 0},
@@ -449,6 +449,65 @@ class ProtocoloTests(unittest.TestCase):
         with mock.patch.object(lsp, "resolver_cli", return_value=None) as resolver:
             self.assertEqual(lsp.main([]), 1)
         resolver.assert_called_once_with([])
+
+
+class RangoConAncho(unittest.TestCase):
+    """Un rango de ancho cero es legal y no se ve. Acá se exige que nunca salga uno.
+
+    El editor recorta la posición contra el fin de la línea, así que un error que
+    señala «acá faltaba algo» al final de una línea produce un rango vacío: se
+    cuenta en la lista de problemas y en la regla lateral, y en el texto no se
+    dibuja nada. Se midió en VS Code sobre `umbral <= 0` —15 caracteres, error en
+    la columna 16— y el subrayado no aparecía.
+    """
+
+    def test_una_columna_dentro_de_la_linea_marca_ese_caracter(self) -> None:
+        rango = lsp._rango("de pieza p\ndonde p.oz > 4\n", 2, 7)
+        self.assertEqual(rango, {"start": {"line": 1, "character": 6},
+                                 "end": {"line": 1, "character": 7}})
+
+    def test_una_columna_pasada_del_fin_marca_la_linea_sin_sangria(self) -> None:
+        texto = 'ninguno aula.rota:\n    umbral <= 0\n'
+        rango = lsp._rango(texto, 2, 16)
+        self.assertEqual(rango, {"start": {"line": 1, "character": 4},
+                                 "end": {"line": 1, "character": 15}})
+
+    def test_sobre_una_linea_en_blanco_sube_a_la_ultima_con_contenido(self) -> None:
+        texto = "ninguno demo.x:\n    de pieza p\n\n\n"
+        rango = lsp._rango(texto, 4, 1)
+        self.assertEqual(rango, {"start": {"line": 1, "character": 4},
+                                 "end": {"line": 1, "character": 14}})
+
+    def test_una_linea_mas_alla_del_final_no_revienta(self) -> None:
+        rango = lsp._rango("de pieza p\n", 99, 99)
+        self.assertEqual(rango["start"]["line"], 0)
+        self.assertGreater(rango["end"]["character"], rango["start"]["character"])
+
+    def test_un_archivo_vacio_da_un_rango_de_ancho_uno(self) -> None:
+        rango = lsp._rango("", 1, 1)
+        self.assertEqual(rango, {"start": {"line": 0, "character": 0},
+                                 "end": {"line": 0, "character": 1}})
+
+    def test_ningun_diagnostico_del_servidor_sale_con_ancho_cero(self) -> None:
+        rotas = [
+            'ninguno aula.rota:\n    de pieza p\n    donde p.oz > 400.0\n'
+            '    umbral <= 0\n    alcance "no ve la malla"\n',
+            "ninguno\n",
+            'ninguno demo.x:\n    de pieza p\n    umbral <= 0 segun contrato\n',
+        ]
+        with tempfile.TemporaryDirectory() as tmp:
+            proy, _r = _proyecto(Path(tmp))
+            for i, texto in enumerate(rotas):
+                ruta = proy.catalogos / "demo" / f"rota{i}.oracle"
+                with self.subTest(medida=i):
+                    diagnosticos = lsp.diagnosticar(proy, ruta, texto)
+                    self.assertTrue(diagnosticos, "esta medida tenía que fallar")
+                    for d in diagnosticos:
+                        inicio, fin = d["range"]["start"], d["range"]["end"]
+                        self.assertGreater(
+                            (fin["line"], fin["character"]),
+                            (inicio["line"], inicio["character"]),
+                            f"rango vacío: {d}")
 
 
 if __name__ == "__main__":
