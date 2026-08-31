@@ -1,8 +1,9 @@
-"""Servidor LSP mínimo de Oracle: publica diagnósticos por stdio."""
+"""Servidor LSP mínimo de Oracle: publica diagnósticos y completado por stdio."""
 
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
@@ -10,12 +11,15 @@ from urllib.parse import unquote, urlsplit
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
-from nucleo.caso import CasoMalDeclarado, cargar_casos, leer as leer_caso  # noqa: E402
-from nucleo.medida import Medida, MedidaMalDeclarada  # noqa: E402
-from nucleo.proyecto import Proyecto, macros_del_proyecto  # noqa: E402
-from nucleo.sintaxis import ErrorSintaxis, leer_con_mapa  # noqa: E402
+from nucleo.caso import (DETECCIONES, ETIQUETAS, PROCEDENCIAS, CasoMalDeclarado,  # noqa: E402
+                         cargar_casos, leer as leer_caso)
+from nucleo.medida import (ORIGENES_DE_UMBRAL, Medida, MedidaMalDeclarada,  # noqa: E402
+                           cargar_catalogo)
+from nucleo.proyecto import (Proyecto, catalogos_a_cargar, macros_del_proyecto,  # noqa: E402
+                             relaciones_del_proyecto)
+from nucleo.sintaxis import IDENT_RE, ErrorSintaxis, leer_con_mapa  # noqa: E402
 from nucleo.version import exigir_sintaxis_compatible  # noqa: E402
-from tools.medida import _evaluadas_aparte  # noqa: E402
+from tools.medida import _evaluadas_aparte, relaciones_por_alias  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
 ERROR = 1
@@ -68,6 +72,103 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
         return [_diagnostico(str(e), ERROR)]
 
 
+def _contexto(texto: str, posicion: dict) -> tuple[str, int]:
+    """Prefijo de línea e índice Python; LSP cuenta UTF-16, no puntos de código."""
+    lineas = texto.split("\n")
+    numero = posicion["line"]
+    linea = lineas[numero]
+    unidades = posicion["character"]
+    usadas = 0
+    columna = 0
+    while usadas < unidades:
+        usadas += 2 if ord(linea[columna]) > 0xFFFF else 1
+        columna += 1
+    if usadas != unidades:
+        raise ValueError("la posición LSP parte un carácter UTF-16")
+    indice = sum(len(anterior) + 1 for anterior in lineas[:numero]) + columna
+    return linea[:columna], indice
+
+
+def _items(valores) -> list[dict]:
+    return [{"label": valor} for valor in sorted(valores)]
+
+
+def _es_contexto(prefijo: str, clave: str) -> bool:
+    return re.fullmatch(rf"\s*{re.escape(clave)}:\s*\S*", prefijo) is not None
+
+
+def _datos_de_medida_incompleta(proy: Proyecto, texto: str, indice: int,
+                                campo_parcial: str) -> list | None:
+    insercion = "campo_completado" if not campo_parcial else ""
+    candidato = texto[:indice] + insercion + texto[indice:]
+    try:
+        macros = macros_del_proyecto(proy)
+        lectura = leer_con_mapa(candidato, macros=macros)
+        exigir_sintaxis_compatible(lectura.version)
+        return Medida.de_datos(lectura.datos, macros=macros).a_datos()
+    except (ErrorSintaxis, MedidaMalDeclarada, ValueError):
+        return None
+
+
+def completar(proy: Proyecto, ruta: Path, texto: str, posicion: dict) -> list[dict]:
+    prefijo, indice = _contexto(texto, posicion)
+
+    # La prosa es una decisión humana. Tiene prioridad sobre cualquier palabra que aparezca dentro.
+    if re.match(r"\s*alcance\b", prefijo):
+        return []
+    if re.search(r"(?:^|\s)porque(?:\s|$)", prefijo):
+        return []
+
+    if ruta.suffix == ".caso":
+        for clave, valores in (
+            ("etiqueta", ETIQUETAS),
+            ("procedencia", PROCEDENCIAS),
+            ("como_se_detecto", DETECCIONES),
+        ):
+            if _es_contexto(prefijo, clave):
+                return _items(valores)
+        if _es_contexto(prefijo, "medida"):
+            try:
+                catalogo = cargar_catalogo(
+                    catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
+            except (MedidaMalDeclarada, ValueError, OSError):
+                return []
+            return _items(catalogo)
+        return []
+
+    if ruta.suffix != ".oracle":
+        return []
+    if re.fullmatch(r"\s*umbral\b.*\bsegun\s+\S*", prefijo):
+        return _items(ORIGENES_DE_UMBRAL)
+    if re.fullmatch(r"\s*(?:de|unir)\s+\S*", prefijo):
+        try:
+            relaciones = relaciones_del_proyecto(proy)
+        except (ValueError, OSError):
+            return []
+        return [
+            {"label": nombre, "documentation": relacion.alcance}
+            for nombre, relacion in sorted(relaciones.items())
+        ]
+
+    campo = re.search(rf"({IDENT_RE.pattern})\.(\S*)$", prefijo)
+    if campo is None:
+        return []
+    datos = _datos_de_medida_incompleta(proy, texto, indice, campo.group(2))
+    if datos is None:
+        return []
+    relacion_nombre = relaciones_por_alias(datos).get(campo.group(1))
+    try:
+        relacion = relaciones_del_proyecto(proy).get(relacion_nombre)
+    except (ValueError, OSError):
+        return []
+    if relacion is None:
+        return []
+    return [
+        {"label": c.nombre, "detail": f"{c.tipo} · {c.unidad}"}
+        for c in relacion.campos
+    ]
+
+
 def _ruta_de_uri(uri: str) -> Path:
     partes = urlsplit(uri)
     if partes.scheme != "file" or partes.netloc not in ("", "localhost"):
@@ -110,6 +211,7 @@ class Servidor:
         self.proy = proy
         self.salida = salida
         self.apagado = False
+        self.documentos: dict[str, str] = {}
 
     def _respuesta(self, mensaje: dict, resultado) -> None:
         _enviar(self.salida, {"jsonrpc": "2.0", "id": mensaje["id"], "result": resultado})
@@ -129,6 +231,7 @@ class Servidor:
         if metodo == "initialize":
             self._respuesta(mensaje, {"capabilities": {
                 "textDocumentSync": {"openClose": True, "change": 1},
+                "completionProvider": {"triggerCharacters": ["."]},
             }})
         elif metodo == "shutdown":
             self.apagado = True
@@ -137,6 +240,7 @@ class Servidor:
             return False
         elif metodo == "textDocument/didOpen":
             documento = mensaje["params"]["textDocument"]
+            self.documentos[documento["uri"]] = documento["text"]
             self._publicar(documento["uri"], documento["text"], documento.get("version"))
         elif metodo == "textDocument/didChange":
             params = mensaje["params"]
@@ -144,9 +248,19 @@ class Servidor:
             if len(cambios) != 1 or set(cambios[0]) != {"text"}:
                 raise ValueError("didChange requiere un único cambio de texto completo")
             documento = params["textDocument"]
+            self.documentos[documento["uri"]] = cambios[0]["text"]
             self._publicar(documento["uri"], cambios[0]["text"], documento.get("version"))
         elif metodo == "textDocument/didClose":
-            self._publicar(mensaje["params"]["textDocument"]["uri"], None)
+            uri = mensaje["params"]["textDocument"]["uri"]
+            self.documentos.pop(uri, None)
+            self._publicar(uri, None)
+        elif metodo == "textDocument/completion":
+            params = mensaje["params"]
+            uri = params["textDocument"]["uri"]
+            texto = self.documentos.get(uri)
+            resultado = ([] if texto is None else completar(
+                self.proy, _ruta_de_uri(uri), texto, params["position"]))
+            self._respuesta(mensaje, resultado)
         elif "id" in mensaje:
             _enviar(self.salida, {
                 "jsonrpc": "2.0", "id": mensaje["id"],
