@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import dataclasses
 import io
 import json
 import shutil
@@ -18,6 +19,9 @@ from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture
 from nucleo.macro import EXTENSIONES_DE_MACRO
 from nucleo.medida import Medida
 from nucleo import algebra
+from nucleo.medida import cargar as cargar_medida
+from nucleo.proyecto import macros_del_proyecto
+from tools import medida as medida_cli
 from nucleo.proyecto import (ConfiguracionProyecto, EscalaresInvalidas, Proyecto, ProyectoInvalido,
                              configuracion, escalares_del_proyecto, sin_bandera)
 
@@ -258,6 +262,134 @@ class ContratoDiferencialTests(unittest.TestCase):
         comparacion = comparar_dominio(datos, permutado)
         self.assertEqual(comparacion["desacuerdos_globales"], [])
         self.assertEqual(len(comparacion["cambios_individuales"]), 4)
+
+
+class TextoDeFijacion(unittest.TestCase):
+    """La línea que dice qué pone a prueba a una medida: una sola, para `--listar` y el editor.
+
+    Antes esa decisión estaba escrita tres veces —acá, en `tools/lsp.py` y en `tools/medida.py`—
+    y las tres compartían el mismo punto ciego: contaban sólo el corpus, no los fixtures
+    diferenciales que `tools/mutar.py` suma al listado. Una medida fijada por un diferencial
+    salía «SIN FIJAR» en las dos herramientas de auditoría y verde en la aceptación.
+    """
+
+    def _ejercicio(self, **cambios):
+        base = dict(sin_ejercitar=frozenset(), casos_por_medida={}, polaridad_por_medida={},
+                    heredadas=frozenset(), aparte=frozenset(), completa=True, hubo_jueza=True)
+        return medida_cli.Ejercicio(**{**base, **cambios})
+
+    def test_una_heredada_dice_de_quien_responde(self) -> None:
+        ej = self._ejercicio(heredadas=frozenset({"meta.x"}), sin_ejercitar=frozenset({"meta.x"}))
+        self.assertEqual(medida_cli.texto_de_fijacion("meta.x", ej), "responde Oracle")
+
+    def test_la_heredada_gana_aunque_no_la_ejercite_nadie(self) -> None:
+        """Pedirle casos al consumidor por una medida que no escribió es el falso rojo que esto evita."""
+        ej = self._ejercicio(heredadas=frozenset({"meta.x"}), sin_ejercitar=frozenset({"meta.x"}),
+                             completa=False)
+        self.assertEqual(medida_cli.texto_de_fijacion("meta.x", ej), "responde Oracle")
+
+    def test_cuenta_en_singular_y_en_plural(self) -> None:
+        self.assertEqual(medida_cli.texto_de_fijacion("d.a", self._ejercicio(
+            casos_por_medida={"d.a": 1})), "1 caso")
+        self.assertEqual(medida_cli.texto_de_fijacion("d.a", self._ejercicio(
+            casos_por_medida={"d.a": 3})), "3 casos")
+
+    def test_la_que_ejercita_el_arnes_no_sale_sin_fijar(self) -> None:
+        ej = self._ejercicio(aparte=frozenset({"meta.x"}))
+        self.assertIn("la ejercita el arnés", medida_cli.texto_de_fijacion("meta.x", ej))
+
+    def test_sin_evidencia_completa_el_aviso_dice_que_no_lo_pudo_leer(self) -> None:
+        ej = self._ejercicio(sin_ejercitar=frozenset({"d.a"}), completa=False)
+        texto = medida_cli.texto_de_fijacion("d.a", ej)
+        self.assertIn("SIN FIJAR", texto)
+        self.assertIn("no se pudieron leer", texto.lower())
+
+    def test_sin_jueza_no_se_inventa_un_veredicto(self) -> None:
+        """Sin la medida que define «ejercitada» no hay aviso: no hay una segunda definición."""
+        ej = self._ejercicio(hubo_jueza=False)
+        self.assertEqual(medida_cli.texto_de_fijacion("d.a", ej), "0 casos")
+
+    def test_el_conteo_no_decide_el_veredicto(self) -> None:
+        """Cero casos y ejercitada igual: es lo que pasa con una medida que fija un diferencial.
+
+        Si esta línea volviera a mirar el conteo en vez del veredicto, este caso se rompe.
+        """
+        self.assertEqual(medida_cli.texto_de_fijacion("d.a", self._ejercicio()), "0 casos")
+
+
+_MEDIDA_DEMO = """\
+ninguno demo.alto:
+    de pieza p
+    donde p.alto > 400
+    umbral <= 0 segun contrato porque "cuatro metros"
+    alcance "no mira la malla"
+"""
+
+
+def _proyecto_con_medida(raiz: Path):
+    """Un proyecto mínimo pero válido: una medida, sus relaciones y las carpetas que se exigen."""
+    (raiz / "catalogos" / "demo").mkdir(parents=True)
+    (raiz / "corpus" / "demo").mkdir(parents=True)
+    (raiz / "diferencial").mkdir()
+    (raiz / "relaciones").mkdir()
+    (raiz / "relaciones" / "pieza.json").write_text(json.dumps([
+        "relacion", "pieza", ["campos",
+            ["campo", "id", "texto", "sin_unidad"],
+            ["campo", "alto", "flotante", "cm"]],
+        ["alcance", "NO lee la malla"],
+    ]), encoding="utf-8")
+    ruta = raiz / "catalogos" / "demo" / "demo.alto.oracle"
+    ruta.write_text(_MEDIDA_DEMO, encoding="utf-8")
+    return Proyecto(raiz), ruta
+
+
+class EvidenciaDelEjercicio(unittest.TestCase):
+    """Las piezas que reúnen la evidencia con la que se juzga si una medida está ejercitada.
+
+    Cada prueba de acá nació de un mutante que sobrevivió: son los cálculos que el código hacía
+    y nada miraba.
+    """
+
+    def test_solo_cuenta_archivos_de_medida(self) -> None:
+        """`_ids_en` lee ids del nombre; un README o un .pyc en el catálogo no es una medida."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            for nombre in ("demo.alto.oracle", "demo.ancho.json", "LEEME.md", "notas.txt"):
+                (raiz / nombre).write_text("", encoding="utf-8")
+            self.assertEqual(medida_cli._ids_en([raiz]), {"demo.alto", "demo.ancho"})
+
+    def test_un_directorio_que_no_existe_no_revienta(self) -> None:
+        self.assertEqual(medida_cli._ids_en([Path("/no/existe")]), set())
+
+    def test_el_ejercicio_no_se_puede_modificar_despues(self) -> None:
+        """Es una foto de la evidencia. Si un consumidor pudiera editarla, dos vistas del mismo
+        catálogo podrían discrepar sin que nada lo notara."""
+        ej = medida_cli.Ejercicio(frozenset(), {}, {}, frozenset(), frozenset(), True, True)
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            ej.completa = False
+
+    def test_si_el_catalogo_no_carga_la_evidencia_no_es_completa(self) -> None:
+        """Cargar el catálogo entero puede exigir ejecutar `escalares.py` del proyecto, y el
+        editor no lo hace nunca. Sin catálogo no se pueden leer los diferenciales, así que el
+        juicio se emite con menos con qué — y tiene que decirlo."""
+        with tempfile.TemporaryDirectory() as td:
+            proy, _ruta = _proyecto_con_medida(Path(td))
+            with mock.patch.object(medida_cli, "_catalogo_completo", return_value=None):
+                ej = medida_cli.ejercicio_del_catalogo(
+                    proy, {}, macros_del_proyecto(proy))
+            self.assertFalse(ej.completa)
+
+    def test_sin_jueza_devuelve_dos_valores_y_no_un_veredicto(self) -> None:
+        """Sin la medida que define «ejercitada» no hay respuesta que dar, pero el contrato de
+        la función sigue siendo un par: quien la llama desempaqueta dos cosas."""
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta = _proyecto_con_medida(Path(td))
+            m = cargar_medida(ruta, macros=macros_del_proyecto(proy))
+            with mock.patch.object(medida_cli, "_jueza_del_ejercicio", return_value=None):
+                ejercitada, completa = medida_cli.esta_ejercitada(
+                    proy, m, macros_del_proyecto(proy))
+            self.assertIsNone(ejercitada)
+            self.assertIsInstance(completa, bool)
 
 
 class HerramientasCLITests(unittest.TestCase):
