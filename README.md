@@ -39,32 +39,34 @@ aconsejan.
 
 ## Instalación
 
-Requiere Python 3.11 o posterior y no tiene dependencias de runtime. La forma principal de dejar el
-comando accesible desde cualquier directorio es:
+Requiere Python 3.11 o posterior y **no tiene dependencias**: se instala offline, desde un archivo,
+sin nada que resolver.
 
 ```bash
-uv tool install .
+pip install oracle-metalenguaje
 oracle --help
 ```
 
-Para probar el comando sin instalarlo:
-
-```bash
-uvx --from . oracle --help
-```
-
-Si no tenés `uv`, la alternativa editable es:
-
-```bash
-python -m pip install -e .
-oracle --help
-```
-
-Una vez instalado, el flujo normal de un proyecto externo no necesita rutas al checkout:
+Instala nueve comandos —`oracle`, `oracle-lsp`, `oracle-mutar`…— y el catálogo base viaja adentro,
+así que un proyecto nuevo ya tiene quién lo juzgue:
 
 ```bash
 oracle init <tu-proyecto>
-oracle test --proyecto <tu-proyecto> --confiar-escalares
+cd <tu-proyecto>
+oracle nueva <dominio.nombre>
+oracle test
+```
+
+`--confiar-escalares` hace falta sólo si tu proyecto declara funciones propias en `escalares.py`;
+sin esa bandera, Oracle no ejecuta código de nadie.
+
+### Desde el repositorio
+
+Para trabajar sobre el checkout —o para tomar algo que todavía no salió en un release—:
+
+```bash
+uv tool install .          # o: python -m pip install -e .
+uvx --from . oracle --help # probarlo sin instalar nada
 ```
 
 ## La esencia, mirada de cerca

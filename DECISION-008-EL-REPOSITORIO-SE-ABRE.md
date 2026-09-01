@@ -56,10 +56,15 @@ justamente lo que Oracle sostiene que hay que conservar—.
   que está terminado.
 - La licencia ya era MIT y no cambia.
 
-## PyPI: se publica el mismo día
+## PyPI: se publicó el mismo día
 
-`0.2.0` se sube a PyPI como **`oracle-metalenguaje`** —el nombre que el paquete ya declara, libre
-al 2026-08-31— el mismo día que se abre el repositorio.
+**Hecho el 2026-08-31**: `0.2.0` está en PyPI como **`oracle-metalenguaje`**, el mismo día que se
+abrió el repositorio. `pip install oracle-metalenguaje` funciona.
+
+Se ensayó antes en `test.pypi.org` y se instaló desde ahí en entornos limpios —wheel y sdist— para
+comprobar que el paquete sirve y no sólo que la subida anda. Ahí apareció que el sdist no compila
+contra TestPyPI solo, porque `pip` busca `setuptools` en ese índice y no está; con
+`--extra-index-url https://pypi.org/simple/` funciona, y en PyPI real no ocurre.
 
 Se evaluó `segtem-oracle` (también libre, igual que `segtem` y `oracle-segtem`) y se descartó:
 cambiar el nombre obliga a tocar `pyproject.toml` sin ganar nada. `oracle` a secas está ocupado.

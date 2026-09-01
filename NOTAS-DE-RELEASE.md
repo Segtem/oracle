@@ -125,11 +125,12 @@ debería necesitar. El camino está en `PLAN-LENGUAJE.md`.
 ## Instalación
 
 ```bash
-pip install git+https://github.com/Segtem/oracle.git
-# o, sin red, desde el archivo adjunto a este release:
-pip install oracle_metalenguaje-0.2.0-py3-none-any.whl
+pip install oracle-metalenguaje
 
 oracle init mi-proyecto
 ```
+
+También desde el repositorio (`pip install git+https://github.com/Segtem/oracle.git`) o, sin red,
+desde el `.whl` adjunto a este release.
 
 Python ≥ 3.11. **Sin dependencias** — se instala offline, desde el archivo.
