@@ -1,0 +1,40 @@
+{
+    "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+    "name": "Oracle",
+    "scopeName": "source.oracle",
+    "fileTypes": ["oracle", "caso"],
+    "patterns": [
+        { "match": "#.*$", "name": "comment.line.number-sign.oracle" },
+
+        { "comment": "Encabezado: `ninguno dominio.nombre:` — la forma y el id de la medida",
+          "match": "^(medida|ninguno|ninguno-par|ninguno-requiere|peor|defmacro|caso|relacion)\\s+([\\w.-]+)",
+          "captures": {
+            "1": { "name": "storage.type.oracle" },
+            "2": { "name": "entity.name.function.oracle" } } },
+
+        { "comment": "Los cinco operadores del álgebra, más las cláusulas obligatorias",
+          "match": "^\\s*(de|donde|unir|agrupar|resumen|umbral|requiere|alcance|clave|agregado|evidencia|leccion|sintoma|origen|titulo)\\b",
+          "name": "keyword.control.oracle" },
+
+        { "comment": "`porque` y `segun` viajan dentro de la línea del umbral",
+          "match": "\\b(porque|segun)\\b", "name": "keyword.control.oracle" },
+
+        { "comment": "Conjuntos cerrados: si escribís uno que no existe, no se pinta",
+          "match": "\\b(medicion|contrato|convencion|tanteo|observada|construida|generada|sin_declarar|falso_verde|falso_rojo|verde_correcto|deuda_de_dise\u00f1o|medida_correcta_conclusion_errada|mutacion|persona|accidente|herramienta_ajena|observacion|sin_unidad|adimensional)\\b",
+          "name": "constant.language.oracle" },
+
+        { "match": "\\b(contar|suma|max|min|promedio)\\b", "name": "support.function.oracle" },
+
+        { "comment": "Acceso a campo: el alias apagado, el campo encendido",
+          "match": "\\b([a-z_][\\w]*)\\.([a-z_][\\w]*)\\b",
+          "captures": { "1": { "name": "variable.parameter.oracle" },
+                        "2": { "name": "variable.other.property.oracle" } } },
+
+        { "match": "\\$[\\w]+", "name": "variable.language.oracle" },
+        { "begin": "\"", "end": "\"", "name": "string.quoted.double.oracle",
+          "patterns": [{ "match": "`[^`]*`", "name": "markup.inline.raw.oracle" }] },
+        { "match": "\\b\\d+(\\.\\d+)?\\b", "name": "constant.numeric.oracle" },
+        { "match": "(<=|>=|==|!=|<|>)", "name": "keyword.operator.comparison.oracle" },
+        { "match": "\\b(y|o|no|true|false|null)\\b", "name": "keyword.other.oracle" }
+    ]
+}
