@@ -91,13 +91,39 @@
   .codigo { margin: 0; font-family: var(--mono); font-size: clamp(13px, 1.5vw, 16px);
             line-height: 1.95; white-space: pre; overflow-x: auto; }
   .kw { color: var(--acento-claro); font-weight: 700; }
-  .anot { display: block; }
-  .anot .nota { display: inline-block; font-family: 'Archivo', sans-serif;
-                font-size: 13px; line-height: 1.35; color: oklch(0.72 0.02 95);
-                border-left: 2px solid var(--acento-claro); padding-left: 10px;
-                margin-left: 14px; white-space: normal; max-width: 44ch;
-                vertical-align: middle; }
-  @media (max-width: 900px) { .anot .nota { display: block; margin: 4px 0 14px 22px; } }
+  .txt { color: oklch(0.80 0.11 150); }
+  .num { color: oklch(0.84 0.14 90); }
+
+  /* ---- el editor ---- */
+  .editor { border: 1px solid oklch(0.96 0.004 95 / 0.22); background: oklch(0.135 0 0);
+            max-width: 78ch; }
+  .pestana { display: flex; align-items: center; gap: 9px; padding: 9px 14px;
+             background: oklch(0.20 0 0);
+             border-bottom: 1px solid oklch(0.96 0.004 95 / 0.16);
+             font-family: var(--mono); font-size: 12px; color: oklch(0.80 0.01 95); }
+  .pestana .punto { width: 8px; height: 8px; border-radius: 50%;
+                    background: var(--acento-claro); flex: 0 0 auto; }
+  .lens { padding: 7px 14px 0 calc(14px + 3.2ch);
+          font-family: var(--mono); font-size: 12.5px; font-style: italic;
+          color: oklch(0.60 0.02 95); }
+  /* El bloque entero scrollea, no cada línea por su cuenta: con `overflow` en cada fila
+     la línea larga del `porque` se cortaba sola y el resto quedaba quieto. */
+  .lineas { display: grid; grid-template-columns: 3.2ch max-content;
+            padding: 2px 14px 14px; overflow-x: auto; }
+  .lineas > .ln { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
+                  line-height: 1.85; color: oklch(0.44 0.01 95);
+                  text-align: right; padding-right: 1.4ch; user-select: none; }
+  .lineas > .cod { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
+                   line-height: 1.85; white-space: pre; color: oklch(0.92 0.008 95); }
+
+  .leyenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+             gap: 14px 34px; margin: 26px 0 0; padding: 0; list-style: none; max-width: 96ch; }
+  .leyenda li { display: flex; gap: 12px; font-size: 15px; line-height: 1.45;
+                color: oklch(0.80 0.01 95); }
+  .leyenda .ancla { font-family: var(--mono); font-size: 12px; color: var(--acento-claro);
+                    flex: 0 0 auto; padding-top: 2px; min-width: 8.5ch; }
+  .leyenda strong { color: var(--papel); }
+  @media (max-width: 860px) { .leyenda { grid-template-columns: 1fr; } }
 
   .veredicto { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 15px);
                line-height: 1.9; white-space: pre; overflow-x: auto; margin: 0; }
@@ -190,18 +216,37 @@
 </section>
 
 <section id="medida" class="fila pad oscuro">
-  <p class="mono-eti" style="color: oklch(0.70 0.02 95);">una medida, entera — y qué dice cada línea</p>
-  <pre class="codigo"><span class="anot"><span class="kw">ninguno</span> documento.nombre_sigue_la_convencion:<span class="nota"><strong>ninguno</strong> es una macro: cuenta las filas que quedan y exige cero.</span></span>
-    <span class="anot"><span class="kw">de</span> documento d<span class="nota">La relación de la que salen las filas, con un alias.</span></span>
-    <span class="anot"><span class="kw">donde</span> d.sigue_convencion == false<span class="nota">El filtro. Lo que queda después de esto son los <strong>testigos</strong>.</span></span>
-    <span class="anot"><span class="kw">umbral</span> &lt;= 0 <span class="kw">segun</span> contrato <span class="kw">porque</span> "…"<span class="nota"><strong>segun</strong> dice de dónde salió el número: medicion, contrato, convencion o tanteo. Obligatorio.</span></span>
-    <span class="anot"><span class="kw">alcance</span> "no ve el contenido, sólo el nombre"<span class="nota">Qué <strong>no</strong> mira. Obligatorio, y en prosa: sin esto una medida se lee como si lo viera todo.</span></span></pre>
-  <p class="cuerpo" style="margin-top:24px; color: oklch(0.78 0.01 95); max-width: 78ch;">
-    Eso es un archivo <code style="font-size:0.9em">.oracle</code> completo. No hay clase que heredar
-    ni función que registrar: el catálogo lo carga tal cual, y
-    <strong style="color: var(--papel)">cargar una medida nunca ejecuta Python</strong>. Por eso se
-    puede auditar un catálogo ajeno sin correrlo.
+  <p class="mono-eti" style="color: oklch(0.70 0.02 95);">una medida, entera — así se ve en el editor</p>
+
+  <div class="editor">
+    <div class="pestana">
+      <span class="punto" aria-hidden="true"></span>
+      documento.nombre_sigue_la_convencion.oracle
+    </div>
+    <div class="lens">3 casos · 1 verde · 2 rojos · umbral &lt;= 0 segun contrato</div>
+    <div class="lineas">
+      <span class="ln">1</span><span class="cod"><span class="kw">ninguno</span> documento.nombre_sigue_la_convencion:</span>
+      <span class="ln">2</span><span class="cod">    <span class="kw">de</span> documento d</span>
+      <span class="ln">3</span><span class="cod">    <span class="kw">donde</span> d.sigue_convencion == <span class="num">false</span></span>
+      <span class="ln">4</span><span class="cod">    <span class="kw">umbral</span> &lt;= <span class="num">0</span> <span class="kw">segun</span> contrato <span class="kw">porque</span> <span class="txt">"un nombre fuera de convención rompe el índice"</span></span>
+      <span class="ln">5</span><span class="cod">    <span class="kw">alcance</span> <span class="txt">"no ve el contenido del documento, sólo su nombre"</span></span>
+    </div>
+  </div>
+
+  <p class="cuerpo" style="margin-top:22px; color: oklch(0.78 0.01 95); max-width: 78ch;">
+    La línea gris de arriba no la escribió nadie: la pone el editor. Dice qué evidencia pone a
+    prueba esa medida —y avisa <strong style="color:var(--acento-claro)">SIN FIJAR</strong> cuando
+    no la pone a prueba ninguna. Es el mismo servidor LSP en Emacs y en VS Code.
   </p>
+
+  <ul class="leyenda">
+    <li><span class="ancla">línea 1</span><span><strong>ninguno</strong> es una macro: cuenta las filas que quedan y exige cero.</span></li>
+    <li><span class="ancla">línea 2</span><span><strong>de</strong> nombra la relación de la que salen las filas, con un alias.</span></li>
+    <li><span class="ancla">línea 3</span><span><strong>donde</strong> filtra. Lo que queda después de esto son los <strong>testigos</strong>.</span></li>
+    <li><span class="ancla">línea 4</span><span><strong>segun</strong> dice de dónde salió el número: <em>medicion</em>, <em>contrato</em>, <em>convencion</em> o <em>tanteo</em>. Obligatorio.</span></li>
+    <li><span class="ancla">línea 5</span><span><strong>alcance</strong> es qué <strong>no</strong> mira. Obligatorio y en prosa: sin esto una medida se lee como si lo viera todo.</span></li>
+    <li><span class="ancla">todo</span><span>Es un archivo <code style="font-size:0.88em">.oracle</code> completo. <strong>Cargar una medida nunca ejecuta Python</strong>, así que se puede auditar un catálogo ajeno sin correrlo.</span></li>
+  </ul>
 </section>
 
 <section class="fila g12">
