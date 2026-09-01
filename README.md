@@ -1,5 +1,11 @@
 # oracle
 
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.2.0](https://github.com/Segtem/oracle/releases/tag/v0.2.0)
+
+```bash
+pip install oracle-metalenguaje
+```
+
 **Un modo de estructurar el problema de construir herramientas con un LLM.**
 
 No es una biblioteca de verificadores. Es un lenguaje para enunciar *medidas* sobre lo que un
