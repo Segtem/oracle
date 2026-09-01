@@ -7,6 +7,7 @@ import io
 import json
 import shutil
 import subprocess
+import os
 import sys
 import tempfile
 import unittest
@@ -1485,6 +1486,207 @@ class VersionDeLaReferencia(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AceptacionCuentaYReporta(unittest.TestCase):
+    """Lo que `aceptacion.py` custodia por su cuenta: qué cuenta, cómo clasifica y qué devuelve.
+
+    Este módulo estuvo FUERA del perfil de mutación hasta el 2026-09-01. Cuando entró, su primera
+    ronda dejó 17 sobrevivientes en este código de reporte: nada observaba los conteos de rojos y
+    verdes, la clasificación de huecos, ni los códigos de salida. Un veredicto sobre el veredicto
+    es dato como cualquier otro; que nadie lo mirara es justo el defecto que este proyecto persigue.
+    """
+
+    CASO = """\
+caso {cid}:
+    fecha: "2026-09-01"
+    origen:
+        repo: "prueba"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "{titulo}"
+    etiqueta: {etiqueta}
+    sintoma:
+        {titulo}
+    como_se_detecto: observacion
+    medida: demo.item_malo
+    evidencia:
+        item: id, mal
+            "a", {mal}
+    leccion:
+        Sin este caso la medida no se ejerce.
+"""
+
+    HUECO = """\
+caso {cid}:
+    fecha: "2026-09-01"
+    origen:
+        repo: "prueba"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un hueco declarado"
+    etiqueta: deuda_de_diseño
+    sintoma:
+        Todavía no hay medida para esto.
+    como_se_detecto: observacion
+    medida: null
+    estado_sin_medida: {estado}
+    sin_medida_todavia:
+        {texto}
+    evidencia:
+        item: id, mal
+            "a", true
+    leccion:
+        Queda anotado.
+"""
+
+    def _proyecto(self, raiz: Path, casos=(), huecos=()):
+        from nucleo.proyecto import Proyecto
+        (raiz / "catalogos" / "demo").mkdir(parents=True)
+        (raiz / "corpus" / "demo").mkdir(parents=True)
+        (raiz / "relaciones").mkdir()
+        (raiz / "relaciones" / "item.json").write_text(json.dumps([
+            "relacion", "item",
+            ["campos", ["campo", "id", "texto", "sin_unidad"],
+             ["campo", "mal", "booleano", "sin_unidad"]],
+            ["alcance", "NO dice por qué un item está mal"],
+        ]), encoding="utf-8")
+        (raiz / "catalogos" / "demo" / "demo.item_malo.oracle").write_text(
+            'ninguno demo.item_malo:\n'
+            '    de item i\n'
+            '    donde i.mal == true\n'
+            '    umbral <= 0 segun contrato porque "ningun item malo pasa"\n'
+            '    alcance "NO ve campos distintos de mal"\n', encoding="utf-8")
+        for cid, etiqueta, mal, titulo in casos:
+            (raiz / "corpus" / "demo" / f"{cid}.caso").write_text(
+                self.CASO.format(cid=cid, etiqueta=etiqueta, mal=mal, titulo=titulo),
+                encoding="utf-8")
+        for cid, estado, texto in huecos:
+            (raiz / "corpus" / "demo" / f"{cid}.caso").write_text(
+                self.HUECO.format(cid=cid, estado=estado, texto=texto), encoding="utf-8")
+        (raiz / "oracle.json").write_text(json.dumps(
+            {"esquema": "oracle.proyecto/v1"}), encoding="utf-8")
+        return Proyecto(raiz)
+
+    def _correr(self, proy):
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            rc = aceptacion._ejecutar(proy)
+        return rc, salida.getvalue()
+
+    def test_un_proyecto_sin_estructura_devuelve_uno(self) -> None:
+        from nucleo.proyecto import Proyecto
+        with tempfile.TemporaryDirectory() as td:
+            rc, salida = self._correr(Proyecto(Path(td)))
+        self.assertEqual(rc, 1)
+        self.assertIn("PROYECTO INVÁLIDO", salida)
+
+    def test_un_corpus_vacio_devuelve_uno_y_no_juzga(self) -> None:
+        """Un corpus vacío no puede poner a prueba nada: sale 1, no 0."""
+        with tempfile.TemporaryDirectory() as td:
+            rc, salida = self._correr(self._proyecto(Path(td)))
+        self.assertEqual(rc, 1)
+        self.assertIn("SIN CASOS", salida)
+
+    def test_cuenta_rojos_y_verdes_por_separado(self) -> None:
+        """Los contadores arrancan en cero y suman de a uno. Con `+= 2` o arrancando en 1, la
+        línea publicada miente sobre cuánto se ejerció el catálogo."""
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), casos=(
+                ("001", "falso_verde", "true", "un item malo la pone roja"),
+                ("002", "verde_correcto", "false", "sin items malos queda verde"),
+                ("003", "verde_correcto", "false", "otro lote limpio"),
+            ))
+            _rc, salida = self._correr(proy)
+        self.assertIn("defectos que se pusieron rojos: 1 · verdes correctos: 2", salida)
+
+    def test_sin_casos_de_una_polaridad_el_contador_queda_en_cero(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), casos=(
+                ("001", "falso_verde", "true", "sólo un rojo"),))
+            _rc, salida = self._correr(proy)
+        self.assertIn("rojos: 1 · verdes correctos: 0", salida)
+
+    def test_un_caso_que_reclama_una_medida_inexistente_es_una_falla(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            proy = self._proyecto(raiz, casos=(
+                ("001", "falso_verde", "true", "un item malo"),))
+            texto = (raiz / "corpus" / "demo" / "001.caso").read_text(encoding="utf-8")
+            (raiz / "corpus" / "demo" / "001.caso").write_text(
+                texto.replace("medida: demo.item_malo", "medida: demo.no_existe"),
+                encoding="utf-8")
+            rc, salida = self._correr(proy)
+        self.assertEqual(rc, 1)
+        self.assertIn("no está en el catálogo", salida)
+
+    def test_distingue_un_hueco_abierto_de_uno_archivado(self) -> None:
+        """`abierto` es trabajo pendiente y se cuenta; `resuelto` y `limite_humano` se listan
+        aparte. Confundirlos haría que una deuda viva se lea como cerrada."""
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td),
+                                  casos=(("001", "falso_verde", "true", "un item malo"),),
+                                  huecos=(("010", "abierto", "falta decidir la unidad"),
+                                          ("011", "resuelto", "se cerró en la 0.2.0"),
+                                          ("012", "limite_humano", "nadie sabe medirlo")))
+            _rc, salida = self._correr(proy)
+        self.assertIn("huecos declarados: 1", salida)
+        self.assertIn("hueco  010", salida)
+        self.assertIn("resuelto", salida)
+        self.assertIn("limite_humano", salida)
+
+    def test_main_devuelve_uno_si_no_resuelve_el_proyecto(self) -> None:
+        salida = io.StringIO()
+        with mock.patch.object(aceptacion, "resolver_cli", return_value=None), \
+                redirect_stdout(salida):
+            self.assertEqual(aceptacion.main([]), 1)
+
+    def test_main_devuelve_uno_si_las_escalares_no_son_confiables(self) -> None:
+        """Negarse a ejecutar código ajeno NO es un verde: si no se pudo medir, sale 1."""
+        from nucleo.proyecto import EscalaresNoConfiables
+        salida = io.StringIO()
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), casos=(
+                ("001", "falso_verde", "true", "un item malo"),))
+            with mock.patch.object(aceptacion, "resolver_cli", return_value=proy), \
+                    mock.patch.object(aceptacion, "escalares_del_proyecto",
+                                      side_effect=EscalaresNoConfiables("hace falta confiar")), \
+                    redirect_stdout(salida):
+                rc = aceptacion.main([])
+        self.assertEqual(rc, 1)
+        self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", salida.getvalue())
+
+    def test_el_repositorio_gana_sobre_un_catalogos_del_directorio_actual(self) -> None:
+        """`sys.path.insert(0, RAIZ)` — el 0 importa, y no es teórico.
+
+        TODO proyecto que consume Oracle tiene su propia carpeta `catalogos/`. Corriendo la
+        herramienta desde adentro de uno, el directorio actual queda antes en `sys.path`, y con
+        `insert(1)` la herramienta importaría el `catalogos` DEL CONSUMIDOR en vez del suyo.
+        """
+        with tempfile.TemporaryDirectory() as td:
+            ajeno = Path(td)
+            (ajeno / "catalogos").mkdir()
+            (ajeno / "catalogos" / "__init__.py").write_text(
+                'raise RuntimeError("este es el catalogos del consumidor, no el de oracle")',
+                encoding="utf-8")
+            resultado = subprocess.run(
+                [sys.executable, "-c", "import tools.aceptacion; print('IMPORTA EL PROPIO')"],
+                cwd=ajeno, capture_output=True, text=True,
+                env={**os.environ, "PYTHONPATH": str(RAIZ)})
+        self.assertEqual(resultado.returncode, 0, resultado.stderr)
+        self.assertIn("IMPORTA EL PROPIO", resultado.stdout)
+
+    def test_el_texto_del_hueco_se_corta_en_setenta(self) -> None:
+        """El corte existe para que una línea no rompa la tabla. Con 71 el ancho publicado deja
+        de ser el que dice la columna."""
+        largo = "x" * 200
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td),
+                                  casos=(("001", "falso_verde", "true", "un item malo"),),
+                                  huecos=(("010", "abierto", largo),))
+            _rc, salida = self._correr(proy)
+        linea = next(l for l in salida.splitlines() if l.startswith("  hueco  010"))
+        self.assertEqual(linea.count("x"), 70)
 
 
 class ModoSombra(unittest.TestCase):

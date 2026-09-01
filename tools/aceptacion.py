@@ -180,5 +180,10 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+# El mismo modismo que `cli.py` y `corpus.py`, y por el mismo motivo: con
+# `if __name__ == "__main__"` el mutante que da vuelta el comparador hace que el módulo se ejecute
+# al IMPORTARSE, y el arnés muere durante el descubrimiento con un `SystemExit`. Eso no es un
+# mutante sobreviviente ni uno muerto: es una ronda inconclusa, que vale menos que las dos.
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    sys.exit(_entrada_directa())
