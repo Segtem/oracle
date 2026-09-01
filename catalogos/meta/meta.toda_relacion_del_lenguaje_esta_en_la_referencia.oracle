@@ -1,0 +1,7 @@
+ninguno-requiere meta.toda_relacion_del_lenguaje_esta_en_la_referencia:
+    relacion relacion_documentada
+    alias r
+    predicado r.nombrada_en_la_referencia == false
+    porque "una relación que el lenguaje emite y la referencia no nombra es una superficie pública que nadie puede aprender a usar salvo leyendo el código; el límite es cero porque cada relación es una que alguien va a necesitar y no va a encontrar"
+    segun contrato
+    alcance "comprueba que el NOMBRE aparezca en la referencia del propio Oracle. NO juzga si lo que dice de ella es correcto, si está actualizado ni si alcanza para usarla. En un proyecto consumidor la relación viene VACÍA y la medida sale SIN EVIDENCIA en vez de roja: documentar el lenguaje es responsabilidad de quien lo publica, no de quien lo usa"

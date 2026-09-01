@@ -32,7 +32,35 @@ from __future__ import annotations
 from datetime import date
 
 
-RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra"})
+RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra",
+                                     "relacion_documentada"})
+
+
+def hechos_de_documentacion(relaciones, referencia: str) -> dict:
+    """Un hecho por relación del lenguaje: si la referencia la nombra.
+
+    La documentación es la única parte del proyecto SIN arnés. El código no puede quedar
+    desactualizado sin que un mutante lo diga; la prosa sí, y por eso envejece sola: al 2026-09-01
+    diez de diecinueve relaciones —incluidas todas las de L−1 y L−2— no estaban nombradas en la
+    especificación, y nada lo había señalado nunca.
+
+    Lo que se mide es la ÚNICA cosa falsable acá: que el nombre aparezca. Si la explicación es
+    buena, si está actualizada o si alguien la entiende son preguntas que ninguna medida puede
+    contestar, y el `alcance` de la medida que consume estos hechos lo dice.
+    """
+    # Sin referencia NO se emiten filas, y eso es deliberado. Un consumidor no tiene —ni tiene por
+    # qué tener— la especificación de Oracle: el paquete instalado ni siquiera la incluye. Emitir
+    # filas ahí pondría en rojo a todo proyecto ajeno por no documentar un lenguaje que no escribió.
+    # Con la relación vacía, `requiere` hace que la medida salga SIN EVIDENCIA: no concluye, que es
+    # la verdad, en vez de concluir mal.
+    if not referencia.strip():
+        # NO se emite ni la clave: `medidas_aplicables` elige juezas por las relaciones PRESENTES,
+        # así que sin la clave la medida ni se evalúa. Emitirla vacía la haría aplicable y saldría
+        # SIN EVIDENCIA, que la aceptación cuenta como falla — un rojo igual, por otro camino.
+        return {}
+    return {"relacion_documentada": [
+        {"relacion": nombre, "nombrada_en_la_referencia": nombre in referencia}
+        for nombre in sorted(relaciones)]}
 
 
 def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,

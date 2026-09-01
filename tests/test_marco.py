@@ -321,3 +321,44 @@ class HechosDeSombra(unittest.TestCase):
 
     def test_sin_sombras_la_relacion_viene_vacia(self) -> None:
         self.assertEqual(self._fila([]), [])
+
+
+class HechosDeDocumentacion(unittest.TestCase):
+    """La documentación es la única parte del proyecto SIN arnés, y por eso envejece sola.
+
+    Al 2026-09-01, diez de diecinueve relaciones del lenguaje —incluidas TODAS las de L−1 y L−2—
+    no estaban nombradas en la especificación, y nada lo había señalado nunca. Se encontró porque
+    alguien preguntó, no porque algo se pusiera rojo.
+    """
+
+    def _filas(self, relaciones, referencia):
+        from nucleo.marco import hechos_de_documentacion
+        return hechos_de_documentacion(relaciones, referencia).get("relacion_documentada", [])
+
+    def test_marca_la_que_la_referencia_no_nombra(self) -> None:
+        filas = self._filas({"esta", "no_esta"}, "acá se habla de `esta` y nada más")
+        self.assertEqual({f["relacion"]: f["nombrada_en_la_referencia"] for f in filas},
+                         {"esta": True, "no_esta": False})
+
+    def test_sin_referencia_no_se_emite_ni_la_relacion(self) -> None:
+        """Un consumidor no tiene —ni tiene por qué tener— la especificación de Oracle: el paquete
+        instalado ni la incluye. Documentar el lenguaje es de quien lo publica.
+
+        Se devuelve el mapa VACÍO, no la relación vacía: `medidas_aplicables` elige juezas por las
+        relaciones presentes, así que sin la clave la medida ni se evalúa. Con la clave vacía
+        saldría SIN EVIDENCIA, que la aceptación cuenta como falla — un rojo igual."""
+        from nucleo.marco import hechos_de_documentacion
+        for vacia in ("", "   ", "\n\t "):
+            with self.subTest(referencia=repr(vacia)):
+                self.assertEqual(hechos_de_documentacion({"a", "b"}, vacia), {})
+
+    def test_sale_ordenado_para_que_dos_corridas_se_lean_igual(self) -> None:
+        filas = self._filas({"zeta", "alfa", "media"}, "una referencia con texto")
+        self.assertEqual([f["relacion"] for f in filas], ["alfa", "media", "zeta"])
+
+    def test_sin_relaciones_la_relacion_viene_vacia(self) -> None:
+        """Distinto de no tener referencia: acá la referencia existe y no hay nada que documentar."""
+        from nucleo.marco import hechos_de_documentacion
+        self.assertEqual(hechos_de_documentacion(set(), "cualquier cosa"),
+                         {"relacion_documentada": []})
+

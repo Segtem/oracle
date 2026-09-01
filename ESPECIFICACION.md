@@ -136,6 +136,36 @@ una identidad a medias no se puede comprobar, y un nulo implícito la dejaría s
 silencio. Sin el nodo, la relación es exactamente la bolsa de siempre, y la multiplicidad intencional
 sigue siendo expresable sin declarar nada.
 
+### 1.1 Las relaciones que el lenguaje emite
+
+Casi toda la evidencia la produce un sensor del dominio. Pero hay relaciones que **produce el
+propio marco**, sobre sí mismo: son las que hacen posible L2 —medidas sobre medidas— y las que
+permiten que un veredicto sobre el catálogo sea un dato y no un `if` escondido en `tools/`.
+
+Se distinguen porque `catalogos/meta/` las consume y ningún proyecto las declara. La lista es
+derivable —`relaciones_del_lenguaje_declaradas()` la calcula leyendo los emisores— y hay una
+medida, `meta.toda_relacion_del_lenguaje_esta_en_la_referencia`, que exige que cada una aparezca
+acá. Esta sección no puede envejecer en silencio.
+
+| relación | qué describe | quién la emite |
+|---|---|---|
+| `medida` | cada medida del catálogo, reificada: su comparador, umbral, `segun`, `alcance` | `nucleo/medida.py` |
+| `termino` · `fuente` · `paso_de_medida` · `nodo` | las piezas de una medida vistas como árbol: sus términos, de dónde saca filas, cada paso de la tubería y cada nodo lógico | `nucleo/medida.py` |
+| `requiere` | qué relaciones declara necesitar una medida para concluir | `nucleo/medida.py` |
+| `caso` | cada caso del corpus: su polaridad, su `procedencia`, si su medida existe, y —desde `DECISION-009`— si es propio o de una biblioteca | `nucleo/marco.py` |
+| `medida_en_uso` | cuántos casos evalúan cada medida y cuántos mutantes le sobreviven | `nucleo/marco.py` |
+| `sombra` | qué medidas heredadas se miden pero todavía no obligan, desde cuándo y por qué | `nucleo/marco.py` |
+| `relacion_documentada` | si cada relación del lenguaje está nombrada en esta especificación | `nucleo/marco.py` |
+| `relacion_declarada` · `campo_declarado` | las relaciones que un proyecto declara y sus campos, con unidad | `nucleo/relacion.py` |
+| `cantidad_comparada` | cada comparación de una medida y si su unidad se puede derivar (L−1) | `nucleo/unidad.py` |
+| `referente_declarado` · `referente_comparado` | la identidad y la frescura de aquello que se midió (L−2) | `nucleo/referente.py` |
+| `equivalencia` | dos formas que deberían dar lo mismo, para las propiedades metamórficas | `tools/metamorficas.py` |
+| `paso` · `producto` · `ancestro` | lo que una evaluación trazada produjo: cada paso, el tamaño del producto de un `unir`, y la ascendencia de un nodo | `nucleo/algebra.py` |
+| `campo_diagnostico` | cada valor de texto del diagnóstico local y si contiene algo del dominio | `nucleo/diagnostico.py` |
+
+**Ninguna de estas relaciones se declara en `relaciones/`.** Un proyecto que definiera una con el
+mismo nombre estaría pisando una del lenguaje, y por eso los nombres se reservan.
+
 ## 2. Una medida es un dato
 
 ```json
