@@ -921,6 +921,51 @@ class DiagnosticoCli(CliTestCase):
         self.assertEqual(json.loads(salida)["bibliotecas"], [])
 
 
+class BibliotecaNueva(CliTestCase):
+    """`oracle biblioteca nueva`: el andamio, y que los pasos que imprime sean ciertos."""
+
+    def test_crea_el_esqueleto_y_dice_los_proximos_pasos(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            destino = Path(td) / "x"
+            rc, salida = self._callado(cli.main, ["biblioteca", "nueva", "aula.calidad",
+                                                 str(destino)])
+            self.assertEqual(rc, 0)
+            self.assertTrue((destino / "pyproject.toml").exists())
+            datos = destino / "oracle_bibliotecas" / "oracle_biblioteca_aula_calidad"
+            self.assertTrue((datos / "oracle-biblioteca.toml").exists())
+            self.assertTrue((datos / "catalogos").is_dir())
+            self.assertTrue((datos / "corpus").is_dir())
+            # El paso 3 apunta a la raíz de DATOS, no a la del paquete: `verificar` busca el
+            # manifiesto ahí, y decir la otra manda a un error que no explica nada.
+            self.assertIn(str(datos), salida)
+
+    def test_sin_ruta_usa_el_id_con_guiones(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            hecho = []
+            with mock.patch.object(cli, "andamio",
+                                   side_effect=lambda d, b, **kw: hecho.append((d, b)) or d):
+                self._callado(cli.main, ["biblioteca", "nueva", "aula.calidad"])
+        self.assertEqual(hecho[0][0].name, "aula-calidad")
+
+    def test_sin_id_falla(self) -> None:
+        rc, salida = self._callado(cli.main, ["biblioteca", "nueva"])
+        self.assertEqual(rc, 1)
+        self.assertIn("falta el id", salida)
+
+    def test_sobran_argumentos_falla(self) -> None:
+        rc, salida = self._callado(cli.main, ["biblioteca", "nueva", "a.b", "ruta", "extra"])
+        self.assertEqual(rc, 1)
+        self.assertIn("sobran argumentos", salida)
+
+    def test_un_id_invalido_no_deja_nada_a_medio_crear(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            destino = Path(td) / "x"
+            rc, _salida = self._callado(cli.main, ["biblioteca", "nueva", "SinPunto",
+                                                  str(destino)])
+            self.assertEqual(rc, 1)
+            self.assertFalse(destino.exists(), "un id inválido no puede dejar basura")
+
+
 class BibliotecaInstaladas(CliTestCase):
     """`oracle biblioteca instaladas`: qué hay en el entorno y qué usa ESTE proyecto.
 

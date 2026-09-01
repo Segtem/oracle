@@ -34,7 +34,9 @@ sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
 from nucleo.diagnostico import reunir  # noqa: E402
-from nucleo.biblioteca import (BibliotecaInvalida, descubrir_bibliotecas,  # noqa: E402
+from nucleo.version import VERSION_ALGEBRA, VERSION_SINTAXIS  # noqa: E402
+from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
+                               descubrir_bibliotecas,
                                verificar_biblioteca)
 from nucleo.caso import rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
@@ -126,6 +128,7 @@ def ayuda_biblioteca() -> None:
     print("""oracle biblioteca — bibliotecas locales de políticas (datos solamente)
 
 Uso:
+  oracle biblioteca nueva <id> [ruta]     Crea el esqueleto de una biblioteca publicable
   oracle biblioteca instaladas            Las que hay en el entorno, y cuáles usa este proyecto
   oracle biblioteca verificar <ruta>      Certifica contenido, corpus y mutación publicada
   oracle biblioteca listar <ruta>         Lista cada umbral, segun y alcance completo""")
@@ -171,6 +174,36 @@ def cmd_diagnostico(proy, argv: list[str]) -> int:
         print("Leelo entero antes de compartirlo. Oracle no lo manda a ningún lado.")
         return 0
     print(texto)
+    return 0
+
+
+def cmd_biblioteca_nueva(bid: str, ruta_str: str | None) -> int:
+    """Arma el esqueleto de una biblioteca publicable, con la ruta fija ya puesta.
+
+    El descubrimiento busca el manifiesto en un lugar derivado del nombre de la distribución, y en
+    ningún otro. Armar esa ruta a mano es donde se equivoca todo el mundo la primera vez, y el
+    error es SILENCIOSO: la biblioteca no aparece y nada dice por qué.
+    """
+    destino = Path(ruta_str or bid.replace(".", "-")).expanduser().resolve()
+    try:
+        raiz_datos = andamio(destino, bid, algebra=VERSION_ALGEBRA, sintaxis=VERSION_SINTAXIS)
+    except BibliotecaInvalida as e:
+        print(f"BIBLIOTECA INVÁLIDA — {e}", file=sys.stderr)
+        return 1
+    print(f"Biblioteca «{bid}» creada en {destino}:")
+    print(f"  · {raiz_datos.relative_to(destino)}/oracle-biblioteca.toml")
+    print(f"  · {raiz_datos.relative_to(destino)}/catalogos/   ← tus medidas")
+    print(f"  · {raiz_datos.relative_to(destino)}/corpus/      ← los casos que las fijan")
+    print("  · pyproject.toml")
+    print()
+    print("Próximos pasos:")
+    print(f"  1. Escribí medidas en {raiz_datos.relative_to(destino)}/catalogos/")
+    print("  2. Escribí un caso por medida, con las dos polaridades")
+    # La ruta de `verificar` es la de los DATOS, no la del paquete: ahí vive el manifiesto y ahí
+    # lo busca el descubrimiento. Decir la del paquete manda a un error que no explica nada.
+    print(f"  3. Certificala:  oracle biblioteca verificar {raiz_datos}")
+    print("  4. Va a decirte «publica N, pero mide M». Copiá M a `[certificacion] mutantes`")
+    print(f"  5. Publicala:    python -m build && twine upload dist/*")
     return 0
 
 
@@ -723,10 +756,18 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando == "biblioteca":
         verbo = resto[0]
-        if verbo not in ("instaladas", "verificar", "listar"):
+        if verbo not in ("nueva", "instaladas", "verificar", "listar"):
             print(f"verbo desconocido para «biblioteca»: {verbo}")
-            print("Verbos disponibles: instaladas, verificar, listar")
+            print("Verbos disponibles: nueva, instaladas, verificar, listar")
             return 1
+        if verbo == "nueva":
+            if len(resto) < 2:
+                print("falta el id: oracle biblioteca nueva <publicador.nombre> [ruta]")
+                return 1
+            if len(resto) > 3:
+                print("sobran argumentos: oracle biblioteca nueva <publicador.nombre> [ruta]")
+                return 1
+            return cmd_biblioteca_nueva(resto[1], resto[2] if len(resto) > 2 else None)
         if verbo == "instaladas":
             if len(resto) > 1:
                 print("sobran argumentos: oracle biblioteca instaladas")

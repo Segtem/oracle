@@ -422,3 +422,83 @@ def verificar_biblioteca(ruta) -> InformeBiblioteca:
         mutantes=numero_mutantes,
         detalle_medidas=tuple(catalogo[mid] for mid in sorted(catalogo)),
     )
+
+
+PLANTILLA_MANIFIESTO = """\
+esquema = "oracle.biblioteca/v1"
+id = "{bid}"
+version = "0.1.0"
+algebra = "{algebra}"
+sintaxis = "{sintaxis}"
+datos_solamente = true
+
+[contenido]
+catalogos = ["catalogos"]
+corpus = ["corpus"]
+relaciones = []
+macros = []
+
+[requiere]
+# Las relaciones del LENGUAJE que consumen tus medidas. `medida` es la del catálogo mismo:
+# cambiala por las que uses de verdad, o dejala vacía si tus medidas miran un dominio propio.
+relaciones = ["medida"]
+
+[certificacion]
+# Cuántos mutantes de medida murieron. NO se pone a ojo: `oracle biblioteca verificar` lo
+# recalcula y, si no coincide, dice el número real —«publica 1, pero mide 6»— para que lo copies.
+# Arranca en 1 porque cero se rechaza: una biblioteca sin mutación es un catálogo que nadie rompió.
+mutantes = 1
+"""
+
+PLANTILLA_PYPROJECT = """\
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "{distribucion}"
+version = "0.1.0"
+description = "DESCRIBILA EN UNA LÍNEA"
+requires-python = ">=3.11"
+
+# Sin `dependencies`: una biblioteca de políticas es DATOS. Si necesitara código dejaría de ser
+# una biblioteca —el descubrimiento la rechaza si su RECORD enumera Python o un ejecutable— y
+# pasaría a ser una extensión, con otra confianza y otro comando.
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["oracle_bibliotecas*"]
+namespaces = true
+
+[tool.setuptools.package-data]
+"oracle_bibliotecas.{modulo}" = [
+  "oracle-biblioteca.toml",
+  "catalogos/*.oracle",
+  "corpus/*.caso",
+]
+"""
+
+
+def andamio(destino: Path, bid: str, *, algebra: str, sintaxis: str) -> Path:
+    """Crea el esqueleto de una biblioteca publicable. Devuelve la raíz de sus datos.
+
+    La ruta del manifiesto NO es libre: el descubrimiento la deriva del nombre de la distribución
+    y la busca ahí y en ningún otro lado. Armarla a mano es donde se equivoca todo el mundo la
+    primera vez, y el error es silencioso — la biblioteca simplemente no aparece.
+    """
+    if ID_BIBLIOTECA_RE.fullmatch(bid) is None:
+        raise BibliotecaInvalida(
+            f"id inválido: {bid!r}. Va como `publicador.nombre`, en minúsculas ASCII")
+    distribucion = f"oracle-biblioteca-{bid.replace('.', '-')}"
+    modulo = _nombre_instalado(distribucion)
+    raiz_datos = destino / "oracle_bibliotecas" / modulo
+    if destino.exists() and any(destino.iterdir()):
+        raise BibliotecaInvalida(f"{destino} no está vacío")
+
+    (raiz_datos / "catalogos").mkdir(parents=True)
+    (raiz_datos / "corpus").mkdir()
+    (raiz_datos / "oracle-biblioteca.toml").write_text(
+        PLANTILLA_MANIFIESTO.format(bid=bid, algebra=algebra, sintaxis=sintaxis), encoding="utf-8")
+    (destino / "pyproject.toml").write_text(
+        PLANTILLA_PYPROJECT.format(distribucion=distribucion, modulo=modulo), encoding="utf-8")
+    return raiz_datos

@@ -413,3 +413,71 @@ class BibliotecaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AndamioDeBiblioteca(unittest.TestCase):
+    """`oracle biblioteca nueva`: el esqueleto, con la ruta fija ya puesta.
+
+    El descubrimiento busca el manifiesto en un lugar derivado del nombre de la distribución y en
+    ningún otro. Armar esa ruta a mano es donde se equivoca todo el mundo la primera vez, y el
+    error es SILENCIOSO: la biblioteca no aparece y nada dice por qué.
+    """
+
+    def _crear(self, bid="aula.calidad", destino=None):
+        from nucleo.biblioteca import andamio
+        return andamio(Path(destino), bid, algebra="0.5", sintaxis="0.1")
+
+    def test_el_manifiesto_queda_donde_el_descubrimiento_lo_busca(self) -> None:
+        from nucleo.biblioteca import ruta_instalada_del_manifiesto
+        with tempfile.TemporaryDirectory() as td:
+            raiz_datos = self._crear(destino=Path(td) / "x")
+            esperada = ruta_instalada_del_manifiesto("oracle-biblioteca-aula-calidad")
+            real = (raiz_datos / "oracle-biblioteca.toml").relative_to(Path(td) / "x")
+        self.assertEqual(real.as_posix(), str(esperada))
+
+    def test_el_manifiesto_generado_se_puede_cargar(self) -> None:
+        """Un andamio que produce un manifiesto ilegible es peor que no tenerlo."""
+        from nucleo.biblioteca import cargar_manifiesto
+        with tempfile.TemporaryDirectory() as td:
+            raiz_datos = self._crear(destino=Path(td) / "x")
+            manifiesto = cargar_manifiesto(raiz_datos)
+        self.assertEqual(manifiesto.id, "aula.calidad")
+        self.assertEqual(manifiesto.algebra, "0.5")
+
+    def test_los_mutantes_arrancan_en_uno_porque_cero_se_rechaza(self) -> None:
+        """La plantilla no puede proponer un flujo imposible: con `mutantes = 0` el manifiesto se
+        rechaza antes de llegar a `verificar`, que es quien dice el número real."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz_datos = self._crear(destino=Path(td) / "x")
+            texto = (raiz_datos / "oracle-biblioteca.toml").read_text(encoding="utf-8")
+        self.assertIn("mutantes = 1", texto)
+        self.assertNotIn("mutantes = 0", texto)
+
+    def test_el_pyproject_empaqueta_los_datos_y_ninguna_dependencia(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            self._crear(destino=Path(td) / "x")
+            texto = (Path(td) / "x" / "pyproject.toml").read_text(encoding="utf-8")
+        for esperado in ("oracle-biblioteca.toml", "catalogos/*.oracle", "corpus/*.caso"):
+            self.assertIn(esperado, texto)
+        # Contra una LÍNEA de declaración, no contra la palabra: el comentario de la plantilla
+        # explica justamente por qué no hay dependencias, y contendría la palabra igual.
+        declara = [l for l in texto.splitlines()
+                   if l.strip().startswith("dependencies")]
+        self.assertEqual(declara, [], "una biblioteca de políticas es DATOS: sin dependencias")
+
+    def test_un_id_invalido_falla_cerrado(self) -> None:
+        from nucleo.biblioteca import BibliotecaInvalida
+        for malo in ("SinPunto", "con.MAYUSCULAS", "con espacio", "", "punto.", ".punto"):
+            with tempfile.TemporaryDirectory() as td, self.subTest(id=malo):
+                with self.assertRaises(BibliotecaInvalida):
+                    self._crear(malo, Path(td) / "x")
+
+    def test_no_pisa_un_directorio_con_contenido(self) -> None:
+        from nucleo.biblioteca import BibliotecaInvalida
+        with tempfile.TemporaryDirectory() as td:
+            (Path(td) / "x").mkdir()
+            (Path(td) / "x" / "algo.txt").write_text("no me borres", encoding="utf-8")
+            with self.assertRaises(BibliotecaInvalida):
+                self._crear(destino=Path(td) / "x")
+            self.assertTrue((Path(td) / "x" / "algo.txt").exists())
+
