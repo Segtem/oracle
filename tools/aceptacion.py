@@ -27,9 +27,10 @@ sys.path.insert(0, str(RAIZ))
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
-from nucleo.marco import hechos_de_casos, hechos_de_sombra  # noqa: E402
-from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
-                           medidas_aplicables)  # noqa: E402
+from nucleo.marco import (hechos_de_casos, hechos_de_documentacion,  # noqa: E402
+                          hechos_de_sombra)
+from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,  # noqa: E402
+                           medidas_aplicables, relaciones_del_lenguaje_declaradas)
 from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
 from nucleo.unidad import hechos_de_unidades  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
@@ -121,8 +122,15 @@ def _ejecutar(proy) -> int:
     # invocarlo, un campo que filtra el dominio viviría en el repositorio hasta que a alguien se le
     # ocurriera correr `oracle diagnostico` — y para entonces ya lo pegó en un issue.
     secretos = [str(proy.raiz.resolve()), str(Path.home()), *sorted(catalogo)]
+    # La referencia se lee del PROYECTO, no de una ruta fija: un consumidor puede tener la suya,
+    # y si no tiene ninguna el texto es vacío y todas las relaciones salen sin documentar — que es
+    # la verdad, no un error de la medida.
+    referencia = proy.raiz / "ESPECIFICACION.md"
+    texto_referencia = referencia.read_text(encoding="utf-8") if referencia.is_file() else ""
     evidencia_meta = {"medida": como_hechos(catalogo.values()),
                       **hechos_de_diagnostico(reunir(proy), secretos),
+                      **hechos_de_documentacion(
+                          relaciones_del_lenguaje_declaradas(), texto_referencia),
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(relaciones.values()),
                       **hechos_de_unidades(catalogo.values(), relaciones)}
