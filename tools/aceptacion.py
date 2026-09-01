@@ -32,14 +32,32 @@ from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
 from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
 from nucleo.unidad import hechos_de_unidades  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
-                             catalogos_a_cargar, configuracion,
+                             bibliotecas_del_proyecto, catalogos_a_cargar, configuracion,
                              confiar_escalares, escalares_del_proyecto,
                              macros_del_proyecto,
                              problemas_estructura, relaciones_del_proyecto)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
 def casos(proy) -> list[dict]:
-    return cargar_casos(proy.corpus)
+    """Corpus propio y corpus seleccionado, cada caso con su origen reificado."""
+    salida = []
+    origenes = {}
+
+    def agregar(caso, *, biblioteca: str) -> None:
+        origen = biblioteca or "proyecto"
+        if caso["id"] in origenes:
+            raise ValueError(
+                f"el id de caso «{caso['id']}» está repetido en {origenes[caso['id']]} y {origen}")
+        origenes[caso["id"]] = origen
+        salida.append({**caso, "es_heredado": bool(biblioteca), "biblioteca": biblioteca})
+
+    for caso in cargar_casos(proy.corpus):
+        agregar(caso, biblioteca="")
+    for biblioteca in bibliotecas_del_proyecto(proy):
+        for directorio in biblioteca.corpus:
+            for caso in cargar_casos(directorio):
+                agregar(caso, biblioteca=biblioteca.id)
+    return salida
 
 
 def _ejecutar(proy) -> int:

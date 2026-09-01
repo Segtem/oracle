@@ -146,7 +146,7 @@ class Motor:
 
         registro = registro_base()
         limites_propios = _limites_propios(limites)
-        macros = macros_del_proyecto(proy)
+        macros = macros_del_proyecto(proy, raices_perfiles=raices_perfiles)
         with escalares_del_proyecto(
                 proy, confiar=confiar_escalares, registro=registro):
             catalogo = cargar_catalogo(

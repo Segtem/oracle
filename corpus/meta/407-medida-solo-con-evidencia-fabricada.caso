@@ -11,8 +11,8 @@ caso 407-medida-solo-con-evidencia-fabricada:
     como_se_detecto: observacion
     medida: meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
     evidencia:
-        caso: id, medida, tiene_medida, procedencia
-            "403-umbral-sin-defensa", "dominio.regla_solo_fabricada", true, "construida"
-            "404-umbral-con-defensa", "dominio.regla_solo_fabricada", true, "construida"
+        caso: id, medida, tiene_medida, procedencia, es_heredado
+            "403-umbral-sin-defensa", "dominio.regla_solo_fabricada", true, "construida", false
+            "404-umbral-con-defensa", "dominio.regla_solo_fabricada", true, "construida", false
     leccion:
         Dos casos alcanzan para fijar polaridad y borde: si todos son no observados, la agrupacion por medida tiene que producir un testigo.

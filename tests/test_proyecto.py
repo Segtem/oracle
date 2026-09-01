@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from dataclasses import FrozenInstanceError
 from pathlib import Path
+from types import SimpleNamespace
 from unittest import mock
 
 from nucleo import algebra, proyecto as modulo
@@ -37,6 +38,8 @@ class ProyectoTests(unittest.TestCase):
             configuracion_vacia.perfiles = ("python",)
         with self.assertRaises(FrozenInstanceError):
             configuracion_vacia.catalogo_base = False
+        with self.assertRaises(FrozenInstanceError):
+            configuracion_vacia.bibliotecas = ("tercero.calidad",)
         with self.assertRaises(FrozenInstanceError):
             proy.raiz = Path("/otro")
 
@@ -86,6 +89,11 @@ class ProyectoTests(unittest.TestCase):
             {"esquema": modulo.ESQUEMA_PROYECTO, "catalogo_base": None},
             {"esquema": modulo.ESQUEMA_PROYECTO, "catalogo_base": 0},
             {"esquema": modulo.ESQUEMA_PROYECTO, "catalogo_base": "no"},
+            {"esquema": modulo.ESQUEMA_PROYECTO, "bibliotecas": "tercero.calidad"},
+            {"esquema": modulo.ESQUEMA_PROYECTO, "bibliotecas": [1]},
+            {"esquema": modulo.ESQUEMA_PROYECTO, "bibliotecas": ["invalida"]},
+            {"esquema": modulo.ESQUEMA_PROYECTO,
+             "bibliotecas": ["tercero.calidad", "tercero.calidad"]},
         )
         for datos in casos:
             with self.subTest(datos=datos), tempfile.TemporaryDirectory() as td:
@@ -134,6 +142,84 @@ class ProyectoTests(unittest.TestCase):
         self.assertTrue(propio.es_el_propio_oracle)
         self.assertEqual(str(propio), "oracle (sí mismo)")
         self.assertEqual(catalogos_a_cargar(propio), catalogos_base_a_cargar(propio))
+
+    def test_instalar_no_activa_una_biblioteca(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            proy = Proyecto(raiz)
+            self._configurar(raiz, {"esquema": modulo.ESQUEMA_PROYECTO})
+            with mock.patch(
+                    "nucleo.biblioteca.descubrir_bibliotecas",
+                    side_effect=AssertionError("no se debe descubrir lo no seleccionado")):
+                self.assertEqual(catalogos_a_cargar(proy), [proy.catalogos])
+
+    def test_selecciona_catalogos_relaciones_y_macros_de_una_biblioteca(self) -> None:
+        macro = ["defmacro", "externa", ["id"], [],
+                 ["medida", ["$", "id"],
+                  ["desde", ["de", "item", "i"]],
+                  ["resumen", "contar", 1],
+                  ["umbral", "<=", 0, "contrato", "porque"],
+                  ["alcance", "NO ve nada fuera de item"]]]
+        relacion = ["relacion", "item",
+                    ["campos", ["campo", "id", "texto", "sin_unidad"]],
+                    ["alcance", "NO dice de dónde vino el item"]]
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            biblioteca = raiz / "instalada"
+            catalogos = biblioteca / "catalogos"
+            relaciones = biblioteca / "relaciones"
+            macros = biblioteca / "macros"
+            corpus = biblioteca / "corpus"
+            for directorio in (catalogos, relaciones, macros, corpus):
+                directorio.mkdir(parents=True)
+            (relaciones / "item.json").write_text(json.dumps(relacion), encoding="utf-8")
+            (macros / "externa.json").write_text(json.dumps(macro), encoding="utf-8")
+            manifiesto = SimpleNamespace(
+                id="tercero.calidad", catalogos=(catalogos,), relaciones=(relaciones,),
+                macros=(macros,), corpus=(corpus,))
+            self._configurar(raiz, {
+                "esquema": modulo.ESQUEMA_PROYECTO,
+                "bibliotecas": ["tercero.calidad"],
+            })
+            proy = Proyecto(raiz)
+
+            with mock.patch(
+                    "nucleo.biblioteca.descubrir_bibliotecas",
+                    return_value={"tercero.calidad": manifiesto}):
+                config = configuracion(proy)
+                self.assertEqual(config.bibliotecas, ("tercero.calidad",))
+                self.assertEqual(catalogos_base_a_cargar(proy), [catalogos])
+                self.assertEqual(catalogos_a_cargar(proy), [catalogos, proy.catalogos])
+                self.assertEqual(set(modulo.relaciones_del_proyecto(proy)), {"item"})
+                self.assertIn("externa", modulo.macros_del_proyecto(proy))
+
+    def test_una_biblioteca_seleccionada_tiene_que_estar_instalada(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            self._configurar(raiz, {
+                "esquema": modulo.ESQUEMA_PROYECTO,
+                "bibliotecas": ["tercero.ausente"],
+            })
+            with (mock.patch("nucleo.biblioteca.descubrir_bibliotecas", return_value={}),
+                  self.assertRaisesRegex(ProyectoInvalido, "bibliotecas no instaladas")):
+                catalogos_a_cargar(Proyecto(raiz))
+
+    def test_oracle_no_carga_sus_relaciones_dos_veces_como_base_y_proyecto(self) -> None:
+        relacion = ["relacion", "item",
+                    ["campos", ["campo", "id", "texto", "sin_unidad"]],
+                    ["alcance", "NO dice de dónde vino el item"]]
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._raiz(td)
+            (raiz / "relaciones").mkdir()
+            (raiz / "relaciones" / "item.json").write_text(
+                json.dumps(relacion), encoding="utf-8")
+            self._configurar(raiz, {
+                "esquema": modulo.ESQUEMA_PROYECTO,
+                "catalogo_base": True,
+            })
+            with mock.patch.object(modulo, "RAIZ_ORACLE", raiz):
+                relaciones = modulo.relaciones_del_proyecto(Proyecto(raiz))
+        self.assertEqual(set(relaciones), {"item"})
 
     def test_una_instalacion_sin_autocertificacion_exige_proyecto_explicito(self) -> None:
         with tempfile.TemporaryDirectory() as td_instalacion, tempfile.TemporaryDirectory() as td_cwd:
