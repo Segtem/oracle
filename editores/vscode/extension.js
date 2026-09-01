@@ -36,8 +36,9 @@ function anotar(texto) {
 // El servidor se busca en tres escalones, del más portable al más específico.
 //
 // Antes era una sola ruta clavada —`~/Dev/oracle/tools/lsp.py`—, que anda en la máquina donde se
-// escribió Oracle y en ninguna otra. Con el paquete instalado (`pip install oracle-metalenguaje`)
-// el ejecutable `oracle-lsp` queda en el PATH y no hace falta que exista ningún checkout.
+// escribió Oracle y en ninguna otra. Con `uv tool install oracle-metalenguaje` el ejecutable
+// `oracle-lsp` queda en el PATH y no hace falta que exista ningún checkout. Con `pip` dentro de un
+// venv NO alcanza: el ejecutable queda dentro del venv y sólo se ve con el venv activado.
 //
 // `ORACLE_LSP` existe para el caso intermedio: alguien que tiene el repositorio en otro sitio y
 // quiere que el editor use ESE y no el instalado, que es lo que uno quiere mientras desarrolla.
@@ -202,8 +203,10 @@ function activate(contexto) {
     if (!servidorHallado) {
         anotar('no se encontró el servidor. El resaltado funciona; los diagnósticos no.');
         vscode.window.showWarningMessage(
-            'Oracle: no se encontró el servidor. Instalá el paquete (`pip install ' +
-            'oracle-metalenguaje`), o apuntá ORACLE_LSP al `tools/lsp.py` de tu checkout.');
+            'Oracle: no se encontró el servidor. Instalá el paquete ' +
+            '(uv tool install oracle-metalenguaje), o apuntá ORACLE_LSP al tools/lsp.py ' +
+            'de tu checkout. Ojo: un `pip install` al Python del sistema falla con ' +
+            'externally-managed-environment en Arch, Debian 12+, Ubuntu 23.04+ y Fedora.');
         return;
     }
     anotar(`arrancando: ${servidorHallado.como}`);

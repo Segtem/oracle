@@ -92,7 +92,8 @@ PRIORIDADES = {
 # al modo sombra. Meterlo hoy pondría al proyecto en rojo por deuda ajena a ese cambio, así que
 # entra cuando esos 17 estén cerrados. El código del modo sombra sí quedó medido en esa corrida:
 # cero sobrevivientes.
-HERRAMIENTAS_CUSTODIAS = ("cifras.py", "cli.py", "corpus.py", "lsp.py", "medida.py")
+HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "corpus.py",
+                          "lsp.py", "medida.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:

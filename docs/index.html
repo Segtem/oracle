@@ -350,6 +350,8 @@
     <p class="cuerpo">
       Python ≥ 3.11 y nada más. Sin dependencias que resolver, se instala también sin red desde el
       archivo del <a href="https://github.com/Segtem/oracle/releases/tag/v0.2.0">release</a>.
+      Con <code>pip</code> hace falta un entorno propio: en Arch, Debian 12+, Ubuntu 23.04+ y
+      Fedora, instalar al Python del sistema falla con <code>externally-managed-environment</code>.
     </p>
     <p class="cuerpo">
       Instala nueve comandos y el catálogo base viaja adentro, así que un proyecto nuevo ya tiene
@@ -362,7 +364,7 @@
     </p>
   </div>
   <div class="pad" style="grid-column: span 7; background: oklch(0.925 0.006 95);">
-<pre class="codigo"><span style="color:oklch(0.50 0.01 95)">$</span> pip install oracle-metalenguaje
+<pre class="codigo"><span style="color:oklch(0.50 0.01 95)">$</span> uv tool install oracle-metalenguaje
 <span style="color:oklch(0.50 0.01 95)">$</span> oracle init mi-proyecto
 <span style="color:oklch(0.50 0.01 95)">$</span> cd mi-proyecto
 <span style="color:oklch(0.50 0.01 95)">$</span> oracle nueva documento.nombre_sigue_la_convencion

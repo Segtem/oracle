@@ -3,7 +3,7 @@
 [**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.2.0](https://github.com/Segtem/oracle/releases/tag/v0.2.0)
 
 ```bash
-pip install oracle-metalenguaje
+uv tool install oracle-metalenguaje
 ```
 
 **Un modo de estructurar el problema de construir herramientas con un LLM.**
@@ -49,9 +49,23 @@ Requiere Python 3.11 o posterior y **no tiene dependencias**: se instala offline
 sin nada que resolver.
 
 ```bash
-pip install oracle-metalenguaje
+uv tool install oracle-metalenguaje
 oracle --help
 ```
+
+`uv tool install` deja los nueve comandos en el `PATH`, cada uno en su entorno aislado. Es la forma
+recomendada porque en Arch, Debian 12+, Ubuntu 23.04+ y Fedora un `pip install` al Python del
+sistema **falla** con `externally-managed-environment` (PEP 668) — la distribución protege su
+Python, y hace bien.
+
+Con `pip`, entonces, va en un entorno propio:
+
+```bash
+python3 -m venv venv && source venv/bin/activate
+pip install oracle-metalenguaje
+```
+
+Y para probarlo sin instalar nada: `uvx --from oracle-metalenguaje oracle --help`.
 
 Instala nueve comandos —`oracle`, `oracle-lsp`, `oracle-mutar`…— y el catálogo base viaja adentro,
 así que un proyecto nuevo ya tiene quién lo juzgue:

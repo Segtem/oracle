@@ -14,13 +14,18 @@ definiciones de lo mismo y con el tiempo dirían cosas distintas.
 ## VS Code
 
 ```bash
-pip install oracle-metalenguaje          # trae `oracle-lsp`
+uv tool install oracle-metalenguaje      # trae `oracle-lsp` y lo deja en el PATH
 python editores/vscode/empaquetar.py     # arma el .vsix
 code --install-extension editores/vscode/oracle-lenguaje-*.vsix
 ```
 
 También podés bajar el `.vsix` ya armado de
 [el release](https://github.com/Segtem/oracle/releases/latest) y saltear el paso del medio.
+
+`uv tool install` en vez de `pip` porque en Arch, Debian 12+, Ubuntu 23.04+ y Fedora
+instalar al Python del sistema falla con `externally-managed-environment` (PEP 668), y
+lo que los editores buscan es `oracle-lsp` **en el PATH**. Con `pip` en un venv, el
+ejecutable queda dentro del venv y el editor no lo encuentra salvo que esté activado.
 
 No hace falta `npm` ni `vsce`: un `.vsix` es un ZIP, y el empaquetador son cien líneas de Python
 sin dependencias.

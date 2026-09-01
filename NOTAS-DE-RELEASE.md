@@ -125,10 +125,14 @@ debería necesitar. El camino está en `PLAN-LENGUAJE.md`.
 ## Instalación
 
 ```bash
-pip install oracle-metalenguaje
+uv tool install oracle-metalenguaje
 
 oracle init mi-proyecto
 ```
+
+Con `pip` va en un entorno propio (`python3 -m venv venv && source venv/bin/activate`): en Arch,
+Debian 12+, Ubuntu 23.04+ y Fedora, instalar al Python del sistema falla con
+`externally-managed-environment` (PEP 668).
 
 También desde el repositorio (`pip install git+https://github.com/Segtem/oracle.git`) o, sin red,
 desde el `.whl` adjunto a este release.
