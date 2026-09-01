@@ -472,3 +472,63 @@ class ProyectoTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class SombraDeclarada(unittest.TestCase):
+    """`sombra` en `oracle.json`: qué medidas se miden pero todavía no obligan."""
+
+    def _leer(self, valor):
+        from nucleo.proyecto import _sombra_declarada
+        return _sombra_declarada({"sombra": valor})
+
+    def test_sin_sombra_la_lista_viene_vacia(self) -> None:
+        from nucleo.proyecto import _sombra_declarada
+        self.assertEqual(_sombra_declarada({}), ())
+
+    def test_lee_fecha_y_motivo_y_ordena_por_id(self) -> None:
+        """El orden estable evita que dos corridas del mismo proyecto se lean distinto."""
+        entradas = self._leer({"m.b": {"desde": "2026-01-02", "porque": "x"},
+                               "m.a": {"desde": "2026-01-01", "porque": "y"}})
+        self.assertEqual([e.medida for e in entradas], ["m.a", "m.b"])
+        self.assertEqual(entradas[0].porque, "y")
+
+    def test_los_espacios_se_recortan(self) -> None:
+        entrada, = self._leer({"m.a": {"desde": "  2026-01-01 ", "porque": "  x  "}})
+        self.assertEqual((entrada.desde, entrada.porque), ("2026-01-01", "x"))
+
+    def test_una_entrada_sin_campos_se_acepta_y_la_juzga_una_medida(self) -> None:
+        """El lector NO exige `desde` ni `porque`: eso lo exige
+        `meta.toda_sombra_declara_desde_y_porque`. Escribir la regla en los dos lados haría que
+        una de las dos envejeciera."""
+        entrada, = self._leer({"m.a": {}})
+        self.assertEqual((entrada.desde, entrada.porque), ("", ""))
+
+    def test_falla_cerrado_ante_formas_que_no_entiende(self) -> None:
+        from nucleo.proyecto import ProyectoInvalido
+        for valor in (["m.a"], "m.a", {"m.a": "porque sí"}, {"m.a": ["x"]},
+                      {"": {}}, {"   ": {}}, {"m.a": {"desde": 3}},
+                      {"m.a": {"porque": None}}):
+            with self.subTest(valor=valor), self.assertRaises(ProyectoInvalido):
+                self._leer(valor)
+
+    def test_una_entrada_de_sombra_no_se_puede_modificar_despues(self) -> None:
+        """Es lo que el proyecto DECLARÓ. Si un consumidor pudiera reescribir la fecha o el
+        motivo en memoria, la antigüedad que se imprime dejaría de ser la declarada."""
+        import dataclasses
+        from nucleo.proyecto import EnSombra
+        entrada = EnSombra("m.a", "2026-09-01", "x")
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            entrada.desde = "2020-01-01"
+
+    def test_la_configuracion_del_proyecto_la_expone(self) -> None:
+        import json
+        from nucleo.proyecto import Proyecto, configuracion
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "oracle.json").write_text(json.dumps({
+                "esquema": "oracle.proyecto/v1",
+                "sombra": {"meta.x": {"desde": "2026-09-01", "porque": "en transición"}},
+            }), encoding="utf-8")
+            config = configuracion(Proyecto(raiz))
+        self.assertEqual([e.medida for e in config.sombra], ["meta.x"])
+        self.assertEqual(config.sombra[0].porque, "en transición")

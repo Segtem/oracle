@@ -1000,7 +1000,13 @@ class NounVerbCliTests(CliTestCase):
     def test_medida_listar_en_propio_oracle(self) -> None:
         rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(RAIZ)])
         self.assertEqual(rc, 0)
-        self.assertIn("CATÁLOGO (41 medidas", salida)
+        # Contra el catálogo real, no contra un literal: el número crece cada vez que se
+        # escribe una medida, y un literal acá sólo enseña a editar el test junto con el
+        # código. Lo que se fija es que el listado CUENTE lo que hay.
+        propias = len([r for r in (RAIZ / "catalogos").rglob("*")
+                       if r.suffix in (".oracle", ".json")])
+        self.assertIn(f"CATÁLOGO ({propias} medidas", salida)
+        self.assertRegex(salida, r"CATÁLOGO \(\d+ medidas")
         # Las del perfil `python` no viven en `catalogos/`: se heredan, y se ven.
         self.assertIn("MEDIDAS HEREDADAS", salida)
         self.assertIn("proceso.modulo_alcanzable", salida)

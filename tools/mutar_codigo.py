@@ -70,6 +70,8 @@ PRIORIDADES = {
                      "tests.test_herramientas"),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
     "tools/lsp.py": ("tests.test_lsp",),
+    # Listo para cuando `aceptacion.py` entre a HERRAMIENTAS_CUSTODIAS; ver la nota de ahí.
+    "tools/aceptacion.py": ("tests.test_herramientas", "tests.test_cli"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -83,6 +85,13 @@ PRIORIDADES = {
 # `cifras.py` es el primero. Desde que genera los bloques del README es lo único que impide que una
 # cifra publicada vuelva a derivar en silencio, y esa deriva ya ocurrió: el proyecto publicó «trece a
 # uno» durante todo un corte mientras el valor real era 16,2.
+# `aceptacion.py` CUMPLE el criterio desde el 2026-09-01: con el modo sombra custodia qué rojos
+# tumban la corrida, y esa decisión no vive en ninguna medida —las medidas dicen si algo está mal,
+# no si eso debe fallar—. Se midió antes de decidir: 45 sitios, 27 muertos, **17 sobrevivientes
+# preexistentes** y 1 error de arnés en `aceptacion.py:183`, todos en el código de reporte anterior
+# al modo sombra. Meterlo hoy pondría al proyecto en rojo por deuda ajena a ese cambio, así que
+# entra cuando esos 17 estén cerrados. El código del modo sombra sí quedó medido en esa corrida:
+# cero sobrevivientes.
 HERRAMIENTAS_CUSTODIAS = ("cifras.py", "cli.py", "corpus.py", "lsp.py", "medida.py")
 
 

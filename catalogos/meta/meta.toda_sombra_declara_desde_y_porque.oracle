@@ -1,0 +1,5 @@
+ninguno meta.toda_sombra_declara_desde_y_porque:
+    de sombra s
+    donde s.declara_desde == false o s.declara_porque == false
+    umbral <= 0 segun contrato porque "una sombra sin fecha no se puede envejecer y una sin motivo no se puede discutir: sin las dos, apagar un rojo sale gratis y deja de ser una decisión para pasar a ser una comodidad"
+    alcance "ve si los dos campos están declarados. NO juzga si el motivo es bueno ni si la fecha es cierta, ni ve las medidas que deberían estar en sombra y no se pusieron"

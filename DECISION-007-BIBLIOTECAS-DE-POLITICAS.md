@@ -69,6 +69,20 @@ biblioteca es que el proyecto deja de compilar, no se instala una segunda vez.
 medida que cuente cuántas están en sombra, para que «lo tengo en sombra hace ocho meses» sea un
 hecho visible y no una comodidad silenciosa.
 
+> **Construido el 2026-09-01, y NO como característica de bibliotecas.** Al medir la mudanza de
+> Jam y LyraGASP al Oracle publicado apareció que el problema no viene de una biblioteca: viene del
+> **catálogo base**, que los dos ya activan con `catalogo_base: true`. Sus catálogos se escribieron
+> antes de que `segun` existiera y antes de L−1, así que adoptar el Oracle de hoy los deja en rojo
+> con 34 y 104 infracciones respectivamente. Ninguna es un defecto nuevo: están viejos.
+>
+> La sombra se declara entonces en `oracle.json` y vale para **cualquier** conjunto de políticas
+> heredado, sea del catálogo base, de un perfil o de una biblioteca. Eso la desacopla de la
+> corrección 2, que era lo que la bloqueaba.
+>
+> Tres medidas la vigilan, y ninguna puede ponerse en sombra a sí misma —sería apagar el único
+> mecanismo que impide que apagar salga gratis—: `meta.toda_sombra_declara_desde_y_porque`,
+> `meta.ninguna_sombra_ya_en_verde` y `meta.ninguna_sombra_sobre_una_medida_que_no_existe`.
+
 ### 5. Una biblioteca es también un vector para AFLOJAR, y eso no está nombrado
 
 Alguien publica `meta.publicador.todo_umbral_declara_de_donde_sale` con el umbral en `<= 5` en vez

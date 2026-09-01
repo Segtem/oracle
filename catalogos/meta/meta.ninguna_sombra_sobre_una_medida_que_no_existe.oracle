@@ -1,0 +1,5 @@
+ninguno meta.ninguna_sombra_sobre_una_medida_que_no_existe:
+    de sombra s
+    donde s.existe == false
+    umbral <= 0 segun contrato porque "una sombra sobre un id que el catálogo no tiene no apaga nada: quedó de un renombre o de una medida que se fue, y su presencia sugiere una protección que no existe"
+    alcance "compara contra el catálogo cargado. NO ve si el id está bien escrito ni sugiere a cuál se parecía"
