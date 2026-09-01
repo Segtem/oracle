@@ -362,3 +362,38 @@ class HechosDeDocumentacion(unittest.TestCase):
         self.assertEqual(hechos_de_documentacion(set(), "cualquier cosa"),
                          {"relacion_documentada": []})
 
+
+class HechosDeVerbos(unittest.TestCase):
+    """Un verbo que existe y no está en la ayuda es una función que nadie va a encontrar.
+
+    Al 2026-09-01 había tres —`medida probar`, `caso generar` y `biblioteca nueva`— y el último
+    lo había agregado yo ese mismo día. La ayuda es exactamente el lugar donde una novedad se
+    olvida, porque es prosa y hasta ahora nada la miraba.
+    """
+
+    def _filas(self, verbos, ayuda):
+        from nucleo.marco import hechos_de_verbos
+        return hechos_de_verbos(verbos, ayuda).get("verbo_del_cli", [])
+
+    def test_marca_el_verbo_que_la_ayuda_no_nombra(self) -> None:
+        filas = self._filas({"medida": ("nueva", "probar")}, "oracle medida nueva <x>  crea una")
+        self.assertEqual({(f["sustantivo"], f["verbo"]): f["nombrado_en_la_ayuda"] for f in filas},
+                         {("medida", "nueva"): True, ("medida", "probar"): False})
+
+    def test_exige_el_par_completo_y_no_la_palabra_suelta(self) -> None:
+        """«listar» aparece en la ayuda de otro sustantivo. Buscar la palabra sola daría por
+        documentado un verbo que nadie explicó para ESE sustantivo."""
+        filas = self._filas({"biblioteca": ("listar",)}, "oracle medida listar   lista el catálogo")
+        self.assertFalse(filas[0]["nombrado_en_la_ayuda"])
+
+    def test_sin_ayuda_no_se_emite_ni_la_relacion(self) -> None:
+        """Un consumidor no tiene un CLI que documentar: sin ayuda la medida no concluye, en vez
+        de concluir que todo está mal."""
+        from nucleo.marco import hechos_de_verbos
+        self.assertEqual(hechos_de_verbos({"medida": ("nueva",)}, "   "), {})
+
+    def test_sale_ordenado_por_sustantivo_y_por_verbo(self) -> None:
+        filas = self._filas({"zeta": ("b", "a"), "alfa": ("c",)}, "texto")
+        self.assertEqual([(f["sustantivo"], f["verbo"]) for f in filas],
+                         [("alfa", "c"), ("zeta", "a"), ("zeta", "b")])
+

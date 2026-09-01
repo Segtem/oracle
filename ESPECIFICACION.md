@@ -156,6 +156,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `medida_en_uso` | cuántos casos evalúan cada medida y cuántos mutantes le sobreviven | `nucleo/marco.py` |
 | `sombra` | qué medidas heredadas se miden pero todavía no obligan, desde cuándo y por qué | `nucleo/marco.py` |
 | `relacion_documentada` | si cada relación del lenguaje está nombrada en esta especificación | `nucleo/marco.py` |
+| `verbo_del_cli` | cada verbo que el comando acepta y si la ayuda lo nombra | `nucleo/marco.py` |
 | `relacion_declarada` · `campo_declarado` | las relaciones que un proyecto declara y sus campos, con unidad | `nucleo/relacion.py` |
 | `cantidad_comparada` | cada comparación de una medida y si su unidad se puede derivar (L−1) | `nucleo/unidad.py` |
 | `referente_declarado` · `referente_comparado` | la identidad y la frescura de aquello que se midió (L−2) | `nucleo/referente.py` |

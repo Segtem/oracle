@@ -921,6 +921,44 @@ class DiagnosticoCli(CliTestCase):
         self.assertEqual(json.loads(salida)["bibliotecas"], [])
 
 
+class VerbosDeclarados(CliTestCase):
+    """Los verbos viven en UN lugar: `VERBOS`, y el despacho los lee de ahí.
+
+    Estaban escritos dos veces por sustantivo —la tupla del despacho y el mensaje «Verbos
+    disponibles»— más una tercera en cada ayuda. Y ya habían derivado: `caso` aceptaba `nueva` y
+    anunciaba sólo «nuevo, listar, generar».
+    """
+
+    def test_el_mensaje_de_error_lista_lo_que_el_despacho_acepta(self) -> None:
+        """Las dos cosas salen de `VERBOS`, así que no pueden decir cosas distintas."""
+        for sustantivo, canonicos in cli.VERBOS.items():
+            with self.subTest(sustantivo=sustantivo):
+                _rc, salida = self._callado(cli.main, [sustantivo, "verbo-que-no-existe"])
+                for verbo in canonicos:
+                    self.assertIn(verbo, salida)
+
+    def test_cada_verbo_acepta_su_forma_con_guiones(self) -> None:
+        for sustantivo in cli.VERBOS:
+            aceptados = cli.verbos_aceptados(sustantivo)
+            for verbo in cli.VERBOS[sustantivo]:
+                with self.subTest(sustantivo=sustantivo, verbo=verbo):
+                    self.assertIn(verbo, aceptados)
+                    self.assertIn(f"--{verbo}", aceptados)
+
+    def test_los_alias_declarados_se_aceptan(self) -> None:
+        """`caso nueva` se acepta por concordancia con «medida nueva». Se declara en ALIAS en vez
+        de esconderse en la tupla: un alias que nadie escribió a propósito nadie lo documenta."""
+        self.assertIn("nueva", cli.verbos_aceptados("caso"))
+        self.assertIn("--nueva", cli.verbos_aceptados("caso"))
+        self.assertEqual(cli.ALIAS[("caso", "nueva")], "nuevo")
+
+    def test_un_verbo_desconocido_no_se_confunde_con_un_alias_de_otro_sustantivo(self) -> None:
+        self.assertNotIn("instaladas", cli.verbos_aceptados("medida"))
+        rc, salida = self._callado(cli.main, ["medida", "instaladas"])
+        self.assertEqual(rc, 1)
+        self.assertIn("verbo desconocido", salida)
+
+
 class BibliotecaNueva(CliTestCase):
     """`oracle biblioteca nueva`: el andamio, y que los pasos que imprime sean ciertos."""
 

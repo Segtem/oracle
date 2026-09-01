@@ -29,7 +29,8 @@ class ContratoMedidaTests(unittest.TestCase):
                                     "referente_declarado", "referente_comparado",
                                     "cantidad_comparada", "sombra",
                                     "campo_diagnostico",
-                                    "relacion_documentada"}))
+                                    "relacion_documentada",
+                                    "verbo_del_cli"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (
