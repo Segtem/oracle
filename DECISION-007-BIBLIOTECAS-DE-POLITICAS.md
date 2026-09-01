@@ -103,11 +103,27 @@ resto tiene `<= 0` salta a la vista. Sin eso, el prefijo sólo documenta de qui�
 La propuesta separa bien los cuatro problemas y recomienda el orden correcto. Se adopta **la fase 1
 —diagnóstico local, sin red— y nada más**, y conviene decir el motivo verdadero: las fases 3 y 4 no
 fallan por privacidad, fallan por **costo estructural**. Piden un servidor, una política de
-retención y una superficie legal para un proyecto que es **privado a propósito** y cuya decisión de
-publicar está diferida y registrada con fecha. Ese costo la propuesta no lo cotiza.
+retención y una superficie legal que nadie está en condiciones de sostener. Ese costo la propuesta
+no lo cotiza.
+
+> **Corregido el 2026-09-01.** Este párrafo decía que ese costo era desmedido «para un proyecto que
+> es **privado a propósito** y cuya decisión de publicar está diferida y registrada con fecha».
+> **Las dos cosas dejaron de ser ciertas**: el repositorio se abrió y `0.2.0` está en PyPI
+> ([`DECISION-008`](DECISION-008-EL-REPOSITORIO-SE-ABRE.md)); y lo de «registrada con fecha» nunca
+> lo fue —el archivo que se citaba no existió nunca—.
+>
+> **La conclusión no cambia y el argumento queda más limpio:** un servidor, una retención y una
+> superficie legal son caros para cualquier proyecto de una persona, sea público o privado. Ser
+> público no crea a quién rendirle cuentas de los datos; crea la posibilidad de tener usuarios, que
+> es otra cosa.
 
 La fase 2 —`oracle bug preparar`— se acepta cuando exista alguien más que el autor usando Oracle.
-Hoy no lo hay.
+
+> **El criterio, hecho comprobable el 2026-09-01.** Antes decía «hoy no lo hay», que era verdad y
+> dejaba de serlo sin que nadie se enterara: hoy Oracle se instala con una línea. La condición pasa
+> a ser un hecho observable: **cuando alguien que no es el autor abra un issue o reporte un
+> problema**. Las descargas de PyPI no sirven —cuentan espejos y CI, no personas— y las estrellas
+> tampoco. Un issue es alguien que se topó con algo y se tomó el trabajo de escribirlo.
 
 ## Lo que NO se decide todavía
 

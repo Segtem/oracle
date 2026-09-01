@@ -798,6 +798,129 @@ class InitDejaLasGuardasPuestasTests(CliTestCase):
             self.assertIn("ROJO", salida)
 
 
+class DiagnosticoCli(CliTestCase):
+    """`oracle diagnostico`: muestra o guarda, y NUNCA manda nada a ningún lado.
+
+    Producir información no autoriza a publicarla. El archivo queda en disco, la persona lo lee
+    entero, y decide. Fase 1 de DECISION-007, corrección 6 — la única que se adopta.
+    """
+
+    # Todos los que pasan por `cli.main` apuntan a un proyecto TEMPORAL, nunca al repositorio
+    # real. No es prolijidad: el mutante que da vuelta `subcomando == "test"` rutea cualquier
+    # comando a `cmd_test`, y contra el repositorio real eso corre la verificación entera y la
+    # ronda de mutación termina en TIMEOUT — que no dice ni que el código está fijado ni que no.
+    def _vacio(self, raiz: Path) -> list[str]:
+        (raiz / "catalogos").mkdir(parents=True, exist_ok=True)
+        (raiz / "corpus").mkdir(parents=True, exist_ok=True)
+        return ["--proyecto", str(raiz)]
+
+    def test_sin_salida_lo_imprime_como_json(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            rc, salida = self._callado(cli.main, ["diagnostico", *self._vacio(Path(td))])
+        self.assertEqual(rc, 0)
+        datos = json.loads(salida)
+        self.assertIn("oracle", datos)
+        self.assertIn("entorno", datos)
+
+    def test_con_salida_lo_escribe_y_avisa_que_hay_que_leerlo(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            destino = Path(td) / "diag.json"
+            rc, salida = self._callado(
+                cli.main, ["diagnostico", "--salida", str(destino), *self._vacio(Path(td))])
+            escrito = json.loads(destino.read_text(encoding="utf-8"))
+        self.assertEqual(rc, 0)
+        self.assertIn("Leelo entero antes de compartirlo", salida)
+        self.assertIn("no lo manda a ningún lado", salida)
+        self.assertIn("oracle", escrito)
+
+    def test_salida_sin_ruta_falla_en_vez_de_escribir_en_cualquier_lado(self) -> None:
+        """El borde: `--salida` como ÚLTIMO argumento. Sin esta guarda se leería fuera de la
+        lista, y con `> len` en vez de `>= len` se escribiría en un archivo llamado como la
+        bandera siguiente."""
+        with tempfile.TemporaryDirectory() as td:
+            rc, salida = self._callado(
+                cli.main, ["diagnostico", *self._vacio(Path(td)), "--salida"])
+        self.assertEqual(rc, 1)
+        self.assertIn("falta la ruta", salida)
+
+    def test_la_ruta_es_el_argumento_siguiente_a_la_bandera(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            correcto, incorrecto = Path(td) / "si.json", Path(td) / "no.json"
+            rc, _salida = self._callado(
+                cli.main, ["diagnostico", *self._vacio(Path(td)),
+                           "--salida", str(correcto), str(incorrecto)])
+            # Adentro del `with`: afuera el directorio temporal ya no existe y `exists()` daría
+            # False siempre, con lo que el test pasaría por el motivo equivocado.
+            self.assertEqual(rc, 0)
+            self.assertTrue(correcto.exists(), "tiene que escribir en el argumento SIGUIENTE")
+            self.assertFalse(incorrecto.exists())
+
+    def _manifiesto(self, bid, version="0.1.0"):
+        from nucleo.biblioteca import ManifiestoBiblioteca
+        return ManifiestoBiblioteca(
+            raiz=Path("/entorno/x"), id=bid, version=version, algebra="0.5", sintaxis="0.1",
+            catalogos=(), corpus=(), relaciones=(), macros=(), requiere_relaciones=(),
+            certificacion_mutantes=12)
+
+    def _proyecto(self, raiz: Path, bibliotecas=(), perfiles=()):
+        from nucleo.proyecto import Proyecto
+        (raiz / "catalogos").mkdir(parents=True, exist_ok=True)
+        (raiz / "oracle.json").write_text(json.dumps({
+            "esquema": "oracle.proyecto/v1",
+            "bibliotecas": list(bibliotecas), "perfiles": list(perfiles)}), encoding="utf-8")
+        return Proyecto(raiz)
+
+    def test_con_proyecto_informa_solo_las_bibliotecas_SELECCIONADAS(self) -> None:
+        """Lo que importa para reproducir un problema es qué políticas están ACTIVAS, no qué hay
+        instalado en la máquina."""
+        halladas = {"la.usada": self._manifiesto("la.usada"),
+                    "la.otra": self._manifiesto("la.otra")}
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), ["la.usada"], perfiles=["python"])
+            with mock.patch.object(cli, "descubrir_bibliotecas", return_value=halladas):
+                rc, salida = self._callado(cli.cmd_diagnostico, proy, [])
+            datos = json.loads(salida)
+        self.assertEqual(rc, 0)
+        self.assertEqual([b["id"] for b in datos["bibliotecas"]], ["la.usada"])
+        self.assertEqual(datos["perfiles"], ["python"])
+
+    def test_sin_ninguna_seleccionada_informa_las_instaladas(self) -> None:
+        """Si el proyecto no eligió ninguna, saber qué HAY sigue siendo útil para el reporte."""
+        halladas = {"la.otra": self._manifiesto("la.otra")}
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), [])
+            with mock.patch.object(cli, "descubrir_bibliotecas", return_value=halladas):
+                _rc, salida = self._callado(cli.cmd_diagnostico, proy, [])
+        self.assertEqual([b["id"] for b in json.loads(salida)["bibliotecas"]], ["la.otra"])
+
+    def test_sin_proyecto_no_hay_perfiles_ni_seleccion(self) -> None:
+        halladas = {"la.otra": self._manifiesto("la.otra")}
+        with mock.patch.object(cli, "descubrir_bibliotecas", return_value=halladas):
+            _rc, salida = self._callado(cli.cmd_diagnostico, None, [])
+        datos = json.loads(salida)
+        self.assertEqual(datos["perfiles"], [])
+        self.assertEqual([b["id"] for b in datos["bibliotecas"]], ["la.otra"])
+
+    def test_publica_la_version_de_cada_biblioteca(self) -> None:
+        halladas = {"la.usada": self._manifiesto("la.usada", "9.9.9")}
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), ["la.usada"])
+            with mock.patch.object(cli, "descubrir_bibliotecas", return_value=halladas):
+                _rc, salida = self._callado(cli.cmd_diagnostico, proy, [])
+        self.assertEqual(json.loads(salida)["bibliotecas"][0]["version"], "9.9.9")
+
+    def test_un_descubrimiento_roto_no_impide_diagnosticar(self) -> None:
+        """Es justo cuando más falta hace: si las bibliotecas están rotas, el diagnóstico es lo
+        único que puede explicar por qué."""
+        from nucleo.biblioteca import BibliotecaInvalida
+        with tempfile.TemporaryDirectory() as td, \
+                mock.patch.object(cli, "descubrir_bibliotecas",
+                                  side_effect=BibliotecaInvalida("dos publican el mismo id")):
+            rc, salida = self._callado(cli.main, ["diagnostico", *self._vacio(Path(td))])
+        self.assertEqual(rc, 0)
+        self.assertEqual(json.loads(salida)["bibliotecas"], [])
+
+
 class BibliotecaInstaladas(CliTestCase):
     """`oracle biblioteca instaladas`: qué hay en el entorno y qué usa ESTE proyecto.
 

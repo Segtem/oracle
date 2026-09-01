@@ -1,0 +1,5 @@
+ninguno meta.el_diagnostico_no_publica_el_dominio:
+    de campo_diagnostico d
+    donde d.es_del_dominio == true
+    umbral <= 0 segun contrato porque "el diagnóstico existe para pegarse en un issue público: un id de medida, un nombre de archivo o una ruta con el usuario adentro se comparten sin que nadie los mire dos veces, y no se pueden despublicar"
+    alcance "recorre los valores de texto del diagnóstico y los compara contra lo que el proyecto sabe que es suyo —ids de medidas, nombres de archivos, la raíz y el home—. NO detecta un dato del dominio que no esté en esa lista, ni juzga si un campo nuevo debería estar; de eso responde quien lo agrega"
