@@ -798,6 +798,105 @@ class InitDejaLasGuardasPuestasTests(CliTestCase):
             self.assertIn("ROJO", salida)
 
 
+class BibliotecaInstaladas(CliTestCase):
+    """`oracle biblioteca instaladas`: qué hay en el entorno y qué usa ESTE proyecto.
+
+    Sin este verbo, `oracle biblioteca` sólo sabía mirar una carpeta que ya tenías a mano. La
+    corrección 3 de DECISION-007 existe para poder inspeccionar ANTES de decidir —lo que determina
+    si una política sirve es su `alcance`— y no se puede leer lo que no se puede listar.
+    """
+
+    def _manifiesto(self, bid="segtem.meta.calidad", version="0.1.0"):
+        from nucleo.biblioteca import ManifiestoBiblioteca
+        return ManifiestoBiblioteca(
+            raiz=Path("/entorno/site-packages/oracle_bibliotecas/x"), id=bid, version=version,
+            algebra="0.5", sintaxis="0.1", catalogos=(), corpus=(), relaciones=(), macros=(),
+            requiere_relaciones=(), certificacion_mutantes=12)
+
+    def _proyecto(self, raiz: Path, bibliotecas=()):
+        from nucleo.proyecto import Proyecto
+        (raiz / "catalogos").mkdir(parents=True, exist_ok=True)
+        (raiz / "oracle.json").write_text(json.dumps(
+            {"esquema": "oracle.proyecto/v1", "bibliotecas": list(bibliotecas)}), encoding="utf-8")
+        return Proyecto(raiz)
+
+    def _correr(self, halladas, proy):
+        with mock.patch.object(cli, "descubrir_bibliotecas", return_value=halladas):
+            return self._callado(cli.cmd_biblioteca_instaladas, proy)
+
+    def test_sin_bibliotecas_lo_dice_y_explica_que_instalar_no_es_activar(self) -> None:
+        rc, salida = self._correr({}, None)
+        self.assertEqual(rc, 0)
+        self.assertIn("No hay bibliotecas", salida)
+        self.assertIn("instalar NO es activar", salida)
+
+    def test_marca_cual_esta_seleccionada(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), ["segtem.meta.calidad"])
+            rc, salida = self._correr(
+                {"segtem.meta.calidad": self._manifiesto(),
+                 "otra.biblioteca": self._manifiesto("otra.biblioteca")}, proy)
+        self.assertEqual(rc, 0)
+        marcada = next(l for l in salida.splitlines() if "segtem.meta.calidad" in l and "0.1.0" in l)
+        self.assertIn("✓ seleccionada", marcada)
+        otra = next(l for l in salida.splitlines() if l.strip().startswith("otra.biblioteca"))
+        self.assertIn("no seleccionada", otra)
+
+    def test_una_seleccionada_que_no_esta_instalada_falla(self) -> None:
+        """El proyecto cree tener una política que no tiene, y ninguna medida lo diría: las
+        medidas de esa biblioteca sencillamente no se cargaron."""
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto(Path(td), ["segtem.meta.calidad", "la.que.falta"])
+            rc, salida = self._correr({"segtem.meta.calidad": self._manifiesto()}, proy)
+        self.assertEqual(rc, 1)
+        self.assertIn("SELECCIONADAS Y NO INSTALADAS", salida)
+        self.assertIn("la.que.falta", salida)
+
+    def test_sin_proyecto_lista_igual(self) -> None:
+        """Querer ver qué hay instalado es legítimo parado en cualquier directorio."""
+        rc, salida = self._correr({"segtem.meta.calidad": self._manifiesto()}, None)
+        self.assertEqual(rc, 0)
+        self.assertIn("no seleccionada", salida)
+
+    def test_publica_la_mutacion_y_las_versiones_de_contrato(self) -> None:
+        """Lo que distingue una biblioteca probada de una que nadie rompió, en la primera mirada."""
+        _rc, salida = self._correr({"segtem.meta.calidad": self._manifiesto()}, None)
+        self.assertIn("12 mutantes publicados", salida)
+        self.assertIn("álgebra 0.5 · sintaxis 0.1", salida)
+
+    def test_el_verbo_se_despacha_desde_la_linea_de_comandos(self) -> None:
+        """Por el camino REAL, no llamando al manejador. Los tests de arriba ejercitan la función;
+        éste ejercita `oracle biblioteca instaladas`, que es lo que alguien escribe."""
+        with mock.patch.object(cli, "cmd_biblioteca_instaladas", return_value=7) as manejador:
+            rc, _salida = self._callado(cli.main, ["biblioteca", "instaladas"])
+        self.assertEqual(rc, 7, "el despacho tiene que devolver lo que devuelve el manejador")
+        manejador.assert_called_once()
+
+    def test_instaladas_no_acepta_argumentos(self) -> None:
+        """`instaladas` no toma ruta: si alguien le pasa una, esperaba otra cosa y hay que decirlo
+        en vez de ignorarla en silencio."""
+        with mock.patch.object(cli, "cmd_biblioteca_instaladas") as manejador:
+            rc, salida = self._callado(cli.main, ["biblioteca", "instaladas", "una/ruta"])
+        self.assertEqual(rc, 1)
+        self.assertIn("sobran argumentos", salida)
+        manejador.assert_not_called()
+
+    def test_un_verbo_desconocido_lista_los_tres(self) -> None:
+        rc, salida = self._callado(cli.main, ["biblioteca", "inventado"])
+        self.assertEqual(rc, 1)
+        self.assertIn("instaladas, verificar, listar", salida)
+
+    def test_un_descubrimiento_invalido_falla_cerrado(self) -> None:
+        from nucleo.biblioteca import BibliotecaInvalida
+        err = io.StringIO()
+        with mock.patch.object(cli, "descubrir_bibliotecas",
+                               side_effect=BibliotecaInvalida("dos publican el mismo id")), \
+                redirect_stderr(err):
+            rc, _salida = self._callado(cli.cmd_biblioteca_instaladas, None)
+        self.assertEqual(rc, 1)
+        self.assertIn("DESCUBRIMIENTO INVÁLIDO", err.getvalue())
+
+
 class NounVerbCliTests(CliTestCase):
     def test_ayudas_de_sustantivos_devuelven_cero(self) -> None:
         for sust, verbos in (
