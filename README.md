@@ -389,6 +389,45 @@ Los dominios que estuvieron acá durante el desarrollo —geometría, vault, rel
 laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
 no abstraer.
 
+## Heredar un catálogo sin quedar en rojo el primer día
+
+Activar `catalogo_base` te da medidas que ven cosas que las tuyas no veían, y por eso mismo te
+pone en rojo. Es correcto —esos defectos estaban— pero si la primera experiencia de heredar un
+catálogo es que el proyecto entero deja de pasar, no se hereda una segunda vez.
+
+Una medida se puede poner **en sombra**: se evalúa, se reporta, y no hace fallar.
+
+```json
+{
+  "esquema": "oracle.proyecto/v1",
+  "catalogo_base": true,
+  "sombra": {
+    "meta.todo_umbral_declara_de_donde_sale": {
+      "desde": "2026-09-01",
+      "porque": "el catálogo se escribió antes de que `segun` existiera; se completa este mes"
+    }
+  }
+}
+```
+
+```
+  ✗ meta.todo_umbral_declara_de_donde_sale     9 (<= 0)   [EN SOMBRA]
+
+EN SOMBRA — 1 medida(s) que se miden y no hacen fallar:
+  · meta.todo_umbral_declara_de_donde_sale  (hace 12 días)
+      porque: el catálogo se escribió antes de que `segun` existiera; se completa este mes
+
+ACEPTACIÓN ✓
+```
+
+**La sombra no silencia: declara.** Lo que se apaga es la consecuencia, no la medición — el conteo
+y la antigüedad se imprimen en cada corrida, así que «lo tengo en sombra hace ocho meses» es un
+hecho que se lee, no una comodidad que se olvida.
+
+Y apagar no sale gratis. Tres medidas vigilan la sombra misma, y **ninguna puede ponerse en sombra
+a sí misma**: que cada una declare desde cuándo y por qué, que no sobreviva a su propio verde —si
+ya pasa, no hay nada que perdonar— y que no apunte a un id que el catálogo ya no tiene.
+
 ## Las decisiones, y por qué
 
 Cada una registra una elección que costó discutir, con lo que se descartó y el motivo. Están en la

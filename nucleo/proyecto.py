@@ -120,6 +120,52 @@ def perfiles_incluidos(raices_adicionales=()) -> dict[str, Path]:
 class ConfiguracionProyecto:
     perfiles: tuple[str, ...] = ()
     catalogo_base: bool = False
+    # Medidas que se evalúan y se reportan pero NO hacen fallar. Cada una declara desde cuándo y
+    # por qué, para que «lo tengo en sombra hace ocho meses» sea un hecho que se lee en cada
+    # corrida y no una comodidad silenciosa.
+    sombra: tuple["EnSombra", ...] = ()
+
+
+@dataclass(frozen=True)
+class EnSombra:
+    """Una medida heredada que todavía no obliga, con la fecha y el motivo de por qué.
+
+    Existe porque adoptar un catálogo de políticas te pone en rojo, y con razón: sus medidas ven
+    cosas que las tuyas no veían. Pero si la primera experiencia de heredar un catálogo es que el
+    proyecto entero deja de pasar, no se hereda una segunda vez.
+
+    La sombra no silencia: declara. Lo que se apaga es la consecuencia —el veredicto rojo—, no la
+    medición, que se sigue haciendo y se sigue informando con su cuenta y su antigüedad.
+    """
+
+    medida: str
+    desde: str = ""
+    porque: str = ""
+
+
+def _sombra_declarada(datos: dict) -> tuple[EnSombra, ...]:
+    """Lee `sombra` de `oracle.json`. Falla cerrado ante cualquier forma que no entienda."""
+    crudo = datos.get("sombra", {})
+    if not isinstance(crudo, dict):
+        raise ProyectoInvalido(
+            "`sombra` debe ser un mapa de id de medida a `{desde, porque}`")
+    entradas = []
+    for mid, valor in crudo.items():
+        if not isinstance(mid, str) or not mid.strip():
+            raise ProyectoInvalido(f"id de medida inválido en `sombra`: {mid!r}")
+        if not isinstance(valor, dict):
+            raise ProyectoInvalido(f"`sombra[{mid}]` debe ser un objeto con `desde` y `porque`")
+        # `desde` y `porque` NO se exigen acá: los exige una medida del catálogo
+        # (`meta.toda_sombra_declara_desde_y_porque`), que es donde vive la política. Rechazarlos
+        # en el lector haría que la regla estuviera escrita dos veces, y una de las dos envejecería.
+        desde, porque = valor.get("desde", ""), valor.get("porque", "")
+        if not isinstance(desde, str) or not isinstance(porque, str):
+            raise ProyectoInvalido(f"`sombra[{mid}]`: `desde` y `porque` son texto")
+        entradas.append(EnSombra(mid, desde.strip(), porque.strip()))
+    ids = [e.medida for e in entradas]
+    if len(ids) != len(set(ids)):
+        raise ProyectoInvalido("`sombra` repite una medida")
+    return tuple(sorted(entradas, key=lambda e: e.medida))
 
 
 def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProyecto:
@@ -183,7 +229,7 @@ def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProye
             raise ProyectoInvalido(
                 f"`oracle.json` pide la sintaxis {necesitada} y este núcleo implementa "
                 f"{disponible}; un proyecto que declara una versión incompatible no se evalúa")
-    return ConfiguracionProyecto(tuple(perfiles), catalogo_base)
+    return ConfiguracionProyecto(tuple(perfiles), catalogo_base, _sombra_declarada(datos))
 
 
 @dataclass(frozen=True)

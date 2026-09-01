@@ -190,3 +190,66 @@ class TodaMedidaEstaFijadaTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class HechosDeSombra(unittest.TestCase):
+    """La sombra apaga la CONSECUENCIA de un rojo, no la medición.
+
+    Estos hechos existen para que apagar no salga gratis: son lo que le da a
+    `catalogos/meta/` con qué juzgar la sombra misma.
+    """
+
+    def _entrada(self, mid, desde="", porque=""):
+        from nucleo.proyecto import EnSombra
+        return EnSombra(mid, desde, porque)
+
+    def _fila(self, entradas, ok=None, catalogo=None, hoy=None):
+        from datetime import date
+        from nucleo.marco import hechos_de_sombra
+        return hechos_de_sombra(entradas, ok or {}, catalogo or {},
+                                hoy or date(2026, 9, 1))["sombra"]
+
+    def test_cuenta_los_dias_desde_la_fecha_declarada(self) -> None:
+        """«Lo tengo en sombra hace ocho meses» tiene que ser un número, no una sensación."""
+        fila, = self._fila([self._entrada("m.a", "2026-01-01", "x")])
+        self.assertEqual(fila["dias"], 243)
+        self.assertTrue(fila["declara_desde"])
+        self.assertTrue(fila["declara_porque"])
+
+    def test_una_fecha_ausente_o_ilegible_da_menos_uno_y_no_revienta(self) -> None:
+        """-1 no es un nulo disfrazado: el álgebra levanta error al comparar contra un ausente,
+        y de la falta se ocupa otra medida mirando `declara_desde`."""
+        for desde in ("", "ayer", "2026-13-45"):
+            with self.subTest(desde=desde):
+                fila, = self._fila([self._entrada("m.a", desde, "x")])
+                self.assertEqual(fila["dias"], -1)
+                self.assertFalse(fila["declara_desde"] and desde == "")
+
+    def test_una_sombra_en_blanco_no_declara_nada(self) -> None:
+        fila, = self._fila([self._entrada("m.a")])
+        self.assertFalse(fila["declara_desde"])
+        self.assertFalse(fila["declara_porque"])
+
+    def test_un_motivo_de_puros_espacios_no_cuenta_como_declarado(self) -> None:
+        fila, = self._fila([self._entrada("m.a", "2026-01-01", "   ")])
+        self.assertFalse(fila["declara_porque"])
+
+    def test_dio_ok_marca_la_sombra_que_ya_no_hace_falta(self) -> None:
+        filas = self._fila([self._entrada("m.verde"), self._entrada("m.roja")],
+                           ok={"m.verde": True, "m.roja": False})
+        self.assertEqual({f["medida"]: f["dio_ok"] for f in filas},
+                         {"m.verde": True, "m.roja": False})
+
+    def test_una_medida_que_no_corrio_no_se_declara_en_verde(self) -> None:
+        """No se puede afirmar que esté en verde algo que no se evaluó."""
+        fila, = self._fila([self._entrada("m.a")], ok={})
+        self.assertFalse(fila["dio_ok"])
+
+    def test_existe_compara_contra_el_catalogo_cargado(self) -> None:
+        filas = self._fila([self._entrada("m.hay"), self._entrada("m.no")],
+                           catalogo={"m.hay": object()})
+        self.assertEqual({f["medida"]: f["existe"] for f in filas},
+                         {"m.hay": True, "m.no": False})
+
+    def test_sin_sombras_la_relacion_viene_vacia(self) -> None:
+        self.assertEqual(self._fila([]), [])

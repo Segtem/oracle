@@ -26,12 +26,13 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.caso import cargar_casos  # noqa: E402
-from nucleo.marco import hechos_de_casos  # noqa: E402
+from nucleo.marco import hechos_de_casos, hechos_de_sombra  # noqa: E402
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
                            medidas_aplicables)  # noqa: E402
 from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
 from nucleo.unidad import hechos_de_unidades  # noqa: E402
-from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
+                             catalogos_a_cargar, configuracion,
                              confiar_escalares, escalares_del_proyecto,
                              macros_del_proyecto,
                              problemas_estructura, relaciones_del_proyecto)  # noqa: E402
@@ -103,10 +104,55 @@ def _ejecutar(proy) -> int:
                       **hechos_de_unidades(catalogo.values(), relaciones)}
     metas = [m for mid, m in sorted(catalogo.items()) if mid.startswith("meta.")]
     informe_meta = evaluar(medidas_aplicables(metas, evidencia_meta), evidencia_meta)
+
+    # La SOMBRA apaga la consecuencia de un rojo, no la medición. Una medida en sombra se evalúa
+    # igual, se imprime igual y se cuenta igual; lo único que no hace es tumbar la corrida.
+    #
+    # Existe porque heredar un catálogo de políticas te pone en rojo, y con razón: sus medidas ven
+    # cosas que las tuyas no veían. Pero si la primera experiencia de heredarlo es que el proyecto
+    # entero deja de pasar, no se hereda una segunda vez. La sombra compra tiempo sin comprar
+    # silencio: cada una declara desde cuándo y por qué, y `catalogos/meta/` tiene tres medidas que
+    # las vigilan —que declaren, que no sobrevivan a su propio verde, y que no apunten a un id que
+    # ya no existe—.
+    en_sombra = {e.medida for e in configuracion(proy).sombra}
+    ensombrecidas = []
     for v in informe_meta.veredictos:
-        print(" ", v.linea())
-        if not v.ok:
+        # La marca va en la línea del VEREDICTO, no al final del bloque: `v.linea()` trae también
+        # los testigos, y pegada al final quedaba a cinco renglones del id que ensombrece — donde
+        # nadie la asocia con la medida, que es lo mismo que no marcarla.
+        veredicto, salto, resto = v.linea().partition("\n")
+        if v.id in en_sombra:
+            veredicto += "   [EN SOMBRA]"
+        print(" ", veredicto + salto + resto)
+        if v.ok:
+            continue
+        if v.id in en_sombra:
+            ensombrecidas.append(v)
+        else:
             fallas.append(f"{v.id}: el marco no cumple su propia regla")
+
+    # La segunda vuelta: las medidas que juzgan la sombra misma. Van aparte porque necesitan los
+    # veredictos de la primera —una sombra «ya en verde» no se puede saber antes de medir—.
+    sombra_declarada = configuracion(proy).sombra
+    if sombra_declarada:
+        evidencia_sombra = {**evidencia_meta,
+                            **hechos_de_sombra(sombra_declarada,
+                                               {v.id: v.ok for v in informe_meta.veredictos},
+                                               catalogo)}
+        vigilan = [m for mid, m in sorted(catalogo.items()) if "sombra" in mid]
+        informe_sombra = evaluar(medidas_aplicables(vigilan, evidencia_sombra), evidencia_sombra)
+        print(f"\nEN SOMBRA — {len(sombra_declarada)} medida(s) que se miden y no hacen fallar:")
+        for entrada in sombra_declarada:
+            hecho = next(h for h in evidencia_sombra["sombra"] if h["medida"] == entrada.medida)
+            antiguedad = f"hace {hecho['dias']} días" if hecho["dias"] >= 0 else "sin fecha"
+            print(f"  · {entrada.medida}  ({antiguedad})")
+            print(f"      porque: {entrada.porque or '(no declarado)'}")
+        for v in informe_sombra.veredictos:
+            print(" ", v.linea())
+            if not v.ok:
+                # Las medidas que vigilan la sombra NO se pueden poner en sombra: sería apagar el
+                # único mecanismo que impide que apagar salga gratis.
+                fallas.append(f"{v.id}: el marco no cumple su propia regla")
 
     if fallas:
         print(f"\nACEPTACIÓN ✗ — {len(fallas)} problema(s)")

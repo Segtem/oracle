@@ -10,6 +10,7 @@ Acá se producen los hechos; el juicio queda en `catalogos/meta/`.
 
     caso(id, medida, procedencia, tiene_medida, medida_existe, esperado_ok, dio_ok, explica_el_hueco)
     medida_en_uso(id, casos_que_la_evaluan, mutantes, mutantes_vivos)
+    sombra(medida, declara_desde, declara_porque, dias, dio_ok, existe)
 
 ## Por qué no hay nulos
 
@@ -27,8 +28,45 @@ hasta que `agrupar` exista se rodea así.
 
 from __future__ import annotations
 
+from datetime import date
 
-RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso"})
+
+RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra"})
+
+
+def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
+                     hoy: date | None = None) -> dict:
+    """Un hecho por medida puesta en sombra: qué declara, hace cuánto, y si ya está en verde.
+
+    La sombra apaga la CONSECUENCIA de un rojo, no la medición. Estos hechos existen para que el
+    apagado no sea gratis: que una sombra no declare su motivo, o que lleve meses puesta sobre una
+    medida que hace rato da verde, son cosas que una medida del catálogo puede atrapar — y las
+    atrapa, en `catalogos/meta/`.
+
+    `dias` es -1 cuando `desde` no se declaró o no es una fecha ISO. No es un nulo disfrazado: el
+    álgebra levanta error al comparar contra un valor ausente, y de la falta se ocupa
+    `meta.toda_sombra_declara_desde_y_porque`, que mira `declara_desde`. Cada pregunta a la medida
+    que le corresponde.
+    """
+    hoy = hoy or date.today()
+    filas = []
+    for entrada in en_sombra:
+        try:
+            dias = (hoy - date.fromisoformat(entrada.desde)).days
+        except ValueError:
+            dias = -1
+        filas.append({
+            "medida": entrada.medida,
+            "declara_desde": bool(entrada.desde.strip()),
+            "declara_porque": bool(entrada.porque.strip()),
+            "dias": dias,
+            # Una sombra sobre una medida que YA da verde no tiene motivo para seguir puesta.
+            # `dio_ok` es falso cuando la medida no llegó a evaluarse: no se puede afirmar que
+            # esté en verde algo que no corrió.
+            "dio_ok": bool(veredictos_ok.get(entrada.medida, False)),
+            "existe": entrada.medida in catalogo,
+        })
+    return {"sombra": filas}
 
 
 def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
