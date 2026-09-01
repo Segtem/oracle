@@ -11,9 +11,9 @@ caso 408-medida-con-evidencia-observada:
     como_se_detecto: observacion
     medida: meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
     evidencia:
-        caso: id, medida, tiene_medida, procedencia
-            "200-corrida-sin-ninguna-corrida", "simulacion.corrida_reproducible", true, "observada"
-            "301-simulador-que-ignora-la-semilla", "simulacion.corrida_reproducible", true, "construida"
-            "012-umbral-duplicado-en-filtro-y-umbral", "", false, "construida"
+        caso: id, medida, tiene_medida, procedencia, es_heredado
+            "200-corrida-sin-ninguna-corrida", "simulacion.corrida_reproducible", true, "observada", false
+            "301-simulador-que-ignora-la-semilla", "simulacion.corrida_reproducible", true, "construida", false
+            "012-umbral-duplicado-en-filtro-y-umbral", "", false, "construida", false
     leccion:
-        La regla no exige que todos los casos sean observados: exige que no sean todos fabricados, y que los huecos sin medida no contaminen el agrupamiento.
+        La regla no exige que todos los casos propios sean observados: exige que no sean todos fabricados, y que los huecos sin medida no contaminen el agrupamiento.

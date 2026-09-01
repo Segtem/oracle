@@ -1688,6 +1688,45 @@ caso {cid}:
         linea = next(l for l in salida.splitlines() if l.startswith("  hueco  010"))
         self.assertEqual(linea.count("x"), 70)
 
+    def test_el_corpus_seleccionado_llega_con_biblioteca_y_marca_de_herencia(self) -> None:
+        from nucleo.biblioteca import cargar_manifiesto
+
+        ejemplo = (Path(__file__).resolve().parents[1] / "ejemplo" / "biblioteca-segtem" /
+                   "oracle_bibliotecas" / "oracle_biblioteca_segtem_meta_calidad")
+        manifiesto = cargar_manifiesto(ejemplo)
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            (raiz / "corpus").mkdir()
+            proy = Proyecto(raiz)
+            with mock.patch.object(
+                    aceptacion, "bibliotecas_del_proyecto", return_value=(manifiesto,)):
+                cargados = aceptacion.casos(proy)
+
+        self.assertEqual(len(cargados), 3)
+        self.assertTrue(all(c["es_heredado"] for c in cargados))
+        self.assertEqual({c["biblioteca"] for c in cargados}, {"segtem.meta.calidad"})
+
+    def test_un_id_de_caso_repetido_entre_proyecto_y_biblioteca_falla_cerrado(self) -> None:
+        from nucleo.biblioteca import cargar_manifiesto
+
+        ejemplo = (Path(__file__).resolve().parents[1] / "ejemplo" / "biblioteca-segtem" /
+                   "oracle_bibliotecas" / "oracle_biblioteca_segtem_meta_calidad")
+        manifiesto = cargar_manifiesto(ejemplo)
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            (raiz / "corpus").mkdir()
+            shutil.copy2(
+                ejemplo / "corpus" / "001-medida-sin-alcance.caso",
+                raiz / "corpus" / "001-medida-sin-alcance.caso",
+            )
+            with (mock.patch.object(
+                    aceptacion, "bibliotecas_del_proyecto", return_value=(manifiesto,)),
+                  self.assertRaisesRegex(
+                      ValueError, "id de caso.*repetido en proyecto y segtem.meta.calidad")):
+                aceptacion.casos(Proyecto(raiz))
+
 
 class ModoSombra(unittest.TestCase):
     """Una medida en sombra se mide, se reporta, y NO tumba la corrida.

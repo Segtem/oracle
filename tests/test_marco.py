@@ -87,6 +87,27 @@ class HechosDeCasosTests(unittest.TestCase):
         self.assertEqual(filas["declarado"]["procedencia"], "observada")
         self.assertEqual(filas["ausente"]["procedencia"], "sin_declarar")
 
+    def test_reifica_si_el_caso_es_heredado_y_que_biblioteca_lo_trajo(self) -> None:
+        casos = [
+            {"id": "propio", "etiqueta": "verde_correcto", "evidencia": {},
+             "es_heredado": False, "biblioteca": ""},
+            {"id": "ajeno", "etiqueta": "verde_correcto", "evidencia": {},
+             "es_heredado": True, "biblioteca": "tercero.calidad"},
+        ]
+        filas = {f["id"]: f for f in hechos_de_casos({}, casos)["caso"]}
+
+        self.assertFalse(filas["propio"]["es_heredado"])
+        self.assertEqual(filas["propio"]["biblioteca"], "")
+        self.assertTrue(filas["ajeno"]["es_heredado"])
+        self.assertEqual(filas["ajeno"]["biblioteca"], "tercero.calidad")
+
+    def test_un_caso_sin_origen_reificado_es_propio_por_compatibilidad(self) -> None:
+        fila, = hechos_de_casos(
+            {}, [{"id": "legado", "etiqueta": "verde_correcto", "evidencia": {}}]
+        )["caso"]
+        self.assertFalse(fila["es_heredado"])
+        self.assertEqual(fila["biblioteca"], "")
+
     def test_distingue_sin_medida_id_desconocido_y_estado_del_hueco(self) -> None:
         casos = [
             {"id": "abierto", "medida": None, "etiqueta": "falso_verde",
@@ -108,6 +129,53 @@ class HechosDeCasosTests(unittest.TestCase):
         self.assertFalse(filas["desconocido"]["medida_existe"])
         self.assertFalse(filas["desconocido"]["es_hueco_abierto"])
         self.assertFalse(filas["resuelto"]["es_hueco_abierto"])
+
+
+class AlcanceDeCasosHeredadosTests(unittest.TestCase):
+    def _medida(self, mid: str):
+        return cargar(ruta_de_medida(mid, RAIZ / "catalogos"))
+
+    def test_la_fijacion_mira_solo_casos_propios_y_lo_declara(self) -> None:
+        medida = self._medida("meta.la_medida_no_se_fija_solo_con_evidencia_fabricada")
+        evidencia = {"caso": [
+            {"medida": "propia.regla", "tiene_medida": True,
+             "procedencia": "observada", "es_heredado": False},
+            {"medida": "ajena.regla", "tiene_medida": True,
+             "procedencia": "construida", "es_heredado": True},
+        ]}
+        self.assertTrue(medida.evaluar(evidencia).ok)
+        self.assertIn("sólo casos propios", medida.alcance)
+        self.assertIn("es_heredado == false", medida.alcance)
+
+    def test_la_explicacion_del_hueco_mira_solo_lo_propio_y_lo_declara(self) -> None:
+        medida = self._medida("meta.el_hueco_declarado_explica_por_que")
+        comun = {"tiene_medida": False, "es_hueco_abierto": True}
+        evidencia = {"caso": [
+            {**comun, "explica_el_hueco": True, "es_heredado": False},
+            {**comun, "explica_el_hueco": False, "es_heredado": True},
+        ]}
+        self.assertTrue(medida.evaluar(evidencia).ok)
+        self.assertIn("sólo casos propios", medida.alcance)
+        self.assertIn("es_heredado == false", medida.alcance)
+
+        evidencia["caso"][0]["explica_el_hueco"] = False
+        self.assertFalse(medida.evaluar(evidencia).ok)
+
+    def test_un_caso_heredado_con_medida_ausente_se_mira_y_el_alcance_dice_todo(self) -> None:
+        medida = self._medida("meta.el_caso_reclama_una_medida_que_existe")
+        evidencia = {"caso": [
+            {"tiene_medida": True, "medida_existe": False, "es_heredado": True},
+        ]}
+        self.assertFalse(medida.evaluar(evidencia).ok)
+        self.assertIn("todos los casos, propios y heredados", medida.alcance)
+
+    def test_un_caso_heredado_que_difiere_se_mira_y_el_alcance_dice_todo(self) -> None:
+        medida = self._medida("meta.el_caso_se_pone_como_debe")
+        evidencia = {"caso": [
+            {"esperado_ok": True, "dio_ok": False, "es_heredado": True},
+        ]}
+        self.assertFalse(medida.evaluar(evidencia).ok)
+        self.assertIn("todos los casos, propios y heredados", medida.alcance)
 
 
 class TodaMedidaEstaFijadaTests(unittest.TestCase):

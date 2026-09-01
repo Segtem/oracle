@@ -3,18 +3,26 @@
 from __future__ import annotations
 
 import io
+import sys
 import shutil
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
+from importlib import metadata
 from pathlib import Path
+from types import SimpleNamespace
 
-from nucleo.biblioteca import BibliotecaInvalida, cargar_manifiesto, verificar_biblioteca
+from nucleo.biblioteca import (BibliotecaInvalida, cargar_manifiesto,
+                               descubrir_bibliotecas, ruta_instalada_del_manifiesto,
+                               verificar_biblioteca)
 from tools import cli
 
 
 RAIZ = Path(__file__).resolve().parents[1]
-EJEMPLO = RAIZ / "ejemplo" / "biblioteca-segtem"
+PAQUETE_EJEMPLO = RAIZ / "ejemplo" / "biblioteca-segtem"
+EJEMPLO = (PAQUETE_EJEMPLO / "oracle_bibliotecas" /
+           "oracle_biblioteca_segtem_meta_calidad")
+NOMBRE_DISTRIBUCION = "oracle-biblioteca-segtem-meta-calidad"
 
 
 class BibliotecaTests(unittest.TestCase):
@@ -29,6 +37,87 @@ class BibliotecaTests(unittest.TestCase):
         if antes not in texto:
             raise AssertionError(f"el test no encontró {antes!r} en {ruta}")
         ruta.write_text(texto.replace(antes, despues), encoding="utf-8")
+
+    @staticmethod
+    def _instalar_metadata(base: Path, nombre=NOMBRE_DISTRIBUCION, version="0.1.0"):
+        relativa = ruta_instalada_del_manifiesto(nombre)
+        destino = base.joinpath(*relativa.parts).parent
+        shutil.copytree(EJEMPLO, destino)
+        normalizado = nombre.replace("-", "_").replace(".", "_")
+        dist_info = base / f"{normalizado}-{version}.dist-info"
+        dist_info.mkdir()
+        (dist_info / "METADATA").write_text(
+            f"Metadata-Version: 2.1\nName: {nombre}\nVersion: {version}\n",
+            encoding="utf-8",
+        )
+        instalados = [p.relative_to(base).as_posix() for p in destino.rglob("*") if p.is_file()]
+        instalados.extend([
+            f"{dist_info.name}/METADATA",
+            f"{dist_info.name}/RECORD",
+        ])
+        (dist_info / "RECORD").write_text(
+            "".join(f"{ruta},,\n" for ruta in instalados), encoding="utf-8")
+        return next(d for d in metadata.distributions(path=[base])
+                    if d.metadata.get("Name") == nombre)
+
+    def test_descubre_la_distribucion_por_metadata_y_ruta_fija_sin_importarla(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            distribucion = self._instalar_metadata(base)
+            peligro = base / "paquete_que_no_debe_importarse.py"
+            peligro.write_text('raise AssertionError("el descubrimiento importó código")\n',
+                                encoding="utf-8")
+
+            descubiertas = descubrir_bibliotecas(distribuciones=[distribucion])
+
+        self.assertEqual(list(descubiertas), ["segtem.meta.calidad"])
+        self.assertEqual(descubiertas["segtem.meta.calidad"].version, "0.1.0")
+        self.assertNotIn("paquete_que_no_debe_importarse", sys.modules)
+
+    def test_una_distribucion_instalada_sin_la_ruta_fija_no_es_biblioteca(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            distribucion = self._instalar_metadata(base)
+            record = next(base.glob("*.dist-info/RECORD"))
+            record.write_text(
+                "".join(line for line in record.read_text(encoding="utf-8").splitlines(True)
+                        if not line.startswith("oracle_bibliotecas/")),
+                encoding="utf-8",
+            )
+            distribucion = next(metadata.distributions(path=[base]))
+            self.assertEqual(descubrir_bibliotecas(distribuciones=[distribucion]), {})
+
+    def test_metadata_sin_nombre_no_puede_convertirse_en_una_ruta(self) -> None:
+        sin_nombre = SimpleNamespace(metadata={"Name": ""}, files=())
+        self.assertEqual(descubrir_bibliotecas(distribuciones=[sin_nombre]), {})
+
+    def test_dos_distribuciones_con_el_mismo_id_fallan_cerrado(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            primera = self._instalar_metadata(base)
+            segunda = self._instalar_metadata(base, nombre="otra-biblioteca-oracle")
+            with self.assertRaisesRegex(BibliotecaInvalida, "id de biblioteca ambiguo"):
+                descubrir_bibliotecas(distribuciones=[primera, segunda])
+
+    def test_la_version_instalada_y_la_publicada_no_pueden_divergir(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            distribucion = self._instalar_metadata(Path(td), version="0.2.0")
+            with self.assertRaisesRegex(BibliotecaInvalida, "instala versión.*manifiesto"):
+                descubrir_bibliotecas(distribuciones=[distribucion])
+
+    def test_una_distribucion_de_biblioteca_con_python_se_rechaza_sin_importarlo(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            base = Path(td)
+            self._instalar_metadata(base)
+            modulo = base / "codigo_ajeno.py"
+            modulo.write_text('raise AssertionError("no ejecutar")\n', encoding="utf-8")
+            record = next(base.glob("*.dist-info/RECORD"))
+            record.write_text(
+                record.read_text(encoding="utf-8") + "codigo_ajeno.py,,\n", encoding="utf-8")
+            distribucion = next(metadata.distributions(path=[base]))
+            with self.assertRaisesRegex(BibliotecaInvalida, "no ejecuta código"):
+                descubrir_bibliotecas(distribuciones=[distribucion])
+            self.assertNotIn("codigo_ajeno", sys.modules)
 
     def test_el_ejemplo_publica_y_sostiene_su_numero_de_mutacion(self) -> None:
         informe = verificar_biblioteca(EJEMPLO)

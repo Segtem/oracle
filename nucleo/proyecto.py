@@ -120,6 +120,7 @@ def perfiles_incluidos(raices_adicionales=()) -> dict[str, Path]:
 class ConfiguracionProyecto:
     perfiles: tuple[str, ...] = ()
     catalogo_base: bool = False
+    bibliotecas: tuple[str, ...] = ()
     # Medidas que se evalúan y se reportan pero NO hacen fallar. Cada una declara desde cuándo y
     # por qué, para que «lo tengo en sombra hace ocho meses» sea un hecho que se lee en cada
     # corrida y no una comodidad silenciosa.
@@ -200,6 +201,13 @@ def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProye
     catalogo_base = datos.get("catalogo_base", False)
     if not isinstance(catalogo_base, bool):
         raise ProyectoInvalido("`catalogo_base` debe ser booleano")
+    bibliotecas = datos.get("bibliotecas", [])
+    if (not isinstance(bibliotecas, list)
+            or any(not isinstance(bid, str) or ID_MEDIDA_RE.fullmatch(bid) is None
+                   for bid in bibliotecas)
+            or len(bibliotecas) != len(set(bibliotecas))):
+        raise ProyectoInvalido(
+            "`bibliotecas` debe ser una lista sin duplicados de ids de biblioteca")
     # Un proyecto puede declarar qué versión del álgebra necesita. Es OPCIONAL: quien no la declara
     # sigue funcionando (los consumidores existentes no se rompen), pero quien la declara y no coincide
     # falla cerrado acá, antes de cargar ni una medida — con un mensaje que dice cuál hay y cuál se
@@ -229,7 +237,12 @@ def configuracion(proy: "Proyecto", *, raices_perfiles=()) -> ConfiguracionProye
             raise ProyectoInvalido(
                 f"`oracle.json` pide la sintaxis {necesitada} y este núcleo implementa "
                 f"{disponible}; un proyecto que declara una versión incompatible no se evalúa")
-    return ConfiguracionProyecto(tuple(perfiles), catalogo_base, _sombra_declarada(datos))
+    return ConfiguracionProyecto(
+        perfiles=tuple(perfiles),
+        catalogo_base=catalogo_base,
+        bibliotecas=tuple(bibliotecas),
+        sombra=_sombra_declarada(datos),
+    )
 
 
 @dataclass(frozen=True)
@@ -256,14 +269,33 @@ class Proyecto:
         return "oracle (sí mismo)" if self.es_el_propio_oracle else str(self.raiz)
 
 
+def bibliotecas_del_proyecto(proy: "Proyecto", *, config=None):
+    """Resuelve sólo los ids seleccionados; instalar una distribución no la activa."""
+    from .biblioteca import BibliotecaInvalida, descubrir_bibliotecas
+
+    config = config or configuracion(proy)
+    if not config.bibliotecas:
+        return ()
+    try:
+        disponibles = descubrir_bibliotecas()
+    except BibliotecaInvalida as e:
+        raise ProyectoInvalido(f"bibliotecas instaladas inválidas: {e}") from e
+    desconocidas = sorted(set(config.bibliotecas) - set(disponibles))
+    if desconocidas:
+        raise ProyectoInvalido(f"bibliotecas no instaladas: {desconocidas}")
+    return tuple(disponibles[bid] for bid in config.bibliotecas)
+
+
 def catalogos_base_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
-    """Políticas base y perfiles cargados sólo cuando el proyecto los pide explícitamente."""
+    """Políticas base, perfiles y bibliotecas activadas explícitamente por el proyecto."""
     raices = _normalizar_raices_perfiles(raices_perfiles)
     disponibles = perfiles_incluidos(raices)
     config = configuracion(proy, raices_perfiles=raices)
+    bibliotecas = bibliotecas_del_proyecto(proy, config=config)
     return [
         *([RAIZ_ORACLE / "catalogos"] if config.catalogo_base else []),
         *(disponibles[nombre] for nombre in config.perfiles),
+        *(directorio for biblioteca in bibliotecas for directorio in biblioteca.catalogos),
     ]
 
 
@@ -281,23 +313,29 @@ def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
 
 
 def relaciones_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> dict[str, Any]:
-    """Carga las relaciones del proyecto más las relaciones base cuando tiene `catalogo_base`."""
+    """Carga juntas las relaciones seleccionadas para que ningún id repetido gane en silencio."""
     from .relacion import cargar_relaciones
 
-    rels: dict[str, Any] = {}
     config = configuracion(proy, raices_perfiles=raices_perfiles)
+    directorios = []
     if config.catalogo_base:
         dir_base = RAIZ_ORACLE / "relaciones"
         if dir_base.is_dir():
-            rels.update(cargar_relaciones(dir_base))
+            directorios.append(dir_base)
+    directorios.extend(
+        directorio
+        for biblioteca in bibliotecas_del_proyecto(proy, config=config)
+        for directorio in biblioteca.relaciones
+    )
     dir_proy = proy.raiz / "relaciones"
-    if dir_proy.is_dir():
-        rels.update(cargar_relaciones(dir_proy))
-    return rels
+    if (dir_proy.is_dir()
+            and all(dir_proy.resolve() != directorio.resolve() for directorio in directorios)):
+        directorios.append(dir_proy)
+    return cargar_relaciones(directorios)
 
 
-def macros_del_proyecto(proy: "Proyecto") -> "RegistroMacros":
-    """Biblioteca estándar del lenguaje más las macros que declare el proyecto en `macros/`.
+def macros_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> "RegistroMacros":
+    """Biblioteca estándar más macros de bibliotecas seleccionadas y del proyecto.
 
     Las macros son DATOS, no código: se leen y se sustituyen, así que no necesitan la confianza
     explícita que sí exige `escalares.py`. Lo que sí se exige es lo mismo que a todo lo demás —que el
@@ -307,6 +345,9 @@ def macros_del_proyecto(proy: "Proyecto") -> "RegistroMacros":
     from .macro import cargar_macros, macros_base
 
     registro = macros_base()
+    config = configuracion(proy, raices_perfiles=raices_perfiles)
+    for biblioteca in bibliotecas_del_proyecto(proy, config=config):
+        cargar_macros(biblioteca.macros, registro=registro)
     directorio = proy.raiz / "macros"
     if not directorio.is_dir():
         return registro

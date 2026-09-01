@@ -1,8 +1,9 @@
-"""Bibliotecas locales de políticas: datos verificables antes de resolver paquetes.
+"""Bibliotecas de políticas: datos verificables, instalados sin ejecutar código.
 
-Esta primera versión fija el contrato ``oracle.biblioteca/v1`` sobre una carpeta física. No
-descubre distribuciones ni importa módulos: manifiesto, medidas, casos, macros y relaciones se leen
-como datos. Encontrar Python o un binario ejecutable es un error, no una invitación a confiarlo.
+El contrato ``oracle.biblioteca/v1`` vive en una carpeta física. Una distribución instalada la
+publica en una ruta fija derivada de su nombre. El descubrimiento usa sólo ``importlib.metadata``:
+lee ``METADATA``, ``RECORD`` y el manifiesto localizado, sin importar el paquete ni cargar entry
+points. Encontrar Python o un binario ejecutable es un error, no una invitación a confiarlo.
 """
 
 from __future__ import annotations
@@ -10,6 +11,7 @@ from __future__ import annotations
 import re
 import tomllib
 from dataclasses import dataclass
+from importlib import metadata
 from pathlib import Path, PurePosixPath
 
 from .caso import CasoMalDeclarado, cargar_casos
@@ -24,7 +26,9 @@ from .version import (VersionInvalida, compatible, del_nucleo, del_nucleo_sintax
 
 ESQUEMA_BIBLIOTECA = "oracle.biblioteca/v1"
 ARCHIVO_MANIFIESTO = "oracle-biblioteca.toml"
+DIRECTORIO_DISTRIBUCIONES = "oracle_bibliotecas"
 ID_BIBLIOTECA_RE = re.compile(r"^[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+$")
+NOMBRE_DISTRIBUCION_RE = re.compile(r"^[a-z0-9]+(?:_[a-z0-9]+)*$")
 VERSION_BIBLIOTECA_RE = re.compile(
     r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 SUFIJOS_EJECUTABLES = frozenset({".py", ".pyc", ".pyd", ".so", ".dll", ".dylib"})
@@ -60,6 +64,65 @@ class InformeBiblioteca:
     relaciones: int
     mutantes: int
     detalle_medidas: tuple[Medida, ...]
+
+
+def _nombre_instalado(nombre: str) -> str:
+    """Normaliza el nombre de distribución a un componente de ruta cerrado.
+
+    La equivalencia de ``-``, ``_`` y ``.`` es la misma que usa el índice de paquetes. El resultado
+    no se usa para importar: identifica dónde buscar los datos dentro de los archivos instalados.
+    """
+    normalizado = re.sub(r"[-_.]+", "_", nombre).lower()
+    if NOMBRE_DISTRIBUCION_RE.fullmatch(normalizado) is None:
+        raise BibliotecaInvalida(f"nombre de distribución inválido: {nombre!r}")
+    return normalizado
+
+
+def ruta_instalada_del_manifiesto(nombre_distribucion: str) -> PurePosixPath:
+    return PurePosixPath(
+        DIRECTORIO_DISTRIBUCIONES,
+        _nombre_instalado(nombre_distribucion),
+        ARCHIVO_MANIFIESTO,
+    )
+
+
+def descubrir_bibliotecas(*, distribuciones=None) -> dict[str, ManifiestoBiblioteca]:
+    """Encuentra bibliotecas instaladas leyendo metadata y datos, nunca módulos ajenos.
+
+    Sólo una distribución cuyo ``RECORD`` enumera el manifiesto en la ruta fija participa. Dos
+    manifiestos con el mismo id son ambiguos aunque tengan la misma versión: se falla cerrado.
+    """
+    candidatas = metadata.distributions() if distribuciones is None else distribuciones
+    encontradas: dict[str, ManifiestoBiblioteca] = {}
+    procedencias: dict[str, str] = {}
+    for distribucion in candidatas:
+        nombre = distribucion.metadata.get("Name")
+        if not isinstance(nombre, str) or not nombre.strip():
+            continue
+        ruta_manifiesto = ruta_instalada_del_manifiesto(nombre)
+        archivos = tuple(distribucion.files or ())
+        rutas = {PurePosixPath(str(archivo)) for archivo in archivos}
+        if ruta_manifiesto not in rutas:
+            continue
+        ejecutables = sorted(str(ruta) for ruta in rutas
+                             if ruta.suffix.lower() in SUFIJOS_EJECUTABLES)
+        if ejecutables:
+            raise BibliotecaInvalida(
+                f"la distribución {nombre!r} no es sólo datos; no ejecuta código: {ejecutables}")
+        raiz = Path(distribucion.locate_file(str(ruta_manifiesto))).parent
+        manifiesto = cargar_manifiesto(raiz)
+        version_instalada = distribucion.metadata.get("Version")
+        if version_instalada != manifiesto.version:
+            raise BibliotecaInvalida(
+                f"{nombre!r} instala versión {version_instalada!r}, pero el manifiesto declara "
+                f"{manifiesto.version!r}")
+        if manifiesto.id in encontradas:
+            raise BibliotecaInvalida(
+                f"id de biblioteca ambiguo «{manifiesto.id}» en "
+                f"{procedencias[manifiesto.id]} y {nombre}")
+        encontradas[manifiesto.id] = manifiesto
+        procedencias[manifiesto.id] = nombre
+    return encontradas
 
 
 def _claves_exactas(datos: dict, esperadas: set[str] | frozenset[str], donde: str) -> None:
