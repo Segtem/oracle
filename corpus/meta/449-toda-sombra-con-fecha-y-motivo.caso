@@ -1,0 +1,18 @@
+caso 449-toda-sombra-con-fecha-y-motivo:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Todas las sombras declaran desde cuándo y por qué"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Las dos filas sanas fijan que la medida filtra.
+    como_se_detecto: observacion
+    medida: meta.toda_sombra_declara_desde_y_porque
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.una", true, true, 2, false, true
+            "dominio.otra", true, true, 33, false, true
+    leccion:
+        La medida ve que los dos campos están; NO juzga si el motivo es bueno ni si la fecha es cierta.

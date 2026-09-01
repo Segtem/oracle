@@ -28,7 +28,7 @@ import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
 from nucleo.marco import (hechos_de_casos, hechos_de_documentacion,  # noqa: E402
-                          hechos_de_sombra, hechos_de_verbos)
+                          hechos_de_sombra, hechos_de_verbos, hechos_de_vocabulario)
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,  # noqa: E402
                            medidas_aplicables, relaciones_del_lenguaje_declaradas)
 from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
@@ -52,6 +52,21 @@ def _hechos_del_cli() -> dict:
     from tools import cli
 
     return hechos_de_verbos(cli.VERBOS, cli.__doc__ or "")
+
+
+def _hechos_del_vocabulario() -> dict:
+    """Cada opción de cada vocabulario cerrado, y si el manual la alcanza.
+
+    A diferencia de los verbos del CLI, esto SÍ vale en un proyecto consumidor: las cinco etiquetas
+    de caso y los cuatro orígenes de umbral son del lenguaje, no de este repositorio, y el manual
+    que las muestra viaja con Oracle. La importación va adentro por la misma razón que la del CLI
+    —`tools/manual.py` importa `tools/cli.py`, que importa este módulo—, y por la misma razón no se
+    envuelve en un `except`: que el manual no se pueda importar es algo que hay que ver.
+    """
+    from tools.manual import VOCABULARIOS, temas
+
+    return hechos_de_vocabulario({nombre: opciones for nombre, (_, opciones)
+                                  in VOCABULARIOS.items()}, temas())
 
 
 def casos(proy) -> list[dict]:
@@ -150,6 +165,7 @@ def _ejecutar(proy) -> int:
                       # documentar: la importación se hace acá adentro para no cargarlo cuando no
                       # hace falta, y si no está, la relación no se emite y la medida no concluye.
                       **_hechos_del_cli(),
+                      **_hechos_del_vocabulario(),
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(relaciones.values()),
                       **hechos_de_unidades(catalogo.values(), relaciones)}

@@ -1,0 +1,23 @@
+caso 457-diagnostico-observado-sin-nada-del-dominio:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "El diagnostico real de este repositorio no publica nada del dominio"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Los siete campos son los que `oracle diagnostico` imprime hoy sobre este repositorio, leidos de `hechos_de_diagnostico(reunir(proy))`. Ninguno contiene un id de medida, un nombre de archivo, la raiz ni el home.
+    como_se_detecto: observacion
+    medida: meta.el_diagnostico_no_publica_el_dominio
+    evidencia:
+        campo_diagnostico: campo, es_del_dominio, que_se_colo
+            "oracle.distribucion", false, ""
+            "oracle.algebra", false, ""
+            "oracle.sintaxis", false, ""
+            "oracle.corriendo_desde", false, ""
+            "entorno.python", false, ""
+            "entorno.sistema", false, ""
+            "entorno.arquitectura", false, ""
+    leccion:
+        El diagnostico existe para pegarse en un issue publico. Fijarlo con la corrida real es lo unico que dice algo sobre el diagnostico que la gente va a pegar de verdad.

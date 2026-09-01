@@ -1,0 +1,32 @@
+caso 436-verbos-reales-todos-en-la-ayuda:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "Los verbos que el comando acepta hoy, contra la ayuda que imprime hoy"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno: los dieciséis verbos que el despacho acepta están nombrados en la ayuda. La evidencia no se escribió a mano — es lo que devolvió `hechos_de_verbos(cli.VERBOS, cli.__doc__)` sobre este repositorio, y por eso la medida queda fijada contra algo que ocurrió y no contra un ejemplo escrito para que pasara.
+    como_se_detecto: observacion
+    medida: meta.todo_verbo_del_cli_esta_en_la_ayuda
+    evidencia:
+        verbo_del_cli: sustantivo, verbo, nombrado_en_la_ayuda
+            "biblioteca", "instaladas", true
+            "biblioteca", "listar", true
+            "biblioteca", "nueva", true
+            "biblioteca", "verificar", true
+            "caso", "generar", true
+            "caso", "listar", true
+            "caso", "nuevo", true
+            "medida", "expandir", true
+            "medida", "listar", true
+            "medida", "nueva", true
+            "medida", "probar", true
+            "medida", "revisar", true
+            "proyecto", "escalares", true
+            "proyecto", "init", true
+            "proyecto", "relaciones", true
+            "proyecto", "test", true
+    leccion:
+        Una medida cuyos casos son todos fabricados puede estar ajustada a sus propios ejemplos. Esta evidencia sale de una corrida y envejece sola: si mañana alguien agrega un verbo y no lo documenta, la corrida siguiente lo dice.

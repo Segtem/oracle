@@ -1,0 +1,18 @@
+caso 435-el-manual-alcanza-todo-vocabulario:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "El manual muestra todos los vocabularios cerrados"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Sin este verde el mutador que quita el filtro sobrevive y la medida mide menos de lo que dice.
+    como_se_detecto: observacion
+    medida: meta.todo_vocabulario_cerrado_esta_en_el_manual
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "etiqueta", "falso_verde", 26, true
+            "operadores", "donde", 24, true
+    leccion:
+        El verde no dice que el manual esté bien escrito: dice que ningún vocabulario quedó afuera del registro.

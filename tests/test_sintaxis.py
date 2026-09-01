@@ -9,7 +9,8 @@ from pathlib import Path
 
 from nucleo import caso as sintaxis_caso
 from nucleo import sintaxis as sintaxis_nucleo
-from nucleo.caso import CasoMalDeclarado
+from nucleo.caso import (CasoMalDeclarado, DETECCIONES, ETIQUETAS, PROCEDENCIAS,
+                         opciones)
 from nucleo.medida import rutas_de_catalogo
 from nucleo.macro import EXTENSIONES_DE_MACRO
 from nucleo.medida import cargar_fuente_medida, ruta_de_medida
@@ -907,14 +908,13 @@ class SintaxisDeCasosTests(unittest.TestCase):
              "línea 6, columna 5: se esperaba línea «titulo:»; llegó "
              "'etiqueta: verde_correcto'"),
             ("etiqueta inventada", con([(7, "    etiqueta: rojo_feo")]), 7, 15,
-             "línea 7, columna 15: se esperaba etiqueta en ['deuda_de_diseño', "
-             "'falso_rojo', 'falso_verde', 'medida_correcta_conclusion_errada', "
-             "'verde_correcto']; llegó 'rojo_feo'"),
+             "línea 7, columna 15: se esperaba una etiqueta declarada; llegó "
+             "'rojo_feo'\n" + opciones(ETIQUETAS)),
             ("bloque sin prosa", con(borrar=(9,)), 9, 1,
              "línea 9, columna 1: se esperaba prosa para «sintoma»"),
             ("como_se_detecto inventado", con([(10, "    como_se_detecto: inventado")]), 10, 22,
-             "línea 10, columna 22: se esperaba como_se_detecto en ['accidente', "
-             "'herramienta_ajena', 'mutacion', 'observacion', 'persona']; llegó 'inventado'"),
+             "línea 10, columna 22: se esperaba un como_se_detecto declarado; llegó "
+             "'inventado'\n" + opciones(DETECCIONES)),
             ("origen hasta EOF",
              'caso 999-roto:\n    fecha: "2026-08-25"\n    origen:\n'
              '        repo: "test"\n',
@@ -1077,8 +1077,8 @@ class SintaxisDeCasosTests(unittest.TestCase):
 
         self.assertErrorDeCaso(
             texto, 6, 18,
-            "línea 6, columna 18: se esperaba procedencia en ['construida', "
-            "'generada', 'observada']; llegó 'inventada'",
+            "línea 6, columna 18: se esperaba una procedencia declarada; llegó "
+            "'inventada'\n" + opciones(PROCEDENCIAS),
         )
 
     def test_el_corpus_real_ejercita_los_dos_lectores(self) -> None:
@@ -1383,7 +1383,7 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
         self.assertIn("COMO_SE_DETECTO", texto)
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis_caso.leer(texto)
-        self.assertIn("etiqueta en [", str(cm.exception))
+        self.assertIn("se esperaba una etiqueta declarada", str(cm.exception))
 
     def test_el_error_del_marcador_enumera_los_valores_validos(self) -> None:
         from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS
@@ -1392,15 +1392,15 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
         texto = PLANTILLA.format(cid="999-caso-nuevo", fecha="2026-01-01", repo="REPO", commit="COMMIT")
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis_caso.leer(texto)
-        for valor in ETIQUETAS:
-            self.assertIn(valor, str(cm.exception))
+        for valor, sentido in ETIQUETAS.items():
+            self.assertIn(f"{valor}: {sentido}", str(cm.exception))
         for valor in PROCEDENCIAS:
             self.assertIn(valor, texto)
         con_etiqueta = texto.replace("etiqueta: ETIQUETA", "etiqueta: falso_verde")
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm2:
             sintaxis_caso.leer(con_etiqueta)
-        for valor in DETECCIONES:
-            self.assertIn(valor, str(cm2.exception))
+        for valor, sentido in DETECCIONES.items():
+            self.assertIn(f"{valor}: {sentido}", str(cm2.exception))
 
     def test_el_andamio_lista_los_conjuntos_cerrados_al_crear_el_caso(self) -> None:
         """El momento de decidirlos es al crear el archivo, no dos comandos después."""
@@ -2095,8 +2095,10 @@ class LosSeisTropiezosDeCasosFijanMensajeYPosicionTests(unittest.TestCase):
         e = self._falla(texto)
         self.assertEqual(e.linea, 7)
         self.assertEqual(e.columna, 15)
-        self.assertIn("etiqueta en", str(e))
+        self.assertIn("se esperaba una etiqueta declarada", str(e))
         self.assertIn("rojo_feo", str(e))
+        # El nombre solo no alcanza: quien escribió `rojo_feo` no sabe cuál de los cinco quería.
+        self.assertIn("falso_verde: la medida pasó y no debía", str(e))
         fragmento = sintaxis.fragmento_de_error(e, texto)
         self.assertIn("   7 |     etiqueta: rojo_feo", fragmento)
         self.assertIn("     |               ^", fragmento)
@@ -2106,8 +2108,9 @@ class LosSeisTropiezosDeCasosFijanMensajeYPosicionTests(unittest.TestCase):
         e = self._falla(texto)
         self.assertEqual(e.linea, 10)
         self.assertEqual(e.columna, 22)
-        self.assertIn("como_se_detecto en", str(e))
+        self.assertIn("se esperaba un como_se_detecto declarado", str(e))
         self.assertIn("inventado", str(e))
+        self.assertIn("mutacion: lo encontró el arnés al romper la medida", str(e))
         fragmento = sintaxis.fragmento_de_error(e, texto)
         self.assertIn("  10 |     como_se_detecto: inventado", fragmento)
         self.assertIn("     |                      ^", fragmento)

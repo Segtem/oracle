@@ -22,6 +22,15 @@
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
     oracle biblioteca verificar <ruta>      certifica una biblioteca local de políticas
     oracle biblioteca listar <ruta>         muestra sus umbrales, orígenes y alcances completos
+    oracle manual                           la referencia del lenguaje, armada de sus fuentes
+    oracle manual operadores                los seis operadores de una tubería
+    oracle manual segun                     de dónde sale el número de un umbral
+    oracle manual etiqueta                  qué enseña un caso del corpus
+    oracle manual procedencia               de dónde salió la evidencia de un caso
+    oracle manual como_se_detecto           quién encontró el defecto
+    oracle manual relaciones                las relaciones que el lenguaje emite sobre sí mismo
+    oracle manual verbos                    los verbos del comando, por sustantivo
+
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 """
 
@@ -43,6 +52,7 @@ from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
                                verificar_biblioteca)
 from nucleo.caso import rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
+from tools import manual  # noqa: E402
 from nucleo.proyecto import (  # noqa: E402
     ESQUEMA_PROYECTO,
     ID_CASO_RE,
@@ -194,6 +204,9 @@ VERBOS = {
     "caso": ("nuevo", "listar", "generar"),
     "proyecto": ("init", "test", "relaciones", "escalares"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
+    # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
+    # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
+    "manual": tuple(manual.temas()),
 }
 
 # `caso nueva` se acepta desde siempre por la concordancia con «medida nueva». Se declara acá en
@@ -760,6 +773,13 @@ def main(argv: list[str] | None = None) -> int:
         return 0
 
     # 2. Inicialización de proyecto (no requiere proyecto previo)
+    if subcomando == "manual":
+        tema = resto[0] if resto and not resto[0].startswith("-") else None
+        if tema is not None and tema not in verbos_aceptados("manual"):
+            return _verbo_desconocido("manual", tema)
+        print(manual.pagina() if "--html" in argv else manual.texto(tema))
+        return 0
+
     if subcomando == "init":
         args = [a for a in resto if a != "--rapido"]
         ruta = args[0] if args else None

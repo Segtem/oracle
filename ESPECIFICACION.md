@@ -157,6 +157,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `sombra` | qué medidas heredadas se miden pero todavía no obligan, desde cuándo y por qué | `nucleo/marco.py` |
 | `relacion_documentada` | si cada relación del lenguaje está nombrada en esta especificación | `nucleo/marco.py` |
 | `verbo_del_cli` | cada verbo que el comando acepta y si la ayuda lo nombra | `nucleo/marco.py` |
+| `opcion_del_vocabulario` | cada opción de un vocabulario cerrado, con cuántas palabras la explican y si el manual la muestra | `nucleo/marco.py` |
 | `relacion_declarada` · `campo_declarado` | las relaciones que un proyecto declara y sus campos, con unidad | `nucleo/relacion.py` |
 | `cantidad_comparada` | cada comparación de una medida y si su unidad se puede derivar (L−1) | `nucleo/unidad.py` |
 | `referente_declarado` · `referente_comparado` | la identidad y la frescura de aquello que se midió (L−2) | `nucleo/referente.py` |
@@ -166,6 +167,25 @@ acá. Esta sección no puede envejecer en silencio.
 
 **Ninguna de estas relaciones se declara en `relaciones/`.** Un proyecto que definiera una con el
 mismo nombre estaría pisando una del lenguaje, y por eso los nombres se reservan.
+
+### 1.2 Los vocabularios cerrados, y el manual que sale de ellos
+
+Cinco campos del lenguaje admiten un conjunto cerrado de valores: los seis operadores de una
+tubería, el `segun` de un umbral, y la `etiqueta`, la `procedencia` y el `como_se_detecto` de un
+caso. Es la parte que más se equivoca quien recién llega, porque los nombres se parecen entre sí.
+
+Cada opción **declara su significado junto a su nombre** —`nucleo/vocabulario.py` y
+`nucleo/caso.py`—, y de esa única fuente salen las dos cosas que importan:
+
+- el error que ve quien escribe un valor inválido, en el momento exacto en que se equivoca, con
+  las opciones y qué es cada una;
+- `oracle manual`, que no es un documento aparte sino una **vista** de esas declaraciones. La misma
+  salida en `--html` es la página del sitio.
+
+Un manual generado no puede quedar viejo, salvo por una grieta: que aparezca un vocabulario y nadie
+lo anote en el registro que dice qué mostrar. Eso lo mide
+`meta.todo_vocabulario_cerrado_esta_en_el_manual`; que ninguna opción quede sin explicar lo mide
+`meta.toda_opcion_del_vocabulario_declara_su_sentido`.
 
 ## 2. Una medida es un dato
 

@@ -1,0 +1,18 @@
+caso 432-opcion-del-vocabulario-sin-sentido:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Una opción de un vocabulario cerrado se explica en cuatro palabras"
+    etiqueta: falso_verde
+    sintoma:
+        `accidente` decía «apareció haciendo otra cosa». Cuatro palabras no distinguen de las otras cuatro opciones, que es lo único que el lector necesita en el momento en que se equivocó de nombre.
+    como_se_detecto: mutacion
+    medida: meta.toda_opcion_del_vocabulario_declara_su_sentido
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "como_se_detecto", "accidente", 4, true
+            "como_se_detecto", "mutacion", 10, true
+    leccion:
+        La prosa corta se cuela porque parece prolija. La fila sana al lado es la que impide que la medida pase con un filtro vacío.

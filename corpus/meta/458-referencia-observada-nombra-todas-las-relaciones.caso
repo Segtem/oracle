@@ -1,0 +1,38 @@
+caso 458-referencia-observada-nombra-todas-las-relaciones:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "La especificacion de hoy nombra las veintidos relaciones del lenguaje"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Es lo que devolvio `hechos_de_documentacion` sobre `ESPECIFICACION.md` en este corte. Cuando la medida se escribio, diez de diecinueve relaciones no estaban nombradas.
+    como_se_detecto: observacion
+    medida: meta.toda_relacion_del_lenguaje_esta_en_la_referencia
+    evidencia:
+        relacion_documentada: relacion, nombrada_en_la_referencia
+            "ancestro", true
+            "campo_declarado", true
+            "campo_diagnostico", true
+            "cantidad_comparada", true
+            "caso", true
+            "equivalencia", true
+            "fuente", true
+            "medida", true
+            "medida_en_uso", true
+            "nodo", true
+            "opcion_del_vocabulario", true
+            "paso", true
+            "paso_de_medida", true
+            "producto", true
+            "referente_comparado", true
+            "referente_declarado", true
+            "relacion_declarada", true
+            "relacion_documentada", true
+            "requiere", true
+            "sombra", true
+            "termino", true
+            "verbo_del_cli", true
+    leccion:
+        La documentacion es la unica parte del proyecto sin arnes. Este caso la ata a una corrida: si manana entra una relacion y nadie la documenta, la corrida siguiente lo dice.

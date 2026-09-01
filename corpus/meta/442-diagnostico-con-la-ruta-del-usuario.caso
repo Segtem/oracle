@@ -1,0 +1,18 @@
+caso 442-diagnostico-con-la-ruta-del-usuario:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "El diagnóstico local publica una ruta con el usuario adentro"
+    etiqueta: falso_verde
+    sintoma:
+        Un campo del diagnóstico trae la raíz del proyecto, que empieza con el home. El diagnóstico existe para pegarse en un issue público, y un `/home/<usuario>/` compartido no se puede despublicar.
+    como_se_detecto: mutacion
+    medida: meta.el_diagnostico_no_publica_el_dominio
+    evidencia:
+        campo_diagnostico: campo, es_del_dominio, que_se_colo
+            "proyecto.raiz", true, "/home/usuaria"
+            "python.version", false, ""
+    leccion:
+        La fila sana al lado impide que la medida pase con un filtro vacío. El testigo lleva el NOMBRE de lo que se coló y no el valor entero: un testigo que reimprime el secreto lo publica igual.

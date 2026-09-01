@@ -1,0 +1,18 @@
+caso 451-todas-las-relaciones-documentadas:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Todas las relaciones del lenguaje están en la referencia"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Con una sola fila, quitar el filtro daría lo mismo.
+    como_se_detecto: observacion
+    medida: meta.toda_relacion_del_lenguaje_esta_en_la_referencia
+    evidencia:
+        relacion_documentada: relacion, nombrada_en_la_referencia
+            "sombra", true
+            "verbo_del_cli", true
+    leccion:
+        El verde es sobre los nombres, no sobre la prosa. Es poco, y es lo que se puede afirmar.

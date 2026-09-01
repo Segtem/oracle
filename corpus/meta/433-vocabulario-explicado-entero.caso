@@ -1,0 +1,18 @@
+caso 433-vocabulario-explicado-entero:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Todas las opciones de un vocabulario se explican"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Fija que la medida filtra: sin un verde con varias filas, quitar el `donde` daría el mismo resultado.
+    como_se_detecto: observacion
+    medida: meta.toda_opcion_del_vocabulario_declara_su_sentido
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "segun", "medicion", 24, true
+            "segun", "tanteo", 21, true
+    leccion:
+        Contar palabras no lee la explicación: la medida declara ese límite en su alcance, y este verde no lo desmiente.

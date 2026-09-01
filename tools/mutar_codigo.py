@@ -59,6 +59,7 @@ PRIORIDADES = {
     "nucleo/referente.py": ("tests.test_referente", "tests.test_medida"),
     "nucleo/relacion.py": ("tests.test_relacion", "tests.test_nucleo"),
     "nucleo/sintaxis.py": ("tests.test_sintaxis", "tests.test_macro", "tests.test_nucleo"),
+    "nucleo/vocabulario.py": ("tests.test_vocabulario", "tests.test_sintaxis"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
     "nucleo/unidad.py": ("tests.test_unidad", "tests.test_nucleo", "tests.test_medida"),
     "nucleo/version.py": ("tests.test_herramientas",),
@@ -73,6 +74,10 @@ PRIORIDADES = {
     "tools/lsp.py": ("tests.test_lsp",),
     # Listo para cuando `aceptacion.py` entre a HERRAMIENTAS_CUSTODIAS; ver la nota de ahí.
     "tools/aceptacion.py": ("tests.test_herramientas", "tests.test_cli"),
+    # SIN `tests.test_cli`: el despacho de `oracle manual` vive en `cli.py` y ya lo fija el
+    # perfil de `cli.py`. Acá agregaba ~40 s de subprocesos por mutante —la ronda pasaba de
+    # minutos a horas— sin matar un mutante que los otros dos módulos no maten.
+    "tools/manual.py": ("tests.test_manual", "tests.test_vocabulario"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -93,8 +98,12 @@ PRIORIDADES = {
 # al modo sombra. Meterlo hoy pondría al proyecto en rojo por deuda ajena a ese cambio, así que
 # entra cuando esos 17 estén cerrados. El código del modo sombra sí quedó medido en esa corrida:
 # cero sobrevivientes.
+# `manual.py` entra el 2026-09-01: su registro `VOCABULARIOS` es de dónde sale la relación
+# `opcion_del_vocabulario`, así que si el registro se rompe —o deja de emitir un vocabulario— las
+# dos medidas que vigilan el manual se ponen verdes sin mirar nada. Es el caso exacto del criterio:
+# el instrumento custodia una afirmación (que el manual está completo) que nadie más comprueba.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "corpus.py",
-                          "lsp.py", "medida.py")
+                          "lsp.py", "manual.py", "medida.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:

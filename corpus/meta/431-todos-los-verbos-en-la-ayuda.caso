@@ -1,0 +1,18 @@
+caso 431-todos-los-verbos-en-la-ayuda:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Todos los verbos que el comando acepta están en la ayuda"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. El caso existe para que el mutador que quita el filtro no sobreviva: sin un verde, una medida que devuelve todas las filas pasa igual y nadie se entera.
+    como_se_detecto: observacion
+    medida: meta.todo_verbo_del_cli_esta_en_la_ayuda
+    evidencia:
+        verbo_del_cli: sustantivo, verbo, nombrado_en_la_ayuda
+            "medida", "nueva", true
+            "proyecto", "test", true
+    leccion:
+        Un verde con más de una fila es el que fija que la medida filtra. Con una sola fila, quitar el filtro da el mismo resultado.

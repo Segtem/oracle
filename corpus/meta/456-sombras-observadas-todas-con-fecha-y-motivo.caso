@@ -1,0 +1,19 @@
+caso 456-sombras-observadas-todas-con-fecha-y-motivo:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "Las tres sombras reales declaran desde cuando y por que"
+    etiqueta: verde_correcto
+    sintoma:
+        La evidencia no se escribio a mano: es lo que devolvio `hechos_de_sombra` sobre un proyecto real creado para esta corrida, con tres sombras declaradas en su `oracle.json` y los veredictos de la primera vuelta de la aceptacion. Ninguna de las tres omite fecha ni motivo, que es lo que esta medida mira.
+    como_se_detecto: observacion
+    medida: meta.toda_sombra_declara_desde_y_porque
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "meta.medida_que_ya_no_esta", true, true, 12, false, false
+            "meta.toda_medida_filtra_o_agrupa", true, true, 1, false, true
+            "meta.todo_umbral_declara_de_donde_sale", true, true, 0, true, true
+    leccion:
+        El verde observado es lo que distingue una medida fijada de una medida ajustada a sus propios ejemplos. La misma evidencia esta roja para otras dos medidas, y eso tambien es informacion.

@@ -1,0 +1,19 @@
+caso 453-una-sola-sombra-sin-motivo:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Una sola sombra sin motivo, justo en el borde del umbral"
+    etiqueta: falso_verde
+    sintoma:
+        Exactamente una sombra de tres no declara su motivo. Es el caso del borde: con dos ofensoras, aflojar el umbral de cero a uno sigue dando rojo y la mutación pasa inadvertida. Con una sola, aflojarlo lo pone verde — que es la diferencia que hay que poder ver.
+    como_se_detecto: mutacion
+    medida: meta.toda_sombra_declara_desde_y_porque
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.sin_motivo", true, false, 21, false, true
+            "dominio.completa", true, true, 4, false, true
+            "dominio.tambien_completa", true, true, 15, false, true
+    leccion:
+        Un umbral de cero necesita un caso que valga exactamente uno. Sin él, «cero» y «uno o menos» son la misma medida para todo el corpus, y el mutador que los confunde sobrevive.

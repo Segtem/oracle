@@ -238,6 +238,21 @@ def main() -> int:
             [str(oracle), "test", "--proyecto", str(proyecto_cli)], cwd=vacio, env=env)
         if "VEREDICTO: VERDE" not in vacio_cli.stdout or "proyecto vacío" not in vacio_cli.stdout:
             raise RuntimeError("oracle test no aceptó un proyecto recién inicializado")
+
+        # `oracle manual` es el candidato natural a romperse SÓLO en el paquete instalado: arma
+        # cada sección importando módulos por nombre —incluido un `from tools.cli import VERBOS`
+        # diferido para no hacer un ciclo—, y esos nombres se resuelven distinto adentro del wheel.
+        # Correrlo acá cuesta un subproceso; no correrlo cuesta que el manual falle sólo para quien
+        # instaló desde PyPI, que es todo el mundo menos yo.
+        manual_completo = _correr([str(oracle), "manual"], cwd=vacio, env=env)
+        for encabezado in ("OPERADORES — ", "SEGUN — ", "VERBOS — "):
+            if encabezado not in manual_completo.stdout:
+                raise RuntimeError(f"oracle manual no imprimió «{encabezado}» desde el wheel")
+        if "oracle medida" not in manual_completo.stdout:
+            raise RuntimeError("oracle manual no pudo leer los verbos del CLI desde el wheel")
+        manual_html = _correr([str(oracle), "manual", "--html"], cwd=vacio, env=env)
+        if "<dl>" not in manual_html.stdout or "<!doctype html>" not in manual_html.stdout:
+            raise RuntimeError("oracle manual --html no emitió la página")
         # La relación que la medida consume, declarada. Sin esto no se puede derivar la unidad
         # de `i.mal` y `meta.toda_cantidad_comparada_tiene_unidad_derivable` —que entró con L−1—
         # deja el proyecto en rojo. Este es el ejemplo que ve quien instala el paquete: tiene que

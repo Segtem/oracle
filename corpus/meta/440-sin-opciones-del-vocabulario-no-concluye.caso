@@ -1,0 +1,17 @@
+caso 440-sin-opciones-del-vocabulario-no-concluye:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Sin la relación de vocabulario, la explicación no se juzga"
+    etiqueta: falso_verde
+    sintoma:
+        Si el manual no se puede importar, la relación no se emite. Sin `requiere`, cero filas diría que ninguna opción está mal explicada — cuando en realidad no se miró ninguna.
+    como_se_detecto: mutacion
+    medida: meta.toda_opcion_del_vocabulario_declara_su_sentido
+    evidencia:
+        otra_evidencia: nombre
+            "corrida sin esa relación"
+    leccion:
+        El verde vacío es el defecto que este proyecto persigue, y una medida sobre el manual no está exenta.

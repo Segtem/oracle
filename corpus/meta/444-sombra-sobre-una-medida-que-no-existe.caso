@@ -1,0 +1,18 @@
+caso 444-sombra-sobre-una-medida-que-no-existe:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Queda una sombra sobre un id que el catálogo ya no tiene"
+    etiqueta: falso_verde
+    sintoma:
+        Una medida se renombró y la sombra quedó apuntando al id viejo. No apaga nada, pero sugiere una protección que no existe: quien lee `oracle.json` cree que ese rojo está contemplado.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_sombra_sobre_una_medida_que_no_existe
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.medida_que_se_fue", true, true, 30, false, false
+            "dominio.medida_viva", true, true, 12, false, true
+    leccion:
+        Una sombra es una decisión escrita; cuando su objeto desaparece, la decisión queda huérfana y hay que sacarla. La medida NO sugiere a cuál se parecía: sólo dice que ese id no está.

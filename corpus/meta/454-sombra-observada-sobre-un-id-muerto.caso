@@ -1,0 +1,19 @@
+caso 454-sombra-observada-sobre-un-id-muerto:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "Una sombra real sobre un id que el catalogo no tiene"
+    etiqueta: falso_verde
+    sintoma:
+        La evidencia no se escribio a mano: es lo que devolvio `hechos_de_sombra` sobre un proyecto real creado para esta corrida, con tres sombras declaradas en su `oracle.json` y los veredictos de la primera vuelta de la aceptacion. De las tres, una apunta a un id que el catalogo no tiene: no apaga nada y sugiere una proteccion que no existe.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_sobre_una_medida_que_no_existe
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "meta.medida_que_ya_no_esta", true, true, 12, false, false
+            "meta.toda_medida_filtra_o_agrupa", true, true, 1, false, true
+            "meta.todo_umbral_declara_de_donde_sale", true, true, 0, true, true
+    leccion:
+        Este caso y los dos siguientes salen de la MISMA corrida. Una medida fijada solo con evidencia fabricada puede estar ajustada a los ejemplos que se escribieron para que pasara; esta no.

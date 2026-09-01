@@ -1,0 +1,18 @@
+caso 447-ninguna-sombra-esta-de-mas:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Toda sombra puesta sigue tapando un rojo"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Sin un verde de dos filas, el mutador que quita el filtro sobrevive.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_ya_en_verde
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.una", true, true, 10, false, true
+            "dominio.otra", true, true, 60, false, true
+    leccion:
+        Que ninguna esté de más no dice que ninguna lleve demasiado tiempo: la antigüedad viaja en `dias` y todavía no la juzga ninguna medida.

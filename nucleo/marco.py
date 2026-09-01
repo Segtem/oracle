@@ -33,7 +33,8 @@ from datetime import date
 
 
 RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra",
-                                     "relacion_documentada", "verbo_del_cli"})
+                                     "relacion_documentada", "verbo_del_cli",
+                                     "opcion_del_vocabulario"})
 
 
 def hechos_de_documentacion(relaciones, referencia: str) -> dict:
@@ -81,6 +82,30 @@ def hechos_de_verbos(verbos_por_sustantivo, ayuda: str) -> dict:
          "nombrado_en_la_ayuda": f"{sustantivo} {verbo}" in ayuda}
         for sustantivo in sorted(verbos_por_sustantivo)
         for verbo in sorted(verbos_por_sustantivo[sustantivo])]}
+
+
+def hechos_de_vocabulario(vocabularios, temas_del_manual) -> dict:
+    """Un hecho por opción de un vocabulario cerrado: si el manual la muestra y si se explica.
+
+    Los vocabularios cerrados son lo que más se equivoca quien recién llega —cinco etiquetas de
+    caso, cuatro orígenes de umbral, nombres que se parecen— y durante meses su significado vivió
+    en cuatro `.md` distintos, ninguno de ellos la fuente. Ahora viaja en la declaración; lo que
+    esta relación vigila es que agregar una opción sin explicarla, o sin que el manual la alcance,
+    no pase inadvertido.
+
+    Sin vocabularios no emite la relación —ni siquiera la clave—: en un proyecto consumidor, que no
+    tiene ninguno, una relación vacía haría que la medida diera SIN EVIDENCIA, y SIN EVIDENCIA
+    cuenta como falla. Un consumidor no tiene por qué ponerse rojo por un manual que no es suyo.
+    """
+    if not vocabularios:
+        return {}
+    temas = set(temas_del_manual)
+    return {"opcion_del_vocabulario": [
+        {"vocabulario": nombre, "opcion": opcion,
+         "palabras_del_sentido": len(sentido.split()),
+         "en_el_manual": nombre in temas}
+        for nombre in sorted(vocabularios)
+        for opcion, sentido in sorted(vocabularios[nombre].items())]}
 
 
 def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,

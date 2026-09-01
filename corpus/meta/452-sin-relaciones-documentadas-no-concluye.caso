@@ -1,0 +1,17 @@
+caso 452-sin-relaciones-documentadas-no-concluye:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Sin la referencia, la documentación no se juzga"
+    etiqueta: falso_verde
+    sintoma:
+        Un proyecto consumidor no tiene —ni tiene por qué tener— la especificación de Oracle: el paquete instalado ni siquiera la incluye. Sin `requiere`, cero filas se leería como «todo documentado» y pondría en verde a quien no documentó nada.
+    como_se_detecto: mutacion
+    medida: meta.toda_relacion_del_lenguaje_esta_en_la_referencia
+    evidencia:
+        otra_evidencia: nombre
+            "consumidor sin la especificación"
+    leccion:
+        Documentar el lenguaje es responsabilidad de quien lo publica, no de quien lo usa. `requiere` es lo que convierte esa frase en algo que la corrida respeta.

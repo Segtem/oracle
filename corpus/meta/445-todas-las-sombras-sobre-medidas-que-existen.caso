@@ -1,0 +1,18 @@
+caso 445-todas-las-sombras-sobre-medidas-que-existen:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Todas las sombras apuntan a medidas del catálogo"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Hacen falta dos filas sanas para que el mutador que quita el filtro no sobreviva.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_sobre_una_medida_que_no_existe
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.una", true, true, 3, false, true
+            "dominio.otra", true, true, 40, false, true
+    leccion:
+        El verde dice que los ids resuelven, no que las sombras estén justificadas: de eso se ocupan las otras dos medidas de sombra.

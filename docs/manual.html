@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Manual — Oracle</title>
+<meta name="description" content="La referencia del lenguaje Oracle: los operadores de una tubería, los vocabularios cerrados de una medida y de un caso, las relaciones que el lenguaje emite sobre sí mismo y los verbos del comando.">
+<link rel="canonical" href="https://segtem.github.io/oracle/manual.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root { --tinta: oklch(0.16 0 0); --papel: oklch(0.96 0.004 95);
+          --acento: oklch(0.58 0.20 45); --regla: 3px; --mg: 44px;
+          --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+          --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--papel); color: var(--tinta); font-size: 17px;
+         line-height: 1.5; font-family: 'Archivo', system-ui, -apple-system, sans-serif; }
+  a { color: inherit; text-underline-offset: 3px; }
+  a:hover { color: var(--acento); }
+  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
+           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
+           text-transform: uppercase; flex-wrap: wrap; }
+  .barra a { text-decoration: none; }
+  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
+  .encabezado { padding: 48px var(--mg) 30px; }
+  .encabezado h1 { font-family: var(--negra); font-size: clamp(40px, 8vw, 78px); margin: 0 0 20px;
+                   line-height: 0.92; letter-spacing: -0.035em; text-transform: uppercase; }
+  .encabezado p { max-width: 62ch; font-size: 19px; margin: 0; text-wrap: pretty; }
+  .indice { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 var(--mg) 34px; }
+  .indice a { font-family: var(--mono); font-size: 13px; text-decoration: none;
+              padding: 7px 14px; box-shadow: inset 0 0 0 2px var(--tinta); }
+  .indice a:hover { background: var(--tinta); color: var(--papel); }
+  .tema { display: grid; grid-template-columns: 19rem minmax(0, 1fr);
+          border-top: var(--regla) solid var(--tinta); }
+  .rotulo { padding: 26px var(--mg); border-right: var(--regla) solid var(--tinta);
+            position: sticky; top: 0; align-self: start; }
+  .rotulo h2 { font-family: var(--negra); font-size: clamp(24px, 2.6vw, 32px);
+               margin: 0 0 10px; line-height: 1.02; text-transform: uppercase;
+               letter-spacing: -0.02em; }
+  .rotulo p { margin: 0; font-family: var(--mono); font-size: 12px; line-height: 1.55;
+              color: oklch(0.45 0.01 95); }
+  /* Sin hueco entre columnas: con `column-gap` la línea de cada fila se parte en dos trazos y
+     parece un borde roto. El aire lo pone el padding del término, que sí se puede subrayar. */
+  .manual dl { margin: 0; padding: 26px var(--mg); display: grid;
+               grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr); gap: 0; }
+  .manual dt { font-family: var(--mono); font-weight: 700;
+               padding: 10px 30px 10px 0; }
+  .manual dd { margin: 0; padding: 10px 0; max-width: 92ch; text-wrap: pretty; }
+  .manual dt:not(:first-of-type), .manual dt:not(:first-of-type) + dd {
+    border-top: 1px solid oklch(0.16 0 0 / 0.14); }
+  .pie { border-top: var(--regla) solid var(--tinta); padding: 26px var(--mg);
+         font-family: var(--mono); font-size: 13px; }
+  @media (max-width: 1000px) {
+    .tema { grid-template-columns: 1fr; }
+    .rotulo { position: static; border-right: 0;
+              border-bottom: var(--regla) solid var(--tinta); padding-bottom: 18px; }
+    .manual dl { padding-top: 18px; }
+  }
+  @media (max-width: 760px) {
+    :root { --mg: 20px; }
+    .manual dl { grid-template-columns: 1fr; gap: 0; }
+    .manual dd { padding-top: 4px; padding-bottom: 16px; border-top: 0; }
+    .manual dt:not(:first-of-type) { padding-top: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div><strong>oracle</strong> · manual</div>
+  <nav>
+    <a href="./">inicio</a>
+    <a href="https://github.com/Segtem/oracle/blob/main/docs/README.md">documentación</a>
+    <a href="https://github.com/Segtem/oracle">github</a>
+  </nav>
+</header>
+
+<div class="encabezado">
+  <h1>Manual</h1>
+  <p>Esta página no se escribió: se generó. Cada entrada sale de la declaración que el lenguaje
+  ya tiene —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los verbos del
+  comando—, así que no hay dónde quede vieja. Lo mismo se lee en la terminal con
+  <code>oracle manual</code>.</p>
+</div>
+
+<div class="indice">
+  <a href="#manual-operadores">operadores</a>
+  <a href="#manual-segun">segun</a>
+  <a href="#manual-etiqueta">etiqueta</a>
+  <a href="#manual-procedencia">procedencia</a>
+  <a href="#manual-como_se_detecto">como_se_detecto</a>
+  <a href="#manual-relaciones">relaciones</a>
+  <a href="#manual-verbos">verbos</a>
+</div>
+
+<div class="manual">
+<section class="tema" id="manual-operadores">
+<div class="rotulo"><h2>operadores</h2><p>los seis operadores de una tubería</p></div>
+<dl>
+<dt>agrupar</dt><dd>junta las filas por una o más claves y calcula un agregado por grupo. Devuelve una fila por grupo, no una por fila: cambia de qué habla la tubería</dd>
+<dt>de</dt><dd>nombra la relación de evidencia de la que salen las filas. Es el único operador que trae datos; todos los demás transforman lo que «de» trajo</dd>
+<dt>desde</dt><dd>encabeza toda tubería. No es un paso: es la marca de que lo que sigue es una tubería y no otra cosa</dd>
+<dt>donde</dt><dd>se queda con las filas que cumplen la condición. Sin él un rojo entrega como testigos todas las filas, también las que no ofendieron, y hay que leerlas a mano</dd>
+<dt>resumen</dt><dd>cierra la tubería en un solo escalar, que es lo que el umbral compara. «contar» no evalúa la expresión: cuenta filas</dd>
+<dt>unir</dt><dd>cruza dos relaciones fila contra fila. Los alias de los dos lados conviven en la fila resultante, así que la condición puede hablar de ambos</dd>
+</dl>
+</section>
+<section class="tema" id="manual-segun">
+<div class="rotulo"><h2>segun</h2><p>de dónde salió el número de un umbral (campo `segun`)</p></div>
+<dl>
+<dt>contrato</dt><dd>el número lo fija algo externo que no se negocia: una especificación, el formato de un archivo, una norma, la API de un tercero</dd>
+<dt>convencion</dt><dd>el número lo eligió el equipo y vale porque está escrito, no porque se haya medido. Cambiarlo es una decisión, no la corrección de un error</dd>
+<dt>medicion</dt><dd>el número salió de medir la cosa real con un instrumento que se puede nombrar. Es el origen más fuerte, porque otro puede repetir la medición y discutirlo</dd>
+<dt>tanteo</dt><dd>el número es provisorio: se puso para arrancar y todavía nadie lo justificó. Declararlo así es honesto; dejarlo así mucho tiempo, no</dd>
+</dl>
+</section>
+<section class="tema" id="manual-etiqueta">
+<div class="rotulo"><h2>etiqueta</h2><p>qué enseña un caso del corpus (campo `etiqueta`)</p></div>
+<dl>
+<dt>deuda_de_diseño</dt><dd>el defecto es real y el lenguaje todavía no puede expresarlo. Se guarda para que la falta quede escrita en vez de olvidarse</dd>
+<dt>falso_rojo</dt><dd>la medida falló sobre algo que estaba bien. Enseña a ignorar el verificador, que es la forma más rápida de perderlo</dd>
+<dt>falso_verde</dt><dd>la medida pasó y no debía: el defecto estaba ahí y no lo vio. Es el caso que más enseña, porque un verificador que calla es peor que no tenerlo</dd>
+<dt>medida_correcta_conclusion_errada</dt><dd>la medida hizo lo que declara y aun así la conclusión fue equivocada: el error está en lo que se decidió medir, no en cómo se midió</dd>
+<dt>verde_correcto</dt><dd>la medida pasó y correspondía. Hace falta tanto como un rojo: sin él, el mutador que quita el filtro sobrevive y nadie se entera</dd>
+</dl>
+</section>
+<section class="tema" id="manual-procedencia">
+<div class="rotulo"><h2>procedencia</h2><p>de dónde salió la evidencia de un caso (campo `procedencia`)</p></div>
+<dl>
+<dt>construida</dt><dd>la evidencia se escribió a mano para ejercer la medida. Es honesto y no cierra nada que no deba cerrarse</dd>
+<dt>generada</dt><dd>la produjo un generador a partir de una especificación, no una corrida del mundo</dd>
+<dt>observada</dt><dd>la evidencia es lo que devolvió una corrida que ocurrió. Es una afirmación sobre el pasado, y Oracle NO puede verificarla: ante la duda, `construida`</dd>
+</dl>
+</section>
+<section class="tema" id="manual-como_se_detecto">
+<div class="rotulo"><h2>como_se_detecto</h2><p>quién encontró el defecto (campo `como_se_detecto`)</p></div>
+<dl>
+<dt>accidente</dt><dd>apareció haciendo otra cosa, y nadie lo estaba buscando. Vale igual: dice que en el camino donde sí se buscaba no estaba</dd>
+<dt>herramienta_ajena</dt><dd>lo señaló una herramienta de afuera de Oracle</dd>
+<dt>mutacion</dt><dd>lo encontró el arnés al romper la medida a propósito</dd>
+<dt>observacion</dt><dd>salió de mirar de frente una corrida real, con la intención de encontrar algo</dd>
+<dt>persona</dt><dd>lo vio alguien leyendo el código o la salida, sin que ninguna herramienta lo señalara</dd>
+</dl>
+</section>
+<section class="tema" id="manual-relaciones">
+<div class="rotulo"><h2>relaciones</h2><p>las relaciones que el lenguaje emite sobre sí mismo</p></div>
+<dl>
+<dt>caso</dt><dd>cada caso del corpus: su polaridad, su procedencia, si la medida que reclama existe, y si es propio o heredado de una biblioteca</dd>
+<dt>medida_en_uso</dt><dd>cuántos casos evalúan cada medida y cuántos mutantes le sobreviven; es la relación con la que Oracle mide si una medida está ejercitada o es adorno</dd>
+<dt>opcion_del_vocabulario</dt><dd>cada opción de un vocabulario cerrado, con cuántas palabras la explican y si el manual la alcanza</dd>
+<dt>relacion_documentada</dt><dd>si cada relación del lenguaje está nombrada en la especificación; existe para que una relación nueva no quede sin documentar en silencio</dd>
+<dt>sombra</dt><dd>qué medidas heredadas se miden y se informan pero todavía no tumban la corrida, desde cuándo y con qué razón escrita</dd>
+<dt>verbo_del_cli</dt><dd>cada verbo que el comando acepta y si la ayuda lo nombra; un verbo fuera de la ayuda es trabajo terminado que nadie va a encontrar</dd>
+</dl>
+</section>
+<section class="tema" id="manual-verbos">
+<div class="rotulo"><h2>verbos</h2><p>los verbos del CLI, por sustantivo</p></div>
+<dl>
+<dt>oracle biblioteca</dt><dd>instaladas · listar · nueva · verificar</dd>
+<dt>oracle caso</dt><dd>generar · listar · nuevo</dd>
+<dt>oracle manual</dt><dd>como_se_detecto · etiqueta · operadores · procedencia · relaciones · segun · verbos</dd>
+<dt>oracle medida</dt><dd>expandir · listar · nueva · probar · revisar</dd>
+<dt>oracle proyecto</dt><dd>escalares · init · relaciones · test</dd>
+</dl>
+</section>
+</div>
+
+<footer class="pie">
+  Generado con <code>oracle manual --html</code> · <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
+</footer>
+
+</body>
+</html>
+

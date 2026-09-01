@@ -31,6 +31,7 @@ from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, comparar, de
                       validar_finito, validar_resumen, validar_tuberia)
 from .macro import es_macro, expandir
 from .proyecto import ID_MEDIDA_RE
+from .vocabulario import ORIGENES_DE_UMBRAL, opciones
 
 
 class MedidaMalDeclarada(ValueError):
@@ -48,7 +49,7 @@ RELACIONES_DE_CATALOGO = frozenset({
 
 EXTENSIONES_DE_MEDIDA = frozenset({".json", ".oracle"})
 SEGUN_SIN_DECLARAR = "sin_declarar"
-ORIGENES_DE_UMBRAL = frozenset({"medicion", "contrato", "convencion", "tanteo"})
+
 
 
 def _extraer_textos_ast(valor: ast.AST) -> set[str]:
@@ -301,8 +302,8 @@ class Medida:
             _, op, limite, porque, segun = umbral
             if segun != SEGUN_SIN_DECLARAR and segun not in ORIGENES_DE_UMBRAL:
                 raise MedidaMalDeclarada(
-                    f"{mid}: `segun` debe ser uno de {sorted(ORIGENES_DE_UMBRAL)}; "
-                    f"recibió {segun!r}")
+                    f"{mid}: `segun` recibió {segun!r}, y los orígenes declarados son:\n"
+                    f"{opciones(ORIGENES_DE_UMBRAL)}")
         else:
             _, op, limite, porque = umbral
             segun = SEGUN_SIN_DECLARAR

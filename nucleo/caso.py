@@ -19,25 +19,66 @@ IND2 = IND * 2
 IND3 = IND * 3
 EXTENSIONES_DE_CASO = frozenset({".json", ".caso"})
 ENCABEZADO_RE = re.compile(r"caso\s+(\S+):")
-ETIQUETAS = frozenset({
-    "falso_verde",
-    "falso_rojo",
-    "deuda_de_diseño",
-    "medida_correcta_conclusion_errada",
-    "verde_correcto",
-})
-DETECCIONES = frozenset({
-    "mutacion",
-    "persona",
-    "accidente",
-    "herramienta_ajena",
-    "observacion",
-})
-PROCEDENCIAS = frozenset({
-    "observada",
-    "construida",
-    "generada",
-})
+# El vocabulario cerrado DECLARA su significado donde se define, no en un `.md` aparte.
+#
+# Hasta el 2026-09-01 eran nombres sueltos en un `frozenset`, y qué querían decir vivía repartido
+# entre cuatro documentos distintos —el tutorial, `corpus/README.md`, `PLAN-LENGUAJE.md` y una
+# guía—. Cuatro copias que nadie podía mantener sincronizadas, para cinco palabras.
+#
+# Acá el significado es DATO, así que el CLI puede explicarlo en el momento en que hace falta
+# —cuando alguien escribe una etiqueta inválida— y la referencia se genera en vez de escribirse.
+# No hace falta una medida que lo vigile: no hay dos copias que puedan divergir.
+
+ETIQUETAS = {
+    "falso_verde":
+        "la medida pasó y no debía: el defecto estaba ahí y no lo vio. Es el caso que más "
+        "enseña, porque un verificador que calla es peor que no tenerlo",
+    "falso_rojo":
+        "la medida falló sobre algo que estaba bien. Enseña a ignorar el verificador, que es "
+        "la forma más rápida de perderlo",
+    "deuda_de_diseño":
+        "el defecto es real y el lenguaje todavía no puede expresarlo. Se guarda para que la "
+        "falta quede escrita en vez de olvidarse",
+    "medida_correcta_conclusion_errada":
+        "la medida hizo lo que declara y aun así la conclusión fue equivocada: el error está "
+        "en lo que se decidió medir, no en cómo se midió",
+    "verde_correcto":
+        "la medida pasó y correspondía. Hace falta tanto como un rojo: sin él, el mutador que "
+        "quita el filtro sobrevive y nadie se entera",
+}
+
+DETECCIONES = {
+    "mutacion": "lo encontró el arnés al romper la medida a propósito",
+    "persona": "lo vio alguien leyendo el código o la salida, sin que ninguna "
+               "herramienta lo señalara",
+    "accidente": "apareció haciendo otra cosa, y nadie lo estaba buscando. Vale igual: dice "
+                 "que en el camino donde sí se buscaba no estaba",
+    "herramienta_ajena": "lo señaló una herramienta de afuera de Oracle",
+    "observacion": "salió de mirar de frente una corrida real, con la intención de "
+                   "encontrar algo",
+}
+
+PROCEDENCIAS = {
+    "observada":
+        "la evidencia es lo que devolvió una corrida que ocurrió. Es una afirmación sobre el "
+        "pasado, y Oracle NO puede verificarla: ante la duda, `construida`",
+    "construida":
+        "la evidencia se escribió a mano para ejercer la medida. Es honesto y no cierra nada "
+        "que no deba cerrarse",
+    "generada":
+        "la produjo un generador a partir de una especificación, no una corrida del mundo",
+}
+
+
+def opciones(vocabulario: dict) -> str:
+    """Las opciones de un vocabulario cerrado, cada una con lo que significa.
+
+    Antes el error decía sólo la lista de nombres. Quien escribe `falso_rojo` donde iba
+    `falso_verde` no necesita saber que existen cinco: necesita saber cuál es cuál, y el momento
+    en que lo necesita es exactamente ése.
+    """
+    return "\n".join(f"        {nombre}: {sentido}" for nombre, sentido in
+                     sorted(vocabulario.items()))
 
 
 class CasoMalDeclarado(ValueError):
@@ -353,19 +394,19 @@ class _Parser:
             valor, n_proc, col_proc = procedencia
             if valor not in PROCEDENCIAS:
                 _fallar(n_proc, col_proc,
-                        f"procedencia en {sorted(PROCEDENCIAS)}", valor)
+                        f"una procedencia declarada\n{opciones(PROCEDENCIAS)}", valor)
             datos["procedencia"] = valor
         datos["titulo"] = _json_valor(*self._exigir_campo("titulo"))
         etiqueta, n_etiqueta, col_etiqueta = self._exigir_campo("etiqueta")
         if etiqueta not in ETIQUETAS:
             _fallar(n_etiqueta, col_etiqueta,
-                    f"etiqueta en {sorted(ETIQUETAS)}", etiqueta)
+                    f"una etiqueta declarada\n{opciones(ETIQUETAS)}", etiqueta)
         datos["etiqueta"] = etiqueta
         datos["sintoma"] = self._leer_bloque("sintoma")
         como_se_detecto, n_det, col_det = self._exigir_campo("como_se_detecto")
         if como_se_detecto not in DETECCIONES:
             _fallar(n_det, col_det,
-                    f"como_se_detecto en {sorted(DETECCIONES)}", como_se_detecto)
+                    f"un como_se_detecto declarado\n{opciones(DETECCIONES)}", como_se_detecto)
         datos["como_se_detecto"] = como_se_detecto
         medida, n_medida, col_medida = self._exigir_campo("medida")
         datos["medida"] = None if medida == "null" else medida

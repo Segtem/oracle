@@ -1,0 +1,18 @@
+caso 430-verbo-del-cli-fuera-de-la-ayuda:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "El comando acepta un verbo que la ayuda no nombra"
+    etiqueta: falso_verde
+    sintoma:
+        El despacho acepta `biblioteca nueva` y la ayuda no lo menciona. La función está escrita, probada y publicada, y sólo la encuentra quien lea el código del despacho: para todo el resto no existe.
+    como_se_detecto: observacion
+    medida: meta.todo_verbo_del_cli_esta_en_la_ayuda
+    evidencia:
+        verbo_del_cli: sustantivo, verbo, nombrado_en_la_ayuda
+            "biblioteca", "nueva", false
+            "medida", "listar", true
+    leccion:
+        La evidencia trae un verbo sano para que la medida no pase con un filtro vacío. Un verbo indocumentado no es una omisión menor: es trabajo terminado que nadie va a usar.

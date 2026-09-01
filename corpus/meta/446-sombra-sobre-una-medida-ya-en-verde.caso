@@ -1,0 +1,18 @@
+caso 446-sombra-sobre-una-medida-ya-en-verde:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Una medida en sombra ya da verde y la sombra sigue puesta"
+    etiqueta: falso_verde
+    sintoma:
+        La medida se arregló y nadie sacó la sombra. Mientras siga, el proyecto no exige algo que ya podría exigir, y la etapa de transición se vuelve un estado permanente.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_sombra_ya_en_verde
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.ya_arreglada", true, true, 90, true, true
+            "dominio.todavia_roja", true, true, 5, false, true
+    leccion:
+        `dio_ok` es falso cuando la medida no llegó a evaluarse: no se puede afirmar que esté en verde algo que no corrió. La medida tampoco ve si ese verde es estable — sólo el de esta corrida.

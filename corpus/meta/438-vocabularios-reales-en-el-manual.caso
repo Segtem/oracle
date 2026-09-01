@@ -1,0 +1,39 @@
+caso 438-vocabularios-reales-en-el-manual:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "Los cinco vocabularios cerrados de hoy, contra el registro del manual"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno: los cinco vocabularios están en `VOCABULARIOS`, así que el manual los muestra. Es la única grieta posible de un manual generado, y esta corrida la encuentra cerrada.
+    como_se_detecto: observacion
+    medida: meta.todo_vocabulario_cerrado_esta_en_el_manual
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "como_se_detecto", "accidente", 22, true
+            "como_se_detecto", "herramienta_ajena", 8, true
+            "como_se_detecto", "mutacion", 10, true
+            "como_se_detecto", "observacion", 14, true
+            "como_se_detecto", "persona", 15, true
+            "etiqueta", "deuda_de_diseño", 23, true
+            "etiqueta", "falso_rojo", 21, true
+            "etiqueta", "falso_verde", 30, true
+            "etiqueta", "medida_correcta_conclusion_errada", 27, true
+            "etiqueta", "verde_correcto", 24, true
+            "operadores", "agrupar", 29, true
+            "operadores", "de", 26, true
+            "operadores", "desde", 22, true
+            "operadores", "donde", 30, true
+            "operadores", "resumen", 21, true
+            "operadores", "unir", 25, true
+            "procedencia", "construida", 20, true
+            "procedencia", "generada", 14, true
+            "procedencia", "observada", 25, true
+            "segun", "contrato", 24, true
+            "segun", "convencion", 26, true
+            "segun", "medicion", 28, true
+            "segun", "tanteo", 22, true
+    leccion:
+        Un manual generado no envejece; su registro sí. Medirlo contra la corrida real es lo que distingue «el manual está completo» de «el manual estaba completo cuando lo escribí».

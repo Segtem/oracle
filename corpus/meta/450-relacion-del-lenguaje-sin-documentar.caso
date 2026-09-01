@@ -1,0 +1,18 @@
+caso 450-relacion-del-lenguaje-sin-documentar:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Una relación que el lenguaje emite no está nombrada en la referencia"
+    etiqueta: falso_verde
+    sintoma:
+        La documentación es la única parte del proyecto sin arnés, y por eso envejece sola: al escribir esta medida, diez de diecinueve relaciones —todas las de L−1 y L−2 entre ellas— no estaban en la especificación, y nada lo había señalado nunca.
+    como_se_detecto: mutacion
+    medida: meta.toda_relacion_del_lenguaje_esta_en_la_referencia
+    evidencia:
+        relacion_documentada: relacion, nombrada_en_la_referencia
+            "cantidad_comparada", false
+            "caso", true
+    leccion:
+        Lo único falsable acá es que el nombre aparezca. Si la explicación es buena o está al día no lo puede contestar ninguna medida, y el alcance lo dice.

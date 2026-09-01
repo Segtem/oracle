@@ -1,0 +1,18 @@
+caso 434-vocabulario-que-el-manual-no-muestra:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Un vocabulario cerrado queda fuera del registro del manual"
+    etiqueta: falso_verde
+    sintoma:
+        El manual es una vista de las declaraciones y por eso no puede quedar viejo, salvo de una manera: que alguien agregue un vocabulario y no lo anote en el registro. Entonces las opciones existen, el error las enumera y el manual no las tiene.
+    como_se_detecto: observacion
+    medida: meta.todo_vocabulario_cerrado_esta_en_el_manual
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "polaridad", "positiva", 9, false
+            "segun", "contrato", 22, true
+    leccion:
+        La única grieta de un manual generado es el registro que dice qué generar. Medirla cuesta una medida y cierra el agujero entero.

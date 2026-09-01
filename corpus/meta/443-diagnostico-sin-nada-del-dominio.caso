@@ -1,0 +1,18 @@
+caso 443-diagnostico-sin-nada-del-dominio:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "El diagnóstico no publica nada del dominio"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Sin este verde, quitar el filtro daría el mismo resultado y la medida mediría menos de lo que dice.
+    como_se_detecto: observacion
+    medida: meta.el_diagnostico_no_publica_el_dominio
+    evidencia:
+        campo_diagnostico: campo, es_del_dominio, que_se_colo
+            "python.version", false, ""
+            "plataforma", false, ""
+    leccion:
+        La medida compara contra lo que el proyecto sabe que es suyo. Un dato del dominio que no esté en esa lista NO lo ve, y su alcance lo dice.

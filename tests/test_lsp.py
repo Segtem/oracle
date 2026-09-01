@@ -129,7 +129,10 @@ class DiagnosticosTests(unittest.TestCase):
 
         self.assertEqual(diagnostico["severity"], 1)
         self.assertEqual(diagnostico["range"]["start"]["line"], 7)
-        self.assertIn("etiqueta en", diagnostico["message"])
+        self.assertIn("se esperaba una etiqueta declarada", diagnostico["message"])
+        # El diagnóstico del editor lleva el significado: es donde más sirve, porque
+        # se lee sin salir del archivo que se está escribiendo.
+        self.assertIn("falso_verde: la medida pasó y no debía", diagnostico["message"])
 
     def test_medida_sin_caso_publica_aviso_sobre_el_id(self) -> None:
         with tempfile.TemporaryDirectory() as td:

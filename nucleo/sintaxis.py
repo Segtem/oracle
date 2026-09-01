@@ -65,7 +65,11 @@ class ErrorSintaxis(ValueError):
     def __str__(self) -> str:
         visto = f"; llegó {self.encontrado}" if self.encontrado else ""
         cabeza = self.esperado if self.literal else f"se esperaba {self.esperado}"
-        return f"línea {self.linea}, columna {self.columna}: {cabeza}{visto}"
+        # Un `esperado` de varias líneas enumera un vocabulario cerrado. El «llegó X» va pegado a
+        # la PRIMERA línea, no al final: al final queda a cinco renglones de la columna que lo
+        # señala, pegado a una opción con la que no tiene nada que ver.
+        primera, salto, resto = cabeza.partition("\n")
+        return f"línea {self.linea}, columna {self.columna}: {primera}{visto}{salto}{resto}"
 
 
 def _permitir_atributos_de_excepcion(clase):

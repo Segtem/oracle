@@ -1,0 +1,17 @@
+caso 441-sin-opciones-del-vocabulario-el-manual-no-concluye:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Sin la relación de vocabulario, la cobertura del manual no se juzga"
+    etiqueta: falso_verde
+    sintoma:
+        La misma ausencia deja sin juzgar si el manual alcanza todos los vocabularios: cero filas fuera del manual, porque no hay filas.
+    como_se_detecto: mutacion
+    medida: meta.todo_vocabulario_cerrado_esta_en_el_manual
+    evidencia:
+        otra_evidencia: nombre
+            "corrida sin esa relación"
+    leccion:
+        Dos medidas leen la misma relación y las dos necesitan su propio caso de ausencia: el mutador se aplica a cada medida por separado.

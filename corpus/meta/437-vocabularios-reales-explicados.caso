@@ -1,0 +1,39 @@
+caso 437-vocabularios-reales-explicados:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: observada
+    titulo: "Las veintitrés opciones cerradas del lenguaje, con las palabras que hoy las explican"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno: ninguna opción se explica en cinco palabras o menos. Tres lo hacían hasta hoy —`persona`, `accidente` y `observacion`— y las encontró esta misma medida al escribirla.
+    como_se_detecto: observacion
+    medida: meta.toda_opcion_del_vocabulario_declara_su_sentido
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "como_se_detecto", "accidente", 22, true
+            "como_se_detecto", "herramienta_ajena", 8, true
+            "como_se_detecto", "mutacion", 10, true
+            "como_se_detecto", "observacion", 14, true
+            "como_se_detecto", "persona", 15, true
+            "etiqueta", "deuda_de_diseño", 23, true
+            "etiqueta", "falso_rojo", 21, true
+            "etiqueta", "falso_verde", 30, true
+            "etiqueta", "medida_correcta_conclusion_errada", 27, true
+            "etiqueta", "verde_correcto", 24, true
+            "operadores", "agrupar", 29, true
+            "operadores", "de", 26, true
+            "operadores", "desde", 22, true
+            "operadores", "donde", 30, true
+            "operadores", "resumen", 21, true
+            "operadores", "unir", 25, true
+            "procedencia", "construida", 20, true
+            "procedencia", "generada", 14, true
+            "procedencia", "observada", 25, true
+            "segun", "contrato", 24, true
+            "segun", "convencion", 26, true
+            "segun", "medicion", 28, true
+            "segun", "tanteo", 22, true
+    leccion:
+        La evidencia observada de una medida sobre el propio lenguaje es barata: la relación ya se emite en cada corrida. No hay razón para fijar estas medidas sólo con ejemplos.

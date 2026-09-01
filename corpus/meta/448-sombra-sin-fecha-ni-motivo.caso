@@ -1,0 +1,19 @@
+caso 448-sombra-sin-fecha-ni-motivo:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "1ed6abb+worktree"
+    procedencia: construida
+    titulo: "Una sombra sin fecha y otra sin motivo"
+    etiqueta: falso_verde
+    sintoma:
+        Sin fecha la sombra no se puede envejecer; sin motivo no se puede discutir. Con cualquiera de las dos faltando, apagar un rojo sale gratis y deja de ser una decisión.
+    como_se_detecto: mutacion
+    medida: meta.toda_sombra_declara_desde_y_porque
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.sin_fecha", false, true, -1, false, true
+            "dominio.sin_motivo", true, false, 7, false, true
+            "dominio.completa", true, true, 7, false, true
+    leccion:
+        El filtro es una disyunción, así que hace falta una fila por cada rama: con una sola, cambiar el `o` por un `y` pasaría inadvertido.
