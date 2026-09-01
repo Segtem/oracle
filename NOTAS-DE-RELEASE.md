@@ -101,6 +101,21 @@ leer fuera del proyecto, escribir fuera, abrir red ni lanzar procesos. Sigue exi
 - `DECISION-007` — bibliotecas de políticas
 - `DECISION-008` — el repositorio se abre
 
+## Límites conocidos
+
+**El servidor LSP necesita un proyecto.** `oracle-lsp` sale con código 1 si no resuelve uno
+—`oracle.json` en el directorio de trabajo, o `--proyecto` explícito—. Los editores lo arrancan
+sin argumentos y le pasan la carpeta abierta: con una carpeta de proyecto abierta funciona, con un
+`.oracle` suelto el servidor se apaga y no hay diagnósticos, dejando sólo una línea en el registro.
+Se descubrió verificando el wheel antes de publicar. Lo correcto es que el servidor siga dando
+diagnósticos de sintaxis —que no necesitan proyecto— y degrade sólo lo que sí lo necesita; eso
+cambia el contrato del servidor y va en la próxima versión, no en un arreglo apurado.
+
+**`tools/medida.py` tiene 114 mutantes vivos.** Es la superficie de la CLI y la deuda es anterior
+a esta versión. Ésta es además la primera ronda COMPLETA de ese módulo: las anteriores se cortaban
+cerca de los 120 sitios sin decirlo, así que la cifra vieja de «115 sitios · 67 vivos» subestimaba
+el tamaño real, que son 264 sitios.
+
 ## Estado
 
 Sigue siendo **`EXPERIMENTAL`**. Abrir el repositorio no es declarar que está terminado: la
@@ -110,7 +125,10 @@ debería necesitar. El camino está en `PLAN-LENGUAJE.md`.
 ## Instalación
 
 ```bash
+pip install git+https://github.com/Segtem/oracle.git
+# o, sin red, desde el archivo adjunto a este release:
 pip install oracle_metalenguaje-0.2.0-py3-none-any.whl
+
 oracle init mi-proyecto
 ```
 

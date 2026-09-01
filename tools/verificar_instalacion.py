@@ -41,6 +41,47 @@ def _correr(argumentos, *, cwd: Path, env: dict[str, str]) -> subprocess.Complet
     return resultado
 
 
+def _entry_points_declarados() -> list[str]:
+    """Los nombres que `pyproject.toml` promete instalar. Una sola fuente, no una copia."""
+    import tomllib
+
+    with (RAIZ / "pyproject.toml").open("rb") as f:
+        return sorted(tomllib.load(f)["project"]["scripts"])
+
+
+def _hablarle_al_lsp(ejecutable: Path, *, proyecto: Path, cwd: Path, env: dict[str, str]) -> None:
+    """Le habla al servidor por stdio como haría un editor y exige que conteste sus capacidades.
+
+    Se le pasa `--proyecto` explícito. HOY el servidor NO arranca sin resolver uno —sale con
+    código 1— y los editores lo invocan sin argumentos, confiando en el directorio de trabajo:
+    con una carpeta de proyecto abierta anda, con un `.oracle` suelto se apaga y sólo queda una
+    línea en el registro. Está anotado en NOTAS-DE-RELEASE.md como límite conocido de 0.2.0.
+    Esta prueba comprueba que el ejecutable existe y contesta, no que tolere no tener proyecto.
+    """
+    def marco(mensaje: dict) -> bytes:
+        cuerpo = json.dumps(mensaje).encode("utf-8")
+        return f"Content-Length: {len(cuerpo)}\r\n\r\n".encode("ascii") + cuerpo
+
+    entrada = b"".join((
+        marco({"jsonrpc": "2.0", "id": 1, "method": "initialize", "params": {}}),
+        marco({"jsonrpc": "2.0", "id": 2, "method": "shutdown"}),
+        marco({"jsonrpc": "2.0", "method": "exit"}),
+    ))
+    resultado = subprocess.run(
+        [str(ejecutable), "--proyecto", str(proyecto)],
+        input=entrada, capture_output=True, cwd=cwd, env=env, timeout=120)
+    if resultado.returncode != 0:
+        raise RuntimeError(
+            f"{ejecutable.name} salió con {resultado.returncode}\n"
+            f"STDERR:\n{resultado.stderr.decode('utf-8', 'replace')}")
+    salida = resultado.stdout.decode("utf-8", "replace")
+    for esperado in ("capabilities", "codeLensProvider", "completionProvider"):
+        if esperado not in salida:
+            raise RuntimeError(
+                f"{ejecutable.name} arrancó pero no declaró `{esperado}`\n"
+                f"STDOUT:\n{salida[:600]}")
+
+
 def main() -> int:
     with tempfile.TemporaryDirectory(prefix="oracle-wheel-") as td:
         env = _entorno_limpio()
@@ -160,13 +201,21 @@ def main() -> int:
         _correr([str(python), "-I", "-c", programa], cwd=vacio, env=env)
 
         binarios = entorno / ("Scripts" if sys.platform == "win32" else "bin")
-        entry_points = (
-            "oracle",
-            "oracle-aceptacion", "oracle-corpus", "oracle-diferencial", "oracle-estudio",
-            "oracle-medida", "oracle-mutar", "oracle-mutar-codigo",
-        )
+        # La lista sale de `pyproject.toml`, no de acá. Estaba escrita a mano y `oracle-lsp`
+        # —agregado el 2026-08-31— no figuraba: el verificador daba WHEEL OK sin haberlo probado
+        # nunca. Es el mismo defecto que este proyecto persigue en otros lados, en la herramienta
+        # que existe para decir que el paquete está bien.
+        entry_points = tuple(_entry_points_declarados())
+        if len(entry_points) < 2:
+            raise RuntimeError("pyproject.toml no declara entry points; algo se rompió al leerlo")
         for nombre in entry_points:
-            _correr([str(binarios / nombre), "--help"], cwd=vacio, env=env)
+            if nombre == "oracle-lsp":
+                # Un servidor LSP no tiene `--help`: habla por stdio y espera mensajes. Se lo
+                # ejerce como lo ejerce un editor —initialize, shutdown, exit— porque «arranca»
+                # no es lo mismo que «contesta».
+                _hablarle_al_lsp(binarios / nombre, proyecto=proyecto, cwd=vacio, env=env)
+            else:
+                _correr([str(binarios / nombre), "--help"], cwd=vacio, env=env)
         inventario = _correr([
             str(binarios / "oracle-medida"), "--proyecto", str(proyecto),
             "--confiar-escalares", "--escalares",
@@ -189,6 +238,19 @@ def main() -> int:
             [str(oracle), "test", "--proyecto", str(proyecto_cli)], cwd=vacio, env=env)
         if "VEREDICTO: VERDE" not in vacio_cli.stdout or "proyecto vacío" not in vacio_cli.stdout:
             raise RuntimeError("oracle test no aceptó un proyecto recién inicializado")
+        # La relación que la medida consume, declarada. Sin esto no se puede derivar la unidad
+        # de `i.mal` y `meta.toda_cantidad_comparada_tiene_unidad_derivable` —que entró con L−1—
+        # deja el proyecto en rojo. Este es el ejemplo que ve quien instala el paquete: tiene que
+        # pasar su propia vara, no sólo arrancar.
+        relaciones_cli = proyecto_cli / "relaciones"
+        relaciones_cli.mkdir(exist_ok=True)
+        (relaciones_cli / "item.json").write_text(json.dumps([
+            "relacion", "item",
+            ["campos",
+             ["campo", "id", "texto", "sin_unidad"],
+             ["campo", "mal", "booleano", "sin_unidad"]],
+            ["alcance", "NO dice por qué un item está mal; sólo si lo está"],
+        ]), encoding="utf-8")
         dominio = proyecto_cli / "catalogos" / "demo"
         dominio.mkdir()
         (dominio / "demo.instalado.oracle").write_text(
@@ -228,7 +290,8 @@ def main() -> int:
             raise RuntimeError("oracle test no pudo cargar la macro estándar empaquetada")
 
     print(
-        "WHEEL OK · namespace, datos, 8 entry points, oracle test y dos motores aislados "
+        "WHEEL OK · namespace, datos, "
+        f"{len(entry_points)} entry points, oracle test y dos motores aislados "
         "fuera del checkout"
     )
     return 0
