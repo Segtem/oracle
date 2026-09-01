@@ -1728,6 +1728,21 @@ caso {cid}:
                 aceptacion.casos(Proyecto(raiz))
 
 
+class LosVerbosLleganALaAceptacion(unittest.TestCase):
+    """El puente entre el CLI y la medida que vigila su ayuda."""
+
+    def test_emite_una_fila_por_verbo_con_la_ayuda_real(self) -> None:
+        """Con `and` en vez de `or`, la ayuda llegaría vacía, no se emitiría la relación, y la
+        medida dejaría de correr sin que nada lo dijera."""
+        from tools.aceptacion import _hechos_del_cli
+        from tools import cli
+        filas = _hechos_del_cli()["verbo_del_cli"]
+        esperados = sum(len(v) for v in cli.VERBOS.values())
+        self.assertEqual(len(filas), esperados)
+        self.assertTrue(all(f["nombrado_en_la_ayuda"] for f in filas),
+                        "la ayuda de Oracle nombra todos sus verbos")
+
+
 class ModoSombra(unittest.TestCase):
     """Una medida en sombra se mide, se reporta, y NO tumba la corrida.
 

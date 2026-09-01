@@ -33,7 +33,7 @@ from datetime import date
 
 
 RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra",
-                                     "relacion_documentada"})
+                                     "relacion_documentada", "verbo_del_cli"})
 
 
 def hechos_de_documentacion(relaciones, referencia: str) -> dict:
@@ -61,6 +61,26 @@ def hechos_de_documentacion(relaciones, referencia: str) -> dict:
     return {"relacion_documentada": [
         {"relacion": nombre, "nombrada_en_la_referencia": nombre in referencia}
         for nombre in sorted(relaciones)]}
+
+
+def hechos_de_verbos(verbos_por_sustantivo, ayuda: str) -> dict:
+    """Un hecho por verbo que el CLI acepta: si la ayuda lo nombra.
+
+    Un verbo que existe y no está en la ayuda es una función que sólo encuentra quien lea el
+    despacho. Al 2026-09-01 había tres —`medida probar`, `caso generar` y `biblioteca nueva`—, y
+    el último lo había agregado yo ese mismo día: la ayuda es exactamente el lugar donde una
+    novedad se olvida.
+
+    Se compara contra la ayuda que imprime `oracle --help`, no contra la documentación entera: es
+    lo primero y muchas veces lo único que alguien lee.
+    """
+    if not ayuda.strip():
+        return {}
+    return {"verbo_del_cli": [
+        {"sustantivo": sustantivo, "verbo": verbo,
+         "nombrado_en_la_ayuda": f"{sustantivo} {verbo}" in ayuda}
+        for sustantivo in sorted(verbos_por_sustantivo)
+        for verbo in sorted(verbos_por_sustantivo[sustantivo])]}
 
 
 def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,

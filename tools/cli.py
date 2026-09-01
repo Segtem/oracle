@@ -5,17 +5,20 @@
 
     oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
     oracle medida revisar <archivo>         revisa y evalúa una medida suelta contra la evidencia
+    oracle medida probar <archivo> --con <filas>   corre una medida contra filas escritas a mano
     oracle medida listar                    lista las medidas del catálogo con umbral, alcance y fijación
     oracle medida expandir <archivo>        muestra la forma canónica de una medida escrita con macros
 
     oracle caso nuevo <grupo/id>            crea un nuevo caso en corpus/ con plantilla lista
     oracle caso listar                      lista los casos del corpus, su etiqueta y qué medida reclaman
+    oracle caso generar <medida>            propone casos a partir de los mutantes que sobreviven
 
     oracle proyecto init [ruta]             inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
     oracle proyecto test [--rapido|--todo]  ejecuta la secuencia completa de verificación con veredicto final
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
 
+    oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
     oracle biblioteca verificar <ruta>      certifica una biblioteca local de políticas
     oracle biblioteca listar <ruta>         muestra sus umbrales, orígenes y alcances completos
@@ -175,6 +178,43 @@ def cmd_diagnostico(proy, argv: list[str]) -> int:
         return 0
     print(texto)
     return 0
+
+
+# Los verbos que el CLI acepta, en UN solo lugar.
+#
+# Estaban escritos dos veces por sustantivo —la tupla del despacho y el mensaje «Verbos
+# disponibles»— más una tercera en cada ayuda. Y ya habían derivado: `caso` ACEPTA `nueva` y
+# anunciaba sólo «nuevo, listar, generar», así que un verbo válido era invisible para quien
+# leyera el error.
+#
+# Cada entrada es el verbo canónico. Los alias se derivan: `--verbo` para todos, más los que
+# `ALIAS` declare aparte.
+VERBOS = {
+    "medida": ("nueva", "revisar", "probar", "listar", "expandir"),
+    "caso": ("nuevo", "listar", "generar"),
+    "proyecto": ("init", "test", "relaciones", "escalares"),
+    "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
+}
+
+# `caso nueva` se acepta desde siempre por la concordancia con «medida nueva». Se declara acá en
+# vez de esconderse en la tupla: un alias que nadie escribió a propósito es un alias que nadie
+# puede documentar.
+ALIAS = {("caso", "nueva"): "nuevo"}
+
+
+def verbos_aceptados(sustantivo: str) -> frozenset[str]:
+    """Todo lo que el despacho reconoce para ese sustantivo: canónicos, `--canónicos` y alias."""
+    canonicos = VERBOS[sustantivo]
+    formas = {v for verbo in canonicos for v in (verbo, f"--{verbo}")}
+    formas |= {alias for (s, alias) in ALIAS if s == sustantivo}
+    formas |= {f"--{alias}" for (s, alias) in ALIAS if s == sustantivo}
+    return frozenset(formas)
+
+
+def _verbo_desconocido(sustantivo: str, palabra: str) -> int:
+    print(f"verbo desconocido para «{sustantivo}»: {palabra}")
+    print(f"Verbos disponibles: {', '.join(VERBOS[sustantivo])}")
+    return 1
 
 
 def cmd_biblioteca_nueva(bid: str, ruta_str: str | None) -> int:
@@ -730,36 +770,21 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_init(ruta, argv)
 
     # 3. Verbos desconocidos de sustantivos
-    if subcomando == "medida" and resto and resto[0] not in (
-        "nueva", "--nueva", "revisar", "--revisar", "listar", "--listar", "expandir", "--expandir",
-        "probar", "--probar"
-    ):
-        print(f"verbo desconocido para «medida»: {resto[0]}")
-        print("Verbos disponibles: nueva, revisar, probar, listar, expandir")
-        return 1
+    if subcomando == "medida" and resto and resto[0] not in verbos_aceptados("medida"):
+        return _verbo_desconocido("medida", resto[0])
 
-    if subcomando == "caso" and resto and resto[0] not in (
-        "nuevo", "--nuevo", "nueva", "--nueva", "listar", "--listar", "generar", "--generar"
-    ):
+    if subcomando == "caso" and resto and resto[0] not in verbos_aceptados("caso"):
         # Atajo plano `oracle caso <grupo/id>`
         if "/" not in resto[0] and not ID_CASO_RE.fullmatch(resto[0]):
-            print(f"verbo desconocido para «caso»: {resto[0]}")
-            print("Verbos disponibles: nuevo, listar, generar")
-            return 1
+            return _verbo_desconocido("caso", resto[0])
 
-    if subcomando == "proyecto" and resto and resto[0] not in (
-        "init", "test", "relaciones", "--relaciones", "escalares", "--escalares"
-    ):
-        print(f"verbo desconocido para «proyecto»: {resto[0]}")
-        print("Verbos disponibles: init, test, relaciones, escalares")
-        return 1
+    if subcomando == "proyecto" and resto and resto[0] not in verbos_aceptados("proyecto"):
+        return _verbo_desconocido("proyecto", resto[0])
 
     if subcomando == "biblioteca":
         verbo = resto[0]
-        if verbo not in ("nueva", "instaladas", "verificar", "listar"):
-            print(f"verbo desconocido para «biblioteca»: {verbo}")
-            print("Verbos disponibles: nueva, instaladas, verificar, listar")
-            return 1
+        if verbo not in verbos_aceptados("biblioteca"):
+            return _verbo_desconocido("biblioteca", verbo)
         if verbo == "nueva":
             if len(resto) < 2:
                 print("falta el id: oracle biblioteca nueva <publicador.nombre> [ruta]")

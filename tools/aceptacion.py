@@ -28,7 +28,7 @@ import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
 from nucleo.marco import (hechos_de_casos, hechos_de_documentacion,  # noqa: E402
-                          hechos_de_sombra)
+                          hechos_de_sombra, hechos_de_verbos)
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,  # noqa: E402
                            medidas_aplicables, relaciones_del_lenguaje_declaradas)
 from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
@@ -39,6 +39,20 @@ from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa:
                              macros_del_proyecto,
                              problemas_estructura, relaciones_del_proyecto)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
+
+def _hechos_del_cli() -> dict:
+    """Los verbos que el CLI acepta y la ayuda que imprime, para que una medida los compare.
+
+    La importación va adentro de la función porque `tools/cli.py` importa este módulo: al tope
+    sería circular. NO se envuelve en un `except ImportError`: si el CLI no se puede importar, eso
+    es un defecto que hay que ver, y tragárselo dejaría a la medida sin correr EN SILENCIO —el
+    verde vacío que este proyecto persigue—. Había un `except` acá y su mutante sobrevivía, que es
+    lo mismo que decir que nada podía distinguir tenerlo de no tenerlo.
+    """
+    from tools import cli
+
+    return hechos_de_verbos(cli.VERBOS, cli.__doc__ or "")
+
 
 def casos(proy) -> list[dict]:
     """Corpus propio y corpus seleccionado, cada caso con su origen reificado."""
@@ -131,6 +145,11 @@ def _ejecutar(proy) -> int:
                       **hechos_de_diagnostico(reunir(proy), secretos),
                       **hechos_de_documentacion(
                           relaciones_del_lenguaje_declaradas(), texto_referencia),
+                      # Los verbos y la ayuda salen del MISMO módulo, así que esto sólo tiene
+                      # sentido midiendo al propio Oracle. Un consumidor no tiene un CLI que
+                      # documentar: la importación se hace acá adentro para no cargarlo cuando no
+                      # hace falta, y si no está, la relación no se emite y la medida no concluye.
+                      **_hechos_del_cli(),
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(relaciones.values()),
                       **hechos_de_unidades(catalogo.values(), relaciones)}
