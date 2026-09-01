@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Oracle — metalenguaje de medidas</title>
+<meta name="description" content="Un lenguaje para escribir reglas que fallan —con un número, un umbral y las filas que ofendieron— en vez de documentos que aconsejan. Python, sin dependencias, MIT.">
+<link rel="canonical" href="https://segtem.github.io/oracle/">
+<meta property="og:title" content="Oracle — metalenguaje de medidas">
+<meta property="og:description" content="Reglas que fallan, no documentos que aconsejan. Toda medida declara su umbral, de dónde salió el número, y qué NO mira.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --tinta: oklch(0.16 0 0);
+    --papel: oklch(0.96 0.004 95);
+    --acento: oklch(0.58 0.20 45);
+    --acento-claro: oklch(0.78 0.19 60);
+    --rojo: oklch(0.66 0.22 27);
+    --regla: 3px;
+    --mg: 44px;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta);
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-size: 17px; line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: underline; text-underline-offset: 3px;
+      text-decoration-thickness: 1px; }
+  a:hover { color: var(--acento); }
+  code, pre { font-family: var(--mono); }
+
+  .fila { border-top: var(--regla) solid var(--tinta); }
+  .pad { padding: 34px var(--mg); }
+  .mono-eti { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em;
+              text-transform: uppercase; margin: 0 0 18px; color: oklch(0.45 0.01 95); }
+
+  /* ---- barra ---- */
+  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
+           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
+           text-transform: uppercase; flex-wrap: wrap; }
+  .barra a { text-decoration: none; }
+  .barra a:hover { color: var(--acento-claro); }
+  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
+  .ver { color: oklch(0.70 0.02 95); }
+
+  /* ---- hero ---- */
+  .hero { padding: 58px var(--mg) 44px; }
+  .hero h1 { font-family: var(--negra); font-size: clamp(52px, 11vw, 112px);
+             line-height: 0.88; letter-spacing: -0.038em; margin: 0 0 26px;
+             text-transform: uppercase; }
+  .hero h1 .no { color: var(--acento); }
+  .bajada { font-size: clamp(19px, 2.4vw, 25px); line-height: 1.38; font-weight: 500;
+            margin: 0 0 30px; max-width: 33ch; text-wrap: pretty; }
+  .acciones { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn { display: inline-block; background: var(--tinta); color: var(--papel);
+         padding: 15px 30px; font-family: var(--negra); font-size: 16px;
+         text-transform: uppercase; letter-spacing: 0.02em; text-decoration: none; }
+  .btn:hover { background: var(--acento); color: var(--papel); }
+  .btn-claro { background: var(--papel); color: var(--tinta);
+               box-shadow: inset 0 0 0 var(--regla) var(--tinta); }
+  .btn-claro:hover { background: var(--tinta); color: var(--papel); box-shadow: none; }
+  .susurro { font-family: var(--mono); font-size: 13px; }
+
+  /* ---- rejillas ---- */
+  .g12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .g3  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g5  { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .g4  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .c7 { grid-column: span 7; border-right: var(--regla) solid var(--tinta); }
+  .c5 { grid-column: span 5; }
+  .g3 > * + *, .g5 > * + *, .g4 > * + * { border-left: var(--regla) solid var(--tinta); }
+  .inverso { background: var(--acento); color: oklch(0.98 0.004 95); }
+  .oscuro  { background: var(--tinta); color: var(--papel); }
+
+  h2.grande { font-family: var(--negra); font-size: clamp(28px, 4vw, 38px);
+              line-height: 1.04; margin: 0 0 14px; text-transform: uppercase; }
+  h3.chica  { font-family: var(--negra); font-size: 24px; margin: 0 0 12px;
+              text-transform: uppercase; }
+  p.cuerpo { margin: 0 0 14px; }
+  p.cuerpo:last-child { margin-bottom: 0; }
+
+  /* ---- la medida anotada ---- */
+  .codigo { margin: 0; font-family: var(--mono); font-size: clamp(13px, 1.5vw, 16px);
+            line-height: 1.95; white-space: pre; overflow-x: auto; }
+  .kw { color: var(--acento-claro); font-weight: 700; }
+  .anot { display: block; }
+  .anot .nota { display: inline-block; font-family: 'Archivo', sans-serif;
+                font-size: 13px; line-height: 1.35; color: oklch(0.72 0.02 95);
+                border-left: 2px solid var(--acento-claro); padding-left: 10px;
+                margin-left: 14px; white-space: normal; max-width: 44ch;
+                vertical-align: middle; }
+  @media (max-width: 900px) { .anot .nota { display: block; margin: 4px 0 14px 22px; } }
+
+  .veredicto { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 15px);
+               line-height: 1.9; white-space: pre; overflow-x: auto; margin: 0; }
+  .veredicto .rojo { color: var(--rojo); font-weight: 700; }
+
+  .cifra { font-family: var(--negra); font-size: 40px; margin: 0 0 4px;
+           color: var(--acento-claro); }
+  .nivel { font-family: var(--negra); font-size: 30px; margin: 0 0 10px; }
+
+  .aviso { display: flex; gap: 22px; align-items: flex-start; }
+  .aviso svg { flex: 0 0 auto; margin-top: 3px; }
+
+  .pie { background: var(--tinta); color: oklch(0.82 0.01 95); font-family: var(--mono);
+         font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+         padding: 24px var(--mg); display: flex; gap: 34px; flex-wrap: wrap; }
+  .pie a:hover { color: var(--acento-claro); }
+
+  .cierre { display: flex; align-items: center; justify-content: space-between;
+            gap: 26px; flex-wrap: wrap; }
+
+  /* ---- teléfono: las rejillas se apilan y los bordes cambian de lado ---- */
+  @media (max-width: 860px) {
+    :root { --mg: 22px; --regla: 2px; }
+    body { font-size: 16px; }
+    .g12, .g3, .g5, .g4 { grid-template-columns: 1fr; }
+    .c7, .c5 { grid-column: auto; }
+    .c7 { border-right: 0; border-bottom: var(--regla) solid var(--tinta); }
+    .g3 > * + *, .g5 > * + *, .g4 > * + * {
+      border-left: 0; border-top: var(--regla) solid var(--tinta);
+    }
+    .g4.oscuro > * + * { border-top-color: oklch(0.96 0.004 95 / 0.28); }
+    .barra nav { gap: 16px; font-size: 11px; }
+    .btn { padding: 14px 22px; font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    a, .btn { transition: color .12s ease, background-color .12s ease; }
+  }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div style="display:flex; align-items:center; gap:14px;">
+    <strong>oracle</strong><span class="ver">0.2.0</span>
+  </div>
+  <nav>
+    <a href="#empezar">empezar</a>
+    <a href="#medida">el lenguaje</a>
+    <a href="https://github.com/Segtem/oracle/blob/main/ESPECIFICACION.md">especificación</a>
+    <a href="https://github.com/Segtem/oracle#las-decisiones-y-por-qué">decisiones</a>
+    <a href="https://github.com/Segtem/oracle">github</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="mono-eti" style="color: var(--acento);">metalenguaje de medidas · experimental</p>
+  <h1>Medir<br><span class="no">no</span> opinar</h1>
+  <p class="bajada">
+    Un lenguaje para escribir reglas que <em>fallan</em> —con un número, un umbral y las
+    filas que ofendieron— en vez de documentos que aconsejan.
+  </p>
+  <div class="acciones">
+    <a class="btn" href="#empezar">Empezar</a>
+    <a class="btn btn-claro" href="https://github.com/Segtem/oracle">Ver el código</a>
+    <span class="susurro">Python ≥ 3.11 · sin dependencias · MIT</span>
+  </div>
+</section>
+
+<section class="fila g12">
+  <div class="pad c7">
+    <p class="mono-eti">el problema tiene nombre: goodhart</p>
+    <p class="cuerpo" style="font-size:21px; line-height:1.45;">
+      Cuando quien construye la herramienta escribe también su verificador, el verificador
+      termina preguntando lo que la herramienta ya contesta bien.
+    </p>
+    <p class="cuerpo" style="font-size:21px; line-height:1.45;">
+      Con un modelo de lenguaje el efecto es más fuerte: escribe la herramienta y su test
+      <strong>con la misma mano</strong>, y no tiene memoria entre sesiones — sólo existe lo que
+      quedó en el repositorio. Una regla escrita como consejo se lee y se olvida.
+      <strong>Tiene que negarse.</strong>
+    </p>
+  </div>
+  <div class="pad c5 inverso" style="display:flex; flex-direction:column; justify-content:center;">
+    <h2 class="grande">Una medida que nada puede romper es decoración</h2>
+    <p class="cuerpo">
+      Por eso el catálogo se muta: se rompen las medidas a propósito y se exige que el corpus lo
+      note. La que sobrevive a todo no estaba midiendo nada.
+    </p>
+  </div>
+</section>
+
+<section id="medida" class="fila pad oscuro">
+  <p class="mono-eti" style="color: oklch(0.70 0.02 95);">una medida, entera — y qué dice cada línea</p>
+  <pre class="codigo"><span class="anot"><span class="kw">ninguno</span> documento.nombre_sigue_la_convencion:<span class="nota"><strong>ninguno</strong> es una macro: cuenta las filas que quedan y exige cero.</span></span>
+    <span class="anot"><span class="kw">de</span> documento d<span class="nota">La relación de la que salen las filas, con un alias.</span></span>
+    <span class="anot"><span class="kw">donde</span> d.sigue_convencion == false<span class="nota">El filtro. Lo que queda después de esto son los <strong>testigos</strong>.</span></span>
+    <span class="anot"><span class="kw">umbral</span> &lt;= 0 <span class="kw">segun</span> contrato <span class="kw">porque</span> "…"<span class="nota"><strong>segun</strong> dice de dónde salió el número: medicion, contrato, convencion o tanteo. Obligatorio.</span></span>
+    <span class="anot"><span class="kw">alcance</span> "no ve el contenido, sólo el nombre"<span class="nota">Qué <strong>no</strong> mira. Obligatorio, y en prosa: sin esto una medida se lee como si lo viera todo.</span></span></pre>
+  <p class="cuerpo" style="margin-top:24px; color: oklch(0.78 0.01 95); max-width: 78ch;">
+    Eso es un archivo <code style="font-size:0.9em">.oracle</code> completo. No hay clase que heredar
+    ni función que registrar: el catálogo lo carga tal cual, y
+    <strong style="color: var(--papel)">cargar una medida nunca ejecuta Python</strong>. Por eso se
+    puede auditar un catálogo ajeno sin correrlo.
+  </p>
+</section>
+
+<section class="fila g12">
+  <div class="pad c5" style="display:flex; flex-direction:column; justify-content:center;">
+    <h2 class="grande">Así se ve<br>un rojo</h2>
+    <p class="cuerpo">
+      No «falló la verificación». El valor medido, contra qué se lo comparó, de dónde salió ese
+      número, y exactamente qué filas lo produjeron.
+    </p>
+    <p class="cuerpo">
+      Un rojo sin testigos obliga a creerle. Con testigos se puede discutir — y a veces la
+      equivocada resulta ser la medida.
+    </p>
+  </div>
+  <div class="pad oscuro" style="grid-column: span 7;">
+<pre class="veredicto"><span class="rojo">ROJO</span>  documento.nombre_sigue_la_convencion
+      valor <span class="rojo">2</span>  (&lt;= 0)  segun contrato
+
+      testigos:
+        2026-07-25-informe.md      carpeta 00-Proceso
+        notas finales.md           carpeta 00-Proceso
+
+      alcance: no ve el contenido del documento,
+               sólo su nombre</pre>
+  </div>
+</section>
+
+<section class="fila pad">
+  <p class="mono-eti">obligatorio en toda medida</p>
+</section>
+<section class="fila g3">
+  <div class="pad">
+    <h3 class="chica">umbral<br><span style="color:var(--acento)">segun</span></h3>
+    <p class="cuerpo">
+      De dónde sale el número, de un conjunto cerrado: <code>medicion</code>, <code>contrato</code>,
+      <code>convencion</code> o <code>tanteo</code>. Un umbral sin procedencia es un valor puesto a
+      ojo con cara de dato.
+    </p>
+  </div>
+  <div class="pad">
+    <h3 class="chica">alcance</h3>
+    <p class="cuerpo">
+      Qué <strong>no</strong> mira. Se escribe en prosa y no se puede omitir. Sin eso el silencio
+      pasa por cobertura.
+    </p>
+  </div>
+  <div class="pad">
+    <h3 class="chica">testigos</h3>
+    <p class="cuerpo">
+      Las filas que ofendieron, no un conteo. Es la diferencia entre un veredicto que se acata y
+      uno que se discute.
+    </p>
+  </div>
+</section>
+
+<section class="fila pad">
+  <p class="mono-eti">cinco niveles, una sola representación</p>
+  <p style="font-size:19px; line-height:1.45; margin:0; max-width:72ch;">
+    Casi todas las herramientas viven en L0 y L1. Los dos niveles negativos son lo que distingue
+    «esto está bien» de «esto estaba bien cuando lo miré».
+  </p>
+</section>
+<section class="fila g5">
+  <div class="pad inverso">
+    <p class="nivel">L−2</p>
+    <p class="cuerpo" style="font-size:15px;">Identidad y frescura del referente. ¿Lo que se midió sigue siendo lo mismo?</p>
+  </div>
+  <div class="pad inverso">
+    <p class="nivel">L−1</p>
+    <p class="cuerpo" style="font-size:15px;">El sensor se declara: qué unidades produce y hasta dónde llega.</p>
+  </div>
+  <div class="pad">
+    <p class="nivel">L0</p>
+    <p class="cuerpo" style="font-size:15px;">Las filas de evidencia. Lo que se observó.</p>
+  </div>
+  <div class="pad">
+    <p class="nivel">L1</p>
+    <p class="cuerpo" style="font-size:15px;">Las medidas. Lo que se afirma sobre esas filas.</p>
+  </div>
+  <div class="pad">
+    <p class="nivel">L2</p>
+    <p class="cuerpo" style="font-size:15px;">Medidas sobre medidas. El catálogo juzgándose a sí mismo.</p>
+  </div>
+</section>
+
+<section class="fila g4 oscuro">
+  <div class="pad"><p class="cifra">41</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">medidas en el catálogo</p></div>
+  <div class="pad"><p class="cifra">131</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">casos que las ponen a prueba</p></div>
+  <div class="pad"><p class="cifra">0</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">mutantes vivos en el núcleo</p></div>
+  <div class="pad"><p class="cifra">0</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">dependencias</p></div>
+</section>
+
+<section id="empezar" class="fila g12">
+  <div class="pad c5">
+    <h2 class="grande">Empezar</h2>
+    <p class="cuerpo">
+      Python ≥ 3.11 y nada más. Sin dependencias que resolver, se instala también sin red desde el
+      archivo del <a href="https://github.com/Segtem/oracle/releases/tag/v0.2.0">release</a>.
+    </p>
+    <p class="cuerpo">
+      Instala nueve comandos y el catálogo base viaja adentro, así que un proyecto nuevo ya tiene
+      quién lo juzgue desde el primer <code>oracle test</code>.
+    </p>
+    <p class="cuerpo">
+      El editor viene incluido: un servidor LSP que <strong>Emacs y VS Code comparten</strong>, con
+      diagnósticos, completado que muestra la unidad de cada campo, y un aviso sobre toda medida
+      que ninguna evidencia pone a prueba.
+    </p>
+  </div>
+  <div class="pad" style="grid-column: span 7; background: oklch(0.925 0.006 95);">
+<pre class="codigo"><span style="color:oklch(0.50 0.01 95)">$</span> pip install oracle-metalenguaje
+<span style="color:oklch(0.50 0.01 95)">$</span> oracle init mi-proyecto
+<span style="color:oklch(0.50 0.01 95)">$</span> cd mi-proyecto
+<span style="color:oklch(0.50 0.01 95)">$</span> oracle nueva documento.nombre_sigue_la_convencion
+<span style="color:oklch(0.50 0.01 95)">$</span> oracle test</pre>
+    <p class="cuerpo" style="margin-top:20px; font-size:15px;">
+      Seguí con el <a href="https://github.com/Segtem/oracle/blob/main/ORACLE-TUTORIAL-PRACTICO.md">tutorial práctico</a>
+      o con <a href="https://github.com/Segtem/oracle/blob/main/ESCRIBIR-UNA-MEDIDA.md">cómo escribir una medida</a>.
+    </p>
+  </div>
+</section>
+
+<section class="fila pad aviso">
+  <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--acento)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+  <div>
+    <h3 class="chica">Esto es experimental, y conviene decirlo</h3>
+    <p class="cuerpo" style="max-width:88ch;">
+      El metalenguaje es el destino, no la descripción. La reflexión sobre el catálogo sigue fijada
+      en Python —L2 tiene mecanismo propio, que es justo lo que un metalenguaje no debería
+      necesitar—. No hay fecha de corte ni condición de cierre.
+    </p>
+    <p class="cuerpo" style="max-width:88ch;">
+      Lo que sí hay son ocho <a href="https://github.com/Segtem/oracle#las-decisiones-y-por-qué">decisiones</a>
+      escritas con lo que se descartó y por qué, unos
+      <a href="https://github.com/Segtem/oracle/releases/tag/v0.2.0">límites conocidos</a> publicados
+      junto al release, y una historia de commits donde cada afirmación dice qué se midió para
+      sostenerla.
+    </p>
+  </div>
+</section>
+
+<section class="fila pad inverso cierre">
+  <h2 class="grande" style="margin:0;">Escribí la regla<br>que atrapa tu defecto</h2>
+  <a class="btn" href="#empezar" style="background: var(--tinta);">Empezar</a>
+</section>
+
+<footer class="pie">
+  <span>MIT</span>
+  <span>Python ≥ 3.11</span>
+  <span>cero dependencias</span>
+  <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
+  <a href="https://pypi.org/project/oracle-metalenguaje/">PyPI</a>
+  <span>0.2.0</span>
+</footer>
+
+</body>
+</html>
