@@ -458,6 +458,7 @@ arbitrario, la respuesta suele estar acá.
 | [006](DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
 | [007](DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
 | [008](DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
+| [009](DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
 
 ## Estado
 

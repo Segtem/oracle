@@ -49,6 +49,12 @@ a ser la operación normal.
 diga de qué biblioteca viene, y las medidas meta que evalúan el corpus deciden explícitamente si
 miran sólo lo propio, sólo lo ajeno, o todo. Hoy la pregunta ni se puede formular.
 
+> **Decidido el 2026-09-01 en [`DECISION-009`](DECISION-009-DE-QUIEN-ES-EL-CASO.md):** cada medida
+> lo declara, y no es uniforme —dos miran sólo lo propio, dos miran todo—. La relación gana dos
+> campos, `es_heredado` y `biblioteca`, porque el precedente de `es_heredada` era binario y esto no
+> lo es. El código llega con el descubrimiento: hoy no existe ningún caso ajeno, así que el campo
+> sería constante y su mutante sobreviviría.
+
 ### 3. Lo que hay que leer antes de instalar es el `alcance`, y no está en el flujo
 
 El comando propuesto para inspeccionar es `oracle biblioteca listar`, con ID y versión. Eso no
