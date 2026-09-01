@@ -1,0 +1,6 @@
+medida meta.segtem.todo_umbral_declara_origen:
+    de medida m
+    donde m.segun == "sin_declarar"
+    resumen contar(1)
+    umbral <= 5 segun contrato porque "el publicador tolera cinco umbrales sin origen"
+    alcance "ve si el origen textual del umbral está vacío. NO valida la calidad ni la vigencia de ese origen"

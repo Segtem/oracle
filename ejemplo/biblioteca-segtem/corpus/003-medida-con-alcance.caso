@@ -1,0 +1,17 @@
+caso 003-medida-con-alcance:
+    fecha: "2026-08-31"
+    origen:
+        repo: "ejemplo/biblioteca-segtem"
+        commit: "biblioteca-0.3.0"
+    procedencia: construida
+    titulo: "Una medida que declara alcance queda verde"
+    etiqueta: verde_correcto
+    sintoma:
+        El catálogo también necesita fijar la polaridad que no contiene el defecto.
+    como_se_detecto: mutacion
+    medida: meta.segtem.ninguna_medida_sin_alcance
+    evidencia:
+        medida: id, alcance
+            "dominio.con_alcance", "NO ve lo que no fue declarado"
+    leccion:
+        Este caso construido vuelve observable el conteo de verdes y la ausencia de ofensa.

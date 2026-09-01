@@ -1,6 +1,6 @@
 """Entry point único para Oracle.
 
-    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto)
+    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto, biblioteca)
     oracle <sustantivo>                     ayuda del sustantivo con sus verbos
 
     oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
@@ -16,6 +16,8 @@
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
 
+    oracle biblioteca verificar <ruta>      certifica una biblioteca local de políticas
+    oracle biblioteca listar <ruta>         muestra sus umbrales, orígenes y alcances completos
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 """
 
@@ -30,6 +32,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
+from nucleo.biblioteca import BibliotecaInvalida, verificar_biblioteca  # noqa: E402
 from nucleo.caso import rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from nucleo.proyecto import (  # noqa: E402
@@ -59,6 +62,7 @@ Uso:
   oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, listar, expandir)
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
+  oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
   oracle --help                           Muestra esta ayuda
   oracle --version                        Versión del paquete, del álgebra y de la sintaxis
@@ -111,6 +115,53 @@ Uso:
   oracle proyecto test [--rapido|--todo]  Ejecuta la secuencia completa de verificación
   oracle proyecto relaciones              Muestra las relaciones y campos observados
   oracle proyecto escalares               Muestra las funciones escalares y operadores""")
+
+
+def ayuda_biblioteca() -> None:
+    print("""oracle biblioteca — bibliotecas locales de políticas (datos solamente)
+
+Uso:
+  oracle biblioteca verificar <ruta>      Certifica contenido, corpus y mutación publicada
+  oracle biblioteca listar <ruta>         Lista cada umbral, segun y alcance completo""")
+
+
+def _informe_biblioteca(ruta_str: str):
+    try:
+        return verificar_biblioteca(ruta_str)
+    except BibliotecaInvalida as e:
+        print(f"BIBLIOTECA INVÁLIDA — {e}", file=sys.stderr)
+        return None
+
+
+def cmd_biblioteca_verificar(ruta_str: str) -> int:
+    informe = _informe_biblioteca(ruta_str)
+    if informe is None:
+        return 1
+    print(f"BIBLIOTECA CERTIFICADA · {informe.manifiesto.id} {informe.manifiesto.version}")
+    print(f"  · {informe.medidas} medidas")
+    print(f"  · {informe.casos} casos ({informe.defectos_rojos} rojos esperados, "
+          f"{informe.verdes_correctos} verdes esperados)")
+    print(f"  · mutación de medidas: {informe.mutantes}/{informe.mutantes} mutantes muertos")
+    print(f"  · {informe.relaciones} relaciones propias")
+    return 0
+
+
+def cmd_biblioteca_listar(ruta_str: str) -> int:
+    informe = _informe_biblioteca(ruta_str)
+    if informe is None:
+        return 1
+    print(f"BIBLIOTECA · {informe.manifiesto.id} {informe.manifiesto.version}")
+    print(f"MUTACIÓN PUBLICADA · {informe.mutantes}/{informe.mutantes} mutantes muertos\n")
+    for medida_biblioteca in informe.detalle_medidas:
+        print(f"  {medida_biblioteca.id}")
+        print(f"    UMBRAL:  {medida_biblioteca.op} {medida_biblioteca.limite}")
+        print(f"    SEGUN:   {medida_biblioteca.segun}")
+        lineas = medida_biblioteca.alcance.splitlines() or [""]
+        print(f"    ALCANCE: {lineas[0]}")
+        for linea in lineas[1:]:
+            print(f"             {linea}")
+        print()
+    return 0
 
 
 
@@ -546,6 +597,9 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando == "proyecto" and (not resto or resto[0] in ("-h", "--help", "help")):
         ayuda_proyecto()
         return 0
+    if subcomando == "biblioteca" and (not resto or resto[0] in ("-h", "--help", "help")):
+        ayuda_biblioteca()
+        return 0
 
     # 2. Inicialización de proyecto (no requiere proyecto previo)
     if subcomando == "init":
@@ -581,6 +635,22 @@ def main(argv: list[str] | None = None) -> int:
         print(f"verbo desconocido para «proyecto»: {resto[0]}")
         print("Verbos disponibles: init, test, relaciones, escalares")
         return 1
+
+    if subcomando == "biblioteca":
+        verbo = resto[0]
+        if verbo not in ("verificar", "listar"):
+            print(f"verbo desconocido para «biblioteca»: {verbo}")
+            print("Verbos disponibles: verificar, listar")
+            return 1
+        if len(resto) < 2:
+            print(f"falta la ruta: oracle biblioteca {verbo} <ruta>")
+            return 1
+        if len(resto) > 2:
+            print(f"sobran argumentos: oracle biblioteca {verbo} <ruta>")
+            return 1
+        if verbo == "verificar":
+            return cmd_biblioteca_verificar(resto[1])
+        return cmd_biblioteca_listar(resto[1])
 
     # Para todos los demás comandos resolvemos el proyecto
     try:

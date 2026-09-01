@@ -40,6 +40,7 @@ EQUIVALENTES = RAIZ / "equivalentes.json"
 PRIORIDADES = {
     "nucleo/aislamiento/escalares.py": ("tests.test_proyecto", "tests.test_herramientas"),
     "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor"),
+    "nucleo/biblioteca.py": ("tests.test_biblioteca",),
     "nucleo/aislamiento/escalares.py": ("tests.test_aislamiento_escalares",
                                         "tests.test_proyecto", "tests.test_motor"),
     "nucleo/caso.py": ("tests.test_sintaxis", "tests.test_herramientas"),
@@ -65,7 +66,8 @@ PRIORIDADES = {
     "perfiles/python/marco.py": ("tests.test_perfiles",),
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
     "tools/cifras.py": ("tests.test_herramientas",),
-    "tools/cli.py": ("tests.test_vigilar", "tests.test_cli", "tests.test_herramientas"),
+    "tools/cli.py": ("tests.test_biblioteca", "tests.test_vigilar", "tests.test_cli",
+                     "tests.test_herramientas"),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
     "tools/lsp.py": ("tests.test_lsp",),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
