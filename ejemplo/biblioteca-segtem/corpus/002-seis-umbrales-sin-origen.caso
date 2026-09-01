@@ -1,0 +1,23 @@
+caso 002-seis-umbrales-sin-origen:
+    fecha: "2026-08-31"
+    origen:
+        repo: "ejemplo/biblioteca-segtem"
+        commit: "biblioteca-0.3.0"
+    procedencia: construida
+    titulo: "El sexto umbral sin origen supera la tolerancia publicada"
+    etiqueta: falso_verde
+    sintoma:
+        La política permite cinco umbrales sin origen y recién rechaza el sexto.
+    como_se_detecto: persona
+    medida: meta.segtem.todo_umbral_declara_origen
+    evidencia:
+        medida: id, segun
+            "dominio.sin_origen_1", "sin_declarar"
+            "dominio.sin_origen_2", "sin_declarar"
+            "dominio.sin_origen_3", "sin_declarar"
+            "dominio.sin_origen_4", "sin_declarar"
+            "dominio.sin_origen_5", "sin_declarar"
+            "dominio.sin_origen_6", "sin_declarar"
+            "dominio.con_origen", "contrato"
+    leccion:
+        El caso fija exactamente el borde permisivo que el listado debe dejar a la vista.

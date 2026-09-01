@@ -1,0 +1,18 @@
+caso 001-medida-sin-alcance:
+    fecha: "2026-08-31"
+    origen:
+        repo: "ejemplo/biblioteca-segtem"
+        commit: "biblioteca-0.3.0"
+    procedencia: construida
+    titulo: "Una medida sin alcance debe quedar roja"
+    etiqueta: falso_verde
+    sintoma:
+        La medida afirma un verde global pero no declara qué queda fuera de su observación.
+    como_se_detecto: persona
+    medida: meta.segtem.ninguna_medida_sin_alcance
+    evidencia:
+        medida: id, alcance
+            "dominio.sin_alcance", ""
+            "dominio.con_alcance", "NO ve lo que no fue declarado"
+    leccion:
+        La fila no ofensora hace observable que el filtro seleccione sólo el defecto.
