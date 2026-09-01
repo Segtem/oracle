@@ -96,7 +96,7 @@
 
   /* ---- el editor ---- */
   .editor { border: 1px solid oklch(0.96 0.004 95 / 0.22); background: oklch(0.135 0 0);
-            max-width: 78ch; }
+            width: fit-content; max-width: 100%; }
   .pestana { display: flex; align-items: center; gap: 9px; padding: 9px 14px;
              background: oklch(0.20 0 0);
              border-bottom: 1px solid oklch(0.96 0.004 95 / 0.16);
@@ -109,7 +109,12 @@
   /* El bloque entero scrollea, no cada línea por su cuenta: con `overflow` en cada fila
      la línea larga del `porque` se cortaba sola y el resto quedaba quieto. */
   .lineas { display: grid; grid-template-columns: 3.2ch max-content;
-            padding: 2px 14px 14px; overflow-x: auto; }
+            padding: 2px 14px 14px; overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: oklch(0.40 0.01 95) transparent; }
+  .lineas::-webkit-scrollbar { height: 8px; }
+  .lineas::-webkit-scrollbar-track { background: transparent; }
+  .lineas::-webkit-scrollbar-thumb { background: oklch(0.40 0.01 95); border-radius: 4px; }
   .lineas > .ln { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
                   line-height: 1.85; color: oklch(0.44 0.01 95);
                   text-align: right; padding-right: 1.4ch; user-select: none; }
@@ -228,7 +233,7 @@
       <span class="ln">1</span><span class="cod"><span class="kw">ninguno</span> documento.nombre_sigue_la_convencion:</span>
       <span class="ln">2</span><span class="cod">    <span class="kw">de</span> documento d</span>
       <span class="ln">3</span><span class="cod">    <span class="kw">donde</span> d.sigue_convencion == <span class="num">false</span></span>
-      <span class="ln">4</span><span class="cod">    <span class="kw">umbral</span> &lt;= <span class="num">0</span> <span class="kw">segun</span> contrato <span class="kw">porque</span> <span class="txt">"un nombre fuera de convención rompe el índice"</span></span>
+      <span class="ln">4</span><span class="cod">    <span class="kw">umbral</span> &lt;= <span class="num">0</span> <span class="kw">segun</span> contrato <span class="kw">porque</span> <span class="txt">"rompe el índice"</span></span>
       <span class="ln">5</span><span class="cod">    <span class="kw">alcance</span> <span class="txt">"no ve el contenido del documento, sólo su nombre"</span></span>
     </div>
   </div>
