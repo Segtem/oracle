@@ -16,6 +16,7 @@
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
 
+    oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
     oracle biblioteca verificar <ruta>      certifica una biblioteca local de políticas
     oracle biblioteca listar <ruta>         muestra sus umbrales, orígenes y alcances completos
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
@@ -32,7 +33,8 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
-from nucleo.biblioteca import BibliotecaInvalida, verificar_biblioteca  # noqa: E402
+from nucleo.biblioteca import (BibliotecaInvalida, descubrir_bibliotecas,  # noqa: E402
+                               verificar_biblioteca)
 from nucleo.caso import rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from nucleo.proyecto import (  # noqa: E402
@@ -42,6 +44,7 @@ from nucleo.proyecto import (  # noqa: E402
     EscalaresNoConfiables,
     Proyecto,
     ProyectoInvalido,
+    configuracion,
     catalogos_a_cargar,
     confiar_escalares,
     escalares_del_proyecto,
@@ -121,6 +124,7 @@ def ayuda_biblioteca() -> None:
     print("""oracle biblioteca — bibliotecas locales de políticas (datos solamente)
 
 Uso:
+  oracle biblioteca instaladas            Las que hay en el entorno, y cuáles usa este proyecto
   oracle biblioteca verificar <ruta>      Certifica contenido, corpus y mutación publicada
   oracle biblioteca listar <ruta>         Lista cada umbral, segun y alcance completo""")
 
@@ -131,6 +135,50 @@ def _informe_biblioteca(ruta_str: str):
     except BibliotecaInvalida as e:
         print(f"BIBLIOTECA INVÁLIDA — {e}", file=sys.stderr)
         return None
+
+
+def cmd_biblioteca_instaladas(proy) -> int:
+    """Qué bibliotecas hay instaladas y cuáles seleccionó ESTE proyecto.
+
+    Sin esto, `oracle biblioteca` sólo sabía mirar una carpeta que ya tenías a mano — y la
+    corrección 3 de DECISION-007 existe justamente para poder **inspeccionar antes de decidir**:
+    lo que determina si una política sirve es su `alcance`, y no se puede leer lo que no se puede
+    listar.
+    """
+    try:
+        halladas = descubrir_bibliotecas()
+    except BibliotecaInvalida as e:
+        print(f"DESCUBRIMIENTO INVÁLIDO — {e}", file=sys.stderr)
+        return 1
+
+    seleccionadas = set(configuracion(proy).bibliotecas) if proy is not None else set()
+    if not halladas:
+        print("No hay bibliotecas de políticas instaladas.")
+        print("Se instalan como cualquier paquete; instalar NO es activar: para que un proyecto")
+        print('las use, van en `oracle.json` bajo "bibliotecas".')
+        return 0
+
+    print(f"BIBLIOTECAS INSTALADAS · {len(halladas)}")
+    for bid in sorted(halladas):
+        manifiesto = halladas[bid]
+        marca = "✓ seleccionada" if bid in seleccionadas else "  no seleccionada"
+        print(f"\n  {bid} {manifiesto.version}   {marca}")
+        print(f"    álgebra {manifiesto.algebra} · sintaxis {manifiesto.sintaxis} · "
+              f"{manifiesto.certificacion_mutantes} mutantes publicados")
+        # Absoluta siempre, y a propósito: una biblioteca instalada vive en el entorno, nunca
+        # dentro del proyecto, así que una ruta relativa no llevaría a ningún lado.
+        print(f"    {manifiesto.raiz}")
+        print(f"    ver sus umbrales y alcances:  oracle biblioteca listar {manifiesto.raiz}")
+
+    # Una selección que nombra un id que no está instalado NO es un detalle: el proyecto cree
+    # tener una política que no tiene, y ninguna medida lo va a decir porque las medidas de esa
+    # biblioteca sencillamente no se cargaron.
+    faltan = sorted(seleccionadas - set(halladas))
+    if faltan:
+        print(f"\n⚠ SELECCIONADAS Y NO INSTALADAS: {', '.join(faltan)}")
+        print("  El proyecto las nombra en `oracle.json` y no están en el entorno.")
+        return 1
+    return 0
 
 
 def cmd_biblioteca_verificar(ruta_str: str) -> int:
@@ -638,10 +686,17 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando == "biblioteca":
         verbo = resto[0]
-        if verbo not in ("verificar", "listar"):
+        if verbo not in ("instaladas", "verificar", "listar"):
             print(f"verbo desconocido para «biblioteca»: {verbo}")
-            print("Verbos disponibles: verificar, listar")
+            print("Verbos disponibles: instaladas, verificar, listar")
             return 1
+        if verbo == "instaladas":
+            if len(resto) > 1:
+                print("sobran argumentos: oracle biblioteca instaladas")
+                return 1
+            # El proyecto es OPCIONAL a propósito: querer ver qué hay instalado es una pregunta
+            # legítima parado en cualquier directorio, antes de tener un proyecto.
+            return cmd_biblioteca_instaladas(resolver(argv))
         if len(resto) < 2:
             print(f"falta la ruta: oracle biblioteca {verbo} <ruta>")
             return 1
