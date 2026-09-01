@@ -33,6 +33,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
+from nucleo.diagnostico import reunir  # noqa: E402
 from nucleo.biblioteca import (BibliotecaInvalida, descubrir_bibliotecas,  # noqa: E402
                                verificar_biblioteca)
 from nucleo.caso import rutas_de_corpus  # noqa: E402
@@ -81,6 +82,7 @@ Atajos directos:
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle expandir <archivo>              Muestra la forma canónica de una macro
+  oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
 
 Banderas comunes:
   --proyecto <ruta>      Ruta al proyecto (por defecto: directorio actual o $ORACLE_PROYECTO)
@@ -135,6 +137,41 @@ def _informe_biblioteca(ruta_str: str):
     except BibliotecaInvalida as e:
         print(f"BIBLIOTECA INVÁLIDA — {e}", file=sys.stderr)
         return None
+
+
+def cmd_diagnostico(proy, argv: list[str]) -> int:
+    """Muestra o guarda el diagnóstico. NUNCA lo manda a ningún lado.
+
+    Producir información no autoriza a publicarla: el archivo queda en disco, la persona lo lee
+    entero y decide. Es la fase 1 de DECISION-007, corrección 6, y la única que se adopta.
+    """
+    resto = sin_bandera(argv)
+    destino = ""
+    if "--salida" in resto:
+        i = resto.index("--salida")
+        if i + 1 >= len(resto):
+            print("falta la ruta: oracle diagnostico --salida <archivo.json>")
+            return 1
+        destino = resto[i + 1]
+    try:
+        halladas = descubrir_bibliotecas()
+    except BibliotecaInvalida:
+        # Un descubrimiento roto NO impide diagnosticar: es justo cuando más falta hace.
+        halladas = {}
+    config = configuracion(proy) if proy is not None else None
+    seleccionadas = {bid: m for bid, m in halladas.items()
+                     if config is not None and bid in config.bibliotecas}
+    diagnostico = reunir(proy, bibliotecas=seleccionadas or halladas,
+                         perfiles=config.perfiles if config is not None else ())
+    texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent=2)
+
+    if destino:
+        Path(destino).write_text(texto + "\n", encoding="utf-8")
+        print(f"escrito: {destino}")
+        print("Leelo entero antes de compartirlo. Oracle no lo manda a ningún lado.")
+        return 0
+    print(texto)
+    return 0
 
 
 def cmd_biblioteca_instaladas(proy) -> int:
@@ -813,6 +850,11 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando in ("escalares", "--escalares"):
         return cmd_escalares(proy, argv)
+
+    if subcomando in ("diagnostico", "--diagnostico"):
+        # El proyecto es opcional: la mitad de los reportes de problema empiezan porque el
+        # proyecto NO se resuelve, y ahí el diagnóstico es lo único que puede explicar por qué.
+        return cmd_diagnostico(proy, argv)
 
     if subcomando == "convertir":
         args = [a for a in resto if a != "--rapido"]

@@ -26,6 +26,7 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.caso import cargar_casos  # noqa: E402
+from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
 from nucleo.marco import hechos_de_casos, hechos_de_sombra  # noqa: E402
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,
                            medidas_aplicables)  # noqa: E402
@@ -116,7 +117,12 @@ def _ejecutar(proy) -> int:
     # cualquier otro: acá sólo se producen los hechos y se imprime lo que las medidas dicen.
     print("\nnivel meta — el marco medido con sus propias medidas:")
     relaciones = relaciones_del_proyecto(proy)
+    # El diagnóstico se arma y se MIDE acá, no cuando alguien lo pide. Si sólo se midiera al
+    # invocarlo, un campo que filtra el dominio viviría en el repositorio hasta que a alguien se le
+    # ocurriera correr `oracle diagnostico` — y para entonces ya lo pegó en un issue.
+    secretos = [str(proy.raiz.resolve()), str(Path.home()), *sorted(catalogo)]
     evidencia_meta = {"medida": como_hechos(catalogo.values()),
+                      **hechos_de_diagnostico(reunir(proy), secretos),
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(relaciones.values()),
                       **hechos_de_unidades(catalogo.values(), relaciones)}

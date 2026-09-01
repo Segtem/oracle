@@ -45,6 +45,7 @@ PRIORIDADES = {
                                         "tests.test_proyecto", "tests.test_motor"),
     "nucleo/caso.py": ("tests.test_sintaxis", "tests.test_herramientas"),
     "nucleo/diferencial.py": ("tests.test_dominio", "tests.test_herramientas"),
+    "nucleo/diagnostico.py": ("tests.test_diagnostico", "tests.test_herramientas"),
     "nucleo/dominio.py": ("tests.test_dominio",),
     "nucleo/fixtures.py": ("tests.test_fixtures", "tests.test_herramientas"),
     "nucleo/generador.py": ("tests.test_generador", "tests.test_herramientas"),
