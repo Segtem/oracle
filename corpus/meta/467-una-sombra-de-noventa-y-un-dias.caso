@@ -1,0 +1,18 @@
+caso 467-una-sombra-de-noventa-y-un-dias:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "df4a2a9+worktree"
+    procedencia: construida
+    titulo: "Una sombra de noventa y un días, el primer día que ofende"
+    etiqueta: falso_verde
+    sintoma:
+        El caso de esta medida tenía una sombra de 244 días y otra de 90. Faltaba la de 91: la primera que ofende. Sin ella, correr el límite de noventa a noventa y uno no cambiaba ningún veredicto, y el trimestre podía ser otro número sin que nadie se enterara.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_sombra_envejece_sin_revisarse
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.recien_pasada", true, true, 91, false, true
+            "dominio.reciente", true, true, 7, false, true
+    leccion:
+        Un caso de 90 días fija que noventa NO ofende; hace falta el de 91 para fijar que noventa y uno SÍ. Los dos bordes, no uno.

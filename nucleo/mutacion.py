@@ -108,13 +108,51 @@ def _huella(testigos) -> tuple:
         for fila in testigos))
 
 
-MUTADORES = {
+# Los que escribió quien diseñó el lenguaje. El problema de este conjunto no se ve desde adentro y
+# hay que decirlo: **un mutador que nadie escribió no puede producir un sobreviviente**, así que
+# «todos muertos» mide cobertura sobre un espacio de autoría propia. Por eso hay un segundo conjunto,
+# en `mutadores/`, escrito por un autor que no vio nada de este repositorio.
+#
+# Costo, medido: confirmar un sobreviviente cuesta una corrida completa de la suite (~50 s con
+# 1.033 tests), contra ~0,1 s por un mutante que muere en los módulos prioritarios. Mutar ESTE
+# archivo pide `--timeout 180`: la línea base sola tarda 50,5 s contra el plazo de 60 por
+# omisión, y bajo carga se pasa.
+MUTADORES_PROPIOS = {
     "aflojar_umbral": aflojar_umbral,
     "invertir_comparador": invertir_comparador,
     "quitar_filtro": quitar_filtro,
     "quitar_requiere": quitar_requiere,
     "negar_filtro": negar_filtro,
 }
+
+
+def _mutadores_ajenos() -> dict:
+    """Los de otros autores, con su procedencia declarada en `mutadores/PROCEDENCIA.md`.
+
+    Se importan adentro de la función y no al tope: `nucleo/` no puede depender de que exista un
+    directorio de mutadores ajenos —un consumidor instala el núcleo, no este repositorio—, y si no
+    está, el arnés sigue midiendo con los propios en vez de romperse.
+
+    `convertir_conteo_en_existencia` queda AFUERA, y es la única exclusión. Cambia `contar` por
+    `max(1)`, lo que pierde la multiplicidad; con `umbral <= 0` —que es el umbral de las 54 medidas
+    del catálogo— «contar al menos una» y «existe alguna» son la MISMA afirmación, así que el mutante
+    no debilita nada y no hay evidencia que pueda distinguirlo. No es un hueco del corpus: es un
+    mutante equivalente, y se declara como tal en vez de dejarlo sobrevivir para siempre. Sobre un
+    catálogo con otro umbral SÍ debilitaría, y ahí habría que volver a incluirlo.
+    """
+    try:
+        from mutadores import segundo_autor
+    except ImportError:
+        return {}
+    return {fn.__name__: fn for fn in segundo_autor.MUTADORES
+            if fn.__name__ != "convertir_conteo_en_existencia"}
+
+
+# El `or {}` no es defensa por las dudas: sin él, mutar el `return` de la función de arriba deja
+# `**None` en esta línea y rompe la IMPORTACIÓN del módulo. Eso es un error de arnés, no una muerte
+# —y un error de arnés no mata un mutante—, así que el sitio quedaba fuera de lo que la mutación
+# puede medir. Con el `or`, el mutante degrada a «sólo los propios» y hay un test que lo nota.
+MUTADORES = {**MUTADORES_PROPIOS, **(_mutadores_ajenos() or {})}
 
 
 _AGREGADO_ALTERNO = {

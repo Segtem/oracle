@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import importlib
 import sys
+from unittest import mock
 import unittest
 from pathlib import Path
 
@@ -79,6 +80,57 @@ def setUpModule() -> None:
     mutantes de `nucleo/algebra.py` quedaban sin veredicto por esto. Acá el fallo es del test.
     """
     importlib.import_module("catalogos.escalares")
+
+
+class LosMutadoresTienenAutorTests(unittest.TestCase):
+    """El conjunto que corre no es sólo el propio, y eso tiene que ser comprobable.
+
+    Un mutador que nadie escribió no puede producir un sobreviviente, así que «todos muertos» sobre
+    un conjunto de autoría propia acota menos de lo que parece. Si los ajenos dejaran de cargarse,
+    el número volvería a subir a 100% sin que nada lo dijera — que es justo el modo de fallar que
+    estos tests existen para atrapar.
+    """
+
+    def test_corren_los_propios_y_los_ajenos(self) -> None:
+        from nucleo.mutacion import MUTADORES, MUTADORES_PROPIOS
+
+        self.assertTrue(set(MUTADORES_PROPIOS) <= set(MUTADORES))
+        ajenos = set(MUTADORES) - set(MUTADORES_PROPIOS)
+        self.assertGreater(len(ajenos), 15, "los mutadores del segundo autor no se cargaron")
+
+    def test_el_equivalente_declarado_queda_afuera(self) -> None:
+        """`convertir_conteo_en_existencia` cambia `contar` por `max(1)`. Con `umbral <= 0` —el de
+        las 54 medidas del catálogo— «contar al menos una» y «existe alguna» son la misma
+        afirmación: no debilita nada y ninguna evidencia puede distinguirlo. Está excluido a
+        propósito, no por olvido."""
+        from nucleo.mutacion import MUTADORES
+
+        self.assertNotIn("convertir_conteo_en_existencia", MUTADORES)
+
+    def test_sin_el_directorio_de_ajenos_devuelve_un_mapa_vacio_y_no_None(self) -> None:
+        """Un consumidor instala el núcleo, no este repositorio: si `mutadores/` no está, la ronda
+        mide con los propios en vez de romperse.
+
+        Se exige `{}` y NO `None` a propósito. El llamador hace `or {}`, así que devolver `None`
+        se comporta igual y el mutante que lo cambia es indistinguible por conducta: el arnés cae a
+        correr la suite entera para confirmarlo y se pasa de tiempo. Fijar el tipo de retorno acá lo
+        mata en los tests prioritarios, que es donde tiene que morir.
+        """
+        from nucleo import mutacion
+
+        with mock.patch.dict(sys.modules, {"mutadores": None, "mutadores.segundo_autor": None}):
+            devuelto = mutacion._mutadores_ajenos()
+        self.assertEqual(devuelto, {})
+        self.assertIsNotNone(devuelto)
+
+    def test_sin_los_ajenos_el_arnes_sigue_midiendo(self) -> None:
+        """Un consumidor instala el núcleo, no este repositorio: si el directorio de mutadores
+        ajenos no está, la ronda mide con los propios en vez de romperse."""
+        from nucleo import mutacion
+
+        with mock.patch.object(mutacion, "_mutadores_ajenos", return_value={}):
+            solo_propios = {**mutacion.MUTADORES_PROPIOS, **(mutacion._mutadores_ajenos() or {})}
+        self.assertEqual(set(solo_propios), set(mutacion.MUTADORES_PROPIOS))
 
 
 class MutadoresTests(unittest.TestCase):

@@ -15,4 +15,4 @@ macros = []
 relaciones = ["medida"]
 
 [certificacion]
-mutantes = 12
+mutantes = 16

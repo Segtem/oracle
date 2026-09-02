@@ -124,8 +124,8 @@ class BibliotecaTests(unittest.TestCase):
 
         self.assertEqual(informe.manifiesto.id, "segtem.meta.calidad")
         self.assertEqual(informe.manifiesto.version, "0.1.0")
-        self.assertEqual(informe.manifiesto.certificacion_mutantes, 12)
-        self.assertEqual(informe.mutantes, 12)
+        self.assertEqual(informe.manifiesto.certificacion_mutantes, 16)
+        self.assertEqual(informe.mutantes, 16)
         self.assertEqual(informe.medidas, 2)
         self.assertEqual(informe.casos, 3)
         self.assertEqual(informe.defectos_rojos, 2)
@@ -136,7 +136,7 @@ class BibliotecaTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             biblioteca = self._copia(td)
             manifiesto = biblioteca / "oracle-biblioteca.toml"
-            self._reemplazar(manifiesto, "\n[certificacion]\nmutantes = 12\n", "")
+            self._reemplazar(manifiesto, "\n[certificacion]\nmutantes = 16\n", "")
             with self.assertRaisesRegex(BibliotecaInvalida, "faltan.*certificacion"):
                 cargar_manifiesto(biblioteca)
 
@@ -144,21 +144,21 @@ class BibliotecaTests(unittest.TestCase):
             with self.subTest(valor=valor), tempfile.TemporaryDirectory() as td:
                 biblioteca = self._copia(td)
                 manifiesto = biblioteca / "oracle-biblioteca.toml"
-                self._reemplazar(manifiesto, "mutantes = 12", f"mutantes = {valor}")
+                self._reemplazar(manifiesto, "mutantes = 16", f"mutantes = {valor}")
                 with self.assertRaisesRegex(BibliotecaInvalida, "entero positivo"):
                     cargar_manifiesto(biblioteca)
 
         with tempfile.TemporaryDirectory() as td:
             biblioteca = self._copia(td)
             manifiesto = biblioteca / "oracle-biblioteca.toml"
-            self._reemplazar(manifiesto, "mutantes = 12", "mutantes = 1")
+            self._reemplazar(manifiesto, "mutantes = 16", "mutantes = 1")
             self.assertEqual(cargar_manifiesto(biblioteca).certificacion_mutantes, 1)
 
         with tempfile.TemporaryDirectory() as td:
             biblioteca = self._copia(td)
             manifiesto = biblioteca / "oracle-biblioteca.toml"
-            self._reemplazar(manifiesto, "mutantes = 12", "mutantes = 11")
-            with self.assertRaisesRegex(BibliotecaInvalida, "publica 11.*mide 12"):
+            self._reemplazar(manifiesto, "mutantes = 16", "mutantes = 15")
+            with self.assertRaisesRegex(BibliotecaInvalida, "publica 15.*mide 16"):
                 verificar_biblioteca(biblioteca)
 
     def test_el_manifiesto_rechaza_textos_y_listas_ambiguas(self) -> None:
@@ -293,7 +293,7 @@ class BibliotecaTests(unittest.TestCase):
 
         texto = salida.getvalue()
         self.assertEqual(rc, 0)
-        self.assertIn("MUTACIÓN PUBLICADA · 12/12", texto)
+        self.assertIn("MUTACIÓN PUBLICADA · 16/16", texto)
         self.assertIn("meta.segtem.ninguna_medida_sin_alcance\n    UMBRAL:  <= 0", texto)
         self.assertIn("meta.segtem.todo_umbral_declara_origen\n    UMBRAL:  <= 5", texto)
         self.assertEqual(texto.count("    SEGUN:   contrato"), 2)
@@ -378,7 +378,7 @@ class BibliotecaTests(unittest.TestCase):
             rc = cli.main(["biblioteca", "verificar", str(EJEMPLO)])
         self.assertEqual(rc, 0)
         self.assertIn("BIBLIOTECA CERTIFICADA · segtem.meta.calidad 0.1.0", salida.getvalue())
-        self.assertIn("12/12 mutantes muertos", salida.getvalue())
+        self.assertIn("16/16 mutantes muertos", salida.getvalue())
 
         stderr = io.StringIO()
         with redirect_stderr(stderr):

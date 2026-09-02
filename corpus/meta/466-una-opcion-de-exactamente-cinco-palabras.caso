@@ -1,0 +1,18 @@
+caso 466-una-opcion-de-exactamente-cinco-palabras:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "df4a2a9+worktree"
+    procedencia: construida
+    titulo: "Una opción explicada en exactamente cinco palabras, que es el borde"
+    etiqueta: falso_verde
+    sintoma:
+        El corpus de esta medida sólo tenía anomalías grandes —cuatro palabras contra veintidós— y ninguna JUSTO en el límite. Con eso, mover el límite de cinco a cuatro, o volver la comparación estricta, no cambiaba ningún veredicto: las dos formas de escribir la medida se veían iguales.
+    como_se_detecto: mutacion
+    medida: meta.toda_opcion_del_vocabulario_declara_su_sentido
+    evidencia:
+        opcion_del_vocabulario: vocabulario, opcion, palabras_del_sentido, en_el_manual
+            "segun", "en_el_borde", 5, true
+            "segun", "holgada", 24, true
+    leccion:
+        Un límite necesita un testigo EN el límite, no cerca. Lo encontró un mutador escrito por otro autor que nunca vio este corpus, y su docstring lo había predicho: «puede pasar inadvertido cuando ningún testigo interno está justo en el borde».

@@ -111,7 +111,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9094 líneas de lenguaje y **384 negativas explícitas** (`raise`).
+En este corte hay 9132 líneas de lenguaje y **384 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -135,7 +135,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 95 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 71 la mutación, 16 una persona, 4 la casualidad, 4 una herramienta ajena.
+Los 97 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 73 la mutación, 16 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -144,7 +144,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9094 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 54 medidas universales escritas en él (331 líneas): **27,5 a 1**. 48 de las 54 pasan por una macro.
+**9132 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 54 medidas universales escritas en él (331 líneas): **27,6 a 1**. 48 de las 54 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -460,6 +460,7 @@ arbitrario, la respuesta suele estar acá.
 | [008](https://github.com/Segtem/oracle/blob/main/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
 | [009](https://github.com/Segtem/oracle/blob/main/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
 | [010](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | El paquete instalado es otro proyecto, y hay que medirlo como tal |
+| [011](https://github.com/Segtem/oracle/blob/main/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) | Los mutadores tienen autor, y hasta hoy era uno solo |
 
 ## Estado
 
@@ -539,11 +540,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**167 casos**: 103 defectos y 64 verdes correctos. De los defectos, 99 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 98 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 90 observada, 71 construida, 6 generada y 0 sin declarar.
+**169 casos**: 105 defectos y 64 verdes correctos. De los defectos, 101 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 100 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 90 observada, 73 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1029 tests · 715/715 mutantes de medida · **4901 sitios de mutación de código** (4691 + 210 del motor Python).
+1033 tests · 846/846 mutantes de medida · **4905 sitios de mutación de código** (4695 + 210 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
@@ -740,9 +741,17 @@ decisión sobre composición, y el diferencial propio que hoy está estructuralm
 - ~~**Elegir una licencia.**~~ **HECHO.** MIT, en [`LICENSE`](https://github.com/Segtem/oracle/blob/main/LICENSE) y en los metadatos del
   paquete (`License-Expression: MIT`, con el archivo incluido en el wheel): un tercero puede
   identificar los permisos automáticamente y redistribuirlo.
-- **Un consumidor real independiente.** El proyecto externo sintético demuestra desacoplamiento
-  técnico; la adopción por un proyecto no diseñado junto con Oracle sigue siendo evidencia externa,
-  no algo que este repositorio pueda fabricar.
+- ~~**Un consumidor real independiente.**~~ **PARCIALMENTE HECHO el 2026-09-02.** Dos proyectos
+  consumen Oracle desde PyPI, y en dos días encontraron **dos defectos** que este repositorio no
+  encontró solo: el subproceso aislado que corre las UDF arrancaba sin la fachada, e importar la
+  biblioteca le borraba al consumidor su propio paquete `tools/`. Los dos verificadores que debían
+  atraparlos pasaban, cada uno mirando lo que no era. Lo que sigue faltando es la adopción por un
+  proyecto que NO haya sido diseñado junto con Oracle: éstos dos sí lo fueron.
+- ~~**Los mutadores son de autoría propia.**~~ **HECHO el 2026-09-02**, ver
+  [`DECISION-011`](https://github.com/Segtem/oracle/blob/main/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md).
+  Un segundo autor en aislamiento verificable escribió 24 mutadores sin ver el repositorio: mataron
+  el 79% desde la primera corrida, encontraron tres huecos reales y dejaron ver que las 54 medidas
+  del catálogo tienen todas la misma forma. **Siguen siendo dos autores, no muchos.**
 - **La frontera humana del caso `011`**: la medición puede exigir trazabilidad, pero una atribución
   causal no tiene un verificador mecánico genérico. `004` y `012` ya figuran como resueltos y no
   inflan la deuda abierta.
