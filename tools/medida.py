@@ -82,22 +82,33 @@ def _evidencias(proy, *, comprobar_frescura: bool) -> list[tuple[str, dict]]:
     return salida
 
 
-def relaciones(proy) -> int:
-    """Los hechos disponibles, DERIVADOS de la evidencia que existe. No es una lista a mano."""
+def inventario_de_relaciones(proy) -> tuple[dict, dict]:
+    """Los hechos disponibles, DERIVADOS de la evidencia que existe. No es una lista a mano.
+
+    Devuelve los DATOS y no los imprime, porque hay más de una vista de esto: `oracle relaciones`
+    para leerlo, y `oracle contexto` para dárselo a alguien que va a escribir una medida. Cuando
+    imprimía directo, la segunda vista habría tenido que volver a derivarlo — y dos derivaciones de
+    lo mismo se despegan.
+    """
     campos: dict[str, dict[str, set]] = defaultdict(lambda: defaultdict(set))
     dondes: dict[str, set] = defaultdict(set)
-    try:
-        disponibles = _evidencias(proy, comprobar_frescura=False)
-    except (OSError, ValueError, json.JSONDecodeError, CasoMalDeclarado) as e:
-        print(f"no se pudo inventariar la evidencia: {e}")
-        return 1
-    for origen, ev in disponibles:
+    for origen, ev in _evidencias(proy, comprobar_frescura=False):
         for rel, filas in ev.items():
             dondes[rel].add(origen.split("/")[0])
             _clave, hechos = separar_clave(filas)
             for fila in hechos:
                 for k, v in fila.items():
                     campos[rel][k].add(type(v).__name__)
+    return campos, dondes
+
+
+def relaciones(proy) -> int:
+    """La vista para leer del inventario de arriba."""
+    try:
+        campos, dondes = inventario_de_relaciones(proy)
+    except (OSError, ValueError, json.JSONDecodeError, CasoMalDeclarado) as e:
+        print(f"no se pudo inventariar la evidencia: {e}")
+        return 1
 
     print("RELACIONES que se pueden medir hoy:\n")
     for rel in sorted(campos):
@@ -123,7 +134,10 @@ def escalares(proy, *, externas_omitidas: bool = False) -> int:
     print(f"LÓGICOS: y  o  no")
     print(f"AGREGADOS: {' '.join(sorted(AGREGADOS))}")
     print("ACCESORES: [\"campo\", alias, nombre] · [\"hecho\", alias] · [\"col\", nombre]")
-    print("OPERADORES: de · donde · unir · resumen   (con y agrupar todavía no tienen usuario)")
+    # Sale del mismo registro que el manual: escrita a mano decía «con y agrupar todavía no tienen
+    # usuario», que dejó de ser cierto y nadie lo notó porque nada la comparaba con nada.
+    from nucleo.vocabulario import OPERADORES
+    print(f"OPERADORES: {' · '.join(sorted(OPERADORES))}")
     if externas_omitidas:
         print(f"\n⚠ {proy.raiz / 'escalares.py'} no se ejecutó. Para incluir sus UDF: "
               "`--confiar-escalares`.")

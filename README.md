@@ -480,6 +480,11 @@ archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutaci
 `oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
 `oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
+**¿Vas a escribir una medida acá?** → `oracle contexto` junta en un solo lugar lo que hace falta:
+las relaciones que hay con sus campos, con qué se escriben, qué declara toda medida sin excepción, y
+las que ya existen para no repetirlas. `--compacto` da lo mismo en un quinto del texto, para pegarlo
+en la ventana de un agente.
+
 **¿Querés la referencia del lenguaje?** → `oracle manual`, `man oracle-segun`, o
 [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html). No es un documento
 escrito aparte: cada entrada sale de la declaración que el lenguaje ya tiene —los vocabularios
@@ -544,7 +549,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1033 tests · 846/846 mutantes de medida · **4905 sitios de mutación de código** (4695 + 210 del motor Python).
+1045 tests · 846/846 mutantes de medida · **4913 sitios de mutación de código** (4703 + 210 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

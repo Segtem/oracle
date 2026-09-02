@@ -17,6 +17,7 @@
     oracle proyecto test [--rapido|--todo]  ejecuta la secuencia completa de verificación con veredicto final
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
+    oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
 
     oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
@@ -204,7 +205,7 @@ def cmd_diagnostico(proy, argv: list[str]) -> int:
 VERBOS = {
     "medida": ("nueva", "revisar", "probar", "listar", "expandir"),
     "caso": ("nuevo", "listar", "generar"),
-    "proyecto": ("init", "test", "relaciones", "escalares"),
+    "proyecto": ("init", "test", "relaciones", "escalares", "contexto"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
@@ -439,6 +440,13 @@ def cmd_probar(proy: Proyecto, ruta_str: str, texto: str, *, argv: list[str] | N
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1
+
+
+def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
+    from tools import contexto
+
+    print(contexto.texto(proy, compacto="--compacto" in argv))
+    return 0
 
 
 def cmd_relaciones(proy: Proyecto) -> int:
@@ -923,6 +931,8 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_relaciones(proy)
         if verbo in ("escalares", "--escalares"):
             return cmd_escalares(proy, argv)
+        if verbo in ("contexto", "--contexto"):
+            return cmd_contexto(proy, argv)
 
     # Atajos directos históricos (planos)
     if subcomando == "test":
@@ -948,6 +958,9 @@ def main(argv: list[str] | None = None) -> int:
             print("falta el archivo: oracle revisar <archivo>")
             return 1
         return cmd_revisar(proy, args[0], argv)
+
+    if subcomando in ("contexto", "--contexto"):
+        return cmd_contexto(proy, argv)
 
     if subcomando in ("relaciones", "--relaciones"):
         return cmd_relaciones(proy)
