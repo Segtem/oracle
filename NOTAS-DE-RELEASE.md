@@ -1,3 +1,28 @@
+# 0.3.1 — la página de PyPI no llevaba a ningún lado
+
+Sólo metadatos de empaquetado. El lenguaje, el álgebra y la sintaxis no se movieron.
+
+Al revisar la página publicada de 0.3.0 aparecieron tres cosas, las tres presentes también en 0.2.0
+—así que no eran una regresión, eran un hueco que nadie había mirado—:
+
+- **18 enlaces relativos rotos** en la descripción. El README es la descripción que PyPI publica, y
+  ahí no existe el árbol del repositorio: la página invitaba a leer las nueve decisiones, la
+  especificación y la licencia, y ninguna se podía abrir. Ahora son absolutos.
+- **`project.urls` vacío.** La barra lateral no tenía un solo enlace: quien llegaba a PyPI no tenía
+  cómo volver al repositorio, al sitio ni a los issues. Ahora hay siete.
+- **`classifiers` vacío.** PyPI no podía filtrar el paquete por versión de Python, por tema ni por
+  estado. Ahora hay doce, y el estado —`4 - Beta`— coincide con lo que el README dice en la primera
+  pantalla, que es lo mínimo que se le puede pedir a dos declaraciones sobre la misma cosa.
+
+Nada de esto lo detectaba nada, y por eso vivió dos releases. Ahora lo fijan cuatro tests: que el
+README no tenga enlaces relativos, que sí conserve sus anclas internas, que el paquete declare a
+dónde ir, y que los clasificadores de versión no se despeguen de `requires-python`.
+
+**Los metadatos de PyPI son inmutables por versión**, así que la página de 0.3.0 queda como está.
+Este release existe para que la que se ve por omisión sea la correcta.
+
+---
+
 # 0.3.0 — el lenguaje se explica solo, y hereda sin mentir
 
 **30 commits** desde `0.2.0`. Nada del álgebra cambió, así que sólo se mueve la distribución.

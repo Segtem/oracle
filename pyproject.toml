@@ -12,6 +12,35 @@ license-files = ["LICENSE"]
 authors = [{ name = "Brian Hollweg", email = "brianhollweg@gmail.com" }]
 requires-python = ">=3.11"
 dependencies = []
+# Sin clasificadores, PyPI no puede filtrar el paquete por nada: ni por versión de Python, ni por
+# estado, ni por tema. «4 - Beta» y no «5 - Production/Stable» porque el README dice EXPERIMENTAL en
+# la primera pantalla, y decir dos cosas distintas en dos lugares es exactamente lo que este
+# proyecto persigue en otros lados.
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Intended Audience :: Developers",
+  "Natural Language :: Spanish",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3 :: Only",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Software Development :: Testing",
+  "Typing :: Typed",
+]
+
+# Hasta 0.3.0 la página de PyPI no tenía UN SOLO enlace: ni al repositorio, ni al sitio, ni a los
+# issues. La descripción invita a leer nueve decisiones y quien llegaba ahí no tenía cómo abrirlas.
+[project.urls]
+"Repositorio" = "https://github.com/Segtem/oracle"
+"Sitio" = "https://segtem.github.io/oracle/"
+"Manual" = "https://segtem.github.io/oracle/manual.html"
+"Documentación" = "https://github.com/Segtem/oracle/blob/main/docs/README.md"
+"Especificación" = "https://github.com/Segtem/oracle/blob/main/ESPECIFICACION.md"
+"Issues" = "https://github.com/Segtem/oracle/issues"
+"Cambios" = "https://github.com/Segtem/oracle/blob/main/NOTAS-DE-RELEASE.md"
 
 [project.scripts]
 oracle = "oracle_metalenguaje.tools.cli:main"

@@ -915,6 +915,61 @@ class RunnerMutacionTests(unittest.TestCase):
         self.assertIn("SystemExit", r.stdout + r.stderr)
 
 
+class LaPaginaDePyPITests(unittest.TestCase):
+    """El README ES la descripción publicada en PyPI, y ahí no existe el árbol del repositorio.
+
+    Hasta 0.3.0 la página tenía 18 enlaces relativos rotos —las nueve decisiones, la
+    especificación, la licencia— y ni un solo enlace en la barra lateral. Nada lo detectaba, así que
+    vivió dos releases: la página invitaba a leer nueve documentos y ninguno se podía abrir.
+    """
+
+    def test_el_readme_no_tiene_enlaces_relativos(self) -> None:
+        import re
+
+        texto = (RAIZ / "README.md").read_text(encoding="utf-8")
+        relativos = sorted(set(
+            re.findall(r"\]\((?!https?:|mailto:|#)([^)]+)\)", texto)))
+        self.assertEqual(relativos, [],
+                         "en PyPI no existe el árbol del repo: estos enlaces no llevan a ningún "
+                         "lado. Escribilos absolutos contra github.com/Segtem/oracle")
+
+    def test_las_anclas_internas_si_se_dejan_relativas(self) -> None:
+        """Un `#ancla` funciona dentro de la misma página, en GitHub y en PyPI. Volverla absoluta
+        la sacaría de la página que el lector está leyendo."""
+        import re
+
+        texto = (RAIZ / "README.md").read_text(encoding="utf-8")
+        self.assertTrue(re.search(r"\]\(#[a-z0-9-]+\)", texto),
+                        "el README perdió sus anclas internas")
+
+    def test_el_paquete_declara_a_donde_ir(self) -> None:
+        """Sin `project.urls` la barra lateral de PyPI queda vacía: quien llega no tiene cómo
+        volver al repositorio, al sitio ni a los issues."""
+        import tomllib
+
+        datos = tomllib.loads((RAIZ / "pyproject.toml").read_text(encoding="utf-8"))
+        urls = datos["project"]["urls"]
+        for esperado in ("Repositorio", "Sitio", "Issues"):
+            self.assertIn(esperado, urls)
+        for destino in urls.values():
+            self.assertTrue(destino.startswith("https://"), destino)
+
+    def test_el_paquete_se_puede_encontrar_por_sus_clasificadores(self) -> None:
+        """Sin clasificadores, PyPI no puede filtrar el paquete por versión de Python ni por tema.
+        Y el estado tiene que coincidir con lo que el README dice en la primera pantalla."""
+        import tomllib
+
+        datos = tomllib.loads((RAIZ / "pyproject.toml").read_text(encoding="utf-8"))
+        clasificadores = datos["project"]["classifiers"]
+        self.assertIn("Development Status :: 4 - Beta", clasificadores)
+        pedido = datos["project"]["requires-python"]
+        self.assertEqual(pedido, ">=3.11")
+        # Cada versión declarada soportada tiene que estar también como clasificador: si mañana
+        # sube el mínimo y nadie toca la lista, PyPI sigue diciendo que anda en 3.11.
+        self.assertIn("Programming Language :: Python :: 3.11", clasificadores)
+        self.assertIn("Programming Language :: Python :: 3 :: Only", clasificadores)
+
+
 class CifrasDelReadme(unittest.TestCase):
     """Un número tipeado a mano en la prosa es una afirmación que nadie ejercita.
 

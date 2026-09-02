@@ -30,7 +30,7 @@ aconsejan.
 > **Hoy es un experimento**, y el metalenguaje es el destino, no la descripción. Falta bastante para
 > llegar: la reflexión sobre el catálogo sigue fijada en Python —L2 tiene mecanismo propio, que es
 > justo lo que un metalenguaje no debería necesitar—, y el camino está desglosado en
-> [`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md).
+> [`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md).
 >
 > **No hay fecha de corte, ni condición de cierre, ni tope de tamaño.** Las hubo por un rato, en
 > respuesta a dos auditorías externas que midieron a Oracle con la vara de un producto adoptable —
@@ -203,7 +203,7 @@ producto. Es un experimento, y por eso:
 
 > **Oracle está en estado EXPERIMENTAL.** No tiene fecha de corte, ni condición de cierre, ni tope de
 > tamaño para el núcleo. Le falta bastante para ser un metalenguaje —la reflexión sobre el catálogo
-> sigue fijada en Python, ver [`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md)— y ése es el estado declarado,
+> sigue fijada en Python, ver [`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md)— y ése es el estado declarado,
 > no un déficit contra un plazo.
 
 Hubo una puerta de abandono prerregistrada, escrita el 2026-08-24 en respuesta a las auditorías, con
@@ -450,15 +450,15 @@ arbitrario, la respuesta suele estar acá.
 
 | | |
 |---|---|
-| [001](DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
-| [002](DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
-| [003](DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
-| [004](DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
-| [005](DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
-| [006](DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
-| [007](DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
-| [008](DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
-| [009](DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
+| [001](https://github.com/Segtem/oracle/blob/main/DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
+| [002](https://github.com/Segtem/oracle/blob/main/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
+| [003](https://github.com/Segtem/oracle/blob/main/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
+| [004](https://github.com/Segtem/oracle/blob/main/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
+| [005](https://github.com/Segtem/oracle/blob/main/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
+| [006](https://github.com/Segtem/oracle/blob/main/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
+| [007](https://github.com/Segtem/oracle/blob/main/DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
+| [008](https://github.com/Segtem/oracle/blob/main/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
+| [009](https://github.com/Segtem/oracle/blob/main/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
 
 ## Estado
 
@@ -466,15 +466,15 @@ arbitrario, la respuesta suele estar acá.
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
 > subprocesos acotados y reanudación verificable. El detalle está en
-> [`PLAN-CORRECCION.md`](PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
+> [`PLAN-CORRECCION.md`](https://github.com/Segtem/oracle/blob/main/PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
 > DeepSeek, agosto 2026) se respondieron en el commit `c81a87c`, y su informe se retiró del
 > árbol cuando dejó de tener puntos abiertos.
 
-**El paquete contiene los cinco componentes.** El [corpus](corpus/) (42 casos, en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](catalogos/) —como
+**El paquete contiene los cinco componentes.** El [corpus](https://github.com/Segtem/oracle/tree/main/corpus/) (42 casos, en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](https://github.com/Segtem/oracle/blob/main/ESPECIFICACION.md) del álgebra,
+el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](https://github.com/Segtem/oracle/tree/main/catalogos/) —como
 archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
-**¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](ESCRIBIR-UNA-MEDIDA.md).
+**¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](https://github.com/Segtem/oracle/blob/main/ESCRIBIR-UNA-MEDIDA.md).
 `oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
 `oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
@@ -542,12 +542,12 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1013 tests · 703/703 mutantes de medida · **4894 sitios de mutación de código** (4684 + 210 del motor Python).
+1017 tests · 703/703 mutantes de medida · **4894 sitios de mutación de código** (4684 + 210 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
 > del CI —uno por job, que es como se mide— salen en **VERDE**: cero sobrevivientes, cero errores de
-> arnés, **un equivalente declarado** con su razón en [`equivalentes.json`](equivalentes.json). Cada
+> arnés, **un equivalente declarado** con su razón en [`equivalentes.json`](https://github.com/Segtem/oracle/blob/main/equivalentes.json). Cada
 > ronda muta una copia, puede persistir progreso con `--manifiesto`/`--reanudar` y firma también sus
 > tests y archivos de soporte.
 >
@@ -694,7 +694,7 @@ las que trae Oracle y para las que escribe cualquiera:
 ```
 
 `ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` viven en
-[`nucleo/macros/`](nucleo/macros/) y se cargan por el mismo camino: son la biblioteca estándar del
+[`nucleo/macros/`](https://github.com/Segtem/oracle/tree/main/nucleo/macros/) y se cargan por el mismo camino: son la biblioteca estándar del
 lenguaje, no un privilegio del núcleo. Un proyecto suma las suyas en `<proyecto>/macros/` y no
 necesita tocar nada de Oracle.
 
@@ -733,10 +733,10 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 ### Qué falta
 
 El camino de «formato de datos con buenas defensas» a «lenguaje» está desglosado en
-[`PLAN-LENGUAJE.md`](PLAN-LENGUAJE.md): `defmacro` en datos, reificación mecánica del catálogo, la
+[`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md): `defmacro` en datos, reificación mecánica del catálogo, la
 decisión sobre composición, y el diferencial propio que hoy está estructuralmente vacío.
 
-- ~~**Elegir una licencia.**~~ **HECHO.** MIT, en [`LICENSE`](LICENSE) y en los metadatos del
+- ~~**Elegir una licencia.**~~ **HECHO.** MIT, en [`LICENSE`](https://github.com/Segtem/oracle/blob/main/LICENSE) y en los metadatos del
   paquete (`License-Expression: MIT`, con el archivo incluido en el wheel): un tercero puede
   identificar los permisos automáticamente y redistribuirlo.
 - **Un consumidor real independiente.** El proyecto externo sintético demuestra desacoplamiento
