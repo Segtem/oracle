@@ -73,16 +73,53 @@ tapar`, salida **0**.
 }
 ```
 
+## ⚠️ Jam NO se migra con `uv tool install`, y esto es lo más importante del documento
+
+`Content/Python/jam/bridge.py:16` pone `<plugin>/vendor/oracle` en el `sys.path` **del intérprete
+embebido de Unreal**, para que el plugin pueda `import oracle_metalenguaje` con el editor abierto.
+Unreal usa su propio Python: no ve el entorno de `uv`, ni el del sistema, ni un venv del proyecto.
+
+**Borrar `vendor/oracle` y confiar en `uv tool install` deja el plugin sin Oracle, y no falla en
+ningún verificador: falla cuando alguien abre el editor.**
+
+La forma correcta para Jam es la **(c)** de la guía general: reemplazar el subtree de git por el
+wheel publicado, en el mismo lugar donde ya está.
+
+```bash
+python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.3.0"
+```
+
+Y en `bridge.py`, una sola línea:
+
+```python
+ORACLE_PACKAGE_ROOT = PLUGIN_ROOT / "vendor" / "oracle-pkg"
+```
+
+Sigue habiendo un directorio en el repo, y hay que decir por qué eso **igual es mejor** que el
+subtree: es un artefacto con versión fijada, no una copia de un repositorio que hay que acordarse de
+traer con `git subtree pull` y que se puede editar a mano sin que nadie se entere. Actualizarlo pasa
+a ser una línea con un número adentro. Medido: **2,3 MB y 183 archivos**, contra 3,5 MB y 284 del
+subtree.
+
+`Content/Python/tests/test_oracle_embedding.py` prueba justamente que Jam consuma Oracle por su
+fachada pública y no por internals del vendor. **Ese test es el que dice si la migración salió
+bien**: corrélo antes y después.
+
 ## Lo que nombra `vendor/oracle` y hay que cambiar
+
+Son **nueve** archivos, no dos. Los dos primeros son código y rompen el runtime; el resto es prosa.
 
 | archivo | qué dice |
 |---|---|
+| `Content/Python/jam/bridge.py:4,16` | **CÓDIGO DE RUNTIME.** Es el que hay que cambiar primero |
+| `Content/Python/tests/test_oracle_embedding.py` | el test que verifica el embedding; ajustalo a la ruta nueva |
+| `tools/relevo.py` | genera `RELEVO.md`; **tocá el generador, no el archivo generado** |
 | `AGENTS.md:38` | explica que `vendor/oracle/` es un subtree |
 | `AGENTS.md:43-45` | los tres comandos `python vendor/oracle/tools/…` |
-| `AGENTS.md:53` | el `git subtree pull`, que se reemplaza por `uv tool upgrade` |
-| `AGENTS.md:58` | «No edites `vendor/oracle/` a mano», que deja de aplicar |
-| `AGENTS.md:167` | la misma advertencia en la tabla de errores |
-| `RELEVO.md:541-546` | seis filas con comandos y cifras viejas; `RELEVO.md` se regenera con `python tools/relevo.py`, así que revisá si el generador es el que hay que tocar y no el archivo |
+| `AGENTS.md:53` | el `git subtree pull`, que ya no aplica |
+| `AGENTS.md:58` y `:167` | «No edites `vendor/oracle/` a mano», dos veces |
+| `RELEVO.md:541-546` | seis filas con comandos y cifras viejas (sale de `tools/relevo.py`) |
+| `Vault-kb/**` (4 documentos) | notas históricas; **no las reescribas**: son de su fecha. A lo sumo una nota al pie |
 
 ## Al terminar
 

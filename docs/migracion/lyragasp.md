@@ -59,16 +59,37 @@ Va en `medidas/oracle.json`. Verificado sobre una copia: con esto la aceptación
 evidencia real (`008-default-slot-real`, `010-region-pelvis-rigida-real`, …), así que el camino está
 abierto — falta hacerlo para las nueve.
 
+## Ojo: hay un script que IMPORTA el paquete
+
+`tools/juzga_oracle.py:11-15` pone `vendor/oracle` en su `sys.path` y después hace
+`from oracle_metalenguaje import Motor`. Se corre con el Python del sistema, así que
+`uv tool install` **no** se lo da: instala en un entorno aislado que expone los ejecutables y nada
+más. Para ese script hace falta la forma **(b)** de la guía general:
+
+```bash
+uv venv && uv pip install "oracle-metalenguaje==0.3.0"
+.venv/bin/python tools/juzga_oracle.py …
+```
+
+Y ahí las tres líneas del `sys.path.insert` se BORRAN: con el paquete instalado, el import anda solo.
+
+`medidas/escalares.py` también importa `oracle_metalenguaje`, y ése **no es problema**: lo ejecuta
+Oracle en un subproceso aislado con su propio intérprete, donde el paquete siempre está.
+
+A diferencia de Jam, LyraGASP **no tiene** código que corra dentro del Python embebido de Unreal, así
+que no hace falta vendorizar el wheel.
+
 ## Lo que nombra `vendor/oracle` y hay que cambiar
 
 | archivo | qué dice |
 |---|---|
-| `docs/ORACLE.md:3` | explica que `vendor/oracle/` es un subtree — hay que reescribir la sección entera |
+| `tools/juzga_oracle.py:11-15` | **CÓDIGO**: el `sys.path.insert`, que se borra |
+| `docs/ORACLE.md:3` | explica que `vendor/oracle/` es un subtree — hay que reescribir la sección |
 | `docs/ORACLE.md:14-16` | los tres comandos `python vendor/oracle/tools/…` |
 | `docs/ORACLE.md:26` | la sección «No edites `vendor/oracle/` a mano», que deja de aplicar |
-| `docs/ORACLE.md:31` | el `git subtree pull`, que se reemplaza por `uv tool upgrade` |
+| `docs/ORACLE.md:31` | el `git subtree pull`, que se reemplaza por `uv pip install` con la versión nueva |
 
-No hay CI ni scripts que lo referencien.
+No hay CI que lo referencie.
 
 ## Al terminar
 

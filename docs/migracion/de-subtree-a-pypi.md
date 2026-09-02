@@ -29,17 +29,62 @@ eso parece necesario, es que hay que preguntar, no ejecutar.
 
 ## Los pasos
 
-### 1 · Instalar Oracle
+### 0 · Averiguar qué necesita el proyecto: ¿el COMANDO o el PAQUETE?
+
+Esto decide todo lo demás, y saltearlo rompe cosas que no fallan hasta que alguien abre el editor.
+
+```bash
+grep -rn "import oracle_metalenguaje\|from oracle_metalenguaje" . --exclude-dir=vendor --exclude-dir=.git
+grep -rln "vendor/oracle" . --exclude-dir=vendor --exclude-dir=.git
+```
+
+- Si el proyecto **sólo corre comandos** (`oracle test`, `oracle-corpus`), `uv tool install` alcanza.
+- Si algún archivo hace `import oracle_metalenguaje`, ese archivo necesita el paquete **importable
+  desde su intérprete**, y `uv tool install` NO se lo da: instala en un entorno aislado que expone
+  los ejecutables y nada más.
+- Y si ese intérprete es el **Python embebido de Unreal**, no hay venv que valga: Unreal usa el
+  suyo, no el del sistema ni el de `uv`.
+
+> Los dos consumidores medidos caen en el tercer caso o cerca. `medidas/escalares.py` importa
+> `oracle_metalenguaje`, pero eso NO es problema: Oracle lo ejecuta en un subproceso aislado con su
+> propio intérprete, donde el paquete siempre está. El problema son los scripts que se corren solos
+> —`tools/juzga_oracle.py` en LyraGASP— y el `bridge.py` de Jam, que pone el vendor en el `sys.path`
+> del intérprete de Unreal.
+
+### 1 · Instalar Oracle, de una de estas tres formas
+
+**(a) Sólo el comando** — para el proyecto que nunca importa el paquete:
 
 ```bash
 uv tool install oracle-metalenguaje
 oracle --version          # tiene que decir 0.3.0 o más
 ```
 
-`uv tool install` es lo recomendado y no es capricho: en Arch, Debian 12+, Ubuntu 23.04+ y Fedora un
-`pip install` al Python del sistema **falla** con `externally-managed-environment`, y saltear esa
-protección rompe paquetes del sistema. Además deja `oracle-lsp` en el PATH, que es lo que el editor
-necesita para encontrarlo.
+**(b) Un entorno del proyecto** — para scripts propios que hacen `import oracle_metalenguaje` y se
+corren con el Python del sistema:
+
+```bash
+uv venv && uv pip install "oracle-metalenguaje==0.3.0"
+.venv/bin/python tools/mi_script.py
+```
+
+**(c) El paquete vendorizado** — para un intérprete que no controlás, como el de Unreal. Se
+reemplaza el subtree de git por el **wheel publicado**, que es una cosa distinta: sigue habiendo un
+directorio en el repo, pero es un artefacto con versión, no una copia de un repositorio que hay que
+acordarse de traer y que se puede editar a mano sin que nadie se entere.
+
+```bash
+python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.3.0"
+```
+
+Medido el 2026-09-01 contra el subtree de Jam: **2,3 MB y 183 archivos**, contra 3,5 MB y 284. Y el
+`sys.path.insert` que ya existe sigue funcionando sin cambios — sólo cambia a qué directorio apunta.
+
+`uv tool install` es lo recomendado para (a) y no es capricho: en Arch, Debian 12+, Ubuntu 23.04+ y
+Fedora un `pip install` al Python del sistema **falla** con `externally-managed-environment`, y
+saltear esa protección rompe paquetes del sistema.
+
+Además deja `oracle-lsp` en el PATH, que es lo que el editor necesita para encontrarlo.
 
 Si `oracle-lsp` no aparece, `uv tool install --force oracle-metalenguaje`: hubo un caso medido en el
 que enlazó 8 de los 9 ejecutables sin decir nada.
@@ -113,6 +158,9 @@ contemplado: leelo, no lo agregues a la sombra sin entenderlo.
 
 - **No borrar `vendor/oracle` antes de comprobar que no tiene ediciones locales.** Es lo único
   irreversible de todo esto.
+- **No borrarlo sin haber hecho el paso 0.** Si algo lo pone en un `sys.path`, borrarlo no rompe
+  ningún verificador: rompe el runtime, y eso no se descubre corriendo `oracle test` sino cuando
+  alguien abre el editor y el plugin no carga.
 - **No poner en sombra una medida sin leer qué encontró.** La sombra existe para posponer un
   arreglo, no para no mirarlo.
 - **No fijar la versión con `>=`.** Un consumidor que se actualiza solo se pone rojo un martes por
