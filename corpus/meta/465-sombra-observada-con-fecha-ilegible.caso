@@ -1,0 +1,19 @@
+caso 465-sombra-observada-con-fecha-ilegible:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "398cd18+worktree"
+    procedencia: observada
+    titulo: "Una sombra real declara «cuando pueda» y el marco no puede fecharla"
+    etiqueta: falso_verde
+    sintoma:
+        La evidencia no se escribio a mano: es lo que devolvio `hechos_de_sombra` sobre un proyecto real creado para esta corrida, con tres sombras declaradas en su `oracle.json`. Una declara «cuando pueda». `declara_desde` sale en true —el campo no esta vacio— y los dias salen en -1: la sombra existe, se informa, y no tiene edad.
+    como_se_detecto: observacion
+    medida: meta.toda_sombra_declara_una_fecha_real
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "meta.ninguna_medida_sin_alcance", true, true, -1, false, true
+            "meta.toda_medida_filtra_o_agrupa", true, true, 291, false, true
+            "meta.todo_umbral_declara_de_donde_sale", true, true, 13, false, true
+    leccion:
+        Es la misma corrida que el caso de al lado, y las dos medidas la leen distinto: una encuentra la vieja, la otra la que no se puede fechar. Ninguna encuentra las dos, y por eso son dos.

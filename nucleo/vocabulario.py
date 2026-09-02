@@ -80,7 +80,8 @@ RELACIONES_EXPLICADAS: dict[str, str] = {
     "medida_en_uso": "cuántos casos evalúan cada medida y cuántos mutantes le sobreviven; es la "
                      "relación con la que Oracle mide si una medida está ejercitada o es adorno",
     "sombra": "qué medidas heredadas se miden y se informan pero todavía no tumban la corrida, "
-              "desde cuándo y con qué razón escrita",
+              "desde cuándo, con qué razón escrita y hace cuántos días — que es lo que permite "
+              "envejecerlas y distinguir una transición de un estado permanente",
     "relacion_documentada": "si cada relación del lenguaje está nombrada en la especificación; "
                             "existe para que una relación nueva no quede sin documentar en silencio",
     "verbo_del_cli": "cada verbo que el comando acepta y si la ayuda lo nombra; un verbo fuera de "

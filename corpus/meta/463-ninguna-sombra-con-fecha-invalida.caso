@@ -1,0 +1,18 @@
+caso 463-ninguna-sombra-con-fecha-invalida:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "398cd18+worktree"
+    procedencia: construida
+    titulo: "Todas las sombras declaran una fecha que se puede leer"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Dos filas sanas para que quitar el filtro no sobreviva.
+    como_se_detecto: observacion
+    medida: meta.toda_sombra_declara_una_fecha_real
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.una", true, true, 0, false, true
+            "dominio.otra", true, true, 120, false, true
+    leccion:
+        Cero días es válido: una sombra puesta hoy. El límite es el signo, no el tamaño — de la edad se ocupa la otra medida, y por eso la fila de 120 días acá está en verde.

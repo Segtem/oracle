@@ -154,7 +154,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `requiere` | qué relaciones declara necesitar una medida para concluir | `nucleo/medida.py` |
 | `caso` | cada caso del corpus: su polaridad, su `procedencia`, si su medida existe, y —desde `DECISION-009`— si es propio o de una biblioteca | `nucleo/marco.py` |
 | `medida_en_uso` | cuántos casos evalúan cada medida y cuántos mutantes le sobreviven | `nucleo/marco.py` |
-| `sombra` | qué medidas heredadas se miden pero todavía no obligan, desde cuándo y por qué | `nucleo/marco.py` |
+| `sombra` | qué medidas heredadas se miden pero todavía no obligan, desde cuándo, por qué y hace cuántos días | `nucleo/marco.py` |
 | `relacion_documentada` | si cada relación del lenguaje está nombrada en esta especificación | `nucleo/marco.py` |
 | `verbo_del_cli` | cada verbo que el comando acepta y si la ayuda lo nombra | `nucleo/marco.py` |
 | `opcion_del_vocabulario` | cada opción de un vocabulario cerrado, con cuántas palabras la explican y si el manual la muestra | `nucleo/marco.py` |

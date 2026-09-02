@@ -1,0 +1,19 @@
+caso 464-sombra-observada-de-291-dias:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "398cd18+worktree"
+    procedencia: observada
+    titulo: "Una sombra real de 291 dias, sobre un proyecto con tres"
+    etiqueta: falso_verde
+    sintoma:
+        La evidencia no se escribio a mano: es lo que devolvio `hechos_de_sombra` sobre un proyecto real creado para esta corrida, con tres sombras declaradas en su `oracle.json`. Una lleva 291 dias puesta: nueve meses, tres veces el trimestre que el umbral declara. Las otras dos no ofenden.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_envejece_sin_revisarse
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "meta.ninguna_medida_sin_alcance", true, true, -1, false, true
+            "meta.toda_medida_filtra_o_agrupa", true, true, 291, false, true
+            "meta.todo_umbral_declara_de_donde_sale", true, true, 13, false, true
+    leccion:
+        El valor sale de restar fechas en la corrida, no de un numero elegido para el ejemplo. Una medida fijada solo con evidencia fabricada puede estar ajustada a sus propios casos.

@@ -111,7 +111,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9093 líneas de lenguaje y **384 negativas explícitas** (`raise`).
+En este corte hay 9094 líneas de lenguaje y **384 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -144,7 +144,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9093 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 52 medidas universales escritas en él (321 líneas): **28,3 a 1**. 46 de las 52 pasan por una macro.
+**9094 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 54 medidas universales escritas en él (331 líneas): **27,5 a 1**. 48 de las 54 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -539,11 +539,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**161 casos**: 99 defectos y 62 verdes correctos. De los defectos, 95 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 94 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 88 observada, 67 construida, 6 generada y 0 sin declarar.
+**167 casos**: 103 defectos y 64 verdes correctos. De los defectos, 99 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 98 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 90 observada, 71 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1029 tests · 703/703 mutantes de medida · **4901 sitios de mutación de código** (4691 + 210 del motor Python).
+1029 tests · 715/715 mutantes de medida · **4901 sitios de mutación de código** (4691 + 210 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

@@ -1,0 +1,19 @@
+caso 460-una-sombra-de-mas-de-un-trimestre:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "398cd18+worktree"
+    procedencia: construida
+    titulo: "Una sombra lleva más de noventa días puesta"
+    etiqueta: falso_verde
+    sintoma:
+        `dias` viajaba en la relación desde que existe el modo sombra y ninguna medida lo miraba. Una sombra de 244 días pasaba en verde: la etapa de transición se volvió permanente y lo único que la distinguía de apagar la medida —que alguien la iba a sacar— dejó de ser cierto sin que nada lo dijera.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_envejece_sin_revisarse
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.olvidada", true, true, 244, false, true
+            "dominio.reciente", true, true, 12, false, true
+            "dominio.justo_en_el_limite", true, true, 90, false, true
+    leccion:
+        Una sola fila ofende, y es a propósito: con dos, aflojar el umbral de cero a uno sigue dando rojo y la mutación pasa inadvertida. La fila de 90 días fija además que el límite es estricto — noventa entra, noventa y uno no.

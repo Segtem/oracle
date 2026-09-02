@@ -1,0 +1,18 @@
+caso 461-ninguna-sombra-envejecio:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "398cd18+worktree"
+    procedencia: construida
+    titulo: "Todas las sombras son de este trimestre"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Sin un verde de varias filas, el mutador que quita el filtro sobrevive y la medida mide menos de lo que dice.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_envejece_sin_revisarse
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.una", true, true, 3, false, true
+            "dominio.otra", true, true, 61, false, true
+    leccion:
+        El verde dice que ninguna pasó el trimestre, no que alguien las haya revisado. La medida no puede ver eso y su alcance lo declara.

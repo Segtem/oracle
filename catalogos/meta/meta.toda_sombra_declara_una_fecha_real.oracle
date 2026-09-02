@@ -1,0 +1,5 @@
+ninguno meta.toda_sombra_declara_una_fecha_real:
+    de sombra s
+    donde s.dias < 0
+    umbral <= 0 segun contrato porque "`meta.toda_sombra_declara_desde_y_porque` sólo ve que el campo no esté vacío, así que «cuando pueda» y «2027-12-01» pasan las dos. Una fecha que no se puede leer, o que todavía no llegó, deja a la sombra sin edad: no se la puede envejecer, y entonces la medida que la envejece nunca la va a encontrar"
+    alcance "mira los días calculados, que salen negativos por dos motivos distintos: la fecha no se pudo leer, o está en el futuro. NO los distingue — el testigo trae la medida y los días, no la cadena original. Y NO juzga si una fecha legible es la verdadera: alguien puede escribir una de hace un mes sobre una sombra puesta hoy"

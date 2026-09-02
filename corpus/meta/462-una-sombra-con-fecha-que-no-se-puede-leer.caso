@@ -1,0 +1,18 @@
+caso 462-una-sombra-con-fecha-que-no-se-puede-leer:
+    fecha: "2026-09-02"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "398cd18+worktree"
+    procedencia: construida
+    titulo: "Una sombra declara una fecha que no se puede leer"
+    etiqueta: falso_verde
+    sintoma:
+        `meta.toda_sombra_declara_desde_y_porque` sólo comprueba que el campo no esté vacío, así que «cuando pueda» lo pasa con `declara_desde` en true. El marco no puede calcular su edad y devuelve días negativos, y sin esta medida esa sombra queda fuera del alcance de la que envejece: invisible para las dos.
+    como_se_detecto: observacion
+    medida: meta.toda_sombra_declara_una_fecha_real
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.fecha_ilegible", true, true, -1, false, true
+            "dominio.sana", true, true, 30, false, true
+    leccion:
+        Un campo declarado no es un campo válido. Las dos medidas de sombra que ya existían miraban presencia; ésta mira que lo declarado sirva para algo.
