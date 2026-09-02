@@ -1,3 +1,90 @@
+# 0.3.0 — el lenguaje se explica solo, y hereda sin mentir
+
+**30 commits** desde `0.2.0`. Nada del álgebra cambió, así que sólo se mueve la distribución.
+
+```
+VERSION_DISTRIBUCION   0.2.0 → 0.3.0     el paquete que se instala
+VERSION_ALGEBRA        0.5               lo que una medida SIGNIFICA (sin cambios)
+VERSION_SINTAXIS       0.1               cómo se ESCRIBE (sin cambios)
+```
+
+## El vocabulario cerrado declara su significado
+
+`falso_verde` era una cadena en un `frozenset` y qué significaba vivía en cuatro `.md` distintos,
+ninguno de ellos la fuente. Ahora el nombre y su explicación viajan juntos en la declaración, y de
+ahí salen dos cosas.
+
+La primera es el error. Quien escribe `etiqueta: falso_rojito` ya no recibe cinco nombres parecidos:
+recibe los cinco **con qué es cada uno**, en el momento exacto en que le hace falta. El diagnóstico
+del editor lleva lo mismo.
+
+La segunda es `oracle manual`: la referencia del lenguaje en tres vistas —terminal, sitio (`--html`)
+y páginas de manual (`--man`)— armadas de la **misma** fuente. `oracle manual --instalar-man <dir>`
+deja `oracle(1)` y una `oracle-<tema>(7)` por tema, y a partir de ahí `man oracle-etiqueta` anda sin
+red. Un manual generado no puede quedar viejo; la única grieta es el registro que dice qué generar,
+y eso lo mide `meta.todo_vocabulario_cerrado_esta_en_el_manual`.
+
+## Heredar un catálogo sin quedar en rojo el primer día: la sombra
+
+Un proyecto que adopta un catálogo ajeno sale rojo en cosas reales que nadie va a arreglar hoy.
+Apagar la medida es volver al verde que no significa nada. La sombra es la tercera opción: la medida
+se evalúa, se informa con `[EN SOMBRA]` y no tumba la corrida. `desde` y `porque` son obligatorios
+—una sombra sin fecha no se puede envejecer, una sin motivo no se puede discutir— y tres medidas la
+vigilan. **Ninguna de esas tres se puede poner en sombra a sí misma.**
+
+## Bibliotecas de políticas
+
+Un catálogo se puede publicar y consumir. Se descubren por `importlib.metadata` **sin importarlas**,
+y una distribución cuyo `RECORD` liste Python o un ejecutable se **rechaza**: una biblioteca de
+políticas es datos. La adopción es explícita, proyecto por proyecto, en `oracle.json`.
+
+## La documentación entra al arnés
+
+Tres cosas que antes podían envejecer en silencio y ahora se miden: que cada relación que el
+lenguaje emite esté nombrada en la especificación, que cada verbo que el comando acepta esté en la
+ayuda —había tres que no—, y que cada opción de un vocabulario cerrado se explique.
+
+## Un rojo declarado menos
+
+`DECISION-004` bajó de 3 a 2, y por el camino que ella misma dejaba escrito: no transcribiendo
+evidencia inventada sino cambiando el mundo. Los referentes de L−2 **ya se calculaban** dentro de
+`revisar_frescura` y morían ahí; exponerlos hizo observable algo que ya ocurría. Los dos que quedan
+no se pueden cerrar y la decisión explica por qué.
+
+## Arreglos
+
+- `oracle-lsp` publica CodeLens, y un diagnóstico nunca tiene ancho cero (con ancho cero el editor
+  no dibuja nada y el error existe pero no se ve).
+- El arnés de mutación dejaba un `.lock` por raíz en `/tmp` y no lo borraba nunca: había 6.257
+  archivos de un solo día. Ahora un directorio coordinador serializa abrir/bloquear y borrar/
+  desbloquear, así que una ronda entera deja **cero** — sin romper la exclusión, que era lo
+  delicado.
+- Los ids de `equivalentes.json` son posicionales y se rompían con cualquier línea agregada más
+  arriba. Ahora cada entrada guarda el contenido de su línea y su ordinal, y
+  `--reapuntar-equivalentes` los reubica sola. El validador sigue fallando cerrado.
+
+## Las cifras de este corte
+
+```
+1013 tests · 161 casos del corpus · 52 medidas universales
+703/703 mutantes de medida · 4894 sitios de mutación de código
+aceptación: 2 rojos declarados (DECISION-004)
+```
+
+## Límites conocidos
+
+- **Las dos medidas de `DECISION-004` siguen en rojo, a propósito.** `oracle test` y
+  `tools/aceptacion.py` salen con código 1. No es una regresión: es un rojo verdadero que se lee en
+  vez de taparse.
+- **La adopción por un proyecto ajeno sigue siendo evidencia que este repo no puede fabricar.** El
+  proyecto externo sintético demuestra desacoplamiento técnico, no adopción.
+- **Ninguna biblioteca de políticas se publicó todavía.** El mecanismo está y se certificó contra
+  una biblioteca real instalada; falta que exista una publicada.
+- **Los mutadores son de autoría propia.** «703/703 muertos» mide cobertura sobre cinco mutadores
+  elegidos por el autor: un mutador que nadie escribió no puede producir un sobreviviente.
+
+---
+
 # 0.2.0 — el primer release público
 
 Primer release etiquetado de Oracle, y el primero con el repositorio abierto. **81 commits** desde

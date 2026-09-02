@@ -25,12 +25,18 @@ Para probarlo sin instalar:
 uvx --from . oracle --help
 ```
 
-Si no tenés `uv`, usá una instalación editable con `pip`:
+Si no tenés `uv`, hace falta un entorno virtual. Un `pip install` al Python del sistema
+**falla** en Arch, Debian 12+, Ubuntu 23.04+ y Fedora con `externally-managed-environment`, y
+saltearse esa protección rompe paquetes del sistema:
 
 ```bash
+python -m venv .venv && . .venv/bin/activate
 python -m pip install -e .
 oracle --help
 ```
+
+Con `uv` no hace falta nada de esto, y además deja `oracle-lsp` en el PATH, que es lo que el
+editor necesita para encontrarlo.
 
 Después trabajás desde tu proyecto o lo pasás explícitamente:
 
@@ -259,6 +265,19 @@ revés. La herramienta no lee intenciones.
 
 Por eso el caso va primero. Y por eso `tools/mutar.py` existe: comprueba que el corpus **fije** tu
 medida, o sea que si alguien la escribiera distinta, algún caso lo notaría.
+
+## Cuando la medida no es tuya
+
+Dos cosas que aparecieron después de que este documento se escribiera, y que cambian qué hacés
+cuando el rojo viene de una medida que no escribiste vos:
+
+- **`oracle manual`** es la referencia del lenguaje —los seis operadores, los cuatro orígenes de un
+  umbral, las cinco etiquetas de un caso— armada de las declaraciones, no escrita aparte. Con
+  `oracle manual --instalar-man <dir>` queda como `man oracle-segun`.
+- **La sombra.** Si heredás un catálogo y sale rojo en algo real que hoy no vas a arreglar, no
+  apagues la medida: declarala en sombra en `oracle.json`, con `desde` y `porque`. Se sigue
+  midiendo e informando, y no tumba la corrida. Los dos campos son obligatorios porque una sombra
+  sin fecha no se puede envejecer y una sin motivo no se puede discutir.
 
 ## Si te falta un hecho
 

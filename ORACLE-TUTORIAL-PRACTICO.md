@@ -107,7 +107,7 @@ La superficie infija es la forma legible para escribir y revisar. En el disco (d
 Para traducir entre la superficie infija y el archivo JSON tenés la herramienta `tools/sintaxis.py`:
 
 ```bash
-python tools/sintaxis.py --imprimir catalogos/proceso/proceso.test_con_mutante_que_lo_mata.json  # JSON -> superficie
+python tools/sintaxis.py --imprimir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -> superficie
 oracle nueva dominio.regla        # crea el andamio ya en superficie infija
 python tools/sintaxis.py --leer medida.oracle       # superficie -> JSON, si lo necesitás
 ```
@@ -759,11 +759,39 @@ print(informe.texto())
 | `tools/mutar.py` | ¿el corpus ALCANZA para fijar cada medida? (muta las medidas, no el código) |
 | `tools/mutar_codigo.py --objetivo <archivo.py>` | lo mismo pero mutando el CÓDIGO del núcleo/perfiles |
 | `tools/estudio.py` | vuelca todo el repo a un Markdown autocontenido para NotebookLM (así se generó el otro documento) |
+| `oracle manual [tema]` | la referencia del lenguaje, armada de sus propias declaraciones (`--html` para el sitio, `--man` para páginas de manual) |
+| `oracle biblioteca instaladas` | qué bibliotecas de políticas hay instaladas y cuáles usa este proyecto |
+| `oracle biblioteca verificar <ruta>` | certifica una biblioteca antes de confiar en ella |
+| `oracle diagnostico` | qué versión de Oracle corre y desde dónde, sin publicar nada del dominio |
 | `python -m unittest discover -s tests -t . -q` | la suite de tests, sin dependencias externas |
 
 Todos aceptan `--proyecto <ruta>` (o `$ORACLE_PROYECTO`) y, si el proyecto declara `escalares.py`,
 exigen `--confiar-escalares` para ejecutarlo. Sin esa bandera, las inspecciones (`--help`,
 `--relaciones`, `--nueva`, `--escalares` sin UDF externas) son siempre seguras.
+
+### Heredar un catálogo sin quedar en rojo el primer día
+
+Cuando un proyecto adopta un catálogo que no escribió —el catálogo base de Oracle, o una biblioteca
+de políticas— suele salir rojo en cosas reales que nadie va a arreglar hoy. Apagar la medida sería
+volver al verde que no significa nada, así que hay una tercera opción: **la sombra**. Se declara en
+`oracle.json` y la medida se evalúa, se informa con la marca `[EN SOMBRA]`, y **no tumba la
+corrida**:
+
+```json
+{
+  "sombra": {
+    "meta.toda_medida_filtra_o_agrupa": {
+      "desde": "2026-09-01",
+      "porque": "tres medidas heredadas sin filtro; se arreglan de a una"
+    }
+  }
+}
+```
+
+Los dos campos son obligatorios y hay medidas que los vigilan: una sombra sin fecha no se puede
+envejecer, una sin motivo no se puede discutir, y una sobre una medida que ya da verde no tiene
+nada que perdonar. **Ninguna de esas tres se puede poner en sombra a sí misma**, que es lo que
+impide que la sombra se coma su propio control.
 
 ---
 
