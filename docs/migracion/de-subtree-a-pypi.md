@@ -57,14 +57,14 @@ grep -rln "vendor/oracle" . --exclude-dir=vendor --exclude-dir=.git
 
 ```bash
 uv tool install oracle-metalenguaje
-oracle --version          # tiene que decir 0.3.0 o más
+oracle --version          # tiene que decir 0.3.1 o más
 ```
 
 **(b) Un entorno del proyecto** — para scripts propios que hacen `import oracle_metalenguaje` y se
 corren con el Python del sistema:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.3.0"
+uv venv && uv pip install "oracle-metalenguaje==0.3.1"
 .venv/bin/python tools/mi_script.py
 ```
 
@@ -74,11 +74,26 @@ directorio en el repo, pero es un artefacto con versión, no una copia de un rep
 acordarse de traer y que se puede editar a mano sin que nadie se entere.
 
 ```bash
-python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.3.0"
+python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.3.1"
 ```
 
 Medido el 2026-09-01 contra el subtree de Jam: **2,3 MB y 183 archivos**, contra 3,5 MB y 284. Y el
 `sys.path.insert` que ya existe sigue funcionando sin cambios — sólo cambia a qué directorio apunta.
+
+### Comprobá que la instalación es la que creés
+
+Los tres caminos fallan distinto y ninguno grita. Corré esto **desde un directorio que no sea el
+repo del proyecto**, porque parado adentro el `import` puede venir del árbol local y no de lo que
+instalaste — pasó en la verificación de este release y por un minuto pareció un paquete roto:
+
+```bash
+cd /tmp
+<el python que corresponda> -c "import oracle_metalenguaje as o; print(o.__file__)"
+```
+
+La ruta que imprima tiene que estar dentro de lo que instalaste: `site-packages/` para (a) y (b), o
+el directorio del `--target` para (c). Si dice el repo del proyecto, la instalación no está donde
+creés.
 
 `uv tool install` es lo recomendado para (a) y no es capricho: en Arch, Debian 12+, Ubuntu 23.04+ y
 Fedora un `pip install` al Python del sistema **falla** con `externally-managed-environment`, y
@@ -164,4 +179,4 @@ contemplado: leelo, no lo agregues a la sombra sin entenderlo.
 - **No poner en sombra una medida sin leer qué encontró.** La sombra existe para posponer un
   arreglo, no para no mirarlo.
 - **No fijar la versión con `>=`.** Un consumidor que se actualiza solo se pone rojo un martes por
-  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.3.0` y subí a propósito.
+  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.3.1` y subí a propósito.
