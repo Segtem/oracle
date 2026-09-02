@@ -1,3 +1,55 @@
+# 0.3.3 — importar la biblioteca le borraba un paquete al que la importa
+
+Segundo defecto encontrado desde afuera del repositorio, un día después del primero y de la misma
+familia: el paquete instalado se comporta distinto del checkout, y el arnés miraba el checkout.
+
+## Qué se rompía
+
+Importar `oracle_metalenguaje` registraba en `sys.modules` cuatro nombres de NIVEL SUPERIOR
+—`nucleo`, `catalogos`, `perfiles` y `tools`— para que los imports absolutos del núcleo funcionen
+en los dos layouts.
+
+`tools` es el nombre de paquete más común que hay en un repositorio. Un consumidor con su propio
+`tools/` lo perdía **por importar la biblioteca**, y moría con
+`ModuleNotFoundError: No module named 'tools.referencias'` sobre un paquete suyo que existía y no se
+había movido.
+
+## Por qué el arnés no lo vio, otra vez
+
+`tools/verificar_instalacion.py` afirmaba justo lo contrario:
+
+```python
+for nombre in ("nucleo", "catalogos", "perfiles", "tools"):
+    assert importlib.util.find_spec(nombre) is None, nombre
+```
+
+Eso mira el disco y corre **antes** de importar nada. Era verdad y decía una mentira: el wheel no
+ocupa esos nombres como archivos, los ocupa al importarse.
+
+## El arreglo
+
+El alias de `tools` se mudó de la fachada al propio paquete `tools/`. Se registra cuando corre un
+entry point de Oracle —su proceso, donde ocupar el nombre no le saca nada a nadie— y no cuando un
+consumidor importa `Motor` o `escalar`.
+
+El verificador ahora crea un consumidor con su propio `tools/`, importa la biblioteca y exige que el
+paquete siga siendo el suyo. Se comprobó que el chequeo mide algo poniendo el defecto de vuelta a
+propósito: falla con el `ModuleNotFoundError` exacto.
+
+## El riesgo que queda, dicho
+
+`nucleo`, `catalogos` y `perfiles` **se siguen ocupando**: el núcleo se importa a sí mismo por nombre
+absoluto y sacarlos es reescribir todos sus imports. Son palabras en español y la colisión es menos
+probable, pero no imposible. Es `setdefault`, así que quien ya cargó el suyo lo conserva —y entonces
+se rompe Oracle, no él—.
+
+Queda fijado por un test lo que hace seguro haber sacado `tools`: **ningún módulo de `nucleo/` lo
+importa**. Si mañana alguno lo hace, ese test se rompe.
+
+Detalle y lo que no se arregla, en `DECISION-010`.
+
+---
+
 # 0.3.2 — el wheel vendorizado dejaba sin fachada al subproceso que corre tus UDF
 
 Un solo defecto, encontrado por el primer consumidor que intentó la migración de subtree a PyPI. Es

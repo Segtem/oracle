@@ -1,6 +1,6 @@
 # Decisión 010 — el paquete instalado es otro proyecto, y hay que medirlo como tal
 
-**Fecha:** 2026-09-02 · **Estado:** vigente
+**Fecha:** 2026-09-02 · **Ampliada:** 2026-09-02 (segundo defecto) · **Estado:** vigente
 **Origen:** un consumidor migrando de subtree a PyPI, bloqueado por un defecto de 0.3.1.
 
 ## El hecho
@@ -55,8 +55,63 @@ proyecto aparte.** Concretamente:
 Se puso el defecto **de vuelta a propósito** y se corrió el verificador: sale 1, con el
 `ModuleNotFoundError` exacto. Un chequeo que pasa con y sin el defecto no comprueba nada.
 
+## El segundo defecto de la misma clase: la fachada ocupaba nombres del consumidor
+
+Lo encontró el mismo camino, un día después. Importar `oracle_metalenguaje` registraba en
+`sys.modules` cuatro nombres de NIVEL SUPERIOR —`nucleo`, `catalogos`, `perfiles` y `tools`— para
+que los imports absolutos del propio núcleo funcionen en los dos layouts.
+
+`tools` es el nombre de paquete más común que hay en un repositorio. Un consumidor con su propio
+`tools/` lo perdía **por importar la biblioteca**: murió con
+`ModuleNotFoundError: No module named 'tools.referencias'` sobre un paquete suyo que existía y no se
+había movido.
+
+Y el verificador afirmaba lo contrario:
+
+```python
+for nombre in ("nucleo", "catalogos", "perfiles", "tools"):
+    assert importlib.util.find_spec(nombre) is None, nombre
+```
+
+Eso mira el DISCO y corre **antes** de importar nada. Era verdad y decía una mentira: el wheel no
+ocupa esos nombres como archivos, los ocupa al importarse. Segundo verificador que pasa mientras la
+cosa está rota, en dos días.
+
+### Lo que se decidió
+
+El alias de `tools` **se mudó de la fachada al propio paquete `tools/`**. Los módulos de `tools/` se
+importan entre sí por nombre absoluto, y eso ocurre cuando corre un entry point de Oracle —su propio
+proceso, donde ocupar el nombre no le saca nada a nadie—. Un consumidor que sólo usa `Motor` o
+`escalar` ya no lo ve.
+
+El verificador ahora comprueba lo que hay que comprobar: crea un consumidor con su propio `tools/`,
+importa la biblioteca, y exige que el paquete siga siendo el suyo. Se probó poniendo el defecto de
+vuelta: falla con el `ModuleNotFoundError` exacto.
+
+### El riesgo que queda, dicho
+
+`nucleo`, `catalogos` y `perfiles` **se siguen ocupando**, porque el núcleo se importa a sí mismo por
+nombre absoluto y sacarlos es reescribir todos sus imports. Son palabras en español y la colisión es
+menos probable, pero no imposible. Es `setdefault`, así que un consumidor que ya cargó el suyo lo
+conserva —y entonces se rompe Oracle, no él—. La salida de fondo es que el núcleo deje de importarse
+por nombre absoluto; no está hecha y este documento no dice que lo esté.
+
+Lo que sí queda fijado: **ningún módulo de `nucleo/` importa `tools`**, que es la condición que hace
+seguro haberlo sacado. Hay un test que se rompe si mañana alguno lo hace.
+
 ## Lo que esto NO arregla
 
 El verificador prueba dos layouts porque son los dos que hoy se sabe que alguien usa. Un tercero
 —un zip importable, un intérprete con `sys.path` armado a mano de otra forma— seguiría sin estar
 cubierto, y este documento no promete lo contrario.
+
+Y hay una cosa más, que salió al arreglar el segundo defecto: **`objetivos_disponibles()` excluye
+todo `__init__.py`**, así que la fachada —`oracle_metalenguaje/__init__.py`, que es exactamente
+donde estaba el defecto— **no la muta nadie**. Lo mismo `tools/__init__.py`, donde vive ahora el
+alias.
+
+La exclusión existe por una razón buena: casi todos los `__init__.py` del proyecto están vacíos y
+mutarlos sería denominador sin señal. Pero esos dos no están vacíos, y la consecuencia es que su
+comportamiento lo fijan tests que leen el CÓDIGO FUENTE como texto, no mutantes. Es más débil y hay
+que saberlo. Levantarlo entero es una decisión aparte: hoy sumaría decenas de archivos vacíos al
+denominador.

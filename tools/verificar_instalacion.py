@@ -137,6 +137,25 @@ def main() -> int:
              "    assert importlib.util.find_spec(nombre) is None, nombre\n"),
         ], cwd=temporal, env=env)
 
+        # Lo de arriba mira el DISCO, y era verdad mientras decía una mentira: importar la fachada
+        # registraba `tools` en `sys.modules` y le borraba el suyo al consumidor. El `assert` pasaba
+        # porque corre antes de importar nada. Un consumidor real murió con
+        # `ModuleNotFoundError: No module named 'tools.referencias'` sobre un paquete que existía.
+        #
+        # Esto comprueba lo que hay que comprobar: DESPUÉS de importar la biblioteca, el `tools/` de
+        # quien la usa sigue siendo el suyo.
+        consumidor = temporal / "consumidor"
+        (consumidor / "tools" / "referencias").mkdir(parents=True)
+        (consumidor / "tools" / "__init__.py").write_text("", encoding="utf-8")
+        (consumidor / "tools" / "referencias" / "__init__.py").write_text(
+            "VALOR = 'el del consumidor'\n", encoding="utf-8")
+        _correr([
+            str(python), "-c",
+            ("import oracle_metalenguaje\n"
+             "from tools.referencias import VALOR\n"
+             "assert VALOR == 'el del consumidor', VALOR\n"),
+        ], cwd=consumidor, env=env)
+
         proyecto = temporal / "proyecto"
         (proyecto / "catalogos").mkdir(parents=True)
         raiz_perfiles = temporal / "perfiles-host"

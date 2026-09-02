@@ -12,6 +12,8 @@ from nucleo.algebra import ESCALARES, ErrorDeAlgebra, LimitesAlgebra
 from nucleo.medida import Medida
 from nucleo.proyecto import EscalaresNoConfiables
 
+RAIZ = Path(__file__).resolve().parents[1]
+
 def setUpModule() -> None:
     """Importa la fachada pública DENTRO de la suite, no al descubrirla.
 
@@ -62,6 +64,51 @@ def _proyecto(raiz: Path, incremento: int) -> None:
         f"    return valor + {incremento}\n",
         encoding="utf-8",
     )
+
+
+class LaFachadaNoSeApropiaDeNombresDelConsumidorTests(unittest.TestCase):
+    """Importar la biblioteca no puede borrarle un paquete a quien la importa.
+
+    Hasta 0.3.2 sí podía: la fachada registraba `tools` como nombre de nivel superior, y `tools/` es
+    el nombre de paquete más común que hay en un repositorio. Un consumidor real murió con
+    `ModuleNotFoundError: No module named 'tools.referencias'` sobre un paquete suyo que existía.
+    """
+
+    def test_la_fachada_no_registra_tools(self) -> None:
+        """Se lee del código y no del `sys.modules` de esta corrida: en el checkout `tools` ya está
+        importado por los propios tests, así que mirar `sys.modules` no distinguiría nada."""
+        fuente = (RAIZ / "oracle_metalenguaje" / "__init__.py").read_text(encoding="utf-8")
+        registrados = re.findall(r'cargar_interno\("(\w+)"', fuente)
+        self.assertEqual(registrados, ["nucleo", "catalogos", "perfiles"])
+        self.assertNotIn("tools", registrados)
+
+    def test_el_alias_de_tools_lo_pone_el_propio_paquete(self) -> None:
+        """No desaparece: se mudó a donde se necesita. Los módulos de `tools/` se importan entre sí
+        por nombre absoluto, y eso pasa cuando corre un entry point —proceso de Oracle, donde
+        ocupar el nombre no le saca nada a nadie."""
+        fuente = (RAIZ / "tools" / "__init__.py").read_text(encoding="utf-8")
+        self.assertIn('sys.modules.setdefault("tools"', fuente)
+
+    def test_el_alias_usa_setdefault_y_no_asignacion(self) -> None:
+        """Con asignación, el que llega segundo pisa al primero. Con `setdefault`, un consumidor que
+        ya cargó su `tools` conserva el suyo."""
+        for archivo in (RAIZ / "tools" / "__init__.py",
+                        RAIZ / "oracle_metalenguaje" / "_compat.py"):
+            fuente = archivo.read_text(encoding="utf-8")
+            with self.subTest(archivo=archivo.name):
+                self.assertNotIn('sys.modules["tools"] =', fuente)
+                self.assertNotIn("sys.modules['tools'] =", fuente)
+
+    def test_los_tres_que_quedan_son_los_que_el_nucleo_necesita(self) -> None:
+        """`nucleo`, `catalogos` y `perfiles` se siguen registrando porque el núcleo se importa a sí
+        mismo por nombre absoluto. NINGÚN módulo de `nucleo/` importa `tools`, que es lo que hace
+        que sacarlo sea seguro — si mañana uno lo hiciera, esto se rompe y hay que pensarlo."""
+        ofensores = []
+        for ruta in (RAIZ / "nucleo").rglob("*.py"):
+            for n, linea in enumerate(ruta.read_text(encoding="utf-8").splitlines(), 1):
+                if re.match(r"\s*(from tools[. ]|import tools\b)", linea):
+                    ofensores.append(f"{ruta.relative_to(RAIZ)}:{n}")
+        self.assertEqual(ofensores, [])
 
 
 class TestMotor(unittest.TestCase):
