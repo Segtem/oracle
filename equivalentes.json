@@ -1,46 +1,68 @@
 [
  {
   "id": "tools/cifras.py:23:16:constante",
+  "linea_texto": "sys.path.insert(0, str(RAIZ))",
+  "ordinal": 1,
   "razon": "`sys.path.insert(0, RAIZ)` → `insert(1, RAIZ)`. La posición sólo cambia la precedencia frente a `sys.path[0]`, que al correr `python tools/cifras.py` es el propio `tools/`. Ahí no hay ningún `nucleo/`, `catalogos/`, `perfiles/` ni `tools/` que pueda tapar a los de la raíz, y todos los imports del archivo son calificados por paquete, así que resuelven a lo mismo en las dos posiciones. Ningún punto de entrada del proyecto distingue una de otra. Se declara equivalente en vez de inventarle un test: un test que fijara la posición estaría afirmando algo que el proyecto no depende de que sea cierto. (La ruta del id se corrió de la línea 24 a la 23 el 2026-08-25 al retirar un import muerto: el sitio es el mismo `sys.path.insert`. Que un id de equivalente sea posicional lo vuelve frágil ante cualquier edición de arriba, y el mecanismo de frescura fue el que avisó — el equivalente vencido hizo fallar dos tests en vez de pasar inadvertido.)"
  },
  {
   "id": "nucleo/caso.py:123:10:comparador",
+  "linea_texto": "while i < len(texto):",
+  "ordinal": 1,
   "razon": "`while i < len(texto)` → `while i <= len(texto)` en `_valores_fila`. Cuando `i == len(texto)`, el bucle interno de espacios no puede avanzar y la guarda inmediata `if i >= len(texto): break` corta antes de decodificar o modificar `valores`. El mutante sólo agrega una vuelta vacía en el borde de fin de cadena. Ningún texto de fila puede observar una diferencia de salida, error ni estado. (Reapuntado de línea 77 a 82 el 2026-08-26 al declarar `PROCEDENCIAS`). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/caso.py:261:14:comparador",
+  "linea_texto": "while self.i < len(self.lineas):",
+  "ordinal": 3,
   "razon": "`while self.i < len(self.lineas)` → `<=` en `_leer_origen`. En el borde `self.i == len(self.lineas)`, `_actual()` devuelve el sentinela `(len + 1, \"\")` y la línea siguiente corta porque `\"\"` no empieza con la indentación de origen. No consume línea, no agrega campos y no cambia el error posterior. Ningún caso puede distinguir una iteración sentinela que termina en el mismo `break`. (Reapuntado de línea 215 a 220 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/caso.py:284:15:comparador",
+  "linea_texto": "if fin < 0:",
+  "ordinal": 1,
   "razon": "`fin < 0` → `fin <= 0` después de comprobar `texto.startswith(\"clave(\")`. Si falta `)`, `find` devuelve `-1`; si existe, la primera posición posible es después de `clave(`, o sea mayor que cero. El valor `0` no pertenece al dominio de esa rama. Por eso los dos predicados aceptan y rechazan exactamente los mismos encabezados. (Reapuntado de línea 238 a 243 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/caso.py:284:21:constante",
+  "linea_texto": "if fin < 0:",
+  "ordinal": 1,
   "razon": "`fin < 0` → `fin < 1` en la misma guarda de `clave(...)`. Por el prefijo `clave(` ya verificado, `find(\")\")` sólo puede dar `-1` o una posición positiva mayor que `0`; nunca `0`. Cambiar el umbral de `0` a `1` no cambia el conjunto de entradas aceptadas ni el diagnóstico producido. (Reapuntado de línea 238 a 243 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/caso.py:319:14:comparador",
+  "linea_texto": "while self.i < len(self.lineas):",
+  "ordinal": 4,
   "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de relaciones de evidencia. En `self.i == len(self.lineas)`, `_actual()` devuelve una línea sentinela vacía y la primera guarda del cuerpo corta porque no empieza con la indentación de relación. No crea relaciones, no avanza el índice y deja idéntico el error posterior. Ningún test puede observar esa vuelta vacía. (Reapuntado de línea 273 a 278 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/caso.py:336:18:comparador",
+  "linea_texto": "while self.i < len(self.lineas):",
+  "ordinal": 5,
   "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso. (Reapuntado de línea 290 a 295 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/sintaxis.py:1369:29:constante",
+  "linea_texto": "def _expr(expr, padre: int = 0) -> str:",
+  "ordinal": 1,
   "razon": "`def _expr(expr, padre: int = 0)` → `padre: int = 1`. El valor por defecto de `padre` representa la ausencia de operador padre en la raíz del árbol. Los operadores del lenguaje son `o` (precedencia 1), `y` (2), comparadores (3) y `no` (4); las funciones y átomos se imprimen delimitados. Ningún operador tiene precedencia menor que 1, de modo que `prec < 0` y `prec < 1` evalúan a `False` para toda expresión raíz posible. La salida textual es idéntica para toda entrada. (La ruta se corrió 1273 → 1365 el 2026-08-27 al incorporar `segun` en la lectura/escritura de umbrales: el sitio es el mismo. Que el id sea POSICIONAL lo vuelve frágil ante cualquier edición previa del archivo, y el mecanismo de frescura fue el que avisó — el equivalente vencido hizo fallar dos tests en vez de pasar inadvertido.) (Se movió el 2026-09-01, al hacer que el «llegó X» se pegue a la primera línea de un esperado de varias: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/sintaxis.py:1390:15:constante",
+  "linea_texto": "prec = 4",
+  "ordinal": 1,
   "razon": "`prec = 4` → `prec = 5` en el brazo `no` de `_expr`. La escala de precedencia infija asigna 1 a `o`, 2 a `y`, 3 a comparadores y 4 a `no`. Al mutar `prec` de `no` a 5: para los operadores inferiores (1, 2, 3), tanto `1 < 4` como `1 < 5`, `2 < 4` como `2 < 5`, `3 < 4` como `3 < 5` son `True` (reciben paréntesis); dentro de `no`, `4 < 4` y `5 < 5` son ambos `False` (`no no x` no agrega paréntesis redundantes); y dentro de operadores inferiores, `4 < k` y `5 < k` son ambos `False` para `k ∈ {0, 1, 2, 3}`. Como no existe ningún operador intermedio de precedencia 4 entre los comparadores (3) y `no`, el orden parcial inducido sobre todos los árboles sintácticos es idéntico. (La ruta se corrió 1294 → 1386 el 2026-08-27 al incorporar `segun` en la lectura/escritura de umbrales: el sitio es el mismo. Que el id sea POSICIONAL lo vuelve frágil ante cualquier edición previa del archivo, y el mecanismo de frescura fue el que avisó — el equivalente vencido hizo fallar dos tests en vez de pasar inadvertido.) (Se movió el 2026-09-01, al hacer que el «llegó X» se pegue a la primera línea de un esperado de varias: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "tools/cli.py:182:55:constante",
+  "id": "tools/cli.py:184:55:constante",
+  "linea_texto": "texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent=2)",
+  "ordinal": 1,
   "razon": "`json.dumps(..., ensure_ascii=False)` → `True`. Las dos formas producen JSON válido que parsea al MISMO objeto: lo único que cambia es si un carácter no ASCII se escribe tal cual o como `\\uXXXX`. Hoy ningún valor del diagnóstico puede traer uno: son las tres versiones (dígitos y puntos), `platform.python_version/system/machine`, los marcadores `<PROYECTO>` y `<HOME>`, y los ids de bibliotecas y perfiles, que el lenguaje restringe a ASCII a propósito —un id es también un nombre de archivo y en Unicode dos secuencias distintas se dibujan iguales—. Así que no hay entrada que distinga las dos versiones, y un test tendría que inventar un campo que no existe para poder fallar. La bandera NO se borra: el diagnóstico está hecho para que una persona lo lea entero antes de compartirlo, y el día que un campo traiga una tilde, escaparla lo volvería ilegible. Se declara equivalente en vez de escribirle un test que afirmaría algo que hoy el proyecto no puede producir. (El id se corrió de la línea 166 a la 169 el 2026-09-01 al agregar `cmd_biblioteca_nueva` más arriba: el sitio es el mismo `json.dumps` del diagnóstico. Que un id de equivalente sea posicional lo vuelve frágil ante cualquier edición de arriba, y el arnés lo atrapa en vez de dejarlo pasar.)"
  },
  {
-  "id": "tools/cli.py:182:69:constante",
+  "id": "tools/cli.py:184:69:constante",
+  "linea_texto": "texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent=2)",
+  "ordinal": 1,
   "razon": "`json.dumps(..., indent=2)` → `indent=3`. Cambia el ancho de la sangría y nada más: el JSON parsea al mismo objeto, sigue siendo multilínea y sigue siendo legible. Ninguna parte del proyecto lee el diagnóstico como texto ni depende de su ancho —quien lo consume es una persona o un `json.loads`—. Fijarlo con un test sería afirmar que el proyecto depende de que la sangría sea dos, y no depende: sería un test que impide un cambio inofensivo sin proteger nada. (El id se corrió de la línea 166 a la 169 el 2026-09-01 al agregar `cmd_biblioteca_nueva` más arriba: el sitio es el mismo `json.dumps` del diagnóstico. Que un id de equivalente sea posicional lo vuelve frágil ante cualquier edición de arriba, y el arnés lo atrapa en vez de dejarlo pasar.)"
  }
 ]

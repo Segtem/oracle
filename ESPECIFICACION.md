@@ -179,8 +179,9 @@ Cada opción **declara su significado junto a su nombre** —`nucleo/vocabulario
 
 - el error que ve quien escribe un valor inválido, en el momento exacto en que se equivoca, con
   las opciones y qué es cada una;
-- `oracle manual`, que no es un documento aparte sino una **vista** de esas declaraciones. La misma
-  salida en `--html` es la página del sitio.
+- `oracle manual`, que no es un documento aparte sino una **vista** de esas declaraciones. La
+  misma salida en `--html` es la página del sitio, y en `--man` son páginas de manual: tres vistas
+  de una sola fuente, ninguna escrita a mano.
 
 Un manual generado no puede quedar viejo, salvo por una grieta: que aparezca un vocabulario y nadie
 lo anote en el registro que dice qué mostrar. Eso lo mide

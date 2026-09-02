@@ -111,7 +111,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9028 líneas de lenguaje y **384 negativas explícitas** (`raise`).
+En este corte hay 9051 líneas de lenguaje y **384 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -144,7 +144,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9028 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 52 medidas universales escritas en él (321 líneas): **28,1 a 1**. 46 de las 52 pasan por una macro.
+**9051 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 52 medidas universales escritas en él (321 líneas): **28,2 a 1**. 46 de las 52 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -478,13 +478,17 @@ archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutaci
 `oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
 `oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
-**¿Querés la referencia del lenguaje?** → `oracle manual`, o
+**¿Querés la referencia del lenguaje?** → `oracle manual`, `man oracle-segun`, o
 [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html). No es un documento
 escrito aparte: cada entrada sale de la declaración que el lenguaje ya tiene —los vocabularios
 cerrados, las relaciones que emite sobre sí mismo, los verbos del comando—, así que no hay dónde
 quede vieja. Lo único que sí podría envejecer —una opción sin explicar, un vocabulario fuera del
 registro— lo miden `meta.toda_opcion_del_vocabulario_declara_su_sentido` y
 `meta.todo_vocabulario_cerrado_esta_en_el_manual`.
+
+La misma referencia sale en tres vistas de una sola fuente: la terminal, el sitio (`--html`) y
+páginas de manual (`--man`). `oracle manual --instalar-man ~/.local/share/man` deja `oracle(1)` y
+una `oracle-<tema>(7)` por tema, y a partir de ahí `man oracle-etiqueta` funciona sin red.
 
 El wheel instala sólo paquetes bajo `oracle_metalenguaje.*`; no ocupa los nombres genéricos
 `nucleo`, `catalogos`, `perfiles` ni `tools`. Tampoco distribuye el corpus ni los fixtures de
@@ -534,11 +538,11 @@ fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prue
 positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
 
 <!-- corpus:inicio -->
-**160 casos**: 99 defectos y 61 verdes correctos. De los defectos, 95 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 94 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 87 observada, 67 construida, 6 generada y 0 sin declarar.
+**161 casos**: 99 defectos y 62 verdes correctos. De los defectos, 95 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 94 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 88 observada, 67 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-982 tests · 703/703 mutantes de medida · **4853 sitios de mutación de código** (4648 + 205 del motor Python).
+1013 tests · 703/703 mutantes de medida · **4894 sitios de mutación de código** (4684 + 210 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

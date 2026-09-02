@@ -243,6 +243,29 @@ def _medida_frescura():
     return cargar(ruta, macros=macros_base())
 
 
+def referentes_de_fixture(datos: dict) -> list[Referente]:
+    """Lo que un fixture declara haber leído: el referente de cada fuente, con su huella.
+
+    Estos referentes YA se calculaban —`revisar_frescura` los arma para comparar contra el estado
+    de hoy—, pero morían adentro de esa función. Exponerlos es lo que convierte L−2 de algo que el
+    lenguaje sabe expresar en algo que este repositorio realmente emite, y es la condición que la
+    DECISIÓN 004 puso para que `meta.ninguna_evidencia_declara_un_referente_sin_huella` deje de
+    estar sostenida sólo por evidencia fabricada.
+
+    El `cuando` es «al generar» porque eso es lo que la declaración afirma: el estado que el emisor
+    vio en el momento de producir el fixture. Nada acá comprueba que siga siendo cierto — de eso se
+    ocupa `revisar_frescura`, y la medida que consume estos hechos lo dice en su alcance.
+    """
+    frescura = datos.get("frescura")
+    if not isinstance(frescura, dict):
+        return []
+    huellas = frescura.get("huellas")
+    if not isinstance(huellas, dict):
+        return []
+    return [Referente(que, huella if isinstance(huella, str) else "", "al generar")
+            for que, huella in sorted(huellas.items())]
+
+
 def revisar_frescura(datos: dict, raiz: Path, catalogo: dict) -> list[str]:
     """Recalcula huellas y entrega las dos declaraciones a la medida de L−2."""
     frescura = datos["frescura"]

@@ -449,15 +449,84 @@ class CorrerTests(unittest.TestCase):
             with self.assertRaises(ProcessLookupError):
                 os.kill(hijo, 0)
 
-    def test_dos_rondas_no_pueden_tomar_el_mismo_bloqueo(self) -> None:
+    def test_una_ronda_no_deja_su_archivo_de_bloqueo(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            temporal = Path(d) / "temporales"
+            temporal.mkdir()
+            raiz = Path(d) / "proyecto"
+            raiz.mkdir()
+            with mock.patch.object(mc.tempfile, "gettempdir", return_value=str(temporal)):
+                with mc._bloqueo_de_ronda(raiz):
+                    self.assertEqual(len(list(temporal.rglob("*.lock"))), 1)
+
+                self.assertEqual(list(temporal.rglob("*.lock")), [])
+
+    def test_dos_rondas_simultaneas_no_pueden_tomar_el_mismo_bloqueo(self) -> None:
         import os
         with tempfile.TemporaryDirectory() as d:
-            raiz = Path(d)
-            with mc._bloqueo_de_ronda(raiz):
-                with self.assertRaises(mc.RondaEnCurso) as atrapado:
+            temporal = Path(d) / "temporales"
+            temporal.mkdir()
+            raiz = Path(d) / "proyecto"
+            raiz.mkdir()
+            with mock.patch.object(mc.tempfile, "gettempdir", return_value=str(temporal)):
+                with mc._bloqueo_de_ronda(raiz):
+                    with self.assertRaises(mc.RondaEnCurso) as atrapado:
+                        with mc._bloqueo_de_ronda(raiz):
+                            pass
+                    self.assertIn(f"pid {os.getpid()}", str(atrapado.exception))
+
+                self.assertEqual(list(temporal.rglob("*.lock")), [])
+
+    def test_la_ronda_rechazada_no_borra_el_bloqueo_de_la_que_si_lo_tiene(self) -> None:
+        """La segunda ronda sale por `RondaEnCurso` y pasa igual por el `finally`. Si ahí creyera
+        que el bloqueo es suyo, borraría el archivo de la PRIMERA — y la tercera entraría como si
+        no hubiera nadie. El leak se arreglaría rompiendo la exclusión, que es peor."""
+        with tempfile.TemporaryDirectory() as d:
+            temporal = Path(d) / "temporales"
+            temporal.mkdir()
+            raiz = Path(d) / "proyecto"
+            raiz.mkdir()
+            with mock.patch.object(mc.tempfile, "gettempdir", return_value=str(temporal)):
+                with mc._bloqueo_de_ronda(raiz):
+                    with self.assertRaises(mc.RondaEnCurso):
+                        with mc._bloqueo_de_ronda(raiz):
+                            pass
+                    # El archivo de la primera sigue publicado: la rechazada no lo tocó.
+                    self.assertEqual(len(list(temporal.rglob("*.lock"))), 1)
+
+                    with self.assertRaises(mc.RondaEnCurso):
+                        with mc._bloqueo_de_ronda(raiz):
+                            pass
+
+    def test_si_alguien_ya_borro_el_archivo_la_ronda_termina_igual(self) -> None:
+        """Salir de la ronda no puede reventar porque el archivo ya no esté. Sin la rama que
+        distingue «ya no está» de «está y es mío», el `unlink` levanta `FileNotFoundError` desde un
+        `finally` y se lleva puesta la excepción real que venía subiendo."""
+        with tempfile.TemporaryDirectory() as d:
+            temporal = Path(d) / "temporales"
+            temporal.mkdir()
+            raiz = Path(d) / "proyecto"
+            raiz.mkdir()
+            with mock.patch.object(mc.tempfile, "gettempdir", return_value=str(temporal)):
+                with mc._bloqueo_de_ronda(raiz):
+                    for lock in temporal.rglob("*.lock"):
+                        lock.unlink()
+                self.assertEqual(list(temporal.rglob("*.lock")), [])
+
+    def test_si_no_se_pudo_abrir_el_archivo_sube_ese_error_y_no_otro(self) -> None:
+        """Cuando el `open` falla no hay archivo que cerrar. Cerrarlo igual cambia el error que ve
+        quien llama: en vez del `OSError` que explica qué pasó, un `AttributeError` sobre None."""
+        with tempfile.TemporaryDirectory() as d:
+            temporal = Path(d) / "temporales"
+            temporal.mkdir()
+            raiz = Path(d) / "proyecto"
+            raiz.mkdir()
+            with mock.patch.object(mc.tempfile, "gettempdir", return_value=str(temporal)), \
+                 mock.patch.object(Path, "open", side_effect=OSError("disco lleno")):
+                with self.assertRaises(OSError) as atrapado:
                     with mc._bloqueo_de_ronda(raiz):
                         pass
-                self.assertIn(f"pid {os.getpid()}", str(atrapado.exception))
+                self.assertIn("disco lleno", str(atrapado.exception))
 
     def test_senales_de_ronda_publican_salida_convencional_y_se_restauran(self) -> None:
         anterior = signal.getsignal(signal.SIGTERM)

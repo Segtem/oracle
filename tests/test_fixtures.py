@@ -11,7 +11,8 @@ from types import SimpleNamespace
 from nucleo.diferencial import ALGORITMO_HUELLA, ESQUEMA_DIFERENCIAL
 from nucleo.fixtures import (Fixture, _id_escenario_valido, _validar_comunes,
                              _validar_dominio, _validar_evidencia, _validar_grupos,
-                             casos_para_mutacion, validar_fixture)
+                             casos_para_mutacion, referentes_de_fixture, validar_fixture)
+from nucleo.referente import Referente, hechos_de_referentes
 
 
 def _evidencia(ok=True):
@@ -58,6 +59,64 @@ def _grupos():
         ]},
         "frescura": _frescura(),
     }
+
+
+class ReferentesDeFixtureTests(unittest.TestCase):
+    """L−2 deja de existir sólo en el lenguaje: el fixture declara lo que leyó, con su huella."""
+
+    def test_una_declaracion_por_huella_con_lo_que_el_emisor_leyo(self) -> None:
+        referentes = referentes_de_fixture(
+            {"frescura": {"huellas": {"emisor": "aa" * 32, "catalogo": "bb" * 32}}})
+        self.assertEqual(referentes,
+                         [Referente("catalogo", "bb" * 32, "al generar"),
+                          Referente("emisor", "aa" * 32, "al generar")])
+
+    def test_van_ordenadas_y_no_en_el_orden_del_json(self) -> None:
+        """Un orden que depende de cómo quedó escrito el archivo hace que la evidencia de un caso
+        cambie sin que cambie nada de lo que se mide."""
+        referentes = referentes_de_fixture(
+            {"frescura": {"huellas": {"zeta": "1" * 8, "alfa": "2" * 8, "mu": "3" * 8}}})
+        self.assertEqual([r.que for r in referentes], ["alfa", "mu", "zeta"])
+
+    def test_el_cuando_dice_al_generar_y_no_ahora(self) -> None:
+        """Lo que el fixture declara es lo que el emisor vio CUANDO lo generó. Decir «ahora» sería
+        afirmar que sigue siendo cierto, que es justo lo que esta declaración no puede saber."""
+        referentes = referentes_de_fixture({"frescura": {"huellas": {"x": "c" * 32}}})
+        self.assertEqual(referentes[0].cuando, "al generar")
+
+    def test_una_huella_vacia_llega_como_vacia_y_no_se_inventa(self) -> None:
+        """El punto entero de `tiene_huella` es que la ausencia sea observable. Rellenarla acá con
+        cualquier cosa dejaría a la medida sin nada que encontrar."""
+        filas = hechos_de_referentes(
+            referentes_de_fixture({"frescura": {"huellas": {"x": ""}}}))["referente_declarado"]
+        self.assertEqual(filas[0]["tiene_huella"], False)
+
+    def test_una_huella_que_no_es_texto_tampoco_se_inventa(self) -> None:
+        filas = hechos_de_referentes(
+            referentes_de_fixture({"frescura": {"huellas": {"x": None}}}))["referente_declarado"]
+        self.assertEqual(filas[0]["huella"], "")
+        self.assertEqual(filas[0]["tiene_huella"], False)
+
+    def test_un_fixture_sin_frescura_no_declara_nada(self) -> None:
+        """Devolver una lista vacía y no romper: hay fixtures sin bloque de frescura, y que no
+        declaren referentes es distinto de declararlos mal."""
+        self.assertEqual(referentes_de_fixture({}), [])
+        self.assertEqual(referentes_de_fixture({"frescura": "no es un mapa"}), [])
+        self.assertEqual(referentes_de_fixture({"frescura": {}}), [])
+        self.assertEqual(referentes_de_fixture({"frescura": {"huellas": []}}), [])
+
+    def test_el_fixture_real_del_repo_declara_sus_cuatro_fuentes(self) -> None:
+        """Sobre el archivo de verdad: si mañana el fixture deja de declarar una fuente, el caso
+        observado que fija esta medida queda hablando de un mundo que ya no existe."""
+        import json
+
+        raiz = Path(__file__).resolve().parents[1]
+        datos = json.loads((raiz / "diferencial" / "simulacion.json").read_text(encoding="utf-8"))
+        referentes = referentes_de_fixture(datos)
+        self.assertEqual([r.que for r in referentes],
+                         ["catalogo", "configuracion", "emisor", "referencia"])
+        for r in referentes:
+            self.assertEqual(len(r.huella), 64, r.que)
 
 
 class FixturesTests(unittest.TestCase):

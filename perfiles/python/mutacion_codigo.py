@@ -682,15 +682,30 @@ def _cargar_reanudacion(ruta: Path, identidad: dict, sitios: dict[str, Sitio]) -
 def _bloqueo_de_ronda(raiz: Path):
     identificador = hashlib.sha256(str(raiz.resolve()).encode("utf-8")).hexdigest()[
         :LONGITUD_IDENTIFICADOR_BLOQUEO]
-    ruta = Path(tempfile.gettempdir()) / f"oracle-mutacion-{identificador}.lock"
-    archivo = ruta.open("a+", encoding="utf-8")
+    directorio = Path(tempfile.gettempdir()) / "oracle-mutacion-bloqueos"
+    directorio.mkdir(exist_ok=True)
+    ruta = directorio / f"{identificador}.lock"
+
+    # El directorio compartido queda como coordinador estable porque comparar sólo `st_ino` no
+    # impide que otro proceso abra el lock viejo antes del `unlink` y lo tome después. Serializar
+    # abrir/bloquear y borrar/desbloquear cierra ambas ventanas sin acumular un archivo por raíz.
+    # El temporal propio de cada ronda tampoco sirve: al no ser compartido, dos rondas no se verían.
+    coordinador = os.open(directorio, os.O_RDONLY)
+    archivo = None
+    bloqueo_adquirido = False
     try:
+        fcntl.flock(coordinador, fcntl.LOCK_EX)
         try:
-            fcntl.flock(archivo.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
-        except BlockingIOError as e:
-            archivo.seek(os.SEEK_SET)
-            duenio = archivo.read().strip() or "desconocido"
-            raise RondaEnCurso(f"ya hay una ronda para {raiz} (pid {duenio})") from e
+            archivo = ruta.open("a+", encoding="utf-8")
+            try:
+                fcntl.flock(archivo.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+            except BlockingIOError as e:
+                archivo.seek(os.SEEK_SET)
+                duenio = archivo.read().strip() or "desconocido"
+                raise RondaEnCurso(f"ya hay una ronda para {raiz} (pid {duenio})") from e
+            bloqueo_adquirido = True
+        finally:
+            fcntl.flock(coordinador, fcntl.LOCK_UN)
         archivo.seek(os.SEEK_SET)
         archivo.truncate()
         archivo.write(str(os.getpid()))
@@ -698,9 +713,22 @@ def _bloqueo_de_ronda(raiz: Path):
         yield
     finally:
         try:
-            fcntl.flock(archivo.fileno(), fcntl.LOCK_UN)
+            if bloqueo_adquirido:
+                fcntl.flock(coordinador, fcntl.LOCK_EX)
+                try:
+                    try:
+                        sigue_publicado = os.path.samestat(os.fstat(archivo.fileno()), os.stat(ruta))
+                    except FileNotFoundError:
+                        sigue_publicado = False
+                    if sigue_publicado:
+                        ruta.unlink()
+                    fcntl.flock(archivo.fileno(), fcntl.LOCK_UN)
+                finally:
+                    fcntl.flock(coordinador, fcntl.LOCK_UN)
         finally:
-            archivo.close()
+            if archivo is not None:
+                archivo.close()
+            os.close(coordinador)
 
 
 @contextmanager

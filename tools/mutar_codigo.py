@@ -176,12 +176,19 @@ def argumentos(argv: list[str]):
                    help="archivo relativo a Oracle que se muta; repetible para particionar")
     p.add_argument("--confiar-escalares", action="store_true",
                    help="ejecutar el escalares.py del proyecto externo")
+    p.add_argument("--reapuntar-equivalentes", action="store_true",
+                   help="reubicar los ids de equivalentes.json usando su contenido de línea y ordinal")
     return p.parse_args(argv)
 
 
-def cargar_equivalentes(ruta: Path) -> dict[str, str]:
+def leer_declaraciones_equivalentes(ruta: Path) -> list[dict]:
+    """Carga y valida la estructura de las declaraciones en equivalentes.json.
+
+    La validación es estricta para evitar que errores tipográficos o corrupciones de formato
+    se propaguen silenciosamente a la suite de mutación o al proceso de reubicación.
+    """
     if not ruta.exists():
-        return {}
+        return []
     try:
         datos = json.loads(ruta.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as e:
@@ -189,7 +196,7 @@ def cargar_equivalentes(ruta: Path) -> dict[str, str]:
     if not isinstance(datos, list):
         raise EquivalenteInvalido(f"{ruta.name} tiene que contener una lista")
 
-    salida: dict[str, str] = {}
+    ids_vistos: set[str] = set()
     for i, entrada in enumerate(datos):
         if not isinstance(entrada, dict):
             raise EquivalenteInvalido(f"{ruta.name}[{i}] tiene que ser un objeto")
@@ -198,10 +205,171 @@ def cargar_equivalentes(ruta: Path) -> dict[str, str]:
             raise EquivalenteInvalido(f"{ruta.name}[{i}].id tiene que ser texto no vacío")
         if not isinstance(razon, str) or not razon.strip():
             raise EquivalenteInvalido(f"{ruta.name}[{i}].razon tiene que ser texto no vacío")
-        if mid in salida:
+        linea_texto = entrada.get("linea_texto")
+        if linea_texto is not None and (not isinstance(linea_texto, str) or not linea_texto.strip()):
+            raise EquivalenteInvalido(f"{ruta.name}[{i}].linea_texto tiene que ser texto no vacío")
+        ordinal = entrada.get("ordinal")
+        if ordinal is not None and (isinstance(ordinal, bool) or not isinstance(ordinal, int) or ordinal < 1):
+            raise EquivalenteInvalido(f"{ruta.name}[{i}].ordinal tiene que ser entero positivo (>= 1)")
+        if mid in ids_vistos:
             raise EquivalenteInvalido(f"id equivalente duplicado en {ruta.name}: {mid}")
-        salida[mid] = razon
-    return salida
+        ids_vistos.add(mid)
+    return datos
+
+
+def cargar_equivalentes(ruta: Path) -> dict[str, str]:
+    """Extrae el mapeo id -> razón para consumo del arnés de mutación.
+
+    Mantiene compatibilidad con la interfaz que `correr()` y los tests existentes esperan,
+    apoyándose en `leer_declaraciones_equivalentes` para centralizar la validación de esquema.
+    """
+    datos = leer_declaraciones_equivalentes(ruta)
+    return {entrada["id"]: entrada["razon"] for entrada in datos}
+
+
+def reapuntar_equivalentes(ruta: Path = EQUIVALENTES, raiz: Path = RAIZ,
+                           *, destino: Path | None = None) -> int:
+    """Reubica los ids posicionales de equivalentes según su contenido y ordinal de línea.
+
+    Un id `archivo:linea:columna:tipo` es puramente posicional y se rompe ante cualquier inserción
+    de líneas arriba. Esta función localiza las líneas cuyo texto coincida con `linea_texto` y toma
+    la correspondiente a `ordinal`. Se valida contra el AST real (`sitios_de`) para no asumir a
+    ciegas que el mutante sigue existiendo si el código interno de la línea cambió. Si el contenido
+    no existe o el sitio mutante desapareció, se falla cerrado requiriendo inspección manual.
+    """
+    if destino is None:
+        destino = ruta
+    if not ruta.exists():
+        print(f"no existe el archivo de equivalentes: {ruta}", file=sys.stderr)
+        return 1
+
+    try:
+        datos = leer_declaraciones_equivalentes(ruta)
+    except EquivalenteInvalido as e:
+        print(f"declaraciones inválidas en {ruta.name}: {e}", file=sys.stderr)
+        return 1
+
+    sitios_por_archivo: dict[str, dict[str, Sitio]] = {}
+
+    def sitios_de_archivo(rel: str) -> dict[str, Sitio]:
+        # Se memoriza por archivo para no reparsear el AST múltiples veces ante varios equivalentes
+        # en el mismo módulo.
+        if rel not in sitios_por_archivo:
+            ruta_f = raiz / rel
+            if not ruta_f.is_file():
+                sitios_por_archivo[rel] = {}
+            else:
+                sitios_por_archivo[rel] = {s.id: s for s in sitios_de(ruta_f, raiz)}
+        return sitios_por_archivo[rel]
+
+    reubicados: list[tuple[str, str]] = []
+    poblados: list[str] = []
+    intactos: list[str] = []
+    no_resueltos: list[tuple[str, str]] = []
+
+    for entrada in datos:
+        mid = entrada["id"]
+        partes = mid.split(":")
+        if len(partes) != 4:
+            no_resueltos.append((mid, "el id no tiene el formato archivo:linea:columna:tipo"))
+            continue
+
+        archivo_rel, linea_str, col_str, operador = partes
+        try:
+            linea_vieja = int(linea_str)
+            col_vieja = int(col_str)
+        except ValueError:
+            no_resueltos.append((mid, "línea o columna no numérica en el id"))
+            continue
+
+        ruta_f = raiz / archivo_rel
+        if not ruta_f.is_file():
+            no_resueltos.append((mid, f"archivo '{archivo_rel}' no existe en el proyecto"))
+            continue
+
+        vigentes = sitios_de_archivo(archivo_rel)
+        lineas = ruta_f.read_text(encoding="utf-8").splitlines()
+
+        linea_texto = entrada.get("linea_texto")
+        ordinal = entrada.get("ordinal")
+
+        # Si una entrada no posee metadatos de línea pero su id actual es vigente, poblamos
+        # `linea_texto` y `ordinal` a partir del estado actual del repositorio.
+        if linea_texto is None or ordinal is None:
+            if mid in vigentes and 1 <= linea_vieja <= len(lineas):
+                linea_real = lineas[linea_vieja - 1].strip()
+                coincidencias = [idx + 1 for idx, l in enumerate(lineas) if l.strip() == linea_real]
+                if linea_vieja in coincidencias:
+                    ord_calculado = coincidencias.index(linea_vieja) + 1
+                    entrada["linea_texto"] = linea_real
+                    entrada["ordinal"] = ord_calculado
+                    poblados.append(mid)
+                    continue
+            no_resueltos.append((mid, "id no vigente y sin metadatos de línea para reubicar"))
+            continue
+
+        # Buscamos las líneas cuyo contenido coincida con `linea_texto` (ignorando indentación).
+        coincidencias = [idx + 1 for idx, l in enumerate(lineas) if l.strip() == linea_texto]
+        if not coincidencias:
+            no_resueltos.append((mid, f"contenido «{linea_texto}» ya no existe en {archivo_rel}"))
+            continue
+
+        if ordinal > len(coincidencias):
+            no_resueltos.append(
+                (mid, f"se esperaba ordinal {ordinal} de «{linea_texto}», "
+                      f"pero solo hay {len(coincidencias)} ocurrencia(s) en {archivo_rel}"))
+            continue
+
+        nueva_linea = coincidencias[ordinal - 1]
+        nuevo_id = f"{archivo_rel}:{nueva_linea}:{col_vieja}:{operador}"
+
+        # Comprobamos que el AST realmente contenga el mutante esperado en la posición resultante,
+        # protegiendo contra mutaciones internas en la línea.
+        if nuevo_id not in vigentes:
+            no_resueltos.append(
+                (mid, f"en {archivo_rel}:{nueva_linea} no existe el sitio mutante {operador} "
+                      f"en columna {col_vieja}"))
+            continue
+
+        if nuevo_id == mid:
+            intactos.append(mid)
+        else:
+            entrada["id"] = nuevo_id
+            reubicados.append((mid, nuevo_id))
+
+    hubo_cambios = bool(reubicados or poblados)
+    if hubo_cambios:
+        # Se estructuran las claves de manera homogénea para facilitar lectura y diffs.
+        datos_ordenados = []
+        for e in datos:
+            obj = {"id": e["id"]}
+            if "linea_texto" in e:
+                obj["linea_texto"] = e["linea_texto"]
+            if "ordinal" in e:
+                obj["ordinal"] = e["ordinal"]
+            obj["razon"] = e["razon"]
+            datos_ordenados.append(obj)
+        destino.write_text(
+            json.dumps(datos_ordenados, indent=1, ensure_ascii=False) + "\n",
+            encoding="utf-8")
+
+    if reubicados:
+        print(f"reubicados ({len(reubicados)}):")
+        for viejo, nuevo in reubicados:
+            print(f"  · {viejo} → {nuevo}")
+    if poblados:
+        print(f"poblados con metadatos de línea ({len(poblados)}):")
+        for mid in poblados:
+            print(f"  · {mid}")
+    if intactos:
+        print(f"intactos: {len(intactos)}")
+    if no_resueltos:
+        print(f"NO resueltos ({len(no_resueltos)}):", file=sys.stderr)
+        for mid, motivo in no_resueltos:
+            print(f"  ✗ {mid}: {motivo}", file=sys.stderr)
+        return 1
+
+    return 0
 
 
 def equivalentes_del_alcance(equivalentes: dict[str, str], objetivos: list[Path]) -> dict[str, str]:
@@ -353,6 +521,9 @@ def _ejecutar(proy, args) -> int:
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     args = argumentos(sin_bandera(argv))
+    if args.reapuntar_equivalentes:
+        # La reubicación opera directo sobre las fuentes sin requerir proyecto ni escalares.
+        return reapuntar_equivalentes(EQUIVALENTES, RAIZ)
     proy = resolver_cli(argv)
     if proy is None:
         return 2

@@ -249,6 +249,108 @@ class LaPaginaPublicadaNoSeDespegaTests(unittest.TestCase):
                          "`python tools/cli.py manual --html > docs/manual.html`")
 
 
+class RoffTests(unittest.TestCase):
+    """Cada uno de estos escapes se puso porque groff rompía algo EN SILENCIO."""
+
+    def test_la_barra_invertida_deja_de_ser_una_directiva(self) -> None:
+        self.assertEqual(manual._roff("uno \\ dos"), "uno \\e dos")
+
+    def test_una_linea_que_empieza_con_punto_no_se_lee_como_macro(self) -> None:
+        """La prosa de una medida puede empezar con «.» sin que nadie lo piense, y entonces groff
+        se come el renglón entero."""
+        self.assertEqual(manual._roff(".TH falso"), "\\&.TH falso")
+        self.assertEqual(manual._roff("'apostrofo"), "\\&'apostrofo")
+        self.assertEqual(manual._roff("no. empieza"), "no. empieza")
+
+    def test_el_guion_largo_no_sale_duplicado(self) -> None:
+        """Medido: «uno — dos» crudo se renderiza «uno —— dos»."""
+        self.assertEqual(manual._roff("uno — dos"), "uno \\[em] dos")
+        self.assertNotIn("—", manual.man("segun"))
+
+    def test_las_comillas_invertidas_pasan_a_negrita(self) -> None:
+        """Crudas salen como comilla simple IZQUIERDA de los dos lados: ‘segun‘."""
+        self.assertEqual(manual._roff("el campo `segun` manda"),
+                         "el campo \\fBsegun\\fR manda")
+        self.assertNotIn("`", manual.man())
+
+    def test_una_comilla_invertida_suelta_se_deja_como_esta(self) -> None:
+        """Sin par no hay código que resaltar, y abrir una negrita que nunca cierra se lleva
+        puesto todo lo que sigue en la página."""
+        self.assertEqual(manual._roff("suelta ` sola"), "suelta ` sola")
+
+
+class PaginasDeManualTests(unittest.TestCase):
+
+    def test_la_pagina_de_un_tema_declara_su_seccion_y_su_nombre(self) -> None:
+        pagina = manual.man("segun")
+        self.assertTrue(pagina.startswith(".TH ORACLE-SEGUN 7 "))
+        self.assertIn(".SH NOMBRE", pagina)
+        self.assertIn("oracle-segun \\- ", pagina)
+        self.assertIn(".SH SEGUN", pagina)
+
+    def test_el_nombre_no_se_repite_a_los_dos_lados_del_guion(self) -> None:
+        """`whatis` y `apropos` indexan esa línea y sólo esa: «oracle-segun - segun — …» gasta la
+        mitad del renglón repitiendo lo que está a la izquierda."""
+        linea = [l for l in manual.man("segun").splitlines() if l.startswith("oracle-segun")][0]
+        descripcion = linea.split("\\- ", 1)[1]
+        self.assertFalse(descripcion.startswith("segun"), linea)
+        self.assertEqual(descripcion, manual._roff(manual.titulo("segun")))
+
+    def test_sin_tema_estan_todos_los_temas(self) -> None:
+        pagina = manual.man()
+        self.assertTrue(pagina.startswith(".TH ORACLE-MANUAL 7 "))
+        for tema in manual.temas():
+            self.assertIn(f".SH {tema.upper()}", pagina)
+
+    def test_cada_opcion_es_un_termino_con_su_definicion(self) -> None:
+        pagina = manual.man("etiqueta")
+        entradas = manual.entradas("etiqueta")
+        self.assertEqual(pagina.count(".TP"), len(entradas))
+        for nombre, _ in entradas:
+            self.assertIn(f".B {nombre}", pagina)
+
+    def test_la_pagina_del_comando_sale_de_los_verbos_del_despacho(self) -> None:
+        """No se copian: si mañana entra un verbo, aparece acá solo."""
+        from tools.cli import VERBOS
+
+        pagina = manual.man_del_comando()
+        self.assertTrue(pagina.startswith(".TH ORACLE 1 "))
+        for sustantivo, verbos in VERBOS.items():
+            self.assertIn(f".B oracle {sustantivo}", pagina)
+            for verbo in verbos:
+                self.assertIn(verbo, pagina)
+
+    def test_estan_la_del_comando_la_general_y_una_por_tema(self) -> None:
+        paginas = manual.paginas_man()
+        self.assertEqual(set(paginas),
+                         {"man1/oracle.1", "man7/oracle-manual.7"}
+                         | {f"man7/oracle-{t}.7" for t in manual.temas()})
+
+    def test_se_instalan_en_la_estructura_que_man_espera(self) -> None:
+        """`man` busca por sección: una página suelta en la raíz del MANPATH no la encuentra."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            destino = Path(td)
+            escritas = manual.instalar_man(destino)
+            self.assertEqual(len(escritas), len(manual.paginas_man()))
+            self.assertTrue((destino / "man1" / "oracle.1").is_file())
+            self.assertTrue((destino / "man7" / "oracle-segun.7").is_file())
+            self.assertEqual((destino / "man7" / "oracle-segun.7").read_text(encoding="utf-8"),
+                             manual.man("segun"))
+            for ruta in escritas:
+                self.assertTrue(ruta.is_file(), ruta)
+
+    def test_instalar_dos_veces_no_falla(self) -> None:
+        """Se reinstala en cada actualización del paquete; un `mkdir` sin `exist_ok` rompería
+        justo la segunda vez, que es la que nadie prueba."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            manual.instalar_man(Path(td))
+            manual.instalar_man(Path(td))
+
+
 class MainTests(unittest.TestCase):
 
     def _correr(self, argv):

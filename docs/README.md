@@ -13,7 +13,7 @@ Ordenado por la pregunta que contesta, no por el tema.
 | **7 · [Conectar a un proyecto propio](07-conectar-a-un-proyecto-propio.md)** | sensor puro, adaptador, escalares |
 | **8 · El editor** | [editores/README.md](../editores/README.md) |
 | **9 · Referencia** | [ESPECIFICACION.md](../ESPECIFICACION.md) |
-| **10 · Manual** | `oracle manual` en la terminal, o [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html) |
+| **10 · Manual** | `oracle manual` en la terminal, `man oracle-segun` tras `oracle manual --instalar-man <dir>`, o [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html) |
 
 Los pasos 2, 5 y 7 se escribieron corriendo cada comando contra el paquete publicado, y las salidas
 están copiadas de esas corridas. Si alguna no te da igual, es un defecto de la documentación:

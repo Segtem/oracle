@@ -1,6 +1,6 @@
-# Decisión 004 — tres medidas quedan sostenidas por evidencia fabricada, y se deja dicho
+# Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho
 
-**Fecha:** 2026-08-26 · **Revisada:** 2026-08-31 (de 2 a 3) · **Estado:** vigente
+**Fecha:** 2026-08-26 · **Revisada:** 2026-08-31 (de 2 a 3) y 2026-09-01 (de 3 a 2) · **Estado:** vigente
 **Consecuencia:** `tools/aceptacion.py` sale con código 1 mientras esto siga así.
 
 ## El hecho
@@ -21,11 +21,21 @@ existía —un catálogo real que no tenía filtro, corridas reales del marco so
 corregir la procedencia a `construida`, la medida quedó al descubierto. **El rojo nuevo no es una
 regresión: es lo que siempre había, visible por primera vez.**
 
-Y su motivo es más provisorio que el de las otras dos: **hoy ningún sensor de este repo produce un
-`referente_declarado`.** L−2 existe en el lenguaje y todavía no en el mundo, igual que le pasaba a
-L−1 hasta que se declararon las primeras relaciones de un consumidor. En cuanto un sensor emita
-referentes de verdad, esta tercera se cierra transcribiendo — a diferencia de las dos de arriba, que
-no se pueden cerrar nunca.
+Y su motivo era más provisorio que el de las otras dos: **ningún sensor de este repo producía un
+`referente_declarado`.** L−2 existía en el lenguaje y todavía no en el mundo, igual que le pasaba a
+L−1 hasta que se declararon las primeras relaciones de un consumidor.
+
+### Esa tercera se cerró el 2026-09-01, y por el camino que decía la última sección
+
+No transcribiendo evidencia: cambiando el mundo, que es lo poco que esta decisión admitía. Resultó
+que los referentes **ya se calculaban** —`revisar_frescura` arma un `Referente` por cada huella del
+bloque `frescura` de un fixture para compararla contra el estado de hoy— y morían adentro de esa
+función. `referentes_de_fixture` los expone, y con eso `diferencial/simulacion.json` declara cuatro
+referentes reales con sha256 reales: el catálogo, la configuración del dominio,
+`tools/generar_diferencial.py` y `diferencial/referencia/evaluador.py`.
+
+El caso `459-referentes-reales-del-fixture-diferencial` transcribe esa corrida. No se agregó una
+medida ni se aflojó nada: se hizo observable algo que ya ocurría. **El rojo bajó de 3 a 2.**
 
 ## Por qué éstas no se pueden cerrar
 
@@ -55,6 +65,8 @@ No transcribiendo nada: cambiando el mundo. Si algún día la generación por gr
 única forma de llegar a esas formas del álgebra —porque alguien escribe medidas reales que las usen,
 en este catálogo o en el de un consumidor—, esas medidas pasan a tener evidencia observada y la
 señal se apaga sola. Hasta entonces el 2 se lee, no se tapa.
+
+El precedente de la tercera vale: antes de dar un rojo por incerrable, conviene preguntarse si el mundo ya produce la evidencia y nadie la está mirando. En ese caso estuvo escondida a cinco líneas, adentro de una función que la usaba para otra cosa.
 
 ## El costo asumido
 

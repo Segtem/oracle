@@ -15,6 +15,7 @@ from __future__ import annotations
 import argparse
 import html as _html
 import sys
+from datetime import date
 from pathlib import Path
 
 # La misma forma que `tools/cli.py`. La versión con guarda —`if RAIZ not in sys.path:
@@ -111,6 +112,137 @@ def texto(tema: str | None = None, ancho: int = 96) -> str:
         return seccion(tema, ancho)
     bloques = [seccion(t, ancho) for t in temas()]
     return "\n\n".join(bloques)
+
+
+# ---- la tercera vista: `man` ------------------------------------------------------
+#
+# La terminal, el sitio y `man` salen de las MISMAS entradas. Un manual escrito tres veces se
+# desincroniza tres veces; éste no tiene dónde. `man` importa porque es donde alguien que instaló
+# Oracle con un gestor de paquetes va a buscar primero, y porque funciona sin red.
+#
+# El roff se escribe a mano, sin biblioteca, por la misma razón que todo lo demás del proyecto: una
+# dependencia para emitir doce macros no se paga sola.
+
+VERSION_MANUAL_MAN = "1"
+
+
+def _roff(texto: str) -> str:
+    """Escapa un texto para roff, y traduce la puntuación que groff maltrata.
+
+    Cuatro cosas rompen una página de manual, y las cuatro en silencio:
+
+    · la barra invertida es el carácter de escape de roff, así que una sola convierte lo que sigue
+      en una directiva;
+    · una línea que EMPIEZA con punto o apóstrofo es una macro — la prosa de una medida puede
+      empezar con «.» sin que nadie lo piense, y groff se la come entera;
+    · un guion largo crudo sale DUPLICADO. Medido: «uno — dos» se renderiza «uno —— dos». La
+      forma correcta es el escape `\\[em]`;
+    · una comilla invertida se convierte en comilla simple IZQUIERDA, así que `segun` sale
+      ‘segun‘, con las dos comillas para el mismo lado. Los pares de comillas invertidas son
+      código en la prosa del proyecto, y en una página de manual eso se escribe en negrita.
+    """
+    salida = texto.replace("\\", "\\e")
+    salida = salida.replace("—", "\\[em]")
+    partes = salida.split("`")
+    if len(partes) % 2 == 1:          # pares completos: 1 texto + n×(código + texto)
+        salida = partes[0] + "".join(
+            f"\\fB{codigo}\\fR{resto}" for codigo, resto in zip(partes[1::2], partes[2::2]))
+    if salida[:1] in (".", "'"):
+        salida = "\\&" + salida
+    return salida
+
+
+def man(tema: str | None = None) -> str:
+    """La página de manual, entera o de un tema. En roff, para `man -l` o para instalar.
+
+    Sin tema sale `oracle-manual(7)`, que es la sección de las convenciones y los formatos —no la
+    de los comandos, que es la 1—: lo que se documenta acá es el LENGUAJE, no el ejecutable.
+    """
+    hoy = date.today().isoformat()
+    nombre = "oracle-manual" if tema is None else f"oracle-{tema}"
+    # El nombre ya está a la izquierda del guion; repetirlo a la derecha es ruido en la única
+    # línea que `apropos` y `whatis` indexan.
+    breve = "la referencia del lenguaje Oracle" if tema is None else titulo(tema)
+    lineas = [
+        f'.TH {nombre.upper()} 7 {hoy} "Oracle {VERSION_MANUAL_MAN}" "Metalenguaje de medidas"',
+        ".SH NOMBRE",
+        f"{_roff(nombre)} \\- {_roff(breve)}",
+        ".SH DESCRIPCIÓN",
+        _roff("Esta página no se escribió: se generó. Cada entrada sale de la declaración que el "
+              "lenguaje ya tiene, así que no hay dónde quede vieja. La misma referencia se lee con "
+              "«oracle manual» y en el sitio del proyecto."),
+    ]
+    for t in (temas() if tema is None else (tema,)):
+        lineas.append(".SH " + _roff(t.upper()))
+        lineas.append(_roff(titulo(t)))
+        for opcion, sentido in entradas(t):
+            lineas.append(".TP")
+            lineas.append(f".B {_roff(opcion)}")
+            lineas.append(_roff(sentido))
+    lineas.append(".SH VER TAMBIÉN")
+    lineas.append(_roff("oracle(1). El código y las decisiones: "
+                        "https://github.com/Segtem/oracle"))
+    return "\n".join(lineas) + "\n"
+
+
+def man_del_comando() -> str:
+    """`oracle(1)`: el ejecutable. Sale de `VERBOS`, que es de donde sale el despacho.
+
+    Va en la sección 1 y no en la 7 porque documenta un comando. Los verbos NO se copian: los lee
+    del mismo diccionario contra el que el CLI despacha, así que un verbo nuevo aparece acá solo —
+    que es exactamente lo que `meta.todo_verbo_del_cli_esta_en_la_ayuda` pide para la ayuda.
+    """
+    lineas = [
+        f'.TH ORACLE 1 {date.today().isoformat()} "Oracle {VERSION_MANUAL_MAN}" '
+        f'"Metalenguaje de medidas"',
+        ".SH NOMBRE",
+        f"oracle \\- {_roff('escribir medidas falsables sobre lo que un proceso produjo')}",
+        ".SH SINOPSIS",
+        ".B oracle",
+        ".I sustantivo verbo",
+        "[" + _roff("argumentos") + "]",
+        ".SH DESCRIPCIÓN",
+        _roff("Oracle no juzga artefactos: evalúa medidas que alguien escribió, cada una con su "
+              "umbral, de dónde salió ese número y qué NO mira. Los verbos van por sustantivo."),
+        ".SH VERBOS",
+    ]
+    for sustantivo, verbos in _verbos().items():
+        lineas.append(".TP")
+        lineas.append(f".B oracle {_roff(sustantivo)}")
+        lineas.append(_roff(" · ".join(verbos)))
+    lineas.append(".SH VER TAMBIÉN")
+    lineas.append(_roff("oracle-manual(7), y una página por tema: "
+                        + ", ".join(f"oracle-{t}(7)" for t in temas())))
+    return "\n".join(lineas) + "\n"
+
+
+def paginas_man() -> dict[str, str]:
+    """Todas las páginas: `oracle.1`, `oracle-manual.7` y una por tema.
+
+    Una página por tema y no una sola gigante porque así funciona `man oracle-segun`, que es como
+    se consulta una referencia: por el nombre que uno no se acuerda, no leyendo el índice.
+    """
+    paginas = {"man1/oracle.1": man_del_comando(),
+               "man7/oracle-manual.7": man()}
+    for tema in temas():
+        paginas[f"man7/oracle-{tema}.7"] = man(tema)
+    return paginas
+
+
+def instalar_man(destino: Path) -> list[Path]:
+    """Escribe las páginas bajo `destino`, con la estructura que `man` espera («man1/», «man7/»).
+
+    Devuelve las rutas escritas. No toca el `MANPATH` ni corre `mandb`: eso es del sistema, y una
+    herramienta que edita la configuración de otra sin que se lo pidan es la clase de cosa que este
+    proyecto no hace.
+    """
+    escritas = []
+    for relativa, contenido in sorted(paginas_man().items()):
+        ruta = destino / relativa
+        ruta.parent.mkdir(parents=True, exist_ok=True)
+        ruta.write_text(contenido, encoding="utf-8")
+        escritas.append(ruta)
+    return escritas
 
 
 def html() -> str:
@@ -250,13 +382,22 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(description="La referencia del lenguaje, armada de sus fuentes.")
     p.add_argument("tema", nargs="?", help=f"uno de: {', '.join(temas())}")
     p.add_argument("--html", action="store_true", help="emitir HTML para el sitio")
+    p.add_argument("--man", action="store_true", help="emitir roff para `man`")
+    p.add_argument("--instalar-man", metavar="DIR",
+                   help="escribir las páginas bajo DIR/man1 y DIR/man7")
     args = p.parse_args(argv)
 
     if args.tema is not None and args.tema not in temas():
         print(f"tema desconocido: {args.tema!r}\nlos temas son: {', '.join(temas())}",
               file=sys.stderr)
         return 2
-    print(pagina() if args.html else texto(args.tema))
+    if args.instalar_man:
+        for ruta in instalar_man(Path(args.instalar_man)):
+            print(ruta)
+    elif args.man:
+        print(man(args.tema), end="")
+    else:
+        print(pagina() if args.html else texto(args.tema))
     return 0
 
 

@@ -30,6 +30,8 @@
     oracle manual como_se_detecto           quién encontró el defecto
     oracle manual relaciones                las relaciones que el lenguaje emite sobre sí mismo
     oracle manual verbos                    los verbos del comando, por sustantivo
+    oracle manual [tema] --man              la misma referencia en roff, para `man -l`
+    oracle manual --instalar-man <dir>      escribe oracle(1) y oracle-<tema>(7) bajo <dir>
 
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 """
@@ -775,9 +777,25 @@ def main(argv: list[str] | None = None) -> int:
     # 2. Inicialización de proyecto (no requiere proyecto previo)
     if subcomando == "manual":
         tema = resto[0] if resto and not resto[0].startswith("-") else None
+        if tema is not None and "--instalar-man" in argv and argv[-1] == tema:
+            tema = None          # `--instalar-man <dir>`: el último no es un tema, es el destino
         if tema is not None and tema not in verbos_aceptados("manual"):
             return _verbo_desconocido("manual", tema)
-        print(manual.pagina() if "--html" in argv else manual.texto(tema))
+        if "--instalar-man" in argv:
+            # El destino es el argumento siguiente; sin él no se adivina un directorio: escribir
+            # nueve archivos en un lugar que el usuario no nombró es peor que no hacer nada.
+            posicion = argv.index("--instalar-man") + 1
+            if posicion >= len(argv):
+                print("falta el directorio: oracle manual --instalar-man <dir>", file=sys.stderr)
+                return 2
+            for ruta in manual.instalar_man(Path(argv[posicion])):
+                print(ruta)
+        elif "--man" in argv:
+            print(manual.man(tema), end="")
+        elif "--html" in argv:
+            print(manual.pagina())
+        else:
+            print(manual.texto(tema))
         return 0
 
     if subcomando == "init":

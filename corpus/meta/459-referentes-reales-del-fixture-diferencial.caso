@@ -1,0 +1,27 @@
+caso 459-referentes-reales-del-fixture-diferencial:
+    fecha: "2026-09-01"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "2f3edfa+worktree"
+    procedencia: observada
+    titulo: "Los cuatro referentes que el fixture diferencial declara hoy"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno: los cuatro traen huella. La evidencia no se escribió a mano — es lo que devolvió
+        `hechos_de_referentes(referentes_de_fixture(...))` sobre `diferencial/simulacion.json` en
+        este corte, y cada huella es el sha256 real de lo que el emisor leyó al generar el fixture:
+        el catálogo, la configuración del dominio, `tools/generar_diferencial.py` y
+        `diferencial/referencia/evaluador.py`.
+    como_se_detecto: observacion
+    medida: meta.ninguna_evidencia_declara_un_referente_sin_huella
+    evidencia:
+        referente_declarado: que, huella, cuando, tiene_huella
+            "catalogo", "d66e6985345ab6971e96263b7702a74df4528b4f43d6ceb1399c7c59c45f32cc", "al generar", true
+            "configuracion", "52c043490ec55bfa4cf7fd11a7a594420143fcc2aa6a6f71c5488d01c873a4d6", "al generar", true
+            "emisor", "47856e2558bc9aebfa71ca8c2f9714bcb7579d6352d090e909e0b28265c3b0e0", "al generar", true
+            "referencia", "4ef377cb18f49ad19385560c18343873c22c83701aa59699b50c86ff685ce479", "al generar", true
+    leccion:
+        Cierra el tercer rojo de la DECISIÓN 004, y por el camino que esa decisión dejó escrito: no
+        transcribiendo evidencia inventada sino cambiando el mundo. L−2 existía en el lenguaje y no
+        en este repositorio; los referentes ya se calculaban dentro de `revisar_frescura` y morían
+        ahí. Exponerlos no agregó una medida: hizo observable algo que ya ocurría.
