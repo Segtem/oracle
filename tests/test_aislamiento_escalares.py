@@ -334,7 +334,7 @@ class TrabajadorObjetoTests(AislamientoTestCase):
         self.assertEqual(kwargs["cwd"], modulo.RAIZ_ORACLE)
         self.assertIs(kwargs["text"], True)
         self.assertEqual(kwargs["env"], {
-            "PYTHONPATH": str(modulo.RAIZ_ORACLE),
+            "PYTHONPATH": modulo.camino_del_trabajador(),
             "PYTHONDONTWRITEBYTECODE": "1",
             "PYTHONIOENCODING": "utf-8",
             "LC_ALL": "C.UTF-8",
@@ -886,3 +886,88 @@ stdout_real.write(real_dumps({
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ElCaminoDelTrabajadorTests(unittest.TestCase):
+    """El `PYTHONPATH` del subproceso tiene que alcanzar para importar la FACHADA, no sólo el núcleo.
+
+    En 0.3.1 no alcanzaba, y sólo se rompía cuando el paquete NO estaba en `site-packages` —un
+    wheel vendorizado con `pip install --target`, que es lo que necesita un consumidor cuyo
+    intérprete no controla, como el Python embebido de Unreal—. En un venv, `site.py` agregaba
+    `site-packages` igual y tapaba la falta.
+    """
+
+    def setUp(self) -> None:
+        self.modulo = cargar_modulo()
+
+    def test_incluye_el_directorio_que_hace_importable_la_fachada(self) -> None:
+        import importlib.util
+
+        spec = importlib.util.find_spec("oracle_metalenguaje")
+        self.assertIsNotNone(spec, "la fachada tiene que ser importable para que esto mida algo")
+        raiz = str(Path(spec.origin).resolve().parent.parent)
+        self.assertIn(raiz, self.modulo.camino_del_trabajador().split(os.pathsep))
+
+    def test_incluye_la_raiz_del_nucleo(self) -> None:
+        """El trabajador arranca con `-m nucleo.aislamiento.escalares`: sin esta entrada no hay
+        con qué arrancarlo."""
+        self.assertIn(str(self.modulo.RAIZ_ORACLE),
+                      self.modulo.camino_del_trabajador().split(os.pathsep))
+
+    def test_no_repite_cuando_las_dos_raices_coinciden(self) -> None:
+        """Es el caso del repo. Una entrada repetida no rompe nada, pero un camino que dice dos
+        veces lo mismo es un camino que alguien copió sin mirar."""
+        partes = self.modulo.camino_del_trabajador().split(os.pathsep)
+        self.assertEqual(len(partes), len(set(partes)))
+
+    def test_no_agrega_el_directorio_que_contiene_al_repo(self) -> None:
+        """El arreglo obvio era `RAIZ_ORACLE.parent`. En el repo eso es el directorio que CONTIENE
+        a Oracle —`~/Dev` en la máquina donde apareció el defecto— y meterlo en el camino de un
+        subproceso que existe para confinar una UDF ajena es lo contrario de aislar."""
+        partes = self.modulo.camino_del_trabajador().split(os.pathsep)
+        self.assertNotIn(str(self.modulo.RAIZ_ORACLE.parent), partes)
+
+    def test_cuando_la_fachada_vive_en_otro_lado_se_agrega_ESE_directorio(self) -> None:
+        """El caso del wheel, y el único donde las dos raíces NO coinciden.
+
+        En el repo son la misma, así que ningún test que corra sólo acá puede distinguir un cálculo
+        correcto de uno que devuelve `RAIZ_ORACLE` siempre. Dos mutantes sobrevivían exactamente
+        por eso. Se simula el layout instalado en vez de exigir un wheel de verdad, que sí prueba
+        `tools/verificar_instalacion.py` de punta a punta.
+        """
+        import tempfile
+        from types import SimpleNamespace
+
+        with tempfile.TemporaryDirectory() as td:
+            afuera = Path(td) / "sitio"
+            origen = afuera / "oracle_metalenguaje" / "__init__.py"
+            origen.parent.mkdir(parents=True)
+            origen.write_text("", encoding="utf-8")
+            with mock.patch.object(self.modulo.importlib.util, "find_spec",
+                                   return_value=SimpleNamespace(origin=str(origen))):
+                partes = self.modulo.camino_del_trabajador().split(os.pathsep)
+            self.assertIn(str(afuera.resolve()), partes)
+            self.assertIn(str(self.modulo.RAIZ_ORACLE), partes)
+            # El directorio del paquete NO alcanza: es justo el valor que tenía 0.3.1 y con el que
+            # el `escalares.py` del consumidor moría con ModuleNotFoundError.
+            self.assertNotEqual(partes, [str(afuera.resolve() / "oracle_metalenguaje")])
+
+    def test_una_fachada_sin_origen_no_revienta(self) -> None:
+        """Un paquete de espacio de nombres tiene `spec` pero no `origin`. Sin el `not`, el cálculo
+        sigue de largo y termina haciendo `Path(None)`."""
+        from types import SimpleNamespace
+
+        with mock.patch.object(self.modulo.importlib.util, "find_spec",
+                               return_value=SimpleNamespace(origin=None)):
+            self.assertEqual(self.modulo.camino_del_trabajador(),
+                             str(self.modulo.RAIZ_ORACLE))
+
+    def test_sin_fachada_instalada_se_cae_a_la_raiz_del_nucleo(self) -> None:
+        """Un checkout sin fachada sigue funcionando como antes en vez de reventar."""
+        with mock.patch.object(self.modulo.importlib.util, "find_spec", return_value=None):
+            self.assertEqual(self.modulo.camino_del_trabajador(), str(self.modulo.RAIZ_ORACLE))
+
+    def test_un_importador_que_falla_no_tumba_la_ronda(self) -> None:
+        with mock.patch.object(self.modulo.importlib.util, "find_spec",
+                               side_effect=ValueError("spec roto")):
+            self.assertEqual(self.modulo.camino_del_trabajador(), str(self.modulo.RAIZ_ORACLE))

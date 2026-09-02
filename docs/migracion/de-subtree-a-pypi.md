@@ -57,14 +57,14 @@ grep -rln "vendor/oracle" . --exclude-dir=vendor --exclude-dir=.git
 
 ```bash
 uv tool install oracle-metalenguaje
-oracle --version          # tiene que decir 0.3.1 o más
+oracle --version          # tiene que decir 0.3.2 o más
 ```
 
 **(b) Un entorno del proyecto** — para scripts propios que hacen `import oracle_metalenguaje` y se
 corren con el Python del sistema:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.3.1"
+uv venv && uv pip install "oracle-metalenguaje==0.3.2"
 .venv/bin/python tools/mi_script.py
 ```
 
@@ -74,11 +74,25 @@ directorio en el repo, pero es un artefacto con versión, no una copia de un rep
 acordarse de traer y que se puede editar a mano sin que nadie se entere.
 
 ```bash
-python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.3.1"
+python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.3.2"
 ```
 
 Medido el 2026-09-01 contra el subtree de Jam: **2,3 MB y 183 archivos**, contra 3,5 MB y 284. Y el
 `sys.path.insert` que ya existe sigue funcionando sin cambios — sólo cambia a qué directorio apunta.
+
+### Comprobá que las UDF del proyecto cargan
+
+Si el proyecto tiene `escalares.py`, no alcanza con que el paquete importe: tiene que importar
+**adentro del subproceso aislado** donde Oracle ejecuta esas funciones, que es otro entorno.
+
+```bash
+oracle-medida --proyecto medidas --confiar-escalares --escalares | grep <una-de-tus-escalares>
+```
+
+Si no aparece, o si sale `ModuleNotFoundError: oracle_metalenguaje`, la instalación no alcanza al
+trabajador. **Necesitás 0.3.2 o más**: en 0.3.1 ese subproceso arrancaba con el entorno reemplazado
+y un `PYTHONPATH` que no incluía el directorio que hace importable la fachada. Sólo se rompía fuera
+de un venv, porque adentro `site.py` lo tapaba.
 
 ### Comprobá que la instalación es la que creés
 
@@ -179,4 +193,4 @@ contemplado: leelo, no lo agregues a la sombra sin entenderlo.
 - **No poner en sombra una medida sin leer qué encontró.** La sombra existe para posponer un
   arreglo, no para no mirarlo.
 - **No fijar la versión con `>=`.** Un consumidor que se actualiza solo se pone rojo un martes por
-  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.3.1` y subí a propósito.
+  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.3.2` y subí a propósito.

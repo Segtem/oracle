@@ -111,7 +111,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9051 líneas de lenguaje y **384 negativas explícitas** (`raise`).
+En este corte hay 9093 líneas de lenguaje y **384 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -144,7 +144,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9051 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 52 medidas universales escritas en él (321 líneas): **28,2 a 1**. 46 de las 52 pasan por una macro.
+**9093 líneas de lenguaje** (`nucleo/`, código y macros) y **384 negativas explícitas** (`raise`). Contra las 52 medidas universales escritas en él (321 líneas): **28,3 a 1**. 46 de las 52 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -459,6 +459,7 @@ arbitrario, la respuesta suele estar acá.
 | [007](https://github.com/Segtem/oracle/blob/main/DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
 | [008](https://github.com/Segtem/oracle/blob/main/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
 | [009](https://github.com/Segtem/oracle/blob/main/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
+| [010](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | El paquete instalado es otro proyecto, y hay que medirlo como tal |
 
 ## Estado
 
@@ -542,7 +543,7 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1017 tests · 703/703 mutantes de medida · **4894 sitios de mutación de código** (4684 + 210 del motor Python).
+1025 tests · 703/703 mutantes de medida · **4901 sitios de mutación de código** (4691 + 210 del motor Python).
 <!-- cifras:fin -->
 
 > **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz

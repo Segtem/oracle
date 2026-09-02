@@ -43,6 +43,7 @@ from __future__ import annotations
 
 import atexit
 import contextlib
+import importlib.util
 import json
 import os
 import selectors
@@ -58,6 +59,47 @@ from typing import Any
 from nucleo import algebra
 
 RAIZ_ORACLE = Path(__file__).resolve().parents[2]
+
+def _raiz_importable() -> Path:
+    """El directorio que hace importable `oracle_metalenguaje`, que NO siempre es `RAIZ_ORACLE`.
+
+    En el repo son el mismo: este archivo cuelga de la raíz, y la raíz contiene
+    `oracle_metalenguaje/`. En el wheel NO: el archivo es
+    `…/oracle_metalenguaje/nucleo/aislamiento/escalares.py`, así que `RAIZ_ORACLE` es el directorio
+    DEL PROPIO PAQUETE y quien lo hace importable es su padre. Sin esa entrada, el `escalares.py`
+    de un consumidor que hace `from oracle_metalenguaje import escalar` muere con
+    `ModuleNotFoundError` adentro del trabajador — y sólo cuando el paquete NO está en
+    `site-packages`, porque ahí `site.py` lo salva por casualidad.
+
+    Se le pregunta al importador en vez de derivarlo de `__file__` o de `__package__`, y no es
+    remilgo: `oracle_metalenguaje/__init__.py` aliasa `nucleo` como paquete de nivel superior, así
+    que ESTE MISMO archivo termina importado dos veces bajo dos nombres, como dos objetos
+    distintos. El que usa `nucleo/proyecto.py` es el que se llama `nucleo.aislamiento.escalares`, y
+    desde ese nombre el layout del wheel es invisible. Derivarlo del nombre daba el valor correcto
+    en la copia equivocada.
+
+    Si no hay paquete instalado —un checkout sin fachada— se cae a `RAIZ_ORACLE`, que es lo que
+    había antes y sigue siendo cierto ahí.
+    """
+    try:
+        spec = importlib.util.find_spec("oracle_metalenguaje")
+    except (ImportError, ValueError):
+        return RAIZ_ORACLE
+    if spec is None or not spec.origin:
+        return RAIZ_ORACLE
+    return Path(spec.origin).resolve().parent.parent
+
+
+def camino_del_trabajador() -> str:
+    """El `PYTHONPATH` del subproceso: lo mínimo para que importe el núcleo Y la fachada.
+
+    Sin duplicar cuando las dos raíces coinciden, que es el caso del repo. Y sin usar
+    `RAIZ_ORACLE.parent`, que era lo obvio y está mal: en el repo eso es el directorio que CONTIENE
+    al repo —`~/Dev` en la máquina donde se encontró esto— y meterlo en el camino de un subproceso
+    que existe para confinar una UDF ajena es exactamente lo contrario de lo que este módulo hace.
+    """
+    return os.pathsep.join(
+        dict.fromkeys((str(RAIZ_ORACLE), str(_raiz_importable()))))
 TIEMPO_MAXIMO_SEGUNDOS = 10
 
 
@@ -135,7 +177,7 @@ class TrabajadorEscalares:
 
     def iniciar(self) -> tuple[EscalarDeclarada, ...]:
         entorno = {
-            "PYTHONPATH": str(RAIZ_ORACLE),
+            "PYTHONPATH": camino_del_trabajador(),
             "PYTHONDONTWRITEBYTECODE": "1",
             "PYTHONIOENCODING": "utf-8",
             "LC_ALL": "C.UTF-8",

@@ -200,6 +200,29 @@ def main() -> int:
         )
         _correr([str(python), "-I", "-c", programa], cwd=vacio, env=env)
 
+        # El wheel VENDORIZADO con `pip install --target`, que es distinto de instalarlo en un
+        # venv y por eso hay que probarlo aparte. Un consumidor cuyo intérprete es de otro —uno
+        # embebido dentro de una aplicación anfitriona— no puede usar un venv: pone el paquete en
+        # un directorio y lo agrega al `sys.path` a mano.
+        #
+        # Este caso encontró un defecto real en 0.3.1: el trabajador aislado lanzaba el subproceso
+        # con el `env` REEMPLAZADO y `PYTHONPATH` en el directorio del propio paquete, así que el
+        # `escalares.py` del consumidor moría con `ModuleNotFoundError: oracle_metalenguaje`. En un
+        # venv no se veía, porque `site.py` agrega `site-packages` igual y tapaba la falta.
+        vendorizado = temporal / "vendorizado"
+        _correr([
+            sys.executable, "-m", "pip", "install", "--target", str(vendorizado),
+            "--no-deps", str(encontradas[0]),
+        ], cwd=temporal, env=env)
+        prueba_vendor = (
+            "from oracle_metalenguaje import Motor\n"
+            f"motor = Motor.desde_proyecto({str(proyecto)!r}, confiar_escalares=True, "
+            f"raices_perfiles=({str(raiz_perfiles)!r},))\n"
+            "assert 'doble_instalado' in motor.escalares, sorted(motor.escalares)\n"
+        )
+        _correr([sys.executable, "-c", prueba_vendor], cwd=vacio,
+                env={**env, "PYTHONPATH": str(vendorizado)})
+
         binarios = entorno / ("Scripts" if sys.platform == "win32" else "bin")
         # La lista sale de `pyproject.toml`, no de acá. Estaba escrita a mano y `oracle-lsp`
         # —agregado el 2026-08-31— no figuraba: el verificador daba WHEEL OK sin haberlo probado

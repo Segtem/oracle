@@ -1,3 +1,62 @@
+# 0.3.2 — el wheel vendorizado dejaba sin fachada al subproceso que corre tus UDF
+
+Un solo defecto, encontrado por el primer consumidor que intentó la migración de subtree a PyPI. Es
+el primer defecto de Oracle reportado desde afuera del repositorio.
+
+## Qué se rompía
+
+`nucleo/aislamiento/escalares.py` lanza el subproceso que ejecuta el `escalares.py` de un proyecto
+con el entorno **reemplazado**, y le pasaba `PYTHONPATH = RAIZ_ORACLE`. En el repo eso es la raíz,
+que contiene `oracle_metalenguaje/`. En el wheel, `RAIZ_ORACLE` **es el directorio del propio
+paquete**: quien lo hace importable es su padre.
+
+Así que un consumidor cuyo `escalares.py` hace `from oracle_metalenguaje import escalar` —lo que la
+documentación le pide— moría con `ModuleNotFoundError: oracle_metalenguaje`.
+
+**Sólo se rompía fuera de un venv.** Adentro, `site.py` agrega `site-packages` por su cuenta y
+tapaba la falta. Afecta a quien vendoriza el wheel con `pip install --target`, que es lo que hace un
+consumidor cuyo intérprete es de otro —uno embebido dentro de una aplicación anfitriona— y no puede
+crear un venv.
+
+## Por qué el arnés no lo vio
+
+`tools/verificar_instalacion.py` probaba **un solo layout**: construía el wheel, lo instalaba en un
+venv, corría un proyecto con `escalares.py` que importa la fachada, y salía `WHEEL OK`. Un verde que
+no significaba nada, en la herramienta que existe para decir que el paquete está bien.
+
+Ahora prueba los dos. Y se comprobó que el chequeo nuevo **mide algo**: con el defecto puesto de
+vuelta a propósito, el verificador sale 1 con el `ModuleNotFoundError` exacto.
+
+## El arreglo, y los dos que se descartaron
+
+Se le pregunta al importador —`importlib.util.find_spec("oracle_metalenguaje")`— en vez de calcular
+la ruta. En el repo **no agrega ninguna entrada**, porque las dos raíces coinciden.
+
+- Se descartó `RAIZ_ORACLE.parent`, que era lo obvio: en el repo eso es el directorio que CONTIENE a
+  Oracle, y meterlo en el camino de un subproceso que existe para confinar una UDF ajena es lo
+  contrario de aislar.
+- Se descartó derivarlo de `__package__`: `oracle_metalenguaje/__init__.py` aliasa `nucleo` como
+  paquete de nivel superior, así que ese archivo termina importado **dos veces bajo dos nombres,
+  como dos objetos distintos**, y desde el que se usa el layout del wheel es invisible.
+
+Está escrito en [`DECISION-010`](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
+
+## De paso
+
+Una medida del propio proyecto rechazó la primera versión del arreglo:
+`test_la_distribucion_productiva_no_nombra_consumidores_conocidos` tumbó un comentario que nombraba
+un consumidor particular. La distribución no conoce dominios, tampoco en sus comentarios.
+
+## Actualizar
+
+```bash
+uv tool upgrade oracle-metalenguaje      # o el `pip install --target` con ==0.3.2
+```
+
+Si vendorizás el wheel, **0.3.2 es el mínimo**: en 0.3.1 ese camino no carga las UDF del proyecto.
+
+---
+
 # 0.3.1 — la página de PyPI no llevaba a ningún lado
 
 Sólo metadatos de empaquetado. El lenguaje, el álgebra y la sintaxis no se movieron.

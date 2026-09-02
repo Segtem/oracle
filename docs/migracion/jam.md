@@ -86,8 +86,15 @@ La forma correcta para Jam es la **(c)** de la guía general: reemplazar el subt
 wheel publicado, en el mismo lugar donde ya está.
 
 ```bash
-python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.3.1"
+python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.3.2"
 ```
+
+> **Hace falta 0.3.2 o más, y no es un detalle de versión.** En 0.3.1 este camino estaba roto: el
+> trabajador aislado que corre `escalares.py` lanzaba su subproceso con el entorno REEMPLAZADO y el
+> `PYTHONPATH` apuntando al directorio del propio paquete, no al que lo hace importable. Con el
+> paquete vendorizado, `medidas/escalares.py` moría con `ModuleNotFoundError: oracle_metalenguaje`.
+> Con el subtree andaba de casualidad, y en un venv también, porque ahí `site.py` agrega
+> `site-packages` solo y tapaba la falta. Lo encontró el hilo que hizo esta migración.
 
 Y en `bridge.py`, una sola línea:
 
