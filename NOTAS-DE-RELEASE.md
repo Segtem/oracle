@@ -1,3 +1,107 @@
+# 0.4.0 — el manual se explica solo, la sombra envejece, y los mutadores dejan de tener un solo autor
+
+Ocho commits desde `0.3.3`. El álgebra y la sintaxis no se movieron: no hay operadores nuevos ni
+cambió cómo se escribe una medida, así que sólo sube la distribución.
+
+```
+VERSION_DISTRIBUCION   0.3.3 → 0.4.0     el paquete que se instala
+VERSION_ALGEBRA        0.5               lo que una medida SIGNIFICA (sin cambios)
+VERSION_SINTAXIS       0.1               cómo se ESCRIBE (sin cambios)
+```
+
+## ⚠ Dos cosas que le cambian el número a un proyecto que ya usa Oracle
+
+**Si tu proyecto declara `"catalogo_base": true`, hereda dos medidas nuevas** —
+`meta.ninguna_sombra_envejece_sin_revisarse` y `meta.toda_sombra_declara_una_fecha_real` — y pueden
+ponerlo en rojo si tiene sombras viejas o con fechas ilegibles. Es el mecanismo funcionando: son
+sombras que ya estaban mal y nadie las miraba. Se pueden poner en sombra a su vez, con fecha y
+motivo.
+
+**Si publicaste una biblioteca de políticas, su certificación deja de valer.** El arnés pasó de 5
+mutadores a 28, así que el número de mutantes que tu manifiesto declara ya no coincide. Hay que
+volver a medir y republicar: una biblioteca certificada contra 5 mutadores no está certificada
+contra 28.
+
+## Los mutadores tienen autor, y hasta ahora era uno solo
+
+`tools/mutar.py` decía 715/715 muertos. Ese 100% medía cobertura sobre cinco mutadores escritos por
+la misma persona que escribió las medidas y el corpus, y el problema no se ve desde adentro: **un
+mutador que nadie escribió no puede producir un sobreviviente.**
+
+Se repitió el protocolo del evaluador de referencia: otro autor, en aislamiento verificable, con un
+directorio de dos archivos y sin ver el repositorio. Escribió 24 mutadores. El corpus mató el 79% en
+la primera corrida, y de los que sobrevivieron **tres eran huecos reales** —en medidas escritas ese
+mismo día— que sus docstrings habían predicho sin ver nada: «omite casos cercanos al límite si el
+corpus sólo contiene anomalías grandes».
+
+No se le creyó la declaración de aislamiento: se auditó su registro de comandos. Está en
+`mutadores/PROCEDENCIA.md`, junto al contrato que leyó. Detalle en `DECISION-011`.
+
+## La sombra envejece
+
+`dias` viajaba en la relación desde que existe el modo sombra y ninguna medida lo miraba: una sombra
+de 244 días pasaba en verde. Lo único que distingue una sombra de apagar la medida es que alguien la
+vaya a sacar, y eso era justo lo que nada comprobaba.
+
+Buscándole los bordes apareció un segundo agujero: `toda_sombra_declara_desde_y_porque` sólo mira que
+el campo no esté vacío, así que «cuando pueda» pasaba — y una sombra sin fecha legible tampoco la
+encontraba la medida que envejece. Era invisible para las tres a la vez.
+
+## `oracle contexto`
+
+Todo lo que hace falta para escribir una medida en un proyecto, en un solo lugar: las relaciones con
+sus campos, con qué se escribe, qué declara toda medida sin excepción, y las que ya existen para no
+repetirlas. Derivado del proyecto, no escrito a mano.
+
+`--compacto` da lo mismo en un quinto del texto: **~1.600 tokens contra ~8.600** de correr los tres
+comandos que reemplaza — y dice dos cosas que ninguno de los tres decía. El ahorro vino de elegir
+qué incluir, no de comprimir el formato.
+
+## El manual cubre las 54 medidas
+
+Cada medida universal ya declaraba qué NO ve, así que documentarlas no costó prosa nueva. Sale del
+catálogo cargado, en las tres vistas: terminal, sitio y `man oracle-medidas`.
+
+## El costo de la mutación era un síntoma
+
+`tools/medida.py` tenía 114 mutantes sobrevivientes y tardaba ~90 minutos, y por eso no estaba en la
+matriz de CI. Se probaron dos arreglos en ramas separadas, con los criterios fijados por escrito
+antes de ver resultados: escribir los tests ganó, y el archivo quedó en **264/264 y 206 segundos**.
+
+Tardaba noventa minutos PORQUE estaba mal fijado: confirmar un sobreviviente cuesta una corrida
+completa de la suite, matarlo cuesta ~0,1 s. Así que «no lo agregamos a CI porque sale caro» decía
+en realidad «no lo medimos porque nos iría mal». Ya está en la matriz.
+
+Se midieron después los otros cinco archivos custodiados que tampoco estaban en CI: cuatro en cero, y
+tres sobrevivientes en `manual.py` que había introducido quien agregó `--man` sin volver a medir.
+
+## Las cifras de este corte
+
+```
+1084 tests · 169 casos del corpus · 54 medidas universales
+846/846 mutantes de medida · 4928 sitios de mutación de código
+28 mutadores: 5 propios + 23 de un segundo autor
+aceptación: 2 rojos declarados (DECISION-004)
+```
+
+## Límites conocidos
+
+- **Los dos rojos de `DECISION-004` siguen a propósito.** `oracle test` sale con código 1.
+- **El catálogo tiene una sola forma:** las 54 medidas comparan con `<= 0`. Por eso 17 de los 24
+  mutadores del segundo autor no aplicaron a ninguna, y por eso `convertir_conteo_en_existencia`
+  está excluido por equivalencia. **No hay alarma que lo reincorpore** si algún día entra un umbral
+  distinto.
+- **Siguen siendo dos autores de mutadores, no muchos.**
+- **Ningún consumidor escribió todavía una medida meta que necesite una relación nueva**, así que no
+  se sabe si la reificación alcanza fuera de las preguntas de este autor.
+- **La fachada ocupa `nucleo`, `catalogos` y `perfiles`** como nombres de nivel superior, y los dos
+  `__init__.py` que tienen conducta están fuera de la mutación junto con los vacíos.
+- **Los dos consumidores que usan Oracle desde PyPI se diseñaron junto con él.** Falta uno que no.
+- **Correr el comando instalado parado en el repo de Oracle falla** con «el id está dos veces»: se
+  cargan el catálogo del paquete y el del árbol local. El error parece del catálogo y es del entorno.
+
+---
+
 # 0.3.3 — importar la biblioteca le borraba un paquete al que la importa
 
 Segundo defecto encontrado desde afuera del repositorio, un día después del primero y de la misma
