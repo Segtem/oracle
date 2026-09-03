@@ -98,6 +98,10 @@ jobs:
           # Instrumento que custodia una afirmación: desde que genera los bloques del README, es lo
           # único que impide que una cifra publicada vuelva a derivar. Ver HERRAMIENTAS_CUSTODIAS.
           - tools/cifras.py
+          # Entra el 2026-09-03, y entra porque se lo midió. Tenía 114 sobrevivientes y tardaba ~90
+          # minutos; con los tests que faltaban quedó en 264/264 y **201 segundos**. El costo era el
+          # síntoma de estar mal fijado, no una propiedad del archivo.
+          - tools/medida.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -102,36 +102,30 @@ PRIORIDADES = {
 # `opcion_del_vocabulario`, así que si el registro se rompe —o deja de emitir un vocabulario— las
 # dos medidas que vigilan el manual se ponen verdes sin mirar nada. Es el caso exacto del criterio:
 # el instrumento custodia una afirmación (que el manual está completo) que nadie más comprueba.
-# ⚠ ESTAR ACÁ NO ES ESTAR MEDIDO, y la diferencia se midió el 2026-09-02.
+# ⚠ ESTAR ACÁ NO ES ESTAR MEDIDO — y lo que costó averiguarlo cambió la conclusión.
 #
-# Esta lista tiene siete archivos. La matriz de `mutacion-codigo` del workflow corre UNO
-# —`cifras.py`—: los otros seis entran al perfil pero no los muta nadie salvo a mano. Está declarado
-# en el workflow («agregarlos sube el costo por corrida, y con la cuenta en cero no es el momento»),
-# lo que faltaba era el número.
+# Esta lista tiene siete archivos; la matriz de `mutacion-codigo` del workflow corría UNO. Los otros
+# seis entraban al perfil y no los mutaba nadie salvo a mano, declarado en el workflow como «sube el
+# costo por corrida». Faltaba el número.
 #
-# `tools/medida.py`, medido entero: **264 mutantes, 114 sobrevivientes (43%)**. Y el reparto es lo
-# que importa:
+# El 2026-09-02 se midió `tools/medida.py` entero: **264 mutantes, 114 sobrevivientes, ~90 minutos**.
+# Y se probaron los dos arreglos posibles, en ramas separadas y con los criterios fijados antes:
 #
-#   · las funciones que CUSTODIAN una afirmación —`ejercicio_del_catalogo`, `texto_de_fijacion`,
-#     `esta_ejercitada`, de donde el editor saca «esta medida está ejercitada»— tienen **0
-#     sobrevivientes de 45**. La parte por la que el archivo entró a esta lista está fijada;
-#   · los 114 caen ENTEROS en el CLI: `main` (26), `revisar` (24), `listar` (20), `probar` (20) y
-#     el resto de la presentación.
+#   · escribir los tests que faltaban (616 líneas): quedó en **264/264, cero sobrevivientes, 201
+#     segundos**;
+#   · separar el archivo en un módulo custodio y dejar el CLI afuera del perfil: quedó en 3
+#     sobrevivientes de 64 y **1.675 segundos**, ocho veces más lento, con 114 mutantes sin medir.
 #
-# Así que el archivo no está roto donde el criterio lo justifica: está mezclado. El criterio se
-# aplica por INSTRUMENTO y la mutación se aplica por ARCHIVO, y acá los dos no coinciden.
+# Ganó escribir los tests, y el dato que da vuelta la intuición es el tiempo: el archivo tardaba 90
+# minutos PORQUE estaba mal fijado. Confirmar un sobreviviente cuesta una corrida completa de la
+# suite (~50 s); matarlo cuesta ~0,1 s. Fijarlo lo volvió 27 veces más rápido.
 #
-# Arreglarlo tiene tres formas y ninguna es obvia:
-#   1. escribir tests para las 114 mutaciones de presentación — caro y de poco valor por mutante;
-#   2. separar el archivo: lo que custodia a un módulo propio que se exige en 0, la plumbing del CLI
-#      afuera del perfil. Es la forma que sigue el criterio en vez de pelearlo;
-#   3. sacar `medida.py` de esta lista, si se acepta que el instrumento que custodia es otra cosa
-#      que vive adentro.
+# Así que «no los agregamos a CI porque salen caros» decía en realidad «no los medimos porque nos
+# iría mal»: medirlos bien es lo que los vuelve baratos. `tools/medida.py` ya está en la matriz.
 #
-# Y el costo también quedó explicado: mutar este archivo tarda ~90 minutos, y NO porque sea grande.
-# Un mutante que muere cuesta ~0,1 s; uno que sobrevive cuesta la suite entera, ~50 s. El archivo es
-# lento PORQUE está mal fijado. El costo es el síntoma, no la causa — un archivo bien fijado se muta
-# rápido, y eso invierte el argumento de «no agregarlos porque salen caros».
+# Lo que queda abierto: los otros cinco (`aceptacion.py`, `cli.py`, `corpus.py`, `lsp.py`,
+# `manual.py`) siguen sin medirse en CI y nadie sabe sus números. Si el patrón se repite, están
+# caros por la misma razón.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "corpus.py",
                           "lsp.py", "manual.py", "medida.py")
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from nucleo.diagnostico import (Diagnostico, MARCA_HOME, MARCA_PROYECTO, hechos_de_diagnostico,
                                 redactar, reunir)
@@ -107,21 +108,27 @@ class LasRutasSeRedactan(unittest.TestCase):
 
     def test_el_proyecto_gana_sobre_el_home_cuando_esta_adentro(self) -> None:
         """Al revés, `<HOME>/Dev/proyecto` dejaría el nombre del proyecto a la vista."""
-        with tempfile.TemporaryDirectory(dir=Path.home()) as td:
-            proy = Proyecto(Path(td))
-            redactado = redactar(str(Path(td).resolve() / "catalogos"), proy)
+        # El home es un dato de entrada para la redacción, no un requisito de escritura: simularlo
+        # permite comprobar la jerarquía aun cuando el home real esté montado como sólo lectura.
+        with tempfile.TemporaryDirectory() as td, mock.patch.object(Path, "home", return_value=Path(td)):
+            raiz = Path(td) / "proyecto"
+            raiz.mkdir()
+            proy = Proyecto(raiz)
+            redactado = redactar(str(raiz.resolve() / "catalogos"), proy)
         self.assertEqual(redactado, f"{MARCA_PROYECTO}/catalogos")
-        self.assertNotIn(Path(td).name, redactado)
+        self.assertNotIn(raiz.name, redactado)
 
     def test_reemplaza_el_mas_largo_primero(self) -> None:
         """Si se ordenara por el reemplazo en vez de por la aguja, o al revés por longitud, el
         home taparía al proyecto y el nombre del directorio quedaría publicado."""
-        with tempfile.TemporaryDirectory(dir=Path.home()) as td:
-            proy = Proyecto(Path(td))
-            salida = redactar(f"{Path(td).resolve()}/x y {Path.home()}/z", proy)
+        with tempfile.TemporaryDirectory() as td, mock.patch.object(Path, "home", return_value=Path(td)):
+            raiz = Path(td) / "proyecto"
+            raiz.mkdir()
+            proy = Proyecto(raiz)
+            salida = redactar(f"{raiz.resolve()}/x y {Path.home()}/z", proy)
         self.assertEqual(salida.count(MARCA_PROYECTO), 1)
         self.assertEqual(salida.count(MARCA_HOME), 1)
-        self.assertNotIn(Path(td).name, salida)
+        self.assertNotIn(raiz.name, salida)
 
     def test_un_texto_sin_rutas_no_se_toca(self) -> None:
         self.assertEqual(redactar("Linux x86_64"), "Linux x86_64")

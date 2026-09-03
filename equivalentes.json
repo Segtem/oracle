@@ -64,5 +64,11 @@
   "linea_texto": "texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent=2)",
   "ordinal": 1,
   "razon": "`json.dumps(..., indent=2)` → `indent=3`. Cambia el ancho de la sangría y nada más: el JSON parsea al mismo objeto, sigue siendo multilínea y sigue siendo legible. Ninguna parte del proyecto lee el diagnóstico como texto ni depende de su ancho —quien lo consume es una persona o un `json.loads`—. Fijarlo con un test sería afirmar que el proyecto depende de que la sangría sea dos, y no depende: sería un test que impide un cambio inofensivo sin proteger nada. (El id se corrió de la línea 166 a la 169 el 2026-09-01 al agregar `cmd_biblioteca_nueva` más arriba: el sitio es el mismo `json.dumps` del diagnóstico. Que un id de equivalente sea posicional lo vuelve frágil ante cualquier edición de arriba, y el arnés lo atrapa en vez de dejarlo pasar.)"
+ },
+ {
+  "id": "tools/medida.py:379:43:constante",
+  "linea_texto": "linea = max(1, getattr(e, \"linea\", 1) - LINEAS_DE_ENVOLTORIO)",
+  "ordinal": 1,
+  "razon": "El default de `getattr(e, \"linea\", 1)` cambia de 1 a 2. Si la excepción declara `linea`, el default no participa y ambas versiones leen el mismo atributo. Si no la declara, el cálculo posterior da `max(1, 1 - 12)` en el original y `max(1, 2 - 12)` en el mutante; ambos valen 1. `LINEAS_DE_ENVOLTORIO` es la constante local 12 y se resta antes de aplicar el mínimo visible, así que ninguna excepción ni fragmento de evidencia puede volver observable el cambio. Un test que pretendiera distinguirlo tendría que modificar el código bajo prueba o afirmar un resultado distinto para dos expresiones que producen el mismo entero."
  }
 ]
