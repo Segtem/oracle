@@ -44,6 +44,22 @@ ORIGENES_DE_UMBRAL: dict[str, str] = {
 }
 
 
+# ---- dónde obliga una medida -------------------------------------------------------
+#
+# La carpeta dice de dónde vino una medida, no a quién puede imponerle un veredicto. Este
+# vocabulario separa esas dos preguntas sin darle a Oracle un nombre privilegiado: el origen puede
+# ser el catálogo base, un perfil, una biblioteca o el propio proyecto.
+
+AMBITO_SIN_DECLARAR = "sin_declarar"
+
+AMBITOS: dict[str, str] = {
+    "universal": "la medida obliga a todo proyecto que seleccione el catálogo y aporte la "
+                 "evidencia necesaria para evaluarla",
+    "del_origen": "la medida obliga sólo cuando el proyecto evaluado es dueño de su origen; un "
+                  "consumidor ajeno puede leerla, pero no recibe su veredicto",
+}
+
+
 # ---- los operadores de la tubería --------------------------------------------------
 #
 # El álgebra los despacha por literal, repartidos entre `_validar` y `_evaluar`; acá se los nombra
@@ -86,6 +102,9 @@ RELACIONES_EXPLICADAS: dict[str, str] = {
                             "existe para que una relación nueva no quede sin documentar en silencio",
     "verbo_del_cli": "cada verbo que el comando acepta y si la ayuda lo nombra; un verbo fuera de "
                      "la ayuda es trabajo terminado que nadie va a encontrar",
+    "mutador_excluido": "cada mutador que el arnés no corre, con la premisa declarada y si sigue "
+                        "disponible en el registro del arnés; ninguna exclusión debe aplicarse "
+                        "globalmente para que el denominador de mutación no baje en silencio",
     "opcion_del_vocabulario": "cada opción de un vocabulario cerrado, con cuántas palabras la "
                               "explican y si el manual la alcanza",
 }

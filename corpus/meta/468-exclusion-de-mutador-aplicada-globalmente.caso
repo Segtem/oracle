@@ -1,0 +1,18 @@
+caso 468-exclusion-de-mutador-aplicada-globalmente:
+    fecha: "2026-09-03"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f5e8f6c+worktree"
+    procedencia: construida
+    titulo: "Un mutador excluido fue quitado globalmente del arnés"
+    etiqueta: falso_verde
+    sintoma:
+        `convertir_conteo_en_existencia` estaba excluido del arnés sacándolo del registro general de mutadores en vez de aplicar la exclusión por medida. Al filtrarse globalmente, no corre sobre ninguna medida del catálogo y el denominador de la mutación baja en silencio en todo el proyecto.
+    como_se_detecto: persona
+    medida: meta.ninguna_exclusion_de_mutador_se_aplica_globalmente
+    evidencia:
+        mutador_excluido: mutador, premisa, lo_ofrece_un_autor, esta_en_el_arnes
+            "convertir_conteo_en_existencia", "la medida tiene umbral <= 0", true, false
+            "maximo_por_minimo", "las medidas con cota superior no operan sobre filas homogéneas", true, true
+    leccion:
+        Una sola fila ofende, y es a propósito: con dos, aflojar el umbral de cero a uno sigue dando rojo y ese mutante pasa inadvertido. Las exclusiones deben aplicarse por medida y no sobre el registro global de mutadores; si un mutador no está disponible en el arnés, deja de correr para todo el catálogo y distorsiona el denominador de mutación.

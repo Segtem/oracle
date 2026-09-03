@@ -1,0 +1,19 @@
+caso 469-todas-las-exclusiones-disponibles-en-el-arnes:
+    fecha: "2026-09-03"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f5e8f6c+worktree"
+    procedencia: construida
+    titulo: "Todas las exclusiones de mutadores están disponibles en el arnés"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Sin un verde de varias filas, el mutador que quita el filtro sobrevive y la medida mide menos de lo que dice.
+    como_se_detecto: observacion
+    medida: meta.ninguna_exclusion_de_mutador_se_aplica_globalmente
+    evidencia:
+        mutador_excluido: mutador, premisa, lo_ofrece_un_autor, esta_en_el_arnes
+            "convertir_conteo_en_existencia", "la medida tiene umbral <= 0", true, true
+            "maximo_por_minimo", "las medidas con cota superior no operan sobre filas homogéneas", true, true
+            "promedio_por_minimo", "ninguna medida promedia colecciones con cardinalidad variable", true, true
+    leccion:
+        El verde afirma que cada exclusión mantiene su mutador disponible en el registro del arnés, de modo que no se excluye de forma global para todo el catálogo. Varias filas sanas impiden además que el mutador que quita el filtro sobreviva.

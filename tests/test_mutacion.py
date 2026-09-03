@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from copy import deepcopy
+import dataclasses
 import importlib
 import sys
 from unittest import mock
@@ -101,11 +103,59 @@ class LosMutadoresTienenAutorTests(unittest.TestCase):
     def test_el_equivalente_declarado_queda_afuera(self) -> None:
         """`convertir_conteo_en_existencia` cambia `contar` por `max(1)`. Con `umbral <= 0` —el de
         las 54 medidas del catálogo— «contar al menos una» y «existe alguna» son la misma
-        afirmación: no debilita nada y ninguna evidencia puede distinguirlo. Está excluido a
-        propósito, no por olvido."""
+        afirmación: no debilita nada y ninguna evidencia puede distinguirlo. Está en MUTADORES
+        pero se excluye por medida cuando el umbral es <= 0."""
         from nucleo.mutacion import MUTADORES
 
-        self.assertNotIn("convertir_conteo_en_existencia", MUTADORES)
+        self.assertIn("convertir_conteo_en_existencia", MUTADORES)
+        mutantes_base = [nombre for nombre, _ in mutacion.mutantes(BASE)]
+        self.assertIn("aflojar_umbral", mutantes_base)
+        self.assertNotIn("convertir_conteo_en_existencia", mutantes_base)
+
+        con_umbral_mayor = deepcopy(BASE)
+        con_umbral_mayor[4][2] = 5
+        mutantes_mayor = [nombre for nombre, _ in mutacion.mutantes(con_umbral_mayor)]
+        self.assertIn("convertir_conteo_en_existencia", mutantes_mayor)
+
+    def test_la_exclusion_compartida_no_permite_reescribir_su_premisa(self) -> None:
+        """El arnés y la aceptación comparten esta entrada: si su premisa pudiera cambiarse, la
+        alarma meta mediría una justificación distinta de la declarada sin dejar rastro y la
+        exclusión volvería a envejecer en silencio."""
+        exclusion = mutacion.EXCLUSIONES_DE_MUTADORES[0]
+
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            exclusion.premisa = "una premisa reemplazada"
+
+    def test_el_registro_de_exclusiones_es_cerrado_y_se_aplica(self) -> None:
+        self.assertIsInstance(mutacion.EXCLUSIONES_DE_MUTADORES, tuple)
+        for exclusion in mutacion.EXCLUSIONES_DE_MUTADORES:
+            with self.subTest(mutador=exclusion.mutador):
+                self.assertIn(exclusion.mutador, mutacion.MUTADORES)
+                mutantes_base = [nombre for nombre, _ in mutacion.mutantes(BASE)]
+                self.assertNotIn(exclusion.mutador, mutantes_base)
+
+    def test_predicado_umbral_es_menor_o_igual_a_cero(self) -> None:
+        from types import SimpleNamespace
+        pred = mutacion._umbral_es_menor_o_igual_a_cero
+
+        # Como AST lista
+        self.assertTrue(pred(BASE))
+        con_otro_op = deepcopy(BASE)
+        con_otro_op[4][1] = ">"
+        self.assertFalse(pred(con_otro_op))
+        con_otro_limite = deepcopy(BASE)
+        con_otro_limite[4][2] = 1
+        self.assertFalse(pred(con_otro_limite))
+        con_bool = deepcopy(BASE)
+        con_bool[4][2] = False
+        self.assertFalse(pred(con_bool))
+
+        # Como objeto con atributos
+        self.assertTrue(pred(SimpleNamespace(op="<=", limite=0)))
+        self.assertFalse(pred(SimpleNamespace(op="<=", limite=1)))
+        self.assertFalse(pred(SimpleNamespace(op=">", limite=0)))
+        self.assertFalse(pred(SimpleNamespace(op="<=", limite=False)))
+        self.assertFalse(pred(SimpleNamespace(op="<=", limite=None)))
 
     def test_sin_el_directorio_de_ajenos_devuelve_un_mapa_vacio_y_no_None(self) -> None:
         """Un consumidor instala el núcleo, no este repositorio: si `mutadores/` no está, la ronda

@@ -72,6 +72,131 @@ class SintaxisInfijaTests(unittest.TestCase):
         self.assertEqual(releida[5], ["requiere", "importa"])
         self.assertEqual(releida[2][2][0], "agrupar")
 
+    def test_ambito_infijo_lee_y_escribe_las_dos_opciones_sin_perder_nada(self) -> None:
+        casos = (
+            (
+                "universal",
+                "medida d.universal:\n"
+                "    de pieza p\n"
+                "    resumen contar(1)\n"
+                "    umbral <= 0 segun convencion porque \"razón\"\n"
+                "    ambito universal\n"
+                "    alcance \"NO ve piezas ausentes\"\n",
+            ),
+            (
+                "del_origen",
+                "medida d.del_origen:\n"
+                "    de pieza p\n"
+                "    resumen contar(1)\n"
+                "    umbral <= 0 segun convencion porque \"razón\"\n"
+                "    requiere pieza\n"
+                "    ambito del_origen\n"
+                "    alcance \"NO ve piezas ausentes\"\n",
+            ),
+        )
+        resultados = []
+        for valor, texto in casos:
+            datos = [
+                "medida", f"d.{valor}",
+                ["desde", ["de", "pieza", "p"]],
+                ["resumen", "contar", 1],
+                ["umbral", "<=", 0, "razón", "convencion"],
+            ]
+            if valor == "del_origen":
+                datos.append(["requiere", "pieza"])
+            datos.extend((["ambito", valor], ["alcance", "NO ve piezas ausentes"]))
+            resultados.append((sintaxis.leer(texto), sintaxis.imprimir(datos)))
+
+        self.assertEqual(
+            resultados,
+            [
+                (
+                    [
+                        "medida", "d.universal",
+                        ["desde", ["de", "pieza", "p"]],
+                        ["resumen", "contar", 1],
+                        ["umbral", "<=", 0, "razón", "convencion"],
+                        ["ambito", "universal"],
+                        ["alcance", "NO ve piezas ausentes"],
+                    ],
+                    casos[0][1],
+                ),
+                (
+                    [
+                        "medida", "d.del_origen",
+                        ["desde", ["de", "pieza", "p"]],
+                        ["resumen", "contar", 1],
+                        ["umbral", "<=", 0, "razón", "convencion"],
+                        ["requiere", "pieza"],
+                        ["ambito", "del_origen"],
+                        ["alcance", "NO ve piezas ausentes"],
+                    ],
+                    casos[1][1],
+                ),
+            ],
+        )
+
+    def test_cli_imprimir_devuelve_igual_una_medida_json_con_ambito(self) -> None:
+        import tempfile
+        from contextlib import redirect_stdout
+        from io import StringIO
+
+        datos = [
+            "medida", "d.cli",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón", "convencion"],
+            ["ambito", "universal"],
+            ["alcance", "NO ve piezas ausentes"],
+        ]
+        esperado = (
+            "medida d.cli:\n"
+            "    de pieza p\n"
+            "    resumen contar(1)\n"
+            "    umbral <= 0 segun convencion porque \"razón\"\n"
+            "    ambito universal\n"
+            "    alcance \"NO ve piezas ausentes\"\n"
+        )
+        with tempfile.TemporaryDirectory() as directorio:
+            ruta = Path(directorio) / "d.cli.json"
+            ruta.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+            salida = StringIO()
+            with redirect_stdout(salida):
+                codigo = sintaxis.main(["--imprimir", str(ruta)])
+
+        self.assertEqual((codigo, salida.getvalue(), sintaxis.leer(salida.getvalue())),
+                         (0, esperado, datos))
+
+    def test_ambito_infijo_desconocido_carga_como_medida_mal_declarada_con_sentidos(self) -> None:
+        import tempfile
+        from nucleo.medida import MedidaMalDeclarada, cargar
+
+        texto = (
+            "medida d.invalida:\n"
+            "    de pieza p\n"
+            "    resumen contar(1)\n"
+            "    umbral <= 0 porque \"razón\"\n"
+            "    ambito privado\n"
+            "    alcance \"NO ve\"\n"
+        )
+        with tempfile.TemporaryDirectory() as directorio:
+            ruta = Path(directorio) / "d.invalida.oracle"
+            ruta.write_text(texto, encoding="utf-8")
+            with self.assertRaises(MedidaMalDeclarada) as cm:
+                cargar(ruta)
+
+            self.assertEqual(
+                str(cm.exception),
+                f"{ruta}: línea 5, columna 12: se esperaba un ámbito entre estas opciones; "
+                "llegó 'privado'\n"
+                "        del_origen: la medida obliga sólo cuando el proyecto evaluado es dueño "
+                "de su origen; un consumidor ajeno puede leerla, pero no recibe su veredicto\n"
+                "        universal: la medida obliga a todo proyecto que seleccione el catálogo "
+                "y aporte la evidencia necesaria para evaluarla\n"
+                "   5 |     ambito privado\n"
+                "     |            ^",
+            )
+
     def test_imprimir_leer_es_idempotente_sobre_la_superficie_generada(self) -> None:
         datos = ["ninguno", "d.prueba", "pieza", "p",
                  ["y", ["==", ["campo", "p", "mal"], True],

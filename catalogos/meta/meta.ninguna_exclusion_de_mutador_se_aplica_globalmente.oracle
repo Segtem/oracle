@@ -1,0 +1,5 @@
+ninguno meta.ninguna_exclusion_de_mutador_se_aplica_globalmente:
+    de mutador_excluido m
+    donde m.lo_ofrece_un_autor == true y m.esta_en_el_arnes == false
+    umbral <= 0 segun contrato porque "un mutador sacado del registro no corre sobre NINGUNA medida, ni siquiera donde la premisa no vale, y el denominador de mutación baja en silencio — medido: la biblioteca de ejemplo publicaba 16 mutantes certificados cuando eran 17. Los dos hechos se cruzan acá y no en el sensor porque hay dos maneras de que un mutador falte y sólo una es un defecto: que alguien lo filtre al construir el registro, o que su módulo no se distribuya. En un consumidor, «mutadores/» no viaja en el paquete y la ausencia no es culpa de nadie"
+    alcance "ve que un mutador que algún autor declara siga estando en el registro del arnés. NO ve que la exclusión por medida esté bien implementada, NO ve que la premisa de la exclusión sea cierta, y NO ve nada sobre un mutador que esta instalación no distribuye"

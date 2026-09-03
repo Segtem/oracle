@@ -12,8 +12,9 @@ import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
 
-from .medida import ORIGENES_DE_UMBRAL, SEGUN_SIN_DECLARAR
+from .medida import AMBITO_SIN_DECLARAR, ORIGENES_DE_UMBRAL, SEGUN_SIN_DECLARAR
 from .proyecto import ID_MEDIDA_RE
+from .vocabulario import AMBITOS, opciones
 from .version import VersionInvalida, parsear
 
 COMPARADORES = ("==", "!=", "<=", ">=", "<", ">")
@@ -533,6 +534,24 @@ def _leer_requiere(item: tuple[int, str]) -> list:
     return ["requiere", *(_leer_nombre(p, item[0], col) for p in partes)]
 
 
+def _leer_ambito(item: tuple[int, str]) -> list:
+    """Conserva el sentido junto al error porque elegir otro nombre cambia a quién obliga."""
+    resto, col = _exigir_prefijo(item, "ambito ", 1)
+    tokens = _tokenizar(resto, item[0], col)
+    primero = tokens[0]
+    if primero.tipo == "HUECO":
+        valor = ["$", primero.valor]
+    elif primero.tipo == "IDENT" and primero.valor in AMBITOS:
+        valor = primero.valor
+    else:
+        _fallar(
+            item[0], primero.columna,
+            "un ámbito entre estas opciones\n" + opciones(AMBITOS), primero.valor)
+    if tokens[1].tipo != "EOF":
+        _fallar(item[0], tokens[1].columna, "fin de línea", tokens[1].valor)
+    return ["ambito", valor]
+
+
 def _falta_o_sobra(cuerpo: list[tuple[int, str]], palabras: tuple[str, ...], clase: str) -> None:
     """Dice QUÉ línea falta, no sólo cuántas.
 
@@ -737,6 +756,10 @@ def _tipos_en_plantilla(nodo, macros, tipos: dict[str, str], contexto: str,
     if cabeza == "requiere":
         for hijo in nodo[1:]:
             _tipos_en_plantilla(hijo, macros, tipos, "nombre", visitadas)
+        return
+    if cabeza == "ambito":
+        if len(nodo) >= 2:
+            _tipos_en_plantilla(nodo[1], macros, tipos, "nombre", visitadas)
         return
     if cabeza == "alcance":
         if len(nodo) >= 2:
@@ -1126,9 +1149,16 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
         _registrar(ubicaciones, (5, 0), cuerpo[i][0], len(IND) + 1)
         requiere = _leer_requiere(cuerpo[i])
         i += 1
+    ambito = None
+    if i < len(cuerpo) and _indentada(cuerpo[i][1], 1, cuerpo[i][0]).startswith("ambito "):
+        ruta_ambito = (6,) if requiere is not None else (5,)
+        _registrar(ubicaciones, ruta_ambito, cuerpo[i][0], len(IND) + 1)
+        _registrar(ubicaciones, (*ruta_ambito, 0), cuerpo[i][0], len(IND) + 1)
+        ambito = _leer_ambito(cuerpo[i])
+        i += 1
     if i >= len(cuerpo):
         _fallar(cuerpo[-1][0] + 1, 1, "alcance")
-    ruta_alcance = (6,) if requiere is not None else (5,)
+    ruta_alcance = (5 + int(requiere is not None) + int(ambito is not None),)
     _registrar(ubicaciones, ruta_alcance, cuerpo[i][0], len(IND) + 1)
     _registrar(ubicaciones, (*ruta_alcance, 0), cuerpo[i][0], len(IND) + 1)
     alcance = _literal_texto(*_contenido(cuerpo[i], "alcance ", 1))
@@ -1143,6 +1173,8 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
     base = ["medida", mid, ["desde", fuente, *pasos], resumen, umbral]
     if requiere is not None:
         base.append(requiere)
+    if ambito is not None:
+        base.append(ambito)
     base.append(["alcance", alcance])
     return base
 
@@ -1445,18 +1477,32 @@ def _linea_umbral(umbral: list) -> str:
 
 
 def _lineas_medida(datos: list) -> list[str]:
-    if len(datos) == 7:
-        _c, mid, tuberia, resumen, umbral, requiere, alcance = datos
-    elif len(datos) == 6:
-        _c, mid, tuberia, resumen, umbral, alcance = datos
-        requiere = None
-    else:
-        raise ValueError("una medida canónica tiene 6 o 7 elementos")
+    if len(datos) not in (6, 7, 8):
+        raise ValueError("una medida canónica tiene 6, 7 u 8 elementos")
+    _c, mid, tuberia, resumen, umbral, *opcionales, alcance = datos
+    requiere = None
+    if opcionales and (isinstance(opcionales[0], list) and opcionales[0]
+                       and opcionales[0][0] == "requiere"):
+        requiere = opcionales.pop(0)
+    ambito = None
+    if opcionales and (isinstance(opcionales[0], list) and opcionales[0]
+                       and opcionales[0][0] == "ambito"):
+        ambito = opcionales.pop(0)
+    if opcionales:
+        raise ValueError("después del umbral sólo se imprimen `requiere`, `ambito` y `alcance`")
     lineas = [f"medida {_nombre(mid)}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
     lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
     lineas.append(_linea_umbral(umbral))
     if requiere is not None:
         lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in requiere[1:])}")
+    if ambito is not None:
+        valor_ambito = ambito[1]
+        if _es_hueco(valor_ambito) or valor_ambito in AMBITOS:
+            lineas.append(f"{IND}ambito {_nombre(valor_ambito)}")
+        elif valor_ambito != AMBITO_SIN_DECLARAR:
+            raise ValueError(
+                f"`ambito` no imprimible: {valor_ambito!r}; las opciones son:\n"
+                f"{opciones(AMBITOS)}")
     lineas.append(f"{IND}alcance {_texto_o_hueco(alcance[1])}")
     return lineas
 

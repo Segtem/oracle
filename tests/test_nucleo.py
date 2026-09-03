@@ -682,7 +682,7 @@ class CatalogoRealTests(unittest.TestCase):
         hechos = como_hechos(self.catalogo.values())
         self.assertEqual(len(hechos), len(self.catalogo))
         self.assertEqual(sorted(hechos[0]),
-                         ["agregado", "alcance", "comparador", "declara_requiere", "dominio",
+                         ["agregado", "alcance", "ambito", "comparador", "declara_requiere", "dominio",
                           "es_meta_por_el_nombre", "es_meta_por_lo_que_mide", "id", "pasos",
                           "porque", "relacion", "segun", "umbral", "umbral_es_flotante",
                           "umbral_op", "umbral_valor"])

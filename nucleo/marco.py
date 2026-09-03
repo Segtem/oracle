@@ -12,6 +12,7 @@ Acá se producen los hechos; el juicio queda en `catalogos/meta/`.
          explica_el_hueco, es_heredado, biblioteca)
     medida_en_uso(id, casos_que_la_evaluan, mutantes, mutantes_vivos)
     sombra(medida, declara_desde, declara_porque, dias, dio_ok, existe)
+    mutador_excluido(mutador, premisa, disponible_en_el_arnes)
 
 ## Por qué no hay nulos
 
@@ -34,7 +35,35 @@ from datetime import date
 
 RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra",
                                      "relacion_documentada", "verbo_del_cli",
-                                     "opcion_del_vocabulario"})
+                                     "opcion_del_vocabulario", "mutador_excluido"})
+
+
+def hechos_de_mutadores_excluidos(exclusiones, mutadores: dict, declarados) -> dict:
+    """Una fila por exclusión: la razón declarada, si algún autor ofrece el mutador y si el arnés lo tiene.
+
+    Son DOS hechos y no uno porque hay dos maneras distintas de que un mutador no esté en el
+    registro, y sólo una es un defecto. Que alguien lo filtre al construir el registro deja al
+    mutador sin correr sobre ninguna medida y baja el denominador en silencio — medido: la
+    biblioteca de ejemplo publicaba 16 mutantes certificados cuando eran 17. Que su módulo no se
+    distribuya —`mutadores/` no viaja en el paquete— no es defecto de nadie: en un consumidor el
+    mutador no está porque nadie lo mandó.
+
+    El sensor no decide cuál de las dos es: emite los dos hechos y el `donde` de la medida los
+    cruza. Colapsarlos acá metería el juicio en Python, que es exactamente lo que el álgebra existe
+    para sacar de ahí.
+    """
+    exclusiones = tuple(exclusiones)
+    if not exclusiones:
+        # NO se emite ni la clave: una relación vacía haría aplicable a la medida que la consume y
+        # la dejaría SIN EVIDENCIA, que la aceptación cuenta como falla. Si no hay exclusiones, no
+        # hay ninguna premisa que juzgar.
+        return {}
+    return {"mutador_excluido": [
+        {"mutador": exclusion.mutador,
+         "premisa": exclusion.premisa,
+         "lo_ofrece_un_autor": exclusion.mutador in declarados,
+         "esta_en_el_arnes": exclusion.mutador in mutadores}
+        for exclusion in sorted(exclusiones, key=lambda declarada: declarada.mutador)]}
 
 
 def hechos_de_documentacion(relaciones, referencia: str) -> dict:

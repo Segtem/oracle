@@ -31,7 +31,8 @@ class ContratoMedidaTests(unittest.TestCase):
                                     "campo_diagnostico",
                                     "relacion_documentada",
                                     "verbo_del_cli",
-                                    "opcion_del_vocabulario"}))
+                                    "opcion_del_vocabulario",
+                                    "mutador_excluido"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (
@@ -124,6 +125,164 @@ class ContratoMedidaTests(unittest.TestCase):
             [("marca", "q"), ("pieza", "p")])
         self.assertTrue(any(t["cabeza"] == "requiere"
                             for t in hechos.por_relacion["termino"]))
+
+    def test_una_medida_anterior_queda_en_migracion_y_nunca_se_vuelve_universal(self) -> None:
+        m = modulo_medida()
+        datos = [
+            "medida", "d.anterior",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "una razón", "contrato"],
+            ["alcance", "NO ve otras piezas"],
+        ]
+
+        medida = m.Medida.de_datos(datos)
+
+        self.assertEqual(
+            medida,
+            m.Medida(
+                id="d.anterior",
+                tuberia=["desde", ["de", "pieza", "p"]],
+                resumen=["resumen", "contar", 1],
+                op="<=",
+                limite=0,
+                porque="una razón",
+                alcance="NO ve otras piezas",
+                segun="contrato",
+                ambito=m.AMBITO_SIN_DECLARAR,
+                requiere=(),
+                fuente=(),
+            ),
+        )
+        self.assertEqual(
+            medida.a_datos(),
+            datos,
+        )
+
+    def test_ambito_posicional_vuelve_entero_con_y_sin_requiere(self) -> None:
+        m = modulo_medida()
+        casos = (
+            [
+                "medida", "d.universal",
+                ["desde", ["de", "pieza", "p"]],
+                ["resumen", "contar", 1],
+                ["umbral", "<=", 0, "razón", "convencion"],
+                ["ambito", "universal"],
+                ["alcance", "NO ve piezas ausentes"],
+            ],
+            [
+                "medida", "d.del_origen",
+                ["desde", ["de", "pieza", "p"]],
+                ["resumen", "contar", 1],
+                ["umbral", "<=", 0, "razón", "convencion"],
+                ["requiere", "pieza"],
+                ["ambito", "del_origen"],
+                ["alcance", "NO ve piezas ausentes"],
+            ],
+        )
+
+        self.assertEqual([m.Medida.de_datos(datos).a_datos() for datos in casos], list(casos))
+
+    def test_ambito_posicional_desconocido_enumera_opciones_y_sentidos(self) -> None:
+        m = modulo_medida()
+        datos = [
+            "medida", "d.invalida",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón", "convencion"],
+            ["ambito", "privado"],
+            ["alcance", "NO ve"],
+        ]
+
+        with self.assertRaises(m.MedidaMalDeclarada) as cm:
+            m.Medida.de_datos(datos)
+
+        self.assertEqual(
+            str(cm.exception),
+            "d.invalida: `ambito` recibió 'privado', y los ámbitos declarados son:\n"
+            "        del_origen: la medida obliga sólo cuando el proyecto evaluado es dueño de "
+            "su origen; un consumidor ajeno puede leerla, pero no recibe su veredicto\n"
+            "        universal: la medida obliga a todo proyecto que seleccione el catálogo y "
+            "aporte la evidencia necesaria para evaluarla",
+        )
+
+    def test_nodos_opcionales_vacios_o_ambitos_incompletos_fallan_con_el_contrato_entero(self) -> None:
+        m = modulo_medida()
+        base = [
+            "medida", "d.incompleta",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón", "convencion"],
+        ]
+        mensajes = []
+        for opcional in ([], ["ambito"]):
+            with self.subTest(opcional=opcional), self.assertRaises(m.MedidaMalDeclarada) as cm:
+                m.Medida.de_datos([*base, opcional, ["alcance", "NO ve"]])
+            mensajes.append(str(cm.exception))
+
+        self.assertEqual(
+            mensajes,
+            [
+                "d.incompleta: después del umbral sólo pueden ir `requiere`, `ambito` y "
+                "`alcance`, en ese orden",
+                "d.incompleta: `ambito` es ['ambito', <valor>], con uno de estos valores:\n"
+                "        del_origen: la medida obliga sólo cuando el proyecto evaluado es dueño "
+                "de su origen; un consumidor ajeno puede leerla, pero no recibe su veredicto\n"
+                "        universal: la medida obliga a todo proyecto que seleccione el catálogo "
+                "y aporte la evidencia necesaria para evaluarla",
+            ],
+        )
+
+    def test_como_hechos_reifica_el_ambito_en_la_fila_entera_de_medida(self) -> None:
+        m = modulo_medida()
+        medida = m.Medida.de_datos([
+            "medida", "d.reificada",
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón", "convencion"],
+            ["ambito", "del_origen"],
+            ["alcance", "NO ve piezas ausentes"],
+        ])
+
+        self.assertEqual(
+            m.como_hechos([medida]).por_relacion["medida"],
+            [{
+                "id": "d.reificada",
+                "dominio": "d",
+                "relacion": "pieza",
+                "agregado": "contar",
+                "comparador": "<=",
+                "umbral": 0,
+                "umbral_op": "<=",
+                "umbral_valor": 0,
+                "umbral_es_flotante": False,
+                "porque": "razón",
+                "segun": "convencion",
+                "ambito": "del_origen",
+                "alcance": "NO ve piezas ausentes",
+                "pasos": 1,
+                "declara_requiere": False,
+                "es_meta_por_el_nombre": False,
+                "es_meta_por_lo_que_mide": False,
+            }],
+        )
+
+    def test_las_cincuenta_y_cinco_medidas_siguen_en_el_estado_de_migracion(self) -> None:
+        import catalogos.escalares  # noqa: F401
+        from pathlib import Path
+        from nucleo.macro import macros_base
+
+        m = modulo_medida()
+        raiz = Path(__file__).resolve().parents[1]
+        catalogo = m.cargar_catalogo(
+            [raiz / "catalogos", raiz / "perfiles" / "python" / "catalogos"],
+            macros=macros_base(),
+        )
+
+        self.assertEqual(
+            [medida.ambito for medida in catalogo.values()],
+            [m.AMBITO_SIN_DECLARAR] * 55,
+        )
 
     def test_como_hechos_marca_si_el_umbral_es_flotante(self) -> None:
         m = modulo_medida()

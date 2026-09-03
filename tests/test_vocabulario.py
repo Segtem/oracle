@@ -12,11 +12,12 @@ sys.path.insert(0, str(RAIZ))
 
 from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS  # noqa: E402
 from nucleo.marco import RELACIONES_DEL_LENGUAJE  # noqa: E402
-from nucleo.vocabulario import (OPERADORES, ORIGENES_DE_UMBRAL,  # noqa: E402
-                                RELACIONES_EXPLICADAS, opciones)
+from nucleo.vocabulario import (AMBITOS, AMBITO_SIN_DECLARAR, OPERADORES,  # noqa: E402
+                                ORIGENES_DE_UMBRAL, RELACIONES_EXPLICADAS, opciones)
 
 
 CERRADOS = {
+    "ambito": AMBITOS,
     "operadores": OPERADORES,
     "segun": ORIGENES_DE_UMBRAL,
     "etiqueta": ETIQUETAS,
@@ -24,6 +25,24 @@ CERRADOS = {
     "como_se_detecto": DETECCIONES,
     "relaciones": RELACIONES_EXPLICADAS,
 }
+
+
+class AmbitosTests(unittest.TestCase):
+    def test_el_registro_fija_las_dos_consecuencias_sin_repetir_los_nombres(self) -> None:
+        self.assertEqual(
+            AMBITOS,
+            {
+                "universal": "la medida obliga a todo proyecto que seleccione el catálogo y "
+                             "aporte la evidencia necesaria para evaluarla",
+                "del_origen": "la medida obliga sólo cuando el proyecto evaluado es dueño de su "
+                              "origen; un consumidor ajeno puede leerla, pero no recibe su "
+                              "veredicto",
+            },
+        )
+
+    def test_el_estado_de_migracion_no_se_disfraza_de_opcion_del_lenguaje(self) -> None:
+        self.assertEqual(AMBITO_SIN_DECLARAR, "sin_declarar")
+        self.assertEqual(set(AMBITOS), {"universal", "del_origen"})
 
 
 class OpcionesTests(unittest.TestCase):
@@ -130,6 +149,11 @@ class ElUmbralUsaEsteVocabularioTests(unittest.TestCase):
     def test_medida_valida_segun_contra_el_mismo_registro(self) -> None:
         from nucleo import medida
         self.assertIs(medida.ORIGENES_DE_UMBRAL, ORIGENES_DE_UMBRAL)
+
+    def test_medida_usa_el_mismo_registro_y_estado_para_el_ambito(self) -> None:
+        from nucleo import medida
+        self.assertIs(medida.AMBITOS, AMBITOS)
+        self.assertEqual(medida.AMBITO_SIN_DECLARAR, AMBITO_SIN_DECLARAR)
 
 
 if __name__ == "__main__":

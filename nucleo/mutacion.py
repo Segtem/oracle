@@ -24,7 +24,9 @@ distintos.
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from copy import deepcopy
+from dataclasses import dataclass
 import math
 
 from .medida import Medida
@@ -126,6 +128,62 @@ MUTADORES_PROPIOS = {
 }
 
 
+@dataclass(frozen=True)
+class ExclusionDeMutador:
+    """Un mutador que no corre mientras una condición comprobable lo haga equivalente.
+
+    La premisa y su predicado viajan juntos porque una explicación sin comprobación vuelve a
+    envejecer en silencio, que es precisamente el riesgo de excluir un mutador real del
+    denominador.
+    """
+
+    mutador: str
+    premisa: str
+    predicado: Callable[[Medida | list], bool]
+
+
+def _umbral_es_menor_o_igual_a_cero(medida: Medida | list) -> bool:
+    """La equivalencia sólo vale para la forma exacta `umbral <= 0` de la medida."""
+    if isinstance(medida, list):
+        op, limite = _umbral(medida)[1], _umbral(medida)[2]
+    else:
+        op, limite = getattr(medida, "op", None), getattr(medida, "limite", None)
+    return op == "<=" and not isinstance(limite, bool) and limite == 0
+
+
+# No es una lista de excepciones mudas: cada entrada declara la condición que justifica sacar al
+# mutador y cómo volver a comprobarla sobre cada medida. La aceptación convierte esas
+# comprobaciones en hechos para que una premisa que deje de valer se ponga en rojo.
+EXCLUSIONES_DE_MUTADORES = (
+    ExclusionDeMutador(
+        mutador="convertir_conteo_en_existencia",
+        premisa="la medida tiene umbral <= 0",
+        predicado=_umbral_es_menor_o_igual_a_cero,
+    ),
+)
+
+
+def mutadores_declarados_por_sus_autores() -> frozenset:
+    """Los nombres que cada autor DECLARA, leídos de su módulo y no del registro ya construido.
+
+    Existe para no medirse contra sí mismo. Si esta lista saliera de `_mutadores_ajenos()`, un
+    filtro global reintroducido ahí desaparecería de los dos lados a la vez y la medida que lo
+    vigila daría verde mientras el arnés vuelve a la forma vieja. Leer la declaración del autor es
+    lo único independiente del camino que se quiere vigilar.
+
+    El `except` no es simetría con `_mutadores_ajenos()`: un consumidor instala el paquete, y
+    `mutadores/` no viaja en él —no está en `pyproject.toml`—. Ahí el mutador no está ausente
+    porque alguien lo excluyera sino porque nadie lo distribuyó, y eso no es un defecto de nadie.
+    Distinguir las dos cosas es el trabajo de esta función.
+    """
+    from nucleo.mutacion import MUTADORES_PROPIOS  # noqa: PLC0415  se resuelve al llamar, no al importar
+    try:
+        from mutadores import segundo_autor
+    except ImportError:
+        return frozenset(MUTADORES_PROPIOS)
+    return frozenset(MUTADORES_PROPIOS) | {fn.__name__ for fn in segundo_autor.MUTADORES}
+
+
 def _mutadores_ajenos() -> dict:
     """Los de otros autores, con su procedencia declarada en `mutadores/PROCEDENCIA.md`.
 
@@ -133,19 +191,14 @@ def _mutadores_ajenos() -> dict:
     directorio de mutadores ajenos —un consumidor instala el núcleo, no este repositorio—, y si no
     está, el arnés sigue midiendo con los propios en vez de romperse.
 
-    `convertir_conteo_en_existencia` queda AFUERA, y es la única exclusión. Cambia `contar` por
-    `max(1)`, lo que pierde la multiplicidad; con `umbral <= 0` —que es el umbral de las 54 medidas
-    del catálogo— «contar al menos una» y «existe alguna» son la MISMA afirmación, así que el mutante
-    no debilita nada y no hay evidencia que pueda distinguirlo. No es un hueco del corpus: es un
-    mutante equivalente, y se declara como tal en vez de dejarlo sobrevivir para siempre. Sobre un
-    catálogo con otro umbral SÍ debilitaría, y ahí habría que volver a incluirlo.
+    Las exclusiones no se aplican en tiempo de importación: viven en `EXCLUSIONES_DE_MUTADORES`
+    y se comprueban por medida en `mutantes()`.
     """
     try:
         from mutadores import segundo_autor
     except ImportError:
         return {}
-    return {fn.__name__: fn for fn in segundo_autor.MUTADORES
-            if fn.__name__ != "convertir_conteo_en_existencia"}
+    return {fn.__name__: fn for fn in segundo_autor.MUTADORES}
 
 
 # El `or {}` no es defensa por las dudas: sin él, mutar el `return` de la función de arriba deja
@@ -306,6 +359,9 @@ def mutantes(datos: list) -> list[tuple[str, list]]:
     """
     salida = []
     for nombre, fn in MUTADORES.items():
+        if any(exclusion.mutador == nombre and exclusion.predicado(datos)
+               for exclusion in EXCLUSIONES_DE_MUTADORES):
+            continue
         mutada = fn(datos)
         if mutada is not None:
             salida.append((nombre, mutada))

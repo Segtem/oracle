@@ -455,6 +455,12 @@ def _generar_candidatas() -> list[list]:
              ["resumen", "max", ["col", "a1"]], ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]]
         medidas.append(m)
 
+    # El generador ejerce la forma CANÓNICA de una medida. Si dejara `ambito` ausente, `a_datos`
+    # reificaría correctamente el estado transitorio `sin_declarar`, que no es una opción que un
+    # autor pueda escribir, y la propiedad de ida y vuelta compararía migración con autoría. Las
+    # dos alternativas reales se alternan para que ambas crucen toda la gramática.
+    for indice, medida in enumerate(medidas):
+        medida.insert(-1, ["ambito", "universal" if indice % 2 == 0 else "del_origen"])
     return medidas
 
 

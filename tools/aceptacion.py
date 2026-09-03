@@ -28,9 +28,12 @@ import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
 from nucleo.marco import (hechos_de_casos, hechos_de_documentacion,  # noqa: E402
-                          hechos_de_sombra, hechos_de_verbos, hechos_de_vocabulario)
+                          hechos_de_mutadores_excluidos, hechos_de_sombra, hechos_de_verbos,
+                          hechos_de_vocabulario)
 from nucleo.medida import (cargar_catalogo, como_hechos, evaluar,  # noqa: E402
                            medidas_aplicables, relaciones_del_lenguaje_declaradas)
+from nucleo.mutacion import (EXCLUSIONES_DE_MUTADORES, MUTADORES,  # noqa: E402
+                             mutadores_declarados_por_sus_autores)
 from nucleo.relacion import cargar_relaciones, hechos_de_relaciones  # noqa: E402
 from nucleo.unidad import hechos_de_unidades  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
@@ -166,6 +169,11 @@ def _ejecutar(proy) -> int:
                       # hace falta, y si no está, la relación no se emite y la medida no concluye.
                       **_hechos_del_cli(),
                       **_hechos_del_vocabulario(),
+                      # La exclusión se vigila sobre el registro efectivo del arnés: si vuelve el
+                      # filtrado global, el mutador excluido deja de estar disponible para todas las
+                      # medidas y este hecho lo vuelve visible.
+                      **hechos_de_mutadores_excluidos(EXCLUSIONES_DE_MUTADORES, MUTADORES,
+                                                      mutadores_declarados_por_sus_autores()),
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(relaciones.values()),
                       **hechos_de_unidades(catalogo.values(), relaciones)}

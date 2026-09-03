@@ -1,0 +1,17 @@
+caso 470-la-exclusion-real-no-se-aplica-globalmente:
+    fecha: "2026-09-03"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f5e8f6c+worktree"
+    procedencia: observada
+    titulo: "La única exclusión que el arnés tiene hoy no saca a su mutador del registro"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La evidencia no se escribió a mano: es lo que devolvió `hechos_de_mutadores_excluidos` sobre las exclusiones declaradas y el registro `MUTADORES` de este corte —29 mutadores, 1 exclusión declarada—. `convertir_conteo_en_existencia` está en el registro y se saltea por medida en `mutantes()`, no al construirlo.
+    como_se_detecto: observacion
+    medida: meta.ninguna_exclusion_de_mutador_se_aplica_globalmente
+    evidencia:
+        mutador_excluido: mutador, premisa, lo_ofrece_un_autor, esta_en_el_arnes
+            "convertir_conteo_en_existencia", "la medida tiene umbral <= 0", true, true
+    leccion:
+        Una medida fijada sólo con evidencia fabricada puede estar ajustada a los ejemplos que se escribieron para que pasara. Este verde sale de la corrida y envejece solo: el día que alguien vuelva a filtrar los excluidos al construir el registro, el mutador desaparece de `MUTADORES` y este caso da falso sin que nadie lo toque. La forma vieja no era hipotética —estuvo en el árbol hasta hoy— y escondía cobertura real: la biblioteca de ejemplo publicaba 16 mutantes certificados cuando eran 17.

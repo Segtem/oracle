@@ -293,6 +293,23 @@ def instalar_man(destino: Path) -> list[Path]:
     return escritas
 
 
+def _cortable(nombre: str) -> str:
+    """El término, con una oportunidad de corte después de cada `_` y cada `.`.
+
+    Un id de medida es una sola palabra para el navegador: el guión bajo no es punto de corte en
+    CSS, a diferencia del guión medio. Sin esto el término desborda su columna y se dibuja encima
+    de la definición. Medido el 2026-09-03: 56 de los 90 términos del manual desbordaban, y el peor
+    —`meta.ninguna_exclusion_de_mutador_se_apoya_en_una_premisa_falsa`, 63 caracteres— pedía unos
+    640 px en una columna de 194 px útiles.
+
+    El corte va acá y no sólo en el CSS porque `overflow-wrap` parte donde llega, a mitad de
+    palabra. Con `<wbr>` los cortes caen en el límite entre partes del nombre, que es donde una
+    persona los leería. Queda igual `overflow-wrap` como red: el segmento más largo hoy mide 17
+    caracteres y entran 19, pero eso vale para el catálogo de hoy, no para el de mañana.
+    """
+    return _html.escape(nombre).replace("_", "_<wbr>").replace(".", ".<wbr>")
+
+
 def html() -> str:
     """El mismo manual, para el sitio. Sale de las mismas entradas: no hay una segunda copia."""
     partes = ['<div class="manual">']
@@ -304,7 +321,7 @@ def html() -> str:
                       f'<p>{_html.escape(titulo(tema))}</p></div>')
         partes.append("<dl>")
         for nombre, sentido in entradas(tema):
-            partes.append(f"<dt>{_html.escape(nombre)}</dt>"
+            partes.append(f"<dt>{_cortable(nombre)}</dt>"
                           f"<dd>{_html.escape(sentido)}</dd>")
         partes.append("</dl>")
         partes.append("</section>")
@@ -350,7 +367,7 @@ ESTILO = """
   .manual dl { margin: 0; padding: 26px var(--mg); display: grid;
                grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr); gap: 0; }
   .manual dt { font-family: var(--mono); font-weight: 700;
-               padding: 10px 30px 10px 0; }
+               padding: 10px 30px 10px 0; overflow-wrap: break-word; }
   .manual dd { margin: 0; padding: 10px 0; max-width: 92ch; text-wrap: pretty; }
   .manual dt:not(:first-of-type), .manual dt:not(:first-of-type) + dd {
     border-top: 1px solid oklch(0.16 0 0 / 0.14); }

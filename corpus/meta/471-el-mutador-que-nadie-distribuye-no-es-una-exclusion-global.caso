@@ -1,0 +1,17 @@
+caso 471-el-mutador-que-nadie-distribuye-no-es-una-exclusion-global:
+    fecha: "2026-09-03"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f5e8f6c+worktree"
+    procedencia: observada
+    titulo: "En el paquete instalado el mutador falta porque nadie lo distribuye, y eso no es un defecto"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno, y ése es el punto. `mutadores/` no está en `pyproject.toml`, así que no viaja en el wheel: un consumidor carga 5 mutadores propios en vez de 29 y `convertir_conteo_en_existencia` no está en el registro. La primera versión de esta medida miraba un solo hecho y llamaba a eso «exclusión global», poniendo en rojo a todo proyecto que instalara Oracle por un archivo que nadie le mandó.
+    como_se_detecto: observacion
+    medida: meta.ninguna_exclusion_de_mutador_se_aplica_globalmente
+    evidencia:
+        mutador_excluido: mutador, premisa, lo_ofrece_un_autor, esta_en_el_arnes
+            "convertir_conteo_en_existencia", "la medida tiene umbral <= 0", false, false
+    leccion:
+        Hay dos maneras de que un mutador no esté en el registro y sólo una es un defecto. Este caso fija la diferencia: sin él, borrar `lo_ofrece_un_autor == true` del filtro no rompería ningún otro caso —468 ofende igual, 469 y 470 siguen verdes— y la medida volvería a reprochar a un consumidor algo que no puede arreglar. Salió de correr la suite entera para verificar el cambio: el test del wheel instalado se puso rojo.

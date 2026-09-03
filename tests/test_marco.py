@@ -363,6 +363,68 @@ class HechosDeDocumentacion(unittest.TestCase):
                          {"relacion_documentada": []})
 
 
+class HechosDeMutadoresExcluidos(unittest.TestCase):
+    """Una exclusión por medida no debe sacar al mutador del registro global del arnés.
+
+    Los dos hechos viajan separados a propósito. Un mutador puede faltar del registro porque alguien
+    lo filtró al construirlo —defecto: deja de correr sobre toda medida— o porque su módulo no se
+    distribuye, que es lo que pasa en el paquete instalado y no es culpa de nadie. Colapsarlos en un
+    solo booleano fue la primera versión de esto, y ponía en rojo a todo consumidor del wheel.
+    """
+
+    def _fila(self, mutadores, declarados) -> dict:
+        from nucleo.marco import hechos_de_mutadores_excluidos
+        from nucleo.mutacion import EXCLUSIONES_DE_MUTADORES
+
+        hechos = hechos_de_mutadores_excluidos(EXCLUSIONES_DE_MUTADORES, mutadores, declarados)
+        return hechos["mutador_excluido"][0]
+
+    def test_el_mutador_declarado_por_su_autor_sigue_en_el_arnes(self) -> None:
+        from nucleo.mutacion import (MUTADORES, mutadores_declarados_por_sus_autores)
+
+        self.assertEqual(
+            self._fila(MUTADORES, mutadores_declarados_por_sus_autores()),
+            {"mutador": "convertir_conteo_en_existencia",
+             "premisa": "la medida tiene umbral <= 0",
+             "lo_ofrece_un_autor": True,
+             "esta_en_el_arnes": True},
+        )
+
+    def test_la_forma_vieja_deja_al_mutador_ofrecido_fuera_del_arnes(self) -> None:
+        """El defecto: su autor lo declara y el registro no lo tiene. Alguien volvió a filtrar."""
+        self.assertEqual(
+            self._fila({}, frozenset({"convertir_conteo_en_existencia"})),
+            {"mutador": "convertir_conteo_en_existencia",
+             "premisa": "la medida tiene umbral <= 0",
+             "lo_ofrece_un_autor": True,
+             "esta_en_el_arnes": False},
+        )
+
+    def test_el_paquete_que_no_distribuye_al_autor_no_declara_el_mutador(self) -> None:
+        """El caso del wheel: nadie lo ofrece, así que su ausencia del registro no acusa a nadie."""
+        self.assertEqual(
+            self._fila({}, frozenset()),
+            {"mutador": "convertir_conteo_en_existencia",
+             "premisa": "la medida tiene umbral <= 0",
+             "lo_ofrece_un_autor": False,
+             "esta_en_el_arnes": False},
+        )
+
+    def test_sin_exclusiones_no_se_emite_la_clave(self) -> None:
+        from nucleo.marco import hechos_de_mutadores_excluidos
+
+        self.assertEqual(hechos_de_mutadores_excluidos((), {}, frozenset()), {})
+
+    def test_lo_declarado_por_los_autores_no_sale_del_registro_ya_filtrado(self) -> None:
+        """Si saliera de ahí, un filtro global desaparecería de los dos lados y nadie lo notaría."""
+        from nucleo.mutacion import (MUTADORES_PROPIOS,
+                                     mutadores_declarados_por_sus_autores)
+
+        declarados = mutadores_declarados_por_sus_autores()
+        self.assertTrue(set(MUTADORES_PROPIOS) <= declarados)
+        self.assertIn("convertir_conteo_en_existencia", declarados)
+
+
 class HechosDeVerbos(unittest.TestCase):
     """Un verbo que existe y no está en la ayuda es una función que nadie va a encontrar.
 
@@ -397,3 +459,97 @@ class HechosDeVerbos(unittest.TestCase):
         self.assertEqual([(f["sustantivo"], f["verbo"]) for f in filas],
                          [("alfa", "c"), ("zeta", "a"), ("zeta", "b")])
 
+
+class HechosDeVocabulario(unittest.TestCase):
+    """Los vocabularios cerrados son lo que más confunde a quien llega y antes vivían dispersos.
+
+    Esta relación vigila que cada opción viaje explicada y que el manual la alcance. Y sin
+    vocabularios no emite ni la clave: un proyecto consumidor no tiene ninguno propio, y una
+    relación vacía haría que la medida diera SIN EVIDENCIA —un falso rojo por un manual ajeno—.
+    """
+
+    def test_sin_vocabularios_devuelve_diccionario_vacio_y_no_emite_la_clave(self) -> None:
+        """Un consumidor no define vocabularios cerrados. Devolver la clave vacía provocaría
+        que las medidas dieran SIN EVIDENCIA (falla); devolver None rompería el desempaquetado."""
+        from nucleo.marco import hechos_de_vocabulario
+        self.assertEqual(hechos_de_vocabulario({}, ["tema"]), {})
+
+    def test_con_vocabularios_emite_la_relacion_con_su_contenido_exacto(self) -> None:
+        """Con vocabularios presentes, no debe devolver el diccionario vacío de la guarda.
+        Comprueba el contenido entero para distinguir la inversión de la guarda."""
+        from nucleo.marco import hechos_de_vocabulario
+        vocabularios = {
+            "etiqueta": {
+                "verde_correcto": "el caso pasa y debe pasar",
+            }
+        }
+        self.assertEqual(
+            hechos_de_vocabulario(vocabularios, ["etiqueta"]),
+            {
+                "opcion_del_vocabulario": [
+                    {
+                        "vocabulario": "etiqueta",
+                        "opcion": "verde_correcto",
+                        "palabras_del_sentido": 6,
+                        "en_el_manual": True,
+                    }
+                ]
+            },
+        )
+
+    def test_sale_ordenado_por_vocabulario_y_por_opcion(self) -> None:
+        """El orden debe ser determinista: primero por nombre de vocabulario, luego por opción."""
+        from nucleo.marco import hechos_de_vocabulario
+        vocabularios = {
+            "zeta": {"beta": "segunda opcion", "alfa": "primera opcion"},
+            "alfa": {"dos": "segunda de alfa", "uno": "primera de alfa"},
+        }
+        self.assertEqual(
+            hechos_de_vocabulario(vocabularios, ["alfa", "zeta"]),
+            {
+                "opcion_del_vocabulario": [
+                    {"vocabulario": "alfa", "opcion": "dos", "palabras_del_sentido": 3, "en_el_manual": True},
+                    {"vocabulario": "alfa", "opcion": "uno", "palabras_del_sentido": 3, "en_el_manual": True},
+                    {"vocabulario": "zeta", "opcion": "alfa", "palabras_del_sentido": 2, "en_el_manual": True},
+                    {"vocabulario": "zeta", "opcion": "beta", "palabras_del_sentido": 2, "en_el_manual": True},
+                ]
+            },
+        )
+
+    def test_palabras_del_sentido_cuenta_palabras_y_no_caracteres(self) -> None:
+        """`len(sentido.split())`: cuenta palabras separadas por blancos, no longitud en caracteres.
+        Una explicación de cinco palabras tiene decenas de caracteres; medir caracteres dejaría pasar
+        una sola palabra larga."""
+        from nucleo.marco import hechos_de_vocabulario
+        vocabularios = {
+            "caso": {
+                "frase": "cinco palabras exactas para probar",
+                "largo": "palabra_muy_larga",
+            }
+        }
+        self.assertEqual(
+            hechos_de_vocabulario(vocabularios, ["caso"]),
+            {
+                "opcion_del_vocabulario": [
+                    {"vocabulario": "caso", "opcion": "frase", "palabras_del_sentido": 5, "en_el_manual": True},
+                    {"vocabulario": "caso", "opcion": "largo", "palabras_del_sentido": 1, "en_el_manual": True},
+                ]
+            },
+        )
+
+    def test_en_el_manual_distingue_si_el_vocabulario_esta_en_los_temas(self) -> None:
+        """`en_el_manual` refleja la pertenencia del nombre del vocabulario al conjunto de temas."""
+        from nucleo.marco import hechos_de_vocabulario
+        vocabularios = {
+            "documentado": {"op_a": "explicacion del tema a"},
+            "indocumentado": {"op_b": "explicacion del tema b"},
+        }
+        self.assertEqual(
+            hechos_de_vocabulario(vocabularios, ["documentado"]),
+            {
+                "opcion_del_vocabulario": [
+                    {"vocabulario": "documentado", "opcion": "op_a", "palabras_del_sentido": 4, "en_el_manual": True},
+                    {"vocabulario": "indocumentado", "opcion": "op_b", "palabras_del_sentido": 4, "en_el_manual": False},
+                ]
+            },
+        )
