@@ -273,6 +273,21 @@ class RoffTests(unittest.TestCase):
                          "el campo \\fBsegun\\fR manda")
         self.assertNotIn("`", manual.man())
 
+    def test_dos_pares_de_comillas_en_la_misma_prosa(self) -> None:
+        """Con UN par no se puede distinguir un recorrido de a dos de uno de a tres: los dos toman
+        el mismo elemento. Hacía falta una prosa con dos pares, que es además el caso real — una
+        explicación que nombra dos campos."""
+        self.assertEqual(
+            manual._roff("entre `uno` y `dos` hay texto"),
+            "entre \\fBuno\\fR y \\fBdos\\fR hay texto")
+
+    def test_tres_pares_no_pierden_el_ultimo(self) -> None:
+        """El tramo de texto que sigue al último código es el que se cae si el recorrido de los
+        restos avanza de más."""
+        self.assertEqual(
+            manual._roff("`a` x `b` y `c` z"),
+            "\\fBa\\fR x \\fBb\\fR y \\fBc\\fR z")
+
     def test_una_comilla_invertida_suelta_se_deja_como_esta(self) -> None:
         """Sin par no hay código que resaltar, y abrir una negrita que nunca cierra se lleva
         puesto todo lo que sigue en la página."""
@@ -340,6 +355,19 @@ class PaginasDeManualTests(unittest.TestCase):
                              manual.man("segun"))
             for ruta in escritas:
                 self.assertTrue(ruta.is_file(), ruta)
+
+    def test_crea_los_directorios_que_falten_por_el_camino(self) -> None:
+        """`man1/` y `man7/` cuelgan del destino, y el destino puede no existir todavía: nadie crea
+        `~/.local/share/man` a mano antes de instalar. El test anterior usaba un temporal que YA
+        existía, así que no distinguía crear la rama entera de crear un solo nivel."""
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as td:
+            destino = Path(td) / "sin" / "crear" / "todavia"
+            self.assertFalse(destino.exists())
+            escritas = manual.instalar_man(destino)
+            self.assertTrue((destino / "man7" / "oracle-segun.7").is_file())
+            self.assertEqual(len(escritas), len(manual.paginas_man()))
 
     def test_instalar_dos_veces_no_falla(self) -> None:
         """Se reinstala en cada actualización del paquete; un `mkdir` sin `exist_ok` rompería
