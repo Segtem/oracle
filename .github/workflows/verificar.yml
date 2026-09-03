@@ -65,6 +65,14 @@ jobs:
   # `nucleo/caso.py`, `nucleo/generador.py`, `nucleo/relacion.py`, `nucleo/version.py` y los tres de
   # `tools/` que se sumaron el 2026-08-27. Agregarlos sube el costo por corrida, y con la cuenta en
   # cero no es el momento. Queda anotado para cuando el cupo se renueve.
+  #
+  # El 2026-09-02 se midió cuánto es «el costo», porque una nota sin número no se puede discutir.
+  # `tools/medida.py`: 264 mutantes, 114 sobrevivientes, ~90 minutos. Y el motivo del costo NO es el
+  # tamaño: un mutante que muere cuesta ~0,1 s y uno que sobrevive cuesta la suite entera (~50 s).
+  # El archivo tarda porque está mal fijado, así que «no los agregamos porque salen caros» dice lo
+  # mismo que «no los medimos porque nos iría mal». Los 114 caen enteros en el CLI —`main`,
+  # `revisar`, `listar`, `probar`—; las funciones por las que el archivo figura como custodio tienen
+  # 0 sobrevivientes de 45. Ver la nota de `HERRAMIENTAS_CUSTODIAS`.
   mutacion-codigo:
     if: github.event_name != 'push'
     strategy:

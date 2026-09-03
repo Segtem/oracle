@@ -102,6 +102,36 @@ PRIORIDADES = {
 # `opcion_del_vocabulario`, así que si el registro se rompe —o deja de emitir un vocabulario— las
 # dos medidas que vigilan el manual se ponen verdes sin mirar nada. Es el caso exacto del criterio:
 # el instrumento custodia una afirmación (que el manual está completo) que nadie más comprueba.
+# ⚠ ESTAR ACÁ NO ES ESTAR MEDIDO, y la diferencia se midió el 2026-09-02.
+#
+# Esta lista tiene siete archivos. La matriz de `mutacion-codigo` del workflow corre UNO
+# —`cifras.py`—: los otros seis entran al perfil pero no los muta nadie salvo a mano. Está declarado
+# en el workflow («agregarlos sube el costo por corrida, y con la cuenta en cero no es el momento»),
+# lo que faltaba era el número.
+#
+# `tools/medida.py`, medido entero: **264 mutantes, 114 sobrevivientes (43%)**. Y el reparto es lo
+# que importa:
+#
+#   · las funciones que CUSTODIAN una afirmación —`ejercicio_del_catalogo`, `texto_de_fijacion`,
+#     `esta_ejercitada`, de donde el editor saca «esta medida está ejercitada»— tienen **0
+#     sobrevivientes de 45**. La parte por la que el archivo entró a esta lista está fijada;
+#   · los 114 caen ENTEROS en el CLI: `main` (26), `revisar` (24), `listar` (20), `probar` (20) y
+#     el resto de la presentación.
+#
+# Así que el archivo no está roto donde el criterio lo justifica: está mezclado. El criterio se
+# aplica por INSTRUMENTO y la mutación se aplica por ARCHIVO, y acá los dos no coinciden.
+#
+# Arreglarlo tiene tres formas y ninguna es obvia:
+#   1. escribir tests para las 114 mutaciones de presentación — caro y de poco valor por mutante;
+#   2. separar el archivo: lo que custodia a un módulo propio que se exige en 0, la plumbing del CLI
+#      afuera del perfil. Es la forma que sigue el criterio en vez de pelearlo;
+#   3. sacar `medida.py` de esta lista, si se acepta que el instrumento que custodia es otra cosa
+#      que vive adentro.
+#
+# Y el costo también quedó explicado: mutar este archivo tarda ~90 minutos, y NO porque sea grande.
+# Un mutante que muere cuesta ~0,1 s; uno que sobrevive cuesta la suite entera, ~50 s. El archivo es
+# lento PORQUE está mal fijado. El costo es el síntoma, no la causa — un archivo bien fijado se muta
+# rápido, y eso invierte el argumento de «no agregarlos porque salen caros».
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "corpus.py",
                           "lsp.py", "manual.py", "medida.py")
 
