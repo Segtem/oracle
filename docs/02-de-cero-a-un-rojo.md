@@ -3,7 +3,7 @@
 Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que **falla** sobre un
 defecto de verdad y te dice **qué filas** lo causaron.
 
-Todo lo que sigue está copiado de una corrida real con Oracle 0.2.0. Si algo no te da igual,
+Todo lo que sigue está copiado de una corrida real con Oracle 0.3.3. Si algo no te da igual,
 es un defecto de esta página: [abrí un issue](https://github.com/Segtem/oracle/issues).
 
 ---
@@ -16,7 +16,7 @@ uv tool install oracle-metalenguaje
 
 ```
 $ oracle --version
-oracle 0.2.0
+oracle 0.3.3
   álgebra:  0.5   (qué SIGNIFICA una medida)
   sintaxis: 0.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle-metalenguaje/lib/python3.12/site-packages/oracle_metalenguaje
@@ -124,8 +124,8 @@ ver la tesis del proyecto: una regla que nada puede romper es decoración.
 ```
 $ oracle medida probar catalogos/documento/documento.nombre_sigue_la_convencion.oracle \
       --con 'documento: nombre, sigue_convencion
-                 "2026-08-31-GUIA-Convencion-v1.0.md", true
-                 "notas finales.md", false'
+    "2026-08-31-GUIA-Convencion-v1.0.md", true
+    "notas finales.md", false'
 ROJO   valor 1  (<= 0)
 
   testigos (1) — las filas que ofenden, no un resumen:
@@ -228,7 +228,7 @@ sensor:
 
 En `relaciones/documento.json`. Fijate que **la relación también declara su alcance**: la medida
 dice qué no mira, el sensor dice hasta dónde llega.
-
+ 
 ```
 $ oracle relaciones
 RELACIONES que se pueden medir hoy:
@@ -239,7 +239,9 @@ RELACIONES que se pueden medir hoy:
       · aparece en: 001-un-nombre-fuera-de-convencion, 002-un-lote-en-convencion
 ```
 
-Con eso, ese rojo se cierra.
+Con eso, ese rojo se cierra. Si en cualquier momento querés ver las relaciones,
+campos, escalares y medidas de tu proyecto en una sola salida, `oracle contexto`
+(o `oracle contexto --compacto`) reúne todo en un solo lugar.
 
 ## 8. El rojo que queda, y por qué está bien
 
@@ -261,10 +263,13 @@ lo que devolvió. Hasta entonces el rojo es honesto y conviene dejarlo a la vist
 
 ## Qué sigue
 
-- [Por qué la mutación](05-por-que-la-mutacion.md) — qué son esos siete mutantes y qué hacer cuando
-  uno sobrevive.
+- [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 28 mutadores en aislamiento y qué hacer
+  cuando uno sobrevive.
 - [Conectar Oracle a un proyecto propio](07-conectar-a-un-proyecto-propio.md) — de dónde sale la
-  evidencia `observada`.
+  evidencia `observada`, migración a PyPI y la sombra.
+- [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) — la guía de autoría con `oracle contexto`.
+- `oracle manual` — la referencia del lenguaje en la terminal (con `oracle manual medidas` para
+  las 54 universales y sus puntos ciegos).
 - [El editor](../editores/README.md) — diagnósticos, completado con unidades y CodeLens en Emacs y
   VS Code.
-- [ESPECIFICACION.md](../ESPECIFICACION.md) — la referencia del lenguaje.
+- [ESPECIFICACION.md](../ESPECIFICACION.md) — la referencia formal del lenguaje.

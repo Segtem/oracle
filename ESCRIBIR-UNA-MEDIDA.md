@@ -59,9 +59,10 @@ oracle test --proyecto <tu-proyecto> --confiar-escalares
 #    (el andamio ya nace en superficie .caso, o copiá uno que exista)
 oracle caso proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
 
-# 2. mirá con qué contás
-oracle relaciones     # los hechos y sus campos, derivados de la evidencia real
-oracle escalares      # las funciones de dominio, operadores y agregados
+# 2. mirá con qué contás: el contexto de tu proyecto en un solo comando
+oracle contexto           # relaciones, campos, escalares, operadores y medidas existentes
+oracle contexto --compacto # lo mismo en un quinto del texto (~1.600 tokens vs ~8.600)
+# (o por separado si sólo querés una parte: oracle relaciones / oracle escalares)
 
 # 3. la medida: el andamio ya nace en superficie infija, y el catálogo lo carga tal cual
 oracle nueva colocacion.mi_regla     # crea catalogos/colocacion/colocacion.mi_regla.oracle
@@ -70,6 +71,27 @@ oracle revisar catalogos/colocacion/colocacion.mi_regla.oracle
 # 4. que todo siga cerrando
 oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y mutación de medidas
 ```
+
+### `oracle contexto`: el inventario vivo de tu proyecto
+
+`oracle contexto` junta en una sola salida todo lo que hace falta para escribir una medida en el
+proyecto donde estás parado:
+1. Qué declara toda medida: `umbral <comparador> <número> segun <origen> porque "<defensa>"` y
+   `alcance "<punto ciego>"`.
+2. Las relaciones con sus campos y tipos derivados de la evidencia que existe.
+3. Con qué se escribe: operadores (`agrupar`, `de`, `donde`, `resumen`, `unir`), comparadores,
+   lógicos, agregados y escalares declaradas.
+4. Las medidas que ya existen en el catálogo con lo que NO ven.
+5. La regla de orden: escribir el caso antes que la medida.
+
+Con `--compacto`, la misma salida se emite en un quinto del texto (~1.600 tokens contra ~8.600 de
+correr los comandos que reemplaza).
+
+**Por qué complementa esta guía en vez de acortarla:** este documento explica la semántica del
+álgebra, el modelo homoicónico en JSON, las macros, los comparadores prohibidos (como la igualdad
+flotante) y las reglas de diseño. `oracle contexto` no reemplaza esas explicaciones: entrega el
+inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras
+escribís.
 
 ### Los dos formatos del catálogo y del corpus
 
@@ -271,13 +293,23 @@ medida, o sea que si alguien la escribiera distinta, algún caso lo notaría.
 Dos cosas que aparecieron después de que este documento se escribiera, y que cambian qué hacés
 cuando el rojo viene de una medida que no escribiste vos:
 
-- **`oracle manual`** es la referencia del lenguaje —los seis operadores, los cuatro orígenes de un
-  umbral, las cinco etiquetas de un caso— armada de las declaraciones, no escrita aparte. Con
-  `oracle manual --instalar-man <dir>` queda como `man oracle-segun`.
-- **La sombra.** Si heredás un catálogo y sale rojo en algo real que hoy no vas a arreglar, no
-  apagues la medida: declarala en sombra en `oracle.json`, con `desde` y `porque`. Se sigue
-  midiendo e informando, y no tumba la corrida. Los dos campos son obligatorios porque una sombra
-  sin fecha no se puede envejecer y una sin motivo no se puede discutir.
+- **`oracle manual`** es la referencia del lenguaje armada de las declaraciones, no escrita aparte.
+  Incluye los operadores, orígenes de umbral, etiquetas, relaciones explicadas y el tema `medidas`
+  (`oracle manual medidas`), que lista las 54 medidas universales con qué NO ve cada una. Ofrece tres
+  vistas de la misma fuente: en terminal, en HTML para el sitio (`--html`), o en formato de páginas
+  de manual (`oracle manual --instalar-man <dir>` deja `man oracle(1)` y `man oracle-segun(7)`
+  funcionando).
+- **La sombra y su envejecimiento.** Si heredás un catálogo y sale rojo en algo real que hoy no vas
+  a arreglar, no apagues la medida: declarala en sombra en `oracle.json`, con `desde` y `porque`. Se
+  sigue midiendo e informando como `[EN SOMBRA]`, y no tumba la corrida. Los dos campos son
+  obligatorios porque **la sombra ahora envejece**:
+  - `meta.ninguna_sombra_envejece_sin_revisarse`: si la sombra tiene más de 90 días, la medida
+    falla.
+  - `meta.toda_sombra_declara_una_fecha_real`: si la fecha no se puede parsear o está en el futuro,
+    falla.
+  - `meta.ninguna_sombra_ya_en_verde`: prohíbe tener en sombra medidas que ya dan verde.
+  - `meta.ninguna_sombra_sobre_una_medida_que_no_existe`: prohíbe sombras huérfanas.
+  Ninguna de estas medidas puede ponerse en sombra a sí misma.
 
 ## Si te falta un hecho
 

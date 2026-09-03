@@ -8,9 +8,9 @@ Ordenado por la pregunta que contesta, no por el tema.
 | **2 · [De cero a un rojo](02-de-cero-a-un-rojo.md)** | instalar, escribir una medida, ver testigos. Cinco minutos |
 | **3 · Anatomía de una medida** | [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) |
 | **4 · El primer caso** | polaridad, `etiqueta`, `procedencia` — dentro del paso 2 |
-| **5 · [Por qué la mutación](05-por-que-la-mutacion.md)** | los siete mutantes, y qué hacer con un sobreviviente |
+| **5 · [Por qué la mutación](05-por-que-la-mutacion.md)** | dos autores, 28 mutadores en aislamiento, y qué hacer con un sobreviviente |
 | **6 · Los cinco niveles** | [DECISION-005](../DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) |
-| **7 · [Conectar a un proyecto propio](07-conectar-a-un-proyecto-propio.md)** | sensor puro, adaptador, escalares |
+| **7 · [Conectar a un proyecto propio](07-conectar-a-un-proyecto-propio.md)** | sensor puro, adaptador, escalares, migración a PyPI y la sombra |
 | **8 · El editor** | [editores/README.md](../editores/README.md) |
 | **9 · Referencia** | [ESPECIFICACION.md](../ESPECIFICACION.md) |
 | **10 · Contexto** | `oracle contexto [--compacto]` — lo que hace falta para escribir una medida en TU proyecto, derivado de él |
@@ -23,9 +23,12 @@ están copiadas de esas corridas. Si alguna no te da igual, es un defecto de la 
 Los demás enlazan a documentos que ya existen. **Una sola fuente por documento**: duplicarlos acá
 para que se vean prolijos sería garantizar que se desincronicen.
 
-El paso 10 no es un documento: `oracle manual` arma la referencia leyendo las declaraciones del
-propio lenguaje —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los verbos del
-comando—, así que no hay dónde quede vieja. Dos medidas vigilan lo único que sí podría envejecer:
-que una opción quede sin explicar, y que un vocabulario nuevo quede fuera del registro.
+Los pasos 10 y 11 no son documentos: `oracle contexto` junta lo que tu proyecto declara hoy
+(relaciones, campos, operadores, escalares y medidas) y `--compacto` lo entrega en ~1.600 tokens;
+`oracle manual` arma la referencia leyendo las declaraciones del propio lenguaje —los vocabularios
+cerrados, las relaciones que emite sobre sí mismo, los verbos del comando y las 54 medidas universales
+con qué NO ve cada una—, así que no hay dónde quede vieja. Dos medidas vigilan lo único que sí
+podría envejecer: que una opción quede sin explicar, y que un vocabulario nuevo quede fuera del
+registro.
 
 > El sitio con la portada está en [segtem.github.io/oracle](https://segtem.github.io/oracle/).

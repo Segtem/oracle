@@ -714,13 +714,22 @@ caso 002-vencida-con-dueno:
 *(El id del caso y del archivo usan `dueno` en ASCII: los identificadores son nombres de archivo y
 por diseño rechazan caracteres no ASCII para evitar divergencias entre normalizaciones NFC/NFD).*
 
-### 8.6 Correr todo
+### 8.6 El contexto del proyecto y correr todo
+
+Antes de verificar, podés ver todo lo que tu proyecto expone con un solo comando:
 
 ```bash
 cd mi-proyecto
-oracle relaciones     # ¿qué hechos hay?
-oracle test           # secuencia completa: corpus, sintaxis, aceptación y mutación
+oracle contexto           # relaciones, campos, escalares, operadores y medidas disponibles
+oracle contexto --compacto # la misma información en ~1.600 tokens (ideal para editores y LLMs)
+oracle test               # secuencia completa: corpus, sintaxis, aceptación y mutación
 ```
+
+**Por qué `oracle contexto` complementa este tutorial en vez de acortarlo:** este tutorial enseña a
+pensar una medida —los tres niveles, la clausura del álgebra, las macros, el rol de los testigos y
+las polaridades del corpus—. `oracle contexto` no explica nada de eso: da la fotografía viva y
+concreta del proyecto en el que estás trabajando. En vez de alternar entre `oracle relaciones`,
+`oracle escalares` y listados de catálogo, tenés el inventario activo en una sola salida.
 
 `oracle test` tiene que confirmar: el caso `001` se pone ROJO con `tareas.vencida_sin_dueno`, y el
 `002` se pone VERDE. Si la mutación encuentra un mutante que sobrevive (por ejemplo, sacarle el `y` y
@@ -744,30 +753,29 @@ print(informe.texto())
 
 | Comando | Para qué |
 |---|---|
-| `tools/corpus.py --nuevo <grupo/NNN-descripcion>` | crea el andamio de un caso nuevo, ya en superficie (`.caso`) |
-| `tools/medida.py --nueva <dominio.nombre>` | crea el andamio de una medida, ya en superficie infija (`.oracle`) |
-| `tools/sintaxis.py --imprimir <archivo.json>` | lee el JSON de catálogo y muestra la superficie infija |
-| `tools/sintaxis.py --leer <archivo.oracle>` | traduce de superficie infija al JSON de almacenamiento (el catálogo carga `.oracle` directo: esto es para cuando querés el dato) |
-| `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo, macros, corpus y bloques de documentación |
-| `tools/medida.py --relaciones` | ver qué hechos existen HOY (derivado de evidencia real, no una lista a mano) |
-| `tools/medida.py --escalares` | ver las funciones de dominio, operadores y agregados disponibles |
-| `tools/medida.py <archivo>` | validar UNA medida (`.oracle` o `.json`) y correrla contra el corpus |
-| `tools/medida.py --expandir <archivo>` | ver a qué forma canónica expande una macro |
-| `tools/corpus.py [--resumen]` | el corpus (`.caso` y `.json`) está bien formado y ningún caso se cae en silencio |
-| `tools/aceptacion.py` | **el corpus juzga al oráculo**: todo defecto se pone rojo, todo `verde_correcto` se pone verde |
-| `tools/diferencial.py --proyecto <p>` | comparar contra una implementación de referencia independiente |
-| `tools/mutar.py` | ¿el corpus ALCANZA para fijar cada medida? (muta las medidas, no el código) |
-| `tools/mutar_codigo.py --objetivo <archivo.py>` | lo mismo pero mutando el CÓDIGO del núcleo/perfiles |
-| `tools/estudio.py` | vuelca todo el repo a un Markdown autocontenido para NotebookLM (así se generó el otro documento) |
-| `oracle manual [tema]` | la referencia del lenguaje, armada de sus propias declaraciones (`--html` para el sitio, `--man` para páginas de manual) |
+| `oracle init [ruta]` | inicializa un proyecto con `catalogos/`, `corpus/`, `diferencial/` y `oracle.json` |
+| `oracle caso nuevo <grupo/id>` | crea el andamio de un caso nuevo, ya en superficie (`.caso`) |
+| `oracle caso listar` | lista los casos del corpus, su etiqueta y qué medida reclaman |
+| `oracle caso generar <medida>` | fabrica evidencia discriminante para fijar mutaciones a partir de sobrevivientes |
+| `oracle nueva <dominio.nombre>` | crea el andamio de una medida, ya en superficie infija (`.oracle`) |
+| `oracle revisar <archivo>` | valida una medida suelta contra la evidencia |
+| `oracle medida probar <arch> --con <filas>` | corre una medida contra filas escritas a mano (`--vigilar` para re-probar al guardar) |
+| `oracle expandir <archivo>` | muestra la forma canónica a la que expande una macro |
+| `oracle contexto [--compacto]` | reúne relaciones, campos, escalares, operadores y medidas de TU proyecto (~1.600 tokens con `--compacto`) |
+| `oracle test [--rapido\|--todo]` | secuencia completa: corpus, sintaxis, aceptación, diferencial y mutación |
+| `oracle relaciones` | ver qué hechos y campos existen HOY (derivados de evidencia real) |
+| `oracle escalares` | ver las funciones de dominio, operadores y agregados disponibles |
+| `oracle manual [tema]` | la referencia del lenguaje armada de sus fuentes (`--html` para el sitio, `--man` para páginas de manual; tema `medidas` para las 54 universales y sus alcances) |
 | `oracle biblioteca instaladas` | qué bibliotecas de políticas hay instaladas y cuáles usa este proyecto |
 | `oracle biblioteca verificar <ruta>` | certifica una biblioteca antes de confiar en ella |
+| `oracle biblioteca listar <ruta>` | muestra umbrales, orígenes (`segun`) y alcances de una biblioteca |
 | `oracle diagnostico` | qué versión de Oracle corre y desde dónde, sin publicar nada del dominio |
+| `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo, macros, corpus y bloques de documentación |
 | `python -m unittest discover -s tests -t . -q` | la suite de tests, sin dependencias externas |
 
 Todos aceptan `--proyecto <ruta>` (o `$ORACLE_PROYECTO`) y, si el proyecto declara `escalares.py`,
 exigen `--confiar-escalares` para ejecutarlo. Sin esa bandera, las inspecciones (`--help`,
-`--relaciones`, `--nueva`, `--escalares` sin UDF externas) son siempre seguras.
+`--relaciones`, `--nueva`, `--escalares` sin UDF externas, `contexto`) son siempre seguras.
 
 ### Heredar un catálogo sin quedar en rojo el primer día
 
@@ -790,8 +798,17 @@ corrida**:
 
 Los dos campos son obligatorios y hay medidas que los vigilan: una sombra sin fecha no se puede
 envejecer, una sin motivo no se puede discutir, y una sobre una medida que ya da verde no tiene
-nada que perdonar. **Ninguna de esas tres se puede poner en sombra a sí misma**, que es lo que
-impide que la sombra se coma su propio control.
+nada que perdonar. La sombra además **envejece**:
+
+- `meta.ninguna_sombra_envejece_sin_revisarse`: si la sombra supera los **90 días**, la medida se
+  pone roja.
+- `meta.toda_sombra_declara_una_fecha_real`: si la fecha no se puede parsear o está en el futuro,
+  falla.
+- `meta.ninguna_sombra_ya_en_verde`: prohíbe mantener en sombra medidas que ya dan verde.
+- `meta.ninguna_sombra_sobre_una_medida_que_no_existe`: prohíbe sombras huérfanas.
+
+**Ninguna de esas medidas se puede poner en sombra a sí misma**, que es lo que impide que la
+sombra se coma su propio control.
 
 ---
 
@@ -844,5 +861,7 @@ va primero: es lo único que lee la intención.
 - La guía de referencia oficial para escribir una medida: `ESCRIBIR-UNA-MEDIDA.md`.
 - La especificación formal del álgebra, con las preguntas abiertas y cómo se cerraron:
   `ESPECIFICACION.md`.
-- Un consumidor real en producción, para ver medidas de un dominio completo (geometría, colocación de
-  piezas, snapping): el catálogo de Jam, en `~/Dev/jam/medidas/catalogos/`.
+- Dos consumidores reales en producción consumiendo desde PyPI: el catálogo de Jam (plugin de Unreal
+  Engine: geometría, colocación de piezas, snapping) en `~/Dev/jam/medidas/catalogos/` y el de
+  LyraGASP (juego en Unreal Engine: deformers, recarga, assets) en `~/Dev/games/unreal/LyraGASP/medidas/catalogos/`.
+- Las lecciones de migración desde subtree al paquete de PyPI: `docs/migracion/de-subtree-a-pypi.md`.

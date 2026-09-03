@@ -1,6 +1,6 @@
 # oracle
 
-[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.2.0](https://github.com/Segtem/oracle/releases/tag/v0.2.0)
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.3.3](https://github.com/Segtem/oracle/releases/tag/v0.3.3)
 
 ```bash
 uv tool install oracle-metalenguaje
@@ -27,10 +27,11 @@ aconsejan.
 
 > ## Estado: `EXPERIMENTAL` → `METALENGUAJE`
 >
-> **Hoy es un experimento**, y el metalenguaje es el destino, no la descripción. Falta bastante para
-> llegar: la reflexión sobre el catálogo sigue fijada en Python —L2 tiene mecanismo propio, que es
-> justo lo que un metalenguaje no debería necesitar—, y el camino está desglosado en
-> [`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md).
+> **Hoy es un experimento.** La reificación mecánica del catálogo ya está hecha: de la forma canónica
+> salen `medida`, `fuente`, `termino`, `requiere` y `paso_de_medida`, y tres medidas meta nuevas se
+> escribieron sin tocar Python. El límite siguiente sigue abierto: ningún consumidor escribió todavía
+> una medida meta que exija una relación que sus sensores no emitan. Ese disparador, no una fecha, está
+> en [`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md).
 >
 > **No hay fecha de corte, ni condición de cierre, ni tope de tamaño.** Las hubo por un rato, en
 > respuesta a dos auditorías externas que midieron a Oracle con la vara de un producto adoptable —
@@ -53,8 +54,8 @@ uv tool install oracle-metalenguaje
 oracle --help
 ```
 
-`uv tool install` deja los nueve comandos en el `PATH`, cada uno en su entorno aislado. Es la forma
-recomendada porque en Arch, Debian 12+, Ubuntu 23.04+ y Fedora un `pip install` al Python del
+`uv tool install` crea un entorno aislado del Python del sistema y deja los nueve comandos en el
+`PATH`. Es la forma recomendada porque en Arch, Debian 12+, Ubuntu 23.04+ y Fedora un `pip install` al Python del
 sistema **falla** con `externally-managed-environment` (PEP 668) — la distribución protege su
 Python, y hace bien.
 
@@ -67,8 +68,7 @@ pip install oracle-metalenguaje
 
 Y para probarlo sin instalar nada: `uvx --from oracle-metalenguaje oracle --help`.
 
-Instala nueve comandos —`oracle`, `oracle-lsp`, `oracle-mutar`…— y el catálogo base viaja adentro,
-así que un proyecto nuevo ya tiene quién lo juzgue:
+El catálogo base viaja adentro, así que un proyecto nuevo ya tiene quién lo juzgue:
 
 ```bash
 oracle init <tu-proyecto>
@@ -187,35 +187,15 @@ sastreo exacto contra el que esta medición existe.
 
 ### La proporción no alcanza como criterio, y el proyecto es EXPERIMENTAL
 
-Dos auditorías externas coincidieron: como criterio de falsación, la proporción no puede hacer el
-trabajo. **Disparó en contra tres cortes seguidos** —16,2 → 18,0 → 18,2— y la respuesta publicada fue
-reinterpretarla. Después volvió a 16,2, y eso no la rehabilita: volvió porque se escribieron más
-medidas universales, que es el único mecanismo que la mueve hacia abajo.
+Dos auditorías externas la hicieron disparar en contra tres cortes seguidos —16,2 → 18,0 → 18,2— y
+la respuesta publicada fue reinterpretarla. El defecto es estructural: los catálogos externos no
+entran al denominador, así que la adopción no la mueve; y migrar una política real de Python al
+catálogo bajó el núcleo tres líneas sin mover la cifra.
 
-El problema es estructural y son dos: es inmune a la adopción —los catálogos externos no entran a su
-denominador, así que ningún consumidor puede moverla— y es inmune a la migración: al mover una
-política real de Python al catálogo, el núcleo bajó tres líneas y la cifra no se movió, porque lo que
-queda en Python es código de sensor y eso no puede migrar nunca.
-
-**Pero el error de fondo no era la métrica: era publicarla como criterio.** «Si en seis meses la
-proporción no se movió, el lenguaje no valió la pena» es una afirmación de producto, y esto no es un
-producto. Es un experimento, y por eso:
-
-> **Oracle está en estado EXPERIMENTAL.** No tiene fecha de corte, ni condición de cierre, ni tope de
-> tamaño para el núcleo. Le falta bastante para ser un metalenguaje —la reflexión sobre el catálogo
-> sigue fijada en Python, ver [`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md)— y ése es el estado declarado,
-> no un déficit contra un plazo.
-
-Hubo una puerta de abandono prerregistrada, escrita el 2026-08-24 en respuesta a las auditorías, con
-plazo al 2027-01-29 y consecuencia escrita. **Se retiró el mismo día**, junto con el tope de núcleo
-que la acompañaba: ese tope era un número inventado —el tamaño de ese momento más cien líneas— y
-Oracle no lo necesitaba para nada. Poner plazos y consecuencias a un experimento es tratarlo como lo
-que todavía no es, y las auditorías lo midieron con esa vara porque el README las invitó a hacerlo.
-
-Lo que **sí** queda de esa discusión, porque no depende de ningún plazo: la proporción sigue
-publicándose y sigue generada por `tools/cifras.py`, con el CI fallando si vence. Es una cifra sobre
-el costo, no un veredicto sobre el proyecto — y leerla como veredicto fue el error que corrigió esta
-sección.
+Por eso se publica como **costo**, no como criterio de cierre. Sigue generada por `tools/cifras.py` y
+el CI falla si vence, pero Oracle permanece experimental: no tiene fecha de corte, condición de
+cierre ni tope de tamaño para el núcleo. La puerta fechada y el tope que existieron durante un día se
+retiraron el 2026-08-24: medían un experimento como si ya fuera un producto.
 
 ## Tres influencias, y qué aporta cada una
 
@@ -303,7 +283,7 @@ expresable es la que después alcanza a L−1 y L−2.
 
 ```
 medición   un escalar del mundo
-umbral     una comparación — con su DEFENSA escrita
+umbral     una comparación — con `segun` y su DEFENSA escrita
 testigos   las filas que ofenden  (no se calculan aparte: son las que pasaron el filtro)
 requiere   qué NECESITA ver para concluir  ← opcional
 alcance    qué NO ve esta medida  ← OBLIGATORIO
@@ -424,23 +404,21 @@ Una medida se puede poner **en sombra**: se evalúa, se reporta, y no hace falla
 }
 ```
 
-```
-  ✗ meta.todo_umbral_declara_de_donde_sale     9 (<= 0)   [EN SOMBRA]
-
-EN SOMBRA — 1 medida(s) que se miden y no hacen fallar:
-  · meta.todo_umbral_declara_de_donde_sale  (hace 12 días)
-      porque: el catálogo se escribió antes de que `segun` existiera; se completa este mes
-
-ACEPTACIÓN ✓
-```
-
 **La sombra no silencia: declara.** Lo que se apaga es la consecuencia, no la medición — el conteo
 y la antigüedad se imprimen en cada corrida, así que «lo tengo en sombra hace ocho meses» es un
 hecho que se lee, no una comodidad que se olvida.
 
-Y apagar no sale gratis. Tres medidas vigilan la sombra misma, y **ninguna puede ponerse en sombra
-a sí misma**: que cada una declare desde cuándo y por qué, que no sobreviva a su propio verde —si
-ya pasa, no hay nada que perdonar— y que no apunte a un id que el catálogo ya no tiene.
+Y apagar no sale gratis. Cinco medidas vigilan la sombra misma, y **ninguna puede ponerse en sombra
+a sí misma**. Tres exigen fecha y motivo, que la medida todavía dé rojo y que el id siga en el
+catálogo. Las otras dos hacen envejecer la excepción: `meta.ninguna_sombra_envejece_sin_revisarse`
+rechaza las de más de noventa días y `meta.toda_sombra_declara_una_fecha_real` rechaza una fecha
+ilegible o futura.
+
+Una biblioteca de políticas lleva esta misma idea fuera del catálogo base sin ejecutar código del
+publicador: contiene datos, se activa por proyecto y dos ids iguales fallan cerrado. `oracle
+biblioteca listar <ruta>` muestra por medida el umbral, `segun` y el `alcance` completo;
+`oracle biblioteca verificar <ruta>` comprueba contenido, corpus y la cifra de mutación publicada.
+Certifica esos hechos, no que la política sea correcta para un proyecto.
 
 ## Las decisiones, y por qué
 
@@ -472,7 +450,7 @@ arbitrario, la respuesta suele estar acá.
 > DeepSeek, agosto 2026) se respondieron en el commit `c81a87c`, y su informe se retiró del
 > árbol cuando dejó de tener puntos abiertos.
 
-**El paquete contiene los cinco componentes.** El [corpus](https://github.com/Segtem/oracle/tree/main/corpus/) (42 casos, en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](https://github.com/Segtem/oracle/blob/main/ESPECIFICACION.md) del álgebra,
+**El checkout reúne los componentes del experimento.** El [corpus](https://github.com/Segtem/oracle/tree/main/corpus/) (en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](https://github.com/Segtem/oracle/blob/main/ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](https://github.com/Segtem/oracle/tree/main/catalogos/) —como
 archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
@@ -483,9 +461,11 @@ archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutaci
 **¿Vas a escribir una medida acá?** → `oracle contexto` junta en un solo lugar lo que hace falta:
 las relaciones que hay con sus campos, con qué se escriben, qué declara toda medida sin excepción, y
 las que ya existen para no repetirlas. `--compacto` da lo mismo en un quinto del texto, para pegarlo
-en la ventana de un agente.
+en la ventana de un agente: en la medición de este corte, unos 1.600 tokens contra unos 8.600 de los
+tres comandos que reemplaza.
 
-**¿Querés la referencia del lenguaje?** → `oracle manual`, `man oracle-segun`, o
+**¿Querés la referencia del lenguaje?** → `oracle manual`, `oracle manual medidas`,
+`man oracle-segun`, o
 [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html). No es un documento
 escrito aparte: cada entrada sale de la declaración que el lenguaje ya tiene —los vocabularios
 cerrados, las relaciones que emite sobre sí mismo, los verbos del comando—, así que no hay dónde
@@ -493,14 +473,28 @@ quede vieja. Lo único que sí podría envejecer —una opción sin explicar, un
 registro— lo miden `meta.toda_opcion_del_vocabulario_declara_su_sentido` y
 `meta.todo_vocabulario_cerrado_esta_en_el_manual`.
 
+El tema `medidas` enumera las 54 medidas universales y el `alcance` de cada una: qué NO autoriza a
+concluir incluso cuando da verde.
+
 La misma referencia sale en tres vistas de una sola fuente: la terminal, el sitio (`--html`) y
 páginas de manual (`--man`). `oracle manual --instalar-man ~/.local/share/man` deja `oracle(1)` y
 una `oracle-<tema>(7)` por tema, y a partir de ahí `man oracle-etiqueta` funciona sin red.
 
-El wheel instala sólo paquetes bajo `oracle_metalenguaje.*`; no ocupa los nombres genéricos
-`nucleo`, `catalogos`, `perfiles` ni `tools`. Tampoco distribuye el corpus ni los fixtures de
-autocertificación del checkout. Por eso un comando instalado fuera de un proyecto siempre requiere
-`--proyecto` (o `ORACLE_PROYECTO`) y falla con un diagnóstico breve si no lo recibe.
+El wheel distribuye sus archivos bajo `oracle_metalenguaje.*`, pero la fachada todavía registra
+`nucleo`, `catalogos` y `perfiles` como nombres de nivel superior para sostener imports absolutos del
+núcleo. Ya no registra `tools` al importar la biblioteca: hacerlo le borraba al consumidor su propio
+paquete. La colisión con los otros tres nombres sigue siendo posible y está declarada en
+[`DECISION-010`](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
+
+El wheel tampoco distribuye el corpus ni los fixtures de autocertificación del checkout. Por eso un
+comando instalado fuera de un proyecto requiere `--proyecto` (o `ORACLE_PROYECTO`) y falla si no lo
+recibe.
+
+La misma decisión salió de dos consumidores reales, **Jam y LyraGASP**, que usan Oracle desde PyPI.
+Encontraron dos defectos desde afuera: el subproceso de UDF no importaba la fachada en una instalación
+con `pip install --target`, y la fachada ocupaba el paquete `tools` del consumidor. Los verificadores
+anteriores daban verde en ambos casos. El verificador del wheel ahora ejerce tanto un venv como una
+instalación vendorizada y los dos defectos se reinyectaron para comprobar que lo hacen fallar.
 
 Como biblioteca, la frontera pública es `oracle_metalenguaje`; el consumidor no necesita importar
 `nucleo`, `catalogos`, `perfiles` ni `tools`:
@@ -540,10 +534,6 @@ python tools/cifras.py                                  # cifras publicadas vige
 python tools/verificar_instalacion.py                   # wheel + CLI instalado desde un cwd vacío
 ```
 
-Oracle no conserva fixtures diferenciales propios en este repositorio. Ejecutar el diferencial sin
-fixtures devuelve estado no-verde; el flujo temporal de un proyecto externo prueba el camino
-positivo. Esto evita convertir «no había nada que comparar» en una certificación accidental.
-
 <!-- corpus:inicio -->
 **169 casos**: 105 defectos y 64 verdes correctos. De los defectos, 101 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 100 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 90 observada, 73 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
@@ -552,47 +542,11 @@ positivo. Esto evita convertir «no había nada que comparar» en una certificac
 1084 tests · 846/846 mutantes de medida · **4928 sitios de mutación de código** (4718 + 210 del motor Python).
 <!-- cifras:fin -->
 
-> **Baseline restaurado el 2026-08-03 sobre el denominador vigente.** Los 16 objetivos de la matriz
-> del CI —uno por job, que es como se mide— salen en **VERDE**: cero sobrevivientes, cero errores de
-> arnés, **un equivalente declarado** con su razón en [`equivalentes.json`](https://github.com/Segtem/oracle/blob/main/equivalentes.json). Cada
-> ronda muta una copia, puede persistir progreso con `--manifiesto`/`--reanudar` y firma también sus
-> tests y archivos de soporte.
->
-> El camino en un solo proceso —`mutar_codigo.py` sin `--objetivo`— deja **un timeout**: el mutante
-> que apaga `start_new_session` no cuelga un test, los enlentece a todos, y el presupuesto de 60 s se
-> agota antes de llegar a la aserción que lo mata. Con `--objetivo` la priorización la corre primero
-> y muere. Se documenta en vez de maquillarse: **un timeout no mata a nadie** (caso `016` del corpus),
-> así que ese eje se mide particionado y se dice cuál de las dos corridas es la que vale.
->
-> Llegar acá exigió corregir lo que hacía **inmedible** al código, no reclasificar veredictos. La
-> ronda venía con **158 errores de arnés**: trabajo en tiempo de import —constantes de módulo
-> validadas al construirse, `@escalar` corriendo al importar los tests— hacía que un mutante rompiera
-> el *descubrimiento* de la suite, y el arnés reportaba «error» donde había un test capaz de matarlo.
-> Con eso corregido, 158 → **0**. La tentación era contar un `ImportError` como muerte; habría
-> acreditado cobertura real por el motivo equivocado y el hueco seguiría ahí.
-
-> ⚠️ **Esa foto es del 2026-08-03 y hoy no vale. Medido el 2026-08-25.** El núcleo creció de ~2900
-> a más de 5500 líneas —la superficie infija y la del corpus son casi 1400 de ellas— y ese código
-> **nunca se había mutado**. Cuando se intentó, aparecieron tres cosas, en este orden:
->
-> 1. **La ronda no arrancaba.** La línea base salía roja porque un test le preguntaba a git, y el
->    arnés copia el proyecto sin `.git` a propósito. Ninguna ronda era reproducible, así que el
->    «cero sobrevivientes» de arriba no se podía volver a obtener.
-> 2. **Con eso arreglado, la ronda crasheaba** con un traceback de Python en vez de un veredicto: su
->    contrato dice «1 si sobrevivió alguno, 2 si fue inconclusa», y un traceback no es ninguno.
-> 3. **Con eso arreglado, 51 de 193 mutantes salían «error de arnés»** —no muertos, no vivos— porque
->    `ErrorSintaxis` es un `dataclass(frozen=True)` y eso congelaba también `__traceback__`: el tipo
->    de error del lenguaje no se podía re-lanzar desde Python.
->
-> Recién la cuarta corrida fue concluyente, y dijo lo que había que decir:
-> **193 mutantes · 136 muertos · 57 sobrevivientes · 0 timeouts · 0 errores de arnés**, todos en
-> `nucleo/caso.py`. Son 38 constantes de posición, 9 comparadores de borde, 8 booleanos y 2 retornos
-> — o sea: la superficie promete decir «archivo, línea y columna» y nada fija que la posición sea la
-> correcta.
->
-> Se deja escrito así, con el número feo a la vista, porque la alternativa era dejar arriba una
-> afirmación verde de hace tres semanas sobre un código que en su mayoría todavía no existía. **Una
-> cifra que no se puede volver a obtener no es una medición, es un recuerdo.**
+Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una
+ronda vigente sobre todo el denominador publicado arriba. El corte fechado que sí conserva, del 2026-08-25, cubrió
+`nucleo/caso.py`: **193 mutantes, 136 muertos, 57 sobrevivientes, 0 timeouts y 0 errores de arnés**.
+Además, el camino sin `--objetivo` conserva un timeout conocido; la medición válida se particiona por
+objetivo. Ninguno de esos dos límites se convierte en «verde» por el resultado de mutación de medidas.
 
 ### Tres dominios, un álgebra
 
@@ -602,13 +556,14 @@ Es el criterio que decide si esto es general o si es una cosa disfrazada de otra
 |---|---|---|
 | **proceso** | un agente construyendo herramientas: mutantes, afirmaciones, verificaciones vencidas | el corpus de fallas reales |
 | **simulación** | corridas, trazas, presupuesto y reproducibilidad | contratos del runner y corpus de trazas |
-| **demo externo** | items buenos/malos con una UDF propia | flujo temporal completo fuera del árbol de Oracle |
+| **consumidores externos** | geometría, malla, física, recarga y ML deformer | Jam y LyraGASP desde PyPI |
 
 No se parecen en nada, y usan **los mismos operadores sin un solo adaptador**.
 
-La prueba más limpia de que el álgebra cierra es el proyecto externo temporal de integración: define
-su catálogo, corpus, fixtures y una UDF sin modificar Oracle, y completa autoría, aceptación,
-diferencial, mutación de medidas y estudio. Lo único que cruza la frontera son hechos y declaraciones.
+La prueba temporal de integración define catálogo, corpus, fixtures y una UDF sin modificar Oracle,
+y completa autoría, aceptación, diferencial, mutación de medidas y estudio. Jam y LyraGASP agregaron
+la prueba que ese proyecto sintético no podía dar: ambos se conectaron sin tocar una línea de
+`nucleo/algebra.py`. Lo único que cruza la frontera son hechos y declaraciones.
 
 Esos archivos usan `oracle.diferencial/v1`. Guardan SHA-256 del emisor, las fuentes de referencia, el
 catálogo canónico y la configuración; si alguno cambia, el fixture queda vencido antes de evaluarse.
@@ -622,12 +577,11 @@ individual para detectar regresiones compensadas: no se presentan como la misma 
 **una medida del catálogo**, `proceso.test_con_mutante_que_lo_mata`. El sensor no dicta veredictos:
 produce evidencia, y el álgebra la mide.
 
-P1.1 amplió el denominador desde cuatro transformaciones gruesas a **128 mutantes localizados** sobre
-umbral, filtros, fuentes, expresiones, agregados y campos. La primera ronda mató 118 y expuso diez
-libertades que el anterior 48/48 no miraba. Ocho reducciones mínimas fijaron los límites justo en el
-borde; otros dos casos fijaron el comparador interno de `proceso.modulo_con_consumidor` y el `max` de
-`proceso.modulo_alcanzable`. P2.2 retiró una regla textual normativa y cambió el contrato de
-terminación; el denominador actual mata **129/129**.
+Hasta el 2026-09-02 esos mutadores tenían el mismo autor que las medidas y el corpus. Un segundo autor,
+aislado del repositorio y con acceso sólo a la especificación y al contrato, escribió **24**. En la
+primera corrida el corpus mató **142 de 179 (79%)**; de los sobrevivientes salieron tres huecos reales,
+cerrados con casos en el borde. También mostró un límite del catálogo: las 54 medidas universales usan
+la misma forma de umbral, `<= 0`, y 17 de sus mutadores no aplicaron a ninguna.
 
 ### Modo simulación: la segunda fuente de evidencia
 
@@ -661,7 +615,8 @@ causa no era el código: **el corpus tenía sólo defectos**. Con `contar` y umb
 sin filtro sólo da verde si la relación está vacía, así que ningún caso de defecto puede notar que le
 saquen el filtro. Hace falta la otra polaridad — evidencia real donde la medida **debe** decir verde.
 
-Es lo mismo que evaluar un clasificador sólo con positivos. Hoy hay 12 casos `verde_correcto`.
+Es lo mismo que evaluar un clasificador sólo con positivos. Hoy el corpus incluye la otra polaridad
+como casos `verde_correcto`; la cantidad vigente está en el bloque generado de arriba.
 
 **Corrección, dos pasos después.** Cuando el catálogo de geometría trajo el patrón
 «`donde tol` → `resumen max` → `umbral tol`», aparecieron dos sobrevivientes que eran **mutantes
@@ -716,9 +671,10 @@ Tres decisiones que valen la pena:
 - **Un parámetro que la plantilla nunca usa no se carga.** Es la misma regla que
   `meta.toda_medida_esta_ejercitada`: lo que nadie ejercita es decoración.
 
-**El lenguaje activo tiene cinco operadores**: `de`, `donde`, `resumen`, `unir` y `agrupar`.
-Cada uno entró al llegar su disparador. `con` y la unión izquierda se retiraron: sin dos usuarios
-reales eran superficie ficticia, no capacidades.
+**La superficie tiene seis cabezas de tubería.** `desde` la encabeza y no es un paso; los cinco que
+ejecutan son `de`, `donde`, `resumen`, `unir` y `agrupar`. Cada uno entró al llegar su disparador.
+`con` y la unión izquierda se retiraron: sin dos usuarios reales eran superficie ficticia, no
+capacidades.
 
 **Las cuatro preguntas abiertas de la especificación están cerradas**, y sólo una amplió el álgebra:
 la ausencia trajo `agrupar`. El orden resultó ser un campo del hecho; la recursión salió del álgebra
@@ -739,27 +695,22 @@ Hacen falta los dos, y conviene no confundir el verde de uno con el del otro.
 
 ### Qué falta
 
-El camino de «formato de datos con buenas defensas» a «lenguaje» está desglosado en
-[`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md): `defmacro` en datos, reificación mecánica del catálogo, la
-decisión sobre composición, y el diferencial propio que hoy está estructuralmente vacío.
+`defmacro` en datos, la reificación mecánica del catálogo, la decisión de no componer medidas, el
+evaluador diferencial independiente y las ocho propiedades metamórficas ya están cerrados. Lo abierto
+hoy es esto:
 
-- ~~**Elegir una licencia.**~~ **HECHO.** MIT, en [`LICENSE`](https://github.com/Segtem/oracle/blob/main/LICENSE) y en los metadatos del
-  paquete (`License-Expression: MIT`, con el archivo incluido en el wheel): un tercero puede
-  identificar los permisos automáticamente y redistribuirlo.
-- ~~**Un consumidor real independiente.**~~ **PARCIALMENTE HECHO el 2026-09-02.** Dos proyectos
-  consumen Oracle desde PyPI, y en dos días encontraron **dos defectos** que este repositorio no
-  encontró solo: el subproceso aislado que corre las UDF arrancaba sin la fachada, e importar la
-  biblioteca le borraba al consumidor su propio paquete `tools/`. Los dos verificadores que debían
-  atraparlos pasaban, cada uno mirando lo que no era. Lo que sigue faltando es la adopción por un
-  proyecto que NO haya sido diseñado junto con Oracle: éstos dos sí lo fueron.
-- ~~**Los mutadores son de autoría propia.**~~ **HECHO el 2026-09-02**, ver
-  [`DECISION-011`](https://github.com/Segtem/oracle/blob/main/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md).
-  Un segundo autor en aislamiento verificable escribió 24 mutadores sin ver el repositorio: mataron
-  el 79% desde la primera corrida, encontraron tres huecos reales y dejaron ver que las 54 medidas
-  del catálogo tienen todas la misma forma. **Siguen siendo dos autores, no muchos.**
-- **La frontera humana del caso `011`**: la medición puede exigir trazabilidad, pero una atribución
-  causal no tiene un verificador mecánico genérico. `004` y `012` ya figuran como resueltos y no
-  inflan la deuda abierta.
+- **Adopción ajena.** Jam y LyraGASP consumen el paquete publicado y encontraron dos defectos, pero
+  ambos se diseñaron junto con Oracle. Falta un proyecto que no haya compartido ese diseño.
+- **El próximo límite de L2.** Ningún consumidor escribió una medida meta que necesite una relación
+  nueva. Hasta que ocurra, no se sabe si la reificación alcanza fuera de las preguntas de este autor.
+- **La frontera del paquete instalado.** La fachada todavía ocupa `nucleo`, `catalogos` y `perfiles`.
+  Además, `oracle_metalenguaje/__init__.py` y `tools/__init__.py` tienen conducta pero están excluidos
+  de la mutación de código junto con los `__init__.py` vacíos.
+- **El denominador de mutación sigue teniendo autor.** Hay dos, no muchos. El mutador
+  `convertir_conteo_en_existencia` está excluido porque con los 54 umbrales `<= 0` es equivalente;
+  no hay una alarma que lo reincorpore si aparece otra forma de umbral.
+- **La frontera humana del caso `011`.** La medición puede exigir trazabilidad, pero una atribución
+  causal no tiene un verificador mecánico genérico. `004` y `012` están resueltos y no inflan la deuda.
 
 ## Por qué el corpus va primero
 

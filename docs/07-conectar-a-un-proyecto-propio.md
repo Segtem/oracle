@@ -20,8 +20,14 @@ La razón no es estética. Un sensor que además abre archivos sólo se puede pr
 archivos; separado, se prueba con strings. Y un adaptador que además decide esconde la decisión
 donde nadie la revisa.
 
-Es la misma partición que usan los dos consumidores reales de Oracle: `sensores/*.py` puro,
-`mide_*.py` como adaptador.
+Es la misma partición que usan los dos consumidores reales de Oracle en producción:
+- **Jam** (`~/Dev/jam`): plugin de Unreal Engine, 41 archivos de catálogo, 24 casos en corpus,
+  11 fixtures diferenciales.
+- **LyraGASP** (`~/Dev/games/unreal/LyraGASP`): proyecto de juego en Unreal Engine, 9 archivos de
+  catálogo, 26 casos en corpus, 3 fixtures diferenciales.
+
+Los dos migraron de un subtree de git al paquete publicado (`oracle-metalenguaje==0.3.3`) en PyPI.
+Los detalles de qué se midió en cada uno están en [`docs/migracion/`](migracion/de-subtree-a-pypi.md).
 
 ## El sensor
 
@@ -166,10 +172,111 @@ burocracia: es lo que impide comparar centímetros contra grados.
 explícito, y cuando lo hace es en un **proceso aislado**: una función hostil no puede leer fuera del
 proyecto, escribir fuera, abrir red ni lanzar procesos.
 
+## El paquete instalado es otro proyecto (`DECISION-010`)
+
+La migración de los dos consumidores reales sacó a la luz dos defectos sobre el paquete publicado:
+
+### 1. El comando vs el paquete
+- Si el proyecto sólo ejecuta comandos (`oracle test`, `oracle-corpus`), alcanza con `uv tool install oracle-metalenguaje`.
+- Si algún script propio importa la biblioteca (`from oracle_metalenguaje import Motor` o `escalar`),
+  necesita el paquete en su propio intérprete.
+- Para el Python embebido de un motor como Unreal (el caso de Jam), no hay venv posible: se vendoriza
+  el wheel publicado con `python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.3.3"`.
+  Medido en Jam: 2,3 MB y 183 archivos contra 3,5 MB y 284 del subtree original.
+
+### 2. Aislamiento de escalares en layouts no estándar
+`escalares.py` se ejecuta en un subproceso aislado con el entorno reemplazado. En 0.3.1, ese proceso
+fijaba `PYTHONPATH = RAIZ_ORACLE`. En el repositorio eso apunta a la raíz; en un wheel instalado,
+eso apuntaba al directorio del paquete mismo, dejando la fachada inalcanzable. Fuera de un venv, el
+`from oracle_metalenguaje import escalar` fallaba con `ModuleNotFoundError`. En 0.3.2+ la ruta se
+resuelve con `importlib.util.find_spec`.
+
+### 3. La fachada no debe ocupar nombres ajenos
+En 0.3.1 y 0.3.2, importar `oracle_metalenguaje` metía en `sys.modules` nombres de nivel superior
+(`tools`, `nucleo`, `catalogos`, `perfiles`). Un consumidor con su propio paquete `tools/` moría al
+importar con `ModuleNotFoundError: No module named 'tools.referencias'`. En 0.3.3 el alias de `tools`
+se mudó fuera de la fachada, al propio paquete `tools/`.
+
+### 4. Antes de borrar un subtree
+Si venís de un subtree de git, comprobá antes de borrar que no tenga cambios locales:
+```bash
+git diff --name-only -- vendor/oracle       # tiene que dar vacío
+git status --short -- vendor/oracle         # tiene que dar vacío
+```
+Borrar sin verificar pierde ediciones que no existen arriba. En Jam y LyraGASP se midió: cero
+ediciones locales en ambos antes de migrar.
+
+## Heredar un catálogo: la sombra y su envejecimiento
+
+Cuando un proyecto conecta Oracle y declara `"catalogo_base": true`, pasa a ser juzgado por las 54
+medidas universales. En proyectos existentes esto encuentra deudas reales de inmediato:
+- En **Jam** aparecieron **104 infracciones** en 3 medidas (54 comparaciones sin unidad derivable,
+  41 umbrales sin `segun`, 9 medidas con evidencia puramente fabricada).
+- En **LyraGASP** aparecieron **34 infracciones** en las mismas 3 medidas (16 sin unidad, 9 sin
+  `segun`, 9 sólo fabricadas).
+
+Ninguno era un error de Oracle: eran omisiones reales del catálogo heredado que antes nadie medía.
+La salida no es apagar la regla —eso volvería al verde que no significa nada— ni arreglar 104
+defectos en el commit de la conexión. La solución es la **sombra** en `oracle.json`:
+
+```json
+{
+  "sombra": {
+    "meta.todo_umbral_declara_de_donde_sale": {
+      "desde": "2026-09-01",
+      "porque": "los umbrales son anteriores a `segun`; se completan de a uno"
+    }
+  }
+}
+```
+
+La medida se evalúa, se reporta como `[EN SOMBRA]` y no tumba la corrida (`ACEPTACIÓN ✓`).
+
+### La sombra envejece (dos medidas nuevas)
+
+Una sombra sin fecha no se puede envejecer; una sin motivo no se puede discutir. Dos medidas
+universales custodian que las sombras no se conviertan en excepciones permanentes:
+
+1. **`meta.ninguna_sombra_envejece_sin_revisarse`**: cuenta los días desde la fecha declarada en
+   `desde`. Si supera los **90 días**, la medida se pone roja.
+2. **`meta.toda_sombra_declara_una_fecha_real`**: si la fecha no se puede leer (formato inválido) o
+   está en el futuro (días negativos), la medida falla de inmediato.
+
+Además, `meta.ninguna_sombra_ya_en_verde` prohíbe mantener en sombra una medida que ya pasa, y
+`meta.ninguna_sombra_sobre_una_medida_que_no_existe` evita sombras huérfanas. Ninguna de estas cuatro
+medidas puede ponerse en sombra a sí misma.
+
+## Todo el contexto en un comando: `oracle contexto`
+
+Para saber qué podés escribir en tu proyecto sin recorrer archivos ni memorizar esquemas:
+
+```bash
+oracle contexto
+```
+
+O en formato compacto (~1.600 tokens contra ~8.600 de correr los tres comandos que reemplaza):
+
+```bash
+oracle contexto --compacto
+```
+
+Reúne en una sola salida:
+1. Lo que toda medida declara (`umbral ... segun ... porque ...`, `alcance ...`).
+2. Las relaciones y campos disponibles en tu proyecto (derivados de tu evidencia).
+3. Con qué se escribe: operadores (`agrupar`, `de`, `donde`, `resumen`, `unir`), comparadores,
+   lógicos, agregados y escalares declaradas.
+4. Las medidas que ya existen en el catálogo con sus puntos ciegos declarados.
+5. La regla de orden: escribir el caso antes que la medida.
+
 ---
 
 ## Qué sigue
 
-- [Por qué la mutación](05-por-que-la-mutacion.md) — qué hacer cuando un mutante sobrevive.
-- [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) — la guía larga de cómo se escribe una.
-- [ESPECIFICACION.md](../ESPECIFICACION.md) — la referencia del lenguaje.
+- [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 28 mutadores en aislamiento y qué
+  hacer cuando uno sobrevive.
+- [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) — la guía completa de autoría.
+- [`docs/migracion/de-subtree-a-pypi.md`](migracion/de-subtree-a-pypi.md) — guía paso a paso de migración
+  desde subtree a PyPI.
+- [`DECISION-010`](../DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) — por qué el paquete
+  instalado es otro proyecto y cómo se mide.
+- [ESPECIFICACION.md](../ESPECIFICACION.md) — la referencia formal del lenguaje.

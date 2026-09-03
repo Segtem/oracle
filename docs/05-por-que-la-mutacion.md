@@ -20,14 +20,52 @@ La pregunta que hay que poder contestar no es «¿pasa?», sino **«¿qué tendr
 esto falle?»**. La mutación la contesta rompiendo la medida a propósito y exigiendo que tu corpus
 lo note.
 
-## Los siete mutantes
+## Los mutadores tienen autor (`DECISION-011`)
 
-En el proyecto de juguete, con una sola medida y dos casos:
+Hasta esta versión, `tools/mutar.py` decía **715/715 mutantes muertos**. Ese 100% medía cobertura
+sobre cinco mutadores propios (`aflojar_umbral`, `invertir_comparador`, `quitar_filtro`,
+`quitar_requiere`, `negar_filtro`), más los estructurales, todos escritos por la misma persona que
+escribió las medidas y el corpus.
+
+El problema no se ve desde adentro: **un mutador que nadie escribió no puede producir un
+sobreviviente.** El 100% era un indicador sobre un conjunto cerrado y complaciente.
+
+La corrección fue metodológica: **otro autor, en aislamiento verificable.**
+- En un directorio con dos archivos (`ESPECIFICACION.md` y `CONTRATO.md`), con el párrafo que
+  enumeraba los sitios de mutación existentes tachado para no inducir las mismas respuestas.
+- El segundo autor no vio `nucleo/mutacion.py`, ni el catálogo, ni un solo caso del corpus, ni los
+  tests. Se auditó su registro de comandos (`mutadores/PROCEDENCIA.md`): tres comandos dentro de ese
+  directorio y ninguna lectura hacia afuera.
+- Escribió **24 mutadores** (`mutadores/segundo_autor.py`).
+
+Sobre el catálogo real de 54 medidas universales:
+- Generaron **179 mutantes aplicables**.
+- El corpus mató **142 en la primera corrida (79%)**.
+- De los 37 sobrevivientes, 6 los rechazó el álgebra y quedaron **31 reales**.
+- **Tres eran huecos de verdad** en medidas escritas ese mismo día: `alejar_limite_de_defecto` y
+  `hacer_estricta_comparacion_interna` sobrevivieron sobre
+  `meta.toda_opcion_del_vocabulario_declara_su_sentido` y `meta.ninguna_sombra_envejece_sin_revisarse`.
+  Los casos tenían anomalías grandes (4 palabras contra 22; 244 días contra 90) y ningún testigo en
+  el borde exacto. Se cerraron con dos casos en el límite: uno de 5 palabras y uno de 91 días.
+- **Veintiocho eran un mutante equivalente**: `convertir_conteo_en_existencia` cambia `contar` por
+  `max(1)`. Con `umbral <= 0` —el umbral de las 54 medidas del catálogo— «contar al menos una» y
+  «existe alguna» son la misma afirmación. Queda excluido del arnés con su razón declarada en
+  código.
+- **Diecisiete no aplicaron a ninguna medida**, porque el catálogo universal usa monótonamente
+  `umbral <= 0`.
+
+Hoy el motor tiene **28 mutadores activos** (5 propios + 23 del segundo autor).
+
+## La mutación en tu medida
+
+En el proyecto de juguete, tu medida tiene una estructura simple: una sola fuente, un filtro
+booleano, conteo y umbral `<= 0`. De los 28 mutadores del motor, **siete** aplican a esa sintaxis
+(los otros mutan uniones, agrupamientos, cotas o agregados que esa medida no usa):
 
 ```
 $ oracle test
 mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
-  de los muertos: 7 por conducta (invirtió el veredicto, cambió testigos o cambió el valor)
+  de los muertos: 7 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
 detecciones evaluadas (mutante × caso): 14
 ```
 
@@ -46,10 +84,14 @@ Borrá el caso verde y dejá sólo el rojo:
 ```
 $ oracle test
 mutantes de medida (medida × mutador): 7 · murieron 6 · sobrevivieron 1
+  de los muertos: 6 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 7
 
-  ✗ meta.toda_medida_esta_fijada                 1 (<= 0)
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
+  ✗ meta.toda_medida_esta_fijada                        1 (<= 0)
       → m=documento.nombre_sigue_la_convencion
-  ✗ proceso.test_con_mutante_que_lo_mata         1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata                1 (<= 0)
       → m=documento.nombre_sigue_la_convencion·quitar_filtro
 
 lo que el corpus NO fija — ningún caso detecta estas mutaciones:
@@ -79,6 +121,12 @@ falta algo: dice qué.
 Debilitar el mutador —sacarlo de la lista, ponerle una excepción— hace que el número suba y que la
 medición valga menos. Es Goodhart otra vez, un nivel más arriba: el «100% de mutantes muertos»
 pasa a ser el objetivo en vez del indicador.
+
+La consecuencia real ya ocurrió: al pasar de 5 a 28 mutadores (`DECISION-011`), la biblioteca de
+ejemplo dejó de certificar porque publicaba 12 mutantes y el arnés nuevo medía 16. Agregar
+mutadores **invalida la certificación** de bibliotecas existentes, y es correcto: una biblioteca
+certificada contra 5 mutadores no está certificada contra 28. No se aflojó el chequeo; se
+re-midió y se re-certificó.
 
 ## Aflojar el umbral no siempre se puede
 
@@ -125,10 +173,14 @@ lo mismo que no ponerla.
 | | qué muta | quién lo corre |
 |---|---|---|
 | **medidas** | el catálogo: quita filtros, afloja umbrales, invierte comparadores | `oracle test`, en tu proyecto |
-| **código** | el Python de Oracle | sólo dentro de Oracle |
+| **código** | el Python de Oracle | sólo dentro de Oracle (`tools/mutar_codigo.py`) |
 
 En tu proyecto ves el primero. El segundo es cómo Oracle se mide a sí mismo, y su regla es la misma:
 un mutante de código que sobrevive es código que nada observa.
+
+El costo está medido: confirmar un sobreviviente cuesta una corrida completa de la suite (~50 s),
+porque el arnés corre los módulos prioritarios primero y el resto si sobrevive. Mutar `nucleo/mutacion.py`
+pide `--timeout 180`: la línea base tarda 50,5 s contra el plazo por omisión de 60 s.
 
 ---
 
@@ -137,4 +189,7 @@ un mutante de código que sobrevive es código que nada observa.
 - [De cero a un rojo](02-de-cero-a-un-rojo.md) — si todavía no armaste el proyecto de juguete.
 - [Conectar Oracle a un proyecto propio](07-conectar-a-un-proyecto-propio.md) — de dónde sale la
   evidencia observada.
-- [ESPECIFICACION.md](../ESPECIFICACION.md) — la lista completa de mutadores.
+- [DECISION-011](../DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) — el protocolo del segundo autor y
+  los 24 mutadores en aislamiento.
+- `mutadores/` — el contrato, la procedencia y el código del segundo autor.
+- [ESPECIFICACION.md](../ESPECIFICACION.md) — la lista completa de mutadores del lenguaje.
