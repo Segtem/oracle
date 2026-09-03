@@ -6,6 +6,7 @@ import io
 import sys
 import unittest
 from contextlib import contextmanager, redirect_stdout, redirect_stderr
+from unittest import mock
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -16,13 +17,16 @@ from tools import manual  # noqa: E402
 
 class TemasTests(unittest.TestCase):
 
-    def test_estan_todos_los_vocabularios_y_los_verbos(self) -> None:
-        self.assertEqual(set(manual.temas()), set(manual.VOCABULARIOS) | {"verbos"})
+    def test_estan_todos_los_vocabularios_mas_los_temas_derivados(self) -> None:
+        """`verbos` y `medidas` no son vocabularios cerrados: se derivan del CLI y del catálogo, y
+        por eso no entran en la relación que vigilan las dos medidas del manual."""
+        self.assertEqual(set(manual.temas()),
+                         set(manual.VOCABULARIOS) | {"verbos", "medidas"})
 
-    def test_los_vocabularios_van_antes_que_los_verbos(self) -> None:
-        """El orden es el de lectura: primero lo que hay que entender para escribir una medida,
-        y al final el listado de comandos, que se consulta y no se lee."""
-        self.assertEqual(manual.temas()[-1], "verbos")
+    def test_los_vocabularios_van_antes_que_los_temas_derivados(self) -> None:
+        """El orden es el de lectura: primero lo que hay que entender para escribir una medida, y
+        al final lo que se consulta y no se lee — los comandos y el catálogo entero."""
+        self.assertEqual(manual.temas()[-2:], ("verbos", "medidas"))
 
     def test_no_hay_temas_repetidos(self) -> None:
         self.assertEqual(len(manual.temas()), len(set(manual.temas())))
@@ -247,6 +251,100 @@ class LaPaginaPublicadaNoSeDespegaTests(unittest.TestCase):
         self.assertEqual(publicada.rstrip("\n"), manual.pagina().rstrip("\n"),
                          "docs/manual.html quedó atrás: regeneralo con "
                          "`python tools/cli.py manual --html > docs/manual.html`")
+
+
+class LasMedidasUniversalesEstanEnElManualTests(unittest.TestCase):
+    """Las 54 medidas que Oracle trae son parte del lenguaje: viajan en el paquete y valen para
+    cualquiera. Cada una ya declara qué NO ve, así que documentarlas no cuesta prosa nueva —
+    cuesta mostrar la que ya está."""
+
+    def test_estan_todas_las_del_catalogo_universal(self) -> None:
+        """Del catálogo cargado, no de una lista al lado: una medida nueva aparece acá sola."""
+        universal = manual.catalogo_universal()
+        self.assertGreater(len(universal), 40, "el catálogo universal no cargó")
+        entradas = dict(manual.entradas("medidas"))
+        self.assertEqual(set(entradas), set(universal))
+
+    def test_lo_que_se_muestra_es_el_alcance_y_no_el_porque(self) -> None:
+        """El `porque` justifica el número ante quien lo discute; el `alcance` dice qué NO cubre,
+        que es lo único que evita confiar de más en un verde ajeno."""
+        universal = manual.catalogo_universal()
+        for mid, mostrado in manual.entradas("medidas"):
+            self.assertEqual(mostrado, (universal[mid].alcance or "").strip())
+
+    def test_no_es_un_vocabulario_cerrado(self) -> None:
+        """Si entrara como vocabulario, sus 54 entradas caerían en la relación
+        `opcion_del_vocabulario` y las dos medidas que vigilan el manual medirían otra cosa."""
+        self.assertNotIn("medidas", manual.VOCABULARIOS)
+        self.assertIn("medidas", manual.temas())
+
+    def test_si_el_catalogo_no_carga_el_manual_igual_se_imprime(self) -> None:
+        """Un manual que revienta porque una medida está mal escrita es un manual que no se puede
+        consultar justo cuando hace falta."""
+        with mock.patch.object(manual, "catalogo_universal", return_value={}):
+            self.assertEqual(manual.entradas("medidas"), [])
+            self.assertIn("SEGUN — ", manual.texto("segun"))
+
+    def test_un_catalogo_que_revienta_devuelve_un_mapa_vacio_y_no_None(self) -> None:
+        """Se fuerza la falla de verdad en vez de mockear la función entera: mockeándola, la rama
+        del `except` no se ejercita nunca y el mutante que cambia su `{}` por `None` sobrevive.
+
+        Y se exige `{}` y NO `None` porque quien llama itera el resultado: con `None` el manual
+        revienta en el renglón siguiente, que es justo lo que esta rama existe para evitar.
+        """
+        import nucleo.medida
+
+        with mock.patch.object(nucleo.medida, "cargar_catalogo",
+                               side_effect=RuntimeError("catálogo roto")):
+            devuelto = manual.catalogo_universal()
+        self.assertEqual(devuelto, {})
+        self.assertIsNotNone(devuelto)
+
+
+class UnaColumnaLargaBajaLaProsaTests(unittest.TestCase):
+    """Los ids de medida pasan de cincuenta caracteres. Alineados, la columna se come dos tercios
+    del renglón y la explicación queda en una tira de veinte."""
+
+    def test_con_nombres_cortos_la_prosa_va_al_lado(self) -> None:
+        with _vocabulario({"a": "uno", "bb": "dos"}):
+            cuerpo = manual.seccion("segun").splitlines()[2:]
+        self.assertTrue(cuerpo[0].strip().startswith("a "), cuerpo[0])
+
+    def test_con_nombres_largos_la_prosa_baja(self) -> None:
+        largo = "meta." + "x" * 50
+        with _vocabulario({largo: "una explicación cualquiera"}):
+            cuerpo = [l for l in manual.seccion("segun").splitlines()[2:] if l.strip()]
+        self.assertEqual(cuerpo[0], f"  {largo}")
+        # La sangría se afirma SIN `strip`: con strip, cualquier número de espacios pasa igual y el
+        # mutante que la cambia sobrevive. Seis, que es la columna donde arranca la prosa.
+        self.assertEqual(cuerpo[1], "      una explicación cualquiera")
+
+    def test_la_prosa_bajada_usa_el_ancho_que_le_queda(self) -> None:
+        """El texto envuelve contra `ancho - 6`, no contra `ancho`: la sangría ocupa esos seis. Con
+        una prosa corta cualquier ancho parecido da lo mismo, así que se construye una que caiga
+        JUSTO en el límite — es el único lugar donde un carácter de diferencia se ve."""
+        largo = "meta." + "y" * 50
+        palabra = "z" * 10
+        # Ocho palabras de diez con sus siete separadores dan 87; con « ab» llega a 90 EXACTOS, que
+        # es justo el ancho disponible (96 menos los 6 de sangría). Entra en una sola línea. Con un
+        # carácter menos de margen no entraría, y ahí está la diferencia que el test tiene que ver.
+        prosa = " ".join([palabra] * 8 + ["ab"])
+        with _vocabulario({largo: prosa}):
+            cuerpo = [l for l in manual.seccion("segun", 96).splitlines()[2:] if l.strip()]
+        self.assertEqual(len(cuerpo), 2, cuerpo)
+        self.assertEqual(len(cuerpo[1]), 96)
+        self.assertTrue(cuerpo[1].endswith(" ab"), cuerpo[1])
+
+    def test_el_umbral_es_un_tercio_del_ancho(self) -> None:
+        """Elegido y no medido: con menos, nombres normales bajarían sin motivo; con más, la tira
+        de texto sigue siendo ilegible. Si alguna vez se mide, que se cambie con el número."""
+        justo = "n" * (96 // 3 - 2)
+        with _vocabulario({justo: "cabe al lado"}):
+            self.assertIn(f"  {justo}  cabe al lado", manual.seccion("segun"))
+        pasado = "n" * (96 // 3 + 1)
+        with _vocabulario({pasado: "no cabe"}):
+            cuerpo = [l for l in manual.seccion("segun").splitlines()[2:] if l.strip()]
+            self.assertEqual(cuerpo[0].strip(), pasado)
 
 
 class RoffTests(unittest.TestCase):

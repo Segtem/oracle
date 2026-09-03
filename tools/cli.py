@@ -31,6 +31,7 @@
     oracle manual como_se_detecto           quién encontró el defecto
     oracle manual relaciones                las relaciones que el lenguaje emite sobre sí mismo
     oracle manual verbos                    los verbos del comando, por sustantivo
+    oracle manual medidas                   las 54 medidas que Oracle trae, y qué NO ve cada una
     oracle manual [tema] --man              la misma referencia en roff, para `man -l`
     oracle manual --instalar-man <dir>      escribe oracle(1) y oracle-<tema>(7) bajo <dir>
 

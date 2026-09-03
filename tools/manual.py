@@ -24,6 +24,7 @@ from pathlib import Path
 # contrario. La posición no es un detalle: cada consumidor de Oracle tiene su propio `catalogos/`,
 # y si el suyo va primero, sombrea el del lenguaje.
 RAIZ = str(Path(__file__).resolve().parent.parent)
+RAIZ_PAQUETE = Path(RAIZ)
 sys.path = [RAIZ, *sys.path]
 
 from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS          # noqa: E402
@@ -46,13 +47,44 @@ VOCABULARIOS: dict[str, tuple[str, dict[str, str]]] = {
 }
 
 
+def catalogo_universal() -> dict:
+    """Las medidas que Oracle TRAE, cargadas sin proyecto.
+
+    Son parte del lenguaje igual que los vocabularios: viajan en el paquete y valen para cualquiera.
+    Las de un proyecto no van acá —cambian con él, y para eso está `oracle contexto`—.
+
+    Se carga adentro de la función y con `except`: el manual tiene que poder imprimirse aunque el
+    catálogo no cargue. Un manual que revienta porque una medida está mal escrita es un manual que
+    no se puede consultar justo cuando hace falta.
+    """
+    try:
+        import catalogos.escalares  # noqa: F401  registra las escalares del catálogo base
+        from nucleo.macro import macros_base
+        from nucleo.medida import cargar_catalogo
+
+        bases = [RAIZ_PAQUETE / "catalogos", RAIZ_PAQUETE / "perfiles" / "python" / "catalogos"]
+        return cargar_catalogo([b for b in bases if b.is_dir()], macros=macros_base())
+    except Exception:
+        return {}
+
+
+def _medidas_como_entradas() -> list[tuple[str, str]]:
+    """Cada medida con lo que NO ve, que es lo que un lector necesita saber de una que no escribió.
+
+    El `alcance` y no el `porque`: el `porque` justifica el número ante quien lo discute; el
+    `alcance` dice qué NO cubre, que es lo único que evita confiar de más en un verde.
+    """
+    return [(mid, (getattr(m, "alcance", "") or "").strip())
+            for mid, m in sorted(catalogo_universal().items())]
+
+
 def _lista(vocabulario: dict[str, str]) -> list[tuple[str, str]]:
     return sorted(vocabulario.items())
 
 
 def temas() -> tuple[str, ...]:
     """Los temas que el manual sabe mostrar, en el orden en que conviene leerlos."""
-    return tuple(VOCABULARIOS) + ("verbos",)
+    return tuple(VOCABULARIOS) + ("verbos", "medidas")
 
 
 def _verbos() -> dict[str, tuple[str, ...]]:
@@ -69,6 +101,8 @@ def entradas(tema: str) -> list[tuple[str, str]]:
     if tema == "verbos":
         return [(f"oracle {sustantivo}", " · ".join(vs))
                 for sustantivo, vs in _verbos().items()]
+    if tema == "medidas":
+        return _medidas_como_entradas()
     raise TemaDesconocido(tema)
 
 
@@ -77,6 +111,8 @@ def titulo(tema: str) -> str:
         return VOCABULARIOS[tema][0]
     if tema == "verbos":
         return "los verbos del CLI, por sustantivo"
+    if tema == "medidas":
+        return "las medidas universales que Oracle trae, y qué NO ve cada una"
     raise TemaDesconocido(tema)
 
 
@@ -98,6 +134,18 @@ def seccion(tema: str, ancho: int = 96) -> str:
     partes = [f"{tema.upper()} — {titulo(tema)}", ""]
     nombres = entradas(tema)
     columna = max(len(nombre) for nombre, _ in nombres) + 2
+    # Con nombres largos —los ids de medida pasan de cincuenta caracteres— la columna alineada se
+    # come dos tercios del renglón y el texto queda en una tira de veinte. A partir de un tercio del
+    # ancho conviene bajar la prosa a la línea siguiente: se pierde el barrido vertical de nombres,
+    # que con ids largos ya no servía, y se gana el ancho que la explicación necesita.
+    if columna > ancho // 3:
+        sangria = " " * 6
+        for nombre, sentido in nombres:
+            partes.append(f"  {nombre}")
+            partes.extend(sangria + l.lstrip() if i == 0 else l
+                          for i, l in enumerate(_envolver(sentido, ancho - 6, sangria)))
+            partes.append("")
+        return "\n".join(partes).rstrip("\n")
     for nombre, sentido in nombres:
         sangria = " " * (columna + 2)
         envuelto = _envolver(sentido, ancho - columna - 2, sangria)
