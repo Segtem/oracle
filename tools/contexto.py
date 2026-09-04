@@ -28,7 +28,8 @@ from tools.medida import inventario_de_relaciones  # noqa: E402
 from nucleo.vocabulario import (OPERADORES, ORIGENES_DE_UMBRAL,  # noqa: E402
                                 opciones)
 from nucleo.proyecto import (EscalaresNoConfiables, catalogo_efectivo,  # noqa: E402
-                             configuracion, escalares_del_proyecto, macros_del_proyecto)
+                             confiar_escalares, configuracion, escalares_del_proyecto,
+                             macros_del_proyecto)
 from tools.sesion import resolver_cli  # noqa: E402
 
 
@@ -179,11 +180,17 @@ def main(argv: list[str] | None = None) -> int:
         description="Todo lo que hace falta para escribir una medida en este proyecto.")
     p.add_argument("--compacto", action="store_true",
                    help="la misma vista, sin lo que se puede deducir (para un agente)")
+    # La bandera se saca del parseo Y se propaga. Sacarla sin propagarla dejaba este punto de
+    # entrada tratando las escalares como no autorizadas aunque el usuario las hubiera autorizado —
+    # y el mensaje de falla, que dice «repetí con `--confiar-escalares`», le pedía exactamente lo
+    # que acababa de hacer. El despacho desde `tools/cli.py` sí la propagaba, así que el defecto
+    # sólo se veía corriendo el módulo directo.
+    confiar = confiar_escalares(argv)
     args, _ = p.parse_known_args([a for a in argv if a != "--confiar-escalares"])
     proy = resolver_cli(argv)
     if proy is None:
         return 2
-    print(texto(proy, compacto=args.compacto))
+    print(texto(proy, compacto=args.compacto, confiar_escalares=confiar))
     return 0
 
 

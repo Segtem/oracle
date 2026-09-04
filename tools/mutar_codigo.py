@@ -69,6 +69,10 @@ PRIORIDADES = {
     "tools/cifras.py": ("tests.test_herramientas",),
     "tools/cli.py": ("tests.test_biblioteca", "tests.test_vigilar", "tests.test_cli",
                      "tests.test_herramientas"),
+    # `test_contexto` primero y solo: es chico y es suyo. La lección de costo de arriba —un mutante
+    # cuesta lo que tarde el arnés en LLEGAR al test que lo mata— dice poner el módulo más
+    # específico adelante, y acá se puede porque el archivo tiene su propio test.
+    "tools/contexto.py": ("tests.test_contexto", "tests.test_cli"),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
     "tools/lsp.py": ("tests.test_lsp",),
     # Listo para cuando `aceptacion.py` entre a HERRAMIENTAS_CUSTODIAS; ver la nota de ahí.
@@ -149,7 +153,23 @@ PRIORIDADES = {
 # Los tres sobrevivientes de `manual.py` los introdujo quien agregó `--man`: lo midió en 39/39, lo
 # siguió editando y no lo volvió a medir. Es el modo de fallar que este proyecto persigue, cometido
 # adentro: medir una vez y quedarse con el número viejo en la cabeza.
-HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "corpus.py",
+# `contexto.py` entra el 2026-09-04, y entra por haber fallado. Custodia la afirmación «esto es lo
+# que hay en tu proyecto»: relaciones, escalares, vocabularios y catálogo efectivo, reunidos para
+# quien va a escribir una medida. Nadie más la comprueba — el manual describe el LENGUAJE y la
+# aceptación juzga el RESULTADO; entre las dos no hay quien mire si el inventario del proyecto es
+# cierto.
+#
+# El defecto que lo trajo: un `except Exception: return []` convertía el fallo de cargar las
+# escalares del proyecto en «LAS 0 MEDIDAS QUE YA EXISTEN». Medido sobre los dos consumidores
+# conocidos, que tienen 41 y 9 medidas propias. El destinatario declarado de este archivo es un
+# agente con una ventana de contexto, y a un agente un cero por falla es indistinguible de un cero
+# real: no tiene con qué dudar. Sobre esa base escribe la primera medida de un catálogo que ya
+# tiene cuarenta y una.
+#
+# Es el mismo criterio que trajo a `manual.py`, con una diferencia que conviene no perder: aquél
+# entró por una afirmación que PODÍA romperse, y éste por una que YA se había roto y vivió meses sin
+# que nada la señalara, precisamente porque el archivo estaba fuera del perfil.
+HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "contexto.py", "corpus.py",
                           "lsp.py", "manual.py", "medida.py")
 
 
