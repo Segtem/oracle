@@ -4,4 +4,5 @@ ninguno-requiere meta.toda_opcion_del_vocabulario_declara_su_sentido:
     predicado o.palabras_del_sentido <= 5
     porque "un vocabulario cerrado es la parte del lenguaje que más se equivoca quien recién llega, porque los cinco nombres se parecen entre sí; una opción explicada en cinco palabras o menos no distingue de las otras cuatro, que es lo único que el lector necesita. El límite es cero: no hay opción que valga la pena tener y no valga la pena explicar"
     segun convencion
+    ambito del_origen
     alcance "cuenta palabras, no las lee: NO juzga si la explicación es correcta ni si distingue de verdad. Y NO ve un vocabulario cerrado que no esté en el registro del manual — para eso está `meta.todo_vocabulario_cerrado_esta_en_el_manual`"

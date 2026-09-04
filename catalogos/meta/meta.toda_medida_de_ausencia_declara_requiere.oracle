@@ -10,4 +10,5 @@ medida meta.toda_medida_de_ausencia_declara_requiere:
     resumen contar(1)
     umbral <= 0 segun contrato porque "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada"
     requiere termino
+    ambito universal
     alcance "detecta medidas cuya forma canónica contiene `unir` y `agrupar` pero ningún nodo `requiere`. NO demuestra que toda medida con ese patrón sea realmente de ausencia, ni que la relación requerida elegida sea la correcta"

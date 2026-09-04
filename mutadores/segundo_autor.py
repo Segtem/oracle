@@ -17,7 +17,7 @@ def _copiar(valor):
 
 def _partes(datos):
     """Obtiene las partes estables de una medida o informa una forma ajena."""
-    if not isinstance(datos, list) or len(datos) not in (6, 7):
+    if not isinstance(datos, list) or len(datos) not in (6, 7, 8):
         return None
     if not datos or datos[0] != "medida":
         return None
@@ -29,10 +29,16 @@ def _partes(datos):
     if not (isinstance(umbral, list) and len(umbral) >= 3 and umbral[0] == "umbral"):
         return None
     indice_requiere = None
-    if len(datos) == 7:
-        if not (isinstance(datos[5], list) and datos[5] and datos[5][0] == "requiere"):
-            return None
+    siguiente = 5
+    if (siguiente < len(datos) - 1 and isinstance(datos[siguiente], list)
+            and datos[siguiente] and datos[siguiente][0] == "requiere"):
         indice_requiere = 5
+        siguiente += 1
+    if (siguiente < len(datos) - 1 and isinstance(datos[siguiente], list)
+            and datos[siguiente] and datos[siguiente][0] == "ambito"):
+        siguiente += 1
+    if siguiente != len(datos) - 1:
+        return None
     if not (isinstance(datos[-1], list) and datos[-1] and datos[-1][0] == "alcance"):
         return None
     return tuberia, resumen, umbral, indice_requiere

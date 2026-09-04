@@ -31,7 +31,7 @@ from pathlib import Path
 from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, comparar, desde, resumir,
                       validar_finito, validar_resumen, validar_tuberia)
 from .macro import es_macro, expandir
-from .proyecto import ID_MEDIDA_RE
+from .proyecto import FuenteCatalogo, ID_MEDIDA_RE, ORIGEN_PROYECTO, OrigenCatalogo
 from .vocabulario import (AMBITOS, AMBITO_SIN_DECLARAR, ORIGENES_DE_UMBRAL,
                           opciones)
 
@@ -48,6 +48,15 @@ RELACIONES_DE_CATALOGO = frozenset({
     "termino",
     "requiere",
 })
+
+AMBITOS_DE_RELACIONES = {
+    "ancestro": "universal",
+    "medida": "universal",
+    "paso_de_medida": "universal",
+    "fuente": "universal",
+    "termino": "universal",
+    "requiere": "universal",
+}
 
 EXTENSIONES_DE_MEDIDA = frozenset({".json", ".oracle"})
 SEGUN_SIN_DECLARAR = "sin_declarar"
@@ -498,9 +507,40 @@ def cargar(ruta: Path, *, registro=None,
     )
 
 
+@dataclass(frozen=True)
+class EntradaCatalogo:
+    """Una medida cargada con su origen lógico y su archivo de diagnóstico."""
+
+    medida: Medida
+    origen: OrigenCatalogo
+    ruta: Path
+
+
+class Catalogo(dict[str, Medida]):
+    """Mapa compatible de medidas que conserva una ``EntradaCatalogo`` por id."""
+
+    def __init__(self, entradas=()) -> None:
+        entradas = tuple(entradas)
+        super().__init__((entrada.medida.id, entrada.medida) for entrada in entradas)
+        self.entradas = {entrada.medida.id: entrada for entrada in entradas}
+
+    def filtrar(self, predicado) -> "Catalogo":
+        """Crea otra vista materializada sin separar medidas de sus procedencias."""
+        return Catalogo(entrada for entrada in self.entradas.values() if predicado(entrada))
+
+
+def _fuentes_de_catalogo(directorios) -> tuple[FuenteCatalogo, ...]:
+    """Normaliza rutas sueltas como catálogo propio y conserva fuentes ya identificadas."""
+    return tuple(
+        fuente if isinstance(fuente, FuenteCatalogo)
+        else FuenteCatalogo(Path(fuente), ORIGEN_PROYECTO)
+        for fuente in _normalizar_directorios(directorios)
+    )
+
+
 def cargar_catalogo(*directorios, registro=None,
                     limites: LimitesAlgebra | None = None,
-                    macros=None) -> dict[str, Medida]:
+                    macros=None) -> Catalogo:
     """Una o varias carpetas de medidas. Un id repetido entre carpetas es un error, no una
     sobrescritura silenciosa: si el proyecto quiere cambiar una medida base, la renombra.
 
@@ -509,16 +549,15 @@ def cargar_catalogo(*directorios, registro=None,
     la alternativa sería tratar la invocación como una medida canónica malformada y culpar al archivo
     equivocado.
     """
-    salida: dict[str, Medida] = {}
-    fuentes: dict[str, Path] = {}
-    for p in rutas_de_catalogo(*directorios):
-        m = cargar(p, registro=registro, limites=limites, macros=macros)
-        if m.id in salida:
-            raise MedidaMalDeclarada(
-                f"el id «{m.id}» está dos veces: {fuentes[m.id]} y {p}")
-        salida[m.id] = m
-        fuentes[m.id] = p
-    return salida
+    entradas: dict[str, EntradaCatalogo] = {}
+    for fuente in _fuentes_de_catalogo(directorios):
+        for p in rutas_de_catalogo(fuente):
+            m = cargar(p, registro=registro, limites=limites, macros=macros)
+            if m.id in entradas:
+                raise MedidaMalDeclarada(
+                    f"el id «{m.id}» está dos veces: {entradas[m.id].ruta} y {p}")
+            entradas[m.id] = EntradaCatalogo(m, fuente.origen, p)
+    return Catalogo(entradas.values())
 
 
 @dataclass(frozen=True)

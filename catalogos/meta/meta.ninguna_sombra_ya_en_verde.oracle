@@ -2,4 +2,5 @@ ninguno meta.ninguna_sombra_ya_en_verde:
     de sombra s
     donde s.dio_ok == true
     umbral <= 0 segun contrato porque "una medida en sombra que ya da verde no tiene nada que perdonar: dejarla apagada esconde que el proyecto podría estar exigiéndola, y convierte una etapa de transición en un estado permanente"
+    ambito universal
     alcance "ve el veredicto de esta corrida. NO ve si el verde es estable ni si vino de evidencia flaca, y NO puede saber si mañana vuelve a ponerse roja"

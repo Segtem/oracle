@@ -8,4 +8,5 @@ medida meta.la_medida_no_se_fija_solo_con_evidencia_fabricada:
     donde casos == no_observados
     resumen contar(1)
     umbral <= 0 segun contrato porque "una medida cuyos casos son todos fabricados puede estar ajustada a los ejemplos que se escribieron para que pasara, y no a evidencia de algo que ocurrió; el límite es cero y no un margen porque un solo caso observado ya cambia la naturaleza de la fijación"
+    ambito universal
     alcance "mira sólo casos propios (`es_heredado == false`), porque la fijación de una biblioteca es responsabilidad de su certificación. De esos casos mira lo que declaran sobre sí mismos. NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo. Un caso puede mentir en `procedencia` y esta medida no lo ve"

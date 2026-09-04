@@ -37,29 +37,35 @@ def setUpModule() -> None:
 
 class ExpansionTests(unittest.TestCase):
     def test_ninguno_da_la_forma_de_contar_lo_que_ofende(self) -> None:
-        d = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
+        d = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "contrato",
+                      "universal", "NO ve nada"])
         self.assertEqual(d, ["medida", "d.p",
                              ["desde", ["de", "mutante", "m"], ["donde", PRED]],
                              ["resumen", "contar", 1],
-                             ["umbral", "<=", 0, "razón"],
+                             ["umbral", "<=", 0, "razón", "contrato"],
+                             ["ambito", "universal"],
                              ["alcance", "NO ve nada"]])
 
     def test_ninguno_par_une_la_relacion_consigo_misma(self) -> None:
-        d = expandir(["ninguno-par", "d.p", "doc", "a", "b", PRED, "razón", "NO ve nada"])
+        d = expandir(["ninguno-par", "d.p", "doc", "a", "b", PRED, "razón", "contrato",
+                      "universal", "NO ve nada"])
         self.assertEqual(d[2][1], ["unir", ["de", "doc", "a"], ["de", "doc", "b"]])
         self.assertEqual(d[3], ["resumen", "contar", 1])
-        self.assertEqual(d[4], ["umbral", "<=", 0, "razón"])
+        self.assertEqual(d[4], ["umbral", "<=", 0, "razón", "contrato"])
+        self.assertEqual(d[5], ["ambito", "universal"])
 
     def test_ninguno_par_con_el_mismo_alias_dos_veces_no_pasa(self) -> None:
         with self.assertRaises(MacroMalUsada) as e:
-            expandir(["ninguno-par", "d.p", "doc", "a", "a", PRED, "r", "NO ve"])
+            expandir(["ninguno-par", "d.p", "doc", "a", "a", PRED, "r", "contrato",
+                      "universal", "NO ve"])
         self.assertIn("distintos", str(e.exception))
 
     def test_peor_escribe_la_tolerancia_UNA_vez_y_la_pone_en_los_dos_lados(self) -> None:
         """Es el caso 012 del corpus, cerrado por construcción: la tolerancia estaba duplicada en el
         filtro y en el umbral, y nada las mantenía juntas."""
         expr = ["desvio_de_grilla", ["hecho", "a"], 100.0]
-        d = expandir(["peor", "snap.x", "pieza", "a", expr, 1.0, "razón", "NO ve nada"])
+        d = expandir(["peor", "snap.x", "pieza", "a", expr, 1.0, "razón", "contrato",
+                      "universal", "NO ve nada"])
 
         self.assertEqual(d[2][2], ["donde", [">", expr, 1.0]])   # el filtro
         self.assertEqual(d[3], ["resumen", "max", expr])          # la medición
@@ -73,6 +79,88 @@ class ExpansionTests(unittest.TestCase):
                 with self.assertRaises(MacroMalUsada):
                     expandir([nombre, "d.p", "faltan", "cosas"])
 
+    def test_ambito_hereda_la_compatibilidad_historica_de_segun(self) -> None:
+        """Una invocación anterior a `ambito` conserva la ausencia, no recibe un valor inventado.
+
+        Es el mismo camino que se abrió al agregar `segun`, y por el mismo motivo: `sin_declarar`
+        no es un default —un default afirmaría que el autor eligió— sino el registro de que la
+        cláusula no existía cuando escribió la medida. Quien reclama la elección es la medida de
+        presencia, no un error de aridad.
+
+        La alternativa —fallar siempre— se probó y deja de cargar el catálogo entero de un
+        consumidor: la mayoría de sus medidas pasan por una macro. Eso no es un reclamo, es una
+        puerta cerrada.
+        """
+        expandida = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "contrato",
+                              "NO ve nada"])
+        self.assertNotIn("ambito", [paso[0] for paso in expandida if isinstance(paso, list)])
+
+    def test_sin_segun_ni_ambito_tambien_expande(self) -> None:
+        """Los dos juntos: una medida escrita antes de las dos cláusulas sigue cargando."""
+        expandida = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
+        cabezas = [paso[0] for paso in expandida if isinstance(paso, list)]
+        self.assertNotIn("ambito", cabezas)
+        self.assertEqual(len(expandida[4]), 4)          # umbral sin `segun`
+
+    def test_solo_se_perdonan_los_parametros_finales_que_se_agregaron_despues(self) -> None:
+        """La cuenta va desde `alcance` hacia atrás y se corta en el primero que no es de legado.
+
+        Sin el corte, una macro con un parámetro llamado `porque` justo antes de `segun` perdonaría
+        también su ausencia, y la prosa que justifica el umbral se volvería opcional sin que nadie
+        lo decidiera.
+        """
+        from nucleo.macro import macros_base
+
+        ninguno = macros_base()["ninguno"]
+        self.assertEqual(ninguno.parametros[-3:], ("segun", "ambito", "alcance"))
+        self.assertEqual(ninguno._omisibles_por_legado(), 2)
+
+    def test_una_macro_que_no_termina_en_alcance_no_perdona_nada(self) -> None:
+        """El conteo se ancla en `alcance`: sin él no hay cola conocida que perdonar."""
+        otra = Macro.de_datos([
+            "defmacro", "otra", ["id", "segun"], [],
+            ["medida", ["$", "id"],
+             ["desde", ["de", "item", "i"]],
+             ["resumen", "contar", 1],
+             ["umbral", "<=", 0, "razón", ["$", "segun"]],
+             ["alcance", "NO ve nada"]],
+        ])
+        self.assertEqual(otra._omisibles_por_legado(), 0)
+        with self.assertRaises(MacroMalUsada):
+            otra.expandir(["otra", "d.p"])
+
+    def test_omitir_dos_o_mas_de_la_cuenta_sigue_siendo_error_de_aridad(self) -> None:
+        """La tolerancia llega hasta `segun` y `ambito`; faltar el `alcance` no se perdona."""
+        with self.assertRaises(MacroMalUsada):
+            expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón"])
+
+    def test_compatibilidad_de_una_macro_anterior_a_segun_conserva_la_forma_antigua(self) -> None:
+        antigua = Macro.de_datos([
+            "defmacro", "antigua", ["id", "segun", "alcance"], [],
+            ["medida", ["$", "id"],
+             ["desde", ["de", "item", "i"]],
+             ["resumen", "contar", 1],
+             ["umbral", "<=", 0, "razón", ["$", "segun"]],
+             ["alcance", ["$", "alcance"]]],
+        ])
+
+        sin_segun = antigua.expandir(["antigua", "d.p", "NO ve nada"])
+        explicita = antigua.expandir(["antigua", "d.p", "sin_declarar", "NO ve nada"])
+
+        self.assertEqual(sin_segun[4], ["umbral", "<=", 0, "razón"])
+        self.assertEqual(sin_segun[5], ["alcance", "NO ve nada"])
+        self.assertEqual(explicita[4], ["umbral", "<=", 0, "razón", "sin_declarar"])
+
+        minima = Macro.de_datos([
+            "defmacro", "minima", ["segun", "alcance"], [],
+            [["umbral", "<=", 0, "razón", ["$", "segun"]],
+             ["alcance", ["$", "alcance"]]],
+        ])
+        self.assertEqual(
+            minima.expandir(["minima", "NO ve nada"])[0],
+            ["umbral", "<=", 0, "razón"],
+        )
+
     def test_lo_canonico_pasa_de_largo(self) -> None:
         canonica = ["medida", "d.p", ["desde", ["de", "m", "m"]], ["resumen", "contar", 1],
                     ["umbral", "<=", 0, "r"], ["alcance", "NO ve"]]
@@ -80,7 +168,8 @@ class ExpansionTests(unittest.TestCase):
         self.assertIs(expandir(canonica), canonica)
 
     def test_expandir_es_idempotente(self) -> None:
-        una = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
+        una = expandir(["ninguno", "d.p", "mutante", "m", PRED, "razón", "contrato",
+                        "universal", "NO ve nada"])
         self.assertEqual(expandir(una), una)
 
     def test_una_macro_puede_construir_sobre_otra(self) -> None:
@@ -88,7 +177,8 @@ class ExpansionTests(unittest.TestCase):
         justo lo que la macro vino a evitar. La torre se permite; lo que se acota es el largo."""
         torre = Macro.de_datos(
             ["defmacro", "sin-sobrevivientes", ["id"], [],
-             ["ninguno", ["$", "id"], "mutante", "m", PRED, "razón", "NO ve los no generados"]])
+             ["ninguno", ["$", "id"], "mutante", "m", PRED, "razón", "contrato",
+              "universal", "NO ve los no generados"]])
         registro = macros_base()
         registro.declarar(torre)
 
@@ -137,7 +227,8 @@ class DeclaracionTests(unittest.TestCase):
             self.assertIsInstance(macro, Macro)
 
     def test_un_nombre_reservado_del_lenguaje_no_puede_ser_macro(self) -> None:
-        for reservada in ("medida", "donde", "de", "unir", "agrupar", "contar", "max", "y", "no"):
+        for reservada in ("medida", "donde", "de", "unir", "agrupar", "contar", "max", "y", "no",
+                          "segun", "ambito"):
             with self.subTest(nombre=reservada):
                 with self.assertRaisesRegex(MacroMalDeclarada, "palabra del lenguaje"):
                     Macro.de_datos(self._macro(nombre=reservada))
@@ -354,12 +445,14 @@ class ProyectoDeclaraLasSuyasTests(unittest.TestCase):
             (raiz / "macros").mkdir()
             (raiz / "macros" / "sin-fallas.oracle").write_text(
                 "\n".join([
-                    "defmacro sin-fallas(id, relacion, alias, predicado, porque, alcance):",
+                    "defmacro sin-fallas(id, relacion, alias, predicado, porque, segun, ambito, alcance):",
                     "    ninguno $id:",
                     "        relacion $relacion",
                     "        alias $alias",
                     "        predicado $predicado",
                     "        porque $porque",
+                    "        segun $segun",
+                    "        ambito $ambito",
                     "        alcance $alcance",
                     "",
                 ]), encoding="utf-8")
@@ -372,6 +465,8 @@ class ProyectoDeclaraLasSuyasTests(unittest.TestCase):
                     "    alias i",
                     "    predicado i.ok == false",
                     "    porque \"un item falso invalida la entrega entera\"",
+                    "    segun contrato",
+                    "    ambito universal",
                     "    alcance \"NO ve items que nadie declaró\"",
                     "",
                 ]), encoding="utf-8")
@@ -434,17 +529,21 @@ class ProyectoDeclaraLasSuyasTests(unittest.TestCase):
 
 class ContratoConLaMedidaTests(unittest.TestCase):
     def test_una_macro_construye_una_medida_igual_que_la_canonica(self) -> None:
-        macro = Medida.de_datos(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
+        macro = Medida.de_datos(["ninguno", "d.p", "mutante", "m", PRED, "razón", "contrato",
+                                 "universal", "NO ve nada"])
         canonica = Medida.de_datos(macro.a_datos())
-        for campo in ("id", "tuberia", "resumen", "op", "limite", "porque", "alcance"):
+        for campo in ("id", "tuberia", "resumen", "op", "limite", "porque", "segun", "ambito",
+                      "alcance"):
             self.assertEqual(getattr(macro, campo), getattr(canonica, campo), campo)
 
     def test_a_datos_devuelve_SIEMPRE_la_canonica(self) -> None:
-        m = Medida.de_datos(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
+        m = Medida.de_datos(["ninguno", "d.p", "mutante", "m", PRED, "razón", "contrato",
+                             "universal", "NO ve nada"])
         self.assertEqual(m.a_datos()[0], "medida")
 
     def test_a_fuente_devuelve_como_esta_escrita(self) -> None:
-        m = Medida.de_datos(["ninguno", "d.p", "mutante", "m", PRED, "razón", "NO ve nada"])
+        m = Medida.de_datos(["ninguno", "d.p", "mutante", "m", PRED, "razón", "contrato",
+                             "universal", "NO ve nada"])
         self.assertEqual(m.a_fuente()[0], "ninguno")
         c = Medida.de_datos(m.a_datos())
         self.assertEqual(c.a_fuente()[0], "medida")

@@ -2,4 +2,5 @@ ninguno proceso.ronda_mutacion_concluyente:
     de corrida_mutacion c
     donde c.mutantes <= 0 o c.baseline_verde == false o c.errores_arnes > 0 o c.timeouts > 0
     umbral <= 0 segun contrato porque "sin mutantes no hay material; un timeout, un error del arnés o una línea base roja dejan la mutación inconclusa: ninguno demuestra que un mutante murió"
+    ambito universal
     alcance "ve los estados estructurados publicados por cada corrida. NO distingue por sí sola si un código no cero fue una aserción o un error: eso depende del protocolo explícito del runner. Si corrida_mutacion viene vacía significa que no hubo rondas de mutación inconclusas y verde es correcto"

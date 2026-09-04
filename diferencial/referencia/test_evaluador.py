@@ -5,6 +5,23 @@ from evaluador import ErrorDeAlgebra, evaluar
 
 
 class EvaluadorTests(unittest.TestCase):
+    def test_acepta_requiere_y_ambito_en_orden_canonico(self):
+        medida = [
+            "medida",
+            "con.ambito",
+            ["desde", ["de", "muestra", "m"]],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "hay una muestra"],
+            ["requiere", "muestra"],
+            ["ambito", "del_origen"],
+            ["alcance", "prueba el formato completo"],
+        ]
+
+        resultado = evaluar(medida, {"muestra": [{"id": "m1"}]})
+
+        self.assertEqual(resultado["valor"], 1)
+        self.assertTrue(resultado["ok"])
+
     def test_contar_preserva_multiplicidad_y_no_evalua_expr(self):
         medida = [
             "medida",

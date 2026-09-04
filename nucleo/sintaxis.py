@@ -819,6 +819,9 @@ def _leer_argumento_macro(item: tuple[int, str], parametro: str, tipo: str, *,
             _fallar(item[0], col, f"{parametro} <nombre>", resto)
         if parametro == "segun" and not valor.startswith("$") and valor not in ORIGENES_DE_UMBRAL:
             _fallar(item[0], col, f"segun en {sorted(ORIGENES_DE_UMBRAL)}", valor)
+        if parametro == "ambito" and not valor.startswith("$") and valor not in AMBITOS:
+            _fallar(item[0], col,
+                    "un ámbito entre estas opciones\n" + opciones(AMBITOS), valor)
         _registrar(ubicaciones, ruta, item[0], col)
         return _leer_nombre(valor, item[0], col)
     if tipo == "texto":

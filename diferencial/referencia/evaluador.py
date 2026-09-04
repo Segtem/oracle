@@ -15,6 +15,7 @@ Row = dict[str, Any]
 
 _AGREGADOS = {"max", "min", "suma", "promedio", "contar"}
 _COMPARADORES = {"==", "!=", "<", "<=", ">", ">="}
+_AMBITOS = {"sin_declarar", "universal", "del_origen"}
 _SIN_EVIDENCIA = "SIN EVIDENCIA"
 
 # Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
@@ -81,8 +82,8 @@ def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dic
 
 
 def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list]:
-    if not isinstance(medida, list) or len(medida) not in {6, 7}:
-        raise ErrorDeAlgebra("una medida debe tener seis o siete elementos")
+    if not isinstance(medida, list) or len(medida) not in {6, 7, 8}:
+        raise ErrorDeAlgebra("una medida debe tener seis, siete u ocho elementos")
     if medida[0] != "medida":
         raise ErrorDeAlgebra("la medida debe empezar con 'medida'")
     medida_id = medida[1]
@@ -90,12 +91,15 @@ def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list
         raise ErrorDeAlgebra("el id de medida debe ser texto")
 
     desde, resumen, umbral = medida[2], medida[3], medida[4]
-    if len(medida) == 6:
-        requiere: list[str] = []
-        alcance = medida[5]
-    else:
-        requiere = _parsear_requiere(medida[5])
-        alcance = medida[6]
+    opcionales = list(medida[5:-1])
+    requiere: list[str] = []
+    if opcionales and _es_lista_con_tag(opcionales[0], "requiere"):
+        requiere = _parsear_requiere(opcionales.pop(0))
+    if opcionales and _es_lista_con_tag(opcionales[0], "ambito"):
+        _parsear_ambito(opcionales.pop(0))
+    if opcionales:
+        raise ErrorDeAlgebra("secciones opcionales de medida invalidas")
+    alcance = medida[-1]
     if not _es_lista_con_tag(desde, "desde") or len(desde) < 2:
         raise ErrorDeAlgebra("seccion desde invalida")
     if not _es_lista_con_tag(resumen, "resumen") or len(resumen) != 3:
@@ -127,6 +131,15 @@ def _parsear_requiere(requiere: Any) -> list[str]:
             raise ErrorDeAlgebra("requiere espera nombres de relacion no vacios")
         relaciones.append(nombre)
     return relaciones
+
+
+def _parsear_ambito(ambito: Any) -> str:
+    if not _es_lista_con_tag(ambito, "ambito") or len(ambito) != 2:
+        raise ErrorDeAlgebra("seccion ambito invalida")
+    valor = ambito[1]
+    if valor not in _AMBITOS:
+        raise ErrorDeAlgebra(f"ambito desconocido: {valor}")
+    return valor
 
 
 def _sin_evidencia_requerida(

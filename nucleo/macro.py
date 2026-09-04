@@ -69,7 +69,7 @@ HUECO = "$"
 # tubería dejaría de significar una sola cosa. Falla cerrado al declararla, no al expandir.
 RESERVADAS = frozenset({
     "defmacro", "guarda", HUECO,
-    "medida", "desde", "resumen", "umbral", "segun", "alcance",
+    "medida", "desde", "resumen", "umbral", "segun", "ambito", "alcance",
     "de", "unir", "donde", "agrupar",
     *COMPARADORES, *LOGICOS, *ACCESORES, *AGREGADOS,
 })
@@ -120,6 +120,24 @@ def _quitar_segun_sin_declarar(nodo) -> None:
         return
     for hijo in nodo:
         _quitar_segun_sin_declarar(hijo)
+
+
+def _quitar_ambito_sin_declarar(nodo) -> None:
+    """El espejo de la de arriba: una invocación anterior a `ambito` no escribe la cláusula.
+
+    Emitir `ambito sin_declarar` en la forma canónica diría que el autor eligió el estado de
+    migración, y no eligió nada: la cláusula no existía cuando escribió la medida. Se conserva la
+    ausencia, que es lo que `Medida` reifica igual como `sin_declarar` y lo que la medida de
+    presencia va a señalar.
+    """
+    if not isinstance(nodo, list):
+        return
+    for indice, hijo in enumerate(nodo):
+        if (isinstance(hijo, list) and len(hijo) == 2
+                and hijo[0] == "ambito" and hijo[1] == "sin_declarar"):
+            del nodo[indice]
+            return
+        _quitar_ambito_sin_declarar(hijo)
 
 
 @dataclass(frozen=True)
@@ -183,16 +201,49 @@ class Macro:
 
         return cls(nombre, tuple(parametros), tuple(normalizadas), plantilla)
 
+    def _omisibles_por_legado(self) -> int:
+        """Cuántos parámetros finales puede no traer una invocación anterior a ellos.
+
+        Se cuentan desde `alcance` hacia atrás, y sólo mientras se llamen `segun` o `ambito`: son
+        los dos que se agregaron después de que había medidas escritas. No hay un corte fijo escrito
+        a mano —`parametros[-3:-1]` y cosas así— porque un número acá sería una suposición sobre el
+        largo de una firma ajena: un proyecto declara sus propias macros y no tienen por qué medir
+        lo mismo. Además una constante que el filtro vuelve irrelevante no la fija nada, y la
+        mutación lo señaló.
+        """
+        # Sin guarda de lista vacía: `de_datos` ya rechaza una macro sin parámetros, así que esa
+        # rama no la puede ejercitar nada y la mutación la deja viva. Una rama muerta no se declara.
+        if self.parametros[-1] != "alcance":
+            return 0
+        cuenta = 0
+        for parametro in reversed(self.parametros[:-1]):
+            if parametro not in ("segun", "ambito"):
+                break
+            cuenta += 1
+        return cuenta
+
     def expandir(self, datos: list, limites: LimitesAlgebra | None = None) -> list:
         esperados = len(self.parametros)
         recibidos = len(datos) - 1
-        legado_sin_segun = False
-        # Compatibilidad con macros anteriores a `segun`: no se elige una etiqueta creíble, se
-        # conserva la ausencia como `sin_declarar`, igual que un umbral canónico de 4 elementos.
-        if recibidos == esperados - 1 and len(self.parametros) >= 2 and self.parametros[-2] == "segun":
-            datos = [*datos[:-1], "sin_declarar", datos[-1]]
+        # Compatibilidad con invocaciones anteriores a `segun` y a `ambito`. No se elige un valor
+        # creíble: se conserva la AUSENCIA como `sin_declarar`, igual que un umbral canónico de 4
+        # elementos. La diferencia con un default importa — un default afirmaría que el autor
+        # eligió, y las medidas de presencia (`meta.todo_umbral_declara_de_donde_sale`, y la del
+        # ámbito) existen justamente para reclamar que elija.
+        #
+        # Los dos parámetros son los que preceden a `alcance`, en ese orden, y una invocación vieja
+        # puede no traer ninguno, sólo el último, o los dos. Sin esto, agregar `ambito` deja de
+        # cargar el catálogo entero de un consumidor: en los dos que se midieron, la mayoría de
+        # sus medidas pasan por una macro.
+        faltantes = esperados - recibidos
+        # `range` y no `0 < faltantes <= n`: con la comparación, `faltantes == 0` entra al cuerpo y
+        # no cambia nada —multiplicar por cero da la lista vacía—, así que mover el `<` a `<=` no se
+        # puede distinguir y el mutante sobrevive. Acá los dos extremos cargan peso: el 1 excluye la
+        # invocación completa y el `+ 1` es el último faltante que todavía se perdona.
+        if faltantes in range(1, self._omisibles_por_legado() + 1):
+            datos = [*datos[:-1], *["sin_declarar"] * faltantes, datos[-1]]
             recibidos = esperados
-            legado_sin_segun = True
+        legado_sin_segun = faltantes > 0
         if recibidos != esperados:
             firma = ", ".join(self.parametros)
             raise MacroMalUsada(
@@ -215,6 +266,7 @@ class Macro:
         expandida = _sustituir(self.plantilla, valores)
         if legado_sin_segun:
             _quitar_segun_sin_declarar(expandida)
+            _quitar_ambito_sin_declarar(expandida)
         return expandida
 
 

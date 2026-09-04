@@ -50,6 +50,11 @@ VIGILANTES = frozenset({
 })
 
 RELACIONES_DEL_LENGUAJE = frozenset({"paso", "nodo", "producto"})
+AMBITOS_DE_RELACIONES = {
+    "paso": "del_origen",
+    "nodo": "del_origen",
+    "producto": "del_origen",
+}
 
 
 REFERENCIA = RAIZ / "diferencial" / "referencia" / "evaluador.py"

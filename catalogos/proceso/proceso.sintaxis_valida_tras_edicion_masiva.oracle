@@ -2,4 +2,5 @@ ninguno proceso.sintaxis_valida_tras_edicion_masiva:
     de archivo a
     donde a.sintaxis_valida == false
     umbral <= 0 segun contrato porque "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea"
+    ambito universal
     alcance "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto"

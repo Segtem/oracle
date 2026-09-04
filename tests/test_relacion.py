@@ -13,6 +13,7 @@ from nucleo.relacion import (
     Campo,
     Relacion,
     RelacionMalDeclarada,
+    ambitos_de_relaciones_declarados,
     cargar,
     cargar_fuente_relacion,
     cargar_relaciones,
@@ -249,6 +250,8 @@ class RelacionTests(unittest.TestCase):
 
         self.assertIn("relacion_declarada", hechos)
         self.assertIn("campo_declarado", hechos)
+        self.assertIn("ambito_de_relacion", hechos)
+        self.assertEqual(len(hechos["ambito_de_relacion"]), 0)
 
         rels = hechos["relacion_declarada"]
         self.assertEqual(len(rels), 1)
@@ -284,6 +287,24 @@ class RelacionTests(unittest.TestCase):
 
         with self.assertRaises(RelacionMalDeclarada):
             hechos_de_relaciones(["no es Relacion"])
+
+    def test_reifica_ambitos_de_relaciones_declarados_por_sus_sensores(self) -> None:
+        ambitos = ambitos_de_relaciones_declarados()
+        hechos = hechos_de_relaciones([], ambitos=ambitos)
+
+        self.assertEqual(len(ambitos), 24)
+        self.assertEqual(ambitos["medida"], "universal")
+        self.assertEqual(ambitos["mutador_excluido"], "del_origen")
+        self.assertEqual(len(hechos["ambito_de_relacion"]), 24)
+        self.assertEqual(
+            next(f for f in hechos["ambito_de_relacion"]
+                 if f["relacion"] == "mutador_excluido"),
+            {"relacion": "mutador_excluido", "ambito": "del_origen"},
+        )
+
+    def test_rechaza_un_ambito_de_relacion_fuera_del_vocabulario(self) -> None:
+        with self.assertRaises(RelacionMalDeclarada):
+            hechos_de_relaciones([], ambitos={"item": "inventado"})
 
 
 if __name__ == "__main__":

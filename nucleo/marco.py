@@ -35,7 +35,18 @@ from datetime import date
 
 RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra",
                                      "relacion_documentada", "verbo_del_cli",
-                                     "opcion_del_vocabulario", "mutador_excluido"})
+                                     "opcion_del_vocabulario", "mutador_excluido",
+                                     "ambito_de_relacion"})
+
+AMBITOS_DE_RELACIONES = {
+    "caso": "universal",
+    "medida_en_uso": "universal",
+    "sombra": "universal",
+    "relacion_documentada": "universal",
+    "verbo_del_cli": "universal",
+    "opcion_del_vocabulario": "universal",
+    "mutador_excluido": "del_origen",
+}
 
 
 def hechos_de_mutadores_excluidos(exclusiones, mutadores: dict, declarados) -> dict:

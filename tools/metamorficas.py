@@ -47,6 +47,7 @@ from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
 from tools import sintaxis  # noqa: E402
 
 RELACIONES_DEL_LENGUAJE = frozenset({"equivalencia"})
+AMBITOS_DE_RELACIONES = {"equivalencia": "del_origen"}
 
 UMBRAL = [
     "umbral", "<=", 0,

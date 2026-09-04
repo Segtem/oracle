@@ -12,9 +12,12 @@ from types import SimpleNamespace
 from unittest import mock
 
 from nucleo import algebra, proyecto as modulo
+from nucleo.macro import macros_base
+from nucleo.medida import cargar_catalogo
 from nucleo.proyecto import (ConfiguracionProyecto, EscalaresInvalidas,
-                             EscalaresNoConfiables, Proyecto, ProyectoInvalido,
-                             catalogos_a_cargar, catalogos_base_a_cargar,
+                             EscalaresNoConfiables, FuenteCatalogo, ORIGEN_CATALOGO_BASE,
+                             ORIGEN_PROYECTO, OrigenCatalogo, Proyecto, ProyectoInvalido,
+                             catalogo_efectivo, catalogos_a_cargar, catalogos_base_a_cargar,
                              configuracion, escalares_del_proyecto,
                              perfiles_incluidos, presentar_ruta, problemas_estructura,
                              resolver, ruta_de_medida_nueva)
@@ -30,9 +33,24 @@ class ProyectoTests(unittest.TestCase):
     def _configurar(self, raiz: Path, datos) -> None:
         (raiz / "oracle.json").write_text(json.dumps(datos), encoding="utf-8")
 
+    def _medida(self, directorio: Path, mid: str, ambito: str | None) -> None:
+        datos = [
+            "medida", mid,
+            ["desde", ["de", "item", "i"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "", "contrato"],
+        ]
+        if ambito is not None:
+            datos.append(["ambito", ambito])
+        datos.append(["alcance", "NO ve otros items"])
+        directorio.mkdir(parents=True, exist_ok=True)
+        (directorio / f"{mid}.json").write_text(json.dumps(datos), encoding="utf-8")
+
     def test_los_objetos_de_configuracion_y_proyecto_son_inmutables(self) -> None:
         configuracion_vacia = ConfiguracionProyecto()
         proy = Proyecto(Path("/proyecto"))
+        origen = OrigenCatalogo("perfil", "python")
+        fuente = FuenteCatalogo(Path("/catalogos"), origen)
 
         with self.assertRaises(FrozenInstanceError):
             configuracion_vacia.perfiles = ("python",)
@@ -42,6 +60,10 @@ class ProyectoTests(unittest.TestCase):
             configuracion_vacia.bibliotecas = ("tercero.calidad",)
         with self.assertRaises(FrozenInstanceError):
             proy.raiz = Path("/otro")
+        with self.assertRaises(FrozenInstanceError):
+            origen.clase = "biblioteca"
+        with self.assertRaises(FrozenInstanceError):
+            fuente.origen = ORIGEN_PROYECTO
 
     def test_sin_oracle_json_la_configuracion_es_vacia(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -62,7 +84,10 @@ class ProyectoTests(unittest.TestCase):
             proy = Proyecto(raiz)
             self.assertFalse(configuracion(proy).catalogo_base)
             self.assertEqual(catalogos_base_a_cargar(proy), [])
-            self.assertEqual(catalogos_a_cargar(proy), [proy.catalogos])
+            self.assertEqual(
+                catalogos_a_cargar(proy),
+                [FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)],
+            )
 
             self._configurar(raiz, {
                 "esquema": modulo.ESQUEMA_PROYECTO,
@@ -71,10 +96,12 @@ class ProyectoTests(unittest.TestCase):
             })
             self.assertTrue(configuracion(proy).catalogo_base)
             self.assertEqual(
-                catalogos_base_a_cargar(proy), [modulo.RAIZ_ORACLE / "catalogos"])
+                catalogos_base_a_cargar(proy),
+                [FuenteCatalogo(modulo.RAIZ_ORACLE / "catalogos", ORIGEN_CATALOGO_BASE)])
             self.assertEqual(
                 catalogos_a_cargar(proy),
-                [modulo.RAIZ_ORACLE / "catalogos", proy.catalogos],
+                [FuenteCatalogo(modulo.RAIZ_ORACLE / "catalogos", ORIGEN_CATALOGO_BASE),
+                 FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)],
             )
 
     def test_oracle_json_roto_o_no_fisico_falla_cerrado(self) -> None:
@@ -132,16 +159,109 @@ class ProyectoTests(unittest.TestCase):
             self._configurar(raiz, {
                 "esquema": modulo.ESQUEMA_PROYECTO, "perfiles": ["python"],
             })
-            esperadas = [
-                perfiles_incluidos()["python"],
-            ]
+            esperadas = [FuenteCatalogo(
+                perfiles_incluidos()["python"], OrigenCatalogo("perfil", "python"))]
             self.assertEqual(catalogos_base_a_cargar(proy), esperadas)
-            self.assertEqual(catalogos_a_cargar(proy), [*esperadas, proy.catalogos])
+            self.assertEqual(
+                catalogos_a_cargar(proy),
+                [*esperadas, FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)],
+            )
 
         propio = Proyecto(modulo.RAIZ_ORACLE)
         self.assertTrue(propio.es_el_propio_oracle)
         self.assertEqual(str(propio), "oracle (sí mismo)")
         self.assertEqual(catalogos_a_cargar(propio), catalogos_base_a_cargar(propio))
+
+    def test_catalogo_efectivo_filtra_por_identidad_logica_antes_de_aplicabilidad(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "consumidor").mkdir()
+            proy = Proyecto(self._raiz(str(raiz / "consumidor")))
+            base = raiz / "base"
+            perfil = raiz / "perfil"
+            biblioteca = raiz / "biblioteca"
+            propio = proy.catalogos
+            self._medida(base, "base.universal", "universal")
+            self._medida(base, "base.local", "del_origen")
+            self._medida(base, "base.sin_declarar", None)
+            self._medida(perfil, "perfil.local", "del_origen")
+            self._medida(biblioteca, "biblioteca.local", "del_origen")
+            self._medida(propio, "proyecto.local", "del_origen")
+            fuentes = [
+                FuenteCatalogo(base, ORIGEN_CATALOGO_BASE),
+                FuenteCatalogo(perfil, OrigenCatalogo("perfil", "python")),
+                FuenteCatalogo(biblioteca, OrigenCatalogo("biblioteca", "tercero.calidad")),
+                FuenteCatalogo(propio, ORIGEN_PROYECTO),
+            ]
+
+            with mock.patch.object(modulo, "catalogos_a_cargar", return_value=fuentes):
+                catalogo = catalogo_efectivo(proy, macros=macros_base())
+
+            self.assertEqual(len(catalogo), 3)
+            self.assertEqual(
+                set(catalogo), {"base.universal", "base.sin_declarar", "proyecto.local"})
+
+    def test_una_ruta_igual_no_convierte_al_catalogo_base_en_proyecto(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy = Proyecto(self._raiz(td))
+            self._medida(proy.catalogos, "base.local", "del_origen")
+            fuente = FuenteCatalogo(proy.catalogos, ORIGEN_CATALOGO_BASE)
+
+            with mock.patch.object(modulo, "catalogos_a_cargar", return_value=[fuente]):
+                catalogo = catalogo_efectivo(proy, macros=macros_base())
+
+            self.assertEqual(len(catalogo), 0)
+
+    def test_el_catalogo_base_del_propio_oracle_es_de_su_origen(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            self._medida(raiz / "catalogos", "base.local", "del_origen")
+            fuente = FuenteCatalogo(raiz / "catalogos", ORIGEN_CATALOGO_BASE)
+
+            with (mock.patch.object(modulo, "RAIZ_ORACLE", raiz),
+                  mock.patch.object(modulo, "catalogos_a_cargar", return_value=[fuente])):
+                catalogo = catalogo_efectivo(Proyecto(raiz), macros=macros_base())
+
+            self.assertEqual(len(catalogo), 1)
+            self.assertEqual(set(catalogo), {"base.local"})
+
+    def test_catalogo_efectivo_resuelve_macros_si_el_llamador_no_las_entrega(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy = Proyecto(self._raiz(td))
+            self._medida(proy.catalogos, "proyecto.universal", "universal")
+            fuente = FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)
+            registro = macros_base()
+
+            with (mock.patch.object(modulo, "catalogos_a_cargar", return_value=[fuente]),
+                  mock.patch.object(
+                      modulo, "macros_del_proyecto", return_value=registro) as resolver_macros):
+                catalogo = catalogo_efectivo(proy)
+
+            self.assertEqual(len(catalogo), 1)
+            self.assertEqual(resolver_macros.call_count, 1)
+            self.assertEqual(
+                resolver_macros.call_args,
+                mock.call(proy, raices_perfiles=()),
+            )
+
+    def test_cargar_catalogo_conserva_origen_logico_y_archivo_por_medida(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            fuente_dir = raiz / "layout-instalado" / "catalogos"
+            self._medida(fuente_dir, "biblioteca.regla", "universal")
+            origen = OrigenCatalogo("biblioteca", "publicador.reglas")
+
+            catalogo = cargar_catalogo(
+                FuenteCatalogo(fuente_dir, origen), macros=macros_base())
+            entrada = catalogo.entradas["biblioteca.regla"]
+
+            self.assertEqual(len(catalogo), 1)
+            self.assertEqual(entrada.origen, origen)
+            self.assertEqual(entrada.ruta, fuente_dir / "biblioteca.regla.json")
+            self.assertEqual(entrada.medida, catalogo["biblioteca.regla"])
+            with self.assertRaises(FrozenInstanceError):
+                entrada.origen = ORIGEN_PROYECTO
 
     def test_instalar_no_activa_una_biblioteca(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -151,7 +271,10 @@ class ProyectoTests(unittest.TestCase):
             with mock.patch(
                     "nucleo.biblioteca.descubrir_bibliotecas",
                     side_effect=AssertionError("no se debe descubrir lo no seleccionado")):
-                self.assertEqual(catalogos_a_cargar(proy), [proy.catalogos])
+                self.assertEqual(
+                    catalogos_a_cargar(proy),
+                    [FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)],
+                )
 
     def test_selecciona_catalogos_relaciones_y_macros_de_una_biblioteca(self) -> None:
         macro = ["defmacro", "externa", ["id"], [],
@@ -188,8 +311,13 @@ class ProyectoTests(unittest.TestCase):
                     return_value={"tercero.calidad": manifiesto}):
                 config = configuracion(proy)
                 self.assertEqual(config.bibliotecas, ("tercero.calidad",))
-                self.assertEqual(catalogos_base_a_cargar(proy), [catalogos])
-                self.assertEqual(catalogos_a_cargar(proy), [catalogos, proy.catalogos])
+                fuente_biblioteca = FuenteCatalogo(
+                    catalogos, OrigenCatalogo("biblioteca", "tercero.calidad"))
+                self.assertEqual(catalogos_base_a_cargar(proy), [fuente_biblioteca])
+                self.assertEqual(
+                    catalogos_a_cargar(proy),
+                    [fuente_biblioteca, FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)],
+                )
                 self.assertEqual(set(modulo.relaciones_del_proyecto(proy)), {"item"})
                 self.assertIn("externa", modulo.macros_del_proyecto(proy))
 
@@ -247,7 +375,8 @@ class ProyectoTests(unittest.TestCase):
                 self.assertEqual(perfiles_incluidos(), {"lenguaje_nuevo": catalogo_perfil})
                 self.assertEqual(
                     catalogos_base_a_cargar(Proyecto(raiz_proyecto)),
-                    [catalogo_perfil],
+                    [FuenteCatalogo(
+                        catalogo_perfil, OrigenCatalogo("perfil", "lenguaje_nuevo"))],
                 )
 
     def test_un_host_puede_aportar_raices_de_perfiles_sin_modificar_oracle(self) -> None:
@@ -267,10 +396,12 @@ class ProyectoTests(unittest.TestCase):
                 catalogos_a_cargar(proy)
             self.assertEqual(perfiles_incluidos((fuente,))["dominio_externo"], catalogo)
             self.assertEqual(
-                catalogos_base_a_cargar(proy, raices_perfiles=(fuente,)), [catalogo])
+                catalogos_base_a_cargar(proy, raices_perfiles=(fuente,)),
+                [FuenteCatalogo(catalogo, OrigenCatalogo("perfil", "dominio_externo"))])
             self.assertEqual(
                 catalogos_a_cargar(proy, raices_perfiles=(fuente,)),
-                [catalogo, proy.catalogos],
+                [FuenteCatalogo(catalogo, OrigenCatalogo("perfil", "dominio_externo")),
+                 FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)],
             )
 
     def test_raices_externas_rechazan_ambiguedad_y_rutas_no_fisicas(self) -> None:

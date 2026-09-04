@@ -4,4 +4,5 @@ ninguno-requiere meta.todo_verbo_del_cli_esta_en_la_ayuda:
     predicado v.nombrado_en_la_ayuda == false
     porque "un verbo que el comando acepta y la ayuda no nombra sólo lo encuentra quien lea el despacho; el límite es cero porque cada uno es una función que ya está escrita, probada y publicada, y que nadie va a usar"
     segun contrato
+    ambito del_origen
     alcance "compara contra la ayuda de `oracle --help`, que es lo primero y muchas veces lo único que alguien lee. NO juzga si la descripción es clara ni si los argumentos están explicados, y NO ve un verbo que exista sin estar declarado en VERBOS"

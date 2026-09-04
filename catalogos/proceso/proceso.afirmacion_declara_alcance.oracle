@@ -2,4 +2,5 @@ ninguno proceso.afirmacion_declara_alcance:
     de afirmacion a
     donde a.alcance == ""
     umbral <= 0 segun contrato porque "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»"
+    ambito universal
     alcance "ve si el campo está VACÍO. NO ve si el alcance escrito es honesto, completo ni pertinente"

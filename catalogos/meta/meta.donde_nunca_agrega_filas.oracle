@@ -2,4 +2,5 @@ ninguno meta.donde_nunca_agrega_filas:
     de paso p
     donde p.operador == "donde" y p.filas_despues > p.filas_antes
     umbral <= 0 segun contrato porque "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender"
+    ambito del_origen
     alcance "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción"

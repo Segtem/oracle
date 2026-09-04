@@ -30,6 +30,11 @@ class ReferenteMalDeclarado(ValueError):
 # El catálogo descubre esta relación leyendo el emisor, igual que `relacion.py` declara las suyas.
 RELACIONES_DE_REFERENTE = frozenset({"referente_declarado", "referente_comparado"})
 
+AMBITOS_DE_RELACIONES = {
+    "referente_declarado": "universal",
+    "referente_comparado": "universal",
+}
+
 
 @dataclass(frozen=True)
 class Referente:

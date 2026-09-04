@@ -315,6 +315,7 @@ def main() -> int:
             "    de item i\n"
             "    donde i.mal == true\n"
             "    umbral <= 0 segun contrato porque \"ningun item malo pasa\"\n"
+            "    ambito universal\n"
             "    alcance \"NO ve campos distintos de mal\"\n",
             encoding="utf-8",
         )

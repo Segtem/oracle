@@ -50,6 +50,35 @@ ESQUEMA_PROYECTO = "oracle.proyecto/v1"
 NOMBRE_PERFIL_RE = re.compile(r"^[a-z][a-z0-9_-]*$")
 
 
+@dataclass(frozen=True)
+class OrigenCatalogo:
+    """Identidad lógica de quien publica un catálogo, independiente de su ubicación física.
+
+    ``clase`` distingue el catálogo base, un perfil, una biblioteca y el catálogo del proyecto;
+    ``identificador`` nombra perfiles y bibliotecas. La ruta no participa: una distribución
+    instalada y el repositorio fuente pueden alojar el mismo origen en layouts distintos.
+    """
+
+    clase: str
+    identificador: str = ""
+
+
+ORIGEN_CATALOGO_BASE = OrigenCatalogo("catalogo_base", "oracle")
+ORIGEN_PROYECTO = OrigenCatalogo("proyecto")
+
+
+@dataclass(frozen=True)
+class FuenteCatalogo:
+    """Directorio seleccionado junto con la identidad lógica que no debe perder al cargarse."""
+
+    directorio: Path
+    origen: OrigenCatalogo
+
+    def __fspath__(self) -> str:
+        """Conserva la interoperabilidad de las utilidades que sólo necesitan abrir la ruta."""
+        return os.fspath(self.directorio)
+
+
 def _normalizar_raices_perfiles(raices) -> tuple[Path, ...]:
     if isinstance(raices, (str, bytes, os.PathLike)):
         raise ProyectoInvalido("`raices_perfiles` debe ser una colección de directorios")
@@ -263,7 +292,7 @@ class Proyecto:
 
     @property
     def es_el_propio_oracle(self) -> bool:
-        return self.raiz == RAIZ_ORACLE
+        return self.raiz.resolve() == RAIZ_ORACLE.resolve()
 
     def __str__(self) -> str:
         return "oracle (sí mismo)" if self.es_el_propio_oracle else str(self.raiz)
@@ -286,20 +315,28 @@ def bibliotecas_del_proyecto(proy: "Proyecto", *, config=None):
     return tuple(disponibles[bid] for bid in config.bibliotecas)
 
 
-def catalogos_base_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
-    """Políticas base, perfiles y bibliotecas activadas explícitamente por el proyecto."""
+def catalogos_base_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[FuenteCatalogo]:
+    """Fuentes base seleccionadas, sin perder quién publica cada una."""
     raices = _normalizar_raices_perfiles(raices_perfiles)
     disponibles = perfiles_incluidos(raices)
     config = configuracion(proy, raices_perfiles=raices)
     bibliotecas = bibliotecas_del_proyecto(proy, config=config)
-    return [
-        *([RAIZ_ORACLE / "catalogos"] if config.catalogo_base else []),
-        *(disponibles[nombre] for nombre in config.perfiles),
-        *(directorio for biblioteca in bibliotecas for directorio in biblioteca.catalogos),
-    ]
+    fuentes = []
+    if config.catalogo_base:
+        fuentes.append(FuenteCatalogo(RAIZ_ORACLE / "catalogos", ORIGEN_CATALOGO_BASE))
+    fuentes.extend(
+        FuenteCatalogo(disponibles[nombre], OrigenCatalogo("perfil", nombre))
+        for nombre in config.perfiles
+    )
+    fuentes.extend(
+        FuenteCatalogo(directorio, OrigenCatalogo("biblioteca", biblioteca.id))
+        for biblioteca in bibliotecas
+        for directorio in biblioteca.catalogos
+    )
+    return fuentes
 
 
-def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
+def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[FuenteCatalogo]:
     """Los catálogos base/perfiles declarados más el catálogo del proyecto.
 
     Oracle ofrece políticas para proyectos construidos con un LLM —mutantes que sobreviven,
@@ -307,9 +344,49 @@ def catalogos_a_cargar(proy: "Proyecto", *, raices_perfiles=()) -> list[Path]:
     si incorporarlas con ``"catalogo_base": true``. Sin configuración sólo carga su propio catálogo.
     """
     bases = catalogos_base_a_cargar(proy, raices_perfiles=raices_perfiles)
-    if proy.catalogos.resolve() == (RAIZ_ORACLE / "catalogos").resolve():
+    if proy.es_el_propio_oracle:
         return bases
-    return [*bases, proy.catalogos]
+    return [*bases, FuenteCatalogo(proy.catalogos, ORIGEN_PROYECTO)]
+
+
+def _el_origen_es_el_proyecto(origen: OrigenCatalogo, proy: "Proyecto") -> bool:
+    """Compara identidades lógicas; nunca deduce jurisdicción comparando directorios."""
+    if origen == ORIGEN_PROYECTO:
+        return True
+    return origen == ORIGEN_CATALOGO_BASE and proy.es_el_propio_oracle
+
+
+def catalogo_efectivo(proy: "Proyecto", *, raices_perfiles=(), registro=None,
+                       limites=None, macros=None):
+    """Devuelve exactamente las medidas que ``proy`` debe evaluar, antes de aplicabilidad.
+
+    El orden es selección de fuentes, ámbito y —fuera de esta función— aplicabilidad por
+    relaciones. ``universal`` siempre entra si su fuente fue seleccionada; ``del_origen`` sólo
+    entra cuando el origen lógico pertenece al proyecto evaluado.
+
+    ``sin_declarar`` entra provisionalmente igual que ``universal``. Es un estado de migración, no
+    un ámbito implícito: excluirlo como si fuera ``del_origen`` apagaría hoy todas las guardas que
+    todavía deben viajar y podría volver verde a un consumidor por catálogo vacío. La capa de
+    política hará visible esa deuda; la carga no puede convertirla en silencio.
+    """
+    from .medida import cargar_catalogo
+    from .vocabulario import AMBITO_SIN_DECLARAR
+
+    registro_macros = (macros_del_proyecto(proy, raices_perfiles=raices_perfiles)
+                       if macros is None else macros)
+    catalogo = cargar_catalogo(
+        catalogos_a_cargar(proy, raices_perfiles=raices_perfiles),
+        registro=registro,
+        limites=limites,
+        macros=registro_macros,
+    )
+    return catalogo.filtrar(
+        lambda entrada: (
+            entrada.medida.ambito in ("universal", AMBITO_SIN_DECLARAR)
+            or (entrada.medida.ambito == "del_origen"
+                and _el_origen_es_el_proyecto(entrada.origen, proy))
+        )
+    )
 
 
 def relaciones_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> dict[str, Any]:

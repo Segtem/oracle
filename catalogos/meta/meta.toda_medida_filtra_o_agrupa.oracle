@@ -8,4 +8,5 @@ medida meta.toda_medida_filtra_o_agrupa:
     resumen contar(1)
     umbral <= 0 segun convencion porque "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"
     requiere termino
+    ambito universal
     alcance "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional"

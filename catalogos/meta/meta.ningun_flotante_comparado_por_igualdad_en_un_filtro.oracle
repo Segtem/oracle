@@ -4,4 +4,5 @@ ninguno-requiere meta.ningun_flotante_comparado_por_igualdad_en_un_filtro:
     predicado a.tipo == "flotante" y (a.cabeza_padre == "==" o a.cabeza_padre == "!=") y a.cabeza_ancestro == "donde"
     porque "un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria sobre una cantidad medida: 0.1 más 0.2 no da 0.3, así que el filtro puede aceptar o rechazar por cómo quedó el número en binario y no por el margen que la medida defiende. El límite es cero y no un margen porque una sola igualdad exacta ya vuelve arbitrario el corte"
     segun contrato
+    ambito universal
     alcance "mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`"

@@ -87,9 +87,10 @@ def quitar_requiere(datos: list) -> list | None:
     falso verde de la ausencia sin que nada lo note.
     """
     d = deepcopy(datos)
-    if len(d) != 7:
+    if (len(d) not in (7, 8) or not isinstance(d[5], list) or not d[5]
+            or d[5][0] != "requiere"):
         return None
-    return [*d[:5], d[6]]
+    return [*d[:5], *d[6:]]
 
 
 def negar_filtro(datos: list) -> list | None:

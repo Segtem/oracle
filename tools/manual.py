@@ -48,7 +48,7 @@ VOCABULARIOS: dict[str, tuple[str, dict[str, str]]] = {
 
 
 def catalogo_universal() -> dict:
-    """Las medidas que Oracle TRAE, cargadas sin proyecto.
+    """Las medidas que Oracle trae y que declaran explícitamente ámbito ``universal``.
 
     Son parte del lenguaje igual que los vocabularios: viajan en el paquete y valen para cualquiera.
     Las de un proyecto no van acá —cambian con él, y para eso está `oracle contexto`—.
@@ -61,9 +61,17 @@ def catalogo_universal() -> dict:
         import catalogos.escalares  # noqa: F401  registra las escalares del catálogo base
         from nucleo.macro import macros_base
         from nucleo.medida import cargar_catalogo
+        from nucleo.proyecto import (FuenteCatalogo, ORIGEN_CATALOGO_BASE,
+                                     OrigenCatalogo)
 
-        bases = [RAIZ_PAQUETE / "catalogos", RAIZ_PAQUETE / "perfiles" / "python" / "catalogos"]
-        return cargar_catalogo([b for b in bases if b.is_dir()], macros=macros_base())
+        bases = [
+            FuenteCatalogo(RAIZ_PAQUETE / "catalogos", ORIGEN_CATALOGO_BASE),
+            FuenteCatalogo(RAIZ_PAQUETE / "perfiles" / "python" / "catalogos",
+                            OrigenCatalogo("perfil", "python")),
+        ]
+        cargado = cargar_catalogo(
+            [fuente for fuente in bases if fuente.directorio.is_dir()], macros=macros_base())
+        return cargado.filtrar(lambda entrada: entrada.medida.ambito == "universal")
     except Exception:
         return {}
 
@@ -133,6 +141,9 @@ def seccion(tema: str, ancho: int = 96) -> str:
     """Una sección del manual, en texto para la terminal."""
     partes = [f"{tema.upper()} — {titulo(tema)}", ""]
     nombres = entradas(tema)
+    if not nombres:
+        partes.append("  (ninguna entrada declarada)")
+        return "\n".join(partes)
     columna = max(len(nombre) for nombre, _ in nombres) + 2
     # Con nombres largos —los ids de medida pasan de cincuenta caracteres— la columna alineada se
     # come dos tercios del renglón y el texto queda en una tira de veinte. A partir de un tercio del

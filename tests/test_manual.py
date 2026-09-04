@@ -254,14 +254,12 @@ class LaPaginaPublicadaNoSeDespegaTests(unittest.TestCase):
 
 
 class LasMedidasUniversalesEstanEnElManualTests(unittest.TestCase):
-    """Las 54 medidas que Oracle trae son parte del lenguaje: viajan en el paquete y valen para
-    cualquiera. Cada una ya declara qué NO ve, así que documentarlas no cuesta prosa nueva —
-    cuesta mostrar la que ya está."""
+    """El manual no confunde ubicación empaquetada con ámbito universal."""
 
     def test_estan_todas_las_del_catalogo_universal(self) -> None:
         """Del catálogo cargado, no de una lista al lado: una medida nueva aparece acá sola."""
         universal = manual.catalogo_universal()
-        self.assertGreater(len(universal), 40, "el catálogo universal no cargó")
+        self.assertEqual(len(universal), 37)
         entradas = dict(manual.entradas("medidas"))
         self.assertEqual(set(entradas), set(universal))
 

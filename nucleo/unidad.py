@@ -20,6 +20,7 @@ from .medida import Medida, relaciones_del_lenguaje_declaradas
 from .relacion import Relacion
 
 RELACIONES_DE_UNIDAD = frozenset({"cantidad_comparada"})
+AMBITOS_DE_RELACIONES = {"cantidad_comparada": "universal"}
 
 UNIDAD_ADIMENSIONAL = "adimensional"
 UNIDAD_NO_DERIVABLE = "sin_declarar"

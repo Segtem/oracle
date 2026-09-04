@@ -42,13 +42,13 @@
   "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso. (Reapuntado de línea 290 a 295 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/sintaxis.py:1401:29:constante",
+  "id": "nucleo/sintaxis.py:1404:29:constante",
   "linea_texto": "def _expr(expr, padre: int = 0) -> str:",
   "ordinal": 1,
   "razon": "`def _expr(expr, padre: int = 0)` → `padre: int = 1`. El valor por defecto de `padre` representa la ausencia de operador padre en la raíz del árbol. Los operadores del lenguaje son `o` (precedencia 1), `y` (2), comparadores (3) y `no` (4); las funciones y átomos se imprimen delimitados. Ningún operador tiene precedencia menor que 1, de modo que `prec < 0` y `prec < 1` evalúan a `False` para toda expresión raíz posible. La salida textual es idéntica para toda entrada. (La ruta se corrió 1273 → 1365 el 2026-08-27 al incorporar `segun` en la lectura/escritura de umbrales: el sitio es el mismo. Que el id sea POSICIONAL lo vuelve frágil ante cualquier edición previa del archivo, y el mecanismo de frescura fue el que avisó — el equivalente vencido hizo fallar dos tests en vez de pasar inadvertido.) (Se movió el 2026-09-01, al hacer que el «llegó X» se pegue a la primera línea de un esperado de varias: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/sintaxis.py:1422:15:constante",
+  "id": "nucleo/sintaxis.py:1425:15:constante",
   "linea_texto": "prec = 4",
   "ordinal": 1,
   "razon": "`prec = 4` → `prec = 5` en el brazo `no` de `_expr`. La escala de precedencia infija asigna 1 a `o`, 2 a `y`, 3 a comparadores y 4 a `no`. Al mutar `prec` de `no` a 5: para los operadores inferiores (1, 2, 3), tanto `1 < 4` como `1 < 5`, `2 < 4` como `2 < 5`, `3 < 4` como `3 < 5` son `True` (reciben paréntesis); dentro de `no`, `4 < 4` y `5 < 5` son ambos `False` (`no no x` no agrega paréntesis redundantes); y dentro de operadores inferiores, `4 < k` y `5 < k` son ambos `False` para `k ∈ {0, 1, 2, 3}`. Como no existe ningún operador intermedio de precedencia 4 entre los comparadores (3) y `no`, el orden parcial inducido sobre todos los árboles sintácticos es idéntico. (La ruta se corrió 1294 → 1386 el 2026-08-27 al incorporar `segun` en la lectura/escritura de umbrales: el sitio es el mismo. Que el id sea POSICIONAL lo vuelve frágil ante cualquier edición previa del archivo, y el mecanismo de frescura fue el que avisó — el equivalente vencido hizo fallar dos tests en vez de pasar inadvertido.) (Se movió el 2026-09-01, al hacer que el «llegó X» se pegue a la primera línea de un esperado de varias: el sitio es el mismo, la línea no.)"
@@ -66,7 +66,7 @@
   "razon": "`json.dumps(..., indent=2)` → `indent=3`. Cambia el ancho de la sangría y nada más: el JSON parsea al mismo objeto, sigue siendo multilínea y sigue siendo legible. Ninguna parte del proyecto lee el diagnóstico como texto ni depende de su ancho —quien lo consume es una persona o un `json.loads`—. Fijarlo con un test sería afirmar que el proyecto depende de que la sangría sea dos, y no depende: sería un test que impide un cambio inofensivo sin proteger nada. (El id se corrió de la línea 166 a la 169 el 2026-09-01 al agregar `cmd_biblioteca_nueva` más arriba: el sitio es el mismo `json.dumps` del diagnóstico. Que un id de equivalente sea posicional lo vuelve frágil ante cualquier edición de arriba, y el arnés lo atrapa en vez de dejarlo pasar.)"
  },
  {
-  "id": "tools/medida.py:379:43:constante",
+  "id": "tools/medida.py:381:43:constante",
   "linea_texto": "linea = max(1, getattr(e, \"linea\", 1) - LINEAS_DE_ENVOLTORIO)",
   "ordinal": 1,
   "razon": "El default de `getattr(e, \"linea\", 1)` cambia de 1 a 2. Si la excepción declara `linea`, el default no participa y ambas versiones leen el mismo atributo. Si no la declara, el cálculo posterior da `max(1, 1 - 12)` en el original y `max(1, 2 - 12)` en el mutante; ambos valen 1. `LINEAS_DE_ENVOLTORIO` es la constante local 12 y se resta antes de aplicar el mínimo visible, así que ninguna excepción ni fragmento de evidencia puede volver observable el cambio. Un test que pretendiera distinguirlo tendría que modificar el código bajo prueba o afirmar un resultado distinto para dos expresiones que producen el mismo entero."

@@ -2,4 +2,5 @@ ninguno meta.segtem.ninguna_medida_sin_alcance:
     de medida m
     donde m.alcance == ""
     umbral <= 0 segun contrato porque "una medida sin alcance no dice qué queda fuera de su verde"
+    ambito universal
     alcance "ve si una medida declara algún alcance.\nNO juzga si ese alcance es suficiente ni verdadero"

@@ -201,7 +201,7 @@ class SintaxisInfijaTests(unittest.TestCase):
         datos = ["ninguno", "d.prueba", "pieza", "p",
                  ["y", ["==", ["campo", "p", "mal"], True],
                   [">", ["campo", "p", "n"], 2]],
-                 "una razón", "NO ve otros campos"]
+                 "una razón", "contrato", "universal", "NO ve otros campos"]
         texto = sintaxis.imprimir(datos)
 
         self.assertEqual(sintaxis.imprimir(sintaxis.leer(texto)), texto)
@@ -211,7 +211,8 @@ class SintaxisInfijaTests(unittest.TestCase):
             "ninguno d.rota:",
             "    de pieza p",
             "    donde p.mal ==",
-            "    umbral <= 0 porque \"razón\"",
+            "    umbral <= 0 segun contrato porque \"razón\"",
+            "    ambito universal",
             "    alcance \"NO ve\"",
         ])
 
@@ -521,7 +522,7 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "        clave k = r.x",
             "        agregado total = contar(o.y)",
             "    resumen max(total)",
-            '    umbral <= 0 porque "razón"',
+            '    umbral <= 0 segun contrato porque "razón"',
             "    requiere rel, otra",
             '    alcance "NO ve más"',
         ])
@@ -558,7 +559,8 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "ninguno d.n:",
             "    de rel r",
             "    donde r.x == true",
-            '    umbral <= 0 porque "razón"',
+            '    umbral <= 0 segun contrato porque "razón"',
+            "    ambito universal",
             '    alcance "NO ve"',
         ]), {
             "1": (1, 9),
@@ -573,6 +575,8 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "    aliasB b",
             "    predicado a.x == b.x",
             '    porque "razón"',
+            "    segun contrato",
+            "    ambito universal",
             '    alcance "NO ve"',
         ]), {
             "1": (1, 13),
@@ -587,6 +591,8 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "    expresion r.x",
             "    tolerancia 2",
             '    porque "razón"',
+            "    segun contrato",
+            "    ambito universal",
             '    alcance "NO ve"',
         ]), {
             "1": (1, 6),
@@ -597,40 +603,45 @@ class MutacionDeSintaxisTests(unittest.TestCase):
 
     def test_errores_de_medidas_y_macros_fijan_fragmentos(self) -> None:
         casos = [
-            # El mensaje NOMBRA la línea que falta. «se esperaba 5 líneas» es cierto y no dice
+            # El mensaje NOMBRA la línea que falta. «se esperaba 7 líneas» es cierto y no dice
             # cuál de los parámetros se olvidó.
             ("ninguno sin cuerpo", "ninguno d.n:\n", 2, 1,
              "línea 2, columna 1: a la macro ninguno le falta `relacion`, `alias`, "
-             "`predicado`, `porque`, `alcance`. Su cuerpo son estas 5 líneas, en este orden: "
-             "relacion, alias, predicado, porque, alcance"),
+             "`predicado`, `porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 7 líneas, "
+             "en este orden: relacion, alias, predicado, porque, segun, ambito, alcance"),
             ("ninguno incompleto", self._texto(["ninguno d.n:", "    relacion rel"]), 3, 1,
              "línea 3, columna 1: a la macro ninguno le falta `alias`, `predicado`, "
-             "`porque`, `alcance`. Su cuerpo son estas 5 líneas, en este orden: relacion, "
-             "alias, predicado, porque, alcance"),
+             "`porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 7 líneas, en este orden: "
+             "relacion, alias, predicado, porque, segun, ambito, alcance"),
             ("ninguno largo", self._texto([
                 "ninguno d.n:", "    relacion rel", "    alias r", "    predicado r.x == true",
-                '    porque "razón"', '    alcance "NO ve"', "    sobra"]), 7, 1,
-             "línea 7, columna 1: la macro ninguno lleva exactamente 5 líneas de cuerpo "
-             "(relacion, alias, predicado, porque, alcance) y llegaron 6"),
+                '    porque "razón"', "    segun contrato", "    ambito universal",
+                '    alcance "NO ve"', "    sobra"]), 9, 1,
+             "línea 9, columna 1: la macro ninguno lleva exactamente 7 líneas de cuerpo "
+             "(relacion, alias, predicado, porque, segun, ambito, alcance) y llegaron 8"),
             ("ninguno fuera de orden", self._texto([
                 "ninguno d.n:", "    relacion rel", "    predicado r.x == true",
-                "    alias r", '    porque "razón"', '    alcance "NO ve"']), 3, 5,
+                "    alias r", '    porque "razón"', "    segun contrato", "    ambito universal",
+                '    alcance "NO ve"']), 3, 5,
              "línea 3, columna 5: se esperaba línea «alias»; llegó 'predicado r.x == true'"),
             ("ninguno-par sin cuerpo", "ninguno-par d.n:\n", 2, 1,
              "línea 2, columna 1: a la macro ninguno-par le falta `relacion`, `aliasA`, "
-             "`aliasB`, `predicado`, `porque`, `alcance`. Su cuerpo son estas 6 líneas, en "
-             "este orden: relacion, aliasA, aliasB, predicado, porque, alcance"),
+             "`aliasB`, `predicado`, `porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 8 "
+             "líneas, en este orden: relacion, aliasA, aliasB, predicado, porque, segun, ambito, "
+             "alcance"),
             ("ninguno-par alias mal", self._texto([
                 "ninguno-par d.n:", "    relacion rel", "    aliasA a b", "    aliasB b",
-                "    predicado a.x == b.x", '    porque "razón"', '    alcance "NO ve"']),
+                "    predicado a.x == b.x", '    porque "razón"', "    segun contrato",
+                "    ambito universal", '    alcance "NO ve"']),
              3, 12, "línea 3, columna 12: se esperaba aliasA <nombre>; llegó 'a b'"),
             ("peor sin cuerpo", "peor d.p:\n", 2, 1,
              "línea 2, columna 1: a la macro peor le falta `relacion`, `alias`, `expresion`, "
-             "`tolerancia`, `porque`, `alcance`. Su cuerpo son estas 6 líneas, en este orden: "
-             "relacion, alias, expresion, tolerancia, porque, alcance"),
+             "`tolerancia`, `porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 8 líneas, "
+             "en este orden: relacion, alias, expresion, tolerancia, porque, segun, ambito, alcance"),
             ("peor tolerancia mal", self._texto([
                 "peor d.p:", "    relacion rel", "    alias r", "    expresion r.x",
-                '    umbral <= 2 porque "razón"', '    porque "razón"', '    alcance "NO ve"']),
+                '    umbral <= 2 porque "razón"', '    porque "razón"', "    segun contrato",
+                "    ambito universal", '    alcance "NO ve"']),
              5, 5, "línea 5, columna 5: se esperaba línea «tolerancia»; "
              "llegó 'umbral <= 2 porque \"razón\"'"),
             ("medida vacía", "medida d.vacia:\n", 2, 1,
@@ -711,32 +722,38 @@ class MutacionDeSintaxisTests(unittest.TestCase):
     def test_defmacro_cubre_plantillas_guardas_y_huecos(self) -> None:
         variantes = {
             "ninguno": self._texto([
-                "defmacro todos(id, rel, alias, pred, porque, alcance):",
+                "defmacro todos(id, rel, alias, pred, porque, segun, ambito, alcance):",
                 "    ninguno $id:",
                 "        relacion $rel",
                 "        alias $alias",
                 "        predicado $pred",
                 "        porque $porque",
+                "        segun $segun",
+                "        ambito $ambito",
                 "        alcance $alcance",
             ]),
             "ninguno-par": self._texto([
-                "defmacro pares(id, rel, a, b, pred, porque, alcance):",
+                "defmacro pares(id, rel, a, b, pred, porque, segun, ambito, alcance):",
                 "    ninguno-par $id:",
                 "        relacion $rel",
                 "        aliasA $a",
                 "        aliasB $b",
                 "        predicado $pred",
                 "        porque $porque",
+                "        segun $segun",
+                "        ambito $ambito",
                 "        alcance $alcance",
             ]),
             "peor": self._texto([
-                "defmacro peor-propia(id, rel, alias, expr, tol, porque, alcance):",
+                "defmacro peor-propia(id, rel, alias, expr, tol, porque, segun, ambito, alcance):",
                 "    peor $id:",
                 "        relacion $rel",
                 "        alias $alias",
                 "        expresion $expr",
                 "        tolerancia $tol",
                 "        porque $porque",
+                "        segun $segun",
+                "        ambito $ambito",
                 "        alcance $alcance",
             ]),
         }
@@ -811,7 +828,8 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "ninguno d.n:",
             "    de rel r",
             "    donde r.x == true",
-            '    umbral <= 0 porque "razón"',
+            '    umbral <= 0 segun contrato porque "razón"',
+            "    ambito universal",
             '    alcance "NO ve"',
         ])
         lectura = sintaxis.leer_con_mapa("# comentario\nsintaxis 0.1\n" + cuerpo)
@@ -1354,7 +1372,8 @@ class GramaticaDelIdTests(unittest.TestCase):
 
     CUERPO = ('\n    de tarea t'
               '\n    donde t.vencida == true'
-              '\n    umbral <= 0 porque "una tarea vencida sin dueño no la hace nadie"'
+              '\n    umbral <= 0 segun contrato porque "una tarea vencida sin dueño no la hace nadie"'
+              '\n    ambito universal'
               '\n    alcance "ve el par vencida+sin-dueño. NO ve si quien la tiene puede resolverla"\n')
 
     def test_la_superficie_acepta_un_id_de_la_gramatica(self) -> None:
@@ -1467,11 +1486,12 @@ class MedidaNuevaNaceEnLaSuperficieTests(unittest.TestCase):
             self.assertEqual(destino.suffix, EXTENSION_DE_AUTORIA)
 
     def test_la_plantilla_que_se_entrega_se_lee_y_carga(self) -> None:
-        """La plantilla no elige `segun`: deja marcador y enumera las opciones."""
+        """La plantilla no elige `segun` ni `ambito`: deja marcadores y enumera las opciones."""
         from nucleo.medida import Medida
         from tools.medida import PLANTILLA
         plantilla = PLANTILLA.format(mid="tareas.mide")
         self.assertIn("# segun: medicion", plantilla)
+        self.assertIn("# ambito: universal", plantilla)
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis.leer(plantilla)
         self.assertIn("segun en [", str(cm.exception))
@@ -1479,7 +1499,8 @@ class MedidaNuevaNaceEnLaSuperficieTests(unittest.TestCase):
         texto = (plantilla
                  .replace("RELACION", "tarea")
                  .replace("CAMPO", "vencida")
-                 .replace("SEGUN", "contrato"))
+                 .replace("SEGUN", "contrato")
+                 .replace("AMBITO", "universal"))
         datos = sintaxis.leer(texto)
         self.assertEqual(Medida.de_datos(datos).id, "tareas.mide")
 
@@ -1615,7 +1636,8 @@ class DocumentacionVerificadaTests(unittest.TestCase):
         cuerpo = ("ninguno tareas.mide:\n"
                   "    de tarea t\n"
                   "    donde t.vencida==true\n"
-                  '    umbral <= 0 porque "una tarea vencida sin dueño no la hace nadie"\n'
+                  '    umbral <= 0 segun contrato porque "una tarea vencida sin dueño no la hace nadie"\n'
+                  "    ambito universal\n"
                   '    alcance "ve el par vencida+sin-dueño"\n')
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d)
@@ -1887,7 +1909,8 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
         'ninguno d.prueba:\n'
         '    de pieza p\n'
         '    donde p.x == true\n'
-        '    umbral <= 0 porque "razón"\n'
+        '    umbral <= 0 segun contrato porque "razón"\n'
+        '    ambito universal\n'
         '    alcance "NO ve otros campos"\n'
     )
 
@@ -1985,7 +2008,8 @@ class NingunaEntradaEsFailOpenTests(unittest.TestCase):
               'ninguno tareas.mide:\n'
               '    de tarea t\n'
               '    donde t.vencida == true\n'
-              '    umbral <= 0 porque "una tarea vencida sin dueño no la hace nadie"\n'
+              '    umbral <= 0 segun contrato porque "una tarea vencida sin dueño no la hace nadie"\n'
+              '    ambito universal\n'
               '    alcance "ve el par vencida+sin-dueño y nada más"\n')
 
     def _archivo(self, d, nombre="m.oracle"):
@@ -2310,6 +2334,8 @@ class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
               '    alias t\n'
               '    predicado t.vencida == true\n'
               '    porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
+              '    segun contrato\n'
+              '    ambito universal\n'
               '    alcance "ve el par vencida+sin-dueño y nada más"\n')
 
     def _error(self, texto):
@@ -2337,11 +2363,11 @@ class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
             with self.subTest(falta=palabra):
                 e = self._error(self.CUERPO.replace(quitar, ""))
                 self.assertIn(f"`{palabra}`", str(e))
-                self.assertIn("relacion, alias, predicado, porque, alcance", str(e))
+                self.assertIn("relacion, alias, predicado, porque, segun, ambito, alcance", str(e))
 
     def test_un_cuerpo_de_mas_no_se_confunde_con_uno_de_menos(self) -> None:
         e = self._error(self.CUERPO + "    sobra\n")
-        self.assertIn("y llegaron 6", str(e))
+        self.assertIn("y llegaron 8", str(e))
         self.assertNotIn("le falta", str(e))
 
     def test_una_linea_que_no_es_parametro_nombra_la_esperada(self) -> None:

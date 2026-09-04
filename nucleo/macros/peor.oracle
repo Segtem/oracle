@@ -1,9 +1,11 @@
-# `segun` va después de `porque` para no cambiar el significado posicional de las invocaciones
-# existentes; no hay default. La prosa puede ser "", pero la etiqueta del origen siempre se decide.
-defmacro peor(id, relacion, alias, expresion, tolerancia, porque, segun, alcance):
+# `segun` y `ambito` van después de `porque` para no cambiar el significado posicional de las
+# invocaciones existentes; no hay default. La prosa puede ser "", pero la etiqueta del origen y el
+# ámbito siempre se deciden.
+defmacro peor(id, relacion, alias, expresion, tolerancia, porque, segun, ambito, alcance):
     medida $id:
         de $relacion $alias
         donde $expresion > $tolerancia
         resumen max($expresion)
         umbral <= $tolerancia segun $segun porque $porque
+        ambito $ambito
         alcance $alcance

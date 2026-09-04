@@ -60,6 +60,8 @@ ninguno {mid}:
     donde x.CAMPO == false
     # segun: medicion · contrato · convencion · tanteo
     umbral <= 0 segun SEGUN porque "POR QUE ese numero y no otro. Si SEGUN es tanteo, esta explicacion es obligatoria."
+    # ambito: universal · del_origen
+    ambito AMBITO
     alcance "QUE NO VE esta medida. Obligatorio: un verde que no dice lo que no mira se lee como «esta bien»."
 """
 
@@ -493,8 +495,8 @@ def _catalogo_completo(proy, macros):
 
 def _ids_en(directorios) -> set[str]:
     """Los ids que hay en esos directorios, leídos del nombre del archivo y sin parsear nada."""
-    return {ruta.stem for d in directorios if d.is_dir()
-            for ruta in d.rglob("*") if ruta.suffix in (".oracle", ".json")}
+    return {ruta.stem for fuente in directorios if Path(fuente).is_dir()
+            for ruta in Path(fuente).rglob("*") if ruta.suffix in (".oracle", ".json")}
 
 
 def _heredadas(proy) -> set[str]:
@@ -543,8 +545,8 @@ def _jueza_del_ejercicio(proy, macros):
     """
     donde_buscar = [*catalogos_a_cargar(proy), RAIZ_ORACLE / "catalogos"]
     return next((cargar_medida(ruta, macros=macros)
-                 for base in donde_buscar if base.is_dir()
-                 for ruta in sorted(base.rglob(f"{ID_EJERCITADA}.*"))), None)
+                 for fuente in donde_buscar if Path(fuente).is_dir()
+                 for ruta in sorted(Path(fuente).rglob(f"{ID_EJERCITADA}.*"))), None)
 
 
 def ejercicio_del_catalogo(proy, catalogo, macros, heredadas=None) -> Ejercicio:

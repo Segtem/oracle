@@ -32,7 +32,7 @@ class ContratoMedidaTests(unittest.TestCase):
                                     "relacion_documentada",
                                     "verbo_del_cli",
                                     "opcion_del_vocabulario",
-                                    "mutador_excluido"}))
+                                "mutador_excluido", "ambito_de_relacion"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (
@@ -267,7 +267,7 @@ class ContratoMedidaTests(unittest.TestCase):
             }],
         )
 
-    def test_las_cincuenta_y_cinco_medidas_siguen_en_el_estado_de_migracion(self) -> None:
+    def test_todas_las_medidas_declaran_el_ambito_clasificado(self) -> None:
         import catalogos.escalares  # noqa: F401
         from pathlib import Path
         from nucleo.macro import macros_base
@@ -279,10 +279,11 @@ class ContratoMedidaTests(unittest.TestCase):
             macros=macros_base(),
         )
 
-        self.assertEqual(
-            [medida.ambito for medida in catalogo.values()],
-            [m.AMBITO_SIN_DECLARAR] * 55,
-        )
+        ambitos = [medida.ambito for medida in catalogo.values()]
+        self.assertEqual(len(ambitos), 56)
+        self.assertEqual(ambitos.count("universal"), 37)
+        self.assertEqual(ambitos.count("del_origen"), 19)
+        self.assertNotIn(m.AMBITO_SIN_DECLARAR, ambitos)
 
     def test_como_hechos_marca_si_el_umbral_es_flotante(self) -> None:
         m = modulo_medida()

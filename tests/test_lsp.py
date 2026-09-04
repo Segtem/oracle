@@ -21,6 +21,7 @@ ninguno demo.alto:
     de pieza p
     donde p.alto > 400
     umbral <= 0 segun contrato porque "cuatro metros"
+    ambito universal
     alcance "no mira la malla"
 """
 

@@ -203,6 +203,7 @@ class OracleCliTests(CliTestCase):
                 "    de item i\n"
                 "    donde i.mal == true\n"
                 "    umbral <= 0 segun contrato porque \"ningún ítem puede estar mal\"\n"
+                "    ambito universal\n"
                 "    alcance \"sólo ve el campo mal\"\n",
                 encoding="utf-8")
 
@@ -387,6 +388,7 @@ class OracleCliTests(CliTestCase):
                 "    de item x\n"
                 "    donde x.mal == true\n"
                 "    umbral <= 0 segun contrato porque \"ningun item puede estar mal\"\n"
+                "    ambito universal\n"
                 "    alcance \"NO ve otros items\"\n",
                 encoding="utf-8",
             )
@@ -508,6 +510,7 @@ class OracleCliTests(CliTestCase):
                 "    de item x\n"
                 "    donde x.mal == true\n"
                 "    umbral <= 0 segun contrato porque \"defensa\"\n"
+                "    ambito universal\n"
                 "    alcance \"alcance\"\n",
                 encoding="utf-8",
             )
@@ -554,6 +557,7 @@ class OracleCliTests(CliTestCase):
                 "    de item x\n"
                 "    donde es_malo(x) == true\n"
                 "    umbral <= 0 segun contrato porque \"defensa\"\n"
+                "    ambito universal\n"
                 "    alcance \"alcance\"\n",
                 encoding="utf-8",
             )
@@ -678,6 +682,7 @@ class OracleCliTests(CliTestCase):
                 "    de item i\n"
                 "    donde i.mal == true\n"
                 "    umbral <= 0 segun contrato porque \"ningun item malo pasa\"\n"
+                "    ambito universal\n"
                 "    alcance \"NO ve campos distintos de mal\"\n",
                 encoding="utf-8",
             )
@@ -731,6 +736,7 @@ class InitDejaLasGuardasPuestasTests(CliTestCase):
         "    de tarea t\n"
         "    donde t.vencida == true y t.asignada == true\n"
         '    umbral <= 0 segun contrato porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
+        '    ambito universal\n'
         '    alcance "ve el par vencida+sin-dueño y nada más"\n')
 
     CASO = (
@@ -1168,6 +1174,7 @@ class NounVerbCliTests(CliTestCase):
             "    de pieza p\n"
             "    donde p.alto > 400.0\n"
             '    umbral <= 0 segun contrato porque "cuatro metros es el techo del set"\n'
+            '    ambito universal\n'
             '    alcance "mira el alto declarado. NO mira la malla"\n',
             encoding="utf-8")
         return m
@@ -1338,6 +1345,7 @@ class NounVerbCliTests(CliTestCase):
                 "    de pieza p\n"
                 "    donde p.rota == true\n"
                 '    umbral <= 0 segun contrato porque "una pieza rota en la escena se ve"\n'
+                '    ambito universal\n'
                 '    alcance "mira la bandera declarada. NO ve la malla real"\n',
                 encoding="utf-8")
             _rc, salida = self._callado(cli.main, ["medida", "listar", "--proyecto", str(raiz)])
@@ -1361,6 +1369,7 @@ class NounVerbCliTests(CliTestCase):
                 "    de item x\n"
                 "    donde x.mal == true\n"
                 "    umbral <= 0 segun contrato porque \"defensa\"\n"
+                "    ambito universal\n"
                 "    alcance \"NO ve otros items\"\n",
                 encoding="utf-8",
             )
@@ -1488,12 +1497,14 @@ class NounVerbCliTests(CliTestCase):
             (raiz / "macros").mkdir()
             (raiz / "macros" / "sin-fallas.oracle").write_text(
                 "\n".join([
-                    "defmacro sin-fallas(id, relacion, alias, predicado, porque, alcance):",
+                    "defmacro sin-fallas(id, relacion, alias, predicado, porque, segun, ambito, alcance):",
                     "    ninguno $id:",
                     "        relacion $relacion",
                     "        alias $alias",
                     "        predicado $predicado",
                     "        porque $porque",
+                    "        segun $segun",
+                    "        ambito $ambito",
                     "        alcance $alcance",
                     "",
                 ]), encoding="utf-8")
@@ -1508,6 +1519,8 @@ class NounVerbCliTests(CliTestCase):
                     "    alias i",
                     "    predicado i.ok == false",
                     "    porque \"un item falso invalida la entrega entera\"",
+                    "    segun contrato",
+                    "    ambito universal",
                     "    alcance \"NO ve items que nadie declaró\"",
                     "",
                 ]), encoding="utf-8")
@@ -1519,6 +1532,8 @@ class NounVerbCliTests(CliTestCase):
                 "sin-fallas", "demo.todo_ok", "item", "i",
                 ["==", ["campo", "i", "ok"], False],
                 "un item falso invalida la entrega entera",
+                "contrato",
+                "universal",
                 "NO ve items que nadie declaró",
             ])
 

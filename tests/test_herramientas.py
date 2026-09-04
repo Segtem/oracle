@@ -245,7 +245,7 @@ class ContratoDiferencialTests(unittest.TestCase):
         def medida(mid, campo):
             return Medida.de_datos(
                 ["ninguno", mid, "hecho", "h", ["==", ["campo", "h", campo], True],
-                 "razón", "NO ve el otro campo"])
+                 "razón", "contrato", "universal", "NO ve el otro campo"])
 
         original = {"m.a": medida("m.a", "a"), "m.b": medida("m.b", "b")}
         escenarios = []
@@ -324,6 +324,7 @@ ninguno demo.alto:
     de pieza p
     donde p.alto > 400
     umbral <= 0 segun contrato porque "cuatro metros"
+    ambito universal
     alcance "no mira la malla"
 """
 
@@ -456,6 +457,8 @@ print('IMPORTS OK')
                 "ninguno", "demo.sin_malos", "item", "x",
                 ["es_malo_demo", ["hecho", "x"]],
                 "cualquier item malo invalida el conjunto",
+                "contrato",
+                "universal",
                 "NO ve propiedades distintas de `mal`",
             ])
         dominio = raiz / "catalogos" / "demo"
@@ -566,7 +569,8 @@ print('IMPORTS OK')
             dominio.mkdir()
             (dominio / "demo.udf.json").write_text(json.dumps([
                 "ninguno", "demo.udf", "item", "x",
-                ["es_malo_temporal", ["hecho", "x"]], "razón", "NO ve otros campos",
+                ["es_malo_temporal", ["hecho", "x"]], "razón", "contrato", "universal",
+                "NO ve otros campos",
             ]), encoding="utf-8")
             marca = proyecto / "ejecutado"
             (proyecto / "escalares.py").write_text(
@@ -1611,6 +1615,7 @@ caso {cid}:
             '    de item i\n'
             '    donde i.mal == true\n'
             '    umbral <= 0 segun contrato porque "ningun item malo pasa"\n'
+            '    ambito universal\n'
             '    alcance "NO ve campos distintos de mal"\n', encoding="utf-8")
         for cid, etiqueta, mal, titulo in casos:
             (raiz / "corpus" / "demo" / f"{cid}.caso").write_text(
@@ -1811,6 +1816,7 @@ ninguno demo.siempre_roja:
     de item i
     donde i.mal == true
     umbral <= 0 segun contrato porque "ningun item malo pasa"
+    ambito universal
     alcance "NO ve campos distintos de mal"
 """
 

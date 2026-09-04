@@ -1,0 +1,18 @@
+caso 472-medida-sin-ambito:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Una medida no declara su ámbito"
+    etiqueta: falso_verde
+    sintoma:
+        La relación `medida` trae `ambito` en `sin_declarar`. Esa ausencia es visible para que una forma vieja o incompleta se ponga roja durante la migración, no para aceptarla como categoría válida.
+    como_se_detecto: persona
+    medida: meta.toda_medida_declara_su_ambito
+    evidencia:
+        medida: id, ambito
+            "dominio.medida_sin_ambito", "sin_declarar"
+            "dominio.medida_sana", "universal"
+    leccion:
+        No existe un valor por omisión para el ámbito: `sin_declarar` reifica la deuda de migración y la regla falla ante una sola fila ofensora aunque conviva con medidas sanas.

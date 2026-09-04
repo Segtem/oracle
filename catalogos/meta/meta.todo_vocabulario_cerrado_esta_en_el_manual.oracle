@@ -4,4 +4,5 @@ ninguno-requiere meta.todo_vocabulario_cerrado_esta_en_el_manual:
     predicado o.en_el_manual == false
     porque "el manual no es un documento aparte sino una vista de estas mismas declaraciones, y por eso no puede quedar viejo — salvo de una manera: que aparezca un vocabulario nuevo y nadie lo agregue al registro. Ésa es la única grieta, y es exactamente lo que mide esta medida"
     segun contrato
+    ambito del_origen
     alcance "mira el registro `VOCABULARIOS` de `tools/manual.py`, no la salida del comando: NO ve si la sección se imprime rota. Y NO puede ver un vocabulario cerrado que no esté ni en el manual ni en el registro de hechos: eso lo atrapa el test que enumera los módulos del núcleo"

@@ -2,4 +2,5 @@ ninguno meta.el_caso_reclama_una_medida_que_existe:
     de caso c
     donde c.tiene_medida == true y c.medida_existe == false
     umbral <= 0 segun contrato porque "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto"
+    ambito universal
     alcance "mira todos los casos, propios y heredados, y ve el id que cada caso RECLAMA: un caso de biblioteca colgado puede señalar una selección incompleta del proyecto. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2"

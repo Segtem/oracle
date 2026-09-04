@@ -149,6 +149,8 @@ ninguno proceso.test_con_mutante_que_lo_mata:
     alias m
     predicado m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
     porque "un mutante que sobrevive es un test que no discrimina"
+    segun contrato
+    ambito universal
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
 
@@ -169,6 +171,7 @@ peor snap.grilla:
     tolerancia 1.0
     porque "por debajo de 1 cm el desvío no se ve"
     segun convencion
+    ambito universal
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 

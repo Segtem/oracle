@@ -2,4 +2,5 @@ ninguno meta.una_macro_equivale_a_su_expansion:
     de equivalencia e
     donde e.propiedad == "una_macro_equivale_a_su_expansion" y (e.mismo_veredicto == false o e.mismo_valor == false o e.mismos_testigos == false)
     umbral <= 0 segun contrato porque "una macro es azúcar: expande a la forma canónica ANTES de construir la medida, así que el evaluador no debería poder distinguir una de otra. Es la propiedad con más en juego del catálogo — diecinueve de veintidós medidas pasan por una macro, y si alguna expandiera distinto de lo que su autor cree, todo lo escrito con ella mediría otra cosa en silencio y sin que ningún caso lo notara"
+    ambito del_origen
     alcance "compara cada medida escrita por macro contra su expansión canónica, con la evidencia real de sus casos de corpus. NO ve las macros sin ningún caso que las use, ni una expansión que sea consistentemente equivocada: si la macro siempre expande mal de la misma manera, las dos formas coinciden y esta medida calla"

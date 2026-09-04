@@ -1,0 +1,20 @@
+caso 474-el-catalogo-migrado-declara-su-ambito:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "20a679d+worktree"
+    procedencia: observada
+    titulo: "Las 56 medidas del catálogo quedaron con su ámbito declarado tras la migración"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La evidencia no se escribió a mano: son cuatro filas de las 56 que devolvió `como_hechos` sobre el catálogo cargado de este corte —37 universales y 19 del origen, ninguna en `sin_declarar`—. Se eligieron una de cada ámbito, la medida que juzga y la que se juzga a sí misma.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_declara_su_ambito
+    evidencia:
+        medida: id, ambito
+            "meta.ninguna_medida_sin_alcance", "universal"
+            "meta.toda_medida_declara_su_ambito", "del_origen"
+            "meta.toda_medida_filtra_o_agrupa", "universal"
+            "meta.unir_conmuta", "del_origen"
+    leccion:
+        Una medida fijada sólo con evidencia fabricada puede estar ajustada a los ejemplos que se escribieron para que pasara. Este verde sale de la corrida y envejece solo: el día que alguien agregue una medida sin declarar su ámbito —o escriba una macro nueva sin el parámetro—, el catálogo real deja de coincidir con este caso sin que nadie lo toque. Incluye a `meta.toda_medida_declara_su_ambito` entre las filas que juzga, que es el punto fijo de L2 en su forma más concreta: la regla se somete a sí misma.

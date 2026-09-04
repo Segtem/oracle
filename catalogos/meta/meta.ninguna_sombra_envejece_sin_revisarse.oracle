@@ -2,4 +2,5 @@ ninguno meta.ninguna_sombra_envejece_sin_revisarse:
     de sombra s
     donde s.dias > 90
     umbral <= 0 segun convencion porque "una sombra es una etapa de transición, y lo único que la distingue de apagar la medida es que alguien la vaya a sacar. Noventa días es un trimestre: tiempo de sobra para el arreglo que se pospuso, y poco para que el proyecto se acostumbre a no verla. El número lo eligió el equipo y no salió de medir nada — cambiarlo es una decisión, no la corrección de un error"
+    ambito universal
     alcance "cuenta días desde la fecha que la sombra declara. NO juzga si el motivo sigue siendo válido, ni si alguien la miró en el medio, ni si el arreglo avanzó; una sombra revisada ayer y una olvidada hace un año se ven igual si la fecha no cambió. Tampoco ve una fecha que no se pueda leer o que esté en el futuro: eso da días negativos y lo mide `meta.toda_sombra_declara_una_fecha_real`"

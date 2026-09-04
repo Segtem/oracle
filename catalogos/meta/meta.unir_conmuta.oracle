@@ -2,4 +2,5 @@ ninguno meta.unir_conmuta:
     de equivalencia e
     donde e.propiedad == "unir_conmuta" y (e.mismo_veredicto == false o e.mismo_valor == false o e.mismos_testigos == false)
     umbral <= 0 segun contrato porque "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto"
+    ambito del_origen
     alcance "compara `unir A B` contra `unir B A` sobre una sonda construida y sobre las medidas reales que usan `unir`, con la evidencia de sus casos. NO ve `unir` anidados de más de dos lados ni el costo: dos formas equivalentes pueden materializar el mismo producto con presupuestos muy distintos. Si equivalencia viene vacía no hay fallas de conmutatividad y verde es correcto; además metamorficas.py construye las sondas por construcción"

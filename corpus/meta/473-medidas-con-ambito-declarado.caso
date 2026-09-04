@@ -1,0 +1,19 @@
+caso 473-medidas-con-ambito-declarado:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Medidas con ámbito declarado no ofenden"
+    etiqueta: verde_correcto
+    sintoma:
+        Las medidas declaran explícitamente su ámbito con valores del vocabulario cerrado (`universal` o `del_origen`). La regla debe dejarlas pasar a todas: la ausencia que mira es `sin_declarar`.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_declara_su_ambito
+    evidencia:
+        medida: id, ambito
+            "dominio.guardia_compartida", "universal"
+            "dominio.verificacion_interna", "del_origen"
+            "otro_dominio.politica_general", "universal"
+    leccion:
+        La regla no juzga si el ámbito declarado es el correcto ni si la cota con sus dependencias se cumple: sólo falla cuando el ámbito de la medida quedó sin declarar.

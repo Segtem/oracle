@@ -42,6 +42,7 @@ def _proyecto(raiz: Path) -> tuple[Proyecto, Path]:
         "    de pieza p\n"
         "    donde p.alto > 400.0\n"
         '    umbral <= 0 segun contrato porque "cuatro metros es el techo"\n'
+        '    ambito universal\n'
         '    alcance "mira el alto declarado. NO mira la malla"\n',
         encoding="utf-8",
     )

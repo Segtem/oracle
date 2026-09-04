@@ -2,4 +2,5 @@ ninguno meta.todo_umbral_declara_de_donde_sale:
     de medida m
     donde m.segun == "sin_declarar"
     umbral <= 0 segun contrato porque "todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable"
+    ambito universal
     alcance "ve si la etiqueta `segun` quedó en `sin_declarar`. NO juzga si la etiqueta elegida es verdadera ni si el número está bien defendido"

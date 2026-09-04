@@ -107,6 +107,20 @@ Declarar un ámbito demasiado estrecho pierde cobertura, pero no impone un rojo 
 discute con evidencia externa y revisión humana. Oracle vuelve falsable la declaración; no la
 convierte en verdad.
 
+## El ámbito de la medida de presencia es temporal, y hay que decirlo
+
+`meta.toda_medida_declara_su_ambito` se declara a sí misma `del_origen`, y hoy es lo correcto: si
+fuera `universal`, los dos consumidores se pondrían en rojo al instante por medidas escritas antes de
+que la cláusula existiera, que es exactamente el defecto que `DECISION-012` vino a cerrar.
+
+Pero este mismo plan dice que **el estado final debe exigir la declaración**. Esa medida tiene que
+volverse `universal` cuando los consumidores hayan migrado, y hoy nada registra ni el plan ni la
+fecha. Es la clase de decisión temporal que se vuelve permanente por olvido — el precedente está a
+la vista: `segun` lleva meses con 41 umbrales en sombra en un consumidor, por el mismo camino.
+
+Cuando haya una fecha, esto es una **sombra declarada** (`desde` + `porque`), que es el mecanismo que
+el proyecto ya tiene para «esto está mal a propósito y con fecha». Mientras no la haya, queda acá.
+
 ## Deuda que este plan NO cierra
 
 Queda anotada acá para que no se pierda, documentada en `estudios/EL-UMBRAL-MAYOR-QUE-CERO.md`:

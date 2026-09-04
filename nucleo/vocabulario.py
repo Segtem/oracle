@@ -91,6 +91,9 @@ OPERADORES: dict[str, str] = {
 # lo mide `meta.toda_relacion_del_lenguaje_esta_en_la_referencia`.
 
 RELACIONES_EXPLICADAS: dict[str, str] = {
+    "ambito_de_relacion": "dónde puede aportar jurisdicción cada relación emitida; permite "
+                           "detectar una medida universal apoyada en evidencia que sólo pertenece "
+                           "a su origen",
     "caso": "cada caso del corpus: su polaridad, su procedencia, si la medida que reclama existe, "
             "y si es propio o heredado de una biblioteca",
     "medida_en_uso": "cuántos casos evalúan cada medida y cuántos mutantes le sobreviven; es la "

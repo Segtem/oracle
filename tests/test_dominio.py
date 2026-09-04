@@ -33,7 +33,7 @@ def medida_prueba():
     """
     return Medida.de_datos(
         ["ninguno", "d.sin_fallas", "cosa", "c", ["==", ["campo", "c", "mal"], True],
-         "una razón", "NO ve nada más"])
+         "una razón", "contrato", "universal", "NO ve nada más"])
 
 
 def procedencia_buena():
@@ -256,7 +256,8 @@ class GenerarTests(unittest.TestCase):
 
             cambiada = Medida.de_datos(
                 ["ninguno", "d.sin_fallas", "cosa", "c",
-                 ["==", ["campo", "c", "mal"], False], "una razón", "NO ve nada más"])
+                 ["==", ["campo", "c", "mal"], False], "una razón", "contrato",
+                 "universal", "NO ve nada más"])
             self.assertTrue(any("catalogo" in p for p in revisar_frescura(
                 fixture, raiz, {cambiada.id: cambiada})))
 

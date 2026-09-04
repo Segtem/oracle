@@ -1,0 +1,6 @@
+ninguno meta.toda_medida_declara_su_ambito:
+    de medida m
+    donde m.ambito == "sin_declarar"
+    umbral <= 0 segun contrato porque "toda medida tiene que declarar dónde obliga: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas durante la migración, no una declaración aceptable"
+    ambito del_origen
+    alcance "ve que el campo `ambito` esté declarado y no en `sin_declarar`. NO juzga si el ámbito declarado es el correcto: esa segunda pregunta no la contesta ninguna medida"
