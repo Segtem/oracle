@@ -25,6 +25,7 @@ class ContratoMedidaTests(unittest.TestCase):
                          frozenset({"ancestro", "medida", "caso", "medida_en_uso",
                                     "paso", "nodo", "producto", "equivalencia",
                                     "paso_de_medida", "fuente", "termino", "requiere",
+                                    "dependencia_de_medida",
                                     "campo_declarado", "relacion_declarada",
                                     "referente_declarado", "referente_comparado",
                                     "cantidad_comparada", "sombra",
@@ -280,9 +281,9 @@ class ContratoMedidaTests(unittest.TestCase):
         )
 
         ambitos = [medida.ambito for medida in catalogo.values()]
-        self.assertEqual(len(ambitos), 56)
+        self.assertEqual(len(ambitos), 57)
         self.assertEqual(ambitos.count("universal"), 37)
-        self.assertEqual(ambitos.count("del_origen"), 19)
+        self.assertEqual(ambitos.count("del_origen"), 20)
         self.assertNotIn(m.AMBITO_SIN_DECLARAR, ambitos)
 
     def test_como_hechos_marca_si_el_umbral_es_flotante(self) -> None:

@@ -1,0 +1,9 @@
+medida meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias:
+    de medida m
+    unir dependencia_de_medida d
+    unir ambito_de_relacion a
+    donde m.ambito == "universal" y d.medida == m.id y a.relacion == d.relacion y a.ambito == "del_origen"
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "una medida no puede obligar a más proyectos que aquellos donde su evidencia tiene dueño. Si consume una relación que describe la instalación del origen —la configuración del arnés, el manual, la ayuda del CLI— su rojo sólo lo puede arreglar el origen, y declararla universal se lo manda a un consumidor que no tiene remedio. Es la contradicción que DECISION-012 vuelve falsable, y la única que se deriva sin leer prosa. No usa la macro «ninguno» porque cruza tres relaciones y la macro admite una sola fuente"
+    ambito del_origen
+    alcance "cruza el ámbito declarado de cada medida con el de las relaciones que consume, por fuente y por requiere. NO demuestra que una medida universal sea realmente universal: no ve una suposición del origen escondida en un literal, ni una convención que sólo explica la prosa, ni —sobre todo— si el receptor tiene de verdad un remedio disponible. Detecta una contradicción derivable, no la pertinencia. Y sólo mira hacia lo ancho: declarar un ámbito más estrecho que las dependencias pierde cobertura y esta medida no lo señala"

@@ -283,6 +283,21 @@ class LasMedidasUniversalesEstanEnElManualTests(unittest.TestCase):
             self.assertEqual(manual.entradas("medidas"), [])
             self.assertIn("SEGUN — ", manual.texto("segun"))
 
+    def test_una_seccion_sin_entradas_se_dibuja_igual_y_lo_dice(self) -> None:
+        """La sección de medidas queda vacía en un consumidor que no incorpora el catálogo base.
+
+        Sin esta guarda, dibujarla pide el nombre más largo de una lista vacía y revienta. Y el
+        `return` tiene que devolver el texto, no `None`: quien llama concatena las secciones, así
+        que un `None` acá rompe el manual entero en la línea siguiente — el mismo modo de falla que
+        la rama del `except`, un nivel más arriba.
+        """
+        with mock.patch.object(manual, "catalogo_universal", return_value={}):
+            dibujada = manual.seccion("medidas")
+
+        self.assertEqual(dibujada.splitlines()[0],
+                         "MEDIDAS — las medidas universales que Oracle trae, y qué NO ve cada una")
+        self.assertIn("(ninguna entrada declarada)", dibujada)
+
     def test_un_catalogo_que_revienta_devuelve_un_mapa_vacio_y_no_None(self) -> None:
         """Se fuerza la falla de verdad en vez de mockear la función entera: mockeándola, la rama
         del `except` no se ejercita nunca y el mutante que cambia su `{}` por `None` sobrevive.

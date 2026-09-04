@@ -1,0 +1,27 @@
+caso 477-medida-universal-depende-por-requiere-de-relacion-del-origen:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Una medida universal depende por `requiere` de una relación del origen"
+    etiqueta: falso_verde
+    sintoma:
+        Una medida declarada como `universal` consume una fuente universal, pero impone una precondición con `requiere` sobre una relación `del_origen`. Aunque la consulta principal sólo lea evidencia universal, la precondición no puede satisfacerse en un consumidor externo sin la evidencia del origen, dejando la medida sin remedio posible fuera de su autor.
+    como_se_detecto: persona
+    medida: meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias
+    evidencia:
+        medida: id, ambito
+            "dominio.guardia_con_requiere_interno", "universal"
+            "dominio.guardia_universal_sana", "universal"
+        dependencia_de_medida: medida, relacion, clase
+            "dominio.guardia_con_requiere_interno", "campo_declarado", "fuente"
+            "dominio.guardia_con_requiere_interno", "mutador_excluido", "requiere"
+            "dominio.guardia_universal_sana", "campo_declarado", "fuente"
+            "dominio.guardia_universal_sana", "relacion_declarada", "requiere"
+        ambito_de_relacion: relacion, ambito
+            "campo_declarado", "universal"
+            "mutador_excluido", "del_origen"
+            "relacion_declarada", "universal"
+    leccion:
+        La cota de ámbito mira las dos vías por las que una medida se acopla a una relación: por fuente directa y por `requiere`. Ambas se unifican en `dependencia_de_medida` para evitar duplicar la regla de consistencia en dos políticas paralelas; un requerimiento sobre una relación interna es tan inalcanzable para un tercero como una fuente interna.

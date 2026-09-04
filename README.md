@@ -111,7 +111,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9582 líneas de lenguaje y **395 negativas explícitas** (`raise`).
+En este corte hay 9609 líneas de lenguaje y **395 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -135,7 +135,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 99 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 73 la mutación, 18 una persona, 4 la casualidad, 4 una herramienta ajena.
+Los 101 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 73 la mutación, 20 una persona, 4 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -144,7 +144,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9582 líneas de lenguaje** (`nucleo/`, código y macros) y **395 negativas explícitas** (`raise`). Contra las 56 medidas universales escritas en él (397 líneas): **24,1 a 1**. 50 de las 56 pasan por una macro.
+**9609 líneas de lenguaje** (`nucleo/`, código y macros) y **395 negativas explícitas** (`raise`). Contra las 57 medidas universales escritas en él (406 líneas): **23,7 a 1**. 50 de las 57 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -535,11 +535,11 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 ```
 
 <!-- corpus:inicio -->
-**176 casos**: 107 defectos y 69 verdes correctos. De los defectos, 103 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 102 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 93 observada, 77 construida, 6 generada y 0 sin declarar.
+**180 casos**: 109 defectos y 71 verdes correctos. De los defectos, 105 deben ponerse en rojo · 0 huecos abiertos · 2 resueltos conservados · 2 límite humano. Por etiqueta: 104 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 2 deudas de diseño. Por procedencia: 94 observada, 80 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1122 tests · 868/868 mutantes de medida · **5096 sitios de mutación de código** (4886 + 210 del motor Python).
+1127 tests · 892/892 mutantes de medida · **5097 sitios de mutación de código** (4887 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

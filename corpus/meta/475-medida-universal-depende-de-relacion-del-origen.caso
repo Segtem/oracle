@@ -1,0 +1,26 @@
+caso 475-medida-universal-depende-de-relacion-del-origen:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Una medida universal depende de una relación del origen"
+    etiqueta: falso_verde
+    sintoma:
+        Una medida declarada `universal` consume una relación clasificada como `del_origen`. Al ser universal obliga a cualquier consumidor que adopte el catálogo, pero el consumidor no gobierna esa evidencia ni tiene remedio para levantar el rojo.
+    como_se_detecto: persona
+    medida: meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias
+    evidencia:
+        medida: id, ambito
+            "dominio.auditoria_del_arnes", "universal"
+            "dominio.verificacion_interna", "del_origen"
+            "dominio.guardia_compartida", "universal"
+        dependencia_de_medida: medida, relacion, clase
+            "dominio.auditoria_del_arnes", "mutador_excluido", "fuente"
+            "dominio.verificacion_interna", "mutador_excluido", "fuente"
+            "dominio.guardia_compartida", "campo_declarado", "fuente"
+        ambito_de_relacion: relacion, ambito
+            "mutador_excluido", "del_origen"
+            "campo_declarado", "universal"
+    leccion:
+        Una sola combinación ofende: `dominio.auditoria_del_arnes` cruzada con `mutador_excluido`. La regla distingue en vez de contar: `dominio.verificacion_interna` puede consumir `mutador_excluido` porque su propio ámbito es `del_origen`, y `dominio.guardia_compartida` es `universal` pero consume una relación `universal`. La cota de DECISION-012 prohíbe que el ámbito de la medida sea más amplio que el de sus dependencias, no que existan dependencias del origen.

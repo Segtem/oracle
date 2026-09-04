@@ -687,7 +687,7 @@ class CatalogoRealTests(unittest.TestCase):
                           "porque", "relacion", "segun", "umbral", "umbral_es_flotante",
                           "umbral_op", "umbral_valor"])
         self.assertEqual(sorted(hechos.por_relacion),
-                         ["ancestro", "fuente", "medida", "paso_de_medida",
+                         ["ancestro", "dependencia_de_medida", "fuente", "medida", "paso_de_medida",
                           "requiere", "termino"])
         self.assertTrue(hechos.por_relacion["termino"])
 

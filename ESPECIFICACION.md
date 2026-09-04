@@ -151,6 +151,7 @@ acá. Esta sección no puede envejecer en silencio.
 |---|---|---|
 | `medida` | cada medida del catálogo, reificada: su comparador, umbral, `segun`, `alcance` | `nucleo/medida.py` |
 | `termino` · `fuente` · `paso_de_medida` · `nodo` | las piezas de una medida vistas como árbol: sus términos, de dónde saca filas, cada paso de la tubería y cada nodo lógico | `nucleo/medida.py` |
+| `dependencia_de_medida` | cada relación de la que una medida depende y por qué vía (`fuente` o `requiere`); une las dos para que una política sobre dependencias se escriba una vez | `nucleo/medida.py` |
 | `requiere` | qué relaciones declara necesitar una medida para concluir | `nucleo/medida.py` |
 | `caso` | cada caso del corpus: su polaridad, su `procedencia`, si su medida existe, y —desde `DECISION-009`— si es propio o de una biblioteca | `nucleo/marco.py` |
 | `medida_en_uso` | cuántos casos evalúan cada medida y cuántos mutantes le sobreviven | `nucleo/marco.py` |

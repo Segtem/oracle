@@ -47,6 +47,7 @@ RELACIONES_DE_CATALOGO = frozenset({
     "fuente",
     "termino",
     "requiere",
+    "dependencia_de_medida",
 })
 
 AMBITOS_DE_RELACIONES = {
@@ -56,6 +57,7 @@ AMBITOS_DE_RELACIONES = {
     "fuente": "universal",
     "termino": "universal",
     "requiere": "universal",
+    "dependencia_de_medida": "universal",
 }
 
 EXTENSIONES_DE_MEDIDA = frozenset({".json", ".oracle"})
@@ -641,6 +643,7 @@ def hechos_de_catalogo(medidas, clasificacion: ClasificacionMeta) -> HechosCatal
         por_relacion["termino"].extend(_terminos_de_medida(medida))
         por_relacion["ancestro"].extend(_ancestros_de_medida(medida))
         por_relacion["requiere"].extend(_requiere_de(medida))
+        por_relacion["dependencia_de_medida"].extend(_dependencias_de_medida(medida))
     return HechosCatalogo(por_relacion)
 
 
@@ -819,6 +822,30 @@ def _requiere_de(medida) -> list[dict]:
         {"medida": medida.id, "indice": indice, "relacion": relacion}
         for indice, relacion in enumerate(medida.requiere)
     ]
+
+
+def _dependencias_de_medida(medida) -> list[dict]:
+    """Cada relación de la que una medida depende, con la vía por la que depende.
+
+    `fuente` y `requiere` ya dicen esto por separado, y ésta no los reemplaza: los une para que una
+    política sobre dependencias se escriba UNA vez. Sin esto, la cota del ámbito serían dos medidas
+    casi iguales —una por vía— y nada las mantendría iguales; es el mismo argumento que llevó a la
+    macro `peor`, donde la tolerancia se escribía dos veces.
+
+    `clase` conserva la vía porque las dos no son lo mismo: una fuente trae filas y su ausencia da
+    una relación vacía, mientras que `requiere` es la precondición que hace SIN EVIDENCIA. Una
+    política futura puede querer distinguirlas, y colapsarlas acá le sacaría el dato.
+    """
+    vistas: dict[tuple[str, str], dict] = {}
+    for fuente in _fuentes_de_medida(medida):
+        vistas.setdefault((fuente["relacion"], "fuente"),
+                          {"medida": medida.id, "relacion": fuente["relacion"],
+                           "clase": "fuente"})
+    for exigida in _requiere_de(medida):
+        vistas.setdefault((exigida["relacion"], "requiere"),
+                          {"medida": medida.id, "relacion": exigida["relacion"],
+                           "clase": "requiere"})
+    return list(vistas.values())
 
 
 def como_hechos(medidas, clasificacion: ClasificacionMeta | None = None) -> list[dict]:

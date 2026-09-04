@@ -1,0 +1,30 @@
+caso 476-medidas-con-dependencias-de-ambito-compatible:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Medidas con dependencias de ámbito compatible no ofenden"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Las medidas declaran un ámbito igual o más estrecho que el de las relaciones de las que dependen, cubriendo dependencias por `fuente` y por `requiere` tanto en medidas universales como del origen.
+    como_se_detecto: observacion
+    medida: meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias
+    evidencia:
+        medida: id, ambito
+            "dominio.verificacion_interna", "del_origen"
+            "dominio.guardia_compartida", "universal"
+        dependencia_de_medida: medida, relacion, clase
+            "dominio.verificacion_interna", "mutador_excluido", "fuente"
+            "dominio.verificacion_interna", "paso", "requiere"
+            "dominio.verificacion_interna", "medida", "fuente"
+            "dominio.guardia_compartida", "campo_declarado", "fuente"
+            "dominio.guardia_compartida", "relacion_declarada", "requiere"
+        ambito_de_relacion: relacion, ambito
+            "mutador_excluido", "del_origen"
+            "paso", "del_origen"
+            "medida", "universal"
+            "campo_declarado", "universal"
+            "relacion_declarada", "universal"
+    leccion:
+        El caso verde ejercita las dos polaridades de la relación `dependencia_de_medida` (`fuente` y `requiere`). Una medida `del_origen` puede depender de relaciones del origen o universales; una medida `universal` puede depender de relaciones universales. La cota tolera que una medida sea más estrecha que sus relaciones, pero no más amplia.

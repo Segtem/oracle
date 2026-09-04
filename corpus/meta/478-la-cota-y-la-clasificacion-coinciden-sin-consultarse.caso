@@ -1,0 +1,30 @@
+caso 478-la-cota-y-la-clasificacion-coinciden-sin-consultarse:
+    fecha: "2026-09-04"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "b08b4b5+worktree"
+    procedencia: observada
+    titulo: "Ninguna medida universal del catálogo depende de una relación del origen"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno, y el resultado dice algo que no se buscaba. La evidencia no se escribió a mano: son filas de las tres relaciones tal como las devolvió `como_hechos` sobre el catálogo cargado de este corte. En él hay 13 dependencias sobre relaciones `del_origen` —`equivalencia`, `paso`, `nodo`, `producto` y `mutador_excluido`— y las 13 salen de medidas que YA estaban declaradas `del_origen`. La clasificación se hizo preguntando quién tiene el remedio; la cota deriva lo mismo desde las relaciones que cada medida consume. Coinciden sin haberse consultado.
+    como_se_detecto: observacion
+    medida: meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias
+    evidencia:
+        medida: id, ambito
+            "meta.unir_conmuta", "del_origen"
+            "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente", "del_origen"
+            "meta.toda_medida_filtra_o_agrupa", "universal"
+        dependencia_de_medida: medida, relacion, clase
+            "meta.unir_conmuta", "equivalencia", "fuente"
+            "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente", "mutador_excluido", "fuente"
+            "meta.toda_medida_filtra_o_agrupa", "medida", "fuente"
+            "meta.toda_medida_filtra_o_agrupa", "termino", "fuente"
+            "meta.toda_medida_filtra_o_agrupa", "termino", "requiere"
+        ambito_de_relacion: relacion, ambito
+            "equivalencia", "del_origen"
+            "mutador_excluido", "del_origen"
+            "medida", "universal"
+            "termino", "universal"
+    leccion:
+        Una medida fijada sólo con evidencia fabricada puede estar ajustada a los ejemplos que se escribieron para que pasara. Este verde sale de la corrida y envejece solo: el día que alguien declare universal una medida que consume una relación del origen, el catálogo real deja de coincidir con este caso sin que nadie lo toque. Vale además como confirmación independiente de la clasificación de ámbitos: dos criterios distintos —quién puede arreglar el rojo, y de qué relaciones se alimenta la medida— dieron la misma respuesta sobre 55 medidas. La coincidencia no prueba que la clasificación sea correcta; prueba que no se contradice consigo misma, que es lo único que una medida puede comprobar.

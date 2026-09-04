@@ -292,10 +292,10 @@ class RelacionTests(unittest.TestCase):
         ambitos = ambitos_de_relaciones_declarados()
         hechos = hechos_de_relaciones([], ambitos=ambitos)
 
-        self.assertEqual(len(ambitos), 24)
+        self.assertEqual(len(ambitos), 25)
         self.assertEqual(ambitos["medida"], "universal")
         self.assertEqual(ambitos["mutador_excluido"], "del_origen")
-        self.assertEqual(len(hechos["ambito_de_relacion"]), 24)
+        self.assertEqual(len(hechos["ambito_de_relacion"]), 25)
         self.assertEqual(
             next(f for f in hechos["ambito_de_relacion"]
                  if f["relacion"] == "mutador_excluido"),
@@ -309,3 +309,65 @@ class RelacionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class AmbitosDeRelacionesTests(unittest.TestCase):
+    """Los tres `and` que leen la declaración de ámbitos, cada uno con la entrada que lo separa.
+
+    Un `and` cuyas dos partes valen lo mismo en todos los casos probados es indistinguible de un
+    `or`: la mutación lo dejó vivo tres veces acá. Lo que hace falta no es más cobertura sino una
+    entrada donde una parte sea verdadera y la otra falsa.
+    """
+
+    def _con_modulo(self, contenido: str):
+        """Una raíz de proyecto de mentira con `nucleo/` y `tools/`, para no leer el repo real."""
+        import tempfile
+        from nucleo.relacion import ambitos_de_relaciones_declarados
+
+        temporal = tempfile.TemporaryDirectory()
+        raiz = Path(temporal.name)
+        for nombre in ("nucleo", "tools"):
+            (raiz / nombre).mkdir()
+        (raiz / "nucleo" / "sensor.py").write_text(contenido, encoding="utf-8")
+        self.addCleanup(temporal.cleanup)
+        return raiz, ambitos_de_relaciones_declarados
+
+    def test_una_asignacion_que_no_es_diccionario_se_saltea_en_vez_de_reventar(self) -> None:
+        """Alguien puede escribir el nombre para otra cosa —una constante, un alias—.
+
+        Con `or` en lugar de `and`, el nodo deja de saltearse y se le piden las claves a algo que no
+        es un diccionario: revienta con AttributeError, que no es un error del lenguaje sino una
+        excepción cruda desde adentro del lector.
+        """
+        raiz, leer = self._con_modulo('AMBITOS_DE_RELACIONES = "todavía no lo escribí"\n')
+        self.assertEqual(leer(raiz), {})
+
+    def test_una_clave_que_no_es_texto_se_denuncia(self) -> None:
+        """El nombre de una relación es texto. Con `or`, una clave numérica pasa y queda un ámbito
+        indexado por un entero que ninguna relación va a encontrar nunca."""
+        raiz, leer = self._con_modulo('AMBITOS_DE_RELACIONES = {1: "universal"}\n')
+        with self.assertRaises(RelacionMalDeclarada):
+            leer(raiz)
+
+    def test_un_valor_que_no_es_texto_se_denuncia(self) -> None:
+        """El caso simétrico: clave buena, valor que no es una constante de texto."""
+        raiz, leer = self._con_modulo(
+            'OTRO = "x"\nAMBITOS_DE_RELACIONES = {"caso": OTRO}\n')
+        with self.assertRaises(RelacionMalDeclarada):
+            leer(raiz)
+
+    def test_un_symlink_no_se_lee_aunque_sea_un_archivo(self) -> None:
+        """Un enlace apunta afuera del proyecto: leerlo sería aceptar una declaración que no vive acá.
+
+        Es el caso que separa el `and` del `or`: el symlink SÍ es un archivo, así que sólo la
+        segunda mitad de la condición lo excluye.
+        """
+        import os
+
+        raiz, leer = self._con_modulo("# sin declaración\n")
+        afuera = raiz / "afuera.py"
+        afuera.write_text('AMBITOS_DE_RELACIONES = {"caso": "del_origen"}\n', encoding="utf-8")
+        os.symlink(afuera, raiz / "tools" / "enlazado.py")
+
+        self.assertTrue((raiz / "tools" / "enlazado.py").is_file())
+        self.assertEqual(leer(raiz), {})
