@@ -82,7 +82,7 @@ dueño.
 
 ### `oracle_evaluar` — ¿qué hace esta medida con esta evidencia?
 
-Una medida del catálogo o uuna escrita entera en memoria; nunca una ruta, porque aceptar rutas la
+Una medida del catálogo o una escrita entera en memoria; nunca una ruta, porque aceptar rutas la
 vuelve otra ortografía de un comando que ya existe y abre lecturas fuera de la raíz.
 
 ### `oracle_desafiar` — ¿qué parte de este candidato no está fijada?
