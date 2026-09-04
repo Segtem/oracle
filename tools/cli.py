@@ -446,7 +446,8 @@ def cmd_probar(proy: Proyecto, ruta_str: str, texto: str, *, argv: list[str] | N
 def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
     from tools import contexto
 
-    print(contexto.texto(proy, compacto="--compacto" in argv))
+    print(contexto.texto(proy, compacto="--compacto" in argv,
+                         confiar_escalares=confiar_escalares(argv)))
     return 0
 
 

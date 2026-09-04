@@ -24,21 +24,46 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES  # noqa: E402
-from nucleo.medida import cargar_catalogo  # noqa: E402
 from tools.medida import inventario_de_relaciones  # noqa: E402
 from nucleo.vocabulario import (OPERADORES, ORIGENES_DE_UMBRAL,  # noqa: E402
                                 opciones)
-from nucleo.proyecto import (catalogos_a_cargar,  # noqa: E402
-                             configuracion, macros_del_proyecto)
+from nucleo.proyecto import (EscalaresNoConfiables, catalogo_efectivo,  # noqa: E402
+                             configuracion, escalares_del_proyecto, macros_del_proyecto)
 from tools.sesion import resolver_cli  # noqa: E402
 
 
-def _medidas(proy) -> list:
+def _medidas(proy, *, confiar: bool = False) -> tuple[list, str]:
+    """Las medidas del proyecto, y si no se pudieron cargar, POR QUÉ.
+
+    Devolvía `[]` y se tragaba la excepción. Medido el 2026-09-04 sobre los dos consumidores
+    conocidos: los dos tienen catálogo —41 y 9 medidas— y este contexto decía «LAS 0 MEDIDAS QUE YA
+    EXISTEN». La causa es que un consumidor declara sus propias escalares y hay que registrarlas
+    antes de cargar; sin eso el catálogo no resuelve un nombre y falla entero.
+
+    Los dos defectos eran uno solo mal partido. El de fondo no es que no cargue: es que un texto
+    escrito PARA UN AGENTE, que no tiene con qué dudar, afirmaba que el proyecto no tenía medidas.
+    Un cero por falla es indistinguible de un cero real, y sobre esa base un agente escribe la
+    primera medida de un catálogo que ya tiene cuarenta y una.
+
+    Ahora falla abierto: dice qué pasó y qué hace falta. Un `--confiar-escalares` ausente no es un
+    error del proyecto sino una autorización que nadie dio, y decirlo es la diferencia entre una
+    respuesta inútil y una accionable.
+    """
+    # El `try` envuelve al `with` y no sólo a su cuerpo: `escalares_del_proyecto` levanta
+    # `EscalaresNoConfiables` al ENTRAR, no adentro. Con el `try` por dentro, la excepción pasaba de
+    # largo y el comando terminaba en una traza de Python — que es otra forma de no contestar.
     try:
-        catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
-    except Exception:
-        return []
-    return sorted(catalogo.items())
+        with escalares_del_proyecto(proy, confiar=confiar):
+            # `catalogo_efectivo` y NO `catalogos_a_cargar`: el primero aplica el filtro de
+            # ámbito de 0.5.0. Con el segundo, este texto le enumera a un consumidor medidas que
+            # NO lo obligan —las que sólo obligan a Oracle— y lo invita a preocuparse por ellas.
+            catalogo = catalogo_efectivo(proy, macros=macros_del_proyecto(proy))
+    except EscalaresNoConfiables:
+        return [], ("el catálogo usa escalares declaradas por el proyecto y nadie autorizó "
+                    "ejecutarlas: repetí con `--confiar-escalares`")
+    except Exception as e:
+        return [], f"no se pudo cargar el catálogo — {type(e).__name__}: {e}"
+    return sorted(catalogo.items()), ""
 
 
 def _relaciones(proy) -> tuple[dict, dict]:
@@ -48,9 +73,9 @@ def _relaciones(proy) -> tuple[dict, dict]:
         return {}, {}
 
 
-def texto(proy, *, compacto: bool = False) -> str:
+def texto(proy, *, compacto: bool = False, confiar_escalares: bool = False) -> str:
     campos, dondes = _relaciones(proy)
-    catalogo = _medidas(proy)
+    catalogo, falla = _medidas(proy, confiar=confiar_escalares)
     cfg = configuracion(proy)
     partes: list[str] = []
     sep = "" if compacto else "\n"
@@ -116,10 +141,20 @@ def texto(proy, *, compacto: bool = False) -> str:
                     partes.append(f"        {doc}")
     partes.append("")
 
-    partes.append(f"## LAS {len(catalogo)} MEDIDAS QUE YA EXISTEN")
-    partes.append("")
-    if not catalogo:
-        partes.append("  (ninguna todavía)")
+    # El encabezado NO puede decir un número cuando el número no se pudo averiguar: «LAS 0 MEDIDAS
+    # QUE YA EXISTEN» es indistinguible de un catálogo vacío de verdad, y quien lee esto no tiene con
+    # qué dudar. Cuando falla, el texto lo dice y no cuenta.
+    if falla:
+        partes.append("## LAS MEDIDAS QUE YA EXISTEN — NO SE PUDIERON LEER")
+        partes.append("")
+        partes.append(f"  ⚠ {falla}")
+        partes.append("  No sigas como si el catálogo estuviera vacío: puede tener medidas que")
+        partes.append("  todavía no ves, y escribir una repetida es el resultado esperable.")
+    else:
+        partes.append(f"## LAS {len(catalogo)} MEDIDAS QUE YA EXISTEN")
+        partes.append("")
+        if not catalogo:
+            partes.append("  (ninguna todavía)")
     for mid, m in catalogo:
         if compacto:
             partes.append(f"  {mid}")

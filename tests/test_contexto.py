@@ -85,7 +85,9 @@ class ElCompactoDiceLoMismoConMenosTests(unittest.TestCase):
             self.assertIn(relacion, self.compacto)
 
     def test_no_pierde_ninguna_medida(self) -> None:
-        for mid, _ in contexto._medidas(Proyecto(RAIZ)):
+        catalogo, falla = contexto._medidas(Proyecto(RAIZ))
+        self.assertEqual(falla, "")
+        for mid, _ in catalogo:
             self.assertIn(mid, self.compacto)
 
     def test_no_deja_renglones_vacios(self) -> None:
@@ -110,3 +112,47 @@ class UnProyectoSinNadaNoRompeTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class ElContextoNoMienteCuandoNoPuedeLeerTests(unittest.TestCase):
+    """Un cero por falla es indistinguible de un cero real, y quien lee esto no tiene con qué dudar.
+
+    Medido el 2026-09-04: los dos consumidores conocidos tienen catálogo —41 y 9 medidas— y este
+    texto decía «LAS 0 MEDIDAS QUE YA EXISTEN», porque un `except Exception: return []` se tragaba
+    el fallo de cargar las escalares del proyecto. Sobre esa base, un agente escribe la primera
+    medida de un catálogo que ya tiene cuarenta y una.
+    """
+
+    def _proyecto_con_escalares(self, td: str):
+        raiz = Path(td)
+        (raiz / "catalogos").mkdir()
+        (raiz / "escalares.py").write_text(
+            "# código del proyecto: ejecutarlo necesita autorización\n", encoding="utf-8")
+        return Proyecto(raiz)
+
+    def test_sin_autorizacion_dice_que_falta_y_no_cuenta_cero(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy = self._proyecto_con_escalares(td)
+            catalogo, falla = contexto._medidas(proy, confiar=False)
+
+            self.assertEqual(catalogo, [])
+            self.assertIn("--confiar-escalares", falla)
+
+    def test_el_texto_no_afirma_un_numero_que_no_pudo_averiguar(self) -> None:
+        """Lo que se lee es la afirmación, no el valor de retorno: es lo único que ve un agente."""
+        with tempfile.TemporaryDirectory() as td:
+            salida = contexto.texto(self._proyecto_con_escalares(td))
+
+        self.assertIn("NO SE PUDIERON LEER", salida)
+        self.assertNotIn("LAS 0 MEDIDAS QUE YA EXISTEN", salida)
+
+    def test_un_catalogo_vacio_de_verdad_si_dice_cero(self) -> None:
+        """El otro lado: sin escalares que autorizar, cero es cero y hay que decirlo."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            catalogo, falla = contexto._medidas(Proyecto(raiz))
+
+            self.assertEqual(falla, "")
+            self.assertEqual(catalogo, [])
+            self.assertIn("LAS 0 MEDIDAS QUE YA EXISTEN", contexto.texto(Proyecto(raiz)))
