@@ -90,6 +90,27 @@ una medida, el criterio para decidir es directo:
   la medida (su arnés de pruebas, su manual, su empaquetado o su código fuente). Obliga únicamente
   cuando el proyecto evaluado es el mismo que publicó la política.
 
+## ⚠ Nota de migración: los fixtures diferenciales se vencen al actualizar
+
+Un fixture del diferencial fija la huella del catálogo contra el que se generó. La reificación de
+una medida ahora incluye `ambito`, así que **la huella cambia aunque el catálogo del proyecto sea
+byte a byte idéntico**. Un fixture que incluya el catálogo reificado en su mundo se va a declarar
+vencido al actualizar a 0.5.0, y `oracle-mutar` se niega a correr mientras haya uno vencido — la
+mutación queda bloqueada hasta regenerarlo.
+
+Eso es el mecanismo de frescura haciendo su trabajo, no un defecto: una referencia se fija a una
+versión exacta porque un agregado puede no romper a un consumidor y sí a un evaluador que no conoce
+el nodo nuevo.
+
+Se regenera con el emisor del dominio, no a mano. Regenerar **vuelve a comprobar el acuerdo** con la
+implementación de referencia; si discrepan, falla. Medido al actualizar un consumidor: de sus once
+fixtures se venció **uno solo** —el del dominio que incluye el catálogo reificado—, la regeneración
+cambió una única línea (la huella) y el diferencial volvió con 1099 acuerdos globales contra
+referencias independientes y 4298 veredictos individuales estables.
+
+La consecuencia práctica: al actualizar, corré el diferencial **antes** que la mutación. El fixture
+vencido no dice que algo esté mal; dice que todavía nadie comprobó que siga estando bien.
+
 ## Por qué: un rojo sin remedio enseña a ignorar la herramienta
 
 Hasta hoy, «universal» significaba una sola cosa: residir físicamente en el directorio empaquetado de
