@@ -1,3 +1,239 @@
+# 0.5.0 — una medida declara dónde obliga, y «empaquetada» deja de significar «universal»
+
+Tres commits desde `0.4.0`. Suben la distribución, el álgebra y la sintaxis:
+
+```
+VERSION_DISTRIBUCION   0.4.0 → 0.5.0     el paquete que se instala
+VERSION_ALGEBRA        0.5   → 0.6       lo que una medida SIGNIFICA
+VERSION_SINTAXIS       0.1   → 0.2       cómo se ESCRIBE
+```
+
+## Las tres versiones: qué sube y por qué
+
+Cada número responde a una regla fija de `ESPECIFICACION.md` §0 para que la compatibilidad se
+detecte en vez de descubrirse:
+
+- **Distribución (`0.4.0 → 0.5.0`)**: el paquete que se instala. Sube porque incorpora el soporte
+  de ámbito en la carga, las nuevas meta-medidas y los arreglos al arnés de mutación y al manual.
+- **Álgebra (`0.5 → 0.6`)**: sube la versión MENOR porque el álgebra gana un nodo opcional nuevo
+  (`ambito`) sin alterar la semántica de lo que ya existía. Quien no lo usa sigue evaluándose igual;
+  pero quien implementa el álgebra completa —una referencia independiente— queda incompleto y debe
+  actualizarse para reconocer el nuevo nodo.
+- **Sintaxis (`0.1 → 0.2`)**: sube la versión MENOR porque el lector de la superficie infija
+  (`.oracle`) aprende una cláusula nueva (`ambito universal | del_origen`) que antes era un error de
+  sintaxis. Un archivo `.oracle` viejo escrito contra 0.1 se sigue leyendo idéntico.
+
+## ⚠ Nota de migración: el ámbito es obligatorio en las macros
+
+`ambito` es ahora un **parámetro obligatorio** en las cuatro macros del lenguaje (`ninguno`,
+`ninguno-par`, `ninguno-requiere` y `peor`).
+
+### Cómo migrar en concreto
+
+En cada medida escrita con macros en tu catálogo, agregá la línea `ambito universal` o
+`ambito del_origen` entre el `umbral` (o el `requiere`) y el `alcance`:
+
+```oracle
+ninguno mi_dominio.mi_politica:
+    de mi_relacion r
+    donde r.estado == "invalido"
+    umbral <= 0 segun contrato porque "el estado debe ser valido"
+    ambito universal
+    alcance "comprueba la validez de los estados registrados"
+```
+
+Si la medida usa la macro `ninguno-requiere`:
+
+```oracle
+ninguno-requiere mi_dominio.otra_politica:
+    de mi_relacion r
+    requiere mi_precondicion p
+    umbral <= 0 segun contrato porque "..."
+    ambito universal
+    alcance "..."
+```
+
+### El catálogo existente sigue cargando sin tocar nada
+
+Para no invalidar el catálogo entero de un consumidor al actualizar la versión, el cargador y las
+macros conservan la ausencia de la cláusula como el estado transitorio `sin_declarar`. Es el mismo
+camino que se abrió cuando se incorporó `segun`: no se inventa un valor por omisión arbitrario, sino
+que se registra honestamente que el autor todavía no eligió.
+
+Sin este escalón de migración, introducir el parámetro obligatorio rompía la carga de cualquier
+proyecto consumidor antes de permitirle clasificar sus propias medidas. Se probó qué pasaba sin él, y
+Jam pasaba de 25 medidas a cero.
+
+### Pero `sin_declarar` NO es una declaración aceptable
+
+`sin_declarar` es sólo la ausencia visible que dejan las formas anteriores durante la transición. La
+nueva medida de presencia `meta.toda_medida_declara_su_ambito` lo reclama en rojo.
+
+Hoy esa meta-medida se declara a sí misma `del_origen` —por eso un consumidor que actualiza a 0.5.0 no
+se pone en rojo todavía—. Pero esto es **TEMPORAL**: está registrado en el plan que debe volverse
+`universal` cuando los proyectos consumidores hayan migrado sus catálogos. Declararla hoy `del_origen`
+evita teñir de rojo un árbol ajeno en el primer minuto, pero el estado final exige la declaración y la
+medida pasará a ser universal para que ningún catálogo conserve medidas sin ámbito explícito.
+
+### El criterio para elegir: ¿de quién es el remedio?
+
+No existe un valor por omisión creíble: asumir `universal` reproduciría la fuga de obligar a terceros
+en falso, y asumir `del_origen` apagaría en silencio guardas de calidad que sí deben viajar. Al migrar
+una medida, el criterio para decidir es directo:
+
+> **¿El proyecto que recibe el rojo tiene un remedio disponible en SU repositorio?**
+
+- **`ambito universal`**: si quien recibe el veredicto en rojo puede corregir el problema tocando su
+  propio código, sus datos o su configuración. Obliga a todo proyecto que incorpore el catálogo y
+  aporte la evidencia.
+- **`ambito del_origen`**: si el fallo sólo puede corregirse modificando el repositorio del autor de
+  la medida (su arnés de pruebas, su manual, su empaquetado o su código fuente). Obliga únicamente
+  cuando el proyecto evaluado es el mismo que publicó la política.
+
+## Por qué: un rojo sin remedio enseña a ignorar la herramienta
+
+Hasta hoy, «universal» significaba una sola cosa: residir físicamente en el directorio empaquetado de
+Oracle (`catalogos/`). Eso describe **procedencia**, no **ámbito**. Ambas nociones coincidieron de
+hecho mientras todas las políticas que Oracle empaquetaba obligaban por igual a cualquier proyecto que
+las adoptase.
+
+Esa coincidencia se quebró cuando una medida sobre la configuración interna del arnés de Oracle
+(`meta.ninguna_exclusion_de_mutador_se_aplica_globalmente`, que vigila `EXCLUSIONES_DE_MUTADORES`) puso
+en rojo a Jam. Era el único rojo duro que Jam tenía en todo su catálogo, y Jam no tenía ningún
+remedio disponible en su propio repositorio: la lista de exclusiones vive en `nucleo/mutacion.py`,
+dentro del árbol de Oracle. Para apagar esa alerta, Jam no podía hacer nada por sí mismo.
+
+`DECISION-009` ya formulaba el principio: **un rojo sobre el que el receptor no puede actuar enseña a
+ignorar la herramienta.** Un veredicto sin remedio destruye la autoridad del sistema entero y entrena
+al usuario a desoír las alarmas legítimas.
+
+El hueco era conceptual: Oracle creía responder tres preguntas y sólo respondía dos. Sabía de dónde
+vino una medida (catálogo base, perfiles, bibliotecas o local) y si había hechos para calcularla
+(`medidas_aplicables`). Pero **nadie contestaba a quién obliga**. Poder calcular un veredicto no vuelve
+pertinente ese veredicto.
+
+Ahora el ámbito es explícito y relativo al **origen**, no a Oracle:
+- En una medida del catálogo base, `del_origen` significa que sólo obliga a Oracle.
+- En una medida escrita dentro de Jam, `del_origen` significa que obliga a Jam y se satisface sola.
+- En una biblioteca de políticas, `del_origen` obliga a su publicador al auditarse o certificarse, no a
+  los consumidores que la instalen.
+
+Oracle no tiene ningún privilegio nominal en el lenguaje. El orden de las preguntas queda explícito en
+la carga:
+
+```text
+selección del catálogo → ámbito → aplicabilidad por relaciones → evaluación
+```
+
+No es un nivel nuevo (L2 es un punto fijo: el catálogo tiene 56 medidas, 56 filas en `medida`, y la regla
+que juzga el alcance está entre las filas que juzga; nivel y ámbito son ortogonales). Tampoco es
+visibilidad (`private` no aplica donde no hay llamadas entre medidas por `DECISION-002`): la analogía
+es la jurisdicción de una regla. Una medida `del_origen` sigue en el manual, sigue reificada en L2, sigue
+mutando y sigue teniendo casos de corpus; sólo no dicta veredicto donde no hay responsabilidad para
+responderla.
+
+## El efecto medido sobre los catálogos
+
+La clasificación de las 56 medidas del catálogo base arrojó una partición exacta:
+- **37 universales**
+- **19 del origen**
+
+Sobre Jam, el resultado fue inmediato: de las 25 medidas que antes concluían sobre su repositorio,
+ahora concluyen **exactamente 20**. El ámbito le retiró a Jam **exactamente cinco medidas**, aquellas
+sobre las que no tenía remedio:
+
+1. `meta.todo_vocabulario_cerrado_esta_en_el_manual` (evaluaba si el manual de Oracle estaba completo)
+2. `meta.el_diagnostico_no_publica_el_dominio`
+3. `meta.ninguna_exclusion_de_mutador_se_aplica_globalmente`
+4. `meta.toda_opcion_del_vocabulario_declara_su_sentido`
+5. `meta.todo_verbo_del_cli_esta_en_la_ayuda`
+
+Jam quedó en ACEPTACIÓN ✓, libre de un veredicto ajeno que no le correspondía. Las otras medidas
+clasificadas como `del_origen` operan sobre relaciones producidas por sondas sintéticas (como la
+conmutatividad de `unir` o la reversibilidad del serializador) que un consumidor no emite en su
+evidencia; en ellas, el ámbito hizo explícito lo que antes quedaba omitido por falta de evidencia.
+LyraGASP se mantuvo sin cambios (✓).
+
+## La cota del ámbito y dos criterios que coincidieron sin consultarse
+
+Una declaración humana no basta si no puede contrastarse. Se incorporó la meta-medida
+`meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias`: una medida no puede obligar a
+más proyectos que aquellos donde su evidencia tiene dueño. Si se declara `universal` pero consume una
+relación que describe la instalación del origen, su fallo sólo lo puede resolver el origen y declararla
+universal se lo traslada a un consumidor que no tiene remedio.
+
+La cota cruza tres relaciones en álgebra pura mediante `unir` anidado —`medida`, `dependencia_de_medida`
+y `ambito_de_relacion`—, sin relaciones ad-hoc denormalizadas ni lógica de juicio en Python.
+
+La reificación de `dependencia_de_medida` unifica las dos vías por las que una medida se ata a una
+relación: `fuente` (de donde extrae filas) y `requiere` (la precondición que produce `SIN EVIDENCIA`).
+El caso 477 del corpus ofende precisamente por `requiere`, confirmando que vigilar sólo las fuentes
+dejaba una vía abierta.
+
+El caso 478 confirmó una coincidencia notable: en el catálogo base hay 13 dependencias reales sobre
+relaciones `del_origen`, y las 13 provienen de medidas que ya habían sido clasificadas a mano como
+`del_origen` preguntándose quién tenía el remedio. Dos criterios enteramente independientes —el juicio
+editorial humano sobre la responsabilidad del remedio y la derivación mecánica desde las relaciones
+consumidas— dieron exactamente la misma respuesta sobre las 55 medidas. No prueba que la clasificación
+sea correcta: prueba que no se contradice consigo misma, que es lo único que una medida puede comprobar.
+
+## Lo que la cota NO promete
+
+La cota automática detecta una contradicción derivable —una medida universal que consume relaciones
+del origen— y **nada más**:
+- **No demuestra que una medida universal sea realmente universal.** No puede detectar una suposición
+  del origen escondida en el valor de un literal, ni una convención asumida en el código que sólo se
+  menciona en la prosa.
+- **No demuestra que el receptor tenga de verdad un remedio disponible en su repositorio.**
+
+El marco asume una asimetría deliberada: mentir hacia lo amplio perjudica a terceros con rojos
+inaccionables, y por eso se combate con verificación automática estricta. Declarar un ámbito demasiado
+estrecho sólo retiene una política en su autor original; pierde cobertura compartida, pero no impone un
+rojo sin remedio a nadie. La estrechez se discute con revisión humana y evidencia externa. Oracle vuelve
+falsable la consistencia de la declaración; no sustituye el discernimiento sobre la pertinencia.
+
+## Arreglos en el arnés y en el manual
+
+- **Exclusión de mutadores por medida:** `_mutadores_ajenos()` aplicaba la exclusión en tiempo de
+  importación globalmente, sin consultar el predicado. La exclusión se evalúa ahora por medida en
+  `mutantes()`. No alteró los números en los catálogos principales, pero destapó cobertura oculta: la
+  biblioteca de ejemplo certificaba 16 mutantes cuando eran 17 (el mutador de `umbral <= 5` nunca había
+  corrido).
+- **Alarma sobre mutadores en el paquete instalado:** Al comprobarse la exclusión por medida, la
+  alarma sobre su premisa pasó a ser verdadera por construcción. Se reorientó a vigilar que nadie vuelva
+  al filtrado global, y allí se descubrió que `mutadores/` no viaja en el wheel: un consumidor instalado
+  carece del módulo y la versión inicial lo confundía con una exclusión global. Ahora
+  `mutadores_declarados_por_sus_autores()` lee el módulo del autor y no el registro ya construido
+  (caso 471).
+- **Manual en HTML:** En `oracle manual --html`, 56 de 90 términos `<dt>` se dibujaban superpuestos a
+  su definición porque los navegadores no consideran el guión bajo como punto de corte de línea en CSS.
+  Se corrigió el estilo.
+- **Simbología y enlaces en el arnés:** La lectura de ámbitos descarta symlinks para no admitir
+  declaraciones de jurisdicción que apunten fuera del repositorio evaluado. Además, se eliminaron
+  guardas y retornos muertos en la sección vacía del manual y en el cargador de ámbitos.
+
+## Las cifras de este corte
+
+```
+1127 tests · 180 casos del corpus · 56 medidas (37 universales · 19 del origen)
+relacion 94/94 · medida 250/250 · unidad 198/198 · manual 78/78
+tools/medida 264/264 · referente, diagnostico y aceptacion limpios
+aceptación: 2 rojos declarados (DECISION-004)
+Jam ✓ · LyraGASP ✓
+```
+
+## Límites conocidos
+
+- **Los dos rojos de `DECISION-004` siguen a propósito.** `oracle test` sale con código 1.
+- **La medida `meta.toda_medida_declara_su_ambito` es temporalmente `del_origen`.** Se mantiene así
+  para permitir la migración de los consumidores sin teñir sus árboles de rojo, pero debe promoverse a
+  `universal`.
+- **La cota de ámbito sólo vigila hacia lo amplio.** Una medida declarada `del_origen` que podría ser
+  `universal` no genera ningún aviso automático; su pertinencia sigue dependiendo de la revisión humana.
+- **El catálogo base sigue anclado en `<= 0`.** 56 de 56 medidas comparan contra cero.
+
+---
+
 # 0.4.0 — el manual se explica solo, la sombra envejece, y los mutadores dejan de tener un solo autor
 
 Ocho commits desde `0.3.3`. El álgebra y la sintaxis no se movieron: no hay operadores nuevos ni

@@ -307,7 +307,7 @@ class BibliotecaTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             biblioteca = self._copia(td)
             manifiesto = biblioteca / "oracle-biblioteca.toml"
-            self._reemplazar(manifiesto, 'algebra = "0.5"', 'algebra = "9.0"')
+            self._reemplazar(manifiesto, 'algebra = "0.6"', 'algebra = "9.0"')
 
             with self.assertRaisesRegex(BibliotecaInvalida, "pide álgebra 9.0"):
                 cargar_manifiesto(biblioteca)
@@ -425,7 +425,7 @@ class AndamioDeBiblioteca(unittest.TestCase):
 
     def _crear(self, bid="aula.calidad", destino=None):
         from nucleo.biblioteca import andamio
-        return andamio(Path(destino), bid, algebra="0.5", sintaxis="0.1")
+        return andamio(Path(destino), bid, algebra="0.6", sintaxis="0.2")
 
     def test_el_manifiesto_queda_donde_el_descubrimiento_lo_busca(self) -> None:
         from nucleo.biblioteca import ruta_instalada_del_manifiesto
@@ -442,7 +442,7 @@ class AndamioDeBiblioteca(unittest.TestCase):
             raiz_datos = self._crear(destino=Path(td) / "x")
             manifiesto = cargar_manifiesto(raiz_datos)
         self.assertEqual(manifiesto.id, "aula.calidad")
-        self.assertEqual(manifiesto.algebra, "0.5")
+        self.assertEqual(manifiesto.algebra, "0.6")
 
     def test_los_mutantes_arrancan_en_uno_porque_cero_se_rechaza(self) -> None:
         """La plantilla no puede proponer un flujo imposible: con `mutantes = 0` el manifiesto se
@@ -480,4 +480,3 @@ class AndamioDeBiblioteca(unittest.TestCase):
             with self.assertRaises(BibliotecaInvalida):
                 self._crear(destino=Path(td) / "x")
             self.assertTrue((Path(td) / "x" / "algo.txt").exists())
-

@@ -1,6 +1,6 @@
 # Plan 0.5.0 — el ámbito de una medida
 
-**Fecha:** 2026-09-03 · **Estado:** en curso
+**Fecha:** 2026-09-03 · **Estado:** ejecutado el 2026-09-04
 
 ## El hueco
 
@@ -70,14 +70,14 @@ jurisdicción.
 
 ## Las tres capas
 
-### Capa 1 — lenguaje
+### Capa 1 — lenguaje — hecho
 
 - `ambito` como vocabulario cerrado en `nucleo/vocabulario.py`, cada opción con su sentido.
 - Campo `ambito` en `Medida`, con `AMBITO_SIN_DECLARAR` como estado de migración.
 - Las **dos** superficies: la infija (`.oracle`) y la posicional (`.json`), leer y escribir.
 - Reificación: `como_hechos` emite `ambito` en la relación `medida`.
 
-### Capa 2 — carga
+### Capa 2 — carga — hecho
 
 - `cargar_catalogo` conserva la **procedencia** de cada medida en vez de reducirla a `dict[id, Medida]`.
 - Una medida `del_origen` entra al catálogo efectivo sólo cuando origen y destino coinciden.
@@ -86,7 +86,7 @@ jurisdicción.
 - Las **relaciones** también declaran ámbito — la cota de la capa 3 necesita saber que
   `mutador_excluido` es del origen. Toca `hechos_de_relaciones`, no la numeración de niveles.
 
-### Capa 3 — política
+### Capa 3 — política — hecho
 
 - `meta.toda_medida_declara_su_ambito` — la de presencia, espejo de `meta.todo_umbral_declara_de_donde_sale`.
 - `meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias` — la cota comprobable.
@@ -120,6 +120,20 @@ la vista: `segun` lleva meses con 41 umbrales en sombra en un consumidor, por el
 
 Cuando haya una fecha, esto es una **sombra declarada** (`desde` + `porque`), que es el mecanismo que
 el proyecto ya tiene para «esto está mal a propósito y con fecha». Mientras no la haya, queda acá.
+
+## Lo que quedó, medido
+
+- 37 medidas universales y 19 del origen.
+- Un consumidor pasó de 25 a 20 medidas universales concluyendo: perdió exactamente las cinco
+  sobre las que no tenía remedio en su repositorio, y ninguna otra. Entre ellas, si el manual de
+  Oracle está completo.
+- Ninguna medida universal del catálogo depende de una relación del origen: 13 dependencias sobre
+  relaciones `del_origen`, las 13 desde medidas ya declaradas `del_origen`. La clasificación se
+  hizo por quién tiene el remedio y la cota lo deriva de las relaciones consumidas; coincidieron
+  sin consultarse. Eso no prueba que la clasificación sea correcta —prueba que no se contradice
+  consigo misma, que es lo único que una medida puede comprobar—.
+- suite 1127 · corpus 180 casos · aceptación 2 rojos declarados · mutación sin sobrevivientes.
+- Los tres commits: `20a679d`, `b08b4b5`, `ac83a04`.
 
 ## Deuda que este plan NO cierra
 

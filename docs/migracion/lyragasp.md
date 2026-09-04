@@ -67,7 +67,7 @@ abierto — falta hacerlo para las nueve.
 más. Para ese script hace falta la forma **(b)** de la guía general:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.3.3"
+uv venv && uv pip install "oracle-metalenguaje==0.5.0"
 .venv/bin/python tools/juzga_oracle.py …
 ```
 

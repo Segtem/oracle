@@ -1,6 +1,6 @@
 # Especificación del álgebra
 
-Versión `0.5`, declarada de forma **legible por máquina** en `nucleo/version.py`
+Versión `0.6`, declarada de forma **legible por máquina** en `nucleo/version.py`
 (`VERSION_ALGEBRA`). Esta prosa la cita, no la define: la define el dato, y la regla de qué cambio
 sube qué parte del número está en §0. **Escrita para ser rota**: el criterio de si sirve está al
 final, y es comprobable.
@@ -19,6 +19,8 @@ final, y es comprobable.
 > contrato, convención o tanteo.
 > **(e)** La 0.5 permite que una escalar declare la unidad de cada argumento; una declaración vieja
 > sigue cargando, pero su unidad no se considera derivable hasta completar ese dato.
+> **(f)** La 0.6 permite declarar el `ambito` opcional de una medida; una medida vieja conserva
+> `sin_declarar`, pero una implementación del álgebra completo tiene que conocer el nodo nuevo.
 
 Regla de diseño que gobierna todo el documento: **no se agrega un operador hasta que una segunda
 medida lo necesite.** Es lo único que evita que esto se vuelva el proyecto que reemplaza al proyecto.
@@ -38,6 +40,7 @@ quien *implementa el álgebra completo* —una referencia independiente— qued�
 volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `requiere` y `clave`);
 de `0.3` a `0.4` volvió a subir porque el umbral ganó `segun`.
 De `0.4` a `0.5` subió porque `@escalar` ganó `unidades_argumentos`.
+De `0.5` a `0.6` subió porque la forma canónica de una medida ganó el nodo opcional `ambito`.
 
 **`MAYOR` sube** cuando cambia el **significado o el contrato** de algo que ya existía: la semántica
 de un operador (qué hace `min`/`max` con booleanos), la forma canónica de una medida, una validación
@@ -45,7 +48,7 @@ que hacía cargar lo que ahora se rechaza, o quitar/renombrar un operador. Eso r
 consumidor, use o no la parte cambiada. De `0.3` a `1.0`, y la menor vuelve a `0`.
 
 **Cómo se comprueba.** El núcleo publica lo que implementa. Un proyecto puede declarar en
-`oracle.json` la versión que necesita (`"algebra": "0.5"`); si no es compatible, la carga falla
+`oracle.json` la versión que necesita (`"algebra": "0.6"`); si no es compatible, la carga falla
 cerrado con un mensaje que dice cuál hay y cuál se pidió, y quien no la declara sigue funcionando.
 La compatibilidad es la del párrafo anterior: misma `MAYOR` y `MENOR` al menos tan nueva como la
 pedida. Una implementación de referencia, en cambio, declara contra qué versión se escribió y el
@@ -74,7 +77,8 @@ forma nueva (MENOR), o deja de aceptar una que ya se publicaba (MAYOR)—.
 
 **`MENOR` sube** cuando el lector **gana** una forma sin cambiar el significado de lo que ya valía:
 una palabra nueva que antes era un error de sintaxis, un separador nuevo. Un archivo escrito contra
-la menor anterior se sigue leyendo idéntico.
+la menor anterior se sigue leyendo idéntico. De `0.1` a `0.2` subió porque la superficie infija
+ganó la cláusula `ambito`.
 
 **`MAYOR` sube** cuando el lector **cambia** lo que ya aceptaba: una forma que hoy se lee pasa a
 significar otra cosa, o pasa a ser un error de lectura. Eso rompe a todo archivo que la use.
@@ -95,7 +99,7 @@ Un `.oracle` puede declarar contra qué versión se escribió, con una primera l
 `sintaxis MAYOR.MENOR`. Es opcional —los archivos de hoy no la declaran y siguen cargando— y es
 parte de la superficie, no un comentario pegado arriba. Declarar una versión incompatible falla
 cerrado al cargar, con un mensaje que dice las dos versiones. `oracle.json` puede pedir una versión
-de sintaxis (`"sintaxis": "0.1"`) con la misma regla que pide la del álgebra.
+de sintaxis (`"sintaxis": "0.2"`) con la misma regla que pide la del álgebra.
 
 ---
 

@@ -86,7 +86,7 @@ La forma correcta para Jam es la **(c)** de la guía general: reemplazar el subt
 wheel publicado, en el mismo lugar donde ya está.
 
 ```bash
-python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.3.3"
+python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.5.0"
 ```
 
 > **Hace falta 0.3.2 o más, y no es un detalle de versión.** En 0.3.1 este camino estaba roto: el

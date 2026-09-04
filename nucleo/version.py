@@ -24,14 +24,14 @@ from dataclasses import dataclass
 # lo que una medida SIGNIFICA; la sintaxis versiona cómo se ESCRIBE (un `.oracle` se lee, y el
 # impresor no lo toca, así que no envejecen juntas); y la distribución versiona el paquete que se
 # instala, que cambia cada vez que se arregla una herramienta sin tocar el lenguaje.
-VERSION_DISTRIBUCION = "0.4.0"
+VERSION_DISTRIBUCION = "0.5.0"
 
-VERSION_ALGEBRA = "0.5"
+VERSION_ALGEBRA = "0.6"
 
 # La superficie infija declara su versión por separado: no envejece igual que el álgebra, porque un
 # archivo `.oracle` se LEE y el impresor no lo toca. La regla de qué sube cada parte está en
 # `ESPECIFICACION.md` §0; acá sólo vive el dato y la misma maquinaria que el álgebra.
-VERSION_SINTAXIS = "0.1"
+VERSION_SINTAXIS = "0.2"
 
 _VERSION_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 

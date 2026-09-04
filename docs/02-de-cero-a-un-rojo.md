@@ -3,7 +3,7 @@
 Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que **falla** sobre un
 defecto de verdad y te dice **qué filas** lo causaron.
 
-Todo lo que sigue está copiado de una corrida real con Oracle 0.3.3. Si algo no te da igual,
+Todo lo que sigue está copiado de una corrida real con Oracle 0.5.0. Si algo no te da igual,
 es un defecto de esta página: [abrí un issue](https://github.com/Segtem/oracle/issues).
 
 ---
@@ -16,9 +16,9 @@ uv tool install oracle-metalenguaje
 
 ```
 $ oracle --version
-oracle 0.3.3
-  álgebra:  0.5   (qué SIGNIFICA una medida)
-  sintaxis: 0.1   (cómo se ESCRIBE)
+oracle 0.5.0
+  álgebra:  0.6   (qué SIGNIFICA una medida)
+  sintaxis: 0.2   (cómo se ESCRIBE)
   corriendo desde: …/oracle-metalenguaje/lib/python3.12/site-packages/oracle_metalenguaje
 ```
 

@@ -1374,13 +1374,13 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_ALGEBRA, del_nucleo
 
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
-        self.assertEqual(str(del_nucleo()), "0.5")
+        self.assertEqual(str(del_nucleo()), "0.6")
 
     def test_la_superficie_declara_su_propia_version_legible_y_estable(self) -> None:
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
 
         self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
-        self.assertEqual(str(del_nucleo_sintaxis()), "0.1")
+        self.assertEqual(str(del_nucleo_sintaxis()), "0.2")
 
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear
@@ -1440,7 +1440,7 @@ class VersionDelProyecto(unittest.TestCase):
             self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_compatible_carga_sin_queja(self) -> None:
-        for declarada in ("0.2", "0.3", "0.4", "0.5"):
+        for declarada in ("0.2", "0.3", "0.4", "0.5", "0.6"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1448,7 +1448,7 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        for declarada in ("0.6", "1.0", "9.9"):
+        for declarada in ("0.7", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1456,7 +1456,7 @@ class VersionDelProyecto(unittest.TestCase):
                 with self.assertRaises(ProyectoInvalido) as ctx:
                     configuracion(Proyecto(raiz))
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.5", str(ctx.exception))
+                self.assertIn("0.6", str(ctx.exception))
 
     def test_una_version_mal_declarada_falla_cerrado(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -1471,7 +1471,7 @@ class VersionDelProyecto(unittest.TestCase):
         self.assertEqual(configuracion(Proyecto(RAIZ)).catalogo_base, True)
 
     def test_una_sintaxis_compatible_carga_sin_queja(self) -> None:
-        for declarada in ("0.0", "0.1"):
+        for declarada in ("0.0", "0.1", "0.2"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1479,7 +1479,7 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        for declarada in ("0.2", "1.0", "9.9"):
+        for declarada in ("0.3", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1487,7 +1487,7 @@ class VersionDelProyecto(unittest.TestCase):
                 with self.assertRaises(ProyectoInvalido) as ctx:
                     configuracion(Proyecto(raiz))
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.1", str(ctx.exception))
+                self.assertIn("0.2", str(ctx.exception))
 
     def test_una_sintaxis_mal_declarada_falla_cerrado(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -1540,7 +1540,7 @@ class VersionDeLaReferencia(unittest.TestCase):
             with self.assertRaises(SystemExit) as ctx:
                 gen.construir(catalogo)
         self.assertIn("0.2", str(ctx.exception))
-        self.assertIn("0.5", str(ctx.exception))
+        self.assertIn("0.6", str(ctx.exception))
 
 
 if __name__ == "__main__":

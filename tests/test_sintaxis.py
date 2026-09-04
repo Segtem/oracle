@@ -320,7 +320,7 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             (sintaxis.ErrorSintaxis(1, 2, "x"), "linea", 9),
             (sintaxis_nucleo.Token("IDENT", "x", 1, 2), "tipo", "NUMBER"),
             (sintaxis.Ubicacion(1, 2), "columna", 9),
-            (sintaxis.Lectura([], {}), "version", "0.1"),
+            (sintaxis.Lectura([], {}), "version", "0.2"),
             (sintaxis_nucleo._Nodo("x", 1, 2), "valor", "y"),
         )
         for objeto, atributo, valor in objetos:
@@ -832,15 +832,15 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "    ambito universal",
             '    alcance "NO ve"',
         ])
-        lectura = sintaxis.leer_con_mapa("# comentario\nsintaxis 0.1\n" + cuerpo)
-        self.assertEqual(lectura.version, "0.1")
+        lectura = sintaxis.leer_con_mapa("# comentario\nsintaxis 0.2\n" + cuerpo)
+        self.assertEqual(lectura.version, "0.2")
         self.assertEqual(lectura.ubicacion(""), sintaxis.Ubicacion(3, 1))
         self.assertEqual(lectura.ubicacion("1"), sintaxis.Ubicacion(3, 9))
 
         casos = [
             ("vacio", "", 1, 1,
              "línea 1, columna 1: se esperaba encabezado de medida"),
-            ("version sola", "sintaxis 0.1\n", 2, 1,
+            ("version sola", "sintaxis 0.2\n", 2, 1,
              "línea 2, columna 1: se esperaba encabezado de medida"),
             ("version mala", "sintaxis 0\n" + cuerpo, 1, 10,
              "línea 1, columna 10: versión «'0'» inválida: se espera MAYOR.MENOR con "
@@ -1913,20 +1913,28 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
         '    ambito universal\n'
         '    alcance "NO ve otros campos"\n'
     )
+    CUERPO_ANTERIOR = (
+        'medida d.prueba:\n'
+        '    de pieza p\n'
+        '    donde p.x == true\n'
+        '    resumen contar(1)\n'
+        '    umbral <= 0 segun contrato porque "razón"\n'
+        '    alcance "NO ve otros campos"\n'
+    )
 
     def test_sin_declarar_no_hay_version(self) -> None:
         self.assertIsNone(sintaxis.leer_con_mapa(self.CUERPO).version)
 
     def test_el_lector_devuelve_la_version_declarada(self) -> None:
-        lectura = sintaxis.leer_con_mapa("sintaxis 0.1\n" + self.CUERPO)
-        self.assertEqual(lectura.version, "0.1")
+        lectura = sintaxis.leer_con_mapa("sintaxis 0.2\n" + self.CUERPO)
+        self.assertEqual(lectura.version, "0.2")
         self.assertEqual(lectura.datos, sintaxis.leer(self.CUERPO))
 
     def test_la_version_es_superficie_no_un_comentario_pegado_arriba(self) -> None:
-        comentado = sintaxis.leer_con_mapa("# sintaxis 0.1\n" + self.CUERPO)
+        comentado = sintaxis.leer_con_mapa("# sintaxis 0.2\n" + self.CUERPO)
         self.assertIsNone(comentado.version)
-        declarado = sintaxis.leer_con_mapa("sintaxis 0.1\n" + self.CUERPO)
-        self.assertEqual(declarado.version, "0.1")
+        declarado = sintaxis.leer_con_mapa("sintaxis 0.2\n" + self.CUERPO)
+        self.assertEqual(declarado.version, "0.2")
 
     def test_una_version_mal_formada_falla_cerrado(self) -> None:
         for mala in ("basura", "0", "0.3.1", "a.b", "01.2", "-1.0"):
@@ -1935,31 +1943,33 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
                     sintaxis.leer(f"sintaxis {mala}\n" + self.CUERPO)
                 self.assertIn("MAYOR.MENOR", str(e.exception))
 
-    def _cargar(self, declarada):
+    def _cargar(self, declarada, cuerpo=None):
         import tempfile
         from nucleo.medida import cargar
         prefijo = f"sintaxis {declarada}\n" if declarada is not None else ""
         with tempfile.TemporaryDirectory() as d:
             ruta = Path(d) / "d.prueba.oracle"
-            ruta.write_text(prefijo + self.CUERPO, encoding="utf-8")
+            fuente = self.CUERPO if cuerpo is None else cuerpo
+            ruta.write_text(prefijo + fuente, encoding="utf-8")
             return cargar(ruta)
 
     def test_sin_declarar_la_misma_y_una_menor_vieja_cargan(self) -> None:
         self.assertEqual(self._cargar(None).id, "d.prueba")
-        self.assertEqual(self._cargar("0.1").id, "d.prueba")
-        self.assertEqual(self._cargar("0.0").id, "d.prueba")
+        self.assertEqual(self._cargar("0.2").id, "d.prueba")
+        self.assertEqual(self._cargar("0.1", self.CUERPO_ANTERIOR).id, "d.prueba")
+        self.assertEqual(self._cargar("0.0", self.CUERPO_ANTERIOR).id, "d.prueba")
 
     def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
         import tempfile
         from nucleo.medida import MedidaMalDeclarada, cargar
-        for declarada in ("0.2", "1.0"):
+        for declarada in ("0.3", "1.0"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
                 ruta = Path(d) / "d.prueba.oracle"
                 ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")
                 with self.assertRaises(MedidaMalDeclarada) as ctx:
                     cargar(ruta)
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.1", str(ctx.exception))
+                self.assertIn("0.2", str(ctx.exception))
 
     def test_ningun_archivo_existente_tuvo_que_declarar_version(self) -> None:
         """Poner versión a la superficie no puede obligar a tocar un archivo ya escrito.

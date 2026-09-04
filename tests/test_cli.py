@@ -864,7 +864,7 @@ class DiagnosticoCli(CliTestCase):
     def _manifiesto(self, bid, version="0.1.0"):
         from nucleo.biblioteca import ManifiestoBiblioteca
         return ManifiestoBiblioteca(
-            raiz=Path("/entorno/x"), id=bid, version=version, algebra="0.5", sintaxis="0.1",
+            raiz=Path("/entorno/x"), id=bid, version=version, algebra="0.6", sintaxis="0.2",
             catalogos=(), corpus=(), relaciones=(), macros=(), requiere_relaciones=(),
             certificacion_mutantes=12)
 
@@ -1022,7 +1022,7 @@ class BibliotecaInstaladas(CliTestCase):
         from nucleo.biblioteca import ManifiestoBiblioteca
         return ManifiestoBiblioteca(
             raiz=Path("/entorno/site-packages/oracle_bibliotecas/x"), id=bid, version=version,
-            algebra="0.5", sintaxis="0.1", catalogos=(), corpus=(), relaciones=(), macros=(),
+            algebra="0.6", sintaxis="0.2", catalogos=(), corpus=(), relaciones=(), macros=(),
             requiere_relaciones=(), certificacion_mutantes=12)
 
     def _proyecto(self, raiz: Path, bibliotecas=()):
@@ -1074,7 +1074,7 @@ class BibliotecaInstaladas(CliTestCase):
         """Lo que distingue una biblioteca probada de una que nadie rompió, en la primera mirada."""
         _rc, salida = self._correr({"segtem.meta.calidad": self._manifiesto()}, None)
         self.assertIn("12 mutantes publicados", salida)
-        self.assertIn("álgebra 0.5 · sintaxis 0.1", salida)
+        self.assertIn("álgebra 0.6 · sintaxis 0.2", salida)
 
     def test_el_verbo_se_despacha_desde_la_linea_de_comandos(self) -> None:
         """Por el camino REAL, no llamando al manejador. Los tests de arriba ejercitan la función;

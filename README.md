@@ -1,6 +1,6 @@
 # oracle
 
-[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.3.3](https://github.com/Segtem/oracle/releases/tag/v0.3.3)
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.5.0](https://github.com/Segtem/oracle/releases/tag/v0.5.0)
 
 ```bash
 uv tool install oracle-metalenguaje
