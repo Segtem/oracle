@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dónde entra Oracle</title>
+<meta name="description" content="Qué es Oracle, dónde entra en el desarrollo con un LLM, y cuánto de los defectos reales alcanza a atajar. Con las cifras medidas sobre su propio corpus.">
+<link rel="canonical" href="https://segtem.github.io/oracle/donde-entra.html">
+<meta property="og:title" content="Dónde entra Oracle">
+<meta property="og:description" content="Cuando un modelo escribe la herramienta y también su prueba, el criterio deja de ser independiente. Oracle cambia de qué está hecho el criterio.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --tinta: oklch(0.16 0 0);
+    --papel: oklch(0.96 0.004 95);
+    --acento: oklch(0.58 0.20 45);
+    --acento-claro: oklch(0.78 0.19 60);
+    --rojo: oklch(0.66 0.22 27);
+    --regla: 3px;
+    --mg: 44px;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta);
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-size: 17px; line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: underline; text-underline-offset: 3px;
+      text-decoration-thickness: 1px; }
+  a:hover { color: var(--acento); }
+  code, pre { font-family: var(--mono); }
+
+  .fila { border-top: var(--regla) solid var(--tinta); }
+  .pad { padding: 34px var(--mg); }
+  .mono-eti { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em;
+              text-transform: uppercase; margin: 0 0 18px; color: oklch(0.45 0.01 95); }
+
+  /* ---- barra ---- */
+  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
+           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
+           text-transform: uppercase; flex-wrap: wrap; }
+  .barra a { text-decoration: none; }
+  .barra a:hover { color: var(--acento-claro); }
+  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
+  .ver { color: oklch(0.70 0.02 95); }
+
+  /* ---- hero ---- */
+  .hero { padding: 58px var(--mg) 44px; }
+  .hero h1 { font-family: var(--negra); font-size: clamp(52px, 11vw, 112px);
+             line-height: 0.88; letter-spacing: -0.038em; margin: 0 0 26px;
+             text-transform: uppercase; }
+  .hero h1 .no { color: var(--acento); }
+  .bajada { font-size: clamp(19px, 2.4vw, 25px); line-height: 1.38; font-weight: 500;
+            margin: 0 0 30px; max-width: 33ch; text-wrap: pretty; }
+  .acciones { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn { display: inline-block; background: var(--tinta); color: var(--papel);
+         padding: 15px 30px; font-family: var(--negra); font-size: 16px;
+         text-transform: uppercase; letter-spacing: 0.02em; text-decoration: none; }
+  .btn:hover { background: var(--acento); color: var(--papel); }
+  .btn-claro { background: var(--papel); color: var(--tinta);
+               box-shadow: inset 0 0 0 var(--regla) var(--tinta); }
+  .btn-claro:hover { background: var(--tinta); color: var(--papel); box-shadow: none; }
+  .susurro { font-family: var(--mono); font-size: 13px; }
+
+  /* ---- rejillas ---- */
+  .g12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .g3  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g5  { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .g4  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .c7 { grid-column: span 7; border-right: var(--regla) solid var(--tinta); }
+  .c5 { grid-column: span 5; }
+  .g3 > * + *, .g5 > * + *, .g4 > * + * { border-left: var(--regla) solid var(--tinta); }
+  .inverso { background: var(--acento); color: oklch(0.98 0.004 95); }
+  .oscuro  { background: var(--tinta); color: var(--papel); }
+
+  h2.grande { font-family: var(--negra); font-size: clamp(28px, 4vw, 38px);
+              line-height: 1.04; margin: 0 0 14px; text-transform: uppercase; }
+  h3.chica  { font-family: var(--negra); font-size: 24px; margin: 0 0 12px;
+              text-transform: uppercase; }
+  p.cuerpo { margin: 0 0 14px; }
+  p.cuerpo:last-child { margin-bottom: 0; }
+
+  /* ---- la medida anotada ---- */
+  .codigo { margin: 0; font-family: var(--mono); font-size: clamp(13px, 1.5vw, 16px);
+            line-height: 1.95; white-space: pre; overflow-x: auto; }
+  .kw { color: var(--acento-claro); font-weight: 700; }
+  .txt { color: oklch(0.80 0.11 150); }
+  .num { color: oklch(0.84 0.14 90); }
+
+  /* ---- el editor ---- */
+  .editor { border: 1px solid oklch(0.96 0.004 95 / 0.22); background: oklch(0.135 0 0);
+            width: fit-content; max-width: 100%; }
+  .pestana { display: flex; align-items: center; gap: 9px; padding: 9px 14px;
+             background: oklch(0.20 0 0);
+             border-bottom: 1px solid oklch(0.96 0.004 95 / 0.16);
+             font-family: var(--mono); font-size: 12px; color: oklch(0.80 0.01 95); }
+  .pestana .punto { width: 8px; height: 8px; border-radius: 50%;
+                    background: var(--acento-claro); flex: 0 0 auto; }
+  .lens { padding: 7px 14px 0 calc(14px + 3.2ch);
+          font-family: var(--mono); font-size: 12.5px; font-style: italic;
+          color: oklch(0.60 0.02 95); }
+  /* El bloque entero scrollea, no cada línea por su cuenta: con `overflow` en cada fila
+     la línea larga del `porque` se cortaba sola y el resto quedaba quieto. */
+  .lineas { display: grid; grid-template-columns: 3.2ch max-content;
+            padding: 2px 14px 14px; overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: oklch(0.40 0.01 95) transparent; }
+  .lineas::-webkit-scrollbar { height: 8px; }
+  .lineas::-webkit-scrollbar-track { background: transparent; }
+  .lineas::-webkit-scrollbar-thumb { background: oklch(0.40 0.01 95); border-radius: 4px; }
+  .lineas > .ln { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
+                  line-height: 1.85; color: oklch(0.44 0.01 95);
+                  text-align: right; padding-right: 1.4ch; user-select: none; }
+  .lineas > .cod { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
+                   line-height: 1.85; white-space: pre; color: oklch(0.92 0.008 95); }
+
+  .leyenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+             gap: 14px 34px; margin: 26px 0 0; padding: 0; list-style: none; max-width: 96ch; }
+  .leyenda li { display: flex; gap: 12px; font-size: 15px; line-height: 1.45;
+                color: oklch(0.80 0.01 95); }
+  .leyenda .ancla { font-family: var(--mono); font-size: 12px; color: var(--acento-claro);
+                    flex: 0 0 auto; padding-top: 2px; min-width: 8.5ch; }
+  .leyenda strong { color: var(--papel); }
+  @media (max-width: 860px) { .leyenda { grid-template-columns: 1fr; } }
+
+  .veredicto { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 15px);
+               line-height: 1.9; white-space: pre; overflow-x: auto; margin: 0; }
+  .veredicto .rojo { color: var(--rojo); font-weight: 700; }
+
+  .cifra { font-family: var(--negra); font-size: 40px; margin: 0 0 4px;
+           color: var(--acento-claro); }
+  .nivel { font-family: var(--negra); font-size: 30px; margin: 0 0 10px; }
+
+  .aviso { display: flex; gap: 22px; align-items: flex-start; }
+  .aviso svg { flex: 0 0 auto; margin-top: 3px; }
+
+  .pie { background: var(--tinta); color: oklch(0.82 0.01 95); font-family: var(--mono);
+         font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+         padding: 24px var(--mg); display: flex; gap: 34px; flex-wrap: wrap; }
+  .pie a:hover { color: var(--acento-claro); }
+
+  .cierre { display: flex; align-items: center; justify-content: space-between;
+            gap: 26px; flex-wrap: wrap; }
+
+  /* ---- teléfono: las rejillas se apilan y los bordes cambian de lado ---- */
+  @media (max-width: 860px) {
+    :root { --mg: 22px; --regla: 2px; }
+    body { font-size: 16px; }
+    .g12, .g3, .g5, .g4 { grid-template-columns: 1fr; }
+    .c7, .c5 { grid-column: auto; }
+    .c7 { border-right: 0; border-bottom: var(--regla) solid var(--tinta); }
+    .g3 > * + *, .g5 > * + *, .g4 > * + * {
+      border-left: 0; border-top: var(--regla) solid var(--tinta);
+    }
+    .g4.oscuro > * + * { border-top-color: oklch(0.96 0.004 95 / 0.28); }
+    .barra nav { gap: 16px; font-size: 11px; }
+    .btn { padding: 14px 22px; font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    a, .btn { transition: color .12s ease, background-color .12s ease; }
+  }
+</style>
+<style>
+  /* ---- sólo lo que esta página agrega sobre la hoja del sitio ---- */
+  .lectura { max-width: 66ch; }
+  .lectura p + p { margin-top: 14px; }
+  .lienzo { padding: 26px var(--mg); overflow-x: auto; }
+  .lienzo svg { display: block; max-width: 100%; height: auto; margin: 0 auto;
+                color: var(--tinta); }
+  .oscuro .lienzo svg, .lienzo.sobre-oscuro svg { color: var(--papel); }
+  figure { margin: 0; }
+  figcaption { font-size: 15px; line-height: 1.5; max-width: 62ch;
+               margin: 20px auto 0; color: oklch(0.42 0.01 95); }
+  .oscuro figcaption { color: oklch(0.74 0.02 95); }
+  .glosa { display: grid; grid-template-columns: auto 1fr; gap: 8px 20px;
+           margin: 0; align-items: baseline; }
+  .glosa dt { font-family: var(--mono); font-size: 13px; font-weight: 700;
+              color: var(--acento); white-space: nowrap; }
+  .glosa dd { margin: 0; font-size: 15.5px; line-height: 1.5; }
+  .cifra b { display: block; font-family: var(--negra); font-size: clamp(40px, 5vw, 58px);
+             line-height: 0.94; letter-spacing: -0.03em; margin-bottom: 10px;
+             font-variant-numeric: tabular-nums; }
+  .cifra span { font-size: 14.5px; line-height: 1.42; display: block; }
+  .reparto { display: flex; height: 46px; border: var(--regla) solid var(--tinta); }
+  .reparto div { display: flex; align-items: center; justify-content: center;
+                 font-family: var(--mono); font-size: 12px; letter-spacing: 0.05em;
+                 text-transform: uppercase; color: var(--papel); }
+  .r-arnes { background: var(--tinta); flex: 152; }
+  .r-fuera { background: var(--acento); flex: 28; }
+  .limites { list-style: none; padding: 0; margin: 0; }
+  .limites li { padding: 16px 0 16px 30px; border-top: 1px solid oklch(0.16 0 0 / 0.2);
+                position: relative; font-size: 16px; line-height: 1.5; }
+  .oscuro .limites li { border-top-color: oklch(0.96 0.004 95 / 0.25); }
+  .limites li::before { content: "—"; position: absolute; left: 0;
+                        font-family: var(--mono); color: var(--acento); }
+  .limites li b { font-weight: 700; }
+  @media (max-width: 900px) {
+    .c7, .c5 { grid-column: span 12; border-right: 0; }
+    .g3, .g4 { grid-template-columns: 1fr; }
+    .g3 > * + *, .g4 > * + * { border-left: 0; border-top: var(--regla) solid var(--tinta); }
+  }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div style="display:flex; align-items:center; gap:14px;">
+    <strong><a href="./">oracle</a></strong><span class="ver">0.5.0</span>
+  </div>
+  <nav>
+    <a href="./">inicio</a>
+    <a href="manual.html">manual</a>
+    <a href="https://github.com/Segtem/oracle/blob/main/docs/README.md">documentación</a>
+    <a href="https://github.com/Segtem/oracle#las-decisiones-y-por-qué">decisiones</a>
+    <a href="https://github.com/Segtem/oracle">github</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="mono-eti">qué es · dónde entra · qué usa un modelo</p>
+  <h1>Dónde<br>entra<br><span class="no">oracle</span></h1>
+  <p class="bajada">Cuando un modelo escribe la herramienta y también escribe su prueba,
+  el criterio de éxito deja de ser independiente del generador.</p>
+  <p class="susurro">Oracle no agrega otra prueba: cambia de qué está hecho el criterio.</p>
+</section>
+
+<!-- ════════ el lazo ════════ -->
+<section class="fila pad oscuro">
+  <p class="mono-eti" style="color:oklch(0.72 0.02 95)">el problema</p>
+  <h2 class="grande">La misma mano escribe<br>el artefacto y el criterio</h2>
+  <div class="lectura">
+    <p class="cuerpo">Un test es código, y quien lo escribió puede ajustarlo hasta que pase. No
+    hace falta mala fe: alcanza con que el generador tenga las dos puntas. El verde resultante es
+    cierto y no significa nada.</p>
+    <p class="cuerpo">Oracle parte el lazo poniendo el criterio donde el generador no lo puede
+    acomodar: una <strong>medida es un dato</strong>, no un procedimiento. Y como es un dato, se
+    puede romper a propósito para preguntarle al corpus si lo nota.</p>
+  </div>
+</section>
+
+<section class="fila lienzo oscuro">
+  <figure>
+    <svg viewBox="0 0 900 320" role="img"
+         aria-label="Comparación. Sin Oracle: el generador escribe el artefacto y también la prueba, y la prueba emite el veredicto. Con Oracle: un sensor lee el artefacto y produce evidencia, una medida declarada la juzga, y un mutador rompe la medida para comprobar que el corpus lo note.">
+      <defs>
+        <marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker>
+        <marker id="p2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
+                orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F2762E"/></marker>
+      </defs>
+
+      <text x="0" y="16" font-family="JetBrains Mono,monospace" font-size="12"
+            letter-spacing="1.6" opacity=".62">HOY</text>
+      <line x1="0" y1="27" x2="400" y2="27" stroke="currentColor" stroke-opacity=".28"/>
+
+      <rect x="0" y="52" width="118" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="59" y="80" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">generador</text>
+
+      <rect x="172" y="46" width="112" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="228" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">artefacto</text>
+
+      <rect x="172" y="120" width="112" height="40" fill="none" stroke="#F2762E" stroke-width="2.4"/>
+      <text x="228" y="145" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="#F2762E">prueba</text>
+
+      <rect x="330" y="82" width="70" height="42" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="365" y="108" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">verde</text>
+
+      <line x1="118" y1="66" x2="166" y2="66" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="118" y1="86" x2="166" y2="138" stroke="#F2762E" stroke-width="2" marker-end="url(#p2)"/>
+      <line x1="284" y1="66" x2="326" y2="94" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="284" y1="140" x2="326" y2="114" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+
+      <text x="122" y="112" font-family="JetBrains Mono,monospace" font-size="11" fill="#F2762E">escribe también</text>
+      <text x="122" y="126" font-family="JetBrains Mono,monospace" font-size="11" fill="#F2762E">el criterio</text>
+
+      <text x="0" y="202" font-family="Archivo,sans-serif" font-size="13" opacity=".72">El verde es cierto.</text>
+      <text x="0" y="221" font-family="Archivo,sans-serif" font-size="13" opacity=".72">No dice nada del mundo.</text>
+
+      <line x1="450" y1="27" x2="450" y2="300" stroke="currentColor" stroke-opacity=".28" stroke-dasharray="3 6"/>
+
+      <text x="500" y="16" font-family="JetBrains Mono,monospace" font-size="12"
+            letter-spacing="1.6" opacity=".62">CON ORACLE</text>
+      <line x1="500" y1="27" x2="900" y2="27" stroke="currentColor" stroke-opacity=".28"/>
+
+      <rect x="500" y="52" width="96" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="548" y="77" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">artefacto</text>
+
+      <rect x="500" y="120" width="96" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="548" y="145" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">sensor</text>
+
+      <rect x="646" y="120" width="96" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="694" y="139" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">evidencia</text>
+      <text x="694" y="153" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" opacity=".62">filas</text>
+
+      <rect x="646" y="52" width="96" height="40" fill="none" stroke="#F2762E" stroke-width="2.4"/>
+      <text x="694" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="#F2762E">medida</text>
+      <text x="694" y="85" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#F2762E">un dato</text>
+
+      <rect x="794" y="82" width="90" height="48" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="839" y="103" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">veredicto</text>
+      <text x="839" y="119" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" opacity=".62">+ testigos</text>
+
+      <line x1="548" y1="92" x2="548" y2="116" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="596" y1="140" x2="642" y2="140" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="742" y1="130" x2="790" y2="112" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="742" y1="76" x2="790" y2="96" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <text x="556" y="110" font-family="JetBrains Mono,monospace" font-size="10.5" opacity=".62">lee</text>
+
+      <rect x="646" y="220" width="96" height="44" fill="none" stroke="#F2762E"
+            stroke-width="2" stroke-dasharray="5 4"/>
+      <text x="694" y="240" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" fill="#F2762E">mutador</text>
+      <text x="694" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#F2762E">la rompe</text>
+
+      <path d="M678 220 L678 100" fill="none" stroke="#F2762E" stroke-width="2"
+            stroke-dasharray="5 4" marker-end="url(#p2)"/>
+      <path d="M742 242 L806 242 L806 136" fill="none" stroke="#F2762E" stroke-width="2"
+            stroke-dasharray="5 4" marker-end="url(#p2)"/>
+      <text x="814" y="202" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#F2762E">¿lo nota</text>
+      <text x="814" y="216" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#F2762E">el corpus?</text>
+
+      <text x="500" y="294" font-family="Archivo,sans-serif" font-size="13" opacity=".72">Un criterio que nada puede romper es decoración.</text>
+    </svg>
+    <figcaption>A la izquierda el lazo cerrado: el generador produce el artefacto y también la
+    prueba que lo juzga. A la derecha Oracle separa quién produce los hechos —el sensor— de quién
+    los juzga —la medida—, y agrega un tercer actor que rompe la medida a propósito para comprobar
+    que el corpus se dé cuenta.</figcaption>
+  </figure>
+</section>
+
+<!-- ════════ la medida ════════ -->
+<section class="fila g12">
+  <div class="c7 pad">
+    <p class="mono-eti">la unidad</p>
+    <h2 class="grande">Una medida declara<br>lo que <span style="color:var(--acento)">no</span> ve</h2>
+    <div class="lectura">
+      <p class="cuerpo">Ésta es real: vive en el catálogo del proyecto y se juzga a sí misma,
+      porque ella también es una fila de la relación que consulta.</p>
+    </div>
+    <dl class="glosa" style="margin-top:26px">
+      <dt>umbral</dt><dd>el número y su comparador. Sin él no hay veredicto, sólo un valor.</dd>
+      <dt>segun</dt><dd>de dónde salió ese número: medición, contrato, convención o tanteo. Un umbral sin origen es un número que alguien tipeó.</dd>
+      <dt>porque</dt><dd>por qué ése y no otro, ante quien lo discuta.</dd>
+      <dt>ambito</dt><dd>a qué proyectos obliga. Un rojo que el receptor no puede arreglar enseña a ignorar la herramienta.</dd>
+      <dt>alcance</dt><dd><strong>obligatorio.</strong> Qué NO mira. Ninguna medida ve todo, y un verde que no lo declara se lee como si viera todo.</dd>
+    </dl>
+  </div>
+  <div class="c5 pad oscuro">
+    <pre class="codigo"><span class="kw">ninguno</span> meta.ninguna_medida_sin_alcance:
+    <span class="kw">de</span> medida m
+    <span class="kw">donde</span> m.alcance == <span class="txt">""</span>
+    <span class="kw">umbral</span> &lt;= <span class="num">0</span> <span class="kw">segun</span> contrato
+        <span class="kw">porque</span> <span class="txt">"un verde que no declara
+        qué NO miró se lee como
+        «está bien»…"</span>
+    <span class="kw">ambito</span> universal
+    <span class="kw">alcance</span> <span class="txt">"ve si el `alcance` está
+        VACÍO. NO impone una fórmula
+        textual ni un idioma, y NO
+        juzga si el punto ciego
+        declarado es el correcto"</span></pre>
+  </div>
+</section>
+
+<!-- ════════ los niveles ════════ -->
+<section class="fila pad">
+  <p class="mono-eti">dónde se apoya cada afirmación</p>
+  <h2 class="grande">Cinco niveles, y los dos<br>extremos están cerrados</h2>
+  <div class="lectura">
+    <p class="cuerpo">«¿Esto está bien?» se responde en capas distintas, y confundirlas es de
+    dónde salen los verdes que no significan nada. Oracle numera las capas y se niega a inventar
+    una sexta.</p>
+  </div>
+</section>
+
+<section class="fila lienzo">
+  <figure>
+    <svg viewBox="0 0 760 330" role="img"
+         aria-label="Los cinco niveles de representación, de arriba abajo: L2 medidas sobre medidas, L1 medidas, L0 evidencia, L menos 1 qué lee el sensor, L menos 2 qué leyó y en qué estado. Debajo, el terreno, que no es un nivel.">
+      <g font-family="JetBrains Mono,monospace" font-size="13.5" font-weight="700">
+        <rect x="0" y="6" width="470" height="46" fill="none" stroke="#F2762E" stroke-width="2.4"/>
+        <text x="18" y="34" fill="#F2762E">L2</text>
+        <text x="72" y="34" font-family="Archivo,sans-serif" font-size="15" fill="#F2762E">medidas sobre medidas</text>
+        <text x="492" y="34" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">se juzga a sí misma</text>
+
+        <rect x="0" y="60" width="470" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="18" y="88">L1</text>
+        <text x="72" y="88" font-family="Archivo,sans-serif" font-size="15" font-weight="400">medidas</text>
+        <text x="492" y="88" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">enunciados sobre L0</text>
+
+        <rect x="0" y="114" width="470" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="18" y="142">L0</text>
+        <text x="72" y="142" font-family="Archivo,sans-serif" font-size="15" font-weight="400">evidencia</text>
+        <text x="492" y="142" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">filas</text>
+
+        <rect x="0" y="168" width="470" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="18" y="196">L−1</text>
+        <text x="72" y="196" font-family="Archivo,sans-serif" font-size="15" font-weight="400">qué lee el sensor</text>
+        <text x="492" y="196" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">su alcance y sus unidades</text>
+
+        <rect x="0" y="222" width="470" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+        <text x="18" y="250">L−2</text>
+        <text x="72" y="250" font-family="Archivo,sans-serif" font-size="15" font-weight="400">qué leyó, y en qué estado</text>
+        <text x="492" y="250" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">identidad y frescura</text>
+
+        <line x1="0" y1="288" x2="470" y2="288" stroke="currentColor" stroke-opacity=".38" stroke-dasharray="5 5"/>
+        <text x="72" y="312" font-family="Archivo,sans-serif" font-size="15" font-weight="400" opacity=".6">el terreno</text>
+        <text x="492" y="312" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">no es un nivel</text>
+      </g>
+    </svg>
+    <figcaption>No hay L3: con el catálogo servido como una relación más, una medida sobre medidas
+    sobre medidas se escribe idéntica a una medida sobre medidas. Colapsa, no falta. Y no hay L−3
+    porque debajo está el terreno, y lo único honesto que se puede hacer con él es declarar qué no
+    se miró — el trabajo del <code>alcance</code>.</figcaption>
+  </figure>
+</section>
+
+<!-- ════════ el LLM ════════ -->
+<section class="fila pad">
+  <p class="mono-eti">para un modelo</p>
+  <h2 class="grande">Qué usa un LLM de Oracle,<br>y cuánto</h2>
+  <div class="lectura">
+    <p class="cuerpo">Un modelo lo usa de dos maneras, y conviene no confundirlas.
+    <strong>Escribe medidas</strong> en un lenguaje de cinco operadores donde cada afirmación
+    obliga a declarar su umbral, su origen y su punto ciego. Y <strong>consulta</strong> el estado
+    de un proyecto por un servidor MCP de sólo lectura: tres herramientas, ninguna escribe.</p>
+  </div>
+</section>
+
+<section class="fila g3">
+  <div class="pad">
+    <h3 class="chica">catálogo<br>efectivo</h3>
+    <p class="cuerpo">Qué medidas obligan a <em>este</em> proyecto — no todo lo instalado.
+    Distingue «no existe» de «no tiene jurisdicción acá»: lo primero invita a duplicar, lo segundo
+    enseña que el archivo ya tiene dueño.</p>
+  </div>
+  <div class="pad">
+    <h3 class="chica">evaluar</h3>
+    <p class="cuerpo">Corre una medida contra una evidencia. Devuelve <strong>tres</strong> estados
+    y no dos: verde, rojo y <em>sin evidencia</em>, porque «no pude mirar» no es «miré y está
+    mal».</p>
+  </div>
+  <div class="pad">
+    <h3 class="chica">desafiar</h3>
+    <p class="cuerpo">Somete un candidato a las dos polaridades y después a sus mutantes, entero en
+    memoria y sin tocar el disco. Dice qué parte no está fijada; no dice que la medida sea
+    correcta.</p>
+  </div>
+</section>
+
+<section class="fila pad inverso">
+  <p class="mono-eti" style="color:oklch(0.98 0.004 95 / 0.8)">cuánto de esto llega</p>
+  <h2 class="grande">180 defectos reales,<br>y cómo se detectó cada uno</h2>
+  <div class="lectura">
+    <p class="cuerpo">El corpus del proyecto registra cada defecto con la vía por la que apareció.
+    Es la respuesta medida a «cuánto sirve», y también a cuánto no.</p>
+  </div>
+  <div class="reparto" style="margin-top:26px" role="img"
+       aria-label="De 180 defectos, 152 los cazó el arnés automático y 28 se le escaparon.">
+    <div class="r-arnes">152 · el arnés automático</div>
+    <div class="r-fuera">28</div>
+  </div>
+  <p class="susurro" style="margin-top:14px">152 por observación y mutación · 28 por una persona,
+  un accidente o una herramienta ajena</p>
+</section>
+
+<section class="fila g4">
+  <div class="pad cifra"><b>84%</b><span>de los defectos documentados los caza el arnés sin que nadie mire</span></div>
+  <div class="pad cifra"><b>14</b><span>de los 28 restantes están al alcance de una herramienta MCP</span></div>
+  <div class="pad cifra"><b>57</b><span>medidas en el catálogo base: 37 obligan a cualquiera, 20 sólo a Oracle</span></div>
+  <div class="pad cifra"><b>0</b><span>dependencias. El núcleo son 9.575 líneas y biblioteca estándar</span></div>
+</section>
+
+<!-- ════════ límites ════════ -->
+<section class="fila pad oscuro">
+  <p class="mono-eti" style="color:oklch(0.72 0.02 95)">lo que no promete</p>
+  <h2 class="grande">La otra mitad de esos 28<br>no la ataja ningún protocolo</h2>
+  <ul class="limites" style="max-width:70ch">
+    <li><b>Fallas de runtime y señales.</b> Un proceso que muere sin limpiar, un bytecode viejo que
+    se reusa. Ninguna herramienta de consulta lo ve.</li>
+    <li><b>Saltos causales del propio modelo.</b> Números ciertos y una conclusión inventada
+    encima. Oracle produce hechos; no puede impedir que alguien los lea mal.</li>
+    <li><b>Falsificación deliberada en disco.</b> Escribir evidencia y declararla observada.
+    Ninguna herramienta comprueba que alguien haya mirado de verdad.</li>
+    <li><b>Que una medida diga algo del mundo.</b> Puede discriminar perfectamente entre dos
+    evidencias fabricadas para ella y seguir sin medir nada real.</li>
+  </ul>
+  <p class="cuerpo" style="margin-top:24px; max-width:66ch; opacity:.8">Decir esto es parte del
+  diseño, no una disculpa. Una herramienta que promete más de lo que puede sostener produce
+  exactamente el verde que existe para evitar.</p>
+</section>
+
+<footer class="fila pad" style="display:flex; gap:24px; flex-wrap:wrap;
+        font-family:var(--mono); font-size:13px;">
+  <a href="./">inicio</a>
+  <a href="manual.html">manual</a>
+  <span>cifras medidas sobre el catálogo y el corpus del proyecto</span>
+  <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
+  <span>0.5.0</span>
+</footer>
+
+</body>
+</html>
