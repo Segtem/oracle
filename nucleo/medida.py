@@ -519,16 +519,28 @@ class EntradaCatalogo:
 
 
 class Catalogo(dict[str, Medida]):
-    """Mapa compatible de medidas que conserva una ``EntradaCatalogo`` por id."""
+    """Mapa compatible que conserva procedencia efectiva y del universo antes del filtro.
 
-    def __init__(self, entradas=()) -> None:
+    La segunda hace falta para explicar una exclusión sin volver a cargar las fuentes por otro
+    camino: quien pregunta por un id debe poder distinguir «no fue seleccionado» de «su ámbito no
+    obliga acá», pero el catálogo que se evalúa sigue conteniendo únicamente medidas efectivas.
+    """
+
+    def __init__(self, entradas=(), *, entradas_seleccionadas=None) -> None:
         entradas = tuple(entradas)
         super().__init__((entrada.medida.id, entrada.medida) for entrada in entradas)
         self.entradas = {entrada.medida.id: entrada for entrada in entradas}
+        self.entradas_seleccionadas = (
+            dict(self.entradas) if entradas_seleccionadas is None
+            else dict(entradas_seleccionadas)
+        )
 
     def filtrar(self, predicado) -> "Catalogo":
         """Crea otra vista materializada sin separar medidas de sus procedencias."""
-        return Catalogo(entrada for entrada in self.entradas.values() if predicado(entrada))
+        return Catalogo(
+            (entrada for entrada in self.entradas.values() if predicado(entrada)),
+            entradas_seleccionadas=self.entradas_seleccionadas,
+        )
 
 
 def _fuentes_de_catalogo(directorios) -> tuple[FuenteCatalogo, ...]:
