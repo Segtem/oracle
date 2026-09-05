@@ -39,7 +39,7 @@
             position: sticky; top: 0; align-self: start; }
   .rotulo h2 { font-family: var(--negra); font-size: clamp(24px, 2.6vw, 32px);
                margin: 0 0 10px; line-height: 1.02; text-transform: uppercase;
-               letter-spacing: -0.02em; }
+               letter-spacing: -0.02em; overflow-wrap: break-word; }
   .rotulo p { margin: 0; font-family: var(--mono); font-size: 12px; line-height: 1.55;
               color: oklch(0.45 0.01 95); }
   /* Sin hueco entre columnas: con `column-gap` la línea de cada fila se parte en dos trazos y
@@ -137,7 +137,7 @@
 </dl>
 </section>
 <section class="tema" id="manual-como_se_detecto">
-<div class="rotulo"><h2>como_se_detecto</h2><p>quién encontró el defecto (campo `como_se_detecto`)</p></div>
+<div class="rotulo"><h2>como_<wbr>se_<wbr>detecto</h2><p>quién encontró el defecto (campo `como_se_detecto`)</p></div>
 <dl>
 <dt>accidente</dt><dd>apareció haciendo otra cosa, y nadie lo estaba buscando. Vale igual: dice que en el camino donde sí se buscaba no estaba</dd>
 <dt>herramienta_<wbr>ajena</dt><dd>lo señaló una herramienta de afuera de Oracle</dd>

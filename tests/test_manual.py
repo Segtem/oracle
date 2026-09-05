@@ -283,6 +283,29 @@ class LasMedidasUniversalesEstanEnElManualTests(unittest.TestCase):
             self.assertEqual(manual.entradas("medidas"), [])
             self.assertIn("SEGUN — ", manual.texto("segun"))
 
+    def test_el_titulo_de_la_seccion_tambien_lleva_puntos_de_corte(self) -> None:
+        """El primer arreglo miró sólo los términos y dejó el título de la sección afuera.
+
+        `COMO_SE_DETECTO` en la tipografía del rótulo es más ancho que su columna, así que se
+        dibujaba encima de la primera entrada de la columna de al lado. Es el mismo defecto que el
+        de los términos, un elemento más arriba, y por eso el test mira el TÍTULO y no el `dt`: sin
+        él, arreglar uno de los dos vuelve a dejar el otro suelto.
+        """
+        pagina = manual.html()
+
+        self.assertIn("<h2>como_<wbr>se_<wbr>detecto</h2>", pagina)
+
+    def test_ningun_titulo_deja_un_tramo_sin_cortar_mas_largo_que_su_columna(self) -> None:
+        """La red del `<wbr>` sólo sirve si los tramos entre cortes entran. Se mide el peor."""
+        import re
+
+        titulos = [re.sub(r"<[^>]*>", "", m)
+                   for m in re.findall(r"<h2>.*?</h2>", manual.html())]
+        peor = max(len(tramo) for t in titulos for tramo in re.split(r"[_.]", t))
+
+        self.assertEqual(titulos != [], True)
+        self.assertLessEqual(peor, 12)
+
     def test_una_seccion_sin_entradas_se_dibuja_igual_y_lo_dice(self) -> None:
         """La sección de medidas queda vacía en un consumidor que no incorpora el catálogo base.
 

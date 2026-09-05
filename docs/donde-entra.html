@@ -172,9 +172,10 @@
   .lectura { max-width: 66ch; }
   .lectura p + p { margin-top: 14px; }
   .lienzo { padding: 26px var(--mg); overflow-x: auto; }
-  .lienzo svg { display: block; max-width: 100%; height: auto; margin: 0 auto;
-                color: var(--tinta); }
-  .oscuro .lienzo svg, .lienzo.sobre-oscuro svg { color: var(--papel); }
+  /* El SVG NO fija su color: lo hereda de la sección. `.lienzo` y `.oscuro` van en el MISMO
+     elemento, así que un selector `.oscuro .lienzo svg` —que exige descendencia— no aplica nunca
+     y el dibujo quedaba con tinta oscura sobre fondo oscuro. Heredar no se puede escribir mal. */
+  .lienzo svg { display: block; max-width: 100%; height: auto; margin: 0 auto; }
   figure { margin: 0; }
   figcaption { font-size: 15px; line-height: 1.5; max-width: 62ch;
                margin: 20px auto 0; color: oklch(0.42 0.01 95); }
@@ -193,7 +194,10 @@
                  font-family: var(--mono); font-size: 12px; letter-spacing: 0.05em;
                  text-transform: uppercase; color: var(--papel); }
   .r-arnes { background: var(--tinta); flex: 152; }
-  .r-fuera { background: var(--acento); flex: 28; }
+  /* Sobre la sección naranja, este segmento NO puede ser naranja: era el mismo valor que el
+     fondo y el «28» desaparecía. El papel contrasta con las dos secciones donde la barra puede
+     vivir. */
+  .r-fuera { background: var(--papel); color: var(--tinta); flex: 28; }
   .limites { list-style: none; padding: 0; margin: 0; }
   .limites li { padding: 16px 0 16px 30px; border-top: 1px solid oklch(0.16 0 0 / 0.2);
                 position: relative; font-size: 16px; line-height: 1.5; }
@@ -253,7 +257,7 @@
         <marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
                 orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker>
         <marker id="p2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
-                orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#F2762E"/></marker>
+                orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--acento-claro)"/></marker>
       </defs>
 
       <text x="0" y="16" font-family="JetBrains Mono,monospace" font-size="12"
@@ -266,19 +270,19 @@
       <rect x="172" y="46" width="112" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
       <text x="228" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">artefacto</text>
 
-      <rect x="172" y="120" width="112" height="40" fill="none" stroke="#F2762E" stroke-width="2.4"/>
-      <text x="228" y="145" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="#F2762E">prueba</text>
+      <rect x="172" y="120" width="112" height="40" fill="none" stroke="var(--acento-claro)" stroke-width="2.4"/>
+      <text x="228" y="145" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="var(--acento-claro)">prueba</text>
 
       <rect x="330" y="82" width="70" height="42" fill="none" stroke="currentColor" stroke-width="2"/>
       <text x="365" y="108" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">verde</text>
 
       <line x1="118" y1="66" x2="166" y2="66" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <line x1="118" y1="86" x2="166" y2="138" stroke="#F2762E" stroke-width="2" marker-end="url(#p2)"/>
+      <line x1="118" y1="86" x2="166" y2="138" stroke="var(--acento-claro)" stroke-width="2" marker-end="url(#p2)"/>
       <line x1="284" y1="66" x2="326" y2="94" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
       <line x1="284" y1="140" x2="326" y2="114" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
 
-      <text x="122" y="112" font-family="JetBrains Mono,monospace" font-size="11" fill="#F2762E">escribe también</text>
-      <text x="122" y="126" font-family="JetBrains Mono,monospace" font-size="11" fill="#F2762E">el criterio</text>
+      <text x="122" y="112" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--acento-claro)">escribe también</text>
+      <text x="122" y="126" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--acento-claro)">el criterio</text>
 
       <text x="0" y="202" font-family="Archivo,sans-serif" font-size="13" opacity=".72">El verde es cierto.</text>
       <text x="0" y="221" font-family="Archivo,sans-serif" font-size="13" opacity=".72">No dice nada del mundo.</text>
@@ -299,9 +303,9 @@
       <text x="694" y="139" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">evidencia</text>
       <text x="694" y="153" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" opacity=".62">filas</text>
 
-      <rect x="646" y="52" width="96" height="40" fill="none" stroke="#F2762E" stroke-width="2.4"/>
-      <text x="694" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="#F2762E">medida</text>
-      <text x="694" y="85" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#F2762E">un dato</text>
+      <rect x="646" y="52" width="96" height="40" fill="none" stroke="var(--acento-claro)" stroke-width="2.4"/>
+      <text x="694" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="var(--acento-claro)">medida</text>
+      <text x="694" y="85" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--acento-claro)">un dato</text>
 
       <rect x="794" y="82" width="90" height="48" fill="none" stroke="currentColor" stroke-width="2"/>
       <text x="839" y="103" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">veredicto</text>
@@ -313,17 +317,17 @@
       <line x1="742" y1="76" x2="790" y2="96" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
       <text x="556" y="110" font-family="JetBrains Mono,monospace" font-size="10.5" opacity=".62">lee</text>
 
-      <rect x="646" y="220" width="96" height="44" fill="none" stroke="#F2762E"
+      <rect x="646" y="220" width="96" height="44" fill="none" stroke="var(--acento-claro)"
             stroke-width="2" stroke-dasharray="5 4"/>
-      <text x="694" y="240" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" fill="#F2762E">mutador</text>
-      <text x="694" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="#F2762E">la rompe</text>
+      <text x="694" y="240" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" fill="var(--acento-claro)">mutador</text>
+      <text x="694" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--acento-claro)">la rompe</text>
 
-      <path d="M678 220 L678 100" fill="none" stroke="#F2762E" stroke-width="2"
+      <path d="M678 220 L678 100" fill="none" stroke="var(--acento-claro)" stroke-width="2"
             stroke-dasharray="5 4" marker-end="url(#p2)"/>
-      <path d="M742 242 L806 242 L806 136" fill="none" stroke="#F2762E" stroke-width="2"
+      <path d="M742 242 L806 242 L806 136" fill="none" stroke="var(--acento-claro)" stroke-width="2"
             stroke-dasharray="5 4" marker-end="url(#p2)"/>
-      <text x="814" y="202" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#F2762E">¿lo nota</text>
-      <text x="814" y="216" font-family="JetBrains Mono,monospace" font-size="10.5" fill="#F2762E">el corpus?</text>
+      <text x="814" y="202" font-family="JetBrains Mono,monospace" font-size="10.5" fill="var(--acento-claro)">¿lo nota</text>
+      <text x="814" y="216" font-family="JetBrains Mono,monospace" font-size="10.5" fill="var(--acento-claro)">el corpus?</text>
 
       <text x="500" y="294" font-family="Archivo,sans-serif" font-size="13" opacity=".72">Un criterio que nada puede romper es decoración.</text>
     </svg>
@@ -384,9 +388,9 @@
     <svg viewBox="0 0 760 330" role="img"
          aria-label="Los cinco niveles de representación, de arriba abajo: L2 medidas sobre medidas, L1 medidas, L0 evidencia, L menos 1 qué lee el sensor, L menos 2 qué leyó y en qué estado. Debajo, el terreno, que no es un nivel.">
       <g font-family="JetBrains Mono,monospace" font-size="13.5" font-weight="700">
-        <rect x="0" y="6" width="470" height="46" fill="none" stroke="#F2762E" stroke-width="2.4"/>
-        <text x="18" y="34" fill="#F2762E">L2</text>
-        <text x="72" y="34" font-family="Archivo,sans-serif" font-size="15" fill="#F2762E">medidas sobre medidas</text>
+        <rect x="0" y="6" width="470" height="46" fill="none" stroke="var(--acento)" stroke-width="2.4"/>
+        <text x="18" y="34" fill="var(--acento)">L2</text>
+        <text x="72" y="34" font-family="Archivo,sans-serif" font-size="15" fill="var(--acento)">medidas sobre medidas</text>
         <text x="492" y="34" font-family="JetBrains Mono,monospace" font-size="11.5" font-weight="400" opacity=".6">se juzga a sí misma</text>
 
         <rect x="0" y="60" width="470" height="46" fill="none" stroke="currentColor" stroke-width="2"/>

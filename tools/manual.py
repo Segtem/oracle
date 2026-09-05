@@ -328,7 +328,11 @@ def html() -> str:
         # El rótulo va en su propia columna, como las secciones de la portada: sin eso el texto se
         # amontona en el tercio izquierdo y media pantalla queda en blanco.
         partes.append(f'<section class="tema" id="manual-{_html.escape(tema)}">')
-        partes.append(f'<div class="rotulo"><h2>{_html.escape(tema)}</h2>'
+        # El nombre del tema pasa por `_cortable` igual que los términos: `como_se_detecto` en
+        # Archivo Black a 32px es más ancho que su columna, y sin corte se dibujaba encima de la
+        # primera entrada de la columna de al lado. Es el mismo defecto que el del `dt`, en el
+        # título de la sección, y sobrevivió al primer arreglo porque miré sólo los términos.
+        partes.append(f'<div class="rotulo"><h2>{_cortable(tema)}</h2>'
                       f'<p>{_html.escape(titulo(tema))}</p></div>')
         partes.append("<dl>")
         for nombre, sentido in entradas(tema):
@@ -370,7 +374,7 @@ ESTILO = """
             position: sticky; top: 0; align-self: start; }
   .rotulo h2 { font-family: var(--negra); font-size: clamp(24px, 2.6vw, 32px);
                margin: 0 0 10px; line-height: 1.02; text-transform: uppercase;
-               letter-spacing: -0.02em; }
+               letter-spacing: -0.02em; overflow-wrap: break-word; }
   .rotulo p { margin: 0; font-family: var(--mono); font-size: 12px; line-height: 1.55;
               color: oklch(0.45 0.01 95); }
   /* Sin hueco entre columnas: con `column-gap` la línea de cada fila se parte en dos trazos y
