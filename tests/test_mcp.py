@@ -172,7 +172,7 @@ class AConversacionCompletaTests(unittest.TestCase):
             "result": {
                 "protocolVersion": "2025-11-25",
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "oracle-mcp", "version": "0.5.0"},
+                "serverInfo": {"name": "oracle-mcp", "version": "0.6.0"},
             },
         })
         self.assertEqual(respuestas[1]["result"]["tools"], mcp.HERRAMIENTAS)
@@ -1185,7 +1185,7 @@ class TerminacionDelTransporteTests(unittest.TestCase):
             "result": {
                 "protocolVersion": "2025-11-25",
                 "capabilities": {"tools": {}},
-                "serverInfo": {"name": "oracle-mcp", "version": "0.5.0"},
+                "serverInfo": {"name": "oracle-mcp", "version": "0.6.0"},
             },
         }])
 
@@ -1214,7 +1214,7 @@ class VersionYEntradaTests(unittest.TestCase):
     def test_version_y_entry_point_tienen_una_sola_fuente(self) -> None:
         """Duplicar la versión en el adaptador permitiría que el checkout y el binario discrepen."""
         pyproject = (mcp.RAIZ / "pyproject.toml").read_text(encoding="utf-8")
-        self.assertEqual(VERSION_DISTRIBUCION, "0.5.0")
+        self.assertEqual(VERSION_DISTRIBUCION, "0.6.0")
         self.assertEqual(
             'oracle-mcp = "oracle_metalenguaje.tools.mcp:main"' in pyproject, True)
 

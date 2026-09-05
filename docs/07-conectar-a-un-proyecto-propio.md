@@ -181,7 +181,7 @@ La migración de los dos consumidores reales sacó a la luz dos defectos sobre e
 - Si algún script propio importa la biblioteca (`from oracle_metalenguaje import Motor` o `escalar`),
   necesita el paquete en su propio intérprete.
 - Para el Python embebido de un motor como Unreal (el caso de Jam), no hay venv posible: se vendoriza
-  el wheel publicado con `python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.5.0"`.
+  el wheel publicado con `python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.6.0"`.
   Medido en Jam: 2,3 MB y 183 archivos contra 3,5 MB y 284 del subtree original.
 
 ### 2. Aislamiento de escalares en layouts no estándar

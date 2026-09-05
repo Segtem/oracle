@@ -1,6 +1,6 @@
 # oracle
 
-[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.5.0](https://github.com/Segtem/oracle/releases/tag/v0.5.0)
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.6.0](https://github.com/Segtem/oracle/releases/tag/v0.6.0)
 
 ```bash
 uv tool install oracle-metalenguaje
@@ -111,7 +111,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9609 líneas de lenguaje y **395 negativas explícitas** (`raise`).
+En este corte hay 9621 líneas de lenguaje y **395 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -144,7 +144,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9609 líneas de lenguaje** (`nucleo/`, código y macros) y **395 negativas explícitas** (`raise`). Contra las 57 medidas universales escritas en él (406 líneas): **23,7 a 1**. 50 de las 57 pasan por una macro.
+**9621 líneas de lenguaje** (`nucleo/`, código y macros) y **395 negativas explícitas** (`raise`). Contra las 57 medidas universales escritas en él (406 líneas): **23,7 a 1**. 50 de las 57 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -539,7 +539,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1127 tests · 892/892 mutantes de medida · **5097 sitios de mutación de código** (4887 + 210 del motor Python).
+1243 tests · 892/892 mutantes de medida · **5425 sitios de mutación de código** (5215 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

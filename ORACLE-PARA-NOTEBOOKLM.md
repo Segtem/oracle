@@ -25,7 +25,7 @@ descartadas, los defectos encontrados y las fronteras que todavía no puede cerr
 ## oracle — qué es y por qué
 
 
-[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.5.0](https://github.com/Segtem/oracle/releases/tag/v0.5.0)
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.6.0](https://github.com/Segtem/oracle/releases/tag/v0.6.0)
 
 ```bash
 uv tool install oracle-metalenguaje

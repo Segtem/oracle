@@ -1,16 +1,53 @@
 # 0.6.0 — Oracle contesta por MCP, y la respuesta lleva sus premisas
 
-**En preparación.** Esta entrada se escribe mientras la versión se construye; los números son los
-medidos hasta acá y el corte todavía no se hizo.
+Nueve commits desde `0.5.0`. Sube únicamente la distribución:
+
+```
+VERSION_DISTRIBUCION   0.5.0 → 0.6.0     el paquete y sus ejecutables
+VERSION_ALGEBRA        0.6   → 0.6       lo que una medida SIGNIFICA
+VERSION_SINTAXIS       0.2   → 0.2       cómo se ESCRIBE
+```
+
+## Las tres versiones: qué sube y por qué
+
+- **Distribución (`0.5.0 → 0.6.0`)**: sube porque el paquete incorpora el servidor
+  `oracle-mcp`, sus tres herramientas, su contrato y sus pruebas de punta a punta.
+- **Álgebra (`0.6`)**: no sube. MCP consulta, evalúa y desafía medidas mediante el álgebra que ya
+  existía; no agrega un nodo, operador, agregado, escalar ni relación de traza a la forma canónica.
+- **Sintaxis (`0.2`)**: no sube. El lector no aprende ninguna palabra, cláusula ni separación
+  nueva, y ninguna forma aceptada cambia de significado o deja de aceptarse.
+
+## Resumen de los commits del corte
+
+- Se documentó que actualizar Oracle puede vencer un fixture diferencial y exigir regenerarlo
+  antes de mutar (`5de7f21`).
+- `oracle contexto` dejó de convertir un catálogo ilegible en «cero medidas», pasó a usar el
+  catálogo efectivo y quedó enteramente bajo mutación (`20a2ded`, `4743b3e`).
+- Dos estudios independientes fijaron el alcance, los fallos y el contrato MCP; se descartó con
+  evidencia la compuerta de escritura propuesta originalmente (`3f14ec3`, `824fc1b`).
+- Se implementaron en orden el transporte y las tres herramientas de sólo lectura, cerrando la
+  ronda de `tools/mcp.py` en 297/297 (`ada8e01`, `61f89b0`, `50e02d8`).
+- El sitio ganó una explicación de dónde entra Oracle y de los límites que ningún servidor puede
+  prometer (`f3954ce`).
 
 Oracle gana un servidor MCP de **sólo lectura** para que un agente pueda preguntarle qué mide un
-proyecto sin parsear salidas pensadas para personas. Tres herramientas y ninguna escribe:
+proyecto sin parsear salidas pensadas para personas:
 
-```
-oracle_catalogo_efectivo   ¿qué me obliga, y por qué?
-oracle_evaluar             ¿qué hace esta medida con esta evidencia?
-oracle_desafiar            ¿qué parte de este candidato no está fijada?
-```
+- **`oracle_catalogo_efectivo`** enumera qué medidas obligan en la raíz fijada y de dónde salen;
+  al pedir ids devuelve además sus premisas, umbral, ámbito y fijación, y distingue una medida
+  desconocida de una conocida que no tiene jurisdicción en ese proyecto.
+- **`oracle_evaluar`** evalúa contra evidencia JSON una medida del catálogo o un texto `.oracle` o
+  JSON recibido en memoria. Devuelve por separado `verde`, `rojo` y `sin_evidencia`, con valor,
+  umbral, alcance derivado, testigos y advertencias; no acepta rutas.
+- **`oracle_desafiar`** reproduce los casos verdes y rojos de una medida y recién entonces ejecuta
+  sus mutantes. Informa discordancias, rechazos del álgebra y sobrevivientes sin convertir «todos
+  detectados por esta evidencia» en una aprobación semántica.
+
+Las tres operan sobre la raíz fijada al arrancar el servidor. **El servidor no escribe nada**: no
+guarda medidas ni evidencias, no modifica el proyecto y no persiste los candidatos recibidos en
+memoria. Las **16 conversaciones JSON-RPC** de las tres herramientas están en
+[`estudios/MCP-CONVERSACIONES.md`](estudios/MCP-CONVERSACIONES.md), capturadas contra el servidor
+real.
 
 ## Por qué NO hay una herramienta que guarde medidas
 
@@ -77,6 +114,12 @@ segunda herramienta. Su primera medición fue la peor del proyecto: **154 mutant
 - **las anotaciones que el servidor publica sobre sí mismo** —`readOnlyHint`, `destructiveHint`—
   tampoco. Todo el diseño se apoya en que es de sólo lectura, y esa promesa vivía en constantes que
   nadie comprobaba.
+
+La ronda final cerró en **297/297 mutantes rechazados, cero sobrevivientes**. El corte pasó 1243
+tests, el corpus de 180 casos y la aceptación con exactamente los dos rojos declarados en
+`meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`. Jam y LyraGASP siguieron en aceptación.
+El wheel 0.6.0 se instaló además en un entorno limpio: `oracle --version` publicó las tres versiones
+esperadas y el paquete expuso `oracle-mcp` como ejecutable.
 
 ---
 

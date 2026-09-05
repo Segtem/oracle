@@ -33,6 +33,12 @@ La versión es un dato, no una frase. Vive en `nucleo/version.py` como `VERSION_
 forma `MAYOR.MENOR` (dos enteros). Sin una regla que diga qué cambio sube qué parte, el número es
 decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 
+La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
+también cambia cuando cambia una herramienta sin cambiar el lenguaje. En el corte 0.6.0 sube sólo
+ese dato, de `0.5.0` a `0.6.0`: el paquete gana el servidor y el ejecutable MCP; el álgebra no gana
+ningún nodo y el lector no gana ninguna forma, por lo que `VERSION_ALGEBRA` queda en `0.6` y
+`VERSION_SINTAXIS` en `0.2`.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;

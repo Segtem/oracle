@@ -57,14 +57,14 @@ grep -rln "vendor/oracle" . --exclude-dir=vendor --exclude-dir=.git
 
 ```bash
 uv tool install oracle-metalenguaje
-oracle --version          # tiene que decir 0.5.0
+oracle --version          # tiene que decir 0.6.0
 ```
 
 **(b) Un entorno del proyecto** — para scripts propios que hacen `import oracle_metalenguaje` y se
 corren con el Python del sistema:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.5.0"
+uv venv && uv pip install "oracle-metalenguaje==0.6.0"
 .venv/bin/python tools/mi_script.py
 ```
 
@@ -74,7 +74,7 @@ directorio en el repo, pero es un artefacto con versión, no una copia de un rep
 acordarse de traer y que se puede editar a mano sin que nadie se entere.
 
 ```bash
-python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.5.0"
+python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.6.0"
 ```
 
 Medido el 2026-09-01 contra el subtree de Jam: **2,3 MB y 183 archivos**, contra 3,5 MB y 284. Y el
@@ -193,4 +193,4 @@ contemplado: leelo, no lo agregues a la sombra sin entenderlo.
 - **No poner en sombra una medida sin leer qué encontró.** La sombra existe para posponer un
   arreglo, no para no mirarlo.
 - **No fijar la versión con `>=`.** Un consumidor que se actualiza solo se pone rojo un martes por
-  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.5.0` y subí a propósito.
+  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.6.0` y subí a propósito.
