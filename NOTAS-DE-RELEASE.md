@@ -1,3 +1,85 @@
+# 0.6.0 — Oracle contesta por MCP, y la respuesta lleva sus premisas
+
+**En preparación.** Esta entrada se escribe mientras la versión se construye; los números son los
+medidos hasta acá y el corte todavía no se hizo.
+
+Oracle gana un servidor MCP de **sólo lectura** para que un agente pueda preguntarle qué mide un
+proyecto sin parsear salidas pensadas para personas. Tres herramientas y ninguna escribe:
+
+```
+oracle_catalogo_efectivo   ¿qué me obliga, y por qué?
+oracle_evaluar             ¿qué hace esta medida con esta evidencia?
+oracle_desafiar            ¿qué parte de este candidato no está fijada?
+```
+
+## Por qué NO hay una herramienta que guarde medidas
+
+La primera propuesta tenía una: guardaría una medida sólo si venía con evidencia que la pone en rojo
+y evidencia que la pone en verde. Se descartó por dos razones medidas, no de gusto.
+
+El corpus tiene 180 casos. **152 los cazó el arnés automático y 28 se le escaparon**, y de esos 28 la
+compuerta de escritura ataja **cero**: ninguno es «alguien guardó una medida sin probarla». El
+**85,7 %** son falsos verdes, y ocurren al LEER.
+
+Y las dos evidencias que la compuerta exigiría pueden haber sido fabricadas para repetir exactamente
+el error de la medida. Entonces no autoriza a llamarla buena — y guardar después de ella convierte
+evidencia insuficiente en apariencia de aprobación.
+
+## La regla que ordena todo el servidor
+
+**Un agente no tiene con qué dudar de la herramienta.** Si el servidor contesta
+`{"veredicto": "verde"}`, lo toma como verdad y sigue.
+
+> **Fallo cerrado y respuestas falsables. Nunca una lista vacía, nunca un verde suelto, nunca un
+> resumen opaco.** Un catálogo ilegible produce un error, no un cero.
+
+O, como quedó escrito en los fixtures de aceptación: **«no pude mirar» y «miré y no hay nada» son
+afirmaciones distintas y jamás deben viajar por el mismo canal.**
+
+Esa regla se validó antes de escribir una línea del servidor. Buscando cómo tenía que ser el MCP se
+encontró que `oracle contexto` le decía a los dos consumidores conocidos «LAS 0 MEDIDAS QUE YA
+EXISTEN» teniendo 41 y 9 medidas propias: un `except Exception: return []` se tragaba el fallo de
+cargar sus escalares, y el defecto vivió meses. Está arreglado, y `tools/contexto.py` entró al perfil
+de mutación —donde su primera medición dio 20 sobrevivientes de 30—.
+
+## Lo que ningún servidor puede prometer
+
+De esos 28 casos que el arnés no cazó, **14 quedan fuera del alcance de cualquier protocolo de
+herramientas**: fallas de runtime y señales, saltos causales del propio modelo, falsificación
+deliberada en disco, y deudas de diseño del lenguaje. Prometer más es vender humo. Lo que el
+servidor sí puede es erradicar la otra mitad.
+
+## Los dos rechazos que le enseñan algo a un agente
+
+```
+MEDIDA_NO_EFECTIVA   existe en una fuente seleccionada, pero su ámbito no obliga acá
+MEDIDA_DESCONOCIDA   no aparece en ninguna fuente seleccionada
+```
+
+«No existe» invita a crear un duplicado; «no tiene jurisdicción acá» enseña que el archivo ya tiene
+dueño. La distinción sólo es posible gracias al ámbito de 0.5.0.
+
+## El transporte no es el del LSP
+
+MCP sobre stdio usa **un objeto JSON-RPC UTF-8 por línea, sin cabeceras**. `tools/lsp.py` es buen
+precedente en cuatro decisiones —biblioteca estándar, despachador explícito, respuestas compactas,
+stdout reservado al protocolo— pero **su enmarcado `Content-Length` no se copia**. Y `stdout` queda
+sólo para el protocolo: una línea humana suelta corrompe el canal.
+
+## Verificación del servidor
+
+`tools/mcp.py` entró al perfil de mutación **el mismo día que se escribió**, antes de construir la
+segunda herramienta. Su primera medición fue la peor del proyecto: **154 mutantes, 60 sobrevivientes,
+53 minutos**. Dos cosas que aparecieron ahí no eran deuda cosmética:
+
+- **los códigos de error JSON-RPC no los fijaba nada** — el servidor podía devolver `-32601` donde
+  correspondía `-32602` y pasar la suite entera, y un cliente despacha por ese número;
+- **las anotaciones que el servidor publica sobre sí mismo** —`readOnlyHint`, `destructiveHint`—
+  tampoco. Todo el diseño se apoya en que es de sólo lectura, y esa promesa vivía en constantes que
+  nadie comprobaba.
+
+---
+
 # 0.5.0 — una medida declara dónde obliga, y «empaquetada» deja de significar «universal»
 
 Tres commits desde `0.4.0`. Suben la distribución, el álgebra y la sintaxis:

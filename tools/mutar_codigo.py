@@ -81,6 +81,9 @@ PRIORIDADES = {
     # perfil de `cli.py`. Acá agregaba ~40 s de subprocesos por mutante —la ronda pasaba de
     # minutos a horas— sin matar un mutante que los otros dos módulos no maten.
     "tools/manual.py": ("tests.test_manual", "tests.test_vocabulario"),
+    # `test_mcp` primero y solo: es suyo y es chico. Misma palanca que en `contexto.py`, que pasó de
+    # 858 a 56 segundos.
+    "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -169,8 +172,17 @@ PRIORIDADES = {
 # Es el mismo criterio que trajo a `manual.py`, con una diferencia que conviene no perder: aquél
 # entró por una afirmación que PODÍA romperse, y éste por una que YA se había roto y vivió meses sin
 # que nada la señalara, precisamente porque el archivo estaba fuera del perfil.
+# `mcp.py` entra el 2026-09-04, el mismo día que se escribe, y a propósito. La lección de
+# `contexto.py` es de esta misma sesión: un archivo fuera del perfil llegó a 20 sobrevivientes de 30
+# sin que nadie lo notara, y ahí vivió meses un `except` que le decía a un agente que su proyecto no
+# tenía medidas. Construir las otras dos herramientas del servidor sobre cimientos sin medir sería
+# repetirlo sabiendo.
+#
+# La afirmación que custodia está escrita en `PLAN-0.6.0-MCP.md`: que lo que el servidor le dice a
+# un agente sea lo que Oracle sabe. Nadie más la comprueba — un agente no tiene con qué dudar de la
+# respuesta, y ése es exactamente el motivo por el que el archivo existe.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "contexto.py", "corpus.py",
-                          "lsp.py", "manual.py", "medida.py")
+                          "lsp.py", "manual.py", "mcp.py", "medida.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:

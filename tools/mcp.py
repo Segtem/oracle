@@ -21,14 +21,16 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
-from nucleo.medida import relaciones_de_medida  # noqa: E402
+from nucleo.medida import Medida, MedidaMalDeclarada, relaciones_de_medida  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
                              ID_MEDIDA_RE, Proyecto, ProyectoInvalido,
                              catalogo_efectivo,
                              escalares_del_proyecto, macros_del_proyecto,
-                             presentar_ruta)
-from nucleo.version import VERSION_DISTRIBUCION  # noqa: E402
-from tools.medida import ejercicio_del_catalogo  # noqa: E402
+                             presentar_ruta, relaciones_del_proyecto)
+from nucleo.sintaxis import ErrorSintaxis, fragmento_de_error, leer_con_mapa  # noqa: E402
+from nucleo.version import (VERSION_DISTRIBUCION, VersionInvalida,  # noqa: E402
+                            exigir_sintaxis_compatible)
+from tools.medida import ejercicio_del_catalogo, relaciones_por_alias  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
 
 
@@ -128,7 +130,103 @@ HERRAMIENTA_CATALOGO = {
     },
 }
 
-HERRAMIENTAS = [HERRAMIENTA_CATALOGO]
+HERRAMIENTA_EVALUAR = {
+    "name": "oracle_evaluar",
+    "title": "Evaluar una medida en memoria",
+    "description": (
+        "Evalúa una medida efectiva por id o un texto de medida sin guardarlo contra una "
+        "evidencia JSON. Devuelve verde, rojo o sin_evidencia como estados distintos, además "
+        "del valor, umbral, testigos y alcance. Use esta herramienta para entender conducta "
+        "puntual; no prueba que la medida sea correcta."
+    ),
+    "annotations": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+    "inputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["medida", "evidencia"],
+        "properties": {
+            "medida": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["id"],
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$",
+                            },
+                        },
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["texto", "formato"],
+                        "properties": {
+                            "texto": {"type": "string"},
+                            "formato": {"enum": ["oracle", "json"]},
+                        },
+                    },
+                ],
+            },
+            "evidencia": {"$ref": "#/$defs/evidencia"},
+        },
+        "$defs": {
+            "evidencia": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                },
+            },
+        },
+    },
+    "outputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "esquema", "oracle_version", "proyecto", "entrada_sha256", "medida",
+            "estado", "valor", "umbral", "testigos", "testigos_omitidos", "alcance",
+            "alcance_derivado", "advertencias",
+        ],
+        "properties": {
+            "esquema": {"const": "oracle.mcp/evaluacion/v1"},
+            "oracle_version": {"type": "string"},
+            "proyecto": {"type": "string"},
+            "entrada_sha256": {
+                "type": "string", "pattern": "^[0-9a-f]{64}$",
+            },
+            "medida": {"type": "string"},
+            "estado": {"enum": ["verde", "rojo", "sin_evidencia"]},
+            "valor": {"type": "number"},
+            "umbral": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": ["operador", "valor", "segun", "porque"],
+                "properties": {
+                    "operador": {"type": "string"},
+                    "valor": {"type": ["string", "number", "boolean"]},
+                    "segun": {"type": "string"},
+                    "porque": {"type": "string"},
+                },
+            },
+            "testigos": {
+                "type": "array", "items": {"type": "object"}, "maxItems": 5,
+            },
+            "testigos_omitidos": {"type": "integer", "minimum": 0},
+            "alcance": {"type": "string"},
+            "alcance_derivado": {"type": "array", "items": {"type": "string"}},
+            "advertencias": {"type": "array", "items": {"type": "string"}},
+        },
+    },
+}
+
+HERRAMIENTAS = [HERRAMIENTA_CATALOGO, HERRAMIENTA_EVALUAR]
 
 
 @dataclass
@@ -290,6 +388,198 @@ def _validar_argumentos(argumentos) -> tuple[str, ...] | None:
     return tuple(ids)
 
 
+def _validar_evaluacion(argumentos) -> tuple[dict, dict]:
+    """Aplica la unión cerrada también en el servidor; el esquema del cliente no es autoridad."""
+    if not isinstance(argumentos, dict):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$: {_json_compacto(argumentos)}; se esperaba un objeto con medida y evidencia.",
+        )
+    extras = sorted(set(argumentos) - {"medida", "evidencia"})
+    if extras:
+        extra = extras[0]
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.{extra}: {_json_compacto(argumentos[extra])}; se esperaba ninguna propiedad "
+            "adicional.",
+        )
+    faltantes = [nombre for nombre in ("medida", "evidencia") if nombre not in argumentos]
+    if faltantes:
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$: falta {faltantes[0]}; se esperaban los campos medida y evidencia.",
+        )
+
+    especificacion = argumentos["medida"]
+    if not isinstance(especificacion, dict):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.medida: {_json_compacto(especificacion)}; se esperaba {{id}} o "
+            "{texto, formato}.",
+        )
+    campos = set(especificacion)
+    if campos == {"id"}:
+        mid = especificacion["id"]
+        if not isinstance(mid, str) or ID_MEDIDA_RE.fullmatch(mid) is None:
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.medida.id: {_json_compacto(mid)}; se esperaba un id dominio.nombre "
+                "portable.",
+            )
+    elif campos == {"texto", "formato"}:
+        texto = especificacion["texto"]
+        formato = especificacion["formato"]
+        if not isinstance(texto, str):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.medida.texto: {_json_compacto(texto)}; se esperaba texto.",
+            )
+        if formato not in ("oracle", "json") or not isinstance(formato, str):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.medida.formato: {_json_compacto(formato)}; se esperaba oracle o json.",
+            )
+    else:
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.medida: {_json_compacto(especificacion)}; se esperaba exactamente {{id}} o "
+            "{texto, formato}; archivo no está admitido.",
+        )
+
+    evidencia = argumentos["evidencia"]
+    if not isinstance(evidencia, dict):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.evidencia: {_json_compacto(evidencia)}; se esperaba un objeto de relaciones.",
+        )
+    for relacion, filas in evidencia.items():
+        if not isinstance(filas, list):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.evidencia.{relacion}: {_json_compacto(filas)}; se esperaba una lista de "
+                "filas objeto.",
+            )
+        for indice, fila in enumerate(filas):
+            if not isinstance(fila, dict):
+                raise ErrorHerramienta(
+                    "ARGUMENTOS_INVALIDOS",
+                    f"$.evidencia.{relacion}[{indice}]: {_json_compacto(fila)}; se esperaba "
+                    "una fila objeto.",
+                )
+    return especificacion, evidencia
+
+
+def _medida_en_memoria(especificacion: dict, macros) -> Medida:
+    """Carga sólo bytes recibidos; ni el modo JSON ni el modo Oracle aceptan una ruta lateral."""
+    texto = especificacion["texto"]
+    formato = especificacion["formato"]
+    try:
+        if formato == "json":
+            datos = json.loads(texto)
+        else:
+            lectura = leer_con_mapa(texto, macros=macros)
+            exigir_sintaxis_compatible(lectura.version)
+            datos = lectura.datos
+        return Medida.de_datos(datos, macros=macros)
+    except json.JSONDecodeError as e:
+        raise ErrorHerramienta(
+            "MEDIDA_INVALIDA", f"el texto JSON de la medida no se entiende: {e}.") from e
+    except ErrorSintaxis as e:
+        raise ErrorHerramienta(
+            "MEDIDA_INVALIDA",
+            f"el texto Oracle de la medida no se entiende: {fragmento_de_error(e, texto)}.",
+        ) from e
+    except (MedidaMalDeclarada, VersionInvalida) as e:
+        raise ErrorHerramienta("MEDIDA_INVALIDA", f"la medida no carga: {e}.") from e
+
+
+def _alcance_derivado_estricto(medida: Medida, declaradas: dict) -> list[str]:
+    """Cruza campos sólo después de que el cargador estricto validó todas las declaraciones."""
+    alias_de = relaciones_por_alias(medida.a_datos())
+    leidos: set[tuple[str, str]] = set()
+
+    def visitar(nodo) -> None:
+        if not isinstance(nodo, list) or not nodo:
+            return
+        if nodo[0] == "campo" and len(nodo) == 3:
+            leidos.add((alias_de.get(nodo[1], ""), nodo[2]))
+        for hijo in nodo[1:]:
+            visitar(hijo)
+
+    visitar(medida.a_datos())
+    lineas = []
+    for _alias, relacion in sorted(alias_de.items()):
+        declarada = declaradas.get(relacion)
+        if declarada is None:
+            lineas.append(f"    de `{relacion}` no se sabe: nadie declaró sus campos")
+            continue
+        nombres = {campo.nombre for campo in declarada.campos}
+        sin_leer = [campo.nombre for campo in declarada.campos
+                    if (relacion, campo.nombre) not in leidos]
+        sin_declarar = sorted(campo for rel, campo in leidos
+                              if rel == relacion and campo not in nombres)
+        if sin_declarar:
+            lineas.append(
+                f"    ⚠ de `{relacion}` LEE campos que la relación no declara: "
+                f"{', '.join(sin_declarar)}")
+        if sin_leer:
+            lineas.append(f"    de `{relacion}` NO lee: {', '.join(sin_leer)}")
+        elif not sin_declarar:
+            lineas.append(f"    de `{relacion}` lee todos los campos declarados")
+    return lineas
+
+
+def _entrada_sha256(medida: Medida, evidencia: dict) -> str:
+    """Firma la expansión canónica y los datos, de modo que un id mutable nunca sea la entrada."""
+    normalizada = {"medida": medida.a_datos(), "evidencia": evidencia}
+    return hashlib.sha256(_json_compacto(normalizada).encode("utf-8")).hexdigest()
+
+
+def _presentar_evaluacion(proy: Proyecto, medida: Medida, veredicto: dict,
+                          evidencia: dict, declaradas: dict) -> dict:
+    """Proyecta un Veredicto ya decidido; aquí no hay una segunda comparación con el umbral."""
+    if veredicto["sin_evidencia"]:
+        estado = "sin_evidencia"
+    elif veredicto["ok"]:
+        estado = "verde"
+    else:
+        estado = "rojo"
+
+    advertencias = []
+    if not declaradas:
+        advertencias.append(
+            "El proyecto no declara relaciones; alcance_derivado está vacío y no afirma que "
+            "la medida mire todos los campos.")
+    for relacion in relaciones_de_medida(medida):
+        if relacion not in medida.requiere and not evidencia.get(relacion):
+            advertencias.append(
+                f"La medida consume «{relacion}», pero no la declara en requiere y esa relación "
+                "vino vacía; se conserva el resultado del álgebra.")
+
+    testigos = veredicto["testigos"][:5]
+    return {
+        "esquema": "oracle.mcp/evaluacion/v1",
+        "oracle_version": VERSION_DISTRIBUCION,
+        "proyecto": str(proy.raiz.resolve()),
+        "entrada_sha256": _entrada_sha256(medida, evidencia),
+        "medida": veredicto["id"],
+        "estado": estado,
+        "valor": veredicto["valor"],
+        "umbral": {
+            "operador": medida.op,
+            "valor": medida.limite,
+            "segun": medida.segun,
+            "porque": veredicto["porque"],
+        },
+        "testigos": testigos,
+        "testigos_omitidos": len(veredicto["testigos"]) - len(testigos),
+        "alcance": veredicto["alcance"],
+        "alcance_derivado": (
+            _alcance_derivado_estricto(medida, declaradas) if declaradas else []),
+        "advertencias": advertencias,
+    }
+
+
 def _fijacion(mid: str, ejercicio) -> str:
     """Proyecta el juicio compartido; no vuelve a definir cuándo una medida está ejercitada."""
     if mid in ejercicio.heredadas:
@@ -415,7 +705,12 @@ def catalogo_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = F
     except ErrorHerramienta:
         raise
     except EscalaresNoConfiables as e:
-        archivo = str(e).split(" es código Python externo", 1)[0]
+        # `partition` y no `split(..., 1)`: con `maxsplit` el arnés genera un mutante `1 → 2` que
+        # NINGÚN test puede distinguir —el primer segmento es el mismo para cualquier maxsplit
+        # positivo, y acá se toma `[0]`—. Declararlo equivalente sería anotar un sitio que se puede
+        # borrar; `partition` no lleva la constante, así que el mutante deja de existir. El `[0]` sí
+        # queda medido: con un mensaje sin el separador, `[1]` devuelve vacío y el test lo nota.
+        archivo = str(e).partition(" es código Python externo")[0]
         raise ErrorHerramienta(
             "ESCALARES_NO_AUTORIZADAS",
             f"{archivo} es código externo; autorizalo en la configuración de arranque del "
@@ -441,6 +736,136 @@ def catalogo_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = F
     }
 
 
+def _rutas_de_evaluacion(proy: Proyecto, catalogo) -> list[Path]:
+    """Enumera los bytes locales leídos por evaluar, sin sumar corpus que esta operación no usa."""
+    entradas = set()
+    if catalogo is not None:
+        entradas.update(entrada.ruta.resolve() for entrada in catalogo.entradas.values())
+    for nombre in ("oracle.json", "escalares.py"):
+        ruta = proy.raiz / nombre
+        if ruta.exists() or ruta.is_symlink():
+            entradas.add(ruta.resolve())
+    for nombre in ("macros", "relaciones"):
+        entradas.update(
+            ruta.resolve() for ruta in _rutas_de_directorio(proy.raiz / nombre))
+    return sorted(entradas)
+
+
+def _huella_evaluacion(proy: Proyecto, catalogo) -> str:
+    """Firma rutas y bytes: una reescritura equivalente sigue siendo un cambio durante la llamada."""
+    huella = hashlib.sha256()
+    for ruta in _rutas_de_evaluacion(proy, catalogo):
+        try:
+            contenido = ruta.read_bytes()
+        except OSError as e:
+            raise OSError(f"no se pudo leer {ruta}: {e}") from e
+        huella.update(str(ruta).encode("utf-8") + b"\0" + contenido + b"\0")
+    return huella.hexdigest()
+
+
+def _huella_final_evaluacion(proy: Proyecto, refrescar) -> str:
+    """Hace comparable una rotura final con el estado válido que abrió la evaluación."""
+    try:
+        catalogo = refrescar()
+        return _huella_evaluacion(proy, catalogo)
+    except Exception as e:
+        marca = {"error": type(e).__name__, "mensaje": str(e)}
+        return hashlib.sha256(_json_compacto(marca).encode("utf-8")).hexdigest()
+
+
+@contextmanager
+def _evaluacion_estable(proy: Proyecto, catalogo, refrescar):
+    """Rechaza el objeto entero si alguno de los bytes consultados cambió mientras se armaba."""
+    inicial = _huella_evaluacion(proy, catalogo)
+    try:
+        yield
+    except Exception:
+        final = _huella_final_evaluacion(proy, refrescar)
+        if inicial != final:
+            raise ErrorHerramienta(
+                "PROYECTO_CAMBIO_DURANTE_LA_CONSULTA",
+                f"huella inicial {inicial} y final {final}; reintentá sobre un estado estable.",
+            )
+        raise
+    final = _huella_final_evaluacion(proy, refrescar)
+    if inicial != final:
+        raise ErrorHerramienta(
+            "PROYECTO_CAMBIO_DURANTE_LA_CONSULTA",
+            f"huella inicial {inicial} y final {final}; reintentá sobre un estado estable.",
+        )
+
+
+def evaluar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = False) -> dict:
+    """Evalúa por valor y falla cerrado; no traduce una carga rota a verde ni a lista vacía."""
+    especificacion, evidencia = _validar_evaluacion(argumentos)
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar_escalares):
+            macros = macros_del_proyecto(proy)
+            catalogo = None
+            if "id" in especificacion:
+                try:
+                    catalogo = catalogo_efectivo(proy, macros=macros)
+                except ProyectoInvalido:
+                    raise
+                except Exception as e:
+                    raise _error_catalogo(proy, e) from e
+            try:
+                declaradas = relaciones_del_proyecto(proy)
+            except ProyectoInvalido:
+                raise
+            except Exception as e:
+                raise ErrorHerramienta(
+                    "RELACIONES_INVALIDAS",
+                    f"no se pudo derivar el alcance: {e}. No se devolvió un alcance vacío.",
+                ) from e
+
+            def refrescar():
+                macros_actuales = macros_del_proyecto(proy)
+                relaciones_del_proyecto(proy)
+                if catalogo is None:
+                    return None
+                return catalogo_efectivo(proy, macros=macros_actuales)
+
+            with _evaluacion_estable(proy, catalogo, refrescar):
+                if catalogo is None:
+                    medida = _medida_en_memoria(especificacion, macros)
+                else:
+                    mid = especificacion["id"]
+                    if mid not in catalogo:
+                        raise _error_id_ausente(mid, proy, catalogo)
+                    medida = catalogo[mid]
+                try:
+                    veredicto = medida.evaluar(evidencia).a_dict()
+                except Exception as e:
+                    raise ErrorHerramienta(
+                        "EVALUACION_FALLIDA",
+                        f"«{medida.id}» no se pudo evaluar: {type(e).__name__}: {e}.",
+                    ) from e
+                contenido = _presentar_evaluacion(
+                    proy, medida, veredicto, evidencia, declaradas)
+    except ErrorHerramienta:
+        raise
+    except EscalaresNoConfiables as e:
+        archivo = str(e).partition(" es código Python externo")[0]
+        raise ErrorHerramienta(
+            "ESCALARES_NO_AUTORIZADAS",
+            f"{archivo} es código externo; autorizalo en la configuración de arranque del "
+            "servidor, no en esta llamada.",
+        ) from e
+    except EscalaresInvalidas as e:
+        raise _error_catalogo(proy, e) from e
+    except ProyectoInvalido as e:
+        raise ErrorHerramienta(
+            "PROYECTO_INVALIDO", f"{proy.raiz.resolve()}: {e}.",
+        ) from e
+    except Exception as e:
+        raise ErrorHerramienta(
+            "EVALUACION_FALLIDA",
+            f"la evaluación falló cerrada: {type(e).__name__}: {e}.",
+        ) from e
+    return contenido
+
+
 class Servidor:
     """Despachador explícito: una sesión no puede inventar métodos ni herramientas."""
 
@@ -462,10 +887,14 @@ class Servidor:
             "error": {"code": codigo, "message": texto},
         })
 
-    def _resultado_herramienta(self, mensaje: dict, argumentos) -> None:
+    def _resultado_herramienta(self, mensaje: dict, nombre: str, argumentos) -> None:
         try:
-            contenido = catalogo_para_mcp(
-                self.proy, argumentos, confiar_escalares=self.confiar_escalares)
+            if nombre == HERRAMIENTA_CATALOGO["name"]:
+                contenido = catalogo_para_mcp(
+                    self.proy, argumentos, confiar_escalares=self.confiar_escalares)
+            else:
+                contenido = evaluar_para_mcp(
+                    self.proy, argumentos, confiar_escalares=self.confiar_escalares)
         except ErrorHerramienta as e:
             self._respuesta(mensaje, {
                 "content": [{"type": "text", "text": str(e)}],
@@ -519,13 +948,14 @@ class Servidor:
             if (not isinstance(params, dict) or set(params) - {"name", "arguments"}
                     or not isinstance(params.get("name"), str)):
                 self._error(mensaje, -32602, "tools/call inválido: se esperaba name y arguments.")
-            elif params["name"] != HERRAMIENTA_CATALOGO["name"]:
+            elif params["name"] not in {herramienta["name"] for herramienta in HERRAMIENTAS}:
                 self._error(
                     mensaje, -32602,
                     f"tools/call inválido: herramienta desconocida: {params['name']}",
                 )
             else:
-                self._resultado_herramienta(mensaje, params.get("arguments", {}))
+                self._resultado_herramienta(
+                    mensaje, params["name"], params.get("arguments", {}))
         elif metodo == "shutdown" and es_pedido and self.estado in {
                 "inicializando", "inicializado"}:
             self.estado = "apagado"

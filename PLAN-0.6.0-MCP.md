@@ -1,6 +1,6 @@
 # Plan 0.6.0 — una herramienta MCP para escribir medidas
 
-**Fecha:** 2026-09-04 · **Estado:** propuesta, sin empezar
+**Fecha:** 2026-09-04 · **Estado:** en construcción desde el 2026-09-04
 **Sale de:** `estudios/MCP-FALLAS.md` (la evidencia) y `estudios/MCP-CONTRATO.md` (el contrato),
 escritos en paralelo y sin verse.
 
@@ -66,7 +66,7 @@ barata con la ronda de mutación cara, y sus resultados parecerían tener la mis
 aparece una herramienta de escritura o se parte el catálogo en índice y detalle, que es obligar al
 modelo a elegir entre dos nombres para una misma pregunta.
 
-### `oracle_catalogo_efectivo` — ¿qué me obliga, y por qué?
+### `oracle_catalogo_efectivo` — ¿qué me obliga, y por qué? — HECHA
 
 Sale de `catalogo_efectivo`, la función que 0.5.0 dejó llamable: aplica el filtro de ámbito. La
 capacidad nueva no es «listar medidas en JSON» —eso ya se hace por consola— sino **exponer la
@@ -110,8 +110,24 @@ verificado.
 
 Esa mutación no es hipotética: es el defecto que vivió en `tools/contexto.py` hasta hoy.
 
+## Lo aprendido construyéndolo
+
+**El transporte se construyó dos veces, por una instrucción mía equivocada.** Le pedí a codex que
+copiara el enmarcado de `tools/lsp.py` cuando este mismo contrato dice, literal: «No se debe copiar
+su enmarcado». Una instrucción directa pesa más que un documento, así que obedeció, y el servidor no
+habría hablado con ningún cliente real.
+
+Lo cazó el reparto: implementación y fixtures de aceptación escritos en paralelo a partir del mismo
+contrato, sin verse. **La divergencia no era ambigüedad del contrato sino error del que reparte el
+trabajo**, y eso es más útil que si hubiera sido al revés.
+
+**El servidor entró al perfil de mutación el mismo día que se escribió**, antes de la segunda
+herramienta. Su primera medición —154 mutantes, 60 sobrevivientes, 53 minutos— mostró que ni los
+códigos de error JSON-RPC ni las anotaciones de sólo lectura los fijaba nada. Construir las otras
+dos herramientas antes de medir habría apoyado todo sobre eso.
+
 ## Deuda que este plan hereda
 
-`tools/contexto.py` **no está en el perfil de mutación**, y por eso su `return []` silencioso vivió
-sin que nada lo señalara. Custodia la afirmación «esto es lo que hay en tu proyecto», sobre la que un
-agente construye todo lo demás. Entra en `HERRAMIENTAS_CUSTODIAS` o se explica por qué no.
+~~`tools/contexto.py` no está en el perfil de mutación~~ — **saldada el 2026-09-04**. Entró, midió
+20 sobrevivientes de 30 en 858 segundos, y quedó en 30/30 en 56. Fijarlo bien lo hizo quince veces
+más rápido sin tocar una línea de producción.
