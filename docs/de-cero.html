@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Una medida, de cero</title>
+<meta name="description" content="Un proyecto Oracle completo en 60 líneas: el caso antes que la medida, qué avisa la herramienta cuando falta algo, y por qué el catálogo base te pone en rojo el primer día.">
+<link rel="canonical" href="https://segtem.github.io/oracle/de-cero.html">
+<meta property="og:title" content="Una medida, de cero">
+<meta property="og:description" content="Nueve pasos con la salida real: init, el caso, la medida, y las dos medidas meta que te ponen en rojo antes de que termines.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --tinta: oklch(0.16 0 0);
+    --papel: oklch(0.96 0.004 95);
+    --acento: oklch(0.58 0.20 45);
+    --acento-claro: oklch(0.78 0.19 60);
+    --rojo: oklch(0.66 0.22 27);
+    --regla: 3px;
+    --mg: 44px;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta);
+    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
+    font-size: 17px; line-height: 1.5;
+  }
+  a { color: inherit; text-decoration: underline; text-underline-offset: 3px;
+      text-decoration-thickness: 1px; }
+  a:hover { color: var(--acento); }
+  code, pre { font-family: var(--mono); }
+
+  .fila { border-top: var(--regla) solid var(--tinta); }
+  .pad { padding: 34px var(--mg); }
+  .mono-eti { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em;
+              text-transform: uppercase; margin: 0 0 18px; color: oklch(0.45 0.01 95); }
+
+  /* ---- barra ---- */
+  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
+           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
+           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
+           text-transform: uppercase; flex-wrap: wrap; }
+  .barra a { text-decoration: none; }
+  .barra a:hover { color: var(--acento-claro); }
+  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
+  .ver { color: oklch(0.70 0.02 95); }
+
+  /* ---- hero ---- */
+  .hero { padding: 58px var(--mg) 44px; }
+  .hero h1 { font-family: var(--negra); font-size: clamp(52px, 11vw, 112px);
+             line-height: 0.88; letter-spacing: -0.038em; margin: 0 0 26px;
+             text-transform: uppercase; }
+  .hero h1 .no { color: var(--acento); }
+  .bajada { font-size: clamp(19px, 2.4vw, 25px); line-height: 1.38; font-weight: 500;
+            margin: 0 0 30px; max-width: 33ch; text-wrap: pretty; }
+  .acciones { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn { display: inline-block; background: var(--tinta); color: var(--papel);
+         padding: 15px 30px; font-family: var(--negra); font-size: 16px;
+         text-transform: uppercase; letter-spacing: 0.02em; text-decoration: none; }
+  .btn:hover { background: var(--acento); color: var(--papel); }
+  .btn-claro { background: var(--papel); color: var(--tinta);
+               box-shadow: inset 0 0 0 var(--regla) var(--tinta); }
+  .btn-claro:hover { background: var(--tinta); color: var(--papel); box-shadow: none; }
+  .susurro { font-family: var(--mono); font-size: 13px; }
+
+  /* ---- rejillas ---- */
+  .g12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
+  .g3  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .g5  { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .g4  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .c7 { grid-column: span 7; border-right: var(--regla) solid var(--tinta); }
+  .c5 { grid-column: span 5; }
+  .g3 > * + *, .g5 > * + *, .g4 > * + * { border-left: var(--regla) solid var(--tinta); }
+  .inverso { background: var(--acento); color: oklch(0.98 0.004 95); }
+  .oscuro  { background: var(--tinta); color: var(--papel); }
+
+  h2.grande { font-family: var(--negra); font-size: clamp(28px, 4vw, 38px);
+              line-height: 1.04; margin: 0 0 14px; text-transform: uppercase; }
+  h3.chica  { font-family: var(--negra); font-size: 24px; margin: 0 0 12px;
+              text-transform: uppercase; }
+  p.cuerpo { margin: 0 0 14px; }
+  p.cuerpo:last-child { margin-bottom: 0; }
+
+  /* ---- la medida anotada ---- */
+  .codigo { margin: 0; font-family: var(--mono); font-size: clamp(13px, 1.5vw, 16px);
+            line-height: 1.95; white-space: pre; overflow-x: auto; }
+  .kw { color: var(--acento-claro); font-weight: 700; }
+  .txt { color: oklch(0.80 0.11 150); }
+  .num { color: oklch(0.84 0.14 90); }
+
+  /* ---- el editor ---- */
+  .editor { border: 1px solid oklch(0.96 0.004 95 / 0.22); background: oklch(0.135 0 0);
+            width: fit-content; max-width: 100%; }
+  .pestana { display: flex; align-items: center; gap: 9px; padding: 9px 14px;
+             background: oklch(0.20 0 0);
+             border-bottom: 1px solid oklch(0.96 0.004 95 / 0.16);
+             font-family: var(--mono); font-size: 12px; color: oklch(0.80 0.01 95); }
+  .pestana .punto { width: 8px; height: 8px; border-radius: 50%;
+                    background: var(--acento-claro); flex: 0 0 auto; }
+  .lens { padding: 7px 14px 0 calc(14px + 3.2ch);
+          font-family: var(--mono); font-size: 12.5px; font-style: italic;
+          color: oklch(0.60 0.02 95); }
+  /* El bloque entero scrollea, no cada línea por su cuenta: con `overflow` en cada fila
+     la línea larga del `porque` se cortaba sola y el resto quedaba quieto. */
+  .lineas { display: grid; grid-template-columns: 3.2ch max-content;
+            padding: 2px 14px 14px; overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: oklch(0.40 0.01 95) transparent; }
+  .lineas::-webkit-scrollbar { height: 8px; }
+  .lineas::-webkit-scrollbar-track { background: transparent; }
+  .lineas::-webkit-scrollbar-thumb { background: oklch(0.40 0.01 95); border-radius: 4px; }
+  .lineas > .ln { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
+                  line-height: 1.85; color: oklch(0.44 0.01 95);
+                  text-align: right; padding-right: 1.4ch; user-select: none; }
+  .lineas > .cod { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
+                   line-height: 1.85; white-space: pre; color: oklch(0.92 0.008 95); }
+
+  .leyenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
+             gap: 14px 34px; margin: 26px 0 0; padding: 0; list-style: none; max-width: 96ch; }
+  .leyenda li { display: flex; gap: 12px; font-size: 15px; line-height: 1.45;
+                color: oklch(0.80 0.01 95); }
+  .leyenda .ancla { font-family: var(--mono); font-size: 12px; color: var(--acento-claro);
+                    flex: 0 0 auto; padding-top: 2px; min-width: 8.5ch; }
+  .leyenda strong { color: var(--papel); }
+  @media (max-width: 860px) { .leyenda { grid-template-columns: 1fr; } }
+
+  .veredicto { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 15px);
+               line-height: 1.9; white-space: pre; overflow-x: auto; margin: 0; }
+  .veredicto .rojo { color: var(--rojo); font-weight: 700; }
+
+  .cifra { font-family: var(--negra); font-size: 40px; margin: 0 0 4px;
+           color: var(--acento-claro); }
+  .nivel { font-family: var(--negra); font-size: 30px; margin: 0 0 10px; }
+
+  .aviso { display: flex; gap: 22px; align-items: flex-start; }
+  .aviso svg { flex: 0 0 auto; margin-top: 3px; }
+
+  .pie { background: var(--tinta); color: oklch(0.82 0.01 95); font-family: var(--mono);
+         font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
+         padding: 24px var(--mg); display: flex; gap: 34px; flex-wrap: wrap; }
+  .pie a:hover { color: var(--acento-claro); }
+
+  .cierre { display: flex; align-items: center; justify-content: space-between;
+            gap: 26px; flex-wrap: wrap; }
+
+  /* ---- teléfono: las rejillas se apilan y los bordes cambian de lado ---- */
+  @media (max-width: 860px) {
+    :root { --mg: 22px; --regla: 2px; }
+    body { font-size: 16px; }
+    .g12, .g3, .g5, .g4 { grid-template-columns: 1fr; }
+    .c7, .c5 { grid-column: auto; }
+    .c7 { border-right: 0; border-bottom: var(--regla) solid var(--tinta); }
+    .g3 > * + *, .g5 > * + *, .g4 > * + * {
+      border-left: 0; border-top: var(--regla) solid var(--tinta);
+    }
+    .g4.oscuro > * + * { border-top-color: oklch(0.96 0.004 95 / 0.28); }
+    .barra nav { gap: 16px; font-size: 11px; }
+    .btn { padding: 14px 22px; font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    a, .btn { transition: color .12s ease, background-color .12s ease; }
+  }
+</style>
+<style>
+  .lectura { max-width: 66ch; }
+  .lectura p + p { margin-top: 14px; }
+  /* El número del paso encoded como lo que es: una secuencia real, cada uno depende del anterior. */
+  .paso { display: grid; grid-template-columns: 88px minmax(0,1fr); }
+  .paso > .num { border-right: var(--regla) solid var(--tinta);
+                 padding: 34px 0 34px var(--mg);
+                 font-family: var(--negra); font-size: 34px; line-height: 1;
+                 font-variant-numeric: tabular-nums; }
+  .oscuro.paso > .num { border-right-color: var(--papel); }
+  .paso > .cont { padding: 34px var(--mg); min-width: 0; }
+  .term { margin: 18px 0 0; font-family: var(--mono);
+          font-size: clamp(12.5px, 1.35vw, 14.5px); line-height: 1.7;
+          white-space: pre; overflow-x: auto;
+          background: oklch(0.135 0 0); color: oklch(0.90 0.01 95);
+          border: 1px solid oklch(0.96 0.004 95 / 0.22); padding: 16px 18px; }
+  .term .p { color: var(--acento-claro); }
+  .term .ok { color: oklch(0.80 0.11 150); }
+  .term .no { color: oklch(0.72 0.17 30); }
+  .term .c  { color: oklch(0.58 0.02 95); }
+  .nota { margin: 16px 0 0; padding: 14px 0 0 20px; border-top: 1px solid oklch(0.16 0 0 / 0.22);
+          font-size: 15.5px; line-height: 1.5; position: relative; max-width: 64ch; }
+  .oscuro .nota { border-top-color: oklch(0.96 0.004 95 / 0.28); }
+  .nota::before { content: "→"; position: absolute; left: 0; font-family: var(--mono);
+                  color: var(--acento); }
+  .oscuro .nota::before { color: var(--acento-claro); }
+  .arbol { font-family: var(--mono); font-size: 14px; line-height: 1.85; margin: 18px 0 0;
+           white-space: pre; overflow-x: auto; }
+  @media (max-width: 760px) {
+    .paso { grid-template-columns: 1fr; }
+    .paso > .num { border-right: 0; padding: 24px var(--mg) 0; }
+    .paso > .cont { padding-top: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="barra">
+  <div style="display:flex; align-items:center; gap:14px;">
+    <strong><a href="./">oracle</a></strong><span class="ver">0.6.0</span>
+  </div>
+  <nav>
+    <a href="./">inicio</a>
+    <a href="donde-entra.html">dónde entra</a>
+    <a href="manual.html">manual</a>
+    <a href="https://github.com/Segtem/oracle">github</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <p class="mono-eti">paso a paso · con la salida real</p>
+  <h1>Una medida,<br><span class="no">de cero</span></h1>
+  <p class="bajada">Nueve pasos hasta un proyecto verde. Al final son 60 líneas, y dos de las
+  cosas que vas a ver son la herramienta corrigiéndote.</p>
+  <p class="susurro">Todo lo que sigue es la salida textual de correr esto con 0.6.0.</p>
+</section>
+
+<section class="fila paso">
+  <div class="num">1</div>
+  <div class="cont">
+    <h2 class="grande">Instalar</h2>
+    <div class="term">$ uv tool install oracle-metalenguaje
+$ oracle --version
+<span class="c">oracle 0.6.0
+  álgebra:  0.6   (qué SIGNIFICA una medida)
+  sintaxis: 0.2   (cómo se ESCRIBE)</span></div>
+    <p class="nota">Cero dependencias. Son dos versiones distintas a propósito: lo que una medida
+    significa no envejece igual que cómo se escribe.</p>
+  </div>
+</section>
+
+<section class="fila paso">
+  <div class="num">2</div>
+  <div class="cont">
+    <h2 class="grande">Crear el proyecto</h2>
+    <div class="term">$ oracle proyecto init
+<span class="c">Proyecto Oracle inicializado:
+  · catalogos/   · corpus/   · diferencial/   · oracle.json</span></div>
+    <p class="nota">Desde este momento <strong>34 medidas ya te obligan</strong>. Vienen del
+    catálogo base y juzgan cómo escribís las tuyas: que declaren su umbral, de dónde salió el
+    número, y qué no miran. No son 57 —ése es el catálogo entero— porque 20 sólo obligan a Oracle
+    y no viajan a tu proyecto.</p>
+  </div>
+</section>
+
+<section class="fila paso oscuro">
+  <div class="num">3</div>
+  <div class="cont">
+    <h2 class="grande">El caso, antes<br>que la medida</h2>
+    <div class="lectura">
+      <p class="cuerpo">Es el orden que importa y el que cuesta respetar. Si la medida se escribe
+      primero, el caso termina diciendo lo que la medida ya hace: no la prueba, la describe.</p>
+      <p class="cuerpo">El defecto de este ejemplo es el problema del lazo cerrado en miniatura:
+      <strong>una prueba que pasó sin afirmar nada.</strong> Pasa igual con la función borrada.</p>
+    </div>
+    <div class="term">$ oracle caso nuevo pruebas/001-paso-sin-afirmar
+
+<span class="p">caso</span> 001-paso-sin-afirmar:
+    procedencia: construida
+    etiqueta: <span class="no">falso_verde</span>
+    sintoma:
+        La suite reportó 3 de 3 en verde. Una no tenía ninguna aserción:
+        se llamó a la función y nadie comparó el resultado.
+    como_se_detecto: persona
+    medida: pruebas.ninguna_pasa_sin_afirmar
+    evidencia:
+        prueba: nombre, aserciones, paso
+            "suma_dos_positivos", 2, true
+            "suma_con_cero",      1, true
+            "suma_negativos",     0, true</div>
+    <p class="nota">La medida que el caso reclama <em>todavía no existe</em>, y está bien: el caso
+    describe el defecto, no la regla.</p>
+  </div>
+</section>
+
+<section class="fila paso">
+  <div class="num">4</div>
+  <div class="cont">
+    <h2 class="grande">Ahora sí, la medida</h2>
+    <div class="term">$ oracle nueva pruebas.ninguna_pasa_sin_afirmar
+
+<span class="p">ninguno</span> pruebas.ninguna_pasa_sin_afirmar:
+    <span class="p">de</span> prueba p
+    <span class="p">donde</span> p.paso == true <span class="p">y</span> p.aserciones == 0
+    <span class="p">umbral</span> &lt;= 0 <span class="p">segun</span> contrato <span class="p">porque</span> "una prueba sin aserciones pasa
+        con la funcion borrada: no distingue el codigo que mide del
+        que no existe, asi que su verde no es evidencia de nada"
+    <span class="p">ambito</span> universal
+    <span class="p">alcance</span> "cuenta pruebas que pasaron con cero aserciones. NO ve si
+        las aserciones que hay comprueban lo correcto, ni si la prueba
+        cubre el caso que importa, ni una asercion siempre verdadera"</div>
+    <p class="nota">El <code>donde</code> selecciona lo que <strong>ofende</strong>, no lo que está
+    bien. Y el <code>alcance</code> es obligatorio: sin él, un verde se lee como «está todo bien»,
+    y ninguna medida ve todo.</p>
+  </div>
+</section>
+
+<section class="fila paso oscuro">
+  <div class="num">5</div>
+  <div class="cont">
+    <h2 class="grande">La herramienta<br>te corrige</h2>
+    <div class="term">$ oracle revisar catalogos/pruebas/pruebas.ninguna_pasa_sin_afirmar.oracle
+
+<span class="ok">✓ bien declarada</span>   (forma: ninguno)
+
+contra la evidencia que hay: 0 verde · 1 rojo · 0 error
+
+  se pone roja con «001-paso-sin-afirmar»:
+    <span class="no">✗ pruebas.ninguna_pasa_sin_afirmar        1 (&lt;= 0)</span>
+      → p=suma_negativos
+
+<span class="no">⚠ nunca se pone verde.</span> Probablemente la condición esté invertida: el
+  `donde` tiene que seleccionar lo que OFENDE, no lo que está bien.</div>
+    <p class="nota">La medida está bien: lo que falta es un caso verde. Sin él nadie comprobó que
+    la medida sepa <em>no</em> dispararse — y una regla que siempre da rojo tampoco mide.</p>
+  </div>
+</section>
+
+<section class="fila paso">
+  <div class="num">6</div>
+  <div class="cont">
+    <h2 class="grande">El caso verde,<br>que no sobra</h2>
+    <div class="term"><span class="p">caso</span> 002-todas-afirman:
+    procedencia: observada
+    etiqueta: <span class="ok">verde_correcto</span>
+    sintoma:
+        Ninguno. Es la salida real de `pytest -q` sobre el repo de
+        ejemplo, con el conteo de aserciones de cada prueba.
+    como_se_detecto: observacion
+    evidencia:
+        prueba: nombre, aserciones, paso
+            "suma_dos_positivos",   2, true
+            "suma_con_cero",        1, true
+            "resta_sin_implementar", 0, false</div>
+    <p class="nota">La tercera fila tiene cero aserciones y <strong>no ofende</strong>: falló, y eso
+    ya se ve. Lo que la medida persigue es el par «pasó <em>y</em> no afirmó».</p>
+  </div>
+</section>
+
+<section class="fila paso oscuro">
+  <div class="num">7</div>
+  <div class="cont">
+    <h2 class="grande">El catálogo base<br>te pone en rojo</h2>
+    <div class="term">$ oracle test
+
+<span class="no">ACEPTACIÓN ✗ — 2 problema(s)</span>
+  · meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
+      → casos: 2, no_observados: 2
+  · meta.toda_cantidad_comparada_tiene_unidad_derivable
+      → unidad: 'sin_declarar', es_derivable: False
+
+mutantes de medida: 11 · murieron 11 · <span class="ok">sobrevivieron 0</span>
+
+<span class="no">VEREDICTO: ROJO (falló: aceptación)</span></div>
+    <p class="nota">La mutación ya está en cero: los dos casos fijan la medida. Lo que falta es lo
+    que el catálogo base exige de cualquiera — que al menos un caso venga de una corrida real, y
+    que la cantidad que comparás tenga unidad declarada.</p>
+  </div>
+</section>
+
+<section class="fila paso">
+  <div class="num">8</div>
+  <div class="cont">
+    <h2 class="grande">Declarar de qué<br>están hechos los hechos</h2>
+    <div class="term">$ cat relaciones/prueba.json
+
+["relacion", "prueba",
+  ["campos",
+    ["campo", "nombre",     "texto",    "sin_unidad"],
+    ["campo", "aserciones", "entero",   "aserciones"],
+    ["campo", "paso",       "booleano", "sin_unidad"]],
+  ["alcance", "lee lo que el runner reportó de cada prueba. NO ve qué
+    comprueba cada aserción, ni si la prueba cubre el caso que importa"]]</div>
+    <p class="nota">Comparar <code>p.aserciones == 0</code> sin decir que se miden aserciones es
+    comparar un número con otro número. La relación también declara su punto ciego: el sensor
+    tampoco ve todo.</p>
+  </div>
+</section>
+
+<section class="fila paso inverso">
+  <div class="num">9</div>
+  <div class="cont">
+    <h2 class="grande">Verde</h2>
+    <div class="term">$ oracle test
+
+<span class="ok">ACEPTACIÓN ✓</span> — 1 defectos en rojo, 1 verdes correctos,
+             0 huecos declarados sin tapar
+
+mutantes de medida: 11 · murieron 11 · <span class="ok">sobrevivieron 0</span>
+detecciones evaluadas (mutante × caso): 22
+
+  ✓ meta.toda_medida_esta_ejercitada        0 (&lt;= 0)
+  ✓ meta.toda_medida_esta_fijada            0 (&lt;= 0)
+
+<span class="ok">VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</span></div>
+    <div class="arbol">catalogos/pruebas/pruebas.ninguna_pasa_sin_afirmar.oracle
+corpus/pruebas/001-paso-sin-afirmar.caso
+corpus/pruebas/002-todas-afirman.caso
+relaciones/prueba.json
+oracle.json                                    <span style="opacity:.7">60 líneas en total</span></div>
+  </div>
+</section>
+
+<section class="fila pad">
+  <p class="mono-eti">lo que este verde sí dice</p>
+  <h2 class="grande">Y lo que no</h2>
+  <div class="lectura">
+    <p class="cuerpo"><strong>Dice</strong> que hay una regla escrita, que un defecto real la pone
+    en rojo, que un caso sano la deja en verde, y que los once mutantes de esa regla mueren contra
+    esos dos casos: no se puede reescribir la medida de otra forma sin que el corpus lo note.</p>
+    <p class="cuerpo"><strong>No dice</strong> que tus pruebas estén bien. La medida cuenta
+    aserciones; una aserción que siempre es verdadera cuenta igual que una que discrimina. Eso está
+    escrito en su <code>alcance</code>, y es lo primero que hay que leer de una medida que no
+    escribiste.</p>
+    <p class="cuerpo">El siguiente paso real no es escribir más medidas: es conectar el sensor.
+    Mientras la evidencia se escriba a mano, esto prueba que el catálogo es coherente — no que tu
+    proyecto esté bien.</p>
+  </div>
+</section>
+
+<footer class="fila pad" style="display:flex; gap:24px; flex-wrap:wrap;
+        font-family:var(--mono); font-size:13px;">
+  <a href="./">inicio</a>
+  <a href="donde-entra.html">dónde entra</a>
+  <a href="manual.html">manual</a>
+  <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
+  <span>0.6.0</span>
+</footer>
+
+</body>
+</html>
