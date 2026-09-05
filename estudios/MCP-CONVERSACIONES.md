@@ -1,16 +1,16 @@
-# Fixtures de aceptación del servidor MCP de Oracle: conversaciones JSON-RPC para `oracle_catalogo_efectivo`
+# Fixtures de aceptación del servidor MCP de Oracle: conversaciones JSON-RPC para `oracle_catalogo_efectivo`, `oracle_evaluar` y `oracle_desafiar`
 
-**Fecha:** 2026-09-04  
-**Estado:** especificación ejecutable previa a la implementación de `tools/mcp.py`  
+**Fecha:** 2026-09-05  
+**Estado:** fixtures de aceptación ejecutables y verificados contra el servidor implementado en `tools/mcp.py`  
 **Autoridad normativa:** [`estudios/MCP-CONTRATO.md`](MCP-CONTRATO.md), [`PLAN-0.6.0-MCP.md`](../PLAN-0.6.0-MCP.md) y [`estudios/MCP-FALLAS.md`](MCP-FALLAS.md)
 
 ---
 
 ## 1. Naturaleza y propósito de estos fixtures
 
-Este documento constituye la **especificación ejecutable** de la herramienta `oracle_catalogo_efectivo` del servidor MCP de Oracle, escrita de forma previa e independiente a su implementación en `tools/mcp.py`.
+Este documento constituye la **especificación ejecutable** de las tres herramientas normativas del servidor MCP de Oracle (`oracle_catalogo_efectivo`, `oracle_evaluar` y `oracle_desafiar`), consolidada y comprobada contra el servidor en ejecución `tools/mcp.py`.
 
-El objetivo es eliminar la ambigüedad antes de que el código exista. Si la implementación que codex desarrolla en paralelo discrepa con los bytes aquí fijados, la discrepancia revelará una indeterminación en el contrato normativo, no un simple desacuerdo estilístico.
+El objetivo es eliminar toda ambigüedad en el cable. Cada fixture documenta los bytes exactos transmitidos por stdin, la respuesta devuelta por stdout y la justificación técnica, semántica y epistémica que fundamenta por qué esa respuesta es la única admisible.
 
 ### Principios rectores del transporte y la semántica
 
@@ -1146,18 +1146,604 @@ Un proyecto consumidor dispone de funciones escalares propias definidas en un ar
 
 ---
 
-## 9. Matriz de Reconciliación de Aceptación
+## 9. Conversación 8: `oracle_evaluar` en Verde (Evaluación Favorable sin Testigos)
 
-Esta tabla consolida las expectativas que la suite de tests de `tools/mcp.py` debe comprobar de manera estricta:
+**Contexto de ejecución:**  
+El servidor corre fijado sobre el repositorio propio de Oracle:  
+`oracle-mcp --proyecto /home/workstation/Dev/oracle`
 
-| Caso de prueba / Conversación | Entrada / Argumentos | Salida esperada / Código | Estado MCP | `structuredContent` | Aserción crítica de falsabilidad |
-|---|---|---|---|---|---|
-| **Handshake: initialize** | `initialize` con protocolo `2025-11-25` | `serverInfo.name == "oracle-mcp"`, `version == "0.5.0"`, `capabilities == {"tools": {}}` | Éxito | No | Solo anuncia herramientas; no anuncia resources, prompts ni sampling. |
-| **Handshake: tools/list** | `tools/list` sin parámetros | Arreglo de 3 herramientas fijas con anotaciones | Éxito | No | Lista inmutable de 3 herramientas; esquemas con `additionalProperties: false`. |
-| **Índice compacto** | `oracle_catalogo_efectivo` con `{}` | `total == 57`, `detalle == false`, 57 medidas ordenadas | `isError: false` | Sí | `total` es el catálogo entero; filas sólo con `id`, `origen`, `fijacion`. |
-| **Detalle selectivo** | `oracle_catalogo_efectivo` con `ids: ["..."]` | `total == 57`, `detalle == true`, medidas pedidas | `isError: false` | Sí | `total` no cambia; todos los campos de auditoría presentes y ordenados. |
-| **Lista vacía rechazada** | `oracle_catalogo_efectivo` con `ids: []` | `ARGUMENTOS_INVALIDOS` | `isError: true` | No | Rechazo estricto de esquema; no crea tercer modo. |
-| **Medida no efectiva** | Id ajeno `del_origen` en un consumidor | `MEDIDA_NO_EFECTIVA` | `isError: true` | No | Distingue presencia sin jurisdicción; evita duplicados. |
-| **Medida desconocida** | Id inexistente en toda fuente | `MEDIDA_DESCONOCIDA` | `isError: true` | No | Distingue id ausente; aconseja consultar sin ids. |
-| **Catálogo roto** | Sintaxis inválida en archivo `.oracle` | `CATALOGO_INVALIDO` | `isError: true` | No | Fallo cerrado: **nunca** devuelve `medidas: []` ni `total: 0`. |
-| **Escalares sin autorizar** | Proyecto con `escalares.py` sin confianza | `ESCALARES_NO_AUTORIZADAS` | `isError: true` | No | Bloqueo de seguridad: la llamada no puede auto-confiarse. |
+El cliente evalúa puntualmente la medida efectiva `proceso.modulo_con_consumidor` pasando por valor una evidencia donde el módulo `"nucleo.medida"` tiene un importador real y comprobado que no es test.
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":10,"method":"tools/call","params":{"name":"oracle_evaluar","arguments":{"medida":{"id":"proceso.modulo_con_consumidor"},"evidencia":{"modulo":[{"nombre":"nucleo.medida"}],"importa":[{"b":"nucleo.medida","es_test":false}]}}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 10,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"advertencias\":[],\"alcance\":\"cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama\",\"alcance_derivado\":[\"    de `importa` no se sabe: nadie declaró sus campos\",\"    de `modulo` no se sabe: nadie declaró sus campos\"],\"entrada_sha256\":\"ab0a1aef8c73170e25036b40539eb7aae18325d54a0a55914d6c0c17d8f16495\",\"esquema\":\"oracle.mcp/evaluacion/v1\",\"estado\":\"verde\",\"medida\":\"proceso.modulo_con_consumidor\",\"oracle_version\":\"0.5.0\",\"proyecto\":\"/home/workstation/Dev/oracle\",\"testigos\":[],\"testigos_omitidos\":0,\"umbral\":{\"operador\":\"<=\",\"porque\":\"un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite\",\"segun\":\"contrato\",\"valor\":0},\"valor\":0}"
+      }
+    ],
+    "structuredContent": {
+      "esquema": "oracle.mcp/evaluacion/v1",
+      "oracle_version": "0.5.0",
+      "proyecto": "/home/workstation/Dev/oracle",
+      "entrada_sha256": "ab0a1aef8c73170e25036b40539eb7aae18325d54a0a55914d6c0c17d8f16495",
+      "medida": "proceso.modulo_con_consumidor",
+      "estado": "verde",
+      "valor": 0,
+      "umbral": {
+        "operador": "<=",
+        "valor": 0,
+        "segun": "contrato",
+        "porque": "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"
+      },
+      "testigos": [],
+      "testigos_omitidos": 0,
+      "alcance": "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama",
+      "alcance_derivado": [
+        "    de `importa` no se sabe: nadie declaró sus campos",
+        "    de `modulo` no se sabe: nadie declaró sus campos"
+      ],
+      "advertencias": []
+    },
+    "isError": false
+  }
+}
+```
+
+### POR QUÉ esa respuesta y no otra:
+
+1. **Evaluación puntual sin efectos secundarios:** La herramienta evalúa en memoria el estado de los datos aportados por valor contra la regla identificada. No escribe archivos de evidencia ni muta el estado del repositorio.
+2. **Conformidad con el umbral (`estado: "verde"`):** La regla suma los importadores donde `i.b == m.nombre y i.es_test == false`. Para `"nucleo.medida"` encuentra 1 importador real. El filtro `donde importadores_reales == 0` descarta la fila por no ser infractora. El conteo final de módulos infractores es `0`, que satisface la cuádrupla de umbral `<= 0`. Por tanto, `ok` es verdadero y el servidor proyecta el veredicto unívocamente a `"estado": "verde"`.
+3. **Ausencia limpia de testigos:** Al cumplirse el umbral, no existen registros infractores que publicar: `testigos` es `[]` y `testigos_omitidos` es `0`.
+4. **Huella criptográfica de entrada (`entrada_sha256`):** Se calcula sobre la forma canónica de la medida combinada con la evidencia serializada (`_entrada_sha256`). Esto garantiza trazabilidad determinista: si la evidencia o la definición de la medida cambian, la huella varía inmediatamente.
+5. **Declaración honesta de alcances (`alcance` y `alcance_derivado`):** El servidor entrega el punto ciego declarado por el autor en `alcance`, e inspecciona las declaraciones del proyecto para advertir en `alcance_derivado` que nadie declaró formalmente los campos de `importa` y `modulo`. Nunca finge una cobertura de campos que no ha sido auditada.
+
+---
+
+## 10. Conversación 9: `oracle_evaluar` en Rojo con Testigos (Acotación de Muestra)
+
+**Contexto de ejecución:**  
+El servidor corre fijado sobre el repositorio propio de Oracle:  
+`oracle-mcp --proyecto /home/workstation/Dev/oracle`
+
+El cliente evalúa `proceso.modulo_con_consumidor` contra una evidencia donde se presentan 7 módulos (`m1` a `m7`), pero la relación `importa` sólo registra un importador para un módulo ajeno (`"otro"`). Por ende, los 7 módulos carecen por completo de consumidores reales.
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":11,"method":"tools/call","params":{"name":"oracle_evaluar","arguments":{"medida":{"id":"proceso.modulo_con_consumidor"},"evidencia":{"modulo":[{"nombre":"m1"},{"nombre":"m2"},{"nombre":"m3"},{"nombre":"m4"},{"nombre":"m5"},{"nombre":"m6"},{"nombre":"m7"}],"importa":[{"b":"otro","es_test":false}]}}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 11,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"advertencias\":[],\"alcance\":\"cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama\",\"alcance_derivado\":[\"    de `importa` no se sabe: nadie declaró sus campos\",\"    de `modulo` no se sabe: nadie declaró sus campos\"],\"entrada_sha256\":\"f7175db977a15bb81fae02e9092a3c64fa372973b052aa067997a99639133601\",\"esquema\":\"oracle.mcp/evaluacion/v1\",\"estado\":\"rojo\",\"medida\":\"proceso.modulo_con_consumidor\",\"oracle_version\":\"0.5.0\",\"proyecto\":\"/home/workstation/Dev/oracle\",\"testigos\":[{\"_\":{\"importadores_reales\":0,\"modulo\":\"m1\"}},{\"_\":{\"importadores_reales\":0,\"modulo\":\"m2\"}},{\"_\":{\"importadores_reales\":0,\"modulo\":\"m3\"}},{\"_\":{\"importadores_reales\":0,\"modulo\":\"m4\"}},{\"_\":{\"importadores_reales\":0,\"modulo\":\"m5\"}}],\"testigos_omitidos\":2,\"umbral\":{\"operador\":\"<=\",\"porque\":\"un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite\",\"segun\":\"contrato\",\"valor\":0},\"valor\":7}"
+      }
+    ],
+    "structuredContent": {
+      "esquema": "oracle.mcp/evaluacion/v1",
+      "oracle_version": "0.5.0",
+      "proyecto": "/home/workstation/Dev/oracle",
+      "entrada_sha256": "f7175db977a15bb81fae02e9092a3c64fa372973b052aa067997a99639133601",
+      "medida": "proceso.modulo_con_consumidor",
+      "estado": "rojo",
+      "valor": 7,
+      "umbral": {
+        "operador": "<=",
+        "valor": 0,
+        "segun": "contrato",
+        "porque": "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"
+      },
+      "testigos": [
+        {
+          "_": {
+            "importadores_reales": 0,
+            "modulo": "m1"
+          }
+        },
+        {
+          "_": {
+            "importadores_reales": 0,
+            "modulo": "m2"
+          }
+        },
+        {
+          "_": {
+            "importadores_reales": 0,
+            "modulo": "m3"
+          }
+        },
+        {
+          "_": {
+            "importadores_reales": 0,
+            "modulo": "m4"
+          }
+        },
+        {
+          "_": {
+            "importadores_reales": 0,
+            "modulo": "m5"
+          }
+        }
+      ],
+      "testigos_omitidos": 2,
+      "alcance": "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama",
+      "alcance_derivado": [
+        "    de `importa` no se sabe: nadie declaró sus campos",
+        "    de `modulo` no se sabe: nadie declaró sus campos"
+      ],
+      "advertencias": []
+    },
+    "isError": false
+  }
+}
+```
+
+### POR QUÉ esa respuesta y no otra:
+
+1. **Afirmación fáctica del defecto (`estado: "rojo"`):** El estado `rojo` afirma categóricamente que la evidencia examinada contradice el umbral de la regla. En este caso, el valor observado es `7`, que excede el límite máximo tolerable `<= 0`.
+2. **Acotación normativa de testigos (`maxItems: 5`):** Por especificación de contrato, el servidor limita el arreglo `testigos` a un máximo de 5 elementos. Un agente de IA que recibe miles de testigos en un resultado satura su ventana de contexto y diluye su capacidad de razonamiento. Cinco testigos alcanzan holgadamente para comprender la forma concreta y material del defecto.
+3. **Conteo honesto de omisiones (`testigos_omitidos: 2`):** El servidor no oculta que la muestra fue truncada. Al reportar `testigos_omitidos: 2` y `valor: 7`, el modelo comprende de inmediato que existen 7 transgresiones en total y que se le exhiben las primeras 5.
+4. **Estructura transparente del testigo:** Cada testigo en la lista expone exactamente los campos agrupados y calculados (`{"modulo": "m1", "importadores_reales": 0}`), brindando evidencia comprobable e irrefutable de la infracción.
+5. **No es un error de transporte (`isError: false`):** Que una medida resulte `rojo` no constituye una falla del servidor MCP. La operación se ejecutó limpiamente y la respuesta viaja como resultado estructurado normal, con `isError: false`.
+
+---
+
+## 11. Conversación 10: `oracle_evaluar` en `sin_evidencia` (Falta de Relación Obligatoria por `requiere`)
+
+**Contexto de ejecución:**  
+El servidor corre fijado sobre el repositorio propio de Oracle:  
+`oracle-mcp --proyecto /home/workstation/Dev/oracle`
+
+El cliente evalúa `proceso.modulo_con_consumidor`. La medida declara expresamente `requiere importa`. Sin embargo, el cliente proporciona la relación `modulo` pero omite totalmente la relación `importa` en su objeto de evidencia.
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":12,"method":"tools/call","params":{"name":"oracle_evaluar","arguments":{"medida":{"id":"proceso.modulo_con_consumidor"},"evidencia":{"modulo":[{"nombre":"nucleo.medida"}]}}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 12,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"advertencias\":[],\"alcance\":\"cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama\",\"alcance_derivado\":[\"    de `importa` no se sabe: nadie declaró sus campos\",\"    de `modulo` no se sabe: nadie declaró sus campos\"],\"entrada_sha256\":\"27db1082a343e4efc1aa00d4118eec74afbc0bc3f5e749504d23c46e257fbad4\",\"esquema\":\"oracle.mcp/evaluacion/v1\",\"estado\":\"sin_evidencia\",\"medida\":\"proceso.modulo_con_consumidor\",\"oracle_version\":\"0.5.0\",\"proyecto\":\"/home/workstation/Dev/oracle\",\"testigos\":[],\"testigos_omitidos\":0,\"umbral\":{\"operador\":\"<=\",\"porque\":\"un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite\",\"segun\":\"contrato\",\"valor\":0},\"valor\":0}"
+      }
+    ],
+    "structuredContent": {
+      "esquema": "oracle.mcp/evaluacion/v1",
+      "oracle_version": "0.5.0",
+      "proyecto": "/home/workstation/Dev/oracle",
+      "entrada_sha256": "27db1082a343e4efc1aa00d4118eec74afbc0bc3f5e749504d23c46e257fbad4",
+      "medida": "proceso.modulo_con_consumidor",
+      "estado": "sin_evidencia",
+      "valor": 0,
+      "umbral": {
+        "operador": "<=",
+        "valor": 0,
+        "segun": "contrato",
+        "porque": "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite"
+      },
+      "testigos": [],
+      "testigos_omitidos": 0,
+      "alcance": "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama",
+      "alcance_derivado": [
+        "    de `importa` no se sabe: nadie declaró sus campos",
+        "    de `modulo` no se sabe: nadie declaró sus campos"
+      ],
+      "advertencias": []
+    },
+    "isError": false
+  }
+}
+```
+
+### POR QUÉ este es el fixture más crítico de `oracle_evaluar`:
+
+1. **La distinción ontológica fundamental entre «no pude mirar» y «miré y falló»:**  
+   Colapsar `sin_evidencia` en `rojo` o en `verde` es el defecto histórico que ya costó un arreglo real en `tools/contexto.py`.
+   - Si el servidor respondiera `rojo`, le estaría afirmando al agente que los módulos de su software están huérfanos y violan la política arquitectónica, cuando en realidad lo que ocurrió fue un déficit de instrumentación: nadie extrajo la tabla de dependencias (`importa`). El agente intentaría "remediar" código que no estaba roto.
+   - Si el servidor respondiera `verde` (como sucedería por defecto en un álgebra laxa donde una relación vacía produce 0 filas y 0 <= 0), crearía un **falso verde por vaciedad**: un proyecto sin evidencias pasaría como inmaculado.
+2. **La semántica estricta de la cláusula `requiere`:**  
+   `proceso.modulo_con_consumidor` declara formalmente `requiere importa`. Esta cláusula instruye al álgebra de que la presencia de datos en `importa` es una precondición obligatoria para emitir juicio. Al omitirse `importa` (o venir como lista vacía), el álgebra emite `sin_evidencia: true`.
+3. **El estado ternario en el esquema (`verde`, `rojo`, `sin_evidencia`):**  
+   El servidor no simula un booleano `ok: false`. Entrega explícitamente `"estado": "sin_evidencia"` en `structuredContent`.
+4. **Respuesta exitosa de herramienta:** Al igual que en los casos anteriores, no viaja con `isError: true`. La herramienta funcionó a la perfección y determinó que las precondiciones de evidencia no fueron satisfechas.
+
+---
+
+## 12. Conversación 11: Rechazo de `archivo` en `oracle_evaluar` (Confinamiento de Raíz)
+
+**Contexto de ejecución:**  
+Un cliente intenta evaluar una medida indicando una ruta de archivo en el sistema de archivos (`"archivo": "catalogos/meta/meta.agrupar_no_agranda_la_relacion.oracle"` o intentando escapar con `"../fuera.oracle"` o `"/etc/passwd"`).
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":13,"method":"tools/call","params":{"name":"oracle_evaluar","arguments":{"medida":{"archivo":"catalogos/meta/meta.agrupar_no_agranda_la_relacion.oracle"},"evidencia":{}}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 13,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "ARGUMENTOS_INVALIDOS — $.medida: {\"archivo\":\"catalogos/meta/meta.agrupar_no_agranda_la_relacion.oracle\"}; se esperaba exactamente {id} o {texto, formato}; archivo no está admitido."
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+### POR QUÉ esa respuesta y no otra:
+
+1. **Invariante de confinamiento estricto:** La raíz del proyecto queda fijada al arrancar el servidor (`--proyecto <ruta>`). Si la herramienta aceptara una clave `archivo` con rutas relativas o absolutas, un prompt inyectado en datos medidos o un modelo descontrolado podría inducir lecturas fuera del repositorio (`../../etc/shadow`), vulnerando el principio de aislamiento del servidor MCP.
+2. **Unión cerrada sin atajos:** El esquema normativo de entrada para `medida` define una unión cerrada estricta:
+   - Modo id de catálogo: `{"id": "dominio.nombre"}`
+   - Modo memoria en tránsito: `{"texto": "...", "formato": "oracle"|"json"}`
+   El validador de `tools/mcp.py` rechaza categóricamente cualquier otra propiedad con `isError: true`.
+3. **No duplicar los verbos de consola:** Para evaluar archivos ya guardados en disco existe el CLI (`oracle medida probar`). La herramienta MCP existe para permitir la evaluación efímera y estructurada en memoria sin tocar el disco.
+4. **Mensaje normativo de error:** El mensaje indica la ruta exacta del argumento inválido (`$.medida`), exhibe el valor recibido y enuncia con precisión la forma esperada: `se esperaba exactamente {id} o {texto, formato}; archivo no está admitido.`
+
+---
+
+## 13. Conversación 12: `oracle_desafiar` con Dos Polaridades (`todos_detectados_por_conducta`)
+
+**Contexto de ejecución:**  
+El servidor corre fijado sobre el repositorio propio de Oracle:  
+`oracle-mcp --proyecto /home/workstation/Dev/oracle`
+
+El cliente desafía la medida efectiva `meta.ningun_umbral_de_igualdad`. La medida cuenta en el repositorio con 3 casos en su corpus (`corpus/meta/067-umbral-de-igualdad.json`, `068-umbral-de-orden.caso` y `071-catalogos-reales-sin-umbral-de-igualdad.caso`), los cuales satisfacen ambas polaridades (2 verdes y 1 rojo).
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":14,"method":"tools/call","params":{"name":"oracle_desafiar","arguments":{"medida":{"id":"meta.ningun_umbral_de_igualdad"}}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 14,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"advertencias\":[],\"casos\":3,\"conclusion\":\"todos_detectados_por_conducta\",\"discordancias\":[],\"entrada_sha256\":\"430e7c76faeee3cfadaab002e4b2b638968fe5a5dd295a00024df6ce800e48b0\",\"esquema\":\"oracle.mcp/desafio/v1\",\"medida\":\"meta.ningun_umbral_de_igualdad\",\"mutacion\":{\"detectados_por_conducta\":8,\"generados\":8,\"no_detectados\":[],\"rechazados_por_el_algebra\":0},\"oracle_version\":\"0.5.0\",\"proyecto\":\"/home/workstation/Dev/oracle\"}"
+      }
+    ],
+    "structuredContent": {
+      "esquema": "oracle.mcp/desafio/v1",
+      "oracle_version": "0.5.0",
+      "proyecto": "/home/workstation/Dev/oracle",
+      "entrada_sha256": "430e7c76faeee3cfadaab002e4b2b638968fe5a5dd295a00024df6ce800e48b0",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "advertencias": [],
+      "conclusion": "todos_detectados_por_conducta",
+      "discordancias": [],
+      "casos": 3,
+      "mutacion": {
+        "generados": 8,
+        "detectados_por_conducta": 8,
+        "rechazados_por_el_algebra": 0,
+        "no_detectados": []
+      }
+    },
+    "isError": false
+  }
+}
+```
+
+### POR QUÉ esa respuesta y no otra:
+
+1. **El ciclo completo de falsación en memoria:**  
+   El servidor:
+   1. Carga y compila la medida `meta.ningun_umbral_de_igualdad`.
+   2. Reúne los casos del corpus del proyecto cuyo campo `medida` coincide con su identificador (3 casos).
+   3. Evalúa la regla original contra cada uno de los 3 casos: todos reproducen su expectativa (`discordancias: []`).
+   4. Constata la existencia de ambas polaridades: hay al menos un caso que espera `verde` y al menos un caso que espera `rojo`.
+   5. Genera los 8 mutantes sintácticos a partir de la representación canónica de la regla.
+   6. Ejecuta los 8 mutantes contra los 3 casos y comprueba que para cada uno de los 8 mutantes existe al menos un caso de prueba que altera su conducta (cambiando veredicto o valor).
+2. **Conclusión falsable, no elogio vacío:**  
+   La conclusión es `todos_detectados_por_conducta` y **jamás** «correcta», «aprobada» ni «lista_para_guardar». El servidor se abstiene de emitir afirmaciones metafísicas sobre la "corrección" de una regla: reporta estrictamente el hecho empírico de que estos 8 mutadores fueron discriminados por estos 3 casos de prueba.
+3. **Desglose transparente del álgebra de mutación:**  
+   El objeto `mutacion` separa minuciosamente:
+   - `generados: 8`: denominador total de mutantes producidos.
+   - `detectados_por_conducta: 8`: mutantes neutralizados por cambio conductual.
+   - `rechazados_por_el_algebra: 0`: mutantes que levantaron excepciones en el motor (ninguno en este caso).
+   - `no_detectados: []`: mutantes sobrevivientes que ningún caso logró distinguir.
+4. **Sin persistencia lateral:** Toda la mutación y evaluación ocurre estrictamente en memoria; no se crean ni modifican archivos en `corpus/` ni en `catalogos/`.
+
+---
+
+## 14. Conversación 13: `oracle_desafiar` con Falta de Polaridad (`faltan_polaridades` y Sin Mutación)
+
+**Contexto de ejecución:**  
+El cliente desafía `meta.ningun_umbral_de_igualdad` desconectando el corpus del repositorio (`usar_evidencia_del_proyecto: false`) y aportando un único caso efímero que sólo espera `verde`.
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":15,"method":"tools/call","params":{"name":"oracle_desafiar","arguments":{"medida":{"id":"meta.ningun_umbral_de_igualdad"},"usar_evidencia_del_proyecto":false,"casos":[{"id":"caso_solo_verde","espera":"verde","evidencia":{"medida":[{"comparador":"<="}]}}]}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 15,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"advertencias\":[\"ningún caso salió del corpus del proyecto: lo que se desafió son evidencias de esta llamada, y una evidencia escrita para la medida puede repetir su error\"],\"casos\":1,\"conclusion\":\"faltan_polaridades\",\"discordancias\":[],\"entrada_sha256\":\"e636989c63d75f9e226b2ea6b9d3815ef88986fc27067ba1afa5e527ec6576ed\",\"esquema\":\"oracle.mcp/desafio/v1\",\"medida\":\"meta.ningun_umbral_de_igualdad\",\"mutacion\":null,\"oracle_version\":\"0.5.0\",\"proyecto\":\"/home/workstation/Dev/oracle\"}"
+      }
+    ],
+    "structuredContent": {
+      "esquema": "oracle.mcp/desafio/v1",
+      "oracle_version": "0.5.0",
+      "proyecto": "/home/workstation/Dev/oracle",
+      "entrada_sha256": "e636989c63d75f9e226b2ea6b9d3815ef88986fc27067ba1afa5e527ec6576ed",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "advertencias": [
+        "ningún caso salió del corpus del proyecto: lo que se desafió son evidencias de esta llamada, y una evidencia escrita para la medida puede repetir su error"
+      ],
+      "conclusion": "faltan_polaridades",
+      "discordancias": [],
+      "casos": 1,
+      "mutacion": null
+    },
+    "isError": false
+  }
+}
+```
+
+### POR QUÉ esa respuesta y no otra:
+
+1. **La exigencia metodológica de las dos polaridades:**  
+   Una prueba con una sola polaridad no es un arnés de falsación: una regla que evalúe siempre `true` pasaría indemne cualquier suite compuesta exclusivamente por casos que esperan `verde`. Para que una medida demuestre capacidad de discriminación, el agente debe obligatoriamente presentar al menos una evidencia donde deba pasar (`verde`) y al menos una evidencia donde deba ofender (`rojo`).
+2. **Corte inmediato sin mutar (`mutacion: null`):**  
+   Correr mutación sobre una suite desprovista de polaridad negativa produciría mutantes que parecen morir pero que no prueban nada, generando un costo computacional injustificado y métricas engañosas. El servidor aborta el lazo antes de generar mutantes, asignando estrictamente `mutacion: null`.
+3. **Advertencia de evidencia fabricada:**  
+   Dado que ningún caso provino del corpus histórico del proyecto (`usar_evidencia_del_proyecto: false`), el campo `advertencias` alerta con honestidad: `ningún caso salió del corpus del proyecto: lo que se desafió son evidencias de esta llamada, y una evidencia escrita para la medida puede repetir su error`.
+
+---
+
+## 15. Conversación 14: `oracle_desafiar` cuando el Original no Reproduce (`original_no_reproduce` y Sin Mutación)
+
+**Contexto de ejecución:**  
+El cliente desafía `meta.ningun_umbral_de_igualdad` enviando un caso efímero cuya expectativa de veredicto contradice lo que la medida original realmente calcula: el caso declara `espera: "rojo"`, pero la evidencia suministrada contiene una medida con comparador `"<="`, la cual evalúa legalmente a `0 <= 0` (`verde`).
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":16,"method":"tools/call","params":{"name":"oracle_desafiar","arguments":{"medida":{"id":"meta.ningun_umbral_de_igualdad"},"usar_evidencia_del_proyecto":false,"casos":[{"id":"caso_discordante","espera":"rojo","evidencia":{"medida":[{"comparador":"<="}]}}]}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 16,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "{\"advertencias\":[\"ningún caso salió del corpus del proyecto: lo que se desafió son evidencias de esta llamada, y una evidencia escrita para la medida puede repetir su error\"],\"casos\":1,\"conclusion\":\"original_no_reproduce\",\"discordancias\":[{\"caso\":\"caso_discordante\",\"esperado\":\"rojo\",\"obtenido\":\"verde\"}],\"entrada_sha256\":\"3410260f300d165732a7692c2089eb587e394a1e275d5a4a99593e2534d34916\",\"esquema\":\"oracle.mcp/desafio/v1\",\"medida\":\"meta.ningun_umbral_de_igualdad\",\"mutacion\":null,\"oracle_version\":\"0.5.0\",\"proyecto\":\"/home/workstation/Dev/oracle\"}"
+      }
+    ],
+    "structuredContent": {
+      "esquema": "oracle.mcp/desafio/v1",
+      "oracle_version": "0.5.0",
+      "proyecto": "/home/workstation/Dev/oracle",
+      "entrada_sha256": "3410260f300d165732a7692c2089eb587e394a1e275d5a4a99593e2534d34916",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "advertencias": [
+        "ningún caso salió del corpus del proyecto: lo que se desafió son evidencias de esta llamada, y una evidencia escrita para la medida puede repetir su error"
+      ],
+      "conclusion": "original_no_reproduce",
+      "discordancias": [
+        {
+          "caso": "caso_discordante",
+          "esperado": "rojo",
+          "obtenido": "verde"
+        }
+      ],
+      "casos": 1,
+      "mutacion": null
+    },
+    "isError": false
+  }
+}
+```
+
+### POR QUÉ cortar acá y no seguir (el peligro del número convincente):
+
+1. **La divergencia entre el arnés interno y el servidor MCP:**  
+   En el arnés de regresión masiva del núcleo (`nucleo.mutacion.correr`), un caso que no está en su estado esperado se descarta en silencio («no fija nada») para permitir que la suite global continúe. Sin embargo, en la interfaz MCP con un agente interactivo, **continuar sería devastador**.
+2. **Mutar sobre una base desalineada mide otra cosa:**  
+   Si el servidor procediera a mutar ignorando el caso desalineado o evaluando mutantes contra una premisa falsa, el reporte final arrojaría estadísticas de mutación numéricamente perfectas (porcentajes de detección, mutantes eliminados). El agente de IA vería esos números matemáticamente pulcros y asumiría que su regla fue validada, cuando en realidad la prueba jamás llegó a medir lo que el autor pretendía. El número saldría igual de convincente, pero midiendo una ficción.
+3. **Identificación exacta de la discordancia:**  
+   El servidor corta de inmediato el lazo y expone el objeto desalineado en `discordancias`:
+   - `caso: "caso_discordante"`: el identificador exacto del caso fallido.
+   - `esperado: "rojo"`: la expectativa declarada.
+   - `obtenido: "verde"`: el veredicto real del original.
+   El agente sabe al instante qué caso debe corregir.
+4. **Sin mutación espuria (`mutacion: null`):** La mutación no se ejecuta ni genera datos engañosos.
+
+---
+
+## 16. Conversación 15: Rechazo de Procedencia Observada en Casos Efímeros (`PROCEDENCIA_NO_ADMITIDA`)
+
+**Contexto de ejecución:**  
+Un cliente desafía `meta.ningun_umbral_de_igualdad` enviando en la llamada un caso efímero que incluye la propiedad `"procedencia": "observada"`.
+
+### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":17,"method":"tools/call","params":{"name":"oracle_desafiar","arguments":{"medida":{"id":"meta.ningun_umbral_de_igualdad"},"casos":[{"id":"caso_falso_observado","espera":"verde","evidencia":{"medida":[{"comparador":"<="}]},"procedencia":"observada"}]}}}
+```
+
+### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 17,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "PROCEDENCIA_NO_ADMITIDA — un caso de la llamada no declara procedencia: una llamada no puede convertir evidencia fabricada en evidencia observada."
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+### POR QUÉ esto no es una restricción de forma sino de fondo:
+
+1. **La frontera epistémica entre observación y fabricación:**  
+   En la ontología de Oracle, la etiqueta `procedencia: observada` tiene un estatus jurídico privilegiado: certifica que una evidencia fue capturada directamente de un incidente real en un sistema en producción o en una ejecución trazada del arnés, respaldada por un commit en git. Esa procedencia es lo que sostiene la legitimidad del corpus frente a la tentación de inventar casos ad hoc para que una regla pase.
+2. **Prohibición de blanqueo de evidencia:**  
+   Cualquier evidencia transmitida dentro del payload de una llamada JSON-RPC efímera es, por definición física y ontológica, evidencia sintética o fabricada en ese instante por quien llama. Si el servidor aceptara que el cliente estampe `"procedencia": "observada"` en su mensaje JSON, la herramienta MCP se convertiría en un mecanismo para blanquear evidencia fabricada, dotándola de una categoría probatoria que jamás ganó en el mundo físico.
+3. **Fallo cerrado con `isError: true`:**  
+   El validador de argumentos en `tools/mcp.py` bloquea la llamada con el código cerrado `PROCEDENCIA_NO_ADMITIDA`. La procedencia observada no se negocia por cable: sólo puede provenir de archivos residentes en el corpus del repositorio versionado.
+
+---
+
+## 17. Conversación 16: `CASO_REPETIDO` en sus Dos Variantes (Corpus vs Misma Llamada)
+
+El servidor MCP detecta duplicaciones de identificadores de casos y emite mensajes diferenciados según la procedencia del conflicto, orientando al agente de forma unívoca hacia el sitio exacto del error.
+
+### 17.1. Variante 1: El ID choca con un caso existente en el corpus del proyecto
+
+**Contexto de ejecución:**  
+El cliente intenta evaluar un caso efímero con id `"067-umbral-de-igualdad"`. Dicho caso ya reside físicamente en `corpus/meta/067-umbral-de-igualdad.json`.
+
+#### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":18,"method":"tools/call","params":{"name":"oracle_desafiar","arguments":{"medida":{"id":"meta.ningun_umbral_de_igualdad"},"casos":[{"id":"067-umbral-de-igualdad","espera":"rojo","evidencia":{"medida":[{"comparador":"=="}]}}]}}}
+```
+
+#### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 18,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "CASO_REPETIDO — «067-umbral-de-igualdad» ya existe en el corpus del proyecto; renombralo. No se eligió uno de los dos."
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+---
+
+### 17.2. Variante 2: El ID aparece repetido dentro de la misma llamada
+
+**Contexto de ejecución:**  
+El cliente envía dos casos efímeros con el mismo identificador `"caso_duplicado"` en el arreglo `casos`.
+
+#### Qué se manda por stdin (Cliente → Servidor):
+
+```json
+{"jsonrpc":"2.0","id":19,"method":"tools/call","params":{"name":"oracle_desafiar","arguments":{"medida":{"id":"meta.ningun_umbral_de_igualdad"},"casos":[{"id":"caso_duplicado","espera":"verde","evidencia":{"medida":[{"comparador":"<="}]}},{"id":"caso_duplicado","espera":"rojo","evidencia":{"medida":[{"comparador":"=="}]}}]}}}
+```
+
+#### Qué tiene que volver por stdout (Servidor → Cliente):
+
+```json
+{
+  "jsonrpc": "2.0",
+  "id": 19,
+  "result": {
+    "content": [
+      {
+        "type": "text",
+        "text": "CASO_REPETIDO — «caso_duplicado» aparece dos veces en esta llamada; renombralo. No se eligió uno de los dos."
+      }
+    ],
+    "isError": true
+  }
+}
+```
+
+### POR QUÉ esa respuesta y por qué la distinción del mensaje es crítica:
+
+1. **Orientación diagnóstica correcta para el agente:**  
+   Un mensaje genérico que dijera simplemente «el caso ya existe en el proyecto» confundiría fatalmente al modelo cuando el error está dentro de su propio payload JSON: el agente iría a buscar archivos en el disco, intentaría leer `corpus/` o supondría que alguien editó el árbol local. Al declarar con total precisión `aparece dos veces en esta llamada`, el mensaje instruye al agente a corregir sus argumentos inmediatos. Análogamente, cuando el conflicto es con el disco, `ya existe en el corpus del proyecto` le indica que debe elegir un nuevo identificador para no enmascarar la prueba histórica.
+2. **Prohibición absoluta del principio «el último gana» (*last-write-wins*):**  
+   Permitir que un caso repetido prevalezca en silencio sobre otro anterior es la forma más común en que una prueba escrita ad hoc neutraliza inadvertidamente a la prueba que estaba detectando el defecto. El servidor rechaza la ambigüedad con un fallo simétrico explícito: `No se eligió uno de los dos`.
+3. **Integridad referencial determinista:** La suite de casos de un desafío debe componer un conjunto unívoco y libre de colisiones.
+
+---
+
+## 18. Matriz de Reconciliación de Aceptación
+
+Esta tabla consolida las expectativas que la suite de tests de `tools/mcp.py` debe comprobar de manera estricta para las tres herramientas del servidor:
+
+| Caso de prueba / Conversación | Herramienta | Entrada / Argumentos | Salida esperada / Código | Estado MCP | `structuredContent` | Aserción crítica de falsabilidad |
+|---|---|---|---|---|---|---|
+| **Handshake: initialize** | Sistema | `initialize` con protocolo `2025-11-25` | `serverInfo.name == "oracle-mcp"`, `version == "0.5.0"`, `capabilities == {"tools": {}}` | Éxito | No | Solo anuncia herramientas; no anuncia resources, prompts ni sampling. |
+| **Handshake: tools/list** | Sistema | `tools/list` sin parámetros | Arreglo de 3 herramientas fijas con anotaciones | Éxito | No | Lista inmutable de 3 herramientas; esquemas con `additionalProperties: false`. |
+| **Índice compacto** | `oracle_catalogo_efectivo` | `{}` | `total == 57`, `detalle == false`, 57 medidas ordenadas | `isError: false` | Sí | `total` es el catálogo entero; filas sólo con `id`, `origen`, `fijacion`. |
+| **Detalle selectivo** | `oracle_catalogo_efectivo` | `ids: ["..."]` | `total == 57`, `detalle == true`, medidas pedidas | `isError: false` | Sí | `total` no cambia; todos los campos de auditoría presentes y ordenados. |
+| **Lista vacía rechazada** | `oracle_catalogo_efectivo` | `ids: []` | `ARGUMENTOS_INVALIDOS` | `isError: true` | No | Rechazo estricto de esquema; no crea tercer modo. |
+| **Medida no efectiva** | `oracle_catalogo_efectivo` | Id ajeno `del_origen` en un consumidor | `MEDIDA_NO_EFECTIVA` | `isError: true` | No | Distingue presencia sin jurisdicción; evita duplicados locales innecesarios. |
+| **Medida desconocida** | `oracle_catalogo_efectivo` | Id inexistente en toda fuente | `MEDIDA_DESCONOCIDA` | `isError: true` | No | Distingue id ausente; aconseja consultar sin ids. |
+| **Catálogo roto** | `oracle_catalogo_efectivo` | Sintaxis inválida en archivo `.oracle` | `CATALOGO_INVALIDO` | `isError: true` | No | Fallo cerrado: **nunca** devuelve `medidas: []` ni `total: 0`. |
+| **Escalares sin autorizar** | `oracle_catalogo_efectivo` | Proyecto con `escalares.py` sin confianza | `ESCALARES_NO_AUTORIZADAS` | `isError: true` | No | Bloqueo de seguridad: la llamada no puede auto-confiarse. |
+| **Evaluar: verde** | `oracle_evaluar` | Medida y evidencia conforme | `estado == "verde"`, `valor == 0`, `testigos == []` | `isError: false` | Sí | Evaluación puntual favorable; valor satisface el umbral sin testigos. |
+| **Evaluar: rojo con testigos** | `oracle_evaluar` | Evidencia con 7 transgresores | `estado == "rojo"`, `valor == 7`, `testigos` (5 items), `testigos_omitidos == 2` | `isError: false` | Sí | Afirma defecto observado; trunca a 5 testigos con reporte honesto de omitidos. |
+| **Evaluar: sin evidencia** | `oracle_evaluar` | Medida con `requiere` y evidencia sin la relación | `estado == "sin_evidencia"`, `valor == 0` | `isError: false` | Sí | Distingue «no pude mirar» de «miré y falló»; no emite falso verde ni falso rojo. |
+| **Evaluar: rechazo de archivo** | `oracle_evaluar` | `medida.archivo: "..."` | `ARGUMENTOS_INVALIDOS` | `isError: true` | No | Seguridad: prohíbe rutas y confina lecturas estrictamente a la memoria o catálogo. |
+| **Desafiar: dos polaridades** | `oracle_desafiar` | Medida con corpus verde y rojo | `conclusion == "todos_detectados_por_conducta"`, mutación completa | `isError: false` | Sí | Lazo de mutación exitoso; no emite afirmaciones no comprobadas sobre corrección. |
+| **Desafiar: falta polaridad** | `oracle_desafiar` | Suite con sólo casos verdes | `conclusion == "faltan_polaridades"`, `mutacion == null` | `isError: false` | Sí | Aborta de inmediato sin mutar; exige ambas polaridades antes de gastar cómputo. |
+| **Desafiar: original no reproduce** | `oracle_desafiar` | Caso efímero discordante con el original | `conclusion == "original_no_reproduce"`, `mutacion == null` | `isError: false` | Sí | Corta sin mutar; impide publicar números convincentes sobre bases desalineadas. |
+| **Desafiar: procedencia prohibida** | `oracle_desafiar` | `procedencia: "observada"` en caso de la llamada | `PROCEDENCIA_NO_ADMITIDA` | `isError: true` | No | Integridad epistémica: una llamada efímera no puede blanquear evidencia fabricada. |
+| **Desafiar: caso repetido (corpus)** | `oracle_desafiar` | ID que colisiona con archivo de `corpus/` | `CASO_REPETIDO` señalando el corpus del proyecto | `isError: true` | No | Manda a buscar al disco; prohíbe que el caso efímero opaque al del proyecto. |
+| **Desafiar: caso repetido (llamada)** | `oracle_desafiar` | ID duplicado en el arreglo `casos` | `CASO_REPETIDO` señalando la misma llamada | `isError: true` | No | Manda a buscar en el payload; rechaza la prevalencia implícita del último. |
+

@@ -226,7 +226,274 @@ HERRAMIENTA_EVALUAR = {
     },
 }
 
-HERRAMIENTAS = [HERRAMIENTA_CATALOGO, HERRAMIENTA_EVALUAR]
+# La declaración es la del contrato, palabra por palabra: `MCP-CONTRATO.md` es normativo y un
+# test compara los dos. Divergir acá sería anunciar una herramienta que nadie documentó.
+HERRAMIENTA_DESAFIAR = {
+    "name": "oracle_desafiar",
+    "title": "Desafiar una medida con corpus y mutación",
+    "description": "Falsa en memoria una medida por id o texto. Combina, si se pide, sus casos del corpus y diferenciales del proyecto con casos efímeros, exige ambas polaridades y ejecuta mutación de medidas. Informa discordancias, mutantes sobrevivientes y rechazos del álgebra; nunca declara que la medida sea semánticamente correcta ni escribe evidencia.",
+    "annotations": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False
+    },
+    "inputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "medida"
+        ],
+        "properties": {
+            "medida": {
+                "oneOf": [
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "id"
+                        ],
+                        "properties": {
+                            "id": {
+                                "type": "string",
+                                "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+                            }
+                        }
+                    },
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": [
+                            "texto",
+                            "formato"
+                        ],
+                        "properties": {
+                            "texto": {
+                                "type": "string"
+                            },
+                            "formato": {
+                                "enum": [
+                                    "oracle",
+                                    "json"
+                                ]
+                            }
+                        }
+                    }
+                ]
+            },
+            "usar_evidencia_del_proyecto": {
+                "type": "boolean",
+                "default": True,
+                "description": "Incluye corpus y diferenciales que nombran el id de la medida."
+            },
+            "casos": {
+                "type": "array",
+                "default": [],
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "id",
+                        "espera",
+                        "evidencia"
+                    ],
+                    "properties": {
+                        "id": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "espera": {
+                            "enum": [
+                                "verde",
+                                "rojo"
+                            ]
+                        },
+                        "evidencia": {
+                            "$ref": "#/$defs/evidencia"
+                        }
+                    }
+                }
+            }
+        },
+        "$defs": {
+            "evidencia": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {
+                        "type": "object"
+                    }
+                }
+            }
+        }
+    },
+    "outputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "esquema",
+            "oracle_version",
+            "proyecto",
+            "entrada_sha256",
+            "medida",
+            "conclusion",
+            "casos",
+            "discordancias",
+            "mutacion",
+            "advertencias"
+        ],
+        "properties": {
+            "esquema": {
+                "const": "oracle.mcp/desafio/v1"
+            },
+            "oracle_version": {
+                "type": "string"
+            },
+            "proyecto": {
+                "type": "string"
+            },
+            "entrada_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+            },
+            "medida": {
+                "type": "string"
+            },
+            "conclusion": {
+                "enum": [
+                    "original_no_reproduce",
+                    "faltan_polaridades",
+                    "sin_mutantes",
+                    "sobrevivientes",
+                    "sin_sobrevivientes_con_rechazos",
+                    "todos_detectados_por_conducta"
+                ]
+            },
+            "casos": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "total",
+                    "del_proyecto",
+                    "efimeros",
+                    "esperan_verde",
+                    "esperan_rojo"
+                ],
+                "properties": {
+                    "total": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "del_proyecto": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "efimeros": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "esperan_verde": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "esperan_rojo": {
+                        "type": "integer",
+                        "minimum": 0
+                    }
+                }
+            },
+            "discordancias": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "caso",
+                        "esperado",
+                        "obtenido"
+                    ],
+                    "properties": {
+                        "caso": {
+                            "type": "string"
+                        },
+                        "esperado": {
+                            "enum": [
+                                "verde",
+                                "rojo"
+                            ]
+                        },
+                        "obtenido": {
+                            "enum": [
+                                "verde",
+                                "rojo",
+                                "sin_evidencia",
+                                "error"
+                            ]
+                        }
+                    }
+                }
+            },
+            "mutacion": {
+                "type": "object",
+                "additionalProperties": False,
+                "required": [
+                    "generados",
+                    "detectados_por_conducta",
+                    "rechazados_por_el_algebra",
+                    "no_detectados"
+                ],
+                "properties": {
+                    "generados": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "detectados_por_conducta": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "rechazados_por_el_algebra": {
+                        "type": "integer",
+                        "minimum": 0
+                    },
+                    "no_detectados": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "required": [
+                                "id",
+                                "cambio",
+                                "estado"
+                            ],
+                            "properties": {
+                                "id": {
+                                    "type": "string"
+                                },
+                                "cambio": {
+                                    "type": "string"
+                                },
+                                "estado": {
+                                    "enum": [
+                                        "sobrevivio",
+                                        "rechazado_por_el_algebra"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "advertencias": {
+                "type": "array",
+                "items": {
+                    "type": "string"
+                }
+            }
+        }
+    }
+}
+
+HERRAMIENTAS = [HERRAMIENTA_CATALOGO, HERRAMIENTA_EVALUAR, HERRAMIENTA_DESAFIAR]
 
 
 @dataclass
@@ -795,6 +1062,216 @@ def _evaluacion_estable(proy: Proyecto, catalogo, refrescar):
         )
 
 
+
+def _casos_del_desafio(argumentos, mid: str, corpus) -> list[dict]:
+    """Los casos que van a desafiar la medida, con su origen conservado.
+
+    Un caso de la llamada es EFÍMERO y sólo puede declarar qué veredicto espera. No acepta
+    `procedencia`: una llamada no puede convertir evidencia fabricada en evidencia observada, y
+    permitirlo volvería esta herramienta una manera de blanquear un corpus.
+
+    Un id repetido entre el corpus y la llamada se rechaza en vez de dejar ganar al último. Ganar
+    en silencio es cómo una evidencia escrita para pasar reemplaza a la que estaba midiendo.
+    """
+    del_proyecto = argumentos.get("usar_evidencia_del_proyecto", True)
+    if not isinstance(del_proyecto, bool):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS", "`usar_evidencia_del_proyecto` es booleano.")
+    casos = []
+    if del_proyecto:
+        for caso in corpus:
+            if caso.get("medida") != mid:
+                continue
+            casos.append({
+                "id": caso.get("id", ""),
+                "espera": "verde" if caso.get("etiqueta") == "verde_correcto" else "rojo",
+                "evidencia": caso.get("evidencia", {}),
+                "origen": "corpus",
+            })
+    del_corpus = {caso["id"] for caso in casos}
+    vistos = set(del_corpus)
+    for caso in argumentos.get("casos", []):
+        if caso["id"] in vistos:
+            # El mensaje dice DÓNDE está el otro. Decir siempre «ya existe en el corpus» manda a
+            # buscar al lugar equivocado cuando el duplicado estaba dentro de la misma llamada.
+            donde = ("ya existe en el corpus del proyecto" if caso["id"] in del_corpus
+                     else "aparece dos veces en esta llamada")
+            raise ErrorHerramienta(
+                "CASO_REPETIDO",
+                f"«{caso['id']}» {donde}; renombralo. No se eligió uno de los dos.")
+        vistos.add(caso["id"])
+        casos.append({**caso, "origen": "efimero"})
+    return casos
+
+
+def _desafiar(medida: Medida, casos: list[dict]) -> dict:
+    """El lazo: reproducir, exigir las dos polaridades, mutar. En ese orden y sin seguir si falla.
+
+    `nucleo.mutacion.correr` saltea en silencio un caso que no está en su estado esperado —«no fija
+    nada»— y para una ronda del arnés eso alcanza. Acá no: si el original no reproduce lo que el
+    caso espera, mutar mide otra cosa y el número saldría igual de convincente. Se corta y se dice
+    cuál no reprodujo.
+
+    `obtenido` distingue `sin_evidencia` de `rojo` por el mismo motivo que la evaluación: rojo
+    afirma algo del mundo, sin evidencia afirma que no se pudo mirar. Colapsarlos acá le diría a un
+    agente que su medida falló cuando lo que faltó fue la relación.
+    """
+    from nucleo.mutacion import mutantes
+
+    def observar(m, evidencia):
+        try:
+            v = m.evaluar(evidencia).a_dict()
+        except Exception as e:
+            return "error", f"{type(e).__name__}: {e}"
+        if v["sin_evidencia"]:
+            return "sin_evidencia", None
+        return ("verde" if v["ok"] else "rojo"), None
+
+    discordancias = []
+    for caso in casos:
+        obtenido, _detalle = observar(medida, caso["evidencia"])
+        if obtenido != caso["espera"]:
+            discordancias.append({"caso": caso["id"], "esperado": caso["espera"],
+                                  "obtenido": obtenido})
+    if discordancias:
+        return {"conclusion": "original_no_reproduce", "discordancias": discordancias,
+                "casos": len(casos), "mutacion": None}
+
+    polaridades = {caso["espera"] for caso in casos}
+    if polaridades != {"verde", "rojo"}:
+        return {"conclusion": "faltan_polaridades", "discordancias": [],
+                "casos": len(casos), "mutacion": None}
+
+    generados = mutantes(medida.a_datos())
+    if not generados:
+        # No es lo mismo que «todos detectados»: un denominador vacío no prueba nada, y llamarlo
+        # verde sería el `019-ronda-sin-mutantes-declarada-verde` del corpus, un nivel más arriba.
+        return {"conclusion": "sin_mutantes", "discordancias": [], "casos": len(casos),
+                "mutacion": {"generados": 0, "detectados_por_conducta": 0,
+                             "rechazados_por_el_algebra": 0, "no_detectados": []}}
+
+    conducta = algebra = 0
+    no_detectados = []
+    for nombre, datos in generados:
+        try:
+            mutante = Medida.de_datos(datos)
+        except Exception:
+            algebra += 1
+            continue
+        detectado = rechazado = False
+        for caso in casos:
+            obtenido, _d = observar(mutante, caso["evidencia"])
+            if obtenido == "error":
+                rechazado = True
+                continue
+            if obtenido != caso["espera"]:
+                detectado = True
+                break
+        if detectado:
+            conducta += 1
+        elif rechazado:
+            algebra += 1
+        else:
+            no_detectados.append({"mutador": nombre})
+
+    # La conclusión más fuerte NO se llama «correcta», «aprobada» ni «lista_para_guardar».
+    # Significa exactamente: estos mutadores, escritos por estos autores, fueron discriminados por
+    # estas evidencias. Un nombre más ambicioso convertiría un cálculo correcto en una conclusión
+    # falsa al cruzar el transporte.
+    if no_detectados:
+        conclusion = "sobrevivientes"
+    elif algebra:
+        conclusion = "sin_sobrevivientes_con_rechazos"
+    else:
+        conclusion = "todos_detectados_por_conducta"
+    return {
+        "conclusion": conclusion,
+        "discordancias": [],
+        "casos": len(casos),
+        "mutacion": {"generados": len(generados), "detectados_por_conducta": conducta,
+                     "rechazados_por_el_algebra": algebra, "no_detectados": no_detectados},
+    }
+
+
+def desafiar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = False) -> dict:
+    """El lazo candidato → dos polaridades → mutación, entero en memoria y sin tocar el disco."""
+    if not isinstance(argumentos, dict) or "medida" not in argumentos:
+        raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", "`medida` es obligatoria.")
+    especificacion = argumentos["medida"]
+    if not isinstance(especificacion, dict):
+        raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", "`medida` es un objeto.")
+    for caso in argumentos.get("casos", []):
+        if not isinstance(caso, dict) or {"id", "espera", "evidencia"} - set(caso):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS", "cada caso lleva `id`, `espera` y `evidencia`.")
+        if "procedencia" in caso:
+            raise ErrorHerramienta(
+                "PROCEDENCIA_NO_ADMITIDA",
+                "un caso de la llamada no declara procedencia: una llamada no puede convertir "
+                "evidencia fabricada en evidencia observada.")
+        if caso["espera"] not in ("verde", "rojo"):
+            raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", "`espera` es «verde» o «rojo».")
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar_escalares):
+            macros = macros_del_proyecto(proy)
+            catalogo = None
+            if "id" in especificacion:
+                try:
+                    catalogo = catalogo_efectivo(proy, macros=macros)
+                except ProyectoInvalido:
+                    raise
+                except Exception as e:
+                    raise _error_catalogo(proy, e) from e
+                mid = especificacion["id"]
+                if mid not in catalogo:
+                    raise _error_id_ausente(mid, proy, catalogo)
+                medida = catalogo[mid]
+            else:
+                medida = _medida_en_memoria(especificacion, macros)
+            corpus = []
+            if argumentos.get("usar_evidencia_del_proyecto", True):
+                from nucleo.caso import cargar_casos
+                try:
+                    corpus = cargar_casos(proy.corpus)
+                except Exception as e:
+                    # Fallo cerrado: un corpus ilegible NO se degrada a «no había casos». Un
+                    # desafío sobre cero casos del proyecto daría «faltan_polaridades», que es una
+                    # afirmación sobre la medida y no sobre el disco.
+                    raise ErrorHerramienta(
+                        "CORPUS_INVALIDO",
+                        f"no se pudo leer el corpus: {e}. No se desafió con menos casos.") from e
+            casos = _casos_del_desafio(argumentos, medida.id, corpus)
+            advertencias = []
+            if not any(caso["origen"] == "corpus" for caso in casos):
+                advertencias.append(
+                    "ningún caso salió del corpus del proyecto: lo que se desafió son evidencias "
+                    "de esta llamada, y una evidencia escrita para la medida puede repetir su "
+                    "error")
+            resultado = _desafiar(medida, casos)
+    except ErrorHerramienta:
+        raise
+    except EscalaresNoConfiables as e:
+        archivo = str(e).partition(" es código Python externo")[0]
+        raise ErrorHerramienta(
+            "ESCALARES_NO_AUTORIZADAS",
+            f"{archivo} es código externo; autorizalo en la configuración de arranque del "
+            "servidor, no en esta llamada.") from e
+    except EscalaresInvalidas as e:
+        raise _error_catalogo(proy, e) from e
+    except ProyectoInvalido as e:
+        raise ErrorHerramienta("PROYECTO_INVALIDO", f"{proy.raiz.resolve()}: {e}.") from e
+    return {
+        "esquema": "oracle.mcp/desafio/v1",
+        "oracle_version": VERSION_DISTRIBUCION,
+        "proyecto": str(proy.raiz.resolve()),
+        "entrada_sha256": hashlib.sha256(
+            json.dumps(argumentos, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest(),
+        "medida": medida.id,
+        "advertencias": advertencias,
+        **resultado,
+    }
+
 def evaluar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = False) -> dict:
     """Evalúa por valor y falla cerrado; no traduce una carga rota a verde ni a lista vacía."""
     especificacion, evidencia = _validar_evaluacion(argumentos)
@@ -891,6 +1368,9 @@ class Servidor:
         try:
             if nombre == HERRAMIENTA_CATALOGO["name"]:
                 contenido = catalogo_para_mcp(
+                    self.proy, argumentos, confiar_escalares=self.confiar_escalares)
+            elif nombre == HERRAMIENTA_DESAFIAR["name"]:
+                contenido = desafiar_para_mcp(
                     self.proy, argumentos, confiar_escalares=self.confiar_escalares)
             else:
                 contenido = evaluar_para_mcp(

@@ -203,7 +203,7 @@ class AConversacionCompletaTests(unittest.TestCase):
         self.assertEqual(b"\\n" in salida, True)
         self.assertEqual(json.loads(bytes(salida[:-1]).decode("utf-8")), mensaje)
 
-    def test_tools_list_publica_evaluar_con_el_contrato_normativo_entero(self) -> None:
+    def test_tools_list_publica_las_tres_con_el_contrato_normativo_entero(self) -> None:
         """Comparar sólo el nombre dejaría divergir la unión cerrada y los tres estados sin ruido."""
         contrato = (mcp.RAIZ / "estudios" / "MCP-CONTRATO.md").read_text(encoding="utf-8")
         bloque = re.search(
@@ -213,7 +213,9 @@ class AConversacionCompletaTests(unittest.TestCase):
             re.DOTALL,
         )
         self.assertEqual(bloque is not None, True)
-        esperadas = json.loads(bloque.group(1))[:2]
+        # Sin recorte: el contrato declara la superficie ENTERA y el servidor la anuncia entera.
+        # Un `[:2]` dejaba que una herramienta nueva se anunciara sin estar documentada.
+        esperadas = json.loads(bloque.group(1))
         with tempfile.TemporaryDirectory() as td:
             raiz = _proyecto(Path(td), _medida("demo.uno"))
             pedido = {"jsonrpc": "2.0", "id": 2, "method": "tools/list", "params": {}}
@@ -1342,3 +1344,462 @@ class LosCuatroQueLaMutacionDejoVivosTests(unittest.TestCase):
                 mcp.evaluar_para_mcp(proy, {"medida": {"id": "d.x"}, "evidencia": {}})
 
         self.assertEqual(capturado.exception.codigo, "ESCALARES_NO_AUTORIZADAS")
+
+
+class DesafiarTests(unittest.TestCase):
+    """El lazo entero en memoria: reproducir, exigir las dos polaridades, mutar. En ese orden.
+
+    Cada rechazo de acá existe porque saltearlo daría un número igual de convincente y sin
+    sustento: mutar sobre un original que no reproduce mide otra cosa, y mutar con una sola
+    polaridad deja mutadores que no pueden morir nunca.
+    """
+
+    TEXTO = ("ninguno d.prueba:\n"
+             "    de item i\n"
+             "    donde i.mal == true\n"
+             "    umbral <= 0 segun contrato porque \"ningun item malo\"\n"
+             "    ambito universal\n"
+             "    alcance \"NO ve otros campos\"\n")
+
+    def _medida(self):
+        from nucleo.macro import macros_base
+        from nucleo.sintaxis import leer_con_mapa
+
+        lectura = leer_con_mapa(self.TEXTO, macros=macros_base())
+        return mcp.Medida.de_datos(lectura.datos, macros=macros_base())
+
+    def _caso(self, cid, espera, filas):
+        return {"id": cid, "espera": espera, "evidencia": {"item": filas}, "origen": "efimero"}
+
+    def test_con_las_dos_polaridades_mata_todos_los_mutantes(self) -> None:
+        resultado = mcp._desafiar(self._medida(), [
+            self._caso("v1", "verde", [{"mal": False}, {"mal": False}]),
+            self._caso("r1", "rojo", [{"mal": True}, {"mal": False}]),
+        ])
+
+        self.assertEqual(resultado["conclusion"], "todos_detectados_por_conducta")
+        self.assertEqual(resultado["mutacion"]["no_detectados"], [])
+        self.assertEqual(resultado["mutacion"]["generados"],
+                         resultado["mutacion"]["detectados_por_conducta"])
+
+    def test_sin_un_verde_no_muta_y_lo_dice(self) -> None:
+        """Sin la polaridad verde, `quitar_filtro` no puede morir: contar sin filtro sigue dando
+        rojo. Mutar igual publicaría una cobertura que el conjunto de casos no sostiene."""
+        resultado = mcp._desafiar(self._medida(), [
+            self._caso("r1", "rojo", [{"mal": True}]),
+        ])
+
+        self.assertEqual(resultado["conclusion"], "faltan_polaridades")
+        self.assertEqual(resultado["mutacion"], None)
+
+    def test_si_el_original_no_reproduce_no_muta_y_nombra_el_caso(self) -> None:
+        """Mutar sobre un original que no está en su estado esperado mide otra medida. El número
+        saldría igual de convincente, y por eso hay que cortar acá y decir cuál falló."""
+        resultado = mcp._desafiar(self._medida(), [
+            self._caso("v1", "verde", [{"mal": False}]),
+            self._caso("miente", "rojo", [{"mal": False}]),
+        ])
+
+        self.assertEqual(resultado["conclusion"], "original_no_reproduce")
+        self.assertEqual(resultado["discordancias"],
+                         [{"caso": "miente", "esperado": "rojo", "obtenido": "verde"}])
+        self.assertEqual(resultado["mutacion"], None)
+
+    def test_sin_evidencia_no_se_informa_como_rojo(self) -> None:
+        """Rojo afirma algo del mundo; sin evidencia afirma que no se pudo mirar. Colapsarlos le
+        diría a un agente que su medida falló cuando lo que faltó fue la relación."""
+        from nucleo.macro import macros_base
+        from nucleo.sintaxis import leer_con_mapa
+
+        lectura = leer_con_mapa(
+            "ninguno-requiere d.exige:\n"
+            "    de item i\n"
+            "    donde i.mal == true\n"
+            "    umbral <= 0 segun contrato porque \"x\"\n"
+            "    requiere item\n"
+            "    ambito universal\n"
+            "    alcance \"NO ve\"\n", macros=macros_base())
+        medida = mcp.Medida.de_datos(lectura.datos, macros=macros_base())
+
+        resultado = mcp._desafiar(medida, [{"id": "vacio", "espera": "rojo",
+                                            "evidencia": {}, "origen": "efimero"}])
+
+        self.assertEqual(resultado["discordancias"],
+                         [{"caso": "vacio", "esperado": "rojo", "obtenido": "sin_evidencia"}])
+
+    def test_un_id_repetido_dice_donde_esta_el_otro(self) -> None:
+        """Un mensaje que siempre culpa al corpus manda a buscar al lugar equivocado cuando el
+        duplicado estaba dentro de la misma llamada."""
+        with self.assertRaises(mcp.ErrorHerramienta) as capturado:
+            mcp._casos_del_desafio(
+                {"usar_evidencia_del_proyecto": False,
+                 "casos": [{"id": "x", "espera": "verde", "evidencia": {}},
+                           {"id": "x", "espera": "rojo", "evidencia": {}}]},
+                "d.prueba", [])
+
+        self.assertEqual(capturado.exception.codigo, "CASO_REPETIDO")
+        self.assertIn("aparece dos veces en esta llamada", str(capturado.exception))
+
+    def test_un_caso_de_la_llamada_no_puede_declararse_observado(self) -> None:
+        """Aceptar `procedencia` volvería esta herramienta una manera de blanquear un corpus: una
+        llamada no puede convertir evidencia fabricada en evidencia observada."""
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            with self.assertRaises(mcp.ErrorHerramienta) as capturado:
+                mcp.desafiar_para_mcp(mcp.Proyecto(raiz), {
+                    "medida": {"texto": self.TEXTO, "formato": "oracle"},
+                    "casos": [{"id": "x", "espera": "rojo", "evidencia": {},
+                               "procedencia": "observada"}]})
+
+        self.assertEqual(capturado.exception.codigo, "PROCEDENCIA_NO_ADMITIDA")
+
+
+class CasosDelDesafioTests(unittest.TestCase):
+    """De dónde sale cada caso, y qué pasa cuando dos se llaman igual.
+
+    Reunir mal los casos no rompe nada visible: el desafío corre igual y da un número. Por eso
+    cada rama de acá va con la entrada que la distingue de su contraria, y no con una que sólo la
+    ejecute.
+    """
+
+    CORPUS = [
+        {"id": "c1", "medida": "d.mia", "etiqueta": "verde_correcto",
+         "evidencia": {"item": []}},
+        {"id": "c2", "medida": "d.mia", "etiqueta": "falso_verde",
+         "evidencia": {"item": [{"mal": True}]}},
+        {"id": "c3", "medida": "d.otra", "etiqueta": "falso_verde", "evidencia": {}},
+    ]
+
+    def test_solo_entran_los_casos_de_ESTA_medida(self) -> None:
+        """El `!=` filtra por id. Con `==` entrarían los de las demás medidas y el desafío mediría
+        una cobertura que no es la suya."""
+        casos = mcp._casos_del_desafio({}, "d.mia", self.CORPUS)
+
+        self.assertEqual([c["id"] for c in casos], ["c1", "c2"])
+
+    def test_la_etiqueta_del_corpus_decide_la_polaridad(self) -> None:
+        """Sólo `verde_correcto` espera verde; toda otra etiqueta describe un defecto y espera
+        rojo. Invertirlo daría `original_no_reproduce` en un corpus sano."""
+        casos = mcp._casos_del_desafio({}, "d.mia", self.CORPUS)
+
+        self.assertEqual([(c["id"], c["espera"]) for c in casos],
+                         [("c1", "verde"), ("c2", "rojo")])
+
+    def test_el_origen_de_cada_caso_queda_registrado(self) -> None:
+        """Un caso del corpus y uno de la llamada no valen lo mismo, y quien lea la respuesta tiene
+        que poder distinguirlos sin adivinar por el id."""
+        casos = mcp._casos_del_desafio(
+            {"casos": [{"id": "x", "espera": "rojo", "evidencia": {}}]}, "d.mia", self.CORPUS)
+
+        self.assertEqual([(c["id"], c["origen"]) for c in casos],
+                         [("c1", "corpus"), ("c2", "corpus"), ("x", "efimero")])
+
+    def test_apagar_la_evidencia_del_proyecto_deja_solo_los_de_la_llamada(self) -> None:
+        casos = mcp._casos_del_desafio(
+            {"usar_evidencia_del_proyecto": False,
+             "casos": [{"id": "x", "espera": "rojo", "evidencia": {}}]}, "d.mia", self.CORPUS)
+
+        self.assertEqual([c["id"] for c in casos], ["x"])
+
+    def test_un_id_que_choca_con_el_corpus_nombra_al_corpus(self) -> None:
+        """El mensaje manda a buscar el otro caso, así que tiene que decir dónde está de verdad."""
+        with self.assertRaises(mcp.ErrorHerramienta) as capturado:
+            mcp._casos_del_desafio(
+                {"casos": [{"id": "c1", "espera": "rojo", "evidencia": {}}]},
+                "d.mia", self.CORPUS)
+
+        self.assertEqual(capturado.exception.codigo, "CASO_REPETIDO")
+        self.assertIn("ya existe en el corpus del proyecto", str(capturado.exception))
+
+    def test_la_bandera_del_proyecto_tiene_que_ser_booleana(self) -> None:
+        """Un `"false"` de texto es verdadero en Python: sin esta comprobación, escribirlo así
+        haría lo contrario de lo pedido y en silencio."""
+        with self.assertRaises(mcp.ErrorHerramienta) as capturado:
+            mcp._casos_del_desafio(
+                {"usar_evidencia_del_proyecto": "false"}, "d.mia", self.CORPUS)
+
+        self.assertEqual(capturado.exception.codigo, "ARGUMENTOS_INVALIDOS")
+
+
+class DesafiarLosCaminosQueNadieRecorreTests(unittest.TestCase):
+    """Un mutante puede no morir por tres motivos distintos, y contarlos juntos miente.
+
+    Que la medida ORIGINAL reviente, que un mutante no llegue a construirse, y que construya pero
+    reviente al evaluar son tres cosas: la primera invalida el desafío entero, la segunda y la
+    tercera son rechazos del álgebra y no cobertura del corpus. Publicarlos como «detectado» sería
+    inflar exactamente el número que este proyecto existe para no inflar.
+    """
+
+    def _medida(self, texto: str):
+        from nucleo.macro import macros_base
+        from nucleo.sintaxis import leer_con_mapa
+
+        lectura = leer_con_mapa(texto, macros=macros_base())
+        return mcp.Medida.de_datos(lectura.datos, macros=macros_base())
+
+    def _base(self):
+        return self._medida(
+            "ninguno d.base:\n"
+            "    de item i\n"
+            "    donde i.mal == true\n"
+            "    umbral <= 0 segun contrato porque \"x\"\n"
+            "    ambito universal\n"
+            "    alcance \"NO ve\"\n")
+
+    def _casos(self):
+        return [{"id": "v", "espera": "verde", "evidencia": {"item": [{"mal": False}]},
+                 "origen": "efimero"},
+                {"id": "r", "espera": "rojo", "evidencia": {"item": [{"mal": True}]},
+                 "origen": "efimero"}]
+
+    def test_si_la_medida_original_revienta_se_informa_como_error_y_no_como_rojo(self) -> None:
+        """Una evidencia sin el campo que la medida lee hace levantar al álgebra. Llamar «rojo» a
+        eso diría que el mundo está mal cuando lo que está mal es la evidencia."""
+        resultado = mcp._desafiar(self._base(), [
+            {"id": "roto", "espera": "rojo", "evidencia": {"item": [{"otro": 1}]},
+             "origen": "efimero"}])
+
+        self.assertEqual(resultado["conclusion"], "original_no_reproduce")
+        self.assertEqual(resultado["discordancias"][0]["obtenido"], "error")
+
+    def test_sin_mutantes_no_es_todos_detectados(self) -> None:
+        """Un denominador vacío no prueba nada. Llamarlo verde sería el caso
+        `019-ronda-sin-mutantes-declarada-verde` del corpus, un nivel más arriba."""
+        with mock.patch("nucleo.mutacion.mutantes", return_value=[]):
+            resultado = mcp._desafiar(self._base(), self._casos())
+
+        self.assertEqual(resultado["conclusion"], "sin_mutantes")
+        self.assertEqual(resultado["mutacion"],
+                         {"generados": 0, "detectados_por_conducta": 0,
+                          "rechazados_por_el_algebra": 0, "no_detectados": []})
+
+    def test_un_mutante_que_no_construye_cuenta_como_rechazo_del_algebra(self) -> None:
+        """No lo discriminó ningún caso: lo rechazó el cargador antes de evaluar. Contarlo como
+        conducta publicaría cobertura que el corpus no aportó."""
+        with mock.patch("nucleo.mutacion.mutantes",
+                        return_value=[("invalido", ["medida", "d.rota"])]):
+            resultado = mcp._desafiar(self._base(), self._casos())
+
+        self.assertEqual(resultado["conclusion"], "sin_sobrevivientes_con_rechazos")
+        self.assertEqual(resultado["mutacion"],
+                         {"generados": 1, "detectados_por_conducta": 0,
+                          "rechazados_por_el_algebra": 1, "no_detectados": []})
+
+    def test_un_mutante_que_construye_y_revienta_tambien_es_rechazo(self) -> None:
+        """Construye bien y levanta al evaluar: lee un campo que la evidencia no trae. Tampoco lo
+        discriminó un caso, así que va del mismo lado que el que no construye."""
+        roto = self._medida(
+            "ninguno d.base:\n"
+            "    de item i\n"
+            "    donde i.ausente == true\n"
+            "    umbral <= 0 segun contrato porque \"x\"\n"
+            "    ambito universal\n"
+            "    alcance \"NO ve\"\n").a_datos()
+
+        with mock.patch("nucleo.mutacion.mutantes", return_value=[("revienta", roto)]):
+            resultado = mcp._desafiar(self._base(), self._casos())
+
+        self.assertEqual(resultado["mutacion"]["rechazados_por_el_algebra"], 1)
+        self.assertEqual(resultado["mutacion"]["detectados_por_conducta"], 0)
+        self.assertEqual(resultado["mutacion"]["no_detectados"], [])
+
+    def test_un_mutante_que_ningun_caso_distingue_queda_nombrado(self) -> None:
+        """El sobreviviente se publica con nombre: un conteo sin nombres no dice qué escribir."""
+        igual = self._base().a_datos()
+
+        with mock.patch("nucleo.mutacion.mutantes", return_value=[("clon", igual)]):
+            resultado = mcp._desafiar(self._base(), self._casos())
+
+        self.assertEqual(resultado["conclusion"], "sobrevivientes")
+        self.assertEqual(resultado["mutacion"]["no_detectados"], [{"mutador": "clon"}])
+
+
+class DesafiarPuntoDeEntradaTests(unittest.TestCase):
+    """Las validaciones de la llamada, cada una con la entrada que la separa de su contraria.
+
+    Aceptar un argumento mal formado no rompe: produce un desafío sobre otra cosa. Ése es el modo
+    de falla que estas pruebas cierran — no la excepción ruidosa, sino el número convincente.
+    """
+
+    TEXTO = ("ninguno d.base:\n"
+             "    de item i\n"
+             "    donde i.mal == true\n"
+             "    umbral <= 0 segun contrato porque \"x\"\n"
+             "    ambito universal\n"
+             "    alcance \"NO ve\"\n")
+
+    def _proyecto(self, td, *, con_escalares=False):
+        raiz = Path(td)
+        (raiz / "catalogos").mkdir(exist_ok=True)
+        if con_escalares:
+            (raiz / "escalares.py").write_text("# del proyecto\n", encoding="utf-8")
+        return mcp.Proyecto(raiz)
+
+    def _desafiar(self, argumentos, **kw):
+        with tempfile.TemporaryDirectory() as td:
+            return mcp.desafiar_para_mcp(self._proyecto(td, **kw), argumentos)
+
+    def _falla(self, argumentos, **kw):
+        with self.assertRaises(mcp.ErrorHerramienta) as capturado:
+            self._desafiar(argumentos, **kw)
+        return capturado.exception
+
+    def test_sin_medida_no_hay_desafio(self) -> None:
+        self.assertEqual(self._falla({}).codigo, "ARGUMENTOS_INVALIDOS")
+
+    def test_los_argumentos_tienen_que_ser_un_objeto(self) -> None:
+        """Una lista tiene `in` pero no claves: sin la comprobación de tipo, `"medida" not in`
+        pasaría sobre `["medida"]` y el fallo aparecería más adentro y peor explicado."""
+        self.assertEqual(self._falla(["medida"]).codigo, "ARGUMENTOS_INVALIDOS")
+
+    def test_un_caso_incompleto_se_rechaza_antes_de_desafiar(self) -> None:
+        """Falta `evidencia`. Sin esto revienta con KeyError adentro del lazo, donde el mensaje ya
+        no puede decir cuál caso estaba mal."""
+        e = self._falla({"medida": {"texto": self.TEXTO, "formato": "oracle"},
+                         "casos": [{"id": "x", "espera": "rojo"}]})
+        self.assertEqual(e.codigo, "ARGUMENTOS_INVALIDOS")
+
+    def test_una_espera_que_no_es_verde_ni_rojo_se_rechaza(self) -> None:
+        """`«amarillo»` compararía distinto de todo y el caso saldría siempre como discordancia:
+        un `original_no_reproduce` que no dice nada de la medida."""
+        e = self._falla({"medida": {"texto": self.TEXTO, "formato": "oracle"},
+                         "casos": [{"id": "x", "espera": "amarillo", "evidencia": {}}]})
+        self.assertEqual(e.codigo, "ARGUMENTOS_INVALIDOS")
+
+    def test_un_id_que_no_esta_en_el_catalogo_efectivo_se_nombra(self) -> None:
+        """Pedir por id una medida ausente no puede terminar en un desafío vacío."""
+        e = self._falla({"medida": {"id": "no.existe"}})
+        self.assertIn("no.existe", str(e))
+
+    def test_sin_casos_del_corpus_lo_dice_en_las_advertencias(self) -> None:
+        """Una evidencia escrita para la medida puede repetir su error. Que todos los casos sean
+        de la llamada no invalida el desafío, pero quien lea el resultado tiene que saberlo."""
+        salida = self._desafiar({
+            "medida": {"texto": self.TEXTO, "formato": "oracle"},
+            "casos": [{"id": "v", "espera": "verde", "evidencia": {"item": [{"mal": False}]}},
+                      {"id": "r", "espera": "rojo", "evidencia": {"item": [{"mal": True}]}}]})
+
+        self.assertEqual(salida["conclusion"], "todos_detectados_por_conducta")
+        self.assertEqual(len(salida["advertencias"]), 1)
+        self.assertIn("ningún caso salió del corpus", salida["advertencias"][0])
+
+    def test_apagar_la_evidencia_del_proyecto_no_lee_el_corpus(self) -> None:
+        """La bandera decide si se toca el disco. Con `and` en lugar del valor por omisión, un
+        proyecto sin `corpus/` fallaría al desafiar con casos propios."""
+        salida = self._desafiar({
+            "medida": {"texto": self.TEXTO, "formato": "oracle"},
+            "usar_evidencia_del_proyecto": False,
+            "casos": [{"id": "v", "espera": "verde", "evidencia": {"item": [{"mal": False}]}},
+                      {"id": "r", "espera": "rojo", "evidencia": {"item": [{"mal": True}]}}]})
+
+        self.assertEqual(salida["casos"], 2)
+
+    def test_las_escalares_del_proyecto_no_se_ejecutan_sin_autorizacion(self) -> None:
+        """El mensaje nombra el archivo y dice DÓNDE se autoriza: al arrancar el servidor, no en
+        esta llamada. Una llamada que pudiera concederse permisos no sería de sólo lectura."""
+        e = self._falla({"medida": {"texto": self.TEXTO, "formato": "oracle"}},
+                        con_escalares=True)
+
+        self.assertEqual(e.codigo, "ESCALARES_NO_AUTORIZADAS")
+        self.assertIn("escalares.py", str(e))
+        self.assertIn("configuración de arranque", str(e))
+
+    def test_la_respuesta_lleva_la_huella_de_lo_que_se_pidio(self) -> None:
+        """Dos llamadas distintas tienen que dar huellas distintas: es lo que permite reconciliar
+        una respuesta con el pedido que la produjo cuando las dos viajaron por el transporte."""
+        pedido = {"medida": {"texto": self.TEXTO, "formato": "oracle"},
+                  "usar_evidencia_del_proyecto": False,
+                  "casos": [{"id": "v", "espera": "verde", "evidencia": {"item": [{"mal": False}]}},
+                            {"id": "r", "espera": "rojo", "evidencia": {"item": [{"mal": True}]}}]}
+        otro = json.loads(json.dumps(pedido))
+        otro["casos"][0]["id"] = "w"
+
+        una = self._desafiar(pedido)
+        dos = self._desafiar(otro)
+
+        self.assertEqual(una["esquema"], "oracle.mcp/desafio/v1")
+        self.assertEqual(len(una["entrada_sha256"]), 64)
+        self.assertNotEqual(una["entrada_sha256"], dos["entrada_sha256"])
+
+
+class DesafiarDefectosPorOmisionTests(unittest.TestCase):
+    """Los valores por omisión son promesas que nadie escribe en la llamada y todos suponen.
+
+    Los tres de acá sobrevivieron a una ronda entera: nada distinguía leer el corpus de no leerlo,
+    ni una huella estable de una que depende del orden en que se escribieron las claves.
+    """
+
+    TEXTO = ("ninguno d.base:\n"
+             "    de item i\n"
+             "    donde i.mal == true\n"
+             "    umbral <= 0 segun contrato porque \"x\"\n"
+             "    ambito universal\n"
+             "    alcance \"NO ve\"\n")
+
+    def _proyecto_con_corpus(self, td):
+        raiz = Path(td)
+        (raiz / "catalogos").mkdir()
+        (raiz / "corpus").mkdir()
+        for cid, etiqueta, filas in (("001-verde-del-corpus", "verde_correcto", [{"mal": False}]),
+                                     ("002-rojo-del-corpus", "falso_verde", [{"mal": True}])):
+            (raiz / "corpus" / f"{cid}.json").write_text(json.dumps({
+                "id": cid, "fecha": "2026-09-05",
+                "origen": {"repo": "prueba/prueba", "commit": "0"},
+                "titulo": "caso de prueba", "etiqueta": etiqueta,
+                "sintoma": "sintético, para fijar que el corpus se lee por omisión",
+                "como_se_detecto": "observacion", "procedencia": "construida",
+                "medida": "d.base", "evidencia": {"item": filas},
+                "leccion": "el corpus del proyecto entra sin que la llamada lo pida",
+            }, ensure_ascii=False), encoding="utf-8")
+        return mcp.Proyecto(raiz)
+
+    def test_por_omision_el_corpus_del_proyecto_SI_entra(self) -> None:
+        """El valor por omisión de `usar_evidencia_del_proyecto`. Si fuera falso, un desafío sin
+        casos propios diría `faltan_polaridades` sobre una medida que el corpus sí fija — y el
+        agente saldría a escribir evidencia que ya existía."""
+        with tempfile.TemporaryDirectory() as td:
+            salida = mcp.desafiar_para_mcp(
+                self._proyecto_con_corpus(td),
+                {"medida": {"texto": self.TEXTO, "formato": "oracle"}})
+
+        self.assertEqual(salida["casos"], 2)
+        self.assertEqual(salida["conclusion"], "todos_detectados_por_conducta")
+        self.assertEqual(salida["advertencias"], [])
+
+    def test_la_huella_no_depende_del_orden_de_las_claves(self) -> None:
+        """`sort_keys`. Dos pedidos idénticos escritos en distinto orden son el mismo pedido: si la
+        huella cambiara, no serviría para reconciliar una respuesta con lo que la produjo."""
+        uno = {"medida": {"texto": self.TEXTO, "formato": "oracle"},
+               "usar_evidencia_del_proyecto": False,
+               "casos": [{"id": "v", "espera": "verde", "evidencia": {"item": [{"mal": False}]}},
+                         {"id": "r", "espera": "rojo", "evidencia": {"item": [{"mal": True}]}}]}
+        otro = {"casos": uno["casos"], "usar_evidencia_del_proyecto": False,
+                "medida": {"formato": "oracle", "texto": self.TEXTO}}
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td); (raiz / "catalogos").mkdir()
+            proy = mcp.Proyecto(raiz)
+            a = mcp.desafiar_para_mcp(proy, uno)["entrada_sha256"]
+            b = mcp.desafiar_para_mcp(proy, otro)["entrada_sha256"]
+
+        self.assertEqual(a, b)
+
+    def test_la_huella_es_la_del_texto_sin_escapar(self) -> None:
+        """`ensure_ascii`. Con el escape activado, «medición» viaja como \\u00f3 y la huella de un
+        mismo pedido cambia según cómo se serializó, no según qué se pidió. Se fija el valor exacto
+        para que las dos banderas queden clavadas juntas."""
+        pedido = {"medida": {"texto": self.TEXTO, "formato": "oracle"},
+                  "usar_evidencia_del_proyecto": False,
+                  "casos": [{"id": "medición", "espera": "verde",
+                             "evidencia": {"item": [{"mal": False}]}},
+                            {"id": "r", "espera": "rojo",
+                             "evidencia": {"item": [{"mal": True}]}}]}
+        esperada = hashlib.sha256(
+            json.dumps(pedido, sort_keys=True, ensure_ascii=False).encode("utf-8")).hexdigest()
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td); (raiz / "catalogos").mkdir()
+            salida = mcp.desafiar_para_mcp(mcp.Proyecto(raiz), pedido)
+
+        self.assertEqual(salida["entrada_sha256"], esperada)
