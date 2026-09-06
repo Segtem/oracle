@@ -55,7 +55,7 @@ def _hechos_del_cli() -> dict:
     """
     from tools import cli
 
-    return hechos_de_verbos(cli.VERBOS, cli.__doc__ or "")
+    return hechos_de_verbos(cli.verbos_documentados(), cli.__doc__ or "")
 
 
 def _hechos_del_vocabulario() -> dict:

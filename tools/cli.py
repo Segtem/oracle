@@ -35,6 +35,7 @@
     oracle manual [tema] --man              la misma referencia en roff, para `man -l`
     oracle manual --instalar-man <dir>      escribe oracle(1) y oracle-<tema>(7) bajo <dir>
 
+    oracle reportar                         prepara un reporte local; no publica ni usa la red
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 """
 
@@ -57,6 +58,7 @@ from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
 from nucleo.caso import rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from tools import manual  # noqa: E402
+from tools import reportar  # noqa: E402
 from nucleo.proyecto import (  # noqa: E402
     ESQUEMA_PROYECTO,
     ID_CASO_RE,
@@ -87,6 +89,7 @@ Uso:
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
+  oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
   oracle --help                           Muestra esta ayuda
   oracle --version                        Versión del paquete, del álgebra y de la sintaxis
 
@@ -102,6 +105,15 @@ Atajos directos:
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
+
+Reporte local:
+  oracle reportar                        Pregunta qué se esperaba, qué ocurrió y cómo se detectó
+      --esperado <texto>                 Evita la primera pregunta interactiva
+      --ocurrido <texto>                 Evita la segunda pregunta interactiva
+      --como-se-detecto <origen>         persona, accidente, herramienta_ajena, observacion o mutacion
+      --incluir-medida <id-o-texto>      Incluye una medida sólo por pedido explícito
+      --incluir-evidencia <ruta>         Incluye ese archivo sólo por pedido explícito
+      --salida <ruta>                    Además guarda el mismo Markdown que muestra entero
 
 Banderas comunes:
   --proyecto <ruta>      Ruta al proyecto (por defecto: directorio actual o $ORACLE_PROYECTO)
@@ -159,6 +171,20 @@ def _informe_biblioteca(ruta_str: str):
         return None
 
 
+def _diagnostico_actual(proy):
+    """El único armado del diagnóstico usado por `diagnostico` y `reportar`."""
+    try:
+        halladas = descubrir_bibliotecas()
+    except BibliotecaInvalida:
+        # Un descubrimiento roto NO impide diagnosticar: es justo cuando más falta hace.
+        halladas = {}
+    config = configuracion(proy) if proy is not None else None
+    seleccionadas = {bid: m for bid, m in halladas.items()
+                     if config is not None and bid in config.bibliotecas}
+    return reunir(proy, bibliotecas=seleccionadas or halladas,
+                  perfiles=config.perfiles if config is not None else ())
+
+
 def cmd_diagnostico(proy, argv: list[str]) -> int:
     """Muestra o guarda el diagnóstico. NUNCA lo manda a ningún lado.
 
@@ -173,16 +199,7 @@ def cmd_diagnostico(proy, argv: list[str]) -> int:
             print("falta la ruta: oracle diagnostico --salida <archivo.json>")
             return 1
         destino = resto[i + 1]
-    try:
-        halladas = descubrir_bibliotecas()
-    except BibliotecaInvalida:
-        # Un descubrimiento roto NO impide diagnosticar: es justo cuando más falta hace.
-        halladas = {}
-    config = configuracion(proy) if proy is not None else None
-    seleccionadas = {bid: m for bid, m in halladas.items()
-                     if config is not None and bid in config.bibliotecas}
-    diagnostico = reunir(proy, bibliotecas=seleccionadas or halladas,
-                         perfiles=config.perfiles if config is not None else ())
+    diagnostico = _diagnostico_actual(proy)
     texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent=2)
 
     if destino:
@@ -191,6 +208,117 @@ def cmd_diagnostico(proy, argv: list[str]) -> int:
         print("Leelo entero antes de compartirlo. Oracle no lo manda a ningún lado.")
         return 0
     print(texto)
+    return 0
+
+
+def _valor_de_bandera(argv: list[str], bandera: str) -> tuple[str | None, str | None]:
+    """Devuelve (valor, error), sin convertir otra bandera en valor por accidente."""
+    if bandera not in argv:
+        return None, None
+    i = argv.index(bandera)
+    if i + 1 >= len(argv) or argv[i + 1].startswith("--"):
+        return None, f"falta el valor: {bandera} <valor>"
+    return argv[i + 1], None
+
+
+def _preguntar(texto: str) -> str:
+    try:
+        return input(texto).strip()
+    except EOFError as e:
+        raise reportar.ReporteInvalido(
+            "la entrada no es interactiva; indicá --esperado, --ocurrido y --como-se-detecto") from e
+
+
+def ayuda_reportar() -> None:
+    print("""oracle reportar — prepara un reporte local listo para copiar en un issue
+
+Uso:
+  oracle reportar [--esperado <texto>] [--ocurrido <texto>]
+                   [--como-se-detecto <origen>]
+                   [--incluir-medida <id-o-texto>]
+                   [--incluir-evidencia <ruta>] [--salida <reporte.md>]
+
+Sin las tres primeras banderas, Oracle hace preguntas. La medida y la evidencia JAMÁS se buscan
+ni se preguntan: sólo entran con las banderas explícitas. El reporte se muestra entero aun cuando
+también se guarde. Oracle no abre un issue, no recibe credenciales y no manda nada. Si decidís
+publicarlo, copiá el artefacto a un issue público de Segtem/oracle.""")
+
+
+def cmd_reportar(proy, argv: list[str]) -> int:
+    """Prepara, muestra entero y opcionalmente guarda; la publicación siempre queda afuera."""
+    if "--help" in argv or "-h" in argv:
+        ayuda_reportar()
+        return 0
+
+    nombres = ("--esperado", "--ocurrido", "--como-se-detecto", "--incluir-medida",
+               "--incluir-evidencia", "--salida")
+    valores = {}
+    for nombre in nombres:
+        if argv.count(nombre) > 1:
+            print(f"bandera repetida: {nombre}", file=sys.stderr)
+            return 1
+        valor, error = _valor_de_bandera(argv, nombre)
+        if error:
+            print(error, file=sys.stderr)
+            return 1
+        valores[nombre] = valor
+
+    conocidos = {"reportar", "--reportar", "--help", "-h", "--proyecto", *nombres}
+    indices_valor = {i + 1 for i, a in enumerate(argv[:-1])
+                     if a in nombres or a == "--proyecto"}
+    sobrantes = [a for i, a in enumerate(argv) if i not in indices_valor and a not in conocidos]
+    if sobrantes:
+        print(f"argumento desconocido para `oracle reportar`: {sobrantes[0]}", file=sys.stderr)
+        return 1
+
+    try:
+        esperado = (valores["--esperado"] if valores["--esperado"] is not None
+                    else _preguntar("¿Qué quisiste expresar o medir? "))
+        ocurrido = (valores["--ocurrido"] if valores["--ocurrido"] is not None
+                    else _preguntar("¿Qué ocurrió en cambio? "))
+        deteccion = (valores["--como-se-detecto"]
+                     if valores["--como-se-detecto"] is not None
+                     else _preguntar(
+                         "¿Cómo se detectó (persona, accidente, herramienta_ajena, "
+                         "observacion, mutacion)? "))
+        evidencia = (reportar.leer_evidencia(valores["--incluir-evidencia"])
+                     if valores["--incluir-evidencia"] is not None else None)
+        reporte = reportar.preparar(
+            esperado=esperado,
+            ocurrido=ocurrido,
+            como_se_detecto=deteccion,
+            diagnostico=_diagnostico_actual(proy),
+            proy=proy,
+            medida=valores["--incluir-medida"],
+            evidencia=evidencia,
+        )
+        destino = valores["--salida"]
+        if destino is not None:
+            ruta_destino = Path(destino).expanduser()
+            ruta_evidencia = valores["--incluir-evidencia"]
+            if (ruta_evidencia is not None
+                    and ruta_destino.resolve() == Path(ruta_evidencia).expanduser().resolve()):
+                raise reportar.ReporteInvalido(
+                    "la salida no puede reemplazar el archivo usado como evidencia")
+            if proy is not None:
+                try:
+                    ruta_destino.resolve().relative_to(proy.corpus.resolve())
+                except ValueError:
+                    pass
+                else:
+                    raise reportar.ReporteInvalido(
+                        "la salida no puede ir dentro de `corpus/`: un reporte todavía no es un caso")
+            ruta_destino.write_text(reporte.texto, encoding="utf-8")
+    except (reportar.ReporteInvalido, OSError) as e:
+        print(f"REPORTE INVÁLIDO — {e}", file=sys.stderr)
+        return 1
+
+    print(reporte.texto, end="")
+    if destino is not None:
+        print(f"escrito: {destino}", file=sys.stderr)
+    print("Revisá el reporte entero antes de copiarlo. Oracle no lo manda a ningún lado.\n"
+          "Si decidís publicarlo, copiá el artefacto a un issue público de Segtem/oracle.",
+          file=sys.stderr)
     return 0
 
 
@@ -212,6 +340,14 @@ VERBOS = {
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
     "manual": tuple(manual.temas()),
 }
+
+# Los comandos planos también son verbos públicos. Declararlos permite que la misma medida que
+# vigila `medida listar` vea `oracle reportar`, y que el manual del comando se derive del despacho.
+VERBOS_DIRECTOS = ("reportar",)
+
+
+def verbos_documentados() -> dict[str, tuple[str, ...]]:
+    return {"oracle": VERBOS_DIRECTOS, **VERBOS}
 
 # `caso nueva` se acepta desde siempre por la concordancia con «medida nueva». Se declara acá en
 # vez de esconderse en la tupla: un alias que nadie escribió a propósito es un alias que nadie
@@ -783,6 +919,10 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando == "biblioteca" and (not resto or resto[0] in ("-h", "--help", "help")):
         ayuda_biblioteca()
         return 0
+    if subcomando in ("reportar", "--reportar") and resto \
+            and resto[0] in ("-h", "--help", "help"):
+        ayuda_reportar()
+        return 0
 
     # 2. Inicialización de proyecto (no requiere proyecto previo)
     if subcomando == "manual":
@@ -974,6 +1114,9 @@ def main(argv: list[str] | None = None) -> int:
         # El proyecto es opcional: la mitad de los reportes de problema empiezan porque el
         # proyecto NO se resuelve, y ahí el diagnóstico es lo único que puede explicar por qué.
         return cmd_diagnostico(proy, argv)
+
+    if subcomando in ("reportar", "--reportar"):
+        return cmd_reportar(proy, argv)
 
     if subcomando == "convertir":
         args = [a for a in resto if a != "--rapido"]

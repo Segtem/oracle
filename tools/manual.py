@@ -98,8 +98,13 @@ def temas() -> tuple[str, ...]:
 def _verbos() -> dict[str, tuple[str, ...]]:
     # Adentro de la función a propósito: `tools.cli` importa este módulo para el subcomando, y a
     # nivel de módulo el ciclo rompe el arranque del CLI.
-    from tools.cli import VERBOS
-    return {sustantivo: tuple(sorted(vs)) for sustantivo, vs in sorted(VERBOS.items())}
+    from tools.cli import verbos_documentados
+    return {sustantivo: tuple(sorted(vs))
+            for sustantivo, vs in sorted(verbos_documentados().items())}
+
+
+def _nombre_comando(sustantivo: str) -> str:
+    return "oracle" if sustantivo == "oracle" else f"oracle {sustantivo}"
 
 
 def entradas(tema: str) -> list[tuple[str, str]]:
@@ -107,7 +112,7 @@ def entradas(tema: str) -> list[tuple[str, str]]:
     if tema in VOCABULARIOS:
         return _lista(VOCABULARIOS[tema][1])
     if tema == "verbos":
-        return [(f"oracle {sustantivo}", " · ".join(vs))
+        return [(_nombre_comando(sustantivo), " · ".join(vs))
                 for sustantivo, vs in _verbos().items()]
     if tema == "medidas":
         return _medidas_como_entradas()
@@ -267,7 +272,7 @@ def man_del_comando() -> str:
     ]
     for sustantivo, verbos in _verbos().items():
         lineas.append(".TP")
-        lineas.append(f".B oracle {_roff(sustantivo)}")
+        lineas.append(f".B {_roff(_nombre_comando(sustantivo))}")
         lineas.append(_roff(" · ".join(verbos)))
     lineas.append(".SH VER TAMBIÉN")
     lineas.append(_roff("oracle-manual(7), y una página por tema: "

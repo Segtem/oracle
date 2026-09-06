@@ -1,6 +1,7 @@
 # Plan 0.7.0 — cómo alguien dice que Oracle no le alcanzó
 
-**Fecha:** 2026-09-05 · **Estado:** propuesta, sin empezar
+**Fecha:** 2026-09-05 · **Estado:** decisiones cerradas el 2026-09-05, en construcción
+**Las decisiones están en** `estudios/CANAL-DE-REPORTE.md`.
 
 ## La pregunta
 
@@ -64,7 +65,30 @@ Lo bueno: el reporte más completo posible, y automático. Lo incómodo, y es se
 0.6.0 es de sólo lectura por diseño**, y esto lo cambia. Cualquier cosa que escriba o envíe rompe
 esa propiedad, que costó descartar una compuerta entera para conservarla.
 
-## Lo que hay que decidir antes de escribir código
+## Las cuatro decisiones, cerradas
+
+| | |
+|---|---|
+| **a dónde va** | un issue público de `Segtem/oracle`, publicado **a mano** por quien reporta |
+| **qué arrastra** | se reutiliza `oracle diagnostico`; evidencia y dominio sólo por inclusión explícita |
+| **¿es un caso?** | **aspira a serlo**; sin evidencia L0 el verificador lo rechaza |
+| **quién valida** | lo mecánico lo rechaza la herramienta; la verdad la sostiene una persona |
+
+Y el servidor MCP no participa: la sólo-lectura de 0.6.0 queda intacta.
+
+Dos cosas que el estudio corrigió de lo que sigue más abajo, y las dos comprobadas:
+
+- **El borde ya distinguía mejor de lo que este plan suponía.**
+  `meta.el_caso_reclama_una_medida_que_existe` filtra sólo `tiene_medida == true y
+  medida_existe == false`, así que un hueco explícito —`medida: null` con
+  `estado_sin_medida: abierto`— no la pone en rojo. Lo que NO se puede omitir es la evidencia: un
+  caso con `evidencia: {}` lo rechaza `tools/corpus.py`. «El lenguaje no me dejó expresar esto» es
+  un reporte legítimo y todavía no es un caso.
+- **El argumento contra triar con un modelo es más fuerte que el de acá abajo.** No sólo es
+  circular: además sesga la entrada a favor de los problemas que el vocabulario actual ya sabe
+  reconocer, que son justamente los que menos necesitan el canal.
+
+## Lo que se decidió, con el detalle de por qué (histórico)
 
 1. **¿A dónde va el reporte?** Un archivo en el repo del que reporta no llega. Un issue automático
    necesita credenciales. Un endpoint necesita un servidor y una política de datos. Ninguna de las

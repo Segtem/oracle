@@ -1797,7 +1797,7 @@ class LosVerbosLleganALaAceptacion(unittest.TestCase):
         from tools.aceptacion import _hechos_del_cli
         from tools import cli
         filas = _hechos_del_cli()["verbo_del_cli"]
-        esperados = sum(len(v) for v in cli.VERBOS.values())
+        esperados = sum(len(v) for v in cli.verbos_documentados().values())
         self.assertEqual(len(filas), esperados)
         self.assertTrue(all(f["nombrado_en_la_ayuda"] for f in filas),
                         "la ayuda de Oracle nombra todos sus verbos")
