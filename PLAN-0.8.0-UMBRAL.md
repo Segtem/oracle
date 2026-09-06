@@ -1,0 +1,74 @@
+# Plan 0.8.0 — el umbral mayor que cero, y el generador que lo ignora
+
+**Fecha:** 2026-09-05 · **Estado:** propuesta, sin empezar
+**Sale de:** `estudios/EL-UMBRAL-MAYOR-QUE-CERO.md`, y de un defecto real que ya causó.
+
+## La ceguera, medida
+
+El catálogo base de Oracle es **55 de 55 en `umbral <= 0`**. Ni una sola medida propia ejerce un
+umbral mayor que cero — ni siquiera la única que usa la macro `peor`, que existe justamente para
+expresar «la peor magnitud dentro de una tolerancia» y la usa con tolerancia 0, el caso degenerado.
+
+El lenguaje **permite** el otro camino: el verbo `medida` no restringe el umbral, y hay consumidores
+que lo usan (`snap.al_ras <= 1.0`, `snap.grilla <= 1.0`, `snap.yaw <= 0.5`) y una biblioteca de
+ejemplo (`meta.segtem.todo_umbral_declara_origen`, `<= 5`). Pero **el catálogo que Oracle publica
+nunca lo recorre**, así que su propio corpus no lo mide.
+
+Y eso no es una preocupación teórica: **ya produjo un defecto**. La exclusión global del mutador
+`convertir_conteo_en_existencia` se apoyaba en la premisa «todas las medidas del catálogo tienen
+umbral <= 0». Vivió meses sin que nada la contradijera, porque el catálogo base nunca la
+contradecía. Cuando por fin se comprobó contra un consumidor, la premisa era falsa — y la exclusión
+estaba escondiendo cobertura real: una biblioteca publicaba 16 mutantes certificados cuando eran 17.
+
+## La misma ceguera, un nivel más adentro
+
+`nucleo/generador.py` fabrica un caso `falso_verde` inyectando **exactamente una fila ofensora**,
+asumiendo que `count == 1` rompe el umbral. Con un umbral permisivo —`contar <= 5`, o un `peor` con
+tolerancia— el caso generado sale **verde estando etiquetado como rojo**, y nadie avisa.
+
+O sea: la herramienta que propone casos está rota exactamente para las medidas que Oracle nunca
+escribió. Las dos cosas se sostienen mutuamente, y por eso van juntas en la misma versión.
+
+## Lo que 0.8.0 tiene que dejar
+
+1. **Al menos una medida propia con umbral > 0**, y no de adorno: elegida porque su dominio es una
+   magnitud y no una cardinalidad. El estudio propone una candidata; la elección se justifica o se
+   cambia, pero el camino queda vivo en el corpus del propio Oracle.
+
+2. **El generador deja de asumir el cero.** Tiene que fabricar evidencia que rompa *el umbral que la
+   medida declara*, no un umbral supuesto. Y si no puede —porque el umbral es una magnitud y no un
+   conteo—, tiene que decirlo en vez de producir un caso que se contradice a sí mismo.
+
+3. **Una medida que vigile la suposición.** Es lo que faltó las dos veces: nada detectaba que un
+   sitio del código asumiera `umbral == 0`. El estudio inventarió once lugares; la pregunta es cuál
+   de esos es comprobable desde el álgebra y cuál sólo desde el código.
+
+4. **El resto del inventario, triado.** De los once sitios que el estudio encontró, tres están
+   marcados como bombas silenciosas y el resto como correctos o sesgados. Cada uno se cierra o se
+   declara, con su argumento.
+
+## La regla que ordena la distinción
+
+Del estudio, y conviene tenerla a mano al escribir la medida nueva:
+
+| | el número va en el FILTRO | el número va en el UMBRAL |
+|---|---|---|
+| tipo | oráculo de ausencia de defectos | cota de magnitud |
+| resumen | `contar` | `max` · `min` · `promedio` |
+| unidad | cardinalidad: cuántas filas ofenden | magnitud del dominio: cm, grados, segundos |
+| umbral | **`<= 0`** — ningún defecto tolerable | **`<= K`** — la magnitud extrema no debe pasar K |
+| si K > 0 | concesión por comodidad | especificación del contrato |
+
+Un umbral > 0 sobre un `contar` casi siempre es una concesión disfrazada. Sobre un `max` es el
+contrato. La medida nueva de Oracle tiene que ser del segundo tipo, o no vale la pena.
+
+## Lo que este plan NO debe hacer
+
+**Escribir una medida con umbral > 0 sólo para tener una.** Una medida que existe para ejercer un
+camino del lenguaje y no para medir algo que importa es exactamente la clase de decoración que este
+proyecto rechaza en todo lo demás. Si no aparece una candidata legítima, el hallazgo es ése y hay
+que decirlo, no fabricar una.
+
+**Aflojar el generador para que no se queje.** Si no puede fabricar un rojo creíble para una medida,
+la respuesta correcta es negarse y decir por qué — no producir un caso que el corpus va a aceptar y
+que no prueba nada.

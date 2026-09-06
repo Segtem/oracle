@@ -1,6 +1,6 @@
 # Plan 0.7.0 — cómo alguien dice que Oracle no le alcanzó
 
-**Fecha:** 2026-09-05 · **Estado:** decisiones cerradas el 2026-09-05, en construcción
+**Fecha:** 2026-09-05 · **Estado:** en construcción · `oracle reportar` hecho
 **Las decisiones están en** `estudios/CANAL-DE-REPORTE.md`.
 
 ## La pregunta
