@@ -303,3 +303,91 @@ class ReportarCliTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class LosCincoQueLaMutacionDejoVivosTests(unittest.TestCase):
+    """Cada uno con la entrada que lo separa de su mutante.
+
+    Cuatro de los cinco viven en la vista previa, que es la afirmación central de este módulo: lo
+    que la persona ve es exactamente lo que va a compartir. Un defecto ahí no rompe una corrida —
+    publica algo que su autor no revisó.
+    """
+
+    def _cercar(self):
+        for nombre in ("_cercar", "_bloque", "_cerca"):
+            fn = getattr(reportar, nombre, None)
+            if fn is not None:
+                return fn
+        raise AssertionError("no se encontró la función que arma la cerca")
+
+    def test_el_reporte_no_se_puede_reescribir_despues_de_mostrarlo(self) -> None:
+        """`frozen`. El texto que se muestra ES el que se guarda: si alguien pudiera reasignarlo
+        después de la vista previa, la persona habría revisado una cosa y copiado otra, que es
+        justamente lo que este módulo existe para impedir.
+        """
+        import dataclasses
+
+        reporte = reportar.Reporte(texto="lo que se revisó")
+        with self.assertRaises(dataclasses.FrozenInstanceError):
+            reporte.texto = "otra cosa"
+
+    def test_por_omision_el_texto_se_recorta(self) -> None:
+        """El valor por omisión de `recortar`. Sin él, un salto de línea pegado al final de una
+        respuesta interactiva viaja al issue y corre la estructura del Markdown."""
+        self.assertEqual(reportar._texto_requerido("x", "  hola  "), "hola")
+
+    def test_sin_recortar_conserva_los_bytes_tal_cual(self) -> None:
+        """La otra dirección: donde el contenido es evidencia, un espacio puede ser significativo
+        y recortarlo cambiaría lo que la persona creyó compartir."""
+        self.assertEqual(reportar._texto_requerido("x", "  hola  ", recortar=False), "  hola  ")
+
+    def test_un_contenido_sin_acentos_graves_usa_la_cerca_minima(self) -> None:
+        """Los contadores arrancan en cero. Si arrancaran en uno, un contenido limpio saldría con
+        una cerca de cuatro y el bloque dejaría de ser el Markdown que un issue espera."""
+        salida = self._cercar()("sin acentos graves", "text")
+
+        self.assertEqual(salida.splitlines()[0], "```text")
+        self.assertEqual(salida.splitlines()[-1], "```")
+
+    def test_una_corrida_al_principio_tambien_cuenta(self) -> None:
+        """El contenido ARRANCA con la cerca. Un test cuyo contenido empieza con texto no
+        distingue el valor inicial del acumulador: el primer carácter lo reinicia y la rama nunca
+        se ejerce. Fue exactamente lo que dejó vivo a este mutante en la primera ronda."""
+        salida = self._cercar()("````\ncuatro\n````", "text")
+
+        self.assertEqual(salida.splitlines()[0], "`````text")
+
+    def test_uno_o_dos_acentos_sueltos_no_alargan_la_cerca(self) -> None:
+        """Sólo una corrida de tres o más puede cerrar una cerca de tres. Contar las de uno o dos
+        alargaría el bloque sin motivo, y el `2` por omisión es justamente esa frontera."""
+        self.assertEqual(self._cercar()("un `acento` suelto", "text").splitlines()[0], "```text")
+
+    def test_un_contenido_con_su_propia_cerca_la_desborda(self) -> None:
+        """Ésta es la afirmación: la vista previa muestra TODO. Con una cerca fija de tres, una
+        evidencia que traiga la suya cerraría el bloque antes de tiempo y el resto se renderizaría
+        como estructura del issue en vez de como los bytes que se están por compartir.
+        """
+        salida = self._cercar()("antes\n```\nadentro\n```\ndespués", "text")
+
+        self.assertEqual(salida.splitlines()[0], "````text")
+        self.assertEqual(salida.splitlines()[-1], "````")
+        self.assertIn("```\nadentro\n```", salida)
+
+    def test_el_diagnostico_viaja_legible_y_no_escapado(self) -> None:
+        """`ensure_ascii`. Con el escape activado, «versión» sale como \\u00f3n y la persona revisa
+        un texto que no puede leer: el consentimiento sobre lo que se comparte deja de ser
+        informado si lo que se muestra está cifrado en puntos de código.
+        """
+        con_acentos = Diagnostico({
+            "oracle": {"distribucion": "0.6.0", "algebra": "0.6", "sintaxis": "0.2"},
+            "entorno": {"python": "3.13.0", "sistema": "Linux", "arquitectura": "x86_64"},
+            "proyecto": {"nota": "medición de piezas del cañón"},
+            "bibliotecas": [],
+            "perfiles": [],
+        })
+
+        hecho = reportar.preparar(
+            esperado="x", ocurrido="y", como_se_detecto="persona", diagnostico=con_acentos)
+
+        self.assertIn("medición de piezas del cañón", hecho.texto)
+        self.assertNotIn("\\u00f3", hecho.texto)

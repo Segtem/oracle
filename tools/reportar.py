@@ -8,6 +8,7 @@ medida o la evidencia. La salida completa es el consentimiento: nada se comparte
 from __future__ import annotations
 
 import json
+import re
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -39,15 +40,13 @@ def _bloque(contenido: str, lenguaje: str = "text") -> str:
     tiempo si la evidencia trajera otra cerca Markdown, y el resto se renderizaría como estructura
     del issue en vez de como los bytes que la persona está por compartir.
     """
-    mayor = 0
-    actual = 0
-    for caracter in contenido:
-        if caracter == "`":
-            actual += 1
-            mayor = max(mayor, actual)
-        else:
-            actual = 0
-    cerca = "`" * max(3, mayor + 1)
+    # Sólo cuentan las corridas de TRES o más: una o dos comillas invertidas sueltas no cierran
+    # una cerca de tres, así que mirarlas no cambia el resultado. Con el acumulador anterior y su
+    # piso `max(3, ...)`, el valor inicial quedaba absorbido —cualquier arranque menor que tres
+    # daba el mismo largo— y la mutación lo dejaba vivo por equivalencia. Acá el `2` por omisión
+    # SÍ decide: es la corrida más larga que se puede ignorar, y cambiarlo alarga toda cerca.
+    mayor = max((len(corrida) for corrida in re.findall(r"`{3,}", contenido)), default=2)
+    cerca = "`" * (mayor + 1)
     return f"{cerca}{lenguaje}\n{contenido}\n{cerca}"
 
 
