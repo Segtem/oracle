@@ -34,10 +34,13 @@ forma `MAYOR.MENOR` (dos enteros). Sin una regla que diga qué cambio sube qué 
 decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
-también cambia cuando cambia una herramienta sin cambiar el lenguaje. En el corte 0.7.0 sube sólo
-ese dato, de `0.6.0` a `0.7.0`: el paquete gana `oracle reportar`; el álgebra no gana ningún nodo y
-el lector no gana ninguna forma, por lo que `VERSION_ALGEBRA` queda en `0.6` y
-`VERSION_SINTAXIS` en `0.2`.
+también cambia cuando cambia una herramienta sin cambiar el lenguaje.
+
+**Corte 0.7.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.6.0` a `0.7.0`.** El paquete gana
+`oracle reportar` y el canal documentado de reporte. `VERSION_ALGEBRA` queda en `0.6`: no se agrega
+ningún nodo, operador, agregado, escalar ni relación de traza, ni cambia el significado de los
+existentes. `VERSION_SINTAXIS` queda en `0.2`: el lector no gana palabras ni cláusulas y sigue
+aceptando las mismas formas de `.oracle` y `.caso` con el mismo significado.
 
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una

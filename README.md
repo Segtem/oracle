@@ -1,6 +1,6 @@
 # oracle
 
-[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.6.0](https://github.com/Segtem/oracle/releases/tag/v0.6.0)
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [0.7.0 — notas del corte](https://github.com/Segtem/oracle/blob/main/NOTAS-DE-RELEASE.md)
 
 ```bash
 uv tool install oracle-metalenguaje
@@ -88,6 +88,17 @@ Para trabajar sobre el checkout —o para tomar algo que todavía no salió en u
 uv tool install .          # o: python -m pip install -e .
 uvx --from . oracle --help # probarlo sin instalar nada
 ```
+
+## Reportar un límite
+
+Si Oracle no pudo expresar una regla, dio un verde que sabés falso o un rojo que no corresponde,
+corré `oracle reportar` desde tu proyecto. El comando pregunta qué esperabas, qué ocurrió y cómo lo
+detectaste; después muestra un artefacto local completo y **no usa la red ni publica nada**.
+
+Por omisión no incluye medidas ni evidencia del dominio. Sólo entran si pedís
+`--incluir-medida` o `--incluir-evidencia`; aun así, revisá toda la salida antes de compartirla.
+Pegala tal cual en la [plantilla pública de reporte de límite](https://github.com/Segtem/oracle/issues/new?template=reporte-de-limite.md).
+Abrir el issue registra el hallazgo: no promete diagnóstico, prioridad, fecha ni arreglo.
 
 ## La esencia, mirada de cerca
 
@@ -539,7 +550,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1243 tests · 892/892 mutantes de medida · **5425 sitios de mutación de código** (5215 + 210 del motor Python).
+1266 tests · 892/892 mutantes de medida · **5502 sitios de mutación de código** (5292 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

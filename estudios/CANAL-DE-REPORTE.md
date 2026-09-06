@@ -1,7 +1,7 @@
 # Canal de reporte para 0.7.0
 
 **Fecha:** 2026-09-05  
-**Estado:** diseño decidido; sin implementación
+**Estado:** implementado; corte local 0.7.0 preparado el 2026-09-06, sin publicar
 
 ## Decisión
 

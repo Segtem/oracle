@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Reportar un límite — Oracle</title>
+<meta name="description" content="Cómo preparar, revisar y publicar un reporte cuando Oracle no alcanza.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root {
+    --tinta: oklch(0.16 0 0);
+    --papel: oklch(0.96 0.004 95);
+    --acento: oklch(0.58 0.20 45);
+    --acento-claro: oklch(0.78 0.19 60);
+    --regla: 3px;
+    --mg: 44px;
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--papel); color: var(--tinta);
+    font: 17px/1.5 'Archivo', system-ui, -apple-system, sans-serif;
+  }
+  a { color: inherit; text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { text-decoration-color: var(--acento); }
+  .barra {
+    padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+    font: 12px var(--mono); letter-spacing: .06em; text-transform: uppercase;
+  }
+  .barra a { text-decoration: none; }
+  .barra a:hover { color: var(--acento-claro); }
+  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
+  .ver { color: oklch(0.70 0.02 95); margin-left: 14px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 58px var(--mg) 44px; }
+  h1, h2 { font-family: var(--negra); letter-spacing: -.038em; text-transform: uppercase; }
+  h1 { margin: 0 0 26px; font-size: clamp(52px, 11vw, 112px); line-height: .88; }
+  h2 { margin: 44px 0 18px; padding-top: 34px; border-top: var(--regla) solid var(--tinta);
+       font-size: clamp(28px, 4vw, 38px); line-height: 1.04; }
+  .eti { color: oklch(0.45 0.01 95); font: 12px var(--mono); letter-spacing: .09em;
+         text-transform: uppercase; margin: 0 0 18px; }
+  .bajada { max-width: 33ch; font-size: clamp(19px, 2.4vw, 25px); line-height: 1.38; font-weight: 500; }
+  code, pre { font-family: var(--mono); }
+  code { font-size: .88em; }
+  pre {
+    overflow-x: auto; margin: 28px 0; padding: 22px;
+    background: var(--tinta); color: var(--papel); font-size: 15px; line-height: 1.7;
+  }
+  ol { margin: 26px 0; padding-left: 28px; }
+  li { margin: 12px 0; padding-left: 8px; }
+  .aviso {
+    margin: 36px 0; border: var(--regla) solid var(--tinta);
+    border-left: 10px solid var(--acento); padding: 20px 24px;
+  }
+  .btn {
+    display: inline-block; margin-top: 12px; padding: 15px 30px;
+    background: var(--tinta); color: var(--papel); font: 16px var(--negra);
+    text-transform: uppercase; letter-spacing: .02em; text-decoration: none;
+  }
+  /* El acento claro permite texto pequeño legible sobre el naranja del botón. */
+  .btn:hover { background: var(--acento-claro); color: var(--tinta); }
+  footer {
+    padding: 24px var(--mg); background: var(--tinta); color: oklch(0.82 0.01 95);
+    display: flex; gap: 34px; flex-wrap: wrap; font: 12px var(--mono); text-transform: uppercase;
+    letter-spacing: .05em;
+  }
+  footer a:hover { color: var(--acento-claro); }
+  @media (max-width: 860px) {
+    :root { --mg: 22px; }
+    body { font-size: 16px; }
+    .barra nav { gap: 16px; font-size: 11px; }
+    .btn { padding: 14px 22px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+<header class="barra">
+  <div><strong><a href="./">oracle</a></strong><span class="ver">0.7.0</span></div>
+  <nav>
+    <a href="donde-entra.html">dónde entra</a>
+    <a href="de-cero.html">de cero</a>
+    <a href="manual.html">manual</a>
+    <a href="https://github.com/Segtem/oracle">github</a>
+  </nav>
+</header>
+
+<main>
+  <p class="eti">cuando el lenguaje no alcanza</p>
+  <h1>Reportar un límite</h1>
+  <p class="bajada">
+    Oracle prepara el reporte en tu máquina. Vos ves todo lo que saldría y decidís si lo pegás en
+    un issue público. El comando no publica, no usa la red y no recibe credenciales.
+  </p>
+
+  <h2>Preparar, revisar, pegar</h2>
+  <ol>
+    <li>Desde el proyecto donde apareció el límite, corré <code>oracle reportar</code>.</li>
+    <li>Contá qué esperabas, qué ocurrió y cómo lo detectaste.</li>
+    <li>Leé el artefacto completo que aparece en pantalla.</li>
+    <li>Abrí la plantilla y pegá ese artefacto tal cual.</li>
+  </ol>
+
+  <pre><code>cd &lt;tu-proyecto&gt;
+oracle reportar
+
+# también se puede guardar una vista previa local
+oracle reportar --salida reporte.md</code></pre>
+
+  <p>
+    La salida conserva estructura: <code>sintoma</code>, <code>como_se_detecto</code> y
+    <code>diagnostico</code>. Si los pediste, suma <code>medida</code> y <code>evidencia</code>.
+    Esos nombres compartidos con un archivo <code>.caso</code> ya quedan listos para una posible
+    reproducción posterior.
+  </p>
+
+  <div class="aviso">
+    <strong>Los datos del dominio quedan afuera por omisión.</strong>
+    <code>--incluir-medida</code> y <code>--incluir-evidencia</code> son inclusiones explícitas.
+    Oracle redacta rutas conocidas, pero no puede reconocer secretos ni datos privados dentro de tu
+    prosa o evidencia. Revisá todo: el issue es público.
+  </div>
+
+  <a class="btn" href="https://github.com/Segtem/oracle/issues/new?template=reporte-de-limite.md">Abrir la plantilla de reporte</a>
+
+  <h2>Qué significa abrirlo</h2>
+  <p>
+    El issue registra que alguien encontró un límite y deja un lugar donde reproducirlo. Todavía no
+    es un caso del corpus y no altera ninguna medida. Tampoco promete diagnóstico, prioridad, fecha
+    ni arreglo.
+  </p>
+
+  <h2>Del issue a un <code>.caso</code></h2>
+  <p>
+    La promoción no es copiar el Markdown al corpus. Una persona responsable del repositorio hace
+    primero lo que Oracle no puede decidir: comprueba que el comportamiento se reproduce y sostiene
+    que lo esperado por el reporte es verdad para ese dominio.
+  </p>
+  <ol>
+    <li>
+      Reduce y reproduce el hallazgo en una versión identificable. Registra <code>fecha</code>,
+      <code>origen</code> y una <code>procedencia</code> honesta: <code>observada</code>,
+      <code>construida</code> o <code>generada</code>.
+    </li>
+    <li>
+      Convierte lo reproducido en evidencia L0: un mapa no vacío de relaciones a filas planas cuyos
+      campos sean escalares. Una captura, un log libre o <code>evidencia: {}</code> todavía no son
+      evidencia del corpus.
+    </li>
+    <li>
+      Elige la <code>etiqueta</code> que fija la polaridad esperada, redacta un solo
+      <code>sintoma</code> con lo esperado y lo ocurrido, conserva <code>como_se_detecto</code> y
+      escribe la <code>leccion</code> que el caso debe dejar fijada.
+    </li>
+    <li>
+      Nombra una <code>medida</code> existente, o usa <code>medida: null</code>. En ese caso declara
+      <code>estado_sin_medida: abierto</code> y explica <code>sin_medida_todavia</code>; no inventa un
+      id que parezca plausible.
+    </li>
+    <li>
+      Crea el andamio con <code>oracle caso &lt;grupo/NNN-descripcion&gt;</code>, completa los campos y
+      corre el verificador y la aceptación antes de proponer el archivo.
+    </li>
+  </ol>
+
+  <pre><code>oracle caso &lt;grupo/NNN-descripcion&gt;
+python3 tools/corpus.py --proyecto .
+python3 tools/aceptacion.py --proyecto .</code></pre>
+
+  <p>
+    <code>tools/corpus.py</code> rechaza ids que no coinciden con el archivo, campos obligatorios
+    ausentes, vocabularios desconocidos, evidencia L0 vacía o anidada y una medida nula sin estado y
+    explicación. La aceptación comprueba además que una medida nombrada exista y que el caso tome la
+    polaridad declarada. Si se pretende afirmar que una medida quedó fijada, los casos fabricados no
+    bastan por sí solos: la evidencia observada tiene que sostenerla.
+  </p>
+
+  <div class="aviso">
+    <strong>Si nadie puede reproducirlo, no se fabrica un caso.</strong>
+    El issue puede conservarse como conversación o cerrarse como no reproducible, pero queda fuera
+    del corpus: no cambia sus conteos, no fija una medida y no se transforma en deuda prometida. Una
+    reproducción posterior puede retomar el camino.
+  </div>
+</main>
+
+<footer>
+  <a href="./">inicio</a>
+  <a href="https://github.com/Segtem/oracle">código</a>
+  <span>0.7.0</span>
+</footer>
+</body>
+</html>

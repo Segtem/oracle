@@ -1,6 +1,6 @@
 # Plan 0.7.0 — cómo alguien dice que Oracle no le alcanzó
 
-**Fecha:** 2026-09-05 · **Estado:** en construcción · `oracle reportar` hecho
+**Fecha:** 2026-09-05 · **Estado:** implementado; corte local 0.7.0 preparado el 2026-09-06, sin publicar
 **Las decisiones están en** `estudios/CANAL-DE-REPORTE.md`.
 
 ## La pregunta

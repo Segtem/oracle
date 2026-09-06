@@ -1,3 +1,107 @@
+# 0.7.0 — cuando Oracle no alcanza, el límite ya tiene por dónde entrar
+
+Este corte agrega un canal público de reporte sin convertir a Oracle en emisor de datos ni al issue
+en evidencia del corpus. En el corte sube únicamente la distribución:
+
+```
+VERSION_DISTRIBUCION   0.6.0 → 0.7.0     el paquete y sus ejecutables
+VERSION_ALGEBRA        0.6   → 0.6       lo que una medida SIGNIFICA
+VERSION_SINTAXIS       0.2   → 0.2       cómo se ESCRIBE
+```
+
+La distribución sube porque el paquete incorpora `oracle reportar` y su canal documentado.
+El álgebra no sube: no agrega nodos, operadores, agregados, escalares ni relaciones de traza, y no
+cambia la semántica existente. La sintaxis tampoco sube: el lector de `.oracle` y `.caso` no aprende
+palabras ni cláusulas y sigue aceptando las mismas formas con el mismo significado. Es la regla de
+`ESPECIFICACION.md` §0.
+
+## `oracle reportar`: preparar no es publicar
+
+`oracle reportar` pregunta qué se quiso expresar o medir, qué ocurrió en cambio y cómo se detectó.
+Con eso y el diagnóstico existente arma un artefacto Markdown estructurado que se puede leer en la
+terminal o guardar con `--salida`. No abre un issue, no usa la red, no recibe credenciales y no llama
+«reportado» a un archivo que sólo quedó guardado localmente.
+
+La salida automática se construye desde la misma lista positiva de `oracle diagnostico`. Una medida
+y una evidencia sólo entran mediante `--incluir-medida` y `--incluir-evidencia`, respectivamente;
+sin esas opciones no sale ningún dato del dominio. Las rutas conocidas se redactan también en la
+prosa y en los anexos explícitos, pero eso no permite prometer que un texto libre carezca de secretos.
+Por eso la salida se muestra completa antes del único acto de publicación: copiarla a mano.
+
+El módulo quedó incorporado a la custodia de mutación el día en que se escribió: **19/19 mutantes
+rechazados, cero sobrevivientes**.
+
+## Del artefacto al issue, sin perder la estructura
+
+La nueva plantilla «Reporte de límite» recibe el artefacto completo tal cual. Sus campos conservan
+los nombres que comparten con un `.caso`: `sintoma`, `como_se_detecto`, `medida` y `evidencia`; el
+reporte suma `diagnostico` y separa dentro del síntoma lo esperado de lo ocurrido. El README y el
+sitio explican el comando, las inclusiones explícitas, la revisión previa y que el destino es
+público.
+
+No se agregó un canal privado ni publicación automática. Si un hallazgo no puede reducirse y
+anonimizarse para un issue público, 0.7.0 no tiene un destino seguro para recibirlo.
+
+## Un issue aspira a ser un caso; todavía no lo es
+
+La guía de promoción deja el borde operativo escrito. Un mantenedor reproduce el comportamiento,
+sostiene el juicio semántico sobre qué debía ocurrir y convierte lo observado en evidencia L0. El
+caso necesita los campos del esquema y un mapa no vacío de relaciones a filas escalares. Puede
+nombrar una medida existente o declarar `medida: null` junto con
+`estado_sin_medida: abierto` y una explicación en `sin_medida_todavia`; inventar un id no reemplaza
+una capacidad ausente.
+
+`tools/corpus.py` rechaza la forma inválida y la aceptación comprueba la medida y la polaridad. Si
+nadie puede reproducir el reporte, no se fabrica evidencia: el issue puede conservar la conversación
+o cerrarse como no reproducible, pero no entra al corpus ni cambia sus conteos.
+
+## Recibido no significa prometido
+
+**Abrir un reporte registra un límite; no promete diagnóstico, prioridad, fecha ni arreglo.** El
+canal separa deliberadamente recibir una observación, demostrarla como caso y decidir cualquier
+cambio de producto.
+
+El servidor MCP no participa y conserva íntegro el contrato de sólo lectura de 0.6.0: ninguna
+herramienta MCP escribe archivos, publica reportes ni transmite datos.
+
+## Verificación del corte
+
+El corte local de 0.7.0 pasa **1266 tests** y el corpus conserva **180 casos** con esquema,
+evidencia L0 y trazabilidad en regla. La aceptación mantiene exactamente los dos rojos declarados en
+`meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`:
+
+```
+meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        2 (<= 0)
+```
+
+La aceptación sale con código 1 por esa única medida meta en rojo: los dos pendientes son
+`meta.sintaxis_cubre_algebra` y `meta.sintaxis_casos_cubre_casos`. Jam pasa con 23 casos (20 rojos
+esperados y 3 verdes correctos); LyraGASP, con 26 (12 y 14). Ambos conservan sus tres sombras
+declaradas y salen con código 0.
+
+La mutación de `tools/reportar.py` confirma 19 muertos, cero sobrevivientes, cero tiempos agotados,
+cero errores del arnés y cero equivalentes declarados. Conserva una advertencia explícita:
+`proceso.test_con_mutante_que_lo_mata` no puede juzgar esa evidencia porque falta
+`detecciones_conductuales`; las tres medidas que juzgan la mutación de código dan verde.
+
+La plantilla coincide con los encabezados emitidos por `oracle reportar` y con los nombres del
+impresor de `.caso`. La revisión del sitio corrigió la paleta y las reglas de 2 px de la página
+nueva para usar la identidad existente y reglas de 3 px. También corrigió sus enlaces del pie,
+que al pasar el cursor daban 2,57:1 contra el fondo oscuro. La comprobación en Chromium recorre los
+62 elementos con texto contra su propio fondo, a 1280 y 390 px y con los enlaces en reposo y bajo
+el cursor: contraste mínimo 6,65:1, sin desborde horizontal. La página no contiene texto SVG.
+
+El wheel y el sdist se construyen localmente; una instalación del wheel en un venv limpio fuera
+del repositorio devuelve `oracle 0.7.0`, álgebra `0.6`, sintaxis `0.2`, y ejecuta
+`oracle reportar --help`. Los 117 archivos de código y datos empaquetados coinciden byte a byte
+con el árbol. Setuptools advierte sobre directorios de datos no declarados como paquetes; la
+comprobación del contenido confirma que están incluidos. No se publicó en PyPI.
+
+Se regeneraron las cifras del README (1266 tests y 5502 sitios de mutación de código) y el manual
+HTML; el manual ya coincidía con su generador.
+
+---
+
 # 0.6.0 — Oracle contesta por MCP, y la respuesta lleva sus premisas
 
 Nueve commits desde `0.5.0`. Sube únicamente la distribución:
