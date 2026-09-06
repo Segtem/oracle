@@ -84,6 +84,7 @@ PRIORIDADES = {
     # `test_mcp` primero y solo: es suyo y es chico. Misma palanca que en `contexto.py`, que pasó de
     # 858 a 56 segundos.
     "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
+    "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -181,8 +182,16 @@ PRIORIDADES = {
 # La afirmación que custodia está escrita en `PLAN-0.6.0-MCP.md`: que lo que el servidor le dice a
 # un agente sea lo que Oracle sabe. Nadie más la comprueba — un agente no tiene con qué dudar de la
 # respuesta, y ése es exactamente el motivo por el que el archivo existe.
+# `reportar.py` entra el 2026-09-05, el mismo día que se escribe. Custodia dos afirmaciones que
+# nadie más comprueba: que el contenido del dominio entra SÓLO por inclusión explícita, y que el
+# artefacto que se muestra es íntegramente el que se guarda. `meta.el_diagnostico_no_publica_el_dominio`
+# protege el subdocumento del diagnóstico, no el reporte entero.
+#
+# Y es una afirmación cara de equivocar: lo que se rompe si falla no es una corrida sino la
+# privacidad de quien reporta. Un reporte que arrastra una ruta o un id del negocio sin que su autor
+# lo haya pedido ya salió del repositorio cuando alguien lo nota.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "contexto.py", "corpus.py",
-                          "lsp.py", "manual.py", "mcp.py", "medida.py")
+                          "lsp.py", "manual.py", "mcp.py", "medida.py", "reportar.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:
