@@ -252,8 +252,8 @@
 
 <section class="fila lienzo oscuro">
   <figure>
-    <svg viewBox="0 0 900 320" fill="currentColor" role="img"
-         aria-label="Comparación. Sin Oracle: el generador escribe el artefacto y también la prueba, y la prueba emite el veredicto. Con Oracle: un sensor lee el artefacto y produce evidencia, una medida declarada la juzga, y un mutador rompe la medida para comprobar que el corpus lo note.">
+    <svg viewBox="0 0 1000 340" fill="currentColor" role="img"
+         aria-label="Comparación. Sin Oracle: el generador escribe el artefacto y también la prueba que lo juzga, y de ahí sale el verde. Con Oracle: un sensor lee el artefacto y produce evidencia; una medida declarada y esa evidencia dan el veredicto con sus testigos; y un mutador rompe la medida a propósito para comprobar que el corpus lo note.">
       <defs>
         <marker id="p1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7"
                 orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker>
@@ -261,76 +261,74 @@
                 orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="var(--acento-claro)"/></marker>
       </defs>
 
+      <!-- ═══ panel izquierdo ═══ -->
       <text x="0" y="16" font-family="JetBrains Mono,monospace" font-size="12"
             letter-spacing="1.6" opacity=".62">HOY</text>
-      <line x1="0" y1="27" x2="400" y2="27" stroke="currentColor" stroke-opacity=".28"/>
+      <line x1="0" y1="27" x2="410" y2="27" stroke="currentColor" stroke-opacity=".28"/>
 
-      <rect x="0" y="52" width="118" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="59" y="80" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">generador</text>
+      <rect x="0" y="74" width="118" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="59" y="103" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14">generador</text>
 
-      <rect x="172" y="46" width="112" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="228" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">artefacto</text>
+      <rect x="172" y="46" width="112" height="42" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="228" y="73" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14">artefacto</text>
 
-      <rect x="172" y="120" width="112" height="40" fill="none" stroke="var(--acento-claro)" stroke-width="2.4"/>
-      <text x="228" y="145" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="var(--acento-claro)">prueba</text>
+      <rect x="172" y="128" width="112" height="42" fill="none" stroke="var(--acento-claro)" stroke-width="2.4"/>
+      <text x="228" y="155" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14" fill="var(--acento-claro)">prueba</text>
 
-      <rect x="330" y="82" width="70" height="42" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="365" y="108" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">verde</text>
+      <rect x="334" y="76" width="76" height="44" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="372" y="104" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14">verde</text>
 
-      <line x1="118" y1="66" x2="166" y2="66" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <line x1="118" y1="86" x2="166" y2="138" stroke="var(--acento-claro)" stroke-width="2" marker-end="url(#p2)"/>
-      <line x1="284" y1="66" x2="326" y2="94" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <line x1="284" y1="140" x2="326" y2="114" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="118" y1="86" x2="168" y2="70" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="118" y1="110" x2="168" y2="146" stroke="var(--acento-claro)" stroke-width="2.2" marker-end="url(#p2)"/>
+      <line x1="284" y1="68" x2="330" y2="90" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="284" y1="148" x2="330" y2="112" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
 
-      <text x="122" y="112" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--acento-claro)">escribe también</text>
-      <text x="122" y="126" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--acento-claro)">el criterio</text>
+      <text x="0" y="152" font-family="JetBrains Mono,monospace" font-size="11.5" fill="var(--acento-claro)">escribe también</text>
+      <text x="0" y="167" font-family="JetBrains Mono,monospace" font-size="11.5" fill="var(--acento-claro)">el criterio</text>
 
-      <text x="0" y="202" font-family="Archivo,sans-serif" font-size="13" opacity=".72">El verde es cierto.</text>
-      <text x="0" y="221" font-family="Archivo,sans-serif" font-size="13" opacity=".72">No dice nada del mundo.</text>
+      <text x="0" y="238" font-family="Archivo,sans-serif" font-size="13.5" opacity=".72">El verde es cierto.</text>
+      <text x="0" y="257" font-family="Archivo,sans-serif" font-size="13.5" opacity=".72">No dice nada del mundo.</text>
 
-      <line x1="450" y1="27" x2="450" y2="300" stroke="currentColor" stroke-opacity=".28" stroke-dasharray="3 6"/>
+      <line x1="460" y1="27" x2="460" y2="310" stroke="currentColor" stroke-opacity=".28" stroke-dasharray="3 6"/>
 
+      <!-- ═══ panel derecho ═══ -->
       <text x="500" y="16" font-family="JetBrains Mono,monospace" font-size="12"
             letter-spacing="1.6" opacity=".62">CON ORACLE</text>
-      <line x1="500" y1="27" x2="900" y2="27" stroke="currentColor" stroke-opacity=".28"/>
+      <line x1="500" y1="27" x2="1000" y2="27" stroke="currentColor" stroke-opacity=".28"/>
 
-      <rect x="500" y="52" width="96" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="548" y="77" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">artefacto</text>
+      <rect x="646" y="46" width="104" height="46" fill="none" stroke="var(--acento-claro)" stroke-width="2.4"/>
+      <text x="698" y="66" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14" fill="var(--acento-claro)">medida</text>
+      <text x="698" y="82" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="var(--acento-claro)">un dato</text>
 
-      <rect x="500" y="120" width="96" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="548" y="145" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">sensor</text>
+      <rect x="500" y="120" width="100" height="42" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="550" y="147" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14">artefacto</text>
 
-      <rect x="646" y="120" width="96" height="40" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="694" y="139" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">evidencia</text>
-      <text x="694" y="153" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" opacity=".62">filas</text>
+      <rect x="646" y="120" width="104" height="46" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="698" y="140" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14">evidencia</text>
+      <text x="698" y="156" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" opacity=".62">filas</text>
 
-      <rect x="646" y="52" width="96" height="40" fill="none" stroke="var(--acento-claro)" stroke-width="2.4"/>
-      <text x="694" y="71" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="var(--acento-claro)">medida</text>
-      <text x="694" y="85" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--acento-claro)">un dato</text>
+      <rect x="812" y="76" width="102" height="50" fill="none" stroke="currentColor" stroke-width="2"/>
+      <text x="863" y="98" text-anchor="middle" font-family="Archivo,sans-serif" font-size="14">veredicto</text>
+      <text x="863" y="114" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" opacity=".62">+ testigos</text>
 
-      <rect x="794" y="82" width="90" height="48" fill="none" stroke="currentColor" stroke-width="2"/>
-      <text x="839" y="103" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5">veredicto</text>
-      <text x="839" y="119" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" opacity=".62">+ testigos</text>
+      <line x1="600" y1="141" x2="642" y2="141" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <text x="604" y="132" font-family="JetBrains Mono,monospace" font-size="10.5" opacity=".62">lee</text>
+      <line x1="750" y1="134" x2="808" y2="112" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
+      <line x1="750" y1="74" x2="808" y2="92" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
 
-      <line x1="548" y1="92" x2="548" y2="116" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <line x1="596" y1="140" x2="642" y2="140" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <line x1="742" y1="130" x2="790" y2="112" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <line x1="742" y1="76" x2="790" y2="96" stroke="currentColor" stroke-width="1.6" marker-end="url(#p1)"/>
-      <text x="556" y="110" font-family="JetBrains Mono,monospace" font-size="10.5" opacity=".62">lee</text>
-
-      <rect x="646" y="220" width="96" height="44" fill="none" stroke="var(--acento-claro)"
+      <rect x="646" y="234" width="104" height="46" fill="none" stroke="var(--acento-claro)"
             stroke-width="2" stroke-dasharray="5 4"/>
-      <text x="694" y="240" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13" fill="var(--acento-claro)">mutador</text>
-      <text x="694" y="255" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10" fill="var(--acento-claro)">la rompe</text>
+      <text x="698" y="254" text-anchor="middle" font-family="Archivo,sans-serif" font-size="13.5" fill="var(--acento-claro)">mutador</text>
+      <text x="698" y="270" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="10.5" fill="var(--acento-claro)">la rompe</text>
 
-      <path d="M678 220 L678 100" fill="none" stroke="var(--acento-claro)" stroke-width="2"
-            stroke-dasharray="5 4" marker-end="url(#p2)"/>
-      <path d="M742 242 L806 242 L806 136" fill="none" stroke="var(--acento-claro)" stroke-width="2"
-            stroke-dasharray="5 4" marker-end="url(#p2)"/>
-      <text x="814" y="202" font-family="JetBrains Mono,monospace" font-size="10.5" fill="var(--acento-claro)">¿lo nota</text>
-      <text x="814" y="216" font-family="JetBrains Mono,monospace" font-size="10.5" fill="var(--acento-claro)">el corpus?</text>
+      <path d="M646 257 L616 257 L616 69 L642 69" fill="none" stroke="var(--acento-claro)"
+            stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p2)"/>
+      <path d="M863 126 L863 257 L754 257" fill="none" stroke="var(--acento-claro)"
+            stroke-width="2" stroke-dasharray="5 4" marker-end="url(#p2)"/>
+      <text x="878" y="196" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--acento-claro)">¿lo nota</text>
+      <text x="878" y="211" font-family="JetBrains Mono,monospace" font-size="11" fill="var(--acento-claro)">el corpus?</text>
 
-      <text x="500" y="294" font-family="Archivo,sans-serif" font-size="13" opacity=".72">Un criterio que nada puede romper es decoración.</text>
+      <text x="500" y="322" font-family="Archivo,sans-serif" font-size="13.5" opacity=".72">Un criterio que nada puede romper es decoración.</text>
     </svg>
     <figcaption>A la izquierda el lazo cerrado: el generador produce el artefacto y también la
     prueba que lo juzga. A la derecha Oracle separa quién produce los hechos —el sensor— de quién
