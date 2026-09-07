@@ -37,7 +37,8 @@ Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release 
 
 ### Corte 0.9.0: un caso observado dice por dónde ir a contradecirlo
 
-**Commiteado, sin push y sin publicar en PyPI.** El árbol declara distribución `0.9.0`, álgebra
+**Commiteado (`fdee004`), empujado, con tag anotado `v0.9.0` y release en GitHub como Latest. Sin
+publicar en PyPI.** El árbol declara distribución `0.9.0`, álgebra
 `0.6` y sintaxis `0.2`; el argumento está en `ESPECIFICACION.md` §0 y las notas en
 `NOTAS-DE-RELEASE.md`. Sube la **menor** y no el parche porque la medida nueva es de ámbito
 universal: obliga también a los consumidores, y uno que actualice sin usar nada nuevo puede pasar de
@@ -68,7 +69,8 @@ whl    sha256:8644d3981c5171d930bc2a1378bd590ae7f18b84b82a21b1208b5f726e50ae67
 tar.gz sha256:e546a7717b26b39ab63bd15a1a87c7613f0f51d319c1d47fe8e653d0430e2ff2
 ```
 
-**Falta, y lo decide el usuario:** push de Oracle, tag y release `v0.9.0`, y la subida a PyPI.
+**Falta, y lo ejecuta el usuario:** la subida a PyPI. El comando y la forma de verificarla están
+más abajo; PyPI está en `0.8.1`.
 
 ### Orden de lectura
 
