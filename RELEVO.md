@@ -75,6 +75,19 @@ sobre datos parseados. **Cero sobrevivientes no es cero defectos.** Lo encontró
 - **No se abrió el editor.** Los sensores que necesitan Unreal siguen sin correrse, los 37 ground
   truth siguen ausentes, y las sombras de unidades y origen de umbrales no se mueven por esto.
 
+### Los artefactos, verificados
+
+`dist/oracle_metalenguaje-0.8.1-py3-none-any.whl` y `dist/oracle_metalenguaje-0.8.1.tar.gz`.
+Sus **119 archivos de código y datos coinciden byte a byte con el árbol**. En un venv limpio, desde
+un cwd vacío fuera del checkout: `oracle 0.8.1`, y `python -m oracle_metalenguaje.tools.observar
+capturar` corrió de punta a punta contra el sensor real de LyraGASP, cargando sus medidas meta del
+catálogo empaquetado y dando la misma evidencia `sha256:1dda6ee0…`.
+
+```
+whl    sha256:ba790bb72dc71266cca0a93ab342af621ba9c91d747d55f5625ad77a0381e1d7
+tar.gz sha256:777479585b6baf80b6630364dd08640f6a61f315983a7521b69662e6582ea702
+```
+
 ### Cómo subir a PyPI
 
 ```bash

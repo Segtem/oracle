@@ -81,6 +81,12 @@ valida la forma del caso y `aceptacion.py` su polaridad—.
 Se retiraron tres constructos equivalentes (`shutil.rmtree(…, ignore_errors=True)` sobre un temporal
 que siempre existe): un equivalente genuino se borra, no se declara. `equivalentes.json` no cambió.
 
+Wheel y sdist en `dist/`, versión 0.8.1. Sus **119 archivos de código y datos coinciden byte a byte
+con el árbol**. Instalación limpia en un venv vacío fuera del checkout: `oracle 0.8.1`, álgebra
+`0.6`, y el recorrido **corre desde el paquete instalado** —`python -m
+oracle_metalenguaje.tools.observar capturar`— cargando sus dos medidas meta del catálogo empaquetado
+y produciendo la misma evidencia que el árbol de trabajo.
+
 Primer uso real: el sensor de dataset de LyraGASP, 37 clips declarados, 37 FBX presentes y 0 ground
 truth, con la evidencia y el caso conservados en ese repositorio. Detalle en
 `estudios/OBSERVAR-0.8.1-RECORRIDO.md`.
