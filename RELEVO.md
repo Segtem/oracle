@@ -61,6 +61,37 @@ tar.gz sha256:35a6aae5d67daa9e12f19a9cbd196e56f9e3d9016e8758600056c36a2964b9a0
 79 formas canónicas idénticas (huella `83f04f33d6b0282e`), y `oracle test` le dice
 `SINTAXIS OK · 41 medidas`. Se commitea allá cuando 0.9.2 esté publicada.
 
+### Los 11 sobrevivientes que 0.10.0 destapó ya están cerrados
+
+Los dos consumidores pasaron a **VEREDICTO VERDE por primera vez**, y la deuda que 0.10.0 hizo
+visible se cerró el mismo día:
+
+| | mutantes | sobrevivientes | tests propios |
+|---|---|---|---|
+| Jam (`84ce326`) | 428 | **0** (eran 9) | 1240 OK |
+| LyraGASP (`85d68af9`) | 139 | **0** (eran 2) | 33 OK |
+
+Los dos empujados. Nueve mutantes de Jam se cerraron con **ocho** casos: el del volumen orientado
+cero mata dos, porque el cero cae en la franja de las dos mutaciones a la vez.
+
+**Todos son `construida`, y hubo debate.** La discusión está en
+[`estudios/OBSERVAR-O-CONSTRUIR-EL-BORDE.md`](estudios/OBSERVAR-O-CONSTRUIR-EL-BORDE.md), con las
+dos posiciones defendidas en serio por los dos agentes y lo que cada una concedió. Lo que decidió:
+un caso de borde interroga a la frontera de la regla, no al mundo.
+
+⚠ **El precio es visible: la sombra de evidencia fabricada de Jam SUBIÓ de 9 a 16.** Siete medidas
+que no tenían ningún caso ahora lo tienen, y es construido. Cerrar la deuda de mutación hizo
+visible una deuda de procedencia en vez de taparla, que es como tiene que ser.
+
+**Deuda declarada:** el caso `018` de Jam necesita `aristas_sueltas == 1`, que ninguna malla bien
+formada produce —búsqueda exhaustiva: los valores alcanzables son 0, 3, 4, 5…— y que sólo da un
+triángulo degenerado. Se buscó en toda la evidencia guardada y sólo aparecen 0 y 3. Es un defecto
+real y frecuente; verlo exige abrir el editor.
+
+**Lo que el debate dejó pedido, y sigue pendiente:** que observar sea *lo barato*. `observar.py` ya
+captura y revalida; falta conectarlo al trabajo cotidiano de los dos consumidores y a los
+adaptadores que necesitan Unreal.
+
 ### Corte 0.10.0: el paquete medía con 5 de 29 mutadores
 
 **PyPI: `0.10.0` publicada y verificada el 2026-09-07.** Digests y tamaños idénticos al build
