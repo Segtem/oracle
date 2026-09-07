@@ -14,8 +14,61 @@ hunks**. Partirlo en tres habría exigido inventar contenidos intermedios que nu
 dos de esos commits no habrían pasado su propia suite. El mensaje del commit enumera las tres
 tandas y el `git status` de cada una está descrito abajo.
 
-**Lo que NO se hizo:** subir a PyPI. Los artefactos están construidos y verificados en `dist/`
-(0.8.1) y el comando queda listo abajo; **lo ejecuta el usuario**.
+**Las releases de GitHub quedaron al día el 2026-09-07**, con autorización del usuario:
+`v0.7.0` sobre `f57b67f` y `v0.8.1` sobre `efb8df2`, las dos con tag anotado y el cuerpo tomado de
+`NOTAS-DE-RELEASE.md`. **0.8.1 es Latest.**
+
+**No hay `v0.8.0` y no puede haberla:** ningún árbol del repositorio declara
+`VERSION_DISTRIBUCION = "0.8.0"` —`f57b67f` dice `0.7.0` y `b2f9935` ya dice `0.8.1`—, así que un
+tag `v0.8.0` apuntaría a un árbol que dice otra cosa. Se decidió no crearlo y meter la sección
+entera de 0.8.0 dentro del cuerpo de `v0.8.1`, precedida por un bloque que lo explica. Las notas
+del repositorio conservan las dos secciones separadas, como estaban.
+
+**PyPI: `0.8.1` publicada el 2026-09-07 por el usuario, y verificada.** Los dos digests que
+sirve PyPI coinciden **bit a bit** con el build local de `dist/` (`whl ba790bb7…`,
+`tar.gz 77747958…`). Instalada en un venv limpio bajando **desde PyPI**, no desde el archivo:
+`oracle 0.8.1`, álgebra `0.6`, sintaxis `0.2`, los diez ejecutables presentes, y
+`python -m oracle_metalenguaje.tools.observar capturar` corrió de punta a punta contra el plan y el
+sensor reales de LyraGASP dando la misma evidencia `sha256:1dda6ee0…` que el árbol y que la
+observación conservada en ese repositorio.
+
+PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
+Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
+
+### Corte 0.9.0: un caso observado dice por dónde ir a contradecirlo
+
+**Commiteado, sin push y sin publicar en PyPI.** El árbol declara distribución `0.9.0`, álgebra
+`0.6` y sintaxis `0.2`; el argumento está en `ESPECIFICACION.md` §0 y las notas en
+`NOTAS-DE-RELEASE.md`. Sube la **menor** y no el parche porque la medida nueva es de ámbito
+universal: obliga también a los consumidores, y uno que actualice sin usar nada nuevo puede pasar de
+verde a rojo.
+
+Qué entra: `meta.todo_caso_observado_declara_de_donde_salio`, el campo `declara_de_donde_salio` en
+la relación `caso`, `tools/sondear_procedencia.py` con sus 9 tests, los casos 483 y 484, la sombra
+sobre el propio corpus en `oracle.json`, el chequeo de CI partido en dos números y el estudio
+[`estudios/PROCEDENCIA-DE-DONDE-SALIO-UN-CASO.md`](estudios/PROCEDENCIA-DE-DONDE-SALIO-UN-CASO.md).
+
+**Lo que NO demuestra:** nada de esto es autenticidad ni acerca a ella. Sigue sin haber forma de
+distinguir una corrida de una transcripción, y `observar.py` sigue escribiendo
+`autenticidad.comprobada: false`. Lo que cambia se puede afirmar entero: de un caso `observada` ya
+se puede exigir que diga por dónde ir a contradecirlo.
+
+**Números del corte:** corpus **186** · suite **1381** · mutación de medidas **915/915** · mutación
+de `tools/sondear_procedencia.py` **17/17** · aceptación con un rojo que tumba y uno en sombra, las
+cuatro comprobaciones de CI en verde · Jam ✓ 20/3 y LyraGASP ✓ 14/14, los dos con la medida nueva en
+**cero** · `verificar_instalacion.py` WHEEL OK con los diez ejecutables · cifras y manual
+regenerados.
+
+**Artefactos en `dist/`, verificados:** sus **121 archivos de código y datos coinciden byte a byte
+con el árbol**, y en un venv limpio fuera del checkout `oracle 0.9.0` corre la sonda nueva y
+revalida la observación de LyraGASP con la misma evidencia `sha256:1dda6ee0…`.
+
+```
+whl    sha256:8644d3981c5171d930bc2a1378bd590ae7f18b84b82a21b1208b5f726e50ae67
+tar.gz sha256:e546a7717b26b39ab63bd15a1a87c7613f0f51d319c1d47fe8e653d0430e2ff2
+```
+
+**Falta, y lo decide el usuario:** push de Oracle, tag y release `v0.9.0`, y la subida a PyPI.
 
 ### Orden de lectura
 
@@ -65,9 +118,6 @@ sobre datos parseados. **Cero sobrevivientes no es cero defectos.** Lo encontró
 
 ### Lo que queda pendiente
 
-- **Subir a PyPI.** `dist/` tiene el wheel y el sdist de 0.8.1 verificados contra el árbol. El
-  comando está al final de este relevo. **No se ejecutó.**
-- **Crear la release de GitHub** `v0.8.1`, como se hizo con 0.5.0 y 0.6.0.
 - **LyraGASP sigue sin commitear.** Sus agregados nuestros son de dos turnos y su árbol tiene 45
   renglones de trabajo ajeno. **No se commiteó nada ahí**; hace falta decisión del usuario sobre qué
   entra. Jam no se tocó en ningún turno.
@@ -88,16 +138,28 @@ whl    sha256:ba790bb72dc71266cca0a93ab342af621ba9c91d747d55f5625ad77a0381e1d7
 tar.gz sha256:777479585b6baf80b6630364dd08640f6a61f315983a7521b69662e6582ea702
 ```
 
-### Cómo subir a PyPI
+### Cómo se sube a PyPI, para el corte que viene
+
+0.8.1 ya está subida; esto queda como receta.
 
 ```bash
 cd /home/workstation/Dev/oracle
-python3 -m twine check dist/oracle_metalenguaje-0.8.1*
-python3 -m twine upload dist/oracle_metalenguaje-0.8.1*
+python3 -m twine check dist/oracle_metalenguaje-<version>*
+python3 -m twine upload dist/oracle_metalenguaje-<version>*
 ```
 
-Sube **sólo** los dos archivos de 0.8.1: `dist/` conserva artefactos de cortes anteriores y un
+Se suben **sólo** los dos archivos de la versión que se corta: `dist/` conserva artefactos de
+cortes anteriores —hoy están ahí los de 0.7.0 y 0.8.0, que nunca se publicaron— y un
 `upload dist/*` intentaría resubirlos.
+
+Después de subir, la verificación que corresponde no es abrir la página: es comparar los digests
+que sirve PyPI contra el build local e instalar desde PyPI en un venv limpio.
+
+```bash
+curl -s https://pypi.org/pypi/oracle-metalenguaje/<version>/json |
+  python3 -c "import json,sys; [print(a['filename'], a['digests']['sha256']) for a in json.load(sys.stdin)['urls']]"
+sha256sum dist/oracle_metalenguaje-<version>*
+```
 
 ### Comprobaciones para retomar
 
@@ -268,6 +330,11 @@ reconstruir nada leyendo commits.
 |---|---|
 | **PyPI** | `0.6.0` publicada y verificada bit a bit contra el build local |
 | **GitHub** | `main` en `8adfe74` · Releases `v0.5.0` y `v0.6.0` creadas · 0.6.0 es Latest |
+
+> Las dos filas de arriba son del corte 0.6.0 y quedaron **desactualizadas**: al 2026-09-07 GitHub
+> tiene además `v0.7.0` y `v0.8.1` —`v0.8.1` es Latest— y PyPI está en `0.8.1`, sin 0.7.0 ni 0.8.0.
+> Se conservan porque este bloque es contexto histórico, no el estado de hoy; el estado de hoy está
+> arriba de todo.
 | **El sitio** | `segtem.github.io/oracle` con inicio, **dónde entra**, **de cero** y el manual |
 | **La versión en el repo** | **0.6.0**, y se queda ahí. Sube en el corte, no al empezar |
 | **La suite** | 1266 tests, verde |

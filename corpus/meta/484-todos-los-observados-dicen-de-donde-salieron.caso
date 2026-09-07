@@ -1,0 +1,20 @@
+caso 484-todos-los-observados-dicen-de-donde-salieron:
+    fecha: "2026-09-07"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "efb8df2+worktree"
+        comando: "python3 tools/sondear_procedencia.py --hechos"
+    procedencia: observada
+    titulo: "Los dos casos observados dicen de donde salieron y el construido no hace falta"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Mismo emisor y misma forma que el caso anterior, con un solo campo distinto: los dos casos `observada` nombran uno un comando y el otro un registro. El tercero sigue siendo `construida` sin nada en su origen, y esta puesto a proposito: si la medida dejara de filtrar por procedencia, este verde se pondria rojo por un caso que no afirma haber observado nada.
+    como_se_detecto: observacion
+    medida: meta.todo_caso_observado_declara_de_donde_salio
+    evidencia:
+        caso: id, medida, procedencia, declara_de_donde_salio, tiene_medida, medida_existe, esperado_ok, dio_ok, es_hueco_abierto, explica_el_hueco, es_heredado, biblioteca
+            "001-corrida-con-comando", "dominio.algo", "observada", true, true, false, false, false, false, false, false, ""
+            "002-corrida-con-registro", "dominio.algo", "observada", true, true, false, false, false, false, false, false, ""
+            "003-escrito-a-mano", "dominio.algo", "construida", false, true, false, false, false, false, false, false, ""
+    leccion:
+        Un verde correcto no es relleno: es lo unico que distingue una medida que filtra de una que se pone roja con todo. Sin este caso, el mutador que le quita el filtro de procedencia sobrevive y la medida mide menos de lo que dice.

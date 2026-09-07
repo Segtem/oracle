@@ -53,8 +53,21 @@ Acá una discrepancia detiene la captura y no escribe nada; una corrida distinta
 `{salida}` aparece exactamente una vez y es por donde el sensor recibe dónde escribir; `{python}`
 es opcional y evita clavar un intérprete. `presencia` deriva un referente del propio resultado
 —rutas y `es_archivo`, **no** los bytes de esos archivos— para que el estado del mundo entre a la
-comparación de frescura y no sólo el código que lo leyó. `espera.valor` es opcional a propósito: el
-número que dio una corrida es de esa corrida, no un contrato del recorrido.
+comparación de frescura y no sólo el código que lo leyó, y su relación queda exigida no vacía:
+derivar presencia de cero filas produce una huella de `[]` que sale «estable» sin haber mirado una
+sola ruta. `espera.valor` es opcional a propósito: el número que dio una corrida es de esa corrida,
+no un contrato del recorrido.
+
+La medida entra como referente aunque el plan no la declare, y su huella es la de la lectura con la
+que se cargó: quien dicta el veredicto no puede cambiar entre que se evalúa y que se registra.
+
+## Lo que NO es una observación
+
+`SIN EVIDENCIA` no es un rojo. Cuando una medida declara `requiere` una relación y esa relación
+viene vacía, el núcleo devuelve `sin_evidencia` en vez de un veredicto: dice «no hay con qué
+mirar», no «el mundo está mal». Un caso observado no se construye sobre eso, y por eso `capturar`
+se planta. `exige_filas` no alcanzaba: mira las relaciones que el PLAN eligió, y la medida puede
+requerir otra.
 """
 
 from __future__ import annotations
@@ -365,10 +378,21 @@ def filas_de(evidencia: dict, relacion: str) -> list[dict]:
     return filas
 
 
+def relaciones_exigidas(plan: Plan) -> tuple[str, ...]:
+    """Las que el plan nombró, MÁS las que `presencia` recorre.
+
+    Una `presencia` sobre una relación vacía no recorre ninguna fila y aun así emite su referente:
+    la huella del canónico de `[]`. Dos lecturas que no miraron una sola ruta salen «estables», y
+    el registro deja escrito que el estado del mundo no cambió sin haberlo consultado nunca. Si el
+    plan dice que de esa relación salen rutas, esa relación tiene que traer filas.
+    """
+    return tuple(dict.fromkeys([*plan.exige_filas, *(e["relacion"] for e in plan.presencia)]))
+
+
 def comprobar_no_vacia(plan: Plan, evidencia: dict) -> dict[str, int]:
     """Una lectura vacía se pone verde sola: no es una observación, es la falta de una."""
     conteo = {}
-    for relacion in plan.exige_filas:
+    for relacion in relaciones_exigidas(plan):
         filas = filas_de(evidencia, relacion)
         if not filas:
             raise LecturaVacia(
@@ -378,10 +402,33 @@ def comprobar_no_vacia(plan: Plan, evidencia: dict) -> dict[str, int]:
     return conteo
 
 
-def leer_referentes(plan: Plan, evidencia: dict, cuando: str) -> list[Referente]:
-    """Las fuentes declaradas, y el estado del mundo que el propio resultado nombra."""
-    salida = []
+def referente_de_medida(plan: Plan, cuando: str) -> Referente:
+    """La medida es un referente aunque el plan no la declare: es quien dicta el veredicto.
+
+    Sin esto, un sensor que reescriba su propia medida entre que se carga y que se registra deja un
+    registro cuya huella identifica una medida DISTINTA de la que produjo el número. Se leyó una y
+    se guardó el nombre de otra, y nada lo notaba.
+    """
+    ruta = plan.raiz / plan.medida
+    try:
+        return Referente(plan.medida, huella(ruta.read_bytes()), cuando)
+    except OSError as e:
+        raise ReferenteVencido(f"no se pudo leer la medida «{plan.medida}»: {e}") from e
+
+
+def leer_referentes(plan: Plan, evidencia: dict, cuando: str,
+                    *, medida: Referente | None = None) -> list[Referente]:
+    """Las fuentes declaradas, la medida, y el estado del mundo que el propio resultado nombra.
+
+    `medida` permite pasar la lectura hecha al CARGARLA, que es anterior a la corrida del sensor:
+    así la comparación de frescura cubre también la ventana entre que se cargó y que se evaluó.
+    """
+    salida = [medida if medida is not None else referente_de_medida(plan, cuando)]
     for relativa in plan.referentes:
+        if relativa == plan.medida:
+            # Ya entró arriba, y con la lectura que corresponde. Declararla en `referentes` sigue
+            # siendo válido —los planes viejos lo hacen— pero no la duplica.
+            continue
         ruta = plan.raiz / relativa
         try:
             crudo = ruta.read_bytes()
@@ -414,6 +461,24 @@ def juzgar(medida, evidencia: dict) -> Veredicto:
     except ErrorDeAlgebra as e:
         raise SensorFallido(
             f"la medida «{medida.id}» no pudo juzgar la evidencia emitida: {e}") from e
+
+
+def exigir_que_se_haya_medido(veredicto: Veredicto) -> None:
+    """`SIN EVIDENCIA` no es un rojo, y un caso observado no puede nacer de uno.
+
+    El núcleo separa las dos cosas a propósito —`Veredicto.sin_evidencia` existe para eso— y dice
+    por qué: «un rojo dice "el mundo está mal", y esto dice "no hay con qué mirar". `ok` sigue en
+    False porque lo único inaceptable es que salga verde». Mirar sólo `.ok` colapsa esa distinción,
+    y el caso que sale afirma que se observó un defecto donde no se observó nada. Lo encontró una
+    revisión de falsación el 2026-09-07: `exige_filas` mira las relaciones que el PLAN eligió y la
+    medida puede requerir otra.
+    """
+    if veredicto.sin_evidencia:
+        raise LecturaVacia(
+            f"la medida «{veredicto.id}» declara que necesita la relación "
+            f"«{veredicto.sin_evidencia}» y vino vacía: salió SIN EVIDENCIA, que no es un rojo "
+            f"sino «no hay con qué mirar». Una observación no se construye sobre una medida que "
+            f"no llegó a medir")
 
 
 def comparar_frescura(leidos, actuales) -> tuple[dict, Veredicto]:
@@ -476,11 +541,14 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
             f"{destino} ya conserva una observación ({', '.join(ocupados)}); una observación no se "
             f"pisa con otra, se guarda al lado")
 
+    # La huella se toma de la MISMA lectura con la que se carga, y antes de que el sensor corra:
+    # el registro tiene que identificar la medida que produjo el número, no la que quedó después.
+    medida_al_cargar = referente_de_medida(plan, instante())
     medida = cargar(plan.raiz / plan.medida)
 
     primera = evidencia_de(correr_sensor(plan, trabajo / "descubrimiento.json")[2])
     comprobar_no_vacia(plan, primera)
-    antes = leer_referentes(plan, primera, instante())
+    antes = leer_referentes(plan, primera, instante(), medida=medida_al_cargar)
 
     inicio = instante()
     argv, texto, crudo = correr_sensor(plan, trabajo / NOMBRE_EVIDENCIA)
@@ -508,6 +576,7 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
             f"empezar ya no es lo que hay")
 
     veredicto = juzgar(medida, evidencia)
+    exigir_que_se_haya_medido(veredicto)
     if plan.valor_esperado is not None and veredicto.valor != plan.valor_esperado:
         raise Discordancia(
             f"el plan espera valor {plan.valor_esperado} y la corrida dio {veredicto.valor}; una "
@@ -518,7 +587,7 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
         "comando": " ".join(plan.sensor),
         "registro": _relativo_a(destino / NOMBRE_REGISTRO, plan.raiz),
         "evidencia_sha256": huella(crudo),
-        "estado": "árbol de trabajo; las fuentes pertinentes están identificadas por SHA-256 en el registro",
+        "estado": "árbol de trabajo; las fuentes QUE EL PLAN DECLARA están identificadas por SHA-256 en el registro, y el plan puede no declararlas todas",
     }
     caso = armar_caso(plan, evidencia, medida.id, origen)
     v_polaridad = concuerda_con_la_etiqueta(caso, medida)
@@ -541,11 +610,12 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
         "evidencia": {"archivo": NOMBRE_EVIDENCIA, "sha256": huella(crudo),
                       "relaciones": sorted(evidencia), "filas_exigidas": conteo},
         "medida": {"id": medida.id, "archivo": plan.medida,
-                   "sha256": huella((plan.raiz / plan.medida).read_bytes())},
+                   "sha256": medida_al_cargar.huella},
         "expectativa": {"etiqueta": plan.caso["etiqueta"], "valor": plan.valor_esperado,
                         "juzgada_por": MEDIDA_POLARIDAD},
         "resultado": {"ok": veredicto.ok, "valor": veredicto.valor,
-                      "testigos": len(veredicto.testigos), "umbral": veredicto.umbral},
+                      "testigos": len(veredicto.testigos), "umbral": veredicto.umbral,
+                      "sin_evidencia": veredicto.sin_evidencia},
         "caso": {"archivo": f"{caso['id']}.json", "id": caso["id"]},
         "referentes_al_leer": [r.a_datos() for r in antes],
         "referentes_despues": [r.a_datos() for r in despues],
@@ -567,6 +637,22 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
     return registro
 
 
+def evidencia_guardada(registro_ruta: Path, registro: dict):
+    """La salida que se conservó al lado del registro, parseada; `None` si no se puede leer.
+
+    Se compara contra ELLA y no contra su huella porque la igualdad que cuenta es por valor y tipo.
+    Si el archivo no está —alguien movió el registro solo—, queda la huella, que es más estricta y
+    lo dice: sin la salida guardada no se puede distinguir un cambio de presentación de uno real.
+    """
+    nombre = registro.get("evidencia", {}).get("archivo", NOMBRE_EVIDENCIA)
+    if not isinstance(nombre, str) or "/" in nombre or nombre in ("", ".", ".."):
+        return None
+    try:
+        return json.loads((Path(registro_ruta).parent / nombre).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
 def revalidar(plan: Plan, registro_ruta: Path, trabajo: Path) -> dict:
     """Vuelve a leer HOY y compara contra lo registrado. No toca la observación guardada."""
     ruta = Path(registro_ruta)
@@ -579,11 +665,12 @@ def revalidar(plan: Plan, registro_ruta: Path, trabajo: Path) -> dict:
             f"el registro no declara el esquema «{ESQUEMA_REGISTRO}»; no hay observación que "
             f"revalidar")
 
+    medida_al_cargar = referente_de_medida(plan, instante())
     medida = cargar(plan.raiz / plan.medida)
     _argv, texto, crudo = correr_sensor(plan, trabajo / NOMBRE_EVIDENCIA)
     evidencia = evidencia_de(crudo)
     ahora = instante()
-    actuales = leer_referentes(plan, evidencia, ahora)
+    actuales = leer_referentes(plan, evidencia, ahora, medida=medida_al_cargar)
     veredicto = juzgar(medida, evidencia)
 
     try:
@@ -599,15 +686,39 @@ def revalidar(plan: Plan, registro_ruta: Path, trabajo: Path) -> dict:
         frescura = {"comparable": False, "estables": False, "cambiados": [], "porque": str(e)}
 
     historico = registro.get("resultado", {})
-    igual = (huella(crudo) == registro.get("evidencia", {}).get("sha256")
+    # El MISMO criterio que usa `capturar`: forma canónica, no bytes. Comparar bytes acá hacía que
+    # un sensor que sólo cambió su sangría informara «CAMBIÓ», mientras la captura declara —y con
+    # razón— que reordenar claves no es un cambio del mundo. Dos verbos del mismo recorrido no
+    # pueden discrepar sobre qué es un cambio. Los bytes se informan aparte, porque conservar la
+    # salida íntegra sí importa: si cambiaron, la evidencia guardada ya no se reproduce igual.
+    guardada = evidencia_guardada(ruta, registro)
+    evidencia_igual = (_canonico(evidencia) == _canonico(guardada) if guardada is not None
+                       else huella(crudo) == registro.get("evidencia", {}).get("sha256"))
+    medida_igual = medida_al_cargar.huella == registro.get("medida", {}).get("sha256")
+    igual = (evidencia_igual
+             and medida_igual
              and bool(frescura["estables"])
              and veredicto.ok == historico.get("ok")
-             and veredicto.valor == historico.get("valor"))
+             and veredicto.valor == historico.get("valor")
+             and veredicto.sin_evidencia == historico.get("sin_evidencia", ""))
     return {
         "esquema": ESQUEMA_REVALIDACION,
         "cuando_utc": ahora,
         "registro": str(ruta),
         "plan_sin_cambios": huella(plan.crudo) == registro.get("plan", {}).get("sha256"),
+        "medida": {
+            "sin_cambios": medida_igual,
+            "sha256_historico": registro.get("medida", {}).get("sha256"),
+            "sha256_actual": medida_al_cargar.huella,
+            "porque": "quien dicta el veredicto es la medida: si cambió, dos números iguales no "
+                      "dicen lo mismo y dos distintos no prueban que cambió el mundo",
+        },
+        "evidencia": {
+            "igual_por_valor": evidencia_igual,
+            "mismos_bytes": huella(crudo) == registro.get("evidencia", {}).get("sha256"),
+            "porque": "la igualdad que cuenta es por valor y tipo, como en la captura; que cambien "
+                      "los bytes sin cambiar el valor es presentación, y se informa aparte",
+        },
         "observacion_historica": {
             "inicio_utc": registro.get("inicio_utc"),
             "evidencia_sha256": registro.get("evidencia", {}).get("sha256"),
@@ -618,7 +729,8 @@ def revalidar(plan: Plan, registro_ruta: Path, trabajo: Path) -> dict:
         "lectura_actual": {
             "evidencia_sha256": huella(crudo),
             "resultado": {"ok": veredicto.ok, "valor": veredicto.valor,
-                          "testigos": len(veredicto.testigos), "umbral": veredicto.umbral},
+                          "testigos": len(veredicto.testigos), "umbral": veredicto.umbral,
+                          "sin_evidencia": veredicto.sin_evidencia},
             "salida_estandar": texto,
         },
         "frescura": frescura,
@@ -657,6 +769,12 @@ def _imprimir_revalidacion(informe: dict) -> None:
         print(f"  frescura:     {'estables' if not cambiados else 'cambiaron ' + str(cambiados)}")
     else:
         print(f"  frescura:     no comparable — {informe['frescura']['porque']}")
+    if not informe["medida"]["sin_cambios"]:
+        print("  medida:       CAMBIÓ desde la captura; dos números iguales ya no dicen lo mismo")
+    if not informe["evidencia"]["igual_por_valor"]:
+        print("  evidencia:    distinta por valor")
+    elif not informe["evidencia"]["mismos_bytes"]:
+        print("  evidencia:    misma por valor, otros bytes (presentación, no el mundo)")
     if not informe["plan_sin_cambios"]:
         print("  aviso:        el plan cambió desde la captura; se revalidó con el plan de HOY")
     print(f"  autenticidad: NO comprobada — {LIMITE_AUTENTICIDAD}")

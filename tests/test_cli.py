@@ -224,6 +224,7 @@ class OracleCliTests(CliTestCase):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "        comando: \"python3 tools/mide.py\"\n"
                 "    procedencia: observada\n"
                 "    titulo: \"Ítem inválido\"\n"
                 "    etiqueta: falso_verde\n"
@@ -400,6 +401,7 @@ class OracleCliTests(CliTestCase):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "        comando: \"python3 tools/mide.py\"\n"
                 "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
@@ -694,6 +696,7 @@ class OracleCliTests(CliTestCase):
                 "    origen:\n"
                 "        repo: \"temporal\"\n"
                 "        commit: \"sin-commit\"\n"
+                "        comando: \"python3 tools/mide.py\"\n"
                 "    procedencia: observada\n"
                 "    titulo: \"item malo detectado\"\n"
                 "    etiqueta: falso_verde\n"
@@ -745,6 +748,7 @@ class InitDejaLasGuardasPuestasTests(CliTestCase):
         "    origen:\n"
         '        repo: "yo/tablero"\n'
         '        commit: "x"\n'
+        '        comando: "python3 tools/mide.py"\n'
         "    procedencia: observada\n"
         '    titulo: "Una tarea vencida sin dueño pasó desapercibida"\n'
         "    etiqueta: falso_verde\n"
@@ -1388,6 +1392,7 @@ class NounVerbCliTests(CliTestCase):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "        comando: \"python3 tools/mide.py\"\n"
                 "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"
@@ -1436,6 +1441,7 @@ class NounVerbCliTests(CliTestCase):
                 "    origen:\n"
                 "        repo: \"demo\"\n"
                 "        commit: \"local\"\n"
+                "        comando: \"python3 tools/mide.py\"\n"
                 "    procedencia: observada\n"
                 "    titulo: \"item defectuoso\"\n"
                 "    etiqueta: falso_verde\n"

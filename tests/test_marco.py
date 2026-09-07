@@ -596,3 +596,48 @@ class HechosDeVocabulario(unittest.TestCase):
                 ]
             },
         )
+
+
+class DeDondeSalioUnCaso(unittest.TestCase):
+    """`declara_de_donde_salio` distingue situar un árbol de nombrar una corrida.
+
+    `repo` y `commit` dicen dónde estaba escrito el código; no dicen que se haya ejecutado, ni con
+    qué salió, ni dónde quedó eso. Sin `comando` ni `registro`, un caso `observada` afirma algo que
+    nadie puede ir a contradecir, que es peor que algo que nadie puede verificar.
+    """
+
+    def hecho(self, origen):
+        from nucleo.marco import hechos_de_casos
+        caso = {"id": "001-x", "medida": "", "etiqueta": "falso_verde", "origen": origen}
+        return hechos_de_casos({}, [caso])["caso"][0]["declara_de_donde_salio"]
+
+    def test_situar_el_arbol_no_es_decir_de_donde_salio(self):
+        self.assertIs(self.hecho({"repo": "Segtem/oracle", "commit": "abc1234"}), False)
+
+    def test_nombrar_el_comando_o_el_registro_alcanza(self):
+        for campo in ("comando", "registro"):
+            with self.subTest(campo=campo):
+                self.assertIs(self.hecho({"repo": "r", campo: "algo"}), True)
+
+    def test_un_campo_vacio_o_en_blanco_no_cuenta(self):
+        for valor in ("", "   ", None):
+            with self.subTest(valor=valor):
+                self.assertIs(self.hecho({"comando": valor}), False)
+
+    def test_un_origen_que_no_es_un_objeto_no_rompe_y_no_cuenta(self):
+        for origen in (None, [], "python3 tools/observar.py", 7):
+            with self.subTest(origen=origen):
+                self.assertIs(self.hecho(origen), False)
+
+    def test_un_caso_sin_origen_no_cuenta(self):
+        from nucleo.marco import hechos_de_casos
+        fila = hechos_de_casos({}, [{"id": "001-x", "medida": "", "etiqueta": "falso_verde"}])
+        self.assertIs(fila["caso"][0]["declara_de_donde_salio"], False)
+
+    def test_el_campo_sale_en_la_relacion_junto_a_la_procedencia(self):
+        from nucleo.marco import hechos_de_casos
+        fila = hechos_de_casos({}, [{"id": "001-x", "medida": "", "etiqueta": "falso_verde",
+                                     "procedencia": "observada",
+                                     "origen": {"comando": "python3 x.py"}}])["caso"][0]
+        self.assertEqual((fila["procedencia"], fila["declara_de_donde_salio"]),
+                         ("observada", True))

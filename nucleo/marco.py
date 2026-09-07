@@ -8,8 +8,8 @@ veredictos sean datos. Es el mismo pecado que un sensor que juzga, un nivel más
 
 Acá se producen los hechos; el juicio queda en `catalogos/meta/`.
 
-    caso(id, medida, procedencia, tiene_medida, medida_existe, esperado_ok, dio_ok,
-         explica_el_hueco, es_heredado, biblioteca)
+    caso(id, medida, procedencia, declara_de_donde_salio, tiene_medida, medida_existe,
+         esperado_ok, dio_ok, explica_el_hueco, es_heredado, biblioteca)
     medida_en_uso(id, casos_que_la_evaluan, mutantes, mutantes_vivos)
     sombra(medida, declara_desde, declara_porque, dias, dio_ok, existe)
     mutador_excluido(mutador, premisa, disponible_en_el_arnes)
@@ -183,6 +183,25 @@ def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
     return {"sombra": filas}
 
 
+# Qué campos de `origen` apuntan a UNA CORRIDA y no sólo al código donde vive. `repo` y `commit`
+# sitúan un árbol: dicen dónde estaba escrito el sensor, no que se haya ejecutado ni con qué salió.
+# `comando` dice qué se corrió; `registro` dice dónde quedó el registro de esa corrida, que es lo
+# que permite ir a mirar. Cualquiera de los dos convierte una afirmación sobre el pasado en una
+# afirmación que alguien puede ir a contradecir; ninguno de los dos la verifica.
+CAMPOS_DE_PROCEDENCIA = ("registro", "comando")
+
+
+def _dice_de_donde_salio(caso: dict) -> bool:
+    origen = caso.get("origen")
+    if not isinstance(origen, dict):
+        return False
+    # `isinstance(str)` y no `str(valor)`: con la conversión, un `"comando": null` se volvía la
+    # cadena "None" —no vacía— y el caso pasaba a declarar de dónde salió sin declarar nada. Es el
+    # mismo falso verde que la medida existe para hacer visible, cometido en su propio sensor.
+    valores = (origen.get(campo) for campo in CAMPOS_DE_PROCEDENCIA)
+    return any(isinstance(valor, str) and valor.strip() for valor in valores)
+
+
 def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
     """Un hecho por caso del corpus: qué esperaba, qué dio, y si su medida existe."""
     filas = []
@@ -201,6 +220,7 @@ def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
             "id": c["id"],
             "medida": mid,
             "procedencia": c.get("procedencia", "sin_declarar"),
+            "declara_de_donde_salio": _dice_de_donde_salio(c),
             "tiene_medida": bool(mid),
             "medida_existe": existe,
             "esperado_ok": esperado,

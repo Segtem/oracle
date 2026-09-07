@@ -327,6 +327,10 @@ def main() -> int:
             "    origen:\n"
             "        repo: \"temporal\"\n"
             "        commit: \"sin-commit\"\n"
+            # Desde 0.9.0 un caso `observada` tiene que decir de dónde salió: si este proyecto de
+            # juguete no lo dijera, la aceptación saldría roja y el verificador informaría un fallo
+            # del paquete instalado que en realidad es un fixture incompleto.
+            "        comando: \"python3 tools/mide.py\"\n"
             "    procedencia: observada\n"
             "    titulo: \"item malo detectado\"\n"
             "    etiqueta: falso_verde\n"

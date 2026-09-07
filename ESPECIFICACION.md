@@ -60,6 +60,17 @@ meta que ya se distribuían— y no agrega un nodo, un operador, un agregado, un
 ni una palabra del lector, ni cambia el significado de ninguno. Un `.oracle` o un `.caso` se leen y
 se evalúan exactamente igual antes y después del corte.
 
+**Corte 0.9.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.8.1` a `0.9.0`.** El catálogo
+universal distribuido gana `meta.todo_caso_observado_declara_de_donde_salio`, y la relación `caso`
+del marco gana el campo `declara_de_donde_salio` que esa medida mira. Sube la **menor** y no el
+parche por la razón que separa las dos: la medida es de ámbito universal, así que **obliga también a
+los consumidores**, y uno que actualice sin usar nada nuevo puede pasar de verde a rojo. Los dos
+consumidores conocidos salen en cero, pero eso es un hecho de sus corpus, no una garantía del corte.
+`VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un agregado, una escalar ni una
+relación de traza, y un campo nuevo en una relación que el propio marco emite no cambia lo que una
+implementación de referencia tiene que implementar. `VERSION_SINTAXIS` queda en `0.2`: el lector no
+gana palabras y un `.oracle` o un `.caso` se leen y se evalúan igual antes y después.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;

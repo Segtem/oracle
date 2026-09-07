@@ -87,6 +87,7 @@ PRIORIDADES = {
     "tools/observar.py": ("tests.test_observar",),
     "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
     "tools/sondear_generador.py": ("tests.test_sondear_generador",),
+    "tools/sondear_procedencia.py": ("tests.test_sondear_procedencia",),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -203,9 +204,14 @@ PRIORIDADES = {
 # comprobación de lectura vacía, de lectura inestable o de expectativa declarada se rompe, el
 # recorrido sigue emitiendo casos `observada` que pasan todo lo demás — y el corpus queda con
 # observaciones que no observaron nada.
+# `sondear_procedencia.py` entra el 2026-09-07 y su afirmación es chica y precisa: es el `comando`
+# que los casos 483 y 484 declaran en su `origen`. Si emitiera cualquier cosa, esos dos casos
+# estarían apuntando a la nada mientras fijan la medida que persigue exactamente eso. Nadie más lo
+# comprueba: el corpus valida la FORMA del caso y la aceptación su POLARIDAD, y ninguno de los dos
+# corre el comando que el caso declara.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "contexto.py", "corpus.py",
                           "lsp.py", "manual.py", "mcp.py", "medida.py", "observar.py",
-                          "reportar.py", "sondear_generador.py")
+                          "reportar.py", "sondear_generador.py", "sondear_procedencia.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:

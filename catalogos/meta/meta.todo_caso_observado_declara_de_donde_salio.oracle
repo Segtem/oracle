@@ -1,0 +1,6 @@
+ninguno meta.todo_caso_observado_declara_de_donde_salio:
+    de caso c
+    donde c.procedencia == "observada" y c.declara_de_donde_salio == false
+    umbral <= 0 segun contrato porque "`observada` es la única procedencia que afirma algo sobre el mundo, y es la que Oracle no puede verificar. Si además el caso no dice de dónde salió —qué se corrió, o dónde quedó el registro de esa corrida—, la afirmación no sólo es inverificable: es infalsable, porque nadie sabe adónde ir a contradecirla. El límite es cero por lo mismo que en `segun`: la ausencia se hace visible de a un caso, no en promedio"
+    ambito universal
+    alcance "ve si el `origen` del caso nombra un comando o un registro. NO verifica que ese comando exista, que el registro esté ahí, que la corrida haya ocurrido ni que la evidencia salga de ella: un caso puede declarar los dos campos y mentir en los dos, y esta medida no lo ve. Tampoco mira los casos `construida` ni `generada`, que no afirman contacto con el mundo, ni los que no declaran procedencia — de eso se ocupa `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`"

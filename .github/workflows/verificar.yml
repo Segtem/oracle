@@ -43,6 +43,7 @@ jobs:
       - run: python tools/verificar_instalacion.py
       - run: python tools/corpus.py --resumen
       - run: python tools/sondear_generador.py
+      - run: python tools/sondear_procedencia.py
       # `aceptacion.py` sale 1 mientras haya un rojo declarado —hoy son 2, ver DECISION-004; pasó de
       # 2 a 3 el 2026-08-31 al corregir un caso que decía `observada` sobre filas de un test, y
       # volvió a 2 el 2026-09-01 al exponer los referentes que el fixture diferencial ya calculaba—
@@ -54,8 +55,16 @@ jobs:
         run: |
           python tools/aceptacion.py > /tmp/acept.txt 2>&1 || true
           tail -20 /tmp/acept.txt
-          test "$(grep -c '^  ✗ meta\.' /tmp/acept.txt)" = "1"
+          # DOS números, no uno, desde el 2026-09-07. Un rojo en sombra sigue imprimiéndose con
+          # `✗`, así que contarlos juntos hacía que declarar una sombra —que es el mecanismo para
+          # NO tapar una deuda— rompiera el mismo chequeo que existe para que nada se tape. Se
+          # cuentan por separado: los que tumban la corrida y los que están declarados en sombra.
+          test "$(grep '^  ✗ meta\.' /tmp/acept.txt | grep -cv 'EN SOMBRA')" = "1"
+          test "$(grep -c '^  ✗ meta\..*\[EN SOMBRA\]' /tmp/acept.txt)" = "1"
           grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        2 (<= 0)' /tmp/acept.txt
+          # Baja de a un caso, a medida que cada `origen` dice de dónde salió. Si baja, se actualiza
+          # acá a mano: es el registro de que la deuda se está cerrando y no de que se apagó.
+          grep -q 'todo_caso_observado_declara_de_donde_salio       94 (<= 0)   \[EN SOMBRA\]' /tmp/acept.txt
       - run: python tools/mutar.py
       - run: python tools/cifras.py
       # El evaluador juzgado por medidas escritas en el propio álgebra: corre el corpus
@@ -107,6 +116,7 @@ jobs:
           # `procedencia: observada` haya salido de una corrida. Ver HERRAMIENTAS_CUSTODIAS.
           - tools/observar.py
           - tools/sondear_generador.py
+          - tools/sondear_procedencia.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

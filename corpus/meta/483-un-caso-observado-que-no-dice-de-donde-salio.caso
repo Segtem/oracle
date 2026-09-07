@@ -1,0 +1,20 @@
+caso 483-un-caso-observado-que-no-dice-de-donde-salio:
+    fecha: "2026-09-07"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "efb8df2+worktree"
+        comando: "python3 tools/sondear_procedencia.py --hechos"
+    procedencia: observada
+    titulo: "Un caso dice `observada` y no deja por donde ir a contradecirlo"
+    etiqueta: falso_verde
+    sintoma:
+        La evidencia no se escribio a mano: la emitio `hechos_de_casos` sobre un corpus real escrito en disco y cargado con el cargador del proyecto. De los tres casos, dos declaran `observada`; uno de esos dos declara solo `repo` y `commit`, que situan un arbol y no una corrida. Nadie puede ir a mirar de donde salio su evidencia, asi que la afirmacion no se puede contradecir. El tercero es `construida` y no afirma contacto con el mundo.
+    como_se_detecto: observacion
+    medida: meta.todo_caso_observado_declara_de_donde_salio
+    evidencia:
+        caso: id, medida, procedencia, declara_de_donde_salio, tiene_medida, medida_existe, esperado_ok, dio_ok, es_hueco_abierto, explica_el_hueco, es_heredado, biblioteca
+            "001-corrida-sin-registro", "dominio.algo", "observada", false, true, false, false, false, false, false, false, ""
+            "002-corrida-con-registro", "dominio.algo", "observada", true, true, false, false, false, false, false, false, ""
+            "003-escrito-a-mano", "dominio.algo", "construida", false, true, false, false, false, false, false, false, ""
+    leccion:
+        Inverificable e infalsable no son lo mismo. Oracle no puede verificar ninguna de las dos procedencias, pero un caso que dice donde quedo su registro se puede ir a contradecir, y uno que no lo dice no. Es el mismo movimiento que `segun` hizo con los umbrales: no verifica el numero, obliga a decir de donde salio.

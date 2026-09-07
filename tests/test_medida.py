@@ -281,8 +281,8 @@ class ContratoMedidaTests(unittest.TestCase):
         )
 
         ambitos = [medida.ambito for medida in catalogo.values()]
-        self.assertEqual(len(ambitos), 57)
-        self.assertEqual(ambitos.count("universal"), 37)
+        self.assertEqual(len(ambitos), 58)
+        self.assertEqual(ambitos.count("universal"), 38)
         self.assertEqual(ambitos.count("del_origen"), 20)
         self.assertNotIn(m.AMBITO_SIN_DECLARAR, ambitos)
 

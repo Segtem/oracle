@@ -1,3 +1,99 @@
+# 0.9.0 — un caso observado tiene que decir por dónde ir a contradecirlo
+
+Este corte agrega una medida al catálogo universal y un campo a una relación del marco. Sube
+únicamente la distribución, y sube la **menor** y no el parche, según `ESPECIFICACION.md` §0:
+
+```
+VERSION_DISTRIBUCION   0.8.1 → 0.9.0     el catálogo universal gana una medida que obliga
+VERSION_ALGEBRA        0.6   → 0.6       mismo evaluador y forma canónica
+VERSION_SINTAXIS       0.2   → 0.2       mismo lector de medidas y casos
+```
+
+La menor y no el parche porque la medida es de **ámbito universal**: obliga también a los
+consumidores, y uno que actualice sin usar nada nuevo puede pasar de verde a rojo. Los dos
+consumidores conocidos salen en cero, y eso es un hecho de sus corpus, no una garantía de este
+corte.
+
+## Inverificable no es infalsable
+
+`procedencia: observada` es la única procedencia que afirma algo sobre el mundo, y Oracle no puede
+verificarla. Eso ya estaba declarado, y sigue igual. Lo que no estaba declarado es la otra mitad,
+contada sobre el corpus del propio Oracle antes de tocar nada:
+
+| | |
+|---|---|
+| casos que declaran `observada` | **95** de 184 |
+| de ésos, cuántos nombran un comando o un registro | **1** |
+| qué declaran los otros 94 | `repo` y `commit` |
+
+`repo` y `commit` sitúan un **árbol**: dicen dónde estaba escrito el código, no que se haya
+ejecutado, ni con qué salió, ni dónde quedó eso. La afirmación de esos 94 casos no sólo es
+inverificable: es **infalsable**, porque nadie sabe adónde ir a contradecirla. Y son exactamente los
+casos sobre los que se apoya `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`, la medida que
+sostiene que una medida no está fijada sólo con evidencia escrita a mano.
+
+## `meta.todo_caso_observado_declara_de_donde_salio`
+
+Si un caso declara `observada`, su `origen` tiene que nombrar un `comando` o un `registro`. **No
+verifica que existan**: un caso puede declarar los dos y mentir en los dos, y la medida lo dice en
+su `alcance`. Es el mismo movimiento que `segun` hizo con los umbrales —no verifica el número,
+obliga a decir de dónde salió— aplicado a la procedencia.
+
+Para que el lenguaje pudiera mirarlo, la relación `caso` de `nucleo/marco.py` gana el campo
+`declara_de_donde_salio`. Antes exponía `procedencia` y nada de `origen`: ninguna medida podía ver
+si un caso observado decía dónde auditarlo.
+
+**Esto no es autenticidad y no acerca a ella.** Sigue sin haber forma de distinguir una corrida de
+una transcripción, y toda comprobación barata de autenticidad —prohibir `cp`, exigir tiempo de CPU,
+mirar `atime`— se sortea con un script de dos líneas. `observar.py` sigue escribiendo
+`autenticidad.comprobada: false`. Lo que cambia es más chico y se puede afirmar entero: de un caso
+observado ahora se puede exigir que diga por dónde ir a contradecirlo.
+
+## La sombra sobre el propio corpus
+
+Oracle queda en **rojo 94**, declarado en su `oracle.json` con fecha y motivo. Se cierra de a un
+caso, escribiendo en cada `origen` el comando que lo produjo, y **sólo cuando alguien pueda afirmar
+cuál fue**: rellenar los 94 de memoria sería inventar la procedencia que la medida existe para hacer
+visible.
+
+Los consumidores ya cumplen, y no por casualidad. Jam sale verde porque sus casos no declaran
+`observada`; LyraGASP sale verde con sus dos casos observados porque el `origen` se lo escribió
+`observar.py` — la herramienta de 0.8.1 ya hacía lo que esta medida ahora exige.
+
+## Tres cosas que aparecieron haciéndolo, y que no se ocultan
+
+**Un falso verde en el sensor de la propia medida.** `str(origen.get(campo, ""))` sobre un
+`"comando": null` daba la cadena `"None"` —no vacía—, así que un caso que declaraba el campo en nulo
+pasaba como si dijera de dónde salió. Lo encontró un test escrito para matarlo, no la lectura del
+código. Es el mismo defecto que la medida persigue, cometido adentro.
+
+**Declarar una sombra rompía el chequeo de CI.** El workflow exigía exactamente una línea `✗ meta.`
+y un rojo en sombra se imprime con `✗`: el mecanismo que existe para **no** tapar una deuda rompía
+el chequeo que existe para que nada se tape. Ahora se cuentan dos números por separado —los que
+tumban la corrida y los declarados en sombra— y los dos se fijan con su línea literal.
+
+**La medida obligó a sus propios casos a cumplirla.** Los casos 483 y 484 declaran `observada`, así
+que tienen que decir de dónde salieron; su `comando` nombra `tools/sondear_procedencia.py`, que
+existe por eso. Un comando que nombra un script ausente del repositorio sería el mismo puntero a la
+nada que la medida persigue.
+
+## Verificación del corte
+
+Corpus **186 casos** · suite **1381 tests** · mutación de medidas **915/915 sin sobrevivientes**
+(eran 902) · mutación de `tools/sondear_procedencia.py` **17/17, sin sobrevivientes ni equivalentes
+declarados** · aceptación con **un rojo que tumba y uno en sombra**, y las cuatro comprobaciones
+literales de CI en verde · Jam **✓ 20 rojos y 3 verdes**, LyraGASP **✓ 14 y 14**, los dos con la
+medida nueva en cero. Cifras y manual regenerados.
+
+Sobre la primera ronda de mutación de la sonda quedaron **cuatro sobrevivientes**. Tres eran
+`indent` y `ensure_ascii` sobre archivos temporales que sólo lee un parser: constructos que no
+compran nada, y se **retiraron** en vez de declararse equivalentes. El cuarto era `sys.argv[1:]` sin
+test, y ahora lo tiene.
+
+El detalle está en `estudios/PROCEDENCIA-DE-DONDE-SALIO-UN-CASO.md`.
+
+---
+
 # 0.8.1 — la evidencia observada tiene un recorrido, y ese recorrido se puede romper
 
 Este corte agrega una herramienta y no toca el lenguaje. Sube únicamente la distribución, según

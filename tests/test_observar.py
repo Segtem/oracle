@@ -91,6 +91,59 @@ Path(sys.argv[sys.argv.index("--salida") + 1]).write_text(
 print("SENSOR claves reordenadas")
 '''
 
+# Una medida que DECLARA `requiere`: sobre cero filas no concluye, sale SIN EVIDENCIA. Es la forma
+# que el núcleo inventó para no confundir «no hay con qué mirar» con «el mundo está mal».
+MEDIDA_QUE_REQUIERE = """ninguno-requiere dominio.ninguna_corrida_agotada:
+    de corrida c
+    donde c.agotada == true
+    umbral <= 0 segun contrato porque "una corrida agotada no terminó su trabajo"
+    requiere corrida
+    ambito universal
+    alcance "mira las corridas declaradas. Si `corrida` viene vacía NO concluye"
+"""
+
+# Emite una relación con filas y otra vacía: `exige_filas` mira la que el plan eligió, y la medida
+# requiere la otra.
+SENSOR_SIN_CORRIDAS = '''
+import json, sys
+from pathlib import Path
+Path(sys.argv[sys.argv.index("--salida") + 1]).write_text(
+    json.dumps({"pieza": [{"nombre": "a", "ruta": "piezas/a.dat", "presente": True}],
+                "corrida": []}), encoding="utf-8")
+print("SENSOR corridas=0")
+'''
+
+# Reescribe su propia medida en la primera corrida: lo que se cargó y lo que queda después no son
+# el mismo archivo.
+SENSOR_QUE_REESCRIBE_LA_MEDIDA = '''
+import json, sys
+from pathlib import Path
+raiz = Path(__file__).resolve().parents[1]
+medida = raiz / "medidas" / "dominio.pieza_faltante.json"
+datos = json.loads(medida.read_text(encoding="utf-8"))
+if datos[5].startswith("cada"):
+    datos[5] = "reescrita por el sensor mientras corría"
+    medida.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+Path(sys.argv[sys.argv.index("--salida") + 1]).write_text(
+    json.dumps({"pieza": [{"nombre": "a", "ruta": "piezas/a.dat", "presente": False}]}),
+    encoding="utf-8")
+print("SENSOR que reescribe su medida")
+'''
+
+# Cambia SÓLO la presentación a partir de la tercera invocación: mismo valor, otros bytes.
+SENSOR_QUE_CAMBIA_LA_SANGRIA = '''
+import json, sys
+from pathlib import Path
+raiz = Path(__file__).resolve().parents[1]
+corrida = len(list(raiz.glob("sangria-*")))
+(raiz / f"sangria-{corrida}").write_text("1", encoding="utf-8")
+fila = {"nombre": "a", "ruta": "piezas/a.dat", "presente": False}
+sangria = 4 if corrida >= 2 else None
+Path(sys.argv[sys.argv.index("--salida") + 1]).write_text(
+    json.dumps({"pieza": [fila]}, indent=sangria), encoding="utf-8")
+print("SENSOR sangria")
+'''
+
 CASO = {
     "id": "001-una-pieza-declarada-no-esta",
     "titulo": "La corrida encuentra una pieza declarada y ausente",
@@ -214,8 +267,11 @@ class Recorrido(unittest.TestCase):
         self.capturar()
         registro = self.registro()
         nombres = [r[1] for r in registro["referentes_despues"]]
-        self.assertEqual(nombres, ["tools/sensor.py", "mundo.json", "presencia:pieza:ruta"])
-        self.assertEqual(len(registro["comparacion"]["referente_comparado"]), 3)
+        # La medida va primera y entra sola: el plan de este consumidor no la declara, y aun así
+        # tiene que estar, porque es quien dicta el veredicto.
+        self.assertEqual(nombres, ["medidas/dominio.pieza_faltante.json", "tools/sensor.py",
+                                   "mundo.json", "presencia:pieza:ruta"])
+        self.assertEqual(len(registro["comparacion"]["referente_comparado"]), 4)
 
     # ---- lo que una captura RECHAZA ----
 
@@ -560,6 +616,107 @@ class Recorrido(unittest.TestCase):
                 self.assertRegex(texto.splitlines()[1], r'^ {2}"')
                 self.assertTrue(texto.endswith("\n"))
 
+class NoSeMidio(unittest.TestCase):
+    """Los cuatro defectos que encontró la revisión de falsación del 2026-09-07.
+
+    Los cuatro comparten una forma: la herramienta AFIRMABA más de lo que había comprobado. Ninguno
+    tiene que ver con autenticidad —eso sigue sin comprobarse y sigue declarado—; tienen que ver con
+    no contradecirse a sí misma sobre una corrida que sí ejecutó.
+    """
+
+    def setUp(self):
+        self.tmp = TemporaryDirectory(prefix="oracle-test-nomedido-")
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name)
+        self.consumidor = Consumidor(self.base / "consumidor")
+        self.destino = self.consumidor.raiz / "observaciones" / "corrida"
+
+    def capturar(self, plan_ruta):
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = observar.main(["capturar", "--plan", str(plan_ruta),
+                                    "--destino", str(self.destino)])
+        return codigo, salida.getvalue()
+
+    def test_sin_evidencia_no_es_un_rojo_y_no_es_una_observacion(self):
+        # La medida requiere `corrida` y el sensor la emite vacía; `exige_filas` mira `pieza`, que
+        # sí trae filas. El veredicto real es SIN EVIDENCIA: no se midió nada. Antes salía como un
+        # rojo ordinario y el caso decía haber observado un defecto del mundo.
+        (self.consumidor.raiz / "tools" / "sensor.py").write_text(SENSOR_SIN_CORRIDAS,
+                                                                  encoding="utf-8")
+        (self.consumidor.raiz / "medidas" / "dominio.ninguna_corrida_agotada.oracle").write_text(
+            MEDIDA_QUE_REQUIERE, encoding="utf-8")
+        plan = self.consumidor.plan(medida="medidas/dominio.ninguna_corrida_agotada.oracle")
+        codigo, texto = self.capturar(plan)
+        self.assertEqual(codigo, 1)
+        self.assertIn("SIN EVIDENCIA", texto)
+        self.assertIn("«corrida»", texto)
+        self.assertIn("no hay con qué mirar", texto)
+        self.assertFalse(self.destino.exists())
+
+    def test_el_veredicto_que_si_midio_conserva_su_estado_en_el_registro(self):
+        # La otra polaridad: una medida que midió deja `sin_evidencia` vacío, y el registro lo dice
+        # en vez de omitirlo. Sin este campo, `revalidar` no puede notar que un día se midió y otro
+        # no.
+        codigo, texto = self.capturar(self.consumidor.plan())
+        self.assertEqual(codigo, 0, texto)
+        registro = json.loads((self.destino / "registro.json").read_text(encoding="utf-8"))
+        self.assertEqual(registro["resultado"]["sin_evidencia"], "")
+        self.assertIs(registro["resultado"]["ok"], False)
+
+    def test_una_presencia_sobre_una_relacion_vacia_no_mira_nada(self):
+        # Derivar presencia de cero filas produce la huella del canónico de `[]`, que sale
+        # «estable» entre dos lecturas sin haber consultado una sola ruta.
+        (self.consumidor.raiz / "tools" / "sensor.py").write_text(SENSOR_SIN_CORRIDAS,
+                                                                  encoding="utf-8")
+        plan = self.consumidor.plan(
+            presencia=[{"relacion": "corrida", "campos": ["ruta"]}])
+        codigo, texto = self.capturar(plan)
+        self.assertEqual(codigo, 1)
+        self.assertIn("«corrida» vino sin filas", texto)
+        self.assertFalse(self.destino.exists())
+
+    def test_la_medida_que_se_reescribe_durante_la_corrida_no_se_registra_como_otra(self):
+        # El registro identificaba la medida releyendo el archivo al final; si el sensor la
+        # reescribió, la huella guardada era la de una medida DISTINTA de la que dio el número.
+        (self.consumidor.raiz / "tools" / "sensor.py").write_text(
+            SENSOR_QUE_REESCRIBE_LA_MEDIDA, encoding="utf-8")
+        codigo, texto = self.capturar(self.consumidor.plan())
+        self.assertEqual(codigo, 1)
+        self.assertIn("cambió un referente", texto)
+        self.assertIn("medidas/dominio.pieza_faltante.json", texto)
+        self.assertFalse(self.destino.exists())
+
+    def test_la_huella_registrada_es_la_de_la_medida_que_dio_el_numero(self):
+        codigo, texto = self.capturar(self.consumidor.plan())
+        self.assertEqual(codigo, 0, texto)
+        registro = json.loads((self.destino / "registro.json").read_text(encoding="utf-8"))
+        crudo = (self.consumidor.raiz / "medidas" / "dominio.pieza_faltante.json").read_bytes()
+        self.assertEqual(registro["medida"]["sha256"], observar.huella(crudo))
+        # y la medida figura entre los referentes, con esa misma huella
+        leidos = {r[1]: r[2] for r in registro["referentes_al_leer"]}
+        self.assertEqual(leidos["medidas/dominio.pieza_faltante.json"], observar.huella(crudo))
+
+    def test_declarar_la_medida_en_referentes_no_la_duplica(self):
+        plan = self.consumidor.plan(
+            referentes=["tools/sensor.py", "medidas/dominio.pieza_faltante.json"])
+        codigo, texto = self.capturar(plan)
+        self.assertEqual(codigo, 0, texto)
+        registro = json.loads((self.destino / "registro.json").read_text(encoding="utf-8"))
+        nombres = [r[1] for r in registro["referentes_despues"]]
+        self.assertEqual(nombres.count("medidas/dominio.pieza_faltante.json"), 1)
+        self.assertEqual(nombres, ["medidas/dominio.pieza_faltante.json", "tools/sensor.py",
+                                   "presencia:pieza:ruta"])
+
+    def test_el_origen_del_caso_no_promete_todas_las_fuentes(self):
+        # Sólo se identifican las que el PLAN declara; el sensor puede importar otras.
+        codigo, texto = self.capturar(self.consumidor.plan())
+        self.assertEqual(codigo, 0, texto)
+        caso = json.loads((self.destino / f"{CASO['id']}.json").read_text(encoding="utf-8"))
+        self.assertIn("QUE EL PLAN DECLARA", caso["origen"]["estado"])
+        self.assertIn("puede no declararlas todas", caso["origen"]["estado"])
+
+
 class Revalidacion(unittest.TestCase):
     def setUp(self):
         self.tmp = TemporaryDirectory(prefix="oracle-test-revalidar-")
@@ -672,6 +829,108 @@ class Revalidacion(unittest.TestCase):
         self.assertRegex(texto.splitlines()[1], r'^ {2}"')
         self.assertTrue(texto.endswith("\n"))
         self.assertIn("declaración", texto)
+
+class RevalidarNoSeContradice(unittest.TestCase):
+    """Los dos verbos del recorrido tienen que estar de acuerdo sobre qué es un cambio."""
+
+    def setUp(self):
+        self.tmp = TemporaryDirectory(prefix="oracle-test-reval2-")
+        self.addCleanup(self.tmp.cleanup)
+        self.base = Path(self.tmp.name)
+        self.consumidor = Consumidor(self.base / "consumidor")
+        self.destino = self.consumidor.raiz / "observaciones" / "corrida"
+
+    def capturar(self, plan):
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = observar.main(["capturar", "--plan", str(plan), "--destino", str(self.destino)])
+        return codigo, salida.getvalue()
+
+    def revalidar(self, plan):
+        informe_ruta = self.base / "informe.json"
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = observar.main(["revalidar", "--plan", str(plan), "--registro",
+                                    str(self.destino / "registro.json"),
+                                    "--informe", str(informe_ruta)])
+        return codigo, salida.getvalue(), json.loads(informe_ruta.read_text(encoding="utf-8"))
+
+    def test_una_medida_distinta_no_es_la_misma_observacion(self):
+        # Cambia SÓLO la prosa de la medida: mismo veredicto, mismo valor, misma evidencia. El
+        # registro guardaba la huella de la medida y no la consultaba, así que informaba «sin
+        # cambios» aunque quien dicta el veredicto ya no fuera el mismo archivo.
+        plan = self.consumidor.plan()
+        self.assertEqual(self.capturar(plan)[0], 0)
+        ruta = self.consumidor.raiz / "medidas" / "dominio.pieza_faltante.json"
+        datos = json.loads(ruta.read_text(encoding="utf-8"))
+        datos[5] = "otra defensa del mismo número, escrita después de la captura"
+        ruta.write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+
+        codigo, texto, informe = self.revalidar(plan)
+        self.assertEqual(codigo, 1)
+        self.assertIn("REVALIDACIÓN — CAMBIÓ", texto)
+        self.assertIn("medida:       CAMBIÓ", texto)
+        self.assertIs(informe["medida"]["sin_cambios"], False)
+        self.assertNotEqual(informe["medida"]["sha256_historico"],
+                            informe["medida"]["sha256_actual"])
+        # y el resultado NO cambió: lo que cambió es quién lo dictaminó
+        self.assertEqual(informe["lectura_actual"]["resultado"]["valor"],
+                         informe["observacion_historica"]["resultado"]["valor"])
+
+    def test_cambiar_la_sangria_no_es_cambiar_el_mundo(self):
+        # `capturar` declara que reordenar claves no es un cambio del mundo y compara por forma
+        # canónica; `revalidar` comparaba bytes y llamaba «CAMBIÓ» a un cambio de presentación.
+        (self.consumidor.raiz / "tools" / "sensor.py").write_text(
+            SENSOR_QUE_CAMBIA_LA_SANGRIA, encoding="utf-8")
+        plan = self.consumidor.plan()
+        self.assertEqual(self.capturar(plan)[0], 0)
+        codigo, texto, informe = self.revalidar(plan)
+        self.assertEqual(codigo, 0, texto)
+        self.assertIn("REVALIDACIÓN — sin cambios", texto)
+        self.assertIs(informe["evidencia"]["igual_por_valor"], True)
+        self.assertIs(informe["evidencia"]["mismos_bytes"], False)
+        self.assertIn("otros bytes", texto)
+
+    def test_un_valor_distinto_si_es_un_cambio(self):
+        # La otra polaridad: sin esto, «comparar por valor» podría ser un «no comparar nada».
+        plan = self.consumidor.plan()
+        self.assertEqual(self.capturar(plan)[0], 0)
+        (self.consumidor.raiz / "piezas" / "b.dat").write_text("y", encoding="utf-8")
+        codigo, texto, informe = self.revalidar(plan)
+        self.assertEqual(codigo, 1)
+        self.assertIs(informe["evidencia"]["igual_por_valor"], False)
+        self.assertIn("evidencia:    distinta por valor", texto)
+
+    def test_un_registro_no_puede_mandar_a_leer_fuera_de_su_carpeta(self):
+        # El nombre del archivo sale del propio registro, que es un dato: si trae una ruta en vez
+        # de un nombre, no se sigue. Sin la salida guardada queda la huella, que es más estricta.
+        plan = self.consumidor.plan()
+        self.assertEqual(self.capturar(plan)[0], 0)
+        ruta = self.destino / "registro.json"
+        for nombre in ("../evidencia.json", "..", ".", "", 7):
+            with self.subTest(nombre=nombre):
+                registro = json.loads(ruta.read_text(encoding="utf-8"))
+                registro["evidencia"]["archivo"] = nombre
+                ruta.write_text(json.dumps(registro, ensure_ascii=False), encoding="utf-8")
+                self.assertIsNone(observar.evidencia_guardada(ruta, registro))
+
+    def test_el_nombre_legitimo_si_se_lee(self):
+        plan = self.consumidor.plan()
+        self.assertEqual(self.capturar(plan)[0], 0)
+        ruta = self.destino / "registro.json"
+        registro = json.loads(ruta.read_text(encoding="utf-8"))
+        guardada = observar.evidencia_guardada(ruta, registro)
+        self.assertEqual(guardada,
+                         json.loads((self.destino / "evidencia.json").read_text(encoding="utf-8")))
+
+    def test_sin_la_evidencia_guardada_al_lado_se_compara_por_huella(self):
+        plan = self.consumidor.plan()
+        self.assertEqual(self.capturar(plan)[0], 0)
+        (self.destino / "evidencia.json").unlink()
+        codigo, texto, informe = self.revalidar(plan)
+        self.assertEqual(codigo, 0, texto)
+        self.assertIs(informe["evidencia"]["igual_por_valor"], True)
+
 
 class LimiteDeLasHuellas(unittest.TestCase):
     """El control que impide vender la frescura como autenticidad."""
