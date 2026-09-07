@@ -69,8 +69,19 @@ whl    sha256:8644d3981c5171d930bc2a1378bd590ae7f18b84b82a21b1208b5f726e50ae67
 tar.gz sha256:e546a7717b26b39ab63bd15a1a87c7613f0f51d319c1d47fe8e653d0430e2ff2
 ```
 
-**Falta, y lo ejecuta el usuario:** la subida a PyPI. El comando y la forma de verificarla están
-más abajo; PyPI está en `0.8.1`.
+**PyPI: `0.9.0` publicada el 2026-09-07 por el usuario, y verificada.** Los dos digests y los dos
+tamaños que sirve PyPI coinciden con el build local y con los que este relevo tenía anotados **antes**
+de la subida. Instalada en un venv limpio bajando desde PyPI: `oracle 0.9.0`, los diez ejecutables,
+la medida nueva y `tools/sondear_procedencia.py` empaquetadas, la sonda corriendo desde el paquete,
+y `oracle-aceptacion` midiendo a los dos consumidores reales —LyraGASP ✓ 14/14 y Jam ✓ 20/3, los dos
+con la medida nueva en cero—. El recorrido de 0.8.1 revalida la observación de LyraGASP con la misma
+evidencia `sha256:1dda6ee0…`.
+
+⚠ Al minuto de subir, la **API JSON de PyPI ya servía 0.9.0 y el índice de `pip` todavía no**:
+`Could not find a version that satisfies the requirement oracle-metalenguaje==0.9.0`. Es propagación
+del CDN y se resolvió sola. Si pasa, se mira el índice simple
+(`curl -s https://pypi.org/simple/oracle-metalenguaje/ | grep 0.9.0`) antes de concluir que la
+subida falló.
 
 ### Orden de lectura
 
