@@ -63,6 +63,18 @@ tar.gz sha256:35a6aae5d67daa9e12f19a9cbd196e56f9e3d9016e8758600056c36a2964b9a0
 
 ### Corte 0.10.0: el paquete medía con 5 de 29 mutadores
 
+**PyPI: `0.10.0` publicada y verificada el 2026-09-07.** Digests y tamaños idénticos al build
+local. La herramienta global quedó reinstalada y ya mide con los 29 mutadores: Jam pasa de 315/0 a
+**428 con sus 9 sobrevivientes** y LyraGASP de 116/0 a **139 con sus 2**.
+
+⚠ **`uv tool install --force` NO alcanza: hace falta `--refresh`.** Sin él falla con «no version of
+oracle-metalenguaje==0.10.0 … requirements are unsatisfiable» aunque PyPI ya la sirva, porque `uv`
+resuelve contra su caché. El comando completo es:
+
+```bash
+uv tool install --force --refresh "oracle-metalenguaje==<version>"
+```
+
 **Commiteado, sin push y sin publicar en PyPI.** Distribución `0.10.0`, álgebra `0.6`, sintaxis
 `0.3`. Detalle en
 [`estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md`](estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md).
