@@ -62,6 +62,7 @@ include-package-data = true
 packages = [
   "oracle_metalenguaje",
   "oracle_metalenguaje.catalogos",
+  "oracle_metalenguaje.mutadores",
   "oracle_metalenguaje.nucleo",
   "oracle_metalenguaje.nucleo.aislamiento",
   "oracle_metalenguaje.perfiles",
@@ -72,6 +73,12 @@ packages = [
 
 [tool.setuptools.package-dir]
 "oracle_metalenguaje.catalogos" = "catalogos"
+# `mutadores/` viaja desde 0.10.0. Hasta 0.9.2 NO estaba acá, y la consecuencia se midió:
+# el paquete instalado mutaba con los 5 mutadores propios en vez de los 29 declarados, sin
+# decirlo. Los sobrevivientes reales de los dos consumidores conocidos —9 en uno, 2 en el
+# otro— salían todos de mutadores del segundo autor, así que desde el paquete eran
+# invisibles y `oracle test` daba VERDE donde el árbol daba ROJO.
+"oracle_metalenguaje.mutadores" = "mutadores"
 "oracle_metalenguaje.nucleo" = "nucleo"
 "oracle_metalenguaje.nucleo.aislamiento" = "nucleo/aislamiento"
 "oracle_metalenguaje.perfiles" = "perfiles"

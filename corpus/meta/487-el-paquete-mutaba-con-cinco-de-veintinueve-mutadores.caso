@@ -1,0 +1,25 @@
+caso 487-el-paquete-mutaba-con-cinco-de-veintinueve-mutadores:
+    fecha: "2026-09-07"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "634b072+worktree"
+        comando: "oracle-mutar --proyecto <consumidor> --confiar-escalares, desde el wheel y desde el arbol"
+    procedencia: observada
+    titulo: "El paquete publicado medía con 5 de 29 mutadores y no lo decía"
+    etiqueta: deuda_de_diseño
+    sintoma:
+        `mutadores/` no estaba en `pyproject.toml`, asi que no viajaba en el paquete. La evidencia son las cuatro corridas del mismo comando sobre los dos consumidores reales, dos desde el wheel instalado y dos desde el arbol: el paquete generaba menos mutantes y devolvia CERO sobrevivientes donde el arbol encontraba nueve y dos. Los sobrevivientes reales salian de `alejar_limite_de_defecto` y `hacer_estricta_comparacion_interna`, los dos del segundo autor, o sea invisibles desde el paquete. `oracle test` daba VERDE sobre un proyecto donde el arbol daba ROJO.
+    como_se_detecto: observacion
+    medida: null
+    estado_sin_medida: resuelto
+    resuelto:
+        2026-09-07, en dos partes. Una: `mutadores/` se empaqueta como `oracle_metalenguaje.mutadores` —no de nivel superior, que repetiria el defecto que 0.3.3 arreglo cuando la biblioteca ocupaba el nombre `tools` y le borraba al consumidor el suyo— y el import prueba ese nombre primero. Dos: el informe de mutacion declara el denominador y avisa con un simbolo cuando faltan los ajenos, que es lo que sirve en una instalacion anterior, donde empaquetar no llega.
+        NO se agrego una medida al catalogo, y es deliberado: seria universal, se pondria roja en el consumidor, y el consumidor no puede arreglar el empaquetado de Oracle. DECISION-012 lo dice: un rojo sobre el que el receptor no puede actuar ensena a ignorar la herramienta.
+    evidencia:
+        corrida_de_mutacion: proyecto, desde, mutadores, mutantes, sobrevivientes
+            "jam", "wheel", 5, 315, 0
+            "jam", "arbol", 29, 428, 9
+            "lyragasp", "wheel", 5, 116, 0
+            "lyragasp", "arbol", 29, 139, 2
+    leccion:
+        Un «todos muertos» sin su denominador es una afirmacion mas chica de lo que parece, y esa es exactamente la premisa de DECISION-011: un mutador que nadie escribio no puede producir un sobreviviente. Se escribio un segundo autor para cerrar ese agujero y despues no se lo distribuyo, asi que todo consumidor siguio viviendo en el mundo anterior a la decision sin que nada se lo dijera. Empaquetar sin informar tampoco alcanzaba: quien ya tiene una version instalada no se entera de que su numero acota menos.

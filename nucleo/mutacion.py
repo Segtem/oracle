@@ -164,6 +164,43 @@ EXCLUSIONES_DE_MUTADORES = (
 )
 
 
+def _segundo_autor():
+    """El módulo del segundo autor, buscado por los DOS nombres bajo los que puede vivir.
+
+    En el checkout es `mutadores`; instalado es `oracle_metalenguaje.mutadores`. Se prueba el
+    namespaced PRIMERO: un consumidor que tenga su propio `mutadores/` en el cwd no debe ganarle al
+    del paquete, que es el mismo motivo por el que la biblioteca dejó de ocupar el nombre `tools` en
+    0.3.3 —ahí un consumidor perdía su propio `tools/` por instalar Oracle—.
+
+    Devuelve `None` y no levanta: una instalación anterior a 0.9.3 no los trae, y el arnés tiene que
+    seguir midiendo con los propios en vez de romperse. Lo que NO puede hacer es callarse: de eso se
+    ocupa `cobertura_de_mutadores()`.
+    """
+    import importlib  # noqa: PLC0415  el costo del import se paga una vez y sólo si se usa
+
+    for nombre in ("oracle_metalenguaje.mutadores.segundo_autor", "mutadores.segundo_autor"):
+        try:
+            return importlib.import_module(nombre)
+        except ImportError:
+            continue
+    return None
+
+
+def cobertura_de_mutadores() -> dict:
+    """Con cuántos mutadores se está midiendo, y de quiénes.
+
+    Existe porque «todos muertos» no dice nada si no se sabe sobre qué espacio. Hasta 0.9.2 el
+    paquete publicado corría con 5 de los 29 declarados y el informe no lo mencionaba: los dos
+    consumidores conocidos leían «sin sobrevivientes» mientras el árbol les encontraba 9 y 2, todos
+    de mutadores del segundo autor. El número sin su denominador era una afirmación más chica de lo
+    que parecía, que es exactamente lo que `DECISION-011` fue a arreglar.
+    """
+    ajenos = _mutadores_ajenos()
+    return {"propios": len(MUTADORES_PROPIOS), "ajenos": len(ajenos),
+            "total": len(MUTADORES_PROPIOS) + len(ajenos),
+            "hay_ajenos": bool(ajenos)}
+
+
 def mutadores_declarados_por_sus_autores() -> frozenset:
     """Los nombres que cada autor DECLARA, leídos de su módulo y no del registro ya construido.
 
@@ -172,15 +209,15 @@ def mutadores_declarados_por_sus_autores() -> frozenset:
     vigila daría verde mientras el arnés vuelve a la forma vieja. Leer la declaración del autor es
     lo único independiente del camino que se quiere vigilar.
 
-    El `except` no es simetría con `_mutadores_ajenos()`: un consumidor instala el paquete, y
-    `mutadores/` no viaja en él —no está en `pyproject.toml`—. Ahí el mutador no está ausente
-    porque alguien lo excluyera sino porque nadie lo distribuyó, y eso no es un defecto de nadie.
-    Distinguir las dos cosas es el trabajo de esta función.
+    El `except` no es simetría con `_mutadores_ajenos()`: puede faltar el directorio. Desde 0.10.0
+    `mutadores/` SÍ viaja en el paquete, así que un consumidor recién instalado los tiene; el
+    camino sin ellos queda para una instalación anterior, y ahí el mutador no está ausente porque
+    alguien lo excluyera sino porque esa versión no los distribuía. Distinguir las dos cosas es el
+    trabajo de esta función, y `cobertura_de_mutadores()` es la que lo dice en voz alta.
     """
     from nucleo.mutacion import MUTADORES_PROPIOS  # noqa: PLC0415  se resuelve al llamar, no al importar
-    try:
-        from mutadores import segundo_autor
-    except ImportError:
+    segundo_autor = _segundo_autor()
+    if segundo_autor is None:
         return frozenset(MUTADORES_PROPIOS)
     return frozenset(MUTADORES_PROPIOS) | {fn.__name__ for fn in segundo_autor.MUTADORES}
 
@@ -195,9 +232,8 @@ def _mutadores_ajenos() -> dict:
     Las exclusiones no se aplican en tiempo de importación: viven en `EXCLUSIONES_DE_MUTADORES`
     y se comprueban por medida en `mutantes()`.
     """
-    try:
-        from mutadores import segundo_autor
-    except ImportError:
+    segundo_autor = _segundo_autor()
+    if segundo_autor is None:
         return {}
     return {fn.__name__: fn for fn in segundo_autor.MUTADORES}
 

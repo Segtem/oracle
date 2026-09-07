@@ -61,27 +61,48 @@ tar.gz sha256:35a6aae5d67daa9e12f19a9cbd196e56f9e3d9016e8758600056c36a2964b9a0
 79 formas canónicas idénticas (huella `83f04f33d6b0282e`), y `oracle test` le dice
 `SINTAXIS OK · 41 medidas`. Se commitea allá cuando 0.9.2 esté publicada.
 
-### ⚠ Lo siguiente, y es grande: el paquete muta con 5 de 29 mutadores
+### Corte 0.10.0: el paquete medía con 5 de 29 mutadores
 
-Comparando el árbol contra el wheel sobre el MISMO proyecto:
+**Commiteado, sin push y sin publicar en PyPI.** Distribución `0.10.0`, álgebra `0.6`, sintaxis
+`0.3`. Detalle en
+[`estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md`](estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md).
 
-| | árbol | paquete instalado |
+`mutadores/` no estaba en `pyproject.toml` y nunca viajó: una instalación mutaba con los 5 propios
+en vez de los 29 declarados, sin decirlo. Medido sobre los dos consumidores reales, el mismo comando
+sobre el mismo proyecto:
+
+| | desde el paquete | desde el árbol |
 |---|---|---|
-| mutantes generados sobre Jam | **428** | **315** |
-| `proceso.test_con_mutante_que_lo_mata` | ✗ **9** | ✓ **0** |
-| veredicto de `oracle test` | **ROJO** | **VERDE** |
+| Jam | 315 mutantes · **0** sobrevivientes | 428 · **9** |
+| LyraGASP | 116 mutantes · **0** sobrevivientes | 139 · **2** |
 
-`mutadores/` no está en `pyproject.toml`, así que no viaja. El paquete muta con los **5** propios en
-vez de los **29** declarados. El código conoce la ausencia y la maneja para no romperse
-(`mutadores_declarados_por_sus_autores`), pero **no la informa**, así que un consumidor lee «sin
-sobrevivientes» sobre un espacio 5,8 veces más chico.
+Los sobrevivientes reales de los dos salen de mutadores del segundo autor, o sea invisibles desde el
+paquete. Es el defecto que `DECISION-011` fue a arreglar, sobreviviendo en lo que se distribuye.
 
-No es teórico: los 9 sobrevivientes reales de Jam salen de `alejar_limite_de_defecto` y
-`hacer_estricta_comparacion_interna`, los dos del segundo autor. Desde el paquete son invisibles.
+**Arreglado en dos partes:** `mutadores/` viaja como `oracle_metalenguaje.mutadores` —no de nivel
+superior, que repetiría el defecto de `tools` que 0.3.3 arregló— y el informe declara el
+denominador, que es lo que sirve en una instalación anterior, donde empaquetar no llega.
 
-Es el defecto que `DECISION-011` fue a arreglar —«un mutador que nadie escribió no puede producir un
-sobreviviente»— sobreviviendo en lo que se distribuye. Dos caminos, y son decisiones distintas:
-informarlo, o empaquetar `mutadores/` (lo segundo toca DECISION-011).
+**Sube la MENOR y no el parche**, y es el caso más claro del criterio: los dos consumidores pasan de
+VERDE a ROJO al actualizar sin tocar una línea. Se escribió primero `0.9.3` con el argumento de que
+la exigencia ya existía; eso explica por qué corresponde hacerlo, no por qué podría esconderse en un
+parche.
+
+⚠ **Los números de mutación reportados sobre los consumidores antes de este corte** salieron del
+Oracle instalado: ciertos, pero sobre un espacio 5,8 veces más chico. Conviene leerlos con este dato
+al lado.
+
+**Números:** suite **1405** · corpus **189** (caso 487, resuelto por construcción) · medidas
+**915/915** · las cuatro comprobaciones de CI en verde · artefactos con **123 archivos byte a byte**
+contra el árbol · desde un venv limpio, los dos consumidores ven los mismos números que el árbol.
+
+```
+whl    sha256:2922c151968f65aad0b2376910ba999534f56a9a47a857b86d7f6d05838b8adc
+tar.gz sha256:378310a7823386c06373132815f3c99b775c65702c1d40ca140bd55ae04ed01c
+```
+
+**Jam sigue migrado y sin commitear**, esperando que 0.10.0 esté publicada. Y ahora tiene un rojo
+real que ver: sus **9 sobrevivientes**, que hasta hoy no podía medir.
 
 ### Corte 0.9.1: una herramienta que se cae no informa nada
 

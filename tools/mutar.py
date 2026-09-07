@@ -26,7 +26,7 @@ from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, casos_para_mutacion  # noqa: E402
 from nucleo.medida import (Informe, cargar_catalogo, evaluar, medidas_aplicables,  # noqa: E402
                           relaciones_de_medida)
-from nucleo.mutacion import correr  # noqa: E402
+from nucleo.mutacion import cobertura_de_mutadores, correr  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, RAIZ_ORACLE,
                              catalogos_a_cargar, catalogos_base_a_cargar, confiar_escalares,
                              escalares_del_proyecto, macros_del_proyecto,
@@ -95,6 +95,20 @@ def _ejecutar(proy, args: list[str]) -> int:
                       if not m["detecciones_conductuales"] and m["rechazos_del_algebra"]]
     print(f"mutantes de medida (medida × mutador): {len(mutantes)} · "
           f"murieron {len(mutantes) - len(vivos)} · sobrevivieron {len(vivos)}")
+    # CON CUÁNTOS, y no sólo cuántos. «Todos muertos» no dice nada si no se sabe sobre qué espacio:
+    # hasta 0.9.2 el paquete publicado corría con 5 de los 29 mutadores declarados y esta línea no
+    # existía, así que los dos consumidores conocidos leían «sin sobrevivientes» mientras el árbol
+    # les encontraba 9 y 2 —todos de mutadores del segundo autor—. Es el defecto que DECISION-011
+    # fue a arreglar, sobreviviendo en lo que se distribuía.
+    cobertura = cobertura_de_mutadores()
+    if cobertura["hay_ajenos"]:
+        print(f"  con {cobertura['total']} mutadores: {cobertura['propios']} de quien escribió el "
+              f"lenguaje y {cobertura['ajenos']} de otro autor (ver DECISION-011)")
+    else:
+        print(f"  ⚠ con {cobertura['propios']} mutadores, TODOS del mismo autor que las medidas: "
+              f"faltan los de `mutadores/`, que esta instalación no trae. Un mutador que nadie "
+              f"escribió no puede producir un sobreviviente, así que este número acota menos de lo "
+              f"que parece")
     # La cifra que se puede publicar sin inflar: sólo la primera dice que un caso discriminó.
     print(f"  de los muertos: {conductuales} por conducta "
           f"(invirtió el veredicto, cambió testigos o cambió el valor) · "

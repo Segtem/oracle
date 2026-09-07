@@ -1,3 +1,81 @@
+# 0.10.0 — el paquete medía con 5 de 29 mutadores
+
+Sube la **menor** de la distribución, según `ESPECIFICACION.md` §0:
+
+```
+VERSION_DISTRIBUCION   0.9.2 → 0.10.0    el paquete gana `mutadores/`
+VERSION_ALGEBRA        0.6   → 0.6       mismo evaluador y forma canónica
+VERSION_SINTAXIS       0.3   → 0.3       mismo lector de medidas y casos
+```
+
+⚠ **Actualizar puede poner en rojo una corrida que ayer daba verde, y eso es lo que se arregla.**
+No hay nada que corregir del lado del consumidor: se le devuelve una medición que ya le
+correspondía.
+
+## Qué pasaba
+
+`mutadores/` —el directorio con los 24 mutadores del segundo autor, el de `DECISION-011`— no estaba
+en `pyproject.toml` y nunca viajó en el paquete. Una instalación mutaba con los **5** mutadores
+propios en vez de los **29** declarados, y el informe no lo decía.
+
+Medido sobre los dos consumidores reales, el mismo comando sobre el mismo proyecto:
+
+| | desde el paquete | desde el árbol |
+|---|---|---|
+| Jam | 315 mutantes · **0** sobrevivientes | 428 · **9** |
+| LyraGASP | 116 mutantes · **0** sobrevivientes | 139 · **2** |
+| `oracle test` sobre Jam | **VERDE** | **ROJO** |
+
+Los sobrevivientes reales de los dos salen de `alejar_limite_de_defecto` y
+`hacer_estricta_comparacion_interna`: **los dos del segundo autor**, o sea invisibles desde el
+paquete publicado.
+
+Es el defecto que `DECISION-011` fue a arreglar, sobreviviendo en lo que se distribuye — «un mutador
+que nadie escribió no puede producir un sobreviviente». Se escribió un segundo autor en aislamiento
+verificable para cerrarlo, y después no se lo distribuyó.
+
+## El arreglo, en dos partes
+
+**`mutadores/` viaja**, como `oracle_metalenguaje.mutadores` y **no** como `mutadores` de nivel
+superior: eso repetiría el defecto que 0.3.3 arregló, cuando instalar la biblioteca ocupaba el
+nombre `tools` y le borraba al consumidor el suyo. El resolvedor prueba el nombre del paquete
+primero, para que un `mutadores/` del cwd del consumidor no le gane al distribuido.
+
+**El informe declara el denominador**, que es lo que sirve donde empaquetar no llega — quien tenga
+instalada una versión anterior no se entera por más que se corrija el paquete:
+
+```
+mutantes de medida (medida × mutador): 428 · murieron 419 · sobrevivieron 9
+  con 29 mutadores: 5 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+```
+
+Y cuando faltan: `⚠ con 5 mutadores, TODOS del mismo autor que las medidas … este número acota menos
+de lo que parece`.
+
+## Lo que NO se hizo
+
+**No se agregó una medida al catálogo.** Sería universal, se pondría roja en el consumidor, y el
+consumidor no puede arreglar el empaquetado de Oracle. `DECISION-012`: «un rojo sobre el que el
+receptor no puede actuar enseña a ignorar la herramienta». La cobertura pertenece al arnés
+operativo, no al catálogo.
+
+## Un efecto que conviene decir en voz alta
+
+Los números de mutación que se reportaron sobre los consumidores antes de este corte salieron del
+Oracle instalado. Eran ciertos y estaban medidos, pero sobre un espacio **5,8 veces más chico** de
+lo que parecían. Conviene leerlos con este dato al lado.
+
+## Verificación del corte
+
+Suite **1405 tests** · corpus **189 casos**, con el 487 registrando el defecto como resuelto por
+construcción · mutación de medidas **915/915** · las cuatro comprobaciones literales de CI en verde.
+Desde un venv limpio con el wheel nuevo, los dos consumidores ven los mismos números que el árbol:
+Jam 428 con sus 9, LyraGASP 139 con sus 2.
+
+El detalle está en `estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md`.
+
+---
+
 # 0.9.2 — Oracle imprimía algo que no podía volver a leer
 
 Sube la **menor de la sintaxis** y sólo el **parche de la distribución**, según `ESPECIFICACION.md` §0:

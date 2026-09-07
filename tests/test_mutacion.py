@@ -6,6 +6,8 @@ from copy import deepcopy
 import dataclasses
 import importlib
 import sys
+import io
+from contextlib import redirect_stdout
 from unittest import mock
 import unittest
 from pathlib import Path
@@ -443,3 +445,77 @@ class CorrerTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CoberturaDeMutadores(unittest.TestCase):
+    """Un «todos muertos» sin denominador es una afirmación más chica de lo que parece.
+
+    Hasta 0.9.2 el paquete publicado no traía `mutadores/` —no estaba en `pyproject.toml`— y corría
+    con 5 de los 29 mutadores declarados sin decirlo. Medido sobre los dos consumidores conocidos:
+    leían «0 sobrevivientes» mientras el árbol les encontraba 9 y 2, todos de mutadores del segundo
+    autor. Es el defecto que `DECISION-011` fue a arreglar, sobreviviendo en lo que se distribuía.
+    """
+
+    def test_la_cobertura_cuenta_los_dos_conjuntos_por_separado(self):
+        from nucleo.mutacion import MUTADORES_PROPIOS, cobertura_de_mutadores
+
+        c = cobertura_de_mutadores()
+        self.assertEqual(c["propios"], len(MUTADORES_PROPIOS))
+        self.assertGreater(c["ajenos"], 0, "el árbol tiene que traer los del segundo autor")
+        self.assertEqual(c["total"], c["propios"] + c["ajenos"])
+        self.assertIs(c["hay_ajenos"], True)
+
+    def test_sin_los_ajenos_la_cobertura_lo_declara_en_vez_de_callarlo(self):
+        from nucleo import mutacion
+
+        with mock.patch.object(mutacion, "_segundo_autor", return_value=None):
+            c = mutacion.cobertura_de_mutadores()
+        self.assertEqual(c["ajenos"], 0)
+        self.assertEqual(c["total"], c["propios"])
+        self.assertIs(c["hay_ajenos"], False)
+
+    def test_el_segundo_autor_se_busca_primero_por_el_nombre_del_paquete(self):
+        """Instalado vive bajo `oracle_metalenguaje.mutadores`; en el checkout, bajo `mutadores`.
+
+        El orden importa: un consumidor con su propio `mutadores/` en el cwd no debe ganarle al del
+        paquete. Es el mismo defecto que 0.3.3 arregló cuando la biblioteca ocupaba el nombre
+        `tools` y le borraba al consumidor el suyo.
+        """
+        import importlib
+
+        from nucleo import mutacion
+
+        pedidos = []
+
+        def espiar(nombre):
+            pedidos.append(nombre)
+            raise ImportError(nombre)
+
+        with mock.patch.object(importlib, "import_module", side_effect=espiar):
+            self.assertIsNone(mutacion._segundo_autor())
+        self.assertEqual(pedidos, ["oracle_metalenguaje.mutadores.segundo_autor",
+                                   "mutadores.segundo_autor"])
+
+    def test_el_informe_nombra_el_denominador_y_avisa_cuando_falta(self):
+        from tools import mutar
+
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            mutar.main(["--proyecto", str(RAIZ)])
+        texto = salida.getvalue()
+        self.assertIn("con 29 mutadores", texto)
+        self.assertIn("de otro autor", texto)
+        self.assertNotIn("⚠", texto)
+
+    def test_sin_los_ajenos_el_informe_avisa_que_acota_menos(self):
+        from nucleo import mutacion
+        from tools import mutar
+
+        salida = io.StringIO()
+        with mock.patch.object(mutacion, "_segundo_autor", return_value=None), \
+             redirect_stdout(salida):
+            mutar.main(["--proyecto", str(RAIZ)])
+        texto = salida.getvalue()
+        self.assertIn("⚠", texto)
+        self.assertIn("TODOS del mismo autor", texto)
+        self.assertIn("acota menos", texto)

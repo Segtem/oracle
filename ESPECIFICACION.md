@@ -98,6 +98,20 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.10.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.2` a `0.10.0`.** El paquete gana
+`mutadores/`, que no viajaba: hasta 0.9.2 una instalación mutaba con los **5** mutadores propios en
+vez de los **29** declarados, y no lo decía.
+
+Sube la **menor**, y es el caso más claro del criterio hasta ahora: **los consumidores cambian de
+color, y esta vez de verdad**. Jam pasa de «0 sobrevivientes» a **9** y LyraGASP de 0 a **2**; los
+dos pasan de VERDE a ROJO al actualizar sin haber tocado una línea. En 0.9.0 la menor subió por un
+cambio de color que era *posible*; acá está medido en los dos consumidores conocidos.
+
+Que la exigencia ya existiera y el paquete no la aplicara explica por qué corresponde hacerlo, no
+por qué podría esconderse en un parche: un parche dice «actualizá sin mirar», y esto pone en rojo
+una corrida que ayer daba verde. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.3`: no
+entra un nodo, un operador, un agregado, una escalar ni una relación, y el lector no gana palabras.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;
