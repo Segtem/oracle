@@ -1,0 +1,19 @@
+caso 479-sombras-vencidas-de-distinta-edad:
+    fecha: "2026-09-06"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f57b67f+worktree"
+    procedencia: construida
+    titulo: "Dos sombras vencidas tienen edades distintas"
+    etiqueta: falso_verde
+    sintoma:
+        Al pasar de contar incumplimientos a publicar días, los casos con una sola sombra vencida no distinguen max de min: ambos devuelven la edad de esa única fila. Esta evidencia construida exige publicar 244 días y conservar como testigos las dos sombras vencidas, de 91 y 244 días; no alcanza con que el veredicto siga rojo.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_sombra_envejece_sin_revisarse
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe
+            "dominio.recien_vencida", true, true, 91, false, true
+            "dominio.olvidada", true, true, 244, false, true
+            "dominio.reciente", true, true, 12, false, true
+    leccion:
+        El resumen debe publicar la peor edad, no la menor, la suma ni el número de sombras. La mutación compara también el valor y los testigos, aunque la polaridad no cambie.

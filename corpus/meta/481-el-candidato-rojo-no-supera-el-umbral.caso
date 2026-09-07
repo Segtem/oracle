@@ -1,0 +1,18 @@
+caso 481-el-candidato-rojo-no-supera-el-umbral:
+    fecha: "2026-09-06"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f57b67f+worktree"
+    procedencia: construida
+    titulo: "Un candidato rojo con una fila no rompe contar menor o igual a cinco"
+    etiqueta: falso_verde
+    sintoma:
+        El generador anterior proponía una sola fila ofensora para contar <= 5 y la etiquetaba falso_verde. La evaluación daba valor 1 y verde: la propuesta se contradecía. Estos hechos construidos reproducen esa discordancia y un candidato verde correcto. No son una captura de un consumidor ni evidencia de que el comando haya escrito un caso inválido: evaluar_utilidad lo descartaba en silencio.
+    como_se_detecto: observacion
+    medida: meta.el_caso_se_pone_como_debe
+    evidencia:
+        caso: id, esperado_ok, dio_ok
+            "sonda-gen-001-conteo-inclusivo", false, true
+            "sonda-gen-099-conteo-inclusivo-verde", true, true
+    leccion:
+        La polaridad esperada viene de lo que se pidió fabricar; la obtenida viene de evaluar contra el umbral declarado. Igualarlas por construcción o asumir que una fila basta oculta el defecto.

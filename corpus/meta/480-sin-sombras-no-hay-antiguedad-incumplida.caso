@@ -1,0 +1,16 @@
+caso 480-sin-sombras-no-hay-antiguedad-incumplida:
+    fecha: "2026-09-06"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f57b67f+worktree"
+    procedencia: construida
+    titulo: "Un proyecto sin sombras no tiene una edad incumplida"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La relación vacía declara que no hay sombras. La cota de antigüedad debe dar verde, valor cero y ningún testigo; no debe exigir la presencia de una sombra para poder juzgar su ausencia.
+    como_se_detecto: persona
+    medida: meta.ninguna_sombra_envejece_sin_revisarse
+    evidencia:
+        sombra:
+    leccion:
+        Cero significa que no hay sombras vencidas, no que se midió una sombra de cero días. La misma convención vale cuando todas las sombras están dentro del trimestre.

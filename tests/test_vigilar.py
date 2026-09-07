@@ -352,28 +352,20 @@ class MedidaMutantesDePresentacionTests(unittest.TestCase):
     def test_probar_traduce_coordenadas_al_fragmento_visible(self) -> None:
         """Las coordenadas pertenecen al texto que ve la persona, no al caso envoltorio oculto;
         los mínimos, la sangría y el detalle posterior al primer separador son parte del contrato."""
-        class ErrorVisible(Exception):
-            pass
-
-        error = ErrorVisible("interno: detalle: conservado")
-        error.linea = 13
-        error.columna = 9
-        with mock.patch.object(medida, "ErrorSintaxis", ErrorVisible):
-            rc, salida = self._probar_simulado(error_lectura=error)
+        error = medida.ErrorSintaxis(13, 9, "detalle: conservado", literal=True)
+        rc, salida = self._probar_simulado(error_lectura=error)
         self.assertEqual(rc, 1)
         self.assertIn("línea 1, columna 1: detalle: conservado", salida)
 
-        sin_coordenadas = ErrorVisible("interno: otro")
-        with mock.patch.object(medida, "ErrorSintaxis", ErrorVisible):
-            rc, salida = self._probar_simulado(
-                texto="         item: malo", error_lectura=sin_coordenadas)
+        al_inicio = medida.ErrorSintaxis(1, 1, "otro", literal=True)
+        rc, salida = self._probar_simulado(
+            texto="         item: malo", error_lectura=al_inicio)
         self.assertEqual(rc, 1)
         self.assertIn("columna 2: otro", salida)
 
-        error.columna = 10
-        with mock.patch.object(medida, "ErrorSintaxis", ErrorVisible):
-            rc, salida = self._probar_simulado(
-                texto="         item: malo", error_lectura=error)
+        error = medida.ErrorSintaxis(13, 10, "detalle: conservado", literal=True)
+        rc, salida = self._probar_simulado(
+            texto="         item: malo", error_lectura=error)
         self.assertEqual(rc, 1)
         self.assertIn("columna 11", salida)
 

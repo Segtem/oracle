@@ -58,6 +58,8 @@ PLANTILLA = """\
 ninguno {mid}:
     de RELACION x
     donde x.CAMPO == false
+    # Si medís una magnitud (días, cm, segundos), consultá `oracle manual peor`:
+    # su tolerancia es la cota del dominio; `ninguno` cuenta defectos y exige cero.
     # segun: medicion · contrato · convencion · tanteo
     umbral <= 0 segun SEGUN porque "POR QUE ese numero y no otro. Si SEGUN es tanteo, esta explicacion es obligatoria."
     # ambito: universal · del_origen
@@ -378,8 +380,8 @@ def probar(proy, ruta: Path, texto_evidencia: str) -> int:
     try:
         evidencia = leer_caso(armado)["evidencia"]
     except ErrorSintaxis as e:
-        linea = max(1, getattr(e, "linea", 1) - LINEAS_DE_ENVOLTORIO)
-        columna = max(1, getattr(e, "columna", 1) - 8 + sangria)
+        linea = max(1, e.linea - LINEAS_DE_ENVOLTORIO)
+        columna = max(1, e.columna - 8 + sangria)
         detalle = str(e).split(": ", 1)[1] if ": " in str(e) else str(e)
         print(f"✗ la evidencia no se entiende — línea {linea}, columna {columna}: {detalle}")
         return 1

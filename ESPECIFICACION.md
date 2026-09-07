@@ -42,6 +42,24 @@ ningún nodo, operador, agregado, escalar ni relación de traza, ni cambia el si
 existentes. `VERSION_SINTAXIS` queda en `0.2`: el lector no gana palabras ni cláusulas y sigue
 aceptando las mismas formas de `.oracle` y `.caso` con el mismo significado.
 
+**Corte 0.8.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.7.0` a `0.8.0`.** El generador
+comprueba la polaridad y respeta cotas de conteos simples, se incorpora su sonda de custodia y la
+medida de antigüedad de sombras pasa de contar incumplimientos a publicar su edad máxima en días.
+`VERSION_ALGEBRA` queda en `0.6`: cambia la fórmula de un archivo del catálogo usando `peor` y
+`max` existentes, no la semántica del evaluador, los nodos admitidos ni la forma canónica. El mismo
+archivo de medida se evalúa igual antes y después; es el catálogo distribuido el que contiene una
+fórmula distinta. `VERSION_SINTAXIS` queda en `0.2`: no cambia el lector ni las formas aceptadas
+de `.oracle` o `.caso`. El cambio observable de valor de la medida se documenta en las notas del
+corte: conservar polaridad y testigos no significa conservar el número publicado.
+
+**Corte 0.8.1 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.8.0` a `0.8.1`.** El paquete gana
+`tools/observar.py`, el recorrido que ejecuta el sensor de un consumidor y conserva su corrida como
+un caso con `procedencia: observada`. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en
+`0.2`: la herramienta **usa** el lenguaje existente —`Referente`, `hechos_de_frescura` y dos medidas
+meta que ya se distribuían— y no agrega un nodo, un operador, un agregado, una escalar, una relación
+ni una palabra del lector, ni cambia el significado de ninguno. Un `.oracle` o un `.caso` se leen y
+se evalúan exactamente igual antes y después del corte.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;

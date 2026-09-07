@@ -42,6 +42,7 @@ jobs:
       - run: python -m unittest discover -s tests -t . -q
       - run: python tools/verificar_instalacion.py
       - run: python tools/corpus.py --resumen
+      - run: python tools/sondear_generador.py
       # `aceptacion.py` sale 1 mientras haya un rojo declarado —hoy son 2, ver DECISION-004; pasó de
       # 2 a 3 el 2026-08-31 al corregir un caso que decía `observada` sobre filas de un test, y
       # volvió a 2 el 2026-09-01 al exponer los referentes que el fixture diferencial ya calculaba—
@@ -102,6 +103,10 @@ jobs:
           # minutos; con los tests que faltaban quedó en 264/264 y **201 segundos**. El costo era el
           # síntoma de estar mal fijado, no una propiedad del archivo.
           - tools/medida.py
+          # Entra el 2026-09-07 con el recorrido de observación: custodia que un caso
+          # `procedencia: observada` haya salido de una corrida. Ver HERRAMIENTAS_CUSTODIAS.
+          - tools/observar.py
+          - tools/sondear_generador.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

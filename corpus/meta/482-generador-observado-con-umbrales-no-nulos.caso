@@ -1,0 +1,34 @@
+caso 482-generador-observado-con-umbrales-no-nulos:
+    fecha: "2026-09-06"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "f57b67f+worktree"
+        comando: "python3 tools/sondear_generador.py --hechos"
+    procedencia: observada
+    titulo: "Una corrida del generador respeta la entrega y la polaridad de sus sondas"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La evidencia transcribe las 17 filas emitidas por la corrida del comando indicado. Las entradas de las sondas son construidas: conteos con cotas <= 5, < 5 y <= 5.5, una magnitud que exige rechazo explícito y la medida real de antigüedad de sombras. Lo observado es el comportamiento del generador sobre esas entradas, no la verdad de una regla de un dominio externo.
+    como_se_detecto: observacion
+    medida: meta.el_caso_se_pone_como_debe
+    evidencia:
+        caso: id, esperado_ok, dio_ok
+            "sonda.conteo_inclusivo:entrega", true, true
+            "sonda.conteo_inclusivo:ambas_polaridades", true, true
+            "sonda-gen-001-conteo-inclusivo", false, false
+            "sonda-gen-099-conteo-inclusivo-verde", true, true
+            "sonda.conteo_estricto:entrega", true, true
+            "sonda.conteo_estricto:ambas_polaridades", true, true
+            "sonda-gen-001-conteo-estricto", false, false
+            "sonda-gen-099-conteo-estricto-verde", true, true
+            "sonda.conteo_fraccionario:entrega", true, true
+            "sonda.conteo_fraccionario:ambas_polaridades", true, true
+            "sonda-gen-001-conteo-fraccionario", false, false
+            "sonda-gen-099-conteo-fraccionario-verde", true, true
+            "sonda.magnitud_insuficiente:entrega", false, false
+            "meta.ninguna_sombra_envejece_sin_revisarse:entrega", true, true
+            "meta.ninguna_sombra_envejece_sin_revisarse:ambas_polaridades", true, true
+            "meta-gen-001-ninguna-sombra-envejece-sin-revisarse", false, false
+            "meta-gen-099-ninguna-sombra-envejece-sin-revisarse-verde", true, true
+    leccion:
+        Rechazar una sonda imposible es correcto; rechazar todas no lo es. El verificador ejecuta las sondas en cada corrida de CI, exige ambas polaridades cuando corresponde y compara expectativas independientes con los resultados.

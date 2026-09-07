@@ -84,7 +84,9 @@ PRIORIDADES = {
     # `test_mcp` primero y solo: es suyo y es chico. Misma palanca que en `contexto.py`, que pasó de
     # 858 a 56 segundos.
     "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
+    "tools/observar.py": ("tests.test_observar",),
     "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
+    "tools/sondear_generador.py": ("tests.test_sondear_generador",),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -190,8 +192,20 @@ PRIORIDADES = {
 # Y es una afirmación cara de equivocar: lo que se rompe si falla no es una corrida sino la
 # privacidad de quien reporta. Un reporte que arrastra una ruta o un id del negocio sin que su autor
 # lo haya pedido ya salió del repositorio cuando alguien lo nota.
+# `observar.py` entra el 2026-09-07, el mismo día que se escribe. Custodia la afirmación más cara
+# del proyecto: que un caso con `procedencia: observada` salió de una corrida y no de un teclado.
+# `PLAN-0.8.1-SENSOR.md` la llama «la mentira más barata del proyecto y la que nadie puede
+# detectar», y `PROCEDENCIAS` lo dice en el vocabulario: es una afirmación sobre el pasado y Oracle
+# NO puede verificarla.
+#
+# Nadie más comprueba lo que este archivo comprueba. `corpus.py` valida la FORMA del caso y
+# `aceptacion.py` su POLARIDAD; ninguno de los dos mira si la evidencia vino de algún lado. Si la
+# comprobación de lectura vacía, de lectura inestable o de expectativa declarada se rompe, el
+# recorrido sigue emitiendo casos `observada` que pasan todo lo demás — y el corpus queda con
+# observaciones que no observaron nada.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "contexto.py", "corpus.py",
-                          "lsp.py", "manual.py", "mcp.py", "medida.py", "reportar.py")
+                          "lsp.py", "manual.py", "mcp.py", "medida.py", "observar.py",
+                          "reportar.py", "sondear_generador.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:

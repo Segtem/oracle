@@ -1,3 +1,189 @@
+# 0.8.1 — la evidencia observada tiene un recorrido, y ese recorrido se puede romper
+
+Este corte agrega una herramienta y no toca el lenguaje. Sube únicamente la distribución, según
+`ESPECIFICACION.md` §0:
+
+```
+VERSION_DISTRIBUCION   0.8.0 → 0.8.1     el paquete gana `tools/observar.py`
+VERSION_ALGEBRA        0.6   → 0.6       mismo evaluador y forma canónica
+VERSION_SINTAXIS       0.2   → 0.2       mismo lector de medidas y casos
+```
+
+Un `.oracle` y un `.caso` se leen y se evalúan exactamente igual antes y después. La herramienta
+**usa** el lenguaje que ya se distribuía —`Referente`, `hechos_de_frescura`, la medida de referente
+vencido y la de polaridad del caso— y no agrega ni cambia ninguno.
+
+## Qué hace `tools/observar.py`
+
+Oracle no tiene sensores: viven en el consumidor, que es el único que sabe leer su dominio. Lo que
+faltaba era el recorrido alrededor de una corrida, y es lo que entra acá:
+
+```bash
+python tools/observar.py capturar  --plan <plan.json> --destino <carpeta>
+python tools/observar.py revalidar --plan <plan.json> --registro <registro.json>
+```
+
+`capturar` ejecuta el sensor del consumidor **como otro proceso** —no importa su código—, dos veces,
+y sólo escribe si las dos lecturas coinciden, si las relaciones que el plan declara traen filas, si
+ningún referente cambió durante la corrida y si el resultado coincide con la expectativa **escrita
+en el plan antes de correr**. Entonces conserva tres archivos: la evidencia **byte a byte como la
+emitió el sensor**, un registro y el caso, con `procedencia: observada` y esa evidencia incorporada
+íntegra. Ante una discordancia no escribe nada y deja la lectura rechazada sin borrar.
+
+La polaridad no la decide un `if` de la herramienta: se arma el caso y lo juzga
+`meta.el_caso_se_pone_como_debe`, la misma medida que usa la aceptación.
+
+Todo lo que el plan declara es **relativo a su raíz**, y una ruta absoluta se rechaza al leerlo. Lo
+que sólo vale en una máquina —la raíz absoluta, el intérprete, el argv real— queda en un bloque
+`maquina` que `revalidar` no usa. `espera.valor` es opcional a propósito: el número que dio una
+corrida es de esa corrida, no un contrato del recorrido.
+
+## Lo que este corte NO empieza a demostrar
+
+`revalidar` compara lo que se registró contra lo que se lee hoy, y separa tres cosas que es fácil
+confundir: la **observación histórica** —que lee y nunca corrige—, la **frescura** de los referentes
+y la **autenticidad**, que **no comprueba**. Cada registro y cada informe llevan escrito
+`autenticidad.comprobada: false` con el motivo: las huellas comparan una declaración contra una
+relectura, y dos declaraciones falsas iguales pasan igual que dos verdaderas.
+
+En concreto, y medido: un «sensor» que no lee nada del mundo, uno que le agrega filas inventadas a
+una lectura real, y un `cp` de un JSON escrito a mano **pasan los tres**, y salen con
+`autenticidad.comprobada: false`. Quien use esta herramienta no puede deducir de un caso `observada`
+que alguien haya medido el mundo; puede deducir que un programa corrió, que su salida se conservó
+sin tocar y que no cambió entre dos lecturas seguidas.
+
+## Un defecto que la mutación no podía encontrar
+
+El control de estabilidad comparaba las dos lecturas **ya parseadas**, con el `==` de Python, donde
+`True == 1` y `1 == 1.0`. Un sensor que emitía `true` en una corrida y `1` en la otra pasaba el
+control con bytes y tipos distintos, y el caso salía como observación de algo no reproducible.
+
+Lo encontró un ataque adversario, no la mutación: los 146 mutantes del archivo estaban muertos
+cuando el defecto seguía ahí. La mutación pregunta «¿algún test nota si cambio esta línea?»; el
+defecto vivía en el **significado de `==`** sobre datos parseados. **Cero sobrevivientes no es cero
+defectos.**
+
+La comparación ahora es sobre la **forma canónica** —valor y tipo—, no sobre los bytes: reordenar
+las claves de un objeto sigue sin ser un cambio, y las dos corridas escriben en rutas distintas que
+un sensor podría incluir en su salida. Dos casos nuevos de la suite fijan las dos caras.
+
+## Verificación del corte
+
+**1353 tests OK · corpus 184 · mutación de medidas 902/902 · mutación de `tools/observar.py`
+146/146 sin sobrevivientes, sin timeouts, sin errores de arnés y sin equivalentes declarados.** La
+aceptación conserva su única medida meta roja y la línea literal que CI exige. Los dos consumidores
+conocidos pasan: Jam con 23 casos y LyraGASP con 28, conservando sus tres sombras cada uno.
+
+`tools/observar.py` entra a `HERRAMIENTAS_CUSTODIAS` y a la matriz de mutación de CI: custodia que
+un caso `procedencia: observada` haya salido de una corrida, y nadie más lo comprueba —`corpus.py`
+valida la forma del caso y `aceptacion.py` su polaridad—.
+
+Se retiraron tres constructos equivalentes (`shutil.rmtree(…, ignore_errors=True)` sobre un temporal
+que siempre existe): un equivalente genuino se borra, no se declara. `equivalentes.json` no cambió.
+
+Primer uso real: el sensor de dataset de LyraGASP, 37 clips declarados, 37 FBX presentes y 0 ground
+truth, con la evidencia y el caso conservados en ese repositorio. Detalle en
+`estudios/OBSERVAR-0.8.1-RECORRIDO.md`.
+
+# 0.8.0 — el generador tiene que romper el umbral que la medida declara
+
+Este corte deja de tratar el cero como umbral implícito del generador y ejerce una magnitud real
+en el catálogo propio. Sube únicamente la distribución, según `ESPECIFICACION.md` §0:
+
+```
+VERSION_DISTRIBUCION   0.7.0 → 0.8.0     herramientas y catálogo distribuidos
+VERSION_ALGEBRA        0.6   → 0.6       mismo evaluador y forma canónica
+VERSION_SINTAXIS       0.2   → 0.2       mismo lector de medidas y casos
+```
+
+El generador y una fórmula del catálogo cambian; el lenguaje no gana nodos ni formas y no cambia
+el significado de un operador. Una misma medida se sigue leyendo y evaluando igual. La fórmula
+distribuida de antigüedad de sombras sí es distinta, con el cambio observable explicado abajo.
+
+## Fabricar una propuesta no demuestra su polaridad
+
+Antes, la heurística proponía una sola fila ofensora como `falso_verde`: para `contar <= 5` daba
+verde. El filtro de utilidad ya descartaba esa propuesta antes de escribir, pero escondía el
+motivo bajo «ruido». No se comprobó que el defecto escribiera casos inválidos en el corpus.
+
+Ahora `fabricar_candidatos` evalúa las propuestas antes de entregarlas. Para conteos simples con
+cota superior amplifica la evidencia: seis filas para `<= 5`, cinco para `< 5`, respetando el
+presupuesto de filas y volviendo a evaluar. No aplica esa regla a máximos, uniones o agrupaciones.
+Si una propuesta no alcanza la polaridad o carece de evidencia requerida, explica la negativa.
+
+`oracle caso generar` conserva «ruido» si no quedan mutantes por matar. Si quedan y no puede
+fabricar evidencia válida, sale con código 1, explica el límite y no escribe archivos. Quien
+automatice el comando debe contemplar esa negativa; quien use la función interna debe contemplar
+`GeneracionNoPosible`. El generador no se convirtió en un sintetizador general de magnitudes.
+
+## La antigüedad se publica en días
+
+`meta.ninguna_sombra_envejece_sin_revisarse` conserva su identificador, el contrato de revisión a
+90 días y el ámbito universal. Ahora usa la macro existente `peor`, con tolerancia 90. La polaridad
+y los testigos se conservan, pero **el valor deja de ser cantidad de incumplimientos y pasa a ser
+la edad máxima incumplida, en días**. Con sombras de 91 y 244 días publica 244, no 2.
+
+Sin sombras vencidas publica cero y ningún testigo: no informa la edad máxima de sombras recientes.
+No se añade `requiere`, porque no tener sombras es correcto. Los consumidores de `valor`, umbral,
+unidad o expansión de esta medida deben actualizar sus expectativas; no alcanza con comprobar que
+el color no cambió. Las series históricas de conteos y edades no son comparables sin distinguir
+la versión del catálogo. Las versiones de álgebra y sintaxis no detectan cambios de catálogo.
+
+Los casos 479 y 480 fijan edades distintas y ausencia de sombras. La plantilla de medidas orienta
+hacia `oracle manual peor` cuando el dominio es una magnitud, sin elegir una tolerancia por el autor.
+
+## La suposición queda bajo custodia
+
+`python tools/sondear_generador.py` ejecuta cinco sondas y publica 17 comprobaciones de entrega y
+polaridad. Las juzga la medida existente `meta.el_caso_se_pone_como_debe`, con campos existentes;
+no se agrega una relación al lenguaje. Negarse siempre, entregar una lista vacía o sólo rojos no
+puede pasar. La sonda corre en CI y su código entra en la matriz de mutación.
+
+El caso 481 reproduce la contradicción histórica con evidencia construida. El 482 registra la
+ejecución del programa sobre esas entradas construidas: observa el programa, no un dominio externo.
+No sustituye el trabajo pendiente de obtener evidencia del mundo en el plan del sensor.
+
+## Verificación y límites del corte
+
+La implementación pasó **1295 tests**, **184 casos** y **902/902 mutantes de medidas**: 750 por
+conducta y 152 rechazados por el álgebra. La edad de sombras cierra 9/9; la nueva sonda, 27/27
+mutantes de código, sin sobrevivientes, tiempos agotados, errores de arnés ni equivalentes declarados.
+Los controles nuevos de `fabricar_candidatos` cierran 22/22 en mutación dirigida: no es una
+certificación de todo el generador histórico.
+
+Se retiraron constructos equivalentes de la sonda y los valores por defecto imposibles de las
+coordenadas de `ErrorSintaxis` en `tools/medida.py`, junto con su declaración histórica. Los tres
+sitios de coordenadas afectados cierran 3/3 en mutación dirigida; no se repitió todo ese archivo.
+
+La aceptación conserva exactamente los dos pendientes declarados y la línea literal exigida por CI:
+
+```
+la_medida_no_se_fija_solo_con_evidencia_fabricada        2 (<= 0)
+```
+
+Es una única medida meta roja, por `meta.sintaxis_cubre_algebra` y
+`meta.sintaxis_casos_cubre_casos`, y la aceptación sale con código 1. Jam pasa con 23 casos y
+LyraGASP con 26; ambos conservan tres sombras y salen con código 0. Los informes de mutación
+siguen avisando cuando una medida no puede juzgar la evidencia del otro arnés por campos ausentes.
+
+El inventario de once sitios quedó revisado, no borrado: siguen declarados los límites de monotonía
+de `max`/`min`, el cero de agregados vacíos y la fabricación no general de magnitudes. No se cambió
+la semántica ni la procedencia de los mutadores ajenos para ocultarlos. El servidor MCP no se tocó.
+
+Con la distribución en 0.8.0 se repitieron suite, corpus, aceptación propia y de consumidores,
+mutación de medidas y mutación de la sonda, conservando los números anteriores. Se regeneraron
+las cifras y el manual HTML. Wheel y sdist se construyeron con
+`uvx --from build pyproject-build --wheel --sdist`: los 121 archivos de código y datos de ambos
+coinciden byte a byte con el árbol. Setuptools conserva sus avisos sobre directorios de datos no
+declarados como paquetes; la comprobación confirma que están incluidos.
+
+El wheel instalado en un venv limpio fuera del repositorio devuelve `oracle 0.8.0`, álgebra `0.6`
+y sintaxis `0.2`; ejecuta `oracle reportar --help`, las 17 comprobaciones de la sonda y la medida
+de sombras con valor 244 y con ausencia de sombras. La verificación amplia de instalación pasa
+los diez ejecutables, los datos y los motores aislados. No se publicó en PyPI ni se hizo push.
+
+---
+
 # 0.7.0 — cuando Oracle no alcanza, el límite ya tiene por dónde entrar
 
 Este corte agrega un canal público de reporte sin convertir a Oracle en emisor de datos ni al issue

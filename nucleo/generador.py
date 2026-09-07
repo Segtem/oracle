@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import datetime
+import math
 from pathlib import Path
 from typing import Any
 
@@ -16,6 +17,7 @@ from nucleo.algebra import (
     AGREGADOS,
     COMPARADORES,
     ErrorDeAlgebra,
+    LimitesAlgebra,
     comparar,
     desde,
     resumir,
@@ -407,8 +409,58 @@ def fabricar_filas(
     return evidencia
 
 
+class GeneracionNoPosible(ValueError):
+    """La evidencia propuesta no alcanza a demostrar la polaridad pedida."""
+
+
 def fabricar_candidatos(medida: Medida) -> list[dict[str, Any]]:
-    """Construye casos candidatos (falso_verde y verde_correcto) para la medida."""
+    """Entrega candidatos con su polaridad comprobada, o explica por qué no puede fabricarlos.
+
+    Repetir filas sólo escala un conteo sobre una fuente sin agrupación. No se extrapola a un
+    máximo, una unión o grupos: si la heurística no produce el veredicto, se rechaza la propuesta.
+    """
+    candidatos = _proponer_candidatos(medida)
+    for candidato in candidatos:
+        esperado = candidato["etiqueta"] == "verde_correcto"
+        evidencia = candidato["evidencia"]
+        try:
+            veredicto = medida.evaluar(evidencia)
+            if (veredicto.ok != esperado and not esperado
+                    and medida.resumen[1] == "contar"
+                    and medida.tuberia[1][0] == "de"
+                    and all(paso[0] == "donde" for paso in medida.tuberia[2:])
+                    and medida.op in ("<", "<=")
+                    and veredicto.valor > 0):
+                necesarias = (math.floor(medida.limite) + 1 if medida.op == "<="
+                              else math.ceil(medida.limite))
+                repeticiones = (necesarias + veredicto.valor - 1) // veredicto.valor
+                limite_filas = LimitesAlgebra().filas_por_relacion
+                if any(len(filas) * repeticiones > limite_filas for filas in evidencia.values()):
+                    raise GeneracionNoPosible(
+                        f"{medida.id}: superar el umbral {medida.op} {medida.limite} "
+                        f"excede el presupuesto de {limite_filas} filas por relación")
+                evidencia = {rel: [deepcopy(fila) for _ in range(repeticiones) for fila in filas]
+                             for rel, filas in evidencia.items()}
+                candidato["evidencia"] = evidencia
+                veredicto = medida.evaluar(evidencia)
+        except ErrorDeAlgebra as error:
+            raise GeneracionNoPosible(
+                f"{medida.id}: no se pudo evaluar el candidato {candidato['id']}: {error}") from error
+        if veredicto.sin_evidencia:
+            raise GeneracionNoPosible(
+                f"{medida.id}: el candidato carece de la relación requerida "
+                f"{veredicto.sin_evidencia}; sin evidencia no demuestra un rojo")
+        if veredicto.ok != esperado:
+            raise GeneracionNoPosible(
+                f"{medida.id}: no se pudo fabricar {candidato['etiqueta']} con "
+                f"{medida.resumen[1]} y umbral {medida.op} {medida.limite}; "
+                f"la evidencia propuesta da valor {veredicto.valor}, "
+                f"verde={veredicto.ok}. Hace falta evidencia del dominio")
+    return candidatos
+
+
+def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
+    """Propone evidencia heurística; todavía no afirma que respete la polaridad."""
     candidatos = []
     mid = medida.id
     dominio = mid.split(".")[0]
@@ -501,7 +553,7 @@ def fabricar_candidatos(medida: Medida) -> list[dict[str, Any]]:
             ev_no = fabricar_filas(medida, satisfacer=False, sufijo="-limpia")
             ev_rojo = {
                 rel1: ev_of.get(rel1, []) + ev_no.get(rel1, []),
-                rel2: ev_of.get(rel2, []),  # Solo 1 hecho en rel2 para mantener count=1
+                rel2: ev_of.get(rel2, []),  # Propuesta mínima; fabricar_candidatos verifica el umbral.
             }
         elif es_auto_join:
             rel = fuentes[0][0]
@@ -676,12 +728,19 @@ def generar_caso(
             pass
 
         # Evaluar
-        candidatos = fabricar_candidatos(medida)
-        vivos_antes, utiles = evaluar_utilidad(medida, casos_existentes, candidatos, catalogo)
+        vivos_antes, _ = evaluar_utilidad(medida, casos_existentes, [], catalogo)
 
         if not vivos_antes:
             print(f"ruido: 0 mutantes sobrevivientes para «{mid}» — no se generó ningún caso (ya está fijada)")
             return 0, {"mid": mid, "vivos_antes": 0, "muertos_nuevos": 0, "casos": []}
+
+        try:
+            candidatos = fabricar_candidatos(medida)
+        except GeneracionNoPosible as error:
+            print(f"generación no posible: {error} — no se escribió ningún archivo")
+            return 1, {"mid": mid, "vivos_antes": len(vivos_antes),
+                       "muertos_nuevos": 0, "casos": [], "error": str(error)}
+        vivos_antes, utiles = evaluar_utilidad(medida, casos_existentes, candidatos, catalogo)
 
         if not utiles:
             print(

@@ -323,6 +323,49 @@ class HechosDeSombra(unittest.TestCase):
         self.assertEqual(self._fila([]), [])
 
 
+class AntiguedadComoMagnitud(unittest.TestCase):
+    def medida(self):
+        return cargar(RAIZ / "catalogos/meta/meta.ninguna_sombra_envejece_sin_revisarse.oracle")
+
+    def test_publica_la_peor_edad_y_conserva_todos_los_testigos_vencidos(self):
+        m = self.medida()
+        v = m.evaluar({"sombra": [{"dias": 91}, {"dias": 244}, {"dias": 12}]})
+        self.assertEqual(m.limite, 90)
+        self.assertEqual(m.ambito, "universal")
+        self.assertEqual(v.valor, 244)
+        self.assertFalse(v.ok)
+        self.assertEqual([t["s"]["dias"] for t in v.testigos], [91, 244])
+
+    def test_el_trimestre_sigue_tolerado_y_el_primer_dia_exterior_no(self):
+        m = self.medida()
+        for dias, valor, ok in ((-1, 0, True), (0, 0, True), (90, 0, True), (91, 91, False)):
+            with self.subTest(dias=dias):
+                v = m.evaluar({"sombra": [{"dias": dias}]})
+                self.assertEqual((v.valor, v.ok), (valor, ok))
+
+    def test_la_ausencia_de_sombras_no_exige_inventar_una(self):
+        v = self.medida().evaluar({"sombra": []})
+        self.assertTrue(v.ok)
+        self.assertEqual(v.valor, 0)
+        self.assertEqual(v.testigos, ())
+        self.assertFalse(v.sin_evidencia)
+
+    def test_los_casos_anteriores_conservan_veredictos_y_testigos(self):
+        from nucleo.caso import cargar_casos
+        from nucleo.medida import Medida
+        nueva = self.medida()
+        anterior = nueva.a_datos()
+        anterior[3] = ["resumen", "contar", 1]
+        anterior[4][2] = 0
+        anterior = Medida.de_datos(anterior)
+        for caso in cargar_casos(RAIZ / "corpus"):
+            if caso.get("medida") == nueva.id:
+                con_nueva = nueva.evaluar(caso["evidencia"])
+                con_anterior = anterior.evaluar(caso["evidencia"])
+                self.assertEqual(con_nueva.ok, con_anterior.ok, caso["id"])
+                self.assertEqual(con_nueva.testigos, con_anterior.testigos, caso["id"])
+
+
 class HechosDeDocumentacion(unittest.TestCase):
     """La documentación es la única parte del proyecto SIN arnés, y por eso envejece sola.
 
