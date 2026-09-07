@@ -52,6 +52,12 @@ sys.path = [str(RAIZ), *sys.path]
 import catalogos  # noqa: F401,E402
 from nucleo.diagnostico import reunir  # noqa: E402
 from nucleo.version import VERSION_ALGEBRA, VERSION_SINTAXIS  # noqa: E402
+
+# Cuántos archivos ilegibles se listan antes de resumir. No es cosmético: el consumidor que motivó
+# esto tiene 33, y volcar 33 líneas de traceback abreviado tapa el resto del informe de `oracle
+# test`. Se listan los primeros y se dice cuántos quedan, que es lo que hace falta para empezar a
+# arreglar sin perder de vista que hay más.
+LIMITE_ILEGIBLES = 10
 from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
                                descubrir_bibliotecas,
                                verificar_biblioteca)
@@ -763,8 +769,23 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         print("SINTAXIS: salteado (sin medidas ni casos todavía)")
     else:
         informe_sintaxis = sintaxis.verificar_catalogo(proy.raiz)
+        ilegibles = informe_sintaxis["ilegibles"]
         sintaxis_ok = all((informe_sintaxis["json_igual"], informe_sintaxis["texto_igual"]))
-        if not sintaxis_ok:
+        # PRIMERO lo que no se pudo leer, y con su nombre. Un archivo que el impresor no procesó no
+        # es uno cuya ida y vuelta falló: son dos cosas distintas y decirlas con la misma frase
+        # manda a buscar el defecto al lugar equivocado. Antes ni siquiera había que elegir — la
+        # primera excepción mataba `oracle test` con un traceback, y el resto del catálogo no se
+        # miraba. Medido contra un consumidor real: 33 de 41 medidas ilegibles y ninguna informada.
+        if ilegibles:
+            print(f"SINTAXIS ✗ — {len(ilegibles)} de "
+                  f"{informe_sintaxis['medidas'] + informe_sintaxis['macros'] + informe_sintaxis['casos']}"
+                  f" archivo(s) no se pudieron imprimir")
+            for fila in ilegibles[:LIMITE_ILEGIBLES]:
+                print(f"  · {fila['ruta']} — {fila['error']}")
+            if len(ilegibles) > LIMITE_ILEGIBLES:
+                print(f"  · … y {len(ilegibles) - LIMITE_ILEGIBLES} más")
+            fallas_suite.append("sintaxis (no se pudieron imprimir)")
+        elif not sintaxis_ok:
             print("SINTAXIS ✗ — la conversión de ida y vuelta falló")
             fallas_suite.append("sintaxis")
         elif proy.es_el_propio_oracle:

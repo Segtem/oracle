@@ -1,3 +1,85 @@
+# 0.9.1 — una herramienta que se cae no informa nada
+
+Sube únicamente el parche, según `ESPECIFICACION.md` §0:
+
+```
+VERSION_DISTRIBUCION   0.9.0 → 0.9.1     `oracle test` informa en vez de morir
+VERSION_ALGEBRA        0.6   → 0.6       mismo evaluador y forma canónica
+VERSION_SINTAXIS       0.2   → 0.2       mismo lector de medidas y casos
+```
+
+Parche y no menor, y la diferencia con 0.9.0 es el mismo criterio aplicado al revés: aquél subió la
+menor porque una medida universal nueva podía hacer que un consumidor pasara de verde a rojo. Acá
+**nadie cambia de color**. Un proyecto con todo imprimible seguía y sigue en verde; uno con un
+archivo ilegible ya salía distinto de cero, sólo que por una excepción sin atrapar.
+
+## Qué pasaba
+
+`oracle test --proyecto <consumidor>` moría con un traceback:
+
+```
+ValueError: la macro ninguno lleva 8 argumento(s) y recibió 6
+```
+
+La **primera** excepción del impresor se llevaba la corrida entera. No se informaba ni uno de los
+archivos que no se pudieron procesar, y las cuatro etapas siguientes —aceptación, diferencial,
+mutación, veredicto— no se ejecutaban. Un consumidor con un archivo roto no recibía un informe con
+un problema: **no recibía informe**.
+
+Medido contra un consumidor real: 33 de sus 41 medidas, escritas contra una aridad anterior de las
+macros `ninguno`, `peor` y `ninguno-par`. Cargan y evalúan bien —su corpus, su aceptación, su
+mutación y su diferencial pasaban—; lo que no se podía era imprimirlas. No es una regresión: se
+reproduce idéntico instalando 0.5.0, 0.8.1 y 0.9.0 en entornos limpios.
+
+## Qué hace ahora
+
+`_fila_verificacion` y `_fila_verificacion_caso` devuelven una fila que declara lo que pasó, con dos
+campos nuevos —`imprimio` y `error`—, y `verificar_catalogo` los junta en `ilegibles`. `oracle test`
+los informa primero, con nombre y motivo, recortando a diez y diciendo cuántos faltan:
+
+```
+SINTAXIS ✗ — 33 de 64 archivo(s) no se pudieron imprimir
+  · catalogos/espacio/espacio.ganable.json — ValueError: la macro ninguno lleva 8 argumento(s) y recibió 6
+  … y 23 más
+```
+
+**Las dos fallas de sintaxis se dicen distinto, a propósito.** «No coincidió la ida y vuelta» afirma
+que la superficie pierde información; «no se pudo imprimir» dice que no hubo superficie que
+comparar. Usar la misma frase manda a buscar el defecto al lugar equivocado. Es la distinción que el
+núcleo ya hace con `Veredicto.sin_evidencia` y la que la relación `equivalencia` modela con su campo
+`error`.
+
+## Lo que NO cambia
+
+**El código de salida sigue siendo distinto de cero.** Lo que no se pudo verificar no se da por
+bueno. El precedente aplicable es `SIN EVIDENCIA` —que la aceptación cuenta como falla— y no el de
+las sombras, que exigen una declaración deliberada con fecha y motivo en `oracle.json`: el arnés
+nunca decide solo que algo pase a sombra.
+
+**No se agrega ninguna medida al catálogo.** Sería universal, se pondría roja en el consumidor, y el
+consumidor **no puede arreglarla**: sus medidas son árboles válidos que el cargador acepta; quien no
+puede imprimirlas es el impresor de Oracle. `DECISION-012` lo dice — «un rojo sobre el que el
+receptor no puede actuar enseña a ignorar la herramienta».
+
+## Verificación del corte
+
+Suite **1394 tests** · corpus **186 casos** · mutación de medidas **915/915 sin sobrevivientes** ·
+mutación de `tools/cli.py` **500/500 sin sobrevivientes**, con los dos equivalentes declarados
+reapuntados tras correrse de línea · aceptación con un rojo que tumba y uno en sombra, y las cuatro
+comprobaciones literales de CI en verde.
+
+Se midió también `tools/sintaxis.py`, que no estaba en el perfil de mutación: **95 mutantes, 52
+muertos, 42 sobrevivientes, 1 error de arnés, 2353 segundos**. NO entra al perfil en este corte,
+porque los 42 son deuda anterior —**30 en `main()`**, el plumbing del CLI, y **cero** en el código
+nuevo—, y meterlo pondría al proyecto en rojo por algo ajeno a este cambio. Queda en `PRIORIDADES`
+con el número escrito, como se hizo con `aceptacion.py`. El error de arnés es propio y quedó
+anotado: mutar `if __name__ == "__main__"` hace que el módulo corra `main()` al importarse y rompa
+el descubrimiento de tests.
+
+El detalle está en `estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md`.
+
+---
+
 # 0.9.0 — un caso observado tiene que decir por dónde ir a contradecirlo
 
 Este corte agrega una medida al catálogo universal y un campo a una relación del marco. Sube

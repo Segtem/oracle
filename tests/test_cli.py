@@ -45,7 +45,7 @@ class OracleCliTests(CliTestCase):
     def _cmd_test_oracle_simulado(self, *extras: str, unitarios: int = 0,
                                   mutacion_codigo: int = 0, catalogo: bool = True,
                                   casos: bool = True, json_igual: bool = True,
-                                  texto_igual: bool = True, fallas_docs=()):
+                                  texto_igual: bool = True, fallas_docs=(), ilegibles=()):
         from tools import cifras, metamorficas, mutar_codigo, trazar
 
         def correr_unitarios(proy):
@@ -68,6 +68,7 @@ class OracleCliTests(CliTestCase):
               mock.patch.object(cli.sintaxis, "verificar_catalogo",
                                 return_value={"json_igual": json_igual,
                                               "texto_igual": texto_igual,
+                                              "ilegibles": list(ilegibles),
                                               "medidas": 1, "macros": 0, "casos": 1}),
               mock.patch.object(cli.sintaxis, "verificar_documentos",
                                 return_value={"fallas": list(fallas_docs)}),
@@ -471,6 +472,42 @@ class OracleCliTests(CliTestCase):
         m_unit.assert_called_once()
         self.assertIn("UNITARIOS ✗", salida)
         self.assertIn("VEREDICTO: ROJO (falló: unitarios)", salida)
+
+    def test_un_archivo_que_no_se_imprime_se_informa_y_no_se_confunde_con_la_ida_y_vuelta(self):
+        """Las dos fallas de sintaxis son distintas y tienen que decirse distinto.
+
+        Antes de esto no había que elegir: la primera excepción del impresor mataba `oracle test`
+        con un traceback y el resto del informe no se imprimía. Y si se hubiera atrapado sin más,
+        la frase habría sido «la conversión de ida y vuelta falló», que manda a buscar el defecto
+        al lugar equivocado: la ida y vuelta no falló, no llegó a ocurrir.
+        """
+        ilegibles = [{"ruta": "catalogos/dominio/una.json",
+                      "error": "ValueError: la macro ninguno lleva 8 argumento(s) y recibió 6"}]
+        rc, salida, *_ = self._cmd_test_oracle_simulado("--rapido", ilegibles=ilegibles)
+
+        self.assertNotEqual(rc, 0)
+        self.assertIn("1 de 2 archivo(s) no se pudieron imprimir", salida)
+        self.assertIn("catalogos/dominio/una.json", salida)
+        self.assertIn("la macro ninguno lleva 8 argumento(s)", salida)
+        self.assertNotIn("la conversión de ida y vuelta falló", salida)
+        self.assertIn("sintaxis (no se pudieron imprimir)", salida)
+
+    def test_una_lista_larga_de_ilegibles_se_recorta_y_dice_cuántos_faltan(self):
+        """33 tracebacks abreviados tapan el resto del informe; cero de ellos, tampoco sirve."""
+        ilegibles = [{"ruta": f"catalogos/dominio/m{i}.json", "error": "ValueError: rota"}
+                     for i in range(33)]
+        _rc, salida, *_ = self._cmd_test_oracle_simulado("--rapido", ilegibles=ilegibles)
+
+        self.assertEqual(salida.count("catalogos/dominio/m"), cli.LIMITE_ILEGIBLES)
+        self.assertIn(f"… y {33 - cli.LIMITE_ILEGIBLES} más", salida)
+
+    def test_sin_ilegibles_la_ida_y_vuelta_sigue_diciendo_lo_suyo(self):
+        """El camino viejo no se tapó: una ida y vuelta rota se sigue informando como tal."""
+        rc, salida, *_ = self._cmd_test_oracle_simulado("--rapido", json_igual=False)
+
+        self.assertNotEqual(rc, 0)
+        self.assertIn("la conversión de ida y vuelta falló", salida)
+        self.assertNotIn("no se pudieron imprimir", salida)
 
     def test_sintaxis_exige_que_ambas_direcciones_sean_iguales(self) -> None:
         for json_igual, texto_igual in ((False, True), (True, False)):

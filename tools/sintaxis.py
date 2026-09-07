@@ -57,15 +57,66 @@ def _puntuacion(texto: str) -> int:
     return sum(1 for c in texto if unicodedata.category(c).startswith("P"))
 
 
+def _fila_ilegible(ruta: Path, raiz: Path, e: Exception) -> dict:
+    """La fila de un archivo que NO se pudo recorrer entero. No es lo mismo que uno cuya ida y
+    vuelta no coincidió, y por eso lleva su propio campo.
+
+    Un `json_igual: false` a secas diría «la superficie perdió información», que es una afirmación
+    sobre el lenguaje. Acá la verdad es otra: no se llegó a comparar nada. Es la misma distinción
+    que el núcleo hace con `Veredicto.sin_evidencia` —un rojo dice «el mundo está mal» y eso dice
+    «no hay con qué mirar»— y la misma que la relación `equivalencia` ya modela con su campo
+    `error`, que las cuatro medidas `meta.sintaxis_*` miran aparte de los booleanos.
+
+    Los conteos van en cero: sumar caracteres de un archivo que no se imprimió sería inventarlos.
+
+    ## Por qué `json_igual` va en `false` y no en `true`
+
+    `agy` argumentó lo contrario, y el argumento es bueno: `nucleo/marco.py` neutraliza los campos
+    que no tienen nada que decir —iguala `dio` a `esperado` cuando no hay medida— para que la
+    medida de coincidencia no juzgue una fila que no le corresponde, y de la falta se ocupe otra.
+    Aplicado acá sería poner los dos booleanos en `true`.
+
+    No se hizo, y la razón es de qué lado se cae cada elección. `esperado_ok` y `dio_ok` son un PAR
+    que se compara consigo mismo: ningún valor fijo es más seguro que otro, así que igualarlos es
+    la única salida neutral. `json_igual` es un booleano suelto con un lado seguro y uno peligroso,
+    y `Veredicto.sin_evidencia` ya decidió cuál: «`ok` sigue en False porque lo único inaceptable es
+    que salga verde».
+
+    Con `false`, si alguien borra el informe de ilegibles de `cmd_test` la corrida sigue saliendo
+    roja por el camino viejo. Con `true`, sale VERDE y nadie se entera. Fail-closed contra
+    fail-open, y este proyecto ya eligió ese lado en todos los demás.
+    """
+    return {
+        "ruta": str(ruta.relative_to(raiz)),
+        "imprimio": False,
+        "error": f"{type(e).__name__}: {e}",
+        "json_igual": False,
+        "texto_igual": False,
+        "caracteres_json": 0,
+        "caracteres_superficie": 0,
+        "puntuacion_json": 0,
+        "puntuacion_superficie": 0,
+    }
+
+
 def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
-    texto = ruta.read_text(encoding="utf-8")
-    datos = leer(texto) if ruta.suffix == ".oracle" else json.loads(texto)
-    superficie = imprimir(datos)
-    releida = leer(superficie)
-    reimpresa = imprimir(releida)
+    try:
+        texto = ruta.read_text(encoding="utf-8")
+        datos = leer(texto) if ruta.suffix == ".oracle" else json.loads(texto)
+        superficie = imprimir(datos)
+        releida = leer(superficie)
+        reimpresa = imprimir(releida)
+    except Exception as e:                 # noqa: BLE001
+        # A propósito TODA excepción, y no una lista de las conocidas: el impresor recorre datos de
+        # un consumidor cualquiera, y lo que se está arreglando es justamente que una que nadie
+        # previó matara la corrida entera en vez de contarse. La que se atrapa queda escrita en la
+        # fila con su tipo y su mensaje; ninguna se convierte en verde.
+        return _fila_ilegible(ruta, raiz, e)
     json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
     return {
         "ruta": str(ruta.relative_to(raiz)),
+        "imprimio": True,
+        "error": "",
         "json_igual": releida == datos,
         "texto_igual": reimpresa == superficie,
         "caracteres_json": len(json_compacto),
@@ -76,13 +127,18 @@ def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
 
 
 def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
-    datos = sintaxis_caso.cargar_fuente_caso(ruta)
-    superficie = sintaxis_caso.imprimir(datos)
-    releida = sintaxis_caso.leer(superficie)
-    reimpresa = sintaxis_caso.imprimir(releida)
+    try:
+        datos = sintaxis_caso.cargar_fuente_caso(ruta)
+        superficie = sintaxis_caso.imprimir(datos)
+        releida = sintaxis_caso.leer(superficie)
+        reimpresa = sintaxis_caso.imprimir(releida)
+    except Exception as e:                 # noqa: BLE001
+        return _fila_ilegible(ruta, raiz, e)
     json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
     return {
         "ruta": str(ruta.relative_to(raiz)),
+        "imprimio": True,
+        "error": "",
         "json_igual": releida == datos,
         "texto_igual": reimpresa == superficie,
         "caracteres_json": len(json_compacto),
@@ -97,10 +153,16 @@ def verificar_catalogo(raiz: Path = RAIZ) -> dict:
     filas_macros = [_fila_verificacion(r, raiz) for r in _rutas_macros(raiz)]
     filas_casos = [_fila_verificacion_caso(r, raiz) for r in _rutas_corpus(raiz)]
     filas = filas_medidas + filas_macros + filas_casos
+    ilegibles = [f for f in filas if f["error"]]
     total = {
         "medidas": len(filas_medidas),
         "macros": len(filas_macros),
         "casos": len(filas_casos),
+        # Lo que NO se pudo recorrer, aparte y con su nombre. Antes esto no existía porque la
+        # primera excepción se llevaba puesta la corrida: `oracle test` moría con un traceback en
+        # vez de decir cuántos archivos no pudo imprimir. Medido contra un consumidor real, eran 33
+        # de 41 medidas, y ninguna de las otras 8 llegaba a informarse.
+        "ilegibles": ilegibles,
         "json_igual": all(f["json_igual"] for f in filas),
         "texto_igual": all(f["texto_igual"] for f in filas),
         "caracteres_json": sum(f["caracteres_json"] for f in filas),

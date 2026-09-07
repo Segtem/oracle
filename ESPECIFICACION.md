@@ -71,6 +71,17 @@ relación de traza, y un campo nuevo en una relación que el propio marco emite 
 implementación de referencia tiene que implementar. `VERSION_SINTAXIS` queda en `0.2`: el lector no
 gana palabras y un `.oracle` o un `.caso` se leen y se evalúan igual antes y después.
 
+**Corte 0.9.1 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.0` a `0.9.1`.** `oracle test`
+informa los archivos que el impresor no pudo procesar en vez de morir con un traceback en el
+primero. Sube el **parche** y no la menor, y la diferencia con el corte anterior es exactamente el
+criterio: 0.9.0 subió la menor porque una medida universal nueva podía hacer que un consumidor
+pasara de verde a rojo. Acá nadie cambia de color —un proyecto con todo imprimible seguía y sigue
+en verde; uno con un archivo ilegible ya salía distinto de cero, sólo que por una excepción sin
+atrapar—. Lo que cambia es qué se puede leer cuando ya estaba rojo, y que las etapas siguientes
+ahora se ejecutan. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.2`: no entra un
+nodo, un operador, un agregado, una escalar ni una relación, el lector no gana palabras, y un
+`.oracle` o un `.caso` se leen y se evalúan igual antes y después.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;

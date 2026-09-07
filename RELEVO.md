@@ -35,6 +35,45 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### Corte 0.9.1: una herramienta que se cae no informa nada
+
+**Commiteado, sin push y sin publicar en PyPI.** Distribución `0.9.1`, álgebra `0.6`, sintaxis
+`0.2`. `oracle test` informaba **nada** y moría con un traceback cuando el impresor no podía
+procesar un archivo del consumidor; ahora lo informa con nombre y motivo, y las etapas siguientes se
+ejecutan. Detalle en
+[`estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md`](estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md).
+
+No es una regresión: se reproduce idéntico con 0.5.0, 0.8.1 y 0.9.0 en entornos limpios. Venía
+pasando desde al menos cuatro versiones sobre el comando que el `AGENTS.md` de Jam manda correr.
+
+**Parche y no menor**, revisado con `agy` contra la regla escrita: nadie cambia de color. Un
+proyecto sano seguía y sigue en verde; uno con un archivo ilegible ya salía distinto de cero, por
+la excepción. Lo que cambia es qué se puede leer cuando ya estaba rojo.
+
+**Números, y `codex` los midió aparte:** suite **1394** · corpus **186** · mutación de medidas
+**915/915** · mutación de `tools/cli.py` **500/500** · aceptación con un rojo que tumba y uno en
+sombra, las cuatro comprobaciones de CI en verde · Jam ✓ 20/3 y LyraGASP ✓ 14/14 ·
+`verificar_instalacion.py` WHEEL OK. Artefactos en `dist/`, **121 archivos byte a byte** contra el
+árbol.
+
+```
+whl    sha256:2bd47314aef9d0194c6d4e05040e887ef3d4eaea978882cd6e2a27992f238321
+tar.gz sha256:fd2e11a1b047025211412bc4cb3259e8d9caccb822c7fbcfe16e500bb5c92c87
+```
+
+**`tools/sintaxis.py` se midió y NO entró al perfil de mutación:** 95 mutantes, 52 muertos, **42
+sobrevivientes**, 1 error de arnés, 2353 s. Los 42 son deuda previa —30 en `main()` y **cero** en
+el código nuevo—, así que meterlo pondría al proyecto en rojo por algo ajeno. Queda en
+`PRIORIDADES` con el número escrito, como se hizo con `aceptacion.py`.
+
+**Dos cosas que este corte NO arregla y conviene no perder:** las 33 medidas de Jam con aridad vieja
+de `ninguno`, `peor` y `ninguno-par` —son de ese repositorio—, y los 9 mutantes sobrevivientes de
+428 que `codex` encontró en la mutación de Jam, también previos.
+
+**Falta, y lo decide el usuario:** push, tag y release `v0.9.1`, y la subida a PyPI. Ojo con la
+herramienta global: `uv tool install --force "oracle-metalenguaje==0.9.1"` después de publicar, o
+`oracle test` va a seguir crasheando desde el PATH aunque el árbol esté arreglado.
+
 ### Corte 0.9.0: un caso observado dice por dónde ir a contradecirlo
 
 **Commiteado (`fdee004`), empujado, con tag anotado `v0.9.0` y release en GitHub como Latest. Sin

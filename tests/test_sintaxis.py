@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -2444,3 +2445,234 @@ class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+# --- Un archivo que no se puede imprimir se informa, y no se lleva puesta la corrida -------------
+#
+# Antes de esto, la PRIMERA excepción del impresor mataba `oracle test` con un traceback y el resto
+# del catálogo no se miraba. Medido contra un consumidor real —Jam, 2026-09-07— eran 33 de sus 41
+# medidas, escritas contra una aridad anterior de `ninguno`, `peor` y `ninguno-par`: cargaban y
+# evaluaban bien, y ninguna de las otras ocho llegaba a informarse.
+#
+# Estos casos los escribió `codex` a pedido y se adoptaron con la ruta del árbol en vez de una
+# absoluta. El que más discrimina es el penúltimo: compara el MISMO proyecto antes y después de
+# agregar el archivo roto y exige que los totales no se muevan, que es lo que impide que un
+# ilegible invente caracteres en las sumas.
+
+CONTEOS = ("caracteres_json", "caracteres_superficie",
+           "puntuacion_json", "puntuacion_superficie")
+
+
+class UnArchivoIlegibleNoInterrumpeElCatalogoTests(unittest.TestCase):
+    def setUp(self) -> None:
+        directorio = tempfile.TemporaryDirectory()
+        self.addCleanup(directorio.cleanup)
+        self.raiz = Path(directorio.name)
+
+    def _medida(self, mid="demo.sana") -> list:
+        return [
+            "medida", mid,
+            ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "razón", "convencion"],
+            ["ambito", "universal"],
+            ["alcance", "Sólo cuenta piezas."],
+        ]
+
+    def _caso(self, cid="999-sano") -> dict:
+        return {
+            "id": cid,
+            "fecha": "2026-08-25",
+            "origen": {"repo": "test", "commit": "local"},
+            "titulo": "Caso de prueba",
+            "etiqueta": "verde_correcto",
+            "sintoma": "La pieza está presente.",
+            "como_se_detecto": "observacion",
+            "medida": "demo.sana",
+            "evidencia": {"pieza": [{"id": "a"}]},
+            "leccion": "La evidencia vuelve igual.",
+        }
+
+    def _escribir(self, relativa: str, contenido) -> Path:
+        ruta = self.raiz / relativa
+        ruta.parent.mkdir(parents=True, exist_ok=True)
+        if isinstance(contenido, bytes):
+            ruta.write_bytes(contenido)
+        else:
+            texto = (contenido if isinstance(contenido, str)
+                     else json.dumps(contenido, ensure_ascii=False))
+            ruta.write_text(texto, encoding="utf-8")
+        return ruta
+
+    def _comprobar_sana(self, fila: dict) -> None:
+        self.assertIs(fila["imprimio"], True)
+        self.assertEqual(fila["error"], "")
+        self.assertIs(fila["json_igual"], True)
+        self.assertIs(fila["texto_igual"], True)
+        for campo in CONTEOS:
+            with self.subTest(ruta=fila["ruta"], campo=campo):
+                self.assertGreater(fila[campo], 0)
+
+    def _comprobar_ilegible(self, informe: dict, ruta: str, error: str) -> None:
+        filas = [f for f in informe["filas"] if f["ruta"] == ruta]
+        self.assertEqual(len(filas), 1, "el archivo roto también debe tener una fila")
+        fila = filas[0]
+        self.assertIs(fila["imprimio"], False)
+        self.assertEqual(fila["error"], error)
+        self.assertIs(fila["json_igual"], False)
+        self.assertIs(fila["texto_igual"], False)
+        self.assertEqual(informe["ilegibles"], [fila])
+        self.assertIs(informe["json_igual"], False)
+        self.assertIs(informe["texto_igual"], False)
+        for campo in CONTEOS:
+            with self.subTest(campo=campo):
+                self.assertEqual(fila[campo], 0)
+
+    def _verificar_problema(self, ruta: str, contenido, error: str) -> None:
+        self._escribir(ruta, contenido)
+        sana = "catalogos/demo/z-sana.json"
+        self._escribir(sana, self._medida())
+        rutas_sanas = [sana]
+        es_caso = ruta.startswith("corpus/")
+        if es_caso:
+            # Una medida sola no prueba continuidad del corpus: se visita ANTES del caso roto.
+            caso_sano = "corpus/demo/999-sano.caso"
+            self._escribir(caso_sano, sintaxis_caso.imprimir(self._caso()))
+            rutas_sanas.append(caso_sano)
+            orden = [sana, ruta, caso_sano]
+        else:
+            # El roto se ordena primero: truncar el recorrido perdería la fila sana.
+            orden = [ruta, sana]
+
+        informe = sintaxis.verificar_catalogo(self.raiz)
+
+        self.assertEqual([f["ruta"] for f in informe["filas"]], orden)
+        self.assertEqual(informe["medidas"], 1 if es_caso else 2)
+        self.assertEqual(informe["macros"], 0)
+        self.assertEqual(informe["casos"], 2 if es_caso else 0)
+        self._comprobar_ilegible(informe, ruta, error)
+        por_ruta = {f["ruta"]: f for f in informe["filas"]}
+        for relativa in rutas_sanas:
+            with self.subTest(sana=relativa):
+                self._comprobar_sana(por_ruta[relativa])
+        for campo in CONTEOS:
+            self.assertEqual(informe[campo], sum(por_ruta[r][campo] for r in rutas_sanas))
+
+    def test_ninguno_con_seis_argumentos_se_reporta_y_la_medida_siguiente_se_procesa(self):
+        # El consumidor conserva la invocación vieja; la biblioteca real exige ocho argumentos.
+        datos = ["ninguno", "demo.rota", "pieza", "p",
+                 ["==", [".", "p", "ok"], True], "razón", "Sólo ve piezas."]
+        self.assertEqual(len(datos) - 1, 6)
+        self._verificar_problema(
+            "catalogos/demo/a-rota.json", datos,
+            "ValueError: la macro ninguno lleva 8 argumento(s) y recibió 6")
+
+    def test_una_macro_inexistente_se_nombra_en_el_error_y_no_corta_la_corrida(self):
+        # No alcanza con informar un error genérico: debe poder identificarse la macro ausente.
+        self._verificar_problema(
+            "catalogos/demo/a-rota.json", ["macro-inexistente", "demo.rota"],
+            "ValueError: forma de medida no imprimible: 'macro-inexistente'")
+
+    def test_un_oracle_invalido_conserva_el_error_de_lectura_y_deja_seguir(self):
+        # La protección incluye la lectura previa al impresor, con posición y texto encontrado.
+        self._verificar_problema(
+            "catalogos/demo/a-rota.oracle", "medida demo.rota\n",
+            "ErrorSintaxis: línea 1, columna 1: se esperaba encabezado "
+            "«medida|macro declarada <id>:»; llegó 'medida demo.rota'")
+
+    def test_un_objeto_json_valido_no_se_confunde_con_una_medida_imprimible(self):
+        # JSON válido no implica forma válida: el fallo ocurre después de json.loads.
+        self._verificar_problema(
+            "catalogos/demo/a-rota.json", {"id": "demo.rota"},
+            "ValueError: una medida tiene que ser una lista JSON")
+
+    def test_una_lista_de_numeros_se_reporta_aunque_sea_una_lista_json_valida(self):
+        # Ser una lista tampoco alcanza; este caso atraviesa otra rama del impresor.
+        self._verificar_problema(
+            "catalogos/demo/a-rota.json", [1, 2, 3],
+            "ValueError: forma de medida no imprimible: 1")
+
+    def test_los_bytes_no_utf8_se_reportan_y_el_archivo_siguiente_se_lee(self):
+        # Ni siquiera hay texto para imprimir, pero el archivo debe quedar contado y localizado.
+        self._verificar_problema(
+            "catalogos/demo/a-rota.json", b"\xff",
+            "UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 0: "
+            "invalid start byte")
+
+    def test_un_caso_cargable_pero_no_imprimible_no_impide_imprimir_el_siguiente(self):
+        datos = self._caso("001-roto")
+        datos["evidencia"] = {"pieza": 42}
+        relativa = "corpus/demo/001-roto.json"
+        ruta = self._escribir(relativa, datos)
+        # Debe fallar el IMPRESOR de casos, no el cargador por un id o JSON inválido.
+        self.assertEqual(sintaxis_caso.cargar_fuente_caso(ruta), datos)
+        with self.assertRaisesRegex(ValueError, "^la relación «pieza» no es una lista$"):
+            sintaxis_caso.imprimir(datos)
+        self._verificar_problema(
+            relativa, datos, "ValueError: la relación «pieza» no es una lista")
+
+    def test_un_keyerror_del_impresor_de_casos_tambien_se_reporta_y_deja_seguir(self):
+        # Atrapar sólo ValueError volvería a cortar la corrida ante campos obligatorios ausentes.
+        datos = self._caso("001-roto")
+        del datos["fecha"]
+        relativa = "corpus/demo/001-roto.json"
+        ruta = self._escribir(relativa, datos)
+        self.assertEqual(sintaxis_caso.cargar_fuente_caso(ruta), datos)
+        with self.assertRaisesRegex(KeyError, "^'fecha'$"):
+            sintaxis_caso.imprimir(datos)
+        self._verificar_problema(relativa, datos, "KeyError: 'fecha'")
+
+    def test_un_roto_no_altera_varios_sanos_ni_inventa_caracteres_en_los_totales(self):
+        # Comparamos con el MISMO proyecto sano: no basta con sumar filas que podrían estar mal.
+        rutas_sanas = [
+            "catalogos/demo/m-sana.json",
+            "catalogos/demo/z-otra.oracle",
+            "perfiles/prueba/catalogos/demo/perfil.json",
+            "macros/local.json",
+            "corpus/demo/999-sano.caso",
+        ]
+        self._escribir(rutas_sanas[0], self._medida())
+        self._escribir(rutas_sanas[1], sintaxis.imprimir(self._medida("demo.otra")))
+        self._escribir(rutas_sanas[2], self._medida("demo.perfil"))
+        plantilla = self._medida()
+        plantilla[1] = ["$", "id"]
+        self._escribir(rutas_sanas[3], ["defmacro", "local", ["id"], [], plantilla])
+        self._escribir(rutas_sanas[4], sintaxis_caso.imprimir(self._caso()))
+        antes = sintaxis.verificar_catalogo(self.raiz)
+        self.assertEqual([f["ruta"] for f in antes["filas"]], rutas_sanas)
+        self.assertEqual(antes["ilegibles"], [])
+        self.assertIs(antes["json_igual"], True)
+        self.assertIs(antes["texto_igual"], True)
+        for fila in antes["filas"]:
+            self._comprobar_sana(fila)
+
+        rota = "catalogos/demo/a-rota.json"
+        self._escribir(rota, {"texto": "Esto ocupa caracteres, pero no es una medida."})
+        despues = sintaxis.verificar_catalogo(self.raiz)
+
+        self.assertEqual([f["ruta"] for f in despues["filas"]], [rota, *rutas_sanas])
+        self._comprobar_ilegible(
+            despues, rota, "ValueError: una medida tiene que ser una lista JSON")
+        self.assertEqual(despues["filas"][1:], antes["filas"])
+        self.assertEqual((despues["medidas"], despues["macros"], despues["casos"]), (4, 1, 1))
+        for campo in CONTEOS:
+            with self.subTest(campo=campo):
+                self.assertGreater(antes[campo], 0)
+                self.assertEqual(despues[campo], antes[campo])
+
+    def test_las_filas_sanas_declaran_que_imprimieron_y_no_traen_error(self):
+        # Los dos productores de filas deben distinguir éxito de ilegibilidad explícitamente.
+        rutas = ["catalogos/demo/sana.json", "corpus/demo/999-sano.json"]
+        self._escribir(rutas[0], self._medida())
+        self._escribir(rutas[1], self._caso())
+
+        informe = sintaxis.verificar_catalogo(self.raiz)
+
+        self.assertEqual([f["ruta"] for f in informe["filas"]], rutas)
+        self.assertEqual((informe["medidas"], informe["macros"], informe["casos"]), (1, 0, 1))
+        self.assertEqual(informe["ilegibles"], [])
+        self.assertIs(informe["json_igual"], True)
+        self.assertIs(informe["texto_igual"], True)
+        for fila in informe["filas"]:
+            with self.subTest(ruta=fila["ruta"]):
+                self._comprobar_sana(fila)

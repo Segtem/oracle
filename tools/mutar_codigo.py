@@ -86,6 +86,20 @@ PRIORIDADES = {
     "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
     "tools/observar.py": ("tests.test_observar",),
     "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
+    # Listo para cuando `sintaxis.py` entre a HERRAMIENTAS_CUSTODIAS. Se midió el 2026-09-07, antes
+    # de decidir: **95 mutantes, 52 muertos, 42 sobrevivientes, 1 error de arnés, 2353 segundos**.
+    # Entrar hoy pondría al proyecto en rojo por deuda que no es de este cambio: de los 42, **30
+    # están en `main()`** —el plumbing del CLI— y CERO en el código nuevo del informe de archivos
+    # ilegibles. Es el mismo cuadro que `tools/medida.py`, que pasó de 114 sobrevivientes y ~90
+    # minutos a 264/264 y 201 segundos cuando se le escribieron los tests que faltaban: el costo es
+    # el SÍNTOMA de estar mal fijado, no una propiedad del archivo.
+    #
+    # El error de arnés vale aparte: mutar `if __name__ == "__main__"` (línea 286) a `!=` hace que
+    # el módulo corra `main()` AL IMPORTARSE, y ahí ve el `--prioridad` que el arnés le pasa al
+    # runner y sale con SystemExit durante el descubrimiento. Los tres instrumentos nuevos
+    # —`observar.py`, `sondear_generador.py`, `sondear_procedencia.py`— usan el patrón
+    # `_entrada_directa` justamente porque no tiene ese borde; éste todavía no.
+    "tools/sintaxis.py": ("tests.test_sintaxis", "tests.test_cli"),
     "tools/sondear_generador.py": ("tests.test_sondear_generador",),
     "tools/sondear_procedencia.py": ("tests.test_sondear_procedencia",),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
