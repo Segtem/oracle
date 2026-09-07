@@ -35,6 +35,54 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### Corte 0.9.2: Oracle imprimía algo que no podía volver a leer
+
+**Commiteado, sin push y sin publicar en PyPI.** Distribución `0.9.2`, álgebra `0.6`, **sintaxis
+`0.3`** — la primera vez que la superficie se mueve desde que ganó la cláusula `ambito`. Detalle en
+[`estudios/LA-AUSENCIA-VISIBLE-NO-SE-PODIA-ESCRIBIR.md`](estudios/LA-AUSENCIA-VISIBLE-NO-SE-PODIA-ESCRIBIR.md).
+
+El impresor emitía `segun sin_declarar` en una invocación de macro —los argumentos son posicionales
+y no se pueden omitir— y el lector lo rechazaba. `meta.sintaxis_ida_y_vuelta` no lo veía porque el
+catálogo propio no tiene ninguna medida con esos campos sin declarar.
+
+**No afloja nada, y está medido:** un valor inventado se sigue rechazando, y las tres sombras del
+consumidor que lo destapó quedaron en los mismos **9 / 54 / 41**.
+
+**Números:** suite **1400** · corpus **188** (casos 485 y 486 nuevos) · medidas **915/915** ·
+`nucleo/sintaxis.py` **993/993 sin sobrevivientes** · las cuatro comprobaciones de CI en verde ·
+artefactos con 121 archivos byte a byte contra el árbol.
+
+```
+whl    sha256:2b96ba60a697fb3b858067603f516c56fa87b02ef240d2e8734ac95bb4c192b3
+tar.gz sha256:35a6aae5d67daa9e12f19a9cbd196e56f9e3d9016e8758600056c36a2964b9a0
+```
+
+**Jam quedó migrado en su árbol, sin commitear:** sus 33 medidas pasaron a la aridad vigente con las
+79 formas canónicas idénticas (huella `83f04f33d6b0282e`), y `oracle test` le dice
+`SINTAXIS OK · 41 medidas`. Se commitea allá cuando 0.9.2 esté publicada.
+
+### ⚠ Lo siguiente, y es grande: el paquete muta con 5 de 29 mutadores
+
+Comparando el árbol contra el wheel sobre el MISMO proyecto:
+
+| | árbol | paquete instalado |
+|---|---|---|
+| mutantes generados sobre Jam | **428** | **315** |
+| `proceso.test_con_mutante_que_lo_mata` | ✗ **9** | ✓ **0** |
+| veredicto de `oracle test` | **ROJO** | **VERDE** |
+
+`mutadores/` no está en `pyproject.toml`, así que no viaja. El paquete muta con los **5** propios en
+vez de los **29** declarados. El código conoce la ausencia y la maneja para no romperse
+(`mutadores_declarados_por_sus_autores`), pero **no la informa**, así que un consumidor lee «sin
+sobrevivientes» sobre un espacio 5,8 veces más chico.
+
+No es teórico: los 9 sobrevivientes reales de Jam salen de `alejar_limite_de_defecto` y
+`hacer_estricta_comparacion_interna`, los dos del segundo autor. Desde el paquete son invisibles.
+
+Es el defecto que `DECISION-011` fue a arreglar —«un mutador que nadie escribió no puede producir un
+sobreviviente»— sobreviviendo en lo que se distribuye. Dos caminos, y son decisiones distintas:
+informarlo, o empaquetar `mutadores/` (lo segundo toca DECISION-011).
+
 ### Corte 0.9.1: una herramienta que se cae no informa nada
 
 **Commiteado (`e7ec9b2`), empujado, con tag anotado `v0.9.1` y release en GitHub como Latest. Sin

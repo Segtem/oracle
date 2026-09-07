@@ -12,7 +12,9 @@ from nucleo import caso as sintaxis_caso
 from nucleo import sintaxis as sintaxis_nucleo
 from nucleo.caso import (CasoMalDeclarado, DETECCIONES, ETIQUETAS, PROCEDENCIAS,
                          opciones)
-from nucleo.medida import rutas_de_catalogo
+from nucleo.medida import ORIGENES_DE_UMBRAL, Medida, rutas_de_catalogo
+from nucleo.version import VERSION_SINTAXIS
+from nucleo.vocabulario import AMBITOS
 from nucleo.macro import EXTENSIONES_DE_MACRO
 from nucleo.medida import cargar_fuente_medida, ruta_de_medida
 from tools import sintaxis
@@ -1963,14 +1965,17 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
     def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
         import tempfile
         from nucleo.medida import MedidaMalDeclarada, cargar
-        for declarada in ("0.3", "1.0"):
+        for declarada in ("0.4", "1.0"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
                 ruta = Path(d) / "d.prueba.oracle"
                 ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")
                 with self.assertRaises(MedidaMalDeclarada) as ctx:
                     cargar(ruta)
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.2", str(ctx.exception))
+                # Contra la CONSTANTE y no contra un literal: el número del núcleo
+                # sube en cada corte de sintaxis, y un literal acá hace fallar un test
+                # que no tiene nada que ver con lo que cambió.
+                self.assertIn(VERSION_SINTAXIS, str(ctx.exception))
 
     def test_ningun_archivo_existente_tuvo_que_declarar_version(self) -> None:
         """Poner versión a la superficie no puede obligar a tocar un archivo ya escrito.
@@ -2676,3 +2681,181 @@ class UnArchivoIlegibleNoInterrumpeElCatalogoTests(unittest.TestCase):
         for fila in informe["filas"]:
             with self.subTest(ruta=fila["ruta"]):
                 self._comprobar_sana(fila)
+
+
+# --- La ausencia visible se puede ESCRIBIR donde no se puede omitir --------------------------------
+#
+# En la forma `medida`, `segun` y `ambito` sin declarar se expresan OMITIENDO la cláusula, y por eso
+# siempre dieron la vuelta. En una invocación de macro los argumentos son posicionales: el impresor
+# escribe `sin_declarar` literal porque no tiene cómo saltearlo, y hasta el 2026-09-07 el lector lo
+# rechazaba. Oracle imprimía algo que no podía volver a leer, y ninguna medida lo veía porque su
+# propio catálogo no tiene ninguna medida con esos campos sin declarar.
+#
+# Lo destapó un consumidor con 33 medidas escritas contra la aridad anterior de las macros: migrarlas
+# era un no-op del árbol canónico —probado, huella idéntica— y aun así quedaban ilegibles.
+#
+# Estos casos los escribió `codex` a pedido y se adoptaron con los imports de la suite. Los dos que
+# más discriminan son el último —migrar la aridad vieja conserva el árbol canónico, que es lo que
+# hace que un catálogo se pueda migrar sin cambiar nada— y el del valor inventado, que comprueba que
+# esto no aflojó la validación: `segun cualquiera` sigue siendo un error.
+
+class AusenciaVisibleEnMacrosTests(unittest.TestCase):
+    # Datos, texto y expansión esperada se fijan por separado: lector e impresor podrían
+    # coincidir entre sí y aun así perder un argumento o cambiar el predicado.
+    CASOS = (
+        (
+            "ninguno",
+            ["pieza", "p", ["==", ["campo", "p", "mal"], True]],
+            ["    relacion pieza", "    alias p", "    predicado p.mal == true"],
+            ["desde", ["de", "pieza", "p"],
+             ["donde", ["==", ["campo", "p", "mal"], True]]],
+            ["resumen", "contar", 1], 0,
+        ),
+        (
+            "peor",
+            ["pieza", "p", ["campo", "p", "n"], 2],
+            ["    relacion pieza", "    alias p", "    expresion p.n", "    tolerancia 2"],
+            ["desde", ["de", "pieza", "p"],
+             ["donde", [">", ["campo", "p", "n"], 2]]],
+            ["resumen", "max", ["campo", "p", "n"]], 2,
+        ),
+        (
+            "ninguno-par",
+            ["pieza", "a", "b", ["==", ["campo", "a", "n"], ["campo", "b", "n"]]],
+            ["    relacion pieza", "    aliasA a", "    aliasB b",
+             "    predicado a.n == b.n"],
+            ["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"]],
+             ["donde", ["==", ["campo", "a", "n"], ["campo", "b", "n"]]]],
+            ["resumen", "contar", 1], 0,
+        ),
+    )
+
+    def _invocacion(self, caso, segun, ambito):
+        nombre, argumentos, lineas, *_ = caso
+        mid = "demo." + nombre.replace("-", "_")
+        datos = [nombre, mid, *argumentos, "una razón", segun, ambito, "NO ve otras piezas"]
+        texto = "\n".join([
+            f"{nombre} {mid}:", *lineas, '    porque "una razón"',
+            f"    segun {segun}", f"    ambito {ambito}",
+            '    alcance "NO ve otras piezas"', "",
+        ])
+        return datos, texto
+
+    def _comprobar_ida_y_vuelta(self, caso, segun, ambito):
+        datos, esperado = self._invocacion(caso, segun, ambito)
+        json_original = json.dumps(datos, ensure_ascii=False)
+        texto = sintaxis.imprimir(datos)
+        self.assertEqual(texto, esperado)
+        releida = sintaxis.leer(texto)
+        self.assertEqual(releida, datos)
+        self.assertEqual(json.dumps(releida, ensure_ascii=False), json_original)
+        self.assertEqual(sintaxis.imprimir(releida), texto)
+
+    def test_las_tres_macros_con_ambas_ausencias_vuelven_con_json_y_texto_identicos(self):
+        # Ésta era la asimetría: el impresor escribía dos argumentos que su lector rechazaba.
+        for caso in self.CASOS:
+            with self.subTest(macro=caso[0]):
+                self._comprobar_ida_y_vuelta(caso, "sin_declarar", "sin_declarar")
+
+    def test_los_dos_campos_dan_la_vuelta_en_las_cuatro_combinaciones(self):
+        # Una ausencia no debe borrar ni reemplazar la declaración del otro campo.
+        for caso in self.CASOS:
+            for segun, ambito in (
+                ("contrato", "universal"),
+                ("sin_declarar", "universal"),
+                ("contrato", "sin_declarar"),
+                ("sin_declarar", "sin_declarar"),
+            ):
+                with self.subTest(macro=caso[0], segun=segun, ambito=ambito):
+                    self._comprobar_ida_y_vuelta(caso, segun, ambito)
+
+    def test_un_valor_inventado_se_rechaza_y_el_error_enumera_opciones_y_ausencia(self):
+        # Aceptar la ausencia no abre el vocabulario. También se rechaza el invento cuando
+        # el OTRO campo está ausente: un permiso global para la invocación sería incorrecto.
+        for caso in self.CASOS:
+            for campo, inventado, opciones, declarado in (
+                ("segun", "cualquiera", ORIGENES_DE_UMBRAL, "universal"),
+                ("ambito", "global", AMBITOS, "contrato"),
+            ):
+                for otro in (declarado, "sin_declarar"):
+                    with self.subTest(macro=caso[0], campo=campo, otro=otro):
+                        segun, ambito = ((inventado, otro) if campo == "segun"
+                                         else (otro, inventado))
+                        _, texto = self._invocacion(caso, segun, ambito)
+                        with self.assertRaises(sintaxis.ErrorSintaxis) as error:
+                            sintaxis.leer(texto)
+
+                        mensaje = str(error.exception)
+                        self.assertIn(inventado, mensaje)
+                        self.assertIn("sin_declarar", mensaje)
+                        for opcion in opciones:
+                            self.assertIn(opcion, mensaje)
+                        # No alcanza con fallar en cualquier lugar: señala el argumento inválido.
+                        linea = texto.splitlines().index(f"    {campo} {inventado}") + 1
+                        self.assertEqual(error.exception.linea, linea)
+                        self.assertEqual(error.exception.columna, len(f"    {campo} ") + 1)
+
+    TEXTO_PLANO = (
+        "medida demo.plana:\n"
+        "    de pieza p\n"
+        "    resumen contar(1)\n"
+        '    umbral <= 0 porque "una razón"\n'
+        '    alcance "NO ve otras piezas"\n'
+    )
+
+    def test_la_medida_plana_sin_clausulas_se_reimprime_sin_declararlas(self):
+        # En forma plana no hay posiciones que rellenar: la ausencia sigue siendo omisión.
+        datos = sintaxis.leer(self.TEXTO_PLANO)
+        self.assertEqual(datos, [
+            "medida", "demo.plana", ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1], ["umbral", "<=", 0, "una razón"],
+            ["alcance", "NO ve otras piezas"],
+        ])
+        texto = sintaxis.imprimir(datos)
+        self.assertEqual(texto, self.TEXTO_PLANO)
+        self.assertNotIn("segun", texto)
+        self.assertNotIn("ambito", texto)
+        self.assertNotIn("sin_declarar", texto)
+        self.assertEqual(sintaxis.leer(texto), datos)
+
+    def test_el_impresor_plano_omite_tambien_las_ausencias_del_estado_interno(self):
+        # Leer la forma plana sola no ejercita la rama del impresor que recibe los centinelas.
+        datos = [
+            "medida", "demo.plana", ["desde", ["de", "pieza", "p"]],
+            ["resumen", "contar", 1], ["umbral", "<=", 0, "una razón", "sin_declarar"],
+            ["ambito", "sin_declarar"], ["alcance", "NO ve otras piezas"],
+        ]
+        texto = sintaxis.imprimir(datos)
+        self.assertEqual(texto, self.TEXTO_PLANO)
+        self.assertEqual(Medida.de_datos(sintaxis.leer(texto)).a_datos(),
+                         Medida.de_datos(datos).a_datos())
+
+    def test_migrar_la_aridad_vieja_a_ausencias_explicitas_conserva_el_arbol_canonico(self):
+        # El legado se carga como datos: su aridad no se puede imprimir con la firma actual.
+        # Se compara la medida canónica, no la expansión cruda ni la fuente de autoría.
+        for caso in self.CASOS:
+            with self.subTest(macro=caso[0]):
+                nombre, argumentos, _, tuberia, resumen, limite = caso
+                actuales, texto = self._invocacion(caso, "sin_declarar", "sin_declarar")
+                viejos = [nombre, actuales[1], *argumentos, "una razón", "NO ve otras piezas"]
+                self.assertEqual(len(actuales) - len(viejos), 2)
+                explicita = Medida.de_datos(sintaxis.leer(texto))
+                anterior = Medida.de_datos(viejos)
+                esperado = [
+                    "medida", actuales[1], tuberia, resumen,
+                    ["umbral", "<=", limite, "una razón", "sin_declarar"],
+                    ["alcance", "NO ve otras piezas"],
+                ]
+                self.assertEqual(explicita.a_datos(), esperado)
+                self.assertEqual(anterior.a_datos(), esperado)
+                self.assertEqual(explicita.a_datos(), anterior.a_datos())
+                self.assertEqual((explicita.segun, explicita.ambito),
+                                 ("sin_declarar", "sin_declarar"))
+                self.assertEqual((anterior.segun, anterior.ambito),
+                                 ("sin_declarar", "sin_declarar"))
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+# Resultado contra el árbol real: pasaron los 6 tests (30 subcasos de macros y 2 de medida).

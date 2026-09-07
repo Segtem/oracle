@@ -817,11 +817,29 @@ def _leer_argumento_macro(item: tuple[int, str], parametro: str, tipo: str, *,
         valor = resto.strip()
         if valor != resto or len(valor.split()) != 1:
             _fallar(item[0], col, f"{parametro} <nombre>", resto)
-        if parametro == "segun" and not valor.startswith("$") and valor not in ORIGENES_DE_UMBRAL:
-            _fallar(item[0], col, f"segun en {sorted(ORIGENES_DE_UMBRAL)}", valor)
-        if parametro == "ambito" and not valor.startswith("$") and valor not in AMBITOS:
+        # La AUSENCIA VISIBLE se acepta acá y sólo acá. En la forma `medida` la ausencia se expresa
+        # OMITIENDO la cláusula, y por eso da la vuelta sin problema: el impresor no la escribe. En
+        # una invocación de macro los argumentos son posicionales y no se pueden omitir, así que el
+        # impresor escribe `sin_declarar` literal — y hasta el 2026-09-07 el lector lo rechazaba.
+        #
+        # O sea que Oracle IMPRIMÍA ALGO QUE NO PODÍA VOLVER A LEER, y ninguna medida lo veía porque
+        # su propio catálogo no tiene ninguna medida con `segun` o `ambito` sin declarar. Lo destapó
+        # un consumidor con 33 medidas escritas contra la aridad anterior de las macros: migrarlas a
+        # la aridad vigente era un no-op del árbol canónico, y aun así quedaban ilegibles.
+        #
+        # No afloja nada: `sin_declarar` es exactamente lo que el cargador ya produce, y las dos
+        # medidas que lo persiguen —`meta.todo_umbral_declara_de_donde_sale` y
+        # `meta.toda_medida_declara_su_ambito`— lo siguen contando igual. Lo que cambia es que ahora
+        # se puede ESCRIBIR la ausencia donde no había forma de omitirla.
+        if (parametro == "segun" and not valor.startswith("$")
+                and valor not in ORIGENES_DE_UMBRAL and valor != SEGUN_SIN_DECLARAR):
             _fallar(item[0], col,
-                    "un ámbito entre estas opciones\n" + opciones(AMBITOS), valor)
+                    f"segun en {sorted(ORIGENES_DE_UMBRAL)} o «{SEGUN_SIN_DECLARAR}»", valor)
+        if (parametro == "ambito" and not valor.startswith("$")
+                and valor not in AMBITOS and valor != AMBITO_SIN_DECLARAR):
+            _fallar(item[0], col,
+                    f"un ámbito entre estas opciones, o «{AMBITO_SIN_DECLARAR}»\n"
+                    + opciones(AMBITOS), valor)
         _registrar(ubicaciones, ruta, item[0], col)
         return _leer_nombre(valor, item[0], col)
     if tipo == "texto":

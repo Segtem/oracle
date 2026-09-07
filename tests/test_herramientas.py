@@ -1380,7 +1380,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
 
         self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
-        self.assertEqual(str(del_nucleo_sintaxis()), "0.2")
+        self.assertEqual(str(del_nucleo_sintaxis()), "0.3")
 
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear
@@ -1479,7 +1479,9 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        for declarada in ("0.3", "1.0", "9.9"):
+        from nucleo.version import VERSION_SINTAXIS
+
+        for declarada in ("0.4", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1487,7 +1489,10 @@ class VersionDelProyecto(unittest.TestCase):
                 with self.assertRaises(ProyectoInvalido) as ctx:
                     configuracion(Proyecto(raiz))
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.2", str(ctx.exception))
+                # Contra la CONSTANTE y no contra un literal: el número del núcleo
+                # sube en cada corte de sintaxis, y un literal acá hace fallar un test
+                # que no tiene nada que ver con lo que cambió.
+                self.assertIn(VERSION_SINTAXIS, str(ctx.exception))
 
     def test_una_sintaxis_mal_declarada_falla_cerrado(self) -> None:
         with tempfile.TemporaryDirectory() as td:

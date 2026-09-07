@@ -1,3 +1,70 @@
+# 0.9.2 — Oracle imprimía algo que no podía volver a leer
+
+Sube la **menor de la sintaxis** y sólo el **parche de la distribución**, según `ESPECIFICACION.md` §0:
+
+```
+VERSION_SINTAXIS       0.2   → 0.3       el lector gana una forma que antes era un error
+VERSION_DISTRIBUCION   0.9.1 → 0.9.2     nadie cambia de color
+VERSION_ALGEBRA        0.6   → 0.6       mismo evaluador y forma canónica
+```
+
+Es la primera vez que `VERSION_SINTAXIS` se mueve desde que la superficie ganó la cláusula `ambito`.
+
+## El defecto: la ausencia visible se podía producir y no se podía escribir
+
+`segun` y `ambito` sin declarar valen `sin_declarar`, la **ausencia visible** que el cargador deja en
+las formas viejas o incompletas. En la forma `medida` esa ausencia se expresa OMITIENDO la cláusula:
+el impresor no la escribe, el lector nunca la ve, y la ida y vuelta cierra.
+
+En una invocación de macro los argumentos son **posicionales** y no hay cómo saltear uno. El impresor
+escribía `sin_declarar` literal, y el lector lo rechazaba:
+
+```
+imprimir(...)  emite   →   segun sin_declarar
+leer(...)      rechaza →   «se esperaba segun en ['contrato','convencion','medicion','tanteo']»
+```
+
+El lenguaje imprimía una forma que él mismo no aceptaba. `meta.sintaxis_ida_y_vuelta` existe para
+atrapar exactamente eso y no lo veía: el catálogo propio de Oracle **no tiene ninguna medida** con
+esos campos sin declarar, así que la combinación nunca se ejercía.
+
+Lo destapó un consumidor con 33 medidas escritas contra la aridad anterior de las macros. Migrarlas
+era un no-op comprobado del árbol canónico —79 formas idénticas, huella igual a la línea de base— y
+aun así quedaban ilegibles.
+
+## Qué cambia, y qué NO afloja
+
+`sin_declarar` se acepta como valor de `segun` y `ambito` **sólo en argumentos de macro**, que es
+donde no se puede omitir. Eso es todo.
+
+- Un valor inventado sigue siendo un error: `segun cualquiera` y `ambito global` se rechazan igual, y
+  ahora el mensaje enumera las opciones **y** la ausencia.
+- Las dos medidas que persiguen la ausencia la cuentan igual que antes. Sus `porque` lo dicen:
+  «`sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, **no una etiqueta
+  aceptable**». Persiguen el valor, así que hacerlo escribible no lo hace aceptable.
+- Medido sobre el consumidor que lo destapó: sus tres sombras quedaron en los mismos **9 / 54 / 41**.
+
+## Por qué el parche y no la menor de distribución
+
+El criterio de los dos cortes anteriores: 0.9.0 subió la menor porque una medida universal nueva
+podía hacer que un consumidor pasara de verde a rojo; 0.9.1 subió el parche porque nadie cambiaba.
+Acá tampoco cambia nadie, y está medido: no entra ninguna medida al catálogo, ninguna cota se mueve,
+ningún proyecto que estaba en verde deja de estarlo, y ninguno pasa de rojo a verde sin que alguien
+decida algo.
+
+## Verificación del corte
+
+Suite **1400 tests** · corpus **188 casos**, con los casos 485 y 486 nuevos: el rojo registra el
+defecto —tres macros que no volvían— y el verde lo cierra, con las filas declaradas al lado para que
+el verde no dependa sólo del caso nuevo.
+
+Los seis tests del arreglo los escribió `codex` a pedido, y los verificó mutando en memoria seis
+veces para comprobar que discriminan. Se adoptaron con los imports de la suite.
+
+El detalle está en `estudios/LA-AUSENCIA-VISIBLE-NO-SE-PODIA-ESCRIBIR.md`.
+
+---
+
 # 0.9.1 — una herramienta que se cae no informa nada
 
 Sube únicamente el parche, según `ESPECIFICACION.md` §0:

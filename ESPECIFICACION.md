@@ -82,6 +82,22 @@ ahora se ejecutan. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.2
 nodo, un operador, un agregado, una escalar ni una relación, el lector no gana palabras, y un
 `.oracle` o un `.caso` se leen y se evalúan igual antes y después.
 
+**Corte 0.9.2 (2026-09-07): `VERSION_SINTAXIS` sube de `0.2` a `0.3` y `VERSION_DISTRIBUCION` de
+`0.9.1` a `0.9.2`.** El lector gana una forma que antes era un error: `sin_declarar` como valor de
+los argumentos `segun` y `ambito` de una invocación de macro. Sube la **menor de la sintaxis** por
+el caso 1 de la regla de abajo —una palabra que antes no se aceptaba— y sólo el **parche de la
+distribución**, porque nadie cambia de color: no entra ninguna medida al catálogo, ninguna cota se
+mueve, y las dos medidas que persiguen la ausencia la siguen contando exactamente igual. Medido
+sobre el consumidor que lo destapó: sus tres sombras quedaron en los mismos 9 / 54 / 41.
+
+El defecto que corrige es del propio lenguaje, y vale escribirlo: **el impresor emitía algo que el
+lector no podía leer.** En la forma `medida` la ausencia se expresa OMITIENDO la cláusula, así que
+nunca se escribe y siempre dio la vuelta; en una invocación de macro los argumentos son posicionales
+y no hay cómo saltearla, así que el impresor escribía `sin_declarar` literal y el lector lo
+rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene ninguna medida con
+esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
+agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;

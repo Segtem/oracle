@@ -1,0 +1,23 @@
+caso 486-la-ausencia-visible-vuelve-de-las-tres-macros:
+    fecha: "2026-09-07"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "7716fb8+worktree"
+        comando: "python3 -c \"from nucleo.sintaxis import imprimir, leer\" sobre las tres macros"
+    procedencia: observada
+    titulo: "Las tres macros dan la vuelta con la ausencia escrita y con el valor declarado"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Las mismas seis corridas despues del arreglo: las tres macros vuelven identicas tanto con `segun` y `ambito` declarados como con los dos en `sin_declarar`. Las filas declaradas estan a proposito, para que el verde no dependa solo del caso nuevo.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_ida_y_vuelta", "ninguno-con-ausencia", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "peor-con-ausencia", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "ninguno-par-con-ausencia", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "ninguno-declarado", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "peor-declarado", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "ninguno-par-declarado", "construido", true, "", true, true, true
+    leccion:
+        Aceptar la ausencia visible no aflojo la validacion: un valor inventado sigue siendo un error, y las dos medidas que persiguen la ausencia la siguen contando igual. Lo que cambia es que ahora se puede escribir donde no se podia omitir.

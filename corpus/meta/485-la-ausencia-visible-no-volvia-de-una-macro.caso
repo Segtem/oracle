@@ -1,0 +1,23 @@
+caso 485-la-ausencia-visible-no-volvia-de-una-macro:
+    fecha: "2026-09-07"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "7716fb8+worktree"
+        comando: "python3 -c \"from nucleo.sintaxis import imprimir, leer\" sobre las tres macros"
+    procedencia: observada
+    titulo: "El impresor emitia `sin_declarar` y el lector lo rechazaba"
+    etiqueta: falso_verde
+    sintoma:
+        Las tres macros con `segun` y `ambito` sin declarar: el impresor las escribe —los argumentos de una macro son posicionales y no se pueden omitir— y el lector las rechazaba con ErrorSintaxis. Oracle imprimia algo que no podia volver a leer. Ninguna medida lo veia porque el catalogo propio no tiene ninguna medida con esos campos sin declarar; lo destapo un consumidor con 33 medidas escritas contra la aridad anterior de las macros.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_ida_y_vuelta
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_ida_y_vuelta", "ninguno-con-ausencia", "construido", false, "ErrorSintaxis", false, false, false
+            "sintaxis_ida_y_vuelta", "peor-con-ausencia", "construido", false, "ErrorSintaxis", false, false, false
+            "sintaxis_ida_y_vuelta", "ninguno-par-con-ausencia", "construido", false, "ErrorSintaxis", false, false, false
+            "sintaxis_ida_y_vuelta", "ninguno-declarado", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "peor-declarado", "construido", true, "", true, true, true
+            "sintaxis_ida_y_vuelta", "ninguno-par-declarado", "construido", true, "", true, true, true
+    leccion:
+        La ida y vuelta se rompe donde una forma NO PUEDE omitirse. En la forma `medida` la ausencia se expresa salteando la clausula, asi que el impresor nunca la escribe y el lector nunca la ve; en una macro no hay como saltearla. Una superficie que se prueba sola contra su propio catalogo no prueba las formas que su catalogo no usa.
