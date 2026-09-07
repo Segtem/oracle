@@ -140,15 +140,20 @@ whl    sha256:ba790bb72dc71266cca0a93ab342af621ba9c91d747d55f5625ad77a0381e1d7
 tar.gz sha256:777479585b6baf80b6630364dd08640f6a61f315983a7521b69662e6582ea702
 ```
 
-### Cómo se sube a PyPI, para el corte que viene
+### Cómo se sube a PyPI
 
-0.8.1 ya está subida; esto queda como receta.
+**Lo sube el usuario, y lo sube con `uvx`:**
 
 ```bash
 cd /home/workstation/Dev/oracle
-python3 -m twine check dist/oracle_metalenguaje-<version>*
-python3 -m twine upload dist/oracle_metalenguaje-<version>*
+uvx twine upload dist/oracle_metalenguaje-<version>*
 ```
+
+⚠ **Hasta el 2026-09-07 acá decía `python3 -m twine`, y en esta máquina eso NO CORRE**: no hay
+`twine` instalado para el intérprete del sistema (`No module named twine`), igual que no hay
+`build`. La receta vivió varios cortes sin que nadie la ejecutara como estaba escrita — el mismo
+defecto que el `==0.3.3` de LyraGASP, que declaraba una versión que el entorno no tenía. Si alguna
+vez hay que construir los artefactos, es un venv aparte con `build` adentro, no `python3 -m build`.
 
 Se suben **sólo** los dos archivos de la versión que se corta: `dist/` conserva artefactos de
 cortes anteriores —hoy están ahí los de 0.7.0 y 0.8.0, que nunca se publicaron— y un
