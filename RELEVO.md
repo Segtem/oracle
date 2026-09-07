@@ -37,8 +37,8 @@ Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release 
 
 ### Corte 0.9.1: una herramienta que se cae no informa nada
 
-**Commiteado, sin push y sin publicar en PyPI.** Distribución `0.9.1`, álgebra `0.6`, sintaxis
-`0.2`. `oracle test` informaba **nada** y moría con un traceback cuando el impresor no podía
+**Commiteado (`e7ec9b2`), empujado, con tag anotado `v0.9.1` y release en GitHub como Latest. Sin
+publicar en PyPI.** Distribución `0.9.1`, álgebra `0.6`, sintaxis `0.2`. `oracle test` informaba **nada** y moría con un traceback cuando el impresor no podía
 procesar un archivo del consumidor; ahora lo informa con nombre y motivo, y las etapas siguientes se
 ejecutan. Detalle en
 [`estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md`](estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md).
@@ -70,9 +70,13 @@ el código nuevo—, así que meterlo pondría al proyecto en rojo por algo ajen
 de `ninguno`, `peor` y `ninguno-par` —son de ese repositorio—, y los 9 mutantes sobrevivientes de
 428 que `codex` encontró en la mutación de Jam, también previos.
 
-**Falta, y lo decide el usuario:** push, tag y release `v0.9.1`, y la subida a PyPI. Ojo con la
-herramienta global: `uv tool install --force "oracle-metalenguaje==0.9.1"` después de publicar, o
-`oracle test` va a seguir crasheando desde el PATH aunque el árbol esté arreglado.
+**Falta, y lo ejecuta el usuario:** la subida a PyPI, que está en `0.9.0`.
+
+⚠ **Y después de publicar, `uv tool install --force "oracle-metalenguaje==0.9.1"`.** No es opcional:
+el `oracle` del PATH es hoy 0.9.0 y **sigue crasheando** sobre Jam, con el árbol ya arreglado. Lo
+midió `codex` en su verificación y es la única discrepancia que encontró: el mismo comando, el mismo
+proyecto, dos versiones y dos conductas. Jam además vendoriza el wheel en `vendor/oracle-pkg/`, así
+que ahí el número vive en tres lugares más — ver su `AGENTS.md`.
 
 ### Corte 0.9.0: un caso observado dice por dónde ir a contradecirlo
 
