@@ -70,13 +70,31 @@ el código nuevo—, así que meterlo pondría al proyecto en rojo por algo ajen
 de `ninguno`, `peor` y `ninguno-par` —son de ese repositorio—, y los 9 mutantes sobrevivientes de
 428 que `codex` encontró en la mutación de Jam, también previos.
 
-**Falta, y lo ejecuta el usuario:** la subida a PyPI, que está en `0.9.0`.
+**PyPI: `0.9.1` publicada el 2026-09-07 por el usuario, y verificada.** Los dos digests y los dos
+tamaños que sirve PyPI coinciden con el build local y con los que este relevo tenía anotados antes
+de la subida. Instalada en un venv limpio bajando desde PyPI: `oracle 0.9.1`, los diez ejecutables,
+y `oracle test` sobre Jam informa los 33 archivos con **cero tracebacks**, ejecutando aceptación y
+diferencial.
 
-⚠ **Y después de publicar, `uv tool install --force "oracle-metalenguaje==0.9.1"`.** No es opcional:
-el `oracle` del PATH es hoy 0.9.0 y **sigue crasheando** sobre Jam, con el árbol ya arreglado. Lo
-midió `codex` en su verificación y es la única discrepancia que encontró: el mismo comando, el mismo
-proyecto, dos versiones y dos conductas. Jam además vendoriza el wheel en `vendor/oracle-pkg/`, así
-que ahí el número vive en tres lugares más — ver su `AGENTS.md`.
+**El arreglo llegó a los tres lugares donde vive Oracle en esta máquina**, que era el riesgo
+concreto de este corte:
+
+| dónde | antes | ahora |
+|---|---|---|
+| paquete de PyPI | 0.9.0 | **0.9.1** |
+| herramienta global del PATH (`uv tool`) | 0.9.0, **crasheaba** | 0.9.1, informa |
+| wheel vendorizado de Jam (`vendor/oracle-pkg`) | 0.9.0 | **0.9.1** |
+
+El antes/después de la herramienta global se midió en la misma máquina y con el mismo comando:
+**1 traceback → 0**. Jam quedó commiteado y empujado en `dfe3529`, con el número movido en los tres
+lugares que su `AGENTS.md` declara y sus 1240 tests en verde.
+
+⚠ **La propagación del CDN de PyPI volvió a morder**, igual que con 0.9.0: la API JSON ya servía
+0.9.1 y el índice de `pip` todavía no. Se resolvió sola entre un comando y el siguiente. Antes de
+concluir que una subida falló, se mira el índice simple.
+
+**Lo que queda pendiente y NO es de Oracle:** migrar las 33 medidas de Jam a la aridad vigente de
+`ninguno`, `peor` y `ninguno-par`. Ahora al menos están listadas en vez de matar la corrida.
 
 ### Corte 0.9.0: un caso observado dice por dónde ir a contradecirlo
 
