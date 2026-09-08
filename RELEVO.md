@@ -1,4 +1,4 @@
-# Relevo — 2026-09-07
+# Relevo — 2026-09-08
 
 ## Para Claude: empezar acá
 
@@ -34,6 +34,57 @@ observación conservada en ese repositorio.
 
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
+
+### Corte 0.11.0: el censo cuenta y no juzga
+
+**Commiteado. Sin push, sin tag, sin release y sin publicar en PyPI** — eso espera autorización.
+Distribución `0.11.0`, álgebra `0.6`, sintaxis `0.3`. La menor sube por el mismo motivo que 0.7.0:
+el paquete gana un verbo público, `oracle censar`. Ningún consumidor cambia de color.
+
+```bash
+oracle censar --proyecto . --proyecto ../otro/medidas --confiar-escalares
+oracle censar --proyecto . --hechos            # sólo la relación `proyecto_censado`, en JSON
+oracle censar --proyecto . --html censo.html   # además, la página
+```
+
+Cuenta el estado de varios proyectos con su fecha —medidas y de dónde vienen, casos por procedencia,
+sombras con su antigüedad, archivos que se pueden imprimir, y con qué Oracle y cuántos mutadores se
+midió— y **no calcula ningún puntaje**: ni cocientes, ni porcentajes, ni semáforos. Hay un test por
+cada mitad de esa regla.
+
+**Verificación:** suite **1447 tests** · corpus **189 casos** · medidas **915/915** · aceptación con
+el rojo de DECISION-004 y la sombra declarada, y los cuatro chequeos literales de CI en verde ·
+cifras y manual regenerados · WHEEL OK · `dist/` construido para `0.11.0`.
+`tools/censar.py` entra a la matriz de mutación de CI y cierra en **38/38, sin equivalentes
+declarados** — código escrito en este corte, cerrado en este corte.
+
+**Lo que hay que saber antes de tocarlo:**
+
+- **El repo de Oracle no se censa desde el paquete instalado.** El repositorio *es* el catálogo
+  base, así que el wheel lo carga dos veces y sale `MedidaMalDeclarada`. No es del censo:
+  `oracle test` desde el wheel falla idéntico. Es DECISION-010. El repo se mide con su propio árbol
+  (`python3 tools/censar.py …`); el wheel censa consumidores.
+- Ese hallazgo sí arregló algo del censo: **un proyecto ilegible ya no se lleva puestos a los
+  demás.** `censar_uno` levanta la excepción, `censar` la anota en la fila y sigue. La fila ilegible
+  no trae conteos, a propósito.
+- **`confiar` viene en `False`** en `censar_uno` y `censar`. Ejecutar el `escalares.py` de un
+  proyecto ajeno hay que pedirlo, igual que en el CLI.
+
+Detalle en [`estudios/EL-CENSO-CUENTA-Y-NO-JUZGA.md`](estudios/EL-CENSO-CUENTA-Y-NO-JUZGA.md).
+
+**El censo del 2026-09-08, corrido desde el árbol sobre los tres proyectos:**
+
+| | medidas | casos | procedencia | sintaxis | sombras |
+|---|---|---|---|---|---|
+| **oracle** | 58 | 189 | 100 obs · 83 constr · 6 gen · 0 sin declarar | 251/251 | 1 (hace 1 día) |
+| **jam** | 79 | 31 | 0 obs · 8 constr · 0 gen · **23 sin declarar** | 72/72 | 3 (hace 7 días) |
+| **LyraGASP** | 54 | 121 | 9 obs · 86 constr · 0 gen · **26 sin declarar** | **139/140** | 3 (hace 7 días) |
+
+Las dos cifras en negrita son deuda conocida, no novedades: los `sin declarar` de los consumidores y
+el archivo ilegible de LyraGASP (`animacion.clip_de_linea_base_ausente_del_lote.json — se esperaba
+al menos un agregado`), que es de un tipo distinto al que motivó 0.9.2 y sigue abierto.
+
+---
 
 ### Corte 0.9.2: Oracle imprimía algo que no podía volver a leer
 

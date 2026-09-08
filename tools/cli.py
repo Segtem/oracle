@@ -36,6 +36,7 @@
     oracle manual --instalar-man <dir>      escribe oracle(1) y oracle-<tema>(7) bajo <dir>
 
     oracle reportar                         prepara un reporte local; no publica ni usa la red
+    oracle censar --proyecto <ruta>…       censa varios proyectos y conserva el estado con su fecha
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
 """
 
@@ -96,6 +97,7 @@ Uso:
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
   oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
+  oracle censar --proyecto <ruta> ...     Censa varios proyectos y conserva el estado con su fecha
   oracle --help                           Muestra esta ayuda
   oracle --version                        Versión del paquete, del álgebra y de la sintaxis
 
@@ -349,7 +351,7 @@ VERBOS = {
 
 # Los comandos planos también son verbos públicos. Declararlos permite que la misma medida que
 # vigila `medida listar` vea `oracle reportar`, y que el manual del comando se derive del despacho.
-VERBOS_DIRECTOS = ("reportar",)
+VERBOS_DIRECTOS = ("censar", "reportar")
 
 
 def verbos_documentados() -> dict[str, tuple[str, ...]]:
@@ -926,6 +928,13 @@ def main(argv: list[str] | None = None) -> int:
 
     subcomando = posicionales[0]
     resto = posicionales[1:]
+
+    # ANTES de resolver el proyecto, y con el `argv` CRUDO. `censar` es el único verbo que toma
+    # VARIOS `--proyecto`, y la resolución de más abajo consume esa bandera para quedarse con uno.
+    # Pasar por ahí le dejaría la lista vacía, que fue exactamente el primer intento.
+    if subcomando in ("censar", "--censar"):
+        from tools import censar as tcensar
+        return tcensar.main([a for a in argv[1:] if a != subcomando])
 
     # 1. Ayudas por sustantivo (devuelven 0 y no requieren proyecto)
     if subcomando == "medida" and (not resto or resto[0] in ("-h", "--help", "help")):

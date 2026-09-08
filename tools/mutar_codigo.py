@@ -66,6 +66,7 @@ PRIORIDADES = {
     "oracle_metalenguaje/motor.py": ("tests.test_motor",),
     "perfiles/python/marco.py": ("tests.test_perfiles",),
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
+    "tools/censar.py": ("tests.test_censar",),
     "tools/cifras.py": ("tests.test_herramientas",),
     "tools/cli.py": ("tests.test_biblioteca", "tests.test_vigilar", "tests.test_cli",
                      "tests.test_herramientas"),
@@ -223,9 +224,10 @@ PRIORIDADES = {
 # estarían apuntando a la nada mientras fijan la medida que persigue exactamente eso. Nadie más lo
 # comprueba: el corpus valida la FORMA del caso y la aceptación su POLARIDAD, y ninguno de los dos
 # corre el comando que el caso declara.
-HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "cifras.py", "cli.py", "contexto.py", "corpus.py",
-                          "lsp.py", "manual.py", "mcp.py", "medida.py", "observar.py",
-                          "reportar.py", "sondear_generador.py", "sondear_procedencia.py")
+HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
+                          "corpus.py", "lsp.py", "manual.py", "mcp.py", "medida.py",
+                          "observar.py", "reportar.py", "sondear_generador.py",
+                          "sondear_procedencia.py")
 
 
 def objetivos_disponibles() -> dict[str, Path]:

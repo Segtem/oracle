@@ -112,6 +112,20 @@ por qué podría esconderse en un parche: un parche dice «actualizá sin mirar�
 una corrida que ayer daba verde. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.3`: no
 entra un nodo, un operador, un agregado, una escalar ni una relación, y el lector no gana palabras.
 
+**Corte 0.11.0 (2026-09-08): `VERSION_DISTRIBUCION` sube de `0.10.0` a `0.11.0`.** El paquete gana
+el verbo `oracle censar`, que cuenta el estado de varios proyectos a la vez y lo conserva con su
+fecha, en terminal o como página.
+
+Sube la **menor**, y conviene decir por cuál de los dos motivos: **no** porque un consumidor cambie
+de color —ninguno lo hace, no entra ninguna medida al catálogo ni se mueve ninguna cota—, sino por
+el mismo motivo que 0.7.0, que subió la menor porque «el paquete gana `oracle reportar`». Un verbo
+público es superficie nueva que Oracle ofrece y se compromete a mantener, y eso es más que una
+herramienta suelta: 0.8.1 ganó `tools/observar.py` entero y fue parche porque no era un verbo.
+
+`VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.3`: el censo emite una relación de
+hechos como cualquier sensor, y no agrega un nodo, un operador, un agregado ni una escalar al
+lenguaje.
+
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una
 escalar declarada nueva, una relación de traza nueva. Quien no usa lo nuevo queda exactamente igual;

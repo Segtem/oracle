@@ -105,6 +105,11 @@ jobs:
           - oracle_metalenguaje/motor.py
           - perfiles/python/marco.py
           - perfiles/python/mutacion_codigo.py
+          # Entra el 2026-09-08 con el verbo `censar`. Custodia una afirmación que se publica —el
+          # estado de varios proyectos en una fecha—, y sus conteos son el único sitio donde el
+          # reparto de medidas y procedencias tiene que cerrar contra el total. Ver
+          # HERRAMIENTAS_CUSTODIAS.
+          - tools/censar.py
           # Instrumento que custodia una afirmación: desde que genera los bloques del README, es lo
           # único que impide que una cifra publicada vuelva a derivar. Ver HERRAMIENTAS_CUSTODIAS.
           - tools/cifras.py

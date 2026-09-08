@@ -284,8 +284,8 @@ class ReportarCliTests(unittest.TestCase):
         codigo, ayuda, error = self._correr(["--help"])
         self.assertEqual(codigo, 0)
         self.assertEqual(error, "")
-        self.assertEqual(declarados["oracle"], ("reportar",))
-        self.assertEqual(manual_verbos["oracle"], "reportar")
+        self.assertEqual(declarados["oracle"], ("censar", "reportar"))
+        self.assertEqual(manual_verbos["oracle"], "censar · reportar")
         self.assertEqual("oracle reportar" in ayuda, True)
 
     def test_la_ayuda_del_reporte_no_necesita_un_proyecto(self) -> None:

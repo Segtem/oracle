@@ -1,3 +1,96 @@
+# 0.11.0 — el censo cuenta y no juzga
+
+Sube la **menor** de la distribución, según `ESPECIFICACION.md` §0:
+
+```
+VERSION_DISTRIBUCION   0.10.0 → 0.11.0   el paquete gana el verbo `oracle censar`
+VERSION_ALGEBRA        0.6    → 0.6      mismo evaluador y forma canónica
+VERSION_SINTAXIS       0.3    → 0.3      mismo lector de medidas y casos
+```
+
+La menor **no** porque un consumidor cambie de color —ninguno lo hace—, sino por el mismo motivo que
+0.7.0, que subió la menor porque «el paquete gana `oracle reportar`». Un verbo público es superficie
+que Oracle se compromete a mantener; 0.8.1 ganó `tools/observar.py` entero y fue parche porque no
+era un verbo.
+
+## Qué hace
+
+```bash
+oracle censar --proyecto . --proyecto ../otro/medidas --confiar-escalares
+oracle censar --proyecto . --hechos            # sólo la relación, en JSON
+oracle censar --proyecto . --html censo.html   # además, la página
+```
+
+Cuenta el estado de varios proyectos a la vez y lo conserva con su fecha: medidas y de dónde vienen,
+casos y su reparto por procedencia, sombras declaradas con su antigüedad, archivos que se pueden
+imprimir, y con qué versión de Oracle y cuántos mutadores se midió.
+
+Hasta ahora eso era correr seis comandos en tres repositorios y armar la tabla a mano.
+
+## La regla que lo separa de un tablero
+
+Un informe que agrega está a un paso de un tablero, y un tablero a un paso de una métrica que se
+vuelve objetivo. Este proyecto ya lo vivió con la proporción de falsación, que era el número que
+publicaba como criterio y el que nadie estaba midiendo.
+
+> **Ni cocientes, ni porcentajes, ni semáforos, ni booleanos de conformidad. Todo denominador viaja
+> como un hecho independiente, y ningún hecho agrega ni compensa entre dos proyectos.**
+
+Hay un test por cada mitad. El censo emite la relación `proyecto_censado` y **no calcula ningún
+puntaje**: el juicio queda en las medidas, como en `nucleo/marco.py`.
+
+**Y ese test encontró un defecto al primer intento:** los casos daban 183 sobre 189, porque faltaba
+contar `generada` y seis casos eran invisibles. Es el problema del denominador cometido adentro del
+censo que existe para evitarlo. Se arregló haciendo imposible la próxima: las procedencias se leen
+del vocabulario y el censo falla cerrado si aparece una quinta.
+
+## Dos vistas, un solo emisor
+
+Terminal y página salen de los mismos hechos, y un test fija que **la página no diga ningún número
+que la terminal no diga**. Si mostrara uno de más habría dos verdades que sincronizar a mano.
+
+## No compara contra el censo anterior
+
+Es deliberado. «El anterior» es una heurística frágil, y si la comparación se equivoca el número
+malo queda grabado dentro de un registro histórico que no se corrige. El precedente está en el
+corpus: `007-relevo-verde-arbol-sucio`. Una comparación necesita sus dos puntas declaradas por quien
+la pide.
+
+## Verificación del corte
+
+Suite **1447 tests** · corpus **189 casos** · medidas **915/915** · aceptación con un rojo que tumba
+(DECISION-004) y uno en sombra, y las cuatro comprobaciones literales de CI en verde · cifras y
+manual regenerados.
+
+`tools/censar.py` entra a la matriz de mutación de código de CI y sale en **38/38, sin
+sobrevivientes ni equivalentes declarados**. Se cierra en el mismo corte que lo escribe: es código
+nuevo, no deuda que se pueda diferir a la próxima.
+
+**Las dos últimas rondas encontraron dos defectos, y ninguno era una constante suelta:**
+
+- `censar_uno` y `censar` traían `confiar=True` por omisión. El CLI exige `--confiar-escalares` para
+  ejecutar el `escalares.py` de un proyecto ajeno —que es correr código de otro—, y la biblioteca lo
+  hacía sola si nadie decía nada: la puerta de atrás de esa misma decisión. Ahora viene en `False` y
+  hay que pedirlo.
+- Corrido desde el wheel en un venv limpio —el chequeo que en 0.10.0 fue el defecto entero—, el
+  censo moría al primer proyecto y se llevaba puestos a los otros dos. La causa no es del censo: el
+  repositorio de Oracle *es* el catálogo base, así que el paquete instalado lo carga dos veces, y
+  `oracle test` falla idéntico (DECISION-010). La consecuencia sí lo era. Ahora `censar` anota el
+  motivo en la fila del proyecto ilegible y sigue; la fila **no trae conteos**, porque un proyecto
+  que nadie pudo leer no tiene «0 medidas», tiene medidas que nadie contó.
+- La página no declaraba su codificación. El archivo se escribe en UTF-8, y un navegador que lo abre
+  desde el disco adivina: «días», «más vieja» y «árbol sucio» —las palabras que el censo usa para lo
+  que importa— salían rotas. Lleva `<!doctype html>`, `lang="es"` y `<meta charset>`.
+
+En su primera corrida el censo encontró un archivo ilegible nuevo en un consumidor, de un tipo
+distinto al que motivó 0.9.2. Mientras se escribía, tres medidas del propio proyecto corrigieron el
+trabajo — el verbo tenía que estar en la ayuda y en el manual, y **la distribución no puede nombrar
+a un consumidor conocido**.
+
+El detalle está en `estudios/EL-CENSO-CUENTA-Y-NO-JUZGA.md`.
+
+---
+
 # 0.10.0 — el paquete medía con 5 de 29 mutadores
 
 Sube la **menor** de la distribución, según `ESPECIFICACION.md` §0:
