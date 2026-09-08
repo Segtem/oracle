@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.util
 import io
 import json
 import os
@@ -645,6 +646,18 @@ class OracleCliTests(CliTestCase):
             env.pop("ORACLE_PROYECTO", None)
             env.pop("PYTHONPATH", None)
             env["PYTHONDONTWRITEBYTECODE"] = "1"
+
+            # `--no-build-isolation` evita que pip se baje el backend en cada corrida, y a cambio
+            # exige que `setuptools` —el que declara `pyproject.toml`— esté en ESTE intérprete.
+            # Desde 3.12 un venv ya no lo trae, así que faltar es lo esperable y hay que decirlo en
+            # una línea: sin esto, pip lo reporta como cuarenta líneas de traceback terminadas en
+            # `BackendUnavailable`, que es lo que tuvo el CI de este repositorio en rojo durante
+            # cuatro cortes seguidos sin que nadie leyera hasta el final para ver qué faltaba.
+            if importlib.util.find_spec("setuptools") is None:
+                self.fail(
+                    f"falta `setuptools` en {sys.executable}: es el build-backend que declara "
+                    "`pyproject.toml` y este test construye la rueda sin aislamiento. Se instala "
+                    'con `python -m pip install "setuptools>=68"`.')
 
             wheel = subprocess.run(
                 [

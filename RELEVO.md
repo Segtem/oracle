@@ -35,6 +35,39 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### El CI estaba en rojo desde 0.9.0, y el rojo no decía qué faltaba
+
+**Arreglado después de publicar `v0.11.0`, en un commit aparte.** El tag no se movió: la rueda es
+idéntica en contenido a la del tag —lo que cambió es un test y el workflow—, así que reescribir un
+ref publicado no compraba nada.
+
+`test_wheel_instalado_trae_datos_y_ejecuta_oracle_test` fallaba **sólo en el job de Python 3.13**, y
+con él se caía el job entero: la aceptación, la mutación de medidas, las cifras y la traza nunca
+llegaban a correr. Cuatro cortes seguidos —0.9.0, 0.9.1, 0.9.2, 0.10.0— con el mismo fallo idéntico.
+
+La causa: el test construye la rueda con `--no-build-isolation`, que exige `setuptools` en **ese**
+intérprete, y desde 3.12 ni un venv ni el intérprete de `setup-python` lo traen. 3.11 pasaba porque
+su `ensurepip` sí lo trae. En esta máquina pasa porque Arch lo instala con el Python del sistema, y
+por eso las corridas locales de todos esos cortes fueron verdes de verdad.
+
+Se arreglaron **las dos mitades**, no sólo la que pone el CI en verde:
+
+- El workflow instala `setuptools>=68` —la versión que ya pide `[build-system]`— antes de la suite.
+- El test comprueba la falta y la dice en **una línea que nombra el paquete y el comando**. Antes
+  pip la reportaba como cuarenta líneas de traceback terminadas en `BackendUnavailable`, y había que
+  leer hasta el final para ver qué faltaba. Es lo mismo que se decidió en 0.9.1 y en DECISION-012:
+  un rojo que el que lo recibe no puede accionar le enseña a ignorar la herramienta. Cuatro cortes
+  de rojo son la prueba de que funcionó así.
+
+Verificado corriendo el test en un venv sin `setuptools` —falla con la línea nueva— y en el mismo
+venv después de instalarlo —pasa—.
+
+⚠️ `mutacion-codigo` sale como `skipped` en cada push y **eso es a propósito**, no una consecuencia:
+el workflow la saca de los push (`if: github.event_name != 'push'`) desde que la cuenta agotó los
+2.000 minutos mensuales de Actions. Corre en pull requests y a pedido, y la corre quien integra.
+
+---
+
 ### Corte 0.11.0: el censo cuenta y no juzga
 
 **Commiteado. Sin push, sin tag, sin release y sin publicar en PyPI** — eso espera autorización.

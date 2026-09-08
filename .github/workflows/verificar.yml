@@ -38,6 +38,13 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      # `setuptools` explícito, y no por gusto: desde 3.12 ni el venv ni el intérprete de
+      # `setup-python` lo traen, y `test_wheel_instalado_trae_datos_y_ejecuta_oracle_test`
+      # construye la rueda con `--no-build-isolation`, que lo exige en ESTE intérprete. Sin esta
+      # línea el job de 3.13 falló en cuatro cortes seguidos —3.11 pasaba, porque su ensurepip sí
+      # lo trae— y con él se caían la aceptación, la mutación de medidas, las cifras y la traza,
+      # que nunca llegaban a correr. Es la versión que ya pide `[build-system]` de pyproject.
+      - run: python -m pip install "setuptools>=68"
       - run: python -m pip install --no-deps .
       - run: python -m unittest discover -s tests -t . -q
       - run: python tools/verificar_instalacion.py
