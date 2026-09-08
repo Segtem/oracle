@@ -2254,9 +2254,10 @@ class LaBanderaDeHechosDeLaAceptacion(unittest.TestCase):
             visto["argv"] = list(argv_restante)
             return real(argv_restante)
 
-        def falso(proy, hechos=""):
+        def falso(proy, hechos="", solo=()):
             visto["hechos"] = hechos
             visto["proyecto"] = proy
+            visto["solo"] = solo
             return 0
 
         salida = io.StringIO()
@@ -2344,6 +2345,77 @@ class LaBanderaDeHechosDeLaAceptacion(unittest.TestCase):
             '        Sin filtro la medida entregaria las dos filas como testigos.\n',
             encoding="utf-8")
         return raiz
+
+    def test_recortar_la_evidencia_a_lo_que_la_medida_lee(self):
+        """`--hechos-solo` no es una comodidad: sin él, una observación del propio Oracle NO SE
+        PUEDE REVALIDAR NUNCA.
+
+        La evidencia incluye la relación `caso`; el caso capturado se agrega al corpus; y con eso el
+        corpus deja de ser el que se midió. 196 → 197, referentes estables, `revalidar` sale 1 para
+        siempre. La observación se invalida por existir. Lo encontró una revisión de falsación el
+        2026-09-08, después de que el caso ya estuviera commiteado.
+        """
+        from tools import aceptacion
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._proyecto_minimo(Path(td))
+            destino = raiz / "ev.json"
+            with redirect_stdout(io.StringIO()):
+                codigo = aceptacion.main(["--proyecto", str(raiz), "--hechos", str(destino),
+                                          "--hechos-solo", "medida"])
+            self.assertEqual(codigo, 0)
+            datos = json.loads(destino.read_text(encoding="utf-8"))
+        self.assertEqual(list(datos), ["medida"])
+
+    def test_recortar_a_una_relacion_que_la_corrida_no_produjo_falla(self):
+        """Fail-closed: un nombre mal escrito daría un archivo vacío que `observar.py` guardaría
+        como una observación legítima de nada."""
+        from tools import aceptacion
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._proyecto_minimo(Path(td))
+            destino = raiz / "ev.json"
+            salida = io.StringIO()
+            with redirect_stdout(salida):
+                codigo = aceptacion.main(["--proyecto", str(raiz), "--hechos", str(destino),
+                                          "--hechos-solo", "sombras"])
+            self.assertEqual(codigo, 1)
+            self.assertIn("relaciones que esta corrida no produjo", salida.getvalue())
+            self.assertFalse(destino.exists(), "no debería haber escrito nada")
+
+    def test_recortar_sin_pedir_hechos_no_tiene_sentido_y_lo_dice(self):
+        codigo, texto, _visto = self._espiar(
+            ["--proyecto", str(RAIZ), "--hechos-solo", "sombra"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("no sirve sin `--hechos`", texto)
+
+    def test_recortar_sin_nombrar_las_relaciones_lo_dice(self):
+        """`--hechos-solo` al final del `argv`: sin la comprobación sale un `IndexError` y quien lo
+        lee no se entera de que le faltó escribir las relaciones. Es la misma guarda que `--hechos`,
+        y la escribí sin test las dos veces — la mutación lo encontró las dos veces."""
+        codigo, texto, visto = self._espiar(
+            ["--proyecto", str(RAIZ), "--hechos", "/tmp/ev.json", "--hechos-solo"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("`--hechos-solo` necesita las relaciones", texto)
+        self.assertEqual(visto, {}, "no debería haberse medido nada")
+
+    def test_recortar_saca_dos_tokens_exactos_del_argv(self):
+        """Uno de menos deja la lista de relaciones suelta; uno de más se come lo que sigue."""
+        for argv, resto in (
+            (["--hechos", "/tmp/ev.json", "--hechos-solo", "sombra", "--proyecto", str(RAIZ)],
+             ["--proyecto", str(RAIZ)]),
+            (["--proyecto", str(RAIZ), "--hechos-solo", "sombra", "--hechos", "/tmp/ev.json",
+              "--confiar-escalares"], ["--proyecto", str(RAIZ), "--confiar-escalares"]),
+        ):
+            with self.subTest(argv=argv):
+                codigo, _texto, visto = self._espiar(list(argv))
+                self.assertEqual(codigo, 0)
+                self.assertEqual(visto["argv"], resto)
+                self.assertEqual(visto["solo"], ("sombra",))
+
+    def test_varias_relaciones_van_separadas_por_comas(self):
+        codigo, _texto, visto = self._espiar(
+            ["--proyecto", str(RAIZ), "--hechos", "/tmp/ev.json", "--hechos-solo", "sombra,medida"])
+        self.assertEqual(codigo, 0)
+        self.assertEqual(visto["solo"], ("sombra", "medida"))
 
     def test_la_evidencia_se_escribe_legible_y_ordenada(self):
         """La única que comprueba el archivo. La lee una persona cuando revisa una observación

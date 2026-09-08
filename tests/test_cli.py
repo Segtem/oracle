@@ -24,6 +24,44 @@ from tools import cli
 RAIZ = Path(__file__).resolve().parents[1]
 
 
+class ArranqueSintaxisTests(unittest.TestCase):
+    def test_el_script_funciona_fuera_del_proyecto_y_propaga_el_codigo_de_salida(self):
+        """Invocar la herramienta por ruta absoluta no debe depender del directorio actual ni ocultar errores."""
+        with tempfile.TemporaryDirectory() as directorio:
+            for opcion, codigo, esperado in (
+                ("--help", 0, "CLI para la superficie infija de autoría."),
+                ("--inexistente", 1, "opción desconocida: --inexistente\n"),
+            ):
+                with self.subTest(opcion=opcion):
+                    resultado = subprocess.run(
+                        [sys.executable, "-I", "-B", str(RAIZ / "tools" / "sintaxis.py"), opcion],
+                        cwd=directorio, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(resultado.returncode, codigo, resultado.stderr)
+                    self.assertIn(esperado, resultado.stdout)
+                    self.assertEqual(resultado.stderr, "")
+
+    def test_importar_prefiere_el_nucleo_del_proyecto_y_no_ejecuta_el_cli(self):
+        """Un anfitrión con otro paquete nucleo no debe sustituir el lenguaje ni ejecutar sus argumentos."""
+        with tempfile.TemporaryDirectory() as directorio:
+            ajeno = Path(directorio) / "nucleo"
+            ajeno.mkdir()
+            (ajeno / "__init__.py").write_text(
+                'raise RuntimeError("se importó el núcleo ajeno")\n', encoding="utf-8")
+            programa = (
+                "import runpy, sys\n"
+                "sys.path.insert(0, sys.argv[2])\n"
+                "runpy.run_path(sys.argv[1], run_name='herramienta_importada')\n"
+                "print('importación sin ejecución')\n"
+            )
+            resultado = subprocess.run(
+                [sys.executable, "-I", "-B", "-c", programa,
+                 str(RAIZ / "tools" / "sintaxis.py"), directorio],
+                cwd=directorio, capture_output=True, text=True, timeout=10)
+        self.assertEqual(resultado.returncode, 0, resultado.stderr)
+        self.assertEqual(resultado.stdout, "importación sin ejecución\n")
+        self.assertEqual(resultado.stderr, "")
+
+
 class CliTestCase(unittest.TestCase):
     """Ayudas compartidas; no hereda casos concretos entre grupos de pruebas."""
 

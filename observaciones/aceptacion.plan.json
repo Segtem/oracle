@@ -1,7 +1,15 @@
 {
   "esquema": "oracle.observacion/v1",
   "raiz": "..",
-  "sensor": ["{python}", "-B", "tools/aceptacion.py", "--hechos", "{salida}"],
+  "sensor": [
+    "{python}",
+    "-B",
+    "tools/aceptacion.py",
+    "--hechos",
+    "{salida}",
+    "--hechos-solo",
+    "sombra"
+  ],
   "referentes": [
     "tools/aceptacion.py",
     "nucleo/marco.py",
@@ -10,17 +18,34 @@
     "catalogos/meta/meta.ninguna_sombra_supera_su_cota.oracle",
     "catalogos/meta/meta.ninguna_cota_mas_alta_que_su_deuda.oracle"
   ],
-  "presencia": [{"relacion": "sombra", "campos": ["medida", "cota", "valor", "supera_la_cota"]}],
-  "exige_filas": ["sombra", "medida", "caso"],
+  "presencia": [
+    {
+      "relacion": "sombra",
+      "campos": [
+        "medida",
+        "cota",
+        "valor",
+        "supera_la_cota"
+      ]
+    }
+  ],
+  "exige_filas": [
+    "sombra"
+  ],
   "medida": "catalogos/meta/meta.ninguna_sombra_supera_su_cota.oracle",
-  "espera": {"valor": 0},
+  "espera": {
+    "valor": 0
+  },
   "caso": {
     "id": "494-la-cota-de-la-sombra-observada-por-el-recorrido",
     "titulo": "La cota de la sombra, capturada por el recorrido en vez de transcrita",
     "etiqueta": "verde_correcto",
     "como_se_detecto": "observacion",
-    "origen": {"repo": "Segtem/oracle", "plan": "observaciones/aceptacion.plan.json"},
-    "sintoma": "Ninguno. La aceptacion del propio Oracle corrio bajo el recorrido de observacion y emitio su evidencia entera; la relacion sombra dice que la deuda esta en su cota. La evidencia entra integra desde el JSON que la herramienta escribio, sin transcribir una sola fila, y la expectativa de cero estaba escrita en este plan antes de correr.",
-    "leccion": "Un caso escrito a mano sobre una corrida propia no puede declarar el comando ni el registro que lo produjeron: quien lo escribe afirma de memoria. Capturado por el recorrido, el origen lo llena la corrida —comando, registro, huella de la evidencia y cuando— y la afirmacion pasa de inverificable a falsable. Es la diferencia entre decir que se observo y dejar por donde ir a contradecirlo."
+    "origen": {
+      "repo": "Segtem/oracle",
+      "plan": "observaciones/aceptacion.plan.json"
+    },
+    "sintoma": "Ninguno. La aceptacion del propio Oracle corrio bajo el recorrido de observacion y emitio la relacion sombra, que dice que la deuda esta en su cota. La evidencia entra integra desde el JSON que la herramienta escribio, sin transcribir una sola fila, y la expectativa de cero estaba escrita en este plan antes de correr. El plan recorta la evidencia a `sombra` a proposito: con la relacion `caso` adentro, agregar este caso al corpus cambiaba el corpus que el caso habia medido y la observacion no podia revalidar nunca.",
+    "leccion": "Un caso escrito a mano sobre una corrida propia no puede declarar el comando ni el registro que lo produjeron: quien lo escribe afirma de memoria. Capturado por el recorrido, el origen lo llena la corrida y la afirmacion pasa de inverificable a falsable. Pero observar un proyecto y guardar el resultado ADENTRO de ese proyecto tiene un borde: si la evidencia incluye lo que la guarda modifica, la observacion se invalida por existir. Se mide lo que la medida lee, y nada mas."
   }
 }

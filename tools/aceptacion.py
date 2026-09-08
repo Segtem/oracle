@@ -97,7 +97,7 @@ def casos(proy) -> list[dict]:
     return salida
 
 
-def _ejecutar(proy, hechos: str = "") -> int:
+def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
     estructura = problemas_estructura(proy, ("catalogos", "corpus"))
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
@@ -255,12 +255,24 @@ def _ejecutar(proy, hechos: str = "") -> int:
     # del corpus, no se podría capturar nunca. El veredicto sigue impreso y sigue siendo el que
     # manda cuando nadie pide los hechos.
     if hechos:
+        # `--hechos-solo` recorta las relaciones, y no es una comodidad: sin él, una observación
+        # del propio Oracle NO SE PUEDE REVALIDAR NUNCA. La evidencia incluye la relación `caso`,
+        # el caso capturado se agrega al corpus, y con eso el corpus deja de ser el que se midió:
+        # 196 → 197, referentes estables, `revalidar` sale 1 para siempre. La observación se
+        # invalida por existir. Recortando a lo que la medida del plan realmente lee, la evidencia
+        # deja de depender de su propio resultado.
+        volcado = ({r: f for r, f in evidencia_volcada.items() if r in solo} if solo
+                   else evidencia_volcada)
+        if solo and set(solo) - set(evidencia_volcada):
+            print(f"`--hechos-solo` nombra relaciones que esta corrida no produjo: "
+                  f"{sorted(set(solo) - set(evidencia_volcada))}")
+            return 1
         Path(hechos).write_text(
-            json.dumps(evidencia_volcada, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
+            json.dumps(volcado, ensure_ascii=False, indent=2, sort_keys=True) + "\n",
             encoding="utf-8")
         for f in fallas:
             print("  ·", f)
-        print(f"\nHECHOS ESCRITOS en {hechos} — {len(evidencia_volcada)} relaciones. "
+        print(f"\nHECHOS ESCRITOS en {hechos} — {len(volcado)} relaciones. "
               f"Esta salida dice si se pudo leer, no el veredicto: hubo {len(fallas)} problema(s).")
         return 0
 
@@ -292,12 +304,23 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         hechos = argv[i + 1]
         del argv[i:i + 2]
+    solo: tuple[str, ...] = ()
+    if "--hechos-solo" in argv:
+        i = argv.index("--hechos-solo")
+        if i + 1 >= len(argv):
+            print("`--hechos-solo` necesita las relaciones, separadas por comas")
+            return 1
+        solo = tuple(r for r in argv[i + 1].split(",") if r)
+        del argv[i:i + 2]
+        if not hechos:
+            print("`--hechos-solo` no sirve sin `--hechos`: no hay nada que recortar")
+            return 1
     proy = resolver_cli(argv)
     if proy is None:
         return 1
     try:
         with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
-            return _ejecutar(proy, hechos)
+            return _ejecutar(proy, hechos, solo)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1

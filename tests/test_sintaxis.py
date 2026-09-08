@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import io
 import json
 import pathlib
 import tempfile
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
+from unittest import mock
 
 from nucleo import algebra
 from nucleo import caso as sintaxis_caso
@@ -21,6 +24,211 @@ from nucleo.medida import cargar_fuente_medida, ruta_de_medida
 from tools import sintaxis
 
 RAIZ = Path(__file__).resolve().parents[1]
+
+
+class CliSintaxisTests(unittest.TestCase):
+    """Las opciones públicas deben conservar argumentos, salida y códigos para los scripts."""
+
+    def _ejecutar(self, argumentos):
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = sintaxis.main(argumentos)
+        return codigo, salida.getvalue()
+
+    def test_la_ayuda_explicita_y_sin_argumentos_no_ejecuta_una_operacion(self):
+        """Pedir ayuda o pasar una lista vacía no debe leer los argumentos del proceso anfitrión."""
+        with (mock.patch.object(sintaxis.sys, "argv", ["anfitrion", "--desconocida"]),
+              mock.patch.object(sintaxis, "verificar_catalogo") as verificar):
+            for argumentos in ([], ["-h"], ["--help"]):
+                with self.subTest(argumentos=argumentos):
+                    self.assertEqual(self._ejecutar(argumentos), (0, sintaxis.__doc__ + "\n"))
+            verificar.assert_not_called()
+
+    def test_sin_lista_explicita_se_usa_la_primera_opcion_del_proceso(self):
+        """La ejecución desde la terminal debe descartar sólo el nombre del programa."""
+        with mock.patch.object(sintaxis.sys, "argv", ["sintaxis.py", "--desconocida"]):
+            self.assertEqual(self._ejecutar(None),
+                             (1, "opción desconocida: --desconocida\n"))
+
+    def test_imprimir_y_leer_rechazan_rutas_ausentes_o_argumentos_sobrantes(self):
+        """Una invocación mal formada debe dar uso y código 1 antes de abrir archivos."""
+        for opcion, uso in (
+            ("--imprimir", "<medida.json|medida.oracle>"),
+            ("--leer", "<medida.oracle>"),
+        ):
+            for rutas in ([], ["primera.oracle", "sobrante.oracle"],
+                          ["primera.oracle", "segunda.oracle", "tercera.oracle"]):
+                with (self.subTest(opcion=opcion, rutas=rutas),
+                      mock.patch.object(sintaxis, "cargar_fuente_medida") as cargar,
+                      mock.patch.object(Path, "read_text") as leer_archivo):
+                    self.assertEqual(
+                        self._ejecutar([opcion, *rutas]),
+                        (1, f"uso: python tools/sintaxis.py {opcion} {uso}\n"))
+                    cargar.assert_not_called()
+                    leer_archivo.assert_not_called()
+
+    def test_imprimir_entrega_la_ruta_al_cargador_y_no_agrega_lineas(self):
+        """La conversión debe usar el archivo solicitado y conservar la superficie canónica exacta."""
+        datos = ["medida", "demo.á"]
+        with (mock.patch.object(sintaxis, "cargar_fuente_medida", return_value=datos) as cargar,
+              mock.patch.object(sintaxis, "imprimir", return_value="superficie con ñ\n") as imprimir):
+            self.assertEqual(self._ejecutar(["--imprimir", "carpeta/á.json"]),
+                             (0, "superficie con ñ\n"))
+        cargar.assert_called_once_with(Path("carpeta/á.json"))
+        imprimir.assert_called_once_with(datos)
+
+    def test_leer_valida_la_version_y_emite_json_compacto_con_acentos(self):
+        """Los consumidores necesitan JSON completo, sin escapes de acentos ni una versión sin juzgar."""
+        lectura = sintaxis.Lectura(datos=["á", {"válido": False}], ubicaciones={}, version="0.4")
+        with (mock.patch.object(Path, "read_text", autospec=True,
+                                return_value="fuente solicitada") as leer_archivo,
+              mock.patch.object(sintaxis, "leer_con_mapa", return_value=lectura) as leer,
+              mock.patch("nucleo.version.exigir_sintaxis_compatible") as exigir):
+            self.assertEqual(self._ejecutar(["--leer", "carpeta/á.oracle"]),
+                             (0, '["á",{"válido":false}]\n'))
+        leer_archivo.assert_called_once_with(Path("carpeta/á.oracle"), encoding="utf-8")
+        leer.assert_called_once_with("fuente solicitada")
+        exigir.assert_called_once_with("0.4")
+
+    def test_leer_una_superficie_rota_muestra_el_fragmento_y_falla(self):
+        """Un error de escritura debe señalar dónde corregirlo y nunca producir JSON exitoso."""
+        texto = "esto no es una medida\n"
+        with tempfile.TemporaryDirectory() as directorio:
+            ruta = Path(directorio) / "rota.oracle"
+            ruta.write_text(texto, encoding="utf-8")
+            codigo, salida = self._ejecutar(["--leer", str(ruta)])
+        self.assertEqual(codigo, 1)
+        self.assertIn("✗ línea 1, columna 1:", salida)
+        self.assertIn("1 | esto no es una medida\n", salida)
+        self.assertIn("^", salida)
+
+    def test_una_opcion_desconocida_identifica_el_argumento_y_falla(self):
+        """Un error de opción debe dejar rojo el script e identificar qué escribió mal la persona."""
+        self.assertEqual(self._ejecutar(["--inventada", "archivo.oracle"]),
+                         (1, "opción desconocida: --inventada\n"))
+
+    def _verificar(self, cambios_informe=None, cambios_docs=None):
+        informe = {
+            "json_igual": True, "texto_igual": True,
+            "medidas": 1, "macros": 1, "casos": 1,
+            "caracteres_json": 8, "caracteres_superficie": 10,
+            "puntuacion_json": 3, "puntuacion_superficie": 2,
+        }
+        docs = {"fallas": [], "ejecutables": 1, "declarados": 4}
+        informe.update(cambios_informe or {})
+        docs.update(cambios_docs or {})
+        with (mock.patch.object(sintaxis, "verificar_catalogo", return_value=informe) as catalogo,
+              mock.patch.object(sintaxis, "verificar_documentos", return_value=docs) as documentos):
+            resultado = self._ejecutar(["--verificar"])
+        catalogo.assert_called_once_with()
+        documentos.assert_called_once_with()
+        return resultado
+
+    def test_verificar_informa_conteos_y_porcentajes_y_acepta_un_ejemplar_de_cada_tipo(self):
+        """Un catálogo mínimo completo debe pasar y publicar cifras que permitan evaluar la superficie."""
+        self.assertEqual(self._verificar(), (0,
+            "medidas convertidas: 1\n"
+            "macros convertidas: 1\n"
+            "casos convertidos: 1\n"
+            "ida JSON: OK\n"
+            "vuelta texto: OK\n"
+            "caracteres: JSON 8 · superficie 10\n"
+            "puntuación: JSON 3 (37,5%) · superficie 2 (20,0%)\n"
+            "bloques de documentación: 1 verificados · 4 declarados como gramática o fragmento\n"))
+
+    def test_verificar_falla_por_cada_perdida_de_informacion_o_inventario_vacio(self):
+        """Ningún requisito ausente puede quedar tapado por los demás resultados verdes."""
+        for campo, valor in (("json_igual", False), ("texto_igual", False),
+                             ("medidas", 0), ("macros", 0), ("casos", 0)):
+            with self.subTest(campo=campo):
+                codigo, salida = self._verificar({campo: valor})
+                self.assertEqual(codigo, 1)
+                if campo == "json_igual":
+                    self.assertIn("ida JSON: FALLA\n", salida)
+                if campo == "texto_igual":
+                    self.assertIn("vuelta texto: FALLA\n", salida)
+        for cambios in ({"ejecutables": 0}, {"fallas": ["guia.md:3: no lee", "otra.md:8: no lee"]}):
+            with self.subTest(documentos=cambios):
+                codigo, salida = self._verificar(cambios_docs=cambios)
+                self.assertEqual(codigo, 1)
+                for falla in cambios.get("fallas", []):
+                    self.assertIn(f"  ✗ {falla}\n", salida)
+
+
+class InventarioYConteosSintaxisTests(unittest.TestCase):
+    def test_las_macros_excluyen_directorios_y_archivos_de_otro_formato(self):
+        """Un directorio con extensión de macro o un README no debe contarse como fuente verificable."""
+        with tempfile.TemporaryDirectory() as directorio:
+            raiz = Path(directorio)
+            macros = raiz / "macros"
+            macros.mkdir()
+            for nombre in ("z.oracle", "a.json", "README.md", "sin_extension"):
+                (macros / nombre).write_text("", encoding="utf-8")
+            (macros / "directorio.oracle").mkdir()
+            self.assertEqual(sintaxis._rutas_macros(raiz),
+                             [macros / "a.json", macros / "z.oracle"])
+            internas = raiz / "nucleo" / "macros"
+            internas.mkdir(parents=True)
+            (internas / "interna.oracle").write_text("", encoding="utf-8")
+            self.assertEqual(sintaxis._rutas_macros(raiz), [internas / "interna.oracle"])
+
+    def test_la_puntuacion_cuenta_signos_unicode_pero_no_simbolos_o_letras(self):
+        """Duplicar los signos o contar monedas como puntuación falsearía la comparación de legibilidad."""
+        self.assertEqual(sintaxis._puntuacion('¿á? «ñ», [x]: ¡sí! —_ $+😀\n'), 12)
+        self.assertEqual(sintaxis._puntuacion("áñ 123 $+😀\n"), 0)
+
+    def test_las_filas_miden_json_compacto_sin_escapar_los_acentos(self):
+        """Escapar Unicode inflaría el costo del JSON frente a la superficie y publicaría una ventaja falsa."""
+        compacto = '["á",{"¿?":"¡!"}]'
+        datos = ["á", {"¿?": "¡!"}]
+        superficie = '¿á?!\n'
+        with tempfile.TemporaryDirectory() as directorio:
+            raiz = Path(directorio)
+            ruta = raiz / "fuente.json"
+            ruta.write_text(compacto, encoding="utf-8")
+            for de_caso in (False, True):
+                modulo = sintaxis_caso if de_caso else sintaxis
+                funcion = sintaxis._fila_verificacion_caso if de_caso else sintaxis._fila_verificacion
+                with (self.subTest(de_caso=de_caso),
+                      mock.patch.object(sintaxis_caso, "cargar_fuente_caso", return_value=datos),
+                      mock.patch.object(modulo, "leer", return_value=datos),
+                      mock.patch.object(modulo, "imprimir", return_value=superficie)):
+                    self.assertEqual(funcion(ruta, raiz), {
+                        "ruta": "fuente.json", "imprimio": True, "error": "",
+                        "json_igual": True, "texto_igual": True,
+                        "caracteres_json": 17, "caracteres_superficie": 5,
+                        "puntuacion_json": 16, "puntuacion_superficie": 3,
+                    })
+
+    def test_porcentaje_con_denominador_cero_no_divide_y_el_resto_redondea_en_espanol(self):
+        """Un catálogo vacío debe poder informarse y las proporciones deben usar base cien y coma decimal."""
+        for numerador, denominador, esperado in ((0, 0, "0,0%"), (5, 0, "0,0%"),
+                                                 (1, 8, "12,5%"), (2, 3, "66,7%")):
+            with self.subTest(numerador=numerador, denominador=denominador):
+                self.assertEqual(sintaxis._porcentaje(numerador, denominador), esperado)
+
+    def test_documentos_cuentan_cada_superficie_y_cada_exclusion_una_sola_vez(self):
+        """Inflar los bloques verificados oculta documentación sin comprobar o ejemplos excluidos por error."""
+        texto = ("```oracle\nmedida canónica\n```\n"
+                 "```caso\ncaso canónico\n```\n"
+                 "```oracle-gramatica\nno ejecutable\n```\n"
+                 "```oracle-fragmento\nno ejecutable\n```\n"
+                 "```caso-gramatica\nno ejecutable\n```\n"
+                 "```caso-fragmento\nno ejecutable\n```\n")
+        with tempfile.TemporaryDirectory() as directorio:
+            raiz = Path(directorio)
+            (raiz / "guia.md").write_text(texto, encoding="utf-8")
+            with (mock.patch.object(sintaxis, "DOCUMENTOS_CON_SUPERFICIE", ("guia.md",)),
+                  mock.patch.object(sintaxis, "leer", return_value=["medida"]) as leer_medida,
+                  mock.patch.object(sintaxis, "imprimir", return_value="medida canónica\n") as imprimir_medida,
+                  mock.patch.object(sintaxis_caso, "leer", return_value={"id": "caso"}) as leer_caso,
+                  mock.patch.object(sintaxis_caso, "imprimir", return_value="caso canónico\n") as imprimir_caso):
+                self.assertEqual(sintaxis.verificar_documentos(raiz),
+                                 {"ejecutables": 2, "declarados": 4, "fallas": []})
+            leer_medida.assert_called_once_with("medida canónica\n")
+            imprimir_medida.assert_called_once_with(["medida"])
+            leer_caso.assert_called_once_with("caso canónico\n")
+            imprimir_caso.assert_called_once_with({"id": "caso"})
 
 
 class SintaxisInfijaTests(unittest.TestCase):
@@ -2444,9 +2652,6 @@ class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
             self.assertIn("^", salida)
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 # --- Un archivo que no se puede imprimir se informa, y no se lleva puesta la corrida -------------
 #
@@ -2912,3 +3117,43 @@ class AgruparEnSusCuatroEsquinas(unittest.TestCase):
         with self.assertRaises(sintaxis_nucleo.ErrorSintaxis) as caido:
             sintaxis_nucleo.leer(texto)
         self.assertIn("se esperaba clave o agregado", str(caido.exception))
+
+
+class LaAridadDeVerificarQueFaltaba(unittest.TestCase):
+    """`--verificar` ignoraba todo lo que viniera detrás y salía 0.
+
+    Lo encontró la ronda de mutación del 2026-09-08 sobre `tools/sintaxis.py`, no leyendo el código.
+    `--imprimir` y `--leer` sí comprobaban la aridad; ésta no, así que una opción mal escrita —o una
+    ruta que alguien creyó estar pasando— se ignoraba en silencio y la persona recibía un verde
+    sobre el catálogo habitual, que no era lo que había pedido. Un verde que no significa nada, en
+    la herramienta que existe para encontrarlos.
+    """
+
+    def _correr(self, argv):
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = sintaxis.main(argv)
+        return codigo, salida.getvalue()
+
+    def test_un_argumento_de_mas_no_se_ignora(self):
+        codigo, texto = self._correr(["--verificar", "--opcion-inexistente"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("no toma más argumentos", texto)
+        # El argumento sobrante se NOMBRA: sin eso, quien escribió mal una opción tiene que
+        # adivinar cuál de las que puso está de más.
+        self.assertIn("--opcion-inexistente", texto)
+        self.assertNotIn("medidas convertidas", texto)
+
+    def test_una_ruta_de_mas_tampoco(self):
+        """La forma más fácil de equivocarse: creer que `--verificar` toma un archivo."""
+        codigo, texto = self._correr(["--verificar", "catalogos/meta/meta.ninguna_sombra_ya_en_verde.oracle"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("no toma más argumentos", texto)
+
+    def test_sin_argumentos_de_mas_verifica_y_sale_verde(self):
+        codigo, texto = self._correr(["--verificar"])
+        self.assertEqual(codigo, 0, texto[-400:])
+        self.assertIn("medidas convertidas", texto)
+
+if __name__ == "__main__":
+    unittest.main()

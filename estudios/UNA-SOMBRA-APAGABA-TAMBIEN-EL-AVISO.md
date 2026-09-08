@@ -100,6 +100,38 @@ Tres tandas, tres cosas distintas:
   test lo ataba. No es un detalle interno: ese número sale en la relación `sombra` que leen las
   medidas, y los casos `491` y `493` lo tienen escrito. Pasó a ser `SIN_COTA`, en un solo sitio.
 
+## Lo que una revisión de falsación encontró al día siguiente de escribir esto
+
+Se le pidió a un segundo agente que buscara afirmaciones que la evidencia no sostuviera. Encontró
+tres, y las tres eran ciertas. Quedan acá porque el error importa más que la versión corregida.
+
+**1. La cota no viajaba a los consumidores, y este estudio lo afirmaba cuatro veces.** Las dos
+medidas se habían escrito con `ambito del_origen` — las únicas dos de las siete que miran la
+sombra; las otras cinco son `universal`. No fue una decisión: fue una inconsistencia. `catalogo_efectivo`
+descarta las `del_origen` fuera de su proyecto, así que Jam y LyraGASP nunca las veían. Medido: los
+dos seguían heredando **35 medidas base**, las mismas que antes del corte. Un consumidor que
+escribiera `cota` en su `oracle.json` no obtenía nada, con la falsa sensación de que algo lo
+vigilaba — que es peor que no tener el campo.
+
+Corregido a `universal`, y comprobado: los consumidores siguen verdes, y con una cota de 10 sobre
+una deuda real de 54 en Jam, la aceptación **falla**. El mecanismo existe.
+
+**2. El argumento para subir la menor era falso por dos lados.** Decía que «el catálogo que hereda
+ya no es el mismo» —sí lo era— y que «un Oracle viejo no entendería una `cota`». No: el lector de
+0.11.0 usa `.get()` y **acepta la clave sin quejarse, ignorándola**. Con las medidas en `universal`
+la menor se sostiene, pero por el precedente de 0.9.0 —una medida universal obliga a los
+consumidores— y no por un argumento inventado para el caso.
+
+**3. Un `alcance` declaraba una protección que no existe.** Decía que de una medida no evaluada «se
+ocupa que `existe` sea falso». `existe` sólo mira si la medida está en el CATÁLOGO. Una sombra con
+cota sobre una medida que el catálogo tiene y la corrida no evalúa —una de dominio, por ejemplo—
+deja `existe` en verdadero, `valor` en -1, y las dos medidas se abstienen. Nadie la juzga.
+
+Ese tercero **no se cerró**: se escribió como el hueco que es, en los dos `alcance` y en
+`nucleo/marco.py`. Es el mismo error que este corte castiga en otro lado — declarar un hueco no es
+taparlo—, y la diferencia con el `agrupar` de 0.9.2 es que aquel hueco estaba declarado y éste
+estaba **negado**. Un `alcance` que promete una protección que no existe es peor que uno que calla.
+
 ## Lo que no hace
 
 La cota **no baja sola**. Cuando una deuda se cierra hay que bajarla a mano, y eso es la mitad del

@@ -193,8 +193,14 @@ def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
             # valen -1 y `supera_la_cota` queda en falso: una sombra sin cota se comporta como
             # antes. Con cota, la deuda no puede crecer en silencio, que es lo único que apagar la
             # consecuencia nunca debió comprar. `valor` es -1 cuando la medida no llegó a
-            # evaluarse: no se puede afirmar el tamaño de una deuda que no se midió, y de eso se
-            # ocupa que `existe` sea falso.
+            # evaluarse: no se puede afirmar el tamaño de una deuda que no se midió.
+            #
+            # ⚠ Y ahí queda un HUECO, que encontró una revisión de falsación el 2026-09-08: acá
+            # decía que «de la falta se ocupa que `existe` sea falso», y no es cierto. `existe`
+            # sólo mira si la medida está en el CATÁLOGO. Una sombra con cota sobre una medida que
+            # el catálogo tiene y la corrida no evalúa —una de dominio, por ejemplo— deja `existe`
+            # en verdadero, `valor` en -1, y las dos medidas de cota se abstienen. Nadie la juzga.
+            # Está declarado en el `alcance` de las dos, y sin cerrar.
             # `>= 0` y no `> 0`: CERO es una cota legítima, y la más exigente que se puede
             # escribir —«esta deuda no puede tener ni un caso»—. Leerla como «no declarada»
             # apagaría justo la sombra que más obliga.

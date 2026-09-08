@@ -259,7 +259,7 @@ class LasMedidasUniversalesEstanEnElManualTests(unittest.TestCase):
     def test_estan_todas_las_del_catalogo_universal(self) -> None:
         """Del catálogo cargado, no de una lista al lado: una medida nueva aparece acá sola."""
         universal = manual.catalogo_universal()
-        self.assertEqual(len(universal), 38)
+        self.assertEqual(len(universal), 40)
         entradas = dict(manual.entradas("medidas"))
         self.assertEqual(set(entradas), set(universal))
 

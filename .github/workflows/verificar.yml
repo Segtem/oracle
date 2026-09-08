@@ -130,6 +130,12 @@ jobs:
           # Entra el 2026-09-07 con el recorrido de observación: custodia que un caso
           # `procedencia: observada` haya salido de una corrida. Ver HERRAMIENTAS_CUSTODIAS.
           - tools/observar.py
+          # Entra el 2026-09-08. Estaba listo desde 0.9.1 y no entraba por sus 42 sobrevivientes
+          # —30 en `main()`—; quedaron en 94/94 escribiendo los 16 tests que faltaban. El costo era
+          # el síntoma de estar mal fijado, no una propiedad del archivo, igual que en
+          # `tools/medida.py`. Y de paso la ronda encontró que `--verificar` ignoraba los argumentos
+          # de más y salía 0.
+          - tools/sintaxis.py
           - tools/sondear_generador.py
           - tools/sondear_procedencia.py
     runs-on: ubuntu-latest

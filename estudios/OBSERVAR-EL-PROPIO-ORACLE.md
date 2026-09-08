@@ -92,6 +92,40 @@ observación.
 
 Un equivalente genuino se borra, no se declara.
 
+## La observación se invalidaba por existir
+
+El caso `494` se commiteó, y no revalidaba. Lo encontró la misma revisión de falsación, y la causa
+resultó más honda que un descuido:
+
+```
+REVALIDACIÓN — CAMBIÓ
+  frescura:   estables
+  evidencia:  distinta por valor
+```
+
+Referentes estables y evidencia distinta. La única diferencia era `caso: 196 → 197`.
+
+**El caso capturado se había agregado al corpus que él mismo había medido.** `--hechos` volcaba la
+evidencia entera, que incluye la relación `caso`; guardar el resultado adentro del proyecto
+observado cambiaba el proyecto observado. La observación no envejecía mal: nacía muerta, y ninguna
+corrida futura iba a poder revalidarla nunca.
+
+Es exactamente lo contrario de lo que este estudio afirmaba dos secciones más arriba —«deja por
+dónde ir a contradecirlo»—. Un mecanismo de revalidación que siempre dice «cambió» no dice nada.
+
+`--hechos-solo <relaciones>` recorta el volcado a lo que la medida del plan realmente lee. La del
+plan lee `sombra`, y `sombra` no cambia porque el corpus crezca. Recapturado:
+
+```
+REVALIDACIÓN — sin cambios
+  frescura:   estables
+```
+
+**La regla que queda:** observar un proyecto y guardar el resultado ADENTRO de ese proyecto tiene un
+borde. Si la evidencia incluye lo que el guardado modifica, la observación se invalida por existir.
+Se mide lo que la medida lee, y nada más — no por economía, sino porque la evidencia de más ata la
+observación a cosas que no tienen nada que ver con lo que afirma.
+
 ## Lo que sigue abierto
 
 Esto cierra el camino para el **propio Oracle**. Los dos consumidores siguen igual: LyraGASP tiene un

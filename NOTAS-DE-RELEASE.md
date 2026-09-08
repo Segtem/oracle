@@ -65,9 +65,10 @@ corrida si la deuda **sube**, y `meta.ninguna_cota_mas_alta_que_su_deuda` si la 
 cota, y además esconde el progreso: si la deuda baja de 94 a 90 y la cota sigue en 94, las cuatro
 cerradas quedan disponibles para volver a abrirse gratis.
 
-Con esto **sale del workflow el `grep` literal** que contaba los 94 casos sin `origen` y había que
-acordarse de editar a mano. El número vive ahora en el proyecto, versionado, y viaja a los
-consumidores.
+Las dos son de ámbito **`universal`**, así que la cota obliga también a un consumidor: comprobado
+poniéndole a Jam una cota de 10 sobre una deuda real de 54, y la aceptación falla. Con esto **sale
+del workflow el `grep` literal** que contaba los 94 casos sin `origen` y había que acordarse de
+editar a mano. El número vive ahora en el proyecto, versionado, y viaja a los consumidores.
 
 **Y encontró un defecto propio al escribirlo:** la aceptación elegía las medidas que vigilan la
 sombra por **subcadena en el id** (`if "sombra" in mid`), un contrato de nombres que nadie había
@@ -90,9 +91,41 @@ y la hora. Un caso transcrito afirma de memoria; uno capturado deja por dónde i
 `observar.py` además **emite el caso en la superficie `.caso`** y no en JSON, que era dejar cada
 observación en el formato del que el proyecto se estaba yendo.
 
+## Lo que una revisión de falsación encontró, y que estaba mal
+
+El corte se cerró primero con cuatro afirmaciones que la evidencia no sostenía. Un segundo agente
+las buscó a propósito y las encontró; quedan escritas porque el error importa más que la corrección.
+
+- **La cota no viajaba a los consumidores**, y estas notas lo afirmaban. Las dos medidas se habían
+  escrito con `ambito del_origen` —las únicas dos de las siete que miran la sombra—, así que el
+  catálogo efectivo de Jam y LyraGASP las descartaba. Seguían heredando las mismas 35 medidas base,
+  y una `cota` declarada por ellos no la vigilaba nada. Corregido a `universal`.
+- **El argumento de la versión era falso por dos lados.** «El catálogo que hereda ya no es el mismo»
+  —sí lo era— y «un Oracle viejo no entendería `cota`» —el lector de 0.11.0 usa `.get()` y la acepta
+  ignorándola, que es peor—. La menor se sostiene igual, pero por el precedente de 0.9.0.
+- **Un `alcance` prometía una protección que no existe:** decía que de una medida no evaluada «se
+  ocupa que `existe` sea falso», y `existe` sólo mira el catálogo. Queda escrito como el hueco que
+  es, sin cerrar. Un `alcance` que niega un hueco es peor que uno que calla.
+- **El caso `494` se commiteó vencido**, y la causa era honda: `--hechos` volcaba la relación `caso`,
+  el caso capturado se agregaba al corpus que había medido, y la observación **se invalidaba por
+  existir**. `--hechos-solo` recorta el volcado a lo que la medida del plan lee. Recapturado,
+  `revalidar` da «sin cambios».
+
+## Y `tools/sintaxis.py` entra a la matriz de mutación de CI
+
+Estaba listo desde 0.9.1 y no entraba: **95 mutantes, 42 sobrevivientes, 30 de ellos en `main()`**.
+Quedó en **94/94** con 16 tests nuevos, verificados de a uno aplicando el cambio del mutante a mano.
+El error de arnés se cerró con el patrón `_entrada_directa` que ya usaban los otros tres
+instrumentos, y por eso el inventario baja de 95 a 94 sitios.
+
+La ronda encontró un defecto real: **`--verificar` ignoraba los argumentos de más y salía 0.**
+`--imprimir` y `--leer` sí comprobaban la aridad; ésta no, así que una opción mal escrita —o una
+ruta que alguien creyó estar pasando— se ignoraba en silencio y la persona recibía un verde sobre el
+catálogo habitual. Arreglado, con tests.
+
 ## Verificación del corte
 
-Suite **1465 tests** · corpus **197 casos** · aceptación con **un solo rojo** (DECISION-004) y la
+Suite **1490 tests** · corpus **197 casos** · aceptación con **un solo rojo** (DECISION-004) y la
 sombra declarada con su cota · cifras y manual regenerados.
 
 **Medido sobre los dos consumidores, con el árbol arreglado y no con el paquete publicado:** Jam
@@ -105,7 +138,7 @@ a 95 contra cota 94 la aceptación falla por `ninguna_sombra_supera_su_cota`, y 
 
 **Mutación de código de todo lo tocado, sin sobrevivientes ni equivalentes declarados:**
 `nucleo/marco.py` 75/75 · `nucleo/proyecto.py` 150/150 · `tools/observar.py` 162/162 ·
-`tools/aceptacion.py` 61/61. Encontró cinco cosas que ninguna lectura había encontrado, y tres son
+`tools/aceptacion.py` 75/75 · **`tools/sintaxis.py` 99/99**, que entra a la matriz de CI. Encontró cinco cosas que ninguna lectura había encontrado, y tres son
 del tipo que este proyecto persigue:
 
 - `cota >= 0` vuelto `> 0` sobrevivía en cuatro sitios: **una cota de cero** —la más exigente que se

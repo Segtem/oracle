@@ -258,6 +258,15 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(datos, ensure_ascii=False, separators=(",", ":")))
         return 0
     if argv[0] == "--verificar":
+        # La misma comprobación de aridad que `--imprimir` y `--leer`, que a esta rama le faltaba.
+        # Sin ella, `--verificar --opcion-inexistente` verificaba el catálogo habitual y salía 0:
+        # una opción mal escrita —o una ruta que alguien creyó estar pasando— se ignoraba en
+        # silencio y la persona recibía un verde sobre algo que no había pedido. Es el defecto que
+        # este repositorio cataloga noventa veces, en la herramienta que existe para encontrarlo.
+        if len(argv) != 1:
+            print("uso: python tools/sintaxis.py --verificar   (no toma más argumentos; "
+                  f"llegó {argv[1:]})")
+            return 1
         informe = verificar_catalogo()
         docs = verificar_documentos()
         ok = (informe["json_igual"] and informe["texto_igual"] and informe["medidas"] > 0
@@ -283,5 +292,8 @@ def main(argv: list[str] | None = None) -> int:
     return 1
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+# Como en observar.py, la entrada no depende de una comparación mutable al importar.
+# El arranque y la importación se comprueban desde procesos separados.
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    raise SystemExit(_entrada_directa())

@@ -121,19 +121,26 @@ ahora las cuatro esquinas, y comprobado contra el lector viejo, las encuentra: t
 `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un agregado, una escalar ni una
 relación de traza, y el evaluador ya aceptaba las cuatro esquinas.
 
-**Lo que sí sube la menor de la distribución** es que el catálogo base pasa de 58 a **60 medidas** y
-`oracle.json` gana un campo declarable: `cota` en una entrada de `sombra`. Una sombra apaga la
-consecuencia de un rojo; sin cota, apagarla también compraba que la deuda creciera. Con la cota,
-`meta.ninguna_sombra_supera_su_cota` hace fallar la corrida si la deuda sube y
+**Lo que sube la menor de la distribución** es que el catálogo base pasa de 58 a **60 medidas
+universales** y `oracle.json` gana un campo declarable: `cota` en una entrada de `sombra`. Una
+sombra apaga la consecuencia de un rojo; sin cota, apagarla también compraba que la deuda creciera.
+Con la cota, `meta.ninguna_sombra_supera_su_cota` hace fallar la corrida si la deuda sube y
 `meta.ninguna_cota_mas_alta_que_su_deuda` si la cota queda por encima — las dos direcciones que
 antes vigilaba un `grep` literal en el workflow, que salió.
 
-Las dos medidas son de ámbito `del_origen`, así que **no obligan a un consumidor**, y `cota` es
-opcional: medido sobre los dos, ninguno se movió —Jam 28/3, LyraGASP 43/78—. Por el criterio de
-color esto habría sido parche. Sube la menor igual, y la diferencia con 0.9.2 es la que separa
-ensanchar un LECTOR de ensanchar el CONTRATO: un consumidor no puede escribir hoy un `oracle.json`
-con `cota` y esperar que un Oracle viejo lo entienda, y el catálogo que hereda ya no es el mismo.
-0.9.2 no le agregaba nada que pudiera declarar.
+Sube la menor por el **mismo motivo que 0.9.0**: las dos medidas son de ámbito `universal`, así que
+**obligan también a los consumidores**, y una medida universal nueva es parte del contrato que
+cualquier implementación tiene que sostener. Hoy ninguno se mueve —Jam 28/3, LyraGASP 43/78,
+idénticos— porque ninguno declara cota; pero el día que la declaren, se les hace cumplir.
+
+⚠ **El primer intento de este párrafo estaba mal y lo encontró una revisión de falsación.** Las dos
+medidas se habían escrito con ámbito `del_origen` —las únicas dos de las siete que miran la sombra—,
+así que el catálogo efectivo de un consumidor las descartaba: seguían siendo las mismas 35 medidas
+base de antes, y una `cota` declarada por Jam o LyraGASP no la vigilaba nada. Y el argumento que
+justificaba la menor era falso por dos lados: el catálogo heredado SÍ era el mismo, y un Oracle
+0.11.0 acepta una clave `cota` sin quejarse —el lector usa `.get()` y la ignora—, que es peor que
+rechazarla. Corregido el ámbito, el mecanismo existe de verdad y la menor se sostiene por el
+precedente que ya estaba escrito, no por uno inventado para el caso.
 
 **Corte 0.10.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.2` a `0.10.0`.** El paquete gana
 `mutadores/`, que no viajaba: hasta 0.9.2 una instalación mutaba con los **5** mutadores propios en

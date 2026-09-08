@@ -35,6 +35,47 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### El turno de codex y agy sobre el corte 0.12.0 (2026-09-08)
+
+**codex** cerró `tools/sintaxis.py`: **42 sobrevivientes → 94/94**, con 16 tests nuevos. Con eso el
+archivo **entra a la matriz de mutación de CI y a `HERRAMIENTAS_CUSTODIAS`**, que era el pendiente
+más viejo de la lista. Verificó sus tests escribiendo **60 reemplazos a mano** y aplicándolos de a
+uno en una copia, sin usar el aplicador del mutador. Cerró el error de arnés con el patrón
+`_entrada_directa` que ya usaban los otros tres instrumentos —por eso el inventario bajó de 95 a 94
+sitios— y respetó los tres frenos: no subió versiones, no commiteó, no editó durante una ronda.
+
+Y encontró un defecto real que no arregló, correctamente, porque no era su encargo:
+**`--verificar` ignoraba los argumentos de más y salía 0.** Reproducido y arreglado acá, con tests.
+
+**agy** hizo una revisión por falsación del corte y encontró **cuatro afirmaciones que la evidencia
+no sostenía**. Las cuatro eran ciertas; están verificadas una por una y corregidas. El informe
+completo quedó en `/tmp/informe-agy.md` (se pierde al reiniciar; lo esencial está acá y en los dos
+estudios).
+
+⚠ **La más grave era de diseño:** las dos medidas de cota se habían escrito con `ambito del_origen`
+—las únicas dos de las siete que miran la sombra—, así que **los consumidores nunca las veían** y
+una `cota` declarada por ellos no la vigilaba nada. Corregido a `universal`. El catálogo base pasa
+de 58 a **60 medidas universales**, y por eso la menor se sostiene por el precedente de 0.9.0.
+
+Las otras tres: el argumento de la versión era falso por dos lados; un `alcance` prometía una
+protección que no existe —queda escrito como el hueco que es, **sin cerrar**—; y el caso `494`
+**se invalidaba por existir**, porque `--hechos` volcaba la relación `caso` y el caso capturado se
+agregaba al corpus que había medido. `--hechos-solo` recorta el volcado a lo que la medida lee.
+
+**Lo que hay que saber de esto para la próxima:**
+
+- Una medida sobre un mecanismo del marco va `universal` salvo que haya un motivo escrito. Las siete
+  que miran la sombra son universales; escribir dos `del_origen` sin decir por qué fue el defecto.
+- **Observar un proyecto y guardar el resultado ADENTRO de ese proyecto tiene un borde**: si la
+  evidencia incluye lo que el guardado modifica, la observación no puede revalidar nunca. Se mide lo
+  que la medida lee, y nada más.
+- Un `alcance` que **niega** un hueco es peor que uno que calla. El del `agrupar` de 0.9.2 estaba
+  declarado y por eso, cuando el consumidor lo pisó, se supo enseguida por qué.
+- Escribí una guarda de argumentos sin test **dos veces en el mismo día** (`--hechos` y
+  `--hechos-solo`), y la mutación la encontró las dos veces.
+
+---
+
 ### Corte 0.12.0: una sombra apagaba también el aviso de que la deuda crecía
 
 **Sin commitear todavía.** Distribución `0.12.0`, álgebra `0.6`, **sintaxis `0.4`**. Van tres cosas.
@@ -83,10 +124,10 @@ la evidencia. `observar.py` además emite el caso en la superficie `.caso` y ya 
 - La cota **no baja sola**. Cuando una deuda se cierra hay que bajarla a mano, y eso es a propósito:
   el número lo escribe una persona y queda en el commit.
 
-**Verificación:** suite **1465** · corpus **197** · medidas **946/946** · aceptación con un solo rojo
+**Verificación:** suite **1490** · corpus **197** · medidas **946/946** · aceptación con un solo rojo
 · los tres chequeos de CI en verde · cifras y manual regenerados · WHEEL OK. Mutación de código de
 todo lo tocado, sin sobrevivientes: `nucleo/marco.py` **75/75**, `nucleo/proyecto.py` **150/150**,
-`tools/observar.py` **162/162**, `tools/aceptacion.py` **61/61**.
+`tools/observar.py` **162/162**, `tools/aceptacion.py` **75/75**, `tools/sintaxis.py` **99/99**.
 
 ⚠ **`tools/aceptacion.py` se corre con `--timeout 120`**, y está anotado en `PRIORIDADES`. Con el
 plazo por omisión de 60 s la ronda devuelve timeouts —seis la primera vez—, y un timeout no mata a

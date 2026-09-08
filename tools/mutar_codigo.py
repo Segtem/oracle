@@ -91,8 +91,11 @@ PRIORIDADES = {
     "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
     "tools/observar.py": ("tests.test_observar",),
     "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
-    # Listo para cuando `sintaxis.py` entre a HERRAMIENTAS_CUSTODIAS. Se midió el 2026-09-07, antes
-    # de decidir: **95 mutantes, 52 muertos, 42 sobrevivientes, 1 error de arnés, 2353 segundos**.
+    # ENTRÓ el 2026-09-08, a la matriz de CI y a HERRAMIENTAS_CUSTODIAS, en **94/94**. Se midió el
+    # 2026-09-07, antes de decidir: **95 mutantes, 52 muertos, 42 sobrevivientes, 1 error de arnés,
+    # 2353 segundos**. Lo de abajo queda como estaba porque explica por qué se difirió y por qué la
+    # espera terminó; el error de arnés se cerró con el patrón `_entrada_directa` que ya usaban los
+    # otros tres, y por eso el inventario bajó de 95 a 94 sitios.
     # Entrar hoy pondría al proyecto en rojo por deuda que no es de este cambio: de los 42, **30
     # están en `main()`** —el plumbing del CLI— y CERO en el código nuevo del informe de archivos
     # ilegibles. Es el mismo cuadro que `tools/medida.py`, que pasó de 114 sobrevivientes y ~90
@@ -230,7 +233,7 @@ PRIORIDADES = {
 # corre el comando que el caso declara.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "corpus.py", "lsp.py", "manual.py", "mcp.py", "medida.py",
-                          "observar.py", "reportar.py", "sondear_generador.py",
+                          "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py")
 
 
