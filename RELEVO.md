@@ -35,6 +35,95 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### Corte 0.12.0: una sombra apagaba también el aviso de que la deuda crecía
+
+**Sin commitear todavía.** Distribución `0.12.0`, álgebra `0.6`, **sintaxis `0.4`**. Van tres cosas.
+
+**1. Un `agrupar` sin agregados se escribía y no se podía leer.** Lo destapó el censo de 0.11.0:
+LyraGASP daba `139/140 archivos se imprimen`. No era del consumidor — el álgebra acepta y evalúa
+`["agrupar", claves, []]`, el impresor lo escribía, y el lector lo rechazaba. El mismo defecto de
+0.9.2 en otra cláusula, y la restricción era asimétrica: cero **claves** se aceptó siempre.
+
+Lo que hace único al caso: **la sonda que existe para encontrarlo declaraba el hueco en su propio
+`alcance`** —«NO cubre agrupar con 0 agregados»—. Se cerró en el generador, no en el `alcance`, y se
+comprobó: contra el lector viejo la sonda da 3 rojos con el mismo error que pisó el consumidor.
+LyraGASP pasa a `140/140`. Detalle en
+[`estudios/UN-HUECO-DECLARADO-SIGUE-SIENDO-UN-HUECO.md`](estudios/UN-HUECO-DECLARADO-SIGUE-SIENDO-UN-HUECO.md).
+
+**Con eso cayó la mitad de DECISION-004:** `meta.sintaxis_cubre_algebra` sale de la lista de medidas
+sostenidas sólo por evidencia fabricada, por el mismo camino que la tercera en 2026-09-01 — no
+transcribiendo evidencia sino cambiando el mundo. **El rojo de aceptación bajó de 2 a 1.** Queda
+`meta.sintaxis_casos_cubre_casos`.
+
+**2. La sombra gana `cota`** (opcional, en `oracle.json`), vigilada por dos medidas: una si la deuda
+**sube**, otra si la cota queda **encima** de la deuda. Reemplaza el `grep` literal del workflow, que
+salió: el número vive ahora en el proyecto, versionado, y viaja a los consumidores. Detalle en
+[`estudios/UNA-SOMBRA-APAGABA-TAMBIEN-EL-AVISO.md`](estudios/UNA-SOMBRA-APAGABA-TAMBIEN-EL-AVISO.md).
+
+⚠ **Y encontró un defecto propio:** la aceptación elegía las medidas que vigilan la sombra por
+**subcadena en el id** (`if "sombra" in mid`), un contrato de nombres que nadie había escrito. La
+medida nueva no lo cumplía, así que **no se evaluó nunca y quedó en verde sin haber corrido**. Ahora
+se eligen por la relación que LEEN, que está en el AST y no se puede olvidar de escribir.
+
+**3. `aceptacion.py --hechos <ruta>`**, y con esa bandera la salida deja de ser el veredicto y pasa a
+ser **si se pudo leer**. Con eso `observar.py capturar` corre sobre el propio Oracle: el caso `494`
+del corpus no está escrito a mano, lo emitió el recorrido con su comando, su registro y la huella de
+la evidencia. `observar.py` además emite el caso en la superficie `.caso` y ya no en JSON. Detalle en
+[`estudios/OBSERVAR-EL-PROPIO-ORACLE.md`](estudios/OBSERVAR-EL-PROPIO-ORACLE.md).
+
+**Lo que hay que saber antes de tocarlo:**
+
+- `cota` es **opcional** y las dos medidas son de ámbito `del_origen`: por eso ningún consumidor
+  cambia de color. Medido con el árbol arreglado, no con el paquete publicado: **Jam 28/3 y LyraGASP
+  43/78**, los dos idénticos a antes del corte.
+- **`SIN_COTA = -1` viaja**: sale en la relación `sombra` que leen las medidas, y los casos `491` y
+  `493` lo tienen escrito. Estaba duplicado en dos sitios y ahora es una constante.
+- Una **cota de cero** es legítima y es la más exigente que se puede escribir. `cota >= 0` y no
+  `> 0`: la mutación encontró los cuatro sitios donde la habría leído como «no declarada».
+- La cota **no baja sola**. Cuando una deuda se cierra hay que bajarla a mano, y eso es a propósito:
+  el número lo escribe una persona y queda en el commit.
+
+**Verificación:** suite **1465** · corpus **197** · medidas **946/946** · aceptación con un solo rojo
+· los tres chequeos de CI en verde · cifras y manual regenerados · WHEEL OK. Mutación de código de
+todo lo tocado, sin sobrevivientes: `nucleo/marco.py` **75/75**, `nucleo/proyecto.py` **150/150**,
+`tools/observar.py` **162/162**, `tools/aceptacion.py` **61/61**.
+
+⚠ **`tools/aceptacion.py` se corre con `--timeout 120`**, y está anotado en `PRIORIDADES`. Con el
+plazo por omisión de 60 s la ronda devuelve timeouts —seis la primera vez—, y un timeout no mata a
+nadie: una ronda con timeouts dice un número que parece medido y no lo está.
+
+⚠ **La ronda de `tools/aceptacion.py` la mató el sistema dos veces por memoria, y NO se sabe por
+qué.** Lo medido descarta las tres explicaciones fáciles: el repo pesa 12 MB, el perfil de tests
+tiene un pico de **76 MB** y tarda 26 s, y la segunda muerte fue con los temporales ya en disco. En
+la máquina había 22 Gi disponibles. Queda **sin diagnosticar**; el aviso viene del entorno que
+hospeda al agente, no del OOM killer del kernel.
+
+Lo que sí conviene saber, medido de paso:
+
+- **`/tmp` acá es tmpfs**, o sea RAM. No fue la causa —matar la ronda con `TMPDIR` en disco lo
+  descarta— pero el arnés copia el proyecto por mutante y ahí van esas copias.
+- **`tools/verificar_instalacion.py` deja ~100 MB por corrida** en `oracle-wheel-test-*` y no
+  siempre los limpia. Corre dentro de `tests.test_cli`, que está en el perfil de este archivo, así
+  que se acumulan de a uno por mutante.
+- Para rondas largas conviene `--manifiesto <ruta>` y `--reanudar`: la herramienta ya trae con qué
+  sobrevivir a un corte, y esto es exactamente para lo que sirve.
+
+**Lo que sigue abierto de la lista de pendientes:**
+
+- Los **94 casos sin `origen`** siguen en 94. No se pueden cerrar hacia atrás sin inventar: el árbol
+  contra el que corrieron ya no existe. Lo que cambió es que ahora hay una cota que impide que sean
+  95. Los caminos (b) y (c) los eligió el usuario el 2026-09-08; (a) —dictar los comandos de
+  memoria— quedó descartado porque nadie los recuerda.
+- 8 de esos 94 tienen **prosa en el campo `commit`** (`"sesión 2026-07-29"`, `"mutación de medidas
+  P1.1"`). Está identificado y sin arreglar: moverla a `registro` los sacaría de la sombra sin que
+  nadie haya observado nada, que es peor que dejarla donde está.
+- **`tools/sintaxis.py` sigue fuera de la matriz de mutación de CI**, con ~42 sobrevivientes.
+- El **caso 018 de Jam** (triángulo degenerado) y los sensores de LyraGASP siguen necesitando Unreal.
+- Conectar `observar.py` al trabajo cotidiano de los **dos consumidores** — esto cerró el camino
+  sólo para el propio Oracle.
+
+---
+
 ### El CI estaba en rojo desde 0.9.0, y el rojo no decía qué faltaba
 
 **Arreglado después de publicar `v0.11.0`, en un commit aparte.** El tag no se movió: la rueda es

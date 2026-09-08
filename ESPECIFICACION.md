@@ -98,6 +98,43 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.12.0 (2026-09-08): `VERSION_SINTAXIS` sube de `0.3` a `0.4` y `VERSION_DISTRIBUCION` de
+`0.11.0` a `0.12.0`.** Van tres cosas y cada una mueve una parte distinta.
+
+**La sintaxis** gana una forma que antes era un error: un bloque `agrupar:` con cero agregados.
+Sube la **menor de la sintaxis** por el caso 1 de la regla de abajo —una forma que antes no se
+aceptaba—; por sí sola habría sido sólo parche de la distribución, porque nadie cambia de color: la
+medida del consumidor que lo destapó siempre se cargó y siempre midió lo mismo; lo que no se podía
+era volver a escribirla. Su aceptación quedó idéntica, y lo que se movió fue el informe de sintaxis,
+de `139/140` a `140/140`.
+
+Es **el mismo defecto que 0.9.2, en otra cláusula**: el impresor emitía algo que el lector no podía
+leer. El álgebra acepta y evalúa `["agrupar", claves, []]` —da una fila por combinación distinta de
+claves, o sea deduplicar—, el impresor lo escribía, y el lector lo rechazaba con «se esperaba al
+menos un agregado». La restricción era además asimétrica: cero **claves** se aceptó siempre.
+
+Y esta vez la sonda que existe para encontrarlo **declaraba el hueco en su propio `alcance`**: «NO
+cubre agrupar con 0 agregados (la sintaxis exige al menos un agregado)». El `alcance` cumplió su
+trabajo —cuando el consumidor lo pisó, decía por qué la sonda no lo había visto— pero un hueco
+declarado y no cerrado es una apuesta a que nadie pase por ahí, y alguien pasó. El generador cubre
+ahora las cuatro esquinas, y comprobado contra el lector viejo, las encuentra: tres rojos.
+`VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un agregado, una escalar ni una
+relación de traza, y el evaluador ya aceptaba las cuatro esquinas.
+
+**Lo que sí sube la menor de la distribución** es que el catálogo base pasa de 58 a **60 medidas** y
+`oracle.json` gana un campo declarable: `cota` en una entrada de `sombra`. Una sombra apaga la
+consecuencia de un rojo; sin cota, apagarla también compraba que la deuda creciera. Con la cota,
+`meta.ninguna_sombra_supera_su_cota` hace fallar la corrida si la deuda sube y
+`meta.ninguna_cota_mas_alta_que_su_deuda` si la cota queda por encima — las dos direcciones que
+antes vigilaba un `grep` literal en el workflow, que salió.
+
+Las dos medidas son de ámbito `del_origen`, así que **no obligan a un consumidor**, y `cota` es
+opcional: medido sobre los dos, ninguno se movió —Jam 28/3, LyraGASP 43/78—. Por el criterio de
+color esto habría sido parche. Sube la menor igual, y la diferencia con 0.9.2 es la que separa
+ensanchar un LECTOR de ensanchar el CONTRATO: un consumidor no puede escribir hoy un `oracle.json`
+con `cota` y esperar que un Oracle viejo lo entienda, y el catálogo que hereda ya no es el mismo.
+0.9.2 no le agregaba nada que pudiera declarar.
+
 **Corte 0.10.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.2` a `0.10.0`.** El paquete gana
 `mutadores/`, que no viajaba: hasta 0.9.2 una instalación mutaba con los **5** mutadores propios en
 vez de los **29** declarados, y no lo decía.

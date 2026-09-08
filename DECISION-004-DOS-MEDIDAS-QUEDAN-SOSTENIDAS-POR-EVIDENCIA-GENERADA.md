@@ -1,6 +1,7 @@
 # Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho
 
-**Fecha:** 2026-08-26 · **Revisada:** 2026-08-31 (de 2 a 3) y 2026-09-01 (de 3 a 2) · **Estado:** vigente
+**Fecha:** 2026-08-26 · **Revisada:** 2026-08-31 (de 2 a 3), 2026-09-01 (de 3 a 2) y 2026-09-08
+(de 2 a **1**) · **Estado:** vigente
 **Consecuencia:** `tools/aceptacion.py` sale con código 1 mientras esto siga así.
 
 ## El hecho
@@ -36,6 +37,21 @@ referentes reales con sha256 reales: el catálogo, la configuración del dominio
 
 El caso `459-referentes-reales-del-fixture-diferencial` transcribe esa corrida. No se agregó una
 medida ni se aflojó nada: se hizo observable algo que ya ocurría. **El rojo bajó de 3 a 2.**
+
+### La segunda se cerró el 2026-09-08, y por el mismo camino que la tercera
+
+No transcribiendo evidencia: **cambiando el mundo**. `meta.sintaxis_cubre_algebra` sale de esta
+lista porque un consumidor pisó un hueco que la sonda declaraba en su propio `alcance` —«NO cubre
+agrupar con 0 agregados»— y que resultó ser un defecto real: el impresor escribía un `agrupar:` sin
+agregados que el lector después rechazaba, y el álgebra lo aceptaba desde siempre.
+
+Cerrar el hueco en el generador —no en el `alcance`— produjo una corrida real con tres rojos, uno
+por cada esquina que faltaba, con el mismo error que había pisado el consumidor. Los casos `488` y
+`489` transcriben esa corrida y la de después del arreglo, los dos con `procedencia: observada` y su
+`origen`. No se aflojó nada ni se agregó una medida: se hizo observable algo que ya ocurría, y que
+sólo ocurría porque el hueco estaba abierto.
+
+**El rojo bajó de 2 a 1.** Queda `meta.sintaxis_casos_cubre_casos`.
 
 ## Por qué éstas no se pueden cerrar
 

@@ -1,0 +1,20 @@
+caso 493-la-cota-es-exactamente-la-deuda:
+    fecha: "2026-09-08"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "46c292d+worktree"
+        comando: "python3 -B tools/aceptacion.py"
+    procedencia: observada
+    titulo: "La cota parada en la deuda, y las que no declaran ninguna"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La corrida real: la cota vale exactamente lo que la deuda. Las otras dos filas estan a proposito: una sombra sin cota tiene que quedar verde aca, y una cuya medida no llego a evaluarse tambien, porque no se puede afirmar el tamano de una deuda que no se midio.
+    como_se_detecto: observacion
+    medida: meta.ninguna_cota_mas_alta_que_su_deuda
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 94, false
+            "otra.sin_cota_declarada", true, true, 30, false, true, false, -1, 7, false
+            "otra.que_no_se_pudo_evaluar", true, true, 5, false, false, true, 3, -1, false
+    leccion:
+        El verde tiene que probar el borde exacto y las dos formas de quedar afuera. Sin la fila de valor -1, un operador que no filtrara por «valor >= 0» marcaria como holgura toda medida que no llego a correr, y el rojo caeria sobre proyectos que no tienen ninguna deuda: solo una medida ausente.

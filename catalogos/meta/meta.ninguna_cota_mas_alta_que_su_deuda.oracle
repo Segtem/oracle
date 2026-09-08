@@ -1,0 +1,6 @@
+ninguno meta.ninguna_cota_mas_alta_que_su_deuda:
+    de sombra s
+    donde s.declara_cota == true y s.valor >= 0 y s.cota > s.valor
+    umbral <= 0 segun contrato porque "una cota por encima de la deuda real deja lugar para crecer sin que nada avise, que es exactamente lo que la cota vino a impedir. Y deja de ser el registro de que la deuda se está cerrando: si baja de 94 a 90 y la cota sigue en 94, el proyecto no se entera de su propio progreso y las cuatro deudas cerradas quedan disponibles para volver a abrirse gratis. La cota es la deuda de hoy, no un presupuesto"
+    ambito del_origen
+    alcance "compara la cota declarada contra el valor que dio la medida ensombrecida en esta corrida. Sólo mira las sombras que declaran cota y que llegaron a evaluarse: sin cota, o con `valor` en -1 porque la medida no corrió, queda verde acá. NO ve si la cota es correcta en un proyecto que no corrió esta medida, y NO baja la cota sola: obliga a bajarla a mano, que es la mitad del punto — el número lo escribe una persona y queda en el commit"

@@ -1,0 +1,18 @@
+caso 492-una-cota-con-holgura-esconde-el-progreso:
+    fecha: "2026-09-08"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "46c292d+worktree"
+        comando: "python3 -B tools/aceptacion.py sobre una copia del arbol con la cota subida a 100"
+    procedencia: observada
+    titulo: "Una cota por encima de la deuda deja lugar para crecer"
+    etiqueta: falso_verde
+    sintoma:
+        La sombra declaraba cota 100 sobre una deuda de 94 y todo pasaba. Seis casos de holgura: seis incumplimientos nuevos que entran sin que nada avise, porque la cota que existe para frenar el crecimiento estaba escrita con lugar de sobra. Y al reves tambien: si la deuda baja de 94 a 90 y la cota sigue en 94, el proyecto no registra su propio progreso y las cuatro cerradas quedan disponibles para volver a abrirse gratis.
+    como_se_detecto: persona
+    medida: meta.ninguna_cota_mas_alta_que_su_deuda
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 100, 94, false
+    leccion:
+        Una cota es la deuda de hoy, no un presupuesto. Escrita con holgura vuelve a comprar lo mismo que la sombra sin cota compraba, con la diferencia de que ahora hay un numero que parece un limite. Un limite que nadie toca cuando la deuda se mueve no es un limite: es un adorno.

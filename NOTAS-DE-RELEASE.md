@@ -1,3 +1,127 @@
+# 0.12.0 — una sombra apagaba también el aviso de que la deuda crecía
+
+```
+VERSION_DISTRIBUCION   0.11.0 → 0.12.0   el catálogo base pasa a 60 medidas y `oracle.json` gana `cota`
+VERSION_ALGEBRA        0.6    → 0.6      el evaluador ya aceptaba las cuatro esquinas
+VERSION_SINTAXIS       0.3    → 0.4      el lector gana una forma que antes era un error
+```
+
+Van tres cosas, y la que da el título es la segunda.
+
+## 1. Un `agrupar` sin agregados se escribía y después no se podía leer
+
+## El defecto
+
+El álgebra acepta y evalúa `["agrupar", claves, []]` —una fila por combinación distinta de claves,
+o sea deduplicar—, el impresor lo escribía, y el lector lo rechazaba con «se esperaba al menos un
+agregado». **Oracle emitía un `agrupar:` que después no podía volver a leer.** Es el mismo defecto
+que motivó 0.9.2 en los argumentos de macro, en otra cláusula.
+
+La restricción era además asimétrica y nada la sostenía: cero **claves** se aceptó siempre.
+
+## Lo encontró un consumidor, no la sonda que existe para eso
+
+`animacion.clip_de_linea_base_ausente_del_lote`, de LyraGASP, agrupa por clip sin agregados para
+contar ausencias del lote y no curvas. El censo de 0.11.0 la reportó como el único archivo ilegible
+de ese proyecto: `139/140 archivos se imprimen`.
+
+**Y la sonda metamórfica declaraba el hueco en su propio `alcance`:** «NO cubre agrupar con 0
+agregados (la sintaxis exige al menos un agregado en el bloque `agrupar:`)». El `alcance` cumplió su
+trabajo —cuando el consumidor lo pisó, decía por qué la sonda no lo había visto— pero **un hueco
+declarado y no cerrado es una apuesta a que nadie pase por ahí**, y alguien pasó. Se cerró donde
+correspondía, en el generador y no en el `alcance`: `aggs_opts` gana la opción de cero agregados,
+que faltaba mientras `claves_opts` tenía la de cero claves desde siempre.
+
+Comprobado contra el lector viejo, la sonda extendida lo encuentra: **tres rojos**, uno por esquina,
+con el mismo error que había pisado el consumidor.
+
+## Y con eso cae la mitad de DECISION-004
+
+`meta.sintaxis_cubre_algebra` deja de estar sostenida sólo por evidencia fabricada. No se transcribió
+evidencia ni se aflojó nada: se hizo observable algo que ya ocurría, que es el único camino que esa
+decisión admitía. Los casos `488` y `489` transcriben la corrida contra el lector viejo y la de
+después del arreglo, los dos con `procedencia: observada` y su `origen`.
+
+**El rojo de la aceptación baja de 2 a 1.** Queda `meta.sintaxis_casos_cubre_casos`.
+
+## 2. Una sombra sin cota deja crecer la deuda que tapa
+
+Una sombra apaga la **consecuencia** de un rojo, no la deuda que hay debajo. Sin un número
+declarado, lo que se apagaba incluía el aviso de que el problema crece: cada caso nuevo que
+incumplía se sumaba a una cuenta que ya nadie miraba, y la sombra pasaba de ser una etapa de
+transición a ser el lugar donde el problema se agranda.
+
+Una entrada de `sombra` en `oracle.json` gana **`cota`**, opcional:
+
+```json
+"meta.todo_caso_observado_declara_de_donde_salio": {
+  "desde": "2026-09-07", "porque": "…", "cota": 94
+}
+```
+
+Y dos medidas la vigilan en las dos direcciones: `meta.ninguna_sombra_supera_su_cota` hace fallar la
+corrida si la deuda **sube**, y `meta.ninguna_cota_mas_alta_que_su_deuda` si la cota queda por
+**encima** de la deuda — porque una cota con holgura vuelve a comprar lo mismo que la sombra sin
+cota, y además esconde el progreso: si la deuda baja de 94 a 90 y la cota sigue en 94, las cuatro
+cerradas quedan disponibles para volver a abrirse gratis.
+
+Con esto **sale del workflow el `grep` literal** que contaba los 94 casos sin `origen` y había que
+acordarse de editar a mano. El número vive ahora en el proyecto, versionado, y viaja a los
+consumidores.
+
+**Y encontró un defecto propio al escribirlo:** la aceptación elegía las medidas que vigilan la
+sombra por **subcadena en el id** (`if "sombra" in mid`), un contrato de nombres que nadie había
+escrito. `meta.ninguna_cota_mas_alta_que_su_deuda` no lo cumplía, así que **no se evaluó nunca y
+quedó en verde sin haber corrido**. Ahora se eligen por la relación que LEEN.
+
+## 3. Observar el propio Oracle deja de costar transcribir a mano
+
+`tools/aceptacion.py --hechos <ruta>` escribe la evidencia que la corrida construyó, tal cual se la
+sirvió a las medidas, y con esa bandera **la salida deja de ser el veredicto y pasa a ser si se pudo
+leer**. Son dos verbos distintos y el repositorio ya los separa en todos lados —`tools/sensores/*.py`
+lee, `tools/mide_*.py` juzga—; un sensor que devuelve el veredicto no se puede observar, porque el
+recorrido rechaza con razón una corrida fallida, y entonces `falso_verde` —la mitad del corpus— no se
+podría capturar nunca.
+
+Con eso, `observar.py capturar` corre sobre el propio Oracle. El caso `494` del corpus **no está
+escrito a mano**: lo emitió el recorrido, con su `comando`, su `registro`, la huella de la evidencia
+y la hora. Un caso transcrito afirma de memoria; uno capturado deja por dónde ir a contradecirlo.
+
+`observar.py` además **emite el caso en la superficie `.caso`** y no en JSON, que era dejar cada
+observación en el formato del que el proyecto se estaba yendo.
+
+## Verificación del corte
+
+Suite **1465 tests** · corpus **197 casos** · aceptación con **un solo rojo** (DECISION-004) y la
+sombra declarada con su cota · cifras y manual regenerados.
+
+**Medido sobre los dos consumidores, con el árbol arreglado y no con el paquete publicado:** Jam
+**28 rojos / 3 verdes** y LyraGASP **43 / 78**, los dos idénticos a antes del corte. Lo único que se
+movió en un consumidor es el informe de sintaxis de LyraGASP, de `139/140` a `140/140`.
+
+Las dos direcciones de la cota están comprobadas contra el árbol, no razonadas: con la deuda subida
+a 95 contra cota 94 la aceptación falla por `ninguna_sombra_supera_su_cota`, y con la cota subida a
+100 sobre una deuda de 94 falla por `ninguna_cota_mas_alta_que_su_deuda`.
+
+**Mutación de código de todo lo tocado, sin sobrevivientes ni equivalentes declarados:**
+`nucleo/marco.py` 75/75 · `nucleo/proyecto.py` 150/150 · `tools/observar.py` 162/162 ·
+`tools/aceptacion.py` 61/61. Encontró cinco cosas que ninguna lectura había encontrado, y tres son
+del tipo que este proyecto persigue:
+
+- `cota >= 0` vuelto `> 0` sobrevivía en cuatro sitios: **una cota de cero** —la más exigente que se
+  puede escribir— se habría leído como «no declarada».
+- El centinela `-1` estaba escrito **dos veces** y ningún test lo ataba. Ese número sale en la
+  relación `sombra` y los casos `491` y `493` lo tienen escrito. Pasó a ser `SIN_COTA`.
+- Un test mío **pasaba por la razón equivocada**: comprobaba que `--hechos` saca dos tokens del
+  `argv` mirando el proyecto resuelto, y como el cwd de la suite es la raíz de Oracle, comerse el
+  `--proyecto` daba el mismo resultado que respetarlo. Ahora mira el `argv` que queda.
+- La reserva a JSON de `observar.py` no la ejercía ningún test, y no se encontró ninguna forma que
+  el impresor rechace: **constructo, y se borró**. Cambiar de formato en silencio esconde que el
+  impresor se rompió.
+- `ensure_ascii=False` sobrevivía porque el proyecto de prueba mínimo no tenía una sola tilde.
+
+---
+
 # 0.11.0 — el censo cuenta y no juzga
 
 Sube la **menor** de la distribución, según `ESPECIFICACION.md` §0:

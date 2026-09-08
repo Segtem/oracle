@@ -68,10 +68,13 @@ jobs:
           # cuentan por separado: los que tumban la corrida y los que están declarados en sombra.
           test "$(grep '^  ✗ meta\.' /tmp/acept.txt | grep -cv 'EN SOMBRA')" = "1"
           test "$(grep -c '^  ✗ meta\..*\[EN SOMBRA\]' /tmp/acept.txt)" = "1"
-          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        2 (<= 0)' /tmp/acept.txt
-          # Baja de a un caso, a medida que cada `origen` dice de dónde salió. Si baja, se actualiza
-          # acá a mano: es el registro de que la deuda se está cerrando y no de que se apagó.
-          grep -q 'todo_caso_observado_declara_de_donde_salio       94 (<= 0)   \[EN SOMBRA\]' /tmp/acept.txt
+          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        1 (<= 0)' /tmp/acept.txt
+          # El literal que contaba los 94 casos sin `origen` salió el 2026-09-08. Lo reemplaza la
+          # `cota` que la sombra declara en `oracle.json`, vigilada por dos medidas: una hace
+          # fallar si la deuda SUBE y la otra si la cota queda por ENCIMA de la deuda. Es
+          # estrictamente mejor que el grep: el número vive en el proyecto y no en el workflow,
+          # viaja a los consumidores, y las dos direcciones las juzga una medida en vez de una
+          # cadena que había que acordarse de editar.
       - run: python tools/mutar.py
       - run: python tools/cifras.py
       # El evaluador juzgado por medidas escritas en el propio álgebra: corre el corpus

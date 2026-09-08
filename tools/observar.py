@@ -89,6 +89,7 @@ sys.path = [str(RAIZ), *sys.path]
 
 from nucleo.algebra import ErrorDeAlgebra, separar_clave  # noqa: E402
 from nucleo.caso import DETECCIONES, ETIQUETAS, opciones  # noqa: E402
+from nucleo import caso as caso_sintaxis  # noqa: E402
 from nucleo.marco import hechos_de_casos  # noqa: E402
 from nucleo.medida import Veredicto, cargar  # noqa: E402
 from nucleo.referente import Referente, ReferenteMalDeclarado, hechos_de_frescura  # noqa: E402
@@ -616,7 +617,7 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
         "resultado": {"ok": veredicto.ok, "valor": veredicto.valor,
                       "testigos": len(veredicto.testigos), "umbral": veredicto.umbral,
                       "sin_evidencia": veredicto.sin_evidencia},
-        "caso": {"archivo": f"{caso['id']}.json", "id": caso["id"]},
+        "caso": {"archivo": f"{caso['id']}.caso", "id": caso["id"]},
         "referentes_al_leer": [r.a_datos() for r in antes],
         "referentes_despues": [r.a_datos() for r in despues],
         "comparacion": comparacion,
@@ -632,9 +633,25 @@ def capturar(plan: Plan, destino: Path, trabajo: Path) -> dict:
     (destino / NOMBRE_EVIDENCIA).write_bytes(crudo)
     (destino / NOMBRE_REGISTRO).write_text(
         json.dumps(registro, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    (destino / f"{caso['id']}.json").write_text(
-        json.dumps(caso, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (destino / f"{caso['id']}.caso").write_text(
+        _caso_escrito(caso), encoding="utf-8")
     return registro
+
+
+def _caso_escrito(caso: dict) -> str:
+    """El caso en la superficie `.caso`. Un caso capturado se lee después, y lo lee una persona.
+
+    Emitirlo en JSON lo dejaba en el formato del que el proyecto se estaba yendo —los casos se
+    escriben en `.caso` desde el 2026-08-25— y hacía que observar barato costara legibilidad.
+
+    SIN reserva a JSON, y se probó a quitarla: la escribí primero y la mutación mostró que ningún
+    test la ejercía, porque no se encontró ninguna forma que el impresor rechace. Una reserva que
+    nadie puede provocar es un constructo, y además el peor: cambiar de formato en silencio esconde
+    que el impresor se rompió. Si algún día pasa, `capturar` falla acá y en voz alta — la evidencia
+    y el registro ya están escritos en el disco, así que lo que se pierde es una corrida, no la
+    observación.
+    """
+    return caso_sintaxis.imprimir(caso)
 
 
 def evidencia_guardada(registro_ruta: Path, registro: dict):

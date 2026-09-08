@@ -347,6 +347,11 @@ def _generar_candidatas() -> list[list]:
     ]
 
     aggs_opts = [
+        # `a0` entra el 2026-09-08. Faltaba, y su falta estaba DECLARADA en el `alcance` de la
+        # medida —«NO cubre agrupar con 0 agregados»—: por eso la sonda nunca vio que el impresor
+        # escribía un `agrupar:` sin agregados que el lector después rechazaba. Lo encontró una
+        # medida real de un consumidor, no esta sonda. `c0` —cero CLAVES— estuvo desde siempre.
+        ("a0", []),
         ("a1_contar", [["a1", "contar", 1]]),
         ("a1_suma", [["a1", "suma", acc_campo]]),
         ("a1_max", [["a1", "max", acc_campo]]),
@@ -405,7 +410,8 @@ def _generar_candidatas() -> list[list]:
     for c_id, claves in claves_opts:
         for a_id, aggs in aggs_opts:
             mid = f"meta_gen.grp_{c_id}_{a_id}"
-            res = ["resumen", "max", ["col", "a1"]]
+            # Sin agregados no hay columna `a1` que resumir, así que la sonda cuenta grupos.
+            res = ["resumen", "contar", 1] if not aggs else ["resumen", "max", ["col", "a1"]]
             m = ["medida", mid, ["desde", ["de", "cosa", "c"], ["agrupar", claves, aggs]],
                  res, ["umbral", "<=", 0, "defensa", "contrato"], ["alcance", "sonda generada"]]
             medidas.append(m)

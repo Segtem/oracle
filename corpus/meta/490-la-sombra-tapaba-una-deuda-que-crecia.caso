@@ -1,0 +1,18 @@
+caso 490-la-sombra-tapaba-una-deuda-que-crecia:
+    fecha: "2026-09-08"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "46c292d+worktree"
+        comando: "python3 -B tools/aceptacion.py sobre una copia del arbol con un caso observado sin comando agregado"
+    procedencia: observada
+    titulo: "Una sombra sin cota deja crecer la deuda que tapa"
+    etiqueta: falso_verde
+    sintoma:
+        La medida ensombrecida daba 95 donde la sombra se declaro con 94, y la corrida seguia pasando: apagar la consecuencia de un rojo tambien compraba que el problema se agrandara. Cada caso nuevo que la incumple se suma a un numero que ya nadie mira, y la sombra deja de ser una etapa de transicion para ser el lugar donde la deuda se esconde mientras crece.
+    como_se_detecto: persona
+    medida: meta.ninguna_sombra_supera_su_cota
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 95, true
+    leccion:
+        Una sombra apaga la consecuencia de un rojo, no la deuda que hay debajo. Sin un numero declarado, lo que se apaga incluye el aviso de que el problema crece. La cota lo separa: la consecuencia sigue apagada, y el rojo vuelve el dia que la deuda sube, que es el unico dia en que hace falta.

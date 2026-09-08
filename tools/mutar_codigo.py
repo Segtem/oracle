@@ -77,6 +77,10 @@ PRIORIDADES = {
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
     "tools/lsp.py": ("tests.test_lsp",),
     # Listo para cuando `aceptacion.py` entre a HERRAMIENTAS_CUSTODIAS; ver la nota de ahí.
+    # ⚠ Este perfil tarda ~30 s en caliente y NO entra en el `--timeout 60` por omisión con el
+    # bytecode frío del arnés: la ronda del 2026-09-08 devolvió 6 timeouts, y agregarle cinco tests
+    # tumbó hasta la línea base. Se corre con `--timeout 120`. Un timeout no mata a nadie, así que
+    # una ronda con timeouts vale menos que ninguna: dice un número que parece medido y no lo está.
     "tools/aceptacion.py": ("tests.test_herramientas", "tests.test_cli"),
     # SIN `tests.test_cli`: el despacho de `oracle manual` vive en `cli.py` y ya lo fija el
     # perfil de `cli.py`. Acá agregaba ~40 s de subprocesos por mutante —la ronda pasaba de

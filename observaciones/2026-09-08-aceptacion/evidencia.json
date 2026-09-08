@@ -1,0 +1,5661 @@
+{
+  "ambito_de_relacion": [
+    {
+      "ambito": "universal",
+      "relacion": "ambito_de_relacion"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "ancestro"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "campo_declarado"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "campo_diagnostico"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "cantidad_comparada"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "caso"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "dependencia_de_medida"
+    },
+    {
+      "ambito": "del_origen",
+      "relacion": "equivalencia"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "fuente"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "medida"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "medida_en_uso"
+    },
+    {
+      "ambito": "del_origen",
+      "relacion": "mutador_excluido"
+    },
+    {
+      "ambito": "del_origen",
+      "relacion": "nodo"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "opcion_del_vocabulario"
+    },
+    {
+      "ambito": "del_origen",
+      "relacion": "paso"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "paso_de_medida"
+    },
+    {
+      "ambito": "del_origen",
+      "relacion": "producto"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "referente_comparado"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "referente_declarado"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "relacion_declarada"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "relacion_documentada"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "requiere"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "sombra"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "termino"
+    },
+    {
+      "ambito": "universal",
+      "relacion": "verbo_del_cli"
+    }
+  ],
+  "campo_declarado": [
+    {
+      "campo": "id",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "escenario",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "semilla",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "entero",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "pasos",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "entero",
+      "unidad": "pasos"
+    },
+    {
+      "campo": "razon",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "presupuesto_agotado",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "booleano",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "determinista",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "corrida",
+      "tiene_unidad": true,
+      "tipo": "booleano",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "corrida",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "evento",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "t",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "evento",
+      "tiene_unidad": true,
+      "tipo": "entero",
+      "unidad": "pasos"
+    },
+    {
+      "campo": "que",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "evento",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "actor",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "evento",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "id",
+      "es_magnitud": false,
+      "es_sin_unidad": true,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "texto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "campo": "ox",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "oy",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "oz",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "ex",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "ey",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "ez",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "lx",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "ly",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "lz",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "cm"
+    },
+    {
+      "campo": "yaw",
+      "es_magnitud": true,
+      "es_sin_unidad": false,
+      "relacion": "pieza",
+      "tiene_unidad": true,
+      "tipo": "flotante",
+      "unidad": "grados"
+    }
+  ],
+  "campo_diagnostico": [
+    {
+      "campo": "oracle.distribucion",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    },
+    {
+      "campo": "oracle.algebra",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    },
+    {
+      "campo": "oracle.sintaxis",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    },
+    {
+      "campo": "oracle.corriendo_desde",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    },
+    {
+      "campo": "entorno.python",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    },
+    {
+      "campo": "entorno.sistema",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    },
+    {
+      "campo": "entorno.arquitectura",
+      "es_del_dominio": false,
+      "que_se_colo": ""
+    }
+  ],
+  "cantidad_comparada": [
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_compone",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_compone",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_compone",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_compone",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_compone",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_nunca_agrega_filas",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_nunca_agrega_filas",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.donde_nunca_agrega_filas",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_cubre_algebra",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_cubre_algebra",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_cubre_algebra",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_cubre_algebra",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_cubre_algebra",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_cubre_algebra",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_fijada",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_fijada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_fijada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_esta_fijada",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_conmuta",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_conmuta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_conmuta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_conmuta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_conmuta",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_materializa_el_producto",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "meta.unir_materializa_el_producto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.afirmacion_declara_alcance",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.afirmacion_declara_alcance",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.verificacion_vigente",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.verificacion_vigente",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "simulacion.corrida_reproducible",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "simulacion.corrida_reproducible",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "unidad": "pasos"
+    },
+    {
+      "es_derivable": true,
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_alcanzable",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_alcanzable",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_alcanzable",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_alcanzable",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_con_consumidor",
+      "unidad": "adimensional"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_con_consumidor",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_con_consumidor",
+      "unidad": "sin_unidad"
+    },
+    {
+      "es_derivable": true,
+      "medida": "proceso.modulo_con_consumidor",
+      "unidad": "adimensional"
+    }
+  ],
+  "caso": [
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "049-donde-agrego-filas",
+      "medida": "meta.donde_nunca_agrega_filas",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "050-donde-filtra-como-debe",
+      "medida": "meta.donde_nunca_agrega_filas",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "051-agrupar-invento-un-grupo",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "052-agrupar-colapsa-como-debe",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "053-unir-perdio-un-par",
+      "medida": "meta.unir_materializa_el_producto",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "054-unir-materializa-el-producto",
+      "medida": "meta.unir_materializa_el_producto",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "055-logico-cortocircuito",
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "056-logico-evalua-todo",
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "057-un-solo-cortocircuito",
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "061-ausencia-sin-requiere",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "062-ausencia-cubierta-o-no-aplica",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "063-ausencia-sin-terminos-no-concluye",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "064-medida-sin-filtro-ni-grupo",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "065-medida-filtra-o-agrupa",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "066-filtro-sin-terminos-no-concluye",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "067-umbral-de-igualdad",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "068-umbral-de-orden",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "069-filtro-no-toma-terminos-ajenos",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "070-catalogo-real-sin-filtro-ni-grupo",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "071-catalogos-reales-sin-umbral-de-igualdad",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "072-un-umbral-flotante-real-que-compara-por-orden",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "073-defensas-y-alcances-reales-no-vacios",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "074-alcances-reales-declaran-lo-que-no-ven",
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "075-las-dos-medidas-reales-de-unir-y-agrupar-declaran-requiere",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "100-donde-no-compone",
+      "medida": "meta.donde_compone",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "101-donde-compone-bien",
+      "medida": "meta.donde_compone",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "102-unir-no-conmuta",
+      "medida": "meta.unir_conmuta",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "103-unir-conmuta-bien",
+      "medida": "meta.unir_conmuta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "104-agrupar-sin-claves-difiere",
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "105-agrupar-sin-claves-coincide",
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "106-macro-expande-distinto",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "107-macro-equivale",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "108-donde-compone-un-campo-por-vez",
+      "medida": "meta.donde_compone",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "109-unir-conmuta-un-campo-por-vez",
+      "medida": "meta.unir_conmuta",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "110-agrupar-sin-claves-es-el-resumen-global-un-campo-por-vez",
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "111-una-macro-equivale-a-su-expansion-un-campo-por-vez",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "120-sintaxis-no-vuelve-igual",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "121-sintaxis-vuelve-exacta",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "122-sintaxis-revienta-al-leer",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "123-sintaxis-un-campo-por-vez",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "124-sintaxis-cubre-algebra-no-vuelve-igual",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "medida_existe": true,
+      "procedencia": "generada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "125-sintaxis-cubre-algebra-vuelve-exacta",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "medida_existe": true,
+      "procedencia": "generada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "126-sintaxis-cubre-algebra-un-campo-por-vez",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "medida_existe": true,
+      "procedencia": "generada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "127-sintaxis-casos-no-vuelve-igual",
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "128-sintaxis-casos-vuelve-exacta",
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "129-sintaxis-casos-generados-no-vuelve-igual",
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "medida_existe": true,
+      "procedencia": "generada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "130-sintaxis-casos-generados-vuelve-exacta",
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "medida_existe": true,
+      "procedencia": "generada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "131-sintaxis-casos-un-campo-por-vez",
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "132-sintaxis-casos-generados-un-campo-por-vez",
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "medida_existe": true,
+      "procedencia": "generada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "400-umbral-flotante-de-igualdad",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "401-umbral-flotante-de-desigualdad",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "402-umbral-flotante-de-orden-y-entero",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "403-umbral-sin-defensa",
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "404-umbral-con-defensa",
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "405-medida-sin-alcance",
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "406-medida-con-alcance",
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "407-medida-solo-con-evidencia-fabricada",
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "408-medida-con-evidencia-observada",
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "409-flotante-comparado-por-igualdad-en-filtro",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "410-flotante-comparado-por-desigualdad-en-filtro",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "411-flotante-en-filtro-sin-ancestro-no-concluye",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "412-catalogo-real-sin-flotante-de-igualdad-en-filtro",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "413-campo-sin-unidad-declarada",
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "414-campo-con-unidad-declarada",
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "415-umbral-sin-segun",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "416-umbral-con-segun",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "417-tanteos-reales-explicados-o-ausentes",
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "420-evidencia-declarada-observada-que-nadie-observo",
+      "medida": "",
+      "medida_existe": false,
+      "procedencia": "observada",
+      "tiene_medida": false
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "421-cantidad-comparada-sin-unidad-derivable",
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "422-cantidad-comparada-con-unidad-derivable",
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "423-sin-cantidad-comparada-no-concluye",
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "424-referente-sin-huella",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "425-referentes-con-huella",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "426-referente-sin-evidencia-no-concluye",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "427-referente-cambio-despues-de-leer",
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "428-referente-sigue-vigente",
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "429-sin-comparacion-de-referente-no-concluye",
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "430-verbo-del-cli-fuera-de-la-ayuda",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "431-todos-los-verbos-en-la-ayuda",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "432-opcion-del-vocabulario-sin-sentido",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "433-vocabulario-explicado-entero",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "434-vocabulario-que-el-manual-no-muestra",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "435-el-manual-alcanza-todo-vocabulario",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "436-verbos-reales-todos-en-la-ayuda",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "437-vocabularios-reales-explicados",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "438-vocabularios-reales-en-el-manual",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "439-sin-verbos-del-cli-no-concluye",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "440-sin-opciones-del-vocabulario-no-concluye",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "441-sin-opciones-del-vocabulario-el-manual-no-concluye",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "442-diagnostico-con-la-ruta-del-usuario",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "443-diagnostico-sin-nada-del-dominio",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "444-sombra-sobre-una-medida-que-no-existe",
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "445-todas-las-sombras-sobre-medidas-que-existen",
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "446-sombra-sobre-una-medida-ya-en-verde",
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "447-ninguna-sombra-esta-de-mas",
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "448-sombra-sin-fecha-ni-motivo",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "449-toda-sombra-con-fecha-y-motivo",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "450-relacion-del-lenguaje-sin-documentar",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "451-todas-las-relaciones-documentadas",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "452-sin-relaciones-documentadas-no-concluye",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "453-una-sola-sombra-sin-motivo",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "454-sombra-observada-sobre-un-id-muerto",
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "455-sombra-observada-que-ya-da-verde",
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "456-sombras-observadas-todas-con-fecha-y-motivo",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "457-diagnostico-observado-sin-nada-del-dominio",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "458-referencia-observada-nombra-todas-las-relaciones",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "459-referentes-reales-del-fixture-diferencial",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "460-una-sombra-de-mas-de-un-trimestre",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "461-ninguna-sombra-envejecio",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "462-una-sombra-con-fecha-que-no-se-puede-leer",
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "463-ninguna-sombra-con-fecha-invalida",
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "464-sombra-observada-de-291-dias",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "465-sombra-observada-con-fecha-ilegible",
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "466-una-opcion-de-exactamente-cinco-palabras",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "467-una-sombra-de-noventa-y-un-dias",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "468-exclusion-de-mutador-aplicada-globalmente",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "469-todas-las-exclusiones-disponibles-en-el-arnes",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "470-la-exclusion-real-no-se-aplica-globalmente",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "471-el-mutador-que-nadie-distribuye-no-es-una-exclusion-global",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "472-medida-sin-ambito",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "473-medidas-con-ambito-declarado",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "474-el-catalogo-migrado-declara-su-ambito",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "475-medida-universal-depende-de-relacion-del-origen",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "476-medidas-con-dependencias-de-ambito-compatible",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "477-medida-universal-depende-por-requiere-de-relacion-del-origen",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "478-la-cota-y-la-clasificacion-coinciden-sin-consultarse",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "479-sombras-vencidas-de-distinta-edad",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "480-sin-sombras-no-hay-antiguedad-incumplida",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "481-el-candidato-rojo-no-supera-el-umbral",
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "482-generador-observado-con-umbrales-no-nulos",
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "483-un-caso-observado-que-no-dice-de-donde-salio",
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "484-todos-los-observados-dicen-de-donde-salieron",
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "485-la-ausencia-visible-no-volvia-de-una-macro",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "486-la-ausencia-visible-vuelve-de-las-tres-macros",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "487-el-paquete-mutaba-con-cinco-de-veintinueve-mutadores",
+      "medida": "",
+      "medida_existe": false,
+      "procedencia": "observada",
+      "tiene_medida": false
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "488-agrupar-sin-agregados-no-volvia-de-la-superficie",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "489-agrupar-sin-agregados-vuelve-exacto",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "490-la-sombra-tapaba-una-deuda-que-crecia",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "491-la-sombra-declara-su-cota-y-la-respeta",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "492-una-cota-con-holgura-esconde-el-progreso",
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": true,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "493-la-cota-es-exactamente-la-deuda",
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "001-verde-acumulativo",
+      "medida": "proceso.afirmacion_declara_alcance",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "002-mutante-firma-por-id",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "003-mutante-fondo-nunca-ejercitado",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "004-testigos-duplicados",
+      "medida": "",
+      "medida_existe": false,
+      "procedencia": "observada",
+      "tiene_medida": false
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "005-mutante-yaw-sin-franja",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "006-arnes-bytecode-viejo",
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "007-relevo-verde-arbol-sucio",
+      "medida": "proceso.verificacion_vigente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "008-vault-falso-rojo",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "009-modulo-sin-consumidor",
+      "medida": "proceso.modulo_con_consumidor",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "010-sed-desindenta",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "011-conclusion-errada-desvan",
+      "medida": "",
+      "medida_existe": false,
+      "procedencia": "observada",
+      "tiene_medida": false
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "012-umbral-duplicado-en-filtro-y-umbral",
+      "medida": "",
+      "medida_existe": false,
+      "procedencia": "observada",
+      "tiene_medida": false
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "013-comparadores-del-algebra-sin-ejercitar",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "014-mutador-dejo-un-archivo-mutado-al-ser-matado",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "015-racimo-inalcanzable",
+      "medida": "proceso.modulo_alcanzable",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "016-timeout-contado-como-mutante-muerto",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "017-error-de-arnes-contado-como-mutante-muerto",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "018-mutante-de-cache-borro-la-copia-del-proyecto",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "019-ronda-sin-mutantes-declarada-verde",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "020-una-afirmacion-sin-alcance-alcanza",
+      "medida": "proceso.afirmacion_declara_alcance",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "021-un-cambio-vivo-invalida-la-verificacion",
+      "medida": "proceso.verificacion_vigente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "022-un-falso-rojo-ya-rompe-el-verificador",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "023-un-import-ajeno-no-es-consumidor",
+      "medida": "proceso.modulo_con_consumidor",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "024-una-variante-no-vacia-inalcanzable",
+      "medida": "proceso.modulo_alcanzable",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "025-mutante-de-codigo-sobreviviente",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "026-mutante-de-codigo-equivalente-no-cuenta-como-muerte-ni-sobreviviente",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "027-ronda-de-codigo-sin-mutantes-no-concluye",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "043-ausencia-total-sale-verde",
+      "medida": "proceso.modulo_con_consumidor",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "044-sin-grafo-de-alcance-sale-verde",
+      "medida": "proceso.modulo_alcanzable",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "058-rechazo-del-algebra-no-es-deteccion",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "059-clave-declarada-en-un-caso",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "101-mutantes-todos-muertos",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "102-verificacion-vigente",
+      "medida": "proceso.verificacion_vigente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "103-vault-sin-falsos-rojos",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "104-afirmacion-con-alcance",
+      "medida": "proceso.afirmacion_declara_alcance",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "105-arnes-con-cache-frio",
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "106-modulos-con-consumidor",
+      "medida": "proceso.modulo_con_consumidor",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "107-reruteo-sin-romper-sintaxis",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "108-ronda-mutacion-concluyente",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "109-mutantes-de-codigo-todos-muertos",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "110-mutante-de-codigo-equivalente-declarado-verde",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "116-todo-el-nucleo-es-alcanzable",
+      "medida": "proceso.modulo_alcanzable",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "200-corrida-sin-ninguna-corrida",
+      "medida": "simulacion.corrida_reproducible",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "201-presupuesto-sin-ninguna-corrida",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "202-traza-sin-ningun-evento",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "301-simulador-que-ignora-la-semilla",
+      "medida": "simulacion.corrida_reproducible",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "302-corridas-reproducibles",
+      "medida": "simulacion.corrida_reproducible",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "303-el-presupuesto-no-alcanzo",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "304-el-presupuesto-alcanzo",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "medida_existe": true,
+      "procedencia": "construida",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "305-traza-con-hueco",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": true,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": true,
+      "explica_el_hueco": false,
+      "id": "306-traza-completa",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "307-una-corrida-no-reproducible-alcanza",
+      "medida": "simulacion.corrida_reproducible",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "308-una-corrida-agota-el-presupuesto",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    },
+    {
+      "biblioteca": "",
+      "declara_de_donde_salio": false,
+      "dio_ok": false,
+      "es_heredado": false,
+      "es_hueco_abierto": false,
+      "esperado_ok": false,
+      "explica_el_hueco": false,
+      "id": "309-una-traza-con-un-hueco",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "medida_existe": true,
+      "procedencia": "observada",
+      "tiene_medida": true
+    }
+  ],
+  "medida": [
+    {
+      "agregado": "contar",
+      "alcance": "compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada. Si paso viene vacía no hay pasos observados que agranden la relación y verde es correcto; además el arnés trazar.py garantiza ejecuciones trazadas por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.agrupar_no_agranda_la_relacion",
+      "pasos": 2,
+      "porque": "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron. Si sale agrandando, está inventando grupos que ninguna fila sostiene, y un agregado sobre un grupo inventado es un número sin evidencia detrás",
+      "relacion": "paso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara las dos formas para los cinco agregados, sobre una sonda construida. NO compara testigos —difieren por diseño— ni cubre `agrupar` CON claves, donde la equivalencia no aplica porque hay más de un grupo. Si equivalencia viene vacía no hay desacuerdos observados y verde es correcto; además metamorficas.py construye las sondas por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "pasos": 2,
+      "porque": "sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el mismo número. Si no coinciden, `agrupar` pierde o inventa filas al colapsar, y todo agregado calculado sobre un grupo así es un número sin evidencia detrás. NO se exigen los mismos testigos, y no es una concesión: un grupo no es un hecho, los hechos se consumieron al agruparse, así que las dos formas señalan cosas distintas a propósito",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara las dos formas sobre una sonda construida con filas que pasan cada filtro y filas que no. NO cubre predicados con UDF ni con `o` anidado, y no dice nada sobre el catálogo publicado: hoy ninguna medida usa dos `donde`, así que esta propiedad se comprueba antes de tener usuario. Si equivalencia viene vacía no hay fallas de composición y verde es correcto; además metamorficas.py construye las sondas por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.donde_compone",
+      "pasos": 2,
+      "porque": "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»: son la misma pregunta escrita de dos maneras. Se exigen las tres coincidencias y no sólo el veredicto, porque las filas que sobreviven al último `donde` SON los testigos, y dos formas que dan el mismo número señalando filas distintas mandan a una persona a mirar el lugar equivocado",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.donde_nunca_agrega_filas",
+      "pasos": 2,
+      "porque": "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender",
+      "relacion": "paso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira todos los casos, propios y heredados, y ve el id que cada caso RECLAMA: un caso de biblioteca colgado puede señalar una selección incompleta del proyecto. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.el_caso_reclama_una_medida_que_existe",
+      "pasos": 2,
+      "porque": "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto",
+      "relacion": "caso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira todos los casos, propios y heredados, y compara el veredicto contra la polaridad declarada: que un caso de biblioteca difiera en este entorno informa sobre este entorno. NO ve si el caso está bien etiquetado, ni si la evidencia que trae es la del defecto que dice traer. Si caso viene vacía no hay desacuerdos de polaridad y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar el nivel meta",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.el_caso_se_pone_como_debe",
+      "pasos": 2,
+      "porque": "un caso del corpus es un defecto real observado: si la medida que lo reclama no se pone roja ahí, la medida está mal escrita o falta lenguaje. Y al revés, un caso correcto que se pone rojo es un falso rojo, que enseña a ignorar el verificador",
+      "relacion": "caso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "recorre los valores de texto del diagnóstico y los compara contra lo que el proyecto sabe que es suyo —ids de medidas, nombres de archivos, la raíz y el home—. NO detecta un dato del dominio que no esté en esa lista, ni juzga si un campo nuevo debería estar; de eso responde quien lo agrega",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.el_diagnostico_no_publica_el_dominio",
+      "pasos": 2,
+      "porque": "el diagnóstico existe para pegarse en un issue público: un id de medida, un nombre de archivo o una ruta con el usuario adentro se comparten sin que nadie los mire dos veces, y no se pueden despublicar",
+      "relacion": "campo_diagnostico",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira sólo casos propios (`es_heredado == false`) y ve que cada caso marcado explícitamente como hueco abierto tenga una explicación; los huecos de una biblioteca responden ante su certificación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.el_hueco_declarado_explica_por_que",
+      "pasos": 2,
+      "porque": "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir",
+      "relacion": "caso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir. Si medida viene vacía no hay medidas que confundan nivel con dominio y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "pasos": 2,
+      "porque": "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca",
+      "relacion": "medida",
+      "segun": "convencion",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira sólo casos propios (`es_heredado == false`), porque la fijación de una biblioteca es responsabilidad de su certificación. De esos casos mira lo que declaran sobre sí mismos. NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo. Un caso puede mentir en `procedencia` y esta medida no lo ve",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "pasos": 4,
+      "porque": "una medida cuyos casos son todos fabricados puede estar ajustada a los ejemplos que se escribieron para que pasara, y no a evidencia de algo que ocurrió; el límite es cero y no un margen porque un solo caso observado ya cambia la naturaleza de la fijación",
+      "relacion": "caso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza. Si nodo viene vacía no hay cortocircuitos observados y verde es correcto; además trazar.py garantiza nodos trazados por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "pasos": 2,
+      "porque": "un operando que no se evaluó es un error que no se levantó. La especificación dice que comparar contra un campo ausente levanta error y no devuelve False, porque un False silencioso lo convierte en un verde; cortocircuitar el `y` deshace esa regla justo cuando el primer operando ya decidió, y encima la vuelve dependiente de los datos: la misma medida rota rompe con una evidencia y se esconde con otra",
+      "relacion": "nodo",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve si cada campo de `campo_declarado` tiene `tiene_unidad` en false. NO juzga si la unidad declarada es la magnitud física correcta que emite el sensor",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ningun_campo_sin_unidad_declarada",
+      "pasos": 2,
+      "porque": "un campo cuya unidad no se declaró —ni una magnitud física ni un «sin unidad» explícito— permite que una medida compare magnitudes incompatibles en silencio",
+      "relacion": "campo_declarado",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pasos": 2,
+      "porque": "un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria sobre una cantidad medida: 0.1 más 0.2 no da 0.3, así que el filtro puede aceptar o rechazar por cómo quedó el número en binario y no por el margen que la medida defiende. El límite es cero y no un margen porque una sola igualdad exacta ya vuelve arbitrario el corte",
+      "relacion": "ancestro",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira sólo el operador final del umbral de cada medida. NO ve igualdades dentro de filtros o agregados, ni decide si `!=` es una política válida para un dominio concreto. Si medida viene vacía significa que no hay medidas en el catálogo que ofendan la regla y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ningun_umbral_de_igualdad",
+      "pasos": 2,
+      "porque": "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira el operador y el tipo del valor final del umbral de cada medida. NO ve igualdades exactas dentro de expresiones o agregados — de ésas se ocupa el álgebra al evaluar — y NO juzga `==` sobre enteros, textos ni booleanos, que se comparan exacto",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ningun_umbral_flotante_de_igualdad",
+      "pasos": 2,
+      "porque": "un umbral `==` o `!=` sobre un flotante compara cantidades medidas con una exactitud que la representación no garantiza: 0.1+0.2 no es 0.3, y una igualdad exacta ahí es una falsedad silenciosa que se lee como verde. La comparación de orden con tolerancia (`cerca`) deja el margen a la vista y con su defensa",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara la cota declarada contra el valor que dio la medida ensombrecida en esta corrida. Sólo mira las sombras que declaran cota y que llegaron a evaluarse: sin cota, o con `valor` en -1 porque la medida no corrió, queda verde acá. NO ve si la cota es correcta en un proyecto que no corrió esta medida, y NO baja la cota sola: obliga a bajarla a mano, que es la mitad del punto — el número lo escribe una persona y queda en el commit",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "pasos": 2,
+      "porque": "una cota por encima de la deuda real deja lugar para crecer sin que nada avise, que es exactamente lo que la cota vino a impedir. Y deja de ser el registro de que la deuda se está cerrando: si baja de 94 a 90 y la cota sigue en 94, el proyecto no se entera de su propio progreso y las cuatro deudas cerradas quedan disponibles para volver a abrirse gratis. La cota es la deuda de hoy, no un presupuesto",
+      "relacion": "sombra",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira si cada declaración de `referente_declarado` trae `tiene_huella` en false. NO verifica que el referente exista, que la huella corresponda a él, que quien la escribió haya leído algo ni si sigue vigente; sólo exige la huella necesaria para una comparación posterior",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "pasos": 2,
+      "porque": "una evidencia sin huella no se puede comparar después contra la declaración actual del referente: el sensor tiene que dejar una identidad comprobable desde el momento de la lectura",
+      "relacion": "referente_declarado",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara las dos huellas declaradas para cada identidad en `referente_comparado`. NO verifica que el referente exista, que una huella corresponda a su contenido ni que quien la declaró haya leído algo",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "pasos": 2,
+      "porque": "un veredicto sólo habla del referente leído mientras la declaración actual conserve la misma huella; si cambió, la evidencia anterior ya no alcanza para juzgarlo",
+      "relacion": "referente_comparado",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve que un mutador que algún autor declara siga estando en el registro del arnés. NO ve que la exclusión por medida esté bien implementada, NO ve que la premisa de la exclusión sea cierta, y NO ve nada sobre un mutador que esta instalación no distribuye",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "pasos": 2,
+      "porque": "un mutador sacado del registro no corre sobre NINGUNA medida, ni siquiera donde la premisa no vale, y el denominador de mutación baja en silencio — medido: la biblioteca de ejemplo publicaba 16 mutantes certificados cuando eran 17. Los dos hechos se cruzan acá y no en el sensor porque hay dos maneras de que un mutador falte y sólo una es un defecto: que alguien lo filtre al construir el registro, o que su módulo no se distribuya. En un consumidor, «mutadores/» no viaja en el paquete y la ausencia no es culpa de nadie",
+      "relacion": "mutador_excluido",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cruza el ámbito declarado de cada medida con el de las relaciones que consume, por fuente y por requiere. NO demuestra que una medida universal sea realmente universal: no ve una suposición del origen escondida en un literal, ni una convención que sólo explica la prosa, ni —sobre todo— si el receptor tiene de verdad un remedio disponible. Detecta una contradicción derivable, no la pertinencia. Y sólo mira hacia lo ancho: declarar un ámbito más estrecho que las dependencias pierde cobertura y esta medida no lo señala",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "pasos": 2,
+      "porque": "una medida no puede obligar a más proyectos que aquellos donde su evidencia tiene dueño. Si consume una relación que describe la instalación del origen —la configuración del arnés, el manual, la ayuda del CLI— su rojo sólo lo puede arreglar el origen, y declararla universal se lo manda a un consumidor que no tiene remedio. Es la contradicción que DECISION-012 vuelve falsable, y la única que se deriva sin leer prosa. No usa la macro «ninguno» porque cruza tres relaciones y la macro admite una sola fuente",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve si el `alcance` está VACÍO. NO impone una fórmula textual ni un idioma, y NO juzga si el punto ciego declarado es el correcto o el completo",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_medida_sin_alcance",
+      "pasos": 2,
+      "porque": "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "max",
+      "alcance": "publica la edad máxima en días entre las sombras que superan el trimestre; sin incumplimientos publica 0 y ningún testigo, no la edad máxima de las sombras recientes. NO juzga si el motivo sigue siendo válido, ni si alguien la miró en el medio, ni si el arreglo avanzó; una sombra revisada ayer y una olvidada hace un año se ven igual si la fecha no cambió. Tampoco ve una fecha que no se pueda leer o que esté en el futuro: eso da días negativos y lo mide `meta.toda_sombra_declara_una_fecha_real`. Sin sombras no hay antigüedad incumplida y verde es correcto",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "pasos": 2,
+      "porque": "una sombra es una etapa de transición, y lo único que la distingue de apagar la medida es que alguien la vaya a sacar. Noventa días es un trimestre: tiempo de sobra para el arreglo que se pospuso, y poco para que el proyecto se acostumbre a no verla. El número lo eligió el equipo y no salió de medir nada — cambiarlo es una decisión, no la corrección de un error",
+      "relacion": "sombra",
+      "segun": "convencion",
+      "umbral": 90,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 90
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara contra el catálogo cargado. NO ve si el id está bien escrito ni sugiere a cuál se parecía",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "pasos": 2,
+      "porque": "una sombra sobre un id que el catálogo no tiene no apaga nada: quedó de un renombre o de una medida que se fue, y su presencia sugiere una protección que no existe",
+      "relacion": "sombra",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara el valor que dio la medida ensombrecida contra la cota que su sombra declara, en esta corrida. Sólo mira las sombras que declaran cota: una sin cota queda verde acá y se comporta como antes. NO verifica que la cota sea la deuda real de hoy —una cota escrita de más deja lugar para crecer sin que esto lo vea—, NO hace que la cota baje sola cuando la deuda baja, y NO ve la deuda de una medida que no llegó a evaluarse: ahí el valor es -1 y de la falta se ocupa que `existe` sea falso",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_sombra_supera_su_cota",
+      "pasos": 2,
+      "porque": "una sombra apaga la CONSECUENCIA de un rojo, no la deuda que hay debajo. Sin una cota, apagarla también compra que la deuda crezca: cada caso nuevo que la incumple se suma a un número que ya nadie mira, y la sombra pasa de ser una etapa de transición a ser el lugar donde el problema se agranda. Con la cota declarada, el rojo vuelve el día que la deuda sube — que es el único día en que hace falta",
+      "relacion": "sombra",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve el veredicto de esta corrida. NO ve si el verde es estable ni si vino de evidencia flaca, y NO puede saber si mañana vuelve a ponerse roja",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.ninguna_sombra_ya_en_verde",
+      "pasos": 2,
+      "porque": "una medida en sombra que ya da verde no tiene nada que perdonar: dejarla apagada esconde que el proyecto podría estar exigiéndola, y convierte una etapa de transición en un estado permanente",
+      "relacion": "sombra",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "comprueba casos sintéticos derivados de la forma L0 de un caso: relación ausente, relación presente vacía, una a tres relaciones, filas homogéneas y heterogéneas, clave declarada y no declarada, textos, enteros, floats, true, false, null, el texto \"null\", prosa con backticks, comillas y saltos de línea, y un caso con `medida: null`. NO cubre objetos anidados ni listas como valores de campo porque L0 los rechaza, ni comprueba que una medida reclamada exista. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.sintaxis_casos_cubre_casos",
+      "pasos": 2,
+      "porque": "todo caso generado desde la forma de datos que acepta el corpus debe imprimirse, releerse y reimprimirse sin perder relaciones, valores JSON, prosa ni el nulo de medida",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.sintaxis_casos_ida_y_vuelta",
+      "pasos": 2,
+      "porque": "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 0 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.sintaxis_cubre_algebra",
+      "pasos": 2,
+      "porque": "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "comprueba las medidas publicadas del catálogo base y perfiles. NO preserva comentarios libres ni demuestra que otra superficie escrita a mano sea la más legible; sólo que la forma canónica impresa por la herramienta vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py comprueba el catálogo por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.sintaxis_ida_y_vuelta",
+      "pasos": 2,
+      "porque": "la superficie infija es reversible sólo si el JSON de almacenamiento y el texto canónico sobreviven a la ida y vuelta sin cambio",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cree lo que la declaración dice y NO verifica que el sensor emita en esa unidad",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "pasos": 2,
+      "porque": "una medida que compara cantidades cuya unidad no se puede derivar —porque una relación no declaró el campo o una escalar no declaró su unidad de retorno— no puede garantizar que las magnitudes comparadas sean compatibles",
+      "relacion": "cantidad_comparada",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "detecta medidas cuya forma canónica contiene `unir` y `agrupar` pero ningún nodo `requiere`. NO demuestra que toda medida con ese patrón sea realmente de ausencia, ni que la relación requerida elegida sea la correcta",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_medida_de_ausencia_declara_requiere",
+      "pasos": 3,
+      "porque": "el patrón `unir` más `agrupar` puede convertir una relación necesaria vacía en cero filas y después en verde; declarar `requiere` hace que la medida falle cerrado antes de agregar sobre nada",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve que el campo `ambito` esté declarado y no en `sin_declarar`. NO juzga si el ámbito declarado es el correcto: esa segunda pregunta no la contesta ninguna medida",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_medida_declara_su_ambito",
+      "pasos": 2,
+      "porque": "toda medida tiene que declarar dónde obliga: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas durante la migración, no una declaración aceptable",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_medida_esta_ejercitada",
+      "pasos": 2,
+      "porque": "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre",
+      "relacion": "medida_en_uso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_medida_esta_fijada",
+      "pasos": 2,
+      "porque": "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada",
+      "relacion": "medida_en_uso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_medida_filtra_o_agrupa",
+      "pasos": 3,
+      "porque": "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende",
+      "relacion": "medida",
+      "segun": "convencion",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta palabras, no las lee: NO juzga si la explicación es correcta ni si distingue de verdad. Y NO ve un vocabulario cerrado que no esté en el registro del manual — para eso está `meta.todo_vocabulario_cerrado_esta_en_el_manual`",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "pasos": 2,
+      "porque": "un vocabulario cerrado es la parte del lenguaje que más se equivoca quien recién llega, porque los cinco nombres se parecen entre sí; una opción explicada en cinco palabras o menos no distingue de las otras cuatro, que es lo único que el lector necesita. El límite es cero: no hay opción que valga la pena tener y no valga la pena explicar",
+      "relacion": "opcion_del_vocabulario",
+      "segun": "convencion",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "comprueba que el NOMBRE aparezca en la referencia del propio Oracle. NO juzga si lo que dice de ella es correcto, si está actualizado ni si alcanza para usarla. En un proyecto consumidor la relación viene VACÍA y la medida sale SIN EVIDENCIA en vez de roja: documentar el lenguaje es responsabilidad de quien lo publica, no de quien lo usa",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "pasos": 2,
+      "porque": "una relación que el lenguaje emite y la referencia no nombra es una superficie pública que nadie puede aprender a usar salvo leyendo el código; el límite es cero porque cada relación es una que alguien va a necesitar y no va a encontrar",
+      "relacion": "relacion_documentada",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve si los dos campos están declarados. NO juzga si el motivo es bueno ni si la fecha es cierta, ni ve las medidas que deberían estar en sombra y no se pusieron",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_sombra_declara_desde_y_porque",
+      "pasos": 2,
+      "porque": "una sombra sin fecha no se puede envejecer y una sin motivo no se puede discutir: sin las dos, apagar un rojo sale gratis y deja de ser una decisión para pasar a ser una comodidad",
+      "relacion": "sombra",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira los días calculados, que salen negativos por dos motivos distintos: la fecha no se pudo leer, o está en el futuro. NO los distingue — el testigo trae la medida y los días, no la cadena original. Y NO juzga si una fecha legible es la verdadera: alguien puede escribir una de hace un mes sobre una sombra puesta hoy",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.toda_sombra_declara_una_fecha_real",
+      "pasos": 2,
+      "porque": "`meta.toda_sombra_declara_desde_y_porque` sólo ve que el campo no esté vacío, así que «cuando pueda» y «2027-12-01» pasan las dos. Una fecha que no se puede leer, o que todavía no llegó, deja a la sombra sin edad: no se la puede envejecer, y entonces la medida que la envejece nunca la va a encontrar",
+      "relacion": "sombra",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve si el `origen` del caso nombra un comando o un registro. NO verifica que ese comando exista, que el registro esté ahí, que la corrida haya ocurrido ni que la evidencia salga de ella: un caso puede declarar los dos campos y mentir en los dos, y esta medida no lo ve. Tampoco mira los casos `construida` ni `generada`, que no afirman contacto con el mundo, ni los que no declaran procedencia — de eso se ocupa `meta.la_medida_no_se_fija_solo_con_evidencia_fabricada`",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.todo_caso_observado_declara_de_donde_salio",
+      "pasos": 2,
+      "porque": "`observada` es la única procedencia que afirma algo sobre el mundo, y es la que Oracle no puede verificar. Si además el caso no dice de dónde salió —qué se corrió, o dónde quedó el registro de esa corrida—, la afirmación no sólo es inverificable: es infalsable, porque nadie sabe adónde ir a contradecirla. El límite es cero por lo mismo que en `segun`: la ausencia se hace visible de a un caso, no en promedio",
+      "relacion": "caso",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve sólo tanteos con defensa vacía. NO exige prosa a mediciones, contratos ni convenciones, y NO juzga si la explicación escrita alcanza",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.todo_tanteo_explica_por_que",
+      "pasos": 2,
+      "porque": "un tanteo dice que el número se probó hasta que anduvo; sin prosa no queda nada auditable sobre por qué ése y no otro",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve si la etiqueta `segun` quedó en `sin_declarar`. NO juzga si la etiqueta elegida es verdadera ni si el número está bien defendido",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.todo_umbral_declara_de_donde_sale",
+      "pasos": 2,
+      "porque": "todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable",
+      "relacion": "medida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara contra la ayuda de `oracle --help`, que es lo primero y muchas veces lo único que alguien lee. NO juzga si la descripción es clara ni si los argumentos están explicados, y NO ve un verbo que exista sin estar declarado en VERBOS",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "pasos": 2,
+      "porque": "un verbo que el comando acepta y la ayuda no nombra sólo lo encuentra quien lea el despacho; el límite es cero porque cada uno es una función que ya está escrita, probada y publicada, y que nadie va a usar",
+      "relacion": "verbo_del_cli",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "mira el registro `VOCABULARIOS` de `tools/manual.py`, no la salida del comando: NO ve si la sección se imprime rota. Y NO puede ver un vocabulario cerrado que no esté ni en el manual ni en el registro de hechos: eso lo atrapa el test que enumera los módulos del núcleo",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "pasos": 2,
+      "porque": "el manual no es un documento aparte sino una vista de estas mismas declaraciones, y por eso no puede quedar viejo — salvo de una manera: que aparezca un vocabulario nuevo y nadie lo agregue al registro. Ésa es la única grieta, y es exactamente lo que mide esta medida",
+      "relacion": "opcion_del_vocabulario",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara cada medida escrita por macro contra su expansión canónica, con la evidencia real de sus casos de corpus. NO ve las macros sin ningún caso que las use, ni una expansión que sea consistentemente equivocada: si la macro siempre expande mal de la misma manera, las dos formas coinciden y esta medida calla",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.una_macro_equivale_a_su_expansion",
+      "pasos": 2,
+      "porque": "una macro es azúcar: expande a la forma canónica ANTES de construir la medida, así que el evaluador no debería poder distinguir una de otra. Es la propiedad con más en juego del catálogo — diecinueve de veintidós medidas pasan por una macro, y si alguna expandiera distinto de lo que su autor cree, todo lo escrito con ella mediría otra cosa en silencio y sin que ningún caso lo notara",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara `unir A B` contra `unir B A` sobre una sonda construida y sobre las medidas reales que usan `unir`, con la evidencia de sus casos. NO ve `unir` anidados de más de dos lados ni el costo: dos formas equivalentes pueden materializar el mismo producto con presupuestos muy distintos. Si equivalencia viene vacía no hay fallas de conmutatividad y verde es correcto; además metamorficas.py construye las sondas por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.unir_conmuta",
+      "pasos": 2,
+      "porque": "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto",
+      "relacion": "equivalencia",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa. Si producto viene vacía no hay productos defectuosos y verde es correcto; además trazar.py garantiza productos trazados por construcción",
+      "ambito": "del_origen",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "meta",
+      "es_meta_por_el_nombre": true,
+      "es_meta_por_lo_que_mide": true,
+      "id": "meta.unir_materializa_el_producto",
+      "pasos": 2,
+      "porque": "`unir` es el producto cartesiano y nada más: si sale un número distinto de |izquierda| × |derecha|, o perdió pares o los duplicó. Perderlos esconde ofensas y duplicarlos las cuenta dos veces — y con semántica de bolsas eso altera conteos, sumas y promedios sin ninguna alarma",
+      "relacion": "producto",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve si el campo está VACÍO. NO ve si el alcance escrito es honesto, completo ni pertinente",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.afirmacion_declara_alcance",
+      "pasos": 2,
+      "porque": "una afirmación de verde sin alcance declarado es una cifra, no algo verificable: se lee como «está bien» y sólo dice «no se rompió lo de antes»",
+      "relacion": "afirmacion",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta mutantes de código de la ronda cuyo estado fue «pasaron» sin estar declarados como equivalentes. NO ve los mutadores que nadie escribió ni los operadores que el perfil de mutación no contempla: un mutante que no existe no puede sobrevivir. Tampoco juzga por sí sola si la ronda fue concluyente —eso lo mide proceso.ronda_mutacion_concluyente— ni si el bytecode estaba frío. Si mutante viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.codigo_con_mutante_que_lo_mata",
+      "pasos": 2,
+      "porque": "un mutante de código que sobrevive es una modificación sintáctica del núcleo que ningún test detecta: la suite completa pasa con el código alterado, lo que demuestra que los tests tienen un punto ciego y no están fijando ese comportamiento. El umbral tiene que ser cero porque tolerar sobrevivientes no declarados equivale a publicar como verificada una base de código cuyo comportamiento real no está garantizado. Un mutante equivalente declarado con su razón escrita no cuenta como sobreviviente porque documenta una decisión explícita, no una omisión de los tests",
+      "relacion": "mutante",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve los estados estructurados publicados por cada corrida. NO distingue por sí sola si un código no cero fue una aserción o un error: eso depende del protocolo explícito del runner. Si corrida_mutacion viene vacía significa que no hubo rondas de mutación inconclusas y verde es correcto",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.ronda_mutacion_concluyente",
+      "pasos": 2,
+      "porque": "sin mutantes no hay material; un timeout, un error del arnés o una línea base roja dejan la mutación inconclusa: ninguno demuestra que un mutante murió",
+      "relacion": "corrida_mutacion",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pasos": 2,
+      "porque": "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea",
+      "relacion": "archivo",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.test_con_mutante_que_lo_mata",
+      "pasos": 2,
+      "porque": "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar",
+      "relacion": "mutante",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta cambios marcados como código vivo. En v0.1 NO compara fechas ni sabe cuál verificación quedó vieja: cualquier cambio vivo la invalida. Hace falta comparar contra el commit de la verificación. Si cambio viene vacía significa que no hubo cambios recientes, por lo que la verificación sigue vigente",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.verificacion_vigente",
+      "pasos": 2,
+      "porque": "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir",
+      "relacion": "cambio",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.verificador_sin_falsos_rojos",
+      "pasos": 2,
+      "porque": "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno",
+      "relacion": "hallazgo",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara dos ejecuciones con la MISMA semilla. NO ve si el resultado depende de algo de afuera —la hora, el orden de un diccionario, un archivo— que hoy casualmente no cambió. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "simulacion",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "simulacion.corrida_reproducible",
+      "pasos": 2,
+      "porque": "una corrida que no se reproduce no puede ser material de corpus: mañana da otra cosa y el caso deja de significar algo. Sin determinismo la simulación no es evidencia, es una anécdota",
+      "relacion": "corrida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "simulacion",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "simulacion.la_traza_no_tiene_huecos",
+      "pasos": 3,
+      "porque": "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó",
+      "relacion": "evento",
+      "segun": "convencion",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve la clasificación producida por el contrato de terminación. NO ve si el presupuesto era razonable, ni si una corrida que terminó a tiempo lo hizo por el motivo correcto. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "simulacion",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "simulacion.no_se_agoto_el_presupuesto",
+      "pasos": 2,
+      "porque": "una corrida que se quedó sin pasos no observó el sistema: observó el presupuesto. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló, no de lo simulado",
+      "relacion": "corrida",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación. Si corrida_mutacion viene vacía significa que no hubo corridas con bytecode caliente en la sesión y verde es correcto",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": false,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.arnes_con_bytecode_frio",
+      "pasos": 2,
+      "porque": "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado",
+      "relacion": "corrida_mutacion",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.modulo_alcanzable",
+      "pasos": 3,
+      "porque": "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto",
+      "relacion": "modulo",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    },
+    {
+      "agregado": "contar",
+      "alcance": "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama",
+      "ambito": "universal",
+      "comparador": "<=",
+      "declara_requiere": true,
+      "dominio": "proceso",
+      "es_meta_por_el_nombre": false,
+      "es_meta_por_lo_que_mide": false,
+      "id": "proceso.modulo_con_consumidor",
+      "pasos": 3,
+      "porque": "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite",
+      "relacion": "modulo",
+      "segun": "contrato",
+      "umbral": 0,
+      "umbral_es_flotante": false,
+      "umbral_op": "<=",
+      "umbral_valor": 0
+    }
+  ],
+  "mutador_excluido": [
+    {
+      "esta_en_el_arnes": true,
+      "lo_ofrece_un_autor": true,
+      "mutador": "convertir_conteo_en_existencia",
+      "premisa": "la medida tiene umbral <= 0"
+    }
+  ],
+  "opcion_del_vocabulario": [
+    {
+      "en_el_manual": true,
+      "opcion": "accidente",
+      "palabras_del_sentido": 22,
+      "vocabulario": "como_se_detecto"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "herramienta_ajena",
+      "palabras_del_sentido": 8,
+      "vocabulario": "como_se_detecto"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "mutacion",
+      "palabras_del_sentido": 10,
+      "vocabulario": "como_se_detecto"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "observacion",
+      "palabras_del_sentido": 14,
+      "vocabulario": "como_se_detecto"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "persona",
+      "palabras_del_sentido": 15,
+      "vocabulario": "como_se_detecto"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "deuda_de_diseño",
+      "palabras_del_sentido": 23,
+      "vocabulario": "etiqueta"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "falso_rojo",
+      "palabras_del_sentido": 21,
+      "vocabulario": "etiqueta"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "falso_verde",
+      "palabras_del_sentido": 30,
+      "vocabulario": "etiqueta"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "medida_correcta_conclusion_errada",
+      "palabras_del_sentido": 27,
+      "vocabulario": "etiqueta"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "verde_correcto",
+      "palabras_del_sentido": 24,
+      "vocabulario": "etiqueta"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "agrupar",
+      "palabras_del_sentido": 29,
+      "vocabulario": "operadores"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "de",
+      "palabras_del_sentido": 26,
+      "vocabulario": "operadores"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "desde",
+      "palabras_del_sentido": 22,
+      "vocabulario": "operadores"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "donde",
+      "palabras_del_sentido": 30,
+      "vocabulario": "operadores"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "resumen",
+      "palabras_del_sentido": 21,
+      "vocabulario": "operadores"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "unir",
+      "palabras_del_sentido": 25,
+      "vocabulario": "operadores"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "construida",
+      "palabras_del_sentido": 20,
+      "vocabulario": "procedencia"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "generada",
+      "palabras_del_sentido": 14,
+      "vocabulario": "procedencia"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "observada",
+      "palabras_del_sentido": 25,
+      "vocabulario": "procedencia"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "ambito_de_relacion",
+      "palabras_del_sentido": 21,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "caso",
+      "palabras_del_sentido": 23,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "medida_en_uso",
+      "palabras_del_sentido": 26,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "mutador_excluido",
+      "palabras_del_sentido": 35,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "opcion_del_vocabulario",
+      "palabras_del_sentido": 17,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "relacion_documentada",
+      "palabras_del_sentido": 22,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "sombra",
+      "palabras_del_sentido": 39,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "verbo_del_cli",
+      "palabras_del_sentido": 26,
+      "vocabulario": "relaciones"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "contrato",
+      "palabras_del_sentido": 24,
+      "vocabulario": "segun"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "convencion",
+      "palabras_del_sentido": 26,
+      "vocabulario": "segun"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "medicion",
+      "palabras_del_sentido": 28,
+      "vocabulario": "segun"
+    },
+    {
+      "en_el_manual": true,
+      "opcion": "tanteo",
+      "palabras_del_sentido": 22,
+      "vocabulario": "segun"
+    }
+  ],
+  "relacion_declarada": [
+    {
+      "alcance": "lee los campos certificados de la corrida y el veredicto de determinismo. NO ve la ejecución interna paso a paso ni estados no resumidos",
+      "campos": 7,
+      "relacion": "corrida",
+      "tiene_alcance": true
+    },
+    {
+      "alcance": "lee los eventos registrados de la traza de simulación. NO ve el estado interno ni eventos no emitidos",
+      "campos": 4,
+      "relacion": "evento",
+      "tiene_alcance": true
+    },
+    {
+      "alcance": "lee el AABB (origen y semi-extensión) y la transformación (pivote y orientación yaw) del actor en Unreal/Jam. NO lee la malla poligonal real, vértices, caras, normales, colisión compleja ni geometría interna",
+      "campos": 11,
+      "relacion": "pieza",
+      "tiene_alcance": true
+    }
+  ],
+  "relacion_documentada": [
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "ambito_de_relacion"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "ancestro"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "campo_declarado"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "campo_diagnostico"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "cantidad_comparada"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "caso"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "dependencia_de_medida"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "equivalencia"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "fuente"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "medida"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "medida_en_uso"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "mutador_excluido"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "nodo"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "opcion_del_vocabulario"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "paso"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "paso_de_medida"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "producto"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "referente_comparado"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "referente_declarado"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "relacion_declarada"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "relacion_documentada"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "requiere"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "sombra"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "termino"
+    },
+    {
+      "nombrada_en_la_referencia": true,
+      "relacion": "verbo_del_cli"
+    }
+  ],
+  "sombra": [
+    {
+      "cota": 94,
+      "declara_cota": true,
+      "declara_desde": true,
+      "declara_porque": true,
+      "dias": 1,
+      "dio_ok": false,
+      "existe": true,
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "supera_la_cota": false,
+      "valor": 94
+    }
+  ],
+  "verbo_del_cli": [
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "biblioteca",
+      "verbo": "instaladas"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "biblioteca",
+      "verbo": "listar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "biblioteca",
+      "verbo": "nueva"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "biblioteca",
+      "verbo": "verificar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "caso",
+      "verbo": "generar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "caso",
+      "verbo": "listar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "caso",
+      "verbo": "nuevo"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "como_se_detecto"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "etiqueta"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "medidas"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "operadores"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "procedencia"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "relaciones"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "segun"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "manual",
+      "verbo": "verbos"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "medida",
+      "verbo": "expandir"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "medida",
+      "verbo": "listar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "medida",
+      "verbo": "nueva"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "medida",
+      "verbo": "probar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "medida",
+      "verbo": "revisar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "oracle",
+      "verbo": "censar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "oracle",
+      "verbo": "reportar"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "proyecto",
+      "verbo": "contexto"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "proyecto",
+      "verbo": "escalares"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "proyecto",
+      "verbo": "init"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "proyecto",
+      "verbo": "relaciones"
+    },
+    {
+      "nombrado_en_la_ayuda": true,
+      "sustantivo": "proyecto",
+      "verbo": "test"
+    }
+  ]
+}

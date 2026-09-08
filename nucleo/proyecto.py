@@ -155,6 +155,13 @@ class ConfiguracionProyecto:
     # corrida y no una comodidad silenciosa.
     sombra: tuple["EnSombra", ...] = ()
 
+# «No declarada», y NO cero: cero es una cota legítima y la más exigente que se puede escribir.
+# Vive acá y no como literal en dos sitios porque este número VIAJA: sale en la relación `sombra`
+# que leen las medidas, y los casos del corpus están escritos contra él. Dos literales que hay que
+# acordarse de mover juntos son un literal de más.
+SIN_COTA = -1
+
+
 
 @dataclass(frozen=True)
 class EnSombra:
@@ -171,6 +178,12 @@ class EnSombra:
     medida: str
     desde: str = ""
     porque: str = ""
+    # `cota` es la deuda que la sombra tapa, declarada como número. Es OPCIONAL: sin ella la sombra
+    # se comporta como siempre. Con ella, `meta.ninguna_sombra_supera_su_cota` hace fallar la
+    # corrida en cuanto la deuda crece, así que apagar la consecuencia deja de permitir que el
+    # problema se agrande sin que nadie lo note. `-1` significa «no declarada», no «cero»: cero es
+    # una cota legítima y exigente.
+    cota: int = SIN_COTA
 
 
 def _sombra_declarada(datos: dict) -> tuple[EnSombra, ...]:
@@ -191,7 +204,15 @@ def _sombra_declarada(datos: dict) -> tuple[EnSombra, ...]:
         desde, porque = valor.get("desde", ""), valor.get("porque", "")
         if not isinstance(desde, str) or not isinstance(porque, str):
             raise ProyectoInvalido(f"`sombra[{mid}]`: `desde` y `porque` son texto")
-        entradas.append(EnSombra(mid, desde.strip(), porque.strip()))
+        # `cota` SÍ se valida acá, y no en una medida, porque no es una política sino una forma: un
+        # texto o un negativo no son una cota, y dejarlos pasar haría que la comparación mintiera en
+        # vez de fallar. `bool` se rechaza aparte porque en Python es un `int` y `True` como cota
+        # sería 1 sin que nadie lo escribiera así.
+        cota = valor.get("cota", SIN_COTA)
+        if "cota" in valor and (isinstance(cota, bool) or not isinstance(cota, int) or cota < 0):
+            raise ProyectoInvalido(
+                f"`sombra[{mid}]`: `cota` es un entero >= 0 y llegó {cota!r}")
+        entradas.append(EnSombra(mid, desde.strip(), porque.strip(), cota))
     ids = [e.medida for e in entradas]
     if len(ids) != len(set(ids)):
         raise ProyectoInvalido("`sombra` repite una medida")

@@ -8,7 +8,8 @@
   "sombra": {
     "meta.todo_caso_observado_declara_de_donde_salio": {
       "desde": "2026-09-07",
-      "porque": "94 de los 95 casos `observada` del corpus propio declaran sólo `repo` y `commit`, que sitúan un árbol y no una corrida. Se cierran de a uno, escribiendo en cada `origen` el comando que lo produjo, y sólo cuando alguien puede afirmar cuál fue: rellenarlos de memoria sería inventar la procedencia que la medida existe para hacer visible. Los casos nuevos ya nacen cumpliéndola"
+      "porque": "94 de los 102 casos `observada` del corpus propio declaran sólo `repo` y `commit`, que sitúan un árbol y no una corrida. Se cierran de a uno, escribiendo en cada `origen` el comando que lo produjo, y sólo cuando alguien puede afirmar cuál fue: rellenarlos de memoria sería inventar la procedencia que la medida existe para hacer visible, y el árbol contra el que corrieron ya no existe, así que tampoco se puede reconstruir midiendo. Los casos nuevos ya nacen cumpliéndola, y la `cota` impide que la deuda crezca mientras tanto: si sube a 95, la corrida vuelve a fallar",
+      "cota": 94
     }
   }
 }

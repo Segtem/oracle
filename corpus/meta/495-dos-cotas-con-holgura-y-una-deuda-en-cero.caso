@@ -1,0 +1,19 @@
+caso 495-dos-cotas-con-holgura-y-una-deuda-en-cero:
+    fecha: "2026-09-08"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    procedencia: construida
+    titulo: "Dos cotas con holgura, y una sobre una deuda ya cerrada"
+    etiqueta: falso_verde
+    sintoma:
+        Dos sombras con holgura a la vez, y la segunda con la deuda en CERO: la medida que la sostenia ya da verde y la cota sigue declarada en cinco, o sea cinco incumplimientos de credito sobre un problema que no existe. Es el peor caso de la holgura, porque ahi la cota no solo esconde el progreso: esconde que la sombra entera sobra.
+    como_se_detecto: mutacion
+    medida: meta.ninguna_cota_mas_alta_que_su_deuda
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
+            "otra.con_holgura", true, true, 10, false, true, true, 40, 12, false
+            "otra.deuda_ya_cerrada", true, true, 10, true, true, true, 5, 0, false
+            "otra.en_su_cota", true, true, 3, false, true, true, 7, 7, false
+    leccion:
+        Un rojo que vale exactamente uno no fija el umbral: aflojarlo a `<= 1` lo deja pasar y el mutante sobrevive. Y una deuda de cero es el borde del filtro `valor >= 0`: vuelto estricto, la unica fila que reporta progreso completo es la que deja de mirarse, que es justo donde la holgura mas engana. Los dos bordes hacen falta en el mismo caso porque los dos mutadores pegan en la misma medida.

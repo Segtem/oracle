@@ -148,8 +148,16 @@ def hechos_de_vocabulario(vocabularios, temas_del_manual) -> dict:
         for opcion, sentido in sorted(vocabularios[nombre].items())]}
 
 
+def _valor_medido(valores: dict, medida: str) -> int:
+    """El valor que dio la medida, o -1 si no se midió. Sin el `isinstance` un `True` contaría 1."""
+    valor = valores.get(medida)
+    if isinstance(valor, bool) or not isinstance(valor, (int, float)):
+        return -1
+    return int(valor)
+
+
 def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
-                     hoy: date | None = None) -> dict:
+                     hoy: date | None = None, valores: dict | None = None) -> dict:
     """Un hecho por medida puesta en sombra: qué declara, hace cuánto, y si ya está en verde.
 
     La sombra apaga la CONSECUENCIA de un rojo, no la medición. Estos hechos existen para que el
@@ -163,8 +171,10 @@ def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
     que le corresponde.
     """
     hoy = hoy or date.today()
+    valores = valores or {}
     filas = []
     for entrada in en_sombra:
+        valor = _valor_medido(valores, entrada.medida)
         try:
             dias = (hoy - date.fromisoformat(entrada.desde)).days
         except ValueError:
@@ -179,6 +189,19 @@ def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
             # esté en verde algo que no corrió.
             "dio_ok": bool(veredictos_ok.get(entrada.medida, False)),
             "existe": entrada.medida in catalogo,
+            # La DEUDA que la sombra tapa, y la cota que se declaró para ella. Sin `cota` las dos
+            # valen -1 y `supera_la_cota` queda en falso: una sombra sin cota se comporta como
+            # antes. Con cota, la deuda no puede crecer en silencio, que es lo único que apagar la
+            # consecuencia nunca debió comprar. `valor` es -1 cuando la medida no llegó a
+            # evaluarse: no se puede afirmar el tamaño de una deuda que no se midió, y de eso se
+            # ocupa que `existe` sea falso.
+            # `>= 0` y no `> 0`: CERO es una cota legítima, y la más exigente que se puede
+            # escribir —«esta deuda no puede tener ni un caso»—. Leerla como «no declarada»
+            # apagaría justo la sombra que más obliga.
+            "declara_cota": entrada.cota >= 0,
+            "cota": entrada.cota,
+            "valor": valor,
+            "supera_la_cota": entrada.cota >= 0 and valor > entrada.cota,
         })
     return {"sombra": filas}
 

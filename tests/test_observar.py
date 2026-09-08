@@ -20,6 +20,7 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 from unittest.mock import patch
 
+from nucleo import caso as caso_sintaxis
 from nucleo.referente import Referente
 from tools import observar
 from tools.corpus import verificar
@@ -203,6 +204,18 @@ class Recorrido(unittest.TestCase):
                                     "--destino", str(destino or self.destino)])
         return codigo, salida.getvalue()
 
+    def caso_emitido(self) -> Path:
+        """El archivo del caso, por lo que el REGISTRO dice que se llamó.
+
+        Suponer `.json` acá ataba el test al formato: cuando el recorrido pasó a emitir la
+        superficie `.caso`, seis tests se cayeron con `FileNotFoundError` sin decir nada sobre lo
+        que comprueban. El registro ya declara el nombre; preguntárselo es además comprobarlo.
+        """
+        return self.destino / self.registro()["caso"]["archivo"]
+
+    def leer_caso(self) -> dict:
+        return caso_sintaxis.leer(self.caso_emitido().read_text(encoding="utf-8"))
+
     def registro(self):
         return json.loads((self.destino / "registro.json").read_text(encoding="utf-8"))
 
@@ -219,8 +232,7 @@ class Recorrido(unittest.TestCase):
 
     def test_el_caso_emitido_trae_la_evidencia_tal_cual_y_la_procedencia_observada(self):
         self.capturar()
-        caso = json.loads(
-            (self.destino / f"{CASO['id']}.json").read_text(encoding="utf-8"))
+        caso = self.leer_caso()
         evidencia = json.loads((self.destino / "evidencia.json").read_text(encoding="utf-8"))
         self.assertEqual(caso["evidencia"], evidencia)
         self.assertEqual(caso["procedencia"], "observada")
@@ -235,8 +247,7 @@ class Recorrido(unittest.TestCase):
         self.capturar()
         corpus = self.base / "corpus" / "dominio"
         corpus.mkdir(parents=True)
-        (corpus / f"{CASO['id']}.json").write_bytes(
-            (self.destino / f"{CASO['id']}.json").read_bytes())
+        (corpus / self.caso_emitido().name).write_bytes(self.caso_emitido().read_bytes())
         fallas, cargados = verificar(self.base / "corpus")
         self.assertEqual(fallas, [])
         self.assertEqual([c["id"] for c in cargados], [CASO["id"]])
@@ -474,7 +485,7 @@ class Recorrido(unittest.TestCase):
 
     def test_la_fecha_del_caso_es_el_dia_de_la_corrida(self):
         self.capturar()
-        caso = json.loads((self.destino / f"{CASO['id']}.json").read_text(encoding="utf-8"))
+        caso = self.leer_caso()
         self.assertRegex(caso["fecha"], r"^\d{4}-\d{2}-\d{2}$")
         self.assertTrue(self.registro()["inicio_utc"].startswith(caso["fecha"] + "T"))
 
@@ -594,7 +605,7 @@ class Recorrido(unittest.TestCase):
         self.assertIn("declaración".encode("utf-8"),
                       (self.destino / "registro.json").read_bytes())
         self.assertIn("leyó".encode("utf-8"),
-                      (self.destino / f"{CASO['id']}.json").read_bytes())
+                      self.caso_emitido().read_bytes())
 
     def test_el_destino_se_crea_con_sus_padres_y_acepta_una_carpeta_ya_hecha(self):
         hondo = self.base / "consumidor" / "observaciones" / "2026" / "09" / "piezas"
@@ -608,13 +619,19 @@ class Recorrido(unittest.TestCase):
         self.assertEqual(codigo, 0, texto)
         self.assertTrue((preparada / "registro.json").is_file())
 
-    def test_los_artefactos_se_guardan_con_la_sangria_del_corpus(self):
+    def test_los_artefactos_se_guardan_con_la_sangria_de_su_formato(self):
+        """Cada artefacto con la sangría de SU formato, que dejaron de ser el mismo: el registro es
+        JSON y va con dos espacios; el caso es la superficie `.caso` y va con cuatro, como todo el
+        corpus. Los dos terminan en salto de línea, que es lo que hace que un diff no toque la
+        última fila cuando se agrega la siguiente."""
         self.capturar()
-        for nombre in ("registro.json", f"{CASO['id']}.json"):
-            with self.subTest(archivo=nombre):
-                texto = (self.destino / nombre).read_text(encoding="utf-8")
-                self.assertRegex(texto.splitlines()[1], r'^ {2}"')
-                self.assertTrue(texto.endswith("\n"))
+        registro = (self.destino / "registro.json").read_text(encoding="utf-8")
+        self.assertRegex(registro.splitlines()[1], r'^ {2}"')
+        caso = self.caso_emitido().read_text(encoding="utf-8")
+        self.assertTrue(caso.startswith("caso "), caso[:40])
+        self.assertRegex(caso.splitlines()[1], r'^ {4}\w')
+        for texto in (registro, caso):
+            self.assertTrue(texto.endswith("\n"))
 
 class NoSeMidio(unittest.TestCase):
     """Los cuatro defectos que encontró la revisión de falsación del 2026-09-07.
@@ -712,7 +729,11 @@ class NoSeMidio(unittest.TestCase):
         # Sólo se identifican las que el PLAN declara; el sensor puede importar otras.
         codigo, texto = self.capturar(self.consumidor.plan())
         self.assertEqual(codigo, 0, texto)
-        caso = json.loads((self.destino / f"{CASO['id']}.json").read_text(encoding="utf-8"))
+        # Esta clase no comparte el `setUp` de `Recorrido`, así que el caso se busca por lo que el
+        # registro dice —el mismo criterio, sin suponer la extensión—.
+        registro = json.loads((self.destino / "registro.json").read_text(encoding="utf-8"))
+        caso = caso_sintaxis.leer(
+            (self.destino / registro["caso"]["archivo"]).read_text(encoding="utf-8"))
         self.assertIn("QUE EL PLAN DECLARA", caso["origen"]["estado"])
         self.assertIn("puede no declararlas todas", caso["origen"]["estado"])
 

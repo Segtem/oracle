@@ -1147,8 +1147,13 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
                 else:
                     _fallar(n2, len(IND2) + 1, "clave o agregado", interno)
                 i += 1
-            if not agregados:
-                _fallar(n, len(IND) + 1, "al menos un agregado")
+            # SIN mínimo de agregados, y el mínimo que había era un estrechamiento arbitrario de
+            # la superficie respecto del álgebra: `["agrupar", claves, []]` es válido, se evalúa y
+            # da una fila por combinación distinta de claves —deduplicar—, que es justo lo que
+            # necesitaba una medida real de un consumidor. La asimetría se veía sola: CERO CLAVES
+            # siempre se aceptó. El impresor, además, ya escribía las dos formas, así que Oracle
+            # emitía un `agrupar:` que después no podía volver a leer. Es el mismo defecto que
+            # motivó 0.9.2 en los argumentos de macro, en otra cláusula.
             pasos.append(["agrupar", claves, agregados])
             continue
         break

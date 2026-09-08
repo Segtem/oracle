@@ -1,0 +1,21 @@
+caso 488-agrupar-sin-agregados-no-volvia-de-la-superficie:
+    fecha: "2026-09-08"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "46c292d+worktree"
+        comando: "python3 -B tools/metamorficas.py con el lector viejo restaurado en una copia"
+    procedencia: observada
+    titulo: "Un agrupar sin agregados se imprimia y despues no se podia leer"
+    etiqueta: falso_verde
+    sintoma:
+        El impresor escribe `agrupar:` con sus claves y sin agregados —que es lo que el algebra acepta y evalua, una fila por combinacion distinta de claves— y el lector lo rechazaba con «se esperaba al menos un agregado». La superficie era mas angosta que el algebra, y de forma asimetrica: cero CLAVES siempre se acepto. Lo encontro una medida real de un consumidor (LyraGASP, animacion.clip_de_linea_base_ausente_del_lote), no esta sonda, porque el generador no producia el caso: el agujero estaba declarado en el alcance de esta misma medida.
+    como_se_detecto: accidente
+    medida: meta.sintaxis_cubre_algebra
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_cubre_algebra", "meta_gen.grp_c0_a0", "construido", false, "ErrorSintaxis: línea 3, columna 5: se esperaba al menos un agregado", false, false, false
+            "sintaxis_cubre_algebra", "meta_gen.grp_c1_a0", "construido", false, "ErrorSintaxis: línea 3, columna 5: se esperaba al menos un agregado", false, false, false
+            "sintaxis_cubre_algebra", "meta_gen.grp_c2_a0", "construido", false, "ErrorSintaxis: línea 3, columna 5: se esperaba al menos un agregado", false, false, false
+            "sintaxis_cubre_algebra", "meta_gen.grp_c1_a1_contar", "construido", true, "", true, true, true
+    leccion:
+        Un hueco declarado en un alcance no deja de ser un hueco: dice donde no mirar, y ahi es exactamente donde estaba el defecto. El alcance cumplio su trabajo —cuando el consumidor lo piso, decia por que la sonda no lo habia visto— pero un hueco declarado y no cerrado es una apuesta a que nadie pase por ahi. La regla que queda: cuando el impresor puede escribir una forma, el lector tiene que poder leerla, y si la sonda no la genera el hueco se cierra en el generador, no en el alcance.

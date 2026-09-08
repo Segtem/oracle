@@ -1,0 +1,22 @@
+caso 489-agrupar-sin-agregados-vuelve-exacto:
+    fecha: "2026-09-08"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "46c292d+worktree"
+        comando: "python3 -B tools/metamorficas.py"
+    procedencia: observada
+    titulo: "Las cuatro esquinas de agrupar dan la vuelta exactas"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La misma sonda despues del arreglo: las tres combinaciones sin agregados vuelven identicas, y las que si los tienen no se movieron. Las filas con agregados estan a proposito, para que el verde no dependa solo de las esquinas nuevas.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_cubre_algebra
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_cubre_algebra", "meta_gen.grp_c0_a0", "construido", true, "", true, true, true
+            "sintaxis_cubre_algebra", "meta_gen.grp_c1_a0", "construido", true, "", true, true, true
+            "sintaxis_cubre_algebra", "meta_gen.grp_c2_a0", "construido", true, "", true, true, true
+            "sintaxis_cubre_algebra", "meta_gen.grp_c1_a1_contar", "construido", true, "", true, true, true
+            "sintaxis_cubre_algebra", "meta_gen.grp_c2_a2_max_min", "construido", true, "", true, true, true
+    leccion:
+        Un verde despues de un arreglo tiene que traer las dos mitades: las esquinas que estaban rotas y las que ya andaban. Sin las segundas, el caso no distingue un arreglo de una regresion que aflojo la comprobacion entera.

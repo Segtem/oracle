@@ -8,6 +8,7 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from nucleo import algebra
 from nucleo import caso as sintaxis_caso
 from nucleo import sintaxis as sintaxis_nucleo
 from nucleo.caso import (CasoMalDeclarado, DETECCIONES, ETIQUETAS, PROCEDENCIAS,
@@ -665,11 +666,6 @@ class MutacionDeSintaxisTests(unittest.TestCase):
                 "medida d.r:", "    de rel r", "    resumen contar(1)",
                 '    umbral <= 0 porque "razón"', '    alcance "NO ve"', "    sobra"]), 6, 5,
              "línea 6, columna 5: se esperaba fin de medida; llegó 'sobra'"),
-            ("agrupar sin agregado", self._texto([
-                "medida d.r:", "    de rel r", "    agrupar:", "        clave k = r.x",
-                "    resumen contar(1)", '    umbral <= 0 porque "razón"',
-                '    alcance "NO ve"']), 3, 5,
-             "línea 3, columna 5: se esperaba al menos un agregado"),
             ("agrupar hijo malo", self._texto([
                 "medida d.r:", "    de rel r", "    agrupar:", "        raro k = r.x",
                 "        agregado total = contar(1)", "    resumen contar(1)",
@@ -1965,7 +1961,7 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
     def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
         import tempfile
         from nucleo.medida import MedidaMalDeclarada, cargar
-        for declarada in ("0.4", "1.0"):
+        for declarada in ("0.5", "1.0"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
                 ruta = Path(d) / "d.prueba.oracle"
                 ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")
@@ -2859,3 +2855,60 @@ if __name__ == "__main__":
     unittest.main()
 
 # Resultado contra el árbol real: pasaron los 6 tests (30 subcasos de macros y 2 de medida).
+
+
+class AgruparEnSusCuatroEsquinas(unittest.TestCase):
+    """`agrupar` cruza claves y agregados, y las dos pueden venir vacías.
+
+    La superficie exigía al menos un agregado y no exigía ninguna clave. La asimetría no la sostenía
+    nada: el álgebra acepta y evalúa las cuatro esquinas, el impresor escribía las cuatro, y el
+    lector rechazaba dos. Oracle emitía un `agrupar:` que después no podía volver a leer, que es el
+    mismo defecto que motivó 0.9.2 en los argumentos de macro.
+    """
+
+    ESQUINAS = {
+        "sin claves ni agregados": ([], []),
+        "claves y sin agregados": ([["k1", ["campo", "r", "x"]]], []),
+        "sin claves y con agregados": ([], [["a1", "contar", 1]]),
+        "claves y agregados": ([["k1", ["campo", "r", "x"]]], [["a1", "contar", 1]]),
+    }
+
+    def _medida(self, claves, agregados):
+        return ["medida", "d.r",
+                ["desde", ["de", "rel", "r"], ["agrupar", claves, agregados]],
+                ["resumen", "contar", 1],
+                ["umbral", "<=", 0, "razón"],
+                ["alcance", "NO ve"]]
+
+    def test_las_cuatro_dan_la_vuelta_exactas(self):
+        for nombre, (claves, agregados) in self.ESQUINAS.items():
+            with self.subTest(nombre):
+                medida = self._medida(claves, agregados)
+                texto = sintaxis_nucleo.imprimir(medida)
+                self.assertEqual(sintaxis_nucleo.leer(texto), medida)
+                # Y el texto también, no sólo el AST: dos vueltas tienen que dar lo mismo.
+                self.assertEqual(sintaxis_nucleo.imprimir(sintaxis_nucleo.leer(texto)), texto)
+
+    def test_el_algebra_acepta_las_cuatro_que_la_superficie_escribe(self):
+        """Si el álgebra rechazara una, la superficie estaría escribiendo algo inevaluable."""
+        for nombre, (claves, agregados) in self.ESQUINAS.items():
+            with self.subTest(nombre):
+                algebra.validar_tuberia(
+                    ["desde", ["de", "rel", "r"], ["agrupar", claves, agregados]])
+
+    def test_agrupar_sin_agregados_deduplica_por_las_claves(self):
+        """No es una forma degenerada sin sentido: es el `distinct` del lenguaje, y es lo que
+        necesitaba la medida real de un consumidor que destapó el defecto."""
+        filas = [{"r": {"x": "a"}}, {"r": {"x": "a"}}, {"r": {"x": "b"}}]
+        salida = algebra.aplicar(
+            ["agrupar", [["k1", ["campo", "r", "x"]]], []], filas, algebra.LimitesAlgebra())
+        self.assertEqual(salida, [{"_": {"k1": "a"}}, {"_": {"k1": "b"}}])
+
+    def test_un_bloque_agrupar_con_una_linea_que_no_es_ni_clave_ni_agregado_sigue_fallando(self):
+        """Aflojar el mínimo no puede aflojar la comprobación del contenido: un `agrupar:` vacío es
+        legal, uno con basura adentro no."""
+        texto = ("medida d.r:\n    de rel r\n    agrupar:\n        raro k = r.x\n"
+                 "    resumen contar(1)\n    umbral <= 0 porque \"razón\"\n    alcance \"NO ve\"\n")
+        with self.assertRaises(sintaxis_nucleo.ErrorSintaxis) as caido:
+            sintaxis_nucleo.leer(texto)
+        self.assertIn("se esperaba clave o agregado", str(caido.exception))

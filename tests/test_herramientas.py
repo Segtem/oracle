@@ -1380,7 +1380,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
 
         self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
-        self.assertEqual(str(del_nucleo_sintaxis()), "0.3")
+        self.assertEqual(str(del_nucleo_sintaxis()), "0.4")
 
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear
@@ -1481,7 +1481,7 @@ class VersionDelProyecto(unittest.TestCase):
     def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
         from nucleo.version import VERSION_SINTAXIS
 
-        for declarada in ("0.4", "1.0", "9.9"):
+        for declarada in ("0.5", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -2110,3 +2110,267 @@ class ClasificacionDelCorpus(unittest.TestCase):
                 "001.caso": self._caso("001-mal-puesto", "verde_correcto", "true")})
             _rc, salida = self._correr(proy)
         self.assertIn("defectos que se pusieron rojos: 0 · verdes correctos: 0", salida)
+
+
+class LaCotaDeUnaSombra(unittest.TestCase):
+    """Una sombra apaga la consecuencia de un rojo. La `cota` impide que también compre que la
+    deuda crezca, y que el número quede escrito con lugar de sobra."""
+
+    def _sombra(self, **kw):
+        from nucleo.proyecto import EnSombra
+        return EnSombra(kw.pop("medida", "m.a"), kw.pop("desde", "2026-01-01"),
+                        kw.pop("porque", "porque sí"), kw.pop("cota", -1))
+
+    def _hecho(self, *, cota=-1, valor=None):
+        from nucleo.marco import hechos_de_sombra
+        entrada = self._sombra(cota=cota)
+        valores = {} if valor is None else {"m.a": valor}
+        return hechos_de_sombra([entrada], {}, {"m.a": object()}, valores=valores)["sombra"][0]
+
+    def test_sin_cota_declarada_la_sombra_se_comporta_como_antes(self):
+        """Es lo que hace que agregar la cota no cambie de color a ningún consumidor: los tres
+        proyectos tienen sombras y ninguno declaraba cota."""
+        hecho = self._hecho(valor=9999)
+        self.assertIs(hecho["declara_cota"], False)
+        self.assertEqual(hecho["cota"], -1)
+        self.assertIs(hecho["supera_la_cota"], False)
+
+    def test_la_deuda_en_su_cota_no_la_supera_y_una_sola_mas_si(self):
+        """El borde exacto: si la comparación fuera `>=`, una cota nunca sería alcanzable."""
+        self.assertIs(self._hecho(cota=94, valor=93)["supera_la_cota"], False)
+        self.assertIs(self._hecho(cota=94, valor=94)["supera_la_cota"], False)
+        self.assertIs(self._hecho(cota=94, valor=95)["supera_la_cota"], True)
+
+    def test_una_medida_que_no_se_evaluo_no_afirma_el_tamano_de_su_deuda(self):
+        """`-1` y no `0`: un cero diría que la deuda está cerrada, que es lo contrario de no
+        saberlo, y dejaría a `ninguna_cota_mas_alta_que_su_deuda` marcando holgura donde no hay
+        medición."""
+        self.assertEqual(self._hecho(cota=3)["valor"], -1)
+        self.assertIs(self._hecho(cota=3)["supera_la_cota"], False)
+
+    def test_un_booleano_no_cuenta_como_valor_medido(self):
+        """En Python `True` es un `int` que vale 1: sin el `isinstance`, un veredicto colado en el
+        lugar del valor se leería como una deuda de uno."""
+        self.assertEqual(self._hecho(cota=0, valor=True)["valor"], -1)
+        self.assertEqual(self._hecho(cota=0, valor=1)["valor"], 1)
+
+    def test_el_centinela_de_cota_ausente_es_el_que_el_corpus_tiene_escrito(self):
+        """`-1` no es un detalle interno: VIAJA. Sale en la relación `sombra` que leen las medidas,
+        y los casos `491` y `493` del corpus lo tienen escrito como el valor de una sombra sin cota.
+        Si el centinela derivara, los hechos emitidos dejarían de coincidir con la evidencia contra
+        la que están escritos esos casos, y el desacuerdo no lo vería nadie."""
+        from nucleo.proyecto import SIN_COTA, EnSombra
+        self.assertEqual(SIN_COTA, -1)
+        self.assertLess(SIN_COTA, 0)
+        # El default de la clase y el del lector son el MISMO centinela, no dos que coinciden.
+        self.assertEqual(EnSombra("m.a", "2026-01-01", "x").cota, SIN_COTA)
+        self.assertEqual(self._hecho(valor=7)["cota"], SIN_COTA)
+        crudo = [c for c in (RAIZ / "corpus" / "meta").glob("49*.caso")
+                 if "sin_cota_declarada" in c.read_text(encoding="utf-8")]
+        self.assertTrue(crudo, "ningún caso del corpus ejercita una sombra sin cota")
+        for ruta in crudo:
+            self.assertIn(f"false, {SIN_COTA},", ruta.read_text(encoding="utf-8"))
+
+    def test_una_cota_de_cero_esta_declarada_y_obliga(self):
+        """Cero es la cota más exigente que se puede escribir: la sombra sigue apagando el rojo,
+        pero un solo caso nuevo lo devuelve. Leerla como «no declarada» —que es lo que hace `> 0` en
+        vez de `>= 0`— apagaría justo la que más obliga, y en silencio."""
+        self.assertIs(self._hecho(cota=0, valor=0)["declara_cota"], True)
+        self.assertEqual(self._hecho(cota=0, valor=0)["cota"], 0)
+        self.assertIs(self._hecho(cota=0, valor=0)["supera_la_cota"], False)
+        self.assertIs(self._hecho(cota=0, valor=1)["supera_la_cota"], True)
+
+    def test_una_cota_que_no_es_un_entero_no_nulo_se_rechaza_al_leer_el_proyecto(self):
+        """La forma se valida al leer y no en una medida: un texto o un negativo no son una cota, y
+        dejarlos pasar haría que la comparación mintiera en vez de fallar."""
+        from nucleo.proyecto import ProyectoInvalido, configuracion, Proyecto
+        for mala in ("94", -1, 1.5, True, None, []):
+            with self.subTest(cota=mala), tempfile.TemporaryDirectory() as td:
+                raiz = Path(td) / "p"
+                (raiz / "catalogos").mkdir(parents=True)
+                (raiz / "corpus").mkdir()
+                (raiz / "oracle.json").write_text(json.dumps(
+                    {"esquema": "oracle.proyecto/v1", "perfiles": [],
+                     "sombra": {"m.a": {"desde": "2026-01-01", "porque": "x", "cota": mala}}}),
+                    encoding="utf-8")
+                with self.assertRaises(ProyectoInvalido) as caido:
+                    configuracion(Proyecto(raiz))
+                self.assertIn("cota", str(caido.exception))
+
+    def test_una_cota_valida_llega_entera_hasta_la_configuracion(self):
+        from nucleo.proyecto import configuracion, Proyecto
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td) / "p"
+            (raiz / "catalogos").mkdir(parents=True)
+            (raiz / "corpus").mkdir()
+            (raiz / "oracle.json").write_text(json.dumps(
+                {"esquema": "oracle.proyecto/v1", "perfiles": [],
+                 "sombra": {"m.a": {"desde": "2026-01-01", "porque": "x", "cota": 0},
+                            "m.b": {"desde": "2026-01-01", "porque": "y"}}}), encoding="utf-8")
+            por_medida = {e.medida: e.cota for e in configuracion(Proyecto(raiz)).sombra}
+        self.assertEqual(por_medida, {"m.a": 0, "m.b": -1})
+
+
+class LasMedidasDeLaSombraSeEligenPorLoQueLeen(unittest.TestCase):
+    """Se elegían por subcadena en el id (`if "sombra" in mid`), un contrato de nombres que nadie
+    había escrito. Una medida sobre la sombra bautizada sin esa palabra no se evaluaba nunca, y
+    quedaba en verde sin haber corrido: pasó con `meta.ninguna_cota_mas_alta_que_su_deuda`."""
+
+    def test_toda_medida_que_lee_la_sombra_entra_aunque_no_se_llame_asi(self):
+        from nucleo.medida import relaciones_de_medida
+        from nucleo.proyecto import Proyecto, catalogo_efectivo, macros_del_proyecto
+        catalogo = catalogo_efectivo(Proyecto(RAIZ), macros=macros_del_proyecto(Proyecto(RAIZ)))
+        leen = {mid for mid, m in catalogo.items() if "sombra" in relaciones_de_medida(m)}
+        por_nombre = {mid for mid in catalogo if "sombra" in mid}
+        self.assertTrue(leen, "ninguna medida lee la relación `sombra`")
+        # El caso concreto que el selector viejo se comía.
+        self.assertIn("meta.ninguna_cota_mas_alta_que_su_deuda", leen)
+        self.assertNotIn("meta.ninguna_cota_mas_alta_que_su_deuda", por_nombre)
+
+
+class LaBanderaDeHechosDeLaAceptacion(unittest.TestCase):
+    """`--hechos <ruta>` es lo que vuelve sensor a la aceptación, y un sensor lo invoca `observar.py`
+    armando el `argv` desde un plan. Si la bandera se come el argumento equivocado, o deja uno
+    suelto, el error aparece lejos —en `resolver_cli`— y hablando de otra cosa.
+
+    El parseo se prueba SIN medir: se espía qué recibió `_ejecutar`. Correr la aceptación entera por
+    cada caso costaba ~4 s cada uno, y este archivo entra a la mutación con esos tests adentro —los
+    segundos se multiplican por mutante y la ronda termina en timeout, que no mata a nadie.
+    """
+
+    def _espiar(self, argv):
+        """Corre `main` con la medición reemplazada: devuelve (código, salida, lo visto).
+
+        Espía TAMBIÉN el `argv` que le llega a `resolver_cli`, que es lo único que prueba de verdad
+        cuántos tokens se sacaron. La primera versión de este test miraba el proyecto resuelto y
+        pasaba por la razón equivocada: como el cwd de la suite ES la raíz de Oracle, comerse el
+        `--proyecto` daba el mismo resultado que respetarlo.
+        """
+        from tools import aceptacion
+        visto = {}
+        real = aceptacion.resolver_cli
+
+        def espiar_resolver(argv_restante):
+            visto["argv"] = list(argv_restante)
+            return real(argv_restante)
+
+        def falso(proy, hechos=""):
+            visto["hechos"] = hechos
+            visto["proyecto"] = proy
+            return 0
+
+        salida = io.StringIO()
+        with mock.patch.object(aceptacion, "_ejecutar", falso), \
+                mock.patch.object(aceptacion, "resolver_cli", espiar_resolver), \
+                redirect_stdout(salida):
+            codigo = aceptacion.main(argv)
+        return codigo, salida.getvalue(), visto
+
+    def test_sin_la_ruta_lo_dice_y_falla_en_vez_de_estallar(self):
+        """`--hechos` al final del `argv`: sin la comprobación, el `argv[i + 1]` sale por
+        `IndexError` y quien lo lea no se entera de que le faltó escribir la ruta."""
+        codigo, texto, visto = self._espiar(["--proyecto", str(RAIZ), "--hechos"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("`--hechos` necesita la ruta", texto)
+        self.assertEqual(visto, {}, "no debería haberse medido nada")
+
+    def test_toma_el_argumento_que_sigue_a_la_bandera_y_no_otro(self):
+        for argv in (["--hechos", "/tmp/ev.json", "--proyecto", str(RAIZ)],
+                     ["--proyecto", str(RAIZ), "--hechos", "/tmp/ev.json"]):
+            with self.subTest(argv=argv):
+                codigo, _texto, visto = self._espiar(list(argv))
+                self.assertEqual(codigo, 0)
+                self.assertEqual(visto["hechos"], "/tmp/ev.json")
+
+    def test_saca_la_bandera_y_su_ruta_del_argv_y_nada_mas(self):
+        """DOS tokens exactos. Uno de menos deja la ruta suelta como si fuera un argumento; uno de
+        más se come lo que viene detrás. Las dos formas fallan lejos del error y hablando de otra
+        cosa, porque quien recibe el `argv` mutilado es `resolver_cli`."""
+        for argv, resto in (
+            (["--hechos", "/tmp/ev.json", "--proyecto", str(RAIZ), "--confiar-escalares"],
+             ["--proyecto", str(RAIZ), "--confiar-escalares"]),
+            (["--proyecto", str(RAIZ), "--hechos", "/tmp/ev.json", "--confiar-escalares"],
+             ["--proyecto", str(RAIZ), "--confiar-escalares"]),
+            (["--proyecto", str(RAIZ), "--confiar-escalares", "--hechos", "/tmp/ev.json"],
+             ["--proyecto", str(RAIZ), "--confiar-escalares"]),
+        ):
+            with self.subTest(argv=argv):
+                codigo, _texto, visto = self._espiar(list(argv))
+                self.assertEqual(codigo, 0)
+                self.assertEqual(visto["argv"], resto)
+
+    def test_sin_la_bandera_no_se_pide_ningun_volcado(self):
+        codigo, _texto, visto = self._espiar(["--proyecto", str(RAIZ)])
+        self.assertEqual(codigo, 0)
+        self.assertEqual(visto["hechos"], "")
+
+    def _proyecto_minimo(self, td: Path) -> Path:
+        """Un proyecto de verdad, con una medida y un caso: el más chico que la aceptación juzga.
+
+        Uno vacío no sirve — sale por «SIN CASOS» antes de escribir nada, que es correcto: un corpus
+        vacío no puede juzgar al oráculo.
+        """
+        raiz = td / "p"
+        (raiz / "catalogos" / "d").mkdir(parents=True)
+        (raiz / "corpus" / "d").mkdir(parents=True)
+        (raiz / "oracle.json").write_text(
+            json.dumps({"esquema": "oracle.proyecto/v1", "perfiles": []}), encoding="utf-8")
+        (raiz / "catalogos" / "d" / "d.nada_falta.oracle").write_text(
+            'ninguno d.nada_falta:\n'
+            '    de cosa c\n'
+            '    donde c.falta == true\n'
+            '    umbral <= 0 segun contrato porque "el dueño del catálogo no se entera de qué le está faltando"\n'
+            '    ambito del_origen\n'
+            '    alcance "ve el campo falta de la relacion cosa. NO ve por que falta"\n',
+            encoding="utf-8")
+        (raiz / "corpus" / "d" / "001-falta-una.caso").write_text(
+            'caso 001-falta-una:\n'
+            '    fecha: "2026-09-08"\n'
+            '    origen:\n'
+            '        repo: "prueba"\n'
+            '        commit: "local"\n'
+            '    procedencia: construida\n'
+            '    titulo: "Falta una cosa"\n'
+            '    etiqueta: falso_verde\n'
+            '    sintoma:\n'
+            '        Una cosa marcada como faltante, y otra que no.\n'
+            '    como_se_detecto: persona\n'
+            '    medida: d.nada_falta\n'
+            '    evidencia:\n'
+            '        cosa: id, falta\n'
+            '            "a", true\n'
+            '            "b", false\n'
+            '    leccion:\n'
+            '        Sin filtro la medida entregaria las dos filas como testigos.\n',
+            encoding="utf-8")
+        return raiz
+
+    def test_la_evidencia_se_escribe_legible_y_ordenada(self):
+        """La única que comprueba el archivo. La lee una persona cuando revisa una observación
+        conservada, igual que el registro. Y `sort_keys` la vuelve estable entre corridas: sin él,
+        dos lecturas iguales pueden dar huellas distintas y `revalidar` diría que algo cambió
+        cuando no cambió nada.
+
+        Sobre un proyecto MÍNIMO y no sobre Oracle entero: lo que se comprueba es el formato del
+        volcado, que no depende del tamaño del catálogo, y este archivo entra a la mutación con
+        este test adentro."""
+        from tools import aceptacion
+        with tempfile.TemporaryDirectory() as td:
+            raiz = self._proyecto_minimo(Path(td))
+            destino = raiz / "ev.json"
+            with redirect_stdout(io.StringIO()):
+                codigo = aceptacion.main(["--proyecto", str(raiz), "--hechos", str(destino)])
+            self.assertEqual(codigo, 0)
+            crudo = destino.read_text(encoding="utf-8")
+        datos = json.loads(crudo)
+        self.assertIn("medida", datos)
+        # Sin escapar: la prosa de una medida es español entero, y `\u00f1` en el archivo que
+        # alguien abre para revisar una observación conservada lo vuelve ilegible justo donde está
+        # la razón del umbral.
+        self.assertIn("dueño", crudo)
+        self.assertIn("catálogo", crudo)
+        self.assertNotIn("\\u00f1", crudo)
+        self.assertRegex(crudo.splitlines()[1], r'^ {2}"')
+        self.assertTrue(crudo.endswith("\n"))
+        claves = [l for l in crudo.splitlines() if l.startswith('  "')]
+        self.assertEqual(claves, sorted(claves))
