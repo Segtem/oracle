@@ -1163,7 +1163,15 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_expandir(proy, args[0])
 
     # Si pasaron un archivo directamente: `oracle medida.oracle`
-    if Path(subcomando).exists() or (proy.raiz / subcomando).exists():
+    #
+    # `is_file()` y no `exists()`: con `exists()`, un subcomando mal escrito que COINCIDE con un
+    # directorio del proyecto se despachaba como si fuera una medida. `oracle corpus` —razonable de
+    # tipear, porque `oracle-corpus` sí existe como ejecutable— encontraba `medidas/corpus`, entraba
+    # a `cmd_revisar` y moría con «no se pudo leer la medida …: Is a directory». El error hablaba de
+    # otra cosa que lo que la persona había pedido, y el verbo que sí buscaba nunca se nombraba.
+    # Lo encontró un agente siguiendo una instrucción mía equivocada, que es como se encuentran
+    # estas cosas: alguien escribe lo que le parece razonable y la herramienta contesta cualquiera.
+    if Path(subcomando).is_file() or (proy.raiz / subcomando).is_file():
         return cmd_revisar(proy, subcomando, argv)
 
     print(f"subcomando desconocido: {subcomando}")

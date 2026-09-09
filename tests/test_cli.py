@@ -1711,3 +1711,51 @@ class NounVerbCliTests(CliTestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class UnDirectorioNoEsUnaMedida(unittest.TestCase):
+    """`oracle corpus` moría con «no se pudo leer la medida …: Is a directory».
+
+    El despacho por ruta usaba `exists()`, así que un subcomando mal escrito que coincidiera con un
+    directorio del proyecto se trataba como si fuera una medida. Y `corpus` es razonable de tipear:
+    `oracle-corpus` existe como ejecutable, así que alguien supone que el verbo también existe. El
+    error hablaba de leer una medida —algo que la persona nunca pidió— y el verbo que sí buscaba no
+    se nombraba en ninguna parte.
+
+    Lo encontró un agente siguiendo una instrucción equivocada, que es como se encuentran estas
+    cosas: alguien escribe lo que le parece razonable y la herramienta contesta cualquier otra cosa.
+    """
+
+    def _correr(self, argv, cwd):
+        return subprocess.run([sys.executable, "-B", str(RAIZ / "tools" / "cli.py"), *argv],
+                              cwd=str(cwd), capture_output=True, text=True,
+                              env={**os.environ, "PYTHONPATH": str(RAIZ)})
+
+    def test_un_subcomando_que_coincide_con_un_directorio_lo_dice_asi(self):
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td) / "p"
+            (raiz / "catalogos").mkdir(parents=True)
+            (raiz / "corpus").mkdir()
+            (raiz / "oracle.json").write_text(
+                json.dumps({"esquema": "oracle.proyecto/v1", "perfiles": []}), encoding="utf-8")
+            r = self._correr(["corpus", "--proyecto", str(raiz)], td)
+        self.assertEqual(r.returncode, 1, r.stdout + r.stderr)
+        self.assertIn("subcomando desconocido: corpus", r.stdout)
+        self.assertNotIn("Is a directory", r.stdout + r.stderr)
+        self.assertNotIn("no se pudo leer la medida", r.stdout + r.stderr)
+
+    def test_un_archivo_de_medida_real_se_sigue_revisando(self):
+        """La otra mitad: el despacho por ruta tiene que seguir funcionando para lo que existe."""
+        r = self._correr(
+            ["catalogos/meta/meta.ninguna_sombra_ya_en_verde.oracle"], RAIZ)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("discrimina", r.stdout)
+
+    def test_una_ruta_relativa_al_proyecto_tambien(self):
+        """`cmd_revisar` acepta la ruta relativa a la raíz del proyecto, no sólo al cwd."""
+        with tempfile.TemporaryDirectory() as td:
+            r = self._correr(
+                ["catalogos/meta/meta.ninguna_sombra_ya_en_verde.oracle", "--proyecto", str(RAIZ)],
+                td)
+        self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
+        self.assertIn("discrimina", r.stdout)

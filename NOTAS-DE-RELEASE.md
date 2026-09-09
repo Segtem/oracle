@@ -1,3 +1,80 @@
+# 0.13.1 — quince herramientas declaradas custodias y siete medidas
+
+```
+VERSION_DISTRIBUCION   0.13.0 → 0.13.1   nadie cambia de color
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+## Lo que se contó
+
+`HERRAMIENTAS_CUSTODIAS` declara los instrumentos que sostienen una afirmación que nadie más
+comprueba — «si el instrumento se rompe, la afirmación queda sin nadie que la verifique». Eran
+**15 declaradas y 7 en la matriz de mutación de CI**, y nada lo señalaba: había un test que exige
+que todo objetivo de la matriz declare sus tests prioritarios, y ninguno en la dirección contraria.
+
+**Declarar una herramienta como custodia y no medirla es afirmar que algo importa y no comprobarlo.**
+
+## Lo que apareció al medirlas
+
+Las siete que faltaban cerraron **todas en cero sobrevivientes**: 1182 sitios, 1180 muertos y 2
+equivalentes declarados, sin un solo timeout.
+
+| | mutantes | minutos |
+|---|---:|---:|
+| `reportar.py` | 19/19 | 1,1 |
+| `contexto.py` | 30/30 | 1,2 |
+| `manual.py` | 80/80 | 1,6 |
+| `lsp.py` | 140/140 | 2,2 |
+| `corpus.py` | 112/112 | 2,8 |
+| `mcp.py` | 297/297 | 13,3 |
+| `cli.py` | 504/504 | 36,5 |
+
+**No había deuda que cerrar: había una medición que nadie había hecho.** La nota del repositorio
+decía que `cli.py` tenía ~30 sobrevivientes en `main()`, y era del 2026-09-07: se cerraron solos con
+los tests que entraron después. Una estimación vieja escrita en un comentario había desalentado
+durante días una medición de dos minutos.
+
+Entran seis a la matriz. `cli.py` queda afuera **por cupo, no por deuda**: 36,5 minutos por ronda
+contra un cupo mensual que esta cuenta ya agotó una vez. Se corre a mano antes de integrar un cambio
+del CLI, y la razón está escrita en `CUSTODIAS_SIN_MEDIR` con el número medido al lado.
+
+## `lsp.py` sale de la lista, y no por costo
+
+Mide 140/140 en 2,2 minutos. Sale porque **no cumple el criterio**: es un adaptador de editor. No lo
+corre CI, ni `oracle test`, ni ningún consumidor, y todo lo que expone lo calculan `nucleo/` y las
+medidas del catálogo. Si se rompiera, ninguna afirmación quedaría sin verificar.
+
+Tenerlo ahí diluía el término: si «custodia» alcanza para una integración de editor, alcanza para
+cualquier cosa y deja de seleccionar. Lo propuso el segundo autor que midió las siete.
+
+⚠ **Por eso una cifra publicada BAJA**: los sitios de mutación de código pasan de 5935 a 5795, que
+son exactamente los 140 de `lsp.py`. El denominador cuenta lo que el proyecto declara custodiar.
+
+## Un mensaje de error que hablaba de otra cosa
+
+`oracle corpus` no es un verbo —`oracle-corpus` sí existe como ejecutable, así que es razonable
+tipearlo— y el CLI encontraba el directorio `medidas/corpus`, lo despachaba como si fuera una medida
+y moría con **«no se pudo leer la medida …: Is a directory»**. El error nombraba algo que la persona
+nunca pidió, y el verbo que sí buscaba no aparecía en ninguna parte.
+
+El despacho por ruta pasa de `exists()` a `is_file()`. Ahora dice «subcomando desconocido: corpus» y
+remite a la ayuda.
+
+Lo encontró un agente siguiendo una instrucción equivocada mía, que es como se encuentran estas
+cosas: alguien escribe lo que le parece razonable y la herramienta contesta cualquier otra cosa.
+
+## Verificación
+
+Suite **1506** · corpus **201** · medidas **959/959** · aceptación con el rojo de DECISION-004 ·
+cifras y manual regenerados · WHEEL OK. Los objetivos de la matriz pasan de 24 a **29**.
+
+`tools/cli.py` se volvió a medir **sobre este árbol**, con el arreglo del despacho por ruta adentro,
+y no sobre la copia donde se midió primero: **504/504**, cero sobrevivientes, cero timeouts, 2
+equivalentes declarados. Coincide exactamente con la medición del segundo autor.
+
+---
+
 # 0.13.0 — tres huecos que estaban declarados y no cerrados
 
 ```

@@ -231,32 +231,39 @@ PRIORIDADES = {
 # estarían apuntando a la nada mientras fijan la medida que persigue exactamente eso. Nadie más lo
 # comprueba: el corpus valida la FORMA del caso y la aceptación su POLARIDAD, y ninguno de los dos
 # corre el comando que el caso declara.
-# Custodias declaradas que TODAVÍA no entran a la matriz de mutación de CI, cada una con la razón.
-# No es una lista de excepciones permanentes: es la deuda escrita con nombre y apellido, y
-# `test_toda_custodia_entra_a_la_matriz_o_declara_por_que` la vigila para que no crezca en silencio.
-# Declarar una herramienta como custodia y no medirla es afirmar que algo importa y no comprobarlo.
+# Custodias declaradas que NO entran a la matriz de mutación de CI, cada una con la razón.
+# `test_toda_custodia_entra_a_la_matriz_o_declara_por_que` vigila las dos direcciones: una custodia
+# que no entra y no se declara hace fallar la suite, y una que ya entró y quedó acá también.
 #
-# El precedente dice que el costo es el SÍNTOMA de estar mal fijado, no una propiedad del archivo:
-# `tools/medida.py` pasó de 114 sobrevivientes y ~90 minutos a 264/264 en 201 segundos, y
-# `tools/sintaxis.py` de 42 sobrevivientes a 99/99 con 16 tests. Cada línea de acá sale cuando
-# alguien mide y cierra.
+# ⚠ Esta lista decía «sin medir» y era falsa: el 2026-09-09 se midieron las siete que faltaban y
+# **las siete cerraron en cero sobrevivientes** — 1182 sitios, 1180 muertos y 2 equivalentes
+# declarados. La nota histórica sobre los ~30 sobrevivientes de `cli.py` era del 2026-09-07 y se
+# cerraron solos con los tests que entraron después. Seis entraron a la matriz ese mismo día.
+#
+# Queda UNA, y no por deuda sino por CUPO.
 CUSTODIAS_SIN_MEDIR = {
-    "cli.py": "el perfil corre cuatro módulos de tests; medido el 2026-09-07 tenía ~30 "
-              "sobrevivientes en `main()`. Es por donde entra todo, así que es la que más custodia "
-              "y la más cara: entra primera de las que quedan.",
-    "contexto.py": "sin medir desde que entró a la lista.",
-    "corpus.py": "sin medir desde que entró a la lista.",
-    "lsp.py": "sin medir desde que entró a la lista.",
-    "manual.py": "sin medir desde que entró a la lista.",
-    "mcp.py": "sin medir desde que entró a la lista.",
-    "reportar.py": "sin medir desde que entró a la lista.",
+    "cli.py": "medida el 2026-09-09 en 504/504 sin sobrevivientes, y **limpia**: no entra por "
+              "costo. Son 36,5 minutos por ronda porque su perfil corre cuatro módulos de tests "
+              "en serie. La matriz ya no corre en cada push —sólo en pull requests y a pedido—, "
+              "pero 36 minutos por integración siguen siendo reales contra un cupo que esta cuenta "
+              "ya agotó una vez. Se corre a mano antes de integrar un cambio del CLI: "
+              "`python3 tools/mutar_codigo.py --objetivo tools/cli.py --timeout 120`. Entra a la "
+              "matriz el día que su perfil baje de ~10 minutos, no antes.",
 }
 
 
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
-                          "corpus.py", "lsp.py", "manual.py", "mcp.py", "medida.py",
+                          "corpus.py", "manual.py", "mcp.py", "medida.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py")
+
+# `lsp.py` SALIÓ de la lista el 2026-09-09, y no por costo: mide 140/140 en 2,2 minutos. Salió
+# porque no cumple el criterio. Es un adaptador de editor: no lo corre CI, no lo corre `oracle
+# test`, no lo corre ningún consumidor, y todo lo que expone —sintaxis, validación, fijación por
+# casos— lo calculan `nucleo/` y las medidas del catálogo. Si se rompiera, ninguna afirmación
+# quedaría sin verificar, que es la definición literal de esta lista. Tenerlo acá diluía el término:
+# si «custodia» alcanza para una integración de editor, alcanza para cualquier cosa y deja de
+# seleccionar. Lo propuso el segundo autor que midió las siete, y el argumento se sostiene.
 
 
 def objetivos_disponibles() -> dict[str, Path]:

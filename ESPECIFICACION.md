@@ -98,6 +98,18 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.13.1 (2026-09-09): `VERSION_DISTRIBUCION` sube de `0.13.0` a `0.13.1`.** Sube el
+**parche**: nadie cambia de color y no entra ni sale una medida del catálogo. `oracle <directorio>`
+deja de despacharse como si fuera una medida —era un mensaje de error que hablaba de otra cosa— y
+seis herramientas ya declaradas como custodias entran a la matriz de mutación de CI. Las dos
+versiones del lenguaje quedan quietas: `VERSION_ALGEBRA` en `0.6` y `VERSION_SINTAXIS` en `0.4`.
+
+**Una cifra publicada BAJA en este corte, y no es una regresión:** los sitios de mutación de código
+pasan de 5935 a 5795. Son exactamente los 140 de `tools/lsp.py`, que salió de
+`HERRAMIENTAS_CUSTODIAS`. El denominador cuenta lo que el proyecto declara custodiar, así que sacar
+una herramienta de esa lista lo achica — y achicarlo es correcto cuando lo que salió no custodiaba
+nada.
+
 **Corte 0.13.0 (2026-09-09): `VERSION_DISTRIBUCION` sube de `0.12.0` a `0.13.0`.** Sube la
 **menor** por el mismo motivo que 0.9.0: `meta.ninguna_sombra_supera_su_cota` es de ámbito
 `universal` y **se vuelve más estricta** — una cota que no se pudo comprobar cuenta igual que una

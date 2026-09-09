@@ -35,6 +35,45 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### Corte 0.13.1: quince declaradas custodias y siete medidas (2026-09-09)
+
+**Sin commitear al escribir esto.** Distribución `0.13.1`, álgebra `0.6`, sintaxis `0.4`.
+
+⚠ **La lección más útil de este corte:** una nota vieja en un comentario desalentó durante días una
+medición de dos minutos. `mutar_codigo.py` decía que `cli.py` tenía ~30 sobrevivientes en `main()`,
+y era del 2026-09-07. Al medirlo hoy: **504/504**. Se habían cerrado solos con los tests que
+entraron después. **Las siete custodias sin medir cerraron todas en cero** — 1182 sitios, 1180
+muertos, 2 equivalentes. No había deuda: había una medición que nadie había hecho.
+
+**Qué entró:**
+
+- Seis custodias entran a la matriz de mutación de CI: `aceptacion.py`, `contexto.py`, `corpus.py`,
+  `manual.py`, `mcp.py`, `reportar.py`. Los objetivos pasan de 24 a **29**.
+- La matriz corre con `--timeout 120`. El plazo es un techo, no una espera.
+- **`lsp.py` SALE de `HERRAMIENTAS_CUSTODIAS`**, y no por costo (140/140 en 2,2 min): es un
+  adaptador de editor y no custodia ninguna afirmación que otro no compruebe. Tenerlo diluía el
+  término.
+- `oracle <directorio>` deja de despacharse como medida: el despacho por ruta usa `is_file()` y no
+  `exists()`.
+- `CUSTODIAS_SIN_MEDIR` queda con **una sola entrada**, `cli.py`, y dice **por cupo, no por deuda**,
+  con el número medido al lado. Vigilada en las dos direcciones.
+
+**`tools/cli.py`: 504/504** medido de nuevo sobre el árbol final —con el arreglo del despacho por
+ruta adentro—, no sobre la copia donde lo midió el segundo autor. Coincide.
+
+⚠ **Los sitios de mutación publicados BAJAN de 5935 a 5795** — los 140 de `lsp.py`. El denominador
+cuenta lo que el proyecto declara custodiar, así que sacar algo de esa lista lo achica.
+
+**El consumidor:** LyraGASP quedó en **VERDE por primera vez** (commit `1b0df325` en su repo, sin
+push). Se le retiró `polaridad` de 91 casos; comparado campo por campo, la única diferencia en los
+91 es ésa. `oracle test` pasa de ROJO a VERDE y el censo de `49/140` a `140/140`.
+
+⚠ **Volví a editar el árbol con una ronda de mutación corriendo** —`tools/cli.py`, mientras se
+mutaba `tools/cli.py`—. Es la quinta vez que pasa en el proyecto y está anotado desde hace meses.
+La ronda se pierde entera. **Antes de tocar un archivo, comprobar que no hay ronda sobre él.**
+
+---
+
 ### Corte 0.13.0: tres huecos que estaban declarados y no cerrados (2026-09-09)
 
 **Sin commitear al escribir esto.** Distribución `0.13.0`, álgebra `0.6`, sintaxis `0.4`. Los tres
