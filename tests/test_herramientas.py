@@ -2471,3 +2471,59 @@ class LaBanderaDeHechosDeLaAceptacion(unittest.TestCase):
         self.assertTrue(crudo.endswith("\n"))
         claves = [l for l in crudo.splitlines() if l.startswith('  "')]
         self.assertEqual(claves, sorted(claves))
+
+
+class LasCustodiasQueNadieMide(unittest.TestCase):
+    """Declarar una herramienta como custodia y no medirla es afirmar que algo importa y no
+    comprobarlo.
+
+    `HERRAMIENTAS_CUSTODIAS` dice que si ese instrumento se rompe, la afirmación que sostiene queda
+    sin nadie que la verifique. Al contarlo el 2026-09-09 había **15 declaradas y 7 en la matriz de
+    mutación de CI**, y nada lo señalaba: existía un test que exige que todo objetivo de la matriz
+    declare sus tests, y ninguno en la dirección contraria.
+    """
+
+    def _custodias_y_matriz(self):
+        from tools.mutar_codigo import HERRAMIENTAS_CUSTODIAS
+        texto = (RAIZ / ".github" / "workflows" / "verificar.yml").read_text(encoding="utf-8")
+        en_matriz = {l.strip().removeprefix("- ").split("/")[-1]
+                     for l in texto.splitlines() if l.strip().startswith("- tools/")}
+        return set(HERRAMIENTAS_CUSTODIAS), en_matriz
+
+    def test_toda_custodia_entra_a_la_matriz_o_declara_por_que(self):
+        from tools.mutar_codigo import CUSTODIAS_SIN_MEDIR
+
+        custodias, en_matriz = self._custodias_y_matriz()
+        sin_declarar = sorted(custodias - en_matriz - set(CUSTODIAS_SIN_MEDIR))
+        self.assertEqual(
+            sin_declarar, [],
+            "custodias que no se miden en CI y tampoco declaran por qué: o entran a la matriz de "
+            "`.github/workflows/verificar.yml`, o se anotan en `CUSTODIAS_SIN_MEDIR` con su razón")
+
+    def test_la_deuda_declarada_no_incluye_a_ninguna_que_ya_se_mide(self):
+        """La otra dirección, que es la que envejece sola: una custodia que entró a la matriz y
+        quedó en la lista de pendientes seguiría diciendo que no se mide cuando sí. Es el mismo
+        defecto que `meta.ninguna_sombra_ya_en_verde` persigue en las sombras."""
+        from tools.mutar_codigo import CUSTODIAS_SIN_MEDIR
+
+        _custodias, en_matriz = self._custodias_y_matriz()
+        de_mas = sorted(set(CUSTODIAS_SIN_MEDIR) & en_matriz)
+        self.assertEqual(de_mas, [],
+                         "declaradas como pendientes de medir y ya están en la matriz: sacalas")
+
+    def test_cada_razon_dice_algo(self):
+        """Sin esto, la lista se llena de cadenas vacías y deja de ser una deuda declarada para ser
+        una lista de exenciones. Es lo mismo que `meta.toda_sombra_declara_desde_y_porque`."""
+        from tools.mutar_codigo import CUSTODIAS_SIN_MEDIR
+
+        for herramienta, razon in CUSTODIAS_SIN_MEDIR.items():
+            with self.subTest(herramienta):
+                self.assertGreater(len(razon.strip()), 20, "una razón de una palabra no es una razón")
+
+    def test_aceptacion_ya_no_esta_pendiente(self):
+        """La que se cerró hoy: produce el veredicto, y si se rompe no queda nadie verificando."""
+        from tools.mutar_codigo import CUSTODIAS_SIN_MEDIR
+
+        _custodias, en_matriz = self._custodias_y_matriz()
+        self.assertIn("aceptacion.py", en_matriz)
+        self.assertNotIn("aceptacion.py", CUSTODIAS_SIN_MEDIR)

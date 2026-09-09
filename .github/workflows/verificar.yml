@@ -119,6 +119,10 @@ jobs:
           # estado de varios proyectos en una fecha—, y sus conteos son el único sitio donde el
           # reparto de medidas y procedencias tiene que cerrar contra el total. Ver
           # HERRAMIENTAS_CUSTODIAS.
+          # Entra el 2026-09-09. Es la herramienta que PRODUCE EL VEREDICTO: si se rompe, no
+          # queda nadie verificando nada, que es la definición misma de HERRAMIENTAS_CUSTODIAS.
+          # Estaba declarada como custodia desde antes y no entraba; cerró en 75/75 el 2026-09-08.
+          - tools/aceptacion.py
           - tools/censar.py
           # Instrumento que custodia una afirmación: desde que genera los bloques del README, es lo
           # único que impide que una cifra publicada vuelva a derivar. Ver HERRAMIENTAS_CUSTODIAS.
@@ -144,4 +148,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
-      - run: python tools/mutar_codigo.py --objetivo "${{ matrix.objetivo }}"
+      # `--timeout 120` y no el 60 por omisión. El perfil de `aceptacion.py` tarda ~30 s en
+      # caliente y con el bytecode frío del arnés no entra: la ronda del 2026-09-08 devolvió SEIS
+      # timeouts y otra tumbó hasta la línea base. Un timeout NO mata un mutante, así que una ronda
+      # con timeouts informa un número que parece medido y no lo está — vale menos que no correrla.
+      # Va para todos los objetivos: el plazo es un techo, no una espera, y a los baratos no les
+      # cuesta nada.
+      - run: python tools/mutar_codigo.py --objetivo "${{ matrix.objetivo }}" --timeout 120

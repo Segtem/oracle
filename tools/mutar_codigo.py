@@ -231,6 +231,28 @@ PRIORIDADES = {
 # estarían apuntando a la nada mientras fijan la medida que persigue exactamente eso. Nadie más lo
 # comprueba: el corpus valida la FORMA del caso y la aceptación su POLARIDAD, y ninguno de los dos
 # corre el comando que el caso declara.
+# Custodias declaradas que TODAVÍA no entran a la matriz de mutación de CI, cada una con la razón.
+# No es una lista de excepciones permanentes: es la deuda escrita con nombre y apellido, y
+# `test_toda_custodia_entra_a_la_matriz_o_declara_por_que` la vigila para que no crezca en silencio.
+# Declarar una herramienta como custodia y no medirla es afirmar que algo importa y no comprobarlo.
+#
+# El precedente dice que el costo es el SÍNTOMA de estar mal fijado, no una propiedad del archivo:
+# `tools/medida.py` pasó de 114 sobrevivientes y ~90 minutos a 264/264 en 201 segundos, y
+# `tools/sintaxis.py` de 42 sobrevivientes a 99/99 con 16 tests. Cada línea de acá sale cuando
+# alguien mide y cierra.
+CUSTODIAS_SIN_MEDIR = {
+    "cli.py": "el perfil corre cuatro módulos de tests; medido el 2026-09-07 tenía ~30 "
+              "sobrevivientes en `main()`. Es por donde entra todo, así que es la que más custodia "
+              "y la más cara: entra primera de las que quedan.",
+    "contexto.py": "sin medir desde que entró a la lista.",
+    "corpus.py": "sin medir desde que entró a la lista.",
+    "lsp.py": "sin medir desde que entró a la lista.",
+    "manual.py": "sin medir desde que entró a la lista.",
+    "mcp.py": "sin medir desde que entró a la lista.",
+    "reportar.py": "sin medir desde que entró a la lista.",
+}
+
+
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "corpus.py", "lsp.py", "manual.py", "mcp.py", "medida.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
