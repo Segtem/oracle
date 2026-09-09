@@ -148,6 +148,17 @@ def hechos_de_vocabulario(vocabularios, temas_del_manual) -> dict:
         for opcion, sentido in sorted(vocabularios[nombre].items())]}
 
 
+def medida_evaluada(valores: dict, medida: str) -> bool:
+    """Si la medida ENTREGÓ un número en esta corrida. No es `valor >= 0`.
+
+    `tools/aceptacion.py` alimenta `valores` sólo con los veredictos de las medidas `meta.*`, así
+    que una sombra sobre una medida de DOMINIO —lo primero que declararía un consumidor— nunca
+    aparece acá. Su cota quedaba sin comprobar para siempre, y en verde.
+    """
+    valor = valores.get(medida)
+    return not isinstance(valor, bool) and isinstance(valor, (int, float))
+
+
 def _valor_medido(valores: dict, medida: str) -> int:
     """El valor que dio la medida, o -1 si no se midió. Sin el `isinstance` un `True` contaría 1."""
     valor = valores.get(medida)
@@ -207,6 +218,11 @@ def hechos_de_sombra(en_sombra, veredictos_ok: dict, catalogo: dict,
             "declara_cota": entrada.cota >= 0,
             "cota": entrada.cota,
             "valor": valor,
+            # `evaluada` aparte de `valor >= 0`, y no es lo mismo: `-1` era un centinela que
+            # significaba dos cosas —«no se midió» y «midió menos que cero»— y una medida de dominio
+            # puede dar un número negativo legítimo. Preguntar si la medida ESTUVO en los valores es
+            # la pregunta que se quería hacer; el centinela era una forma de hacerla mal.
+            "evaluada": medida_evaluada(valores, entrada.medida),
             "supera_la_cota": entrada.cota >= 0 and valor > entrada.cota,
         })
     return {"sombra": filas}

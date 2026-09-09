@@ -1,12 +1,12 @@
 caso 494-la-cota-de-la-sombra-observada-por-el-recorrido:
-    fecha: "2026-09-08"
+    fecha: "2026-09-09"
     origen:
         repo: "Segtem/oracle"
         plan: "observaciones/aceptacion.plan.json"
-        cuando_utc: "2026-09-08T22:32:29.960640+00:00"
+        cuando_utc: "2026-09-09T11:11:19.708770+00:00"
         comando: "{python} -B tools/aceptacion.py --hechos {salida} --hechos-solo sombra"
-        registro: "observaciones/2026-09-08-aceptacion/registro.json"
-        evidencia_sha256: "sha256:45518e8f4dee9a35504fea84464a86b97aa30e5ccdb1f171d2ca3566493aae7b"
+        registro: "observaciones/2026-09-09-aceptacion/registro.json"
+        evidencia_sha256: "sha256:1891f3efbf379c159867aea4a6bc9c4703463a3b61945db829c1c2189e767c50"
         estado: "árbol de trabajo; las fuentes QUE EL PLAN DECLARA están identificadas por SHA-256 en el registro, y el plan puede no declararlas todas"
     procedencia: observada
     titulo: "La cota de la sombra, capturada por el recorrido en vez de transcrita"
@@ -16,7 +16,7 @@ caso 494-la-cota-de-la-sombra-observada-por-el-recorrido:
     como_se_detecto: observacion
     medida: meta.ninguna_sombra_supera_su_cota
     evidencia:
-        sombra: cota, declara_cota, declara_desde, declara_porque, dias, dio_ok, existe, medida, supera_la_cota, valor
-            94, true, true, true, 1, false, true, "meta.todo_caso_observado_declara_de_donde_salio", false, 94
+        sombra: cota, declara_cota, declara_desde, declara_porque, dias, dio_ok, evaluada, existe, medida, supera_la_cota, valor
+            94, true, true, true, 2, false, true, true, "meta.todo_caso_observado_declara_de_donde_salio", false, 94
     leccion:
         Un caso escrito a mano sobre una corrida propia no puede declarar el comando ni el registro que lo produjeron: quien lo escribe afirma de memoria. Capturado por el recorrido, el origen lo llena la corrida y la afirmacion pasa de inverificable a falsable. Pero observar un proyecto y guardar el resultado ADENTRO de ese proyecto tiene un borde: si la evidencia incluye lo que la guarda modifica, la observacion se invalida por existir. Se mide lo que la medida lee, y nada mas.

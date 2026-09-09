@@ -2154,6 +2154,31 @@ class LaCotaDeUnaSombra(unittest.TestCase):
         self.assertEqual(self._hecho(cota=0, valor=True)["valor"], -1)
         self.assertEqual(self._hecho(cota=0, valor=1)["valor"], 1)
 
+    def test_un_veredicto_colado_en_el_lugar_del_valor_no_cuenta_como_medida_evaluada(self):
+        """`evaluada` pregunta si la medida ENTREGÓ un número, y en Python `True` es un `int`.
+
+        Sin el `isinstance(bool)`, un `ok` colado donde va el valor haría pasar por medida evaluada
+        a una que no corrió, y la cota volvería a quedar sin comprobar — que es exactamente el
+        agujero que este campo vino a tapar. Es el mismo borde que `_valor_medido` ya tenía fijado y
+        que no repliqué acá: la mutación lo encontró en dos sitios de la misma línea.
+        """
+        from nucleo.marco import medida_evaluada
+        self.assertIs(medida_evaluada({"m.a": 0}, "m.a"), True)
+        self.assertIs(medida_evaluada({"m.a": -7}, "m.a"), True)
+        self.assertIs(medida_evaluada({"m.a": 1.5}, "m.a"), True)
+        self.assertIs(medida_evaluada({"m.a": True}, "m.a"), False)
+        self.assertIs(medida_evaluada({"m.a": False}, "m.a"), False)
+        self.assertIs(medida_evaluada({"m.a": "3"}, "m.a"), False)
+        self.assertIs(medida_evaluada({"m.a": None}, "m.a"), False)
+        self.assertIs(medida_evaluada({}, "m.a"), False)
+
+    def test_una_medida_de_dominio_no_evaluada_se_distingue_de_una_que_dio_negativo(self):
+        """El motivo de que `evaluada` exista aparte de `valor >= 0`: una medida de dominio puede
+        dar un número negativo legítimo, y confundirlo con «no se midió» deja su cota sin vigilar."""
+        self.assertIs(self._hecho(cota=3, valor=-7)["evaluada"], True)
+        self.assertIs(self._hecho(cota=3)["evaluada"], False)
+        self.assertEqual(self._hecho(cota=3, valor=-7)["valor"], -7)
+
     def test_el_centinela_de_cota_ausente_es_el_que_el_corpus_tiene_escrito(self):
         """`-1` no es un detalle interno: VIAJA. Sale en la relación `sombra` que leen las medidas,
         y los casos `491` y `493` del corpus lo tienen escrito como el valor de una sombra sin cota.

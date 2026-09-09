@@ -1,3 +1,90 @@
+# 0.13.0 — tres huecos que estaban declarados y no cerrados
+
+```
+VERSION_DISTRIBUCION   0.12.0 → 0.13.0   una medida universal se vuelve más estricta
+VERSION_ALGEBRA        0.6    → 0.6      `evaluada` es evidencia, no álgebra
+VERSION_SINTAXIS       0.4    → 0.4      no entra una cláusula, ni una palabra, ni una forma
+```
+
+Los tres venían anotados como pendientes desde 0.11.0 y 0.12.0. Los tres los cerró un turno de dos
+agentes y un debate, y **los tres resultaron peores de lo que estaban escritos**.
+
+## 1. Una cota sobre una medida de dominio no vigilaba nada
+
+`meta.ninguna_sombra_supera_su_cota` declaraba en su `alcance` que no veía la deuda de una medida
+que no llegó a evaluarse. Estaba declarado y sin cerrar, con el argumento tácito de que era un
+escenario raro.
+
+**Es el escenario más común de todos.** `tools/aceptacion.py` alimenta los valores **sólo con los
+veredictos de las medidas `meta.*`**, así que una sombra sobre una medida de **dominio** —lo primero
+que declararía un consumidor sobre lo suyo— nunca entrega un número. Medido sobre LyraGASP: una cota
+de **cero**, la más exigente que se puede escribir, **pasaba en verde**.
+
+La relación `sombra` gana **`evaluada`**, que no es `valor >= 0`. El `-1` era un centinela con dos
+significados —«no se midió» y «midió menos que cero»— y una medida de dominio puede dar un negativo
+legítimo. Y el predicado dice ahora lo que faltaba: **si prometiste un techo y la medida no entregó
+un número, no podés afirmar que no lo pasaste.**
+
+## 2. El censo contaba los ilegibles y no los que no vuelven
+
+El censo decía `140/140 archivos se imprimen` de LyraGASP mientras `oracle test` sobre ese mismo
+proyecto daba **ROJO por sintaxis**. Dos herramientas de Oracle diciendo cosas distintas del mismo
+proyecto, y la tranquilizadora era la que menos miraba: contaba los archivos que **no se pueden
+imprimir** y no los que **se imprimen y no vuelven idénticos**.
+
+`proyecto_censado` gana `archivos_no_identicos`, en las dos vistas.
+
+## 3. La superficie de casos descartaba en silencio lo que no entendía
+
+91 casos de LyraGASP traen un campo `polaridad` que el formato `.caso` no conoce. Al imprimirlos,
+**el campo desaparecía sin aviso**. Y el lector de MEDIDAS era fail-closed en las cuatro puntas
+mientras el de casos era fail-open en las dos.
+
+`nucleo/caso.py::imprimir` ahora falla nombrando el campo. Se cierra al IMPRIMIR y no al CARGAR: un
+caso es evidencia histórica, y negarse a leer un registro por un campo de más es perder el registro.
+Cargar sigue aceptándolos; escribir se niega a tirarlos.
+
+**Y la definición de `falso_verde` estaba mal escrita.** Decía «la medida pasó y no debía», en
+pasado, como si nombrara un episodio. No es lo que nadie hace: **59 casos del propio Oracle**
+describen el defecto presente en la evidencia, sobre el que ninguna medida pasó nunca. Un consumidor
+se topó con la contradicción, no encontró cómo decir «acá la medida acierta al fallar», e inventó un
+campo para anotarlo al lado. La definición pasa a nombrar el **peligro**, que es lo que la etiqueta
+siempre clasificó.
+
+## Por qué no se agregó `rojo_correcto`, que era la otra salida
+
+El debate lo tuvieron tres y **ninguna de las tres posiciones ganó entera**.
+
+Uno sostuvo que a Oracle le falta la palabra: `falso_verde` está definido como un episodio pasado, y
+un caso que documenta una detección **correcta** no es eso. Tenía razón sobre la definición y sobre
+dos errores de quien escribe esto: que `--imprimir` perdía datos con exit 0 —no: sólo maneja
+medidas, y sobre un caso sale 1, así que **no existe ninguna herramienta que migre un caso**, y la
+urgencia estaba construida sobre una herramienta inexistente— y que la correlación 1:1 entre
+`polaridad` y `etiqueta` probaba equivalencia —no: es esperable que dos conceptos coincidan en el
+campo sustituto si uno tuvo que escribirse con el nombre del otro—.
+
+Otro sostuvo fail-closed al cargar, con el argumento de que si no, el consumidor no lo arreglaría
+nunca porque su CI seguiría verde. **Las dos mitades resultaron falsas al verificarlas**: LyraGASP
+no tiene ningún workflow de CI, y `oracle test` ahí ya daba ROJO.
+
+Lo que se hizo fue corregir la **definición** en vez de agregar una etiqueta. Nombra el peligro, que
+es lo que la práctica ya hacía en los tres proyectos; no canibaliza `deuda_de_diseño` ni
+`medida_correcta_conclusion_errada`, que es lo que una etiqueta nueva habría hecho con cualquier
+autor apurado; y **no toca un solo caso** en ninguno de los tres.
+
+## Verificación del corte
+
+Suite **1499 tests** · corpus **201 casos** · medidas **959/959** · aceptación con un solo rojo
+(DECISION-004) y la sombra declarada con su cota.
+
+Mutación de código, sin sobrevivientes: `nucleo/caso.py` **210/210** · `nucleo/marco.py` **78/78** ·
+`tools/censar.py` **42/42** · `tools/sintaxis.py` **99/99**.
+
+Los consumidores no cambian de color: **Jam 28/3, LyraGASP 43/78**, medidos con el árbol. Lo que sí
+cambia es el informe de sintaxis de LyraGASP, de `140/140` a `49/140`, y el motivo está arriba.
+
+---
+
 # 0.12.0 — una sombra apagaba también el aviso de que la deuda crecía
 
 ```

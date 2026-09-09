@@ -146,6 +146,9 @@ def censar_uno(raiz: Path, *, confiar: bool = False) -> dict:
         "archivos_verificados": (informe_sintaxis["medidas"] + informe_sintaxis["macros"]
                                  + informe_sintaxis["casos"]),
         "archivos_ilegibles": len(informe_sintaxis["ilegibles"]),
+        # Los ilegibles también traen json_igual=False, pero no llegaron a compararse.
+        "archivos_no_identicos": sum(1 for f in informe_sintaxis["filas"]
+                                     if f["imprimio"] and not f["json_igual"]),
         # El denominador viaja con el número, siempre. Ver el docstring del módulo.
         "mutadores_disponibles": cobertura["total"],
         "mutadores_de_otro_autor": cobertura["ajenos"],
@@ -225,10 +228,10 @@ def imprimir(hechos: dict, cuando: str) -> str:
                       f" · {f['casos_construidos']} construidos"
                       f" · {f['casos_generados']} generados"
                       f" · {f['casos_sin_procedencia']} sin declarar")
-        # Un cero acá no es una ausencia: es que no se pudo imprimir NINGÚN archivo, o que están
-        # todos bien. Se dice cuál de las dos.
+        # Poder imprimir no asegura conservar el JSON: las dos fallas se cuentan aparte.
         lineas.append(f"    sintaxis   {f['archivos_verificados'] - f['archivos_ilegibles']}"
-                      f"/{f['archivos_verificados']} archivos se imprimen")
+                      f"/{f['archivos_verificados']} archivos se imprimen"
+                      f" · {f['archivos_no_identicos']} se imprimen y no vuelven idénticos")
         if f["sombras"]:
             lineas.append(f"    sombras    {f['sombras']} declaradas "
                           f"· la más vieja hace {f['sombra_mas_vieja_dias']} días")
@@ -306,9 +309,11 @@ def a_html(hechos: dict, cuando: str) -> str:
                                     f"{f['casos_generados']} generados · "
                                     f"{f['casos_sin_procedencia']} sin declarar"))
         legibles = f["archivos_verificados"] - f["archivos_ilegibles"]
-        clase = " class=aviso" if f["archivos_ilegibles"] else ""
+        clase = " class=aviso" if f["archivos_ilegibles"] or f["archivos_no_identicos"] else ""
         partes.append(_dd("sintaxis", f"<span{clase}><span class=n>{legibles}</span>"
-                                      f"/{f['archivos_verificados']} archivos se imprimen</span>"))
+                                      f"/{f['archivos_verificados']} archivos se imprimen"
+                                      f" · {f['archivos_no_identicos']} se imprimen y no vuelven"
+                                      " idénticos</span>"))
         if f["sombras"]:
             partes.append(_dd("sombras", f"<span class=n>{f['sombras']}</span> declaradas · "
                                          f"la más vieja hace {f['sombra_mas_vieja_dias']} días"))

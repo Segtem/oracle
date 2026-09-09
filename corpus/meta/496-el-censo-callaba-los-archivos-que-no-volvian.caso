@@ -1,0 +1,21 @@
+caso 496-el-censo-callaba-los-archivos-que-no-volvian:
+    fecha: "2026-09-09"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "árbol de trabajo antes de corregir el censo"
+        comando: "python3 -B tools/censar.py --proyecto ~/Dev/games/unreal/LyraGASP/medidas --confiar-escalares; python3 -B tools/cli.py test --proyecto ~/Dev/games/unreal/LyraGASP/medidas --confiar-escalares"
+    procedencia: observada
+    titulo: "El censo decía que todos se imprimían mientras oracle test fallaba por sintaxis"
+    etiqueta: falso_verde
+    sintoma:
+        LyraGASP imprimía 140 de 140 archivos y el censo sólo decía eso. El mismo proyecto terminaba con VEREDICTO: ROJO (falló: sintaxis). Poder imprimir no asegura conservar el JSON: el censo omitía el conteo de los archivos que se imprimen y no vuelven idénticos. La evidencia transcribe la línea de sintaxis y el veredicto observados; no afirma que el censo anterior emitiera el campo que le faltaba.
+    como_se_detecto: observacion
+    medida: null
+    estado_sin_medida: resuelto
+    resuelto:
+        El emisor ahora cuenta archivos_no_identicos usando las filas con imprimio verdadero y json_igual falso, y publica el número en terminal y HTML. Los tests ImprimirNoAlcanzaParaVolverIdentico de tests/test_censar.py fijan el conteo con archivos temporales que pierden polaridad, un sano y un ilegible. Es una corrección de la herramienta por construcción; no agrega un juicio al censo ni una medida que el consumidor tenga que arreglar.
+    evidencia:
+        salida_observada: proyecto, sintaxis_censo, veredicto_test
+            "LyraGASP", "140/140 archivos se imprimen", "VEREDICTO: ROJO (falló: sintaxis)"
+    leccion:
+                Una cifra cierta puede tranquilizar por lo que calla. Los ilegibles y los imprimibles que pierden información son fallas distintas: sumar ambos bajo el mismo nombre también engañaría. Hay que contar cada una con su nombre y conservar la ausencia cuando nadie pudo medir. El mismo dia, y horas despues de este arreglo, `caso.imprimir` paso a fallar ante un campo desconocido en vez de descartarlo: los 91 archivos de LyraGASP dejaron de contarse como «se imprimen y no vuelven identicos» y pasaron a contarse como ILEGIBLES, de 140/140 a 49/140. La deuda no desaparecio ni el contador sobra: cambio de columna, y la columna nueva es la que no miente. Quien relea este caso va a ver otros numeros que los que transcribe, y esta linea existe para que sepa por que.

@@ -12,7 +12,7 @@ caso 490-la-sombra-tapaba-una-deuda-que-crecia:
     como_se_detecto: persona
     medida: meta.ninguna_sombra_supera_su_cota
     evidencia:
-        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
-            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 95, true
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, evaluada, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 95, true, true
     leccion:
         Una sombra apaga la consecuencia de un rojo, no la deuda que hay debajo. Sin un numero declarado, lo que se apaga incluye el aviso de que el problema crece. La cota lo separa: la consecuencia sigue apagada, y el rojo vuelve el dia que la deuda sube, que es el unico dia en que hace falta.

@@ -246,6 +246,7 @@ class LosConteosQueFaltanNoSeInventan(unittest.TestCase):
              "casos_generados": 0, "casos_sin_procedencia": 0,
              "sombras": 0, "sombra_mas_vieja_dias": 0,
              "archivos_verificados": 0, "archivos_ilegibles": 0,
+             "archivos_no_identicos": 0,
              "mutadores_disponibles": 29, "mutadores_de_otro_autor": 24,
              "oracle_distribucion": "0.0.0", "oracle_algebra": "0.0",
              "oracle_sintaxis": "0.0"}
@@ -305,6 +306,142 @@ class LosConteosQueFaltanNoSeInventan(unittest.TestCase):
         self.assertIn("árbol sucio", censar.a_html(sucio, "x"))
         limpio = {censar.RELACION: [self.VACIO]}
         self.assertNotIn("árbol sucio", censar.imprimir(limpio, "x"))
+
+
+class ImprimirNoAlcanzaParaVolverIdentico(unittest.TestCase):
+    """LyraGASP imprimía todos sus archivos mientras perdía información en 91 casos."""
+
+    def _proyecto(self, td):
+        return LosBordesQueLaMutacionEncontro()._proyecto(td)
+
+    def _caso(self, raiz, numero, **cambios):
+        from nucleo import caso
+
+        datos = caso.leer(caso.imprimir({
+            "id": f"{numero:03d}-ejemplo", "fecha": "2026-09-09",
+            "origen": {"repo": "ejemplo", "commit": "local"},
+            "procedencia": "construida", "titulo": "Un caso mínimo",
+            "etiqueta": "verde_correcto", "sintoma": "Ninguno.",
+            "como_se_detecto": "persona", "medida": "ejemplo.medida",
+            "evidencia": {"dato": [{"valor": 1}]}, "leccion": "Conservar los datos.",
+        }))
+        datos.update(cambios)
+        (raiz / "corpus" / f"{numero:03d}-ejemplo.json").write_text(
+            json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+
+    def test_un_campo_que_la_superficie_no_sabe_escribir_cuenta_como_ILEGIBLE(self):
+        """Desde el 2026-09-09 `caso.imprimir` falla ante un campo desconocido en vez de tirarlo.
+
+        Este test existía al revés: contaba esos casos como «se imprimen y no vuelven idénticos»,
+        porque la superficie los imprimía descartando el campo. Ahora no se imprimen, y eso es lo
+        correcto: Oracle no puede escribirlos sin perder datos. La deuda de LyraGASP no desapareció,
+        cambió de columna — de `140/140 · 91 no vuelven` a `49/140 · 0 no vuelven`— y la segunda
+        forma es la que no miente.
+        """
+        with TemporaryDirectory() as td:
+            raiz = self._proyecto(td)
+            self._caso(raiz, 1)
+            self._caso(raiz, 2, polaridad="verde_correcto")
+            self._caso(raiz, 3, polaridad="falso_verde")
+            fila = censar.censar_uno(raiz)
+        self.assertEqual(fila["archivos_verificados"], 3)
+        self.assertEqual(fila["archivos_ilegibles"], 2)
+        self.assertEqual(fila["archivos_no_identicos"], 0)
+
+    def test_cuenta_los_no_identicos_sin_sumar_sanos_ni_ilegibles(self):
+        """El conteo se prueba sobre filas armadas, no sobre un proyecto: hoy NO HAY forma de que
+        un caso se imprima y no vuelva idéntico —la superficie falla antes—, y aun así el contador
+        se gana el lugar, porque un consumidor no corre las sondas metamórficas de Oracle y esto
+        es lo único que se lo diría si algún día vuelve a pasar.
+
+        Lo que se fija acá es la aritmética: no sumar los sanos, no sumar los ilegibles —que traen
+        `json_igual` en falso sin haber llegado a compararse— y no confundirlo con `texto_igual`.
+        """
+        filas = [
+            {"imprimio": True, "json_igual": True, "texto_igual": True},    # sano
+            {"imprimio": True, "json_igual": False, "texto_igual": True},   # imprime y no vuelve
+            {"imprimio": True, "json_igual": False, "texto_igual": False},  # ídem, y el texto
+            {"imprimio": False, "json_igual": False, "texto_igual": False},  # ilegible: no cuenta
+        ]
+        informe = {"medidas": 4, "macros": 0, "casos": 0, "filas": filas,
+                   "ilegibles": [f for f in filas if not f["imprimio"]],
+                   "json_igual": False, "texto_igual": False}
+        with TemporaryDirectory() as td, \
+                patch.object(censar.tsintaxis, "verificar_catalogo", return_value=informe):
+            fila = censar.censar_uno(self._proyecto(td))
+        self.assertEqual(fila["archivos_verificados"], 4)
+        self.assertEqual(fila["archivos_ilegibles"], 1)
+        self.assertEqual(fila["archivos_no_identicos"], 2)
+        for vista in (censar.imprimir, censar.a_html):
+            texto = re.sub(r"<[^>]+>", "", vista({censar.RELACION: [fila]}, "x"))
+            self.assertIn("3/4 archivos se imprimen · 2 se imprimen y no vuelven idénticos", texto)
+
+    def test_un_proyecto_vacio_declara_el_cero_que_si_se_midio(self):
+        """Un corpus vacío sí fue recorrido: omitir su cero lo confundiría con un censo fallido."""
+        with TemporaryDirectory() as td:
+            fila = censar.censar_uno(self._proyecto(td))
+        self.assertEqual(fila["archivos_no_identicos"], 0)
+        self.assertEqual(fila["archivos_verificados"], 0)
+
+    def test_un_archivo_que_vuelve_identico_no_se_cuenta_como_perdida(self):
+        """Un cero medido también debe ser posible con archivos presentes; sólo probar el
+        proyecto vacío dejaría pasar un conteo de todos los imprimibles como pérdidas."""
+        with TemporaryDirectory() as td:
+            raiz = self._proyecto(td)
+            self._caso(raiz, 1)
+            fila = censar.censar_uno(raiz)
+        self.assertEqual(fila["archivos_verificados"], 1)
+        self.assertEqual(fila["archivos_no_identicos"], 0)
+        for vista in (censar.imprimir, censar.a_html):
+            self.assertIn("0 se imprimen y no vuelven idénticos", vista({censar.RELACION: [fila]}, "x"))
+
+    def test_el_conteo_mide_el_json_y_no_la_estabilidad_del_texto(self):
+        """Usar texto_igual ocultaría LyraGASP: sus 91 pérdidas vuelven a imprimir el mismo
+        texto. A la inversa, texto inestable con JSON conservado no es este conteo."""
+        with TemporaryDirectory() as td:
+            raiz = self._proyecto(td)
+            informe = censar.tsintaxis.verificar_catalogo(raiz)
+            informe.update(casos=1, texto_igual=False, filas=[
+                {"imprimio": True, "json_igual": True, "texto_igual": False}])
+            with patch.object(censar.tsintaxis, "verificar_catalogo", return_value=informe):
+                fila = censar.censar_uno(raiz)
+        self.assertEqual(fila["archivos_no_identicos"], 0)
+
+    def test_una_verificacion_incompleta_no_inventa_cero_perdidas(self):
+        """Un valor por omisión para filas o json_igual convertiría una medición ausente en
+        tranquilidad. El error debe conservarse sin emitir conteos ni frases de sintaxis."""
+        with TemporaryDirectory() as td:
+            raiz = self._proyecto(td)
+            base = censar.tsintaxis.verificar_catalogo(raiz)
+            sin_filas = dict(base)
+            del sin_filas["filas"]
+            sin_comparacion = dict(base, casos=1, filas=[{"imprimio": True}])
+            for informe in (sin_filas, sin_comparacion):
+                with self.subTest(informe=informe):
+                    with patch.object(censar.tsintaxis, "verificar_catalogo", return_value=informe):
+                        hechos = censar.censar([raiz])
+                    fila, = hechos[censar.RELACION]
+                    self.assertIn("no_se_pudo_censar", fila)
+                    self.assertIn("KeyError", fila["no_se_pudo_censar"])
+                    self.assertNotIn("archivos_no_identicos", fila)
+                    for vista in (censar.imprimir, censar.a_html):
+                        self.assertNotIn("se imprimen", vista(hechos, "x"))
+
+    def test_las_dos_vistas_publican_el_numero_exacto_aunque_todo_se_imprima(self):
+        """La igualdad de conjuntos de números no basta si otro campo ya decía ese número:
+        se fija la frase y el conteo propios, incluido el aviso HTML con cero ilegibles."""
+        fila = dict(LosConteosQueFaltanNoSeInventan.VACIO,
+                    archivos_verificados=137, archivos_no_identicos=113)
+        hechos = {censar.RELACION: [fila]}
+        terminal = censar.imprimir(hechos, "x")
+        pagina = censar.a_html(hechos, "x")
+        frase = "137/137 archivos se imprimen · 113 se imprimen y no vuelven idénticos"
+        self.assertIn(frase, terminal)
+        self.assertIn(frase, re.sub(r"<[^>]+>", "", pagina))
+        self.assertIn("class=aviso", pagina)
+        numeros = LasDosVistasDicenLoMismo.NUMERO
+        self.assertEqual(set(numeros.findall(pagina)) - set(numeros.findall(terminal))
+                         - set(numeros.findall(censar._ESTILO)), set())
 
 
 class LaLineaDeComandosDelCenso(unittest.TestCase):
@@ -453,7 +590,8 @@ class UnProyectoIlegibleNoSeLlevaPuestosALosDemas(unittest.TestCase):
         with TemporaryDirectory() as td:
             fila, = censar.censar([self._roto(td)])[censar.RELACION]
         self.assertEqual(fila["proyecto"], "roto")
-        for conteo in ("medidas", "casos", "sombras", "archivos_verificados"):
+        for conteo in ("medidas", "casos", "sombras", "archivos_verificados",
+                       "archivos_ilegibles", "archivos_no_identicos"):
             self.assertNotIn(conteo, fila)
 
     def test_las_dos_vistas_dicen_que_no_se_pudo_y_por_que(self):

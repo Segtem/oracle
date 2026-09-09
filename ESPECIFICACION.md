@@ -98,6 +98,30 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.13.0 (2026-09-09): `VERSION_DISTRIBUCION` sube de `0.12.0` a `0.13.0`.** Sube la
+**menor** por el mismo motivo que 0.9.0: `meta.ninguna_sombra_supera_su_cota` es de ámbito
+`universal` y **se vuelve más estricta** — una cota que no se pudo comprobar cuenta igual que una
+incumplida—, y una regla universal más exigente es parte del contrato que cualquier implementación
+tiene que sostener. Hoy ningún consumidor cambia de color porque ninguno declara cota; la regla que
+heredan sí cambió, y ésa es la línea que 0.9.0 trazó.
+
+`VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un agregado ni una escalar.
+`evaluada` es un campo de una relación —evidencia— y no del álgebra.
+
+**`VERSION_SINTAXIS` queda en `0.4`, y vale escribir por qué**, porque `nucleo/caso.py::imprimir`
+se volvió más estricto y eso podría leerse como que la superficie se movió. No se movió: un archivo
+`.caso` válido antes sigue siéndolo, y el impresor produce exactamente el mismo texto para todo lo
+que ya imprimía. Lo que se achicó es el **dominio de entrada del impresor**, no el lenguaje. No
+entra una cláusula, ni una palabra, ni una forma. La regla que separa los dos casos: la sintaxis
+sube cuando cambia el conjunto de archivos que el proyecto puede LEER o ESCRIBIR, no cuando cambia
+qué estructuras en memoria acepta una función.
+
+**Un efecto sobre un consumidor que hay que decir sin adornarlo:** el informe de sintaxis de
+LyraGASP pasa de `140/140 archivos se imprimen` a `49/140`. Va a leerse como que Oracle empeoró. Lo
+que pasó es que el número anterior era falso: sólo llegaba a 140 porque el impresor descartaba en
+silencio un campo que 91 de sus casos declaran. Su veredicto ya era ROJO antes y sigue ROJO; lo que
+cambió es que ahora dice la verdad sobre por qué.
+
 **Corte 0.12.0 (2026-09-08): `VERSION_SINTAXIS` sube de `0.3` a `0.4` y `VERSION_DISTRIBUCION` de
 `0.11.0` a `0.12.0`.** Van tres cosas y cada una mueve una parte distinta.
 

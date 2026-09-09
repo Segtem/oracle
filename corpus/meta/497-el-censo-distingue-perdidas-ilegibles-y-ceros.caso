@@ -1,0 +1,23 @@
+caso 497-el-censo-distingue-perdidas-ilegibles-y-ceros:
+    fecha: "2026-09-09"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "local"
+    procedencia: construida
+    titulo: "El censo informa pérdidas separadas de ilegibles y declara los ceros medidos"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Los hechos construidos distinguen un proyecto mixto con un archivo sano, dos que pierden información y uno ilegible; uno sano; y uno vacío que sí se pudo recorrer. Cero ilegibles no implica cero pérdidas. El proyecto que no se pudo censar sólo conserva sus señas y el motivo, sin inventar un cero para ningún conteo.
+    como_se_detecto: persona
+    medida: null
+    estado_sin_medida: resuelto
+    resuelto:
+        Los tests ImprimirNoAlcanzaParaVolverIdentico y UnProyectoIlegibleNoSeLlevaPuestosALosDemas de tests/test_censar.py ejercen estos bordes con proyectos mínimos temporales. Las dos vistas dicen el conteo exacto y no publican una frase de sintaxis cuando falta la medición. La separación se fija en el emisor, sin convertir el censo en juez.
+    evidencia:
+        proyecto_censado:
+            fila {"proyecto": "mixto", "archivos_verificados": 4, "archivos_ilegibles": 1, "archivos_no_identicos": 2}
+            fila {"proyecto": "sano", "archivos_verificados": 1, "archivos_ilegibles": 0, "archivos_no_identicos": 0}
+            fila {"proyecto": "vacio", "archivos_verificados": 0, "archivos_ilegibles": 0, "archivos_no_identicos": 0}
+            fila {"proyecto": "ilegible", "commit": "sin_git", "arbol_sucio": false, "no_se_pudo_censar": "ValueError: no se pudo leer el proyecto"}
+    leccion:
+        El cero medido y el dato ausente no son intercambiables. Un verde necesita archivos sanos presentes, vacío medido y pérdidas junto con ilegibles: con sólo el vacío, un filtro que cuenta todos los imprimibles también parecería correcto.

@@ -2467,7 +2467,7 @@ class LosSeisTropiezosDeCasosFijanMensajeYPosicionTests(unittest.TestCase):
         self.assertIn("se esperaba una etiqueta declarada", str(e))
         self.assertIn("rojo_feo", str(e))
         # El nombre solo no alcanza: quien escribió `rojo_feo` no sabe cuál de los cinco quería.
-        self.assertIn("falso_verde: la medida pasó y no debía", str(e))
+        self.assertIn("falso_verde: la evidencia trae un defecto que una medida no debe dejar pasar", str(e))
         fragmento = sintaxis.fragmento_de_error(e, texto)
         self.assertIn("   7 |     etiqueta: rojo_feo", fragmento)
         self.assertIn("     |               ^", fragmento)

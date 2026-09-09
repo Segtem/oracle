@@ -1,0 +1,20 @@
+caso 499-las-cotas-comprobables-y-las-sombras-sin-cota:
+    fecha: "2026-09-09"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "3a92a14+worktree"
+        comando: "python3 -B tools/aceptacion.py"
+    procedencia: observada
+    titulo: "Una cota medida en su borde, y las sombras que no prometen ningun numero"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La corrida real del proyecto: la cota esta en su borde exacto y la medida entrego su valor. Las otras dos filas estan a proposito: una sombra sin cota no promete nada y tiene que quedar verde aunque no se haya evaluado, y una cota de cero evaluada en cero es legitima.
+    como_se_detecto: observacion
+    medida: meta.ninguna_sombra_supera_su_cota
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, evaluada, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 94, true, false
+            "otra.sin_cota_ni_evaluacion", true, true, 30, false, true, false, -1, -1, false, false
+            "otra.cota_cero_evaluada_en_cero", true, true, 5, true, true, true, 0, 0, true, false
+    leccion:
+        El verde tiene que probar que una sombra SIN cota no se ve arrastrada por la regla nueva: no promete ningun numero, asi que no evaluarla no incumple nada. Sin esa fila, exigir la evaluacion a todas las sombras pondria en rojo a los dos consumidores, que tienen tres sombras cada uno y ninguna cota.

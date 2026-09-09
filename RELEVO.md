@@ -35,6 +35,62 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### Corte 0.13.0: tres huecos que estaban declarados y no cerrados (2026-09-09)
+
+**Sin commitear al escribir esto.** Distribución `0.13.0`, álgebra `0.6`, sintaxis `0.4`. Los tres
+pendientes que quedaban de 0.11.0 y 0.12.0, cerrados — y **los tres resultaron peores de lo que su
+propia declaración decía**. Detalle en
+[`estudios/TRES-HUECOS-DECLARADOS-Y-NO-CERRADOS.md`](estudios/TRES-HUECOS-DECLARADOS-Y-NO-CERRADOS.md).
+
+⚠ **Lo más importante para la próxima:** `tools/aceptacion.py` alimenta los `valores` de la relación
+`sombra` **sólo con los veredictos de las medidas `meta.*`**. Una sombra sobre una medida de
+DOMINIO nunca entrega un número. Eso hacía que una cota de **cero** sobre una medida de un
+consumidor pasara en verde, y es el escenario más natural, no un borde raro.
+
+**Qué entró:**
+
+- `sombra` gana **`evaluada`**, que NO es `valor >= 0`: el `-1` significaba dos cosas a la vez, y una
+  medida de dominio puede dar un negativo legítimo. `meta.ninguna_sombra_supera_su_cota` ahora
+  dispara también cuando una cota no se pudo comprobar.
+- El censo gana **`archivos_no_identicos`** (trabajo de codex, 42/42 en mutación).
+- **`nucleo/caso.py::imprimir` falla ante un campo que no sabe escribir**, nombrándolo. Se cierra al
+  IMPRIMIR y no al CARGAR: un caso es evidencia histórica, y negarse a leer un registro por un campo
+  de más es perder el registro.
+- **La definición de `falso_verde` estaba mal.** Decía «la medida pasó y no debía», en pasado, y 59
+  casos del propio Oracle la contradicen. Ahora nombra el peligro. **No se agregó `rojo_correcto`**:
+  habría canibalizado `deuda_de_diseño` y `medida_correcta_conclusion_errada`.
+
+⚠ **El informe de sintaxis de LyraGASP pasa de `140/140` a `49/140`**, y no es una regresión: el
+número viejo sólo llegaba a 140 porque el impresor descartaba `polaridad` en silencio. Su veredicto
+ya era ROJO y sigue ROJO. La deuda cambió de columna.
+
+**Verificación:** suite **1499** · corpus **201** · medidas **959/959** · aceptación con un solo rojo
+· los tres chequeos de CI · cifras y manual regenerados · WHEEL OK. Mutación sin sobrevivientes:
+`nucleo/caso.py` **210/210**, `nucleo/marco.py` **78/78**, `tools/censar.py` **42/42**.
+Consumidores idénticos: Jam 28/3, LyraGASP 43/78.
+
+### El debate de los tres, y lo que dejó anotado
+
+`polaridad` se resolvió con un debate entre codex, agy y Claude. **Ninguna de las tres posiciones
+ganó entera**, y las tres tenían un error verificable:
+
+- Claude: dijo que `--imprimir` perdía datos con exit 0. **Falso** — sólo maneja medidas y sobre un
+  caso sale 1, así que **no existe ninguna herramienta que migre un caso de `.json` a `.caso`**. La
+  urgencia estaba construida sobre una herramienta inexistente. Y su hallazgo de correlación 1:1 era
+  circular: no prueba equivalencia si un concepto tuvo que escribirse con el nombre del otro.
+- agy: sostuvo fail-closed al cargar porque «si no, el consumidor no lo arregla nunca, su CI seguirá
+  verde». **Las dos mitades falsas**: LyraGASP no tiene ningún workflow de CI, y `oracle test` ahí ya
+  daba ROJO. También dijo que los 27 casos eran sintéticos: son **24 construidos y 3 observados**.
+- codex: acertó en que la definición era falsa, y propuso agregar `rojo_correcto`. No se hizo, por
+  el riesgo de canibalizar la taxonomía; pero su diagnóstico de la definición es lo que se corrigió.
+
+⚠ **`codex exec` se cuelga esperando stdin si no se le pasa `< /dev/null`.** Pasó el 2026-09-08: diez
+horas vivo, log de 39 bytes, cero trabajo. Y el vigilante miraba si el proceso EXISTÍA, no si
+avanzaba — un verde que no significa nada, cometido sobre el propio subordinado. Vigilar el
+crecimiento del log, no la existencia del proceso.
+
+---
+
 ### El turno de codex y agy sobre el corte 0.12.0 (2026-09-08)
 
 **codex** cerró `tools/sintaxis.py`: **42 sobrevivientes → 94/94**, con 16 tests nuevos. Con eso el

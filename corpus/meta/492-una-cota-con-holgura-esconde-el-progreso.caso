@@ -12,7 +12,7 @@ caso 492-una-cota-con-holgura-esconde-el-progreso:
     como_se_detecto: persona
     medida: meta.ninguna_cota_mas_alta_que_su_deuda
     evidencia:
-        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
-            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 100, 94, false
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, evaluada, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 100, 94, true, false
     leccion:
         Una cota es la deuda de hoy, no un presupuesto. Escrita con holgura vuelve a comprar lo mismo que la sombra sin cota compraba, con la diferencia de que ahora hay un numero que parece un limite. Un limite que nadie toca cuando la deuda se mueve no es un limite: es un adorno.

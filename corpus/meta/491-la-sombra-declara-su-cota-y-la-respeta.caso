@@ -12,9 +12,9 @@ caso 491-la-sombra-declara-su-cota-y-la-respeta:
     como_se_detecto: observacion
     medida: meta.ninguna_sombra_supera_su_cota
     evidencia:
-        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
-            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 94, false
-            "otra.sin_cota_declarada", true, true, 30, false, true, false, -1, 7, false
-            "otra.por_debajo_de_su_cota", true, true, 5, false, true, true, 12, 3, false
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, evaluada, supera_la_cota
+            "meta.todo_caso_observado_declara_de_donde_salio", true, true, 1, false, true, true, 94, 94, true, false
+            "otra.sin_cota_declarada", true, true, 30, false, true, false, -1, 7, true, false
+            "otra.por_debajo_de_su_cota", true, true, 5, false, true, true, 12, 3, true, false
     leccion:
         Un verde en una cota tiene que probar el borde y no solo el interior: si el operador fuera >= en vez de >, una deuda parada exactamente en su cota fallaria sin haber crecido, y la cota dejaria de ser alcanzable.

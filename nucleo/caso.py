@@ -30,9 +30,18 @@ ENCABEZADO_RE = re.compile(r"caso\s+(\S+):")
 # No hace falta una medida que lo vigile: no hay dos copias que puedan divergir.
 
 ETIQUETAS = {
+    # La definición decía «la medida pasó y no debía», en pasado, como si nombrara un evento
+    # ocurrido. No es lo que nombra, y no es lo que nadie hace: 59 casos `construida` del propio
+    # Oracle describen el DEFECTO presente en la evidencia —«el literal flotante es operando
+    # directo de `==`»— sobre el que ninguna medida pasó nunca. Un consumidor se topó con la
+    # contradicción, no encontró cómo decir «acá la medida acierta al fallar», e inventó un campo
+    # propio para anotarlo al lado. La definición se corrige para nombrar el PELIGRO, que es lo
+    # que la etiqueta siempre clasificó; agregar una etiqueta nueva habría canibalizado las otras
+    # tres, porque cualquiera que quisiera un rojo la habría elegido.
     "falso_verde":
-        "la medida pasó y no debía: el defecto estaba ahí y no lo vio. Es el caso que más "
-        "enseña, porque un verificador que calla es peor que no tenerlo",
+        "la evidencia trae un defecto que una medida no debe dejar pasar. Nombra el peligro, no "
+        "un episodio: vale igual si nadie llegó a caer en él, y es el caso que más enseña porque "
+        "un verificador que calla ante esto es peor que no tenerlo",
     "falso_rojo":
         "la medida falló sobre algo que estaba bien. Enseña a ignorar el verificador, que es "
         "la forma más rápida de perderlo",
@@ -433,9 +442,36 @@ def leer(texto: str) -> dict:
     return _Parser(texto).leer()
 
 
+# Todo lo que la superficie `.caso` sabe escribir. Un caso con algo que no está acá no se puede
+# imprimir sin perderlo, y perderlo en silencio es lo que esta lista existe para impedir.
+CAMPOS_DEL_CASO = frozenset({
+    "id", "fecha", "origen", "procedencia", "titulo", "etiqueta", "sintoma", "como_se_detecto",
+    "medida", "estado_sin_medida", "resuelto", "limite_humano", "sin_medida_todavia",
+    "evidencia", "leccion",
+})
+
+
 def imprimir(datos: dict) -> str:
     if not isinstance(datos, dict):
         raise ValueError("un caso tiene que ser un objeto JSON")
+    # FAIL-CLOSED al imprimir, desde el 2026-09-09. Antes esta función escribía los campos que
+    # conocía y DESCARTABA el resto sin decir nada: un consumidor tenía 91 casos con un campo
+    # propio, y la ida y vuelta los perdía enteros. Nadie perdió datos todavía porque no hay
+    # herramienta que convierta un caso de JSON a superficie —`--imprimir` sólo maneja medidas—,
+    # así que esto es la guarda puesta antes de que alguien escriba ese script, no después.
+    #
+    # El lector de MEDIDAS ya era fail-closed en las cuatro puntas y el de casos no lo era en
+    # ninguna de las dos. `tools/sintaxis.py` lo tiene escrito sobre otra rama: «una salida
+    # fail-open al lado de dos fail-closed es peor que no tener ninguna: enseña a confiar».
+    #
+    # Se cierra al IMPRIMIR y no al CARGAR: un caso es evidencia histórica, y negarse a leer un
+    # registro por un campo de más es perder el registro. Cargar sigue aceptándolos; escribir se
+    # niega a tirarlos.
+    sobrantes = sorted(set(datos) - CAMPOS_DEL_CASO)
+    if sobrantes:
+        raise ValueError(
+            f"la superficie de casos no sabe escribir {sobrantes}, y no los va a descartar en "
+            "silencio: sacalos del caso, o agregalos a la superficie")
     if "id" not in datos:
         raise ValueError("un caso necesita `id`")
     if not isinstance(datos["id"], str) or ID_CASO_RE.fullmatch(datos["id"]) is None:

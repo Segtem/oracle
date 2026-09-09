@@ -1,0 +1,18 @@
+caso 498-una-cota-sobre-una-medida-que-nadie-evalua:
+    fecha: "2026-09-09"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "3a92a14+worktree"
+        comando: "python3 -B tools/aceptacion.py --proyecto <copia de LyraGASP con una cota sobre animacion.clip_de_linea_base_ausente_del_lote>"
+    procedencia: observada
+    titulo: "Una cota sobre una medida de dominio no vigilaba nada"
+    etiqueta: falso_verde
+    sintoma:
+        La sombra declaraba cota CERO —la mas exigente que se puede escribir— sobre una medida de dominio de un consumidor, y la corrida pasaba en verde. La aceptacion alimenta los valores solo con los veredictos de las medidas meta, asi que una medida de dominio nunca entrega un numero y su cota queda sin comprobar para siempre. Es lo primero que declararia un consumidor: una cota sobre SU dominio, no sobre las medidas heredadas.
+    como_se_detecto: persona
+    medida: meta.ninguna_sombra_supera_su_cota
+    evidencia:
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, evaluada, supera_la_cota
+            "animacion.clip_de_linea_base_ausente_del_lote", true, true, 1, false, true, true, 0, -1, false, false
+    leccion:
+        Si prometiste un techo y la medida no entrego un numero en esta corrida, no podes afirmar que no lo pasaste. Una cota que no se pudo comprobar cuenta igual que una incumplida. El hueco estaba DECLARADO en el alcance de esta misma medida y no cerrado, que es la apuesta a que nadie pase por ahi; el escenario que lo dispara resulto ser el mas natural de todos.

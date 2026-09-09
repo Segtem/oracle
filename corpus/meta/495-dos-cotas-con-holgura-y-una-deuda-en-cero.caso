@@ -11,9 +11,9 @@ caso 495-dos-cotas-con-holgura-y-una-deuda-en-cero:
     como_se_detecto: mutacion
     medida: meta.ninguna_cota_mas_alta_que_su_deuda
     evidencia:
-        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, supera_la_cota
-            "otra.con_holgura", true, true, 10, false, true, true, 40, 12, false
-            "otra.deuda_ya_cerrada", true, true, 10, true, true, true, 5, 0, false
-            "otra.en_su_cota", true, true, 3, false, true, true, 7, 7, false
+        sombra: medida, declara_desde, declara_porque, dias, dio_ok, existe, declara_cota, cota, valor, evaluada, supera_la_cota
+            "otra.con_holgura", true, true, 10, false, true, true, 40, 12, true, false
+            "otra.deuda_ya_cerrada", true, true, 10, true, true, true, 5, 0, true, false
+            "otra.en_su_cota", true, true, 3, false, true, true, 7, 7, true, false
     leccion:
         Un rojo que vale exactamente uno no fija el umbral: aflojarlo a `<= 1` lo deja pasar y el mutante sobrevive. Y una deuda de cero es el borde del filtro `valor >= 0`: vuelto estricto, la unica fila que reporta progreso completo es la que deja de mirarse, que es justo donde la holgura mas engana. Los dos bordes hacen falta en el mismo caso porque los dos mutadores pegan en la misma medida.
