@@ -9,37 +9,37 @@
   "id": "nucleo/caso.py:132:10:comparador",
   "linea_texto": "while i < len(texto):",
   "ordinal": 1,
-  "razon": "`while i < len(texto)` → `while i <= len(texto)` en `_valores_fila`. Cuando `i == len(texto)`, el bucle interno de espacios no puede avanzar y la guarda inmediata `if i >= len(texto): break` corta antes de decodificar o modificar `valores`. El mutante sólo agrega una vuelta vacía en el borde de fin de cadena. Ningún texto de fila puede observar una diferencia de salida, error ni estado. (Reapuntado de línea 77 a 82 el 2026-08-26 al declarar `PROCEDENCIAS`). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
+  "razon": "`while i < len(texto)` → `while i <= len(texto)` en `_valores_fila`. Cuando `i == len(texto)`, el bucle interno de espacios no puede avanzar y la guarda inmediata `if i >= len(texto): break` corta antes de decodificar o modificar `valores`. El mutante sólo agrega una vuelta vacía en el borde de fin de cadena. Ningún texto de fila puede observar una diferencia de salida, error ni estado. (Reapuntado de línea 77 a 82 el 2026-08-26 al declarar `PROCEDENCIAS`). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.) (Se movió el 2026-09-09, al arreglar la guarda que elegía entre la forma de tabla y la de escape: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/caso.py:270:14:comparador",
+  "id": "nucleo/caso.py:283:14:comparador",
   "linea_texto": "while self.i < len(self.lineas):",
   "ordinal": 3,
-  "razon": "`while self.i < len(self.lineas)` → `<=` en `_leer_origen`. En el borde `self.i == len(self.lineas)`, `_actual()` devuelve el sentinela `(len + 1, \"\")` y la línea siguiente corta porque `\"\"` no empieza con la indentación de origen. No consume línea, no agrega campos y no cambia el error posterior. Ningún caso puede distinguir una iteración sentinela que termina en el mismo `break`. (Reapuntado de línea 215 a 220 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
+  "razon": "`while self.i < len(self.lineas)` → `<=` en `_leer_origen`. En el borde `self.i == len(self.lineas)`, `_actual()` devuelve el sentinela `(len + 1, \"\")` y la línea siguiente corta porque `\"\"` no empieza con la indentación de origen. No consume línea, no agrega campos y no cambia el error posterior. Ningún caso puede distinguir una iteración sentinela que termina en el mismo `break`. (Reapuntado de línea 215 a 220 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.) (Se movió el 2026-09-09, al arreglar la guarda que elegía entre la forma de tabla y la de escape: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/caso.py:293:15:comparador",
+  "id": "nucleo/caso.py:306:15:comparador",
   "linea_texto": "if fin < 0:",
   "ordinal": 1,
-  "razon": "`fin < 0` → `fin <= 0` después de comprobar `texto.startswith(\"clave(\")`. Si falta `)`, `find` devuelve `-1`; si existe, la primera posición posible es después de `clave(`, o sea mayor que cero. El valor `0` no pertenece al dominio de esa rama. Por eso los dos predicados aceptan y rechazan exactamente los mismos encabezados. (Reapuntado de línea 238 a 243 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
+  "razon": "`fin < 0` → `fin <= 0` después de comprobar `texto.startswith(\"clave(\")`. Si falta `)`, `find` devuelve `-1`; si existe, la primera posición posible es después de `clave(`, o sea mayor que cero. El valor `0` no pertenece al dominio de esa rama. Por eso los dos predicados aceptan y rechazan exactamente los mismos encabezados. (Reapuntado de línea 238 a 243 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.) (Se movió el 2026-09-09, al arreglar la guarda que elegía entre la forma de tabla y la de escape: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/caso.py:293:21:constante",
+  "id": "nucleo/caso.py:306:21:constante",
   "linea_texto": "if fin < 0:",
   "ordinal": 1,
-  "razon": "`fin < 0` → `fin < 1` en la misma guarda de `clave(...)`. Por el prefijo `clave(` ya verificado, `find(\")\")` sólo puede dar `-1` o una posición positiva mayor que `0`; nunca `0`. Cambiar el umbral de `0` a `1` no cambia el conjunto de entradas aceptadas ni el diagnóstico producido. (Reapuntado de línea 238 a 243 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
+  "razon": "`fin < 0` → `fin < 1` en la misma guarda de `clave(...)`. Por el prefijo `clave(` ya verificado, `find(\")\")` sólo puede dar `-1` o una posición positiva mayor que `0`; nunca `0`. Cambiar el umbral de `0` a `1` no cambia el conjunto de entradas aceptadas ni el diagnóstico producido. (Reapuntado de línea 238 a 243 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.) (Se movió el 2026-09-09, al arreglar la guarda que elegía entre la forma de tabla y la de escape: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/caso.py:328:14:comparador",
+  "id": "nucleo/caso.py:341:14:comparador",
   "linea_texto": "while self.i < len(self.lineas):",
   "ordinal": 4,
-  "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de relaciones de evidencia. En `self.i == len(self.lineas)`, `_actual()` devuelve una línea sentinela vacía y la primera guarda del cuerpo corta porque no empieza con la indentación de relación. No crea relaciones, no avanza el índice y deja idéntico el error posterior. Ningún test puede observar esa vuelta vacía. (Reapuntado de línea 273 a 278 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
+  "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de relaciones de evidencia. En `self.i == len(self.lineas)`, `_actual()` devuelve una línea sentinela vacía y la primera guarda del cuerpo corta porque no empieza con la indentación de relación. No crea relaciones, no avanza el índice y deja idéntico el error posterior. Ningún test puede observar esa vuelta vacía. (Reapuntado de línea 273 a 278 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.) (Se movió el 2026-09-09, al arreglar la guarda que elegía entre la forma de tabla y la de escape: el sitio es el mismo, la línea no.)"
  },
  {
-  "id": "nucleo/caso.py:345:18:comparador",
+  "id": "nucleo/caso.py:358:18:comparador",
   "linea_texto": "while self.i < len(self.lineas):",
   "ordinal": 5,
-  "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso. (Reapuntado de línea 290 a 295 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.)"
+  "razon": "`while self.i < len(self.lineas)` → `<=` en el bucle de filas de una relación. En el borde de EOF, `_actual()` devuelve el sentinela vacío y el cuerpo sale de inmediato porque la línea no empieza con indentación de fila. No agrega hechos ni altera la validación de cantidad de filas. La conducta observable es igual para todo texto de caso. (Reapuntado de línea 290 a 295 el 2026-08-26). (Se movió el 2026-09-01, al declarar el vocabulario cerrado su propio significado más arriba en el archivo: el sitio es el mismo, la línea no.) (Se movió el 2026-09-09, al arreglar la guarda que elegía entre la forma de tabla y la de escape: el sitio es el mismo, la línea no.)"
  },
  {
   "id": "nucleo/sintaxis.py:1427:29:constante",

@@ -181,7 +181,20 @@ def _lineas_relacion(nombre: str, filas: list) -> list[str]:
     imprimible_como_tabla = (
         bool(campos)
         and all(isinstance(f, dict) and list(f.keys()) == campos for f in hechos)
-        and all(c and c.strip() == c and "," not in c for c in campos)
+        # Sin ESPACIO ADENTRO, no sólo en los bordes. La guarda decía `c.strip() == c`, que atrapa
+        # el espacio al principio y al final, y `"," not in c`, que atrapa la coma. Un nombre como
+        # `campo con espacio` pasaba las dos y se escribía como cabecera de tabla: el lector después
+        # lo partía en el espacio y fallaba con «se esperaba ',' entre campos; llegó 'con'».
+        #
+        # No hace falta rechazar nada: la forma de escape `fila {...}` —que esta misma función usa
+        # para filas heterogéneas— ya sabe escribir cualquier nombre, y da la vuelta idéntica. Lo
+        # único que estaba mal era CUÁL de las dos formas se elegía.
+        #
+        # Los nombres de campo de la evidencia de un caso NO los pone el álgebra: los pone el JSON
+        # que emite el sensor de un consumidor, y nada los valida contra `NOMBRE_CAMPO_RE`. Por eso
+        # esto era alcanzable desde el mundo real, y por eso el corpus de Oracle ya tiene un campo
+        # fuera de ese patrón —`cubre_franja_0.5_a_5_grados`, con puntos— que se imprime bien.
+        and all(c and not any(ch.isspace() for ch in c) and "," not in c for c in campos)
     )
     if not imprimible_como_tabla:
         lineas = [f"{IND2}{nombre}:{prefijo_clave}"]

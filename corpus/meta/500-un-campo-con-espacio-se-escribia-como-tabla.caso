@@ -1,0 +1,21 @@
+caso 500-un-campo-con-espacio-se-escribia-como-tabla:
+    fecha: "2026-09-09"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "8214911+worktree"
+        comando: "python3 -B tools/metamorficas.py con el generador ampliado y el impresor viejo restaurado en una copia"
+    procedencia: observada
+    titulo: "El impresor elegia la forma de tabla para un nombre que no entra en una cabecera"
+    etiqueta: falso_verde
+    sintoma:
+        La guarda que decide entre la forma de tabla y la de escape miraba «c.strip() == c» y «coma no esta en c»: atrapaba el espacio al borde y la coma, y no el espacio de ADENTRO. Un campo llamado «campo con espacio» pasaba las dos comprobaciones, se escribia como cabecera de tabla, y el lector despues lo partia en el espacio. El corpus lo aceptaba, el impresor lo escribia y el lector lo rechazaba: las tres piezas en desacuerdo sobre la misma forma.
+    como_se_detecto: persona
+    medida: meta.sintaxis_casos_cubre_casos
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_cubre_casos", "905-generado-campo-con-espacio", "construido", false, "ErrorSintaxis: línea 14, columna 25: se esperaba ',' entre campos; llegó 'con'", false, false, false
+            "sintaxis_casos_cubre_casos", "907-generado-campo-con-tabulacion", "construido", false, "ErrorSintaxis: línea 14, columna 25: se esperaba ',' entre campos; llegó 'con'", false, false, false
+            "sintaxis_casos_cubre_casos", "906-generado-campo-con-coma", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "904-generado-sin-medida", "construido", true, "", true, true, true
+    leccion:
+        Los nombres de campo de la evidencia de un caso NO los pone el algebra: los pone el JSON que emite el sensor de un consumidor, y nada los valida contra el patron de nombres. Un segundo autor encontro esta asimetria y la descarto argumentando que un campo con espacio no puede existir en el algebra relacional. La demostracion era correcta bajo una premisa que el sistema no garantiza, que es la misma forma de error que ya habia cometido con una malla degenerada. La coma se atrapaba y el espacio no, y esa diferencia no la sostenia nada.

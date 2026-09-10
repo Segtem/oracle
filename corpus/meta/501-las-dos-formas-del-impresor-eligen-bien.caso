@@ -1,0 +1,22 @@
+caso 501-las-dos-formas-del-impresor-eligen-bien:
+    fecha: "2026-09-09"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "8214911+worktree"
+        comando: "python3 -B tools/metamorficas.py"
+    procedencia: observada
+    titulo: "Cada nombre de campo va en la forma que si lo puede escribir"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La misma sonda despues del arreglo: los nombres que no entran en una cabecera de tabla salen por la forma de escape «fila {…}», que esta funcion ya usaba para filas heterogeneas, y vuelven identicos. No hizo falta rechazar ninguna forma: lo unico que estaba mal era cual de las dos se elegia.
+    como_se_detecto: observacion
+    medida: meta.sintaxis_casos_cubre_casos
+    evidencia:
+        equivalencia: propiedad, caso, origen, evaluo, error, mismo_veredicto, mismo_valor, mismos_testigos
+            "sintaxis_casos_cubre_casos", "905-generado-campo-con-espacio", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "906-generado-campo-con-coma", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "907-generado-campo-con-tabulacion", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "901-generado-1-relaciones", "construido", true, "", true, true, true
+            "sintaxis_casos_cubre_casos", "904-generado-sin-medida", "construido", true, "", true, true, true
+    leccion:
+        El verde tiene que traer las dos formas. Sin las filas de los campos normales, un arreglo que mandara TODO por la forma de escape pasaria igual, y la forma de tabla —que es la que hace legible el corpus— se perderia sin que nadie lo notara.

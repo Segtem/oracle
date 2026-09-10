@@ -585,6 +585,16 @@ def _generar_casos_candidatos() -> list[dict]:
             f"90{cantidad}-generado-{cantidad}-relaciones",
             {nombre: filas for nombre, filas in relaciones[:cantidad]},
         ))
+    # Nombres de campo que la forma de TABLA no puede escribir. El generador no los producía, y por
+    # eso la sonda no vio que el impresor elegía la forma equivocada y emitía una cabecera que el
+    # lector después no podía partir. Los nombres de la evidencia de un caso no los pone el álgebra:
+    # los pone el JSON de un sensor, así que un espacio adentro es alcanzable desde el mundo real.
+    for etiqueta, campo in (("espacio", "campo con espacio"), ("coma", "campo,con,coma"),
+                            ("tabulacion", "campo\tcon\ttab")):
+        candidatas.append(_caso_generado(
+            f"90{5 + ('espacio', 'coma', 'tabulacion').index(etiqueta)}-generado-campo-con-{etiqueta}",
+            {"presente": [{campo: 1, "otro": 2}]},
+        ))
     candidatas.append(_caso_generado(
         "904-generado-sin-medida",
         {nombre: filas for nombre, filas in relaciones},

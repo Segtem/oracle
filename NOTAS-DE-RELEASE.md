@@ -1,3 +1,80 @@
+# 0.14.0 — la aceptación deja de salir 1, después de veintitrés días
+
+```
+VERSION_DISTRIBUCION   0.13.1 → 0.14.0   el código de salida de la aceptación cambia
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4      el impresor elige mejor entre sus dos formas; no gana ninguna
+```
+
+El 26 de agosto de 2026, DECISION-004 declaró que dos medidas quedaban sostenidas **sólo por
+evidencia fabricada**, y en vez de aflojar la medida que las señalaba declaró la consecuencia:
+
+> `tools/aceptacion.py` sale con código 1 mientras esto siga así.
+
+**Queda CUMPLIDA.** La aceptación sale 0, y el CI de este repositorio pierde el `|| true` que
+arrastraba desde entonces.
+
+## Las tres cayeron igual, y ninguna transcribiendo evidencia
+
+Haciendo observable algo que ya ocurría, que era el único camino que la decisión admitía:
+
+| | fecha | qué se hizo observable |
+|---|---|---|
+| `…referente_sin_huella` | 09-01 | los referentes **ya se calculaban** y morían dentro de una función |
+| `sintaxis_cubre_algebra` | 09-08 | un `agrupar:` sin agregados que el impresor escribía y el lector rechazaba |
+| `sintaxis_casos_cubre_casos` | 09-09 | un nombre de campo con un espacio, escrito como cabecera de tabla |
+
+**Y las tres veces el defecto estaba donde el `alcance` decía que no se miraba.**
+
+## El último: una condición, y no había que rechazar nada
+
+`corpus.py` aceptaba un caso cuya evidencia tiene un campo llamado `campo con espacio`;
+`caso.imprimir` lo escribía como cabecera de tabla; `caso.leer` lo rechazaba con
+«se esperaba ',' entre campos; llegó 'con'». Tres piezas del mismo proyecto en desacuerdo sobre la
+misma forma.
+
+La guarda que elige entre la forma de **tabla** y la de **escape** (`fila {...}`) decía:
+
+```python
+all(c and c.strip() == c and "," not in c for c in campos)
+```
+
+`c.strip() == c` atrapa el espacio **al borde**; `"," not in c` atrapa la coma. **El espacio de
+adentro no lo atrapaba nada.** Y la forma de escape ya sabía escribirlo: lo único que estaba mal era
+cuál de las dos se elegía. Nada se rechaza, y el campo `cubre_franja_0.5_a_5_grados` del propio
+corpus —con puntos, fuera del patrón de nombres— sigue en tabla e idéntico.
+
+## De dónde salió, que es lo que más enseña
+
+La búsqueda se le encargó a un segundo autor con un freno explícito: *si no encontrás nada, decilo*.
+Entregó un **resultado negativo riguroso** —97 esquinas, 25 casos ortogonales agregados al
+generador— y **no inventó un defecto**, que era lo que importaba.
+
+Pero encontró dos asimetrías y las descartó así: *«los campos con espacios no existen ni pueden
+existir en el álgebra relacional»*. Cierto para las relaciones que **declara el lenguaje**. Los
+nombres de campo de la **evidencia de un caso** no los pone el álgebra: los pone el JSON que emite el
+sensor de un consumidor, y nada los valida.
+
+**El informe que concluyó «no hay defecto» contenía el defecto, en la sección de lo descartado.** Lo
+que falló no fue la búsqueda sino el argumento con el que se descartó un hallazgo — y es la segunda
+vez que ese mismo autor demuestra algo correcto bajo una premisa que el sistema no garantiza.
+
+De ahí la regla: **cuando algo se descarta, el argumento que lo descarta tiene que declarar su
+premisa.**
+
+## `tools/cli.py` bajó 66% y no alcanzó
+
+De **36,5 a 12,5 minutos**, sigue en 504/504. Sigue afuera de la matriz de mutación de CI porque el
+umbral son ~10 minutos, y el número real quedó escrito en `CUSTODIAS_SIN_MEDIR` en vez de relajar el
+criterio. El techo está medido: **83 mutantes llegan hasta `tests.test_herramientas`**, que cuesta 18
+segundos, y los dos módulos baratos del perfil sólo matan 98 de 504.
+
+Tres tests de integración —el que construye la rueda y los dos que corren `oracle test` sobre
+proyectos temporales— pasaron a `tests/test_cli_integracion.py`, con los 90 cuerpos comprobados
+idénticos por AST.
+
+---
+
 # 0.13.1 — quince herramientas declaradas custodias y siete medidas
 
 ```

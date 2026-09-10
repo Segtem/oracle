@@ -122,7 +122,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9861 líneas de lenguaje y **401 negativas explícitas** (`raise`).
+En este corte hay 9874 líneas de lenguaje y **401 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -146,7 +146,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 109 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 75 la mutación, 25 una persona, 5 la casualidad, 4 una herramienta ajena.
+Los 110 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 75 la mutación, 26 una persona, 5 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -155,7 +155,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9861 líneas de lenguaje** (`nucleo/`, código y macros) y **401 negativas explícitas** (`raise`). Contra las 60 medidas universales escritas en él (427 líneas): **23,1 a 1**. 53 de las 60 pasan por una macro.
+**9874 líneas de lenguaje** (`nucleo/`, código y macros) y **401 negativas explícitas** (`raise`). Contra las 60 medidas universales escritas en él (427 líneas): **23,1 a 1**. 53 de las 60 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -549,7 +549,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 ```
 
 <!-- corpus:inicio -->
-**201 casos**: 120 defectos y 81 verdes correctos. De los defectos, 113 deben ponerse en rojo · 0 huecos abiertos · 5 resueltos conservados · 2 límite humano. Por etiqueta: 114 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 3 deudas de diseño. Por procedencia: 110 observada, 85 construida, 6 generada y 0 sin declarar.
+**203 casos**: 121 defectos y 82 verdes correctos. De los defectos, 114 deben ponerse en rojo · 0 huecos abiertos · 5 resueltos conservados · 2 límite humano. Por etiqueta: 115 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 3 deudas de diseño. Por procedencia: 112 observada, 85 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->

@@ -98,6 +98,23 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.14.0 (2026-09-09): `VERSION_DISTRIBUCION` sube de `0.13.1` a `0.14.0`.** Sube la
+**menor**, y por un motivo que no había aparecido antes: **`tools/aceptacion.py` deja de salir con
+código 1**. Salía 1 a propósito desde el 2026-08-26, declarado en DECISION-004, y esa decisión queda
+**CUMPLIDA** después de veintitrés días.
+
+El código de salida de la aceptación es superficie: es lo que un CI ajeno lee para decidir si
+integrar. Un consumidor que hoy tolera el 1 —con un `|| true`, como lo hacía el CI de este mismo
+repositorio— va a seguir pasando, pero uno que lo trate como fallo **cambia de comportamiento**. Que
+el cambio sea de rojo a verde no lo vuelve compatible: sigue siendo un contrato de salida que se
+mueve, y ésa es la línea de la menor.
+
+`VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.4`. El impresor de casos elige mejor
+entre sus dos formas —tabla y escape— pero **no gana ni pierde ninguna**: un `.caso` válido antes lo
+sigue siendo, y todo lo que ya se escribía se escribe idéntico. Lo que cambió es cuál de las dos
+formas se elige para un nombre de campo con un espacio adentro, que antes se escribía en una tabla
+que el lector no podía volver a partir.
+
 **Corte 0.13.1 (2026-09-09): `VERSION_DISTRIBUCION` sube de `0.13.0` a `0.13.1`.** Sube el
 **parche**: nadie cambia de color y no entra ni sale una medida del catálogo. `oracle <directorio>`
 deja de despacharse como si fuera una medida —era un mensaje de error que hablaba de otra cosa— y

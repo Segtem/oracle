@@ -35,6 +35,51 @@ observación conservada en ese repositorio.
 PyPI **saltó de `0.6.0` a `0.8.1`**: `0.7.0` y `0.8.0` nunca se subieron y ya no se van a subir.
 Es coherente con GitHub, donde tampoco hay `v0.8.0`; `v0.7.0` sí tiene release y tag.
 
+### Corte 0.14.0: la aceptación deja de salir 1 (2026-09-09)
+
+**Sin commitear al escribir esto.** Distribución `0.14.0`, álgebra `0.6`, sintaxis `0.4`.
+
+🎉 **DECISION-004 queda CUMPLIDA después de veintitrés días.** `tools/aceptacion.py` sale **0**, y el
+CI pierde el `|| true` que arrastraba desde el 2026-08-26. El chequeo literal pasa de `1 rojo` a
+**`0 rojos`**. Detalle en
+[`estudios/EL-ULTIMO-ROJO-DE-DECISION-004.md`](estudios/EL-ULTIMO-ROJO-DE-DECISION-004.md).
+
+**Las tres se cerraron igual y ninguna transcribiendo evidencia**: haciendo observable algo que ya
+ocurría. Y **las tres veces el defecto estaba donde el `alcance` decía que no se miraba.**
+
+**El último:** `corpus.py` aceptaba un caso con un campo llamado `campo con espacio`,
+`caso.imprimir` lo escribía como cabecera de tabla y `caso.leer` lo rechazaba. La guarda que elige
+entre la forma de tabla y la de escape atrapaba el espacio **al borde** y la coma, y no el espacio de
+**adentro**. Una condición, y no hubo que rechazar nada: la forma de escape ya sabía escribirlo.
+
+⚠ **La lección de este corte no es el arreglo, es de dónde salió.** El segundo autor entregó un
+resultado negativo riguroso —97 esquinas, 25 casos ortogonales— y **no inventó un defecto**, que era
+el freno correcto. Pero descartó la asimetría diciendo que «un campo con espacios no puede existir en
+el álgebra relacional». Cierto para las relaciones que DECLARA el lenguaje; los nombres de la
+evidencia de un caso los pone el JSON de un sensor y nada los valida. **El informe que concluyó "no
+hay defecto" contenía el defecto, en la sección de lo descartado.** Es la segunda vez que ese autor
+demuestra algo correcto bajo una premisa que el sistema no garantiza.
+
+**Regla que queda:** cuando algo se descarta, el argumento que lo descarta tiene que **declarar su
+premisa**.
+
+**`tools/cli.py`:** de **36,5 a 12,5 minutos**, sigue en 504/504, y **sigue afuera** de la matriz
+porque el umbral son ~10. No se relajó el criterio: el número real quedó en `CUSTODIAS_SIN_MEDIR`.
+El techo está medido — **83 mutantes llegan hasta `tests.test_herramientas`** (18 s) y los dos
+módulos baratos del perfil sólo matan 98 de 504.
+
+⚠ **Hallazgo sin cerrar: `tools/metamorficas.py` NO está en `HERRAMIENTAS_CUSTODIAS`**, y debería.
+Es el generador de las sondas que sostienen `meta.sintaxis_cubre_algebra` y
+`meta.sintaxis_casos_cubre_casos` — las dos que acaban de cerrar DECISION-004. Si dejara de generar
+las esquinas en silencio, las dos medidas darían verde **vacuamente** y nadie se enteraría. Es
+exactamente la definición de la lista. No entró en este corte para no mezclarlo con el cierre.
+
+**Verificación:** suite **1506** · corpus **203** · medidas **959/959** · **aceptación ✓ con CERO
+rojos** · cifras y manual regenerados · WHEEL OK · `nucleo/caso.py` **210/210**. Consumidores
+idénticos: Jam 28/3, LyraGASP 43/78.
+
+---
+
 ### Corte 0.13.1: quince declaradas custodias y siete medidas (2026-09-09)
 
 **Sin commitear al escribir esto.** Distribución `0.13.1`, álgebra `0.6`, sintaxis `0.4`.

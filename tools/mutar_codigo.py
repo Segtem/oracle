@@ -68,8 +68,12 @@ PRIORIDADES = {
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
     "tools/censar.py": ("tests.test_censar",),
     "tools/cifras.py": ("tests.test_herramientas",),
-    "tools/cli.py": ("tests.test_biblioteca", "tests.test_vigilar", "tests.test_cli",
-                     "tests.test_herramientas"),
+    # Medido el 2026-09-09: vigilar tarda 0,08 s y mata 48 mutantes; biblioteca, 0,23 s y 69
+    # (19 compartidos). Adelantarlos evita pagar todo el CLI por sus mutantes exclusivos.
+    # `test_cli.load_tests` deja el diagnóstico real al final del módulo; aceptación y
+    # empaquetado van después de las pruebas directas. Se conservan todos los tests originales.
+    "tools/cli.py": ("tests.test_vigilar", "tests.test_biblioteca", "tests.test_cli",
+                     "tests.test_herramientas", "tests.test_cli_integracion"),
     # `test_contexto` primero y solo: es chico y es suyo. La lección de costo de arriba —un mutante
     # cuesta lo que tarde el arnés en LLEGAR al test que lo mata— dice poner el módulo más
     # específico adelante, y acá se puede porque el archivo tiene su propio test.
@@ -242,11 +246,13 @@ PRIORIDADES = {
 #
 # Queda UNA, y no por deuda sino por CUPO.
 CUSTODIAS_SIN_MEDIR = {
-    "cli.py": "medida el 2026-09-09 en 504/504 sin sobrevivientes, y **limpia**: no entra por "
-              "costo. Son 36,5 minutos por ronda porque su perfil corre cuatro módulos de tests "
-              "en serie. La matriz ya no corre en cada push —sólo en pull requests y a pedido—, "
-              "pero 36 minutos por integración siguen siendo reales contra un cupo que esta cuenta "
-              "ya agotó una vez. Se corre a mano antes de integrar un cambio del CLI: "
+    "cli.py": "medida el 2026-09-09 en 504/504 sin sobrevivientes, timeouts ni errores de arnés: "
+              "no entra por costo. Bajó de ~36,5 a 12,5 minutos (749,94 s) adelantando vigilar y "
+              "separando aceptación y empaquetado al final del perfil, sin quitar tests. Sigue "
+              "por encima de los ~10 minutos: 83 mutantes llegan a test_herramientas y acumulan "
+              "323 s hasta morir. De ellos, 82 caen por referencias de equivalentes vencidas en "
+              "la copia mutada; ese fallo no demuestra por sí solo una conducta del CLI. "
+              "Se corre a mano antes de integrar un cambio del CLI: "
               "`python3 tools/mutar_codigo.py --objetivo tools/cli.py --timeout 120`. Entra a la "
               "matriz el día que su perfil baje de ~10 minutos, no antes.",
 }

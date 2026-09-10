@@ -1,8 +1,9 @@
 # Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho
 
 **Fecha:** 2026-08-26 · **Revisada:** 2026-08-31 (de 2 a 3), 2026-09-01 (de 3 a 2) y 2026-09-08
-(de 2 a **1**) · **Estado:** vigente
-**Consecuencia:** `tools/aceptacion.py` sale con código 1 mientras esto siga así.
+(de 2 a **1**) y 2026-09-09 (de 1 a **CERO**) · **Estado:** CUMPLIDA
+**Consecuencia:** `tools/aceptacion.py` salía con código 1 mientras esto siguiera así. **Dejó de
+salir 1 el 2026-09-09**, después de veintitrés días.
 
 ## El hecho
 
@@ -52,6 +53,38 @@ por cada esquina que faltaba, con el mismo error que había pisado el consumidor
 sólo ocurría porque el hueco estaba abierto.
 
 **El rojo bajó de 2 a 1.** Queda `meta.sintaxis_casos_cubre_casos`.
+
+### La última se cerró el 2026-09-09, y por el mismo camino que las otras dos
+
+No transcribiendo evidencia: **cambiando el mundo**. Un segundo autor buscó el defecto en la
+superficie de casos, midió 97 esquinas más 25 casos de generador, y entregó un **resultado negativo
+riguroso** — no inventó uno para cerrar el rojo, que es lo que esta decisión prohíbe. Pero en el
+camino encontró dos asimetrías y las descartó con un argumento que no se sostenía: que un nombre de
+campo con espacios «no puede existir en el álgebra relacional».
+
+**Los nombres de campo de la evidencia de un caso no los pone el álgebra: los pone el JSON que emite
+el sensor de un consumidor**, y nada los valida contra el patrón de nombres. La demostración era
+correcta bajo una premisa que el sistema no garantiza.
+
+El defecto era real y de la misma forma que el de `agrupar`: `corpus.py` aceptaba el caso,
+`caso.imprimir` lo escribía como cabecera de tabla y `caso.leer` lo rechazaba. Y el arreglo también:
+**el impresor ya sabía escribirlo** —en la forma de escape que usa para filas heterogéneas— y su
+guarda elegía mal. Detectaba la coma y el espacio del borde, no el de adentro.
+
+Los casos `500` y `501` transcriben la corrida contra el impresor viejo y la de después, los dos con
+`procedencia: observada` y su `origen`.
+
+**El rojo bajó de 1 a CERO.** `tools/aceptacion.py` sale 0.
+
+---
+
+## Lo que esta decisión dejó demostrado
+
+Las tres se cerraron igual, y ninguna por transcribir: **haciendo observable algo que ya ocurría**.
+La primera exponiendo referentes que se calculaban y morían adentro de una función; la segunda y la
+tercera encontrando un defecto real en la superficie que la sonda no generaba.
+
+Las tres veces el defecto estaba donde el `alcance` decía que no se miraba.
 
 ## Por qué éstas no se pueden cerrar
 

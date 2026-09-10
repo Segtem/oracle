@@ -58,17 +58,24 @@ jobs:
       # NO se puede exigir que salga 0 sin tapar la medida. Se exige que el número no CAMBIE: si sube
       # hay una regresión, y si baja alguien cerró un rojo y hay que actualizar este número a mano.
       # Un umbral que se mueve solo es una métrica esperando a volverse objetivo.
-      - name: aceptación con los rojos declarados
+      - name: aceptación
         run: |
-          python tools/aceptacion.py > /tmp/acept.txt 2>&1 || true
+          # Desde el 2026-09-09 la aceptación SALE 0 y este paso ya no tolera el fallo: se cayó el
+          # `|| true` que la corrida arrastraba desde el 2026-08-26, cuando DECISION-004 declaró que
+          # dos medidas quedaban sostenidas sólo por evidencia fabricada y que `aceptacion.py`
+          # saldría 1 mientras eso siguiera así. Las tres se cerraron —ninguna transcribiendo
+          # evidencia, las tres haciendo observable algo que ya ocurría— y la decisión quedó
+          # CUMPLIDA después de veintitrés días.
+          python tools/aceptacion.py > /tmp/acept.txt 2>&1
           tail -20 /tmp/acept.txt
           # DOS números, no uno, desde el 2026-09-07. Un rojo en sombra sigue imprimiéndose con
           # `✗`, así que contarlos juntos hacía que declarar una sombra —que es el mecanismo para
           # NO tapar una deuda— rompiera el mismo chequeo que existe para que nada se tape. Se
           # cuentan por separado: los que tumban la corrida y los que están declarados en sombra.
-          test "$(grep '^  ✗ meta\.' /tmp/acept.txt | grep -cv 'EN SOMBRA')" = "1"
+          # CERO rojos que tumban, desde el 2026-09-09. Era 1 —el de DECISION-004— y antes 2.
+          test "$(grep '^  ✗ meta\.' /tmp/acept.txt | grep -cv 'EN SOMBRA')" = "0"
           test "$(grep -c '^  ✗ meta\..*\[EN SOMBRA\]' /tmp/acept.txt)" = "1"
-          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        1 (<= 0)' /tmp/acept.txt
+          grep -q 'la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)' /tmp/acept.txt
           # El literal que contaba los 94 casos sin `origen` salió el 2026-09-08. Lo reemplaza la
           # `cota` que la sombra declara en `oracle.json`, vigilada por dos medidas: una hace
           # fallar si la deuda SUBE y la otra si la cota queda por ENCIMA de la deuda. Es
@@ -126,7 +133,8 @@ jobs:
           # medirlas cerraron las siete en cero sobrevivientes —1182 sitios, 1180 muertos, 2
           # equivalentes declarados—, así que no había deuda que cerrar: había una medición que
           # nadie había hecho. `cli.py` es la séptima y queda afuera por cupo, no por deuda: 504/504
-          # en 36,5 minutos. Ver `CUSTODIAS_SIN_MEDIR` en `tools/mutar_codigo.py`.
+          # en 36,5 minutos, luego 12,5 al reordenar y separar las integraciones. Sigue por encima
+          # de los ~10 minutos. Ver `CUSTODIAS_SIN_MEDIR` en `tools/mutar_codigo.py`.
           - tools/contexto.py
           - tools/corpus.py
           - tools/manual.py
