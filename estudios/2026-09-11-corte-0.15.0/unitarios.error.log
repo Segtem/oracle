@@ -1,0 +1,8 @@
+usage: python3 -m unittest [-h] --proyecto RUTA [--hechos] [--html RUTA]
+                           [--confiar-escalares]
+python3 -m unittest: error: the following arguments are required: --proyecto
+BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+----------------------------------------------------------------------
+Ran 1536 tests in 42.513s
+
+OK

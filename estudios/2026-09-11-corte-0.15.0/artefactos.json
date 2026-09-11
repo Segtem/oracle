@@ -1,0 +1,12 @@
+[
+  {
+    "archivo": "dist/oracle_metalenguaje-0.15.0-py3-none-any.whl",
+    "bytes": 390009,
+    "sha256": "fbe2454ba754655bd697053686b37bb59ca8eb7a1496debea675cff8c3a00a9d"
+  },
+  {
+    "archivo": "dist/oracle_metalenguaje-0.15.0.tar.gz",
+    "bytes": 641994,
+    "sha256": "49c8221713fd9f42000228d2545fbeb17d0d22de95d8e9c63715c34108ae6aa0"
+  }
+]

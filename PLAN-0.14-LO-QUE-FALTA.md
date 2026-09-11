@@ -18,9 +18,9 @@ La mejora de rendimiento también quedó medida: resolver el contexto una vez po
 álgebra bajó su ronda de 383,70 a 140,83 s y conservó 390/390. La verificación completa del relevo
 terminó en código 0, incluidos 1536 tests y 959/959 mutantes de medidas.
 
-El siguiente corte propuesto es **distribución 0.15.0**, manteniendo álgebra 0.6 y sintaxis 0.4,
-por los cambios de códigos de salida del CLI. La propuesta y su argumento están en el
-[relevo](RELEVO-2026-09-10.md); la versión sigue en 0.14.0 hasta decisión del dueño.
+El dueño autorizó el corte **distribución 0.15.0**, manteniendo álgebra 0.6 y sintaxis 0.4,
+por los cambios de códigos de salida del CLI. El argumento y el contenido del corte están en
+[las notas de release](NOTAS-DE-RELEASE.md). La publicación en PyPI queda a su cargo.
 
 Los planes generales conservan historia: `--vigilar` y el servidor LSP ya están implementados,
 aunque `PLAN-IDE.md` todavía los describa como futuros. Una interfaz web sigue siendo una opción,

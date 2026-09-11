@@ -98,6 +98,17 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.15.0 (2026-09-11): `VERSION_DISTRIBUCION` sube de `0.14.0` a `0.15.0`.** Sube la
+**menor** porque cambia el contrato de salida de herramientas: `diagnostico --salida --rapido`
+antes escribía un archivo llamado `--rapido` y salía 0; ahora rechaza la falta de destino y sale 1.
+`tools/metamorficas.py` también pasa de ignorar argumentos desconocidos con éxito a rechazarlos
+con código 2. Que sean correcciones de entradas erróneas no elimina el cambio observable por una
+automatización. Las custodias nuevas, los mensajes y el rendimiento por sí solos no exigirían una
+menor. `VERSION_ALGEBRA` queda en `0.6`: no cambia ningún nodo, operador ni significado; resolver
+límites y registro una vez por expresión conserva la validación de cada nodo en cada fila.
+`VERSION_SINTAXIS` queda en `0.4`: no cambia la gramática ni las formas canónicas, y los archivos
+`.oracle` y `.caso` se leen y se escriben igual que antes.
+
 **Corte 0.14.0 (2026-09-09): `VERSION_DISTRIBUCION` sube de `0.13.1` a `0.14.0`.** Sube la
 **menor**, y por un motivo que no había aparecido antes: **`tools/aceptacion.py` deja de salir con
 código 1**. Salía 1 a propósito desde el 2026-08-26, declarado en DECISION-004, y esa decisión queda

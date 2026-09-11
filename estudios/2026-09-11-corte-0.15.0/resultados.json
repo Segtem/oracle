@@ -1,0 +1,123 @@
+[
+  {
+    "paso": "unitarios",
+    "comando": [
+      "python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-q"
+    ],
+    "codigo": 0,
+    "segundos": 42.698
+  },
+  {
+    "paso": "corpus",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/corpus.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.045
+  },
+  {
+    "paso": "aceptacion",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/aceptacion.py"
+    ],
+    "codigo": 0,
+    "segundos": 4.291
+  },
+  {
+    "paso": "mutacion_medidas",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/mutar.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.378
+  },
+  {
+    "paso": "cifras",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/cifras.py",
+      "--actualizar"
+    ],
+    "codigo": 0,
+    "segundos": 0.648
+  },
+  {
+    "paso": "manual",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/cli.py",
+      "manual",
+      "--html"
+    ],
+    "codigo": 0,
+    "segundos": 0.069
+  },
+  {
+    "paso": "instalacion",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/verificar_instalacion.py"
+    ],
+    "codigo": 0,
+    "segundos": 4.7
+  },
+  {
+    "paso": "generador",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/sondear_generador.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.035
+  },
+  {
+    "paso": "procedencia",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/sondear_procedencia.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.036
+  },
+  {
+    "paso": "traza",
+    "comando": [
+      "python3",
+      "-B",
+      "tools/trazar.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.092
+  },
+  {
+    "paso": "jam",
+    "comando": [
+      "python3",
+      "-B",
+      "/home/workstation/Dev/oracle/tools/aceptacion.py",
+      "--proyecto",
+      "medidas",
+      "--confiar-escalares"
+    ],
+    "codigo": 0,
+    "segundos": 5.559
+  }
+]

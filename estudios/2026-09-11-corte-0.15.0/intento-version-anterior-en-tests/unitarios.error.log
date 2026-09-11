@@ -1,0 +1,82 @@
+usage: python3 -m unittest [-h] --proyecto RUTA [--hechos] [--html RUTA]
+                           [--confiar-escalares]
+python3 -m unittest: error: the following arguments are required: --proyecto
+BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+======================================================================
+FAIL: test_handshake_lista_llamada_y_apagado_viajan_por_stdin_y_stdout (test_mcp.AConversacionCompletaTests.test_handshake_lista_llamada_y_apagado_viajan_por_stdin_y_stdout)
+Una llamada directa no descubriría framing incorrecto ni texto humano en stdout.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_mcp.py", line 169, in test_handshake_lista_llamada_y_apagado_viajan_por_stdin_y_stdout
+    self.assertEqual(respuestas[0], {
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+        "jsonrpc": "2.0",
+        ^^^^^^^^^^^^^^^^^
+    ...<5 lines>...
+        },
+        ^^
+    })
+    ^^
+AssertionError: {'jso[94 chars]}}, 'serverInfo': {'name': 'oracle-mcp', 'version': '0.15.0'}}} != {'jso[94 chars]}}, 'serverInfo': {'name': 'oracle-mcp', 'version': '0.14.0'}}}
+  {'id': 1,
+   'jsonrpc': '2.0',
+   'result': {'capabilities': {'tools': {}},
+              'protocolVersion': '2025-11-25',
+-             'serverInfo': {'name': 'oracle-mcp', 'version': '0.15.0'}}}
+?                                                                 ^
+
++             'serverInfo': {'name': 'oracle-mcp', 'version': '0.14.0'}}}
+?                                                                 ^
+
+
+======================================================================
+FAIL: test_salida_antes_del_apagado_sale_uno (test_mcp.TerminacionDelTransporteTests.test_salida_antes_del_apagado_sale_uno)
+Una notificación exit prematura no debe certificar el cierre que nunca se acordó.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_mcp.py", line 1183, in test_salida_antes_del_apagado_sale_uno
+    self.assertEqual(_desenmarcar(resultado.stdout), [{
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        "jsonrpc": "2.0", "id": 1,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<4 lines>...
+        },
+        ^^
+    }])
+    ^^^
+AssertionError: Lists differ: [{'js[96 chars]}, 'serverInfo': {'name': 'oracle-mcp', 'version': '0.15.0'}}}] != [{'js[96 chars]}, 'serverInfo': {'name': 'oracle-mcp', 'version': '0.14.0'}}}]
+
+First differing element 0:
+{'jso[94 chars]}}, 'serverInfo': {'name': 'oracle-mcp', 'version': '0.15.0'}}}
+{'jso[94 chars]}}, 'serverInfo': {'name': 'oracle-mcp', 'version': '0.14.0'}}}
+
+  [{'id': 1,
+    'jsonrpc': '2.0',
+    'result': {'capabilities': {'tools': {}},
+               'protocolVersion': '2025-11-25',
+-              'serverInfo': {'name': 'oracle-mcp', 'version': '0.15.0'}}}]
+?                                                                  ^
+
++              'serverInfo': {'name': 'oracle-mcp', 'version': '0.14.0'}}}]
+?                                                                  ^
+
+
+======================================================================
+FAIL: test_version_y_entry_point_tienen_una_sola_fuente (test_mcp.VersionYEntradaTests.test_version_y_entry_point_tienen_una_sola_fuente)
+Duplicar la versión en el adaptador permitiría que el checkout y el binario discrepen.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_mcp.py", line 1217, in test_version_y_entry_point_tienen_una_sola_fuente
+    self.assertEqual(VERSION_DISTRIBUCION, "0.14.0")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '0.15.0' != '0.14.0'
+- 0.15.0
+?    ^
++ 0.14.0
+?    ^
+
+
+----------------------------------------------------------------------
+Ran 1536 tests in 43.978s
+
+FAILED (failures=3)

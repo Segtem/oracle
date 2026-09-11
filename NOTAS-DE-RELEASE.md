@@ -1,3 +1,55 @@
+# 0.15.0 — las sondas tienen custodia y el CLI entra en CI
+
+```
+VERSION_DISTRIBUCION   0.14.0 → 0.15.0   cambian códigos de salida de herramientas
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+`tools/metamorficas.py` genera las esquinas que sostienen las dos medidas de sintaxis que cerraron
+DECISION-004. Ahora tiene tests que fijan su presencia y contenido, custodia declarada y una ronda
+completa de **242/242**. El CLI cierra **509/509 en 452,61 s** y entra en la matriz: las **15
+custodias** están incluidas. Ambas rondas terminaron sin sobrevivientes, timeouts, errores de arnés
+ni equivalentes declarados.
+
+## Cambios observables al usar las herramientas
+
+- `diagnostico --salida --rapido` rechaza la falta de destino con código 1; antes escribía un
+  archivo llamado `--rapido` y salía 0. Los errores de escritura ahora informan la ruta y la causa.
+- Metamórficas incorpora ayuda y rechaza argumentos desconocidos con código 2; antes los ignoraba.
+- Conversión informa archivos ilegibles, UTF-8 inválido y formas JSON rechazadas sin traceback.
+- Manual rechaza una bandera usada como destino y conserva el rechazo de temas desconocidos.
+- El mutador de código explica un objetivo fuera del perfil sin traceback.
+
+Los cambios de códigos de salida justifican la menor de distribución. El lenguaje conserva sus
+versiones y su significado. Se retiraron dos declaraciones de equivalencia del CLI: la premisa de
+que el diagnóstico sólo contenía ASCII era falsa para una instalación en una ruta con tildes; la
+sangría equivalente se eliminó construyéndola directamente.
+
+## Rendimiento medido
+
+La validación resuelve límites y registro una vez por expresión y sigue validando cada nodo de cada
+fila. El escenario reproducible de sombras bajó **16,2 %**; ese porcentaje no se extrapola a la
+suite completa. Adelantar tests existentes de sintaxis redujo la ronda del álgebra de **383,70 a
+140,83 s**, conservando **390/390**, sin timeouts ni errores de arnés. Se aplicaron a mano 38
+mutantes del tramo modificado y una omisión adicional de validación; los 39 fallaron.
+
+## Alcance y verificación
+
+El estudio de autenticidad demuestra que, bajo un autor que puede escribir el registro y leer sus
+referentes, una transcripción puede pasar las comprobaciones locales. No se declara autenticidad
+comprobada ni se descarta una custodia externa bajo otra premisa de autoridad. El plan de Jam
+observa su aceptación; no demuestra ejecución de escenas de Unreal ni recupera procedencias viejas.
+Los 94 orígenes irrecuperables de Oracle conservan su sombra y cota.
+
+La verificación previa al corte cerró con **1536 tests**, corpus de **203 casos**, aceptación con
+**115 defectos, 81 verdes correctos y 0 huecos**, y **959/959 mutantes de medidas**. También pasaron
+cifras, manual, instalación de la rueda, sondas, traza y aceptación de Jam. Las mediciones y sus
+premisas están en los estudios del 2026-09-10; la repetición sobre la versión 0.15.0 queda registrada
+en `estudios/2026-09-11-corte-0.15.0/`. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.14.0 — la aceptación deja de salir 1, después de veintitrés días
 
 ```

@@ -1,0 +1,73 @@
+catálogo: 81 medidas · corpus: 31 casos
+
+  ROJO  001-interpenetracion-en-el-borde       colocacion.interpenetracion  (valor 0.5)
+  ROJO  002-interpenetraciones-de-distinta-profundidad colocacion.interpenetracion  (valor 9.0)
+  ROJO  003-grilla-en-el-borde                 snap.grilla  (valor 1.0000000000000002)
+  ROJO  004-desvios-de-grilla-distintos        snap.grilla  (valor 37.0)
+  ROJO  005-yaw-en-el-borde                    snap.yaw  (valor 0.5000000000000001)
+  ROJO  006-desvios-de-yaw-distintos           snap.yaw  (valor 45.0)
+  ROJO  007-al-ras-en-el-borde                 snap.al_ras  (valor 1.0000000000000002)
+  ROJO  008-al-ras-toma-el-peor-contacto       snap.al_ras  (valor 2.0)
+  ROJO  009-al-ras-toma-el-menor-solape        snap.comparte_cara  (valor 1)
+  ROJO  014-gap-en-la-franja-que-abre-el-mutador physics.apoyado  (valor 1)
+  ROJO  015-volumen-exactamente-en-la-frontera colocacion.bounds  (valor 1)
+  ROJO  016-cara-con-acuerdo-exactamente-cero  malla.cara_visible  (valor 1)
+  ROJO  017-solido-con-volumen-orientado-cero  malla.solido_hacia_afuera  (valor 1)
+  ROJO  018-una-sola-arista-suelta             malla.solido_esta_cerrado  (valor 1)
+  ROJO  019-desvio-de-centro-en-la-franja      reemplazo.centrado  (valor 1)
+  ROJO  020-desvio-de-base-en-la-franja        reemplazo.apoyado  (valor 1)
+  ROJO  021-footprint-en-la-franja             reemplazo.footprint  (valor 1)
+  verde geometria-010-comparte-cara-de-sobra-es-verde snap.comparte_cara  (valor 0)
+  ROJO  geometria-011-al-ras-sin-piezas-no-concluye snap.al_ras  (valor 0)
+  ROJO  geometria-012-al-ras-publica-el-peor-contacto snap.al_ras  (valor 9.0)
+  ROJO  geometria-013-comparte-cara-sin-evidencia-no-concluye snap.comparte_cara  (valor 0)
+  verde physics-003-apoyado-con-suelo-es-verde physics.apoyado  (valor 0)
+  ROJO  physics-004-apoyado-sin-asentamiento-no-concluye physics.apoyado  (valor 0)
+  ROJO  physics-tanda-001-interpenetracion-en-el-borde physics.tanda_sin_interpenetracion  (valor 0.5)
+  ROJO  physics-tanda-002-penetraciones-distintas physics.tanda_sin_interpenetracion  (valor 9.0)
+  ROJO  scatter-001-interpenetracion-en-el-borde scatter.interpenetracion  (valor 0.5)
+  ROJO  scatter-002-interpenetraciones-de-distinta-profundidad scatter.interpenetracion  (valor 9.0)
+  ROJO  scatter-003-cobertura-en-el-borde      scatter.cobertura  (valor 1)
+  ROJO  scatter-004-coberturas-distintas       scatter.cobertura  (valor 1)
+  verde scatter-005-cobertura-suficiente-es-verde scatter.cobertura  (valor 0)
+  ROJO  scatter-006-cobertura-sin-evidencia-no-concluye scatter.cobertura  (valor 0)
+
+defectos que se pusieron rojos: 28 · verdes correctos: 3 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada       16 (<= 0)   [EN SOMBRA]
+      → _={'medida': 'colocacion.interpenetracion', 'casos': 2, 'no_observados': 2}; _={'medida': 'snap.grilla', 'casos': 2, 'no_observados': 2}; _={'medida': 'snap.yaw', 'casos': 2, 'no_observados': 2} +13
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✗ meta.toda_cantidad_comparada_tiene_unidad_derivable       54 (<= 0)   [EN SOMBRA]
+      → c={'medida': 'espacio.ganable', 'unidad': 'sin_declarar', 'es_derivable': False}; c={'medida': 'espacio.inicio_unico', 'unidad': 'sin_declarar', 'es_derivable': False}; c={'medida': 'espacio.meta_unica', 'unidad': 'sin_declarar', 'es_derivable': False} +51
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✗ meta.todo_umbral_declara_de_donde_sale             41 (<= 0)   [EN SOMBRA]
+      → m=espacio.ganable; m=espacio.inicio_unico; m=espacio.meta_unica +38
+
+EN SOMBRA — 3 medida(s) que se miden y no hacen fallar:
+  · meta.la_medida_no_se_fija_solo_con_evidencia_fabricada  (hace 10 días)
+      porque: 9 medidas fijadas sólo con evidencia construida; se cierran transcribiendo corridas reales de las sondas contra JamPlayground, que necesita el editor abierto
+  · meta.toda_cantidad_comparada_tiene_unidad_derivable  (hace 10 días)
+      porque: 54 comparaciones sin unidad derivable sobre 41 archivos de catálogo; declarar los campos en relaciones/ es trabajo por relación y no entra en el commit de la migración
+  · meta.todo_umbral_declara_de_donde_sale  (hace 10 días)
+      porque: 41 umbrales anteriores a que existiera `segun`; cada uno necesita que alguien diga de dónde salió el número, y completarlo adivinando sería peor que la falta
+  ✓ meta.ninguna_cota_mas_alta_que_su_deuda             0 (<= 0)
+  ✓ meta.ninguna_sombra_envejece_sin_revisarse          0 (<= 90)
+  ✓ meta.ninguna_sombra_sobre_una_medida_que_no_existe        0 (<= 0)
+  ✓ meta.ninguna_sombra_supera_su_cota                  0 (<= 0)
+  ✓ meta.ninguna_sombra_ya_en_verde                     0 (<= 0)
+  ✓ meta.toda_sombra_declara_desde_y_porque             0 (<= 0)
+  ✓ meta.toda_sombra_declara_una_fecha_real             0 (<= 0)
+
+ACEPTACIÓN ✓ — 28 defectos en rojo, 3 verdes correctos, 0 huecos declarados sin tapar
