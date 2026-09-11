@@ -1,5 +1,34 @@
 # Plan — lo que le falta a Oracle después de 0.13.1
 
+> Continuación del 2026-09-10: [trabajo y verificaciones](RELEVO-2026-09-10.md).
+> El estado que sigue se conserva como antecedente fechado.
+
+## Balance al 2026-09-11
+
+| Frente | Estado actual |
+|---|---|
+| CLI en CI y custodia de las sondas | Cerrado: 15 custodias en la matriz; CLI 509/509 y metamórficas 242/242, sin sobrevivientes ni timeouts. |
+| DECISION-004 | Cerrada en 0.14.0 con defectos reales; aceptación conserva código 0. |
+| Autenticidad | Estudio y experimento terminados. La autenticidad sigue sin estar comprobada; una custodia externa requeriría otra premisa de autoridad. |
+| Consumidores | Plan de aceptación de Jam capturado y revalidado. Quedan observaciones propias del consumidor, incluida la malla del caso 018; LyraGASP queda fuera de este trabajo. |
+| Los 94 orígenes | Irrecuperables, bajo sombra y cota; no se reclasificaron. |
+
+La mejora de rendimiento también quedó medida: resolver el contexto una vez por expresión ahorró
+16,2 % en la reproducción del escenario de sombras; no se extrapola a toda la suite. El perfil del
+álgebra bajó su ronda de 383,70 a 140,83 s y conservó 390/390. La verificación completa del relevo
+terminó en código 0, incluidos 1536 tests y 959/959 mutantes de medidas.
+
+El siguiente corte propuesto es **distribución 0.15.0**, manteniendo álgebra 0.6 y sintaxis 0.4,
+por los cambios de códigos de salida del CLI. La propuesta y su argumento están en el
+[relevo](RELEVO-2026-09-10.md); la versión sigue en 0.14.0 hasta decisión del dueño.
+
+Los planes generales conservan historia: `--vigilar` y el servidor LSP ya están implementados,
+aunque `PLAN-IDE.md` todavía los describa como futuros. Una interfaz web sigue siendo una opción,
+no un compromiso. El próximo avance de accesibilidad debe partir de fricción observada al escribir
+y usar medidas; el plan de Jam no demuestra por sí solo adopción ni clausura de sus dependencias.
+
+## Antecedente al 2026-09-09
+
 **Escrito el 2026-09-09**, con el árbol en `0.13.1`, CI verde y PyPI publicado.
 
 Cinco cosas quedan abiertas. **No son del mismo tipo**, y confundirlas es lo que hace que una lista

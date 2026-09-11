@@ -132,9 +132,9 @@ jobs:
           # Entran el 2026-09-09. Las seis estaban DECLARADAS como custodias y sin medir; al
           # medirlas cerraron las siete en cero sobrevivientes —1182 sitios, 1180 muertos, 2
           # equivalentes declarados—, así que no había deuda que cerrar: había una medición que
-          # nadie había hecho. `cli.py` es la séptima y queda afuera por cupo, no por deuda: 504/504
-          # en 36,5 minutos, luego 12,5 al reordenar y separar las integraciones. Sigue por encima
-          # de los ~10 minutos. Ver `CUSTODIAS_SIN_MEDIR` en `tools/mutar_codigo.py`.
+          # nadie había hecho. CLI entra el 2026-09-10: 509/509 en 452,61 s, sin equivalentes
+          # ni inconclusos. Se retiraron las muertes por referencias vencidas, se fijaron las
+          # conductas y se adelantaron sus tests específicos. Las 15 custodias están en la matriz.
           - tools/contexto.py
           - tools/corpus.py
           - tools/manual.py
@@ -145,10 +145,14 @@ jobs:
           # Instrumento que custodia una afirmación: desde que genera los bloques del README, es lo
           # único que impide que una cifra publicada vuelva a derivar. Ver HERRAMIENTAS_CUSTODIAS.
           - tools/cifras.py
+          - tools/cli.py
           # Entra el 2026-09-03, y entra porque se lo midió. Tenía 114 sobrevivientes y tardaba ~90
           # minutos; con los tests que faltaban quedó en 264/264 y **201 segundos**. El costo era el
           # síntoma de estar mal fijado, no una propiedad del archivo.
           - tools/medida.py
+          # Genera las esquinas que sostienen las dos medidas de sintaxis de DECISION-004.
+          # Perder una sonda en silencio puede producir un verde vacuo.
+          - tools/metamorficas.py
           # Entra el 2026-09-07 con el recorrido de observación: custodia que un caso
           # `procedencia: observada` haya salido de una corrida. Ver HERRAMIENTAS_CUSTODIAS.
           - tools/observar.py

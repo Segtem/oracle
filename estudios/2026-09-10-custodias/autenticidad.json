@@ -1,0 +1,8 @@
+{
+  "procedencia_del_experimento": "construida",
+  "ejecuciones_sustituidas_por_transcripcion": 2,
+  "captura_con_transcripcion_aceptada": true,
+  "relectura_real_informa_sin_cambios": true,
+  "autenticidad_comprobada": false,
+  "alcance": "Atacante con escritura del registro y acceso a los mismos referentes; no prueba nada contra un registro custodiado fuera de esa autoridad."
+}

@@ -38,7 +38,10 @@ TESTS = [sys.executable, str(RAIZ / "tools" / "ejecutar_suite_mutacion.py")]
 EQUIVALENTES = RAIZ / "equivalentes.json"
 
 PRIORIDADES = {
-    "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor"),
+    # Las ubicaciones de errores del álgebra se fijan también al señalar la superficie.
+    # Dejarlas al descubrimiento general hacía pagar la suite a los mutantes de rutas de `unir`.
+    "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor",
+                          "tests.test_sintaxis"),
     "nucleo/biblioteca.py": ("tests.test_biblioteca",),
     "nucleo/aislamiento/escalares.py": ("tests.test_aislamiento_escalares",
                                         "tests.test_proyecto", "tests.test_motor"),
@@ -72,7 +75,9 @@ PRIORIDADES = {
     # (19 compartidos). Adelantarlos evita pagar todo el CLI por sus mutantes exclusivos.
     # `test_cli.load_tests` deja el diagnóstico real al final del módulo; aceptación y
     # empaquetado van después de las pruebas directas. Se conservan todos los tests originales.
-    "tools/cli.py": ("tests.test_vigilar", "tests.test_biblioteca", "tests.test_cli",
+    # Reportar discrimina sus rutas antes de pagar todo el CLI: 21 tests en 0,003 s locales.
+    "tools/cli.py": ("tests.test_reportar", "tests.test_vigilar", "tests.test_biblioteca",
+                     "tests.test_cli", "tests.test_censar", "tests.test_manual",
                      "tests.test_herramientas", "tests.test_cli_integracion"),
     # `test_contexto` primero y solo: es chico y es suyo. La lección de costo de arriba —un mutante
     # cuesta lo que tarde el arnés en LLEGAR al test que lo mata— dice poner el módulo más
@@ -85,7 +90,8 @@ PRIORIDADES = {
     # bytecode frío del arnés: la ronda del 2026-09-08 devolvió 6 timeouts, y agregarle cinco tests
     # tumbó hasta la línea base. Se corre con `--timeout 120`. Un timeout no mata a nadie, así que
     # una ronda con timeouts vale menos que ninguna: dice un número que parece medido y no lo está.
-    "tools/aceptacion.py": ("tests.test_herramientas", "tests.test_cli"),
+    "tools/aceptacion.py": ("tests.test_herramientas", "tests.test_cli",
+                            "tests.test_sombras_integracion"),
     # SIN `tests.test_cli`: el despacho de `oracle manual` vive en `cli.py` y ya lo fija el
     # perfil de `cli.py`. Acá agregaba ~40 s de subprocesos por mutante —la ronda pasaba de
     # minutos a horas— sin matar un mutante que los otros dos módulos no maten.
@@ -93,6 +99,7 @@ PRIORIDADES = {
     # `test_mcp` primero y solo: es suyo y es chico. Misma palanca que en `contexto.py`, que pasó de
     # 858 a 56 segundos.
     "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
+    "tools/metamorficas.py": ("tests.test_metamorficas", "tests.test_sintaxis"),
     "tools/observar.py": ("tests.test_observar",),
     "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
     # ENTRÓ el 2026-09-08, a la matriz de CI y a HERRAMIENTAS_CUSTODIAS, en **94/94**. Se midió el
@@ -239,27 +246,17 @@ PRIORIDADES = {
 # `test_toda_custodia_entra_a_la_matriz_o_declara_por_que` vigila las dos direcciones: una custodia
 # que no entra y no se declara hace fallar la suite, y una que ya entró y quedó acá también.
 #
-# ⚠ Esta lista decía «sin medir» y era falsa: el 2026-09-09 se midieron las siete que faltaban y
-# **las siete cerraron en cero sobrevivientes** — 1182 sitios, 1180 muertos y 2 equivalentes
-# declarados. La nota histórica sobre los ~30 sobrevivientes de `cli.py` era del 2026-09-07 y se
-# cerraron solos con los tests que entraron después. Seis entraron a la matriz ese mismo día.
-#
-# Queda UNA, y no por deuda sino por CUPO.
-CUSTODIAS_SIN_MEDIR = {
-    "cli.py": "medida el 2026-09-09 en 504/504 sin sobrevivientes, timeouts ni errores de arnés: "
-              "no entra por costo. Bajó de ~36,5 a 12,5 minutos (749,94 s) adelantando vigilar y "
-              "separando aceptación y empaquetado al final del perfil, sin quitar tests. Sigue "
-              "por encima de los ~10 minutos: 83 mutantes llegan a test_herramientas y acumulan "
-              "323 s hasta morir. De ellos, 82 caen por referencias de equivalentes vencidas en "
-              "la copia mutada; ese fallo no demuestra por sí solo una conducta del CLI. "
-              "Se corre a mano antes de integrar un cambio del CLI: "
-              "`python3 tools/mutar_codigo.py --objetivo tools/cli.py --timeout 120`. Entra a la "
-              "matriz el día que su perfil baje de ~10 minutos, no antes.",
-}
+# El 2026-09-10 entra la última: CLI cerró en 509/509, 452,61 s, sin timeouts, errores de arnés
+# ni equivalentes. Antes tardaba 749,94 s y 82 muertes dependían de equivalentes vencidos.
+# Se fijó la conducta y se adelantaron los tests específicos; no se relajó el umbral de ~10 min.
+# `metamorficas.py` también entra: sus 242 sitios están fijados y su pérdida de esquinas podía
+# dejar verdes vacuamente las dos medidas de sintaxis que cerraron DECISION-004.
+# Ver estudios/CUSTODIA-DE-SONDAS-Y-COSTO-DEL-CLI.md y sus manifiestos completos.
+CUSTODIAS_SIN_MEDIR = {}
 
 
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
-                          "corpus.py", "manual.py", "mcp.py", "medida.py",
+                          "corpus.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py")
 
@@ -566,8 +563,6 @@ def equivalentes_del_alcance(equivalentes: dict[str, str], objetivos: list[Path]
 
 
 def _ejecutar(proy, args) -> int:
-    objetivos = resolver_objetivos(args.objetivo)
-    comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
     silencioso = args.hechos
 
     def progreso(fila):
@@ -582,10 +577,11 @@ def _ejecutar(proy, args) -> int:
                 marca = "VIVO"
             print(f"  {marca:>4}  {fila['id']:<52} {fila['cambio']}", flush=True)
 
-    if not silencioso:
-        print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
-
     try:
+        objetivos = resolver_objetivos(args.objetivo)
+        comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
+        if not silencioso:
+            print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
         equivalentes = equivalentes_del_alcance(
             cargar_equivalentes(EQUIVALENTES), objetivos)
         evidencia = correr(

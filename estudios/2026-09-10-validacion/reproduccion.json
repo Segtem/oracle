@@ -1,0 +1,33 @@
+{
+  "muestras": [
+    {
+      "variante": "antes",
+      "segundos": 1.6329012619971763
+    },
+    {
+      "variante": "despues",
+      "segundos": 1.3583960899995873
+    },
+    {
+      "variante": "despues",
+      "segundos": 1.3455049549957039
+    },
+    {
+      "variante": "antes",
+      "segundos": 1.615176256003906
+    },
+    {
+      "variante": "antes",
+      "segundos": 1.595417713993811
+    },
+    {
+      "variante": "despues",
+      "segundos": 1.353773381008068
+    }
+  ],
+  "medianas": {
+    "antes": 1.615176256003906,
+    "despues": 1.353773381008068
+  },
+  "reduccion_porcentual": 16.184170242978468
+}

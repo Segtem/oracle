@@ -1,0 +1,16 @@
+{
+  "destino": "/tmp/oracle-jam-plan-definitivo-tu8wxy4e",
+  "referentes_declarados": 162,
+  "filas": {
+    "caso": 31
+  },
+  "resultado": {
+    "ok": true,
+    "valor": 0,
+    "testigos": 0,
+    "umbral": "<= 0",
+    "sin_evidencia": ""
+  },
+  "sin_cambios": true,
+  "autenticidad_comprobada": false
+}

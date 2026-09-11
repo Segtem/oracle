@@ -203,15 +203,19 @@ def cmd_diagnostico(proy, argv: list[str]) -> int:
     destino = ""
     if "--salida" in resto:
         i = resto.index("--salida")
-        if i + 1 >= len(resto):
+        if i + 1 >= len(resto) or resto[i + 1].startswith("--"):
             print("falta la ruta: oracle diagnostico --salida <archivo.json>")
             return 1
         destino = resto[i + 1]
     diagnostico = _diagnostico_actual(proy)
-    texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent=2)
+    texto = json.dumps(diagnostico.datos, ensure_ascii=False, indent="  ")
 
     if destino:
-        Path(destino).write_text(texto + "\n", encoding="utf-8")
+        try:
+            Path(destino).write_text(texto + "\n", encoding="utf-8")
+        except OSError as e:
+            print(f"no se pudo escribir el diagnóstico en «{destino}»: {e}", file=sys.stderr)
+            return 1
         print(f"escrito: {destino}")
         print("Leelo entero antes de compartirlo. Oracle no lo manda a ningún lado.")
         return 0
@@ -642,7 +646,11 @@ def cmd_convertir(proy: Proyecto, ruta_str: str) -> int:
         print(f"no existe: {ruta_str}")
         return 1
 
-    texto = ruta.read_text(encoding="utf-8")
+    try:
+        texto = ruta.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as e:
+        print(f"✗ {ruta}: no se pudo leer el archivo — {e}")
+        return 1
     try:
         macros = macros_del_proyecto(proy)
         if ruta.suffix == ".json":
@@ -656,6 +664,10 @@ def cmd_convertir(proy: Proyecto, ruta_str: str) -> int:
             return 1
     except (ErrorSintaxis, caso_superficie.CasoMalDeclarado) as e:
         print(f"✗ {ruta}: {fragmento_de_error(e, texto)}")
+        return 1
+    except ValueError as e:
+        # El cargador JSON y el impresor rechazan aquí formas que no se pueden convertir.
+        print(f"✗ {ruta}: {e}")
         return 1
     return 0
 
@@ -957,15 +969,13 @@ def main(argv: list[str] | None = None) -> int:
     # 2. Inicialización de proyecto (no requiere proyecto previo)
     if subcomando == "manual":
         tema = resto[0] if resto and not resto[0].startswith("-") else None
-        if tema is not None and "--instalar-man" in argv and argv[-1] == tema:
-            tema = None          # `--instalar-man <dir>`: el último no es un tema, es el destino
         if tema is not None and tema not in verbos_aceptados("manual"):
             return _verbo_desconocido("manual", tema)
         if "--instalar-man" in argv:
             # El destino es el argumento siguiente; sin él no se adivina un directorio: escribir
             # nueve archivos en un lugar que el usuario no nombró es peor que no hacer nada.
             posicion = argv.index("--instalar-man") + 1
-            if posicion >= len(argv):
+            if posicion >= len(argv) or argv[posicion].startswith("-"):
                 print("falta el directorio: oracle manual --instalar-man <dir>", file=sys.stderr)
                 return 2
             for ruta in manual.instalar_man(Path(argv[posicion])):

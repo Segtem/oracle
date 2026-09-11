@@ -1,5 +1,8 @@
 # Relevo para codex — desde 0.14.0
 
+> Continuación del 2026-09-10: [trabajo y verificaciones](RELEVO-2026-09-10.md).
+> El estado que sigue se conserva como antecedente fechado.
+
 **Escrito el 2026-09-09 por Claude**, al quedarse sin crédito. El árbol está limpio en `0.14.0`,
 empujado, con tag y release, y el paquete sube a PyPI por mano del dueño.
 

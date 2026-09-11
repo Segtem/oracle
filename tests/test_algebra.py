@@ -16,6 +16,52 @@ def _algebra():
 
 
 class ContratoAlgebraTests(unittest.TestCase):
+    def test_cada_fila_revalida_la_expresion_y_el_registro_actuales(self):
+        """Cachear la validación supone inmutabilidad que ni las listas ni el registro garantizan.
+
+        Una escalar puede cambiar la siguiente expresión o la firma registrada. La segunda fila
+        debe rechazarse antes de ejecutar otra llamada, también en claves y agregados de grupos.
+        """
+        algebra = _algebra()
+        for operacion, ruta in (("donde", "2.2.1"), ("clave", "2.2.1.0.1"),
+                               ("agregado", "2.2.2.0.2"), ("resumen", "3.2")):
+            for cambio in ("expresion", "registro"):
+                with self.subTest(operacion=operacion, cambio=cambio):
+                    registro = algebra.RegistroEscalares()
+                    expresion = ["alterar", 1]
+                    llamadas = []
+
+                    @algebra.escalar("doble", registro=registro)
+                    def doble(a, b):
+                        return a + b
+
+                    @algebra.escalar("alterar", registro=registro)
+                    def alterar(valor):
+                        llamadas.append(valor)
+                        if cambio == "expresion":
+                            expresion[:] = ["desconocida"]
+                        else:
+                            registro["alterar"] = doble
+                        return valor
+
+                    evidencia = {"item": [{"id": 1}, {"id": 2}]}
+                    tuberia = ["desde", ["de", "item", "i"]]
+                    if operacion == "donde":
+                        tuberia.append(["donde", expresion])
+                    elif operacion == "clave":
+                        tuberia.append(["agrupar", [["k", expresion]], []])
+                    elif operacion == "agregado":
+                        tuberia.append(["agrupar", [], [["n", "suma", expresion]]])
+                    with self.assertRaises(algebra.ErrorDeAlgebra) as fallo:
+                        filas = algebra.desde(tuberia, evidencia, registro=registro)
+                        if operacion == "resumen":
+                            algebra.resumir(["resumen", "suma", expresion], filas, registro=registro)
+                    self.assertEqual(fallo.exception.ruta, ruta)
+                    self.assertIn("no es accesor" if cambio == "expresion" else "acepta 2 argumento(s)",
+                                  str(fallo.exception))
+                    self.assertEqual(llamadas, [1])
+
+
     def test_forzar_plan_unir_exige_un_booleano_y_restaura_el_contexto(self) -> None:
         algebra = _algebra()
         with self.assertRaisesRegex(algebra.ErrorDeAlgebra, "selector.*booleano"):

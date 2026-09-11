@@ -497,8 +497,12 @@ class OracleCliTests(CliTestCase):
                      for i in range(33)]
         _rc, salida, *_ = self._cmd_test_oracle_simulado("--rapido", ilegibles=ilegibles)
 
-        self.assertEqual(salida.count("catalogos/dominio/m"), cli.LIMITE_ILEGIBLES)
-        self.assertIn(f"… y {33 - cli.LIMITE_ILEGIBLES} más", salida)
+        # La expectativa no debe cambiar junto con la constante mutada del producto.
+        self.assertEqual(salida.count("catalogos/dominio/m"), 10)
+        self.assertIn("… y 23 más", salida)
+        _rc, salida, *_ = self._cmd_test_oracle_simulado("--rapido", ilegibles=ilegibles[:10])
+        self.assertEqual(salida.count("catalogos/dominio/m"), 10)
+        self.assertNotIn("… y", salida)
 
     def test_sin_ilegibles_la_ida_y_vuelta_sigue_diciendo_lo_suyo(self):
         """El camino viejo no se tapó: una ida y vuelta rota se sigue informando como tal."""
@@ -710,6 +714,41 @@ class DiagnosticoCli(CliTestCase):
         (raiz / "catalogos").mkdir(parents=True, exist_ok=True)
         (raiz / "corpus").mkdir(parents=True, exist_ok=True)
         return ["--proyecto", str(raiz)]
+
+    def test_una_instalacion_con_tilde_se_lee_sin_escapes(self):
+        """La ruta de instalación es un dato real sin restricción ASCII; escaparla dificulta leerla."""
+        from nucleo import diagnostico
+        with tempfile.TemporaryDirectory() as td:
+            instalado = Path(td) / "oráculo" / "nucleo" / "diagnostico.py"
+            instalado.parent.mkdir(parents=True)
+            instalado.write_text("", encoding="utf-8")
+            with mock.patch.object(diagnostico, "__file__", str(instalado)), \
+                    mock.patch.object(cli, "descubrir_bibliotecas", return_value={}):
+                rc, salida = self._callado(cli.cmd_diagnostico, None, [])
+        self.assertEqual(rc, 0)
+        self.assertIn("oráculo", salida)
+        self.assertIn("oráculo", json.loads(salida)["oracle"]["corriendo_desde"])
+
+    def test_otra_bandera_no_es_la_ruta_del_diagnostico(self):
+        """`--salida --rapido` escribía un archivo llamado --rapido y anunciaba éxito."""
+        with mock.patch.object(cli, "_diagnostico_actual") as reunir:
+            rc, salida = self._callado(cli.cmd_diagnostico, None,
+                                       ["diagnostico", "--salida", "--rapido"])
+        self.assertEqual(rc, 1)
+        self.assertIn("falta la ruta", salida)
+        reunir.assert_not_called()
+
+    def test_un_destino_ilegible_se_explica_sin_traceback(self):
+        """Un directorio como destino debe nombrarse en el error, sin una excepción de Python."""
+        from nucleo.diagnostico import Diagnostico
+        with tempfile.TemporaryDirectory() as td, \
+                mock.patch.object(cli, "_diagnostico_actual", return_value=Diagnostico({})), \
+                redirect_stderr(io.StringIO()) as errores:
+            rc, salida = self._callado(cli.cmd_diagnostico, None, ["--salida", td])
+        self.assertEqual(rc, 1)
+        self.assertIn("no se pudo escribir el diagnóstico", errores.getvalue())
+        self.assertIn(td, errores.getvalue())
+        self.assertNotIn("escrito:", salida)
 
     def test_sin_salida_lo_imprime_como_json(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -1558,3 +1597,126 @@ class UnDirectorioNoEsUnaMedida(unittest.TestCase):
                 td)
         self.assertEqual(r.returncode, 0, r.stdout + r.stderr)
         self.assertIn("discrimina", r.stdout)
+
+
+class BordesDeLosComandos(CliTestCase):
+    def test_el_valor_de_bandera_no_consume_otra_bandera(self):
+        """Una bandera presente sin valor debe dar el mismo error al final o ante otra opción."""
+        for argumentos in (["--salida"], ["--salida", "--html"]):
+            with self.subTest(argumentos=argumentos):
+                self.assertEqual(cli._valor_de_bandera(argumentos, "--salida"),
+                                 (None, "falta el valor: --salida <valor>"))
+
+    def test_reportar_rechaza_argumentos_antes_de_preguntar(self):
+        """Los rechazos tienen código 1; imprimir una queja sin fallar engaña a quien automatiza."""
+        for argumentos, mensaje in (
+            (["--esperado", "a", "--esperado", "b"], "bandera repetida: --esperado"),
+            (["--esperado"], "falta el valor: --esperado <valor>"),
+            (["--esperado", "--ocurrido"], "falta el valor: --esperado <valor>"),
+            (["--inventada", "segunda"], "argumento desconocido para `oracle reportar`: --inventada"),
+        ):
+            with self.subTest(argumentos=argumentos), mock.patch(
+                    "builtins.input", side_effect=AssertionError("no debe preguntar")):
+                salida, error = io.StringIO(), io.StringIO()
+                with redirect_stdout(salida), redirect_stderr(error):
+                    codigo = cli.cmd_reportar(None, argumentos)
+                self.assertEqual(codigo, 1)
+                self.assertEqual(salida.getvalue(), "")
+                self.assertEqual(error.getvalue(), mensaje + "\n")
+
+    def test_la_ayuda_directa_del_reporte_devuelve_cero(self):
+        """El despacho anticipa la ayuda, pero cmd_reportar también debe responder sin preparar nada."""
+        for bandera in ("--help", "-h"):
+            with self.subTest(bandera=bandera), mock.patch.object(cli, "ayuda_reportar") as ayuda:
+                self.assertEqual(cli.cmd_reportar(None, [bandera]), 0)
+                ayuda.assert_called_once_with()
+
+    def test_contexto_transmite_opciones_y_codigo(self):
+        """La vista compacta y la confianza son elecciones humanas, no detalles intercambiables."""
+        from tools import contexto
+        proyecto = Proyecto(RAIZ)
+        for argumentos, compacto, confianza in (([], False, False),
+                (["--compacto", "--confiar-escalares"], True, True)):
+            with self.subTest(argumentos=argumentos), mock.patch.object(
+                    contexto, "texto", return_value="inventario del proyecto") as texto:
+                codigo, salida = self._callado(cli.cmd_contexto, proyecto, argumentos)
+                self.assertEqual(codigo, 0)
+                self.assertEqual(salida, "inventario del proyecto\n")
+                texto.assert_called_once_with(proyecto, compacto=compacto,
+                                              confiar_escalares=confianza)
+
+    def test_los_despachos_conservan_el_resultado_del_comando(self):
+        """SystemExit(None) parece éxito: verificar sólo el proceso no fija un return perdido."""
+        for argumentos, funcion in ((["proyecto", "contexto"], "cmd_contexto"),
+                (["contexto"], "cmd_contexto"), (["--contexto"], "cmd_contexto"),
+                (["reportar"], "cmd_reportar"), (["--reportar"], "cmd_reportar")):
+            with self.subTest(argumentos=argumentos), mock.patch.object(
+                    cli, funcion, return_value=7) as comando, mock.patch.object(
+                    cli, "cmd_test", side_effect=AssertionError("no debe ejecutar tests al pedir contexto")):
+                codigo, _ = self._callado(cli.main, [*argumentos, "--proyecto", str(RAIZ)])
+                self.assertEqual(codigo, 7)
+                comando.assert_called_once()
+
+    def test_convertir_informa_fuentes_invalidas_con_su_ruta(self):
+        """Directorios, UTF-8 roto y sintaxis inválida deben terminar en un diagnóstico, sin traceback."""
+        with tempfile.TemporaryDirectory() as directorio:
+            raiz = Path(directorio)
+            carpeta = raiz / "directorio.oracle"
+            carpeta.mkdir()
+            for nombre, contenido in (("bytes.oracle", b"\xff"),
+                    ("rota.oracle", b"esto no es una medida"), ("rota.json", b"{"),
+                    ("sin_medida.json", b"[]"),
+                    ("roto.caso", b"esto no es un caso")):
+                (raiz / nombre).write_bytes(contenido)
+            for ruta in sorted(raiz.iterdir()):
+                with self.subTest(ruta=ruta.name):
+                    codigo, salida = self._callado(cli.cmd_convertir, Proyecto(raiz), str(ruta))
+                    self.assertEqual(codigo, 1)
+                    self.assertIn(str(ruta), salida)
+                    self.assertIn("✗", salida)
+                    self.assertNotIn("Traceback", salida)
+
+    def test_manual_despacha_tema_y_formato_sin_resolver_proyecto(self):
+        """Los tests del generador no fijan que el comando respete el tema y el formato pedidos."""
+        for argumentos, funcion, parametros, esperado in (
+            (["manual"], "texto", (None,), "contenido\n"),
+            (["manual", "etiqueta"], "texto", ("etiqueta",), "contenido\n"),
+            (["manual", "--man"], "man", (None,), "contenido"),
+            (["manual", "etiqueta", "--man"], "man", ("etiqueta",), "contenido"),
+            (["manual", "--html"], "pagina", (), "contenido\n"),
+        ):
+            with self.subTest(argumentos=argumentos), mock.patch.object(
+                    cli.manual, funcion, return_value="contenido") as generar, mock.patch.object(
+                    cli, "resolver", side_effect=AssertionError("no debe resolver")):
+                codigo, salida = self._callado(cli.main, argumentos)
+                self.assertEqual(codigo, 0)
+                self.assertEqual(salida, esperado)
+                generar.assert_called_once_with(*parametros)
+
+    def test_manual_instala_en_el_destino_y_rechaza_su_ausencia(self):
+        """El destino de man no es un tema; sin destino no debe escribir ni anunciar éxito."""
+        for argumentos in (["manual", "--instalar-man", "destino"],
+                           ["manual", "etiqueta", "--instalar-man", "destino"]):
+            with self.subTest(argumentos=argumentos), mock.patch.object(
+                    cli.manual, "instalar_man", return_value=[Path("destino/man1/oracle.1")]) as instalar:
+                codigo, salida = self._callado(cli.main, argumentos)
+                self.assertEqual(codigo, 0)
+                self.assertEqual(salida, "destino/man1/oracle.1\n")
+                instalar.assert_called_once_with(Path("destino"))
+        with mock.patch.object(cli.manual, "instalar_man") as instalar, redirect_stderr(io.StringIO()) as error:
+            codigo, salida = self._callado(cli.main, ["manual", "--instalar-man"])
+            self.assertEqual(codigo, 2)
+            self.assertEqual(salida, "")
+            self.assertEqual(error.getvalue(), "falta el directorio: oracle manual --instalar-man <dir>\n")
+            instalar.assert_not_called()
+        for argumentos in (["manual", "tema_inexistente"],
+                ["manual", "tema_inexistente", "--instalar-man", "tema_inexistente"]):
+            with self.subTest(argumentos=argumentos), mock.patch.object(cli.manual, "instalar_man") as instalar:
+                codigo, salida = self._callado(cli.main, argumentos)
+                self.assertEqual(codigo, 1)
+                self.assertIn("verbo desconocido", salida)
+                instalar.assert_not_called()
+        with mock.patch.object(cli.manual, "instalar_man") as instalar, redirect_stderr(io.StringIO()):
+            codigo, _ = self._callado(cli.main, ["manual", "--instalar-man", "--html"])
+            self.assertEqual(codigo, 2)
+            instalar.assert_not_called()

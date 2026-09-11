@@ -97,10 +97,12 @@ class PreparacionTests(unittest.TestCase):
 
     def test_redacta_rutas_conocidas_en_todas_las_partes_escritas(self) -> None:
         """Una ruta se puede colar en la explicación además de en las filas. Redactar sólo el
-        archivo optativo dejaría el mismo dato personal visible por otro campo."""
-        with tempfile.TemporaryDirectory(dir=Path.home()) as td:
-            raiz = Path(td)
-            (raiz / "catalogos").mkdir()
+        archivo optativo dejaría el mismo dato personal visible por otro campo. El hogar temporal
+        conserva el solapamiento de rutas sin exigir escritura en el hogar de quien corre la suite."""
+        with tempfile.TemporaryDirectory() as td, mock.patch.object(Path, "home", return_value=Path(td)):
+            hogar = Path(td)
+            raiz = hogar / "proyecto"
+            (raiz / "catalogos").mkdir(parents=True)
             from nucleo.proyecto import Proyecto
             proy = Proyecto(raiz)
             absoluto = str(raiz.resolve())
@@ -114,7 +116,7 @@ class PreparacionTests(unittest.TestCase):
                 proy=proy,
             )
         self.assertEqual(absoluto in hecho.texto, False)
-        self.assertEqual(str(Path.home()) in hecho.texto, False)
+        self.assertEqual(str(hogar) in hecho.texto, False)
         self.assertEqual(hecho.texto.count("<PROYECTO>"), 3)
         self.assertEqual(hecho.texto.count("<HOME>"), 1)
 

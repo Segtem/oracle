@@ -1,0 +1,22 @@
+{
+  "anterior": {
+    "registro": "/tmp/oracle-jam-plan-definitivo-tu8wxy4e/registro.json",
+    "sin_cambios": false,
+    "evidencia_igual": true,
+    "referentes_cambiados": [
+      "../oracle/nucleo/algebra.py"
+    ]
+  },
+  "nueva": {
+    "destino": "/tmp/oracle-jam-validacion-09h6tnaw",
+    "resultado": {
+      "ok": true,
+      "valor": 0,
+      "testigos": 0,
+      "umbral": "<= 0",
+      "sin_evidencia": ""
+    },
+    "sin_cambios": true,
+    "autenticidad_comprobada": false
+  }
+}
