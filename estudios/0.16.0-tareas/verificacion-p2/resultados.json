@@ -1,0 +1,110 @@
+[
+  {
+    "paso": "unitarios",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-q"
+    ],
+    "codigo": 0,
+    "segundos": 46.638
+  },
+  {
+    "paso": "corpus",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/corpus.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.064
+  },
+  {
+    "paso": "aceptacion",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/aceptacion.py"
+    ],
+    "codigo": 0,
+    "segundos": 4.371
+  },
+  {
+    "paso": "mutacion_medidas",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/mutar.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.414
+  },
+  {
+    "paso": "cifras",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cifras.py",
+      "--actualizar"
+    ],
+    "codigo": 0,
+    "segundos": 0.665
+  },
+  {
+    "paso": "manual",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "manual",
+      "--html"
+    ],
+    "codigo": 0,
+    "segundos": 0.114
+  },
+  {
+    "paso": "instalacion",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/verificar_instalacion.py"
+    ],
+    "codigo": 0,
+    "segundos": 5.322
+  },
+  {
+    "paso": "generador",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/sondear_generador.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.064
+  },
+  {
+    "paso": "procedencia",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/sondear_procedencia.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.064
+  },
+  {
+    "paso": "traza",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/trazar.py"
+    ],
+    "codigo": 0,
+    "segundos": 0.114
+  }
+]

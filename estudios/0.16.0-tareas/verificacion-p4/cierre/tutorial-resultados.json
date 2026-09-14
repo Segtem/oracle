@@ -1,0 +1,46 @@
+[
+  {
+    "paso": "tutorial-build",
+    "comando": [
+      "/usr/bin/python3",
+      "-m",
+      "pip",
+      "wheel",
+      "--no-deps",
+      "--no-build-isolation",
+      "--wheel-dir",
+      "/tmp/oracle-p4-tutorial-final-vimhi_6a/ruedas",
+      "/tmp/oracle-p4-tutorial-final-vimhi_6a/fuente"
+    ],
+    "cwd": "/tmp/oracle-p4-tutorial-final-vimhi_6a",
+    "codigo": 0,
+    "segundos": 0.464
+  },
+  {
+    "paso": "tutorial-install",
+    "comando": [
+      "/tmp/oracle-p4-tutorial-final-vimhi_6a/entorno/bin/python",
+      "-m",
+      "pip",
+      "install",
+      "--no-deps",
+      "/tmp/oracle-p4-tutorial-final-vimhi_6a/ruedas/oracle_metalenguaje-0.15.0-py3-none-any.whl"
+    ],
+    "cwd": "/tmp/oracle-p4-tutorial-final-vimhi_6a",
+    "codigo": 0,
+    "segundos": 0.314
+  },
+  {
+    "paso": "tutorial-final",
+    "comando": [
+      "bash",
+      "-e",
+      "-o",
+      "pipefail",
+      "/home/workstation/Dev/oracle/estudios/0.16.0-tareas/verificacion-p4/cierre/tutorial-literal.sh"
+    ],
+    "cwd": "/tmp/oracle-p4-tutorial-final-vimhi_6a",
+    "codigo": 0,
+    "segundos": 0.564
+  }
+]

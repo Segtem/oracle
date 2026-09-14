@@ -49,6 +49,116 @@ def _entry_points_declarados() -> list[str]:
         return sorted(tomllib.load(f)["project"]["scripts"])
 
 
+def _recorrer_tareas(oracle: Path, *, temporal: Path, env: dict[str, str]) -> None:
+    """El tracker instalado debe preservar el contexto aunque el consumidor tenga catálogo roto."""
+    proyecto = temporal / "tareas consumidor á"
+    proyecto.mkdir()
+    # Cualquier carga accidental de configuración o escalares impide este recorrido.
+    (proyecto / "oracle.json").write_text("configuración deliberadamente inválida", encoding="utf-8")
+    (proyecto / "escalares.py").write_text("raise RuntimeError('no ejecutar')\n", encoding="utf-8")
+    _correr([str(oracle), "tarea", "init"], cwd=proyecto, env=env)
+    creado = _correr([str(oracle), "tarea", "nueva", "Investigar captura á", "--etiqueta",
+                      "investigacion", "--json"], cwd=proyecto, env=env)
+    identidad = json.loads(creado.stdout)["id"]
+    ruta = proyecto / "tareas" / identidad / "TAREA.md"
+    original = ruta.read_bytes() + "Captura: [imagen](captura.png)\n\nNota á.\n".encode("utf-8")
+    ruta.write_bytes(original)
+    adjunto = ruta.parent / "captura.png"
+    adjunto.write_bytes(b"adjunto de prueba construido")
+    subcarpeta = proyecto / "src" / "detalle"
+    subcarpeta.mkdir(parents=True)
+    listado = _correr([str(oracle), "tarea", "ls", "--json"], cwd=subcarpeta, env=env)
+    filas = json.loads(listado.stdout)
+    if len(filas) != 1 or filas[0]["id"] != identidad:
+        raise RuntimeError("el tracker instalado no encuentra la tarea desde una subcarpeta")
+    visto = _correr([str(oracle), "tarea", "ver", identidad, "--ruta"], cwd=subcarpeta, env=env)
+    if Path(visto.stdout.strip()) != ruta:
+        raise RuntimeError("ver --ruta no devuelve el archivo de la tarea instalada")
+    _correr([str(oracle), "tarea", "cerrar", identidad], cwd=subcarpeta, env=env)
+    if ruta.read_bytes() != original.replace(b"ABIERTA", b"CERRADA", 1):
+        raise RuntimeError("cerrar alteró el contexto de la tarea instalada")
+    abiertas = _correr([str(oracle), "tarea", "listar", "--json"], cwd=subcarpeta, env=env)
+    if json.loads(abiertas.stdout) != []:
+        raise RuntimeError("listar incluye una tarea cerrada entre las abiertas")
+    _correr([str(oracle), "tarea", "reabrir", identidad], cwd=subcarpeta, env=env)
+    if ruta.read_bytes() != original or adjunto.read_bytes() != b"adjunto de prueba construido":
+        raise RuntimeError("el recorrido instalado perdió texto o adjuntos")
+    url = "https://www.youtube.com/watch?v=ejemplo&t=92s"
+    _correr([str(oracle), "tarea", "anotar", identidad, "Hallazgo del recorrido instalado",
+             "--url", url, "--marca", "01:32"], cwd=subcarpeta, env=env)
+    if not ruta.read_bytes().startswith(original) or url not in ruta.read_text():
+        raise RuntimeError("anotar perdió el contexto previo o alteró la URL")
+    fuente = temporal / "captura ñ (detalle).png"
+    fuente.write_bytes(b"captura P2 construida\x00\xff")
+    agregado = _correr([str(oracle), "tarea", "adjuntar", identidad, str(fuente), "--json"],
+                       cwd=subcarpeta, env=env)
+    copia = Path(json.loads(agregado.stdout)["ruta"])
+    if copia.read_bytes() != fuente.read_bytes() or copia.parent != ruta.parent:
+        raise RuntimeError("adjuntar no conservó el archivo de origen en la tarea")
+    consulta = _correr([str(oracle), "tarea", "buscar", "hallazgo del recorrido", "--json"],
+                       cwd=subcarpeta, env=env)
+    if not json.loads(consulta.stdout)["coincidencias"]:
+        raise RuntimeError("buscar no recuperó la nota capturada")
+    (subcarpeta / "solucion.py").write_text(f"# Mención de {identidad}\n", encoding="utf-8")
+    referencias = _correr([str(oracle), "tarea", "referencias", identidad, "--json"],
+                          cwd=subcarpeta, env=env)
+    if not any(c["ruta"] == "src/detalle/solucion.py"
+               for c in json.loads(referencias.stdout)["coincidencias"]):
+        raise RuntimeError("referencias no encontró la mención en código")
+    resumen = _correr([str(oracle), "tarea", "resumen", "--json"], cwd=subcarpeta, env=env)
+    if json.loads(resumen.stdout)["total"] != 1:
+        raise RuntimeError("resumen del tracker instalado no coincide con sus registros")
+    if shutil.which("git"):
+        entorno_git = {k: v for k, v in env.items() if not k.startswith("GIT_")}
+        _correr(["git", "init", "-q"], cwd=proyecto, env=entorno_git)
+
+        def cobertura():
+            consulta = _correr([str(oracle), "tarea", "seguimiento", "--json"],
+                               cwd=subcarpeta, env=entorno_git)
+            return json.loads(consulta.stdout)["archivos"]
+
+        if any(f["en_indice"] or f["en_head"] for f in cobertura()):
+            raise RuntimeError("seguimiento confundió archivos locales con archivos registrados")
+        _correr(["git", "add", "--", "tareas"], cwd=proyecto, env=entorno_git)
+        if not all(f["en_indice"] and not f["en_head"] for f in cobertura()):
+            raise RuntimeError("seguimiento no distingue el índice de HEAD")
+        _correr(["git", "-c", "user.name=Prueba", "-c", "user.email=prueba@example.invalid",
+                 "-c", "commit.gpgsign=false", "-c", "core.hooksPath=/dev/null",
+                 "commit", "-qm", "Recorrido construido P2"], cwd=proyecto, env=entorno_git)
+        if not all(f["en_head"] and f["estado"] == "sin_cambios" for f in cobertura()):
+            raise RuntimeError("seguimiento no reconoce el contenido confirmado")
+    opciones_hechos = ["--git"] if shutil.which("git") else []
+    comando_hechos = [str(oracle), "tarea", "hechos", *opciones_hechos]
+    hechos = _correr(comando_hechos, cwd=subcarpeta, env=env)
+    repetidos = _correr(comando_hechos, cwd=subcarpeta, env=env)
+    if hechos.stdout != repetidos.stdout:
+        raise RuntimeError("la extracción instalada cambia con el mismo árbol estable")
+    datos = json.loads(hechos.stdout)
+    if len(datos["tarea_seguimiento"]) != 1 or not datos["lectura_seguimiento"][0]["completa"]:
+        raise RuntimeError("el extractor instalado no reconoce completo el recorrido P1/P2")
+    if str(proyecto) in hechos.stdout:
+        raise RuntimeError("los hechos dependen de la ubicación absoluta del consumidor")
+    evidencia = temporal / "hechos-tareas.json"
+    evidencia.write_text(hechos.stdout, encoding="utf-8")
+    consumidor = temporal / "politicas-tareas"
+    shutil.copytree(RAIZ / "ejemplo" / "seguimiento-tareas", consumidor)
+    evaluar = [str(oracle.parent / "python"), str(consumidor / "evaluar.py"), "--con", str(evidencia)]
+    if not opciones_hechos:
+        evaluar.extend(["--politica", "referencias_locales_presentes", "--politica", "lectura_sin_omisiones"])
+    _correr(evaluar, cwd=temporal, env=env)
+    with ruta.open("a", encoding="utf-8") as documento:
+        documento.write("\n[Defecto construido](ausente-p3.txt)\n")
+    rotos = _correr(comando_hechos, cwd=subcarpeta, env=env)
+    evidencia.write_text(rotos.stdout, encoding="utf-8")
+    rechazo = subprocess.run(
+        [str(oracle.parent / "python"), str(consumidor / "evaluar.py"), "--con", str(evidencia),
+         "--politica", "referencias_locales_presentes"],
+        cwd=temporal, env=env, capture_output=True, text=True, timeout=30)
+    if rechazo.returncode != 1 or "ausente-p3.txt" not in rechazo.stdout:
+        raise RuntimeError("la política instalada no rechaza el enlace roto con su testigo")
+    _correr([str(oracle), "tarea", "revisar"], cwd=subcarpeta, env=env)
+
+
 def _hablarle_al_lsp(ejecutable: Path, *, proyecto: Path, cwd: Path, env: dict[str, str]) -> None:
     """Le habla al servidor por stdio como haría un editor y exige que conteste sus capacidades.
 
@@ -274,6 +384,7 @@ def main() -> int:
                 "una instalación sin corpus debe exigir --proyecto: " + diagnostico)
 
         oracle = binarios / "oracle"
+        _recorrer_tareas(oracle, temporal=temporal, env=env)
         proyecto_cli = temporal / "proyecto-cli"
         _correr([str(oracle), "init", str(proyecto_cli)], cwd=vacio, env=env)
         vacio_cli = _correr(
@@ -353,7 +464,7 @@ def main() -> int:
 
     print(
         "WHEEL OK · namespace, datos, "
-        f"{len(entry_points)} entry points, oracle test y dos motores aislados "
+        f"{len(entry_points)} entry points, oracle test, tracker y dos motores aislados "
         "fuera del checkout"
     )
     return 0

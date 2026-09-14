@@ -1,0 +1,46 @@
+[
+  {
+    "objetivo": "tareas",
+    "diagnostico": false,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "estudios/0.16.0-tareas/medir_tracker.py",
+      "tareas",
+      "--salida",
+      "/tmp/oracle-p4-r4-tareas-completa"
+    ],
+    "codigo": 0,
+    "segundos": 191.464
+  },
+  {
+    "objetivo": "tareas_contexto",
+    "diagnostico": true,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "estudios/0.16.0-tareas/medir_tracker.py",
+      "tareas_contexto",
+      "--salida",
+      "/tmp/oracle-p4-r2-contexto",
+      "--diagnostico"
+    ],
+    "codigo": 1,
+    "segundos": 183.284
+  },
+  {
+    "objetivo": "tareas_hechos",
+    "diagnostico": true,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "estudios/0.16.0-tareas/medir_tracker.py",
+      "tareas_hechos",
+      "--salida",
+      "/tmp/oracle-p4-r2-hechos",
+      "--diagnostico"
+    ],
+    "codigo": 1,
+    "segundos": 391.053
+  }
+]

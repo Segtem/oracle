@@ -1,0 +1,15 @@
+caso 002-sin-referencias:
+    fecha: "2026-09-12"
+    origen:
+        tipo: "ejemplo construido para fijar la política P3"
+    procedencia: construida
+    titulo: "sin referencias"
+    etiqueta: verde_correcto
+    sintoma:
+        Ejemplo construido; se espera aceptación dentro del alcance declarado.
+    como_se_detecto: persona
+    medida: seguimiento.referencias_locales_presentes
+    evidencia:
+        referencia_seguimiento:
+    leccion:
+        El caso fija esta decisión optativa; no documenta una observación del material del dueño.

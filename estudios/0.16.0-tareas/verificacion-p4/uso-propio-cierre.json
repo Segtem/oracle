@@ -1,0 +1,167 @@
+{
+  "archivo_seguimiento": [
+    {
+      "clase": "documento",
+      "en_head": false,
+      "en_indice": false,
+      "existe": true,
+      "git_comprobado": true,
+      "ignorado": false,
+      "indice": "?",
+      "ruta": "tareas/20260912-223232-mutacion-tracker/TAREA.md",
+      "tamano_bytes": 510,
+      "tarea_id": "20260912-223232-mutacion-tracker",
+      "tipo": "regular",
+      "trabajo": "?"
+    },
+    {
+      "clase": "documento",
+      "en_head": false,
+      "en_indice": false,
+      "existe": true,
+      "git_comprobado": true,
+      "ignorado": false,
+      "indice": "?",
+      "ruta": "tareas/20260912-223233-corte-016/TAREA.md",
+      "tamano_bytes": 622,
+      "tarea_id": "20260912-223233-corte-016",
+      "tipo": "regular",
+      "trabajo": "?"
+    },
+    {
+      "clase": "documento",
+      "en_head": false,
+      "en_indice": false,
+      "existe": true,
+      "git_comprobado": true,
+      "ignorado": false,
+      "indice": "?",
+      "ruta": "tareas/20260912-223233-uso-propio/TAREA.md",
+      "tamano_bytes": 1291,
+      "tarea_id": "20260912-223233-uso-propio",
+      "tipo": "regular",
+      "trabajo": "?"
+    },
+    {
+      "clase": "adjunto",
+      "en_head": false,
+      "en_indice": false,
+      "existe": true,
+      "git_comprobado": true,
+      "ignorado": false,
+      "indice": "?",
+      "ruta": "tareas/20260912-223233-uso-propio/oracle-uso-propio-20260912.json",
+      "tamano_bytes": 4381,
+      "tarea_id": "20260912-223233-uso-propio",
+      "tipo": "regular",
+      "trabajo": "?"
+    },
+    {
+      "clase": "auxiliar",
+      "en_head": false,
+      "en_indice": false,
+      "existe": true,
+      "git_comprobado": true,
+      "ignorado": false,
+      "indice": "?",
+      "ruta": "tareas/README.md",
+      "tamano_bytes": 176,
+      "tarea_id": "",
+      "tipo": "regular",
+      "trabajo": "?"
+    }
+  ],
+  "lectura_seguimiento": [
+    {
+      "completa": true,
+      "esquema": "oracle.tareas.hechos/v1",
+      "git": "comprobado",
+      "head": "3507e30ba85ae3a3b284d8c0c2f52b03f8effacc"
+    }
+  ],
+  "omision_seguimiento": [],
+  "referencia_seguimiento": [
+    {
+      "clase": "local",
+      "destino_declarado": "../../PLAN-0.16.0-TAREAS.md",
+      "estado": "presente",
+      "linea": 9,
+      "origen": "tareas/20260912-223232-mutacion-tracker/TAREA.md",
+      "tarea_id": "20260912-223232-mutacion-tracker"
+    },
+    {
+      "clase": "local",
+      "destino_declarado": "../../estudios/0.16.0-tareas/CIERRE-P3.md",
+      "estado": "presente",
+      "linea": 9,
+      "origen": "tareas/20260912-223232-mutacion-tracker/TAREA.md",
+      "tarea_id": "20260912-223232-mutacion-tracker"
+    },
+    {
+      "clase": "local",
+      "destino_declarado": "../../PLAN-0.16.0-TAREAS.md",
+      "estado": "presente",
+      "linea": 9,
+      "origen": "tareas/20260912-223233-corte-016/TAREA.md",
+      "tarea_id": "20260912-223233-corte-016"
+    },
+    {
+      "clase": "local",
+      "destino_declarado": "../../RELEVO-2026-09-10.md",
+      "estado": "presente",
+      "linea": 9,
+      "origen": "tareas/20260912-223233-corte-016/TAREA.md",
+      "tarea_id": "20260912-223233-corte-016"
+    },
+    {
+      "clase": "local",
+      "destino_declarado": "../../RELEVO-PARA-CODEX.md",
+      "estado": "presente",
+      "linea": 9,
+      "origen": "tareas/20260912-223233-corte-016/TAREA.md",
+      "tarea_id": "20260912-223233-corte-016"
+    },
+    {
+      "clase": "local",
+      "destino_declarado": "../../PLAN-0.16.0-TAREAS.md",
+      "estado": "presente",
+      "linea": 9,
+      "origen": "tareas/20260912-223233-uso-propio/TAREA.md",
+      "tarea_id": "20260912-223233-uso-propio"
+    },
+    {
+      "clase": "local",
+      "destino_declarado": "oracle-uso-propio-20260912.json",
+      "estado": "presente",
+      "linea": 11,
+      "origen": "tareas/20260912-223233-uso-propio/TAREA.md",
+      "tarea_id": "20260912-223233-uso-propio"
+    }
+  ],
+  "tarea_seguimiento": [
+    {
+      "estado_declarado": "ABIERTA",
+      "id": "20260912-223232-mutacion-tracker",
+      "prioridad_declarada": 90,
+      "ruta": "tareas/20260912-223232-mutacion-tracker/TAREA.md",
+      "sha256_documento": "78f213ec426cdfb703148b9f951404f6b62681b66a8e4816cc02de58ac405150",
+      "titulo": "Verificar por mutaci\u00f3n el c\u00f3digo del tracker 0.16.0"
+    },
+    {
+      "estado_declarado": "ABIERTA",
+      "id": "20260912-223233-corte-016",
+      "prioridad_declarada": 60,
+      "ruta": "tareas/20260912-223233-corte-016/TAREA.md",
+      "sha256_documento": "7879f3cf8b0d4b12a0b540ef43866d3dd8db1c9a478ebfa316419e122f0a76e4",
+      "titulo": "Preparar el corte 0.16.0 con sus verificaciones y propuesta de versi\u00f3n"
+    },
+    {
+      "estado_declarado": "CERRADA",
+      "id": "20260912-223233-uso-propio",
+      "prioridad_declarada": 70,
+      "ruta": "tareas/20260912-223233-uso-propio/TAREA.md",
+      "sha256_documento": "7a3b9e515f80374a4fbbb9babc49a0d884931fc97fad0cdc72e50a63962fe09b",
+      "titulo": "Ejercitar el tracker con pendientes reales de Oracle"
+    }
+  ]
+}

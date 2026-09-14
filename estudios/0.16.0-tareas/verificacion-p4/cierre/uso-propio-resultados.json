@@ -1,0 +1,138 @@
+[
+  {
+    "paso": "nota-mutacion",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "anotar",
+      "20260912-223232-mutacion-tracker",
+      "Las cuatro rondas oficiales cerraron sin sobrevivientes ni inconclusos: tareas 263/263, contexto 197/197, Git 44/44 y hechos 258/258. Total 762/762. Comandos, manifiestos y duraciones en [cierre P4](../../estudios/0.16.0-tareas/CIERRE-P4.md).",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "cerrar-mutacion",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "cerrar",
+      "20260912-223232-mutacion-tracker",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "nota-corte",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "anotar",
+      "20260912-223233-corte-016",
+      "Preparación completada: 1852 tests y secuencia final en verde, wheel y tutorial literal verificados fuera del checkout. [Cierre y propuesta concreta](../../estudios/0.16.0-tareas/CIERRE-P4.md): distribución 0.16.0, álgebra 0.6, sintaxis 0.4. Se cierra la preparación; aplicar versión, commit y publicación quedan sujetos a la decisión del dueño.",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "cerrar-preparacion",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "cerrar",
+      "20260912-223233-corte-016",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "auditoria",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "revisar",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "resumen",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "resumen",
+      "--json",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "hechos-propios",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/cli.py",
+      "tarea",
+      "hechos",
+      "--git",
+      "--proyecto",
+      "."
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "politicas-integridad",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "ejemplo/seguimiento-tareas/evaluar.py",
+      "--con",
+      "/home/workstation/Dev/oracle/estudios/0.16.0-tareas/verificacion-p4/cierre/hechos-propios.json",
+      "--politica",
+      "referencias_locales_presentes",
+      "--politica",
+      "lectura_sin_omisiones"
+    ],
+    "codigo": 0,
+    "codigo_esperado": 0
+  },
+  {
+    "paso": "politica-git-pendiente",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "ejemplo/seguimiento-tareas/evaluar.py",
+      "--con",
+      "/home/workstation/Dev/oracle/estudios/0.16.0-tareas/verificacion-p4/cierre/hechos-propios.json",
+      "--politica",
+      "archivos_confirmados_sin_cambios"
+    ],
+    "codigo": 1,
+    "codigo_esperado": 1
+  }
+]

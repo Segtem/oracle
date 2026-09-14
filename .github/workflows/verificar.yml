@@ -164,6 +164,11 @@ jobs:
           - tools/sintaxis.py
           - tools/sondear_generador.py
           - tools/sondear_procedencia.py
+          # Integridad, captura y evidencia de seguimiento del tracker (P4 de 0.16.0).
+          - tools/tareas.py
+          - tools/tareas_contexto.py
+          - tools/tareas_git.py
+          - tools/tareas_hechos.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

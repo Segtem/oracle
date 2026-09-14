@@ -1,0 +1,16 @@
+caso 018-lectura-completa:
+    fecha: "2026-09-12"
+    origen:
+        tipo: "ejemplo construido para fijar la política P3"
+    procedencia: construida
+    titulo: "lectura completa"
+    etiqueta: verde_correcto
+    sintoma:
+        Ejemplo construido; se espera aceptación dentro del alcance declarado.
+    como_se_detecto: persona
+    medida: seguimiento.lectura_sin_omisiones
+    evidencia:
+        lectura_seguimiento: esquema, completa, git, head
+            "oracle.tareas.hechos/v1", true, "no_solicitado", ""
+    leccion:
+        El caso fija esta decisión optativa; no documenta una observación del material del dueño.

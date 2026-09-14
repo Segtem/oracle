@@ -1,0 +1,7 @@
+ninguno-requiere seguimiento.archivos_confirmados_sin_cambios:
+    de archivo_seguimiento a
+    donde a.git_comprobado == false o a.en_head == false o a.indice != " " o a.trabajo != " "
+    umbral <= 0 segun contrato porque "esta política optativa exige una consulta Git y archivos presentes en HEAD sin cambios pendientes, no basta con agregarlos al índice"
+    requiere archivo_seguimiento
+    ambito del_origen
+    alcance "juzga los campos declarados por la lectura Git de archivos del tracker, incluidos auxiliares. No comprueba repositorios remotos, backups, autenticidad, confidencialidad ni calidad del contenido. Sin filas o sin comprobación Git falla; activar sólo donde se quiera exigir este seguimiento"

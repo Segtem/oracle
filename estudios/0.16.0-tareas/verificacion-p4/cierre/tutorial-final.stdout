@@ -1,0 +1,23 @@
+Tracker de tareas inicializado en /tmp/tmp.8uroj1Iq0e/tareas
+Nota agregada a la tarea 20260913-231239-sinc
+Documento: /tmp/tmp.8uroj1Iq0e/tareas/20260913-231239-sinc/TAREA.md
+Archivo adjuntado a la tarea 20260913-231239-sinc
+Ruta:      /tmp/tmp.8uroj1Iq0e/tareas/20260913-231239-sinc/registro-ejemplo.txt
+Documento: /tmp/tmp.8uroj1Iq0e/tareas/20260913-231239-sinc/TAREA.md
+tareas/20260913-231239-sinc/TAREA.md:9: Ejemplo de nota sobre monotonic clock
+Referencias encontradas para «20260913-231239-sinc»:
+referencias.md:1: Investigación relacionada: 20260913-231239-sinc
+Resumen del tracker de tareas (/tmp/tmp.8uroj1Iq0e/tareas):
+  Total tareas: 1
+  Abiertas:     1
+  Cerradas:     0
+  Etiquetas:
+    · bug: 1
+    · sensor: 1
+El proyecto no pertenece a un repositorio Git.
+  sin repositorio: tareas/20260913-231239-sinc/TAREA.md
+  sin repositorio: tareas/20260913-231239-sinc/registro-ejemplo.txt
+  sin repositorio: tareas/README.md
+Tarea cerrada: 20260913-231239-sinc
+20260913-231239-sinc             CERRADA  P50  [bug, sensor]        Desincronización de eventos en sensor
+Proyecto de práctica: /tmp/tmp.8uroj1Iq0e

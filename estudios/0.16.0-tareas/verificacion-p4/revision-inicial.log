@@ -1,0 +1,58 @@
+======================================================================
+ERROR: test_json_es_utf8_aunque_un_nombre_local_no_lo_sea (test_tareas_p4_revision.RevisionGitP4Tests.test_json_es_utf8_aunque_un_nombre_local_no_lo_sea) (verbo='hechos')
+ensure_ascii protege nombres Unix con bytes inválidos: JSON debe seguir decodificando.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/test_tareas_p4_revision.py", line 106, in test_json_es_utf8_aunque_un_nombre_local_no_lo_sea
+    datos = json.loads(p.stdout.decode("utf-8"))
+                       ~~~~~~~~~~~~~~~^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xff in position 622: invalid start byte
+
+======================================================================
+FAIL: test_ejemplo_carga_desde_checkout_y_muestra_testigo (test_tareas_p4_revision.ConsumidorDesdeCheckoutTests.test_ejemplo_carga_desde_checkout_y_muestra_testigo)
+El wheel pasaba, pero la instrucción PYTHONPATH del ejemplo no podía importar.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/test_tareas_p4_revision.py", line 36, in test_ejemplo_carga_desde_checkout_y_muestra_testigo
+    self.assertEqual(p.returncode, esperado, p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/ejemplo/seguimiento-tareas/evaluar.py", line 10, in <module>
+    from oracle_metalenguaje.nucleo.medida import cargar_catalogo
+ModuleNotFoundError: No module named 'oracle_metalenguaje.nucleo'
+
+
+======================================================================
+FAIL: test_git_con_arbol_externo_falla_sin_traceback (test_tareas_p4_revision.RevisionGitP4Tests.test_git_con_arbol_externo_falla_sin_traceback) (verbo='hechos')
+Una configuración core.worktree externa no debe filtrar ValueError desde hechos.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/test_tareas_p4_revision.py", line 78, in test_git_con_arbol_externo_falla_sin_traceback
+    self.assertIn(b"ERROR:", p.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'ERROR:' not found in b'Traceback (most recent call last):\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1247, in <module>\n    sys.exit(_entrada_directa())\n             ~~~~~~~~~~~~~~~~^^\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1092, in main\n    return ttareas.despachar(canonico, args, argv)\n           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 1086, in despachar\n    return tareas_hechos.cmd_hechos(argv, args)\n           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File "/home/workstation/Dev/oracle/tools/tareas_hechos.py", line 833, in cmd_hechos\n    hechos = extraer_hechos(raiz, con_git=parsed.git)\n  File "/home/workstation/Dev/oracle/tools/tareas_hechos.py", line 551, in extraer_hechos\n    datos_git = tareas_git.seguimiento(raiz)\n  File "/home/workstation/Dev/oracle/tools/tareas_git.py", line 86, in seguimiento\n    relativo_proyecto = raiz.relative_to(repo).as_posix()\n                        ~~~~~~~~~~~~~~~~^^^^^^\n  File "/usr/lib/python3.14/pathlib/__init__.py", line 490, in relative_to\n    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")\nValueError: \'/tmp/oracle-p4-revision-r3chrs28/proyecto\' is not in the subpath of \'/tmp/oracle-p4-revision-r3chrs28/arbol real\'\n'
+
+======================================================================
+FAIL: test_nombre_del_repositorio_con_salto_final_se_preserva (test_tareas_p4_revision.RevisionGitP4Tests.test_nombre_del_repositorio_con_salto_final_se_preserva) (verbo='seguimiento')
+rstrip borraba caracteres del nombre además del terminador de rev-parse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/test_tareas_p4_revision.py", line 89, in test_nombre_del_repositorio_con_salto_final_se_preserva
+    self.assertEqual(p.returncode, 0, p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b"ERROR: '/tmp/oracle-p4-revision-tbkq2i_u/proyecto\\n' is not in the subpath of '/tmp/oracle-p4-revision-tbkq2i_u/proyecto'\n"
+
+======================================================================
+FAIL: test_nombre_del_repositorio_con_salto_final_se_preserva (test_tareas_p4_revision.RevisionGitP4Tests.test_nombre_del_repositorio_con_salto_final_se_preserva) (verbo='hechos')
+rstrip borraba caracteres del nombre además del terminador de rev-parse.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/test_tareas_p4_revision.py", line 89, in test_nombre_del_repositorio_con_salto_final_se_preserva
+    self.assertEqual(p.returncode, 0, p.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'Traceback (most recent call last):\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1247, in <module>\n    sys.exit(_entrada_directa())\n             ~~~~~~~~~~~~~~~~^^\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1092, in main\n    return ttareas.despachar(canonico, args, argv)\n           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 1086, in despachar\n    return tareas_hechos.cmd_hechos(argv, args)\n           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^\n  File "/home/workstation/Dev/oracle/tools/tareas_hechos.py", line 833, in cmd_hechos\n    hechos = extraer_hechos(raiz, con_git=parsed.git)\n  File "/home/workstation/Dev/oracle/tools/tareas_hechos.py", line 551, in extraer_hechos\n    datos_git = tareas_git.seguimiento(raiz)\n  File "/home/workstation/Dev/oracle/tools/tareas_git.py", line 86, in seguimiento\n    relativo_proyecto = raiz.relative_to(repo).as_posix()\n                        ~~~~~~~~~~~~~~~~^^^^^^\n  File "/usr/lib/python3.14/pathlib/__init__.py", line 490, in relative_to\n    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")\nValueError: \'/tmp/oracle-p4-revision-tbkq2i_u/proyecto\\n\' is not in the subpath of \'/tmp/oracle-p4-revision-tbkq2i_u/proyecto\'\n'
+
+----------------------------------------------------------------------
+Ran 10 tests in 0.603s
+
+FAILED (failures=4, errors=1)

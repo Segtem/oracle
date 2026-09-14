@@ -1,0 +1,71 @@
+[
+  {
+    "objetivo": "tareas_hechos",
+    "diagnostico": true,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "estudios/0.16.0-tareas/medir_tracker.py",
+      "tareas_hechos",
+      "--salida",
+      "/tmp/oracle-p4-integrada-tareas_hechos",
+      "--diagnostico"
+    ],
+    "codigo": 1,
+    "segundos": 296.823
+  },
+  {
+    "objetivo": "tareas_contexto",
+    "diagnostico": false,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/mutar_codigo.py",
+      "--objetivo",
+      "tools/tareas_contexto.py",
+      "--timeout",
+      "120",
+      "--manifiesto",
+      "/tmp/oracle-p4-integrada-tareas_contexto/manifiesto.json",
+      "--hechos"
+    ],
+    "codigo": 0,
+    "segundos": 177.609
+  },
+  {
+    "objetivo": "tareas",
+    "diagnostico": false,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/mutar_codigo.py",
+      "--objetivo",
+      "tools/tareas.py",
+      "--timeout",
+      "120",
+      "--manifiesto",
+      "/tmp/oracle-p4-integrada-tareas/manifiesto.json",
+      "--hechos"
+    ],
+    "codigo": 0,
+    "segundos": 204.794
+  },
+  {
+    "objetivo": "tareas_git",
+    "diagnostico": false,
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "tools/mutar_codigo.py",
+      "--objetivo",
+      "tools/tareas_git.py",
+      "--timeout",
+      "120",
+      "--manifiesto",
+      "/tmp/oracle-p4-integrada-tareas_git/manifiesto.json",
+      "--hechos"
+    ],
+    "codigo": 0,
+    "segundos": 172.027
+  }
+]

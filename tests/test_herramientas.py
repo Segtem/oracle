@@ -2376,10 +2376,11 @@ class LasCustodiasQueNadieMide(unittest.TestCase):
         self.assertEqual(de_mas, [],
                          "declaradas como pendientes de medir y ya están en la matriz: sacalas")
 
-    def test_cli_y_sondas_conservan_su_custodia_y_su_ronda_en_ci(self):
-        """Borrar ambas listas a la vez no debe ocultar las custodias medidas para cerrar el relevo."""
+    def test_cli_sondas_y_tracker_conservan_su_custodia_y_su_ronda_en_ci(self):
+        """Borrar ambas listas a la vez no debe retirar silenciosamente la verificación publicada."""
         custodias, en_matriz = self._custodias_y_matriz()
-        for herramienta in ("cli.py", "metamorficas.py"):
+        for herramienta in ("cli.py", "metamorficas.py", "tareas.py", "tareas_contexto.py",
+                            "tareas_git.py", "tareas_hechos.py"):
             with self.subTest(herramienta=herramienta):
                 self.assertIn(herramienta, custodias)
                 self.assertIn(herramienta, en_matriz)

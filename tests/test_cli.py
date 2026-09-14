@@ -1045,6 +1045,7 @@ class NounVerbCliTests(CliTestCase):
             ("medida", ("nueva", "revisar", "listar", "expandir")),
             ("caso", ("nuevo", "listar")),
             ("proyecto", ("init", "test", "relaciones", "escalares")),
+            ("tarea", ("init", "nueva", "listar", "ver", "cerrar", "reabrir", "revisar")),
         ):
             rc, salida = self._callado(cli.main, [sust])
             self.assertEqual(rc, 0)

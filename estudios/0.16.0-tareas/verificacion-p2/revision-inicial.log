@@ -1,0 +1,116 @@
+======================================================================
+ERROR: test_ayudas_de_cada_verbo_no_escriben (tests.test_tareas_contexto.TestComportamientoGlobalP2.test_ayudas_de_cada_verbo_no_escriben)
+Evita que consultar --help en cualquiera de los nuevos verbos cree carpetas o archivos.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_contexto.py", line 506, in test_ayudas_de_cada_verbo_no_escriben
+    shutil.rmtree(raiz_vacia, ignore_errors=True)
+    ^^^^^^
+NameError: name 'shutil' is not defined. Did you forget to import 'shutil'?
+
+======================================================================
+ERROR: test_busqueda_no_abre_fifos_ni_dispositivos (tests.test_tareas_p2_revision.RevisionContextoTests.test_busqueda_no_abre_fifos_ni_dispositivos)
+Un archivo especial junto a una tarea no puede bloquear una consulta de texto.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p2_revision.py", line 127, in test_busqueda_no_abre_fifos_ni_dispositivos
+    r = self.ejecutar("buscar", "dato", "--json", timeout=3)
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p2_revision.py", line 33, in ejecutar
+    return subprocess.run([sys.executable, "-B", str(CLI), "tarea", *args,
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                           "--proyecto", str(self.proyecto)],
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          env=self.env, cwd=self.raiz, capture_output=True,
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                          text=True, timeout=timeout)
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 557, in run
+    stdout, stderr = process.communicate(input, timeout=timeout)
+                     ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1221, in communicate
+    stdout, stderr = self._communicate(input, endtime, timeout)
+                     ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 2154, in _communicate
+    self._check_timeout(endtime, orig_timeout, stdout, stderr)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/subprocess.py", line 1268, in _check_timeout
+    raise TimeoutExpired(
+    ...<2 lines>...
+            stderr=b''.join(stderr_seq) if stderr_seq else None)
+subprocess.TimeoutExpired: Command '['/usr/bin/python3', '-B', '/home/workstation/Dev/oracle/tools/cli.py', 'tarea', 'buscar', 'dato', '--json', '--proyecto', '/tmp/oracle-p2-revision-jsqgp8pm/consumidor ñ']' timed out after 3 seconds
+
+======================================================================
+FAIL: test_opciones_desconocidas_devuelven_codigo_2 (tests.test_tareas_contexto.TestComportamientoGlobalP2.test_opciones_desconocidas_devuelven_codigo_2) (verbo='anotar')
+Evita ignorar banderas inválidas o no reconocidas.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_contexto.py", line 517, in test_opciones_desconocidas_devuelven_codigo_2
+    self.assertIn("unrecognized arguments", err.lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unrecognized arguments' not found in 'error: oracle tarea anotar: the following arguments are required: id\n'
+
+======================================================================
+FAIL: test_opciones_desconocidas_devuelven_codigo_2 (tests.test_tareas_contexto.TestComportamientoGlobalP2.test_opciones_desconocidas_devuelven_codigo_2) (verbo='adjuntar')
+Evita ignorar banderas inválidas o no reconocidas.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_contexto.py", line 517, in test_opciones_desconocidas_devuelven_codigo_2
+    self.assertIn("unrecognized arguments", err.lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unrecognized arguments' not found in 'error: oracle tarea adjuntar: the following arguments are required: id, archivo\n'
+
+======================================================================
+FAIL: test_opciones_desconocidas_devuelven_codigo_2 (tests.test_tareas_contexto.TestComportamientoGlobalP2.test_opciones_desconocidas_devuelven_codigo_2) (verbo='buscar')
+Evita ignorar banderas inválidas o no reconocidas.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_contexto.py", line 517, in test_opciones_desconocidas_devuelven_codigo_2
+    self.assertIn("unrecognized arguments", err.lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unrecognized arguments' not found in 'error: oracle tarea buscar: the following arguments are required: texto\n'
+
+======================================================================
+FAIL: test_opciones_desconocidas_devuelven_codigo_2 (tests.test_tareas_contexto.TestComportamientoGlobalP2.test_opciones_desconocidas_devuelven_codigo_2) (verbo='referencias')
+Evita ignorar banderas inválidas o no reconocidas.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_contexto.py", line 517, in test_opciones_desconocidas_devuelven_codigo_2
+    self.assertIn("unrecognized arguments", err.lower())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'unrecognized arguments' not found in 'error: oracle tarea referencias: the following arguments are required: id\n'
+
+======================================================================
+FAIL: test_consultas_no_ocultan_documentos_de_tarea_rotos (tests.test_tareas_p2_revision.RevisionContextoTests.test_consultas_no_ocultan_documentos_de_tarea_rotos) (args=('referencias', '20260912-120000-investigacion'))
+Buscar y resumir no dan éxito parcial si el registro central es inválido.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p2_revision.py", line 151, in test_consultas_no_ocultan_documentos_de_tarea_rotos
+    self.assertEqual(r.returncode, 1, r.stdout)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1 : {
+  "id": "20260912-120000-investigacion",
+  "tipo": "mencion_textual",
+  "coincidencias": [],
+  "omitidos": [
+    {
+      "ruta": "tareas/20260912-120000-investigacion/TAREA.md",
+      "motivo": "codificación no UTF-8"
+    }
+  ]
+}
+
+
+======================================================================
+FAIL: test_nota_con_url_marca_y_sangria_preserva_texto_y_documento (tests.test_tareas_p2_revision.RevisionContextoTests.test_nota_con_url_marca_y_sangria_preserva_texto_y_documento)
+Capturar una cita conserva su sangría y URL exacta sin alterar bytes anteriores.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p2_revision.py", line 50, in test_nota_con_url_marca_y_sangria_preserva_texto_y_documento
+    self.assertIn(nota.encode(), contenido)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'  cita con sangr\xc3\xada\n    segunda l\xc3\xadnea  ' not found in b'# Investigar\r\n\r\n- ESTADO: ABIERTA\r\n- PRIORIDAD: 50\r\n\r\nCuerpo libre\r\n\r\n### Nota (2026-09-12 12:54:05 UTC)\r\n\r\ncita con sangr\xc3\xada\n    segunda l\xc3\xadnea\r\n- URL: https://www.youtube.com/watch?v=ejemplo&t=92s#fragmento (marca: 01:32)\r\n'
+
+----------------------------------------------------------------------
+Ran 44 tests in 4.129s
+
+FAILED (failures=6, errors=2)

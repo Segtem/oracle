@@ -1,0 +1,17 @@
+[
+  {
+    "objetivo": "tareas",
+    "codigo": 1,
+    "segundos": 2407.041
+  },
+  {
+    "objetivo": "tareas_contexto",
+    "codigo": 1,
+    "segundos": 1088.922
+  },
+  {
+    "objetivo": "tareas_hechos",
+    "codigo": 1,
+    "segundos": 1749.673
+  }
+]

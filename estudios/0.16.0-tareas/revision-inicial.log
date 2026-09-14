@@ -1,0 +1,362 @@
+======================================================================
+FAIL: test_archivo_simbolico_externo_no_se_lee_ni_modifica (tests.test_tareas_revision.RevisionTareas.test_archivo_simbolico_externo_no_se_lee_ni_modifica) (args=('ver', '20260911-210000-enlace'))
+Ver y revisar seguían TAREA.md fuera del tracker aunque su carpeta fuese interna.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 122, in test_archivo_simbolico_externo_no_se_lee_ni_modifica
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_archivo_simbolico_externo_no_se_lee_ni_modifica (tests.test_tareas_revision.RevisionTareas.test_archivo_simbolico_externo_no_se_lee_ni_modifica) (args=('listar',))
+Ver y revisar seguían TAREA.md fuera del tracker aunque su carpeta fuese interna.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 122, in test_archivo_simbolico_externo_no_se_lee_ni_modifica
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_archivo_simbolico_externo_no_se_lee_ni_modifica (tests.test_tareas_revision.RevisionTareas.test_archivo_simbolico_externo_no_se_lee_ni_modifica) (args=('revisar',))
+Ver y revisar seguían TAREA.md fuera del tracker aunque su carpeta fuese interna.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 122, in test_archivo_simbolico_externo_no_se_lee_ni_modifica
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_archivo_simbolico_externo_no_se_lee_ni_modifica (tests.test_tareas_revision.RevisionTareas.test_archivo_simbolico_externo_no_se_lee_ni_modifica) (args=('cerrar', '20260911-210000-enlace'))
+Ver y revisar seguían TAREA.md fuera del tracker aunque su carpeta fuese interna.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 122, in test_archivo_simbolico_externo_no_se_lee_ni_modifica
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_archivo_simbolico_externo_no_se_lee_ni_modifica (tests.test_tareas_revision.RevisionTareas.test_archivo_simbolico_externo_no_se_lee_ni_modifica) (args=('reabrir', '20260911-210000-enlace'))
+Ver y revisar seguían TAREA.md fuera del tracker aunque su carpeta fuese interna.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 122, in test_archivo_simbolico_externo_no_se_lee_ni_modifica
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='init')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 51, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertIn("oracle tarea", resultado.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'oracle tarea' not found in 'Tracker de tareas inicializado en /tmp/oracle-revision-tareas-8o0j4w9a/tareas\n'
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='nueva')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 50, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertEqual(resultado.returncode, 0, resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : falta el título: oracle tarea nueva <titulo>
+
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='listar')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 51, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertIn("oracle tarea", resultado.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'oracle tarea' not found in 'No hay tareas que coincidan con la búsqueda.\n'
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='ls')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 51, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertIn("oracle tarea", resultado.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'oracle tarea' not found in 'No hay tareas que coincidan con la búsqueda.\n'
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='ver')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 50, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertEqual(resultado.returncode, 0, resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : falta el id: oracle tarea ver <id>
+
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='cerrar')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 50, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertEqual(resultado.returncode, 0, resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : falta el id: oracle tarea cerrar <id>
+
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='reabrir')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 50, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertEqual(resultado.returncode, 0, resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : falta el id: oracle tarea reabrir <id>
+
+
+======================================================================
+FAIL: test_ayuda_de_cada_verbo_no_escribe (tests.test_tareas_revision.RevisionTareas.test_ayuda_de_cada_verbo_no_escribe) (verbo='revisar')
+Pedir ayuda a init creaba un tracker en el directorio actual.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 51, in test_ayuda_de_cada_verbo_no_escribe
+    self.assertIn("oracle tarea", resultado.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'oracle tarea' not found in 'REVISIÓN OK: 0 tarea(s) válida(s) en /tmp/oracle-revision-tareas-8o0j4w9a/tareas\n'
+
+======================================================================
+FAIL: test_cambio_de_estado_preserva_bytes_ajenos_al_valor (tests.test_tareas_revision.RevisionTareas.test_cambio_de_estado_preserva_bytes_ajenos_al_valor)
+Cerrar convertía el cuerpo CRLF a LF y normalizaba la línea de estado.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 106, in test_cambio_de_estado_preserva_bytes_ajenos_al_valor
+    self.assertEqual(ruta.read_bytes(), original.replace(b"ABIERTA", b"CERRADA", 1))
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: b'# Prueba \xc3\xa1\n\n- ESTADO: CERRADA\n- PRIORIDAD: 50\n- [46 chars]\n\n' != b'# Prueba \xc3\xa1\r\n\r\n  * ESTADO : CERRADA  \r\n- PRIORI[71 chars]\r\n'
+
+======================================================================
+FAIL: test_carpeta_simbolica_externa_no_se_audita_como_valida (tests.test_tareas_revision.RevisionTareas.test_carpeta_simbolica_externa_no_se_audita_como_valida) (verbo='listar')
+La auditoría no aplicaba el confinamiento que sí tenía ver por ID.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 136, in test_carpeta_simbolica_externa_no_se_audita_como_valida
+    self.assertNotEqual(self.ejecutar(verbo).returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_carpeta_simbolica_externa_no_se_audita_como_valida (tests.test_tareas_revision.RevisionTareas.test_carpeta_simbolica_externa_no_se_audita_como_valida) (verbo='revisar')
+La auditoría no aplicaba el confinamiento que sí tenía ver por ID.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 136, in test_carpeta_simbolica_externa_no_se_audita_como_valida
+    self.assertNotEqual(self.ejecutar(verbo).returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_links_rotos_y_ciclicos_tienen_diagnostico (tests.test_tareas_revision.RevisionTareas.test_links_rotos_y_ciclicos_tienen_diagnostico) (verbo='listar')
+Un enlace roto desaparecía del censo sin figurar como registro inválido.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 156, in test_links_rotos_y_ciclicos_tienen_diagnostico
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_links_rotos_y_ciclicos_tienen_diagnostico (tests.test_tareas_revision.RevisionTareas.test_links_rotos_y_ciclicos_tienen_diagnostico) (verbo='revisar')
+Un enlace roto desaparecía del censo sin figurar como registro inválido.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 156, in test_links_rotos_y_ciclicos_tienen_diagnostico
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_no_crea_documentos_invalidos_desde_titulo_o_etiqueta (tests.test_tareas_revision.RevisionTareas.test_no_crea_documentos_invalidos_desde_titulo_o_etiqueta) (args=('Nombre\n\n- ESTADO: CERRADA',))
+Un salto de línea inyectaba cabeceras y nueva devolvía éxito con datos rotos.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 95, in test_no_crea_documentos_invalidos_desde_titulo_o_etiqueta
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_no_crea_documentos_invalidos_desde_titulo_o_etiqueta (tests.test_tareas_revision.RevisionTareas.test_no_crea_documentos_invalidos_desde_titulo_o_etiqueta) (args=('Nombre', '--etiqueta', 'bug\n- ESTADO: CERRADA'))
+Un salto de línea inyectaba cabeceras y nueva devolvía éxito con datos rotos.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 95, in test_no_crea_documentos_invalidos_desde_titulo_o_etiqueta
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_nombre_de_carpeta_invalido_no_desaparece_ni_pasa (tests.test_tareas_revision.RevisionTareas.test_nombre_de_carpeta_invalido_no_desaparece_ni_pasa)
+Una carpeta ajena al contrato de identidad se aceptaba como tarea válida.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 164, in test_nombre_de_carpeta_invalido_no_desaparece_ni_pasa
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opcion_antes_del_titulo_no_cambia_el_titulo (tests.test_tareas_revision.RevisionTareas.test_opcion_antes_del_titulo_no_cambia_el_titulo)
+El valor bug de --etiqueta se tomaba por título de la tarea.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 76, in test_opcion_antes_del_titulo_no_cambia_el_titulo
+    self.assertEqual(tarea["titulo"], "Título real")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'bug' != 'Título real'
+- bug
++ Título real
+
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('init',))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('nueva', 'Nombre'))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('listar',))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('ver', '20260911-210000-prueba'))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('cerrar', '20260911-210000-prueba'))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('reabrir', '20260911-210000-prueba'))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_opciones_desconocidas_no_se_ignoran (tests.test_tareas_revision.RevisionTareas.test_opciones_desconocidas_no_se_ignoran) (args=('revisar',))
+Listar --inventada devolvía éxito como si hubiese aplicado un filtro.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 65, in test_opciones_desconocidas_no_se_ignoran
+    self.assertNotEqual(resultado.returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_raiz_simbolica_no_redirige_escrituras (tests.test_tareas_revision.RevisionTareas.test_raiz_simbolica_no_redirige_escrituras) (args=('init',))
+Resolver tareas/ antes de comprobarlo permitía inicializar fuera del proyecto.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 145, in test_raiz_simbolica_no_redirige_escrituras
+    self.assertNotEqual(self.ejecutar(*args).returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_raiz_simbolica_no_redirige_escrituras (tests.test_tareas_revision.RevisionTareas.test_raiz_simbolica_no_redirige_escrituras) (args=('nueva', 'Prueba'))
+Resolver tareas/ antes de comprobarlo permitía inicializar fuera del proyecto.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 145, in test_raiz_simbolica_no_redirige_escrituras
+    self.assertNotEqual(self.ejecutar(*args).returncode, 0)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 0 == 0
+
+======================================================================
+FAIL: test_titulo_y_etiqueta_iguales_no_pierden_argumentos (tests.test_tareas_revision.RevisionTareas.test_titulo_y_etiqueta_iguales_no_pierden_argumentos)
+Eliminar argumentos por igualdad borraba el valor de --etiqueta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 83, in test_titulo_y_etiqueta_iguales_no_pierden_argumentos
+    self.assertEqual(resultado.returncode, 0, resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : falta el valor de --etiqueta
+
+
+======================================================================
+FAIL: test_utf8_invalido_falla_sin_traceback (tests.test_tareas_revision.RevisionTareas.test_utf8_invalido_falla_sin_traceback) (verbo='ver')
+Cerrar no traducía errores de codificación a diagnóstico del tracker.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 176, in test_utf8_invalido_falla_sin_traceback
+    self.assertIn("TAREA.md", resultado.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'TAREA.md' not found in "ERROR: 'utf-8' codec can't decode byte 0xff in position 0: invalid start byte\n"
+
+======================================================================
+FAIL: test_utf8_invalido_falla_sin_traceback (tests.test_tareas_revision.RevisionTareas.test_utf8_invalido_falla_sin_traceback) (verbo='cerrar')
+Cerrar no traducía errores de codificación a diagnóstico del tracker.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 175, in test_utf8_invalido_falla_sin_traceback
+    self.assertNotIn("Traceback", resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1225, in <module>\n    sys.exit(_entrada_directa())\n             ~~~~~~~~~~~~~~~~^^\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1070, in main\n    return ttareas.despachar(canonico, args, argv)\n           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 821, in despachar\n    return cmd_cerrar(argv, posicionales[0])\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 676, in cmd_cerrar\n    cambio = actualizar_estado_tarea(tarea_md, "CERRADA")\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 255, in actualizar_estado_tarea\n    texto = ruta_tarea.read_text(encoding="utf-8")\n  File "/usr/lib/python3.14/pathlib/__init__.py", line 788, in read_text\n    return f.read()\n           ~~~~~~^^\n  File "<frozen codecs>", line 325, in decode\nUnicodeDecodeError: \'utf-8\' codec can\'t decode byte 0xff in position 0: invalid start byte\n'
+
+======================================================================
+FAIL: test_utf8_invalido_falla_sin_traceback (tests.test_tareas_revision.RevisionTareas.test_utf8_invalido_falla_sin_traceback) (verbo='reabrir')
+Cerrar no traducía errores de codificación a diagnóstico del tracker.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_revision.py", line 175, in test_utf8_invalido_falla_sin_traceback
+    self.assertNotIn("Traceback", resultado.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'Traceback' unexpectedly found in 'Traceback (most recent call last):\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1225, in <module>\n    sys.exit(_entrada_directa())\n             ~~~~~~~~~~~~~~~~^^\n  File "/home/workstation/Dev/oracle/tools/cli.py", line 1070, in main\n    return ttareas.despachar(canonico, args, argv)\n           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 828, in despachar\n    return cmd_reabrir(argv, posicionales[0])\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 708, in cmd_reabrir\n    cambio = actualizar_estado_tarea(tarea_md, "ABIERTA")\n  File "/home/workstation/Dev/oracle/tools/tareas.py", line 255, in actualizar_estado_tarea\n    texto = ruta_tarea.read_text(encoding="utf-8")\n  File "/usr/lib/python3.14/pathlib/__init__.py", line 788, in read_text\n    return f.read()\n           ~~~~~~^^\n  File "<frozen codecs>", line 325, in decode\nUnicodeDecodeError: \'utf-8\' codec can\'t decode byte 0xff in position 0: invalid start byte\n'
+
+----------------------------------------------------------------------
+Ran 13 tests in 2.302s
+
+FAILED (failures=35)

@@ -1,0 +1,20 @@
+usage: python3 -m unittest [-h] --proyecto RUTA [--hechos] [--html RUTA]
+                           [--confiar-escalares]
+python3 -m unittest: error: the following arguments are required: --proyecto
+BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+======================================================================
+FAIL: test_emite_una_fila_por_verbo_con_la_ayuda_real (test_herramientas.LosVerbosLleganALaAceptacion.test_emite_una_fila_por_verbo_con_la_ayuda_real)
+Con `and` en vez de `or`, la ayuda llegaría vacía, no se emitiría la relación, y la
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_herramientas.py", line 1831, in test_emite_una_fila_por_verbo_con_la_ayuda_real
+    self.assertTrue(all(f["nombrado_en_la_ayuda"] for f in filas),
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                    "la ayuda de Oracle nombra todos sus verbos")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true : la ayuda de Oracle nombra todos sus verbos
+
+----------------------------------------------------------------------
+Ran 1679 tests in 49.941s
+
+FAILED (failures=1)

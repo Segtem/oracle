@@ -1,0 +1,6 @@
+ninguno seguimiento.referencias_locales_presentes:
+    de referencia_seguimiento r
+    donde r.clase == "local" y r.estado != "presente"
+    umbral <= 0 segun contrato porque "esta política optativa exige que cada referencia local reconocida apunte a una ruta presente dentro del proyecto"
+    ambito del_origen
+    alcance "juzga sólo referencias locales reconocidas por el extractor. No comprueba contenido, autenticidad, anclas, URLs remotas ni corrección de una tarea. Una lista sin referencias locales cumple esta política; combinar con lectura_sin_omisiones para no ocultar sintaxis sin examinar"

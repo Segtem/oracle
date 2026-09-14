@@ -1,0 +1,16 @@
+{
+  "comando": [
+    "/usr/bin/python3",
+    "-B",
+    "tools/mutar_codigo.py",
+    "--objetivo",
+    "tools/tareas_hechos.py",
+    "--timeout",
+    "120",
+    "--manifiesto",
+    "/tmp/oracle-p4-final-hechos/manifiesto.json",
+    "--hechos"
+  ],
+  "codigo": 0,
+  "segundos": 258.14
+}

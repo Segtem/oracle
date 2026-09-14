@@ -1,0 +1,7 @@
+ninguno-requiere seguimiento.lectura_sin_omisiones:
+    de lectura_seguimiento l
+    donde l.completa == false
+    umbral <= 0 segun contrato porque "una lectura con archivos o sintaxis omitidos no permite afirmar integridad de todas las referencias dentro del alcance declarado"
+    requiere lectura_seguimiento
+    ambito del_origen
+    alcance "exige que la lectura emitida no declare omisiones dentro del formato Markdown soportado. No prueba que el extractor sea correcto ni amplía su alcance a texto no Markdown, URLs remotas o anclas. La ausencia de lectura falla"

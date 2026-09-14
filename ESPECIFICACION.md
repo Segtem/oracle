@@ -98,6 +98,14 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.16.0 (2026-09-13): `VERSION_DISTRIBUCION` sube de `0.15.0` a `0.16.0`.** La menor
+incorpora la superficie pública `oracle tarea`: registros en carpetas con Markdown, captura y
+consulta de contexto, seguimiento frente a Git y hechos para políticas optativas. Se agrega un
+formato persistente y comandos nuevos, siguiendo el precedente de herramientas de 0.7.0.
+`VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.4`: las políticas usan nodos, operadores
+y gramática existentes; no cambia la lectura ni la evaluación de archivos `.oracle` o `.caso`,
+ni se incorporan formas canónicas. El tracker no impone condiciones nuevas al catálogo universal.
+
 **Corte 0.15.0 (2026-09-11): `VERSION_DISTRIBUCION` sube de `0.14.0` a `0.15.0`.** Sube la
 **menor** porque cambia el contrato de salida de herramientas: `diagnostico --salida --rapido`
 antes escribía un archivo llamado `--rapido` y salía 0; ahora rechaza la falta de destino y sale 1.

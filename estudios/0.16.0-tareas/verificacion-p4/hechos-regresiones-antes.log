@@ -1,0 +1,305 @@
+======================================================================
+FAIL: test_nul_codificado_se_omite_sin_consultar_el_destino (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_nul_codificado_se_omite_sin_consultar_el_destino)
+%00 es sintaxis visible válida en UTF-8, pero nunca debe llegar como NUL a lstat.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 402, in test_nul_codificado_se_omite_sin_consultar_el_destino
+    ref, omision = self.referencia("carpeta/%00nombre")
+                   ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 118, in referencia
+    return h._clasificar_referencia(self.raiz, origen or f"tareas/{ID}/TAREA.md", 7, destino)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/oracle-p4-hechos-correccion/tools/tareas_hechos.py", line 351, in _clasificar_referencia
+    st = _lstat_seguro(ruta_actual)
+  File "/usr/lib/python3.14/unittest/mock.py", line 1176, in __call__
+    return self._mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1180, in _mock_call
+    return self._execute_mock_call(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/unittest/mock.py", line 1241, in _execute_mock_call
+    raise effect
+AssertionError: no consultar el destino NUL
+
+======================================================================
+FAIL: test_enlace_de_adjunto_no_reinterpreta_barras_percent_encoded (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_enlace_de_adjunto_no_reinterpreta_barras_percent_encoded)
+Un nombre con barra antes de paréntesis conserva esa barra al consumir el enlace que produce P2.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 426, in test_enlace_de_adjunto_no_reinterpreta_barras_percent_encoded
+    self.assertEqual([(r["destino_declarado"], r["estado"]) for r in datos["referencia_seguimiento"]],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [(d, "presente") for d in destinos])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [('ba[16 chars]t', 'ausente'), ('barra%5C%291.txt', 'ausente'[33 chars]te')] != [('ba[16 chars]t', 'presente'), ('barra%5C%291.txt', 'present[35 chars]te')]
+
+First differing element 0:
+('barra%5C%281%29.txt', 'ausente')
+('barra%5C%281%29.txt', 'presente')
+
+- [('barra%5C%281%29.txt', 'ausente'),
+?                           ^^
+
++ [('barra%5C%281%29.txt', 'presente'),
+?                           ^^^
+
+-  ('barra%5C%291.txt', 'ausente'),
+?                        ^^
+
++  ('barra%5C%291.txt', 'presente'),
+?                        ^^^
+
+   ('literal%281%29.txt', 'presente')]
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='archivo/')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='archivo/.')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='archivo/./')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='archivo/./.')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='/tmp/oracle-hechos-contrato-ttqs763p/tareas/20260912-140000-contrato/archivo/')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='/tmp/oracle-hechos-contrato-ttqs763p/tareas/20260912-140000-contrato/archivo/.')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='/tmp/oracle-hechos-contrato-ttqs763p/tareas/20260912-140000-contrato/archivo/./')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_sufijo_de_directorio_no_acepta_archivo_regular (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_sufijo_de_directorio_no_acepta_archivo_regular) (destino='/tmp/oracle-hechos-contrato-ttqs763p/tareas/20260912-140000-contrato/archivo/./.')
+La existencia de archivo no prueba archivo/ ni archivo/.; también se conserva en ruta absoluta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 439, in test_sufijo_de_directorio_no_acepta_archivo_regular
+    self.assertEqual(ref["estado"], esperado)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' != 'ausente'
+- presente
++ ausente
+
+
+======================================================================
+FAIL: test_titulos_consumidos_no_aportan_enlaces_ni_definiciones (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_titulos_consumidos_no_aportan_enlaces_ni_definiciones) (texto='[x](<a> "título ) [z](b) <https://falso.test> [uno][dos]")')
+Paréntesis, enlaces y autolinks escritos dentro del título no son referencias del documento.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 469, in test_titulos_consumidos_no_aportan_enlaces_ni_definiciones
+    self.assertEqual(h._extraer_enlaces_linea(texto, h._encontrar_spans_codigo(texto)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ([(0, len(texto), "a")], []))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([(0, 17, 'a'), (18, 24, 'b')], ['enlace por re[30 chars]s]']) != ([(0, 58, 'a')], [])
+
+First differing element 0:
+[(0, 17, 'a'), (18, 24, 'b')]
+[(0, 58, 'a')]
+
++ ([(0, 58, 'a')], [])
+- ([(0, 17, 'a'), (18, 24, 'b')],
+-  ['enlace por referencia no resuelto: [uno][dos]'])
+
+======================================================================
+FAIL: test_titulos_consumidos_no_aportan_enlaces_ni_definiciones (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_titulos_consumidos_no_aportan_enlaces_ni_definiciones) (texto='[x](a "título ( [z](b)")')
+Paréntesis, enlaces y autolinks escritos dentro del título no son referencias del documento.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 469, in test_titulos_consumidos_no_aportan_enlaces_ni_definiciones
+    self.assertEqual(h._extraer_enlaces_linea(texto, h._encontrar_spans_codigo(texto)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ([(0, len(texto), "a")], []))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([(16, 22, 'b')], ['sintaxis de enlace incompleta o multilínea no admitida']) != ([(0, 24, 'a')], [])
+
+First differing element 0:
+[(16, 22, 'b')]
+[(0, 24, 'a')]
+
+- ([(16, 22, 'b')], ['sintaxis de enlace incompleta o multilínea no admitida'])
++ ([(0, 24, 'a')], [])
+
+======================================================================
+FAIL: test_titulos_consumidos_no_aportan_enlaces_ni_definiciones (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_titulos_consumidos_no_aportan_enlaces_ni_definiciones) (texto="[x](a 'título ) [z](b)')")
+Paréntesis, enlaces y autolinks escritos dentro del título no son referencias del documento.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 469, in test_titulos_consumidos_no_aportan_enlaces_ni_definiciones
+    self.assertEqual(h._extraer_enlaces_linea(texto, h._encontrar_spans_codigo(texto)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ([(0, len(texto), "a")], []))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([(0, 15, 'a'), (16, 22, 'b')], []) != ([(0, 24, 'a')], [])
+
+First differing element 0:
+[(0, 15, 'a'), (16, 22, 'b')]
+[(0, 24, 'a')]
+
+- ([(0, 15, 'a'), (16, 22, 'b')], [])
++ ([(0, 24, 'a')], [])
+
+======================================================================
+FAIL: test_titulos_consumidos_no_aportan_enlaces_ni_definiciones (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_titulos_consumidos_no_aportan_enlaces_ni_definiciones) (texto='[x](a "título \\" ) [z](b)")')
+Paréntesis, enlaces y autolinks escritos dentro del título no son referencias del documento.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 469, in test_titulos_consumidos_no_aportan_enlaces_ni_definiciones
+    self.assertEqual(h._extraer_enlaces_linea(texto, h._encontrar_spans_codigo(texto)),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     ([(0, len(texto), "a")], []))
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Tuples differ: ([(0, 18, 'a'), (19, 25, 'b')], []) != ([(0, 27, 'a')], [])
+
+First differing element 0:
+[(0, 18, 'a'), (19, 25, 'b')]
+[(0, 27, 'a')]
+
+- ([(0, 18, 'a'), (19, 25, 'b')], [])
++ ([(0, 27, 'a')], [])
+
+======================================================================
+FAIL: test_titulos_consumidos_no_aportan_enlaces_ni_definiciones (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_titulos_consumidos_no_aportan_enlaces_ni_definiciones)
+Paréntesis, enlaces y autolinks escritos dentro del título no son referencias del documento.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 473, in test_titulos_consumidos_no_aportan_enlaces_ni_definiciones
+    self.assertEqual([(r["linea"], r["destino_declarado"]) for r in datos["referencia_seguimiento"]],
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     [(i, "a") for i in range(1, 8)] + [(7, "c")])
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(1, 'a'), (1, 'b'), (1, 'https://falso.test'), (2, '[79 chars]'c')] != [(1, 'a'), (2, 'a'), (3, 'a'), (4, 'a'), (5, 'a'), (6[22 chars]'c')]
+
+First differing element 1:
+(1, 'b')
+(2, 'a')
+
+First list contains 4 additional elements.
+First extra element 8:
+(5, 'a')
+
++ [(1, 'a'), (2, 'a'), (3, 'a'), (4, 'a'), (5, 'a'), (6, 'a'), (7, 'a'), (7, 'c')]
+- [(1, 'a'),
+-  (1, 'b'),
+-  (1, 'https://falso.test'),
+-  (2, 'b'),
+-  (3, 'a'),
+-  (3, 'b'),
+-  (4, 'a'),
+-  (4, 'b'),
+-  (5, 'a'),
+-  (6, 'a'),
+-  (7, 'a'),
+-  (7, 'c')]
+
+======================================================================
+FAIL: test_titulo_incompleto_omite_resto_de_linea_sin_exponer_su_contenido (tests.test_tareas_hechos_mutacion.DatosHechosTests.test_titulo_incompleto_omite_resto_de_linea_sin_exponer_su_contenido)
+Un título sin cierre fiable deja omisión; sus aparentes enlaces o autolinks no son evidencia.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/oracle-p4-hechos-correccion/tests/test_tareas_hechos_mutacion.py", line 486, in test_titulo_incompleto_omite_resto_de_linea_sin_exponer_su_contenido
+    self.assertEqual([(r["linea"], r["destino_declarado"]) for r in datos["referencia_seguimiento"]], [(6, "c")])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [(1, 'a'), (1, 'b'), (1, 'https://falso.tes[59 chars]'c')] != [(6, 'c')]
+
+First differing element 0:
+(1, 'a')
+(6, 'c')
+
+First list contains 8 additional elements.
+First extra element 1:
+(1, 'b')
+
+- [(1, 'a'),
+-  (1, 'b'),
+-  (1, 'https://falso.test'),
+-  (2, 'a'),
+-  (2, 'b'),
+-  (3, 'a'),
+-  (4, 'a'),
+-  (5, 'a'),
+-  (6, 'c')]
+? ^
+
++ [(6, 'c')]
+? ^
+
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.009s
+
+FAILED (failures=16)

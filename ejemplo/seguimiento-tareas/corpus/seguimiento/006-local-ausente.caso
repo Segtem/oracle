@@ -1,0 +1,17 @@
+caso 006-local-ausente:
+    fecha: "2026-09-12"
+    origen:
+        tipo: "ejemplo construido para fijar la política P3"
+    procedencia: construida
+    titulo: "local ausente"
+    etiqueta: falso_verde
+    sintoma:
+        Ejemplo construido; se espera rechazo del defecto declarado en estas filas.
+    como_se_detecto: persona
+    medida: seguimiento.referencias_locales_presentes
+    evidencia:
+        referencia_seguimiento: tarea_id, origen, linea, destino_declarado, clase, estado
+            "20260912-130000-ejemplo", "tareas/20260912-130000-ejemplo/TAREA.md", 5, "referencia", "local", "ausente"
+            "20260912-130000-ejemplo", "tareas/20260912-130000-ejemplo/TAREA.md", 5, "referencia", "local", "presente"
+    leccion:
+        El caso fija esta decisión optativa; no documenta una observación del material del dueño.

@@ -1,0 +1,79 @@
+======================================================================
+FAIL: test_cada_aparicion_se_conserva_sin_duplicar_autolink_interno (tests.test_tareas_p3_revision.EvidenciaTareasRevisionTests.test_cada_aparicion_se_conserva_sin_duplicar_autolink_interno)
+Dos enlaces en una línea son dos declaraciones; un destino entre ángulos es una sola.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p3_revision.py", line 206, in test_cada_aparicion_se_conserva_sin_duplicar_autolink_interno
+    self.assertEqual(sum(r["destino_declarado"] == "https://ejemplo.invalid/a" for r in refs), 2)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 2
+
+======================================================================
+FAIL: test_enlace_multilinea_deja_omision_si_no_se_resuelve (tests.test_tareas_p3_revision.EvidenciaTareasRevisionTests.test_enlace_multilinea_deja_omision_si_no_se_resuelve)
+Un enlace válido escrito en dos líneas no desaparece detrás de completa=true.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p3_revision.py", line 213, in test_enlace_multilinea_deja_omision_si_no_se_resuelve
+    self.assertTrue(datos["referencia_seguimiento"] or datos["omision_seguimiento"])
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: [] is not true
+
+======================================================================
+FAIL: test_esquema_http_no_depende_de_mayusculas (tests.test_tareas_p3_revision.EvidenciaTareasRevisionTests.test_esquema_http_no_depende_de_mayusculas)
+Una URL aceptada por anotar conserva su categoría remota al extraer hechos.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p3_revision.py", line 236, in test_esquema_http_no_depende_de_mayusculas
+    self.assertEqual(referencia["clase"], "remota")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'no_admitida' != 'remota'
+- no_admitida
++ remota
+
+
+======================================================================
+FAIL: test_falso_cierre_de_cerca_no_expone_codigo_como_enlace (tests.test_tareas_p3_revision.EvidenciaTareasRevisionTests.test_falso_cierre_de_cerca_no_expone_codigo_como_enlace)
+Una cerca de cierre con texto extra no termina el bloque de código.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p3_revision.py", line 230, in test_falso_cierre_de_cerca_no_expone_codigo_como_enlace
+    self.assertEqual(self.hechos()["referencia_seguimiento"], [])
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'clase': 'local', 'destino_declarado': '[146 chars]on'}] != []
+
+First list contains 1 additional elements.
+First extra element 0:
+{'clase': 'local', 'destino_declarado': 'ausente.txt', 'estado': 'ausente', 'linea': 8, 'origen': 'tareas/20260912-140000-investigacion/TAREA.md', 'tarea_id': '20260912-140000-investigacion'}
+
++ []
+- [{'clase': 'local',
+-   'destino_declarado': 'ausente.txt',
+-   'estado': 'ausente',
+-   'linea': 8,
+-   'origen': 'tareas/20260912-140000-investigacion/TAREA.md',
+-   'tarea_id': '20260912-140000-investigacion'}]
+
+======================================================================
+FAIL: test_parent_dotdot_no_oculta_un_componente_simbolico (tests.test_tareas_p3_revision.EvidenciaTareasRevisionTests.test_parent_dotdot_no_oculta_un_componente_simbolico)
+Normalizar .. antes de inspeccionar componentes puede borrar un symlink de la ruta.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p3_revision.py", line 225, in test_parent_dotdot_no_oculta_un_componente_simbolico
+    self.assertNotEqual(referencia["estado"], "presente")
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'presente' == 'presente'
+
+======================================================================
+FAIL: test_permiso_denegado_no_se_confunde_con_referencia_ausente (tests.test_tareas_p3_revision.EvidenciaTareasRevisionTests.test_permiso_denegado_no_se_confunde_con_referencia_ausente)
+No poder comprobar un destino es un fallo de lectura, no evidencia de ausencia.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_p3_revision.py", line 250, in test_permiso_denegado_no_se_confunde_con_referencia_ausente
+    self.assertEqual(r.returncode, 1)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+AssertionError: 0 != 1
+
+----------------------------------------------------------------------
+Ran 19 tests in 1.601s
+
+FAILED (failures=6)

@@ -1,0 +1,322 @@
+Alcance: diagnóstico con módulos propios
+vivo: tools/tareas.py:55:17:constante constante: 2 → 3
+muerto: tools/tareas.py:70:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:58:18:constante constante: True → False
+muerto: tools/tareas.py:84:51:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:86:4:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:90:7:booleano booleano: and ↔ or
+muerto: tools/tareas.py:90:7:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:90:27:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:92:7:booleano booleano: and ↔ or
+muerto: tools/tareas.py:92:7:comparador comparador: In → NotIn
+muerto: tools/tareas.py:92:30:comparador comparador: In → NotIn
+muerto: tools/tareas.py:92:54:comparador comparador: In → NotIn
+muerto: tools/tareas.py:92:78:comparador comparador: In → NotIn
+muerto: tools/tareas.py:96:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:103:47:constante constante: True → False
+vivo: tools/tareas.py:107:4:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:113:47:constante constante: True → False
+vivo: tools/tareas.py:119:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:125:27:constante constante: False → True
+muerto: tools/tareas.py:136:7:comparador comparador: IsNot → Is
+vivo: tools/tareas.py:140:11:booleano booleano: and ↔ or
+vivo: tools/tareas.py:140:11:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:140:34:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:142:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:144:23:booleano booleano: and ↔ or
+muerto: tools/tareas.py:145:7:comparador comparador: In → NotIn
+vivo: tools/tareas.py:147:11:booleano booleano: and ↔ or
+vivo: tools/tareas.py:147:11:comparador comparador: GtE → Gt
+muerto: tools/tareas.py:147:17:constante constante: 1 → 2
+muerto: tools/tareas.py:147:60:constante constante: 1 → 2
+muerto: tools/tareas.py:149:41:constante constante: 1 → 2
+muerto: tools/tareas.py:152:11:booleano booleano: and ↔ or
+muerto: tools/tareas.py:152:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:152:34:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:154:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:161:11:booleano booleano: and ↔ or
+vivo: tools/tareas.py:161:11:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:161:34:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:163:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:167:10:constante constante: True → False
+muerto: tools/tareas.py:169:12:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:173:16:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:175:11:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:180:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:190:10:constante constante: 0 → 1
+muerto: tools/tareas.py:191:10:booleano booleano: and ↔ or
+vivo: tools/tareas.py:191:10:comparador comparador: Lt → LtE
+muerto: tools/tareas.py:191:32:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:192:15:constante constante: 1 → 2
+vivo: tools/tareas.py:194:7:comparador comparador: GtE → Gt
+vivo: tools/tareas.py:198:7:booleano booleano: and ↔ or
+muerto: tools/tareas.py:198:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:198:44:comparador comparador: LtE → Lt
+vivo: tools/tareas.py:198:65:constante constante: 2 → 3
+muerto: tools/tareas.py:203:26:constante constante: 2 → 3
+muerto: tools/tareas.py:204:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:207:11:constante constante: 1 → 2
+muerto: tools/tareas.py:208:10:booleano booleano: and ↔ or
+vivo: tools/tareas.py:208:10:comparador comparador: Lt → LtE
+muerto: tools/tareas.py:208:32:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:209:15:constante constante: 1 → 2
+muerto: tools/tareas.py:215:10:comparador comparador: Lt → LtE
+muerto: tools/tareas.py:217:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:220:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:223:30:constante constante: 1 → 2
+muerto: tools/tareas.py:224:24:constante constante: 2 → 3
+muerto: tools/tareas.py:227:11:comparador comparador: In → NotIn
+vivo: tools/tareas.py:232:11:comparador comparador: NotIn → In
+muerto: tools/tareas.py:235:15:constante constante: 1 → 2
+muerto: tools/tareas.py:237:7:comparador comparador: NotIn → In
+muerto: tools/tareas.py:240:7:comparador comparador: NotIn → In
+muerto: tools/tareas.py:245:7:comparador comparador: NotIn → In
+muerto: tools/tareas.py:262:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:281:7:comparador comparador: NotIn → In
+muerto: tools/tareas.py:295:7:comparador comparador: Eq → NotEq
+vivo: tools/tareas.py:296:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:296:15:constante constante: False → True
+muerto: tools/tareas.py:298:49:constante constante: True → False
+muerto: tools/tareas.py:300:10:constante constante: 0 → 1
+muerto: tools/tareas.py:301:19:constante constante: 0 → 1
+muerto: tools/tareas.py:302:10:booleano booleano: and ↔ or
+vivo: tools/tareas.py:302:10:comparador comparador: Lt → LtE
+vivo: tools/tareas.py:302:42:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:304:15:constante constante: 1 → 2
+vivo: tools/tareas.py:307:7:comparador comparador: Lt → LtE
+muerto: tools/tareas.py:309:15:constante constante: 1 → 2
+muerto: tools/tareas.py:311:10:booleano booleano: and ↔ or
+vivo: tools/tareas.py:311:10:comparador comparador: Lt → LtE
+muerto: tools/tareas.py:311:42:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:313:15:constante constante: 1 → 2
+vivo: tools/tareas.py:316:26:constante constante: 0 → 1
+vivo: tools/tareas.py:318:10:comparador comparador: Lt → LtE
+muerto: tools/tareas.py:320:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:323:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:325:11:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:325:19:constante constante: 1 → 2
+vivo: tools/tareas.py:332:15:constante constante: 1 → 2
+muerto: tools/tareas.py:334:7:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:337:68:constante constante: 1 → 2
+muerto: tools/tareas.py:338:63:constante constante: 1 → 2
+vivo: tools/tareas.py:349:20:constante constante: 420 → 421
+muerto: tools/tareas.py:351:52:constante constante: 511 → 512
+muerto: tools/tareas.py:355:67:constante constante: False → True
+vivo: tools/tareas.py:374:44:constante constante: True → False
+muerto: tools/tareas.py:377:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:377:11:constante constante: True → False
+muerto: tools/tareas.py:386:12:booleano booleano: and ↔ or
+muerto: tools/tareas.py:396:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:401:15:constante constante: 1 → 2
+vivo: tools/tareas.py:402:10:comparador comparador: Lt → LtE
+vivo: tools/tareas.py:402:21:constante constante: 10000 → 10001
+muerto: tools/tareas.py:407:12:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:409:24:constante constante: 1 → 2
+muerto: tools/tareas.py:420:12:booleano booleano: and ↔ or
+muerto: tools/tareas.py:425:7:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:426:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:428:15:constante constante: 1 → 2
+muerto: tools/tareas.py:429:10:constante constante: True → False
+timeout: tools/tareas.py:431:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:432:12:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:433:20:constante constante: 1 → 2
+muerto: tools/tareas.py:442:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:446:7:booleano booleano: and ↔ or
+muerto: tools/tareas.py:448:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:450:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:456:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:462:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:466:7:comparador comparador: Gt → GtE
+muerto: tools/tareas.py:466:25:constante constante: 1 → 2
+vivo: tools/tareas.py:472:4:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:472:22:constante constante: 0 → 1
+vivo: tools/tareas.py:478:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:480:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:481:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:492:48:constante constante: True → False
+muerto: tools/tareas.py:503:15:comparador comparador: In → NotIn
+muerto: tools/tareas.py:509:15:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:514:15:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:520:56:constante constante: True → False
+muerto: tools/tareas.py:548:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:568:27:constante constante: True → False
+muerto: tools/tareas.py:569:27:booleano booleano: and ↔ or
+muerto: tools/tareas.py:573:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:573:15:constante constante: 1 → 2
+muerto: tools/tareas.py:581:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:581:15:constante constante: 1 → 2
+vivo: tools/tareas.py:584:34:constante constante: True → False
+muerto: tools/tareas.py:584:49:constante constante: True → False
+vivo: tools/tareas.py:587:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:587:15:constante constante: 1 → 2
+muerto: tools/tareas.py:595:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:595:15:constante constante: 1 → 2
+vivo: tools/tareas.py:602:77:constante constante: 0 → 1
+vivo: tools/tareas.py:604:36:constante constante: 420 → 421
+vivo: tools/tareas.py:611:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:611:15:constante constante: 1 → 2
+muerto: tools/tareas.py:614:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:614:11:constante constante: 0 → 1
+vivo: tools/tareas.py:633:16:constante constante: 50 → 51
+muerto: tools/tareas.py:642:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:644:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:644:15:constante constante: 1 → 2
+muerto: tools/tareas.py:645:7:booleano booleano: and ↔ or
+muerto: tools/tareas.py:645:7:comparador comparador: In → NotIn
+muerto: tools/tareas.py:645:32:comparador comparador: In → NotIn
+muerto: tools/tareas.py:647:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:647:15:constante constante: 1 → 2
+muerto: tools/tareas.py:651:11:booleano booleano: and ↔ or
+muerto: tools/tareas.py:651:11:comparador comparador: In → NotIn
+muerto: tools/tareas.py:651:27:comparador comparador: In → NotIn
+muerto: tools/tareas.py:653:12:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:653:19:constante constante: 1 → 2
+vivo: tools/tareas.py:662:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:662:15:constante constante: 1 → 2
+muerto: tools/tareas.py:670:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:670:15:constante constante: 1 → 2
+vivo: tools/tareas.py:672:13:booleano booleano: and ↔ or
+vivo: tools/tareas.py:672:52:constante constante: 40 → 41
+vivo: tools/tareas.py:678:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:678:15:constante constante: 1 → 2
+vivo: tools/tareas.py:692:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:692:15:constante constante: 1 → 2
+vivo: tools/tareas.py:695:89:constante constante: False → True
+muerto: tools/tareas.py:700:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:700:11:constante constante: 0 → 1
+vivo: tools/tareas.py:718:7:booleano booleano: and ↔ or
+vivo: tools/tareas.py:723:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:723:15:constante constante: 1 → 2
+vivo: tools/tareas.py:729:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:729:15:constante constante: 1 → 2
+muerto: tools/tareas.py:741:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:741:15:constante constante: 1 → 2
+vivo: tools/tareas.py:745:11:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:746:15:booleano booleano: and ↔ or
+vivo: tools/tareas.py:746:35:comparador comparador: NotEq → Eq
+muerto: tools/tareas.py:748:15:booleano booleano: and ↔ or
+vivo: tools/tareas.py:748:15:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:748:39:comparador comparador: NotEq → Eq
+vivo: tools/tareas.py:752:15:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:752:23:comparador comparador: Eq → NotEq
+vivo: tools/tareas.py:756:15:booleano booleano: and ↔ or
+vivo: tools/tareas.py:756:15:comparador comparador: NotIn → In
+vivo: tools/tareas.py:756:55:comparador comparador: NotIn → In
+vivo: tools/tareas.py:764:45:constante constante: False → True
+vivo: tools/tareas.py:764:59:constante constante: 2 → 3
+muerto: tools/tareas.py:765:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:765:15:constante constante: 0 → 1
+muerto: tools/tareas.py:767:7:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:769:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:769:15:constante constante: 0 → 1
+muerto: tools/tareas.py:775:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:775:11:constante constante: 0 → 1
+muerto: tools/tareas.py:789:7:booleano booleano: and ↔ or
+vivo: tools/tareas.py:791:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:791:15:constante constante: 1 → 2
+vivo: tools/tareas.py:797:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:797:15:constante constante: 1 → 2
+muerto: tools/tareas.py:804:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:804:15:constante constante: 1 → 2
+muerto: tools/tareas.py:807:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:809:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:809:15:constante constante: 1 → 2
+muerto: tools/tareas.py:815:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:815:15:constante constante: 1 → 2
+vivo: tools/tareas.py:821:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:821:15:constante constante: 1 → 2
+muerto: tools/tareas.py:830:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:830:15:constante constante: 1 → 2
+vivo: tools/tareas.py:836:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:836:15:constante constante: 1 → 2
+muerto: tools/tareas.py:840:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:840:15:constante constante: 0 → 1
+vivo: tools/tareas.py:843:54:constante constante: False → True
+vivo: tools/tareas.py:843:68:constante constante: 2 → 3
+vivo: tools/tareas.py:844:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:844:15:constante constante: 0 → 1
+vivo: tools/tareas.py:854:16:constante constante: 60 → 61
+muerto: tools/tareas.py:860:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:860:11:constante constante: 0 → 1
+vivo: tools/tareas.py:876:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:876:15:constante constante: 1 → 2
+muerto: tools/tareas.py:883:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:883:15:constante constante: 1 → 2
+muerto: tools/tareas.py:886:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:888:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:888:15:constante constante: 1 → 2
+muerto: tools/tareas.py:894:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:894:15:constante constante: 1 → 2
+muerto: tools/tareas.py:900:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:900:15:constante constante: 1 → 2
+muerto: tools/tareas.py:906:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:906:11:constante constante: 0 → 1
+vivo: tools/tareas.py:922:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:922:15:constante constante: 1 → 2
+muerto: tools/tareas.py:929:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:929:15:constante constante: 1 → 2
+muerto: tools/tareas.py:932:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:934:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:934:15:constante constante: 1 → 2
+muerto: tools/tareas.py:940:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:940:15:constante constante: 1 → 2
+muerto: tools/tareas.py:946:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:946:15:constante constante: 1 → 2
+muerto: tools/tareas.py:952:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:952:11:constante constante: 0 → 1
+vivo: tools/tareas.py:968:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:968:15:constante constante: 1 → 2
+vivo: tools/tareas.py:975:18:comparador comparador: Eq → NotEq
+vivo: tools/tareas.py:975:36:constante constante: 0 → 1
+vivo: tools/tareas.py:979:49:constante constante: False → True
+vivo: tools/tareas.py:979:63:constante constante: 2 → 3
+vivo: tools/tareas.py:980:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:980:20:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:980:15:constante constante: 0 → 1
+vivo: tools/tareas.py:980:39:constante constante: 1 → 2
+muerto: tools/tareas.py:989:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:989:15:constante constante: 1 → 2
+muerto: tools/tareas.py:992:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:992:11:constante constante: 0 → 1
+vivo: tools/tareas.py:1048:7:booleano booleano: and ↔ or
+muerto: tools/tareas.py:1048:7:negacion negacion: se borra el `not`
+muerto: tools/tareas.py:1048:20:comparador comparador: In → NotIn
+vivo: tools/tareas.py:1050:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1050:15:constante constante: 0 → 1
+muerto: tools/tareas.py:1052:7:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:1053:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:1054:7:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:1055:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:1056:7:comparador comparador: In → NotIn
+muerto: tools/tareas.py:1057:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:1058:7:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:1059:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:1060:7:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:1061:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:1062:7:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:1063:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas.py:1064:7:comparador comparador: Eq → NotEq
+muerto: tools/tareas.py:1065:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1066:7:comparador comparador: In → NotIn
+vivo: tools/tareas.py:1076:12:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1080:12:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1080:19:constante constante: 1 → 2
+vivo: tools/tareas.py:1081:7:comparador comparador: Eq → NotEq
+vivo: tools/tareas.py:1083:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1084:7:comparador comparador: Eq → NotEq
+vivo: tools/tareas.py:1086:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1089:4:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1089:11:constante constante: 1 → 2
+vivo: tools/tareas.py:1093:38:comparador comparador: Is → IsNot
+vivo: tools/tareas.py:1093:31:constante constante: 1 → 2
+vivo: tools/tareas.py:1094:7:booleano booleano: and ↔ or
+vivo: tools/tareas.py:1094:7:negacion negacion: se borra el `not`
+vivo: tools/tareas.py:1094:25:comparador comparador: In → NotIn
+vivo: tools/tareas.py:1094:36:constante constante: 0 → 1
+vivo: tools/tareas.py:1096:8:retorno retorno: return <algo> → return None
+vivo: tools/tareas.py:1096:15:constante constante: 0 → 1
+vivo: tools/tareas.py:1098:23:constante constante: 0 → 1
+vivo: tools/tareas.py:1099:22:constante constante: 1 → 2
+vivo: tools/tareas.py:1100:4:retorno retorno: return <algo> → return None
+error_arnes: tools/tareas.py:1103:3:comparador comparador: Eq → NotEq
+{"id": "mutacion_de_codigo", "mutantes": 320, "baseline_verde": true, "baseline_estado": "pasaron", "bytecode_frio": true, "tests_fallaron": 162, "errores_arnes": 1, "timeouts": 1, "rondas_ejecutadas": 321, "rondas_cache_verificadas": 321, "mutantes_reutilizados": 0, "primer_fallo_id": "tools/tareas.py:70:8:retorno", "primer_fallo_estado": "tests_fallaron", "primer_fallo_codigo_salida": 1, "primer_fallo_salida": "..........E\n======================================================================\nERROR: test_listar_ordena_por_prioridad_descendente_y_desempata_por_id (tests.test_tareas.TestListarVerYRevisar.test_listar_ordena_por_prioridad_descendente_y_desempata_por_id)\nEvita listados desordenados donde las tareas urgentes queden ocultas al final.\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/oracle-mutacion-o2_if9e8/proyecto/tests/test_tareas.py\", line 441, in test_listar_ordena_por_prioridad_descendente_y_desempata_por_id\n    self.assertEqual(items[0][\"id\"], id2)  # Prioridad 100\n                     ~~~~~~~~^^^^^^\nTypeError: 'NoneType' object is not subscriptable\n\n----------------------------------------------------------------------\nRan 11 tests in 0.005s\n\nFAILED (errors=1)", "primer_fallo_salida_truncada": false, "primer_inconcluso_id": "tools/tareas.py:431:11:negacion", "primer_inconcluso_estado": "timeout", "primer_inconcluso_codigo_salida": null, "primer_inconcluso_salida": "(sin salida diagnóstica)", "primer_inconcluso_salida_truncada": false, "aislada": true, "fuentes_originales_intactas": true}

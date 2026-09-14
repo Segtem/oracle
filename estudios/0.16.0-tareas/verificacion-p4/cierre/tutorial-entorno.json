@@ -1,0 +1,6 @@
+{
+  "base": "/tmp/oracle-p4-tutorial-final-vimhi_6a",
+  "wheel": "/tmp/oracle-p4-tutorial-final-vimhi_6a/ruedas/oracle_metalenguaje-0.15.0-py3-none-any.whl",
+  "sha256_wheel": "61fc77a7d5408b70de2bdff14c346e1be3b2fd6056715a65981ac328d2f29e2a",
+  "sha256_tutorial": "4f30a45851d3d2a23ec03c11b0c0f30a230edd5eee221a5c271b39ced6c4217c"
+}

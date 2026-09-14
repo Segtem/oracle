@@ -1,6 +1,6 @@
 """Entry point único para Oracle.
 
-    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto, biblioteca)
+    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto, biblioteca, tarea)
     oracle <sustantivo>                     ayuda del sustantivo con sus verbos
 
     oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
@@ -23,6 +23,21 @@
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
     oracle biblioteca verificar <ruta>      certifica una biblioteca local de políticas
     oracle biblioteca listar <ruta>         muestra sus umbrales, orígenes y alcances completos
+
+    oracle tarea init [ruta]                inicializa el tracker de tareas en tareas/
+    oracle tarea nueva <titulo>             crea una nueva tarea con plantilla y adjuntos
+    oracle tarea listar                     lista las tareas abiertas por prioridad e id (alias ls)
+    oracle tarea ver <id>                   muestra una tarea por su id o prefijo inequívoco
+    oracle tarea cerrar <id>                marca la tarea como CERRADA de forma atómica
+    oracle tarea reabrir <id>               marca la tarea como ABIERTA de forma atómica
+    oracle tarea revisar                    audita la integridad del directorio tareas/
+    oracle tarea anotar <id> [texto]        agrega una nota, URL o marca a la tarea
+    oracle tarea adjuntar <id> <archivo>    copia un adjunto al directorio de la tarea
+    oracle tarea buscar <texto>             busca texto en documentos y notas del tracker
+    oracle tarea referencias <id>           busca menciones del ID en tareas y código
+    oracle tarea resumen                    muestra cantidades por estado y etiquetas
+    oracle tarea seguimiento                diagnóstico de seguimiento y cobertura en Git
+    oracle tarea hechos [--git]              exporta hechos observados del tracker como JSON
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería
     oracle manual segun                     de dónde sale el número de un umbral
@@ -95,6 +110,7 @@ Uso:
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
+  oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
   oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
   oracle censar --proyecto <ruta> ...     Censa varios proyectos y conserva el estado con su fecha
@@ -169,6 +185,11 @@ Uso:
   oracle biblioteca instaladas            Las que hay en el entorno, y cuáles usa este proyecto
   oracle biblioteca verificar <ruta>      Certifica contenido, corpus y mutación publicada
   oracle biblioteca listar <ruta>         Lista cada umbral, segun y alcance completo""")
+
+
+def ayuda_tarea() -> None:
+    from tools import tareas
+    tareas.ayuda()
 
 
 def _informe_biblioteca(ruta_str: str):
@@ -348,6 +369,22 @@ VERBOS = {
     "caso": ("nuevo", "listar", "generar"),
     "proyecto": ("init", "test", "relaciones", "escalares", "contexto"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
+    "tarea": (
+        "init",
+        "nueva",
+        "listar",
+        "ver",
+        "cerrar",
+        "reabrir",
+        "revisar",
+        "anotar",
+        "adjuntar",
+        "buscar",
+        "referencias",
+        "resumen",
+        "seguimiento",
+        "hechos",
+    ),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
     "manual": tuple(manual.temas()),
@@ -364,7 +401,10 @@ def verbos_documentados() -> dict[str, tuple[str, ...]]:
 # `caso nueva` se acepta desde siempre por la concordancia con «medida nueva». Se declara acá en
 # vez de esconderse en la tupla: un alias que nadie escribió a propósito es un alias que nadie
 # puede documentar.
-ALIAS = {("caso", "nueva"): "nuevo"}
+ALIAS = {
+    ("caso", "nueva"): "nuevo",
+    ("tarea", "ls"): "listar",
+}
 
 
 def verbos_aceptados(sustantivo: str) -> frozenset[str]:
@@ -961,6 +1001,9 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando == "biblioteca" and (not resto or resto[0] in ("-h", "--help", "help")):
         ayuda_biblioteca()
         return 0
+    if subcomando == "tarea" and (not resto or resto[0] in ("-h", "--help", "help")):
+        ayuda_tarea()
+        return 0
     if subcomando in ("reportar", "--reportar") and resto \
             and resto[0] in ("-h", "--help", "help"):
         ayuda_reportar()
@@ -1009,6 +1052,9 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando == "proyecto" and resto and resto[0] not in verbos_aceptados("proyecto"):
         return _verbo_desconocido("proyecto", resto[0])
 
+    if subcomando == "tarea" and resto and resto[0] not in verbos_aceptados("tarea"):
+        return _verbo_desconocido("tarea", resto[0])
+
     if subcomando == "biblioteca":
         verbo = resto[0]
         if verbo not in verbos_aceptados("biblioteca"):
@@ -1037,6 +1083,13 @@ def main(argv: list[str] | None = None) -> int:
         if verbo == "verificar":
             return cmd_biblioteca_verificar(resto[1])
         return cmd_biblioteca_listar(resto[1])
+
+    if subcomando == "tarea":
+        from tools import tareas as ttareas
+        verbo = resto[0]
+        canonico = ALIAS.get(("tarea", verbo.lstrip("-")), verbo.lstrip("-"))
+        args = resto[1:]
+        return ttareas.despachar(canonico, args, argv)
 
     # Para todos los demás comandos resolvemos el proyecto
     try:

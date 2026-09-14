@@ -1,0 +1,22 @@
+usage: python3 -m unittest [-h] --proyecto RUTA [--hechos] [--html RUTA]
+                           [--confiar-escalares]
+python3 -m unittest: error: the following arguments are required: --proyecto
+BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+======================================================================
+FAIL: test_el_archivo_publicado_es_exactamente_la_salida_del_comando (test_manual.LaPaginaPublicadaNoSeDespegaTests.test_el_archivo_publicado_es_exactamente_la_salida_del_comando)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_manual.py", line 251, in test_el_archivo_publicado_es_exactamente_la_salida_del_comando
+    self.assertEqual(publicada.rstrip("\n"), manual.pagina().rstrip("\n"),
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "docs/manual.html quedó atrás: regeneralo con "
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+                     "`python tools/cli.py manual --html > docs/manual.html`")
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '<!do[12236 chars]><dd>cerrar · init · listar · nueva · reabrir [15517 chars]tml>' != '<!do[12236 chars]><dd>adjuntar · anotar · buscar · cerrar · ini[15584 chars]tml>'
+Diff is 28184 characters long. Set self.maxDiff to None to see it. : docs/manual.html quedó atrás: regeneralo con `python tools/cli.py manual --html > docs/manual.html`
+
+----------------------------------------------------------------------
+Ran 1631 tests in 46.264s
+
+FAILED (failures=1)

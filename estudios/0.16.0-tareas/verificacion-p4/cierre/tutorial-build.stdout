@@ -1,0 +1,9 @@
+Processing ./fuente
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: oracle-metalenguaje
+  Building wheel for oracle-metalenguaje (pyproject.toml): started
+  Building wheel for oracle-metalenguaje (pyproject.toml): finished with status 'done'
+  Created wheel for oracle-metalenguaje: filename=oracle_metalenguaje-0.15.0-py3-none-any.whl size=420971 sha256=61fc77a7d5408b70de2bdff14c346e1be3b2fd6056715a65981ac328d2f29e2a
+  Stored in directory: /tmp/pip-ephem-wheel-cache-7e6lsisp/wheels/34/fb/29/6915816317d4644dd8ba6cbd8ebea34cb3a5459f698fa9b814
+Successfully built oracle-metalenguaje

@@ -1,0 +1,17 @@
+caso 017-archivo-borrado:
+    fecha: "2026-09-12"
+    origen:
+        tipo: "ejemplo construido para fijar la política P3"
+    procedencia: construida
+    titulo: "archivo borrado"
+    etiqueta: falso_verde
+    sintoma:
+        Ejemplo construido; se espera rechazo del defecto declarado en estas filas.
+    como_se_detecto: persona
+    medida: seguimiento.archivos_confirmados_sin_cambios
+    evidencia:
+        archivo_seguimiento: tarea_id, ruta, clase, tipo, tamano_bytes, existe, git_comprobado, en_indice, en_head, ignorado, indice, trabajo
+            "20260912-130000-ejemplo", "tareas/20260912-130000-ejemplo/TAREA.md", "documento", "regular", 80, false, true, true, true, false, " ", "D"
+            "20260912-130000-ejemplo", "tareas/otro.md", "documento", "regular", 80, true, true, true, true, false, " ", " "
+    leccion:
+        El caso fija esta decisión optativa; no documenta una observación del material del dueño.

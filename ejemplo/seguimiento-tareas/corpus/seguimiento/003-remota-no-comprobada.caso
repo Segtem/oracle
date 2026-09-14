@@ -1,0 +1,16 @@
+caso 003-remota-no-comprobada:
+    fecha: "2026-09-12"
+    origen:
+        tipo: "ejemplo construido para fijar la política P3"
+    procedencia: construida
+    titulo: "remota no comprobada"
+    etiqueta: verde_correcto
+    sintoma:
+        Ejemplo construido; se espera aceptación dentro del alcance declarado.
+    como_se_detecto: persona
+    medida: seguimiento.referencias_locales_presentes
+    evidencia:
+        referencia_seguimiento: tarea_id, origen, linea, destino_declarado, clase, estado
+            "20260912-130000-ejemplo", "tareas/20260912-130000-ejemplo/TAREA.md", 5, "referencia", "remota", "no_comprobado"
+    leccion:
+        El caso fija esta decisión optativa; no documenta una observación del material del dueño.

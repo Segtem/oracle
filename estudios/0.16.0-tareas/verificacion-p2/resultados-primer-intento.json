@@ -1,0 +1,17 @@
+[
+  {
+    "paso": "unitarios",
+    "comando": [
+      "/usr/bin/python3",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-q"
+    ],
+    "codigo": 1,
+    "segundos": 46.484
+  }
+]

@@ -1,0 +1,6 @@
+mutantes de medida (medida × mutador): 52 · murieron 52 · sobrevivieron 0
+  con 29 mutadores: 5 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+  de los muertos: 44 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 8 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 390
+
+sin políticas meta activas — se informa sólo el resultado operativo

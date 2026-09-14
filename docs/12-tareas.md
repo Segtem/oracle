@@ -1,0 +1,377 @@
+# 12 · Tareas y contexto de trabajo en Git
+
+Contrato, especificación y guía de uso del tracker local de tareas de Oracle.
+
+## 1. El modelo
+
+Oracle organiza tareas y pendientes como carpetas dentro de `tareas/` en la raíz del proyecto.
+Cada tarea es un directorio autónomo con un archivo central `TAREA.md` y cualquier adjunto local asociado (capturas, notas, esquemas, volcados de evidencia).
+
+El formato privilegia la legibilidad y la edición manual:
+- Una persona puede editar `TAREA.md` con su editor favorito o copiar archivos al directorio de la tarea.
+- La herramienta CLI lee y escribe el archivo preservando el cuerpo, campos adicionales y formato.
+- Git conserva la historia de los archivos que agregás y confirmás con commits. Crear una tarea
+  no la agrega automáticamente a Git: revisá las reglas de ignore y usá `git add tareas/` y
+  `git commit` cuando quieras registrar el contenido.
+- La herramienta es independiente del catálogo: no requiere catálogos ni evalúa escalares para operar.
+
+```text
+mi-proyecto/
+  tareas/
+    README.md
+    20260911-180000-investigar-sensor/
+      TAREA.md
+      captura.png
+      notas.md
+    20260911-181500-kb-timeout-arnes/
+      TAREA.md
+```
+
+## 2. Descubrimiento de la raíz del tracker
+
+El tracker determina la raíz de trabajo aplicando el siguiente orden de precedencia estricto:
+
+1. **Bandera explícita**: `--proyecto <ruta>` en la línea de comandos.
+2. **Variable de entorno**: `$ORACLE_PROYECTO`.
+3. **Búsqueda local ascendente**: desde el directorio de trabajo actual (`cwd`), inspecciona cada directorio ascendiendo hacia la raíz del sistema de archivos buscando la presencia de un subdirectorio `tareas/`.
+   - **Límite Git**: la búsqueda automática se detiene inmediatamente si encuentra un límite de repositorio Git (`.git`) y no continúa hacia directorios superiores, evitando saltar accidentalmente al tracker de un repositorio padre o contenedor.
+   - Si no se encuentra `tareas/` antes o al alcanzar el límite Git, la resolución falla informando que no hay tracker inicializado.
+
+El comando `oracle tarea init [ruta]` inicializa el tracker creando el directorio `tareas/` (y `tareas/README.md`) en la ruta indicada o en el directorio actual. No exige la presencia de `catalogos/` ni `oracle.json`.
+
+## 3. Identidad de tareas y resolución de colisiones
+
+Cada tarea posee un identificador único basado en tiempo universal coordinado (UTC):
+
+- **Formato canónico**: `YYYYMMDD-HHMMSS[-sufijo]`
+  - Ejemplo sin sufijo: `20260911-183000`
+  - Ejemplo con sufijo: `20260911-183000-defecto-sensor`
+- **Sufijo opcional**: si se proporciona (o se deriva del título/argumento), se normaliza a minúsculas ASCII y guiones, sin caracteres especiales ni secuencias `..` o separadores de ruta.
+- **Resolución determinista de colisiones**: si se crean dos o más tareas dentro del mismo segundo en el mismo proyecto (mismo timestamp y sufijo), el sistema agrega un desambiguador numérico secuencial (`-1`, `-2`, etc.) sin sobrescribir directorios existentes ni bloquear la ejecución en bucles de espera:
+  - `20260911-183000-sensor`
+  - `20260911-183000-sensor-1`
+  - `20260911-183000-sensor-2`
+
+### Seguridad y confinamiento de rutas
+
+- Los IDs y prefijos no admiten `..`, `/` ni `\`. Las rutas de proyecto sí pueden ser
+  absolutas o relativas y contener espacios.
+- La ruta resuelta de una tarea debe pertenecer estrictamente al árbol de `tareas/` del proyecto.
+- No se siguen enlaces simbólicos que apunten fuera del directorio `tareas/`. Cualquier intento de escape se rechaza con código de error 1.
+
+Los títulos, etiquetas y nombres de adjuntos no admiten saltos de línea, incluidos separadores Unicode.
+
+## 4. Anatomía y especificación de `TAREA.md`
+
+Un archivo `TAREA.md` se compone de tres partes ordenadas:
+
+1. **Título (H1)**: la primera línea no vacía del documento debe ser un encabezado Markdown de nivel 1 (`# Título de la tarea`).
+2. **Bloque de metadatos**: situado inmediatamente después del título (permitiendo líneas en blanco intermedias), consiste en una lista contigua de elementos Markdown con la forma `- CLAVE: VALOR`.
+   - `ESTADO`: obligatorio, toma exclusivamente los valores `ABIERTA` o `CERRADA`.
+   - `PRIORIDAD`: obligatorio, un número entero (ej. `50`, `100`, `0`). A mayor número, mayor prioridad en los listados. El valor por defecto al crear es `50`.
+   - `ETIQUETAS`: lista de etiquetas separadas por comas (ej. `bug, sensor, urgente`).
+   - **Campos adicionales**: se admiten campos personalizados (ej. `- ASIGNADO: brian`) y se preservan intactos en operaciones de actualización.
+   - **Validación estricta**: campos duplicados dentro del bloque de metadatos o estados desconocidos constituyen un error que invalida la tarea.
+3. **Cuerpo libre**: todo el texto posterior al bloque de metadatos, separado por al menos una línea en blanco.
+   - El cuerpo admite cualquier contenido Markdown: secciones, listas, tablas, enlaces relativos y bloques de código.
+   - **Aislamiento**: líneas dentro del cuerpo libre o dentro de bloques de código cercados (```` ``` ````) que se asemejen a metadatos (como `- ESTADO: ABIERTA`) se interpretan como texto plano y no alteran la cabecera.
+
+### Preservación en escrituras
+
+Los comandos de modificación de estado (`cerrar`, `reabrir`):
+- Modifican únicamente la línea `- ESTADO: ...` del bloque de metadatos.
+- Preservan intactos el título, los demás campos de metadatos (incluyendo orden y campos desconocidos) y todo el cuerpo libre.
+- La escritura se realiza mediante reemplazo atómico (escribiendo a un archivo temporal contiguo y reemplazando con `os.replace`), evitando archivos a medio escribir ante interrupciones.
+- La operación es idempotente: cerrar una tarea ya cerrada o reabrir una ya abierta no produce cambios y sale con código 0.
+
+## 5. Comandos del CLI (`oracle tarea`)
+
+| Comando | Argumentos / Opciones | Descripción |
+|---|---|---|
+| `oracle tarea init` | `[ruta]` | Inicializa `tareas/` y `tareas/README.md`. |
+| `oracle tarea nueva` | `<titulo> [--etiqueta/-e <etiqueta>]... [--prioridad <n>] [--sufijo <sufijo>] [--json]` | Crea una nueva tarea y devuelve su ID y ruta. |
+| `oracle tarea listar` / `ls` | `[--cerradas] [--todas] [--etiqueta/-e <etiqueta>] [--texto/-t <palabra>] [--json]` | Lista tareas abiertas (o cerradas/todas) ordenadas por prioridad e ID. |
+| `oracle tarea ver` | `<id> [--ruta] [--json]` | Muestra detalles de la tarea. Admite prefijos inequívocos. Con `--ruta` imprime solo la ruta al archivo. |
+| `oracle tarea cerrar` | `<id>` | Cambia el estado a `CERRADA` de forma atómica y preserva el resto. |
+| `oracle tarea reabrir` | `<id>` | Cambia el estado a `ABIERTA` de forma atómica y preserva el resto. |
+| `oracle tarea revisar` | `[--json]` | Audita el directorio `tareas/`: detecta carpetas sin `TAREA.md`, metadatos inválidos y omisiones. |
+| `oracle tarea anotar` | `<id> [texto] [--url <url>] [--marca <marca>] [--json]` | Agrega una nota, enlace web o marca al cuerpo de la tarea sin descargar contenido remoto. |
+| `oracle tarea adjuntar` | `<id> <archivo> [--permitir-grande] [--json]` | Copia un archivo regular al directorio de la tarea y lo vincula en `TAREA.md`. |
+| `oracle tarea buscar` | `<texto> [--json]` | Búsqueda literal en documentos y notas de texto del tracker (omite binarios y archivos > 2 MiB). |
+| `oracle tarea referencias` | `<id> [--json]` | Busca menciones textuales del ID canónico en tareas y código fuente del proyecto. |
+| `oracle tarea resumen` | `[--json]` | Reporta cantidades agregadas por estado y etiquetas a partir de registros válidos. |
+| `oracle tarea seguimiento` | `[opciones]` | Diagnóstico de seguimiento y cobertura de tareas y adjuntos en Git. |
+| `oracle tarea hechos` | `[--git] [--json]` | Emite evidencia relacional de tareas, inventario, referencias y omisiones en JSON. |
+
+Todos los subcomandos aceptan `--proyecto <ruta>` para operar sobre un directorio explícito.
+
+### Reglas de captura y contexto (P2)
+
+- **`anotar`**:
+  - Exige al menos un texto explicativo o una `--url`.
+  - La `--url` debe ser absoluta con esquema `http` o `https`, sin espacios ni caracteres de control. Se preserva exactamente como fue introducida (incluyendo parámetros de consulta como `?t=01m30s`).
+  - La opción `--marca` (por ejemplo `01:32` o `Capítulo 2`) representa una posición aportada por la persona y exige especificar `--url`.
+  - La nota se añade al cuerpo de `TAREA.md` con timestamp UTC de captura, preservando todos los bytes anteriores, sangrías, espacios significativos y permisos del documento mediante reemplazo atómico. No realiza descargas remotas ni consultas de red.
+- **`adjuntar`**:
+  - Copia un archivo regular local al directorio de la tarea; conserva intacto el archivo de origen.
+  - Preserva nombres con espacios y caracteres Unicode. En `TAREA.md` se genera un enlace Markdown relativo con destino URL escapado (`%20`, `%28`, `%29`, `%23`) y etiqueta visible protegida (escapando barras invertidas antes que corchetes). Rechaza nombres con saltos de línea o caracteres de control.
+  - Rechaza enlaces simbólicos de origen, directorios, archivos especiales (FIFOs, dispositivos), destinos ya existentes (incluyendo enlaces rotos), el nombre reservado `TAREA.md` o rutas que escapen de la carpeta de la tarea.
+  - Límite por defecto: 20 MiB acumulados durante la copia por bloques. Archivos mayores requieren pasar la bandera `--permitir-grande` explícita, sin imponer Git LFS.
+  - Copia por bloques con creación exclusiva, sin sobrescribir destinos. El registro en `TAREA.md`
+    usa reemplazo atómico; la copia y ese registro son dos operaciones. Ante un fallo detectado
+    se intenta retirar únicamente la copia creada. Una interrupción del proceso puede dejar un
+    adjunto sin registrar; no es una transacción entre dos archivos. Si falla la limpieza, el
+    diagnóstico conserva la causa original, el error de limpieza y la ruta de la copia residual.
+- **`buscar`**:
+  - Búsqueda literal case-insensitive en documentos y notas/adjuntos de texto bajo `tareas/`, recorriendo de forma recursiva subdirectorios internos de las tareas (sin seguir enlaces ni repositorios anidados).
+  - Admite `.md`, `.txt`, `.rst`, `.json`, `.yaml`, `.yml`, `.toml`, `.csv`, `.tsv`, `.log`,
+    `.ini`, `.cfg`, `.conf`, `.sh`, `.bash`, `.py`, `.oracle`, `.js`, `.ts`, `.html`, `.htm`,
+    `.css`, `.xml`, `.sql`, `.c`, `.h`, `.cpp`, `.hpp`, `.rs`, `.go` y `.java`, además de
+    archivos sin extensión, si decodifican en UTF-8 sin bytes nulos.
+  - Omite enlaces simbólicos, archivos especiales (FIFOs), archivos mayores a 2 MiB y archivos binarios reconocidos (`.png`, `.jpg`, `.pdf`, `.zip`, etc.) o con bytes nulos. Tanto en `--json` como en la salida humana se detallan los archivos `omitidos` con su motivo.
+  - Cero coincidencias devuelve éxito (código 0). Registros rotos, carpetas corruptas en `tareas/` o fallos operacionales de lectura devuelven código 1; no se disfrazan de búsqueda vacía.
+- **`referencias`**:
+  - Audita el tracker (fallando con código 1 ante tareas corruptas), resuelve el ID inequívoco y busca menciones de ese ID canónico exacto en las tareas y en el código fuente bajo la raíz del proyecto.
+  - Utiliza límites de palabra/identificador (`(?<![a-zA-Z0-9_-])ID(?![a-zA-Z0-9_-])`) para no atribuir menciones de tareas derivadas (como `ID-1` o `copia-ID`) al ID original.
+  - Excluye automáticamente directorios de control y compilación: `.git`, `.hg`, `.svn`, `.venv`, `venv`, `node_modules`, `__pycache__`, `build` y `dist`, sin seguir enlaces simbólicos ni entrar en repositorios anidados.
+  - Informa archivos omitidos en consola y formato JSON. Las menciones textuales son referencias de contexto, no dependencias declaradas.
+- **`resumen`**:
+  - Audita el directorio `tareas/` y calcula el total de tareas, cantidades por estado (`ABIERTA`, `CERRADA`) y censo por etiquetas.
+  - Conserva las mayúsculas y minúsculas exactas de las etiquetas, deduplicando sólo identidades idénticas por tarea. Las etiquetas se presentan en orden alfabético estable.
+  - No escribe cachés en disco. Si existen carpetas corruptas o metadatos inválidos, la operación falla con código 1. En un tracker vacío devuelve total 0 con código 0.
+- **`seguimiento`**:
+  - Acepta `--json` y `--proyecto`. Consulta los archivos bajo `tareas/`, incluidos auxiliares,
+    adjuntos y archivos borrados aún presentes en el índice o en `HEAD`.
+  - Distingue `sin_seguimiento`, `ignorado`, `con_cambios` y `sin_cambios`. Informa por separado
+    `existe`, `en_indice` y `en_head`: agregar un archivo al índice no significa haberlo confirmado.
+    Que una ruta figure en `HEAD` tampoco implica que su contenido actual esté confirmado;
+    los indicadores `indice`, `trabajo` y `codigos_git` muestran cambios pendientes.
+  - Las rutas de archivos son relativas al proyecto, incluso si éste ocupa una subcarpeta del
+    repositorio. `head` identifica el commit observado o es `null` si no hay commits.
+  - Sin repositorio devuelve código 0 con `repositorio: null` y la lista `sin_repositorio`.
+    Git ausente o un fallo al consultarlo devuelve código 1: cobertura no comprobada.
+  - No ejecuta `git add`, commit ni operaciones de red, ni modifica el índice. No recorre
+    enlaces de directorio o subrepositorios; informa esas omisiones.
+
+Las consultas de texto omiten archivos cuyo nombre empieza con punto y registran esa omisión.
+Son observaciones de archivos locales durante la consulta; no bloquean editores ni otros procesos.
+El seguimiento en Git no comprueba que haya un backup remoto o que los enlaces sigan disponibles.
+
+### Evidencia relacional del tracker (P3)
+
+El comando `oracle tarea hechos [--git] [--json] [--proyecto RUTA]` emite un objeto JSON relacional estructurado directamente a `stdout`, concebido para ser consumido por el evaluador de políticas de Oracle (`ejemplo/seguimiento-tareas/evaluar.py --con <hechos.json>`), basado en `Medida.evaluar`.
+
+La salida no se escribe en el tracker ni en disco; se redirige típicamente mediante tuberías o redirección shell hacia un archivo fuera del árbol de tareas (`oracle tarea hechos > /tmp/hechos.json`).
+
+El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adicionales:
+
+1. **`lectura_seguimiento`** (exactamente una fila):
+   - `esquema`: `"oracle.tareas.hechos/v1"`.
+   - `completa`: booleano (`true` si no hubo omisiones en la lectura del tracker; `false` si se omitieron archivos o enlaces por tamaño, symlinks, codificación o rutas no seguras).
+   - `git`: `"no_solicitado"` (sin bandera `--git`), `"sin_repositorio"` (si el proyecto no pertenece a un repositorio Git) o `"comprobado"` (si se auditó el repositorio con éxito).
+   - `head`: identificador del commit `HEAD` o cadena vacía `""` si no hay commits o no se solicitó Git.
+
+2. **`tarea_seguimiento`** (una fila por tarea válida registrada en el tracker, ordenada por `id`):
+   - `id`: identificador canónico de la tarea.
+   - `titulo`: título declarado en el primer encabezado de `TAREA.md`.
+   - `estado_declarado`: estado textual en metadatos (`ABIERTA` o `CERRADA`).
+   - `prioridad_declarada`: prioridad numérica entera.
+   - `ruta`: ruta relativa POSIX al archivo `TAREA.md` desde la raíz del proyecto.
+   - `sha256_documento`: hash SHA-256 en minúsculas de los bytes de `TAREA.md`.
+
+3. **`archivo_seguimiento`** (inventario recursivo de archivos bajo `tareas/`, ordenado por `ruta`):
+   - `tarea_id`: identificador de la tarea para documentos y adjuntos; cadena vacía `""` para archivos auxiliares (`README.md`, `.gitignore`).
+   - `ruta`: ruta relativa POSIX desde la raíz del proyecto.
+   - `clase`: `"documento"` (para `TAREA.md`), `"adjunto"` (para archivos dentro de carpetas de tareas) o `"auxiliar"` (para archivos documentados en la raíz de `tareas/`).
+   - `tipo`: `"regular"`, `"enlace"`, `"especial"` (FIFOs, sockets, dispositivos) o `"ausente"` (archivos borrados del disco que aún constan en el índice o `HEAD` de Git).
+   - `tamano_bytes`: tamaño en bytes (0 para archivos especiales o ausentes).
+   - `existe`: booleano de presencia física en disco.
+   - `git_comprobado`: booleano (`false` sin `--git` o sin repo; `true` si Git auditó la ruta).
+   - `en_indice`, `en_head`, `ignorado`: booleanos del estado en Git.
+   - `indice`, `trabajo`: caracteres de estado de Git (equivalentes a `git status --porcelain`).
+
+4. **`referencia_seguimiento`** (una fila por cada aparición de enlace o mención de recurso en Markdown, ordenada por `origen`, `linea`, `destino_declarado`):
+   - `tarea_id`: identificador de la tarea asociada o `""`.
+   - `origen`: ruta relativa POSIX del archivo Markdown donde aparece la referencia.
+   - `linea`: número de línea (1-indexed).
+   - `destino_declarado`: texto exacto del destino tal como fue escrito en el documento.
+   - `clase`:
+     - `"local"`: rutas relativas a archivos o recursos locales.
+     - `"remota"`: URLs absolutas con esquema `http` o `https` (insensible a mayúsculas/minúsculas).
+     - `"ancla"`: referencias a fragmentos internos (`#seccion`).
+     - `"no_admitida"`: esquemas no reconocidos (`mailto:`, `ftp:`, `file:`) o rutas de red (`//host`).
+   - `estado`:
+     - `"presente"`: el archivo local existe en disco dentro del proyecto.
+     - `"ausente"`: el archivo local de destino no existe en la ruta referenciada o navega a través de archivos no directorios con `..`.
+     - `"fuera_del_proyecto"`: la referencia apunta fuera de los límites del proyecto.
+     - `"no_comprobado"`: referencias remotas, anclas, esquemas no admitidos o rutas locales donde cualquier componente (incluso previo a `..`) es un enlace simbólico.
+
+5. **`omision_seguimiento`** (inventario de elementos o sintaxis que no pudieron procesarse, ordenado por `ruta`, `linea`, `motivo`):
+   - `ruta`: ruta relativa POSIX del archivo afectado o del documento donde ocurrió la omisión.
+   - `linea`: número de línea (1-indexed) o `0` cuando la omisión afecta a la totalidad del archivo.
+   - `motivo`: descripción clara de la causa (ej. adjunto Markdown > 2 MiB, enlace simbólico, bytes nulos, enlaces por referencia no resueltos, sintaxis incompleta o multilínea).
+
+**Garantías de límites, seguridad y gramática**:
+- **Distinción entre centrales y adjuntos**: un documento central `TAREA.md` que supere los 2 MiB o sea un enlace simbólico invalida la integridad del tracker y hace fallar la ejecución con código 1. Por el contrario, un adjunto Markdown grande (> 2 MiB) se omite de forma controlada (`omision_seguimiento`, `completa=false`) sin abortar.
+- **Seguridad en componentes de rutas**: la inspección de referencias locales analiza cada componente original sin normalizar prematuramente con `resolve()`. Rutas como `puente/../archivo.txt` donde `puente` es un symlink detectan el enlace simbólico y se clasifican como `no_comprobado` con omisión. Componentes regulares seguidos de `/..` se reconocen como no directorios (`ausente`).
+- **Manejo estricto de errores de E/S**: sólo `FileNotFoundError` o `NotADirectoryError` acreditan ausencia. Permisos denegados (`PermissionError`) o errores operacionales abortan con código 1 sin emitir JSON parcial ni disfrazar fallos como archivos ausentes.
+- **Alcance de la gramática Markdown**: no se afirma soporte de CommonMark completo. Se extraen enlaces inline `[texto](destino)`, `![alt](destino)`, destinos entre ángulos `<destino>`, autolinks `<http...>` y líneas `- URL: ...`. Se excluyen literales escapados `\[texto](...)`, código cercado y código inline. Cierres de bloques cercados exigen exclusivamente espacios tras la cerca. Sintaxis multilínea no resuelta (`[texto](\ndestino)`) genera omisión explícita.
+- Los títulos de enlaces entre comillas simples o dobles se consumen como texto. Si la sintaxis no permite localizar su final, se omite el resto de esa línea y se declara la omisión.
+- Los destinos locales con NUL codificado se declaran `no_admitida` y `no_comprobado`, con omisión. Un sufijo `/` o `/.` exige un directorio. Las barras obtenidas al decodificar `%5C` pertenecen al nombre del archivo y no se reinterpretan como escapes Markdown.
+- Un backtick escapado fuera de código es literal; dentro de código la barra no anula el cierre. Las rachas de apertura y cierre deben tener igual longitud. Se sigue esta distinción de [CommonMark](https://spec.commonmark.org/0.31.2/#backslash-escapes), dentro de la gramática parcial descrita arriba.
+- La salida JSON es compacta, conserva un orden fijo de campos y listas ordenadas, y escapa los caracteres no ASCII. Así conserva incluso nombres Unix que no se pueden decodificar como UTF-8 y produce los mismos bytes ante el mismo árbol.
+
+### Tutorial del ciclo completo (P1 + P2 + P3)
+
+Con Oracle instalado y Git disponible, este recorrido crea un proyecto temporal y un registro
+de texto construido. Conservá el ID que devuelve `nueva`: lo reutilizan los pasos siguientes.
+El subshell mantiene el directorio de tu terminal y deja el proyecto temporal disponible para inspección.
+
+```bash
+(
+proyecto_prueba="$(mktemp -d)"
+cd "$proyecto_prueba"
+oracle tarea init --proyecto .
+
+# 1. Crear una tarea y conservar su ID real
+id_tarea="$(oracle tarea nueva "Desincronización de eventos en sensor" \
+  --etiqueta bug --etiqueta sensor --sufijo sinc --json --proyecto . \
+  | python3 -c 'import json, sys; print(json.load(sys.stdin)["id"])')"
+
+# 2. Guardar una URL construida con una marca; no se descarga el video
+oracle tarea anotar "$id_tarea" "Ejemplo de nota sobre monotonic clock" \
+  --url "https://youtube.com/watch?v=ejemplo&t=150s" \
+  --marca "02:30" --proyecto .
+
+# 3. Crear un registro construido y adjuntarlo
+printf 'Registro construido para practicar adjuntos.\n' > registro-ejemplo.txt
+oracle tarea adjuntar "$id_tarea" registro-ejemplo.txt --proyecto .
+
+# 4. Buscar términos en todas las tareas y notas del tracker
+oracle tarea buscar "monotonic clock" --proyecto .
+
+# 5. Crear una mención externa y reencontrarla por el ID
+printf 'Investigación relacionada: %s\n' "$id_tarea" > referencias.md
+oracle tarea referencias "$id_tarea" --proyecto .
+
+# 6. Ver el resumen global de estados y etiquetas
+oracle tarea resumen --proyecto .
+
+# 7. Diagnosticar Git: este proyecto temporal todavía no tiene repositorio
+oracle tarea seguimiento --proyecto .
+
+# 8. Extraer hechos; el JSON declara sin_repositorio
+oracle tarea hechos --git --proyecto . > hechos-tareas.json
+
+# 9. Cerrar la tarea al finalizar
+oracle tarea cerrar "$id_tarea" --proyecto .
+oracle tarea listar --cerradas --proyecto .
+printf 'Proyecto de práctica: %s\n' "$proyecto_prueba"
+)
+```
+
+Para usar una captura real, reemplazá `registro-ejemplo.txt` por un archivo existente.
+El JSON queda en el proyecto temporal indicado al final; pasá esa ruta a `evaluar.py --con`.
+La política de archivos confirmados fallará hasta que haya un repositorio con esos archivos
+confirmados y sin cambios. El tutorial no hace commits.
+
+Las opciones `--cerradas` y `--todas` de `listar` son incompatibles, al igual que `--ruta` y
+`--json` de `ver`; combinarlas devuelve código 1.
+
+La auditoría admite `README.md`, `README` y `.gitignore` como archivos auxiliares directamente
+en `tareas/`. Otros archivos sueltos en esa raíz se diagnostican como anomalías. Guardá las
+capturas, notas y demás adjuntos dentro de la carpeta de su tarea.
+
+### Orden en los listados
+
+Las tareas se listan ordenadas según:
+1. `PRIORIDAD` en orden descendente (mayor número primero).
+2. `ID` en orden ascendente (desempate cronológico y alfabético estable).
+
+### Reglas de diagnóstico y códigos de salida
+
+- **Código 0 (éxito)**:
+  - Operación completada satisfactoriamente.
+  - En `listar`: cuando no hay tareas que coincidan con los filtros (cero resultados es un listado vacío exitoso).
+  - En consultas de ayuda (`--help` / `-h`): muestra la documentación sin realizar escrituras ni inicializaciones.
+- **Código 1 (error de dominio u operacional)**:
+  - Tarea no encontrada o ID de prefijo ambiguo.
+  - Registro roto, corrupto o con codificación inválida (no UTF-8) en `listar`, `ver`, `cerrar`, `reabrir` o `revisar`: no se ocultan errores como si fueran listas vacías; se emite diagnóstico con la ruta del archivo defectuoso.
+  - Intento de escape del directorio `tareas/`, enlaces simbólicos inseguros o rutas fuera de confinamiento.
+  - Errores del sistema de archivos al acceder o modificar documentos.
+- **Código 2 (error de sintaxis en CLI / argumentos)**:
+  - Banderas u opciones no reconocidas (por ejemplo `oracle tarea listar --inventada`).
+  - Argumentos requeridos ausentes o valores de opciones faltantes detectados por el analizador de argumentos (`argparse`).
+
+---
+
+## 6. Ejemplos construidos de referencia
+
+Los siguientes ejemplos son construidos con propósitos de especificación y contrato.
+
+### Ejemplo 1: Tarea mínima
+
+Ubicación: `tareas/20260911-190000-actualizar-documentacion/TAREA.md`
+
+```markdown
+# Actualizar documentación de inicio rápido
+
+- ESTADO: ABIERTA
+- PRIORIDAD: 50
+- ETIQUETAS: docs
+
+Revisar que el paso de instalación coincida con la versión 0.15.0.
+```
+
+### Ejemplo 2: Investigación técnica con referencias
+
+Ubicación: `tareas/20260911-191000-investigar-sensor/TAREA.md`
+Archivos adjuntos en la misma carpeta: `captura-error.png`, `fragmento.log`
+
+```markdown
+# Investigar desincronización de eventos en el sensor de procesos
+
+- ESTADO: ABIERTA
+- PRIORIDAD: 80
+- ETIQUETAS: bug, sensor, investigacion
+- IMPACTO: alto
+
+## Síntoma observado
+
+Al procesar trazas concurrentes en el arnés, algunos eventos de inicio
+se registran con timestamp posterior al evento de fin.
+
+Ver captura del analizador: ![Captura de error](captura-error.png)
+
+## Referencias y evidencia local
+
+- Registro de ejecución: [fragmento.log](fragmento.log)
+- Archivo de configuración: `oracle.json`
+- Sospecha: temporizador monotonic vs clock_gettime en Python 3.11.
+```
+
+### Ejemplo 3: Nota de base de conocimiento (KB)
+
+Ubicación: `tareas/20260911-192000-kb-aislamiento-de-tests/TAREA.md`
+
+```markdown
+# KB: Por qué `test_herramientas` requiere aislar la generación de bytecode
+
+- ESTADO: ABIERTA
+- PRIORIDAD: 20
+- ETIQUETAS: kb, arquitectura, tests
+- TIPO: nota-permanente
+
+## Contexto
+
+Cuando se ejecutan tests que mutan o reescriben archivos en el árbol, la
+escritura de archivos `.pyc` en `__pycache__` puede dejar artefactos residuales
+no versionados o competir entre procesos concurrentes.
+
+Para evitar contaminar el árbol de trabajo y aislar las ejecuciones:
+1. Usar siempre `python3 -B` para evitar escribir archivos de bytecode.
+2. Las pruebas de integración que ejecutan subprocesos deben pasar `PYTHONDONTWRITEBYTECODE=1`.
+3. Si existen cachés previas en disco, deben limpiarse antes de correr mutaciones.
+
+Esta nota permanece abierta para referencia continua del equipo.
+```

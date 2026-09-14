@@ -1,0 +1,14 @@
+======================================================================
+FAIL: test_hechos_omisiones_sintaxis_no_soportada_y_esquemas_invalidos (tests.test_tareas_hechos.TestHechosReferenciasMarkdown.test_hechos_omisiones_sintaxis_no_soportada_y_esquemas_invalidos)
+Registra omisión explícita ante enlaces por referencia [texto][clave] y esquemas ajenos.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tests/test_tareas_hechos.py", line 470, in test_hechos_omisiones_sintaxis_no_soportada_y_esquemas_invalidos
+    self.assertTrue(any("definición de enlace por referencia no resuelta" in m for m in motivos))
+    ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: False is not true
+
+----------------------------------------------------------------------
+Ran 30 tests in 1.131s
+
+FAILED (failures=1)

@@ -1,0 +1,15 @@
+caso 020-sin-lectura:
+    fecha: "2026-09-12"
+    origen:
+        tipo: "ejemplo construido para fijar la política P3"
+    procedencia: construida
+    titulo: "sin lectura"
+    etiqueta: falso_verde
+    sintoma:
+        Ejemplo construido; se espera rechazo del defecto declarado en estas filas.
+    como_se_detecto: persona
+    medida: seguimiento.lectura_sin_omisiones
+    evidencia:
+        lectura_seguimiento:
+    leccion:
+        El caso fija esta decisión optativa; no documenta una observación del material del dueño.

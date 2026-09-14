@@ -1,0 +1,59 @@
+muerto: tools/tareas_git.py:17:18:negacion negacion: se borra el `not`
+muerto: tools/tareas_git.py:20:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:23:40:constante constante: True → False
+vivo: tools/tareas_git.py:23:54:constante constante: 30 → 31
+muerto: tools/tareas_git.py:36:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:40:4:retorno retorno: return <algo> → return None
+vivo: tools/tareas_git.py:51:60:constante constante: False → True
+muerto: tools/tareas_git.py:55:15:comparador comparador: In → NotIn
+vivo: tools/tareas_git.py:61:15:booleano booleano: and ↔ or
+muerto: tools/tareas_git.py:68:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:74:7:booleano booleano: and ↔ or
+muerto: tools/tareas_git.py:74:31:negacion negacion: se borra el `not`
+muerto: tools/tareas_git.py:79:11:comparador comparador: In → NotIn
+muerto: tools/tareas_git.py:80:12:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:87:20:comparador comparador: Eq → NotEq
+muerto: tools/tareas_git.py:94:15:negacion negacion: se borra el `not`
+muerto: tools/tareas_git.py:97:15:comparador comparador: NotIn → In
+muerto: tools/tareas_git.py:99:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:107:7:comparador comparador: NotIn → In
+muerto: tools/tareas_git.py:107:41:constante constante: 0 → 1
+muerto: tools/tareas_git.py:107:44:constante constante: 1 → 2
+muerto: tools/tareas_git.py:109:60:negacion negacion: se borra el `not`
+muerto: tools/tareas_git.py:117:11:negacion negacion: se borra el `not`
+muerto: tools/tareas_git.py:119:38:constante constante: 3 → 4
+muerto: tools/tareas_git.py:122:62:constante constante: 2 → 3
+muerto: tools/tareas_git.py:127:41:comparador comparador: NotEq → Eq
+muerto: tools/tareas_git.py:128:19:booleano booleano: and ↔ or
+muerto: tools/tareas_git.py:128:19:comparador comparador: In → NotIn
+muerto: tools/tareas_git.py:128:41:comparador comparador: NotIn → In
+vivo: tools/tareas_git.py:131:13:booleano booleano: and ↔ or
+muerto: tools/tareas_git.py:131:13:comparador comparador: NotIn → In
+muerto: tools/tareas_git.py:131:36:comparador comparador: NotIn → In
+muerto: tools/tareas_git.py:133:13:comparador comparador: NotEq → Eq
+muerto: tools/tareas_git.py:137:70:comparador comparador: In → NotIn
+muerto: tools/tareas_git.py:138:36:comparador comparador: In → NotIn
+muerto: tools/tareas_git.py:138:67:comparador comparador: In → NotIn
+muerto: tools/tareas_git.py:139:60:constante constante: 0 → 1
+muerto: tools/tareas_git.py:139:78:constante constante: 1 → 2
+muerto: tools/tareas_git.py:141:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:157:8:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:157:15:constante constante: 1 → 2
+vivo: tools/tareas_git.py:159:45:constante constante: True → False
+vivo: tools/tareas_git.py:159:58:constante constante: 2 → 3
+vivo: tools/tareas_git.py:160:9:comparador comparador: Is → IsNot
+vivo: tools/tareas_git.py:165:62:booleano booleano: and ↔ or
+vivo: tools/tareas_git.py:172:4:retorno retorno: return <algo> → return None
+muerto: tools/tareas_git.py:172:11:constante constante: 0 → 1
+{"id": "mutacion_de_codigo", "mutantes": 47, "baseline_verde": true, "baseline_estado": "pasaron", "bytecode_frio": true, "tests_fallaron": 38, "errores_arnes": 0, "timeouts": 0, "rondas_ejecutadas": 48, "rondas_cache_verificadas": 48, "mutantes_reutilizados": 0, "primer_fallo_id": "tools/tareas_git.py:17:18:negacion", "primer_fallo_estado": "tests_fallaron", "primer_fallo_codigo_salida": 1, "primer_fallo_salida": ".....E\n======================================================================\nERROR: test_git_dir_heredado_no_redirige_el_proyecto (tests.test_tareas_git.SeguimientoGitTests.test_git_dir_heredado_no_redirige_el_proyecto)\nEl diagnóstico observa el proyecto pedido aunque la shell seleccione otro Git.\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/oracle-mutacion-0eprrey8/proyecto/tests/test_tareas_git.py\", line 133, in test_git_dir_heredado_no_redirige_el_proyecto\n    self.assertEqual(self.fila()[\"estado\"], \"sin_seguimiento\")\n                     ~~~~~~~~~^^\n  File \"/tmp/oracle-mutacion-0eprrey8/proyecto/tests/test_tareas_git.py\", line 45, in fila\n    return self.filas()[(ruta or self.documento).relative_to(self.proyecto).as_posix()]\n           ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nKeyError: 'tareas/20260912-100000-ejemplo/TAREA.md'\n\n----------------------------------------------------------------------\nRan 6 tests in 0.043s\n\nFAILED (errors=1)", "primer_fallo_salida_truncada": false, "primer_inconcluso_id": "", "primer_inconcluso_estado": "", "primer_inconcluso_codigo_salida": null, "primer_inconcluso_salida": "", "primer_inconcluso_salida_truncada": false, "aislada": true, "fuentes_originales_intactas": true}
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/estudios/0.16.0-tareas/medir_tracker.py", line 60, in <module>
+    raise SystemExit(main())
+                     ~~~~^^
+  File "/home/workstation/Dev/oracle/estudios/0.16.0-tareas/medir_tracker.py", line 56, in main
+    return int(any(corrida[campo] for campo in ("sobrevivientes", "timeouts", "errores_arnes")))
+               ^^^
+  File "/home/workstation/Dev/oracle/estudios/0.16.0-tareas/medir_tracker.py", line 56, in <genexpr>
+    return int(any(corrida[campo] for campo in ("sobrevivientes", "timeouts", "errores_arnes")))
+                   ~~~~~~~^^^^^^^
+KeyError: 'sobrevivientes'

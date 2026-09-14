@@ -1,0 +1,20 @@
+Traceback (most recent call last):
+  File "/home/workstation/Dev/oracle/tools/cli.py", line 1247, in <module>
+    sys.exit(_entrada_directa())
+             ~~~~~~~~~~~~~~~~^^
+  File "/home/workstation/Dev/oracle/tools/cli.py", line 1092, in main
+    return ttareas.despachar(canonico, args, argv)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/workstation/Dev/oracle/tools/tareas.py", line 1086, in despachar
+    return tareas_hechos.cmd_hechos(argv, args)
+           ~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^
+  File "/home/workstation/Dev/oracle/tools/tareas_hechos.py", line 833, in cmd_hechos
+    hechos = extraer_hechos(raiz, con_git=parsed.git)
+  File "/home/workstation/Dev/oracle/tools/tareas_hechos.py", line 551, in extraer_hechos
+    datos_git = tareas_git.seguimiento(raiz)
+  File "/home/workstation/Dev/oracle/tools/tareas_git.py", line 86, in seguimiento
+    relativo_proyecto = raiz.relative_to(repo).as_posix()
+                        ~~~~~~~~~~~~~~~~^^^^^^
+  File "/usr/lib/python3.14/pathlib/__init__.py", line 490, in relative_to
+    raise ValueError(f"{str(self)!r} is not in the subpath of {str(other)!r}")
+ValueError: '/tmp/oracle-p4-git-raiz-nz5o1dwi/consumidor' is not in the subpath of '/tmp/oracle-p4-git-raiz-nz5o1dwi/original'

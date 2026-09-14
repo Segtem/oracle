@@ -77,6 +77,7 @@ PRIORIDADES = {
     # empaquetado van después de las pruebas directas. Se conservan todos los tests originales.
     # Reportar discrimina sus rutas antes de pagar todo el CLI: 21 tests en 0,003 s locales.
     "tools/cli.py": ("tests.test_reportar", "tests.test_vigilar", "tests.test_biblioteca",
+                     "tests.test_tareas",
                      "tests.test_cli", "tests.test_censar", "tests.test_manual",
                      "tests.test_herramientas", "tests.test_cli_integracion"),
     # `test_contexto` primero y solo: es chico y es suyo. La lección de costo de arriba —un mutante
@@ -121,6 +122,18 @@ PRIORIDADES = {
     "tools/sintaxis.py": ("tests.test_sintaxis", "tests.test_cli"),
     "tools/sondear_generador.py": ("tests.test_sondear_generador",),
     "tools/sondear_procedencia.py": ("tests.test_sondear_procedencia",),
+    # El tracker fija su propia integridad y la evidencia entregada a políticas optativas.
+    "tools/tareas.py": ("tests.test_tareas_errores", "tests.test_tareas_limites",
+                        "tests.test_tareas_mutacion", "tests.test_tareas_atomicas",
+                        "tests.test_tareas", "tests.test_tareas_revision",
+                        "tests.test_tareas_contexto_mutacion", "tests.test_tareas_hechos_mutacion"),
+    "tools/tareas_contexto.py": ("tests.test_tareas_contexto_errores",
+                                "tests.test_tareas_contexto_mutacion", "tests.test_tareas_atomicas",
+                                "tests.test_tareas_contexto", "tests.test_tareas_p2_revision"),
+    "tools/tareas_git.py": ("tests.test_tareas_p4_revision", "tests.test_tareas_git",
+                            "tests.test_tareas_p2_revision", "tests.test_tareas_p3_revision"),
+    "tools/tareas_hechos.py": ("tests.test_tareas_hechos_mutacion", "tests.test_tareas_hechos",
+                               "tests.test_tareas_p3_revision", "tests.test_tareas_p4_revision"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }
@@ -255,10 +268,15 @@ PRIORIDADES = {
 CUSTODIAS_SIN_MEDIR = {}
 
 
+# El tracker añade cuatro custodias: integridad del documento y cambios de estado; captura
+# y consultas con límites explícitos; pertenencia al índice/HEAD; hechos y omisiones para las
+# políticas. Una lectura incompleta o una referencia mal clasificada puede dar un verde falso.
+# P4 conserva las rondas y sus límites en estudios/0.16.0-tareas/verificacion-p4/.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "corpus.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
-                          "sondear_procedencia.py")
+                          "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
+                          "tareas_git.py", "tareas_hechos.py")
 
 # `lsp.py` SALIÓ de la lista el 2026-09-09, y no por costo: mide 140/140 en 2,2 minutos. Salió
 # porque no cumple el criterio. Es un adaptador de editor: no lo corre CI, no lo corre `oracle

@@ -1,0 +1,15 @@
+evaluaciones trazadas: 187
+hechos: 362 pasos · 1132 nodos lógicos · 25 productos
+
+el álgebra, juzgada por medidas escritas en el álgebra:
+  ✓ meta.agrupar_no_agranda_la_relacion                 0 (<= 0)
+  ✓ meta.donde_nunca_agrega_filas                       0 (<= 0)
+  ✓ meta.los_logicos_evaluan_todos_sus_operandos        0 (<= 0)
+  ✓ meta.unir_materializa_el_producto                   0 (<= 0)
+
+contrastado con la implementación independiente: 4 propiedades, 0 desacuerdos
+
+  · meta.agrupar_no_agranda_la_relacion: compara el conteo antes y después de cada `agrupar` trazado. NO ve si las claves de agrupación son las correctas ni si los agregados calcularon bien; sólo que no aparecieron filas de la nada. Si paso viene vacía no hay pasos observados que agranden la relación y verde es correcto; además el arnés trazar.py garantiza ejecuciones trazadas por construcción
+  · meta.donde_nunca_agrega_filas: compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción
+  · meta.los_logicos_evaluan_todos_sus_operandos: cuenta operandos evaluados contra los declarados en el AST, en cada `y` y cada `o` trazado. NO ve si el valor de cada operando es correcto, y no cubre una evaluación que se corrió sin traza. Si nodo viene vacía no hay cortocircuitos observados y verde es correcto; además trazar.py garantiza nodos trazados por construcción
+  · meta.unir_materializa_el_producto: compara el tamaño de la salida contra el producto de los dos lados. NO ve si los pares que armó son los correctos ni en qué orden salieron; un `unir` que devuelve la cantidad justa de pares equivocados pasa. Si producto viene vacía no hay productos defectuosos y verde es correcto; además trazar.py garantiza productos trazados por construcción

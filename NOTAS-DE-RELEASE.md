@@ -1,3 +1,60 @@
+# 0.16.0 — tareas y contexto de trabajo en Git
+
+```
+VERSION_DISTRIBUCION   0.15.0 → 0.16.0   nueva superficie oracle tarea
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+Oracle incorpora un tracker inspirado en tatr: una carpeta por tarea, `TAREA.md` editable y
+material de trabajo junto al registro. Capturas, notas, enlaces y referencias pueden conservarse
+en Git y consultarse desde el CLI, sin base de datos ni dependencia de tatr.
+
+## Recorrido disponible
+
+- `oracle tarea init`, `nueva`, `listar` (`ls`), `ver`, `cerrar`, `reabrir` y `revisar`.
+- `anotar` guarda texto, URLs y marcas; `adjuntar` copia archivos sin sobrescribir el original.
+- `buscar`, `referencias` y `resumen` permiten recuperar el contexto y los pendientes.
+- `seguimiento` distingue archivos locales, ignorados, en el índice, en HEAD y con cambios.
+- `hechos` emite cinco relaciones JSON deterministas para políticas optativas de integridad,
+  referencias y seguimiento. El ejemplo incluye tres políticas y 20 casos construidos.
+
+El tracker funciona sin catálogo de medidas y desde el paquete instalado. Los estados son
+ABIERTA y CERRADA; prioridad y etiquetas quedan en Markdown. Cerrar una nota o una idea no exige
+una verificación técnica universal. Git conserva la historia cuando se incorporan y confirman los
+archivos: los comandos del tracker no hacen commits automáticamente.
+
+## Integridad y límites
+
+Las escrituras reemplazan cada documento de forma atómica; la reserva de carpetas y adjuntos es
+exclusiva. Hay límites de lectura y copia, controles de rutas y enlaces simbólicos, y diagnósticos
+para documentos rotos y errores operacionales. La extracción reconoce una parte documentada de
+Markdown y declara omisiones; no afirma soporte completo de CommonMark ni una instantánea frente
+a escritores concurrentes. Las URLs se conservan como referencias: no se descargan videos ni se
+certifica contenido remoto o autenticidad.
+
+Los cuatro módulos del tracker quedan declarados como custodias y en la matriz de CI. Sus rondas
+oficiales cerraron **762/762**: tareas 263/263, contexto 197/197, Git 44/44 y hechos 258/258, sin
+sobrevivientes, timeouts, errores de arnés ni equivalentes declarados.
+
+## Verificación y documentación
+
+La verificación de P4 cerró con **1852 tests**, corpus propio de **203 casos**, aceptación con
+**115 defectos en rojo, 81 verdes correctos y 0 huecos**, **959/959 mutantes de medidas** y **52/52**
+de políticas del ejemplo. Pasaron el wheel, el tutorial literal desde una instalación nueva fuera
+del checkout, las sondas, la traza y la aceptación de Jam. Las tres tareas del uso propio quedaron
+cerradas con notas de evidencia. No se migró material personal; el tutorial usa ejemplos construidos.
+
+- [Contrato y tutorial](docs/12-tareas.md).
+- [Roadmap completado](PLAN-0.16.0-TAREAS.md).
+- [Cierre y evidencia de P4](estudios/0.16.0-tareas/CIERRE-P4.md).
+- [Verificación del corte 0.16.0](estudios/2026-09-13-corte-0.16.0/README.md).
+
+La menor de distribución incorpora esta superficie y su formato persistente. Álgebra y sintaxis
+conservan significado, nodos y gramática. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.15.0 — las sondas tienen custodia y el CLI entra en CI
 
 ```
