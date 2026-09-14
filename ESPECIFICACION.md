@@ -98,6 +98,13 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.17.0 (2026-09-14): `VERSION_DISTRIBUCION` sube de `0.16.0` a `0.17.0`.** La menor
+agrega verbos a la superficie pública `oracle tarea` (`etiquetar`, `desetiquetar`, `grafo`) y un
+archivo auxiliar al formato persistente (`tareas/etiquetas`); `resumen --json` suma
+`descripciones` y `sin_etiquetas` sin quitar campos. `VERSION_ALGEBRA` queda en `0.6` y
+`VERSION_SINTAXIS` en `0.4`: el tracker no toca el núcleo, ni la lectura o evaluación de
+archivos `.oracle` y `.caso`.
+
 **Corte 0.16.0 (2026-09-13): `VERSION_DISTRIBUCION` sube de `0.15.0` a `0.16.0`.** La menor
 incorpora la superficie pública `oracle tarea`: registros en carpetas con Markdown, captura y
 consulta de contexto, seguimiento frente a Git y hechos para políticas optativas. Se agrega un

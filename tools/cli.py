@@ -38,6 +38,9 @@
     oracle tarea resumen                    muestra cantidades por estado y etiquetas
     oracle tarea seguimiento                diagnóstico de seguimiento y cobertura en Git
     oracle tarea hechos [--git]              exporta hechos observados del tracker como JSON
+    oracle tarea etiquetar <id>... --etiqueta <e>  agrega una o más etiquetas a tareas
+    oracle tarea desetiquetar [id]... --etiqueta <e> quita etiquetas de una o más tareas
+    oracle tarea grafo [--json]             emite el grafo de referencias entre tareas en DOT o JSON
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería
     oracle manual segun                     de dónde sale el número de un umbral
@@ -110,7 +113,7 @@ Uso:
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
-  oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos)
+  oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
   oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
   oracle censar --proyecto <ruta> ...     Censa varios proyectos y conserva el estado con su fecha
@@ -384,6 +387,9 @@ VERBOS = {
         "resumen",
         "seguimiento",
         "hechos",
+        "etiquetar",
+        "desetiquetar",
+        "grafo",
     ),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.

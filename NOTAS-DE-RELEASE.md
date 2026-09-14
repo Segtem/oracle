@@ -1,3 +1,57 @@
+# 0.17.0 — lo que faltaba de tatr
+
+```
+VERSION_DISTRIBUCION   0.16.0 → 0.17.0   verbos nuevos de oracle tarea y archivo tareas/etiquetas
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+0.16.0 trajo el formato y la captura de contexto de [tatr](https://github.com/tsoding/tatr), pero
+dejó afuera tres cosas que tatr sí tiene y la página de PyPI no mencionaba el tracker. Esta versión
+las completa, y deja TQL fuera como ya estaba decidido.
+
+## Qué entra
+
+- `oracle tarea etiquetar <id>... --etiqueta x` y `desetiquetar`, que también funciona masivo
+  sobre abiertas, cerradas o todas, como `tatr untag`. Primero valida todo; después reescribe sólo
+  la línea `- ETIQUETAS:` de cada documento, de forma atómica, y conserva el resto byte a byte.
+  Una tarea que no cambia no se reescribe. La salida es `ruta:línea:` por cada tarea modificada.
+- `oracle tarea grafo` emite en DOT (o `--json`) qué tarea menciona a qué otra, con borde de token:
+  `…-sensor` no coincide dentro de `…-sensor-2`. No escribe archivos ni llama a Graphviz:
+  `oracle tarea grafo | dot -Tsvg -o grafo.svg`. Una mención no es una dependencia declarada.
+- `tareas/etiquetas` describe cada etiqueta, como `tasks/tags`. `resumen` muestra la descripción
+  y cuenta las tareas sin etiquetas. Una redefinición hace fallar a `revisar`; las demás lecturas
+  avisan y siguen.
+- `listar` calcula el ancho de las columnas: un ID con sufijo largo ya no corre la fila.
+- El README presenta el tracker, así que PyPI también. `docs/12-tareas.md` suma una sección
+  «Diferencias con tatr».
+
+## Lo que encontró la revisión
+
+agy implementó el tramo; Claude revisó con tests escritos contra el encargo antes de leer el
+código. La primera entrega pasaba sus propios tests y tenía dos defectos que ellos no veían:
+`etiquetar` sobre un `TAREA.md` sin salto de línea final pegaba `- ETIQUETAS:` a la prioridad y
+dejaba la tarea inválida saliendo 0, y una etiqueta redefinida en `tareas/etiquetas` hacía fallar
+a `listar`, `grafo`, `hechos` y `buscar`, que no leen ese archivo. Los dos quedaron corregidos con
+regresión. La documentación atribuía a `listar` un `--estado` que no existe y a tatr un
+renderizado interno; también se corrigió.
+
+## Verificación
+
+La suite completa cerró con **1920 tests**. La mutación de los cinco módulos del tracker cerró
+**886/886**: `tareas` 368/368, `tareas_hechos` 258/258, `tareas_contexto` 202/202, `tareas_git`
+44/44 y `tareas_grafo` 14/14, sin sobrevivientes, timeouts, errores de arnés ni equivalentes
+declarados. Los sobrevivientes de las primeras rondas se cerraron con tests o borrando código sin
+efecto observable. Pasaron el wheel instalado fuera del checkout —con un recorrido nuevo de
+`etiquetar`, `desetiquetar`, `tareas/etiquetas` y `grafo`—, las cifras del README y el manual.
+
+- [Encargo](estudios/0.17.0-tatr/ENCARGO-AGY.md), [revisión](estudios/0.17.0-tatr/REVISION-CLAUDE.md)
+  y [cierre](estudios/0.17.0-tatr/CIERRE.md).
+
+Álgebra y sintaxis no cambian: el tracker no toca el núcleo. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.16.0 — tareas y contexto de trabajo en Git
 
 ```

@@ -31,6 +31,7 @@ from tools.tareas import (
     asegurar_confinamiento_archivo,
     auditar_tareas,
     guardar_documento_atomico,
+    leer_archivo_etiquetas,
     parsear_tarea,
     resolver_id_o_prefijo,
     resolver_raiz_tracker,
@@ -867,6 +868,14 @@ def cmd_resumen(argv: list[str], args: list[str]) -> int:
             print(f"  · {p}", file=sys.stderr)
         return 1
 
+    descripciones_map, problemas_etiq = leer_archivo_etiquetas(raiz_tareas)
+    for p in problemas_etiq:
+        if p.categoria == "fatal":
+            print(f"ERROR: {p.mensaje}", file=sys.stderr)
+            return 1
+        # Redefinición o enlace simbólico: `revisar` falla; el resumen avisa y sigue.
+        print(f"AVISO: {p.mensaje}", file=sys.stderr)
+
     total = len(tareas_validas)
     estados: dict[str, int] = {"ABIERTA": 0, "CERRADA": 0}
     etiquetas_map: dict[str, int] = {}
@@ -880,12 +889,18 @@ def cmd_resumen(argv: list[str], args: list[str]) -> int:
             etiquetas_map[etiq] = etiquetas_map.get(etiq, 0) + 1
 
     etiquetas_ordenadas = {k: etiquetas_map[k] for k in sorted(etiquetas_map.keys())}
+    sin_etiquetas = sum(1 for t in tareas_validas if not t.etiquetas)
 
     if parsed.json:
         resultado = {
             "total": total,
             "estados": estados,
             "etiquetas": etiquetas_ordenadas,
+            "descripciones": {
+                etiq: descripciones_map.get(etiq.lower())
+                for etiq in etiquetas_ordenadas
+            },
+            "sin_etiquetas": sin_etiquetas,
         }
         print(json.dumps(resultado))
         return 0
@@ -894,10 +909,15 @@ def cmd_resumen(argv: list[str], args: list[str]) -> int:
     print(f"  Total tareas: {total}")
     print(f"  Abiertas:     {estados['ABIERTA']}")
     print(f"  Cerradas:     {estados['CERRADA']}")
+    print(f"  Sin etiquetas: {sin_etiquetas}")
     if etiquetas_ordenadas:
         print("  Etiquetas:")
         for etiq, cantidad in etiquetas_ordenadas.items():
-            print(f"    · {etiq}: {cantidad}")
+            desc = descripciones_map.get(etiq.lower())
+            if desc:
+                print(f"    · {etiq}: {cantidad} — {desc}")
+            else:
+                print(f"    · {etiq}: {cantidad}")
     else:
         print("  Etiquetas:    (ninguna)")
 

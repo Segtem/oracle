@@ -1,0 +1,5 @@
+tareas_grafo: rc=0 muertos=14 vivos=0 timeouts=0 errores_arnes=0
+tareas_git: rc=0 muertos=44 vivos=0 timeouts=0 errores_arnes=0
+tareas_hechos: rc=0 muertos=258 vivos=0 timeouts=0 errores_arnes=0
+tareas_contexto: rc=0 muertos=202 vivos=0 timeouts=0 errores_arnes=0
+tareas: rc=0 muertos=368 vivos=0 timeouts=0 errores_arnes=0

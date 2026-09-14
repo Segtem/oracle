@@ -2,7 +2,7 @@
 
 - ESTADO: CERRADA
 - PRIORIDAD: 90
-- ETIQUETAS: oracle, verificacion, en-curso
+- ETIQUETAS: oracle, verificacion
 
 ### Nota (2026-09-12 22:33:26 UTC)
 

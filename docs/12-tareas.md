@@ -102,6 +102,9 @@ Los comandos de modificación de estado (`cerrar`, `reabrir`):
 | `oracle tarea resumen` | `[--json]` | Reporta cantidades agregadas por estado y etiquetas a partir de registros válidos. |
 | `oracle tarea seguimiento` | `[opciones]` | Diagnóstico de seguimiento y cobertura de tareas y adjuntos en Git. |
 | `oracle tarea hechos` | `[--git] [--json]` | Emite evidencia relacional de tareas, inventario, referencias y omisiones en JSON. |
+| `oracle tarea etiquetar` | `<id>... --etiqueta <e> [--json]` | Agrega una o más etiquetas a tareas existentes de forma atómica. |
+| `oracle tarea desetiquetar` | `[<id>...] --etiqueta <e> [--cerradas] [--todas] [--json]` | Quita una o más etiquetas de tareas de forma atómica. |
+| `oracle tarea grafo` | `[--json]` | Emite el grafo de referencias entre tareas en formato DOT o JSON. |
 
 Todos los subcomandos aceptan `--proyecto <ruta>` para operar sobre un directorio explícito.
 
@@ -221,6 +224,65 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
 - Un backtick escapado fuera de código es literal; dentro de código la barra no anula el cierre. Las rachas de apertura y cierre deben tener igual longitud. Se sigue esta distinción de [CommonMark](https://spec.commonmark.org/0.31.2/#backslash-escapes), dentro de la gramática parcial descrita arriba.
 - La salida JSON es compacta, conserva un orden fijo de campos y listas ordenadas, y escapa los caracteres no ASCII. Así conserva incluso nombres Unix que no se pueden decodificar como UTF-8 y produce los mismos bytes ante el mismo árbol.
 
+### Alineación dinámica en listados
+
+El comando `oracle tarea listar` (o su alias `ls`) calcula dinámicamente el ancho de cada columna en función del contenido real de las tareas a mostrar:
+- Las columnas de identificador, estado, prioridad y etiquetas se ajustan para que las tareas con sufijos largos o múltiples etiquetas no desfasen las líneas ni queden desalineadas.
+- La última columna visible de cada línea no agrega espacios en blanco sobrantes al final (`trailing whitespace`).
+- Si una tarea carece de etiquetas, la columna correspondiente se muestra vacía respetando el espaciado entre columnas.
+
+### Catálogo de etiquetas (`tareas/etiquetas`)
+
+El tracker admite un catálogo opcional de etiquetas y sus descripciones ubicado directamente en `tareas/etiquetas`.
+
+- **Formato por línea**: `<etiqueta>[espacios o comas]<descripción>`
+  - Ejemplo con espacio: `bug Defectos detectados en ejecución`
+  - Ejemplo con comas: `sensor, Mediciones y telemetría de hardware`
+  - La descripción es opcional (puede estar vacía). Cada línea no vacía define una etiqueta (no hay líneas de comentario; una línea que empiece con `#` define una etiqueta `#algo`).
+- **Codificación y límites**: debe ser texto codificado estrictamente en UTF-8 y no superar los 2 MiB.
+- **Enlaces simbólicos**: no se admiten. Si `tareas/etiquetas` es un symlink, `oracle tarea revisar` falla con código 1; `oracle tarea resumen` emite un aviso por `stderr`, finaliza con código 0 y omite las descripciones.
+- **Tratamiento de redefiniciones**:
+  - En `oracle tarea revisar`: una etiqueta redefinida en múltiples líneas se considera un defecto de integridad y aborta con código 1 emitiendo el mensaje `etiquetas:<línea>: etiqueta «...» redefinida`.
+  - En `oracle tarea resumen`: ante redefiniciones sucesivas, la última definición prevalece para documentar la etiqueta y la ejecución finaliza con código 0, emitiendo una advertencia a `stderr` (`AVISO: etiquetas:<línea>: etiqueta «...» redefinida (usando última definición)`).
+- **Integración con resumen**: `oracle tarea resumen` incorpora las descripciones en su reporte legible y en su salida estructurada `--json` (campo `descripciones`), reportando además el recuento de tareas `sin_etiquetas`.
+
+### Operaciones de etiquetado (`etiquetar` y `desetiquetar`)
+
+Los comandos `etiquetar` y `desetiquetar` permiten gestionar etiquetas sobre tareas existentes sin edición manual:
+
+- **Sintaxis**:
+  - `oracle tarea etiquetar <id>... --etiqueta <etiq>... [--json] [--proyecto RUTA]`
+  - `oracle tarea desetiquetar [<id>...] --etiqueta <etiq>... [--cerradas] [--todas] [--json] [--proyecto RUTA]`
+- **Validación previa estricta**: antes de aplicar cualquier modificación en disco, se audita el árbol completo del tracker (`auditar_tareas`). Si se detecta alguna tarea corrupta, malformada o fuera de confinamiento, la operación se interrumpe inmediatamente con código 1 sin alterar ningún archivo.
+- **Selección masiva y exclusión**: `desetiquetar` permite seleccionar tareas por estado (`--cerradas` para todas las tareas cerradas, o `--todas` para el universo completo de tareas abiertas y cerradas). Es incompatible especificar IDs explícitos junto con banderas de estado masivo (`--cerradas` o `--todas`).
+- **Preservación y atomicidad**:
+  - La actualización se realiza mediante reemplazo atómico (`os.replace` tras escritura en archivo temporal contiguo).
+  - Se preservan byte a byte las terminaciones de línea originales (`\r\n` o `\n`), los campos desconocidos o personalizados y todo el cuerpo Markdown posterior a los metadatos.
+  - Si el documento carecía de la línea `- ETIQUETAS:`, se inserta automáticamente al final del bloque de metadatos. Si se retiran todas las etiquetas, se preserva la clave vacía como `- ETIQUETAS: ` (con espacio final, idéntica a la plantilla de creación de `nueva`).
+- **Idempotencia**: si las etiquetas indicadas ya estaban presentes (al etiquetar) o ausentes (al desetiquetar), el archivo no se reescribe innecesariamente en disco.
+- **Salida estilo compilador**: cada modificación se reporta por `stdout` en formato estándar `ruta:línea: mensaje` (o un objeto estructurado si se especifica `--json`), facilitando su uso desde scripts, editores y herramientas de integración.
+
+### Grafo de referencias entre tareas (`grafo`)
+
+El comando `oracle tarea grafo [--json] [--proyecto RUTA]` construye el grafo dirigido de referencias existentes entre las tareas del tracker:
+
+- **Construcción y detección**:
+  - Analiza el texto de todas las tareas (abiertas y cerradas).
+  - Una tarea A referencia a una tarea B si el ID canónico de B aparece en el contenido de A (fuera de su propio directorio).
+  - **Frontera de tokens**: la detección utiliza expresiones regulares con delimitación estricta de palabra (`(?<![A-Za-z0-9_-])ID(?![A-Za-z0-9_-])`), evitando que un identificador corto coincida falsamente con prefijos de identificadores derivados (por ejemplo, `...-sensor` no empareja con `...-sensor-2`).
+- **Topología del grafo**:
+  - Se descartan auto-aristas (una tarea que menciona su propio ID en su cuerpo) y aristas duplicadas.
+  - El grafo contiene únicamente nodos con grado mayor a cero (tareas que referencian o son referenciadas). Si no existen referencias entre tareas, se emite un grafo vacío válido.
+  - El orden de nodos y aristas en la salida es determinista (alfabético por ID).
+- **Formatos de salida**:
+  - Formato DOT (por defecto): especificación estándar para Graphviz apta para su consumo directo por tuberías:
+    ```bash
+    oracle tarea grafo | dot -Tsvg -o grafo.svg
+    ```
+    Los títulos de tareas se escapan adecuadamente (barras invertidas y comillas dobles).
+  - Formato JSON (`--json`): emite un diccionario con las listas `nodos` (con `id`, `titulo` y `estado`) y `aristas` (con `origen` y `destino`).
+- **Diagnóstico y errores**: si el tracker contiene tareas corruptas o no decodificables, la operación emite diagnóstico a `stderr` y finaliza con código 1 sin generar grafo.
+
 ### Tutorial del ciclo completo (P1 + P2 + P3)
 
 Con Oracle instalado y Git disponible, este recorrido crea un proyecto temporal y un registro
@@ -278,8 +340,8 @@ confirmados y sin cambios. El tutorial no hace commits.
 Las opciones `--cerradas` y `--todas` de `listar` son incompatibles, al igual que `--ruta` y
 `--json` de `ver`; combinarlas devuelve código 1.
 
-La auditoría admite `README.md`, `README` y `.gitignore` como archivos auxiliares directamente
-en `tareas/`. Otros archivos sueltos en esa raíz se diagnostican como anomalías. Guardá las
+La auditoría admite `README.md`, `README`, `.gitignore` y `etiquetas` como archivos auxiliares
+directamente en `tareas/`. Otros archivos sueltos en esa raíz se diagnostican como anomalías. Guardá las
 capturas, notas y demás adjuntos dentro de la carpeta de su tarea.
 
 ### Orden en los listados
@@ -375,3 +437,15 @@ Para evitar contaminar el árbol de trabajo y aislar las ejecuciones:
 
 Esta nota permanece abierta para referencia continua del equipo.
 ```
+
+---
+
+## 7. Diferencias con tatr
+
+- **Nombres en español**: CLI, verbos y metadatos usan identificadores en español (`nueva`, `listar`, `ESTADO`, `PRIORIDAD`, `ETIQUETAS`).
+- **Nombres de archivo y campos incompatibles**: tatr usa `TASK.md`, `STATUS` (`OPEN`/`CLOSED`), `PRIORITY` y `TAGS`; Oracle usa `TAREA.md`, `ESTADO` (`ABIERTA`/`CERRADA`), `PRIORIDAD` y `ETIQUETAS`.
+- **Separación de etiquetas**: tatr separa etiquetas por comas y espacios; Oracle sólo por comas, por lo que `hola mundo` es una única etiqueta en `TAREA.md` y no se puede describir en `tareas/etiquetas`, donde el primer espacio separa la etiqueta de su descripción.
+- **Propiedades duplicadas**: en tatr gana la última; en Oracle una propiedad duplicada o un estado no reconocido invalida la tarea.
+- **Sin TQL**: Oracle no implementa un lenguaje de consulta propio; la filtración se realiza con opciones del CLI (`--cerradas`, `--todas`, `--etiqueta`, `--texto`) o procesando la salida `--json`.
+- **Grafo**: `tatr graph` escribe `graph.dot` y llama a `neato` para generar `graph.svg`; `oracle tarea grafo` sólo emite DOT por `stdout`, sin escribir archivos ni invocar Graphviz (`oracle tarea grafo | dot -Tsvg -o grafo.svg`).
+- **Captura, adjuntos, Git y hechos relacionales**: Oracle incluye captura con marcas temporales (`anotar`), vinculación de archivos (`adjuntar`), diagnóstico Git (`seguimiento`) y evidencia relacional (`hechos`), ausentes en tatr.

@@ -394,6 +394,29 @@ Los dominios que estuvieron acá durante el desarrollo —geometría, vault, rel
 laberinto— se fueron a los proyectos que los usan. Eran instancias, y acumularlas era la tentación de
 no abstraer.
 
+## Tareas y contexto de trabajo
+
+Desde 0.16.0 el paquete trae `oracle tarea`, un tracker local inspirado en
+[tatr](https://github.com/tsoding/tatr): una carpeta por tarea dentro de `tareas/`, un `TAREA.md`
+que se edita a mano y el material de trabajo al lado. Git guarda la historia; no hay base de datos
+ni servicio, y no necesita catálogo de medidas.
+
+```bash
+oracle tarea init
+oracle tarea nueva "Investigar un defecto del sensor" --etiqueta bug --prioridad 70
+oracle tarea anotar <id> --url "https://www.youtube.com/watch?v=…" --marca 03:10
+oracle tarea adjuntar <id> captura.png
+oracle tarea ls --etiqueta bug
+oracle tarea referencias <id>          # dónde se la menciona, en tareas y en código
+oracle tarea seguimiento               # qué está versionado y qué sigue sólo en el disco
+oracle tarea cerrar <id>
+```
+
+`oracle tarea hechos` exporta el tracker como relaciones JSON para medirlo con políticas propias:
+referencias locales que existen, archivos confirmados en Git, lecturas sin omisiones. Las políticas
+son optativas, y un enlace que existe no prueba que la tarea esté bien resuelta. Contrato, tutorial y
+diferencias con tatr en [docs/12-tareas.md](https://github.com/Segtem/oracle/blob/main/docs/12-tareas.md).
+
 ## Heredar un catálogo sin quedar en rojo el primer día
 
 Activar `catalogo_base` te da medidas que ven cosas que las tuyas no veían, y por eso mismo te
@@ -553,7 +576,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1852 tests · 959/959 mutantes de medida · **6820 sitios de mutación de código** (6610 + 210 del motor Python).
+1920 tests · 959/959 mutantes de medida · **6930 sitios de mutación de código** (6720 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

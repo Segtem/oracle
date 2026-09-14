@@ -21,7 +21,7 @@ from typing import Any
 ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
 ID_COMPLETO_RE = re.compile(r"^[0-9]{8}-[0-9]{6}(?:-[a-z0-9_-]+)*$")
 LINEA_META_RE = re.compile(r"^[ \t]*[-*][ \t]+([A-Za-z0-9_-]+)[ \t]*:[ \t]*(.*)$")
-ARCHIVOS_AUXILIARES_PERMITIDOS = frozenset({"README.md", "README", ".gitignore"})
+ARCHIVOS_AUXILIARES_PERMITIDOS = frozenset({"README.md", "README", ".gitignore", "etiquetas"})
 
 
 class TareaError(ValueError):
@@ -78,6 +78,12 @@ class Tarea:
             "cuerpo": self.cuerpo,
             "ruta": str(self.ruta.resolve()),
         }
+
+
+@dataclass
+class ProblemaEtiquetas:
+    categoria: str  # "redefinicion", "symlink", "fatal"
+    mensaje: str
 
 
 def _sanear_slug(texto: str) -> str:
@@ -386,6 +392,85 @@ def resolver_id_o_prefijo(raiz_tareas: Path, id_o_prefijo: str) -> Path:
     return candidatos[0]
 
 
+def leer_archivo_etiquetas(raiz_tareas: Path) -> tuple[dict[str, str], list[ProblemaEtiquetas]]:
+    """Lee y valida el archivo opcional `tareas/etiquetas`.
+
+    Devuelve una tupla (mapa_descripciones, problemas), donde mapa_descripciones
+    asocia la etiqueta en minúsculas con su descripción textual (usando la última definición).
+    Si hay enlaces simbólicos, errores de decodificación UTF-8, o redefiniciones,
+    se devuelven en la lista estructurada `problemas`.
+    """
+    archivo = raiz_tareas / "etiquetas"
+    if archivo.is_symlink():
+        return {}, [
+            ProblemaEtiquetas(
+                categoria="symlink",
+                mensaje="tareas/etiquetas es un enlace simbólico; no se permite",
+            )
+        ]
+
+    if not archivo.is_file():
+        return {}, []
+
+    try:
+        st = archivo.stat()
+        if st.st_size > 2 * 1024 * 1024:
+            return {}, [
+                ProblemaEtiquetas(
+                    categoria="fatal",
+                    mensaje="tareas/etiquetas supera el límite de tamaño permitido (2 MiB)",
+                )
+            ]
+        raw_bytes = archivo.read_bytes()
+    except OSError as e:
+        return {}, [
+            ProblemaEtiquetas(
+                categoria="fatal",
+                mensaje=f"tareas/etiquetas: error al leer archivo: {e}",
+            )
+        ]
+
+    try:
+        texto = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError as e:
+        return {}, [
+            ProblemaEtiquetas(
+                categoria="fatal",
+                mensaje=f"tareas/etiquetas: codificación UTF-8 inválida: {e}",
+            )
+        ]
+
+    descripciones: dict[str, str] = {}
+    problemas: list[ProblemaEtiquetas] = []
+    vistas: set[str] = set()
+
+    for num_linea, linea in enumerate(texto.splitlines(), start=1):
+        linea_limpia = linea.strip()
+        if not linea_limpia:
+            continue
+
+        m = re.match(r"^([^\s,]+)(?:[\s,]+(.*))?$", linea_limpia)
+        if not m:
+            continue
+        etiqueta = m.group(1)
+        descripcion = (m.group(2) or "").strip()
+        clave = etiqueta.lower()
+
+        if clave in vistas:
+            problemas.append(
+                ProblemaEtiquetas(
+                    categoria="redefinicion",
+                    mensaje=f"etiquetas:{num_linea}: etiqueta «{etiqueta}» redefinida",
+                )
+            )
+        else:
+            vistas.add(clave)
+
+        descripciones[clave] = descripcion
+
+    return descripciones, problemas
+
+
 def auditar_tareas(raiz_tareas: Path) -> tuple[list[Tarea], list[str]]:
     """Audita `tareas/` y devuelve tareas válidas y lista de problemas detectados."""
     if raiz_tareas.is_symlink():
@@ -402,6 +487,8 @@ def auditar_tareas(raiz_tareas: Path) -> tuple[list[Tarea], list[str]]:
             continue
 
         if entrada.is_symlink():
+            if entrada.name == "etiquetas":
+                continue
             try:
                 target = entrada.resolve(strict=True)
             except (FileNotFoundError, OSError, RuntimeError):
@@ -689,9 +776,17 @@ def cmd_listar(argv: list[str], args: list[str]) -> int:
         print("No hay tareas que coincidan con la búsqueda.")
         return 0
 
+    filas_datos: list[tuple[str, str, str, str, str]] = []
     for t in filtradas:
         etiq_str = f"[{', '.join(t.etiquetas)}]" if t.etiquetas else ""
-        print(f"{t.id:<32} {t.estado:<8} P{t.prioridad:<3} {etiq_str:<20} {t.titulo}")
+        prio_str = f"P{t.prioridad}"
+        filas_datos.append((t.id, t.estado, prio_str, etiq_str, t.titulo))
+
+    anchos = [max(len(c) for c in columna) for columna in zip(*filas_datos)]
+    for fila in filas_datos:
+        # La columna de etiquetas desaparece si ninguna fila tiene; el título va sin relleno.
+        celdas = [celda.ljust(ancho) for celda, ancho in zip(fila[:4], anchos) if ancho]
+        print(" ".join(celdas + [fila[4]]).rstrip())
 
     return 0
 
@@ -895,6 +990,10 @@ def cmd_revisar(argv: list[str], args: list[str]) -> int:
         print(f"ERROR: no se pudo recorrer {raiz_tareas}: {e}", file=sys.stderr)
         return 1
 
+    _, problemas_etiq = leer_archivo_etiquetas(raiz_tareas)
+    for pe in problemas_etiq:
+        problemas.append(pe.mensaje)
+
     if parsed.json:
         resultado = {
             "ok": len(problemas) == 0,
@@ -917,6 +1016,325 @@ def cmd_revisar(argv: list[str], args: list[str]) -> int:
     return 0
 
 
+def _aplicar_etiquetas_texto(
+    texto: str,
+    etiquetas_operacion: list[str],
+    *,
+    modo: str,
+    id_tarea: str,
+    ruta_tarea: Path,
+) -> tuple[bool, str, dict[str, Any]]:
+    """Calcula la modificación de etiquetas en el texto de un TAREA.md.
+
+    Devuelve (modificado, nuevo_texto, info_cambio).
+    """
+    lineas_raw = texto.splitlines(keepends=True)
+    eol_doc = "\r\n" if "\r\n" in texto else "\n"
+
+    idx = 0
+    while idx < len(lineas_raw) and not lineas_raw[idx].strip():
+        idx += 1
+
+    if idx >= len(lineas_raw) or not lineas_raw[idx].strip().startswith("# "):
+        raise TareaInvalida(f"{ruta_tarea}: encabezado inválido (# Título requerido)")
+
+    idx += 1
+    while idx < len(lineas_raw) and not lineas_raw[idx].strip():
+        idx += 1
+
+    meta_inicio = idx
+    meta_fin = idx
+    linea_etiquetas_idx: int | None = None
+    match_etiquetas: re.Match[str] | None = None
+
+    while meta_fin < len(lineas_raw):
+        m = LINEA_META_RE.match(lineas_raw[meta_fin])
+        if not m:
+            break
+        if m.group(1).upper() == "ETIQUETAS":
+            linea_etiquetas_idx = meta_fin
+            match_etiquetas = m
+        meta_fin += 1
+
+    if match_etiquetas is not None:
+        num_linea = linea_etiquetas_idx + 1
+        valor_raw = match_etiquetas.group(2)
+        etiquetas_actuales = [e.strip() for e in valor_raw.split(",") if e.strip()]
+        linea_orig = lineas_raw[linea_etiquetas_idx]
+        eol_linea = "\r\n" if linea_orig.endswith("\r\n") else ("\n" if linea_orig.endswith("\n") else "")
+        prefijo = linea_orig[: match_etiquetas.start(2)]
+    else:
+        num_linea = meta_fin + 1
+        etiquetas_actuales = []
+        eol_linea = eol_doc
+        prefijo = "- ETIQUETAS: "
+
+    if modo == "agregar":
+        nuevas_etiquetas = list(etiquetas_actuales)
+        vistas_lower = {e.lower() for e in etiquetas_actuales}
+        for item in etiquetas_operacion:
+            if item.lower() not in vistas_lower:
+                nuevas_etiquetas.append(item)
+                vistas_lower.add(item.lower())
+    elif modo == "quitar":
+        quitar_lower = {e.lower() for e in etiquetas_operacion}
+        nuevas_etiquetas = [e for e in etiquetas_actuales if e.lower() not in quitar_lower]
+    else:
+        raise ValueError(f"modo desconocido: {modo}")
+
+    # Sin cambios no se reescribe; quitar sobre una tarea sin línea de etiquetas cae acá.
+    if nuevas_etiquetas == etiquetas_actuales:
+        return False, texto, {}
+
+    nueva_linea = f"{prefijo}{', '.join(nuevas_etiquetas)}{eol_linea}"
+    if linea_etiquetas_idx is not None:
+        lineas_raw[linea_etiquetas_idx] = nueva_linea
+    else:
+        # meta_fin >= 1: el título existe. Una última línea sin EOL recibe el del documento.
+        if not lineas_raw[meta_fin - 1].endswith(("\r\n", "\n")):
+            lineas_raw[meta_fin - 1] += eol_doc
+        lineas_raw.insert(meta_fin, nueva_linea)
+
+    nuevo_texto = "".join(lineas_raw)
+    antes_str = ", ".join(etiquetas_actuales)
+    despues_str = ", ".join(nuevas_etiquetas)
+
+    info = {
+        "id": id_tarea,
+        "ruta": str(ruta_tarea.resolve()),
+        "linea": num_linea,
+        "antes": antes_str,
+        "despues": despues_str,
+        "etiquetas_antes": list(etiquetas_actuales),
+        "etiquetas_despues": list(nuevas_etiquetas),
+    }
+    return True, nuevo_texto, info
+
+
+def _sanear_etiquetas_operacion(etiquetas_arg: list[str]) -> list[str]:
+    resultado: list[str] = []
+    for item in etiquetas_arg:
+        if item and item.splitlines() != [item]:
+            raise TareaError("las etiquetas no pueden contener saltos de línea")
+        resultado.extend(e.strip() for e in item.split(",") if e.strip())
+    if not resultado:
+        raise TareaError("debe especificar al menos una etiqueta no vacía con --etiqueta")
+    return resultado
+
+
+def _aplicar_y_guardar_etiquetas(
+    raiz_tareas: Path,
+    carpetas: list[Path],
+    etiquetas_op: list[str],
+    *,
+    modo: str,
+    salida_json: bool,
+) -> int:
+    cambios: list[dict[str, Any]] = []
+    escrituras: list[tuple[Path, bytes, dict[str, Any]]] = []
+
+    for carpeta in carpetas:
+        tarea_md = carpeta / "TAREA.md"
+        try:
+            asegurar_confinamiento_archivo(raiz_tareas, tarea_md)
+            raw_bytes = tarea_md.read_bytes()
+            texto = raw_bytes.decode("utf-8")
+        except (TareaError, OSError, UnicodeDecodeError) as e:
+            print(f"ERROR: no se pudo leer {tarea_md}: {e}", file=sys.stderr)
+            return 1
+
+        modificado, nuevo_texto, info = _aplicar_etiquetas_texto(
+            texto,
+            etiquetas_op,
+            modo=modo,
+            id_tarea=carpeta.name,
+            ruta_tarea=tarea_md,
+        )
+        if modificado:
+            nuevo_bytes = nuevo_texto.encode("utf-8")
+            escrituras.append((tarea_md, nuevo_bytes, info))
+            cambios.append(info)
+
+    escritas: list[str] = []
+    for ruta_md, contenido_bytes, _ in escrituras:
+        try:
+            guardar_documento_atomico(ruta_md, contenido_bytes)
+            escritas.append(ruta_md.parent.name)
+        except OSError as e:
+            if escritas:
+                ids_str = ", ".join(escritas)
+                print(
+                    f"ERROR: fallo al escribir {ruta_md}: {e}. "
+                    f"Tareas escritas previamente: {ids_str}",
+                    file=sys.stderr,
+                )
+            else:
+                print(f"ERROR: fallo al escribir {ruta_md}: {e}", file=sys.stderr)
+            return 1
+
+    if salida_json:
+        print(json.dumps(cambios))
+        return 0
+
+    for info in cambios:
+        print(
+            f"tareas/{info['id']}/TAREA.md:{info['linea']}: etiquetas: "
+            f"{info['antes']} → {info['despues']}"
+        )
+
+    print(f"{len(cambios)} tarea(s) modificada(s)")
+    return 0
+
+
+def cmd_etiquetar(argv: list[str], args: list[str]) -> int:
+    parser = ParserDeSubcomando(
+        prog="oracle tarea etiquetar",
+        description="Agrega una o más etiquetas a tareas existentes",
+    )
+    parser.add_argument(
+        "ids",
+        nargs="*",
+        default=[],
+        help="Identificadores o prefijos inequívocos de tareas",
+    )
+    parser.add_argument(
+        "--etiqueta",
+        "-e",
+        action="append",
+        default=[],
+        help="Etiqueta a agregar (repetible o separada por comas)",
+    )
+    parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
+    parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
+    parsed = parser.parse_args(args)
+
+    if not parsed.ids:
+        parser.error("exige al menos un identificador de tarea")
+    if not parsed.etiqueta:
+        parser.error("debe especificar al menos una etiqueta con --etiqueta")
+
+    try:
+        etiquetas_op = _sanear_etiquetas_operacion(parsed.etiqueta)
+        raiz = resolver_raiz_tracker(argv, ruta_explicita=parsed.proyecto)
+    except (TareaError, OSError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+
+    raiz_tareas = raiz / "tareas"
+    _, problemas = auditar_tareas(raiz_tareas)
+    if problemas:
+        print(
+            f"ERROR: se detectaron {len(problemas)} registro(s) inválido(s) en {raiz_tareas}:",
+            file=sys.stderr,
+        )
+        for p in problemas:
+            print(f"  · {p}", file=sys.stderr)
+        return 1
+
+    carpetas: list[Path] = []
+    for id_arg in parsed.ids:
+        try:
+            c = resolver_id_o_prefijo(raiz_tareas, id_arg)
+            if c not in carpetas:
+                carpetas.append(c)
+        except TareaError as e:
+            print(f"ERROR: {e}", file=sys.stderr)
+            return 1
+
+    return _aplicar_y_guardar_etiquetas(
+        raiz_tareas,
+        carpetas,
+        etiquetas_op,
+        modo="agregar",
+        salida_json=parsed.json,
+    )
+
+
+def cmd_desetiquetar(argv: list[str], args: list[str]) -> int:
+    parser = ParserDeSubcomando(
+        prog="oracle tarea desetiquetar",
+        description="Quita una o más etiquetas de tareas",
+    )
+    parser.add_argument(
+        "ids",
+        nargs="*",
+        default=[],
+        help="Identificadores o prefijos inequívocos de tareas",
+    )
+    parser.add_argument(
+        "--etiqueta",
+        "-e",
+        action="append",
+        default=[],
+        help="Etiqueta a quitar (repetible o separada por comas)",
+    )
+    parser.add_argument(
+        "--cerradas",
+        action="store_true",
+        help="Aplica a tareas cerradas (modo masivo)",
+    )
+    parser.add_argument(
+        "--todas",
+        action="store_true",
+        help="Aplica a tareas abiertas y cerradas (modo masivo)",
+    )
+    parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
+    parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
+    parsed = parser.parse_args(args)
+
+    if parsed.cerradas and parsed.todas:
+        parser.error("las opciones --cerradas y --todas son incompatibles")
+    if parsed.ids and (parsed.cerradas or parsed.todas):
+        parser.error("no se pueden combinar identificadores explícitos con --cerradas o --todas")
+    if not parsed.etiqueta:
+        parser.error("debe especificar al menos una etiqueta con --etiqueta")
+
+    try:
+        etiquetas_op = _sanear_etiquetas_operacion(parsed.etiqueta)
+        raiz = resolver_raiz_tracker(argv, ruta_explicita=parsed.proyecto)
+    except (TareaError, OSError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+
+    raiz_tareas = raiz / "tareas"
+    tareas_validas, problemas = auditar_tareas(raiz_tareas)
+    if problemas:
+        print(
+            f"ERROR: se detectaron {len(problemas)} registro(s) inválido(s) en {raiz_tareas}:",
+            file=sys.stderr,
+        )
+        for p in problemas:
+            print(f"  · {p}", file=sys.stderr)
+        return 1
+
+    carpetas: list[Path] = []
+    if parsed.ids:
+        for id_arg in parsed.ids:
+            try:
+                c = resolver_id_o_prefijo(raiz_tareas, id_arg)
+                if c not in carpetas:
+                    carpetas.append(c)
+            except TareaError as e:
+                print(f"ERROR: {e}", file=sys.stderr)
+                return 1
+    else:
+        for t in tareas_validas:
+            if not parsed.todas:
+                if parsed.cerradas and t.estado != "CERRADA":
+                    continue
+                if not parsed.cerradas and t.estado != "ABIERTA":
+                    continue
+            carpetas.append(t.ruta.parent)
+
+    return _aplicar_y_guardar_etiquetas(
+        raiz_tareas,
+        carpetas,
+        etiquetas_op,
+        modo="quitar",
+        salida_json=parsed.json,
+    )
+
+
 def ayuda() -> None:
     print("""Oracle — metalenguaje de medidas: tracker de tareas.
 
@@ -935,6 +1353,9 @@ Uso:
   oracle tarea resumen [--json]           Muestra cantidades por estado y etiquetas
   oracle tarea seguimiento [opciones]     Diagnóstico de seguimiento y cobertura en Git
   oracle tarea hechos [opciones]          Emite hechos relacionales del tracker en JSON
+  oracle tarea etiquetar <id>... [opc]    Agrega una o más etiquetas a tareas
+  oracle tarea desetiquetar [id]... [opc] Quita una o más etiquetas de tareas
+  oracle tarea grafo [--json]             Emite el grafo de referencias en DOT o JSON
 
 Opciones de «nueva»:
   --etiqueta, -e <etiqueta>              Agrega una o más etiquetas (separadas por coma o repetidas)
@@ -962,6 +1383,19 @@ Opciones de «hechos»:
   --git                                  Comprueba estado frente al índice y HEAD de Git
   --json                                 Emite el resultado en JSON (siempre activo)
 
+Opciones de «etiquetar»:
+  --etiqueta, -e <etiqueta>              Etiqueta a agregar (repetible o separada por comas)
+  --json                                 Emite la lista de cambios en JSON
+
+Opciones de «desetiquetar»:
+  --etiqueta, -e <etiqueta>              Etiqueta a quitar (repetible o separada por comas)
+  --cerradas                             Aplica a tareas cerradas (modo masivo)
+  --todas                                Aplica a abiertas y cerradas (modo masivo)
+  --json                                 Emite la lista de cambios en JSON
+
+Opciones de «grafo»:
+  --json                                 Emite nodos y aristas en formato JSON
+
 Opciones comunes:
   --proyecto <ruta>                      Apunta a la raíz de un proyecto explícito
   -h, --help                             Muestra esta ayuda
@@ -988,6 +1422,13 @@ def despachar(verbo: str, args: list[str], argv: list[str]) -> int:
         return cmd_reabrir(argv, args)
     if verbo == "revisar":
         return cmd_revisar(argv, args)
+    if verbo == "etiquetar":
+        return cmd_etiquetar(argv, args)
+    if verbo == "desetiquetar":
+        return cmd_desetiquetar(argv, args)
+    if verbo == "grafo":
+        from tools import tareas_grafo
+        return tareas_grafo.cmd_grafo(argv, args)
     if verbo in ("anotar", "adjuntar", "buscar", "referencias", "resumen"):
         from tools import tareas_contexto
         comandos = {

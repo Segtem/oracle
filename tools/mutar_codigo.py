@@ -123,17 +123,21 @@ PRIORIDADES = {
     "tools/sondear_generador.py": ("tests.test_sondear_generador",),
     "tools/sondear_procedencia.py": ("tests.test_sondear_procedencia",),
     # El tracker fija su propia integridad y la evidencia entregada a políticas optativas.
-    "tools/tareas.py": ("tests.test_tareas_errores", "tests.test_tareas_limites",
+    "tools/tareas.py": ("tests.test_tareas_tatr_revision", "tests.test_tareas_tatr",
+                        "tests.test_tareas_errores", "tests.test_tareas_limites",
                         "tests.test_tareas_mutacion", "tests.test_tareas_atomicas",
                         "tests.test_tareas", "tests.test_tareas_revision",
                         "tests.test_tareas_contexto_mutacion", "tests.test_tareas_hechos_mutacion"),
     "tools/tareas_contexto.py": ("tests.test_tareas_contexto_errores",
                                 "tests.test_tareas_contexto_mutacion", "tests.test_tareas_atomicas",
+                                "tests.test_tareas_tatr_revision", "tests.test_tareas_tatr",
                                 "tests.test_tareas_contexto", "tests.test_tareas_p2_revision"),
     "tools/tareas_git.py": ("tests.test_tareas_p4_revision", "tests.test_tareas_git",
                             "tests.test_tareas_p2_revision", "tests.test_tareas_p3_revision"),
     "tools/tareas_hechos.py": ("tests.test_tareas_hechos_mutacion", "tests.test_tareas_hechos",
                                "tests.test_tareas_p3_revision", "tests.test_tareas_p4_revision"),
+    # 0.17.0: grafo de menciones entre tareas.
+    "tools/tareas_grafo.py": ("tests.test_tareas_tatr", "tests.test_tareas_tatr_revision"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"),
 }

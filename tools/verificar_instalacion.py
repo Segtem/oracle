@@ -157,6 +157,32 @@ def _recorrer_tareas(oracle: Path, *, temporal: Path, env: dict[str, str]) -> No
     if rechazo.returncode != 1 or "ausente-p3.txt" not in rechazo.stdout:
         raise RuntimeError("la política instalada no rechaza el enlace roto con su testigo")
     _correr([str(oracle), "tarea", "revisar"], cwd=subcarpeta, env=env)
+    # 0.17.0: lo que faltaba de tatr, sobre el mismo consumidor instalado.
+    antes_de_etiquetar = ruta.read_bytes()
+    _correr([str(oracle), "tarea", "etiquetar", identidad, "--etiqueta", "instalado"],
+            cwd=subcarpeta, env=env)
+    if b"instalado" not in ruta.read_bytes():
+        raise RuntimeError("etiquetar no agregó la etiqueta en la tarea instalada")
+    _correr([str(oracle), "tarea", "desetiquetar", identidad, "--etiqueta", "instalado"],
+            cwd=subcarpeta, env=env)
+    if ruta.read_bytes() != antes_de_etiquetar:
+        raise RuntimeError("etiquetar y desetiquetar no devuelven el documento byte a byte")
+    (proyecto / "tareas" / "etiquetas").write_text(
+        "investigacion, Descripción instalada á\n", encoding="utf-8")
+    resumen = _correr([str(oracle), "tarea", "resumen", "--json"], cwd=subcarpeta, env=env)
+    if "Descripción instalada á" not in json.dumps(json.loads(resumen.stdout), ensure_ascii=False):
+        raise RuntimeError("resumen instalado no muestra la descripción de tareas/etiquetas")
+    _correr([str(oracle), "tarea", "revisar"], cwd=subcarpeta, env=env)
+    segunda = _correr([str(oracle), "tarea", "nueva", "Segunda", "--json"], cwd=proyecto, env=env)
+    otra = json.loads(segunda.stdout)["id"]
+    with (proyecto / "tareas" / otra / "TAREA.md").open("a", encoding="utf-8") as documento:
+        documento.write(f"Sigue a {identidad}.\n")
+    grafo = _correr([str(oracle), "tarea", "grafo", "--json"], cwd=subcarpeta, env=env)
+    if {"origen": otra, "destino": identidad} not in json.loads(grafo.stdout)["aristas"]:
+        raise RuntimeError("grafo instalado no encuentra la mención entre tareas")
+    dot = _correr([str(oracle), "tarea", "grafo"], cwd=subcarpeta, env=env)
+    if not dot.stdout.lstrip().startswith("digraph"):
+        raise RuntimeError("grafo instalado no emite DOT")
 
 
 def _hablarle_al_lsp(ejecutable: Path, *, proyecto: Path, cwd: Path, env: dict[str, str]) -> None:
