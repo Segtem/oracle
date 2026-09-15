@@ -180,9 +180,11 @@ class Relacion:
             campos_variantes_tipos: dict[str, tuple[str, str]] = {}
 
             for item in nodo_variantes[2:]:
-                if not (isinstance(item, list) and len(item) >= 2 and item[0] == "variante"):
+                # Al menos un campo: `['variante', valor]` sola es la misma forma inválida.
+                if not (isinstance(item, list) and len(item) >= 3 and item[0] == "variante"):
                     raise RelacionMalDeclarada(
-                        f"{nombre}: cada variante debe ser ['variante', valor, ['campo', ...], ...]")
+                        f"{nombre}: cada variante debe ser ['variante', valor, ['campo', ...], ...], "
+                        "con al menos un campo")
                 valor = item[1]
                 if not isinstance(valor, str) or not valor.strip():
                     raise RelacionMalDeclarada(
@@ -191,10 +193,6 @@ class Relacion:
                     raise RelacionMalDeclarada(
                         f"{nombre}: variante «{valor}» repetida")
                 variantes_vistas.add(valor)
-
-                if len(item) < 3:
-                    raise RelacionMalDeclarada(
-                        f"{nombre}.{valor}: la variante «{valor}» debe tener al menos un campo")
 
                 v_campos: list[Campo] = []
                 v_nombres_vistos: set[str] = set()

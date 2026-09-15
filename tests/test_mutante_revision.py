@@ -163,6 +163,61 @@ class SobrevivientesDeMutacionTests(unittest.TestCase):
         una = Relacion.de_datos(_relacion(["variantes", "tipo", VARIANTES[2]]))
         self.assertEqual([v.valor for v in una.variantes], ["medida"])
 
+    def test_formas_mal_armadas_dentro_de_las_variantes(self):
+        campo = ["campo", "x", "texto", "sin_unidad"]
+        def con(variante):
+            return ["variantes", "tipo", variante]
+        casos = {
+            "variante que no es lista": con(("variante", "medida", campo)),
+            "variante sin campos": con(["variante", "medida"]),
+            "cabeza distinta": con(["otra", "medida", campo]),
+            "valor que no es texto": con(["variante", 3, campo]),
+            "campo que no es lista": con(["variante", "medida", ("campo", "x", "texto", "sin_unidad")]),
+            "campo incompleto": con(["variante", "medida", ["campo", "x", "texto"]]),
+            "campo con otra cabeza": con(["variante", "medida", ["dato", "x", "texto", "sin_unidad"]]),
+            "nombre que no es texto": con(["variante", "medida", ["campo", 3, "texto", "sin_unidad"]]),
+            "nombre inválido": con(["variante", "medida", ["campo", "X", "texto", "sin_unidad"]]),
+            "tipo que no es texto": con(["variante", "medida", ["campo", "x", 3, "sin_unidad"]]),
+            "tipo desconocido": con(["variante", "medida", ["campo", "x", "numero", "sin_unidad"]]),
+            "unidad que no es texto": con(["variante", "medida", ["campo", "x", "texto", 3]]),
+            "unidad en blanco": con(["variante", "medida", ["campo", "x", "texto", "  "]]),
+        }
+        for nombre, variantes in casos.items():
+            with self.subTest(nombre), self.assertRaises(RelacionMalDeclarada):
+                Relacion.de_datos(_relacion(variantes))
+
+    def test_no_en_la_condicion_y_el_primer_operando_de_un_logico(self):
+        tipo = ["==", ["campo", "m", "tipo"], "codigo"]
+        campo = ["campo", "m", "id"]
+        for condicion in (["no", tipo], ["y", tipo, ["no", tipo]]):
+            with self.subTest(condicion=condicion):
+                Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", condicion]], donde=None))
+        for condicion in (["no", campo], ["y", campo, tipo], ["o", campo, tipo]):
+            with self.subTest(condicion=condicion), self.assertRaises((MedidaMalDeclarada, ErrorDeAlgebra)):
+                Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", condicion]], donde=None))
+        medida = Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", ["no", tipo]]], donde=None))
+        self.assertTrue(medida.evaluar({"mutante": [FILA_CODIGO]}).sin_evidencia)
+        self.assertFalse(medida.evaluar({"mutante": [FILA_MEDIDA]}).sin_evidencia)
+
+    def test_una_escalar_declarada_sirve_de_condicion(self):
+        from nucleo import algebra
+        registro = algebra.RegistroEscalares()
+
+        @algebra.escalar("es_codigo", registro=registro)
+        def es_codigo(tipo):
+            return tipo == "codigo"
+
+        condicion = ["es_codigo", ["campo", "m", "tipo"]]
+        medida = Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", condicion]], donde=None),
+                                 registro=registro)
+        self.assertFalse(medida.evaluar({"mutante": [FILA_CODIGO]}, registro=registro).sin_evidencia)
+        self.assertTrue(medida.evaluar({"mutante": [FILA_MEDIDA]}, registro=registro).sin_evidencia)
+
+    def test_la_condicion_de_requiere_solo_usa_su_alias(self):
+        for condicion in (["==", ["campo", "x", "tipo"], "codigo"], ["==", ["hecho", "x"], "codigo"]):
+            with self.subTest(condicion=condicion), self.assertRaises((MedidaMalDeclarada, ErrorDeAlgebra)):
+                Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", condicion]], donde=None))
+
     def test_una_variante_es_inmutable(self):
         from dataclasses import FrozenInstanceError
         variante = Relacion.de_datos(_relacion(VARIANTES)).variantes[0]

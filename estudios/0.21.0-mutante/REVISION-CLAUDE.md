@@ -118,5 +118,20 @@ mundos no ejercitan el `requiere` con condición; lo que la referencia aportó f
   cantidad de variantes): ningún test daba un quinto nodo con otra cabeza ni una sola variante. Test
   `test_el_nodo_variantes_se_reconoce_por_su_cabeza_y_admite_una_sola`.
 
-Los cuatro verificados aplicando el mutante a mano sobre una copia. La ronda de `nucleo/medida.py` se
+Los cuatro verificados aplicando el mutante a mano sobre una copia, igual que `nucleo/relacion.py:165:37` (`< 3` → `< 4`), que apareció después y mata el mismo test. La ronda de `nucleo/medida.py` se
 relanzó sobre el árbol con R11 y R12.
+
+## Rondas completas de `nucleo/relacion.py` y `nucleo/medida.py`
+
+- `relacion.py` (151 mutantes, 11 vivos): además de los cinco ya cubiertos, seis `and` ↔ `or` en la
+  validación de cada variante y sus campos —una tupla en vez de lista, un nombre de campo inválido pero
+  de texto, un tipo desconocido, una unidad en blanco— que ningún test daba; y dos equivalentes en el
+  límite `len(item) >= 2`, redundante con el «al menos un campo» de tres líneas más abajo. En vez de
+  declararlos, las dos comprobaciones quedaron en una (`len(item) >= 3`). Test
+  `test_formas_mal_armadas_dentro_de_las_variantes`; los seis verificados a mano.
+- `medida.py` (primera ronda completa, 15 vivos entre 273 y 289): las ramas de `_es_expresion_booleana`
+  —`no`, el primer operando de `y`/`o`, una escalar declarada— no las fijaba ningún test, y
+  `_validar_alias_en_expr` repetía guardas que `validar_expr` ya cubre. Se reescribieron las dos, más
+  cortas y con la misma conducta, con tests `test_no_en_la_condicion_y_el_primer_operando_de_un_logico`,
+  `test_una_escalar_declarada_sirve_de_condicion` y `test_la_condicion_de_requiere_solo_usa_su_alias`.
+  La ronda se relanzó sobre el archivo final.

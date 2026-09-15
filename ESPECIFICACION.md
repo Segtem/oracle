@@ -98,6 +98,17 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.21.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.20.0` a `0.21.0`, `VERSION_ALGEBRA`
+de `0.6` a `0.7` y `VERSION_SINTAXIS` de `0.4` a `0.5`.** El álgebra sube la **menor**: una entrada de
+`requiere` puede llevar condición y la declaración de una relación gana `variantes` (§1.3, §2); lo que
+ya valía significa lo mismo —una medida sin condición conserva su forma canónica y su veredicto, y los
+nombres simples de `requiere` siguen cargando con la regla de `0.6`—. La sintaxis sube la **menor**
+porque el lector gana `requiere <relación> <alias> donde <condición>` y varias líneas `requiere`
+seguidas; un `.oracle` anterior se lee idéntico. `mutante` pasa a ser una relación declarada con dos
+variantes y las dos medidas de `proceso` filtran por `tipo`. La implementación de referencia del
+diferencial se re-derivó contra `0.7` con otro autor aislado (`diferencial/referencia/PROCEDENCIA.md`).
+Cierra la tarea `20260915-155111-mutante`.
+
 **Corte 0.20.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.19.0` a `0.20.0`.** La menor
 cambia el contrato de la fachada pública: `Motor.desde_proyecto` selecciona con `catalogo_efectivo`
 —con `catalogo_base`, las medidas `del_origen` de Oracle ya no juzgan al consumidor— y aplica la

@@ -263,19 +263,16 @@ def _resumir_fila(fila: dict) -> str:
 
 
 def _es_expresion_booleana(nodo, registro=None) -> bool:
-    if isinstance(nodo, bool):
-        return True
-    if isinstance(nodo, list) and nodo:
-        cabeza = nodo[0]
-        if cabeza in COMPARADORES:
-            return True
-        if cabeza in ("y", "o"):
-            return all(_es_expresion_booleana(arg, registro) for arg in nodo[1:])
-        if cabeza == "no":
-            return len(nodo) == 2 and _es_expresion_booleana(nodo[1], registro)
-        if registro and cabeza in registro:
-            return True
-    return False
+    """Al cargar: un literal booleano, una comparación, un lógico sobre booleanos o una escalar
+    declarada. Lo que devuelve una escalar recién se sabe al evaluar, y ahí `_cumple` lo exige."""
+    if not isinstance(nodo, list):
+        return isinstance(nodo, bool)
+    cabeza, *argumentos = nodo
+    if cabeza in ("y", "o"):
+        return all(_es_expresion_booleana(a, registro) for a in argumentos)
+    if cabeza == "no":
+        return len(argumentos) == 1 and _es_expresion_booleana(argumentos[0], registro)
+    return cabeza in COMPARADORES or cabeza in (registro or ())
 
 
 def _validar_alias_en_expr(nodo, alias_esperado: str, relacion: str, mid: str) -> None:
@@ -283,10 +280,11 @@ def _validar_alias_en_expr(nodo, alias_esperado: str, relacion: str, mid: str) -
         return
     cabeza = nodo[0]
     if cabeza in ("campo", "hecho"):
-        if len(nodo) < 2 or not isinstance(nodo[1], str) or nodo[1] != alias_esperado:
+        # `validar_expr` ya rechazó un acceso mal formado; acá sólo importa de qué alias es.
+        if nodo[1:2] != [alias_esperado]:
             raise MedidaMalDeclarada(
-                f"{mid}: la condición de `requiere` para «{relacion}» sólo puede usar el alias «{alias_esperado}», "
-                f"pero se encontró «{nodo[1] if len(nodo) >= 2 else ''}»")
+                f"{mid}: la condición de `requiere` para «{relacion}» sólo puede usar el alias "
+                f"«{alias_esperado}», pero se encontró «{nodo[1]}»")
     elif cabeza == "col":
         raise MedidaMalDeclarada(
             f"{mid}: la condición de `requiere` no puede referenciar columnas («col»)")
