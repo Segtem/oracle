@@ -1,0 +1,192 @@
+objetivos: nucleo/mutacion.py
+
+     ·  nucleo/mutacion.py:38:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:38:17:constante                   constante: 4 → 5
+     ·  nucleo/mutacion.py:49:28:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:49:43:constante                   constante: 2 → 3
+     ·  nucleo/mutacion.py:50:7:comparador                   comparador: In → NotIn
+     ·  nucleo/mutacion.py:52:7:booleano                     booleano: and ↔ or
+     ·  nucleo/mutacion.py:52:35:negacion                    negacion: se borra el `not`
+     ·  nucleo/mutacion.py:54:17:comparador                  comparador: In → NotIn
+     ·  nucleo/mutacion.py:56:22:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:56:44:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:58:7:booleano                     booleano: and ↔ or
+     ·  nucleo/mutacion.py:58:36:negacion                    negacion: se borra el `not`
+     ·  nucleo/mutacion.py:60:15:constante                   constante: 2 → 3
+     ·  nucleo/mutacion.py:61:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:66:15:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:66:40:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:67:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:74:28:constante                   constante: 2 → 3
+     ·  nucleo/mutacion.py:74:31:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:74:38:comparador                  comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:74:40:constante                   constante: 0 → 1
+     ·  nucleo/mutacion.py:75:7:comparador                   comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:75:29:constante                   constante: 2 → 3
+     ·  nucleo/mutacion.py:75:35:constante                   constante: 1 → 2
+     ·  nucleo/mutacion.py:77:6:constante                    constante: 2 → 3
+     ·  nucleo/mutacion.py:78:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:90:8:booleano                     booleano: and ↔ or
+     ·  nucleo/mutacion.py:90:8:comparador                   comparador: NotIn → In
+     ·  nucleo/mutacion.py:90:23:constante                   constante: 7 → 8
+     ·  nucleo/mutacion.py:90:26:constante                   constante: 8 → 9
+     ·  nucleo/mutacion.py:90:32:negacion                    negacion: se borra el `not`
+     ·  nucleo/mutacion.py:90:49:constante                   constante: 5 → 6
+     ·  nucleo/mutacion.py:90:62:negacion                    negacion: se borra el `not`
+     ·  nucleo/mutacion.py:90:68:constante                   constante: 5 → 6
+     ·  nucleo/mutacion.py:91:15:comparador                  comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:91:17:constante                   constante: 5 → 6
+     ·  nucleo/mutacion.py:91:20:constante                   constante: 0 → 1
+     ·  nucleo/mutacion.py:93:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:93:16:constante                   constante: 5 → 6
+     ·  nucleo/mutacion.py:93:23:constante                   constante: 6 → 7
+     ·  nucleo/mutacion.py:98:11:constante                   constante: False → True
+     ·  nucleo/mutacion.py:99:18:constante                   constante: 2 → 3
+     ·  nucleo/mutacion.py:99:21:constante                   constante: 2 → 3
+     ·  nucleo/mutacion.py:100:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:100:16:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:101:17:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:101:34:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:102:19:constante                  constante: True → False
+     ·  nucleo/mutacion.py:103:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:109:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:132:18:constante                  constante: True → False
+     ·  nucleo/mutacion.py:149:37:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:149:57:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:152:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:152:11:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:152:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:152:26:negacion                   negacion: se borra el `not`
+     ·  nucleo/mutacion.py:152:59:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:152:69:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:183:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:199:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:220:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/mutacion.py:221:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:222:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:236:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/mutacion.py:237:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:238:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:245:37:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:260:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:265:30:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:266:16:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:267:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:271:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:275:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:275:14:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:277:9:comparador                  comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:277:16:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:278:35:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:278:47:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:279:35:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:279:47:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:283:40:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:283:43:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:283:54:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:284:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:284:16:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:285:19:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:285:30:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:286:13:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:286:18:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:287:43:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:288:23:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:288:34:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:288:47:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:289:43:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:290:23:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:290:34:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:290:47:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:291:11:constante                  constante: 3 → 4
+     ·  nucleo/mutacion.py:291:14:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:297:48:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:297:59:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:302:34:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:302:37:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:302:42:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:302:45:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:303:32:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:306:15:comparador                 comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:306:34:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:307:47:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:308:65:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:317:53:negacion                   negacion: se borra el `not`
+     ·  nucleo/mutacion.py:318:17:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:319:30:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:320:19:comparador                 comparador: In → NotIn
+     ·  nucleo/mutacion.py:322:59:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:323:21:comparador                 comparador: In → NotIn
+     ·  nucleo/mutacion.py:324:37:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:326:59:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:327:21:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:329:71:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:333:11:constante                  constante: 3 → 4
+     ·  nucleo/mutacion.py:333:14:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:333:19:constante                  constante: 3 → 4
+     ·  nucleo/mutacion.py:333:22:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:333:32:constante                  constante: 3 → 4
+     ·  nucleo/mutacion.py:333:35:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:334:40:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:334:43:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:334:54:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:335:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:335:16:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:336:53:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:337:24:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:337:35:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:337:48:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:338:24:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:338:35:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:338:48:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:338:61:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:343:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:347:57:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:360:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/mutacion.py:360:20:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:360:56:comparador                 comparador: In → NotIn
+     ·  nucleo/mutacion.py:360:61:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:362:44:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:362:49:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:362:37:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:363:35:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:363:40:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:363:30:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:363:59:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:368:22:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:369:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:369:16:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:371:49:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:373:25:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:373:49:constante                  constante: 2 → 3
+     ·  nucleo/mutacion.py:399:15:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:399:15:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:403:11:comparador                 comparador: IsNot → Is
+     ·  nucleo/mutacion.py:406:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/mutacion.py:420:11:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:420:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/mutacion.py:420:22:comparador                 comparador: NotIn → In
+     ·  nucleo/mutacion.py:425:22:comparador                 comparador: Eq → NotEq
+     ·  nucleo/mutacion.py:427:11:comparador                 comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:435:27:comparador                 comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:436:34:comparador                 comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:437:31:comparador                 comparador: NotEq → Eq
+     ·  nucleo/mutacion.py:438:28:constante                  constante: False → True
+     ·  nucleo/mutacion.py:440:60:constante                  constante: False → True
+     ·  nucleo/mutacion.py:441:28:constante                  constante: True → False
+     ·  nucleo/mutacion.py:462:49:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:463:47:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:465:40:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:466:36:constante                  constante: 0 → 1
+     ·  nucleo/mutacion.py:468:11:booleano                   booleano: and ↔ or
+     ·  nucleo/mutacion.py:469:45:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:471:41:constante                  constante: 1 → 2
+     ·  nucleo/mutacion.py:473:4:retorno                     retorno: return <algo> → return None
+
+mutantes: 182 · murieron 182 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

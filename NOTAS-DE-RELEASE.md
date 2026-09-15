@@ -1,3 +1,62 @@
+# 0.21.0 — `mutante` es una relación con variantes, y `requiere` puede pedir filas de una
+
+```
+VERSION_DISTRIBUCION   0.20.0 → 0.21.0   relación mutante con variantes
+VERSION_ALGEBRA        0.6    → 0.7      requiere con condición, relaciones con variantes
+VERSION_SINTAXIS       0.4    → 0.5      requiere <relación> <alias> donde <condición>
+```
+
+La relación `mutante` la producían dos herramientas con campos incompatibles —la mutación de medidas
+y la de código—, y el catálogo de Oracle tenía dos medidas universales sobre ella. El lenguaje no
+cortocircuita `y`/`o` y levanta al comparar un campo ausente, así que cada ronda de mutación terminaba
+con una medida que «NO pudo juzgar» la evidencia de la otra.
+
+- **Relaciones con variantes.** Una declaración en `relaciones/` puede decir qué campos trae cada
+  clase de fila según un campo discriminante. `mutante` se declara con `tipo` y dos variantes,
+  `medida` y `codigo`, y los dos productores emiten `tipo`.
+- **`requiere` con condición.** `requiere mutante m donde m.tipo == "codigo"` sale `SIN EVIDENCIA` si
+  no hay filas de ese tipo. No es el filtro de la medida: las 20 medidas con `requiere` que existían
+  filtran violaciones con `donde`, y un `requiere` sobre las filas filtradas las habría pasado a todas
+  a `SIN EVIDENCIA`. Ninguna medida existente cambia.
+- **Las dos medidas de `proceso`** filtran primero por `tipo` y piden filas de su tipo. Sin la
+  condición, una ronda de medidas le prestaba evidencia a la medida de código, que contaba cero y
+  salía verde sobre una ronda que nunca ocurrió: casos `502` y `503`.
+
+## Cómo se hizo
+
+Tarea `20260915-155111-mutante`. El dueño eligió la relación común después de ver lo que costaba, y
+aprobó el `requiere` con condición cuando la medición mostró que «`requiere` sobre las filas filtradas»
+habría pasado a SIN EVIDENCIA las 20 medidas que ya lo usaban. Implementó agy; Claude revisó con tests
+escritos antes de leer la entrega y corrigió cuatro defectos (la condición recorría el nodo `clave`, un
+resultado no booleano pasaba, una validación nueva subía la MAYOR, y `tools/mutar.py` contaba un SIN
+EVIDENCIA como política incumplida).
+
+La referencia independiente del diferencial la re-derivó **agy en una conversación nueva y aislada**,
+con sólo la especificación y las decisiones (Codex, el autor original, sin cuota). Encontró dos puntos
+que la especificación no decidía y en los que el núcleo estaba mal: la condición de `requiere` se
+evalúa en todas las filas y en todas las entradas antes de decidir, para que el orden de la bolsa no
+cambie el veredicto. Se corrigió el núcleo y §2 lo dice.
+
+## Verificación
+
+- Mutación de código ([logs](estudios/0.21.0-mutante/verificacion/)): `nucleo/sintaxis.py` 1050/1050,
+  `nucleo/medida.py` 311/316, `tools/medida.py` 263/263, `perfiles/python/mutacion_codigo.py` 211/211,
+  `nucleo/unidad.py` 198/198, `nucleo/mutacion.py` 182/182 y `nucleo/relacion.py` 149/149. De los cinco
+  vivos de `medida.py`, tres eran código redundante y se borró; los otros dos tienen test, verificado
+  aplicando el mutante a mano. Ningún equivalente nuevo.
+- Suite completa en verde; `tools/aceptacion.py` ✓ con los casos 502 y 503 en rojo;
+  `tools/sintaxis.py --verificar` OK; `python tools/mutar.py` sale 0.
+- Referencia independiente re-derivada contra 0.7 (21 tests) y diferencial regenerado: referencia y
+  Oracle de acuerdo en 4 mundos × 3 medidas.
+- LyraGASP y Jam cargan con el núcleo nuevo y sus medidas no cambian de veredicto.
+- [Plan](PLAN-0.21.0-MUTANTE.md), [encargo](estudios/0.21.0-mutante/ENCARGO-AGY.md),
+  [revisión](estudios/0.21.0-mutante/REVISION-CLAUDE.md), [cierre](estudios/0.21.0-mutante/CIERRE.md) y
+  [procedencia de la referencia](diferencial/referencia/PROCEDENCIA.md).
+
+Un proyecto que declara `"algebra": "0.6"` sigue cargando. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.20.0 — `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test`
 
 ```

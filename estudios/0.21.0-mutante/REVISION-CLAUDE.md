@@ -135,3 +135,18 @@ relanzó sobre el árbol con R11 y R12.
   cortas y con la misma conducta, con tests `test_no_en_la_condicion_y_el_primer_operando_de_un_logico`,
   `test_una_escalar_declarada_sirve_de_condicion` y `test_la_condicion_de_requiere_solo_usa_su_alias`.
   La ronda se relanzó sobre el archivo final.
+
+## Cierre de la mutación
+
+Rondas finales: `nucleo/sintaxis.py` 1050/1050, `nucleo/medida.py` 311/316, `tools/medida.py` 263/263,
+`perfiles/python/mutacion_codigo.py` 211/211, `nucleo/unidad.py` 198/198, `nucleo/mutacion.py` 182/182 y
+`nucleo/relacion.py` 149/149 ([logs](verificacion/)). Los cinco vivos de `medida.py`:
+
+- **Borrados, no declarados.** La comprobación de forma de `requiere` en `de_datos` quedó redundante: el
+  nodo se construye como `["requiere"]` o se toma sólo si su cabeza es `"requiere"`, y la regla de 0.6 que
+  le daba sentido (`all(...)` sobre los nombres) se movió al bucle. El `enumerate(…, start=1)` tenía un
+  `idx` sin uso. El `elif` de `_requiere_de` sólo podía recibir `["filas", …]`, porque `de_datos` no deja
+  otra cosa: pasó a `else`.
+- **Con test.** Un alias inválido que la condición usa de forma consistente —el test anterior lo
+  rechazaba por el chequeo de alias y no por el de nombre— y `con_condicion` falso en una dependencia por
+  fuente. Los dos verificados aplicando el mutante a mano.

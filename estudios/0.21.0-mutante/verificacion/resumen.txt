@@ -1,0 +1,24 @@
+Mutación de código del corte 0.21.0 (2026-09-15), tarea 20260915-155111-mutante. Una ronda por objetivo
+en copias aisladas, con TMPDIR propio y `ulimit -v 4000000`. Los .log son la última ronda de cada uno,
+corrida sobre el árbol final salvo lo que se indica.
+
+nucleo/sintaxis.py                   1050/1050   (2 equivalentes declarados, anteriores a este corte)
+nucleo/medida.py                      311/316    ver abajo
+tools/medida.py                       263/263
+perfiles/python/mutacion_codigo.py    211/211
+nucleo/unidad.py                      198/198
+nucleo/mutacion.py                    182/182
+nucleo/relacion.py                    149/149    (relanzada sobre el archivo simplificado)
+
+nucleo/medida.py, los 5 vivos de la ronda final:
+  407:16 y 414:55  comprobación de forma de `requiere` redundante con su construcción y un `idx` sin uso:
+                   el código se borró, los sitios dejaron de existir.
+  954:13           `elif` de `_requiere_de` que sólo podía recibir `["filas", …]`: pasó a `else`.
+  434:19           alias inválido usado consistentemente en la condición:
+                   test_un_alias_invalido_se_rechaza_aunque_la_condicion_lo_use.
+  980:63           `con_condicion` de una dependencia por fuente: test_una_dependencia_por_fuente_no_lleva_condicion.
+  Los dos cubiertos por test, verificados aplicando el mutante a mano sobre una copia.
+
+Rondas anteriores descartadas (código cambiado después): nucleo_medida.antes-de-simplificar,
+nucleo_medida.linea-base-fallida (un test de sintaxis todavía esperaba 0.5), nucleo_relacion.antes-de-simplificar.
+Sus sobrevivientes están cubiertos en REVISION-CLAUDE.md.

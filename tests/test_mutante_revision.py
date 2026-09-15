@@ -218,6 +218,19 @@ class SobrevivientesDeMutacionTests(unittest.TestCase):
             with self.subTest(condicion=condicion), self.assertRaises((MedidaMalDeclarada, ErrorDeAlgebra)):
                 Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", condicion]], donde=None))
 
+    def test_un_alias_invalido_se_rechaza_aunque_la_condicion_lo_use(self):
+        condicion = ["==", ["campo", "M", "tipo"], "codigo"]
+        with self.assertRaises(MedidaMalDeclarada):
+            Medida.de_datos(_medida(["requiere", ["filas", "mutante", "M", condicion]], donde=None))
+        with self.assertRaises(MedidaMalDeclarada):
+            Medida.de_datos(_medida(["requiere", ["filas", "mutante", 3, CONDICION]], donde=None))
+
+    def test_una_dependencia_por_fuente_no_lleva_condicion(self):
+        datos = _medida(["requiere", ["filas", "mutante", "m", CONDICION]], donde=None)
+        filas = como_hechos([Medida.de_datos(datos)]).por_relacion["dependencia_de_medida"]
+        self.assertEqual(sorted((f["clase"], f["con_condicion"]) for f in filas),
+                         [("fuente", False), ("requiere", True)])
+
     def test_una_variante_es_inmutable(self):
         from dataclasses import FrozenInstanceError
         variante = Relacion.de_datos(_relacion(VARIANTES)).variantes[0]

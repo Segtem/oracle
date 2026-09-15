@@ -1,0 +1,339 @@
+objetivos: nucleo/medida.py
+
+     ·  nucleo/medida.py:72:12:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:72:49:comparador                    comparador: In → NotIn
+     ·  nucleo/medida.py:74:12:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:74:50:constante                     constante: 0 → 1
+     ·  nucleo/medida.py:79:15:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:84:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/medida.py:85:7:booleano                       booleano: and ↔ or
+     ·  nucleo/medida.py:86:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/medida.py:95:19:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:96:20:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:96:20:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:98:23:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:102:15:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:103:16:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:103:16:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:105:19:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:106:18:comparador                   comparador: IsNot → Is
+     ·  nucleo/medida.py:108:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:119:11:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:130:55:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:130:49:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:134:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:134:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:137:15:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:137:36:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:145:15:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:152:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:160:11:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:163:15:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:164:19:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:164:19:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:164:46:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:169:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:187:12:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:187:12:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:188:23:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:188:23:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:188:49:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:192:12:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:192:12:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:192:57:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:193:23:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:193:23:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:193:49:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:198:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:172:18:constante                    constante: True → False
+     ·  nucleo/medida.py:215:7:comparador                    comparador: Is → IsNot
+     ·  nucleo/medida.py:217:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:239:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:243:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:243:29:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:244:73:constante                    constante: 3 → 4
+     ·  nucleo/medida.py:245:53:comparador                   comparador: Gt → GtE
+     ·  nucleo/medida.py:245:74:constante                    constante: 3 → 4
+     ·  nucleo/medida.py:245:46:constante                    constante: 3 → 4
+     ·  nucleo/medida.py:247:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:250:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:220:18:constante                    constante: True → False
+     ·  nucleo/medida.py:260:20:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:262:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:268:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/medida.py:269:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:271:7:comparador                    comparador: In → NotIn
+     ·  nucleo/medida.py:272:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:273:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:274:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:274:15:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:274:15:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:274:34:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:274:74:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:275:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:275:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:275:11:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:275:37:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:275:48:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:279:7:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:279:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/medida.py:279:37:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:281:18:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:282:7:comparador                    comparador: In → NotIn
+     ·  nucleo/medida.py:284:11:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:284:16:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:284:18:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:287:66:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:288:9:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:291:21:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:298:7:comparador                    comparador: IsNot → Is
+     ·  nucleo/medida.py:300:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:329:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:329:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:329:38:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:329:53:constante                    constante: 6 → 7
+     ·  nucleo/medida.py:329:56:constante                    constante: 7 → 8
+     ·  nucleo/medida.py:329:59:constante                    constante: 8 → 9
+     ·  nucleo/medida.py:329:65:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:329:67:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:338:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:338:27:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:338:49:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:338:74:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:339:31:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:339:42:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:339:45:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:340:38:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:342:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:342:27:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:342:49:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:342:74:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:343:31:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:343:42:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:343:45:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:344:36:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:352:11:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:352:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:352:39:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:361:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:361:16:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:361:45:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:361:61:constante                    constante: 4 → 5
+     ·  nucleo/medida.py:361:64:constante                    constante: 5 → 6
+     ·  nucleo/medida.py:362:20:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:362:27:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:365:11:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:365:26:constante                    constante: 5 → 6
+     ·  nucleo/medida.py:367:15:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:367:15:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:367:47:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:374:11:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:376:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:391:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:394:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:394:16:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:394:46:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:394:62:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:394:68:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:394:76:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:395:39:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:395:60:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:397:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:397:16:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:397:45:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:397:60:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:397:66:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:397:73:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:401:30:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:402:12:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:402:12:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:403:21:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:403:21:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:403:58:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:407:11:negacion                     negacion: se borra el `not`
+  VIVO  nucleo/medida.py:407:16:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:407:60:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:407:69:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:414:44:constante                    constante: 1 → 2
+  VIVO  nucleo/medida.py:414:55:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:418:19:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:421:19:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:427:19:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:427:19:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:427:32:constante                    constante: 4 → 5
+     ·  nucleo/medida.py:427:37:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:427:42:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:431:19:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:431:19:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:431:47:comparador                   comparador: Is → IsNot
+  VIVO  nucleo/medida.py:434:19:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:434:19:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:434:49:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:437:19:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:445:19:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:454:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:455:50:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:472:19:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:472:19:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:472:36:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:479:15:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:479:15:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:479:32:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:483:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:483:47:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:483:53:constante                    constante: False → True
+     ·  nucleo/medida.py:488:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:504:11:comparador                   comparador: NotEq → Eq
+     ·  nucleo/medida.py:506:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:510:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:303:18:constante                    constante: True → False
+     ·  nucleo/medida.py:514:7:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:514:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:514:27:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:514:56:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:515:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:515:33:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:516:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:521:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/medida.py:522:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:523:7:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:523:28:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:531:11:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:540:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:543:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:548:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:563:64:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:564:7:comparador                    comparador: NotEq → Eq
+     ·  nucleo/medida.py:564:26:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:567:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:567:22:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:577:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:579:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:582:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:594:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:601:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:609:18:constante                    constante: True → False
+     ·  nucleo/medida.py:631:35:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:637:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:645:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:667:15:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:671:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:683:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:683:15:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:684:12:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:684:20:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:688:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:689:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:693:15:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:698:47:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:698:47:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:698:60:comparador                   comparador: NotIn → In
+     ·  nucleo/medida.py:699:25:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:699:55:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:699:55:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:699:68:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:707:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:710:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:711:40:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:712:39:constante                    constante: False → True
+     ·  nucleo/medida.py:674:18:constante                    constante: True → False
+     ·  nucleo/medida.py:717:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:727:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:729:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:734:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:739:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:739:47:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:739:77:comparador                   comparador: Gt → GtE
+     ·  nucleo/medida.py:739:92:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:739:40:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:745:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:746:15:comparador                   comparador: LtE → Lt
+     ·  nucleo/medida.py:750:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:757:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:771:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:776:26:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:777:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:779:40:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:781:35:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:791:21:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:791:46:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:795:12:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:795:25:comparador                   comparador: In → NotIn
+     ·  nucleo/medida.py:800:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:805:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:807:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:809:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:811:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:813:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:814:7:comparador                    comparador: Is → IsNot
+     ·  nucleo/medida.py:815:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:816:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:820:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:820:22:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:820:74:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:820:16:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:832:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:833:7:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:833:48:comparador                   comparador: Is → IsNot
+     ·  nucleo/medida.py:835:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/medida.py:835:70:constante                    constante: False → True
+     ·  nucleo/medida.py:842:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:869:20:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:874:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:906:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/medida.py:915:49:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:919:27:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:919:39:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:922:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:926:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:926:51:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:926:56:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:926:59:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:930:7:booleano                      booleano: and ↔ or
+     ·  nucleo/medida.py:930:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/medida.py:930:39:negacion                     negacion: se borra el `not`
+     ·  nucleo/medida.py:932:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:932:14:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:936:31:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:937:28:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:939:9:comparador                    comparador: Eq → NotEq
+     ·  nucleo/medida.py:939:16:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:940:43:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:940:55:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:941:43:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:941:55:constante                    constante: 2 → 3
+     ·  nucleo/medida.py:952:33:constante                    constante: False → True
+  VIVO  nucleo/medida.py:954:13:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:954:52:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:954:68:constante                    constante: 4 → 5
+     ·  nucleo/medida.py:954:74:comparador                   comparador: Eq → NotEq
+     ·  nucleo/medida.py:954:82:constante                    constante: 0 → 1
+     ·  nucleo/medida.py:958:36:constante                    constante: 1 → 2
+     ·  nucleo/medida.py:959:33:constante                    constante: True → False
+     ·  nucleo/medida.py:961:4:retorno                       retorno: return <algo> → return None
+  VIVO  nucleo/medida.py:980:63:constante                    constante: False → True
+     ·  nucleo/medida.py:985:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/medida.py:994:20:booleano                     booleano: and ↔ or
+     ·  nucleo/medida.py:995:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/medida.py:997:4:retorno                       retorno: return <algo> → return None
+
+mutantes: 316 · murieron 311 · sobrevivieron 5 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✗ proceso.codigo_con_mutante_que_lo_mata       valor 5 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+CÓDIGO QUE NINGÚN TEST FIJA:
+  · nucleo/medida.py:407:16:booleano
+      booleano: and ↔ or
+  · nucleo/medida.py:414:55:constante
+      constante: 1 → 2
+  · nucleo/medida.py:434:19:booleano
+      booleano: and ↔ or
+  · nucleo/medida.py:954:13:booleano
+      booleano: and ↔ or
+  · nucleo/medida.py:980:63:constante
+      constante: False → True
+
+Cada uno es un test que falta, o un mutante equivalente que hay que DECLARAR en
+equivalentes.json con su razón escrita. Declararlo sin razón es una excusa.

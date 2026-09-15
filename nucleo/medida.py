@@ -404,14 +404,10 @@ class Medida:
             raise MedidaMalDeclarada(
                 f"{mid}: `ambito` recibió {valor_ambito!r}, y los ámbitos declarados son:\n"
                 f"{opciones(AMBITOS)}")
-        if not (isinstance(requiere, list) and requiere and requiere[0] == "requiere"):
-            raise MedidaMalDeclarada(
-                f"{mid}: `requiere` es ['requiere', <relación>, …]")
-
         entradas_requiere: list = []
         relaciones_vistas: set[str] = set()
 
-        for idx, item in enumerate(requiere[1:], start=1):
+        for item in requiere[1:]:
             if isinstance(item, str):
                 # La regla de 0.6, sin cambios: validar el nombre con la expresión de relación
                 # rechazaría lo que hoy carga, y eso subiría la MAYOR del álgebra (§0).
@@ -951,7 +947,7 @@ def _requiere_de(medida) -> list[dict]:
                 "relacion": entrada,
                 "con_condicion": False,
             })
-        elif isinstance(entrada, (list, tuple)) and len(entrada) == 4 and entrada[0] == "filas":
+        else:   # `de_datos` sólo deja nombres o `["filas", relación, alias, condición]`
             filas.append({
                 "medida": medida.id,
                 "indice": indice,
