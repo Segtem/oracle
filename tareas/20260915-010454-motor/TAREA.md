@@ -1,6 +1,6 @@
 # Motor.desde_proyecto juzga con otro catálogo que oracle test
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, bug
 
