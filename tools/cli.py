@@ -15,6 +15,7 @@
 
     oracle proyecto init [ruta]             inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
     oracle proyecto test [--rapido|--todo]  ejecuta la secuencia completa de verificación con veredicto final
+    oracle proyecto juzgar --con <archivo>  juzga evidencia contra el catálogo del proyecto (alias juzgar)
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
     oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
@@ -56,6 +57,7 @@
     oracle reportar                         prepara un reporte local; no publica ni usa la red
     oracle censar --proyecto <ruta>…       censa varios proyectos y conserva el estado con su fecha
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
+    oracle juzgar --con <archivo>          juzga evidencia JSON contra el catálogo del proyecto
 """
 
 from __future__ import annotations
@@ -111,7 +113,7 @@ def ayuda() -> None:
 Uso:
   oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, listar, expandir)
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
-  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, relaciones, escalares)
+  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
@@ -128,6 +130,7 @@ Atajos directos:
   oracle medida probar <arch> --con <filas>  Corre una medida contra filas escritas a mano
       --vigilar                             Repite la prueba cada vez que se guarda la medida
   oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
+  oracle juzgar --con <hechos.json>      Juzga evidencia contra el catálogo del proyecto
   oracle relaciones                      Muestra las relaciones y campos observados
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle expandir <archivo>              Muestra la forma canónica de una macro
@@ -176,6 +179,7 @@ def ayuda_proyecto() -> None:
 Uso:
   oracle proyecto init [ruta]             Inicializa un proyecto nuevo
   oracle proyecto test [--rapido|--todo]  Ejecuta la secuencia completa de verificación
+  oracle proyecto juzgar --con <archivo>  Juzga evidencia contra el catálogo del proyecto
   oracle proyecto relaciones              Muestra las relaciones y campos observados
   oracle proyecto escalares               Muestra las funciones escalares y operadores""")
 
@@ -370,7 +374,7 @@ def cmd_reportar(proy, argv: list[str]) -> int:
 VERBOS = {
     "medida": ("nueva", "revisar", "probar", "listar", "expandir"),
     "caso": ("nuevo", "listar", "generar"),
-    "proyecto": ("init", "test", "relaciones", "escalares", "contexto"),
+    "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
     "tarea": (
         "init",
@@ -398,7 +402,7 @@ VERBOS = {
 
 # Los comandos planos también son verbos públicos. Declararlos permite que la misma medida que
 # vigila `medida listar` vea `oracle reportar`, y que el manual del comando se derive del despacho.
-VERBOS_DIRECTOS = ("censar", "reportar")
+VERBOS_DIRECTOS = ("censar", "reportar", "juzgar")
 
 
 def verbos_documentados() -> dict[str, tuple[str, ...]]:
@@ -993,6 +997,12 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando in ("censar", "--censar"):
         from tools import censar as tcensar
         return tcensar.main([a for a in argv[1:] if a != subcomando])
+
+    if subcomando in ("juzgar", "--juzgar") or (
+        subcomando == "proyecto" and resto and resto[0] in ("juzgar", "--juzgar")
+    ):
+        from tools import juzgar as tjuzgar
+        return tjuzgar.cmd_juzgar(argv)
 
     # 1. Ayudas por sustantivo (devuelven 0 y no requieren proyecto)
     if subcomando == "medida" and (not resto or resto[0] in ("-h", "--help", "help")):

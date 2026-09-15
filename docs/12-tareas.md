@@ -162,7 +162,7 @@ El seguimiento en Git no comprueba que haya un backup remoto o que los enlaces s
 
 ### Evidencia relacional del tracker (P3)
 
-El comando `oracle tarea hechos [--git] [--json] [--proyecto RUTA]` emite un objeto JSON relacional estructurado directamente a `stdout`, concebido para ser consumido por el evaluador de políticas de Oracle (`ejemplo/seguimiento-tareas/evaluar.py --con <hechos.json>`), basado en `Medida.evaluar`.
+El comando `oracle tarea hechos [--git] [--json] [--proyecto RUTA]` emite un objeto JSON relacional estructurado directamente a `stdout`, concebido para ser consumido por el evaluador de políticas de Oracle (`oracle juzgar --proyecto ejemplo/seguimiento-tareas --con <hechos.json>`), basado en `evaluar` y el catálogo efectivo.
 
 La salida no se escribe en el tracker ni en disco; se redirige típicamente mediante tuberías o redirección shell hacia un archivo fuera del árbol de tareas (`oracle tarea hechos > /tmp/hechos.json`).
 
@@ -223,6 +223,39 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
 - Los destinos locales con NUL codificado se declaran `no_admitida` y `no_comprobado`, con omisión. Un sufijo `/` o `/.` exige un directorio. Las barras obtenidas al decodificar `%5C` pertenecen al nombre del archivo y no se reinterpretan como escapes Markdown.
 - Un backtick escapado fuera de código es literal; dentro de código la barra no anula el cierre. Las rachas de apertura y cierre deben tener igual longitud. Se sigue esta distinción de [CommonMark](https://spec.commonmark.org/0.31.2/#backslash-escapes), dentro de la gramática parcial descrita arriba.
 - La salida JSON es compacta, conserva un orden fijo de campos y listas ordenadas, y escapa los caracteres no ASCII. Así conserva incluso nombres Unix que no se pueden decodificar como UTF-8 y produce los mismos bytes ante el mismo árbol.
+
+### Juzgar los hechos del tracker con `oracle juzgar`
+
+La evidencia emitida por `oracle tarea hechos` puede juzgarse directamente mediante el comando `oracle juzgar` (o su forma canónica `oracle proyecto juzgar`), pasando como proyecto el catálogo de políticas de seguimiento provisto en `ejemplo/seguimiento-tareas`:
+
+```bash
+oracle tarea hechos --git > hechos.json
+oracle juzgar --proyecto ejemplo/seguimiento-tareas --con hechos.json
+```
+
+El evaluador carga el catálogo efectivo del proyecto, verifica que las relaciones requeridas estén presentes en la evidencia y emite un informe estructurado (`Informe.texto()` o `Informe.a_json()` con `--json`). Si todas las medidas aplicables resultan verdes, el comando finaliza con código 0; si alguna resulta roja o no hay medidas aplicables, finaliza con código 1.
+
+#### Políticas de seguimiento del tracker
+
+El catálogo de ejemplo en `ejemplo/seguimiento-tareas` define tres políticas de auditoría:
+
+1. **`seguimiento.referencias_locales_presentes`**:
+   - **Qué comprueba**: que ninguna referencia local reconocida apunte a un archivo ausente (`donde r.clase == "local" y r.estado != "presente"`). Exige que cada enlace local relativo (`[captura](captura.png)`) dentro de un documento `TAREA.md` apunte a un archivo físico existente en el árbol de la tarea.
+   - **Qué NO prueba**: no prueba que el contenido del adjunto sea correcto ni legible (ej. una imagen corrupta pasa como presente), ni audita enlaces remotos (URLs HTTP/HTTPS), anclas internas o destinos fuera de la tarea.
+
+2. **`seguimiento.archivos_confirmados_sin_cambios`**:
+   - **Qué comprueba**: que ningún archivo del tracker incumpla `donde a.git_comprobado == false o a.en_head == false o a.indice != " " o a.trabajo != " "`. Es decir, exige que la consulta Git haya sido efectuada (`git_comprobado == true`), que el archivo esté presente en el commit de `HEAD` (`en_head == true`), y que no tenga modificaciones pendientes en el índice (`indice == " "`) ni en el árbol de trabajo (`trabajo == " "`).
+   - **Qué NO prueba**: no comprueba repositorios remotos (`git push`), copias de respaldo, autenticidad, confidencialidad ni calidad del contenido. Requiere consulta Git activa; sin filas o sin comprobación Git falla.
+
+3. **`seguimiento.lectura_sin_omisiones`**:
+   - **Qué comprueba**: que la extracción de hechos haya sido íntegra (`donde l.completa == false`). Exige que no se hayan producido omisiones por archivos Markdown que superen el límite de 2 MiB, enlaces simbólicos externos, bytes nulos o codificación no UTF-8.
+   - **Qué NO prueba**: no prueba que el extractor sea correcto ni amplía su alcance a texto no Markdown, URLs remotas o anclas.
+
+Para restringir la evaluación a una política específica:
+
+```bash
+oracle juzgar --proyecto ejemplo/seguimiento-tareas --con hechos.json --medida seguimiento.referencias_locales_presentes
+```
 
 ### Alineación dinámica en listados
 
@@ -333,9 +366,12 @@ printf 'Proyecto de práctica: %s\n' "$proyecto_prueba"
 ```
 
 Para usar una captura real, reemplazá `registro-ejemplo.txt` por un archivo existente.
-El JSON queda en el proyecto temporal indicado al final; pasá esa ruta a `evaluar.py --con`.
+El archivo JSON queda dentro del directorio temporal del proyecto de práctica (`$proyecto_prueba/hechos-tareas.json`); juzgalo con:
+```bash
+oracle juzgar --proyecto ejemplo/seguimiento-tareas --con "$proyecto_prueba/hechos-tareas.json"
+```
 La política de archivos confirmados fallará hasta que haya un repositorio con esos archivos
-confirmados y sin cambios. El tutorial no hace commits.
+confirmados en HEAD y sin cambios pendientes. El tutorial no hace commits.
 
 Las opciones `--cerradas` y `--todas` de `listar` son incompatibles, al igual que `--ruta` y
 `--json` de `ver`; combinarlas devuelve código 1.
