@@ -519,3 +519,33 @@ class CoberturaDeMutadores(unittest.TestCase):
         self.assertIn("⚠", texto)
         self.assertIn("TODOS del mismo autor", texto)
         self.assertIn("acota menos", texto)
+
+
+class SobrevivientesDeCI(unittest.TestCase):
+    """La primera corrida del job `mutacion-codigo (nucleo/mutacion.py)` (2026-09-15) dejó cuatro
+    sobrevivientes: `quitar_requiere` sólo se probaba con 7 nodos y sin formas raras del nodo, y
+    nadie pedía los mutadores declarados cuando no hay segundo autor."""
+
+    CON_REQUIERE = ["medida", "d.req",
+                    ["desde", ["de", "cosa", "c"]],
+                    ["resumen", "contar", 1],
+                    ["umbral", "<=", 0, "una razón"],
+                    ["requiere", "cosa"],
+                    ["alcance", "NO ve nada más"]]
+
+    def test_quitar_requiere_acepta_la_forma_de_ocho_nodos(self) -> None:
+        ocho = [*self.CON_REQUIERE, ["ambito", "universal"]]
+        self.assertEqual(mutacion.quitar_requiere(ocho),
+                         [*self.CON_REQUIERE[:5], *self.CON_REQUIERE[6:], ["ambito", "universal"]])
+        self.assertIsNone(mutacion.quitar_requiere([*ocho, ["otro", 1]]))
+
+    def test_quitar_requiere_sólo_reconoce_el_nodo_como_lista_no_vacía(self) -> None:
+        tupla = [*self.CON_REQUIERE[:5], ("requiere", "cosa"), self.CON_REQUIERE[6]]
+        vacio = [*self.CON_REQUIERE[:5], [], self.CON_REQUIERE[6]]
+        self.assertIsNone(mutacion.quitar_requiere(tupla))
+        self.assertIsNone(mutacion.quitar_requiere(vacio))
+
+    def test_sin_segundo_autor_los_declarados_son_los_propios(self) -> None:
+        with mock.patch.object(mutacion, "_segundo_autor", return_value=None):
+            declarados = mutacion.mutadores_declarados_por_sus_autores()
+        self.assertEqual(declarados, frozenset(mutacion.MUTADORES_PROPIOS))
