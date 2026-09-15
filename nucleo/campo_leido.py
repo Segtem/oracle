@@ -27,13 +27,12 @@ CAMPOS_DE_RELACIONES = {
 
 def extraer_alias_de_medida(medida: Medida) -> dict[str, str]:
     """Extrae los alias declarados en las fuentes y en las entradas condicionales de requiere."""
-    fuente = medida.tuberia[1] if isinstance(medida.tuberia, list) and len(medida.tuberia) >= 2 else None
-    alias_map = extraer_alias_de_fuente(fuente)
-    for entrada in getattr(medida, "requiere", ()):
-        if isinstance(entrada, list) and len(entrada) >= 3 and entrada[0] == "filas":
-            relacion, alias = entrada[1], entrada[2]
-            if isinstance(relacion, str) and isinstance(alias, str):
-                alias_map[alias] = relacion
+    # `Medida.de_datos` ya validó la forma: la tubería trae su fuente, y cada entrada de `requiere` es un
+    # nombre o `["filas", relación, alias, condición]`.
+    alias_map = extraer_alias_de_fuente(medida.tuberia[1])
+    for entrada in medida.requiere:
+        if not isinstance(entrada, str):
+            alias_map[entrada[2]] = entrada[1]
     return alias_map
 
 
@@ -41,7 +40,7 @@ def _extraer_lecturas_de_arbol(nodo: Any):
     """Recorre el árbol canónico de la medida buscando ['campo', alias, nombre]."""
     if not isinstance(nodo, list) or not nodo:
         return
-    if len(nodo) == 3 and nodo[0] == "campo" and isinstance(nodo[1], str) and isinstance(nodo[2], str):
+    if len(nodo) == 3 and nodo[0] == "campo":  # el álgebra ya validó que alias y nombre son nombres
         yield nodo[1], nodo[2]
         return
     for hijo in nodo:

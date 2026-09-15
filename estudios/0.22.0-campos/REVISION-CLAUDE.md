@@ -76,6 +76,32 @@ las 160 lecturas del catálogo son de relaciones del lenguaje (131) o declaradas
 `meta.toda_medida_lee_campos_que_existen` (504 y 505) son construidos. Se agregó el caso observado `506`,
 con las filas reales que emitió el comando anterior y el comando en su `origen`.
 
+## Lo que encontró la mutación, corregido por Claude
+
+### R9. La sombra tapaba un «no juzgó» en la aceptación
+
+`tools/aceptacion.py` perdonaba en sombra una medida meta que no pudo juzgar (los dos sobrevivientes
+de las líneas 209 y 212 lo mostraron: la rama no la distinguía ningún test). La sombra apaga la
+consecuencia de un rojo; una medida que lee algo que la evidencia no trae es un defecto de la medida.
+La rama se borró: un «no juzgó» es falla siempre.
+
+### R10. `campo_leido.py` validaba lo que el álgebra ya validó
+
+Los sobrevivientes de `extraer_alias_de_medida` y de `_extraer_lecturas_de_arbol` estaban en guardas
+sobre formas que `Medida.de_datos` y el álgebra rechazan antes (una tubería sin fuente, un `campo` cuyo
+alias o nombre no es un nombre). Se borraron. La rama del alias que ninguna fuente liga sí se alcanza
+—el álgebra lo acepta— y ganó su test.
+
+### R11. Ramas sin test
+
+- `nucleo/marco.py`: que un caso que no se puede juzgar nunca «se ponga como debe», en las dos polaridades.
+- `nucleo/relacion.py`: una clave del mapa que no es texto se rechaza por su forma, y un directorio o un
+  enlace con nombre de módulo no se leen.
+- `nucleo/medida.py`: `Informe.ok` es `False`, no un falsy cualquiera.
+- 33 errores de arnés en la ronda de `nucleo/relacion.py`: `tests/test_campos_de_relaciones.py` construía
+  una relación al importarse, y un mutante que rompía `Relacion.de_datos` impedía cargar el módulo en vez
+  de matar un test. Se construye dentro de una función.
+
 ## Tests existentes actualizados (propiedad de Claude)
 
 - `test_medida`: `campo_leido` en las relaciones del lenguaje; 61 medidas, 41 universales.

@@ -67,7 +67,7 @@ class NoJuzgaronTests(unittest.TestCase):
 
     def test_una_medida_que_no_juzgo_quita_el_verde_y_se_informa_aparte(self):
         informe = Informe((self.VERDE,), no_juzgaron=(("d.rota", "«==» sobre un valor ausente"),))
-        self.assertFalse(informe.ok)
+        self.assertIs(informe.ok, False)
         self.assertIn("d.rota", informe.texto())
         self.assertIn("valor ausente", informe.texto())
         datos = json.loads(informe.a_json())

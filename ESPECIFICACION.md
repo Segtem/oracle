@@ -98,6 +98,14 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.22.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.21.0` a `0.22.0`.** La menor agrega
+una relación del lenguaje (`campo_leido`), una medida universal (`meta.toda_medida_lee_campos_que_existen`),
+la declaración de los campos de lo que emite el núcleo (`CAMPOS_DE_RELACIONES`, §1.1), ocho relaciones de
+proceso declaradas y un campo nuevo en `Informe` (`no_juzgaron`, §3). `VERSION_ALGEBRA` queda en `0.7` y
+`VERSION_SINTAXIS` en `0.5`: `campo_leido` es una relación de hechos como `sombra` o `verbo_del_cli`, el
+álgebra sigue levantando ante un campo ausente y ninguna forma canónica ni palabra de la superficie
+cambia. Cierra la tarea `20260915-155654-campos`.
+
 **Corte 0.21.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.20.0` a `0.21.0`, `VERSION_ALGEBRA`
 de `0.6` a `0.7` y `VERSION_SINTAXIS` de `0.4` a `0.5`.** El álgebra sube la **menor**: una entrada de
 `requiere` puede llevar condición y la declaración de una relación gana `variantes` (§1.3, §2); lo que
@@ -677,7 +685,8 @@ Al evaluar un conjunto de medidas, ese error **no corta la corrida ni se pierde*
 medida entre las que **no pudieron juzgar**, con su motivo, aparte de los rojos y de los `SIN
 EVIDENCIA`. Un informe con alguna medida que no juzgó no es verde. Cada herramienta decide qué hace con
 eso según su contrato —la aceptación y la mutación de medidas lo cuentan como falla, `oracle juzgar`
-sale 2—, pero todas lo leen del mismo lugar (desde la distribución 0.22.0).
+sale 2—, pero todas lo leen del mismo lugar (desde la distribución 0.22.0). La sombra no lo tapa: apaga
+la consecuencia de un rojo, y una medida que no pudo juzgar no dio un rojo del mundo, tiene un defecto.
 
 ### Funciones escalares
 

@@ -50,6 +50,22 @@ class LectorDeCamposTests(unittest.TestCase):
             with self.subTest(nombre), _raiz_con(**archivos) as td, self.assertRaises(RelacionMalDeclarada):
                 campos_de_relaciones_declarados(Path(td))
 
+    def test_una_clave_que_no_es_texto_se_rechaza_por_su_forma(self):
+        """Terminaría rechazada igual por «relación ajena»; el mensaje dice cuál fue el error."""
+        for clave in ("1", '" "'):
+            fuente = f'RELACIONES_DE_X = frozenset({{"x"}})\nCAMPOS_DE_RELACIONES = {{"x": ("a",), {clave}: ("b",)}}\n'
+            with self.subTest(clave=clave), _raiz_con(uno=fuente) as td:
+                with self.assertRaisesRegex(RelacionMalDeclarada, "mapa literal"):
+                    campos_de_relaciones_declarados(Path(td))
+
+    def test_un_directorio_o_un_enlace_con_nombre_de_modulo_no_se_leen(self):
+        with _raiz_con(uno=self.VALIDO) as td:
+            nucleo = Path(td) / "nucleo"
+            (Path(td) / "ajeno.py").write_text("CAMPOS_DE_RELACIONES = {1: 2}\n", encoding="utf-8")
+            (nucleo / "enlace.py").symlink_to(Path(td) / "ajeno.py")
+            (nucleo / "carpeta.py").mkdir()
+            self.assertEqual(campos_de_relaciones_declarados(Path(td)), {"x": ("a", "b")})
+
 
 def _medida(mid, fuente, donde, requiere=None):
     datos = ["medida", mid, ["desde", fuente, ["donde", donde]], ["resumen", "contar", 1],
@@ -60,7 +76,10 @@ def _medida(mid, fuente, donde, requiere=None):
     return Medida.de_datos(datos)
 
 
-ITEM = Relacion.de_datos(["relacion", "item",
+def _item() -> Relacion:
+    # Dentro de una función: una mutación que rompe `Relacion.de_datos` tiene que matar tests, no
+    # impedir que el módulo se importe (eso el arnés lo cuenta como error, no como muerte).
+    return Relacion.de_datos(["relacion", "item",
     ["campos", ["campo", "id", "texto", "sin_unidad"], ["campo", "tipo", "texto", "sin_unidad"]],
     ["variantes", "tipo", ["variante", "medida", ["campo", "detecciones", "entero", "sin_unidad"]]],
     ["alcance", "NO ve nada más"]])
@@ -69,7 +88,7 @@ ITEM = Relacion.de_datos(["relacion", "item",
 class CampoLeidoTests(unittest.TestCase):
     def filas(self, medida):
         return [(f["relacion"], f["campo"], f["origen"], f["existe"])
-                for f in hechos_de_campos_leidos([medida], {"item": ITEM})["campo_leido"]]
+                for f in hechos_de_campos_leidos([medida], {"item": _item()})["campo_leido"]]
 
     def test_declarada_comun_de_variante_e_inexistente(self):
         donde = ["y", ["==", ["campo", "i", "id"], "a"],
@@ -85,6 +104,9 @@ class CampoLeidoTests(unittest.TestCase):
                                                 ("campo_declarado", "inventado", "lenguaje", False)])
         propia = _medida("d.propia", ["de", "pieza_propia", "p"], ["==", ["campo", "p", "alto"], 3])
         self.assertEqual(self.filas(propia), [("pieza_propia", "alto", "sin_declarar", False)])
+        # El álgebra acepta un alias que ninguna fuente liga; la lectura queda sin relación.
+        suelta = _medida("d.suelta", ["de", "item", "i"], ["==", ["campo", "z", "id"], 1])
+        self.assertEqual(self.filas(suelta), [("", "id", "sin_declarar", False)])
 
     def test_una_lectura_en_la_condicion_de_requiere_resuelve_su_alias(self):
         medida = _medida("d.req", ["de", "item", "i"], ["==", ["campo", "i", "id"], "a"],
@@ -94,6 +116,18 @@ class CampoLeidoTests(unittest.TestCase):
     def test_hecho_y_col_no_son_lecturas_de_campo(self):
         arbol = ["y", ["==", ["hecho", "i"], 1], ["==", ["col", "total"], 2], ["==", ["campo", "i", "id"], 3]]
         self.assertEqual(list(_extraer_lecturas_de_arbol(arbol)), [("i", "id")])
+
+
+class HechosDeCasosTests(unittest.TestCase):
+    def test_un_caso_que_su_medida_no_puede_juzgar_nunca_se_pone_como_debe(self):
+        from nucleo.marco import hechos_de_casos
+        mala = _medida("d.mala", ["de", "item", "i"], ["==", ["campo", "i", "nada"], "x"])
+        casos = [{"id": etiqueta, "medida": "d.mala", "etiqueta": etiqueta, "evidencia": {"item": [{"id": "a"}]}}
+                 for etiqueta in ("falso_verde", "verde_correcto")]
+        filas = {f["id"]: f for f in hechos_de_casos({"d.mala": mala}, casos)["caso"]}
+        for etiqueta, fila in filas.items():
+            with self.subTest(etiqueta):
+                self.assertNotEqual(fila["dio_ok"], fila["esperado_ok"])
 
 
 class EvaluarConjuntoTests(unittest.TestCase):

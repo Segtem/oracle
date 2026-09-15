@@ -204,13 +204,11 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
     # ya no existe—.
     en_sombra = {e.medida for e in configuracion(proy).sombra}
     ensombrecidas = []
+    # La sombra apaga la consecuencia de un ROJO. Una medida que no pudo juzgar no dio un rojo del
+    # mundo: lee algo que la evidencia no trae, y eso es un defecto de la medida que ninguna sombra tapa.
     for mid_nj, motivo in informe_meta.no_juzgaron:
-        linea = f"{mid_nj}   [NO JUZGÓ: {motivo}]"
-        if mid_nj in en_sombra:
-            linea += "   [EN SOMBRA]"
-        print(" ", linea)
-        if mid_nj not in en_sombra:
-            fallas.append(f"{mid_nj}: no pudo juzgarse — {motivo}")
+        print(f"  {mid_nj}   [NO JUZGÓ: {motivo}]")
+        fallas.append(f"{mid_nj}: no pudo juzgarse — {motivo}")
     for v in informe_meta.veredictos:
         # La marca va en la línea del VEREDICTO, no al final del bloque: `v.linea()` trae también
         # los testigos, y pegada al final quedaba a cinco renglones del id que ensombrece — donde
