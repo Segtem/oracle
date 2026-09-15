@@ -1,0 +1,35 @@
+[
+  "relacion",
+  "modulo",
+  [
+    "campos",
+    [
+      "campo",
+      "nombre",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "es_test",
+      "booleano",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "lineas",
+      "entero",
+      "lineas"
+    ],
+    [
+      "campo",
+      "es_paquete_vacio",
+      "booleano",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "observa la estructura modular de paquetes de código Python. NO observa el cuerpo de las funciones, los tipos ni la ejecución de los módulos"
+  ]
+]

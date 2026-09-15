@@ -1,0 +1,27 @@
+caso 506-el-catalogo-de-oracle-lee-campos-que-existen:
+    fecha: "2026-09-15"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "199bada+worktree"
+        comando: "python3 tools/aceptacion.py --hechos hechos.json --hechos-solo campo_leido"
+    procedencia: observada
+    titulo: "Las lecturas de campo del catálogo de Oracle existen en sus relaciones"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. La evidencia transcribe las filas de `campo_leido` que emitió el comando indicado para cuatro medidas: una sobre una relación del lenguaje, una sobre `mutante` con variantes, y dos sobre `cambio` e `importa`, relaciones de proceso que esta misma corrida hizo declarar. La corrida entera emitió 160 lecturas, 131 de relaciones del lenguaje y 29 de declaradas, todas con el campo existente.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_lee_campos_que_existen
+    evidencia:
+        campo_leido: medida, relacion, campo, origen, existe
+            "meta.ningun_campo_sin_unidad_declarada", "campo_declarado", "tiene_unidad", "lenguaje", true
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "tipo", "declarada", true
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "estado", "declarada", true
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "equivalente_declarado", "declarada", true
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "tipo", "declarada", true
+            "proceso.verificacion_vigente", "cambio", "es_codigo_vivo", "declarada", true
+            "proceso.modulo_con_consumidor", "modulo", "nombre", "declarada", true
+            "proceso.modulo_con_consumidor", "importa", "b", "declarada", true
+            "proceso.modulo_con_consumidor", "modulo", "nombre", "declarada", true
+            "proceso.modulo_con_consumidor", "importa", "es_test", "declarada", true
+    leccion:
+        Una medida meta nueva tiene que fijarse también con lo que el catálogo real emite, no sólo con filas escritas a mano: lo observado es que la regla da verde sobre el catálogo que la propone.

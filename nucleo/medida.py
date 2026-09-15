@@ -62,6 +62,20 @@ AMBITOS_DE_RELACIONES = {
     "dependencia_de_medida": "universal",
 }
 
+CAMPOS_DE_RELACIONES = {
+    "ancestro": ("medida", "ruta", "ancestro", "cabeza_ancestro", "tipo", "cabeza", "cabeza_padre", "texto"),
+    "medida": (
+        "id", "dominio", "relacion", "agregado", "comparador", "umbral", "umbral_op",
+        "umbral_valor", "umbral_es_flotante", "porque", "segun", "ambito", "alcance",
+        "pasos", "declara_requiere", "es_meta_por_el_nombre", "es_meta_por_lo_que_mide",
+    ),
+    "paso_de_medida": ("medida", "indice", "ruta", "operador"),
+    "fuente": ("medida", "ruta", "relacion", "alias"),
+    "termino": ("medida", "ruta", "padre", "cabeza_padre", "tipo", "cabeza", "texto", "longitud"),
+    "requiere": ("medida", "indice", "relacion", "con_condicion"),
+    "dependencia_de_medida": ("medida", "relacion", "clase", "con_condicion"),
+}
+
 EXTENSIONES_DE_MEDIDA = frozenset({".json", ".oracle"})
 SEGUN_SIN_DECLARAR = "sin_declarar"
 
@@ -673,15 +687,18 @@ class Informe:
     # Ids que el proyecto declaró en sombra en `oracle.json`. Se miden y se informan igual; lo único
     # que se apaga es la consecuencia: su rojo no hace fallar `ok`.
     en_sombra: frozenset = frozenset()
+    no_juzgaron: tuple[tuple[str, str], ...] = ()
 
     @property
     def ok(self) -> bool:
+        if self.no_juzgaron:
+            return False
         return bool(self.veredictos) and all(
             v.ok or v.id in self.en_sombra for v in self.veredictos)
 
     def texto(self) -> str:
         """Nunca dice «TODO VERDE» a secas: un verde termina enumerando lo que no miró."""
-        if not self.veredictos:
+        if not self.veredictos and not self.no_juzgaron:
             return "VEREDICTO: SIN MEDIDAS — no hay nada que evaluar"
         lineas = []
         for v in self.veredictos:
@@ -691,10 +708,19 @@ class Informe:
                 primero, salto, resto = linea.partition("\n")
                 linea = f"{primero}   [EN SOMBRA]{salto}{resto}"
             lineas.append(linea)
+        if self.no_juzgaron:
+            lineas.append(f"\nNO PUDIERON JUZGAR ({len(self.no_juzgaron)}):")
+            for mid, motivo in self.no_juzgaron:
+                lineas.append(f"  · {mid}: {motivo}")
         malas = [v for v in self.veredictos if not v.ok and v.id not in self.en_sombra]
         perdonadas = sum(1 for v in self.veredictos if not v.ok and v.id in self.en_sombra)
-        if malas:
-            lineas.append(f"\nVEREDICTO: {len(malas)} de {len(self.veredictos)} medidas en rojo")
+        if malas or self.no_juzgaron:
+            partes = []
+            if malas:
+                partes.append(f"{len(malas)} de {len(self.veredictos)} medidas en rojo")
+            if self.no_juzgaron:
+                partes.append(f"{len(self.no_juzgaron)} no pudieron juzgar")
+            lineas.append(f"\nVEREDICTO: {', '.join(partes)}")
         else:
             sombra = f", con {perdonadas} en rojo en sombra" if perdonadas else ""
             lineas.append(
@@ -703,15 +729,45 @@ class Informe:
         return "\n".join(lineas)
 
     def a_json(self) -> str:
-        return json.dumps({"ok": self.ok, "medidas": [
-            {**v.a_dict(), "en_sombra": v.id in self.en_sombra} for v in self.veredictos]},
-                          ensure_ascii=False)
+        return json.dumps({
+            "ok": self.ok,
+            "medidas": [
+                {**v.a_dict(), "en_sombra": v.id in self.en_sombra} for v in self.veredictos
+            ],
+            "no_juzgaron": [
+                {"id": mid, "motivo": motivo} for mid, motivo in self.no_juzgaron
+            ],
+        }, ensure_ascii=False)
 
 
 def evaluar(medidas, evidencia: dict, limites: LimitesAlgebra | None = None, *,
             registro=None) -> Informe:
     return Informe(tuple(
         m.evaluar(evidencia, limites, registro=registro) for m in medidas))
+
+
+def evaluar_conjunto(
+    medidas,
+    evidencia: dict,
+    limites: LimitesAlgebra | None = None,
+    *,
+    en_sombra: frozenset = frozenset(),
+    registro=None,
+) -> Informe:
+    """Evalúa un iterable de medidas sobre una evidencia y separa las que no pudieron juzgar."""
+    veredictos = []
+    no_juzgaron = []
+    for m in medidas:
+        try:
+            v = m.evaluar(evidencia, limites, registro=registro)
+            veredictos.append(v)
+        except ErrorDeAlgebra as e:
+            no_juzgaron.append((m.id, str(e)))
+    return Informe(
+        veredictos=tuple(veredictos),
+        en_sombra=en_sombra,
+        no_juzgaron=tuple(no_juzgaron),
+    )
 
 
 # ---- derivados de la declaración: el «OpenAPI» del oráculo ----

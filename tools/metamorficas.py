@@ -48,6 +48,9 @@ from tools import sintaxis  # noqa: E402
 
 RELACIONES_DEL_LENGUAJE = frozenset({"equivalencia"})
 AMBITOS_DE_RELACIONES = {"equivalencia": "del_origen"}
+CAMPOS_DE_RELACIONES = {
+    "equivalencia": ("propiedad", "caso", "origen", "evaluo", "error", "mismo_veredicto", "mismo_valor", "mismos_testigos"),
+}
 
 UMBRAL = [
     "umbral", "<=", 0,

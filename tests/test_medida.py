@@ -33,7 +33,8 @@ class ContratoMedidaTests(unittest.TestCase):
                                     "relacion_documentada",
                                     "verbo_del_cli",
                                     "opcion_del_vocabulario",
-                                "mutador_excluido", "ambito_de_relacion"}))
+                                "mutador_excluido", "ambito_de_relacion",
+                              "campo_leido"}))
         self.assertEqual(base.prefijos_meta, ("meta.",))
 
         invalidas = (
@@ -310,8 +311,8 @@ class ContratoMedidaTests(unittest.TestCase):
         )
 
         ambitos = [medida.ambito for medida in catalogo.values()]
-        self.assertEqual(len(ambitos), 60)
-        self.assertEqual(ambitos.count("universal"), 40)
+        self.assertEqual(len(ambitos), 61)
+        self.assertEqual(ambitos.count("universal"), 41)
         self.assertEqual(ambitos.count("del_origen"), 20)
         self.assertNotIn(m.AMBITO_SIN_DECLARAR, ambitos)
 

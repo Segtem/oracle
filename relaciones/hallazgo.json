@@ -1,0 +1,29 @@
+[
+  "relacion",
+  "hallazgo",
+  [
+    "campos",
+    [
+      "campo",
+      "verificador",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "objetivo",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "era_real",
+      "booleano",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "observa hallazgos reportados por verificadores externos y su calificación de falsos rojos. NO evalúa directamente la veracidad del hallazgo sin juicio previo, ya que ningún emisor propio de Oracle produce esta relación"
+  ]
+]

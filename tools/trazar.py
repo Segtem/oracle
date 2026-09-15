@@ -56,6 +56,12 @@ AMBITOS_DE_RELACIONES = {
     "producto": "del_origen",
 }
 
+CAMPOS_DE_RELACIONES = {
+    "paso": ("t", "operador", "filas_antes", "filas_despues"),
+    "nodo": ("cabeza", "declarados", "evaluados"),
+    "producto": ("izquierda", "derecha", "salida"),
+}
+
 
 REFERENCIA = RAIZ / "diferencial" / "referencia" / "evaluador.py"
 

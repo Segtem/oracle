@@ -45,6 +45,12 @@ AMBITOS_DE_RELACIONES = {
     "ambito_de_relacion": "universal",
 }
 
+CAMPOS_DE_RELACIONES = {
+    "relacion_declarada": ("relacion", "campos", "alcance", "tiene_alcance", "variantes"),
+    "campo_declarado": ("relacion", "campo", "tipo", "unidad", "tiene_unidad", "es_magnitud", "es_sin_unidad", "variante"),
+    "ambito_de_relacion": ("relacion", "ambito"),
+}
+
 EXTENSIONES_DE_RELACION = frozenset({".json", ".oracle", ".relacion"})
 NOMBRE_RELACION_RE = re.compile(r"^[a-z][a-z0-9_]*$")
 NOMBRE_CAMPO_RE = re.compile(r"^[a-z][a-z0-9_]*$")
@@ -383,6 +389,97 @@ def ambitos_de_relaciones_declarados(raiz: Path | None = None) -> dict[str, str]
             raise RelacionMalDeclarada(
                 f"ámbito de relación declarado más de una vez: {sorted(repetidos)}")
         salida.update(declarados)
+    return salida
+
+
+def _campos_del_arbol(arbol: ast.AST, archivo: Path) -> dict[str, tuple[str, ...]]:
+    salida = {}
+    for nodo in getattr(arbol, "body", []):
+        if not isinstance(nodo, (ast.Assign, ast.AnnAssign)):
+            continue
+        objetivos = (nodo.targets if isinstance(nodo, ast.Assign) else (nodo.target,))
+        if not any(isinstance(objetivo, ast.Name) and objetivo.id == "CAMPOS_DE_RELACIONES" for objetivo in objetivos):
+            continue
+        valor_nodo = getattr(nodo, "value", None)
+        if not isinstance(valor_nodo, ast.Dict):
+            raise RelacionMalDeclarada(
+                f"{archivo.name}: CAMPOS_DE_RELACIONES debe ser un mapa literal de textos a tuplas de textos"
+            )
+        for clave, valor in zip(valor_nodo.keys, valor_nodo.values):
+            if not (isinstance(clave, ast.Constant) and isinstance(clave.value, str) and clave.value.strip()):
+                raise RelacionMalDeclarada(
+                    f"{archivo.name}: CAMPOS_DE_RELACIONES debe ser un mapa literal de textos a tuplas de textos"
+                )
+            rel_nombre = clave.value
+            if not isinstance(valor, ast.Tuple):
+                raise RelacionMalDeclarada(
+                    f"{archivo.name}: los campos de {rel_nombre!r} deben ser una tupla literal de textos"
+                )
+            campos_lista = []
+            for elt in valor.elts:
+                if not (isinstance(elt, ast.Constant) and isinstance(elt.value, str) and elt.value.strip()):
+                    raise RelacionMalDeclarada(
+                        f"{archivo.name}: cada campo de {rel_nombre!r} debe ser un texto no vacío"
+                    )
+                campos_lista.append(elt.value)
+            if len(campos_lista) != len(set(campos_lista)):
+                raise RelacionMalDeclarada(
+                    f"{archivo.name}: campo repetido en la relación {rel_nombre!r}"
+                )
+            if rel_nombre in salida:
+                raise RelacionMalDeclarada(
+                    f"{archivo.name}: relación {rel_nombre!r} declarada más de una vez en el archivo"
+                )
+            salida[rel_nombre] = tuple(campos_lista)
+    return salida
+
+
+def campos_de_relaciones_declarados(raiz: Path | None = None) -> dict[str, tuple[str, ...]]:
+    """Reúne los campos declarados para cada relación del lenguaje leyendo los emisores con AST."""
+    # Import local: `medida` importa este módulo al cargarse. La lista de relaciones del lenguaje se
+    # lee en un solo lugar; una segunda copia del lector de `RELACIONES_*` terminaría divergiendo.
+    from .medida import relaciones_del_lenguaje_declaradas
+
+    raiz_proy = Path(__file__).resolve().parents[1] if raiz is None else Path(raiz)
+    salida: dict[str, tuple[str, ...]] = {}
+    relaciones_del_lenguaje = set(relaciones_del_lenguaje_declaradas(raiz))
+
+    archivos = [
+        ruta for nombre in ("nucleo", "tools")
+        if (raiz_proy / nombre).is_dir()
+        for ruta in sorted((raiz_proy / nombre).glob("*.py"))
+        if ruta.is_file() and not ruta.is_symlink() and not ruta.name.startswith(".")
+    ]
+
+    for archivo in archivos:
+        fuente = archivo.read_text(encoding="utf-8")
+        if "CAMPOS_DE_RELACIONES" not in fuente:
+            continue
+        try:
+            arbol = ast.parse(fuente, filename=str(archivo))
+        except (OSError, SyntaxError) as e:
+            raise RelacionMalDeclarada(f"no se pudo parsear {archivo}: {e}") from e
+
+        declarados = _campos_del_arbol(arbol, archivo)
+        repetidos = set(salida).intersection(declarados)
+        if repetidos:
+            raise RelacionMalDeclarada(
+                f"relación con campos declarada más de una vez: {sorted(repetidos)}"
+            )
+        salida.update(declarados)
+
+    sobrantes = set(salida) - relaciones_del_lenguaje
+    if sobrantes:
+        raise RelacionMalDeclarada(
+            f"campos declarados para relación que no está en `RELACIONES_*`: {sorted(sobrantes)}"
+        )
+
+    sin_campos = relaciones_del_lenguaje - set(salida)
+    if sin_campos:
+        raise RelacionMalDeclarada(
+            f"relación del lenguaje sin campos declarados: {sorted(sin_campos)}"
+        )
+
     return salida
 
 

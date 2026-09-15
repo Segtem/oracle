@@ -425,6 +425,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `mutador_excluido` | cada exclusión de mutador declarada, con su premisa, si algún autor ofrece el mutador y si el registro del arnés lo tiene | `nucleo/marco.py` |
 | `relacion_declarada` · `campo_declarado` · `ambito_de_relacion` | las relaciones que un proyecto declara, cuántas variantes tienen, sus campos con unidad y la variante a la que pertenece cada uno, y dónde obliga cada relación | `nucleo/relacion.py` |
 | `cantidad_comparada` | cada comparación de una medida y si su unidad se puede derivar (L−1) | `nucleo/unidad.py` |
+| `campo_leido` | cada campo que lee una medida: de qué relación, si esa relación es declarada, del lenguaje o sin declarar, y si el campo existe en ella | el emisor que declara `campo_leido` |
 | `referente_declarado` · `referente_comparado` | la identidad y la frescura de aquello que se midió (L−2) | `nucleo/referente.py` |
 | `equivalencia` | dos formas que deberían dar lo mismo, para las propiedades metamórficas | `tools/metamorficas.py` |
 | `paso` · `producto` · `ancestro` | lo que una evaluación trazada produjo: cada paso, el tamaño del producto de un `unir`, y la ascendencia de un nodo | `nucleo/algebra.py` |
@@ -432,6 +433,11 @@ acá. Esta sección no puede envejecer en silencio.
 
 **Ninguna de estas relaciones se declara en `relaciones/`.** Un proyecto que definiera una con el
 mismo nombre estaría pisando una del lenguaje, y por eso los nombres se reservan.
+
+Sus **campos** los declara cada emisor al lado de la relación, en un mapa literal
+`CAMPOS_DE_RELACIONES` que se lee sin ejecutar el módulo (desde la distribución 0.22.0). Un test compara
+cada declaración con las filas que el emisor produce, así que no puede envejecer en silencio. Con eso,
+los campos de toda relación que Oracle emite se conocen igual que los de una relación declarada (§1.3).
 
 ### 1.2 Los vocabularios cerrados, y el manual que sale de ellos
 
@@ -493,6 +499,14 @@ distintos: `mutante` la producen la mutación de medidas y la de código. Un nod
 
 `campo_declarado` trae una fila por campo y por variante, con `variante` vacía para los comunes;
 `relacion_declarada` dice cuántas variantes tiene la relación.
+
+**Toda medida lee campos que existen.** `campo_leido` tiene una fila por cada `["campo", alias, nombre]`
+de una medida, con la relación del alias —resuelta por las fuentes y por las entradas con condición de
+`requiere`—, su `origen` (`declarada`, `lenguaje` o `sin_declarar`) y si el campo `existe` en ella.
+`meta.toda_medida_lee_campos_que_existen` no admite ninguna lectura de un campo inexistente en una
+relación declarada o del lenguaje. Una relación sin declarar de un consumidor no se juzga: sin
+declaración, Oracle no sabe qué campos trae. `["hecho", alias]` y `["col", nombre]` no son lecturas de
+campo.
 
 Las variantes **no relajan** la regla del campo ausente: una medida sobre una variante filtra primero
 por el discriminante —un `donde` propio, antes del de las violaciones— y pide filas de su variante en
@@ -658,6 +672,12 @@ Explícito siempre: `["campo", alias, nombre]` para un campo, `["hecho", alias]`
 
 Comparar contra un campo ausente **levanta un error**, no devuelve `False`: en una medida eso es casi
 siempre un nombre mal escrito, y un `False` silencioso lo convertiría en un verde.
+
+Al evaluar un conjunto de medidas, ese error **no corta la corrida ni se pierde**: el núcleo deja la
+medida entre las que **no pudieron juzgar**, con su motivo, aparte de los rojos y de los `SIN
+EVIDENCIA`. Un informe con alguna medida que no juzgó no es verde. Cada herramienta decide qué hace con
+eso según su contrato —la aceptación y la mutación de medidas lo cuentan como falla, `oracle juzgar`
+sale 2—, pero todas lo leen del mismo lugar (desde la distribución 0.22.0).
 
 ### Funciones escalares
 

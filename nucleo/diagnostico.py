@@ -37,6 +37,9 @@ MARCA_HOME = "<HOME>"
 CARPETAS = ("catalogos", "corpus", "relaciones", "diferencial", "macros")
 
 AMBITOS_DE_RELACIONES = {"campo_diagnostico": "universal"}
+CAMPOS_DE_RELACIONES = {
+    "campo_diagnostico": ("campo", "es_del_dominio", "que_se_colo"),
+}
 
 
 @dataclass(frozen=True)

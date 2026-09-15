@@ -1,0 +1,29 @@
+[
+  "relacion",
+  "alcanzable",
+  [
+    "campos",
+    [
+      "campo",
+      "desde",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "hasta",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "saltos",
+      "entero",
+      "saltos"
+    ]
+  ],
+  [
+    "alcance",
+    "observa el cierre transitivo de alcanzabilidad entre módulos desde las entradas. NO observa la carga dinámica de módulos por importlib o plugins"
+  ]
+]

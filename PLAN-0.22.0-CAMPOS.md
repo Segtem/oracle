@@ -61,7 +61,8 @@ CAMPOS_DE_RELACIONES = {
 medidas de Oracle leen— se declaran en `relaciones/` (las del perfil python en `perfiles/python/`, si
 ahí vive su emisor), con los campos que emiten sus productores o, para `afirmacion` y `hallazgo`, que no
 emite nadie en Oracle, los que sus medidas leen. Pasan a contar como **declaradas**. Las de proceso que
-ninguna medida lee (`importa`, `cambio`, `paquete`, `veredicto`, `hecho_historia`) quedan fuera.
+ninguna medida lee (`paquete`, `veredicto`, `hecho_historia`) quedan fuera. (Corregido en la
+revisión: `importa` y `cambio` sí se leen, y también se declararon.)
 
 ### 3. `campo_leido`, una relación del lenguaje nueva
 

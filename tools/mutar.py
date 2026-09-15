@@ -20,11 +20,10 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402
-from nucleo.algebra import ErrorDeAlgebra  # noqa: E402
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.fixtures import cargar_fixtures, casos_para_mutacion  # noqa: E402
-from nucleo.medida import (Informe, cargar_catalogo, evaluar, medidas_aplicables,  # noqa: E402
+from nucleo.medida import (Informe, cargar_catalogo, evaluar_conjunto, medidas_aplicables,  # noqa: E402
                           relaciones_de_medida)
 from nucleo.mutacion import cobertura_de_mutadores, correr  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, RAIZ_ORACLE,
@@ -39,7 +38,7 @@ from tools.sesion import resolver_cli  # noqa: E402
 # «el id empieza con `meta.`», que exceptuaba por el nombre y no por una propiedad. Con la convención,
 # escribir una medida meta la sacaba del denominador aunque nadie la evaluara en ningún lado.
 ARNESES_APARTE = {
-    "tools/aceptacion.py": frozenset({"medida", "caso", "relacion_declarada", "campo_declarado", "cantidad_comparada"}),
+    "tools/aceptacion.py": frozenset({"medida", "caso", "relacion_declarada", "campo_declarado", "cantidad_comparada", "campo_leido"}),
     "tools/trazar.py": frozenset({"paso", "nodo", "producto"}),
     # Esta misma herramienta: produce los hechos del uso y los juzga al final de la corrida. Sin
     # declararlo, las dos medidas que miran `medida_en_uso` salían «sin ejercitar» estando
@@ -124,24 +123,17 @@ def _ejecutar(proy, args: list[str]) -> int:
                                    evaluadas_aparte=metas, heredadas=set(base)))
 
     juezas = medidas_aplicables(catalogo.values(), evidencia)
-    no_juzgaron = []
-    veredictos = []
-    for medida in juezas:
-        try:
-            veredictos.append(medida.evaluar(evidencia))
-        except ErrorDeAlgebra as e:
-            no_juzgaron.append((medida.id, str(e)))
-    informe = Informe(tuple(veredictos))
+    informe = evaluar_conjunto(juezas, evidencia)
     if informe.veredictos:
         print("juzgado por las medidas del catálogo:")
         for v in informe.veredictos:
             print(" ", v.linea())
     else:
         print("sin políticas meta activas — se informa sólo el resultado operativo")
-    if no_juzgaron:
-        print(f"\n  {len(no_juzgaron)} medida(s) NO pudieron juzgar esta evidencia — la relación "
+    if informe.no_juzgaron:
+        print(f"\n  {len(informe.no_juzgaron)} medida(s) NO pudieron juzgar esta evidencia — la relación "
               "estaba, los campos no:")
-        for mid, motivo in no_juzgaron:
+        for mid, motivo in informe.no_juzgaron:
             print(f"    · {mid}: {motivo}")
 
     if vivos:
@@ -158,13 +150,16 @@ def _ejecutar(proy, args: list[str]) -> int:
 
 
 def _politicas_ok(informe: Informe) -> bool:
-    """Un rojo de una medida del catálogo hace fallar la ronda; un SIN EVIDENCIA, no.
+    """Un rojo, o una medida que no pudo juzgar, hace fallar la ronda; un SIN EVIDENCIA, no.
 
     Desde 0.21.0 `mutante` es una relación con variantes: esta ronda sólo produce filas de tipo
     «medida», y `proceso.codigo_con_mutante_que_lo_mata` sale SIN EVIDENCIA porque pide filas de
     código. Es correcto que no concluya —no hubo ronda de código— y se imprime, pero no es un rojo del
-    mundo: antes esa medida figuraba entre las que «NO pudieron juzgar», que tampoco hacían fallar.
+    mundo. Una medida que no pudo juzgar la evidencia (0.22.0) sí es un defecto: lee un campo que no
+    está, y cuenta como política incumplida igual que un rojo.
     """
+    if informe.no_juzgaron:
+        return False
     return all(v.ok for v in informe.veredictos if not v.sin_evidencia)
 
 

@@ -1,0 +1,23 @@
+[
+  "relacion",
+  "archivo",
+  [
+    "campos",
+    [
+      "campo",
+      "ruta",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "sintaxis_valida",
+      "booleano",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "observa si un archivo parsea sintácticamente tras una edición. NO observa semántica, cambios en el comportamiento en tiempo de ejecución ni el contenido completo del archivo"
+  ]
+]

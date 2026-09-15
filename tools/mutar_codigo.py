@@ -23,8 +23,7 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
-from nucleo.algebra import ErrorDeAlgebra  # noqa: E402
-from nucleo.medida import cargar_catalogo, medidas_aplicables  # noqa: E402
+from nucleo.medida import cargar_catalogo, evaluar_conjunto, medidas_aplicables  # noqa: E402
 from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
                                               LineaBaseFallida, AislamientoRoto,
                                               ManifiestoInvalido, RondaEnCurso, correr,
@@ -64,6 +63,7 @@ PRIORIDADES = {
     "nucleo/vocabulario.py": ("tests.test_vocabulario", "tests.test_sintaxis"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
     "nucleo/unidad.py": ("tests.test_unidad", "tests.test_nucleo", "tests.test_medida"),
+    "nucleo/campo_leido.py": ("tests.test_campos_de_relaciones", "tests.test_campos_revision"),
     "nucleo/version.py": ("tests.test_herramientas",),
     "oracle_metalenguaje/_compat.py": ("tests.test_motor",),
     "oracle_metalenguaje/motor.py": ("tests.test_motor",),
@@ -675,18 +675,14 @@ def _ejecutar(proy, args) -> int:
     #
     # Una medida que no puede juzgar esta evidencia se declara y se cuenta; no se saltea en silencio
     # ni se lleva puesta la ronda.
-    no_juzgaron = []
-    for medida in medidas_aplicables(catalogo.values(), evidencia):
-        try:
-            v = medida.evaluar(evidencia)
-        except ErrorDeAlgebra as e:
-            no_juzgaron.append((medida.id, str(e)))
-            continue
+    juezas = medidas_aplicables(catalogo.values(), evidencia)
+    informe = evaluar_conjunto(juezas, evidencia)
+    for v in informe.veredictos:
         print(f"  {'✓' if v.ok else '✗'} {v.id:<44} valor {v.valor} ({v.umbral})")
-    if no_juzgaron:
-        print(f"\n  {len(no_juzgaron)} medida(s) NO pudieron juzgar esta evidencia — la relación "
+    if informe.no_juzgaron:
+        print(f"\n  {len(informe.no_juzgaron)} medida(s) NO pudieron juzgar esta evidencia — la relación "
               "estaba, los campos no:")
-        for mid, motivo in no_juzgaron:
+        for mid, motivo in informe.no_juzgaron:
             print(f"    · {mid}: {motivo}")
 
     if ronda_inconclusa:

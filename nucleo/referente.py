@@ -35,6 +35,11 @@ AMBITOS_DE_RELACIONES = {
     "referente_comparado": "universal",
 }
 
+CAMPOS_DE_RELACIONES = {
+    "referente_declarado": ("que", "huella", "cuando", "tiene_huella"),
+    "referente_comparado": ("que", "huella_leida", "huella_actual", "cuando_lectura", "cuando_actual"),
+}
+
 
 @dataclass(frozen=True)
 class Referente:

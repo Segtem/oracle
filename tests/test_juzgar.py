@@ -554,12 +554,12 @@ class TestRevisionCorrecciones(BaseJuzgarTest):
 
     def test_r4_excepciones_acotadas_a_entrada_y_catalogo(self) -> None:
         con = self.escribir_evidencia({"referencia_seguimiento": [_fila_referencia()]})
-        with patch("tools.juzgar.evaluar", side_effect=ErrorDeAlgebra("error de algebra")):
+        with patch("tools.juzgar.evaluar_conjunto", side_effect=ErrorDeAlgebra("error de algebra")):
             rc, out, err = self.correr_cli("juzgar", "--con", str(con), "--proyecto", str(self.proyecto))
             self.assertEqual(rc, 2)
             self.assertIn("ERROR AL EVALUAR", err)
 
-        with patch("tools.juzgar.evaluar", side_effect=RuntimeError("bug inesperado del motor")):
+        with patch("tools.juzgar.evaluar_conjunto", side_effect=RuntimeError("bug inesperado del motor")):
             with self.assertRaises(RuntimeError):
                 self.correr_cli("juzgar", "--con", str(con), "--proyecto", str(self.proyecto))
 

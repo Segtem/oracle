@@ -32,6 +32,8 @@ from __future__ import annotations
 
 from datetime import date
 
+from .algebra import ErrorDeAlgebra
+
 
 RELACIONES_DEL_LENGUAJE = frozenset({"caso", "medida_en_uso", "sombra",
                                      "relacion_documentada", "verbo_del_cli",
@@ -46,6 +48,26 @@ AMBITOS_DE_RELACIONES = {
     "verbo_del_cli": "universal",
     "opcion_del_vocabulario": "universal",
     "mutador_excluido": "del_origen",
+}
+
+CAMPOS_DE_RELACIONES = {
+    "caso": (
+        "id", "medida", "procedencia", "declara_de_donde_salio", "tiene_medida",
+        "medida_existe", "esperado_ok", "dio_ok", "es_hueco_abierto",
+        "explica_el_hueco", "es_heredado", "biblioteca",
+    ),
+    "medida_en_uso": (
+        "id", "casos_que_la_evaluan", "mutantes", "mutantes_vivos",
+        "es_heredada", "debe_tener_mutantes",
+    ),
+    "sombra": (
+        "medida", "declara_desde", "declara_porque", "dias", "dio_ok", "existe",
+        "declara_cota", "cota", "valor", "evaluada", "supera_la_cota",
+    ),
+    "relacion_documentada": ("relacion", "nombrada_en_la_referencia"),
+    "verbo_del_cli": ("sustantivo", "verbo", "nombrado_en_la_ayuda"),
+    "opcion_del_vocabulario": ("vocabulario", "opcion", "palabras_del_sentido", "en_el_manual"),
+    "mutador_excluido": ("mutador", "premisa", "lo_ofrece_un_autor", "esta_en_el_arnes"),
 }
 
 
@@ -256,7 +278,12 @@ def hechos_de_casos(catalogo: dict, casos: list[dict]) -> dict:
         esperado = c.get("etiqueta") == "verde_correcto"
 
         if existe:
-            dio = catalogo[mid].evaluar(c["evidencia"]).ok
+            try:
+                dio = catalogo[mid].evaluar(c["evidencia"]).ok
+            except ErrorDeAlgebra:
+                # La medida no pudo juzgar la evidencia del caso (un campo que no trae). Eso no es
+                # «se puso roja como debía» ni «salió verde como debía»: nunca se pone como debe.
+                dio = not esperado
         else:
             # nada que comparar: se igualan y de la falta se ocupa otra medida (ver el docstring)
             dio = esperado

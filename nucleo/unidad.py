@@ -21,6 +21,9 @@ from .relacion import Relacion
 
 RELACIONES_DE_UNIDAD = frozenset({"cantidad_comparada"})
 AMBITOS_DE_RELACIONES = {"cantidad_comparada": "universal"}
+CAMPOS_DE_RELACIONES = {
+    "cantidad_comparada": ("medida", "unidad", "es_derivable"),
+}
 
 UNIDAD_ADIMENSIONAL = "adimensional"
 UNIDAD_NO_DERIVABLE = "sin_declarar"

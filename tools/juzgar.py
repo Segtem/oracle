@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 
 from nucleo.algebra import ErrorDeAlgebra
-from nucleo.medida import (Catalogo, Medida, MedidaMalDeclarada, evaluar,
+from nucleo.medida import (Catalogo, Medida, MedidaMalDeclarada, evaluar_conjunto,
                            medidas_aplicables, relaciones_de_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,
                              Proyecto, ProyectoInvalido, catalogo_efectivo,
@@ -219,7 +219,11 @@ def cmd_juzgar(argv: list[str]) -> int:
                     return 1
 
             # 7. Evaluación
-            informe = evaluar(medidas_a_evaluar, evidencia)
+            informe = evaluar_conjunto(medidas_a_evaluar, evidencia)
+            if informe.no_juzgaron:
+                for mid, motivo in informe.no_juzgaron:
+                    print(f"ERROR AL EVALUAR — «{mid}»: {motivo}", file=sys.stderr)
+                return 2
 
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}", file=sys.stderr)

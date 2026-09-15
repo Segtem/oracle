@@ -1,0 +1,19 @@
+caso 505-lecturas-que-existen-y-una-relacion-sin-declarar:
+    fecha: "2026-09-15"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "96a6a10"
+    procedencia: construida
+    titulo: "Lecturas que existen y una relación sin declarar no ponen roja la medida"
+    etiqueta: verde_correcto
+    sintoma:
+        Todas las lecturas de relaciones declaradas o del lenguaje existen, y una medida de un consumidor lee `pieza_propia.alto` de una relación que nadie declaró. Oracle no sabe qué campos trae una relación sin declarar, así que esa lectura no es un defecto que pueda afirmar: medido el 2026-09-15, LyraGASP y Jam leen 121 campos de 39 relaciones sin declarar.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_lee_campos_que_existen
+    evidencia:
+        campo_leido: medida, relacion, campo, origen, existe
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "estado", "declarada", true
+            "meta.ningun_campo_sin_unidad_declarada", "campo_declarado", "tiene_unidad", "lenguaje", true
+            "dominio.alto_maximo", "pieza_propia", "alto", "sin_declarar", false
+    leccion:
+        La regla juzga lo que Oracle puede saber. Exigirle a un consumidor que declare cada relación es otra política, y pondría en rojo proyectos que hoy no tienen ningún defecto de lectura.

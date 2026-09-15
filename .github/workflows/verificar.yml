@@ -115,6 +115,7 @@ jobs:
         objetivo:
           - nucleo/aislamiento/escalares.py
           - nucleo/algebra.py
+          - nucleo/campo_leido.py
           - nucleo/diferencial.py
           - nucleo/dominio.py
           - nucleo/fixtures.py

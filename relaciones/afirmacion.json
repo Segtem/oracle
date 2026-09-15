@@ -1,0 +1,35 @@
+[
+  "relacion",
+  "afirmacion",
+  [
+    "campos",
+    [
+      "campo",
+      "id",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "texto",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "comando",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "alcance",
+      "texto",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "observa afirmaciones de verificación y su alcance declarado. NO observa si el alcance escrito es honesto o pertinente, ya que ningún emisor propio de Oracle produce esta relación"
+  ]
+]

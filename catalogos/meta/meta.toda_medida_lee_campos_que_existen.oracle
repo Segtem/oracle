@@ -1,0 +1,6 @@
+ninguno meta.toda_medida_lee_campos_que_existen:
+    de campo_leido c
+    donde c.origen != "sin_declarar" y c.existe == false
+    umbral <= 0 segun contrato porque "una medida que lee un campo inexistente de una relación conocida falla al evaluar cuando la evidencia no lo trae"
+    ambito universal
+    alcance "ve si los campos leídos por las medidas están declarados en relaciones conocidas. NO ve relaciones sin declarar, ni si la variante leída es la que la medida filtra"

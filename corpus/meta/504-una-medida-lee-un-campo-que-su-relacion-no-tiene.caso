@@ -1,0 +1,19 @@
+caso 504-una-medida-lee-un-campo-que-su-relacion-no-tiene:
+    fecha: "2026-09-15"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "96a6a10"
+    procedencia: construida
+    titulo: "Una medida lee un campo que su relación no tiene"
+    etiqueta: falso_verde
+    sintoma:
+        La relación `mutante` está declarada con sus variantes y la medida lee `m.estadoo`, un nombre mal escrito. Hasta 0.21.0 nada lo decía antes de evaluar: la medida se declaraba aplicable por el nombre de la relación y levantaba dentro del `donde`, y cada herramienta lo trataba distinto. Una fila de `campo_leido` con `existe: false` en una relación declarada es el defecto.
+    como_se_detecto: observacion
+    medida: meta.toda_medida_lee_campos_que_existen
+    evidencia:
+        campo_leido: medida, relacion, campo, origen, existe
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "tipo", "declarada", true
+            "proceso.codigo_con_mutante_que_lo_mata", "mutante", "estadoo", "declarada", false
+            "meta.ningun_campo_sin_unidad_declarada", "campo_declarado", "tiene_unidad", "lenguaje", true
+    leccion:
+        Un campo inexistente en una relación cuyos campos se conocen es un error de la medida, y se ve sin evidencia del mundo: basta cruzar lo que la medida lee con lo que la relación declara.

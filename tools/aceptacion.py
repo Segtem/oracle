@@ -26,13 +26,14 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
+from nucleo.campo_leido import hechos_de_campos_leidos  # noqa: E402
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.medida import relaciones_de_medida  # noqa: E402
 from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
 from nucleo.marco import (hechos_de_casos, hechos_de_documentacion,  # noqa: E402
                           hechos_de_mutadores_excluidos, hechos_de_sombra, hechos_de_verbos,
                           hechos_de_vocabulario)
-from nucleo.medida import (como_hechos, evaluar, medidas_aplicables,  # noqa: E402
+from nucleo.medida import (como_hechos, evaluar_conjunto, medidas_aplicables,  # noqa: E402
                            relaciones_del_lenguaje_declaradas)
 from nucleo.mutacion import (EXCLUSIONES_DE_MUTADORES, MUTADORES,  # noqa: E402
                              mutadores_declarados_por_sus_autores)
@@ -45,6 +46,7 @@ from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa:
                              macros_del_proyecto,
                              problemas_estructura, relaciones_del_proyecto)  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
+
 
 def _hechos_del_cli() -> dict:
     """Los verbos que el CLI acepta y la ayuda que imprime, para que una medida los compare.
@@ -130,15 +132,21 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
             continue
 
         esperado_ok = c["etiqueta"] == "verde_correcto"
-        v = catalogo[mid].evaluar(c["evidencia"])
-        if v.ok != esperado_ok:
-            pass          # lo dictamina `meta.el_caso_se_pone_como_debe`, no un `if` de acá
-        elif esperado_ok:
-            verdes += 1
-            print(f"  verde {c['id']:<38} {mid}  (valor {v.valor})")
-        else:
-            rojos += 1
-            print(f"  ROJO  {c['id']:<38} {mid}  (valor {v.valor})")
+        inf = evaluar_conjunto([catalogo[mid]], c["evidencia"])
+        if inf.no_juzgaron:
+            for _, motivo in inf.no_juzgaron:
+                fallas.append(f"{c['id']}: no pudo juzgarse — {motivo}")
+                print(f"  NO JUZGÓ {c['id']:<36} {mid}  ({motivo})")
+        elif inf.veredictos:
+            v = inf.veredictos[0]
+            if v.ok != esperado_ok:
+                pass          # lo dictamina `meta.el_caso_se_pone_como_debe`, no un `if` de acá
+            elif esperado_ok:
+                verdes += 1
+                print(f"  verde {c['id']:<38} {mid}  (valor {v.valor})")
+            else:
+                rojos += 1
+                print(f"  ROJO  {c['id']:<38} {mid}  (valor {v.valor})")
 
     print(f"\ndefectos que se pusieron rojos: {rojos} · verdes correctos: {verdes} · "
           f"huecos declarados: {len(huecos)}")
@@ -180,9 +188,10 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(
                           relaciones.values(), ambitos=ambitos_de_relaciones_declarados()),
-                      **hechos_de_unidades(catalogo.values(), relaciones)}
+                      **hechos_de_unidades(catalogo.values(), relaciones),
+                      **hechos_de_campos_leidos(catalogo.values(), relaciones)}
     metas = [m for mid, m in sorted(catalogo.items()) if mid.startswith("meta.")]
-    informe_meta = evaluar(medidas_aplicables(metas, evidencia_meta), evidencia_meta)
+    informe_meta = evaluar_conjunto(medidas_aplicables(metas, evidencia_meta), evidencia_meta)
 
     # La SOMBRA apaga la consecuencia de un rojo, no la medición. Una medida en sombra se evalúa
     # igual, se imprime igual y se cuenta igual; lo único que no hace es tumbar la corrida.
@@ -195,6 +204,13 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
     # ya no existe—.
     en_sombra = {e.medida for e in configuracion(proy).sombra}
     ensombrecidas = []
+    for mid_nj, motivo in informe_meta.no_juzgaron:
+        linea = f"{mid_nj}   [NO JUZGÓ: {motivo}]"
+        if mid_nj in en_sombra:
+            linea += "   [EN SOMBRA]"
+        print(" ", linea)
+        if mid_nj not in en_sombra:
+            fallas.append(f"{mid_nj}: no pudo juzgarse — {motivo}")
     for v in informe_meta.veredictos:
         # La marca va en la línea del VEREDICTO, no al final del bloque: `v.linea()` trae también
         # los testigos, y pegada al final quedaba a cinco renglones del id que ensombrece — donde
@@ -229,7 +245,7 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
         # con `meta.ninguna_cota_mas_alta_que_su_deuda`, que quedó verde sin haber corrido.
         vigilan = [m for _mid, m in sorted(catalogo.items())
                    if "sombra" in relaciones_de_medida(m)]
-        informe_sombra = evaluar(medidas_aplicables(vigilan, evidencia_sombra), evidencia_sombra)
+        informe_sombra = evaluar_conjunto(medidas_aplicables(vigilan, evidencia_sombra), evidencia_sombra)
         print(f"\nEN SOMBRA — {len(sombra_declarada)} medida(s) que se miden y no hacen fallar:")
         for entrada in sombra_declarada:
             hecho = next(h for h in evidencia_sombra["sombra"] if h["medida"] == entrada.medida)
@@ -237,6 +253,9 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
             print(f"  · {entrada.medida}  ({antiguedad})")
             print(f"      porque: {entrada.porque or '(no declarado)'}")
         evidencia_volcada = evidencia_sombra
+        for mid_nj, motivo in informe_sombra.no_juzgaron:
+            print(f"  {mid_nj}   [NO JUZGÓ: {motivo}]")
+            fallas.append(f"{mid_nj}: no pudo juzgarse — {motivo}")
         for v in informe_sombra.veredictos:
             print(" ", v.linea())
             if not v.ok:
