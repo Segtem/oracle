@@ -98,6 +98,13 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.19.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.18.1` a `0.19.0`.** La menor
+agrega a la superficie de `oracle tarea` un lenguaje de consultas —`listar <consulta>`,
+`desetiquetar --consulta`— con contrato propio: gramática de tatr en español, tipos verificados al
+compilar y código 2 para una consulta inválida; además `listar --explicar/--por-id/--invertir`,
+`referencias` sin ID dentro de una tarea e `init --sin-readme`. El lenguaje de consultas de tareas
+es del tracker, no del metalenguaje: `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.4`.
+
 **Corte 0.18.1 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.18.0` a `0.18.1`.** Sube la
 **revisión**: `oracle juzgar` cumple el código de salida que ya declaraba 0.18.0 —2 para una
 evidencia que no se puede consultar— en vez de terminar en traceback. No cambia ningún contrato,

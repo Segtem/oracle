@@ -1,0 +1,224 @@
+objetivos: tools/tareas_contexto.py
+
+     ·  tools/tareas_contexto.py:42:23:constante             constante: 20 → 21
+     ·  tools/tareas_contexto.py:42:28:constante             constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:42:35:constante             constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:43:24:constante             constante: 2 → 3
+     ·  tools/tareas_contexto.py:43:28:constante             constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:43:35:constante             constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:140:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:140:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:140:18:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:143:11:booleano             booleano: and ↔ or
+     ·  tools/tareas_contexto.py:143:26:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_contexto.py:154:7:comparador            comparador: NotIn → In
+     ·  tools/tareas_contexto.py:157:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:166:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:180:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:180:42:constante            constante: False → True
+     ·  tools/tareas_contexto.py:185:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:185:56:constante            constante: True → False
+     ·  tools/tareas_contexto.py:187:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:188:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:188:67:constante            constante: False → True
+     ·  tools/tareas_contexto.py:190:7:comparador            comparador: Gt → GtE
+     ·  tools/tareas_contexto.py:191:39:constante            constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:191:46:constante            constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:192:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:192:63:constante            constante: False → True
+     ·  tools/tareas_contexto.py:195:7:comparador            comparador: In → NotIn
+     ·  tools/tareas_contexto.py:196:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:196:40:constante            constante: False → True
+     ·  tools/tareas_contexto.py:198:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:198:18:comparador           comparador: NotIn → In
+     ·  tools/tareas_contexto.py:199:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:199:59:constante            constante: False → True
+     ·  tools/tareas_contexto.py:202:56:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:202:87:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:206:53:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:214:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:214:63:constante            constante: True → False
+     ·  tools/tareas_contexto.py:216:7:comparador            comparador: Gt → GtE
+     ·  tools/tareas_contexto.py:217:39:constante            constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:217:46:constante            constante: 1024 → 1025
+     ·  tools/tareas_contexto.py:218:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:218:63:constante            constante: False → True
+     ·  tools/tareas_contexto.py:220:7:comparador            comparador: In → NotIn
+     ·  tools/tareas_contexto.py:221:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:221:63:constante            constante: False → True
+     ·  tools/tareas_contexto.py:226:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:226:47:constante            constante: False → True
+     ·  tools/tareas_contexto.py:228:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:228:37:constante            constante: False → True
+     ·  tools/tareas_contexto.py:254:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:254:7:comparador            comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:254:34:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:256:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:256:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:258:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:258:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:258:26:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:263:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:263:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:265:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:265:24:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:270:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:270:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:277:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:277:19:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:283:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:283:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:290:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:290:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:293:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:295:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:295:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:301:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:301:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:307:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:307:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:313:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:313:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:319:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:319:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:321:11:comparador           comparador: In → NotIn
+     ·  tools/tareas_contexto.py:339:35:constante            constante: 2 → 3
+     ·  tools/tareas_contexto.py:344:44:constante            constante: 2 → 3
+     ·  tools/tareas_contexto.py:350:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:350:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:366:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:366:11:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:390:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:390:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:393:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:393:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:400:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:400:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:402:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:407:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:407:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:410:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:410:7:comparador            comparador: Gt → GtE
+     ·  tools/tareas_contexto.py:410:48:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:415:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:415:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:418:11:comparador           comparador: In → NotIn
+     ·  tools/tareas_contexto.py:423:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:423:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:425:7:comparador            comparador: Eq → NotEq
+     ·  tools/tareas_contexto.py:430:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:430:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:436:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:436:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:443:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:443:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:446:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:448:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:448:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:455:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:455:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:460:7:booleano              booleano: and ↔ or
+     ·  tools/tareas_contexto.py:465:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:465:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:470:21:constante            constante: False → True
+     ·  tools/tareas_contexto.py:475:25:constante            constante: True → False
+     ·  tools/tareas_contexto.py:476:20:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:478:18:constante            constante: True → False
+     ·  tools/tareas_contexto.py:480:19:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:483:19:booleano             booleano: and ↔ or
+     ·  tools/tareas_contexto.py:483:19:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:483:50:comparador           comparador: Gt → GtE
+     ·  tools/tareas_contexto.py:494:42:constante            constante: True → False
+     ·  tools/tareas_contexto.py:501:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:501:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:509:15:comparador           comparador: In → NotIn
+     ·  tools/tareas_contexto.py:515:39:constante            constante: 2 → 3
+     ·  tools/tareas_contexto.py:520:48:constante            constante: 2 → 3
+     ·  tools/tareas_contexto.py:527:38:constante            constante: True → False
+     ·  tools/tareas_contexto.py:534:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:534:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:548:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:548:11:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:567:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:569:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:569:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:575:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:575:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:586:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:586:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:610:16:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:610:23:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:611:15:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:615:19:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:616:60:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:617:19:comparador           comparador: In → NotIn
+     ·  tools/tareas_contexto.py:669:24:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:669:31:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:670:23:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:674:27:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:675:68:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:676:27:comparador           comparador: In → NotIn
+     ·  tools/tareas_contexto.py:686:16:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:686:23:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:697:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:697:15:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:699:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:710:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:710:11:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:727:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:727:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:738:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:738:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:741:7:comparador            comparador: Is → IsNot
+     ·  tools/tareas_contexto.py:746:11:booleano             booleano: and ↔ or
+     ·  tools/tareas_contexto.py:746:11:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:746:31:comparador           comparador: GtE → Gt
+     ·  tools/tareas_contexto.py:746:49:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:747:34:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:748:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_contexto.py:750:11:comparador           comparador: Is → IsNot
+     ·  tools/tareas_contexto.py:755:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:755:19:constante            constante: 2 → 3
+     ·  tools/tareas_contexto.py:761:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:761:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:780:15:comparador           comparador: In → NotIn
+     ·  tools/tareas_contexto.py:815:16:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:815:23:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:816:15:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:820:19:comparador           comparador: IsNot → Is
+     ·  tools/tareas_contexto.py:821:60:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:832:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:832:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:845:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:845:15:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:847:7:negacion              negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:859:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:859:11:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:875:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:875:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:887:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:887:15:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:891:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_contexto.py:893:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:893:19:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:898:42:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:898:56:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:902:29:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:907:58:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:907:63:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:910:24:constante            constante: 1 → 2
+     ·  tools/tareas_contexto.py:910:53:negacion             negacion: se borra el `not`
+     ·  tools/tareas_contexto.py:924:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:924:15:constante            constante: 0 → 1
+     ·  tools/tareas_contexto.py:942:4:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_contexto.py:942:11:constante            constante: 0 → 1
+
+mutantes: 212 · murieron 212 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+  1 medida(s) NO pudieron juzgar esta evidencia — la relación estaba, los campos no:
+    · proceso.test_con_mutante_que_lo_mata: «==» sobre un valor ausente: ['==', ['campo', 'm', 'detecciones_conductuales'], 0] en `2.2.1.1`
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

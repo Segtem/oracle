@@ -406,7 +406,7 @@ oracle tarea init
 oracle tarea nueva "Investigar un defecto del sensor" --etiqueta bug --prioridad 70
 oracle tarea anotar <id> --url "https://www.youtube.com/watch?v=…" --marca 03:10
 oracle tarea adjuntar <id> captura.png
-oracle tarea ls --etiqueta bug
+oracle tarea ls :bug y no :ui              # consultas: y/o/no, prioridad menor 50, [ ]
 oracle tarea referencias <id>          # dónde se la menciona, en tareas y en código
 oracle tarea seguimiento               # qué está versionado y qué sigue sólo en el disco
 oracle tarea cerrar <id>
@@ -594,7 +594,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1988 tests · 959/959 mutantes de medida · **7064 sitios de mutación de código** (6854 + 210 del motor Python).
+2051 tests · 959/959 mutantes de medida · **7187 sitios de mutación de código** (6977 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

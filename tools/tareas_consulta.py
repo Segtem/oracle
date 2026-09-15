@@ -41,7 +41,7 @@ class ConsultaInvalida(ValueError):
         return f"{self.consulta}\n{' ' * self.columna}^\nERROR: {self.mensaje}"
 
 
-@dataclass(frozen=True)
+@dataclass
 class Token:
     texto: str
     columna: int  # Índice de carácter (0-indexed) en la consulta
@@ -241,12 +241,6 @@ class _Parser:
         raiz = self._parse_o()
         if self.pos < len(self.tokens):
             tok_sobrante = self.tokens[self.pos]
-            if tok_sobrante.texto in ("y", "o") or tok_sobrante.texto in OPERADORES:
-                raise ConsultaInvalida(
-                    f"operador infijo inesperado «{tok_sobrante.texto}» después de la consulta",
-                    columna=tok_sobrante.columna,
-                    consulta=self.texto,
-                )
             raise ConsultaInvalida(
                 f"token inesperado «{tok_sobrante.texto}»",
                 columna=tok_sobrante.columna,

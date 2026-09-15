@@ -1,0 +1,112 @@
+objetivos: tools/tareas_consulta.py
+
+     ·  tools/tareas_consulta.py:19:26:comparador            comparador: Lt → LtE
+     ·  tools/tareas_consulta.py:20:26:comparador            comparador: LtE → Lt
+     ·  tools/tareas_consulta.py:21:26:comparador            comparador: Gt → GtE
+     ·  tools/tareas_consulta.py:22:26:comparador            comparador: GtE → Gt
+     ·  tools/tareas_consulta.py:23:26:comparador            comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:24:29:comparador            comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:41:8:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:53:8:constante              constante: 0 → 1
+     ·  tools/tareas_consulta.py:55:10:comparador            comparador: Lt → LtE
+     ·  tools/tareas_consulta.py:58:17:constante             constante: 1 → 2
+     ·  tools/tareas_consulta.py:60:11:comparador            comparador: In → NotIn
+     ·  tools/tareas_consulta.py:62:17:constante             constante: 1 → 2
+     ·  tools/tareas_consulta.py:65:14:booleano              booleano: and ↔ or
+     ·  tools/tareas_consulta.py:65:14:comparador            comparador: Lt → LtE
+     ·  tools/tareas_consulta.py:65:24:negacion              negacion: se borra el `not`
+     ·  tools/tareas_consulta.py:65:52:comparador            comparador: NotIn → In
+     ·  tools/tareas_consulta.py:66:17:constante             constante: 1 → 2
+     ·  tools/tareas_consulta.py:68:4:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:92:8:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:92:15:constante             constante: True → False
+     ·  tools/tareas_consulta.py:95:8:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:104:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:104:15:comparador           comparador: Gt → GtE
+     ·  tools/tareas_consulta.py:104:38:constante            constante: 0 → 1
+     ·  tools/tareas_consulta.py:107:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:120:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:120:19:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:123:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:133:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:133:15:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:136:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:145:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:148:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:158:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:161:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:171:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:171:15:negacion             negacion: se borra el `not`
+     ·  tools/tareas_consulta.py:174:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:186:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:189:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:200:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:200:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_consulta.py:203:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:214:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:214:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_consulta.py:217:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:226:19:constante            constante: 0 → 1
+     ·  tools/tareas_consulta.py:229:11:comparador           comparador: Lt → LtE
+     ·  tools/tareas_consulta.py:230:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:235:20:constante            constante: 1 → 2
+     ·  tools/tareas_consulta.py:236:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:239:11:negacion             negacion: se borra el `not`
+     ·  tools/tareas_consulta.py:240:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:240:42:constante            constante: 0 → 1
+     ·  tools/tareas_consulta.py:242:11:comparador           comparador: Lt → LtE
+     ·  tools/tareas_consulta.py:249:11:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:255:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:259:14:constante            constante: True → False
+     ·  tools/tareas_consulta.py:261:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_consulta.py:261:23:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:263:19:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:270:19:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:279:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:283:14:constante            constante: True → False
+     ·  tools/tareas_consulta.py:285:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_consulta.py:285:23:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:287:19:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:294:19:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:303:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:307:14:constante            constante: True → False
+     ·  tools/tareas_consulta.py:309:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_consulta.py:309:23:comparador           comparador: In → NotIn
+     ·  tools/tareas_consulta.py:311:19:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:318:19:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:329:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:333:11:comparador           comparador: Is → IsNot
+     ·  tools/tareas_consulta.py:340:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:343:15:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:349:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:351:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:355:15:booleano             booleano: and ↔ or
+     ·  tools/tareas_consulta.py:355:15:comparador           comparador: Is → IsNot
+     ·  tools/tareas_consulta.py:355:37:comparador           comparador: NotEq → Eq
+     ·  tools/tareas_consulta.py:362:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:364:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:373:33:constante            constante: 1 → 2
+     ·  tools/tareas_consulta.py:374:15:negacion             negacion: se borra el `not`
+     ·  tools/tareas_consulta.py:380:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:382:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:384:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:386:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:388:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:390:11:comparador           comparador: Eq → NotEq
+     ·  tools/tareas_consulta.py:392:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:396:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:400:12:retorno              retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:417:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:421:11:negacion             negacion: se borra el `not`
+     ·  tools/tareas_consulta.py:428:8:retorno               retorno: return <algo> → return None
+     ·  tools/tareas_consulta.py:436:4:retorno               retorno: return <algo> → return None
+
+mutantes: 99 · murieron 99 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 1
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+  1 medida(s) NO pudieron juzgar esta evidencia — la relación estaba, los campos no:
+    · proceso.test_con_mutante_que_lo_mata: «==» sobre un valor ausente: ['==', ['campo', 'm', 'detecciones_conductuales'], 0] en `2.2.1.1`
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

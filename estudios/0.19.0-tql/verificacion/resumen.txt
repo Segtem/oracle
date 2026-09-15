@@ -1,0 +1,16 @@
+Mutación de código del corte 0.19.0 (2026-09-15), una ronda por objetivo en copias aisladas,
+con TMPDIR propio y `ulimit -v 4000000`. Los .log de esta carpeta son la última ronda de cada uno.
+
+Primera ronda (antes de cubrir sobrevivientes)
+tareas_consulta: código 1 · 3 vivos   (columna de la consulta vacía, rama «operador infijo», `explicar` sin tokens)
+tareas_contexto: código 1 · 1 vivo    (referencias sin ID desde una carpeta oculta)
+
+Segunda ronda de tareas_contexto (con el test de «falta el ID»; el sobreviviente era otro `and`)
+tareas_contexto: código 1 · 1 vivo
+
+Ronda final
+tareas_consulta: código 0 · 99/99 · 1 equivalente declarado
+tareas_contexto: código 0 · 212/212
+tareas:          código 1 · 380/381 · el vivo (tareas.py:751, `return 0` → `return None` en
+                 `listar --explicar`) lo mata test_explicar_devuelve_cero_en_proceso, agregado con
+                 la ronda en marcha y verificado aplicando el mutante a mano (`None != 0`).

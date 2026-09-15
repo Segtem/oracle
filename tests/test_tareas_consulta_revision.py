@@ -194,9 +194,22 @@ class ReferenciasEInitTests(TrackerTemporal):
                 self.assertIn("codigo.py", p.stdout)
 
     def test_referencias_sin_id_fuera_de_una_tarea_sale_dos(self):
-        p = self.cli("referencias", cwd=self.raiz, proyecto=False)
+        for cwd in (self.raiz, self.raiz / "tareas"):
+            with self.subTest(cwd=cwd.name):
+                p = self.cli("referencias", cwd=cwd, proyecto=False)
+                self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+                self.assertNotIn("Traceback", p.stderr)
+                self.assertIn("falta el ID", p.stderr)
+
+    def test_referencias_sin_id_desde_una_carpeta_oculta_no_la_toma_por_tarea(self):
+        """Sobreviviente de mutación: `auditar_tareas` salta las carpetas con punto, y un TAREA.md
+        adentro no las vuelve una tarea."""
+        oculta = self.raiz / "tareas" / ".borrador"
+        oculta.mkdir()
+        (oculta / "TAREA.md").write_text("# Borrador\n", encoding="utf-8")
+        p = self.cli("referencias", cwd=oculta, proyecto=False)
         self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
-        self.assertNotIn("Traceback", p.stderr)
+        self.assertIn("falta el ID", p.stderr)
 
     def test_init_sin_readme(self):
         nuevo = self.temporal / "nuevo"
@@ -229,6 +242,27 @@ class RevisionDeLaEntregaTests(TrackerTemporal):
     def test_el_id_de_la_consulta_es_el_del_tracker(self):
         from tools import tareas, tareas_consulta
         self.assertEqual(tareas_consulta.ID_COMPLETO_RE.pattern, tareas.ID_COMPLETO_RE.pattern)
+
+    def test_explicar_nombra_cada_primaria(self):
+        """Sobrevivientes de mutación: el `explicar` de cinco nodos no lo fijaba ningún test."""
+        from tools.tareas_consulta import compilar
+        forma = compilar("cualquiera y etiquetada o :Bug y no 20260915-023750-tql o prioridad desde 5")
+        self.assertEqual(
+            forma.explicar().splitlines()[-1],
+            "  (((cualquiera y etiquetada) o (:Bug y (no id(20260915-023750-tql)))) o (prioridad desde 5))",
+        )
+        self.assertEqual(compilar(":a y 1 menor 2").explicar(),
+                         "TOKENS:\n  [0] :a\n  [3] y\n  [5] 1\n  [7] menor\n  [13] 2\nCOMPILADO:\n  (:a y (1 menor 2))")
+        self.assertEqual(compilar("").explicar(), "TOKENS:\n  (vacío)\nCOMPILADO:\n  cualquiera")
+
+    def test_explicar_devuelve_cero_en_proceso(self):
+        """Sobreviviente de mutación: por el CLI un `return None` también sale 0."""
+        import contextlib
+        import io
+        from tools import tareas
+        with contextlib.redirect_stdout(io.StringIO()) as salida:
+            self.assertEqual(tareas.cmd_listar([], [":a", "--explicar"]), 0)
+        self.assertIn("COMPILADO:", salida.getvalue())
 
     def test_desetiquetar_muestra_la_posicion_como_listar(self):
         p = self.cli("desetiquetar", "--etiqueta", "bug", "--consulta", ":bug y")

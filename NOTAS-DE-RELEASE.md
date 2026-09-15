@@ -1,3 +1,56 @@
+# 0.19.0 — consultas de tareas en español
+
+```
+VERSION_DISTRIBUCION   0.18.1 → 0.19.0   lenguaje de consultas de oracle tarea
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+El tracker tenía casi todo lo de [tatr](https://github.com/tsoding/tatr) menos lo que tatr usa para
+trabajar con muchas tareas: un lenguaje de consultas. Llega con la gramática de tatr y el vocabulario
+del resto del CLI:
+
+```bash
+oracle tarea ls :bug y no :ui
+oracle tarea ls no etiquetada
+oracle tarea ls :bug y prioridad menor 50
+oracle tarea desetiquetar --etiqueta viejo --consulta ":scope y no :ui"
+```
+
+- `y`, `o`, `no` y corchetes `[ ]`; `cualquiera`, `etiquetada`, `prioridad`, `:etiqueta`, enteros y
+  un ID exacto; `menor`, `hasta`, `mayor`, `desde`, `igual`, `distinto`. `y` liga antes que `o`.
+- Los tipos se verifican **al compilar**: `prioridad` sola o `:bug menor 3` salen 2 con la consulta
+  y un `^` bajo el token, antes de leer una sola tarea. tatr los descubre al evaluar.
+- Las etiquetas no distinguen mayúsculas, igual que `listar --etiqueta`.
+- No hay símbolos: `<` y `>` redirigen en la shell, que es por lo que tatr tampoco los usa.
+
+Y lo que faltaba de tatr alrededor del lenguaje: `listar --explicar` (tokens y árbol compilado, sin
+tracker), `--por-id` (más nuevas primero) e `--invertir`; `referencias` sin ID dentro de la carpeta de
+una tarea; `init --sin-readme`.
+
+## Cómo se hizo
+
+Tarea `20260915-023750-tql`, con commits que empiezan con su ID. Implementó agy; Claude revisó con
+tests escritos contra el encargo antes de leer el código —pasaron enteros— y corrigió lo que la
+entrega agregaba sin pedido: comparadores simbólicos, un `-c` para `--consulta` (en tatr `-c` es
+«cerradas»), código sin conducta y una tabla «Diferencias con tatr» que le atribuía a tatr
+paréntesis, símbolos y un `-explain` que no tiene.
+
+## Verificación
+
+- Suite: 2051 tests en verde. `tools/verificar_instalacion.py`: `WHEEL OK`, con una consulta en
+  español y una de tipo inválido —código 2 con su posición— desde el wheel instalado.
+- Mutación de código: `tools/tareas_consulta.py` 99/99 (y un equivalente declarado),
+  `tools/tareas_contexto.py` 212/212 y `tools/tareas.py` 380/381, con el sobreviviente cubierto por un
+  test verificado contra el mutante. `tools/tareas_consulta.py` entra a la matriz de custodias de CI.
+
+- [Plan](PLAN-0.19.0-TQL.md), [encargo](estudios/0.19.0-tql/ENCARGO-AGY.md),
+  [revisión](estudios/0.19.0-tql/REVISION-CLAUDE.md) y [cierre](estudios/0.19.0-tql/CIERRE.md).
+
+Álgebra y sintaxis no cambian. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.18.1 — `oracle juzgar` no termina en traceback al consultar la evidencia
 
 ```
