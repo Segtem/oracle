@@ -1,3 +1,64 @@
+# 0.22.0 — toda medida lee campos que existen, y un campo ausente se informa igual en todas partes
+
+```
+VERSION_DISTRIBUCION   0.21.0 → 0.22.0   campos de las relaciones y medidas que no pudieron juzgar
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+Una medida se declaraba aplicable por el nombre de la relación aunque leyera un campo que la evidencia
+no trae, y nada lo decía antes de evaluar. Al evaluar, cada herramienta lo trataba distinto: `mutar` y
+`mutar_codigo` lo listaban aparte, `juzgar` salía 2 y la aceptación terminaba en traceback.
+
+- **Los campos de lo que emite Oracle se conocen.** Cada emisor declara los de sus relaciones en
+  `CAMPOS_DE_RELACIONES`, al lado de la relación, y un test los compara con las filas que produce. Las
+  relaciones de proceso que el catálogo lee —`corrida_mutacion`, `archivo`, `modulo`, `alcanzable`,
+  `importa`, `cambio`, `afirmacion`, `hallazgo`— pasan a estar declaradas en `relaciones/`.
+- **`campo_leido`** tiene una fila por cada campo que lee una medida, con su relación, si esa relación
+  es declarada, del lenguaje o sin declarar, y si el campo existe.
+  `meta.toda_medida_lee_campos_que_existen` no admite un campo inexistente en una relación cuyos campos
+  se conocen. Una relación sin declarar de un consumidor no se juzga.
+- **Lo que no se pudo juzgar se informa en un solo lugar.** El álgebra sigue levantando ante un campo
+  ausente —no es `False`—, pero al evaluar un conjunto de medidas el núcleo deja las que no juzgaron en
+  `Informe.no_juzgaron`, con su motivo. La aceptación, `juzgar`, `mutar` y `mutar_codigo` lo leen de ahí.
+
+Medido antes del cambio: ninguna medida de Oracle, LyraGASP ni Jam lee hoy un campo inexistente en una
+relación con campos conocidos; los consumidores leen 121 campos de 39 relaciones sin declarar, que la
+regla no juzga.
+
+## Verificación
+
+## Cómo se hizo
+
+Tarea `20260915-155654-campos`. El dueño decidió el alcance de la regla —las relaciones declaradas y las
+que emite Oracle, no las sin declarar de un consumidor— y que el álgebra siga levantando ante un campo
+ausente, con una sola forma de informarlo. Implementó agy (el primer lanzamiento cortó por falta de
+capacidad del servidor; el segundo entregó). Claude revisó con tests escritos antes de leer la entrega y
+corrigió: los tests que acompañaban la entrega usaban una API que no existe y se reescribieron; un
+envoltorio en la aceptación hacía que un caso que no se podía juzgar contara como fijado; había lectores
+duplicados; y el plan dejaba sin declarar dos relaciones de proceso que el volcado real mostró leídas.
+
+## Verificación
+
+- Mutación de código ([logs](estudios/0.22.0-campos/verificacion/)): `nucleo/medida.py` 311/312,
+  `nucleo/relacion.py` 169/169, `tools/juzgar.py` 113/113, `nucleo/marco.py` 78/79, `tools/aceptacion.py`
+  76/78 y `nucleo/campo_leido.py` 24/24. Los dos vivos de `aceptacion.py` eran la rama por la que la
+  sombra perdonaba una medida que no pudo juzgar, y se borró; los de `marco.py` y `medida.py` tienen test,
+  verificado aplicando el mutante a mano. `relacion.py` (33 errores de arnés en la primera ronda, por un
+  test que armaba una relación al importarse) y `campo_leido.py` (guardas redundantes, borradas) se
+  repitieron después de corregir. Ningún equivalente nuevo.
+- Suite completa en verde (2146 tests); `tools/aceptacion.py` ✓ con 118 defectos en rojo y 83 verdes
+  correctos; los casos 504 (falso verde), 505 y el observado 506 salen como deben.
+- Sobre el catálogo de Oracle, `campo_leido` emite 160 lecturas —131 de relaciones del lenguaje, 29 de
+  declaradas— y todas nombran un campo que existe.
+- [Plan](PLAN-0.22.0-CAMPOS.md), [encargo](estudios/0.22.0-campos/ENCARGO-AGY.md),
+  [revisión](estudios/0.22.0-campos/REVISION-CLAUDE.md) y [cierre](estudios/0.22.0-campos/CIERRE.md).
+
+Álgebra y sintaxis no cambian: `campo_leido` es una relación de hechos, como `sombra` o `verbo_del_cli`.
+La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.21.0 — `mutante` es una relación con variantes, y `requiere` puede pedir filas de una
 
 ```

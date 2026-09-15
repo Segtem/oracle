@@ -1,0 +1,179 @@
+objetivos: nucleo/relacion.py
+
+     ·  nucleo/relacion.py:68:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/relacion.py:68:15:comparador                  comparador: Eq → NotEq
+     ·  nucleo/relacion.py:72:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/relacion.py:72:15:comparador                  comparador: NotEq → Eq
+     ·  nucleo/relacion.py:75:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/relacion.py:60:18:constante                   constante: True → False
+     ·  nucleo/relacion.py:84:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/relacion.py:78:18:constante                   constante: True → False
+     ·  nucleo/relacion.py:100:15:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:105:19:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:108:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:112:11:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:112:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:112:38:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:112:53:constante                  constante: 4 → 5
+     ·  nucleo/relacion.py:112:56:constante                  constante: 5 → 6
+     ·  nucleo/relacion.py:112:62:comparador                 comparador: NotEq → Eq
+     ·  nucleo/relacion.py:112:64:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:117:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:117:21:constante                  constante: 4 → 5
+     ·  nucleo/relacion.py:123:11:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:123:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:123:42:comparador                 comparador: Is → IsNot
+     ·  nucleo/relacion.py:128:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:128:16:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:128:66:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:128:78:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:135:47:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:135:58:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:136:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:136:20:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:136:47:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:136:60:constante                  constante: 4 → 5
+     ·  nucleo/relacion.py:136:66:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:136:71:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:141:15:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:141:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:141:48:comparador                 comparador: Is → IsNot
+     ·  nucleo/relacion.py:144:15:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:149:15:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:149:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:149:46:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:154:15:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:154:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:154:48:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:160:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:167:11:comparador                 comparador: IsNot → Is
+     ·  nucleo/relacion.py:168:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:168:20:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:168:76:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:168:91:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:171:15:comparador                 comparador: Lt → LtE
+     ·  nucleo/relacion.py:171:37:constante                  constante: 3 → 4
+     ·  nucleo/relacion.py:175:43:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:176:15:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:176:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:176:53:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:180:57:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:181:15:comparador                 comparador: NotEq → Eq
+     ·  nucleo/relacion.py:188:39:constante                  constante: 2 → 3
+     ·  nucleo/relacion.py:190:19:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:190:24:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:190:51:comparador                 comparador: GtE → Gt
+     ·  nucleo/relacion.py:190:64:constante                  constante: 3 → 4
+     ·  nucleo/relacion.py:190:70:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:190:75:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:194:29:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:195:19:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:195:19:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:195:49:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:198:19:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:206:35:constante                  constante: 2 → 3
+     ·  nucleo/relacion.py:207:23:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:207:28:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:207:57:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:207:72:constante                  constante: 4 → 5
+     ·  nucleo/relacion.py:207:78:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:207:85:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:212:23:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:212:23:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:212:57:comparador                 comparador: Is → IsNot
+     ·  nucleo/relacion.py:215:23:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:218:23:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:223:23:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:223:23:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:223:55:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:228:23:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:228:23:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:228:57:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:233:23:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:235:27:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:235:27:comparador                 comparador: NotEq → Eq
+     ·  nucleo/relacion.py:235:51:comparador                 comparador: NotEq → Eq
+     ·  nucleo/relacion.py:246:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:246:16:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:246:51:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:246:72:constante                  constante: 2 → 3
+     ·  nucleo/relacion.py:247:20:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:247:33:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:248:44:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:248:70:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:252:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:255:33:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:269:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:87:18:constante                   constante: True → False
+     ·  nucleo/relacion.py:273:7:booleano                    booleano: and ↔ or
+     ·  nucleo/relacion.py:273:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/relacion.py:273:27:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:273:56:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:274:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:274:33:constante                  constante: 0 → 1
+     ·  nucleo/relacion.py:275:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:280:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/relacion.py:281:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:282:7:booleano                    booleano: and ↔ or
+     ·  nucleo/relacion.py:282:28:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:290:11:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:299:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:302:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:306:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:319:7:comparador                  comparador: In → NotIn
+     ·  nucleo/relacion.py:321:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/relacion.py:329:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:337:11:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:342:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:349:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:349:16:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:353:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:353:19:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:354:23:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:357:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:357:20:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:361:15:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:365:15:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:369:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:374:55:comparador                 comparador: Is → IsNot
+     ·  nucleo/relacion.py:374:49:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:378:19:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:378:38:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:381:11:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:392:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:398:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:401:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:401:19:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:401:54:comparador                 comparador: Eq → NotEq
+     ·  nucleo/relacion.py:404:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:409:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:409:20:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:414:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:420:19:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:420:24:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:425:15:comparador                 comparador: NotEq → Eq
+     ·  nucleo/relacion.py:429:15:comparador                 comparador: In → NotIn
+     ·  nucleo/relacion.py:434:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:443:55:comparador                 comparador: Is → IsNot
+     ·  nucleo/relacion.py:443:49:constante                  constante: 1 → 2
+     ·  nucleo/relacion.py:451:11:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:451:30:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:451:56:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:456:11:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:483:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:490:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:522:20:comparador                 comparador: Is → IsNot
+     ·  nucleo/relacion.py:524:11:booleano                   booleano: and ↔ or
+     ·  nucleo/relacion.py:524:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:524:42:negacion                   negacion: se borra el `not`
+     ·  nucleo/relacion.py:524:64:comparador                 comparador: NotIn → In
+     ·  nucleo/relacion.py:526:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/relacion.py:537:4:retorno                     retorno: return <algo> → return None
+
+mutantes: 169 · murieron 169 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.
