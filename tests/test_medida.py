@@ -81,6 +81,29 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertNotIn("\\u00f1", texto)
         self.assertEqual(json.loads(texto)["medidas"][0]["id"], "dominio.señal")
 
+    def test_la_sombra_perdona_solo_rojos_y_un_informe_vacio_sigue_sin_ser_ok(self) -> None:
+        """Tarea 20260915-010454-motor: `Motor` juzgaba sin las sombras de `oracle.json`."""
+        m = modulo_medida()
+        rojo = m.Veredicto("d.rojo", 1, False, "<= 0", "razón", "alcance", ())
+        verde = m.Veredicto("d.verde", 0, True, "<= 0", "razón", "alcance", ())
+        self.assertFalse(m.Informe((rojo, verde)).ok)
+        self.assertTrue(m.Informe((rojo, verde), en_sombra=frozenset({"d.rojo"})).ok)
+        self.assertFalse(m.Informe((rojo, verde), en_sombra=frozenset({"d.verde"})).ok)
+        self.assertFalse(m.Informe((), en_sombra=frozenset({"d.rojo"})).ok)
+
+        perdonado = m.Informe((rojo, verde), en_sombra=frozenset({"d.rojo"}))
+        lineas = perdonado.texto().splitlines()
+        self.assertTrue(lineas[0].endswith("   [EN SOMBRA]"), lineas[0])
+        self.assertNotIn("[EN SOMBRA]", lineas[1])
+        self.assertIn("VEREDICTO: verde en 2 medidas, con 1 en rojo en sombra. SIN MIRAR:", lineas)
+        otro = m.Veredicto("d.otro", 1, False, "<= 0", "razón", "alcance", ())
+        self.assertIn("VEREDICTO: 1 de 3 medidas en rojo",
+                      m.Informe((rojo, otro, verde), en_sombra=frozenset({"d.rojo"})).texto())
+        datos = json.loads(perdonado.a_json())
+        self.assertTrue(datos["ok"])
+        self.assertEqual([(d["id"], d["en_sombra"]) for d in datos["medidas"]],
+                         [("d.rojo", True), ("d.verde", False)])
+
     def test_relacion_vacia_directa_y_compuesta_se_derivan_sin_convenciones(self) -> None:
         m = modulo_medida()
 

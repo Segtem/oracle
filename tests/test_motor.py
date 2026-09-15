@@ -330,5 +330,53 @@ class TestMotor(unittest.TestCase):
                 motor.evaluar({"item": [{"valor": 4}]}).veredictos[0].valor, 4)
 
 
+class ElProyectoSeJuzgaComoEnOracleTestTests(unittest.TestCase):
+    """Tarea 20260915-010454-motor: la fachada cargaba `catalogos_a_cargar` —las `del_origen` de
+    Oracle incluidas— e ignoraba las sombras, así que LyraGASP y Jam juzgaban con otro catálogo y
+    otro veredicto que `oracle test` sobre el mismo proyecto."""
+
+    ROJO = {"item": [{"valor": 11}]}
+
+    def _proyecto(self, raiz: Path, **config) -> None:
+        catalogo = raiz / "catalogos" / "demo"
+        catalogo.mkdir(parents=True)
+        (catalogo / "demo.valor.json").write_text(json.dumps(_medida()), encoding="utf-8")
+        (raiz / "oracle.json").write_text(json.dumps({
+            "esquema": "oracle.proyecto/v1", "perfiles": [], **config}), encoding="utf-8")
+
+    def test_con_catalogo_base_carga_el_catalogo_efectivo(self):
+        from nucleo.proyecto import Proyecto, catalogo_efectivo
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._proyecto(raiz, catalogo_base=True)
+            ids = {medida.id for medida in Motor.desde_proyecto(raiz).medidas}
+            efectivo = catalogo_efectivo(Proyecto(raiz.resolve()), registro=registro_base())
+        self.assertEqual(ids, set(efectivo.keys()))
+        self.assertIn("demo.valor", ids)
+        self.assertIn("meta.toda_sombra_declara_desde_y_porque", ids)
+        self.assertNotIn("meta.donde_nunca_agrega_filas", ids)   # `del_origen` de Oracle
+
+    def test_una_medida_en_sombra_se_mide_pero_no_tumba_el_informe(self):
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._proyecto(raiz, catalogo_base=False, sombra={
+                "demo.valor": {"desde": "2026-09-15", "porque": "deuda del ejemplo"}})
+            informe = Motor.desde_proyecto(raiz).evaluar(self.ROJO)
+        self.assertFalse(informe.veredictos[0].ok)
+        self.assertTrue(informe.ok)
+        self.assertIn("[EN SOMBRA]", informe.texto())
+        self.assertTrue(json.loads(informe.a_json())["medidas"][0]["en_sombra"])
+
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self._proyecto(raiz, catalogo_base=False)
+            self.assertFalse(Motor.desde_proyecto(raiz).evaluar(self.ROJO).ok)
+
+    def test_un_motor_sin_proyecto_no_tiene_sombras(self):
+        informe = Motor.desde_datos([_medida()]).evaluar(self.ROJO)
+        self.assertFalse(informe.ok)
+        self.assertEqual(informe.en_sombra, frozenset())
+
+
 if __name__ == "__main__":
     unittest.main()

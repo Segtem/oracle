@@ -122,7 +122,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 9879 líneas de lenguaje y **401 negativas explícitas** (`raise`).
+En este corte hay 9894 líneas de lenguaje y **401 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -155,7 +155,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**9879 líneas de lenguaje** (`nucleo/`, código y macros) y **401 negativas explícitas** (`raise`). Contra las 60 medidas universales escritas en él (427 líneas): **23,1 a 1**. 53 de las 60 pasan por una macro.
+**9894 líneas de lenguaje** (`nucleo/`, código y macros) y **401 negativas explícitas** (`raise`). Contra las 60 medidas universales escritas en él (427 líneas): **23,2 a 1**. 53 de las 60 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -565,6 +565,12 @@ sobrescribirse. `Motor.desde_datos(...)` y `Motor.desde_medidas(...)` cubren cat
 memoria. Si ninguna medida puede consumir las relaciones entregadas, la API levanta
 `SinMedidasAplicables` en vez de fabricar un informe verde vacío.
 
+`desde_proyecto` juzga con el mismo catálogo y el mismo veredicto que `oracle test` y `oracle juzgar`
+sobre ese proyecto: carga el catálogo efectivo —con `catalogo_base`, las medidas `del_origen` de
+Oracle no juzgan al consumidor— y respeta la `sombra` de `oracle.json`. Una medida en sombra se mide
+y se marca `[EN SOMBRA]`, pero su rojo no pone `informe.ok` en falso; `informe.a_json()` lo informa
+con `en_sombra` por medida.
+
 Un host puede aportar perfiles reutilizables sin escribir dentro de la instalación. Cada raíz tiene
 la forma `<raíz>/<perfil>/catalogos`; `oracle.json` sólo selecciona el nombre y no puede inventarse
 una ruta con autoridad propia:
@@ -594,7 +600,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2051 tests · 959/959 mutantes de medida · **7187 sitios de mutación de código** (6977 + 210 del motor Python).
+2055 tests · 959/959 mutantes de medida · **7197 sitios de mutación de código** (6987 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

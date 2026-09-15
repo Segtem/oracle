@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from collections.abc import Iterable
 from copy import deepcopy
+from dataclasses import replace
 from pathlib import Path
 
 import importlib
@@ -11,11 +12,10 @@ import importlib
 from nucleo.algebra import (ESCALARES, ErrorDeAlgebra, LimitesAlgebra,
                             RegistroEscalares, limites_predeterminados,
                             validar_resumen, validar_tuberia)
-from nucleo.medida import (Informe, Medida, cargar_catalogo, evaluar,
-                           medidas_aplicables)
-from nucleo.proyecto import (Proyecto, ProyectoInvalido, catalogos_a_cargar,
-                             escalares_del_proyecto, macros_del_proyecto,
-                             problemas_estructura)
+from nucleo.medida import Informe, Medida, evaluar, medidas_aplicables
+from nucleo.proyecto import (Proyecto, ProyectoInvalido, catalogo_efectivo,
+                             configuracion, escalares_del_proyecto,
+                             macros_del_proyecto, problemas_estructura)
 
 
 class ErrorDeMotor(ValueError):
@@ -72,8 +72,9 @@ def _registro_propio(registro: RegistroEscalares | None) -> RegistroEscalares:
 class Motor:
     """Evaluador reusable con catálogo, UDF y límites propiedad de una instancia."""
 
-    __slots__ = ("_medidas", "_registro", "limites", "proyecto")
+    __slots__ = ("_en_sombra", "_medidas", "_registro", "limites", "proyecto")
 
+    _en_sombra: frozenset[str]
     _medidas: tuple[Medida, ...]
     _registro: RegistroEscalares
     limites: LimitesAlgebra
@@ -87,7 +88,8 @@ class Motor:
 
     @classmethod
     def _crear(cls, medidas: Iterable[Medida], registro: RegistroEscalares,
-               limites: LimitesAlgebra, proyecto: Path | None = None) -> "Motor":
+               limites: LimitesAlgebra, proyecto: Path | None = None,
+               en_sombra: frozenset[str] = frozenset()) -> "Motor":
         recibidas = tuple(medidas)
         if any(not isinstance(medida, Medida) for medida in recibidas):
             raise ErrorDeMotor("todas las medidas deben ser instancias de Medida")
@@ -105,6 +107,7 @@ class Motor:
         object.__setattr__(motor, "_registro", registro)
         object.__setattr__(motor, "limites", limites)
         object.__setattr__(motor, "proyecto", proyecto)
+        object.__setattr__(motor, "_en_sombra", en_sombra)
         return motor
 
     @classmethod
@@ -149,14 +152,19 @@ class Motor:
         macros = macros_del_proyecto(proy, raices_perfiles=raices_perfiles)
         with escalares_del_proyecto(
                 proy, confiar=confiar_escalares, registro=registro):
-            catalogo = cargar_catalogo(
-                catalogos_a_cargar(proy, raices_perfiles=raices_perfiles),
+            # La misma selección que `oracle test` y `oracle juzgar`: con `catalogos_a_cargar` un
+            # consumidor con `catalogo_base` heredaba también las `del_origen` de Oracle.
+            catalogo = catalogo_efectivo(
+                proy,
+                raices_perfiles=raices_perfiles,
                 registro=registro,
                 limites=limites_propios,
                 macros=macros,
             )
+        sombra = configuracion(proy, raices_perfiles=raices_perfiles).sombra
         return cls._crear(
-            catalogo.values(), registro, limites_propios, proyecto=raiz)
+            catalogo.values(), registro, limites_propios, proyecto=raiz,
+            en_sombra=frozenset(entrada.medida for entrada in sombra))
 
     @property
     def medidas(self) -> tuple[Medida, ...]:
@@ -172,9 +180,9 @@ class Motor:
         if not aplicables:
             raise SinMedidasAplicables(
                 "ninguna medida es aplicable a las relaciones declaradas en la evidencia")
-        return evaluar(
+        return replace(evaluar(
             aplicables,
             evidencia,
             self.limites,
             registro=self._registro,
-        )
+        ), en_sombra=self._en_sombra)

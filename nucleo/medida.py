@@ -577,26 +577,41 @@ def cargar_catalogo(*directorios, registro=None,
 @dataclass(frozen=True)
 class Informe:
     veredictos: tuple
+    # Ids que el proyecto declaró en sombra en `oracle.json`. Se miden y se informan igual; lo único
+    # que se apaga es la consecuencia: su rojo no hace fallar `ok`.
+    en_sombra: frozenset = frozenset()
 
     @property
     def ok(self) -> bool:
-        return bool(self.veredictos) and all(v.ok for v in self.veredictos)
+        return bool(self.veredictos) and all(
+            v.ok or v.id in self.en_sombra for v in self.veredictos)
 
     def texto(self) -> str:
         """Nunca dice «TODO VERDE» a secas: un verde termina enumerando lo que no miró."""
         if not self.veredictos:
             return "VEREDICTO: SIN MEDIDAS — no hay nada que evaluar"
-        lineas = [v.linea() for v in self.veredictos]
-        malas = [v for v in self.veredictos if not v.ok]
+        lineas = []
+        for v in self.veredictos:
+            linea = v.linea()
+            if v.id in self.en_sombra:
+                # En el renglón del veredicto, no al final de los testigos, donde nadie la asocia.
+                primero, salto, resto = linea.partition("\n")
+                linea = f"{primero}   [EN SOMBRA]{salto}{resto}"
+            lineas.append(linea)
+        malas = [v for v in self.veredictos if not v.ok and v.id not in self.en_sombra]
+        perdonadas = sum(1 for v in self.veredictos if not v.ok and v.id in self.en_sombra)
         if malas:
             lineas.append(f"\nVEREDICTO: {len(malas)} de {len(self.veredictos)} medidas en rojo")
         else:
-            lineas.append(f"\nVEREDICTO: verde en {len(self.veredictos)} medidas. SIN MIRAR:")
+            sombra = f", con {perdonadas} en rojo en sombra" if perdonadas else ""
+            lineas.append(
+                f"\nVEREDICTO: verde en {len(self.veredictos)} medidas{sombra}. SIN MIRAR:")
             lineas += [f"  · {v.id}: {v.alcance}" for v in self.veredictos]
         return "\n".join(lineas)
 
     def a_json(self) -> str:
-        return json.dumps({"ok": self.ok, "medidas": [v.a_dict() for v in self.veredictos]},
+        return json.dumps({"ok": self.ok, "medidas": [
+            {**v.a_dict(), "en_sombra": v.id in self.en_sombra} for v in self.veredictos]},
                           ensure_ascii=False)
 
 
