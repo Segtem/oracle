@@ -1,3 +1,34 @@
+# 0.18.1 — `oracle juzgar` no termina en traceback al consultar la evidencia
+
+```
+VERSION_DISTRIBUCION   0.18.0 → 0.18.1   corrección de juzgar
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+En 0.18.0, `oracle juzgar` consultaba el archivo de evidencia con `exists()` e `is_dir()` antes de
+entrar al `try`. Esas llamadas también hacen `stat`, así que un error al consultar el archivo que no
+fuera «no existe» —un permiso denegado en un directorio intermedio— terminaba en traceback en vez
+de salir con código 2, como promete el contrato.
+
+Lo encontró el CI del propio corte 0.18.0: un test de revisión simulaba ese error y en el Python de
+CI (3.11 y 3.13) salía traceback, mientras en la máquina donde se escribió daba verde. Ahora hay una
+sola consulta al sistema de archivos, dentro del `try`, que distingue archivo ausente, directorio y
+error de lectura, con un test nuevo para el caso del directorio. Tarea `20260915-024104-stat`.
+
+Como la línea base de la mutación corre la suite completa, ese mismo test tumbó los 36 jobs de
+mutación de la corrida manual de 0.18.0: ninguna ronda llegó a medir.
+
+## Verificación
+
+Suite completa: **1988 tests**, verificada además con Python 3.11 y 3.13 —las versiones de CI— en
+los tests del verbo. Mutación de código de `tools/juzgar.py`: **111/111**, sin sobrevivientes,
+timeouts ni equivalentes declarados. `verificar_instalacion` y las cifras pasan.
+
+La publicación en PyPI la realiza el dueño. Si 0.18.0 ya está en PyPI, 0.18.1 la reemplaza.
+
+---
+
 # 0.18.0 — juzgar evidencia real desde el CLI
 
 ```

@@ -1,0 +1,1 @@
+juzgar: rc=0 504s mutantes: 111 · murieron 111 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0

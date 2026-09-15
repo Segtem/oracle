@@ -98,6 +98,11 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.18.1 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.18.0` a `0.18.1`.** Sube la
+**revisión**: `oracle juzgar` cumple el código de salida que ya declaraba 0.18.0 —2 para una
+evidencia que no se puede consultar— en vez de terminar en traceback. No cambia ningún contrato,
+álgebra ni sintaxis.
+
 **Corte 0.18.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.17.0` a `0.18.0`.** La menor
 agrega el verbo público `oracle juzgar` (`oracle proyecto juzgar`), con un contrato de salida propio:
 0 verde, 1 rojo fuera de sombra o ninguna medida aplicable, 2 entrada o proyecto inválidos; `--json`
