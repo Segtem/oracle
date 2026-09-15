@@ -417,6 +417,24 @@ referencias locales que existen, archivos confirmados en Git, lecturas sin omisi
 son optativas, y un enlace que existe no prueba que la tarea esté bien resuelta. Contrato, tutorial y
 diferencias con tatr en [docs/12-tareas.md](https://github.com/Segtem/oracle/blob/main/docs/12-tareas.md).
 
+## Juzgar evidencia real
+
+`oracle test` responde si el catálogo está bien fijado. Lo que viene después —¿estos hechos cumplen
+el catálogo?— es otro veredicto, y desde 0.18.0 tiene su verbo:
+
+```bash
+oracle juzgar --con hechos.json [--proyecto <ruta>] [--medida <id>]… [--json] [--confiar-escalares]
+```
+
+La evidencia es un objeto JSON `relación → lista de filas`. Juzga con el catálogo **efectivo** del
+proyecto —una medida `del_origen` heredada no obliga a quien la hereda— y respeta las sombras de
+`oracle.json`, igual que la aceptación: el mismo proyecto no da dos veredictos. Sale 0 si pasa, 1 si
+hay un rojo fuera de sombra o **ninguna medida aplica** (nunca un verde vacío) y 2 si la entrada o el
+proyecto son inválidos.
+
+Oracle se juzga así a sí mismo en CI: `oracle tarea hechos --git` sobre su propio `tareas/`, con las
+políticas de [`ejemplo/seguimiento-tareas`](https://github.com/Segtem/oracle/tree/main/ejemplo/seguimiento-tareas).
+
 ## Heredar un catálogo sin quedar en rojo el primer día
 
 Activar `catalogo_base` te da medidas que ven cosas que las tuyas no veían, y por eso mismo te
@@ -576,7 +594,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-1921 tests · 959/959 mutantes de medida · **6944 sitios de mutación de código** (6734 + 210 del motor Python).
+1987 tests · 959/959 mutantes de medida · **7065 sitios de mutación de código** (6855 + 210 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

@@ -1,3 +1,57 @@
+# 0.18.0 — juzgar evidencia real desde el CLI
+
+```
+VERSION_DISTRIBUCION   0.17.0 → 0.18.0   verbo oracle juzgar
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+`oracle test` responde si un catálogo está bien fijado. Lo que viene después —¿estos hechos cumplen
+el catálogo?— no tenía verbo, y cada consumidor lo resolvía con su propio adaptador sobre `Motor`:
+el ejemplo del tracker, LyraGASP y Jam. Desde esta versión es un comando:
+
+```bash
+oracle juzgar --con hechos.json [--proyecto <ruta>] [--medida <id>]… [--json] [--confiar-escalares]
+```
+
+- Juzga con el catálogo **efectivo**: una medida `del_origen` heredada no obliga a quien la hereda.
+- Respeta las **sombras** de `oracle.json`, igual que la aceptación; `--json` marca `en_sombra`.
+- Sale 0 si pasa, 1 si hay un rojo fuera de sombra o ninguna medida aplica —nunca un verde vacío—,
+  y 2 si la entrada o el proyecto son inválidos. No escribe archivos.
+
+## El tracker deja de ser un vecino
+
+`ejemplo/seguimiento-tareas/evaluar.py` se retira: `oracle tarea hechos --git` y `oracle juzgar` lo
+reemplazan. CI juzga el `tareas/` del propio Oracle con las tres políticas de seguimiento. Y el
+trabajo sobre Oracle se lleva desde ahora en ese tracker, al estilo de tatr: esta versión es la tarea
+`20260915-010206-juzgar`, y sus commits empiezan con ese ID.
+
+## Lo que se encontró en el camino
+
+- Con `catalogo_base`, la fachada `Motor.desde_proyecto` carga 57 medidas donde el catálogo efectivo
+  tiene 37 —20 `del_origen` de más— e ignora las sombras. `juzgar` no hereda el defecto; la fachada,
+  que usan LyraGASP y Jam, queda registrada como tarea `20260915-010454-motor`.
+- La revisión de la primera entrega encontró que `juzgar` ignoraba las sombras, un despacho
+  triplicado en `cli.py` y un `except Exception` que disfrazaba errores; se corrigieron con regresión.
+- El job de mutación de código de CI nunca había corrido: no corre en push. Su primera corrida manual
+  destapó tres fallas del job (un objetivo sin registrar, `setuptools` ausente, 120 s de plazo que ya
+  no alcanzaban para la línea base) y cuatro sobrevivientes viejos en `nucleo/mutacion.py`.
+
+## Verificación
+
+La suite completa cerró con **1987 tests**. Mutación de código: `tools/juzgar.py` **112/112** y
+`tools/cli.py` **536/536**, sin sobrevivientes, timeouts ni equivalentes declarados; las rondas se
+cerraron borrando ramas sin conducta y con tests, y el timeout de `cli.py` resultó ser un test de
+`reportar` que esperaba stdin. Pasaron `verificar_instalacion` —con `oracle juzgar` desde el
+wheel—, las cifras, el manual y el paso nuevo de CI, simulado sobre el `tareas/` de Oracle.
+
+- [Plan](PLAN-0.18.0-JUZGAR.md), [encargo](estudios/0.18.0-juzgar/ENCARGO-AGY.md),
+  [revisión](estudios/0.18.0-juzgar/REVISION-CLAUDE.md) y [cierre](estudios/0.18.0-juzgar/CIERRE.md).
+
+Álgebra y sintaxis no cambian. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.17.0 — lo que faltaba de tatr
 
 ```

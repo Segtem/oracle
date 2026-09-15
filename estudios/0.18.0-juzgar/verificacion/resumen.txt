@@ -1,0 +1,3 @@
+cli: rc=0 656s mutantes: 536 · murieron 536 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+juzgar: rc=1 585s mutantes: 112 · murieron 111 · sobrevivieron 1 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+juzgar: rc=0 491s mutantes: 112 · murieron 112 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
