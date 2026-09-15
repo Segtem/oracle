@@ -11,8 +11,8 @@ caso 059-clave-declarada-en-un-caso:
     como_se_detecto: observacion
     medida: proceso.test_con_mutante_que_lo_mata
     evidencia:
-        mutante: clave(id); id, apunta_a, cambio, detecciones_conductuales, rechazos_del_algebra
-            "d.x·quitar_filtro", "d.x", "quitar_filtro", 2, 0
-            "d.x·negar_filtro", "d.x", "negar_filtro", 1, 0
+        mutante: clave(id); id, apunta_a, cambio, detecciones_conductuales, rechazos_del_algebra, tipo
+            "d.x·quitar_filtro", "d.x", "quitar_filtro", 2, 0, "medida"
+            "d.x·negar_filtro", "d.x", "negar_filtro", 1, 0, "medida"
     leccion:
         El mecanismo de claves nació sin poder usarse en un caso: `tools/corpus.py` rechazaba el nodo como «no es un hecho», porque el validador del corpus y el del álgebra son dos lecturas del mismo contrato. Es el caso `012` otra vez —la misma regla escrita dos veces diverge— y se cerró haciendo que el corpus llame a `separar_clave` en vez de reimplementarla. Un mecanismo que el corpus no puede expresar es un mecanismo que este proyecto no puede fijar, y todo lo demás acá se fija con casos.

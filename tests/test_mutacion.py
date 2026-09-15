@@ -345,7 +345,7 @@ class CorrerTests(unittest.TestCase):
         for fila in ev["mutante"]:
             self.assertEqual(sorted(fila),
                              ["apunta_a", "cambio", "detecciones_conductuales", "id",
-                              "rechazos_del_algebra"])
+                              "rechazos_del_algebra", "tipo"])
 
     def test_morir_por_excepcion_no_es_morir_por_conducta(self) -> None:
         """Un mutante que el álgebra rechaza no lo discriminó ningún caso: contarlo como muerte

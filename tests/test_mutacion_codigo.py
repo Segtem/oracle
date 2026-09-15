@@ -252,7 +252,7 @@ class CorrerTests(unittest.TestCase):
         self.assertEqual(sorted(ev["mutante"][0]),
                          ["apunta_a", "cambio", "codigo_salida", "equivalente_declarado",
                           "error_arnes", "estado", "id", "murio", "razon_equivalente",
-                          "tests_fallaron", "timeout"])
+                          "tests_fallaron", "timeout", "tipo"])
         corrida = ev["corrida_mutacion"][0]
         self.assertTrue(corrida["baseline_verde"])
         self.assertTrue(corrida["bytecode_frio"])
@@ -708,6 +708,7 @@ class CorrerTests(unittest.TestCase):
             "id": sitio.id,
             "apunta_a": sitio.archivo,
             "cambio": f"{sitio.operador}: {sitio.descripcion}",
+            "tipo": "codigo",
             "murio": False,
             "estado": mc.EstadoTests.PASARON.value,
             "tests_fallaron": False,
@@ -746,6 +747,8 @@ class CorrerTests(unittest.TestCase):
             "campo_faltante": manifiesto([{k: v for k, v in fila.items() if k != "cambio"}]),
             "archivo": con_fila(apunta_a="otro.py"),
             "cambio": con_fila(cambio="constante: otro"),
+            "tipo": con_fila(tipo="medida"),
+            "tipo_faltante": manifiesto([{k: v for k, v in fila.items() if k != "tipo"}]),
             "estado": con_fila(estado="inventado"),
             "murio_no_bool": con_fila(murio=1, tests_fallaron=1),
             "muerte_incoherente": con_fila(murio=True),

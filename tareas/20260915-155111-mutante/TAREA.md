@@ -98,3 +98,8 @@ aislado (especificación nueva, las dos DECISION, la referencia, sus tests y `DE
 `CONTRATO.md` con la firma pública). Codex no la pudo correr: «You've hit your usage limit … try again
 at Sep 19th, 2026 9:21 AM». Sin una referencia 0.7 de un autor que no vio `nucleo/`, el diferencial no
 emite fixtures con el álgebra nueva. Decisión pendiente del dueño.
+
+**Decisión del dueño (13:40):** la referencia 0.7 la escribe **agy en una conversación y un proyecto
+nuevos**, aislado en el directorio preparado (Gemini, otro modelo que el que escribió el núcleo y la
+especificación; Agy fue uno de los tres autores independientes de 2026-08-24). Se declara en
+`diferencial/referencia/PROCEDENCIA.md` al integrarla.

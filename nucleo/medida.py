@@ -28,10 +28,12 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, comparar, desde, resumir,
-                      validar_finito, validar_resumen, validar_tuberia)
+from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, LOGICOS, comparar, desde,
+                      evaluar_expr, resumir, separar_clave, validar_expr, validar_finito,
+                      validar_resumen, validar_tuberia)
 from .macro import es_macro, expandir
 from .proyecto import FuenteCatalogo, ID_MEDIDA_RE, ORIGEN_PROYECTO, OrigenCatalogo
+from .relacion import NOMBRE_CAMPO_RE, NOMBRE_RELACION_RE
 from .vocabulario import (AMBITOS, AMBITO_SIN_DECLARAR, ORIGENES_DE_UMBRAL,
                           opciones)
 
@@ -260,6 +262,46 @@ def _resumir_fila(fila: dict) -> str:
     return ", ".join(partes)
 
 
+def _es_expresion_booleana(nodo, registro=None) -> bool:
+    if isinstance(nodo, bool):
+        return True
+    if isinstance(nodo, list) and nodo:
+        cabeza = nodo[0]
+        if cabeza in COMPARADORES:
+            return True
+        if cabeza in ("y", "o"):
+            return all(_es_expresion_booleana(arg, registro) for arg in nodo[1:])
+        if cabeza == "no":
+            return len(nodo) == 2 and _es_expresion_booleana(nodo[1], registro)
+        if registro and cabeza in registro:
+            return True
+    return False
+
+
+def _validar_alias_en_expr(nodo, alias_esperado: str, relacion: str, mid: str) -> None:
+    if not isinstance(nodo, list) or not nodo:
+        return
+    cabeza = nodo[0]
+    if cabeza in ("campo", "hecho"):
+        if len(nodo) < 2 or not isinstance(nodo[1], str) or nodo[1] != alias_esperado:
+            raise MedidaMalDeclarada(
+                f"{mid}: la condición de `requiere` para «{relacion}» sólo puede usar el alias «{alias_esperado}», "
+                f"pero se encontró «{nodo[1] if len(nodo) >= 2 else ''}»")
+    elif cabeza == "col":
+        raise MedidaMalDeclarada(
+            f"{mid}: la condición de `requiere` no puede referenciar columnas («col»)")
+    for hijo in nodo[1:]:
+        _validar_alias_en_expr(hijo, alias_esperado, relacion, mid)
+
+
+def _cumple(condicion, alias: str, fila: dict, limites, registro) -> bool:
+    """Evalúa la condición de `requiere` sobre una fila; un resultado que no es booleano levanta."""
+    valor = evaluar_expr(condicion, {alias: fila}, limites, registro=registro)
+    if type(valor) is not bool:
+        raise ErrorDeAlgebra(f"la condición de `requiere` tiene que dar booleano, no {valor!r}")
+    return valor
+
+
 @dataclass(frozen=True)
 class Medida:
     id: str
@@ -364,16 +406,56 @@ class Medida:
             raise MedidaMalDeclarada(
                 f"{mid}: `ambito` recibió {valor_ambito!r}, y los ámbitos declarados son:\n"
                 f"{opciones(AMBITOS)}")
-        if not (isinstance(requiere, list) and requiere and requiere[0] == "requiere"
-                and all(isinstance(r, str) and r.strip() for r in requiere[1:])):
+        if not (isinstance(requiere, list) and requiere and requiere[0] == "requiere"):
             raise MedidaMalDeclarada(
-                f"{mid}: `requiere` es ['requiere', <relación>, …] con nombres no vacíos")
-        nombres = tuple(requiere[1:])
-        if len(set(nombres)) != len(nombres):
-            raise MedidaMalDeclarada(f"{mid}: `requiere` repite una relación: {list(nombres)}")
+                f"{mid}: `requiere` es ['requiere', <relación>, …]")
+
+        entradas_requiere: list = []
+        relaciones_vistas: set[str] = set()
+
+        for idx, item in enumerate(requiere[1:], start=1):
+            if isinstance(item, str):
+                # La regla de 0.6, sin cambios: validar el nombre con la expresión de relación
+                # rechazaría lo que hoy carga, y eso subiría la MAYOR del álgebra (§0).
+                if not item.strip():
+                    raise MedidaMalDeclarada(
+                        f"{mid}: `requiere` es ['requiere', <relación>, …] con nombres no vacíos")
+                if item in relaciones_vistas:
+                    raise MedidaMalDeclarada(
+                        f"{mid}: `requiere` repite una relación: «{item}»")
+                relaciones_vistas.add(item)
+                entradas_requiere.append(item)
+            elif isinstance(item, list):
+                if len(item) != 4 or item[0] != "filas":
+                    raise MedidaMalDeclarada(
+                        f"{mid}: entrada condicional de `requiere` debe ser ['filas', relacion, alias, condicion]")
+                _, rel, alias, condicion = item
+                if not isinstance(rel, str) or NOMBRE_RELACION_RE.fullmatch(rel) is None:
+                    raise MedidaMalDeclarada(
+                        f"{mid}: relación inválida en `requiere`: «{rel}»")
+                if not isinstance(alias, str) or NOMBRE_CAMPO_RE.fullmatch(alias) is None:
+                    raise MedidaMalDeclarada(
+                        f"{mid}: alias inválido en `requiere`: «{alias}»")
+                if rel in relaciones_vistas:
+                    raise MedidaMalDeclarada(
+                        f"{mid}: `requiere` repite una relación: «{rel}»")
+                relaciones_vistas.add(rel)
+                try:
+                    validar_expr(condicion, limites, registro=registro)
+                except ErrorDeAlgebra as e:
+                    raise MedidaMalDeclarada(f"{mid}: condición de `requiere` inválida: {e}") from e
+                if not _es_expresion_booleana(condicion, registro):
+                    raise MedidaMalDeclarada(
+                        f"{mid}: la condición de `requiere` debe ser una expresión booleana")
+                _validar_alias_en_expr(condicion, alias, rel, mid)
+                entradas_requiere.append(["filas", rel, alias, condicion])
+            else:
+                raise MedidaMalDeclarada(
+                    f"{mid}: elemento inválido en `requiere`: {item!r}")
+
         return cls(id=mid, tuberia=tuberia, resumen=resumen, op=op, limite=limite,
                    porque=porque, alcance=alcance[1], segun=segun, ambito=valor_ambito,
-                   requiere=nombres,
+                   requiere=tuple(entradas_requiere),
                    fuente=tuple(fuente) if es_macro(fuente, macros) else ())
 
     def evaluar(self, evidencia: dict, limites: LimitesAlgebra | None = None, *,
@@ -381,11 +463,22 @@ class Medida:
         evidencia = evidencia_con_derivadas(evidencia)
         # ANTES de medir: si falta con qué, no hay veredicto que dar. Medir igual produciría el
         # agregado sobre cero filas —que es 0— y un umbral `<= 0` lo leería como verde.
-        faltante = next((r for r in self.requiere if not evidencia.get(r)), "")
-        if faltante:
-            return Veredicto(id=self.id, valor=0, ok=False,
-                             umbral=f"{self.op} {self.limite}", porque=self.porque,
-                             alcance=self.alcance, testigos=(), sin_evidencia=faltante)
+        for entrada in self.requiere:
+            if isinstance(entrada, str):
+                if not evidencia.get(entrada):
+                    return Veredicto(id=self.id, valor=0, ok=False,
+                                     umbral=f"{self.op} {self.limite}", porque=self.porque,
+                                     alcance=self.alcance, testigos=(), sin_evidencia=entrada)
+            else:
+                _, relacion, alias, condicion = entrada
+                # Las filas, no la lista cruda: una relación puede traer `["clave", …]` a la cabeza.
+                _clave, filas = separar_clave(evidencia.get(relacion, []))
+                if not any(_cumple(condicion, alias, fila, limites, registro) for fila in filas):
+                    from .sintaxis import _expr
+                    return Veredicto(id=self.id, valor=0, ok=False,
+                                     umbral=f"{self.op} {self.limite}", porque=self.porque,
+                                     alcance=self.alcance, testigos=(),
+                                     sin_evidencia=f"{relacion} sin filas con {_expr(condicion)}")
         testigos = desde(self.tuberia, evidencia, limites, registro=registro)
         valor = resumir(self.resumen, testigos, limites, registro=registro)
         return Veredicto(id=self.id, valor=valor, ok=comparar(self.op, valor, self.limite),
@@ -845,10 +938,23 @@ def _fuentes(medida: str, fuente, ruta: tuple[int, ...]):
 
 
 def _requiere_de(medida) -> list[dict]:
-    return [
-        {"medida": medida.id, "indice": indice, "relacion": relacion}
-        for indice, relacion in enumerate(medida.requiere)
-    ]
+    filas = []
+    for indice, entrada in enumerate(medida.requiere):
+        if isinstance(entrada, str):
+            filas.append({
+                "medida": medida.id,
+                "indice": indice,
+                "relacion": entrada,
+                "con_condicion": False,
+            })
+        elif isinstance(entrada, (list, tuple)) and len(entrada) == 4 and entrada[0] == "filas":
+            filas.append({
+                "medida": medida.id,
+                "indice": indice,
+                "relacion": entrada[1],
+                "con_condicion": True,
+            })
+    return filas
 
 
 def _dependencias_de_medida(medida) -> list[dict]:
@@ -867,11 +973,11 @@ def _dependencias_de_medida(medida) -> list[dict]:
     for fuente in _fuentes_de_medida(medida):
         vistas.setdefault((fuente["relacion"], "fuente"),
                           {"medida": medida.id, "relacion": fuente["relacion"],
-                           "clase": "fuente"})
+                           "clase": "fuente", "con_condicion": False})
     for exigida in _requiere_de(medida):
         vistas.setdefault((exigida["relacion"], "requiere"),
                           {"medida": medida.id, "relacion": exigida["relacion"],
-                           "clase": "requiere"})
+                           "clase": "requiere", "con_condicion": exigida["con_condicion"]})
     return list(vistas.values())
 
 

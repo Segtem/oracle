@@ -1,0 +1,17 @@
+caso 502-una-ronda-de-medidas-no-concluye-para-la-medida-de-codigo:
+    fecha: "2026-09-15"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "6441395"
+    procedencia: construida
+    titulo: "Una ronda sólo de mutación de medidas no concluye para la medida de código"
+    etiqueta: falso_verde
+    sintoma:
+        `mutante` es una relación con dos tipos. Una ronda de `tools/mutar.py` trae sólo filas de tipo «medida». Si `proceso.codigo_con_mutante_que_lo_mata` pidiera la relación entera en `requiere`, filtraría por tipo, contaría cero sobrevivientes de código y saldría verde sobre una ronda de código que nunca ocurrió. Medido por ejecución el 2026-09-15 al diseñar la relación común.
+    como_se_detecto: observacion
+    medida: proceso.codigo_con_mutante_que_lo_mata
+    evidencia:
+        mutante: id, apunta_a, cambio, detecciones_conductuales, rechazos_del_algebra, tipo
+            "d.x·quitar_filtro", "d.x", "quitar_filtro", 2, 0, "medida"
+    leccion:
+        En una relación con variantes, `requiere` tiene que pedir filas de la variante que la medida juzga: filas de otro tipo no son evidencia.

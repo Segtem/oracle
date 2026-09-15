@@ -526,12 +526,34 @@ def _leer_de(item: tuple[int, str], palabra: str = "de", *, con_columna: bool = 
     return (datos, col) if con_columna else datos
 
 
-def _leer_requiere(item: tuple[int, str]) -> list:
+def _leer_linea_requiere(item: tuple[int, str], ubicaciones: dict | None = None,
+                         indice_base: int = 1) -> list:
     resto, col = _exigir_prefijo(item, "requiere ", 1)
-    partes = [p.strip() for p in resto.split(",")]
-    if not partes or any(not p for p in partes):
-        _fallar(item[0], col, "una o más relaciones requeridas", resto)
-    return ["requiere", *(_leer_nombre(p, item[0], col) for p in partes)]
+    tokens = _tokenizar(resto, item[0], col)
+    if len(tokens) >= 3 and tokens[2].tipo == "IDENT" and tokens[2].valor == "donde":
+        if tokens[0].tipo not in ("IDENT", "HUECO"):
+            _fallar(tokens[0].linea, tokens[0].columna, "nombre de relación")
+        relacion = ["$", tokens[0].valor] if tokens[0].tipo == "HUECO" else tokens[0].valor
+        if tokens[1].tipo not in ("IDENT", "HUECO"):
+            _fallar(tokens[1].linea, tokens[1].columna, "alias de relación")
+        alias = ["$", tokens[1].valor] if tokens[1].tipo == "HUECO" else tokens[1].valor
+        if len(tokens) < 4:
+            _fallar(tokens[2].linea, tokens[2].columna + len("donde"), "condición después de «donde»")
+        col_expr = tokens[3].columna
+        col_en_resto = col_expr - col
+        expr_texto = resto[col_en_resto:]
+        ruta_cond = (5, indice_base, 3) if ubicaciones is not None else None
+        condicion = _leer_expr_en(expr_texto, item[0], col_expr, ubicaciones, ruta_cond)
+        return [["filas", relacion, alias, condicion]]
+    else:
+        partes = [p.strip() for p in resto.split(",")]
+        if not partes or any(not p for p in partes):
+            _fallar(item[0], col, "una o más relaciones requeridas", resto)
+        return [_leer_nombre(p, item[0], col) for p in partes]
+
+
+def _leer_requiere(item: tuple[int, str]) -> list:
+    return ["requiere", *_leer_linea_requiere(item)]
 
 
 def _leer_ambito(item: tuple[int, str]) -> list:
@@ -755,7 +777,12 @@ def _tipos_en_plantilla(nodo, macros, tipos: dict[str, str], contexto: str,
         return
     if cabeza == "requiere":
         for hijo in nodo[1:]:
-            _tipos_en_plantilla(hijo, macros, tipos, "nombre", visitadas)
+            if isinstance(hijo, list) and len(hijo) >= 4 and hijo[0] == "filas":
+                _tipos_en_plantilla(hijo[1], macros, tipos, "nombre", visitadas)
+                _tipos_en_plantilla(hijo[2], macros, tipos, "nombre", visitadas)
+                _tipos_en_plantilla(hijo[3], macros, tipos, "expr", visitadas)
+            else:
+                _tipos_en_plantilla(hijo, macros, tipos, "nombre", visitadas)
         return
     if cabeza == "ambito":
         if len(nodo) >= 2:
@@ -1169,12 +1196,17 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
     op, limite, porque, segun, tiene_segun, _col = _leer_umbral(
         *_contenido(cuerpo[i], "umbral ", 1))
     i += 1
-    requiere = None
-    if i < len(cuerpo) and _indentada(cuerpo[i][1], 1, cuerpo[i][0]).startswith("requiere "):
-        _registrar(ubicaciones, (5,), cuerpo[i][0], len(IND) + 1)
-        _registrar(ubicaciones, (5, 0), cuerpo[i][0], len(IND) + 1)
-        requiere = _leer_requiere(cuerpo[i])
+    entradas_requiere = []
+    primer_requiere = True
+    while i < len(cuerpo) and _indentada(cuerpo[i][1], 1, cuerpo[i][0]).startswith("requiere "):
+        if primer_requiere:
+            _registrar(ubicaciones, (5,), cuerpo[i][0], len(IND) + 1)
+            _registrar(ubicaciones, (5, 0), cuerpo[i][0], len(IND) + 1)
+            primer_requiere = False
+        indice_base = len(entradas_requiere) + 1
+        entradas_requiere.extend(_leer_linea_requiere(cuerpo[i], ubicaciones, indice_base))
         i += 1
+    requiere = ["requiere", *entradas_requiere] if entradas_requiere else None
     ambito = None
     if i < len(cuerpo) and _indentada(cuerpo[i][1], 1, cuerpo[i][0]).startswith("ambito "):
         ruta_ambito = (6,) if requiere is not None else (5,)
@@ -1520,7 +1552,13 @@ def _lineas_medida(datos: list) -> list[str]:
     lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
     lineas.append(_linea_umbral(umbral))
     if requiere is not None:
-        lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in requiere[1:])}")
+        nombres = [r for r in requiere[1:] if not (isinstance(r, list) and len(r) == 4 and r[0] == "filas")]
+        condicionales = [r for r in requiere[1:] if isinstance(r, list) and len(r) == 4 and r[0] == "filas"]
+        if nombres:
+            lineas.append(f"{IND}requiere {', '.join(_nombre(r) for r in nombres)}")
+        for cond in condicionales:
+            _, rel, alias, expr_nodo = cond
+            lineas.append(f"{IND}requiere {_nombre(rel)} {_nombre(alias)} donde {_expr(expr_nodo)}")
     if ambito is not None:
         valor_ambito = ambito[1]
         if _es_hueco(valor_ambito) or valor_ambito in AMBITOS:

@@ -148,7 +148,8 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertEqual(hechos[0]["pasos"], 2)
         self.assertTrue(hechos[0]["declara_requiere"])
         self.assertEqual(hechos.por_relacion["requiere"],
-                         [{"medida": "d.con_requiere", "indice": 0, "relacion": "marca"}])
+                         [{"medida": "d.con_requiere", "indice": 0, "relacion": "marca",
+                           "con_condicion": False}])
         self.assertEqual(
             sorted((f["relacion"], f["alias"]) for f in hechos.por_relacion["fuente"]),
             [("marca", "q"), ("pieza", "p")])

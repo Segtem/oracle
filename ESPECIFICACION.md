@@ -286,6 +286,8 @@ volver a verificarse. De `0.2` a `0.3` subió la menor (entraron `agrupar`, `req
 de `0.3` a `0.4` volvió a subir porque el umbral ganó `segun`.
 De `0.4` a `0.5` subió porque `@escalar` ganó `unidades_argumentos`.
 De `0.5` a `0.6` subió porque la forma canónica de una medida ganó el nodo opcional `ambito`.
+De `0.6` a `0.7` subió porque una entrada de `requiere` puede llevar condición y la declaración de
+una relación ganó `variantes` (§1.3, §2).
 
 **`MAYOR` sube** cuando cambia el **significado o el contrato** de algo que ya existía: la semántica
 de un operador (qué hace `min`/`max` con booleanos), la forma canónica de una medida, una validación
@@ -323,7 +325,8 @@ forma nueva (MENOR), o deja de aceptar una que ya se publicaba (MAYOR)—.
 **`MENOR` sube** cuando el lector **gana** una forma sin cambiar el significado de lo que ya valía:
 una palabra nueva que antes era un error de sintaxis, un separador nuevo. Un archivo escrito contra
 la menor anterior se sigue leyendo idéntico. De `0.1` a `0.2` subió porque la superficie infija
-ganó la cláusula `ambito`.
+ganó la cláusula `ambito`. De `0.4` a `0.5` subió porque el lector ganó `requiere <relación> <alias>
+donde <condición>` y varias líneas `requiere` seguidas.
 
 **`MAYOR` sube** cuando el lector **cambia** lo que ya aceptaba: una forma que hoy se lee pasa a
 significar otra cosa, o pasa a ser un error de lectura. Eso rompe a todo archivo que la use.
@@ -356,7 +359,7 @@ mismo tipo. La evidencia es un mapa de relaciones:
 ```json
 {
   "pieza":   [{"id": "Muro_A", "x": 100, "y": 100, "ex": 200, "ey": 25}],
-  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual",
+  "mutante": [{"id": "firma_por_id", "apunta_a": "funcion._orden_visual", "tipo": "medida",
                "detecciones_conductuales": 0, "rechazos_del_algebra": 0}]
 }
 ```
@@ -401,7 +404,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `medida` | cada medida del catálogo, reificada: su comparador, umbral, `segun`, `alcance` | `nucleo/medida.py` |
 | `termino` · `fuente` · `paso_de_medida` · `nodo` | las piezas de una medida vistas como árbol: sus términos, de dónde saca filas, cada paso de la tubería y cada nodo lógico | `nucleo/medida.py` |
 | `dependencia_de_medida` | cada relación de la que una medida depende y por qué vía (`fuente` o `requiere`); une las dos para que una política sobre dependencias se escriba una vez | `nucleo/medida.py` |
-| `requiere` | qué relaciones declara necesitar una medida para concluir | `nucleo/medida.py` |
+| `requiere` | qué relaciones declara necesitar una medida para concluir, y si la entrada lleva condición (`con_condicion`) | `nucleo/medida.py` |
 | `caso` | cada caso del corpus: su polaridad, su `procedencia`, si su medida existe, y —desde `DECISION-009`— si es propio o de una biblioteca | `nucleo/marco.py` |
 | `medida_en_uso` | cuántos casos evalúan cada medida y cuántos mutantes le sobreviven | `nucleo/marco.py` |
 | `sombra` | qué medidas heredadas se miden pero todavía no obligan, desde cuándo, por qué y hace cuántos días | `nucleo/marco.py` |
@@ -409,7 +412,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `verbo_del_cli` | cada verbo que el comando acepta y si la ayuda lo nombra | `nucleo/marco.py` |
 | `opcion_del_vocabulario` | cada opción de un vocabulario cerrado, con cuántas palabras la explican y si el manual la muestra | `nucleo/marco.py` |
 | `mutador_excluido` | cada exclusión de mutador declarada, con su premisa, si algún autor ofrece el mutador y si el registro del arnés lo tiene | `nucleo/marco.py` |
-| `relacion_declarada` · `campo_declarado` · `ambito_de_relacion` | las relaciones que un proyecto declara, sus campos con unidad y dónde obliga cada relación | `nucleo/relacion.py` |
+| `relacion_declarada` · `campo_declarado` · `ambito_de_relacion` | las relaciones que un proyecto declara, cuántas variantes tienen, sus campos con unidad y la variante a la que pertenece cada uno, y dónde obliga cada relación | `nucleo/relacion.py` |
 | `cantidad_comparada` | cada comparación de una medida y si su unidad se puede derivar (L−1) | `nucleo/unidad.py` |
 | `referente_declarado` · `referente_comparado` | la identidad y la frescura de aquello que se midió (L−2) | `nucleo/referente.py` |
 | `equivalencia` | dos formas que deberían dar lo mismo, para las propiedades metamórficas | `tools/metamorficas.py` |
@@ -438,6 +441,52 @@ Un manual generado no puede quedar viejo, salvo por una grieta: que aparezca un 
 lo anote en el registro que dice qué mostrar. Eso lo mide
 `meta.todo_vocabulario_cerrado_esta_en_el_manual`; que ninguna opción quede sin explicar lo mide
 `meta.toda_opcion_del_vocabulario_declara_su_sentido`.
+
+### 1.3 Relaciones declaradas y sus variantes
+
+Una relación que produce un sensor **se puede declarar** en `relaciones/`: su nombre, sus campos con
+tipo y unidad, y qué no lee el sensor. La declaración no filtra evidencia; es de lo que salen
+`relacion_declarada` y `campo_declarado`, la derivación de unidades y los puntos ciegos de una medida.
+
+```json
+["relacion", "corrida",
+  ["campos", ["campo", "id", "texto", "sin_unidad"], ["campo", "pasos", "entero", "pasos"]],
+  ["alcance", "no ve el estado interno del simulador"]]
+```
+
+Un campo es `["campo", <nombre>, <tipo>, <unidad>]`, con `tipo` en `texto`, `entero`, `flotante` o
+`booleano`, y una unidad siempre declarada —una magnitud o `sin_unidad`—: no hay valores por omisión.
+
+**Variantes** (álgebra `0.7`). Una misma relación puede traer filas de clases distintas con campos
+distintos: `mutante` la producen la mutación de medidas y la de código. Un nodo opcional
+`variantes`, entre `campos` y `alcance`, declara qué campos trae cada clase según el valor de un campo
+**discriminante**:
+
+```json
+["relacion", "mutante",
+  ["campos", ["campo", "id", "texto", "sin_unidad"], ["campo", "apunta_a", "texto", "sin_unidad"],
+             ["campo", "cambio", "texto", "sin_unidad"], ["campo", "tipo", "texto", "sin_unidad"]],
+  ["variantes", "tipo",
+    ["variante", "medida", ["campo", "detecciones_conductuales", "entero", "sin_unidad"], …],
+    ["variante", "codigo", ["campo", "estado", "texto", "sin_unidad"], …]],
+  ["alcance", "…"]]
+```
+
+- El discriminante es un campo común de tipo `texto`, y hay al menos una variante.
+- Los valores de variante son textos no vacíos y no se repiten.
+- Cada variante declara al menos un campo, y un campo de variante no repite uno común ni se repite
+  dentro de su variante.
+- El mismo nombre en dos variantes exige el mismo tipo y la misma unidad: un campo significa lo mismo
+  donde aparezca.
+- Una relación sin `variantes` conserva su forma de cuatro elementos.
+
+`campo_declarado` trae una fila por campo y por variante, con `variante` vacía para los comunes;
+`relacion_declarada` dice cuántas variantes tiene la relación.
+
+Las variantes **no relajan** la regla del campo ausente: una medida sobre una variante filtra primero
+por el discriminante —un `donde` propio, antes del de las violaciones— y pide filas de su variante en
+`requiere` (§2). Si comparara un campo de otra variante, levantaría error, como con cualquier campo que
+la fila no trae.
 
 ## 2. Una medida es un dato
 
@@ -475,15 +524,47 @@ fail-closed con `SIN EVIDENCIA`.
 Una medida sin el nodo se comporta exactamente como antes y su forma canónica **no cambia**: son seis
 elementos, no siete. Un evaluador tiene que aceptar las dos longitudes.
 
+**Una entrada de `requiere` puede llevar condición** (álgebra `0.7`). Cada elemento después de
+`"requiere"` es un nombre de relación, como hasta ahora, o una entrada
+`["filas", <relación>, <alias>, <condición>]`:
+
+```json
+["requiere", "pieza", ["filas", "mutante", "m", ["==", ["campo", "m", "tipo"], "codigo"]]]
+```
+
+La entrada con condición da `SIN EVIDENCIA` si la relación viene vacía **o** si ninguna de sus filas
+cumple la condición. La condición es una expresión booleana con las reglas de un `donde`: sólo usa
+su alias, y comparar un campo ausente **levanta error** —no es `False`, igual que en un `donde`—.
+Una relación no puede aparecer dos veces en `requiere`, con condición o sin ella.
+
+Existe por las relaciones con variantes (§1.3). La condición **no es el filtro de la medida**, y
+confundirlos rompe el lenguaje: en toda medida `ninguno` el `donde` selecciona las violaciones, así
+que cero filas filtradas es su verde, no una falta de evidencia. Medido el 2026-09-15: las veinte
+medidas con `requiere` que existían filtraban con `donde`, y un `requiere` sobre las filas filtradas
+las habría pasado a todas de verde a `SIN EVIDENCIA`. Lo que una medida sobre una variante necesita
+es otra cosa: que haya filas **de su variante**. Sin eso, una ronda de mutación de medidas le presta
+evidencia a la medida de mutación de código, que filtra por su tipo, cuenta cero y sale verde sobre
+una ronda que nunca ocurrió ([`502`](corpus/proceso/), y el espejo en `503`).
+
+En la superficie, cada entrada con condición va en su propia línea, después de la de nombres si la
+hay; las líneas `requiere` seguidas forman un solo nodo, en orden:
+
+```
+requiere pieza
+requiere mutante m donde m.tipo == "codigo"
+```
+
 Una medida real, del catálogo que ya corre — sin `unir`, que todavía no tiene usuario:
 
 ```json
 ["medida", "proceso.test_con_mutante_que_lo_mata",
   ["desde", ["de", "mutante", "m"],
+    ["donde", ["==", ["campo", "m", "tipo"], "medida"]],
     ["donde", ["y", ["==", ["campo", "m", "detecciones_conductuales"], 0],
                     ["==", ["campo", "m", "rechazos_del_algebra"], 0]]]],
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "un mutante que sobrevive es un test que no discrimina…"],
+  ["requiere", ["filas", "mutante", "m", ["==", ["campo", "m", "tipo"], "medida"]]],
   ["alcance", "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió…"]]
 ```
 

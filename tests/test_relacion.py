@@ -260,6 +260,7 @@ class RelacionTests(unittest.TestCase):
             "campos": 2,
             "alcance": "no ve la malla real",
             "tiene_alcance": True,
+            "variantes": 0,
         })
 
         campos = hechos["campo_declarado"]
@@ -272,6 +273,7 @@ class RelacionTests(unittest.TestCase):
             "tiene_unidad": True,
             "es_magnitud": False,
             "es_sin_unidad": True,
+            "variante": "",
         })
         self.assertEqual(campos[1], {
             "relacion": "pieza",
@@ -281,6 +283,7 @@ class RelacionTests(unittest.TestCase):
             "tiene_unidad": True,
             "es_magnitud": True,
             "es_sin_unidad": False,
+            "variante": "",
         })
 
         self.assertEqual(como_hechos([r]), hechos)

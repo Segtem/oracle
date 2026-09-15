@@ -76,12 +76,12 @@ def derivar_unidad_nodo(
         rel_nombre = alias_relaciones.get(alias)
         if rel_nombre is None:
             return None
-        if rel_nombre in relaciones_lenguaje or rel_nombre in _PROCESO_RELACIONES:
-            return UNIDAD_SIN_UNIDAD
         if rel_nombre in relaciones:
-            for c in relaciones[rel_nombre].campos:
+            for c in relaciones[rel_nombre].todos_los_campos:
                 if c.nombre == campo_nombre:
                     return c.unidad
+        if rel_nombre in relaciones_lenguaje or rel_nombre in _PROCESO_RELACIONES:
+            return UNIDAD_SIN_UNIDAD
         return None
 
     if cabeza == "col" and len(nodo) == 2 and isinstance(nodo[1], str):

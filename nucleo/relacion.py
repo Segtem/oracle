@@ -70,18 +70,49 @@ class Campo:
 
 
 @dataclass(frozen=True)
+class Variante:
+    valor: str
+    campos: tuple[Campo, ...]
+
+    def a_datos(self) -> list:
+        return ["variante", self.valor, *(c.a_datos() for c in self.campos)]
+
+
+@dataclass(frozen=True)
 class Relacion:
     nombre: str
     campos: tuple[Campo, ...]
     alcance: str
+    variantes: tuple[Variante, ...] = ()
+    discriminante: str = ""
+
+    @property
+    def todos_los_campos(self) -> tuple[Campo, ...]:
+        vistos: set[str] = set()
+        resultado: list[Campo] = []
+        for c in self.campos:
+            if c.nombre not in vistos:
+                vistos.add(c.nombre)
+                resultado.append(c)
+        for v in self.variantes:
+            for c in v.campos:
+                if c.nombre not in vistos:
+                    vistos.add(c.nombre)
+                    resultado.append(c)
+        return tuple(resultado)
 
     @classmethod
     def de_datos(cls, d: list) -> "Relacion":
-        if not isinstance(d, list) or len(d) != 4 or d[0] != "relacion":
+        if not isinstance(d, list) or len(d) not in (4, 5) or d[0] != "relacion":
             raise RelacionMalDeclarada(
-                "una relación es ['relacion', nombre, ['campos', ...], ['alcance', ...]]")
+                "una relación es ['relacion', nombre, ['campos', ...], ['alcance', ...]] "
+                "o con ['variantes', discriminante, ...]")
 
-        _, nombre, nodo_campos, nodo_alcance = d
+        if len(d) == 4:
+            _, nombre, nodo_campos, nodo_alcance = d
+            nodo_variantes = None
+        else:
+            _, nombre, nodo_campos, nodo_variantes, nodo_alcance = d
 
         if not isinstance(nombre, str) or NOMBRE_RELACION_RE.fullmatch(nombre) is None:
             raise RelacionMalDeclarada(
@@ -124,21 +155,114 @@ class Relacion:
             raise RelacionMalDeclarada(
                 f"{nombre}: la relación debe declarar al menos un campo")
 
+        variantes_lista: list[Variante] = []
+        discriminante = ""
+
+        if nodo_variantes is not None:
+            if not (isinstance(nodo_variantes, list) and nodo_variantes and nodo_variantes[0] == "variantes"):
+                raise RelacionMalDeclarada(
+                    f"{nombre}: `variantes` debe ser ['variantes', discriminante, ['variante', ...], ...]")
+            if len(nodo_variantes) < 3:
+                raise RelacionMalDeclarada(
+                    f"{nombre}: debe declarar al menos una variante en `variantes`")
+
+            discriminante = nodo_variantes[1]
+            if not isinstance(discriminante, str) or discriminante not in nombres_vistos:
+                raise RelacionMalDeclarada(
+                    f"{nombre}: el discriminante «{discriminante}» debe ser un campo común declarado")
+
+            campo_disc = next(c for c in campos_lista if c.nombre == discriminante)
+            if campo_disc.tipo != "texto":
+                raise RelacionMalDeclarada(
+                    f"{nombre}: el discriminante «{discriminante}» debe ser de tipo 'texto', no «{campo_disc.tipo}»")
+
+            variantes_vistas: set[str] = set()
+            campos_variantes_tipos: dict[str, tuple[str, str]] = {}
+
+            for item in nodo_variantes[2:]:
+                if not (isinstance(item, list) and len(item) >= 2 and item[0] == "variante"):
+                    raise RelacionMalDeclarada(
+                        f"{nombre}: cada variante debe ser ['variante', valor, ['campo', ...], ...]")
+                valor = item[1]
+                if not isinstance(valor, str) or not valor.strip():
+                    raise RelacionMalDeclarada(
+                        f"{nombre}: valor de variante vacío o inválido")
+                if valor in variantes_vistas:
+                    raise RelacionMalDeclarada(
+                        f"{nombre}: variante «{valor}» repetida")
+                variantes_vistas.add(valor)
+
+                if len(item) < 3:
+                    raise RelacionMalDeclarada(
+                        f"{nombre}.{valor}: la variante «{valor}» debe tener al menos un campo")
+
+                v_campos: list[Campo] = []
+                v_nombres_vistos: set[str] = set()
+
+                for v_item in item[2:]:
+                    if not (isinstance(v_item, list) and len(v_item) == 4 and v_item[0] == "campo"):
+                        raise RelacionMalDeclarada(
+                            f"{nombre}.{valor}: campo de variante debe ser ['campo', nombre, tipo, unidad]")
+                    _, vc_nombre, vc_tipo, vc_unidad = v_item
+
+                    if not isinstance(vc_nombre, str) or NOMBRE_CAMPO_RE.fullmatch(vc_nombre) is None:
+                        raise RelacionMalDeclarada(
+                            f"{nombre}.{valor}: nombre de campo inválido: «{vc_nombre}»")
+                    if vc_nombre in v_nombres_vistos:
+                        raise RelacionMalDeclarada(
+                            f"{nombre}.{valor}: el campo «{vc_nombre}» está repetido en la variante")
+                    if vc_nombre in nombres_vistos:
+                        raise RelacionMalDeclarada(
+                            f"{nombre}.{valor}: el campo «{vc_nombre}» ya está declarado en los campos comunes")
+                    v_nombres_vistos.add(vc_nombre)
+
+                    if not isinstance(vc_tipo, str) or vc_tipo not in TIPOS_VALIDOS:
+                        raise RelacionMalDeclarada(
+                            f"{nombre}.{valor}.{vc_nombre}: tipo «{vc_tipo}» inválido — "
+                            f"debe ser uno de {sorted(TIPOS_VALIDOS)}")
+
+                    if not isinstance(vc_unidad, str) or not vc_unidad.strip():
+                        raise RelacionMalDeclarada(
+                            f"{nombre}.{valor}.{vc_nombre}: falta unidad — debe ser una magnitud o «sin_unidad»")
+
+                    vc_unidad_limpia = vc_unidad.strip()
+                    if vc_nombre in campos_variantes_tipos:
+                        prev_tipo, prev_unidad = campos_variantes_tipos[vc_nombre]
+                        if prev_tipo != vc_tipo or prev_unidad != vc_unidad_limpia:
+                            raise RelacionMalDeclarada(
+                                f"{nombre}.{valor}.{vc_nombre}: el campo «{vc_nombre}» fue declarado "
+                                f"en otra variante con diferente tipo/unidad ({prev_tipo}/{prev_unidad} vs {vc_tipo}/{vc_unidad_limpia})")
+                    else:
+                        campos_variantes_tipos[vc_nombre] = (vc_tipo, vc_unidad_limpia)
+
+                    v_campos.append(Campo(nombre=vc_nombre, tipo=vc_tipo, unidad=vc_unidad_limpia))
+
+                variantes_lista.append(Variante(valor=valor, campos=tuple(v_campos)))
+
         if not (isinstance(nodo_alcance, list) and len(nodo_alcance) == 2
                 and nodo_alcance[0] == "alcance"
                 and isinstance(nodo_alcance[1], str) and nodo_alcance[1].strip()):
             raise RelacionMalDeclarada(
                 f"{nombre}: falta `alcance` — hay que declarar qué NO lee el sensor")
 
-        return cls(nombre=nombre, campos=tuple(campos_lista), alcance=nodo_alcance[1].strip())
+        return cls(
+            nombre=nombre,
+            campos=tuple(campos_lista),
+            alcance=nodo_alcance[1].strip(),
+            variantes=tuple(variantes_lista),
+            discriminante=discriminante,
+        )
 
     def a_datos(self) -> list:
-        return [
+        base = [
             "relacion",
             self.nombre,
             ["campos", *(c.a_datos() for c in self.campos)],
-            ["alcance", self.alcance],
         ]
+        if self.variantes:
+            base.append(["variantes", self.discriminante, *(v.a_datos() for v in self.variantes)])
+        base.append(["alcance", self.alcance])
+        return base
 
 
 def _normalizar_directorios(directorios) -> tuple:
@@ -275,6 +399,7 @@ def hechos_de_relaciones(relaciones: Iterable[Relacion], *, ambitos=None) -> dic
             "campos": len(r.campos),
             "alcance": r.alcance,
             "tiene_alcance": bool(r.alcance),
+            "variantes": len(r.variantes),
         })
         for c in r.campos:
             campos_filas.append({
@@ -285,7 +410,20 @@ def hechos_de_relaciones(relaciones: Iterable[Relacion], *, ambitos=None) -> dic
                 "tiene_unidad": bool(c.unidad),
                 "es_magnitud": c.es_magnitud,
                 "es_sin_unidad": c.es_sin_unidad,
+                "variante": "",
             })
+        for v in r.variantes:
+            for c in v.campos:
+                campos_filas.append({
+                    "relacion": r.nombre,
+                    "campo": c.nombre,
+                    "tipo": c.tipo,
+                    "unidad": c.unidad,
+                    "tiene_unidad": bool(c.unidad),
+                    "es_magnitud": c.es_magnitud,
+                    "es_sin_unidad": c.es_sin_unidad,
+                    "variante": v.valor,
+                })
     ambitos = {} if ambitos is None else dict(ambitos)
     for nombre, ambito in ambitos.items():
         if not isinstance(nombre, str) or not nombre.strip() or ambito not in AMBITOS:

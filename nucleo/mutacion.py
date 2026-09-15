@@ -461,6 +461,7 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
             "id": d["mutante"],
             "apunta_a": d["mutante"].split("·")[0],
             "cambio": d["mutante"].split("·")[1],
+            "tipo": "medida",
             "detecciones_conductuales": 0,
             "rechazos_del_algebra": 0,
         })

@@ -11,7 +11,7 @@ caso 018-mutante-de-cache-borro-la-copia-del-proyecto:
     como_se_detecto: mutacion
     medida: proceso.test_con_mutante_que_lo_mata
     evidencia:
-        mutante: id, apunta_a, detecciones_conductuales, rechazos_del_algebra
-            "mutacion_codigo.py:enumerador_cache_sin_guarda", "nucleo.mutacion_codigo.limpiar_cache", 0, 0
+        mutante: id, apunta_a, detecciones_conductuales, rechazos_del_algebra, tipo
+            "mutacion_codigo.py:enumerador_cache_sin_guarda", "nucleo.mutacion_codigo.limpiar_cache", 0, 0, "medida"
     leccion:
         Una lista de rutas no recibe autoridad de borrado por haber salido del enumerador. El punto de borrado vuelve a comprobar nombre exacto y confinamiento físico; como cada mutante cambia un solo sitio, las dos guardas no caen juntas.

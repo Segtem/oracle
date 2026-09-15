@@ -662,11 +662,12 @@ def _cargar_reanudacion(ruta: Path, identidad: dict, sitios: dict[str, Sitio]) -
     ids = [fila.get("id") for fila in filas if isinstance(fila, dict)]
     if len(ids) != len(filas) or len(set(ids)) != len(ids) or not set(ids) <= set(sitios):
         raise ManifiestoInvalido("el manifiesto contiene ids inválidos, duplicados o vencidos")
-    requeridos = {"id", "apunta_a", "cambio", "murio", "estado", "tests_fallaron", "error_arnes",
+    requeridos = {"id", "apunta_a", "cambio", "tipo", "murio", "estado", "tests_fallaron", "error_arnes",
                   "timeout", "codigo_salida", "equivalente_declarado", "razon_equivalente"}
     for fila in filas:
         sitio = sitios[fila["id"]]
         if (not requeridos <= set(fila)
+                or fila["tipo"] != "codigo"
                 or fila["apunta_a"] != sitio.archivo
                 or fila["cambio"] != f"{sitio.operador}: {sitio.descripcion}"
                 or fila["estado"] not in {estado.value for estado in EstadoTests}
@@ -844,6 +845,7 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                 "id": sitio.id,
                 "apunta_a": sitio.archivo,
                 "cambio": f"{sitio.operador}: {sitio.descripcion}",
+                "tipo": "codigo",
                 "murio": murio,
                 "estado": resultado.estado.value,
                 "tests_fallaron": resultado.tests_fallaron,

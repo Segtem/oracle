@@ -283,8 +283,10 @@ class MedidaMutantesDePresentacionTests(unittest.TestCase):
             ["campos", ["campo", "a", "x"], ["campo", "b", "y"]],
         ]
         declaraciones = {
-            "r1": SimpleNamespace(campos=[SimpleNamespace(nombre="x")]),
-            "r2": SimpleNamespace(campos=[SimpleNamespace(nombre="y")]),
+            "r1": SimpleNamespace(campos=[SimpleNamespace(nombre="x")],
+                                  todos_los_campos=[SimpleNamespace(nombre="x")]),
+            "r2": SimpleNamespace(campos=[SimpleNamespace(nombre="y")],
+                                  todos_los_campos=[SimpleNamespace(nombre="y")]),
         }
         with (mock.patch("nucleo.relacion.cargar_relaciones", return_value=declaraciones),
               mock.patch.object(medida, "relaciones_por_alias",

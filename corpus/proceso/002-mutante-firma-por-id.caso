@@ -13,7 +13,7 @@ caso 002-mutante-firma-por-id:
     evidencia:
         test: id, archivo, cubre
             "test_la_firma_sale_en_el_orden_en_que_se_ven_los_pines", "tests/test_funcion.py", "funcion._orden_visual"
-        mutante: id, apunta_a, cambio, detecciones_conductuales, rechazos_del_algebra
-            "orden_por_id", "funcion._orden_visual", "clave de sort: (y,x,id) -> id", 0, 0
+        mutante: id, apunta_a, cambio, detecciones_conductuales, rechazos_del_algebra, tipo
+            "orden_por_id", "funcion._orden_visual", "clave de sort: (y,x,id) -> id", 0, 0, "medida"
     leccion:
         Un test de ORDEN cuyos datos hacen coincidir dos órdenes distintos no comprueba nada. Los identificadores tienen que ir a propósito al revés que el criterio.

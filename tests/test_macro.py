@@ -567,8 +567,9 @@ class CatalogoRealTests(unittest.TestCase):
     def test_todas_cargan_y_la_mayoria_son_macro(self) -> None:
         """La proporción se mide contra las que PODRÍAN ser macro, y cada excepción se justifica.
 
-        Las macros que hay no expresan todos los usos de `unir` ni `agrupar`: una medida que necesite
-        cualquiera de esos dos se escribe entera, y eso no es un descuido. Lo que sí sería un
+        Las macros que hay no expresan todos los usos de `unir` ni `agrupar`, ni un `requiere` con
+        condición (0.21.0): una medida que necesite cualquiera de los tres se escribe entera, y eso no
+        es un descuido. Lo que sí sería un
         descuido es escribir entera una que podía ser macro, y eso es lo que se comprueba —en vez de
         bajar la barrera cada vez que entra una medida nueva, que sería mover el poste.
         """
@@ -577,9 +578,9 @@ class CatalogoRealTests(unittest.TestCase):
         for mid, datos in enteras.items():
             cabezas = set(re.findall(r'"(\w+)"', __import__("json").dumps(datos)))
             self.assertTrue(
-                cabezas & {"unir", "agrupar"},
-                f"{mid} se escribió entera y no necesita `unir` ni `agrupar`: "
-                f"podía ser una macro")
+                cabezas & {"unir", "agrupar", "filas"},
+                f"{mid} se escribió entera y no necesita `unir`, `agrupar` ni un `requiere` con "
+                f"condición: podía ser una macro")
         podrian = len(self.crudos) - len(enteras)
         self.assertGreaterEqual(macros / max(1, podrian), 0.8)
         self.assertEqual(len(self.catalogo), len(self.crudos))

@@ -307,8 +307,8 @@ def alcance_derivado(proy, medida) -> list[str]:
         if relacion not in declaradas:
             lineas.append(f"    de `{relacion}` no se sabe: nadie declaró sus campos")
             continue
-        nombres = {c.nombre for c in declaradas[relacion].campos}
-        sin_leer = [c.nombre for c in declaradas[relacion].campos
+        nombres = {c.nombre for c in declaradas[relacion].todos_los_campos}
+        sin_leer = [c.nombre for c in declaradas[relacion].todos_los_campos
                     if (relacion, c.nombre) not in leidos]
         # Un campo LEÍDO y no declarado pesa más que uno declarado y no leído: o la declaración
         # quedó incompleta, o la medida está leyendo algo que la relación no promete. Las dos
