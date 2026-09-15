@@ -2365,6 +2365,21 @@ class LasCustodiasQueNadieMide(unittest.TestCase):
             "custodias que no se miden en CI y tampoco declaran por qué: o entran a la matriz de "
             "`.github/workflows/verificar.yml`, o se anotan en `CUSTODIAS_SIN_MEDIR` con su razón")
 
+    def test_todo_objetivo_de_la_matriz_es_un_objetivo_que_mutar_codigo_acepta(self):
+        """La dirección que faltaba. El 2026-09-14 `tools/tareas_grafo.py` entró a la matriz y a
+        `PRIORIDADES` pero no a `HERRAMIENTAS_CUSTODIAS`: los tests pasaban y el job de CI moría en
+        un segundo con «objetivos desconocidos». Nadie lo vio porque ese job no corre en push."""
+        from tools.mutar_codigo import objetivos_disponibles
+
+        texto = (RAIZ / ".github" / "workflows" / "verificar.yml").read_text(encoding="utf-8")
+        prefijos = ("- tools/", "- nucleo/", "- perfiles/", "- oracle_metalenguaje/")
+        en_matriz = sorted(l.strip().removeprefix("- ") for l in texto.splitlines()
+                           if l.strip().startswith(prefijos) and l.strip().endswith(".py"))
+        self.assertTrue(en_matriz, "no se encontró la matriz de mutación en verificar.yml")
+        desconocidos = sorted(set(en_matriz) - set(objetivos_disponibles()))
+        self.assertEqual(desconocidos, [],
+                         "objetivos de la matriz que `mutar_codigo.py --objetivo` rechazaría")
+
     def test_la_deuda_declarada_no_incluye_a_ninguna_que_ya_se_mide(self):
         """La otra dirección, que es la que envejece sola: una custodia que entró a la matriz y
         quedó en la lista de pendientes seguiría diciendo que no se mide cuando sí. Es el mismo
@@ -2380,7 +2395,7 @@ class LasCustodiasQueNadieMide(unittest.TestCase):
         """Borrar ambas listas a la vez no debe retirar silenciosamente la verificación publicada."""
         custodias, en_matriz = self._custodias_y_matriz()
         for herramienta in ("cli.py", "metamorficas.py", "tareas.py", "tareas_contexto.py",
-                            "tareas_git.py", "tareas_hechos.py"):
+                            "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py"):
             with self.subTest(herramienta=herramienta):
                 self.assertIn(herramienta, custodias)
                 self.assertIn(herramienta, en_matriz)

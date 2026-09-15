@@ -272,6 +272,7 @@ PRIORIDADES = {
 CUSTODIAS_SIN_MEDIR = {}
 
 
+# 0.17.0 suma `tareas_grafo.py`: una mención mal leída dibuja un grafo que parece completo.
 # El tracker añade cuatro custodias: integridad del documento y cambios de estado; captura
 # y consultas con límites explícitos; pertenencia al índice/HEAD; hechos y omisiones para las
 # políticas. Una lectura incompleta o una referencia mal clasificada puede dar un verde falso.
@@ -280,7 +281,7 @@ HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "
                           "corpus.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
-                          "tareas_git.py", "tareas_hechos.py")
+                          "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py")
 
 # `lsp.py` SALIÓ de la lista el 2026-09-09, y no por costo: mide 140/140 en 2,2 minutos. Salió
 # porque no cumple el criterio. Es un adaptador de editor: no lo corre CI, no lo corre `oracle

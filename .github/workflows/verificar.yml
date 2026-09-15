@@ -177,6 +177,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+      # Sin `setuptools` la línea base no es verde: `test_cli_integracion` construye la rueda sin
+      # aislamiento. La primera corrida manual del job (2026-09-15) cayó así en los 35 objetivos.
+      - run: python -m pip install "setuptools>=68"
       # `--timeout 120` y no el 60 por omisión. El perfil de `aceptacion.py` tarda ~30 s en
       # caliente y con el bytecode frío del arnés no entra: la ronda del 2026-09-08 devolvió SEIS
       # timeouts y otra tumbó hasta la línea base. Un timeout NO mata un mutante, así que una ronda
