@@ -96,6 +96,11 @@ class ContratoMedidaTests(unittest.TestCase):
         self.assertTrue(lineas[0].endswith("   [EN SOMBRA]"), lineas[0])
         self.assertNotIn("[EN SOMBRA]", lineas[1])
         self.assertIn("VEREDICTO: verde en 2 medidas, con 1 en rojo en sombra. SIN MIRAR:", lineas)
+        # Una verde en sombra se marca pero no es un rojo perdonado.
+        ambas = m.Informe((rojo, verde), en_sombra=frozenset({"d.rojo", "d.verde"})).texto()
+        self.assertIn("VEREDICTO: verde en 2 medidas, con 1 en rojo en sombra. SIN MIRAR:",
+                      ambas.splitlines())
+        self.assertEqual(ambas.count("[EN SOMBRA]"), 2)
         otro = m.Veredicto("d.otro", 1, False, "<= 0", "razón", "alcance", ())
         self.assertIn("VEREDICTO: 1 de 3 medidas en rojo",
                       m.Informe((rojo, otro, verde), en_sombra=frozenset({"d.rojo"})).texto())

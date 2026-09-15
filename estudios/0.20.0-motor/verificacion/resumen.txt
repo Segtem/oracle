@@ -1,0 +1,9 @@
+Mutación de código del corte 0.20.0 (2026-09-15), tarea 20260915-010454-motor. Una ronda por
+objetivo en copias aisladas, con TMPDIR propio y `ulimit -v 4000000`.
+
+motor:  código 0 · 23/23
+medida: código 1 · 260/261 · el vivo (nucleo/medida.py:602, `and` → `or` al contar los rojos
+        perdonados) contaba una medida verde en sombra. Lo mata el caso «una verde en sombra se
+        marca pero no es un rojo perdonado» de
+        test_la_sombra_perdona_solo_rojos_y_un_informe_vacio_sigue_sin_ser_ok, agregado con la
+        ronda terminada y verificado aplicando el mutante a mano («con 2 en rojo en sombra»).

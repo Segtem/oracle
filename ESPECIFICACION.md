@@ -98,6 +98,14 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.20.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.19.0` a `0.20.0`.** La menor
+cambia el contrato de la fachada pública: `Motor.desde_proyecto` selecciona con `catalogo_efectivo`
+—con `catalogo_base`, las medidas `del_origen` de Oracle ya no juzgan al consumidor— y aplica la
+`sombra` de `oracle.json`, así que el mismo proyecto recibe el mismo veredicto por `Motor`, por
+`oracle test` y por `oracle juzgar`. `Informe` suma `en_sombra` (vacío por defecto): `ok` no cuenta
+los rojos en sombra, `texto()` los marca y `a_json()` informa `en_sombra` por medida. Cierra la tarea
+`20260915-010454-motor`. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.4`.
+
 **Corte 0.19.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.18.1` a `0.19.0`.** La menor
 agrega a la superficie de `oracle tarea` un lenguaje de consultas —`listar <consulta>`,
 `desetiquetar --consulta`— con contrato propio: gramática de tatr en español, tipos verificados al

@@ -1,3 +1,47 @@
+# 0.20.0 — `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test`
+
+```
+VERSION_DISTRIBUCION   0.19.0 → 0.20.0   veredicto de la fachada Motor
+VERSION_ALGEBRA        0.6    → 0.6
+VERSION_SINTAXIS       0.4    → 0.4
+```
+
+LyraGASP y Jam juzgan su evidencia con la fachada pública `Motor.desde_proyecto`, y esa fachada no
+juzgaba igual que `oracle test` sobre el mismo proyecto:
+
+| proyecto | `Motor` en 0.19.0 | catálogo efectivo | sombras ignoradas |
+|---|--:|--:|--:|
+| LyraGASP `medidas/` | 84 | 64 | 3 |
+| Jam `medidas/` | 101 | 81 | 3 |
+
+- **Catálogo.** Cargaba con `catalogos_a_cargar`: con `catalogo_base`, las 20 medidas `del_origen`
+  de Oracle —reglas sobre el propio Oracle— también juzgaban al consumidor. Ahora carga
+  `catalogo_efectivo`, la selección de `oracle test` y `oracle juzgar`.
+- **Sombra.** Ignoraba la `sombra` de `oracle.json`: una medida heredada en sombra y en rojo ponía
+  `informe.ok` en falso. `Informe` suma `en_sombra`: la medida se sigue midiendo y se marca
+  `[EN SOMBRA]`, su rojo no tumba `ok`, el veredicto dice cuántos perdonó y `a_json()` agrega
+  `en_sombra` por medida.
+
+Los consumidores no cambian una línea: con 0.20.0, `Motor` carga 64 medidas en LyraGASP y 81 en Jam,
+las mismas que su catálogo efectivo, con sus tres sombras. `Motor.desde_datos` y `desde_medidas` no
+tienen proyecto y siguen sin sombras.
+
+## Verificación
+
+- Suite: 2055 tests en verde, con tests escritos antes del arreglo que fallaban sobre 0.19.0.
+- Mutación de código ([logs](estudios/0.20.0-motor/verificacion/)): `oracle_metalenguaje/motor.py`
+  23/23 y `nucleo/medida.py` 260/261. El sobreviviente contaba como «rojo perdonado» una medida
+  verde en sombra; lo mata un test agregado con la ronda terminada y verificado aplicando el mutante
+  a mano.
+- `tools/verificar_instalacion.py`: `WHEEL OK` con la versión 0.20.0.
+- Medido sobre los proyectos reales de LyraGASP y Jam con el checkout: `Motor` carga 64 y 81
+  medidas, iguales a su catálogo efectivo, con tres sombras cada uno.
+- Tarea [`20260915-010454-motor`](tareas/20260915-010454-motor/TAREA.md), con lo medido y el diseño.
+
+Álgebra y sintaxis no cambian. La publicación en PyPI la realiza el dueño.
+
+---
+
 # 0.19.0 — consultas de tareas en español
 
 ```
