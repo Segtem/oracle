@@ -180,6 +180,8 @@ jobs:
           - tools/tareas_grafo.py
           # El veredicto sobre evidencia real (0.18.0).
           - tools/juzgar.py
+          # Las consultas de tareas (0.19.0).
+          - tools/tareas_consulta.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

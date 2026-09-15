@@ -20,6 +20,7 @@ from pathlib import Path
 from typing import Any
 
 from tools.tareas import (
+    ID_COMPLETO_RE,
     ParserDeSubcomando,
     RutaInsegura,
     Tarea,
@@ -714,7 +715,7 @@ def cmd_referencias(argv: list[str], args: list[str]) -> int:
         prog="oracle tarea referencias",
         description="Busca menciones textuales del ID canónico en tareas, notas y código del proyecto",
     )
-    parser.add_argument("id", help="Identificador o prefijo inequívoco de la tarea")
+    parser.add_argument("id", nargs="?", default=None, help="Identificador o prefijo inequívoco de la tarea")
     parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
     parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
     parsed = parser.parse_args(args)
@@ -736,8 +737,25 @@ def cmd_referencias(argv: list[str], args: list[str]) -> int:
             print(f"  · {p}", file=sys.stderr)
         return 1
 
+    id_objetivo = parsed.id
+    if id_objetivo is None:
+        try:
+            rel = Path.cwd().resolve().relative_to(raiz_tareas.resolve())
+        except ValueError:
+            rel = None
+        if rel is not None and len(rel.parts) >= 1:
+            candidato = rel.parts[0]
+            if (raiz_tareas / candidato / "TAREA.md").exists() and ID_COMPLETO_RE.fullmatch(candidato):
+                id_objetivo = candidato
+        if id_objetivo is None:
+            print(
+                "ERROR: falta el ID de la tarea o debe ejecutarse dentro de la carpeta de una tarea",
+                file=sys.stderr,
+            )
+            return 2
+
     try:
-        carpeta = resolver_id_o_prefijo(raiz_tareas, parsed.id)
+        carpeta = resolver_id_o_prefijo(raiz_tareas, id_objetivo)
     except TareaError as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 1

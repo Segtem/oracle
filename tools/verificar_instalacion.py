@@ -184,6 +184,15 @@ def _recorrer_tareas(oracle: Path, *, temporal: Path, env: dict[str, str]) -> No
     dot = _correr([str(oracle), "tarea", "grafo"], cwd=subcarpeta, env=env)
     if not dot.stdout.lstrip().startswith("digraph"):
         raise RuntimeError("grafo instalado no emite DOT")
+    # 0.19.0: consultas en español sobre el mismo consumidor instalado.
+    consulta = _correr([str(oracle), "tarea", "listar", ":investigacion", "y", "no", ":nada", "--json"],
+                       cwd=subcarpeta, env=env)
+    if [f["id"] for f in json.loads(consulta.stdout)] != [identidad]:
+        raise RuntimeError("la consulta instalada no selecciona la tarea etiquetada")
+    invalida = subprocess.run([str(oracle), "tarea", "listar", "prioridad"], cwd=subcarpeta, env=env,
+                              capture_output=True, text=True, timeout=30)
+    if invalida.returncode != 2 or "^" not in invalida.stderr or "Traceback" in invalida.stderr:
+        raise RuntimeError("una consulta de tipo inválido instalada no sale 2 con su posición")
 
 
 def _hablarle_al_lsp(ejecutable: Path, *, proyecto: Path, cwd: Path, env: dict[str, str]) -> None:

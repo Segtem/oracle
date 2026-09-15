@@ -37,7 +37,7 @@ El tracker determina la raíz de trabajo aplicando el siguiente orden de precede
    - **Límite Git**: la búsqueda automática se detiene inmediatamente si encuentra un límite de repositorio Git (`.git`) y no continúa hacia directorios superiores, evitando saltar accidentalmente al tracker de un repositorio padre o contenedor.
    - Si no se encuentra `tareas/` antes o al alcanzar el límite Git, la resolución falla informando que no hay tracker inicializado.
 
-El comando `oracle tarea init [ruta]` inicializa el tracker creando el directorio `tareas/` (y `tareas/README.md`) en la ruta indicada o en el directorio actual. No exige la presencia de `catalogos/` ni `oracle.json`.
+El comando `oracle tarea init [ruta] [--sin-readme]` inicializa el tracker creando el directorio `tareas/` (y opcionalmente `tareas/README.md`, salvo que se especifique `--sin-readme`) en la ruta indicada o en el directorio actual. No exige la presencia de `catalogos/` ni `oracle.json`.
 
 ## 3. Identidad de tareas y resolución de colisiones
 
@@ -88,22 +88,22 @@ Los comandos de modificación de estado (`cerrar`, `reabrir`):
 
 | Comando | Argumentos / Opciones | Descripción |
 |---|---|---|
-| `oracle tarea init` | `[ruta]` | Inicializa `tareas/` y `tareas/README.md`. |
+| `oracle tarea init` | `[ruta] [--sin-readme]` | Inicializa `tareas/` y opcionalmente `tareas/README.md`. |
 | `oracle tarea nueva` | `<titulo> [--etiqueta/-e <etiqueta>]... [--prioridad <n>] [--sufijo <sufijo>] [--json]` | Crea una nueva tarea y devuelve su ID y ruta. |
-| `oracle tarea listar` / `ls` | `[--cerradas] [--todas] [--etiqueta/-e <etiqueta>] [--texto/-t <palabra>] [--json]` | Lista tareas abiertas (o cerradas/todas) ordenadas por prioridad e ID. |
+| `oracle tarea listar` / `ls` | `[consulta] [--cerradas] [--todas] [--etiqueta/-e <e>] [--texto/-t <s>] [--por-id] [--invertir] [--explicar] [--json]` | Lista tareas abiertas (o cerradas/todas). Admite expresiones TQL, orden por ID descendente e inversión. |
 | `oracle tarea ver` | `<id> [--ruta] [--json]` | Muestra detalles de la tarea. Admite prefijos inequívocos. Con `--ruta` imprime solo la ruta al archivo. |
 | `oracle tarea cerrar` | `<id>` | Cambia el estado a `CERRADA` de forma atómica y preserva el resto. |
 | `oracle tarea reabrir` | `<id>` | Cambia el estado a `ABIERTA` de forma atómica y preserva el resto. |
-| `oracle tarea revisar` | `[--json]` | Audita el directorio `tareas/`: detecta carpetas sin `TAREA.md`, metadatos inválidos y omisiones. |
+| `oracle tarea revisar` | `[--json]` | Audita la integridad del directorio tareas/: detecta carpetas sin `TAREA.md`, metadatos inválidos y omisiones. |
 | `oracle tarea anotar` | `<id> [texto] [--url <url>] [--marca <marca>] [--json]` | Agrega una nota, enlace web o marca al cuerpo de la tarea sin descargar contenido remoto. |
 | `oracle tarea adjuntar` | `<id> <archivo> [--permitir-grande] [--json]` | Copia un archivo regular al directorio de la tarea y lo vincula en `TAREA.md`. |
 | `oracle tarea buscar` | `<texto> [--json]` | Búsqueda literal en documentos y notas de texto del tracker (omite binarios y archivos > 2 MiB). |
-| `oracle tarea referencias` | `<id> [--json]` | Busca menciones textuales del ID canónico en tareas y código fuente del proyecto. |
+| `oracle tarea referencias` | `[id] [--json]` | Busca menciones textuales del ID canónico en tareas y código fuente. Sin ID, deduce la tarea desde el directorio actual. |
 | `oracle tarea resumen` | `[--json]` | Reporta cantidades agregadas por estado y etiquetas a partir de registros válidos. |
 | `oracle tarea seguimiento` | `[opciones]` | Diagnóstico de seguimiento y cobertura de tareas y adjuntos en Git. |
 | `oracle tarea hechos` | `[--git] [--json]` | Emite evidencia relacional de tareas, inventario, referencias y omisiones en JSON. |
 | `oracle tarea etiquetar` | `<id>... --etiqueta <e> [--json]` | Agrega una o más etiquetas a tareas existentes de forma atómica. |
-| `oracle tarea desetiquetar` | `[<id>...] --etiqueta <e> [--cerradas] [--todas] [--json]` | Quita una o más etiquetas de tareas de forma atómica. |
+| `oracle tarea desetiquetar` | `[<id>...] --etiqueta <e> [--consulta <tql>] [--cerradas] [--todas] [--json]` | Quita una o más etiquetas de tareas de forma atómica (por ID o por consulta TQL masiva). |
 | `oracle tarea grafo` | `[--json]` | Emite el grafo de referencias entre tareas en formato DOT o JSON. |
 
 Todos los subcomandos aceptan `--proyecto <ruta>` para operar sobre un directorio explícito.
@@ -135,6 +135,7 @@ Todos los subcomandos aceptan `--proyecto <ruta>` para operar sobre un directori
   - Cero coincidencias devuelve éxito (código 0). Registros rotos, carpetas corruptas en `tareas/` o fallos operacionales de lectura devuelven código 1; no se disfrazan de búsqueda vacía.
 - **`referencias`**:
   - Audita el tracker (fallando con código 1 ante tareas corruptas), resuelve el ID inequívoco y busca menciones de ese ID canónico exacto en las tareas y en el código fuente bajo la raíz del proyecto.
+  - Si se omite el argumento `[id]`, determina la tarea automáticamente verificando si el directorio de trabajo actual (`cwd`) se encuentra dentro de la carpeta de una tarea o de cualquiera de sus subdirectorios (ej. `tareas/20260915-100000-a/notas`). Si se invoca fuera del directorio de una tarea sin especificar ID, emite un error a `stderr` y finaliza con código 2 sin volcar trazas.
   - Utiliza límites de palabra/identificador (`(?<![a-zA-Z0-9_-])ID(?![a-zA-Z0-9_-])`) para no atribuir menciones de tareas derivadas (como `ID-1` o `copia-ID`) al ID original.
   - Excluye automáticamente directorios de control y compilación: `.git`, `.hg`, `.svn`, `.venv`, `venv`, `node_modules`, `__pycache__`, `build` y `dist`, sin seguir enlaces simbólicos ni entrar en repositorios anidados.
   - Informa archivos omitidos en consola y formato JSON. Las menciones textuales son referencias de contexto, no dependencias declaradas.
@@ -257,6 +258,74 @@ Para restringir la evaluación a una política específica:
 oracle juzgar --proyecto ejemplo/seguimiento-tareas --con hechos.json --medida seguimiento.referencias_locales_presentes
 ```
 
+### Lenguaje de consultas de tareas (TQL)
+
+El comando `oracle tarea listar` admite una expresión posicional de consulta en lenguaje TQL (Task Query Language) con vocabulario en español para filtrar tareas de forma expresiva:
+
+```bash
+oracle tarea listar ":bug y prioridad mayor 50"
+oracle tarea listar "no :ui o [:backend y prioridad desde 70]"
+```
+
+#### Vocabulario y operadores
+
+1. **Etiquetas**: `:etiqueta` evalúa si la tarea posee la etiqueta indicada. La comparación es insensible a mayúsculas y minúsculas (`:bug` coincide con `bug` y con `Bug`).
+2. **Palabras clave primarias**:
+   - `cualquiera`: coincide con cualquier tarea (siempre verdadero). Una consulta vacía equivale a `cualquiera`.
+   - `etiquetada`: verdadero si la tarea posee al menos una etiqueta declarada.
+   - `prioridad`: evalúa al valor entero de prioridad de la tarea.
+3. **Identificador exacto**: un ID canónico de tarea (`YYYYMMDD-HHMMSS[-slug]`) coincide únicamente con la tarea que posea ese identificador.
+4. **Constantes enteras**: enteros con signo opcional (`50`, `+10`, `-5`).
+5. **Comparadores de enteros**:
+   - `menor`: estrictamente menor.
+   - `hasta`: menor o igual.
+   - `mayor`: estrictamente mayor.
+   - `desde`: mayor o igual.
+   - `igual`: igualdad de enteros.
+   - `distinto`: desigualdad de enteros.
+   - No hay formas simbólicas (`<`, `>`…): en la shell `<` y `>` redirigen, que es por lo que tatr
+     tampoco las usa. `prioridad < 50` es un error de código 2.
+6. **Operadores lógicos**:
+   - `no <primaria>`: negación booleana de la expresión primaria siguiente.
+   - `<izq> y <der>`: conjunción lógica (ambas condiciones deben ser verdaderas).
+   - `<izq> o <der>`: disyunción lógica (al menos una condición verdadera).
+7. **Agrupamiento**: corchetes `[ consulta ]` para delimitar subexpresiones y alterar la precedencia asociativa.
+
+#### Precedencia de operadores
+
+De mayor a menor precedencia:
+1. Primarias: `:etiqueta`, `cualquiera`, `etiquetada`, `prioridad`, enteros, IDs, `[ ... ]` y `no <primaria>`.
+2. Comparaciones relacionales: `menor`, `hasta`, `mayor`, `desde`, `igual`, `distinto`.
+3. Conjunción: `y` (asociativa por izquierda).
+4. Disyunción: `o` (asociativa por izquierda).
+
+#### Sistema de tipos estático en compilación
+
+TQL valida estáticamente los tipos en tiempo de compilación antes de evaluar cualquier tarea en disco:
+- Existen dos tipos semánticos: `booleano` y `entero`.
+- La raíz de toda consulta ejecutable debe ser estrictamente de tipo `booleano`. Expresiones como `prioridad`, `50` o enteros solos son rechazadas en compilación con código 2.
+- Los operadores relacionales exigen operandos enteros a ambos lados y producen un resultado booleano.
+- Los conectores lógicos (`o`, `y`, `no`) exigen operandos booleanos y producen un booleano.
+- Si una expresión contiene tipos incompatibles (por ejemplo `:bug y prioridad`), la compilación falla informando el desajuste de tipos con código 2.
+
+#### Diagnóstico visual de errores (código 2)
+
+Ante un error léxico, sintáctico o de tipos, el compilador emite un mensaje de error en 3 líneas a `stderr` y finaliza con código 2:
+```text
+:bug y menor 5
+       ^
+ERROR: se esperaba una expresión entera antes de «menor»
+```
+El puntero `^` se alinea exactamente con la columna del token conflictivo (contando caracteres Unicode, no bytes).
+
+#### Explicación de consultas (`--explicar`)
+
+La opción `--explicar` en `oracle tarea listar` compila la consulta, imprime en `stdout` la secuencia de tokens y la representación textual del árbol sintáctico compilado, y finaliza exitosamente con código 0:
+```bash
+oracle tarea listar ":bug y prioridad mayor 50" --explicar
+```
+No requiere la existencia del directorio `tareas/` ni la presencia de un tracker, ni lista tareas.
+
 ### Alineación dinámica en listados
 
 El comando `oracle tarea listar` (o su alias `ls`) calcula dinámicamente el ancho de cada columna en función del contenido real de las tareas a mostrar:
@@ -285,9 +354,10 @@ Los comandos `etiquetar` y `desetiquetar` permiten gestionar etiquetas sobre tar
 
 - **Sintaxis**:
   - `oracle tarea etiquetar <id>... --etiqueta <etiq>... [--json] [--proyecto RUTA]`
-  - `oracle tarea desetiquetar [<id>...] --etiqueta <etiq>... [--cerradas] [--todas] [--json] [--proyecto RUTA]`
+  - `oracle tarea desetiquetar [<id>...] --etiqueta <etiq>... [--consulta <tql>] [--cerradas] [--todas] [--json] [--proyecto RUTA]`
 - **Validación previa estricta**: antes de aplicar cualquier modificación en disco, se audita el árbol completo del tracker (`auditar_tareas`). Si se detecta alguna tarea corrupta, malformada o fuera de confinamiento, la operación se interrumpe inmediatamente con código 1 sin alterar ningún archivo.
-- **Selección masiva y exclusión**: `desetiquetar` permite seleccionar tareas por estado (`--cerradas` para todas las tareas cerradas, o `--todas` para el universo completo de tareas abiertas y cerradas). Es incompatible especificar IDs explícitos junto con banderas de estado masivo (`--cerradas` o `--todas`).
+- **Selección masiva y exclusión**: `desetiquetar` permite seleccionar tareas por estado (`--cerradas` para todas las tareas cerradas, o `--todas` para el universo completo de tareas abiertas y cerradas) o mediante una consulta TQL con `--consulta <tql>`. Es incompatible especificar IDs explícitos junto con banderas de estado masivo (`--cerradas`, `--todas`) o con `--consulta` (falla con código 2).
+- **Desetiquetado por consulta TQL**: con `--consulta <tql>`, el predicado se compila previamente. Si la consulta contiene errores sintácticos o de tipos, el proceso finaliza con código 2 sin modificar ningún archivo. Solo se quitan las etiquetas indicadas de aquellas tareas que satisfagan la expresión y respeten el filtro de estado (por defecto, tareas abiertas).
 - **Preservación y atomicidad**:
   - La actualización se realiza mediante reemplazo atómico (`os.replace` tras escritura en archivo temporal contiguo).
   - Se preservan byte a byte las terminaciones de línea originales (`\r\n` o `\n`), los campos desconocidos o personalizados y todo el cuerpo Markdown posterior a los metadatos.
@@ -382,24 +452,32 @@ capturas, notas y demás adjuntos dentro de la carpeta de su tarea.
 
 ### Orden en los listados
 
-Las tareas se listan ordenadas según:
+Por defecto, las tareas se listan ordenadas según:
 1. `PRIORIDAD` en orden descendente (mayor número primero).
 2. `ID` en orden ascendente (desempate cronológico y alfabético estable).
+
+Modificadores de orden:
+- `--por-id`: descarta el ordenamiento por prioridad y ordena exclusivamente por `ID` en orden descendente (las tareas más recientes primero).
+- `--invertir`: invierte el orden del listado final resultante (por defecto: menor prioridad primero, desempate ID descendente; combinado con `--por-id`: ID en orden ascendente).
 
 ### Reglas de diagnóstico y códigos de salida
 
 - **Código 0 (éxito)**:
   - Operación completada satisfactoriamente.
   - En `listar`: cuando no hay tareas que coincidan con los filtros (cero resultados es un listado vacío exitoso).
+  - En `listar --explicar`: muestra la consulta TQL compilada y finaliza con éxito sin consultar el tracker.
   - En consultas de ayuda (`--help` / `-h`): muestra la documentación sin realizar escrituras ni inicializaciones.
 - **Código 1 (error de dominio u operacional)**:
   - Tarea no encontrada o ID de prefijo ambiguo.
   - Registro roto, corrupto o con codificación inválida (no UTF-8) en `listar`, `ver`, `cerrar`, `reabrir` o `revisar`: no se ocultan errores como si fueran listas vacías; se emite diagnóstico con la ruta del archivo defectuoso.
   - Intento de escape del directorio `tareas/`, enlaces simbólicos inseguros o rutas fuera de confinamiento.
   - Errores del sistema de archivos al acceder o modificar documentos.
-- **Código 2 (error de sintaxis en CLI / argumentos)**:
+- **Código 2 (error de sintaxis en CLI / argumentos o consulta inválida)**:
   - Banderas u opciones no reconocidas (por ejemplo `oracle tarea listar --inventada`).
   - Argumentos requeridos ausentes o valores de opciones faltantes detectados por el analizador de argumentos (`argparse`).
+  - Expresión de consulta TQL sintáctica o semánticamente inválida en `listar` o `desetiquetar --consulta`.
+  - Invocación de `referencias` sin ID fuera del directorio de una tarea.
+  - Combinación incompatible de argumentos (como pasar IDs explícitos junto con `--consulta` en `desetiquetar`).
 
 ---
 
@@ -482,6 +560,26 @@ Esta nota permanece abierta para referencia continua del equipo.
 - **Nombres de archivo y campos incompatibles**: tatr usa `TASK.md`, `STATUS` (`OPEN`/`CLOSED`), `PRIORITY` y `TAGS`; Oracle usa `TAREA.md`, `ESTADO` (`ABIERTA`/`CERRADA`), `PRIORIDAD` y `ETIQUETAS`.
 - **Separación de etiquetas**: tatr separa etiquetas por comas y espacios; Oracle sólo por comas, por lo que `hola mundo` es una única etiqueta en `TAREA.md` y no se puede describir en `tareas/etiquetas`, donde el primer espacio separa la etiqueta de su descripción.
 - **Propiedades duplicadas**: en tatr gana la última; en Oracle una propiedad duplicada o un estado no reconocido invalida la tarea.
-- **Sin TQL**: Oracle no implementa un lenguaje de consulta propio; la filtración se realiza con opciones del CLI (`--cerradas`, `--todas`, `--etiqueta`, `--texto`) o procesando la salida `--json`.
+- **Lenguaje de consultas TQL**: TQL deja de ser una diferencia de alcance y pasa a ser una diferencia de vocabulario y rigor semántico. Oracle implementa un lenguaje de consultas nativo con vocabulario en español, etiquetas insensibles a mayúsculas/minúsculas y verificación estática de tipos en tiempo de compilación (rechazando raíces enteras o tipos incompatibles con código 2 antes de consultar el disco):
+
+| Concepto / Operación | tatr (inglés) | Oracle (español) |
+|---|---|---|
+| Disyunción lógica | `or` | `o` |
+| Conjunción lógica | `and` | `y` |
+| Negación booleana | `not` | `no` |
+| Agrupamiento | `[ ... ]` | `[ ... ]` |
+| Menor estricto | `lt` | `menor` |
+| Menor o igual | `le` | `hasta` |
+| Mayor estricto | `gt` | `mayor` |
+| Mayor o igual | `ge` | `desde` |
+| Igualdad de enteros | `eq` | `igual` |
+| Desigualdad de enteros | `ne` | `distinto` |
+| Todas las tareas | `any` | `cualquiera` |
+| Tarea con etiquetas | `tagged` | `etiquetada` |
+| Prioridad | `priority` | `prioridad` |
+| Etiqueta | `:tag` (sensible a mayúsculas) | `:etiqueta` (insensible a mayúsculas) |
+| Listado por ID desc. | `tatr ls -id` | `oracle tarea listar --por-id` |
+| Invertir orden final | `tatr ls -a` | `oracle tarea listar --invertir` |
+| Explicar consulta | `tatr ls -debug` (tokens y opcodes) | `oracle tarea listar --explicar` (tokens y árbol compilado) |
 - **Grafo**: `tatr graph` escribe `graph.dot` y llama a `neato` para generar `graph.svg`; `oracle tarea grafo` sólo emite DOT por `stdout`, sin escribir archivos ni invocar Graphviz (`oracle tarea grafo | dot -Tsvg -o grafo.svg`).
 - **Captura, adjuntos, Git y hechos relacionales**: Oracle incluye captura con marcas temporales (`anotar`), vinculación de archivos (`adjuntar`), diagnóstico Git (`seguimiento`) y evidencia relacional (`hechos`), ausentes en tatr.

@@ -35,7 +35,7 @@
     oracle tarea anotar <id> [texto]        agrega una nota, URL o marca a la tarea
     oracle tarea adjuntar <id> <archivo>    copia un adjunto al directorio de la tarea
     oracle tarea buscar <texto>             busca texto en documentos y notas del tracker
-    oracle tarea referencias <id>           busca menciones del ID en tareas y código
+    oracle tarea referencias [id]           busca menciones del ID en tareas y código
     oracle tarea resumen                    muestra cantidades por estado y etiquetas
     oracle tarea seguimiento                diagnóstico de seguimiento y cobertura en Git
     oracle tarea hechos [--git]              exporta hechos observados del tracker como JSON
