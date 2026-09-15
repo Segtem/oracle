@@ -1002,7 +1002,12 @@ def main(argv: list[str] | None = None) -> int:
         subcomando == "proyecto" and resto and resto[0] in ("juzgar", "--juzgar")
     ):
         from tools import juzgar as tjuzgar
-        return tjuzgar.cmd_juzgar(argv)
+        # Sin el sustantivo ni el verbo, que ya consumió este despacho; las banderas quedan.
+        args = list(argv)
+        args.remove(subcomando)
+        if subcomando == "proyecto":
+            args.remove(resto[0])
+        return tjuzgar.cmd_juzgar(args)
 
     # 1. Ayudas por sustantivo (devuelven 0 y no requieren proyecto)
     if subcomando == "medida" and (not resto or resto[0] in ("-h", "--help", "help")):

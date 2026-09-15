@@ -296,7 +296,9 @@ class ReportarCliTests(unittest.TestCase):
         salida, error = io.StringIO(), io.StringIO()
         with redirect_stdout(salida), redirect_stderr(error), \
                 mock.patch.object(cli, "resolver", side_effect=AssertionError("no debe resolver")):
-            codigo = cli.main(["reportar", "--help"])
+            # Sin stdin: si `--help` dejara de reconocerse, las preguntas fallan en vez de colgar la suite.
+            with mock.patch("builtins.input", side_effect=EOFError("sin stdin")):
+                codigo = cli.main(["reportar", "--help"])
         self.assertEqual(codigo, 0)
         self.assertEqual(error.getvalue(), "")
         self.assertEqual("--incluir-evidencia <ruta>" in salida.getvalue(), True)

@@ -237,3 +237,95 @@ class AmbitoTests(JuzgarTemporal):
         self.assertNotIn("meta.todo_verbo_del_cli_esta_en_la_ayuda", p.stdout + p.stderr)
         self.assertEqual(p.returncode, 1, p.stdout + p.stderr)
         self.assertIn("SIN MEDIDAS APLICABLES", (p.stdout + p.stderr).upper())
+
+
+class TopeDeEvidenciaTests(JuzgarTemporal):
+    """Sobrevivientes de la primera ronda: el tope de 50 MiB no tenía test en su borde."""
+
+    def test_el_tope_declarado_es_50_mib(self):
+        from tools import juzgar
+        self.assertEqual(juzgar.LIMITE_TAMANO_EVIDENCIA, 50 * 1024 * 1024)
+
+    def test_en_el_tope_se_lee_y_un_byte_mas_sale_dos(self):
+        import contextlib
+        import io
+        from unittest import mock
+        from tools import juzgar
+
+        contenido = json.dumps({"referencia_seguimiento": [referencia()]}).encode("utf-8")
+        con = self.evidencia(contenido)
+        for tope, esperado in ((len(contenido), 0), (len(contenido) - 1, 2)):
+            with self.subTest(tope=tope), \
+                    mock.patch.object(juzgar, "LIMITE_TAMANO_EVIDENCIA", tope), \
+                    contextlib.redirect_stdout(io.StringIO()), \
+                    contextlib.redirect_stderr(io.StringIO()) as errores:
+                codigo = juzgar.cmd_juzgar(["--con", str(con), "--proyecto",
+                                            str(self.proyecto), "--medida", REFERENCIAS])
+                self.assertEqual(codigo, esperado, errores.getvalue())
+
+
+class SobrevivientesDeJuzgarTests(JuzgarTemporal):
+    """Sobrevivientes de la primera ronda sobre tools/juzgar.py con comportamiento observable."""
+
+    def _con(self):
+        return self.evidencia({"referencia_seguimiento": [referencia()]})
+
+    def test_nombre_de_relacion_vacio_sale_dos(self):
+        for nombre in ("", "   "):
+            with self.subTest(nombre=nombre):
+                con = self.evidencia({nombre: [referencia()]}, nombre="vacia.json")
+                p = self.juzgar("--con", str(con), "--proyecto", str(self.proyecto))
+                self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+                self.assertIn("nombre de relación inválido", p.stderr)
+
+    def test_errores_de_lectura_de_la_evidencia_salen_dos(self):
+        import contextlib
+        import io
+        from unittest import mock
+        from tools import juzgar
+
+        con = self._con()
+        for metodo in ("stat", "read_bytes"):
+            original = getattr(Path, metodo)
+
+            def falla(ruta, *a, _original=original, **k):
+                if ruta.name == con.name:
+                    raise OSError("disco ilegible")
+                return _original(ruta, *a, **k)
+
+            errores = io.StringIO()
+            with self.subTest(metodo=metodo), mock.patch.object(Path, metodo, falla), \
+                    contextlib.redirect_stdout(io.StringIO()), contextlib.redirect_stderr(errores):
+                codigo = juzgar.cmd_juzgar(["--con", str(con), "--proyecto",
+                                            str(self.proyecto), "--medida", REFERENCIAS])
+                self.assertEqual(codigo, 2, errores.getvalue())
+                self.assertIn("disco ilegible", errores.getvalue())
+
+    def test_cmd_juzgar_recibe_solo_banderas(self):
+        import contextlib
+        import io
+        from tools import juzgar
+
+        salida = io.StringIO()
+        with contextlib.redirect_stdout(salida), contextlib.redirect_stderr(io.StringIO()):
+            codigo = juzgar.cmd_juzgar(["--con", str(self._con()), "--proyecto", str(self.proyecto),
+                                        "--medida", REFERENCIAS])
+        self.assertEqual(codigo, 0)
+        self.assertIn(REFERENCIAS, salida.getvalue())
+
+    def test_valor_de_bandera_al_final_ausente_o_seguido_de_otra_bandera(self):
+        con = str(self._con())
+        base = ("--proyecto", str(self.proyecto))
+        self.assertEqual(self.juzgar(*base, "--medida", REFERENCIAS, "--con", con).returncode, 0)
+        self.assertEqual(self.juzgar("--con", con, *base, "--medida", REFERENCIAS).returncode, 0)
+        casos = {
+            "con al final": ((*base, "--con"), "falta la ruta"),
+            "medida al final": (("--con", con, *base, "--medida"), "falta el id"),
+            "medida seguida de bandera": (("--con", con, *base, "--medida", "--json"), "falta el id"),
+        }
+        for nombre, (args, mensaje) in casos.items():
+            with self.subTest(nombre):
+                p = self.juzgar(*args)
+                self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+                self.assertIn(mensaje, p.stderr)
+                self.sin_traceback(p)

@@ -38,23 +38,14 @@ Opciones:
   --json                 Emite el informe como JSON en stdout""")
 
 
-def catalogo_para_juzgar(proy: Proyecto, *, raices_perfiles=(), registro=None,
-                         limites=None, macros=None) -> Catalogo:
+def catalogo_para_juzgar(proy: Proyecto) -> Catalogo:
     """Selección de medidas idéntica a la que usa oracle test en aceptación.
 
     Aplica `catalogo_efectivo`, respetando el ámbito (`universal` o `del_origen` con
     identidad lógica de proyecto) y descartando medidas heredadas del catálogo base
     o de bibliotecas que no obligan a este proyecto.
     """
-    if macros is None:
-        macros = macros_del_proyecto(proy, raices_perfiles=raices_perfiles)
-    return catalogo_efectivo(
-        proy,
-        raices_perfiles=raices_perfiles,
-        registro=registro,
-        limites=limites,
-        macros=macros,
-    )
+    return catalogo_efectivo(proy, macros=macros_del_proyecto(proy))
 
 
 def _leer_evidencia(ruta_str: str) -> tuple[dict | None, str | None]:
@@ -97,7 +88,7 @@ def _leer_evidencia(ruta_str: str) -> tuple[dict | None, str | None]:
                       f"en «{ruta}»")
 
     for relacion, filas in datos.items():
-        if not isinstance(relacion, str) or not relacion.strip():
+        if not relacion.strip():
             return None, (f"nombre de relación inválido en «{ruta}»: debe ser un texto "
                           f"no vacío")
         if not isinstance(filas, list):
@@ -118,10 +109,6 @@ def cmd_juzgar(argv: list[str]) -> int:
         return 0
 
     args = list(argv)
-    if args and args[0] == "proyecto":
-        args.pop(0)
-    if args and args[0] in ("juzgar", "--juzgar"):
-        args.pop(0)
 
     # 1. Parseo de banderas CLI
     ruta_evidencia_str: str | None = None
@@ -303,13 +290,3 @@ def cmd_juzgar(argv: list[str]) -> int:
         print("\n".join(lineas))
 
     return 0 if es_aprobado else 1
-
-
-def main(argv: list[str] | None = None) -> int:
-    args = list(sys.argv[1:] if argv is None else argv)
-    return cmd_juzgar(args)
-
-
-_entrada_directa = {"__main__": main}.get(__name__)
-if _entrada_directa:
-    sys.exit(_entrada_directa())
