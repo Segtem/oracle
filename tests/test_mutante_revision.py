@@ -119,6 +119,39 @@ class RevisionDeLaEntregaTests(unittest.TestCase):
             Medida.de_datos(_medida(["requiere", "  "], donde=None))
 
 
+class RondaDeMutacionDeMedidasTests(unittest.TestCase):
+    """CI de 5040565: `tools/mutar.py` salía 1 porque la medida de código queda SIN EVIDENCIA."""
+
+    def test_un_sin_evidencia_no_hace_fallar_la_ronda_y_un_rojo_si(self):
+        from nucleo.medida import Informe, Veredicto
+        from tools.mutar import _politicas_ok
+        sin = Veredicto("proceso.codigo", 0, False, "<= 0", "r", "a", (),
+                        sin_evidencia='mutante sin filas con m.tipo == "codigo"')
+        verde = Veredicto("proceso.test", 0, True, "<= 0", "r", "a", ())
+        rojo = Veredicto("meta.x", 1, False, "<= 0", "r", "a", ())
+        self.assertTrue(_politicas_ok(Informe((sin, verde))))
+        self.assertTrue(_politicas_ok(Informe(())))
+        self.assertFalse(_politicas_ok(Informe((sin, rojo))))
+
+
+class SobrevivientesDeMutacionTests(unittest.TestCase):
+    """Sobrevivientes de las rondas de 0.21.0 sobre nucleo/medida.py y nucleo/relacion.py."""
+
+    def test_una_condicion_literal_carga_y_se_comporta_como_el_nombre(self):
+        medida = Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", True]], donde=None))
+        self.assertEqual(medida.a_datos()[5], ["requiere", ["filas", "mutante", "m", True]])
+        self.assertFalse(medida.evaluar({"mutante": [FILA_MEDIDA]}).sin_evidencia)
+        self.assertTrue(medida.evaluar({"mutante": []}).sin_evidencia)
+        with self.assertRaises(MedidaMalDeclarada):
+            Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", 1]], donde=None))
+
+    def test_una_variante_es_inmutable(self):
+        from dataclasses import FrozenInstanceError
+        variante = Relacion.de_datos(_relacion(VARIANTES)).variantes[0]
+        with self.assertRaises(FrozenInstanceError):
+            variante.valor = "otra"
+
+
 class SuperficieTests(unittest.TestCase):
     TEXTO = ("medida d.cond:\n"
              "    de mutante m\n"

@@ -59,3 +59,31 @@ Todos por columnas o campos que el encargo agrega, ninguno por un cambio de cond
   de la superficie para redactar `sin_evidencia`. Funciona y es perezoso; se deja.
 - `Relacion.todos_los_campos` deduplica por nombre, lo que es correcto porque las reglas exigen el mismo
   tipo y unidad para un nombre repetido entre variantes.
+
+## Después del primer push (CI de `5040565` en rojo)
+
+### R10. `tools/mutar.py` salía 1 por un SIN EVIDENCIA
+
+El paso `python tools/mutar.py` de `contratos` falló en 3.11 y 3.13. La ronda de mutación de medidas
+sólo produce filas `tipo == "medida"`, y `proceso.codigo_con_mutante_que_lo_mata` —que ahora sí aplica
+por relación— sale SIN EVIDENCIA porque pide filas de código. El veredicto es correcto; lo que estaba
+mal es que la herramienta lo contara como política incumplida (`informe.ok`). Antes de este corte esa
+medida levantaba y figuraba entre las que «NO pudieron juzgar», que no hacían fallar la ronda.
+`_politicas_ok` cuenta sólo los rojos; un SIN EVIDENCIA se imprime y no tumba. `tools/mutar_codigo.py`
+no tenía el problema: su código de salida no depende de los veredictos del catálogo. Test
+`test_un_sin_evidencia_no_hace_fallar_la_ronda_y_un_rojo_si`; `python tools/mutar.py` sale 0.
+
+### Texto de SIN EVIDENCIA
+
+`Veredicto.linea` imprime «<faltante>» vacía; con la frase de la entrega salía
+«mutante sin filas con m.tipo == "codigo"» vacía. `sin_evidencia` de una entrada con condición pasa a
+ser `mutante con m.tipo == "codigo"`.
+
+### Sobrevivientes de la mutación, cubiertos
+
+- `nucleo/medida.py:267` (`return True` → `None` y → `False`): la condición literal booleana no la
+  cargaba ningún test. Test `test_una_condicion_literal_carga_y_se_comporta_como_el_nombre`.
+- `nucleo/relacion.py:72` (`frozen=True` → `False` en `Variante`): nadie fijaba la inmutabilidad, como sí
+  se fija la de `Campo` y `Relacion`. Test `test_una_variante_es_inmutable`.
+
+Los tres verificados aplicando el mutante a mano sobre una copia: el test nuevo falla con cada uno.

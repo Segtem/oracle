@@ -154,8 +154,18 @@ def _ejecutar(proy, args: list[str]) -> int:
 
     # Que sobreviva un mutante es el contrato operativo de esta herramienta, no una política de
     # dominio. Las medidas meta, cuando el host las activa, pueden imponer condiciones adicionales.
-    politicas_ok = informe.ok if informe.veredictos else True
-    return 0 if not vivos and politicas_ok else 1
+    return 0 if not vivos and _politicas_ok(informe) else 1
+
+
+def _politicas_ok(informe: Informe) -> bool:
+    """Un rojo de una medida del catálogo hace fallar la ronda; un SIN EVIDENCIA, no.
+
+    Desde 0.21.0 `mutante` es una relación con variantes: esta ronda sólo produce filas de tipo
+    «medida», y `proceso.codigo_con_mutante_que_lo_mata` sale SIN EVIDENCIA porque pide filas de
+    código. Es correcto que no concluya —no hubo ronda de código— y se imprime, pero no es un rojo del
+    mundo: antes esa medida figuraba entre las que «NO pudieron juzgar», que tampoco hacían fallar.
+    """
+    return all(v.ok for v in informe.veredictos if not v.sin_evidencia)
 
 
 def main(argv: list[str] | None = None) -> int:

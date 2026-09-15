@@ -478,7 +478,7 @@ class Medida:
                     return Veredicto(id=self.id, valor=0, ok=False,
                                      umbral=f"{self.op} {self.limite}", porque=self.porque,
                                      alcance=self.alcance, testigos=(),
-                                     sin_evidencia=f"{relacion} sin filas con {_expr(condicion)}")
+                                     sin_evidencia=f"{relacion} con {_expr(condicion)}")
         testigos = desde(self.tuberia, evidencia, limites, registro=registro)
         valor = resumir(self.resumen, testigos, limites, registro=registro)
         return Veredicto(id=self.id, valor=valor, ok=comparar(self.op, valor, self.limite),
