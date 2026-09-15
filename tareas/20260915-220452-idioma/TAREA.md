@@ -2,7 +2,7 @@
 
 - ESTADO: ABIERTA
 - PRIORIDAD: 10
-- ETIQUETAS: oracle, metalenguaje, idioma, v1
+- ETIQUETAS: oracle, metalenguaje, idioma, v1.0.0
 
 Pedido del dueño (2026-09-15): que Oracle esté todo en inglés y que el léxico pueda ponerse en español,
 y más adelante en otros idiomas (francés, alemán…).
