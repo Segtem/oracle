@@ -136,6 +136,8 @@ PRIORIDADES = {
                             "tests.test_tareas_p2_revision", "tests.test_tareas_p3_revision"),
     "tools/tareas_hechos.py": ("tests.test_tareas_hechos_mutacion", "tests.test_tareas_hechos",
                                "tests.test_tareas_p3_revision", "tests.test_tareas_p4_revision"),
+    # 0.18.0: el veredicto sobre evidencia real; un verde que no respeta ámbito o sombra miente.
+    "tools/juzgar.py": ("tests.test_juzgar_revision", "tests.test_juzgar"),
     # 0.17.0: grafo de menciones entre tareas.
     "tools/tareas_grafo.py": ("tests.test_tareas_tatr", "tests.test_tareas_tatr_revision"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
@@ -278,7 +280,7 @@ CUSTODIAS_SIN_MEDIR = {}
 # políticas. Una lectura incompleta o una referencia mal clasificada puede dar un verde falso.
 # P4 conserva las rondas y sus límites en estudios/0.16.0-tareas/verificacion-p4/.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
-                          "corpus.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
+                          "corpus.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
                           "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py")

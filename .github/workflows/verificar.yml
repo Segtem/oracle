@@ -87,6 +87,13 @@ jobs:
       # El evaluador juzgado por medidas escritas en el propio álgebra: corre el corpus
       # bajo traza y mide lo que los operadores hicieron, no lo que dijeron hacer.
       - run: python tools/trazar.py
+      # 0.18.0 (tarea 20260915-010206-juzgar): el tracker deja de ser un vecino. Oracle juzga su propio
+      # `tareas/` con las políticas de seguimiento: referencias locales presentes, archivos confirmados
+      # sin cambios y lectura sin omisiones. Un TAREA.md con un enlace roto o sin commitear pone CI en rojo.
+      - name: juzgar el tracker de Oracle
+        run: |
+          python tools/cli.py tarea hechos --git > /tmp/hechos-tareas.json
+          python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json
 
   # ⚠ La matriz está DESACTUALIZADA a propósito y hay que decirlo: faltan `nucleo/sintaxis.py`,
   # `nucleo/caso.py`, `nucleo/generador.py`, `nucleo/relacion.py`, `nucleo/version.py` y los tres de
@@ -171,6 +178,8 @@ jobs:
           - tools/tareas_hechos.py
           # Grafo de menciones entre tareas (0.17.0).
           - tools/tareas_grafo.py
+          # El veredicto sobre evidencia real (0.18.0).
+          - tools/juzgar.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

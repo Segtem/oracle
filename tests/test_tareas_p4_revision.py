@@ -16,12 +16,13 @@ from tools import tareas, tareas_git
 
 RAIZ = Path(tareas.__file__).resolve().parents[1]
 CLI = RAIZ / "tools/cli.py"
-EJEMPLO = RAIZ / "ejemplo/seguimiento-tareas/evaluar.py"
+EJEMPLO = RAIZ / "ejemplo/seguimiento-tareas"
 
 
 class ConsumidorDesdeCheckoutTests(unittest.TestCase):
     def test_ejemplo_carga_desde_checkout_y_muestra_testigo(self):
-        """El wheel pasaba, pero la instrucción PYTHONPATH del ejemplo no podía importar."""
+        """Desde el checkout, las políticas del ejemplo juzgan evidencia con `oracle juzgar` (0.18.0
+        reemplazó a `evaluar.py`): presente sale 0 y ausente sale 1 con su testigo."""
         with tempfile.TemporaryDirectory() as td:
             evidencia = Path(td) / "hechos.json"
             env = dict(os.environ, PYTHONPATH=str(RAIZ), PYTHONDONTWRITEBYTECODE="1")
@@ -30,8 +31,9 @@ class ConsumidorDesdeCheckoutTests(unittest.TestCase):
                     "tarea_id": "ejemplo", "origen": "tareas/ejemplo/TAREA.md", "linea": 8,
                     "destino_declarado": "captura-pendiente.png", "clase": "local",
                     "estado": estado}]}))
-                p = subprocess.run([sys.executable, "-B", str(EJEMPLO), "--con", str(evidencia),
-                                    "--politica", "referencias_locales_presentes"],
+                p = subprocess.run([sys.executable, "-B", str(CLI), "juzgar", "--con", str(evidencia),
+                                    "--proyecto", str(EJEMPLO),
+                                    "--medida", "seguimiento.referencias_locales_presentes"],
                                    cwd=td, env=env, capture_output=True, text=True, timeout=15)
                 self.assertEqual(p.returncode, esperado, p.stderr)
                 self.assertNotIn("Traceback", p.stderr)

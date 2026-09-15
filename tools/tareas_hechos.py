@@ -5,7 +5,7 @@ el estado declarado de las tareas, el inventario de archivos del tracker, el
 rastreo de referencias cruzadas y las omisiones justificadas.
 
 Contrato compartido con políticas y arneses de evaluación de Oracle
-(consumible por `ejemplo/seguimiento-tareas/evaluar.py --con ARCHIVO.json`).
+(consumible por `oracle juzgar --proyecto ejemplo/seguimiento-tareas --con ARCHIVO.json`).
 No realiza llamadas de red, no modifica archivos en disco y garantiza salida
 idéntica byte por byte ante el mismo árbol.
 """

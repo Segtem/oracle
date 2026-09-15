@@ -18,24 +18,21 @@ Con Oracle instalado, desde la raíz del checkout:
 
 ```bash
 oracle tarea hechos --proyecto /ruta/al/proyecto --git > /tmp/hechos-tareas.json
-python3 ejemplo/seguimiento-tareas/evaluar.py --con /tmp/hechos-tareas.json
+oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json
 ```
 
-`evaluar.py` usa las APIs públicas `Motor.desde_proyecto` y `Medida.evaluar`: carga ese JSON y
-las medidas del proyecto contiguo, y muestra veredictos y testigos. Devuelve 0 si todas las
-políticas elegidas pasan, 1 si hay incumplimiento o evidencia requerida ausente y 2 si no pudo
-cargar/evaluar la entrada. Se puede elegir una política o repetir la opción:
+`oracle juzgar` carga el catálogo efectivo de este proyecto, evalúa las medidas aplicables a esa
+evidencia y muestra veredictos y testigos. Sale 0 si pasan, 1 si hay un rojo fuera de sombra o
+ninguna medida aplica, y 2 si la entrada o el proyecto son inválidos. `--medida` restringe a una
+política y se puede repetir:
 
 ```bash
-python3 ejemplo/seguimiento-tareas/evaluar.py --con /tmp/hechos-tareas.json \
-  --politica referencias_locales_presentes --politica lectura_sin_omisiones
+oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json \
+  --medida seguimiento.referencias_locales_presentes --medida seguimiento.lectura_sin_omisiones
 ```
 
-No se pasa la ruta JSON a `oracle medida probar --con`: ese comando recibe texto en superficie
-de evidencia. Si se trabaja sin instalar desde el checkout, se puede usar
-`python3 -B tools/cli.py tarea hechos ...`; para el script consumidor, agregar el checkout a
-`PYTHONPATH` o instalar el wheel en un entorno de prueba. La verificación de instalación de Oracle
-ejercita el script con una instalación limpia fuera del checkout.
+Sin instalar, desde el checkout, los mismos verbos corren con `python3 -B tools/cli.py`. Hasta 0.17.0
+esto lo hacía un script de este ejemplo, `evaluar.py`; `oracle juzgar` lo reemplaza desde 0.18.0.
 
 Para adoptar estas políticas, copiar sólo las medidas y declaraciones de relaciones deseadas a
 `catalogos/` y `relaciones/` del proyecto, revisando antes sus alcances. No se activan por importar

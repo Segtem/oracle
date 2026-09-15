@@ -142,17 +142,18 @@ def _recorrer_tareas(oracle: Path, *, temporal: Path, env: dict[str, str]) -> No
     evidencia.write_text(hechos.stdout, encoding="utf-8")
     consumidor = temporal / "politicas-tareas"
     shutil.copytree(RAIZ / "ejemplo" / "seguimiento-tareas", consumidor)
-    evaluar = [str(oracle.parent / "python"), str(consumidor / "evaluar.py"), "--con", str(evidencia)]
+    juzgar = [str(oracle), "juzgar", "--proyecto", str(consumidor), "--con", str(evidencia)]
     if not opciones_hechos:
-        evaluar.extend(["--politica", "referencias_locales_presentes", "--politica", "lectura_sin_omisiones"])
-    _correr(evaluar, cwd=temporal, env=env)
+        juzgar.extend(["--medida", "seguimiento.referencias_locales_presentes",
+                       "--medida", "seguimiento.lectura_sin_omisiones"])
+    _correr(juzgar, cwd=temporal, env=env)
     with ruta.open("a", encoding="utf-8") as documento:
         documento.write("\n[Defecto construido](ausente-p3.txt)\n")
     rotos = _correr(comando_hechos, cwd=subcarpeta, env=env)
     evidencia.write_text(rotos.stdout, encoding="utf-8")
     rechazo = subprocess.run(
-        [str(oracle.parent / "python"), str(consumidor / "evaluar.py"), "--con", str(evidencia),
-         "--politica", "referencias_locales_presentes"],
+        [str(oracle), "juzgar", "--proyecto", str(consumidor), "--con", str(evidencia),
+         "--medida", "seguimiento.referencias_locales_presentes"],
         cwd=temporal, env=env, capture_output=True, text=True, timeout=30)
     if rechazo.returncode != 1 or "ausente-p3.txt" not in rechazo.stdout:
         raise RuntimeError("la política instalada no rechaza el enlace roto con su testigo")
