@@ -386,3 +386,11 @@ class BanderasTests(JuzgarTemporal):
         self.assertEqual(p.returncode, 0, p.stderr)
         self.assertIn("ó", p.stdout)
         self.assertNotIn("\\u00f3", p.stdout)
+
+    def test_evidencia_que_es_un_directorio_sale_dos(self):
+        carpeta = self.temporal / "no-es-archivo.json"
+        carpeta.mkdir()
+        p = self.juzgar("--con", str(carpeta), "--proyecto", str(self.proyecto))
+        self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+        self.assertIn("es un directorio", p.stderr)
+        self.sin_traceback(p)

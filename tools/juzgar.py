@@ -6,6 +6,7 @@ Juzga evidencia real —un JSON de hechos— contra el catálogo efectivo del pr
 from __future__ import annotations
 
 import json
+import stat
 import sys
 from pathlib import Path
 
@@ -54,15 +55,17 @@ def _leer_evidencia(ruta_str: str) -> tuple[dict | None, str | None]:
     Devuelve (evidencia, None) si es válida; (None, mensaje_error) si es inválida.
     """
     ruta = Path(ruta_str).expanduser()
-    if not ruta.exists():
-        return None, f"el archivo de evidencia no existe: «{ruta}»"
-    if ruta.is_dir():
-        return None, f"la ruta de evidencia es un directorio, no un archivo: «{ruta}»"
-
+    # Una sola consulta al sistema de archivos, dentro del `try`: `exists()` e `is_dir()` también
+    # llaman a `stat`, y un OSError que no sea «no existe» salía como traceback.
     try:
-        tamano = ruta.stat().st_size
+        info = ruta.stat()
+    except FileNotFoundError:
+        return None, f"el archivo de evidencia no existe: «{ruta}»"
     except OSError as e:
         return None, f"no se pudo consultar el archivo «{ruta}»: {e}"
+    if stat.S_ISDIR(info.st_mode):
+        return None, f"la ruta de evidencia es un directorio, no un archivo: «{ruta}»"
+    tamano = info.st_size
 
     if tamano > LIMITE_TAMANO_EVIDENCIA:
         return None, (f"el archivo supera el límite de tamaño de 50 MiB "
