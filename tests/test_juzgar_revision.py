@@ -378,3 +378,11 @@ class BanderasTests(JuzgarTemporal):
         self.assertIn("VEREDICTO: verde en 1 medidas. SIN MIRAR:", p.stdout)
         self.assertNotIn("por sombra", p.stdout)
         self.assertNotIn("perdonadas", p.stdout)
+
+    def test_json_conserva_los_acentos(self):
+        con = self.evidencia({"referencia_seguimiento": [referencia()]})
+        p = self.juzgar("--con", str(con), "--proyecto", str(self.proyecto), "--medida", REFERENCIAS,
+                        "--json")
+        self.assertEqual(p.returncode, 0, p.stderr)
+        self.assertIn("ó", p.stdout)
+        self.assertNotIn("\\u00f3", p.stdout)
