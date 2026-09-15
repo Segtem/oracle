@@ -1,8 +1,8 @@
 # Oracle en inglés, con léxicos intercambiables: español hoy, francés o alemán después
 
 - ESTADO: ABIERTA
-- PRIORIDAD: 60
-- ETIQUETAS: oracle, metalenguaje, idioma
+- PRIORIDAD: 10
+- ETIQUETAS: oracle, metalenguaje, idioma, v1
 
 Pedido del dueño (2026-09-15): que Oracle esté todo en inglés y que el léxico pueda ponerse en español,
 y más adelante en otros idiomas (francés, alemán…).
@@ -51,3 +51,21 @@ canónico. Cambiar de idioma no toca el álgebra si lo que se guarda no depende 
 Un proyecto escrito en español carga y da los mismos veredictos; el mismo catálogo impreso en inglés y
 releído es idéntico (ida y vuelta por léxico); agregar un idioma es agregar una tabla y sus tests, sin
 tocar el lector, el impresor ni el álgebra; LyraGASP y Jam no cambian una línea para seguir andando.
+
+## Decisiones del dueño (2026-09-15)
+
+1. **Es lo último antes de 1.0.0.** Por eso la prioridad es la más baja: se hace cuando no quede otra
+   tarea para 1.0.0.
+2. **1.0.0 sale en inglés**, para cualquiera que lo use.
+3. **El español queda disponible por un mecanismo de idiomas**, el mismo que permita agregar otros
+   después (francés, alemán…), sin tocar el lector, el impresor ni el álgebra por cada idioma.
+
+Consecuencia sobre la decisión 1 de arriba: como 1.0.0 es una MAYOR, pasar la forma canónica a inglés cae
+en el corte que ya rompe compatibilidad, y no obliga a otro. Lo que había escrito en español —catálogo,
+corpus, LyraGASP y Jam— tiene que seguir leyéndose con el léxico español, o migrarse con una herramienta
+(`oracle convertir` con idioma) que el plan tiene que medir sobre los consumidores.
+
+Siguen abiertas para el plan: qué nombres y textos se traducen además de las palabras del lenguaje (ids de
+medida de Oracle, relaciones del lenguaje y sus campos, `porque`/`alcance`), cómo declara su idioma un
+archivo o un proyecto, y el alcance de mensajes y documentación.
+
