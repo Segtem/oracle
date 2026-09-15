@@ -81,3 +81,20 @@ las filas filtradas» las pasaría de verde a SIN EVIDENCIA; por eso el plan lo 
 [`PLAN-0.21.0-MUTANTE.md`](../../PLAN-0.21.0-MUTANTE.md).
 
 Flujo: plan, encargo a agy, revisión, mutación y corte.
+
+## Bloqueo: la referencia independiente del diferencial (2026-09-15 13:19)
+
+El álgebra sube a 0.7 y `diferencial/referencia/evaluador.py` está fijada a la versión exacta 0.6;
+tiene que re-derivarla un autor que no haya visto `nucleo/` (PLAN, «La referencia del diferencial»).
+Se preparó el directorio aislado (especificación nueva, las dos DECISION, la referencia y sus tests,
+`DECISIONES.md` y un `CONTRATO.md`) y se lanzó Codex: **sin cuota hasta el 2026-09-19** («usage limit»),
+no llegó a leer nada. agy y Claude leyeron el núcleo; opencode está descartado (0 de 3). Consultado al
+dueño.
+
+## Bloqueo de la referencia del diferencial (2026-09-15 13:19)
+
+La re-derivación de `diferencial/referencia/evaluador.py` contra álgebra 0.7 se preparó en un directorio
+aislado (especificación nueva, las dos DECISION, la referencia, sus tests y `DECISIONES.md`, más un
+`CONTRATO.md` con la firma pública). Codex no la pudo correr: «You've hit your usage limit … try again
+at Sep 19th, 2026 9:21 AM». Sin una referencia 0.7 de un autor que no vio `nucleo/`, el diferencial no
+emite fixtures con el álgebra nueva. Decisión pendiente del dueño.

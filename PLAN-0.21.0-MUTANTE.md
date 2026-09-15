@@ -119,7 +119,21 @@ Forma canónica — cada elemento de `requiere` es un nombre (como hoy) o una en
 | quién | qué |
 |---|---|
 | agy | `nucleo/medida.py` (`requiere` con condición), `nucleo/sintaxis.py` (lector e impresor), `nucleo/relacion.py` (variantes y hechos), `nucleo/unidad.py`, `tools/medida.py`, productores (`nucleo/mutacion.py`, `perfiles/python/mutacion_codigo.py`), `relaciones/mutante.json`, las dos medidas de `catalogos/proceso/`, tests de todo eso, `AVANCE`/`INFORME` |
-| Claude | tests de revisión escritos antes de leer la entrega; corpus (columna `tipo` en los casos existentes y los dos falsos verdes nuevos, observados por ejecución el 2026-09-15); `ESPECIFICACION.md` (§ requiere, § relaciones, §0), versiones, NOTAS, README, manual; diferencial; mutación y corte |
+| Claude | tests de revisión escritos antes de leer la entrega; corpus (columna `tipo` en los casos existentes y los dos falsos verdes nuevos, observados por ejecución el 2026-09-15); `ESPECIFICACION.md` (§ requiere, § relaciones, §0), versiones, NOTAS, README, manual; la referencia del diferencial (abajo); mutación y corte |
+
+## La referencia del diferencial
+
+`diferencial/referencia/evaluador.py` es una implementación del álgebra escrita por **otro autor que
+nunca vio `nucleo/`** (Codex, 2026-08-24; `PROCEDENCIA.md`), fijada a la versión **exacta**:
+`comprobar_version_referencia` rechaza emitir fixtures si el núcleo implementa otra. Subir a 0.7 sin
+actualizarla deja el diferencial bloqueado; actualizarla mirando `nucleo/` la vuelve decorativa.
+
+Mismo procedimiento que b250e6c: primero `ESPECIFICACION.md` queda completa con el `requiere` con
+condición; después se delega a Codex, en un directorio aislado, con **sólo** la especificación, las
+decisiones y la referencia actual, sin decirle qué cambió en el núcleo. Se registra en `PROCEDENCIA.md`
+y `DECISIONES.md`, se regeneran los fixtures, y un desacuerdo se clasifica como en `PROCEDENCIA.md`
+(la especificación no decide / el núcleo contra todas / defecto de la referencia). Ni agy ni Claude
+pueden escribirla: los dos leyeron el núcleo.
 
 ## Versiones
 
@@ -138,6 +152,6 @@ Forma canónica — cada elemento de `requiere` es un nombre (como hoy) o una en
 
 Suite completa verde; aceptación del corpus con los dos falsos verdes nuevos en rojo con la medida
 de antes y detectados con la nueva; ninguna ronda de `mutar` ni `mutar_codigo` sobre el catálogo de
-Oracle imprime «NO pudieron juzgar»; diferencial al día con álgebra 0.7; mutación de los módulos
+Oracle imprime «NO pudieron juzgar»; referencia independiente re-derivada contra 0.7 y diferencial regenerado; mutación de los módulos
 tocados sin sobrevivientes o con equivalentes defendidos; `verificar_instalacion` y cifras; LyraGASP
 y Jam medidos con la versión nueva sin cambio de veredicto.
