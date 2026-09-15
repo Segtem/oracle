@@ -1,6 +1,6 @@
 # Una medida se declara aplicable por el nombre de la relación aunque lea campos que la evidencia no trae
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 78
 - ETIQUETAS: oracle, metalenguaje
 
