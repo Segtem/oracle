@@ -1,6 +1,6 @@
 # La relación mutante tiene dos esquemas y una medida universal no puede juzgar uno
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: oracle, metalenguaje, bug
 
