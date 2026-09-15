@@ -1,6 +1,6 @@
 # Lo que le falta de tatr: TQL, orden de ls, ref desde la tarea e init sin README
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, tatr
 
