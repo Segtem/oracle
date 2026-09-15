@@ -329,3 +329,52 @@ class SobrevivientesDeJuzgarTests(JuzgarTemporal):
                 self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
                 self.assertIn(mensaje, p.stderr)
                 self.sin_traceback(p)
+
+
+class BanderasTests(JuzgarTemporal):
+    """Segunda ronda de mutación: banderas sin valor y banderas encadenadas."""
+
+    def test_json_seguido_de_otra_bandera(self):
+        con = self.evidencia({"referencia_seguimiento": [referencia()]})
+        p = self.juzgar("--json", "--medida", REFERENCIAS, "--con", str(con),
+                        "--proyecto", str(self.proyecto))
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIs(json.loads(p.stdout)["ok"], True)
+
+    def test_proyecto_sin_valor_sale_dos(self):
+        con = str(self.evidencia({"referencia_seguimiento": [referencia()]}))
+        for args in (("--con", con, "--proyecto"), ("--con", con, "--proyecto", "--json")):
+            with self.subTest(args=args):
+                p = self.juzgar(*args)
+                self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+                self.assertIn("falta la ruta: `--proyecto", p.stderr)
+                self.sin_traceback(p)
+
+    def test_argumento_desconocido_se_nombra(self):
+        con = str(self.evidencia({"referencia_seguimiento": [referencia()]}))
+        p = self.juzgar("--desconocido", "--con", con, "--proyecto", str(self.proyecto))
+        self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+        self.assertIn("argumento desconocido para `oracle juzgar`: --desconocido", p.stderr)
+
+    @unittest.skipUnless(hasattr(os, "symlink"), "requiere enlaces simbólicos")
+    def test_escalares_fuera_del_proyecto_salen_dos_aun_confiando(self):
+        afuera = self.temporal / "escalares-de-afuera.py"
+        afuera.write_text("x = 1\n", encoding="utf-8")
+        (self.proyecto / "escalares.py").symlink_to(afuera)
+        con = str(self.evidencia({"referencia_seguimiento": [referencia()]}))
+        p = self.juzgar("--con", con, "--proyecto", str(self.proyecto), "--confiar-escalares",
+                        "--medida", REFERENCIAS)
+        self.assertEqual(p.returncode, 2, p.stdout + p.stderr)
+        self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", p.stderr)
+        self.sin_traceback(p)
+
+    def test_medida_en_sombra_en_verde_es_un_verde_comun(self):
+        config = json.loads((self.proyecto / "oracle.json").read_text(encoding="utf-8"))
+        config["sombra"] = {REFERENCIAS: {"desde": "2026-09-15", "porque": "deuda construida"}}
+        (self.proyecto / "oracle.json").write_text(json.dumps(config), encoding="utf-8")
+        con = self.evidencia({"referencia_seguimiento": [referencia()]})
+        p = self.juzgar("--con", str(con), "--proyecto", str(self.proyecto), "--medida", REFERENCIAS)
+        self.assertEqual(p.returncode, 0, p.stdout + p.stderr)
+        self.assertIn("VEREDICTO: verde en 1 medidas. SIN MIRAR:", p.stdout)
+        self.assertNotIn("por sombra", p.stdout)
+        self.assertNotIn("perdonadas", p.stdout)

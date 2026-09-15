@@ -16,7 +16,7 @@ from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,
                              Proyecto, ProyectoInvalido, catalogo_efectivo,
                              configuracion, confiar_escalares,
                              escalares_del_proyecto, macros_del_proyecto,
-                             problemas_estructura, resolver)
+                             resolver)
 
 # Límite superior para la lectura de evidencia en memoria (50 MiB).
 LIMITE_TAMANO_EVIDENCIA = 50 * 1024 * 1024
@@ -114,7 +114,6 @@ def cmd_juzgar(argv: list[str]) -> int:
     ruta_evidencia_str: str | None = None
     es_json = False
     medidas_pedidas: list[str] = []
-    sobrantes: list[str] = []
 
     i = 0
     while i < len(args):
@@ -149,12 +148,8 @@ def cmd_juzgar(argv: list[str]) -> int:
                 return 2
             i += 2
         else:
-            sobrantes.append(arg)
-            i += 1
-
-    if sobrantes:
-        print(f"argumento desconocido para `oracle juzgar`: {sobrantes[0]}", file=sys.stderr)
-        return 2
+            print(f"argumento desconocido para `oracle juzgar`: {arg}", file=sys.stderr)
+            return 2
 
     if ruta_evidencia_str is None:
         print("falta la evidencia: indicá `--con <archivo.json>`", file=sys.stderr)
@@ -162,18 +157,15 @@ def cmd_juzgar(argv: list[str]) -> int:
 
     # 2. Resolución del proyecto
     try:
+        # `resolver` ya rechaza un proyecto sin `catalogos/`.
         proy = resolver(argv)
-        fallas_estructura = problemas_estructura(proy, ("catalogos",))
-        if fallas_estructura:
-            print(f"PROYECTO INVÁLIDO — {'; '.join(fallas_estructura)}", file=sys.stderr)
-            return 2
     except ProyectoInvalido as e:
         print(f"PROYECTO INVÁLIDO — {e}", file=sys.stderr)
         return 2
 
     # 3. Comprobación de escalares no confiadas
     confiar = confiar_escalares(argv)
-    if (proy.raiz / "escalares.py").exists() and not proy.es_el_propio_oracle and not confiar:
+    if (proy.raiz / "escalares.py").exists() and not confiar:
         print(
             f"ESCALARES EXTERNAS NO EJECUTADAS — {proy.raiz / 'escalares.py'} es código Python "
             "externo; repetí con `--confiar-escalares` para ejecutarlo",
@@ -183,7 +175,7 @@ def cmd_juzgar(argv: list[str]) -> int:
 
     # 4. Lectura de evidencia
     evidencia, error_evidencia = _leer_evidencia(ruta_evidencia_str)
-    if error_evidencia is not None or evidencia is None:
+    if error_evidencia is not None:
         print(f"EVIDENCIA INVÁLIDA — {error_evidencia}", file=sys.stderr)
         return 2
 
@@ -273,7 +265,7 @@ def cmd_juzgar(argv: list[str]) -> int:
         if not es_aprobado:
             lineas.append(f"\nVEREDICTO: {len(rojos_fuera_de_sombra)} de {len(informe.veredictos)} medidas en rojo")
         else:
-            if len(rojos_en_sombra) == len(informe.veredictos) and len(informe.veredictos) > 0:
+            if len(rojos_en_sombra) == len(informe.veredictos):
                 lineas.append(
                     f"\nVEREDICTO: verde por sombra en {len(informe.veredictos)} medidas "
                     f"({len(rojos_en_sombra)} en sombra en rojo). SIN MIRAR:"
