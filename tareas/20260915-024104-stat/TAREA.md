@@ -1,6 +1,6 @@
 # juzgar termina en traceback si falla consultar la evidencia
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle, bug
 
@@ -12,3 +12,7 @@ Python `ruta.exists()` llama a `stat` fuera de todo `try`, así que sale traceba
 No es sólo el test: `_leer_evidencia` consulta el archivo con `exists()` e `is_dir()` antes del
 `try`, y un `OSError` real al consultarlo (permiso denegado en un directorio intermedio) termina en
 traceback en vez de código 2. Queda publicado en v0.18.0.
+
+### Nota (2026-09-15 10:02:46 UTC)
+
+Cerrada con el corte 0.18.1: una sola consulta stat dentro del try, test del directorio, juzgar.py 111/111.
