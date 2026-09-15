@@ -112,3 +112,53 @@ Seccion ambigua: los agregados `suma` y `promedio` aceptan booleanos como indica
 
 Decision: los booleanos no se consideran ordenables para `min`/`max`. Si una medida necesita medir
 booleanos como indicadores, debe usar `suma` o `promedio`.
+
+## Version del algebra vigente
+
+Seccion ambigua: §0 ("La version del lenguaje").
+
+Decision: en §0 se detallan cortes historicos donde `VERSION_ALGEBRA` quedaba en `0.6`, pero la regla
+explicita de incremento de version senala que subio de `0.6` a `0.7` porque una entrada de `requiere`
+puede llevar condicion y la declaracion de una relacion gano `variantes` (§1.3, §2). Por ende, la version
+vigente del algebra es `"0.7"`, y `VERSION_ALGEBRA` se define en `"0.7"`.
+
+## Evaluacion de condiciones en `requiere` sin cortocircuito entre filas
+
+Seccion ambigua: §2 ("Una medida es un dato", subseccion "Una entrada de requiere puede llevar condicion").
+
+Decision: al evaluar `["filas", relacion, alias, condicion]`, la condicion se evalua sobre todas las filas
+existentes de la relacion. No se realiza cortocircuito tras hallar la primera fila que cumple la condicion.
+Si alguna fila presenta un campo ausente, alias invalido, tipo no booleano o error de funcion escalar, se
+levanta `ErrorDeAlgebra` inmediatamente. Esto garantiza que el orden de almacenamiento de los hechos en la
+bolsa no altere el resultado (respetando DECISION-001) y mantiene la doctrina fail-closed sin cortocircuito
+registrada para los operadores logicos.
+
+## Precedencia de errores de algebra en `requiere` frente a relaciones vacias
+
+Seccion ambigua: §2 ("Una medida es un dato") y decision "Codificacion de SIN EVIDENCIA".
+
+Decision: si una relacion presente en la evidencia contiene filas pero la condicion de `filas` falla con
+`ErrorDeAlgebra` (por ejemplo, por referenciar un campo ausente en una fila presente), ese error se levanta
+inmediatamente y no queda encubierto ni silenciado si otra relacion requerida viene vacia o ausente. La
+ausencia de evidencia devuelve `"SIN EVIDENCIA"` unicamente cuando los datos provistos en la evidencia no
+contienen errores de algebra al evaluar las condiciones sobre sus hechos.
+
+## Expresiones permitidas y contexto en la condicion de `requiere`
+
+Seccion ambigua: §2 ("Una medida es un dato", "La condicion es una expresion booleana con las reglas de un donde: solo usa su alias...").
+
+Decision: la condicion se evalua con el evaluador general de expresiones (`_evaluar_expr`) bajo un contexto
+donde solo existe el alias declarado (`{alias: hecho}`). Se permiten operadores de comparacion, logicos (`y`,
+`o`, `no`), literales, funciones escalares registradas en `escalares`, y accesores `["campo", alias, nombre]` y
+`["hecho", alias]`. Cualquier uso de `col` o de un alias no declarado levanta `ErrorDeAlgebra`. La condicion
+debe evaluar estrictamente a un booleano (`True` o `False`); cualquier otro tipo levanta `ErrorDeAlgebra`.
+
+## Unicidad estatica de relaciones en `requiere`
+
+Seccion ambigua: §2 ("Una relacion no puede aparecer dos veces en requiere, con condicion o sin ella").
+
+Decision: la unicidad de las relaciones listadas en `requiere` se valida de forma estatica durante el parseo
+de la medida (`_parsear_requiere`). No se admite que un mismo nombre de relacion aparezca mas de una vez, ya
+sea como nombre simple `str` o en entradas con condicion `["filas", rel, ...]`. Detectar un duplicado levanta
+`ErrorDeAlgebra` inmediatamente, con independencia de la evidencia provista.
+

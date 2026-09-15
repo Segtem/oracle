@@ -145,11 +145,49 @@ class SobrevivientesDeMutacionTests(unittest.TestCase):
         with self.assertRaises(MedidaMalDeclarada):
             Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", 1]], donde=None))
 
+    def test_una_condicion_con_y_u_o_carga_si_sus_operandos_son_booleanos(self):
+        tipo = ["==", ["campo", "m", "tipo"], "codigo"]
+        ident = ["==", ["campo", "m", "id"], "a.py:1:1:c"]
+        for logico in ("y", "o"):
+            with self.subTest(logico):
+                medida = Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", [logico, tipo, ident]]],
+                                                 donde=None))
+                self.assertFalse(medida.evaluar({"mutante": [FILA_CODIGO]}).sin_evidencia)
+                with self.assertRaises(MedidaMalDeclarada):
+                    Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m",
+                                                          [logico, tipo, ["campo", "m", "id"]]]], donde=None))
+
+    def test_el_nodo_variantes_se_reconoce_por_su_cabeza_y_admite_una_sola(self):
+        with self.assertRaises(RelacionMalDeclarada):
+            Relacion.de_datos(_relacion(["otro", *VARIANTES[1:]]))
+        una = Relacion.de_datos(_relacion(["variantes", "tipo", VARIANTES[2]]))
+        self.assertEqual([v.valor for v in una.variantes], ["medida"])
+
     def test_una_variante_es_inmutable(self):
         from dataclasses import FrozenInstanceError
         variante = Relacion.de_datos(_relacion(VARIANTES)).variantes[0]
         with self.assertRaises(FrozenInstanceError):
             variante.valor = "otra"
+
+
+class ReferenciaIndependienteTests(unittest.TestCase):
+    """Desacuerdos con la referencia 0.7 (agy aislado), que el núcleo tenía mal."""
+
+    CONDICION_ESTADO = ["==", ["campo", "m", "estado"], "pasaron"]
+
+    def test_un_campo_ausente_levanta_aunque_otra_fila_ya_cumpla_en_cualquier_orden(self):
+        medida = Medida.de_datos(_medida(["requiere", ["filas", "mutante", "m", self.CONDICION_ESTADO]],
+                                         donde=None))
+        for filas in ([FILA_CODIGO, FILA_MEDIDA], [FILA_MEDIDA, FILA_CODIGO]):
+            with self.subTest(primero=filas[0]["tipo"]), self.assertRaises(ErrorDeAlgebra):
+                medida.evaluar({"mutante": filas})
+
+    def test_una_relacion_requerida_vacia_no_tapa_el_error_de_otra_condicion(self):
+        requiere = ["requiere", "pieza", ["filas", "mutante", "m", self.CONDICION_ESTADO]]
+        medida = Medida.de_datos(_medida(requiere, donde=None))
+        with self.assertRaises(ErrorDeAlgebra):
+            medida.evaluar({"pieza": [], "mutante": [FILA_MEDIDA]})
+        self.assertEqual(medida.evaluar({"pieza": [], "mutante": [FILA_CODIGO]}).sin_evidencia, "pieza")
 
 
 class SuperficieTests(unittest.TestCase):

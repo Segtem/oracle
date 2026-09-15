@@ -463,22 +463,28 @@ class Medida:
         evidencia = evidencia_con_derivadas(evidencia)
         # ANTES de medir: si falta con qué, no hay veredicto que dar. Medir igual produciría el
         # agregado sobre cero filas —que es 0— y un umbral `<= 0` lo leería como verde.
+        #
+        # Todas las condiciones, en todas las filas, ANTES de decidir: sin cortocircuito entre filas ni
+        # entre entradas. Un campo ausente levanta aunque otra fila ya cumpla o aunque otra relación
+        # requerida venga vacía; si no, el veredicto dependería del orden de la bolsa (DECISION-001) o
+        # del orden de `requiere`. Lo encontró la referencia independiente de 0.7.
+        faltante = ""
         for entrada in self.requiere:
             if isinstance(entrada, str):
-                if not evidencia.get(entrada):
-                    return Veredicto(id=self.id, valor=0, ok=False,
-                                     umbral=f"{self.op} {self.limite}", porque=self.porque,
-                                     alcance=self.alcance, testigos=(), sin_evidencia=entrada)
-            else:
-                _, relacion, alias, condicion = entrada
-                # Las filas, no la lista cruda: una relación puede traer `["clave", …]` a la cabeza.
-                _clave, filas = separar_clave(evidencia.get(relacion, []))
-                if not any(_cumple(condicion, alias, fila, limites, registro) for fila in filas):
-                    from .sintaxis import _expr
-                    return Veredicto(id=self.id, valor=0, ok=False,
-                                     umbral=f"{self.op} {self.limite}", porque=self.porque,
-                                     alcance=self.alcance, testigos=(),
-                                     sin_evidencia=f"{relacion} con {_expr(condicion)}")
+                if not faltante and not evidencia.get(entrada):
+                    faltante = entrada
+                continue
+            _, relacion, alias, condicion = entrada
+            # Las filas, no la lista cruda: una relación puede traer `["clave", …]` a la cabeza.
+            _clave, filas = separar_clave(evidencia.get(relacion, []))
+            cumplen = [_cumple(condicion, alias, fila, limites, registro) for fila in filas]
+            if not faltante and not any(cumplen):
+                from .sintaxis import _expr
+                faltante = f"{relacion} con {_expr(condicion)}"
+        if faltante:
+            return Veredicto(id=self.id, valor=0, ok=False,
+                             umbral=f"{self.op} {self.limite}", porque=self.porque,
+                             alcance=self.alcance, testigos=(), sin_evidencia=faltante)
         testigos = desde(self.tuberia, evidencia, limites, registro=registro)
         valor = resumir(self.resumen, testigos, limites, registro=registro)
         return Veredicto(id=self.id, valor=valor, ok=comparar(self.op, valor, self.limite),

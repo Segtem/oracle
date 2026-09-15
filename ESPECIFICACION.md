@@ -536,6 +536,12 @@ La entrada con condición da `SIN EVIDENCIA` si la relación viene vacía **o** 
 cumple la condición. La condición es una expresión booleana con las reglas de un `donde`: sólo usa
 su alias, y comparar un campo ausente **levanta error** —no es `False`, igual que en un `donde`—.
 Una relación no puede aparecer dos veces en `requiere`, con condición o sin ella.
+Todas las condiciones se evalúan **en todas las filas y en todas las entradas antes de decidir**:
+un campo ausente levanta aunque otra fila ya cumpla, y aunque otra relación requerida venga vacía.
+Sin eso el veredicto dependería del orden de almacenamiento de la bolsa (`DECISION-001`) o del orden
+en que se escribió `requiere`. Si nada levanta, la primera entrada sin evidencia, en orden, es la que
+nombra el `SIN EVIDENCIA`. (Lo dejó abierto la primera redacción de esta sección; lo decidió la
+implementación de referencia independiente al re-derivarse contra `0.7`.)
 
 Existe por las relaciones con variantes (§1.3). La condición **no es el filtro de la medida**, y
 confundirlos rompe el lenguaje: en toda medida `ninguno` el `donde` selecciona las violaciones, así

@@ -87,3 +87,36 @@ ser `mutante con m.tipo == "codigo"`.
   se fija la de `Campo` y `Relacion`. Test `test_una_variante_es_inmutable`.
 
 Los tres verificados aplicando el mutante a mano sobre una copia: el test nuevo falla con cada uno.
+
+## La referencia independiente, versiones y diferencial
+
+La referencia del diferencial la re-derivó agy en una conversación y un proyecto nuevos, confinado a un
+directorio con la especificación, las dos DECISION, la referencia anterior y un contrato (detalle en
+`diferencial/referencia/PROCEDENCIA.md`). Sus 21 tests pasan. Encontró dos puntos que la especificación
+no decidía, y en los dos el núcleo estaba mal:
+
+- **R11. Cortocircuito entre filas.** Al corregir R1 la evaluación pasó a `any(…)` sobre un generador:
+  si una fila ya cumplía, una fila posterior sin el campo no se evaluaba y no levantaba. El veredicto
+  dependía del orden de la bolsa (`DECISION-001`). La entrega de agy evaluaba todas las filas; el
+  defecto lo introdujo esta revisión.
+- **R12. Cortocircuito entre entradas.** La primera entrada sin evidencia cortaba antes de evaluar las
+  condiciones siguientes, así que una relación requerida vacía tapaba el error de otra condición.
+
+El núcleo evalúa ahora todas las condiciones en todas las filas antes de decidir; si nada levanta, nombra
+la primera entrada sin evidencia, en orden. §2 lo dice. Tests `ReferenciaIndependienteTests`.
+
+`VERSION_ALGEBRA` 0.6 → 0.7, `VERSION_SINTAXIS` 0.4 → 0.5, `VERSION_DISTRIBUCION` 0.20.0 → 0.21.0;
+`oracle.json` de Oracle pide álgebra 0.7 porque su catálogo ya usa `requiere` con condición.
+`diferencial/simulacion.json` regenerado: 4 mundos × 3 medidas, referencia y Oracle de acuerdo. Esos
+mundos no ejercitan el `requiere` con condición; lo que la referencia aportó fueron las dos decisiones.
+
+## Más sobrevivientes, cubiertos
+
+- `nucleo/medida.py:272–273` (`y`/`o` en la condición): ningún test cargaba una condición lógica. Test
+  `test_una_condicion_con_y_u_o_carga_si_sus_operandos_son_booleanos`.
+- `nucleo/relacion.py:162` (`and` ↔ `or` al reconocer el nodo `variantes`) y `:165` (`<` → `<=` en la
+  cantidad de variantes): ningún test daba un quinto nodo con otra cabeza ni una sola variante. Test
+  `test_el_nodo_variantes_se_reconoce_por_su_cabeza_y_admite_una_sola`.
+
+Los cuatro verificados aplicando el mutante a mano sobre una copia. La ronda de `nucleo/medida.py` se
+relanzó sobre el árbol con R11 y R12.

@@ -50,3 +50,24 @@ y se separan en tres clases que no hay que confundir:
 Sólo la clase 3 es un defecto de la referencia. Las clases 1 y 2 son deuda de la especificación, y
 son el producto que se buscaba: el diferencial no existe para tener dos evaluadores, sino para que
 los desacuerdos digan dónde el documento no alcanzaba.
+
+## Re-derivación contra el álgebra 0.7 (2026-09-15)
+
+- **Autor:** Agy (Antigravity CLI, Gemini `gemini-3.8-flash-high`), en una conversación y un proyecto
+  **nuevos** —`--new-project`, sin la conversación que implementó 0.21.0 en el núcleo—, con
+  `workspaceDirs` confinado a un directorio temporal fuera de este repositorio (verificado en el log
+  del CLI). Agy fue uno de los tres autores independientes de 2026-08-24.
+- **Archivos que vio, y son todos:** `ESPECIFICACION.md` ya actualizada con el `requiere` con condición
+  y las relaciones con variantes; `DECISION-001` y `DECISION-002`; esta implementación, sus tests y
+  `DECISIONES.md`; y un `CONTRATO.md` con la firma pública (`evaluar`, `ErrorDeAlgebra`,
+  `VERSION_ALGEBRA`) y las reglas. No se le dijo qué había cambiado.
+- **Por qué no Codex:** el autor original quedó sin cuota hasta el 2026-09-19; el dueño eligió Agy
+  aislado antes que esperar o usar un subagente de Claude, que escribió la especificación.
+- **Sin ejecutar nada:** el modo sin interfaz le negó la shell, así que escribió `evaluador.py`,
+  `test_evaluador.py` y `DECISIONES.md` sin correrlos; los tests los corrió Claude después, sin tocar el
+  código.
+- **Qué encontró:** dos puntos que la especificación no decidía, y en los dos el núcleo estaba mal
+  (clase 1 que resultó también clase 2): la condición de `requiere` tiene que evaluarse en **todas** las
+  filas, sin cortocircuito, para que el orden de la bolsa no cambie el veredicto; y un error de una
+  condición no puede quedar tapado porque otra relación requerida venga vacía. El núcleo se corrigió y
+  la especificación §2 ahora lo dice.

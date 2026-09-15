@@ -58,7 +58,7 @@ Forma canónica — cada elemento de `requiere` es un nombre (como hoy) o una en
   La condición se evalúa con el álgebra del `donde`: un campo ausente **levanta** (no es `False`).
 - Validación al cargar: alias válido, condición booleana bien formada, relación no repetida entre
   entradas; los mismos límites del álgebra que un `donde`.
-- `sin_evidencia` del veredicto nombra la condición: `«mutante» sin filas con m.tipo == "codigo"`.
+- `sin_evidencia` del veredicto nombra la relación con su condición: `mutante con m.tipo == "codigo"`, que la línea imprime como `«mutante con m.tipo == "codigo"» vacía`.
 - Superficie `.oracle`: una línea `requiere` por entrada con condición, además de la de nombres; varias
   líneas se juntan en un solo nodo, en orden. El impresor emite la forma inversa.
 

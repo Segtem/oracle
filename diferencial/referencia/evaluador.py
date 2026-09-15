@@ -21,7 +21,22 @@ _SIN_EVIDENCIA = "SIN EVIDENCIA"
 # Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
 # la compara con la que declara el nucleo (nucleo/version.py) y falla cerrado si no coinciden: una
 # extension del lenguaje que este evaluador no conoce no debe publicar "0 desacuerdos".
-VERSION_ALGEBRA = "0.6"
+VERSION_ALGEBRA = "0.7"
+
+
+@dataclass(frozen=True)
+class RequisitoSimple:
+    relacion: str
+
+
+@dataclass(frozen=True)
+class RequisitoFilas:
+    relacion: str
+    alias: str
+    condicion: Any
+
+
+Requisito = RequisitoSimple | RequisitoFilas
 
 
 @dataclass(frozen=True)
@@ -56,7 +71,7 @@ def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dic
     _ = alcance
     evidencia = _normalizar_evidencia(evidencia, _LIMITES)
 
-    if _sin_evidencia_requerida(requiere, evidencia):
+    if _sin_evidencia_requerida(requiere, evidencia, escalares, _LIMITES):
         return {
             "id": medida_id,
             "valor": _SIN_EVIDENCIA,
@@ -81,7 +96,7 @@ def evaluar(medida: list, evidencia: dict, escalares: dict | None = None) -> dic
     }
 
 
-def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list]:
+def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[Requisito], list]:
     if not isinstance(medida, list) or len(medida) not in {6, 7, 8}:
         raise ErrorDeAlgebra("una medida debe tener seis, siete u ocho elementos")
     if medida[0] != "medida":
@@ -92,7 +107,7 @@ def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list
 
     desde, resumen, umbral = medida[2], medida[3], medida[4]
     opcionales = list(medida[5:-1])
-    requiere: list[str] = []
+    requiere: list[Requisito] = []
     if opcionales and _es_lista_con_tag(opcionales[0], "requiere"):
         requiere = _parsear_requiere(opcionales.pop(0))
     if opcionales and _es_lista_con_tag(opcionales[0], "ambito"):
@@ -122,15 +137,37 @@ def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[str], list
     return medida_id, desde, resumen, umbral, requiere, alcance
 
 
-def _parsear_requiere(requiere: Any) -> list[str]:
+def _parsear_requiere(requiere: Any) -> list[Requisito]:
     if not _es_lista_con_tag(requiere, "requiere") or len(requiere) < 2:
         raise ErrorDeAlgebra("seccion requiere invalida")
-    relaciones: list[str] = []
-    for nombre in requiere[1:]:
-        if not isinstance(nombre, str) or nombre == "":
-            raise ErrorDeAlgebra("requiere espera nombres de relacion no vacios")
-        relaciones.append(nombre)
-    return relaciones
+    requisitos: list[Requisito] = []
+    vistos: set[str] = set()
+    for item in requiere[1:]:
+        if isinstance(item, str):
+            if item == "":
+                raise ErrorDeAlgebra("requiere espera nombres de relacion no vacios")
+            relacion = item
+            if relacion in vistos:
+                raise ErrorDeAlgebra(f"relacion duplicada en requiere: {relacion}")
+            vistos.add(relacion)
+            requisitos.append(RequisitoSimple(relacion=relacion))
+        elif isinstance(item, list):
+            if len(item) != 4 or item[0] != "filas":
+                raise ErrorDeAlgebra("entrada de requiere invalida")
+            relacion, alias, condicion = item[1], item[2], item[3]
+            if not isinstance(relacion, str) or relacion == "":
+                raise ErrorDeAlgebra("nombre de relacion invalido en requiere")
+            if not isinstance(alias, str) or alias == "":
+                raise ErrorDeAlgebra("alias invalido en requiere")
+            if relacion in vistos:
+                raise ErrorDeAlgebra(f"relacion duplicada en requiere: {relacion}")
+            vistos.add(relacion)
+            requisitos.append(
+                RequisitoFilas(relacion=relacion, alias=alias, condicion=condicion)
+            )
+        else:
+            raise ErrorDeAlgebra("entrada de requiere invalida")
+    return requisitos
 
 
 def _parsear_ambito(ambito: Any) -> str:
@@ -143,9 +180,33 @@ def _parsear_ambito(ambito: Any) -> str:
 
 
 def _sin_evidencia_requerida(
-    requiere: list[str], evidencia: dict[str, list[dict[str, Scalar]]]
+    requiere: list[Requisito],
+    evidencia: dict[str, list[dict[str, Scalar]]],
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
 ) -> bool:
-    return any(not evidencia.get(nombre) for nombre in requiere)
+    faltan_evidencias: list[bool] = []
+    for req in requiere:
+        if isinstance(req, RequisitoSimple):
+            filas = evidencia.get(req.relacion)
+            faltan_evidencias.append(not bool(filas))
+        elif isinstance(req, RequisitoFilas):
+            filas = evidencia.get(req.relacion)
+            if not filas:
+                faltan_evidencias.append(True)
+            else:
+                alguna_cumple = False
+                for hecho in filas:
+                    fila_ctx: Row = {req.alias: hecho}
+                    cumple = _evaluar_expr(req.condicion, fila_ctx, escalares, limites)
+                    if not isinstance(cumple, bool):
+                        raise ErrorDeAlgebra("la condicion de requiere espera un predicado booleano")
+                    if cumple:
+                        alguna_cumple = True
+                faltan_evidencias.append(not alguna_cumple)
+        else:
+            raise ErrorDeAlgebra("requisito desconocido")
+    return any(faltan_evidencias)
 
 
 def _normalizar_evidencia(
