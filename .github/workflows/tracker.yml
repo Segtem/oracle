@@ -1,0 +1,40 @@
+name: tracker
+
+# `verificar.yml` ignora `**.md`, y un `tareas/*/TAREA.md` es un .md: un push que sólo toca el
+# tracker no disparaba NADA. Pasó con el push de `20260915-023750-tql`, que no dejó una sola corrida.
+# Un enlace roto o un adjunto sin commitear recién aparecía con el próximo push de código, y le
+# ensuciaba el rojo a un cambio que no tenía nada que ver.
+#
+# Va aparte y no como una excepción de `verificar.yml` por dos razones:
+#   · `paths-ignore` no admite negación —no hay forma de decir «todos los .md menos tareas/»—, así
+#     que la única manera de pedir «esto sí» es un `paths` propio.
+#   · `concurrency` es por grupo, y el de `verificar` cancela lo que esté corriendo en la rama. Una
+#     corrida manual de mutación de código tarda horas; un push al tracker la mataba. Con su propio
+#     grupo, el tracker sólo se cancela a sí mismo.
+on:
+  push:
+    paths: ["tareas/**"]
+  pull_request:
+    paths: ["tareas/**"]
+  workflow_dispatch:
+
+concurrency:
+  group: tracker-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  juzgar-el-tracker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - run: python -m pip install "setuptools>=68"
+      - run: python -m pip install --no-deps .
+      # Las mismas dos líneas que corre `verificar.yml` cuando cambia el código: referencias locales
+      # presentes, archivos confirmados sin cambios y lectura sin omisiones.
+      - name: juzgar el tracker de Oracle
+        run: |
+          python tools/cli.py tarea hechos --git > /tmp/hechos-tareas.json
+          python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json
