@@ -1,3 +1,63 @@
+# 0.25.2 — el verificador del diferencial, fijado; y los dos consumidores en verde
+
+```
+VERSION_DISTRIBUCION   0.25.1 → 0.25.2   el informe del diferencial fijado y medido en CI
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+## El que comprueba el acuerdo, comprobado
+
+`tools/diferencial.py` es quien dice si Oracle y la implementación independiente coinciden. Declarado
+custodia en 0.24.0, dio **57 mutantes y 32 sobrevivientes**, todos en lo que imprime y en con qué
+código sale: la marca ✓/✗, las cuentas, cuántas fallas lista y los `return`. Un informe que dice ✓
+con un desacuerdo, o sale 0 con fallas, es el falso verde que el diferencial existe para evitar,
+contado por su propio verificador.
+
+- `tests/test_diferencial_informe.py` fija cada rama del informe —estructura, sin fixtures, fixtures
+  ilegibles y vencidos, acuerdo y desacuerdo en escenarios y en grupos, los topes de 5 y de 20— y
+  los tres códigos de `main`.
+- El `if __name__` pasa al patrón `_entrada_directa` y `sys.path` se arma sin constante: eran el error
+  de arnés y un sobreviviente más.
+- Ronda después: **55/55**, en tres minutos. Sale de `CUSTODIAS_SIN_MEDIR` y **entra a la matriz de
+  mutación de CI**.
+
+## Lo demás
+
+- **La crónica de `ESPECIFICACION.md` §0 va en un solo orden**, del corte más nuevo al más viejo.
+  Tenía tres a la vez. Se movieron sólo bloques enteros, y un test falla si se vuelve a mezclar.
+- **El estudio de Codex** (`estudios/0.26.0-codex/`): el contrato de aislamiento, versionado; un
+  lanzador que arma un directorio fuera del repositorio sólo con la especificación y frena si Codex
+  no tiene cuota; y un contraste que compara el veredicto entero de dos implementaciones sobre los
+  mundos del diferencial y todo el corpus (248 comparaciones). Codex todavía no tiene cuota.
+
+## Los dos consumidores, en verde
+
+Subidos a 0.25.1 con el mismo resultado que en 0.24.0. Y los dos quedaron con su suite entera:
+
+- **Jam** vuelve a **VERDE** por primera vez en semanas. Su rojo —`vault.json` vencido, que figuraba
+  como deuda del dominio— lo causaba una nota sin commitear en `Vault-kb/05-DSL/`, fuera de las
+  reglas del propio vault. Se volvió un documento del vault sin cambiar su contenido; `oracle test`
+  da VERDE (diferencial 1099 acuerdos) y su suite 1240 sin fallas.
+- **LyraGASP**: su test de extracción de curvas comparaba distinguiendo mayúsculas, y Unreal no lo
+  hace —su propio sensor ya lo sabía—. Su suite queda en 148 sin fallas.
+
+## Verificación
+
+- Suite completa en verde (2242 tests); aceptación ✓ con 119 defectos en rojo y 84 verdes correctos;
+  diferencial ✓; sintaxis y cifras al día; mutación de medidas 994/994; `verificar_instalacion`
+  WHEEL OK.
+- Mutación de código de `tools/diferencial.py`: **55/55**
+  ([log](estudios/0.25.2-informe/verificacion/)).
+- Consumidores con 0.25.1 instalado desde PyPI: LyraGASP VERDE y su suite 148 sin fallas; Jam VERDE y
+  su suite 1240 sin fallas.
+
+## Cómo se hizo
+
+Claude cerró `informe` y `cronica`; la nota del vault de Jam la convirtió agy
+(`estudios/vault-jam/`) y la verificó Claude. Este corte se hizo desde un worktree limpio de `main`,
+mientras agy trabaja en la anti-junta del álgebra 0.8 en el árbol principal.
+
 # 0.25.1 — borradores de las relaciones que faltan declarar, sin fabricar un verde
 
 ```

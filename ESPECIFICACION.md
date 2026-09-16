@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.25.1`.**
+**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.25.2`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,14 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.25.2 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.1` a `0.25.2`.** El informe de
+`oracle diferencial` queda fijado por tests y su verificador entra a la matriz de mutación de CI
+(55/55); la crónica de este párrafo en adelante va en un solo orden, y un test lo comprueba; y el
+repositorio gana el estudio con el que Codex va a escribir, de cero, una implementación
+independiente del álgebra. Sube el **parche**: nada de lo que un proyecto carga o juzga cambia, y
+nadie cambia de color. `VERSION_ALGEBRA` queda en `0.7` y `VERSION_SINTAXIS` en `0.5`. Cierra las
+tareas `20260916-035324-informe` y `20260916-151553-cronica`.
 
 **Corte 0.25.1 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.0` a `0.25.1`.**
 `oracle relaciones --escribir` deja en `relaciones-por-revisar/` un borrador de cada relación que la
