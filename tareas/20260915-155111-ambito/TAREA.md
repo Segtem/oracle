@@ -1,6 +1,6 @@
 # meta.toda_medida_declara_su_ambito es del_origen a propósito y nada fija cuándo pasa a universal
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, metalenguaje, deuda
 
