@@ -29,6 +29,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 import math
 
+from .algebra import ErrorDeAlgebra
 from .medida import Medida
 
 _INVERSO = {"<=": ">", "<": ">=", ">=": "<", ">": "<=", "==": "!=", "!=": "=="}
@@ -424,9 +425,12 @@ def correr(catalogo: dict, casos: list[dict]) -> dict:
         # morir nunca: contar sin filtro sólo da verde con la relación vacía.
         esperado_ok = caso.get("etiqueta") == "verde_correcto"
         original = catalogo[mid]
-        if original.evaluar(caso["evidencia"]).ok != esperado_ok:
+        try:
+            base = original.evaluar(caso["evidencia"])
+        except ErrorDeAlgebra:
+            continue                      # la medida original ya no evalúa el caso: lo informa la aceptación
+        if base.ok != esperado_ok:
             continue                      # el caso no está en su estado esperado: no fija nada
-        base = original.evaluar(caso["evidencia"])
         for nombre, datos in mutantes(original.a_datos()):
             # Cuatro OBSERVACIONES crudas. Cuál cuenta como muerte, y por qué, lo declara y lo
             # defiende `proceso.test_con_mutante_que_lo_mata`: acá no se decide nada.

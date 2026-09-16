@@ -368,6 +368,15 @@ class CorrerTests(unittest.TestCase):
         self.assertTrue(all(m["detecciones_conductuales"] for m in ev["mutante"]
                             if not m["cambio"].startswith("campo:")))
 
+    def test_un_caso_que_la_medida_original_no_puede_evaluar_se_saltea(self) -> None:
+        """Un campo mal escrito hace fallar la medida en su propio caso. La aceptación ya lo informa;
+        la mutación no puede caerse con un traceback, y ese caso no fija nada."""
+        datos = deepcopy(BASE)
+        datos[2][2][1][1][2] = "mal_escrito"
+        ev = mutacion.correr({"d.prueba": Medida.de_datos(datos)}, [CASO_ROJO, CASO_VERDE])
+        self.assertEqual(ev["deteccion"], [])
+        self.assertTrue(all(m["detecciones_conductuales"] == 0 for m in ev["mutante"]))
+
     def test_un_mutante_muere_si_ALGUN_caso_lo_detecta(self) -> None:
         ev = mutacion.correr(self.catalogo, [CASO_ROJO, CASO_VERDE])
         quitar = next(m for m in ev["mutante"] if m["cambio"] == "quitar_filtro")
