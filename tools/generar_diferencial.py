@@ -112,6 +112,17 @@ MUNDOS = [
         "mutante": [{"tipo": "codigo", "id": "m1", "estado": "murieron"},
                     {"tipo": "medida", "id": "m2", "mutador": "umbral", "murio": True}],
     }),
+    # Álgebra 0.8: una corrida sin un solo evento, y otra cuya traza nunca termina. Es la polaridad
+    # roja de las medidas con `sin`, que en los mundos de arriba encuentran siempre su pareja.
+    ("una-corrida-sin-eventos", {
+        "corrida": [{"id": "c1", "escenario": "base", "semilla": 7, "pasos": 3,
+                     "razon": "termino", "determinista": True, "presupuesto_agotado": False},
+                    {"id": "c2", "escenario": "base", "semilla": 8, "pasos": 3,
+                     "razon": "termino", "determinista": True, "presupuesto_agotado": False}],
+        "evento": [{"corrida": "c1", "t": 0, "actor": "a", "que": "empieza"},
+                   {"corrida": "c1", "t": 1, "actor": "a", "que": "sigue"}],
+        "mutante": [],
+    }),
 ]
 
 MEDIDAS_DEL_CATALOGO = [
@@ -146,6 +157,36 @@ MEDIDAS_DEL_EMISOR = [
      ["ambito", "del_origen"],
      ["alcance", "cuenta mutantes con estado «pasaron». NO distingue variantes: una fila sin "
       "`estado` hace levantar al álgebra, y eso es lo que el contraste mira"]],
+    # Las tres de abajo pasan por `sin` (álgebra 0.8). La primera es la anti-junta de manual; la
+    # segunda la aplica después de `agrupar`, con la condición leyendo una columna; la tercera tiene
+    # una condición que no mira la fila de la izquierda y que levanta en la variante sin `estado`:
+    # sin cortocircuito, una implementación que corte al primer acierto discrepa acá. Y en los
+    # mundos sin `mutante`, la relación ausente tiene que ser error en las dos.
+    ["medida", "simulacion.corrida_sin_ningun_evento",
+     ["desde", ["de", "corrida", "c"],
+      ["sin", ["de", "evento", "e"], ["==", ["campo", "e", "corrida"], ["campo", "c", "id"]]]],
+     ["resumen", "contar", 1],
+     ["umbral", "<=", 0, "una corrida sin eventos no dejó traza que juzgar"],
+     ["ambito", "del_origen"],
+     ["alcance", "cruza corridas con eventos por id. NO mira qué eventos hubo"]],
+    ["medida", "simulacion.actor_que_nunca_termina",
+     ["desde", ["de", "evento", "e"],
+      ["agrupar", [["actor", ["campo", "e", "actor"]]], [["eventos", "contar", 1]]],
+      ["sin", ["de", "evento", "f"],
+       ["y", ["==", ["campo", "f", "actor"], ["col", "actor"]],
+             ["==", ["campo", "f", "que"], "termina"]]]],
+     ["resumen", "contar", 1],
+     ["umbral", "<=", 0, "un actor sin evento de fin dejó su trabajo a medias"],
+     ["ambito", "del_origen"],
+     ["alcance", "busca un evento «termina» por actor, en cualquier corrida. NO separa corridas"]],
+    ["medida", "simulacion.corrida_sin_mutante_muerto",
+     ["desde", ["de", "corrida", "c"],
+      ["sin", ["de", "mutante", "m"], ["==", ["campo", "m", "estado"], "murieron"]]],
+     ["resumen", "contar", 1],
+     ["umbral", "<=", 0, "una ronda sin ningún mutante de código muerto no probó nada"],
+     ["ambito", "del_origen"],
+     ["alcance", "no correlaciona el mutante con la corrida. Una fila sin `estado` hace levantar "
+      "al álgebra, y eso es lo que el contraste mira"]],
 ]
 
 SALIDA = RAIZ / "diferencial" / "simulacion.json"

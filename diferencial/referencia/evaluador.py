@@ -21,7 +21,7 @@ _SIN_EVIDENCIA = "SIN EVIDENCIA"
 # Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
 # la compara con la que declara el nucleo (nucleo/version.py) y falla cerrado si no coinciden: una
 # extension del lenguaje que este evaluador no conoce no debe publicar "0 desacuerdos".
-VERSION_ALGEBRA = "0.7"
+VERSION_ALGEBRA = "0.8"
 
 
 @dataclass(frozen=True)
@@ -311,6 +311,8 @@ def _evaluar_desde(
             ultimos_testigos = _copiar_filas(filas)
         elif operador == "agrupar":
             filas = _aplicar_agrupar(filas, paso, escalares, limites)
+        elif operador == "sin":
+            filas = _aplicar_sin(filas, paso, evidencia, escalares, limites)
         elif operador in {"de", "unir", "resumen"}:
             raise ErrorDeAlgebra(f"{operador} no es un paso valido de desde")
         else:
@@ -344,7 +346,7 @@ def _evaluar_relacion(
     if operador == "desde":
         filas, _testigos = _evaluar_desde(expr, evidencia, escalares, limites)
         return filas
-    if operador in {"donde", "agrupar"}:
+    if operador in {"donde", "agrupar", "sin"}:
         raise ErrorDeAlgebra(f"{operador} solo puede aparecer como paso de desde")
     if operador == "resumen":
         raise ErrorDeAlgebra("resumen no produce una relacion en desde")
@@ -402,6 +404,56 @@ def _aplicar_donde(
         if valor:
             filtradas.append(_copiar_fila(fila))
     return filtradas
+
+
+def _aplicar_sin(
+    filas: list[Row],
+    paso: list,
+    evidencia: dict[str, list[dict[str, Scalar]]],
+    escalares: dict[str, Callable[..., Any]],
+    limites: LimitesAlgebra,
+) -> list[Row]:
+    if len(paso) != 3:
+        raise ErrorDeAlgebra("sin espera ['sin', ['de', relacion, alias], cond]")
+    fuente, cond = paso[1], paso[2]
+    if not _es_lista_con_tag(fuente, "de") or len(fuente) != 3:
+        raise ErrorDeAlgebra("sin espera ['de', relacion, alias]")
+    relacion, alias = fuente[1], fuente[2]
+    if not isinstance(relacion, str) or relacion == "":
+        raise ErrorDeAlgebra("nombre de relacion invalido en sin")
+    if not isinstance(alias, str) or alias == "":
+        raise ErrorDeAlgebra("alias invalido en sin")
+
+    if relacion not in evidencia:
+        raise ErrorDeAlgebra(f"relacion ausente: {relacion}")
+    relacion_filas = evidencia[relacion]
+
+    if len(filas) * len(relacion_filas) > limites.filas_materializadas:
+        raise ErrorDeAlgebra("sin supera el limite de filas materializadas")
+
+    for fila in filas:
+        if alias in fila:
+            raise ErrorDeAlgebra(f"alias duplicado en sin: {alias}")
+
+    if not filas:
+        return []
+    if not relacion_filas:
+        return _copiar_filas(filas)
+
+    salida: list[Row] = []
+    for fila in filas:
+        alguna_cumple = False
+        for hecho in relacion_filas:
+            fila_ctx = _copiar_fila(fila)
+            fila_ctx[alias] = hecho
+            cumple = _evaluar_expr(cond, fila_ctx, escalares, limites)
+            if not isinstance(cumple, bool):
+                raise ErrorDeAlgebra("la condicion de sin espera un predicado booleano")
+            if cumple:
+                alguna_cumple = True
+        if not alguna_cumple:
+            salida.append(_copiar_fila(fila))
+    return salida
 
 
 def _aplicar_agrupar(

@@ -71,3 +71,29 @@ los desacuerdos digan dónde el documento no alcanzaba.
   filas, sin cortocircuito, para que el orden de la bolsa no cambie el veredicto; y un error de una
   condición no puede quedar tapado porque otra relación requerida venga vacía. El núcleo se corrigió y
   la especificación §2 ahora lo dice.
+
+## Re-derivación contra el álgebra 0.8 (2026-09-16)
+
+- **Autor:** Agy (Antigravity CLI), otra vez en una conversación y un proyecto **nuevos**
+  —`--new-project`, sin la conversación que implementó `sin` en el núcleo—, con `workspaceDirs`
+  confinado a un directorio temporal fuera de este repositorio (verificado en el log del CLI, que
+  no nombra el repositorio una sola vez).
+- **Archivos que vio, y son todos:** `ESPECIFICACION.md` ya con `sin` en §3 y §8; `DECISION-001` y
+  `DECISION-002`; esta implementación, sus tests y `DECISIONES.md`; y el contrato de
+  [`estudios/0.26.0-antijunta/referencia/`](../../estudios/0.26.0-antijunta/referencia/CONTRATO.md),
+  con las huellas de la entrada al lado. No se le dijo qué había cambiado.
+- **Sin ejecutar nada**, como en 0.7: escribió el código, 21 tests nuevos y nueve decisiones sin
+  correrlos; los 41 tests los corrió Claude después, sin tocar el código, y pasaron.
+- **Qué encontró:** su resumen está en `FIN-AGY.md`, junto al contrato. En los 10 mundos del
+  fixture coincide con el núcleo en las 8 medidas, incluidas las tres que pasan por `sin`. Las
+  sondas dirigidas a sus nueve decisiones nuevas dieron cuatro desacuerdos, de las tres clases:
+  1. **El núcleo contra la especificación** — el núcleo aceptaba un `unir` a la derecha de `sin`;
+     §3 dice `["de", relación, alias]`. Se corrigió el núcleo.
+  2. **La especificación no decidía** — un alias repetido cuando no llega ninguna fila (el núcleo lo
+     rechaza al validar, la referencia sólo al ver una fila), y un alias que coincide con una
+     columna de `agrupar` (la referencia lo rechaza). §3 ahora decide los dos como el núcleo, y en
+     esos dos rincones esta referencia queda en desacuerdo con el documento; ningún mundo del
+     fixture pasa por ahí.
+  3. **Anterior a 0.8** — un predicado que no da booleano: el núcleo lo toma por su verdad, la
+     referencia levanta. Pasa igual con `donde`, así que no es de `sin`; es la tarea
+     `20260916-202010-predicado-bool`.

@@ -201,8 +201,8 @@ class EvaluadorTests(unittest.TestCase):
                 self.assertTrue(resultado["ok"])
                 self.assertEqual(resultado["testigos"], [])
 
-    def test_version_algebra_es_0_7(self):
-        self.assertEqual(VERSION_ALGEBRA, "0.7")
+    def test_version_algebra_es_0_8(self):
+        self.assertEqual(VERSION_ALGEBRA, "0.8")
 
     def test_requiere_con_condicion_filas_satisfecho(self):
         medida = [
@@ -496,6 +496,559 @@ class EvaluadorTests(unittest.TestCase):
                 ]
                 with self.assertRaises(ErrorDeAlgebra):
                     evaluar(medida, {"muestra": [{"id": "m1"}]})
+
+    def test_sin_basico_filtra_filas_que_cumplen(self):
+        medida = [
+            "medida",
+            "test.sin.basico",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "pieza_id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "solo una pieza queda sin bloqueo"],
+            ["alcance", "prueba basica de sin"],
+        ]
+        evidencia = {
+            "pieza": [
+                {"id": "p1", "nombre": "Muro"},
+                {"id": "p2", "nombre": "Puerta"},
+            ],
+            "bloqueo": [
+                {"pieza_id": "p1"},
+            ],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 1)
+        self.assertTrue(resultado["ok"])
+        self.assertEqual(resultado["testigos"], [{"p": {"id": "p2", "nombre": "Puerta"}}])
+
+    def test_sin_relacion_vacia_deja_pasar_todas_las_filas(self):
+        medida = [
+            "medida",
+            "test.sin.relacion_vacia",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "pieza_id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 2, "pasan todas si no hay bloqueos"],
+            ["alcance", "sin con relacion vacia"],
+        ]
+        evidencia = {
+            "pieza": [{"id": "p1"}, {"id": "p2"}],
+            "bloqueo": [],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 2)
+        self.assertTrue(resultado["ok"])
+        self.assertEqual(len(resultado["testigos"]), 2)
+
+    def test_sin_relacion_ausente_levanta_error(self):
+        medida = [
+            "medida",
+            "test.sin.relacion_ausente",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "pieza_id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "sin con relacion ausente"],
+        ]
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, {"pieza": [{"id": "p1"}]})
+
+    def test_sin_relacion_ausente_con_filas_entrantes_vacias_levanta_error(self):
+        medida = [
+            "medida",
+            "test.sin.relacion_ausente_vacia",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "pieza_id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "sin con relacion ausente aunque no haya filas entrantes"],
+        ]
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, {"pieza": []})
+
+    def test_sin_sin_cortocircuito_evalua_todas_las_filas(self):
+        medida = [
+            "medida",
+            "test.sin.sin_cortocircuito",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "pieza_id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "sin cortocircuito entre filas de la relacion derecha"],
+        ]
+        evidencia_1 = {
+            "pieza": [{"id": "p1"}],
+            "bloqueo": [
+                {"pieza_id": "p1"},
+                {"sin_campo": 123},
+            ],
+        }
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, evidencia_1)
+
+        evidencia_2 = {
+            "pieza": [{"id": "p1"}],
+            "bloqueo": [
+                {"sin_campo": 123},
+                {"pieza_id": "p1"},
+            ],
+        }
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, evidencia_2)
+
+    def test_sin_alias_duplicado_con_fila_entrante_levanta_error(self):
+        medida = [
+            "medida",
+            "test.sin.alias_duplicado",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "p"],
+                    ["==", ["campo", "p", "id"], 1],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "alias duplicado en sin"],
+        ]
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, {"pieza": [{"id": "p1"}], "bloqueo": [{"id": 1}]})
+
+    def test_sin_alias_duplicado_con_relacion_vacia_levanta_error(self):
+        medida = [
+            "medida",
+            "test.sin.alias_duplicado_vacia",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "p"],
+                    ["==", ["campo", "p", "id"], 1],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "alias duplicado en sin incluso si la relacion derecha esta vacia"],
+        ]
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, {"pieza": [{"id": "p1"}], "bloqueo": []})
+
+    def test_sin_alias_nuevo_no_escapa_a_pasos_posteriores(self):
+        medida = [
+            "medida",
+            "test.sin.aislamiento_alias",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "pieza_id"], ["campo", "p", "id"]],
+                ],
+                ["donde", ["==", ["campo", "b", "pieza_id"], "p2"]],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "alias de sin no debe ser visible despues de sin"],
+        ]
+        evidencia = {
+            "pieza": [{"id": "p2"}],
+            "bloqueo": [],
+        }
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, evidencia)
+
+    def test_sin_despues_de_agrupar_con_col(self):
+        medida = [
+            "medida",
+            "test.sin.despues_de_agrupar",
+            [
+                "desde",
+                ["de", "modulo", "m"],
+                ["agrupar", [["nombre", ["campo", "m", "nombre"]]], []],
+                [
+                    "sin",
+                    ["de", "excluidos", "e"],
+                    ["==", ["col", "nombre"], ["campo", "e", "nombre"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "un solo modulo no excluido"],
+            ["alcance", "sin despues de agrupar usando col"],
+        ]
+        evidencia = {
+            "modulo": [
+                {"nombre": "a"},
+                {"nombre": "b"},
+                {"nombre": "a"},
+            ],
+            "excluidos": [
+                {"nombre": "a"},
+            ],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 1)
+        self.assertTrue(resultado["ok"])
+        self.assertEqual(resultado["testigos"], [{"nombre": "b"}])
+
+    def test_sin_despues_de_agrupar_alias_colisiona_con_columna(self):
+        medida = [
+            "medida",
+            "test.sin.colision_columna",
+            [
+                "desde",
+                ["de", "modulo", "m"],
+                ["agrupar", [["nombre", ["campo", "m", "nombre"]]], []],
+                [
+                    "sin",
+                    ["de", "excluidos", "nombre"],
+                    ["==", ["col", "nombre"], 1],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "alias colisiona con columna derivada"],
+        ]
+        evidencia = {
+            "modulo": [{"nombre": "a"}],
+            "excluidos": [{"nombre": "a"}],
+        }
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, evidencia)
+
+    def test_sin_supera_limite_filas_materializadas(self):
+        medida = [
+            "medida",
+            "test.sin.limite_presupuesto",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "supera limite de presupuesto materializado"],
+        ]
+        evidencia = {
+            "pieza": [{"id": i} for i in range(10_000)],
+            "bloqueo": [{"id": i} for i in range(101)],
+        }
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, evidencia)
+
+    def test_sin_condicion_no_booleana_levanta_error(self):
+        medida = [
+            "medida",
+            "test.sin.no_booleana",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["campo", "b", "id"],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "condicion de sin no booleana"],
+        ]
+        evidencia = {
+            "pieza": [{"id": "p1"}],
+            "bloqueo": [{"id": "b1"}],
+        }
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, evidencia)
+
+    def test_sin_como_operador_fuente_o_relacion_invalido(self):
+        medida_fuente = [
+            "medida",
+            "test.sin.fuente",
+            [
+                "desde",
+                ["sin", ["de", "bloqueo", "b"], True],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "sin como fuente inicial de desde"],
+        ]
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida_fuente, {"bloqueo": [{"id": 1}]})
+
+        medida_unir = [
+            "medida",
+            "test.sin.en_unir",
+            [
+                "desde",
+                ["unir", ["de", "pieza", "p"], ["sin", ["de", "bloqueo", "b"], True]],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "cero"],
+            ["alcance", "sin dentro de unir"],
+        ]
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida_unir, {"pieza": [{"id": 1}], "bloqueo": [{"id": 1}]})
+
+    def test_sin_sintaxis_invalida_levanta_error(self):
+        casos_sin_invalidos = [
+            ["sin"],
+            ["sin", ["de", "bloqueo", "b"]],
+            ["sin", "bloqueo", True],
+            ["sin", ["de", "", "b"], True],
+            ["sin", ["de", "bloqueo", ""], True],
+            ["sin", ["de", 123, "b"], True],
+            ["sin", ["de", "bloqueo", 123], True],
+            ["sin", ["de", "bloqueo", "b", "extra"], True],
+            ["sin", ["de", "bloqueo", "b"], True, "extra"],
+            ["sin", ["otro", "bloqueo", "b"], True],
+        ]
+        for paso_sin in casos_sin_invalidos:
+            with self.subTest(paso_sin=paso_sin):
+                medida = [
+                    "medida",
+                    "invalida.sin",
+                    ["desde", ["de", "pieza", "p"], paso_sin],
+                    ["resumen", "contar", 1],
+                    ["umbral", "==", 1, "uno"],
+                    ["alcance", "sintaxis invalida de sin"],
+                ]
+                with self.assertRaises(ErrorDeAlgebra):
+                    evaluar(medida, {"pieza": [{"id": "p1"}], "bloqueo": [{"id": "b1"}]})
+
+    def test_sin_con_funcion_escalar_y_hecho_entero(self):
+        def coincide_prefijo(hecho_a, hecho_b):
+            return hecho_a["id"][0] == hecho_b["id"][0]
+
+        medida = [
+            "medida",
+            "test.sin.escalar_hecho",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["coincide_prefijo", ["hecho", "p"], ["hecho", "b"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "solo una pieza no tiene bloqueo con mismo prefijo"],
+            ["alcance", "sin con funcion escalar y hechos enteros"],
+        ]
+        evidencia = {
+            "pieza": [
+                {"id": "A1"},
+                {"id": "B1"},
+            ],
+            "bloqueo": [
+                {"id": "A9"},
+            ],
+        }
+        resultado = evaluar(medida, evidencia, {"coincide_prefijo": coincide_prefijo})
+        self.assertEqual(resultado["valor"], 1)
+        self.assertTrue(resultado["ok"])
+        self.assertEqual(resultado["testigos"], [{"p": {"id": "B1"}}])
+
+    def test_sin_testigos_sin_donde_reflejan_filas_salientes_de_sin(self):
+        medida = [
+            "medida",
+            "test.sin.testigos_sin_donde",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "uno"],
+            ["alcance", "testigos cuando no hay donde en tuberia con sin"],
+        ]
+        evidencia = {
+            "pieza": [{"id": "p1"}, {"id": "p2"}],
+            "bloqueo": [{"id": "p1"}],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["testigos"], [{"p": {"id": "p2"}}])
+
+    def test_sin_testigos_con_donde_anterior(self):
+        medida = [
+            "medida",
+            "test.sin.testigos_donde_anterior",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                ["donde", [">", ["campo", "p", "x"], 0]],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "id"], ["campo", "p", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "uno"],
+            ["alcance", "testigos con donde antes de sin"],
+        ]
+        evidencia = {
+            "pieza": [
+                {"id": "p1", "x": 10},
+                {"id": "p2", "x": 20},
+                {"id": "p3", "x": -5},
+            ],
+            "bloqueo": [{"id": "p1"}],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 1)
+        self.assertEqual(
+            resultado["testigos"],
+            [{"p": {"id": "p1", "x": 10}}, {"p": {"id": "p2", "x": 20}}],
+        )
+
+    def test_sin_testigos_con_donde_posterior(self):
+        medida = [
+            "medida",
+            "test.sin.testigos_donde_posterior",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "id"], ["campo", "p", "id"]],
+                ],
+                ["donde", [">", ["campo", "p", "x"], 0]],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "uno"],
+            ["alcance", "testigos con donde despues de sin"],
+        ]
+        evidencia = {
+            "pieza": [
+                {"id": "p1", "x": 10},
+                {"id": "p2", "x": 20},
+                {"id": "p3", "x": -5},
+            ],
+            "bloqueo": [{"id": "p1"}],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 1)
+        self.assertEqual(
+            resultado["testigos"],
+            [{"p": {"id": "p2", "x": 20}}],
+        )
+
+    def test_sin_preserva_multiplicidad_bolsa(self):
+        medida = [
+            "medida",
+            "test.sin.multiplicidad",
+            [
+                "desde",
+                ["de", "pieza", "p"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "id"], "x"],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 3, "tres"],
+            ["alcance", "multiplicidad de hechos"],
+        ]
+        evidencia = {
+            "pieza": [
+                {"id": "p1"},
+                {"id": "p1"},
+                {"id": "p2"},
+            ],
+            "bloqueo": [{"id": "y"}, {"id": "z"}],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 3)
+        self.assertEqual(len(resultado["testigos"]), 3)
+
+    def test_sin_multiple_en_cadena(self):
+        medida = [
+            "medida",
+            "test.sin.encadenado",
+            [
+                "desde",
+                ["de", "tarea", "t"],
+                [
+                    "sin",
+                    ["de", "bloqueo", "b"],
+                    ["==", ["campo", "b", "t_id"], ["campo", "t", "id"]],
+                ],
+                [
+                    "sin",
+                    ["de", "asignada", "a"],
+                    ["==", ["campo", "a", "t_id"], ["campo", "t", "id"]],
+                ],
+            ],
+            ["resumen", "contar", 1],
+            ["umbral", "==", 1, "solo una tarea no bloqueada y no asignada"],
+            ["alcance", "dos sin encadenados en una misma tuberia"],
+        ]
+        evidencia = {
+            "tarea": [
+                {"id": "t1"},
+                {"id": "t2"},
+                {"id": "t3"},
+            ],
+            "bloqueo": [
+                {"t_id": "t1"},
+            ],
+            "asignada": [
+                {"t_id": "t2"},
+            ],
+        }
+        resultado = evaluar(medida, evidencia)
+        self.assertEqual(resultado["valor"], 1)
+        self.assertTrue(resultado["ok"])
+        self.assertEqual(resultado["testigos"], [{"t": {"id": "t3"}}])
 
 
 if __name__ == "__main__":
