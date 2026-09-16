@@ -9,9 +9,12 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from nucleo.diferencial import ALGORITMO_HUELLA, ESQUEMA_DIFERENCIAL
-from nucleo.fixtures import (Fixture, _id_escenario_valido, _validar_comunes,
-                             _validar_dominio, _validar_evidencia, _validar_grupos,
-                             casos_para_mutacion, referentes_de_fixture, validar_fixture)
+from nucleo.fixtures import (SIN_EVIDENCIA_EN_FIXTURE, Fixture, _id_escenario_valido,
+                             _validar_comunes, _validar_dominio, _validar_evidencia,
+                             _validar_grupos, casos_para_mutacion, mismo_veredicto, ok_guardado,
+                             referentes_de_fixture, registro_de_veredicto, valor_comparable,
+                             validar_fixture)
+from nucleo.medida import Medida
 from nucleo.referente import Referente, hechos_de_referentes
 
 
@@ -247,6 +250,185 @@ class FixturesTests(unittest.TestCase):
         self.assertEqual([caso["etiqueta"] for caso in casos],
                          ["verde_correcto", "falso_verde"])
         self.assertEqual(list(casos_para_mutacion(fixture, {})), [])
+
+
+class VeredictoGuardadoTests(unittest.TestCase):
+    """La forma larga de un veredicto: además del `ok`, con qué valor salió y si levantó."""
+
+    def _con(self, guardado_verde, guardado_rojo):
+        datos = _dominio()
+        datos["escenarios"][0]["oracle_al_generar"]["por_medida"]["prueba.mide"] = guardado_verde
+        datos["escenarios"][1]["oracle_al_generar"]["por_medida"]["prueba.mide"] = guardado_rojo
+        return _validar_dominio(datos, "demo.json")
+
+    def test_las_dos_formas_valen_y_conviven(self) -> None:
+        """La corta es la que emitieron los fixtures hasta 0.23.0 y la que siguen emitiendo los
+        consumidores: exigirles la larga los invalidaría a todos de golpe."""
+        self.assertEqual(self._con(True, False), [])
+        self.assertEqual(self._con({"ok": True, "valor": 0}, {"ok": False, "valor": 2}), [])
+        self.assertEqual(self._con(True, {"ok": False, "levanta": True}), [])
+        self.assertEqual(
+            self._con({"ok": True, "valor": 0}, {"ok": False, "valor": SIN_EVIDENCIA_EN_FIXTURE}),
+            [])
+
+    def test_cada_forma_incoherente_se_rechaza(self) -> None:
+        casos = {
+            "no es booleano ni mapa": ("verde", "booleano o un mapa"),
+            "ok que no es booleano": ({"ok": "si"}, "`ok` debe ser booleano"),
+            "levanta en verde": ({"ok": True, "levanta": True}, "`levanta` con `ok`"),
+            "levanta con valor": ({"ok": False, "levanta": True, "valor": 1},
+                                  "`levanta` no lleva `valor`"),
+            "levanta que no es booleano": ({"ok": False, "levanta": "si"},
+                                           "`levanta` debe ser booleano"),
+            "valor que no es número": ({"ok": False, "valor": "dos"}, "`valor` debe ser"),
+            "valor booleano": ({"ok": False, "valor": True}, "`valor` debe ser"),
+            "sin evidencia en verde": ({"ok": True, "valor": SIN_EVIDENCIA_EN_FIXTURE},
+                                       "nunca sale en verde"),
+            "campo de más": ({"ok": False, "valor": 1, "testigos": []}, "campos desconocidos"),
+        }
+        for nombre, (guardado, esperado) in casos.items():
+            with self.subTest(nombre):
+                fallas = self._con(True, guardado)
+                self.assertTrue(any(esperado in falla for falla in fallas), fallas)
+
+    def test_un_veredicto_ilegible_no_tapa_el_resto_de_las_comprobaciones(self) -> None:
+        """La evidencia del escenario se sigue validando: un veredicto mal escrito no puede
+        comprarse el resto del contrato."""
+        datos = _dominio()
+        datos["escenarios"][1]["oracle_al_generar"]["por_medida"]["prueba.mide"] = {"ok": "no"}
+        datos["escenarios"][1]["evidencia"] = {"hecho": [{"id": "h", "ok": {"anidado": 1}}]}
+        fallas = _validar_dominio(datos, "demo.json")
+        self.assertTrue(any("`ok` debe ser booleano" in f for f in fallas))
+        self.assertTrue(any("no es escalar" in f for f in fallas))
+
+    def test_ok_guardado_lee_las_dos_formas(self) -> None:
+        self.assertIs(ok_guardado(True), True)
+        self.assertIs(ok_guardado({"ok": False, "levanta": True}), False)
+        self.assertIsNone(ok_guardado({"ok": "si"}))
+        self.assertIsNone(ok_guardado("verde"))
+
+    def test_mismo_veredicto_no_le_reclama_a_un_fixture_viejo_lo_que_no_declaro(self) -> None:
+        self.assertTrue(mismo_veredicto(False, {"ok": False, "valor": 3}))
+        self.assertTrue(mismo_veredicto(False, {"ok": False, "levanta": True}))
+        self.assertFalse(mismo_veredicto(True, {"ok": False, "valor": 3}))
+
+    def test_mismo_veredicto_ve_lo_que_el_ok_no_distingue(self) -> None:
+        """Un rojo que pasa a SIN EVIDENCIA, o a un error, es un cambio de veredicto aunque el
+        booleano no se mueva: es justo lo que la forma corta no podía decir."""
+        rojo = {"ok": False, "valor": 3}
+        self.assertFalse(mismo_veredicto(rojo, {"ok": False, "valor": SIN_EVIDENCIA_EN_FIXTURE}))
+        self.assertFalse(mismo_veredicto(rojo, {"ok": False, "levanta": True}))
+        self.assertFalse(mismo_veredicto(rojo, {"ok": False, "valor": 4}))
+        self.assertTrue(mismo_veredicto(rojo, {"ok": False, "valor": 3}))
+        # `assertIs` y no `assertFalse`: devolver None también es falso, y ahí el mutante vive.
+        self.assertIs(mismo_veredicto("verde", {"ok": True, "valor": 0}), False)
+
+
+class RegistroDeVeredictoTests(unittest.TestCase):
+    """Lo que el emisor escribe y el verificador recalcula, que es una sola función a propósito."""
+
+    @staticmethod
+    def _medida(requiere=None):
+        datos = ["medida", "d.mide",
+                 ["desde", ["de", "m", "x"], ["donde", ["==", ["campo", "x", "estado"], "vivo"]]],
+                 ["resumen", "contar", 1],
+                 ["umbral", "<=", 0, "razón"]]
+        if requiere:
+            datos.append(requiere)
+        datos.append(["alcance", "NO ve"])
+        return Medida.de_datos(datos)
+
+    def test_verde_y_rojo_guardan_el_valor(self) -> None:
+        medida = self._medida()
+        self.assertEqual(registro_de_veredicto(medida, {"m": [{"estado": "muerto"}]}),
+                         {"ok": True, "valor": 0})
+        self.assertEqual(registro_de_veredicto(medida, {"m": [{"estado": "vivo"}]}),
+                         {"ok": False, "valor": 1})
+
+    def test_sin_evidencia_no_se_confunde_con_un_rojo(self) -> None:
+        medida = self._medida(["requiere", ["filas", "m", "y", ["==", ["campo", "y", "tipo"], "codigo"]]])
+        self.assertEqual(registro_de_veredicto(medida, {"m": [{"estado": "vivo", "tipo": "medida"}]}),
+                         {"ok": False, "valor": SIN_EVIDENCIA_EN_FIXTURE})
+
+    def test_una_evaluacion_que_levanta_queda_anotada_sin_su_mensaje(self) -> None:
+        """El mensaje no entra: dos implementaciones independientes redactan distinto, y compararlo
+        volvería contrato a la redacción."""
+        medida = self._medida()
+        self.assertEqual(registro_de_veredicto(medida, {"m": [{"otra_cosa": 1}]}),
+                         {"ok": False, "levanta": True})
+
+    def test_un_entero_flotante_y_uno_entero_son_el_mismo_numero(self) -> None:
+        self.assertEqual(valor_comparable(3.0), 3)
+        self.assertEqual(valor_comparable(3.5), 3.5)
+        self.assertEqual(valor_comparable(SIN_EVIDENCIA_EN_FIXTURE), SIN_EVIDENCIA_EN_FIXTURE)
+
+
+class MedidasDeclaradasTests(unittest.TestCase):
+    """Un fixture puede traer escritas las medidas que no están en ningún catálogo."""
+
+    def _con(self, declaradas):
+        datos = _dominio()
+        datos["medidas_declaradas"] = declaradas
+        return _validar_dominio(datos, "demo.json")
+
+    CANONICA = ["medida", "prueba.mide", ["desde", ["de", "hecho", "h"]],
+                ["resumen", "contar", 1], ["umbral", "<=", 0, "razón"], ["alcance", "NO ve"]]
+
+    def test_una_declaracion_bien_formada_vale(self) -> None:
+        self.assertEqual(self._con({"prueba.mide": self.CANONICA}), [])
+
+    def test_ningun_fixture_esta_obligado_a_declarar(self) -> None:
+        self.assertEqual(_validar_dominio(_dominio(), "demo.json"), [])
+
+    def test_cada_forma_invalida_se_rechaza(self) -> None:
+        casos = {
+            "mapa vacío": {},
+            "no es un mapa": [self.CANONICA],
+            "id que no está en medidas": {"otra.medida": [*self.CANONICA[:1], "otra.medida",
+                                                          *self.CANONICA[2:]]},
+            "no es la forma canónica": {"prueba.mide": {"id": "prueba.mide"}},
+            "id que no coincide": {"prueba.mide": [*self.CANONICA[:1], "otra.medida",
+                                                   *self.CANONICA[2:]]},
+            "canónica corta": {"prueba.mide": ["medida", "prueba.mide"]},
+        }
+        for nombre, declaradas in casos.items():
+            with self.subTest(nombre):
+                self.assertTrue(self._con(declaradas))
+
+
+class ElFixtureRealEjercitaElAlgebraTests(unittest.TestCase):
+    """Sobre el archivo versionado: el agujero que cerró la tarea del diferencial era que ninguna
+    de sus medidas usaba lo que el álgebra 0.7 agregó, así que la referencia nunca pasaba por ahí."""
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        import json
+
+        raiz = Path(__file__).resolve().parents[1]
+        cls.datos = json.loads(
+            (raiz / "diferencial" / "simulacion.json").read_text(encoding="utf-8"))
+
+    def test_alguna_medida_pide_filas_con_condicion(self) -> None:
+        requieren = [canonica for canonica in self.datos.get("medidas_declaradas", {}).values()
+                     for nodo in canonica
+                     if isinstance(nodo, list) and nodo and nodo[0] == "requiere"
+                     for entrada in nodo[1:]
+                     if isinstance(entrada, list) and entrada[0] == "filas"]
+        self.assertTrue(requieren, "ninguna medida del fixture usa `requiere` con condición")
+
+    def test_hay_escenarios_con_sin_evidencia_y_con_error(self) -> None:
+        registros = [r for e in self.datos["escenarios"]
+                     for r in e["oracle_al_generar"]["por_medida"].values()]
+        self.assertTrue(any(isinstance(r, dict) and r.get("valor") == SIN_EVIDENCIA_EN_FIXTURE
+                            for r in registros))
+        self.assertTrue(any(isinstance(r, dict) and r.get("levanta") for r in registros))
+
+    def test_una_relacion_con_variantes_mezcla_sus_dos_formas(self) -> None:
+        """La variante `medida` de `mutante` no trae `estado`, y la de `codigo` sí: es el mundo que
+        distingue evaluar todas las filas de cortar en la primera que cumple."""
+        mezclados = [e["id"] for e in self.datos["escenarios"]
+                     if len({fila.get("tipo") for fila in e["evidencia"].get("mutante", [])}) > 1]
+        self.assertTrue(mezclados)
 
 
 if __name__ == "__main__":

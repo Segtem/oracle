@@ -98,6 +98,17 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.23.1 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.23.0` a `0.23.1`.** El fixture
+diferencial puede guardar el veredicto entero —`ok`, `valor` y si la evaluación levantó— y traer
+escritas las medidas que usa y no están en ningún catálogo (§6); con eso el diferencial de Oracle
+pasa a contrastar `requiere` con condición y evidencia de una relación con variantes, que entraron en
+el álgebra `0.7` y que ningún mundo ejercitaba. Sube el **parche** y no la menor: nadie cambia de
+color. Las dos formas del veredicto valen, ningún fixture existente deja de validar —los trece de los
+dos consumidores conocidos siguen en la forma corta y siguen en verde—, no entra ninguna medida al
+catálogo y ninguna cota se mueve. `VERSION_ALGEBRA` queda en `0.7` y `VERSION_SINTAXIS` en `0.5`: no
+entra un nodo, un operador, un agregado, una escalar ni una relación, y el lector no gana palabras.
+Cierra la tarea `20260915-201030-diferencial`.
+
 **Corte 0.23.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.22.0` a `0.23.0`.**
 `meta.toda_medida_declara_su_ambito` pasa de `del_origen` a `universal`: el ámbito se le exige a todo
 proyecto que seleccione el catálogo, no sólo a Oracle. Sube la **menor** por el mismo criterio que
@@ -781,6 +792,22 @@ implementación independiente. `oracle_al_generar.global_ok` y
 acuerdo independiente del conjunto; la segunda detecta cambios individuales, incluso si dos errores
 se compensan y el `AND` global permanece igual. Una fotografía individual no se presenta como una
 referencia independiente.
+
+Un veredicto guardado es un booleano o, desde la distribución `0.23.1`, un mapa con `ok`, el `valor`
+con que salió —`"SIN EVIDENCIA"` cuando una relación de `requiere` no aportó filas— y `levanta`
+cuando la evaluación levantó `ErrorDeAlgebra`. Las dos formas valen: la corta es lo único que
+afirmaron los fixtures anteriores, y reclamarles lo que no declararon los volvería inválidos sin que
+nada haya cambiado. La larga distingue tres veredictos que en un booleano se ven iguales —un rojo,
+un SIN EVIDENCIA y un error—, y por eso un cambio entre ellos sí se detecta. El mensaje del error no
+entra: dos implementaciones independientes lo redactan distinto, y compararlo volvería contrato a la
+redacción.
+
+Un fixture puede además traer `medidas_declaradas`: la forma canónica de las medidas que usa y que no
+están en ningún catálogo. Existen para contrastar formas del álgebra que ninguna medida publicada
+usa; sin ellas, esas formas esperan a que alguien escriba una medida real que las use, que es esperar
+por la razón equivocada. No entran en la huella del catálogo —firmarlas con lo que el propio fixture
+dice sería una huella que se comprueba a sí misma—: las cubre la huella del emisor donde están
+escritas.
 
 La serialización es JSON canónico con orden estable, sin `NaN`; toda aleatoriedad deriva su semilla
 de SHA-256 y cualquier repositorio temporal fija las fechas que intervienen en sus identificadores.

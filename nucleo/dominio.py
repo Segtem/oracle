@@ -41,6 +41,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from .diferencial import (ESQUEMA_DIFERENCIAL, Procedencia, crear_frescura)
+from .fixtures import ok_guardado
 from .medida import evaluar
 
 
@@ -72,8 +73,8 @@ def _polaridades(medidas, escenarios: list[dict]) -> dict[str, set]:
     """Por medida, qué veredictos aparecen en el fixture. Es la cobertura, no la corrección."""
     vistos: dict[str, set] = {m.id: set() for m in medidas}
     for esc in escenarios:
-        for mid, ok in esc["oracle_al_generar"]["por_medida"].items():
-            vistos[mid].add(ok)
+        for mid, guardado in esc["oracle_al_generar"]["por_medida"].items():
+            vistos[mid].add(ok_guardado(guardado))
     return vistos
 
 

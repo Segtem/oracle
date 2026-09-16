@@ -266,6 +266,40 @@ class ContratoDiferencialTests(unittest.TestCase):
         self.assertEqual(comparacion["desacuerdos_globales"], [])
         self.assertEqual(len(comparacion["cambios_individuales"]), 4)
 
+    def test_una_medida_escrita_en_el_fixture_no_necesita_estar_en_el_catalogo(self) -> None:
+        """Las formas del álgebra que ninguna medida publicada usa se contrastan con medidas que
+        viven en el fixture; sin esto, el verificador las reclamaba como ausentes y abandonaba."""
+        canonica = ["medida", "d.propia",
+                    ["desde", ["de", "hecho", "h"],
+                     ["donde", ["==", ["campo", "h", "malo"], True]]],
+                    ["resumen", "contar", 1], ["umbral", "<=", 0, "razón"],
+                    ["requiere", ["filas", "hecho", "r", ["==", ["campo", "r", "mira"], True]]],
+                    ["alcance", "NO ve"]]
+        escenarios = [
+            {"id": "verde", "evidencia": {"hecho": [{"malo": False, "mira": True}]},
+             "referencia_ok": True,
+             "oracle_al_generar": {"global_ok": True,
+                                   "por_medida": {"d.propia": {"ok": True, "valor": 0}}}},
+            # Ninguna fila cumple la condición de `requiere`: SIN EVIDENCIA, que no es un rojo.
+            {"id": "sin-evidencia", "evidencia": {"hecho": [{"malo": True, "mira": False}]},
+             "referencia_ok": False,
+             "oracle_al_generar": {
+                 "global_ok": False,
+                 "por_medida": {"d.propia": {"ok": False, "valor": "SIN EVIDENCIA"}}}},
+        ]
+        datos = {"medidas": ["d.propia"], "escenarios": escenarios,
+                 "medidas_declaradas": {"d.propia": canonica}}
+
+        comparacion = comparar_dominio(datos, {})
+        self.assertEqual(comparacion["fallas"], [])
+        self.assertEqual(comparacion["cambios_individuales"], [])
+
+        # Y lo que el booleano no distinguía: el mismo `ok`, con otro veredicto detrás.
+        datos["escenarios"][1]["oracle_al_generar"]["por_medida"]["d.propia"] = {
+            "ok": False, "valor": 1}
+        cambios = comparar_dominio(datos, {})["cambios_individuales"]
+        self.assertEqual([(eid, mid) for eid, mid, _, _ in cambios], [("sin-evidencia", "d.propia")])
+
 
 class TextoDeFijacion(unittest.TestCase):
     """La línea que dice qué pone a prueba a una medida: una sola, para `--listar` y el editor.

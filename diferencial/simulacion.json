@@ -36,14 +36,31 @@
       },
       "id": "todo-en-orden",
       "oracle_al_generar": {
-        "global_ok": true,
+        "global_ok": false,
         "por_medida": {
-          "simulacion.corrida_reproducible": true,
-          "simulacion.la_traza_no_tiene_huecos": true,
-          "simulacion.no_se_agoto_el_presupuesto": true
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          }
         }
       },
-      "referencia_ok": true
+      "referencia_ok": false
     },
     {
       "evidencia": {
@@ -77,9 +94,26 @@
       "oracle_al_generar": {
         "global_ok": false,
         "por_medida": {
-          "simulacion.corrida_reproducible": false,
-          "simulacion.la_traza_no_tiene_huecos": true,
-          "simulacion.no_se_agoto_el_presupuesto": true
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": false,
+            "valor": 1
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          }
         }
       },
       "referencia_ok": false
@@ -116,9 +150,26 @@
       "oracle_al_generar": {
         "global_ok": false,
         "por_medida": {
-          "simulacion.corrida_reproducible": true,
-          "simulacion.la_traza_no_tiene_huecos": true,
-          "simulacion.no_se_agoto_el_presupuesto": false
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": false,
+            "valor": 1
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          }
         }
       },
       "referencia_ok": false
@@ -155,9 +206,352 @@
       "oracle_al_generar": {
         "global_ok": false,
         "por_medida": {
-          "simulacion.corrida_reproducible": true,
-          "simulacion.la_traza_no_tiene_huecos": false,
-          "simulacion.no_se_agoto_el_presupuesto": true
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": false,
+            "valor": 1
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          }
+        }
+      },
+      "referencia_ok": false
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ],
+        "mutante": [
+          {
+            "estado": "murieron",
+            "id": "m1",
+            "tipo": "codigo"
+          },
+          {
+            "estado": "murieron",
+            "id": "m2",
+            "tipo": "codigo"
+          }
+        ]
+      },
+      "id": "mutantes-de-codigo-muertos",
+      "oracle_al_generar": {
+        "global_ok": true,
+        "por_medida": {
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": true,
+            "valor": 0
+          }
+        }
+      },
+      "referencia_ok": true
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ],
+        "mutante": [
+          {
+            "estado": "murieron",
+            "id": "m1",
+            "tipo": "codigo"
+          },
+          {
+            "estado": "pasaron",
+            "id": "m2",
+            "tipo": "codigo"
+          }
+        ]
+      },
+      "id": "un-mutante-de-codigo-vivo",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": false,
+            "valor": 1
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": true,
+            "valor": 0
+          }
+        }
+      },
+      "referencia_ok": false
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ],
+        "mutante": [
+          {
+            "id": "m1",
+            "murio": true,
+            "mutador": "umbral",
+            "tipo": "medida"
+          }
+        ]
+      },
+      "id": "solo-mutantes-de-medida",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "levanta": true,
+            "ok": false
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          }
+        }
+      },
+      "referencia_ok": false
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ],
+        "mutante": []
+      },
+      "id": "sin-un-solo-mutante",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": false,
+            "valor": "SIN EVIDENCIA"
+          }
+        }
+      },
+      "referencia_ok": false
+    },
+    {
+      "evidencia": {
+        "corrida": [
+          {
+            "determinista": true,
+            "escenario": "base",
+            "id": "c1",
+            "pasos": 3,
+            "presupuesto_agotado": false,
+            "razon": "termino",
+            "semilla": 7
+          }
+        ],
+        "evento": [
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "empieza",
+            "t": 0
+          },
+          {
+            "actor": "a",
+            "corrida": "c1",
+            "que": "termina",
+            "t": 1
+          }
+        ],
+        "mutante": [
+          {
+            "estado": "murieron",
+            "id": "m1",
+            "tipo": "codigo"
+          },
+          {
+            "id": "m2",
+            "murio": true,
+            "mutador": "umbral",
+            "tipo": "medida"
+          }
+        ]
+      },
+      "id": "una-variante-sin-el-campo-de-la-condicion",
+      "oracle_al_generar": {
+        "global_ok": false,
+        "por_medida": {
+          "simulacion.corrida_con_mutantes_que_pasaron": {
+            "levanta": true,
+            "ok": false
+          },
+          "simulacion.corrida_reproducible": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.la_traza_no_tiene_huecos": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.no_se_agoto_el_presupuesto": {
+            "ok": true,
+            "valor": 0
+          },
+          "simulacion.traza_sin_fallas_con_mutantes_de_codigo": {
+            "ok": true,
+            "valor": 0
+          }
         }
       },
       "referencia_ok": false
@@ -180,7 +574,7 @@
     "huellas": {
       "catalogo": "87545d8512cf0fcd497f440fe2cb73bd7f89da765841fd3b5fc78327a6e1dbaf",
       "configuracion": "52c043490ec55bfa4cf7fd11a7a594420143fcc2aa6a6f71c5488d01c873a4d6",
-      "emisor": "47856e2558bc9aebfa71ca8c2f9714bcb7579d6352d090e909e0b28265c3b0e0",
+      "emisor": "ed3ce5bc6928cbe000854d50bf30eef8ce93813edcfec24d4057387c3d34951a",
       "referencia": "af773e704b639662c5e09822d75947f609c37a5c6f4aa2cbe725723013230ffd"
     },
     "raiz_fuentes": "."
@@ -188,8 +582,134 @@
   "medidas": [
     "simulacion.corrida_reproducible",
     "simulacion.la_traza_no_tiene_huecos",
-    "simulacion.no_se_agoto_el_presupuesto"
+    "simulacion.no_se_agoto_el_presupuesto",
+    "simulacion.traza_sin_fallas_con_mutantes_de_codigo",
+    "simulacion.corrida_con_mutantes_que_pasaron"
   ],
-  "mundos": 4,
+  "medidas_declaradas": {
+    "simulacion.corrida_con_mutantes_que_pasaron": [
+      "medida",
+      "simulacion.corrida_con_mutantes_que_pasaron",
+      [
+        "desde",
+        [
+          "de",
+          "mutante",
+          "m"
+        ],
+        [
+          "donde",
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "estado"
+            ],
+            "pasaron"
+          ]
+        ]
+      ],
+      [
+        "resumen",
+        "contar",
+        1
+      ],
+      [
+        "umbral",
+        "<=",
+        0,
+        "un mutante que pasó es un punto ciego de los tests; la medida no concluye si la ronda no trajo ninguno de código",
+        "sin_declarar"
+      ],
+      [
+        "requiere",
+        [
+          "filas",
+          "mutante",
+          "m",
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "estado"
+            ],
+            "murieron"
+          ]
+        ]
+      ],
+      [
+        "ambito",
+        "del_origen"
+      ],
+      [
+        "alcance",
+        "cuenta mutantes con estado «pasaron». NO distingue variantes: una fila sin `estado` hace levantar al álgebra, y eso es lo que el contraste mira"
+      ]
+    ],
+    "simulacion.traza_sin_fallas_con_mutantes_de_codigo": [
+      "medida",
+      "simulacion.traza_sin_fallas_con_mutantes_de_codigo",
+      [
+        "desde",
+        [
+          "de",
+          "evento",
+          "e"
+        ],
+        [
+          "donde",
+          [
+            "==",
+            [
+              "campo",
+              "e",
+              "que"
+            ],
+            "falla"
+          ]
+        ]
+      ],
+      [
+        "resumen",
+        "contar",
+        1
+      ],
+      [
+        "umbral",
+        "<=",
+        0,
+        "un evento de falla en la traza es el defecto que la medida persigue; se mide sólo cuando la ronda trajo mutantes de código, y si no los trajo no concluye",
+        "sin_declarar"
+      ],
+      [
+        "requiere",
+        [
+          "filas",
+          "mutante",
+          "m",
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "tipo"
+            ],
+            "codigo"
+          ]
+        ]
+      ],
+      [
+        "ambito",
+        "del_origen"
+      ],
+      [
+        "alcance",
+        "cuenta eventos `falla` de la traza. NO ve los mutantes: sólo exige que haya al menos uno de código para concluir"
+      ]
+    ]
+  },
+  "mundos": 9,
   "origen": "implementación independiente (Codex gpt-5.5) escrita sólo desde ESPECIFICACION.md"
 }

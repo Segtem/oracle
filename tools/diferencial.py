@@ -16,9 +16,9 @@ RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
 
 import catalogos  # noqa: F401,E402
-from nucleo.fixtures import (cargar_fixtures, revisar_frescura,
-                             validar_fixture)  # noqa: F401,E402
-from nucleo.medida import cargar_catalogo, evaluar  # noqa: E402
+from nucleo.fixtures import (cargar_fixtures, mismo_veredicto,  # noqa: F401,E402
+                             registro_de_veredicto, revisar_frescura, validar_fixture)
+from nucleo.medida import Medida, cargar_catalogo  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
                              confiar_escalares, escalares_del_proyecto,
                              macros_del_proyecto,
@@ -27,7 +27,11 @@ from tools.sesion import resolver_cli  # noqa: E402
 
 def comparar_dominio(datos: dict, catalogo: dict, nombre: str = "fixture") -> dict:
     """Compara por separado la referencia global y la fotografía individual de Oracle."""
-    faltan = [mid for mid in datos["medidas"] if mid not in catalogo]
+    # Un fixture puede traer medidas escritas en él, que no están en ningún catálogo: son las que
+    # ejercitan formas del álgebra que ninguna medida publicada usa.
+    declaradas = {mid: Medida.de_datos(canonica)
+                  for mid, canonica in (datos.get("medidas_declaradas") or {}).items()}
+    faltan = [mid for mid in datos["medidas"] if mid not in catalogo and mid not in declaradas]
     resultado = {
         "globales": len(datos["escenarios"]),
         "individuales": len(datos["escenarios"]) * len(datos["medidas"]),
@@ -40,21 +44,24 @@ def comparar_dominio(datos: dict, catalogo: dict, nombre: str = "fixture") -> di
             f"{nombre}: el fixture reclama medidas que no están: {faltan}")
         return resultado
 
-    medidas = [catalogo[mid] for mid in datos["medidas"]]
+    medidas = [declaradas.get(mid) or catalogo[mid] for mid in datos["medidas"]]
     for escenario in datos["escenarios"]:
+        anteriores = escenario["oracle_al_generar"]["por_medida"]
         try:
-            informe = evaluar(medidas, escenario["evidencia"])
+            # El mismo registro que escribió el emisor, no sólo el `ok`: una medida que pasó de
+            # roja a SIN EVIDENCIA, o que hoy levanta donde antes contaba, cambió de veredicto
+            # aunque el booleano no se mueva.
+            ahora = {m.id: registro_de_veredicto(m, escenario["evidencia"]) for m in medidas}
         except Exception as e:  # noqa: BLE001
             resultado["fallas"].append(
                 f"{nombre}[{escenario['id']}]: error al evaluar: {type(e).__name__}: {e}")
             continue
-        if informe.ok != escenario["referencia_ok"]:
+        if all(r["ok"] for r in ahora.values()) != escenario["referencia_ok"]:
             resultado["desacuerdos_globales"].append(escenario["id"])
-        anteriores = escenario["oracle_al_generar"]["por_medida"]
-        for veredicto in informe.veredictos:
-            if veredicto.ok != anteriores[veredicto.id]:
+        for mid, registro in ahora.items():
+            if not mismo_veredicto(anteriores[mid], registro):
                 resultado["cambios_individuales"].append(
-                    (escenario["id"], veredicto.id, anteriores[veredicto.id], veredicto.ok))
+                    (escenario["id"], mid, anteriores[mid], registro))
     return resultado
 
 

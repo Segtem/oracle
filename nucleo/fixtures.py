@@ -121,6 +121,126 @@ def _validar_comunes(datos: Any, nombre: str) -> list[str]:
     return fallas
 
 
+SIN_EVIDENCIA_EN_FIXTURE = "SIN EVIDENCIA"
+
+
+def registro_de_veredicto(medida, evidencia) -> dict:
+    """Cómo salió una medida en un escenario, en la forma que el fixture guarda.
+
+    Lo escriben el emisor y lo recalcula el verificador, y por eso vive acá y no en cada uno: dos
+    copias de esta forma se separan, y el día que se separen el fixture y quien lo revisa van a
+    estar comparando cosas distintas sin decirlo.
+    """
+    try:
+        v = medida.evaluar(evidencia)
+    except ErrorDeAlgebra:
+        # Qué mensaje da el error no entra: dos implementaciones independientes redactan distinto,
+        # y exigir la misma frase convertiría la redacción en contrato.
+        return {"ok": False, "levanta": True}
+    if v.sin_evidencia:
+        return {"ok": False, "valor": SIN_EVIDENCIA_EN_FIXTURE}
+    return {"ok": bool(v.ok), "valor": valor_comparable(v.valor)}
+
+
+def valor_comparable(valor):
+    """Un entero escrito `3.0` y escrito `3` es el mismo número; guardar uno u otro según qué
+    implementación lo produjo convertiría en desacuerdo algo que no lo es."""
+    if isinstance(valor, float) and valor.is_integer():
+        return int(valor)
+    return valor
+
+
+def ok_guardado(registro) -> bool | None:
+    """El `ok` de un veredicto guardado, venga en la forma corta (un booleano) o en la larga."""
+    if type(registro) is bool:
+        return registro
+    if isinstance(registro, dict) and type(registro.get("ok")) is bool:
+        return registro["ok"]
+    return None
+
+
+def mismo_veredicto(guardado, ahora: dict) -> bool:
+    """Compara lo guardado contra lo que sale hoy, sin exigirle a un fixture viejo lo que no trae.
+
+    Un fixture de la forma corta sólo afirmó el `ok`; reclamarle el valor sería inventar una
+    afirmación que nadie hizo.
+    """
+    if type(guardado) is bool:
+        return guardado == ahora["ok"]
+    if not isinstance(guardado, dict):
+        return False
+    return all(guardado.get(campo) == ahora.get(campo)
+               for campo in ("ok", "valor", "levanta"))
+
+
+def _veredicto_guardado(valor: Any, contexto: str) -> tuple[bool | None, list[str]]:
+    """El veredicto de una medida en un escenario: un booleano, o el registro que además dice con
+    qué valor salió y si la evaluación levantó.
+
+    Las dos formas conviven a propósito. La corta es la que emitieron todos los fixtures hasta
+    0.23.0 —y la que siguen emitiendo los consumidores—; exigir la larga los invalidaría a todos de
+    golpe, que es un rojo sin remedio del lado de quien actualiza. La larga es la que distingue un
+    rojo de un SIN EVIDENCIA y de un error, que en un booleano se ven iguales.
+    """
+    if type(valor) is bool:
+        return valor, []
+    if not isinstance(valor, dict):
+        return None, [f"{contexto}: un veredicto es un booleano o un mapa con `ok`"]
+    fallas = []
+    ok = valor.get("ok")
+    if type(ok) is not bool:
+        fallas.append(f"{contexto}: `ok` debe ser booleano")
+        ok = None
+    levanta = valor.get("levanta", False)
+    if type(levanta) is not bool:
+        # Se vuelve con lo que hay: sin un `levanta` legible, las coherencias que dependen de él
+        # —que no esté en verde, que no traiga valor— no se pueden juzgar, y elegirle un valor sería
+        # juzgarlas contra algo que el fixture no dijo.
+        return ok, [*fallas, f"{contexto}: `levanta` debe ser booleano"]
+    sobrantes = set(valor) - {"ok", "valor", "levanta"}
+    if sobrantes:
+        fallas.append(f"{contexto}: campos desconocidos {sorted(sobrantes)}")
+    if levanta:
+        # Una evaluación que levantó no tiene valor ni puede estar en verde: si lo tuviera, el
+        # fixture estaría afirmando dos cosas incompatibles y nadie las compararía nunca.
+        if ok:
+            fallas.append(f"{contexto}: `levanta` con `ok` en verdadero")
+        if "valor" in valor:
+            fallas.append(f"{contexto}: `levanta` no lleva `valor`")
+    elif "valor" in valor:
+        v = valor["valor"]
+        if not (isinstance(v, (int, float)) and type(v) is not bool
+                or v == SIN_EVIDENCIA_EN_FIXTURE):
+            fallas.append(
+                f"{contexto}: `valor` debe ser un número o {SIN_EVIDENCIA_EN_FIXTURE!r}")
+        elif v == SIN_EVIDENCIA_EN_FIXTURE and ok:
+            fallas.append(f"{contexto}: SIN EVIDENCIA nunca sale en verde")
+    return ok, fallas
+
+
+def _validar_medidas_declaradas(datos: dict, medidas: Any, nombre: str) -> list[str]:
+    """Las medidas que el fixture trae escritas, porque no están en ningún catálogo.
+
+    Sin esto, un fixture sólo puede contrastar medidas publicadas, y hay formas del álgebra que
+    ninguna medida del catálogo usa: quedarían sin contraste hasta que alguien escriba una medida
+    real que las use, que es esperar por la razón equivocada.
+    """
+    declaradas = datos.get("medidas_declaradas")
+    if declaradas is None:
+        return []
+    if not isinstance(declaradas, dict) or not declaradas:
+        return [f"{nombre}: `medidas_declaradas` debe ser un mapa no vacío"]
+    fallas = []
+    for mid, canonica in declaradas.items():
+        if isinstance(medidas, list) and mid not in medidas:
+            fallas.append(f"{nombre}: `medidas_declaradas` trae «{mid}», que no está en `medidas`")
+        if (not isinstance(canonica, list) or len(canonica) < 6 or canonica[0] != "medida"
+                or canonica[1] != mid):
+            fallas.append(
+                f"{nombre}: `medidas_declaradas[{mid}]` debe ser la forma canónica de esa medida")
+    return fallas
+
+
 def _validar_dominio(datos: dict, nombre: str) -> list[str]:
     fallas = []
     medidas, escenarios = datos.get("medidas"), datos.get("escenarios")
@@ -132,6 +252,7 @@ def _validar_dominio(datos: dict, nombre: str) -> list[str]:
     if not isinstance(escenarios, list) or not escenarios:
         fallas.append(f"{nombre}: el formato Dominio requiere `escenarios` no vacíos")
         return fallas
+    fallas += _validar_medidas_declaradas(datos, medidas, nombre)
     if type(datos.get("mundos")) is int and datos["mundos"] != len(escenarios):
         fallas.append(
             f"{nombre}: `mundos` dice {datos['mundos']} pero hay {len(escenarios)} escenarios")
@@ -164,15 +285,20 @@ def _validar_dominio(datos: dict, nombre: str) -> list[str]:
             if not isinstance(por_medida, dict) or set(por_medida) != set(medidas or []):
                 fallas.append(
                     f"{contexto}: `oracle_al_generar.por_medida` debe cubrir exactamente `medidas`")
-            elif any(type(ok) is not bool for ok in por_medida.values()):
-                fallas.append(f"{contexto}: los veredictos individuales deben ser booleanos")
             else:
-                for mid, ok in por_medida.items():
-                    if mid in individuales:
-                        individuales[mid].add(ok)
-                if type(global_ok) is bool and global_ok != all(por_medida.values()):
+                oks = {}
+                for mid, guardado_medida in por_medida.items():
+                    ok, suyas = _veredicto_guardado(guardado_medida, f"{contexto}: {mid}")
+                    fallas += suyas
+                    if ok is not None:
+                        oks[mid] = ok
+                        if mid in individuales:
+                            individuales[mid].add(ok)
+                completos = len(oks) == len(por_medida)
+                if completos and type(global_ok) is bool and global_ok != all(oks.values()):
                     fallas.append(f"{contexto}: `global_ok` no es el AND de `por_medida`")
-                if (type(global_ok) is bool and type(escenario.get("referencia_ok")) is bool
+                if (completos and type(global_ok) is bool
+                        and type(escenario.get("referencia_ok")) is bool
                         and global_ok != escenario["referencia_ok"]):
                     fallas.append(f"{contexto}: Oracle y la referencia ya discrepaban al generar")
         fallas += _validar_evidencia(escenario.get("evidencia"), contexto)
@@ -272,8 +398,13 @@ def revisar_frescura(datos: dict, raiz: Path, catalogo: dict) -> list[str]:
     raiz_fuentes = Path(raiz) / frescura["raiz_fuentes"]
     fuentes = frescura["fuentes"]
     esperadas = frescura["huellas"]
-    medidas = [catalogo[mid] for mid in ids_de_medidas(datos) if mid in catalogo]
-    faltan = [mid for mid in ids_de_medidas(datos) if mid not in catalogo]
+    # Las que el fixture trae escritas no entran en la huella del catálogo: firmarlas con lo que
+    # el propio fixture dice sería una huella que se comprueba a sí misma. Quien las fija es la
+    # huella del emisor, que es donde están escritas.
+    propias = set(datos.get("medidas_declaradas") or {})
+    del_catalogo = [mid for mid in ids_de_medidas(datos) if mid not in propias]
+    medidas = [catalogo[mid] for mid in del_catalogo if mid in catalogo]
+    faltan = [mid for mid in del_catalogo if mid not in catalogo]
     if faltan:
         return [f"fixture vencido: faltan medidas actuales para recalcular el catálogo: {faltan}"]
 
