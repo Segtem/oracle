@@ -1,0 +1,19 @@
+caso 021-commit-nombra-una-tarea-que-no-existe:
+    fecha: "2026-09-16"
+    origen:
+        tipo: "ejemplo construido para fijar la política de commits"
+    procedencia: construida
+    titulo: "un commit nombra una tarea que el tracker no tiene"
+    etiqueta: falso_verde
+    sintoma:
+        El asunto dice cerrar una tarea cuyo ID no está en tareas/: el commit afirma algo que
+        nadie puede ir a leer.
+    como_se_detecto: persona
+    medida: seguimiento.ningun_commit_nombra_una_tarea_inexistente
+    evidencia:
+        commit_seguimiento: sha, asunto, nombra_tarea, tarea_nombrada, tarea_existe, estado_de_la_tarea, es_cierre
+            "a1b2c3", "20260916-010101-fantasma: done", true, "20260916-010101-fantasma", false, "", true
+            "d4e5f6", "20260916-020202-real: arregla el sensor", true, "20260916-020202-real", true, "ABIERTA", false
+    leccion:
+        El ID es la única forma de ir del cambio a su razón. Si no resuelve, el mensaje no se puede
+        comprobar.

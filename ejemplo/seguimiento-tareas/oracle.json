@@ -2,5 +2,12 @@
   "esquema": "oracle.proyecto/v1",
   "algebra": "0.6",
   "catalogo_base": false,
-  "perfiles": []
+  "perfiles": [],
+  "sombra": {
+    "seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre": {
+      "desde": "2026-09-16",
+      "porque": "4 tareas cerradas sin su commit `<ID>: done`, y las cuatro son deuda que no se puede saldar hacia atrás. Tres —20260912-223232-mutacion-tracker, 20260912-223233-corte-016 y 20260912-223233-uso-propio— se cerraron el 2026-09-12, antes de que la convención existiera: fue el 2026-09-15, con 0.18.0, que cada trabajo pasó a ser una tarea con sus commits. La cuarta, 20260915-155111-ambito, tiene su commit de cierre pero con la firma pegada en el asunto por un error al armar el mensaje, y arreglarlo sería reescribir historia ya publicada y etiquetada. La cota impide que la deuda crezca: una tarea nueva que se cierre sin su commit pone la corrida en rojo.",
+      "cota": 4
+    }
+  }
 }

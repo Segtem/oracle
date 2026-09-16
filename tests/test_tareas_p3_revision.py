@@ -27,7 +27,7 @@ class PoliticasSeguimientoTests(unittest.TestCase):
         """Cada política optativa tiene defectos que rechaza y estados correctos que acepta."""
         catalogo = cargar_catalogo([EJEMPLO / "catalogos"])
         casos = cargar_casos(EJEMPLO / "corpus")
-        self.assertEqual(len(catalogo), 3)
+        self.assertEqual(len(catalogo), 6)
         for mid, medida in catalogo.items():
             propios = [c for c in casos if c["medida"] == mid]
             self.assertEqual({c["etiqueta"] == "verde_correcto" for c in propios}, {True, False})

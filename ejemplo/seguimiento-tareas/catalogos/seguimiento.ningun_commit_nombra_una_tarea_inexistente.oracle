@@ -1,0 +1,6 @@
+ninguno seguimiento.ningun_commit_nombra_una_tarea_inexistente:
+    de commit_seguimiento c
+    donde c.nombra_tarea == true y c.tarea_existe == false
+    umbral <= 0 segun contrato porque "un commit que dice cerrar o avanzar una tarea que no está en el tracker deja el trabajo sin dónde leerse: el ID es la única forma de ir del cambio a su razón, y si no resuelve, el mensaje afirma algo que nadie puede comprobar. Cero y no un porcentaje porque un solo ID inventado ya rompe esa ida y vuelta, y borrar una carpeta de tarea que tiene commits es justamente lo que esta política tiene que hacer visible"
+    ambito del_origen
+    alcance "mira el ASUNTO de cada commit alcanzable desde HEAD y comprueba que el ID que nombra exista hoy en tareas/. NO comprueba que el trabajo del commit tenga que ver con esa tarea —ninguna medida puede—, NO mira el cuerpo del mensaje ni los archivos tocados, y NO dice nada de los commits que no nombran ninguna tarea: la convención `<ID>: resumen` es posterior a la historia del proyecto y hacerla obligatoria hacia atrás pondría en rojo todo lo anterior"

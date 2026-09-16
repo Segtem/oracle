@@ -186,6 +186,11 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
    - `prioridad_declarada`: prioridad numérica entera.
    - `ruta`: ruta relativa POSIX al archivo `TAREA.md` desde la raíz del proyecto.
    - `sha256_documento`: hash SHA-256 en minúsculas de los bytes de `TAREA.md`.
+   - `commits_que_la_nombran`: cuántos commits de la historia empiezan con este ID (`0` sin `--git`).
+   - `commits_de_cierre`: cuántos de ésos son exactamente `<ID>: done` (`0` sin `--git`).
+     Los dos conteos los emite el tracker porque el álgebra no tiene anti-junta: «una tarea que
+     NINGÚN commit nombra» no se puede escribir uniendo dos relaciones, y contarlo acá es lo que
+     permite que la política exista.
 
 3. **`archivo_seguimiento`** (inventario recursivo de archivos bajo `tareas/`, ordenado por `ruta`):
    - `tarea_id`: identificador de la tarea para documentos y adjuntos; cadena vacía `""` para archivos auxiliares (`README.md`, `.gitignore`).
@@ -229,6 +234,22 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
 - Un backtick escapado fuera de código es literal; dentro de código la barra no anula el cierre. Las rachas de apertura y cierre deben tener igual longitud. Se sigue esta distinción de [CommonMark](https://spec.commonmark.org/0.31.2/#backslash-escapes), dentro de la gramática parcial descrita arriba.
 - La salida JSON es compacta, conserva un orden fijo de campos y listas ordenadas, y escapa los caracteres no ASCII. Así conserva incluso nombres Unix que no se pueden decodificar como UTF-8 y produce los mismos bytes ante el mismo árbol.
 
+6. **`commit_seguimiento`** (una fila por commit alcanzable desde `HEAD`, del más nuevo al más
+   viejo; **vacía sin `--git`** o sin repositorio):
+   - `sha`: el sha-1 completo del commit.
+   - `asunto`: la primera línea del mensaje, tal cual.
+   - `nombra_tarea`: booleano; `true` si el asunto tiene la forma `<ID>: resumen`.
+   - `tarea_nombrada`: el ID nombrado, o `""`.
+   - `tarea_existe`: booleano; si ese ID está hoy en `tareas/`.
+   - `estado_de_la_tarea`: `ABIERTA`, `CERRADA` o `""` si no existe.
+   - `es_cierre`: booleano; `true` sólo si el resumen es exactamente `done`. Un asunto que sigue con
+     cualquier otra cosa —una firma pegada, por ejemplo— no es el commit de cierre que la convención
+     pide, y que se vea es el punto de medirlo.
+
+   No ve el cuerpo del mensaje, ni el autor, ni la fecha, ni los archivos tocados, y **no** comprueba
+   que el trabajo del commit tenga que ver con la tarea que nombra: eso no lo puede saber ninguna
+   medida.
+
 ### Juzgar los hechos del tracker con `oracle juzgar`
 
 La evidencia emitida por `oracle tarea hechos` puede juzgarse directamente mediante el comando `oracle juzgar` (o su forma canónica `oracle proyecto juzgar`), pasando como proyecto el catálogo de políticas de seguimiento provisto en `ejemplo/seguimiento-tareas`:
@@ -242,7 +263,7 @@ El evaluador carga el catálogo efectivo del proyecto, verifica que las relacion
 
 #### Políticas de seguimiento del tracker
 
-El catálogo de ejemplo en `ejemplo/seguimiento-tareas` define tres políticas de auditoría:
+El catálogo de ejemplo en `ejemplo/seguimiento-tareas` define seis políticas de auditoría:
 
 1. **`seguimiento.referencias_locales_presentes`**:
    - **Qué comprueba**: que ninguna referencia local reconocida apunte a un archivo ausente (`donde r.clase == "local" y r.estado != "presente"`). Exige que cada enlace local relativo (`[captura](captura.png)`) dentro de un documento `TAREA.md` apunte a un archivo físico existente en el árbol de la tarea.
@@ -255,6 +276,29 @@ El catálogo de ejemplo en `ejemplo/seguimiento-tareas` define tres políticas d
 3. **`seguimiento.lectura_sin_omisiones`**:
    - **Qué comprueba**: que la extracción de hechos haya sido íntegra (`donde l.completa == false`). Exige que no se hayan producido omisiones por archivos Markdown que superen el límite de 2 MiB, enlaces simbólicos externos, bytes nulos o codificación no UTF-8.
    - **Qué NO prueba**: no prueba que el extractor sea correcto ni amplía su alcance a texto no Markdown, URLs remotas o anclas.
+
+4. **`seguimiento.ningun_commit_nombra_una_tarea_inexistente`**:
+   - **Qué comprueba**: que todo commit cuyo asunto empieza con un ID nombre una tarea que existe
+     (`donde c.nombra_tarea == true y c.tarea_existe == false`). El ID es la única forma de ir del
+     cambio a su razón; si no resuelve, el mensaje afirma algo que nadie puede comprobar.
+   - **Qué NO prueba**: no comprueba que el trabajo del commit tenga que ver con esa tarea, ni dice
+     nada de los commits que no nombran ninguna: la convención es posterior a la historia del
+     proyecto y hacerla obligatoria hacia atrás pondría en rojo todo lo anterior.
+
+5. **`seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre`**:
+   - **Qué comprueba**: que ninguna tarea `CERRADA` se haya quedado sin su `<ID>: done`
+     (`donde t.estado_declarado == "CERRADA" y t.commits_de_cierre == 0`). Cerrar editando el
+     documento y no commitear el cierre deja el estado sin punto en el árbol.
+   - **Qué NO prueba**: no comprueba que el cierre fuera correcto ni que el trabajo estuviera hecho.
+     Una tarea cerrada antes de que la convención existiera cuenta igual, que es deuda declarada y
+     no un falso rojo: se tapa con una sombra con `cota`, como hace el propio Oracle.
+
+6. **`seguimiento.ningun_cierre_deja_la_tarea_abierta`**:
+   - **Qué comprueba**: que ningún commit que dice `done` apunte a una tarea que hoy sigue abierta
+     (`donde c.es_cierre == true y c.tarea_existe == true y c.estado_de_la_tarea != "CERRADA"`). O el
+     cierre no se guardó, o alguien la reabrió sin decirlo en un commit.
+   - **Qué NO prueba**: el tracker no guarda historia de estados, así que una tarea cerrada y
+     reabierta a propósito aparece acá y hay que declararla.
 
 Para restringir la evaluación a una política específica:
 

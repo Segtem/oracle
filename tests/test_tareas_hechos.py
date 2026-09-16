@@ -65,8 +65,9 @@ class TareasHechosTestCase(unittest.TestCase):
 class TestHechosEsquemaYDeterminismo(TareasHechosTestCase):
     """Pruebas de conformidad de esquema JSON y determinismo byte por byte."""
 
-    def test_hechos_esquema_y_cinco_claves_siempre_presentes(self) -> None:
-        """Verifica que el objeto JSON contenga siempre las 5 relaciones requeridas."""
+    def test_hechos_esquema_y_seis_claves_siempre_presentes(self) -> None:
+        """Las seis relaciones están siempre, incluso vacías: una relación que aparece sólo cuando
+        tiene filas obliga a cada política a preguntarse si falta o si está vacía."""
         rc, out, err = self._callado(
             cli.main,
             ["--proyecto", str(self.raiz), "tarea", "hechos"],
@@ -76,6 +77,7 @@ class TestHechosEsquemaYDeterminismo(TareasHechosTestCase):
 
         claves_esperadas = {
             "archivo_seguimiento",
+            "commit_seguimiento",
             "lectura_seguimiento",
             "omision_seguimiento",
             "referencia_seguimiento",

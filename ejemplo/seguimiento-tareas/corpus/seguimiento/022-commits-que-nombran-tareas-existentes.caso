@@ -1,0 +1,18 @@
+caso 022-commits-que-nombran-tareas-existentes:
+    fecha: "2026-09-16"
+    origen:
+        tipo: "ejemplo construido para fijar la política de commits"
+    procedencia: construida
+    titulo: "todos los commits que nombran tarea nombran una que existe"
+    etiqueta: verde_correcto
+    sintoma:
+        Ejemplo construido; se espera aceptación dentro del alcance declarado.
+    como_se_detecto: persona
+    medida: seguimiento.ningun_commit_nombra_una_tarea_inexistente
+    evidencia:
+        commit_seguimiento: sha, asunto, nombra_tarea, tarea_nombrada, tarea_existe, estado_de_la_tarea, es_cierre
+            "a1b2c3", "20260916-020202-real: done", true, "20260916-020202-real", true, "CERRADA", true
+            "d4e5f6", "arregla un typo del README", false, "", false, "", false
+    leccion:
+        Un commit que no nombra ninguna tarea no infringe esta política: la convención es posterior
+        a la historia del proyecto.

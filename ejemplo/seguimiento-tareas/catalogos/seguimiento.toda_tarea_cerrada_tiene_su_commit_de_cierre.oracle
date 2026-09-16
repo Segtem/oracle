@@ -1,0 +1,6 @@
+ninguno seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre:
+    de tarea_seguimiento t
+    donde t.estado_declarado == "CERRADA" y t.commits_de_cierre == 0
+    umbral <= 0 segun contrato porque "una tarea cerrada sin su commit `<ID>: done` es un cierre que no quedó en la historia: el estado del documento dice que terminó, pero no hay un punto del árbol donde eso pasó. Cero porque el commit de cierre es barato —es el mismo commit que cambia el estado— y porque la alternativa es confiar en que el documento se editó por la razón correcta, que es justo lo que el tracker existe para no tener que hacer"
+    ambito del_origen
+    alcance "cuenta tareas CERRADAS sin ningún commit cuyo asunto sea exactamente `<ID>: done`. El conteo lo emite el tracker, porque el álgebra no tiene anti-junta y «una tarea que ningún commit nombra» no se puede escribir uniendo dos relaciones. NO comprueba que el cierre fuera correcto, ni que el trabajo estuviera hecho, ni que el commit que dice `done` haya tocado la tarea; y una tarea cerrada antes de que la convención existiera cuenta igual, que es deuda declarada, no un falso rojo"

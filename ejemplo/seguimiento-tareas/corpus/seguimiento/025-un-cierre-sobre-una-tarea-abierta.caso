@@ -1,0 +1,18 @@
+caso 025-un-cierre-sobre-una-tarea-abierta:
+    fecha: "2026-09-16"
+    origen:
+        tipo: "ejemplo construido para fijar la política de commits"
+    procedencia: construida
+    titulo: "un commit dice done y la tarea sigue abierta"
+    etiqueta: falso_verde
+    sintoma:
+        La historia dice que se cerró y el documento dice que está abierta: o el cierre no se
+        guardó, o alguien la reabrió sin decirlo.
+    como_se_detecto: persona
+    medida: seguimiento.ningun_cierre_deja_la_tarea_abierta
+    evidencia:
+        commit_seguimiento: sha, asunto, nombra_tarea, tarea_nombrada, tarea_existe, estado_de_la_tarea, es_cierre
+            "a1b2c3", "20260916-050505-vuelta: done", true, "20260916-050505-vuelta", true, "ABIERTA", true
+    leccion:
+        El tracker no guarda historia de estados: una reapertura tiene que declararse, o esta
+        contradicción es lo único que queda de ella.

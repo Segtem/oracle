@@ -1,0 +1,6 @@
+ninguno seguimiento.ningun_cierre_deja_la_tarea_abierta:
+    de commit_seguimiento c
+    donde c.es_cierre == true y c.tarea_existe == true y c.estado_de_la_tarea != "CERRADA"
+    umbral <= 0 segun contrato porque "un commit que dice `done` sobre una tarea que hoy sigue abierta es una contradicción entre la historia y el documento: o el cierre no se guardó, o alguien la reabrió sin decirlo en un commit. Las dos cosas hacen que el estado del tracker no se pueda leer de la historia, y cero es el único umbral que las distingue de la normalidad"
+    ambito del_origen
+    alcance "cruza el `done` del asunto con el estado declarado HOY en el documento de esa tarea. NO ve cuándo se reabrió ni por qué —el tracker no guarda historia de estados—, así que una tarea cerrada y reabierta a propósito aparece acá y hay que declararla; y NO mira commits que nombren tareas que ya no existen, que es lo que persigue la otra política"

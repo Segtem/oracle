@@ -38,6 +38,18 @@
       "prioridad_declarada",
       "entero",
       "sin_unidad"
+    ],
+    [
+      "campo",
+      "commits_que_la_nombran",
+      "entero",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "commits_de_cierre",
+      "entero",
+      "sin_unidad"
     ]
   ],
   [

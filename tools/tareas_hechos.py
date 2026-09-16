@@ -573,9 +573,11 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
     # 4. Diagnóstico opcional de Git
     estado_git = "no_solicitado"
     head_git = ""
+    commits_leidos: list[dict] | None = None
     if con_git:
         from tools import tareas_git
 
+        commits_leidos = tareas_git.commits(raiz)
         datos_git = tareas_git.seguimiento(raiz)
         if datos_git.get("repositorio") is None:
             estado_git = "sin_repositorio"
@@ -644,6 +646,12 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
             "prioridad_declarada": t.prioridad,
             "ruta": rel_md,
             "sha256_documento": sha256_doc,
+            # Los dos conteos los pone el emisor porque el álgebra no tiene anti-junta: «una tarea
+            # que NINGÚN commit nombra» no se puede escribir uniendo dos relaciones. Contarlo acá y
+            # dejar que la medida compare contra cero es la misma división de siempre —el sensor
+            # observa, el lenguaje juzga— y es lo que permite que la regla exista.
+            "commits_que_la_nombran": 0,
+            "commits_de_cierre": 0,
         })
 
     # 6. Extraer referencias en documentos Markdown regulares dentro del tracker
@@ -805,6 +813,22 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
     tarea_seguimiento.sort(key=lambda x: x["id"])
     referencias.sort(key=lambda x: (x["origen"], x["linea"], x["destino_declarado"]))
 
+    # 7 bis. Los commits, y lo que cada tarea recibe de ellos
+    estados = {t["id"]: t["estado_declarado"] for t in tarea_seguimiento}
+    commit_seguimiento: list[dict[str, Any]] = []
+    if commits_leidos is not None:
+        commit_seguimiento = [_commit_del_tracker(c, estados) for c in commits_leidos]
+        por_tarea = {t["id"]: t for t in tarea_seguimiento}
+        for fila in commit_seguimiento:
+            suya = por_tarea.get(fila["tarea_nombrada"])
+            if suya is None:
+                continue
+            suya["commits_que_la_nombran"] += 1
+            if fila["es_cierre"]:
+                suya["commits_de_cierre"] += 1
+    # El orden viene de `git log` —del más nuevo al más viejo— y es estable entre corridas mientras
+    # la historia no cambie; no se reordena por sha para no perder esa lectura.
+
     # 8. Construir fila única de `lectura_seguimiento`
     completa = len(omisiones_dedup) == 0
     lectura_seguimiento = [
@@ -818,10 +842,48 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
 
     return {
         "archivo_seguimiento": archivos,
+        "commit_seguimiento": commit_seguimiento,
         "lectura_seguimiento": lectura_seguimiento,
         "omision_seguimiento": omisiones_dedup,
         "referencia_seguimiento": referencias,
         "tarea_seguimiento": tarea_seguimiento,
+    }
+
+
+ID_EN_ASUNTO = re.compile(r"^(\d{8}-\d{6}(?:-[a-z0-9-]+)?):\s*(.*)$")
+RESUMEN_DE_CIERRE = "done"
+
+
+def _commit_del_tracker(commit: dict, estados: dict[str, str]) -> dict:
+    """Una fila de `commit_seguimiento` a partir del sha y el asunto.
+
+    La convención del tracker es `<ID>: resumen`, y el que cierra una tarea es `<ID>: done`. Acá no
+    se juzga: se declara qué nombra el asunto y si esa tarea existe. Quién decide si eso está bien
+    son las medidas de `ejemplo/seguimiento-tareas/`, que están escritas en el lenguaje.
+    """
+    coincidencia = ID_EN_ASUNTO.match(commit["asunto"])
+    if coincidencia is None:
+        return {
+            "sha": commit["sha"],
+            "asunto": commit["asunto"],
+            "nombra_tarea": False,
+            "tarea_nombrada": "",
+            "tarea_existe": False,
+            "estado_de_la_tarea": "",
+            "es_cierre": False,
+        }
+    tarea_id, resumen = coincidencia.group(1), coincidencia.group(2)
+    return {
+        "sha": commit["sha"],
+        "asunto": commit["asunto"],
+        "nombra_tarea": True,
+        "tarea_nombrada": tarea_id,
+        "tarea_existe": tarea_id in estados,
+        "estado_de_la_tarea": estados.get(tarea_id, ""),
+        # Estricto a propósito: `done` y nada más. Un asunto que sigue con otra cosa —una firma
+        # pegada, por ejemplo— no es el commit de cierre que la convención pide, y que la medida lo
+        # vea es el punto de medirla.
+        "es_cierre": resumen.strip() == RESUMEN_DE_CIERRE,
     }
 
 

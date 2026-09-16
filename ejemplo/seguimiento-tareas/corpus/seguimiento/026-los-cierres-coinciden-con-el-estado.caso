@@ -1,0 +1,20 @@
+caso 026-los-cierres-coinciden-con-el-estado:
+    fecha: "2026-09-16"
+    origen:
+        tipo: "ejemplo construido para fijar la política de commits"
+    procedencia: construida
+    titulo: "cada done corresponde a una tarea cerrada"
+    etiqueta: verde_correcto
+    sintoma:
+        Ejemplo construido; se espera aceptación dentro del alcance declarado.
+    como_se_detecto: persona
+    medida: seguimiento.ningun_cierre_deja_la_tarea_abierta
+    evidencia:
+        commit_seguimiento: sha, asunto, nombra_tarea, tarea_nombrada, tarea_existe, estado_de_la_tarea, es_cierre
+            "a1b2c3", "20260916-050505-hecha: done", true, "20260916-050505-hecha", true, "CERRADA", true
+            "d4e5f6", "20260916-060606-ida: avanza", true, "20260916-060606-ida", true, "ABIERTA", false
+            "9a8b7c", "20260101-000000-borrada: done", true, "20260101-000000-borrada", false, "", true
+    leccion:
+        Un commit sobre una tarea abierta que no dice done no infringe nada, y un `done` sobre una
+        tarea que ya no existe tampoco: eso lo persigue la otra política, y contarlo dos veces haría
+        que un mismo defecto ponga en rojo dos medidas distintas.

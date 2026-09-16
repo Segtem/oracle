@@ -67,6 +67,40 @@ def _archivos_locales(raiz: Path) -> tuple[set[str], list[dict]]:
     return archivos, sorted(omitidos, key=lambda x: x["ruta"])
 
 
+SEPARADOR_COMMIT = "\x1f"
+
+
+def commits(raiz: Path) -> list[dict] | None:
+    """El sha y el asunto de cada commit alcanzable desde HEAD, o `None` sin repositorio.
+
+    `None` y no una lista vacía: «no hay con qué mirar» es distinto de «no hay commits», y de la
+    diferencia depende que una política no se ponga verde por ausencia de evidencia. Es la misma
+    distinción que hace `seguimiento` con `repositorio: None`.
+
+    Sólo el asunto: el cuerpo del mensaje puede traer cualquier cosa —incluso saltos de línea— y lo
+    que la convención del tracker fija es la primera línea, `<ID>: resumen`.
+    """
+    resultado = _git(raiz, "rev-parse", "--show-toplevel")
+    if resultado.returncode:
+        if b"not a git repository" in resultado.stderr:
+            return None
+        raise tareas.TareaError("Git no pudo localizar el repositorio: "
+                                + os.fsdecode(resultado.stderr).strip())
+    salida = _git(raiz, "log", "--no-color", f"--format=%H{SEPARADOR_COMMIT}%s")
+    if salida.returncode:
+        # Un repositorio recién creado, sin un solo commit, no es un error: no tiene historia.
+        if b"does not have any commits yet" in salida.stderr:
+            return []
+        raise tareas.TareaError(
+            "no se pudo leer la historia: " + os.fsdecode(salida.stderr).strip())
+    filas = []
+    for linea in os.fsdecode(salida.stdout).splitlines():
+        sha, _, asunto = linea.partition(SEPARADOR_COMMIT)
+        if sha:
+            filas.append({"sha": sha, "asunto": asunto})
+    return filas
+
+
 def seguimiento(raiz: Path) -> dict:
     """Observa sin hacer git add, commit, fetch ni modificar el índice."""
     tracker = raiz / "tareas"
