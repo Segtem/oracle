@@ -1,6 +1,6 @@
 # oracle test se cae con un traceback cuando una medida da error en un caso del corpus
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, mutacion, guia
 
