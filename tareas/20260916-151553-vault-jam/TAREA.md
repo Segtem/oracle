@@ -1,6 +1,6 @@
 # El diferencial de Jam sigue rojo porque a su dominio vault le falta una polaridad
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 40
 - ETIQUETAS: oracle, consumidores, diferencial
 
