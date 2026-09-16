@@ -114,10 +114,13 @@ class BordesDeLaMutacionTests(unittest.TestCase):
     """Lo que la mutación de 0.26.0 dejó vivo: cada test mata uno o más sobrevivientes."""
 
     def test_el_alias_repetido_se_ve_tambien_detras_de_un_unir(self) -> None:
+        # `donde false`: sin filas, sólo la validación de la medida puede ver el choque.
         tuberia = ["desde", ["unir", ["de", "tarea", "t"], ["de", "otra", "o"]],
-                   _sin(True, alias="o")]
-        with self.assertRaises(ErrorDeAlgebra):
-            desde(tuberia, {"tarea": TAREAS, "otra": [{}], "cierre": CIERRES})
+                   ["donde", False], _sin(True, alias="o")]
+        for alias in ("t", "o"):
+            tuberia[-1] = _sin(True, alias=alias)
+            with self.subTest(alias=alias), self.assertRaises(ErrorDeAlgebra):
+                desde(tuberia, {"tarea": TAREAS, "otra": [{}], "cierre": CIERRES})
 
     def test_despues_de_agrupar_se_puede_reusar_el_alias_de_la_fuente(self) -> None:
         tuberia = _tuberia(["agrupar", [["e", ["campo", "t", "estado"]]], []],
