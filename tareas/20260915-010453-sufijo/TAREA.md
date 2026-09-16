@@ -1,6 +1,6 @@
 # tarea nueva no arma un sufijo largo con el título
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 40
 - ETIQUETAS: oracle, bug
 
