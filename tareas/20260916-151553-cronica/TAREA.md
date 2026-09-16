@@ -1,6 +1,6 @@
 # La crónica de §0 tiene dos órdenes mezclados
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 20
 - ETIQUETAS: oracle, docs
 
