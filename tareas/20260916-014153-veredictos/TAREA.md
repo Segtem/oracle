@@ -1,7 +1,7 @@
 # Los fixtures de los consumidores guardan sólo el ok, no el veredicto entero
 
 - ID: 20260916-014153-veredictos
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 45
 - ETIQUETAS: oracle, metalenguaje, diferencial
 - CREADA: 2026-09-16
@@ -22,3 +22,7 @@ consumidores cambian de contenido al re-emitirse, y re-emitirlos junto con la ta
 ### Nota (2026-09-16 02:12:31 UTC)
 
 2026-09-16: hecho el lado de Oracle (nucleo/dominio.generar usa registro_de_veredicto). Falta re-emitir los fixtures de LyraGASP y Jam, que sólo se puede con el Oracle nuevo instalado: viaja con 20260915-155111-consumidores.
+
+### Nota (2026-09-16 14:56:03 UTC)
+
+2026-09-16: re-emitidos con 0.24.0 los 2 diferenciales de LyraGASP y 9 de los 10 de Jam; todos guardan el veredicto entero. vault.json de Jam no se puede emitir (deuda previa de su dominio) y sigue en la forma corta.
