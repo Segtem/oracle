@@ -1,6 +1,6 @@
 # CI no corre cuando sólo cambia tareas/
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 65
 - ETIQUETAS: oracle, ci, bug
 
