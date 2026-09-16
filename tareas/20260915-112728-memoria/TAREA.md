@@ -1,6 +1,6 @@
 # mutar_codigo no limita la memoria de los mutantes
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 55
 - ETIQUETAS: oracle, bug, mutacion
 
