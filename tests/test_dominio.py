@@ -171,9 +171,17 @@ class GenerarTests(unittest.TestCase):
                          ["defecto", "evidencia", "id", "oracle_al_generar", "referencia_ok"])
         self.assertEqual(
             fx["escenarios"][0]["oracle_al_generar"],
-            {"global_ok": True, "por_medida": {"d.sin_fallas": True}})
+            {"global_ok": True, "por_medida": {"d.sin_fallas": {"ok": True, "valor": 0}}})
         self.assertEqual(sorted(fx["frescura"]["huellas"]),
                          ["catalogo", "configuracion", "emisor", "referencia"])
+
+    def test_guarda_el_veredicto_entero_y_no_solo_el_ok(self) -> None:
+        """Un rojo, un SIN EVIDENCIA y un error se ven iguales en un booleano. El fixture de un
+        dominio los distingue desde 0.23.2, como el del propio Oracle desde 0.23.1."""
+        fx = generar_prueba(dominio_bueno())
+        registros = [esc["oracle_al_generar"]["por_medida"]["d.sin_fallas"]
+                     for esc in fx["escenarios"]]
+        self.assertEqual(registros, [{"ok": True, "valor": 0}, {"ok": False, "valor": 1}])
 
     def test_NO_guarda_expectativa_por_medida(self) -> None:
         """Eso reimplementaba las medidas en Python: dos definiciones de lo mismo."""

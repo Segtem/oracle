@@ -41,7 +41,7 @@ from dataclasses import dataclass, field
 from typing import Any, Callable
 
 from .diferencial import (ESQUEMA_DIFERENCIAL, Procedencia, crear_frescura)
-from .fixtures import ok_guardado
+from .fixtures import ok_guardado, registro_de_veredicto
 from .medida import evaluar
 
 
@@ -109,15 +109,18 @@ def generar(dominio: Dominio, medidas, *, procedencia: Procedencia) -> dict:
             # cosas por un solo parámetro.
             ctx = dominio.montar(defecto, i)
             evidencia = dominio.hechos(ctx)
-            informe = evaluar(medidas, evidencia)
+            # El veredicto entero y no sólo el `ok`: con un booleano, una medida que pasa de roja a
+            # SIN EVIDENCIA —o que empieza a levantar porque el sensor dejó de emitir un campo— no
+            # cambia nada de lo guardado, y el diferencial del consumidor sigue diciendo ✓.
+            por_medida = {m.id: registro_de_veredicto(m, evidencia) for m in medidas}
             escenarios.append({
                 "id": f"{defecto or 'sin-defecto'}" + (f"·{i}" if dominio.repeticiones > 1 else ""),
                 "defecto": defecto or "",
                 "evidencia": evidencia,
                 "referencia_ok": bool(dominio.referencia(ctx)),
                 "oracle_al_generar": {
-                    "global_ok": informe.ok,
-                    "por_medida": {v.id: v.ok for v in informe.veredictos},
+                    "global_ok": all(r["ok"] for r in por_medida.values()),
+                    "por_medida": por_medida,
                 },
             })
 
@@ -125,7 +128,8 @@ def generar(dominio: Dominio, medidas, *, procedencia: Procedencia) -> dict:
     for esc in escenarios:
         oracle = esc["oracle_al_generar"]
         if oracle["global_ok"] != esc["referencia_ok"]:
-            rojas = [mid for mid, ok in oracle["por_medida"].items() if not ok]
+            rojas = [mid for mid, guardado in oracle["por_medida"].items()
+                     if not ok_guardado(guardado)]
             desacuerdos.append(
                 f"«{esc['id']}»: la referencia dice ok={esc['referencia_ok']} y las medidas dicen "
                 f"{oracle['global_ok']}" + (f" (rojas: {rojas})" if rojas else ""))
