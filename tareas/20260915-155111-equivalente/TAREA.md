@@ -1,6 +1,6 @@
 # 0.19.0 declaró un equivalente que la regla del proyecto manda borrar
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 45
 - ETIQUETAS: oracle, mutacion
 
