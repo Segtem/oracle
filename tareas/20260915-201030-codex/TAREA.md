@@ -21,3 +21,7 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 ### Nota (2026-09-16 15:00:59 UTC)
 
 2026-09-16: el dueño eligió esperar a Codex antes que usar agy aislado ahora: es el autor que la tarea pide y un modelo distinto de los dos que ya tocaron la referencia. Se retoma cuando vuelva la cuota (19/09).
+
+### Nota (2026-09-16 15:29:04 UTC)
+
+2026-09-16: el dueño decidió hacer la anti-junta ahora (álgebra 0.8) y que Codex escriba su implementación de cero contra 0.8, no 0.7. Antes de lanzar, CONTRATO.md y README.md del estudio tienen que decir 0.8, y la especificación tiene que estar cortada con la anti-junta.
