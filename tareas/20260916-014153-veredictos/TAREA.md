@@ -26,3 +26,7 @@ consumidores cambian de contenido al re-emitirse, y re-emitirlos junto con la ta
 ### Nota (2026-09-16 14:56:03 UTC)
 
 2026-09-16: re-emitidos con 0.24.0 los 2 diferenciales de LyraGASP y 9 de los 10 de Jam; todos guardan el veredicto entero. vault.json de Jam no se puede emitir (deuda previa de su dominio) y sigue en la forma corta.
+
+### Nota (2026-09-16 19:58:52 UTC)
+
+2026-09-16: el vault.json de Jam se re-emitió con la forma larga al cerrar 20260916-151553-vault-jam; el cierre de esta tarea viajó en esos commits de consumidores y le faltaba su commit propio.
