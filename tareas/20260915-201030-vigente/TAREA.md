@@ -1,6 +1,6 @@
 # ESPECIFICACION §0 no dice de un vistazo cuál es la versión vigente
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 52
 - ETIQUETAS: oracle, metalenguaje, docs
 
