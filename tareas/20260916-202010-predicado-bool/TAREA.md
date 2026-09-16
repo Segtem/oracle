@@ -16,3 +16,7 @@ coerción silenciosa es la forma de falso verde que el lenguaje persigue: un cam
 por error como predicado filtra sin avisar. A decidir: exigir `bool` en `donde`, `sin` y
 `requiere` (validación estática donde se pueda, y en la evaluación), con la sección de la
 especificación que lo diga. Puede cambiar colores → MENOR.
+
+### Nota (2026-09-16 20:34:27 UTC)
+
+2026-09-16: no se implementa sin decisión del dueño: exigir bool cambia la semántica de donde, que ya existía, y por §0 eso sube la MAYOR del álgebra (1.0). Antes de decidir conviene medir cuántas medidas de Oracle, LyraGASP y Jam usan un predicado no booleano.
