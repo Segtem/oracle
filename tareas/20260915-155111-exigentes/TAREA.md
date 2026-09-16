@@ -1,6 +1,6 @@
 # Los dos consumidores tienen en sombra las mismas tres medidas universales
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 72
 - ETIQUETAS: oracle, metalenguaje, catalogo
 

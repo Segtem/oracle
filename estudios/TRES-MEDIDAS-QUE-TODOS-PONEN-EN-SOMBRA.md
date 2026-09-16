@@ -46,7 +46,7 @@ evidencia con sus campos. Lo que no existe es el paso de ahí a `relaciones/*.js
 escribe a mano, relación por relación, y que es exactamente lo que las dos explicaciones de sombra
 dan como razón («se hace por relación, no de golpe»).
 
-Queda como tarea [`20260916-035758-declarar`](../tareas/20260916-041500-declarar/TAREA.md): que
+Queda como tarea [`20260916-035758-declarar`](../tareas/20260916-035758-declarar/TAREA.md): que
 `oracle relaciones` pueda escribir el esqueleto de las relaciones observadas, con sus campos y la
 unidad sin declarar, para que el trabajo del consumidor sea **revisar y completar** en vez de
 transcribir.
