@@ -1,7 +1,7 @@
 # oracle relaciones escribe el esqueleto de las relaciones observadas
 
 - ID: 20260916-035758-declarar
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 62
 - ETIQUETAS: oracle, metalenguaje, herramienta
 - CREADA: 2026-09-16
