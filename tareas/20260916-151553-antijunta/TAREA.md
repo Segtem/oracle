@@ -1,6 +1,6 @@
 # El álgebra no puede decir que ninguna fila de otra relación corresponde a esta
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, metalenguaje, algebra
 
