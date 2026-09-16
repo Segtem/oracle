@@ -110,6 +110,53 @@ class SemanticaTests(unittest.TestCase):
         self.assertEqual(len(desde(tuberia, {"tarea": TAREAS, "cierre": CIERRES})), 2)
 
 
+class BordesDeLaMutacionTests(unittest.TestCase):
+    """Lo que la mutación de 0.26.0 dejó vivo: cada test mata uno o más sobrevivientes."""
+
+    def test_el_alias_repetido_se_ve_tambien_detras_de_un_unir(self) -> None:
+        tuberia = ["desde", ["unir", ["de", "tarea", "t"], ["de", "otra", "o"]],
+                   _sin(True, alias="o")]
+        with self.assertRaises(ErrorDeAlgebra):
+            desde(tuberia, {"tarea": TAREAS, "otra": [{}], "cierre": CIERRES})
+
+    def test_despues_de_agrupar_se_puede_reusar_el_alias_de_la_fuente(self) -> None:
+        tuberia = _tuberia(["agrupar", [["e", ["campo", "t", "estado"]]], []],
+                           _sin(["==", ["campo", "t", "tarea"], "x"], alias="t"))
+        self.assertEqual(len(desde(tuberia, {"tarea": TAREAS, "cierre": CIERRES})), 2)
+
+    def test_el_presupuesto_admite_justo_el_limite(self) -> None:
+        # 3 tareas × 2 cierres = 6: con límite 6 se evalúa; con 5, no (el otro test).
+        filas = desde(_tuberia(_sin(CORRESPONDE)), {"tarea": TAREAS, "cierre": CIERRES},
+                      LimitesAlgebra(producto_cartesiano=6))
+        self.assertEqual(len(filas), 2)
+
+    def _error(self, datos, evidencia) -> str:
+        with self.assertRaises(ErrorDeAlgebra) as ctx:
+            Medida.de_datos(datos).evaluar(evidencia)
+        return str(ctx.exception)
+
+    def _medida(self, paso):
+        return ["medida", "d.x", _tuberia(paso), ["resumen", "contar", 1],
+                ["umbral", "<=", 0, "r"], ["alcance", "a"]]
+
+    def test_el_error_de_la_relacion_apunta_a_la_fuente_del_sin(self) -> None:
+        self.assertIn("`2.2.1`", self._error(self._medida(_sin(CORRESPONDE)), {"tarea": TAREAS}))
+
+    def test_el_error_de_la_condicion_apunta_a_la_condicion(self) -> None:
+        mensaje = self._error(self._medida(_sin([">", ["campo", "c", "falta"], 1])),
+                              {"tarea": TAREAS, "cierre": CIERRES})
+        self.assertIn("`2.2.2", mensaje)
+
+    def test_la_unidad_de_un_campo_del_sin_se_deriva_de_su_relacion(self) -> None:
+        from nucleo.relacion import Relacion
+        from nucleo.unidad import comparaciones_de_medida
+        rel = Relacion.de_datos(["relacion", "cierre", ["campos", ["campo", "dias", "entero", "dias"]],
+                                 ["alcance", "a"]])
+        m = Medida.de_datos(self._medida(_sin([">", ["campo", "c", "dias"], 3])))
+        filas = comparaciones_de_medida(m, {"cierre": rel}, {}, frozenset())
+        self.assertIn(("dias", True), [(f["unidad"], f["es_derivable"]) for f in filas])
+
+
 class AlcanceDerivadoTests(unittest.TestCase):
     def test_la_relacion_del_sin_cuenta_como_leida(self) -> None:
         """`oracle revisar` y el MCP calculan lo que la medida NO lee; sin esto, la relación de la

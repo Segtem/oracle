@@ -289,7 +289,7 @@ def comparaciones_de_medida(
     if isinstance(medida.tuberia, list):
         for paso in medida.tuberia[2:]:
             mapa_paso = alias_map
-            if isinstance(paso, list) and len(paso) == 3 and paso[0] == "sin":
+            if paso[0] == "sin":
                 mapa_paso = {**alias_map, **extraer_alias_de_fuente(paso[1])}
             for izq, der in _extraer_comparaciones_de_paso(paso):
                 es_der_paso, unidad_paso = derivar_unidad_comparacion(

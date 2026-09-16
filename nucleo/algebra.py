@@ -683,14 +683,10 @@ FUENTES = ("de", "unir")
 
 
 def _alias_de_fuente(fuente) -> set[str]:
-    """Extrae el conjunto de alias introducidos por una fuente («de» o «unir»)."""
-    if not isinstance(fuente, list) or not fuente:
-        return set()
-    if fuente[0] == "de" and len(fuente) >= 3 and isinstance(fuente[2], str):
+    """Los alias que introduce una fuente ya validada («de» o «unir»)."""
+    if fuente[0] == "de":
         return {fuente[2]}
-    if fuente[0] == "unir" and len(fuente) >= 3:
-        return _alias_de_fuente(fuente[1]) | _alias_de_fuente(fuente[2])
-    return set()
+    return _alias_de_fuente(fuente[1]) | _alias_de_fuente(fuente[2])
 
 
 def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> list[dict]:
@@ -968,7 +964,7 @@ def validar_tuberia(tuberia, limites: LimitesAlgebra | None = None, *,
     alias_activos = set(_alias_de_fuente(tuberia[1]))
     for paso in tuberia[2:]:
         _validar_paso(paso, limites, registro=registro, alias_activos=alias_activos)
-        if isinstance(paso, list) and paso and paso[0] == "agrupar":
+        if paso[0] == "agrupar":
             alias_activos = set()
 
 

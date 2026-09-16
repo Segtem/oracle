@@ -30,10 +30,9 @@ def extraer_alias_de_medida(medida: Medida) -> dict[str, str]:
     # `Medida.de_datos` ya validó la forma: la tubería trae su fuente, y cada entrada de `requiere` es un
     # nombre o `["filas", relación, alias, condición]`.
     alias_map = extraer_alias_de_fuente(medida.tuberia[1])
-    if isinstance(medida.tuberia, list):
-        for paso in medida.tuberia[2:]:
-            if isinstance(paso, list) and len(paso) >= 3 and paso[0] == "sin":
-                alias_map.update(extraer_alias_de_fuente(paso[1]))
+    for paso in medida.tuberia[2:]:
+        if paso[0] == "sin":
+            alias_map.update(extraer_alias_de_fuente(paso[1]))
     for entrada in medida.requiere:
         if not isinstance(entrada, str):
             alias_map[entrada[2]] = entrada[1]
