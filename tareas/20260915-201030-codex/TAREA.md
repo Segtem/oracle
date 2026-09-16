@@ -25,3 +25,7 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 ### Nota (2026-09-16 15:29:04 UTC)
 
 2026-09-16: el dueño decidió hacer la anti-junta ahora (álgebra 0.8) y que Codex escriba su implementación de cero contra 0.8, no 0.7. Antes de lanzar, CONTRATO.md y README.md del estudio tienen que decir 0.8, y la especificación tiene que estar cortada con la anti-junta.
+
+### Nota (2026-09-16 20:26:16 UTC)
+
+2026-09-16: el estudio (CONTRATO, README, lanzar.sh) apunta al álgebra 0.8, con los rincones de sin que la especificación ahora decide y la referencia no.

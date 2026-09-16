@@ -1,4 +1,4 @@
-# Contrato de la implementación independiente del álgebra 0.7
+# Contrato de la implementación independiente del álgebra 0.8
 
 Este archivo, `ESPECIFICACION.md`, `DECISION-001-RELACIONES-COMO-BOLSAS.md` y
 `DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md` son **todo** lo que hay en este directorio, y todo lo
@@ -10,7 +10,7 @@ que se puede leer. No hay otra implementación que mirar, y no hay que buscarla.
    con exactamente esta superficie pública:
 
    ```python
-   VERSION_ALGEBRA = "0.7"
+   VERSION_ALGEBRA = "0.8"
 
    class ErrorDeAlgebra(ValueError):
        """Todo error del álgebra se informa con esta excepción, y con ninguna otra."""

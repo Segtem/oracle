@@ -1,6 +1,6 @@
 #!/bin/bash
 # Arma un directorio aislado con la especificación vigente y le pide a Codex una implementación
-# independiente del álgebra 0.7. Tarea 20260915-201030-codex.
+# independiente del álgebra 0.8. Tarea 20260915-201030-codex.
 #
 #   estudios/0.26.0-codex/lanzar.sh <directorio-aislado> [modelo]
 #
