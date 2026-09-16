@@ -1,0 +1,38 @@
+objetivos: nucleo/campo_leido.py
+
+     ·  nucleo/campo_leido.py:32:55:constante                constante: 1 → 2
+     ·  nucleo/campo_leido.py:33:31:constante                constante: 2 → 3
+     ·  nucleo/campo_leido.py:34:11:comparador               comparador: Eq → NotEq
+     ·  nucleo/campo_leido.py:34:17:constante                constante: 1 → 2
+     ·  nucleo/campo_leido.py:35:58:constante                constante: 1 → 2
+     ·  nucleo/campo_leido.py:37:11:negacion                 negacion: se borra el `not`
+     ·  nucleo/campo_leido.py:38:30:constante                constante: 2 → 3
+     ·  nucleo/campo_leido.py:38:44:constante                constante: 1 → 2
+     ·  nucleo/campo_leido.py:39:4:retorno                   retorno: return <algo> → return None
+     ·  nucleo/campo_leido.py:44:7:booleano                  booleano: and ↔ or
+     ·  nucleo/campo_leido.py:44:7:negacion                  negacion: se borra el `not`
+     ·  nucleo/campo_leido.py:44:37:negacion                 negacion: se borra el `not`
+     ·  nucleo/campo_leido.py:46:7:booleano                  booleano: and ↔ or
+     ·  nucleo/campo_leido.py:46:7:comparador                comparador: Eq → NotEq
+     ·  nucleo/campo_leido.py:46:20:constante                constante: 3 → 4
+     ·  nucleo/campo_leido.py:46:26:comparador               comparador: Eq → NotEq
+     ·  nucleo/campo_leido.py:46:31:constante                constante: 0 → 1
+     ·  nucleo/campo_leido.py:47:19:constante                constante: 1 → 2
+     ·  nucleo/campo_leido.py:47:28:constante                constante: 2 → 3
+     ·  nucleo/campo_leido.py:70:11:negacion                 negacion: se borra el `not`
+     ·  nucleo/campo_leido.py:75:15:comparador               comparador: Is → IsNot
+     ·  nucleo/campo_leido.py:78:25:constante                constante: False → True
+     ·  nucleo/campo_leido.py:79:17:comparador               comparador: In → NotIn
+     ·  nucleo/campo_leido.py:84:26:comparador               comparador: In → NotIn
+     ·  nucleo/campo_leido.py:85:17:comparador               comparador: In → NotIn
+     ·  nucleo/campo_leido.py:88:26:comparador               comparador: In → NotIn
+     ·  nucleo/campo_leido.py:92:25:constante                constante: False → True
+     ·  nucleo/campo_leido.py:102:4:retorno                  retorno: return <algo> → return None
+
+mutantes: 28 · murieron 28 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

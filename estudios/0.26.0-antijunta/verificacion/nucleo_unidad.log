@@ -1,0 +1,217 @@
+objetivos: nucleo/unidad.py
+
+     ·  nucleo/unidad.py:50:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:50:7:negacion                       negacion: se borra el `not`
+     ·  nucleo/unidad.py:50:39:negacion                      negacion: se borra el `not`
+     ·  nucleo/unidad.py:51:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/unidad.py:52:20:constante                     constante: 0 → 1
+     ·  nucleo/unidad.py:53:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:53:7:comparador                     comparador: Eq → NotEq
+     ·  nucleo/unidad.py:53:26:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:53:41:constante                     constante: 3 → 4
+     ·  nucleo/unidad.py:53:65:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:53:96:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:54:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/unidad.py:54:23:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:54:34:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:55:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:55:7:comparador                     comparador: Eq → NotEq
+     ·  nucleo/unidad.py:55:28:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:55:43:constante                     constante: 3 → 4
+     ·  nucleo/unidad.py:56:48:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:57:53:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:58:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/unidad.py:59:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/unidad.py:71:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:71:7:negacion                       negacion: se borra el `not`
+     ·  nucleo/unidad.py:71:37:negacion                      negacion: se borra el `not`
+     ·  nucleo/unidad.py:74:11:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:75:18:constante                     constante: 0 → 1
+     ·  nucleo/unidad.py:77:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:77:7:comparador                     comparador: Eq → NotEq
+     ·  nucleo/unidad.py:77:29:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:77:42:constante                     constante: 3 → 4
+     ·  nucleo/unidad.py:77:64:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:77:93:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:78:35:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:78:44:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:80:11:comparador                    comparador: Is → IsNot
+     ·  nucleo/unidad.py:82:11:comparador                    comparador: In → NotIn
+     ·  nucleo/unidad.py:84:19:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:85:20:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:86:11:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:86:11:comparador                    comparador: In → NotIn
+     ·  nucleo/unidad.py:86:48:comparador                    comparador: In → NotIn
+     ·  nucleo/unidad.py:87:12:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:90:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:90:7:comparador                     comparador: Eq → NotEq
+     ·  nucleo/unidad.py:90:27:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:90:40:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:90:62:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:91:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/unidad.py:91:29:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:93:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:93:7:comparador                     comparador: Eq → NotEq
+     ·  nucleo/unidad.py:93:31:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:93:44:constante                     constante: 3 → 4
+     ·  nucleo/unidad.py:94:11:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:94:16:constante                     constante: 1 → 2
+     ·  nucleo/unidad.py:95:12:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:96:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/unidad.py:96:40:constante                     constante: 2 → 3
+     ·  nucleo/unidad.py:98:7:booleano                       booleano: and ↔ or
+     ·  nucleo/unidad.py:98:35:comparador                    comparador: In → NotIn
+     ·  nucleo/unidad.py:101:11:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:103:30:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:104:15:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:106:15:comparador                   comparador: NotEq → Eq
+     ·  nucleo/unidad.py:109:19:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:112:20:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:112:20:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:112:38:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:113:24:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:113:34:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:114:45:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:126:19:comparador                   comparador: NotEq → Eq
+     ·  nucleo/unidad.py:128:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:129:11:comparador                   comparador: GtE → Gt
+     ·  nucleo/unidad.py:129:24:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:130:42:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:131:42:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:132:15:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:132:15:comparador                   comparador: IsNot → Is
+     ·  nucleo/unidad.py:132:34:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:132:54:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:133:16:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:134:15:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:134:15:comparador                   comparador: IsNot → Is
+     ·  nucleo/unidad.py:134:34:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:134:54:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:135:16:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:136:15:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:136:29:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:137:16:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:138:15:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:139:16:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:155:14:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:156:14:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:158:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:159:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:159:15:constante                    constante: False → True
+     ·  nucleo/unidad.py:163:11:comparador                   comparador: IsNot → Is
+     ·  nucleo/unidad.py:164:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:164:19:constante                    constante: True → False
+     ·  nucleo/unidad.py:165:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:165:15:constante                    constante: False → True
+     ·  nucleo/unidad.py:169:11:comparador                   comparador: IsNot → Is
+     ·  nucleo/unidad.py:170:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:170:19:constante                    constante: True → False
+     ·  nucleo/unidad.py:171:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:171:15:constante                    constante: False → True
+     ·  nucleo/unidad.py:176:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:177:11:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:178:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:178:19:constante                    constante: True → False
+     ·  nucleo/unidad.py:179:11:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:180:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:180:19:constante                    constante: True → False
+     ·  nucleo/unidad.py:181:11:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:182:12:retorno                      retorno: return <algo> → return None
+     ·  nucleo/unidad.py:182:19:constante                    constante: True → False
+     ·  nucleo/unidad.py:184:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:184:11:constante                    constante: False → True
+     ·  nucleo/unidad.py:189:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:189:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/unidad.py:189:37:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:190:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:192:18:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:195:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:195:35:comparador                   comparador: In → NotIn
+     ·  nucleo/unidad.py:195:62:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:195:75:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:196:24:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:196:33:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:201:25:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:204:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:215:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:215:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/unidad.py:215:37:comparador                   comparador: NotEq → Eq
+     ·  nucleo/unidad.py:215:50:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:215:55:comparador                   comparador: NotEq → Eq
+     ·  nucleo/unidad.py:215:60:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:216:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:217:29:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:217:38:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:220:15:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:220:42:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:220:55:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:220:77:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:221:45:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:222:26:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:222:32:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:225:15:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:225:42:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:225:55:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:225:77:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:226:38:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:226:47:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:226:56:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:227:19:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:229:21:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:231:37:comparador                   comparador: IsNot → Is
+     ·  nucleo/unidad.py:234:32:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:235:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:239:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:239:7:negacion                      negacion: se borra el `not`
+     ·  nucleo/unidad.py:239:37:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:240:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:241:14:constante                    constante: 0 → 1
+     ·  nucleo/unidad.py:242:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:242:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:242:25:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:242:38:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:243:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:243:51:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:244:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:244:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:244:23:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:244:36:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:245:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:245:51:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:246:7:booleano                      booleano: and ↔ or
+     ·  nucleo/unidad.py:246:7:comparador                    comparador: Eq → NotEq
+     ·  nucleo/unidad.py:246:27:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:246:40:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:247:33:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:247:42:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:251:19:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:251:46:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:251:59:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:252:77:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:255:19:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:255:46:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:255:59:constante                    constante: 3 → 4
+     ·  nucleo/unidad.py:256:77:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:257:8:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:258:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:268:34:booleano                     booleano: and ↔ or
+     ·  nucleo/unidad.py:268:71:comparador                   comparador: GtE → Gt
+     ·  nucleo/unidad.py:268:94:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:268:28:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:275:35:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:290:35:constante                    constante: 2 → 3
+     ·  nucleo/unidad.py:292:15:comparador                   comparador: Eq → NotEq
+     ·  nucleo/unidad.py:292:21:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:293:73:constante                    constante: 1 → 2
+     ·  nucleo/unidad.py:304:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:325:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/unidad.py:329:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/unidad.py:337:4:retorno                       retorno: return <algo> → return None
+
+mutantes: 207 · murieron 207 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

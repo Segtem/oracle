@@ -1,3 +1,104 @@
+# 0.26.0 — el álgebra puede decir «ninguna»
+
+```
+VERSION_DISTRIBUCION   0.25.2 → 0.26.0   la anti-junta, y lo que la acompaña
+VERSION_ALGEBRA        0.7    → 0.8      un paso nuevo: sin
+VERSION_SINTAXIS       0.5    → 0.6      una cláusula nueva: sin … donde …
+```
+
+## `sin`
+
+El álgebra sabía decir «hay una fila de B que corresponde a esta de A» (`unir` + `donde`) y no sabía
+decir lo contrario. Cinco medidas lo necesitaban y lo resolvían con un conteo calculado en Python,
+fuera del alcance del diferencial, de la mutación de medidas y del propio catálogo. Ahora es un paso:
+
+```
+medida seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre:
+    de tarea_seguimiento t
+    donde t.estado_declarado == "CERRADA"
+    sin commit_seguimiento c donde c.tarea_nombrada == t.id y c.es_cierre == true
+    resumen contar(1)
+    …
+```
+
+Deja pasar cada fila para la que **ninguna** fila de la relación cumple la condición, y la deja tal
+como llegó: el alias nuevo sólo existe dentro de la condición. Los bordes, en §3:
+
+- relación vacía → pasan todas; relación **ausente** → el mismo error que `de`, aunque no llegue
+  ninguna fila;
+- sin cortocircuito: la condición se evalúa contra todas las filas, y un error en cualquiera es un
+  error de la medida;
+- alias repetido → error al validar la medida, no al ver los datos;
+- presupuesto: el mismo límite de producto cartesiano que `unir`;
+- después de `agrupar` la condición lee las columnas con `col`.
+
+Lo acompañan `meta.sin_nunca_agrega_filas` sobre la traza (con sus dos casos, 507 y 508), el mutador
+propio `quitar_antijunta` (los mutadores pasan de 29 a 30) y la entrada en el vocabulario y el manual.
+
+## La prueba de valor
+
+`seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre` se reescribió con `sin`, y el emisor del
+tracker **dejó de emitir** `commits_de_cierre` y `commits_que_la_nombran` en `tarea_seguimiento`.
+Sobre la historia real da lo mismo que daba el conteo: **4**, las mismas cuatro tareas, dentro de su
+sombra. Las otras cuatro medidas con conteos del sensor quedan como tarea aparte.
+
+⚠ Quien leía esos dos campos de `oracle tarea hechos` tiene que cruzar con `commit_seguimiento`.
+
+## La referencia, re-derivada
+
+agy, en un proyecto nuevo y confinado a un directorio fuera del repositorio, llevó
+`diferencial/referencia/` a 0.8 leyendo sólo la especificación, sin que se le dijera qué había
+cambiado. Sus 41 tests pasan sin tocar su código. El fixture del diferencial suma un mundo y tres
+medidas que pasan por `sin` —directa, después de `agrupar` y con una condición que levanta detrás de
+una fila que corresponde—: **10 mundos × 8 medidas, en acuerdo**.
+
+Las sondas a sus nueve decisiones nuevas dieron cuatro desacuerdos:
+
+- el núcleo aceptaba un `unir` a la derecha de `sin`, y §3 no: **se corrigió el núcleo**;
+- un alias repetido cuando no llega ninguna fila, y un alias igual a una columna de `agrupar`: la
+  especificación no decidía; **§3 ahora decide**, como el núcleo;
+- un predicado que no da booleano: el núcleo lo toma por su verdad y la referencia levanta. Es
+  anterior a 0.8 y pasa igual con `donde`: tarea `20260916-202010-predicado-bool`.
+
+## Lo demás
+
+- **`oracle test` ya no termina con un traceback** cuando una medida no puede evaluar su propio caso
+  (un campo mal escrito, por ejemplo): la mutación saltea ese caso y la aceptación lo sigue
+  informando. Lo encontró la guía de la batalla naval, recorrida de punta a punta con 0.25.2.
+- **El alcance derivado cuenta la relación de un `sin`**: `oracle revisar` y `oracle_evaluar` del
+  MCP decían qué campos NO lee la medida sin nombrar la relación de la anti-junta.
+- **CI juzga el tracker con la historia entera** (`fetch-depth: 0`): con el clon superficial la
+  política de cierres contaba 30 en vez de 4.
+- **El estudio de Codex apunta a 0.8.**
+- Tareas nuevas, de lo que salió en el camino: `superficial` (el tracker no avisa si la historia es
+  superficial), `cota-juzgar` (`juzgar` perdona una sombra por encima de su cota),
+  `juzgar-omite` (`juzgar` no nombra las medidas cuya relación no vino) y `predicado-bool`.
+
+## Verificación
+
+- Suite completa en verde (2302 tests); `oracle test` VERDE: corpus 212 casos, aceptación ✓ con 120
+  defectos en rojo y 85 verdes correctos, diferencial ✓ (10 mundos × 8 medidas), mutación de medidas
+  1010/1010; sintaxis y cifras al día; `verificar_instalacion` WHEEL OK.
+- Mutación de código de lo tocado, sin sobrevivientes: `nucleo/sintaxis.py` 1138/1138,
+  `nucleo/algebra.py` 426/426, `nucleo/medida.py` 326/326, `nucleo/unidad.py` 207/207,
+  `nucleo/mutacion.py` 190/190, `nucleo/campo_leido.py` 28/28, `tools/tareas_hechos.py` 270/270,
+  `tools/medida.py` 302/302. La primera ronda dejó 31 vivos, casi todos guardas redundantes que la
+  entrega agregó sobre datos ya validados y bordes sin test; los dos últimos se cerraron con rondas
+  parciales sobre su sitio ([logs](estudios/0.26.0-antijunta/verificacion/)).
+- La política de cierres del tracker, escrita con `sin`, da 4 sobre la historia real, como el
+  conteo en Python que reemplaza.
+- Consumidores con un wheel de 0.26.0 antes de publicarlo: LyraGASP VERDE (66 medidas, 190 casos,
+  76/114, diferencial 580, 466/466) y Jam VERDE (83 medidas, 31 casos, 28/3, diferencial 1099,
+  428/428), iguales a 0.25.1.
+
+## Cómo se hizo
+
+agy implementó `sin` en el núcleo, la superficie, la traza y la reescritura del tracker; Claude
+escribió 17 tests de revisión antes de leer la entrega (pasaron sin cambios), corrigió dos tests de
+la entrega que usaban una API que no existe, movió el mutador —agy lo había dejado en la carpeta de
+los de otros autores, donde nadie lo cargaba— y escribió §3, el corpus, los mundos y el corte. La
+referencia la re-derivó otra instancia de agy, aislada.
+
 # 0.25.2 — el verificador del diferencial, fijado; y los dos consumidores en verde
 
 ```

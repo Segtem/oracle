@@ -1,0 +1,1150 @@
+objetivos: nucleo/sintaxis.py
+
+     ·  nucleo/sintaxis.py:21:16:constante                   constante: 2 → 3
+     ·  nucleo/sintaxis.py:21:24:constante                   constante: 1 → 2
+     ·  nucleo/sintaxis.py:22:28:constante                   constante: True → False
+     ·  nucleo/sintaxis.py:22:43:constante                   constante: False → True
+     ·  nucleo/sintaxis.py:28:13:constante                   constante: 2 → 3
+     ·  nucleo/sintaxis.py:64:20:constante                   constante: False → True
+     ·  nucleo/sintaxis.py:73:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:54:18:constante                   constante: True → False
+     ·  nucleo/sintaxis.py:85:11:comparador                  comparador: In → NotIn
+     ·  nucleo/sintaxis.py:91:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:97:18:constante                   constante: True → False
+     ·  nucleo/sintaxis.py:105:18:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:118:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:111:18:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:121:18:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:130:28:constante                  constante: False → True
+     ·  nucleo/sintaxis.py:132:44:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:137:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:138:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:150:11:comparador                 comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:150:20:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:153:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:157:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:161:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:166:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:179:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:185:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:191:8:constante                   constante: 0 → 1
+     ·  nucleo/sintaxis.py:192:10:comparador                 comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:196:17:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:198:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:203:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:209:50:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:210:17:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:212:11:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:214:17:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:216:11:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:218:17:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:220:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:221:42:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:222:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:224:49:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:229:28:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:230:40:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:236:49:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:242:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:242:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:242:24:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:242:36:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:245:28:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:250:28:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:253:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:257:58:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:260:23:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:263:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:267:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:267:15:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:267:15:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:267:35:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:267:35:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:267:57:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:271:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:271:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:271:31:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:271:31:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:271:48:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:272:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:273:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:278:11:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:281:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:287:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:292:14:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:292:14:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:292:48:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:293:15:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:295:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:297:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:297:28:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:297:43:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:297:22:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:302:14:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:302:14:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:302:48:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:303:15:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:305:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:307:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:307:28:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:307:43:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:307:22:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:310:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:310:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:310:45:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:312:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:313:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:314:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:318:11:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:319:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:322:18:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:324:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:327:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:331:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:332:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:333:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:334:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:335:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:336:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:337:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:338:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:339:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:342:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:344:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:345:15:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:346:16:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:349:16:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:356:19:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:357:26:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:362:19:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:363:24:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:363:24:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:363:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:363:42:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:363:62:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:364:31:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:364:36:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:364:45:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:366:20:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:367:39:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:367:48:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:368:66:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:368:75:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:369:19:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:370:24:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:370:24:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:370:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:370:42:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:370:62:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:371:31:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:371:36:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:371:45:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:373:20:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:374:37:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:374:46:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:375:64:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:375:73:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:376:16:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:377:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:383:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:391:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:393:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:397:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:405:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:411:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:411:14:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:412:23:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:413:9:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:413:16:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:414:29:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:416:30:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:416:73:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:417:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:417:14:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:418:30:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:418:66:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:419:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:424:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:425:15:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:426:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:427:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:431:7:comparador                  comparador: NotIn → In
+     ·  nucleo/sintaxis.py:434:11:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:435:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:440:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:440:14:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:441:30:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:441:73:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:442:22:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:446:18:constante                  constante: False → True
+     ·  nucleo/sintaxis.py:447:16:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:449:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:449:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:449:38:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:450:15:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:452:22:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:453:9:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:453:14:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:453:14:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:453:45:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:457:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:457:12:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:457:12:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:457:43:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:459:11:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:461:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:461:22:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:465:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:467:15:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:468:9:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:470:15:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:474:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:476:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:476:18:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:481:56:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:482:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:482:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:485:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:490:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:490:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:491:49:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:493:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:499:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:500:46:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:501:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:501:76:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:506:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:506:23:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:511:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:512:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:513:19:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:514:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:514:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:514:21:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:516:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:519:80:constante                  constante: False → True
+     ·  nucleo/sintaxis.py:520:54:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:522:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:522:22:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:523:21:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:524:39:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:524:48:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:525:33:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:525:42:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:525:63:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:525:69:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:526:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:530:44:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:531:52:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:532:36:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:533:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:533:7:comparador                  comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:533:22:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:533:28:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:533:35:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:533:58:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:533:65:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:534:11:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:534:18:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:535:27:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:535:44:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:536:45:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:536:52:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:536:32:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:536:83:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:537:11:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:537:18:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:538:27:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:538:44:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:539:42:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:539:49:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:539:29:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:539:80:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:540:11:comparador                 comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:540:25:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:541:27:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:541:44:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:542:26:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:545:43:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:545:21:constante                  constante: 5 → 6
+     ·  nucleo/sintaxis.py:545:37:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:546:51:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:547:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:550:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:550:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:550:29:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:551:25:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:552:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:552:37:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:556:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:561:50:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:562:36:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:563:21:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:564:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:566:9:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:566:9:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:566:37:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:570:17:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:572:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:572:14:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:573:21:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:573:32:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:573:68:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:574:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:584:35:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:584:52:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:584:55:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:585:37:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:588:21:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:588:24:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:588:29:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:588:46:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:591:24:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:593:65:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:594:20:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:594:23:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:594:41:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:594:44:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:596:73:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:600:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:603:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:606:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:608:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:612:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:612:15:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:616:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:616:29:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:616:32:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:616:46:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:616:49:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:621:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:621:32:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:622:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:623:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:624:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:628:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:629:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:630:8:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:630:8:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:630:21:constante                  constante: 5 → 6
+     ·  nucleo/sintaxis.py:630:27:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:630:32:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:630:66:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:631:16:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:631:21:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:631:24:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:632:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:632:68:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:633:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:638:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:639:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:639:25:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:639:28:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:641:10:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:643:11:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:644:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:645:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:646:12:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:646:29:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:646:32:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:647:26:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:655:32:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:662:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:666:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:668:13:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:669:64:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:670:13:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:682:27:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:683:11:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:684:15:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:691:11:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:696:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:696:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:696:42:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:702:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:707:7:comparador                  comparador: NotIn → In
+     ·  nucleo/sintaxis.py:711:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:711:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:711:32:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:720:44:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:722:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:722:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:722:37:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:724:18:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:725:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:726:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:726:24:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:727:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:728:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:728:24:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:729:37:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:730:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:730:24:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:731:37:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:732:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:732:24:constante                  constante: 5 → 6
+     ·  nucleo/sintaxis.py:733:37:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:734:26:constante                  constante: 5 → 6
+     ·  nucleo/sintaxis.py:737:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:738:25:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:741:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:742:25:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:742:27:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:745:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:746:25:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:746:27:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:749:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:750:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:750:24:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:751:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:753:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:754:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:754:24:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:755:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:756:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:756:24:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:757:37:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:759:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:760:32:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:760:32:comparador                 comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:760:44:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:760:66:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:760:26:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:761:15:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:761:43:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:761:57:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:762:42:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:763:42:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:764:35:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:764:35:comparador                 comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:764:47:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:764:69:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:764:29:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:765:15:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:765:46:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:765:63:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:766:45:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:767:45:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:768:45:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:770:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:771:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:771:24:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:772:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:773:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:773:24:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:774:37:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:776:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:777:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:777:24:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:778:37:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:779:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:779:24:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:780:37:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:781:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:781:24:constante                  constante: 5 → 6
+     ·  nucleo/sintaxis.py:782:37:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:784:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:785:25:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:786:15:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:786:42:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:786:55:constante                  constante: 4 → 5
+     ·  nucleo/sintaxis.py:786:61:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:786:66:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:787:41:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:788:41:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:789:41:constante                  constante: 3 → 4
+     ·  nucleo/sintaxis.py:793:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:794:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:794:24:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:795:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:797:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:798:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:798:24:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:799:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:803:11:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:804:15:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:806:89:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:807:15:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:809:68:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:812:71:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:815:21:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:826:15:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:828:61:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:831:79:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:832:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:837:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:838:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:839:8:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:839:8:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:839:32:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:839:38:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:839:63:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:840:16:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:840:34:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:841:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:841:36:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:841:58:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:848:56:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:849:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:851:11:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:851:11:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:851:29:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:851:51:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:852:25:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:867:12:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:867:12:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:867:37:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:868:20:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:868:56:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:869:25:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:871:12:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:871:12:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:871:38:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:872:20:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:872:45:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:873:25:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:876:43:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:877:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:877:40:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:878:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:879:43:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:880:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:880:42:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:881:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:881:37:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:885:27:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:886:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:886:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:886:24:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:887:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:887:15:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:888:32:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:888:35:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:888:39:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:888:49:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:888:52:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:888:67:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:888:70:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:889:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:889:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:889:32:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:894:55:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:895:7:booleano                    booleano: and ↔ or
+     ·  nucleo/sintaxis.py:895:7:comparador                  comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:895:32:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:895:38:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:895:56:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:896:46:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:896:49:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:896:71:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:898:12:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:898:12:comparador                 comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:899:20:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:901:62:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:902:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:904:37:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:905:12:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:905:12:comparador                 comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:905:51:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:905:76:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:906:20:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:906:38:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:907:49:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:907:52:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:907:74:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:909:27:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:910:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:915:34:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:915:53:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:916:26:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:917:77:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:920:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:925:54:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:927:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:928:34:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:929:89:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:934:59:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:936:34:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:936:53:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:938:43:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:941:46:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:941:57:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:945:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:948:54:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:949:16:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:950:49:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:950:60:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:951:11:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:953:25:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:955:45:comparador                 comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:955:39:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:956:24:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:956:27:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:956:32:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:956:68:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:962:24:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:962:41:constante                  constante: False → True
+     ·  nucleo/sintaxis.py:963:27:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:964:35:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:971:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:971:16:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:971:16:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:971:35:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:971:41:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:971:53:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:973:31:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:980:43:constante                  constante: 2 → 3
+     ·  nucleo/sintaxis.py:980:59:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:981:57:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:982:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:983:59:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:985:34:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:986:81:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:987:46:constante                  constante: True → False
+     ·  nucleo/sintaxis.py:988:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:993:50:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:995:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:998:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1005:47:constante                 constante: False → True
+     ·  nucleo/sintaxis.py:1006:42:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1007:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1009:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1010:19:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1012:41:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1014:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1016:11:comparador                comparador: NotIn → In
+     ·  nucleo/sintaxis.py:1017:23:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1018:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1018:23:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1018:23:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1018:51:comparador                comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1021:20:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1022:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1023:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1024:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1031:20:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1032:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1034:9:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1042:22:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1047:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1049:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1056:52:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1059:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1059:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1059:18:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1059:39:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1059:66:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1059:96:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1060:21:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1062:23:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1064:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1065:43:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1066:40:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1066:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1067:45:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1067:60:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1068:45:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1068:60:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1069:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1069:45:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1069:60:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1069:69:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1075:49:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1078:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1078:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1078:18:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1078:39:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1078:66:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1078:96:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1079:21:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1080:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1081:43:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1082:40:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1082:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1083:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1083:45:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1084:23:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1084:78:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1089:43:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1090:51:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1091:46:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1093:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1094:43:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1095:40:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1095:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1096:45:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1096:60:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1097:45:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1097:60:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1098:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1098:28:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1098:37:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1108:7:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1112:29:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1112:32:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1113:39:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1113:42:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1113:46:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1115:40:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1115:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1116:23:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1117:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1118:39:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1123:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1124:16:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1124:19:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1125:33:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1125:49:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1125:63:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1126:8:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:1127:10:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1129:11:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1129:33:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1131:65:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1132:13:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1142:21:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1142:24:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1143:48:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1148:10:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1150:35:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1152:65:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1153:25:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1153:41:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1154:61:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1155:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1155:67:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1157:60:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1158:17:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1161:60:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1163:15:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1163:15:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1163:29:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1163:34:comparador                comparador: NotIn → In
+     ·  nucleo/sintaxis.py:1163:41:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1164:31:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1164:65:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1165:49:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1165:56:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1165:36:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1165:87:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1166:15:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1166:15:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1166:29:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1166:34:comparador                comparador: NotIn → In
+     ·  nucleo/sintaxis.py:1166:41:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1167:43:comparador                comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:1167:57:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1167:31:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1168:45:comparador                comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:1168:59:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1168:31:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1168:74:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1168:98:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1168:110:constante                constante: 1 → 2
+     ·  nucleo/sintaxis.py:1170:46:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1170:53:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1170:33:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1170:84:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1171:15:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1171:15:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1171:29:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1171:34:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1171:41:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1171:63:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1171:70:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1172:43:comparador                comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:1172:57:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1172:31:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1173:45:comparador                comparador: Gt → GtE
+     ·  nucleo/sintaxis.py:1173:59:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1173:31:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1173:74:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1173:98:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1173:110:constante                constante: 1 → 2
+     ·  nucleo/sintaxis.py:1175:15:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1175:29:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1176:31:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1176:48:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1177:30:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1180:25:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1180:41:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1181:61:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1182:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1182:67:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1183:49:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1183:60:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1183:77:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1184:49:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1184:52:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1184:63:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1184:80:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1185:49:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1185:52:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1185:63:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1185:80:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1186:89:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1188:17:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1190:11:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1191:25:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1191:41:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1192:61:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1193:49:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1193:67:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1194:17:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1197:18:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1199:19:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1201:45:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1205:42:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1209:42:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1211:44:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1212:21:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1224:7:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:1225:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1225:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1225:32:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1225:35:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1226:70:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1227:9:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:1228:7:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:1229:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1229:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1229:32:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1229:35:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1230:29:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1230:44:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1230:59:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1231:29:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1231:32:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1231:46:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1231:61:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1233:42:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1234:9:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:1236:22:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1237:10:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1237:10:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1237:51:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1237:55:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1237:68:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1239:37:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1239:52:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1239:67:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1240:37:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1240:40:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1240:54:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1240:69:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1241:30:constante                 constante: False → True
+     ·  nucleo/sintaxis.py:1242:47:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1244:13:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1247:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1247:7:comparador                 comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1247:48:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1247:52:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1247:65:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1248:30:comparador                comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1248:23:constante                 constante: 6 → 7
+     ·  nucleo/sintaxis.py:1248:57:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1249:55:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1249:70:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1250:47:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1250:61:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1250:76:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1252:13:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1253:7:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:1254:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1254:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1254:32:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1254:35:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1255:20:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1255:28:comparador                comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1255:56:comparador                comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1256:52:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1256:67:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1257:44:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1257:58:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1257:73:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1258:64:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1259:9:constante                  constante: 1 → 2
+     ·  nucleo/sintaxis.py:1260:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1262:54:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1268:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1270:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1273:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1279:50:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1283:11:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1286:7:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1290:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1292:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1297:24:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1298:33:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1300:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1301:49:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1303:76:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1305:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1305:73:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1305:90:constante                 constante: False → True
+     ·  nucleo/sintaxis.py:1316:16:constante                 constante: False → True
+     ·  nucleo/sintaxis.py:1317:8:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:1318:10:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1321:15:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1322:21:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1324:15:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1325:28:constante                 constante: False → True
+     ·  nucleo/sintaxis.py:1326:17:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1328:11:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1329:24:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1330:17:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1332:11:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1333:42:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1335:39:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1335:47:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1338:13:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1339:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1344:20:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1345:8:constante                  constante: 0 → 1
+     ·  nucleo/sintaxis.py:1347:10:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1349:30:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1351:17:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1354:7:comparador                 comparador: GtE → Gt
+     ·  nucleo/sintaxis.py:1355:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1355:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1355:32:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1355:53:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1355:56:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1369:19:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1369:41:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1371:53:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1374:28:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1374:31:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1375:53:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1376:37:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1377:61:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1378:36:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1380:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1392:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1393:16:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1393:19:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1395:27:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1398:34:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1402:54:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1402:73:constante                 constante: True → False
+     ·  nucleo/sintaxis.py:1404:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1405:11:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1406:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1406:27:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1407:31:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1412:11:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1413:23:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1415:15:comparador                comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1416:48:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1417:11:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1418:23:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1421:29:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1422:30:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1423:56:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1425:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1427:25:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1428:26:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1432:64:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1432:70:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1434:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1439:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1444:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1455:7:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1458:11:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1458:11:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1458:41:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1459:12:retorno                   retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1463:11:comparador                comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1464:12:retorno                   retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1465:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1470:44:comparador                comparador: LtE → Lt
+     ·  nucleo/sintaxis.py:1470:38:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1472:42:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1472:45:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1473:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1477:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1477:42:constante                 constante: False → True
+     ·  nucleo/sintaxis.py:1482:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1482:11:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1482:38:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1482:51:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1482:57:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1482:62:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1487:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1487:20:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1492:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1492:20:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1495:29:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1497:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1497:24:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1498:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1499:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1500:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1502:18:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1503:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1504:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1504:23:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1504:33:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1505:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1506:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1506:20:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1507:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1508:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1508:29:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1509:7:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:1510:15:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1511:30:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1511:62:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1512:9:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:1514:64:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1515:9:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1516:15:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1517:33:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1519:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1519:60:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1520:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1520:27:comparador                comparador: Lt → LtE
+     ·  nucleo/sintaxis.py:1524:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1524:14:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1525:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1525:42:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1525:63:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1526:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1526:14:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1528:35:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1529:21:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1530:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1530:15:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1532:47:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1532:69:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1533:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1538:24:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1539:11:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1539:16:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1540:51:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1541:13:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1541:18:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1542:30:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1543:15:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1543:15:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1543:51:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1543:70:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1543:75:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1543:86:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1545:57:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1545:82:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1545:105:constante                constante: 2 → 3
+     ·  nucleo/sintaxis.py:1546:13:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1546:18:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1548:37:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1550:47:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1554:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1558:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1558:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1558:39:comparador                comparador: NotIn → In
+     ·  nucleo/sintaxis.py:1558:59:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1558:62:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1560:34:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1560:52:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1561:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1561:22:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1562:23:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1565:13:comparador                comparador: In → NotIn
+     ·  nucleo/sintaxis.py:1567:13:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1569:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1569:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1569:14:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1569:43:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1570:50:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1571:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1571:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1571:22:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1571:28:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1571:35:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1573:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1573:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1573:22:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1573:28:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1573:35:constante                 constante: 3 → 4
+     ·  nucleo/sintaxis.py:1573:48:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1573:55:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1575:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1579:7:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:1579:26:constante                 constante: 6 → 7
+     ·  nucleo/sintaxis.py:1579:29:constante                 constante: 7 → 8
+     ·  nucleo/sintaxis.py:1579:32:constante                 constante: 8 → 9
+     ·  nucleo/sintaxis.py:1583:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1583:23:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1583:45:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1583:70:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1584:27:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1584:38:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1584:41:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1585:34:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1587:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1587:23:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1587:45:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1587:70:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1588:27:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1588:38:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1588:41:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1589:32:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1592:65:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1593:50:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1593:70:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1595:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1596:39:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1596:46:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1596:51:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1596:75:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1596:85:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1596:91:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1596:93:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1597:45:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1597:52:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1597:76:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1597:86:constante                 constante: 4 → 5
+     ·  nucleo/sintaxis.py:1597:92:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1597:94:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1603:7:comparador                 comparador: IsNot → Is
+     ·  nucleo/sintaxis.py:1604:30:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1605:11:booleano                  booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1605:38:comparador                comparador: In → NotIn
+     ·  nucleo/sintaxis.py:1607:13:comparador                comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1611:57:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1612:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1616:7:comparador                 comparador: NotEq → Eq
+     ·  nucleo/sintaxis.py:1616:21:constante                 constante: 5 → 6
+     ·  nucleo/sintaxis.py:1622:50:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1622:69:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1625:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1629:18:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1631:7:comparador                 comparador: NotIn → In
+     ·  nucleo/sintaxis.py:1633:7:comparador                 comparador: In → NotIn
+     ·  nucleo/sintaxis.py:1637:61:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1638:7:comparador                 comparador: Is → IsNot
+     ·  nucleo/sintaxis.py:1641:87:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1647:39:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1648:43:constante                 constante: 1 → 2
+     ·  nucleo/sintaxis.py:1648:54:constante                 constante: 2 → 3
+     ·  nucleo/sintaxis.py:1650:11:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1652:13:comparador                comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1657:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1663:7:booleano                   booleano: and ↔ or
+     ·  nucleo/sintaxis.py:1663:7:negacion                   negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1663:38:negacion                  negacion: se borra el `not`
+     ·  nucleo/sintaxis.py:1665:18:constante                 constante: 0 → 1
+     ·  nucleo/sintaxis.py:1666:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1667:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1668:7:comparador                 comparador: Eq → NotEq
+     ·  nucleo/sintaxis.py:1669:8:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1670:4:retorno                    retorno: return <algo> → return None
+     ·  nucleo/sintaxis.py:1675:4:retorno                    retorno: return <algo> → return None
+
+mutantes: 1138 · murieron 1138 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 2
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

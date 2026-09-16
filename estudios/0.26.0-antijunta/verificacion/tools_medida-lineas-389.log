@@ -1,0 +1,16 @@
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --lineas 389-390) ***
+objetivos: tools/medida.py
+
+     ·  tools/medida.py:389:11:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:389:17:constante                     constante: 1 → 2
+     ·  tools/medida.py:390:26:constante                     constante: 1 → 2
+
+mutantes: 3 · murieron 3 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+*** RESUMEN: RONDA PARCIAL (3 de 301 sitios del objetivo) ***
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✗ proceso.ronda_mutacion_concluyente           valor 1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes probados murieron, pero la ronda fue PARCIAL: se probaron 3 de 301 sitios.
+Esto NO demuestra que los tests fijen el módulo completo.

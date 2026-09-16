@@ -1,0 +1,14 @@
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --sitio nucleo/algebra.py:689:35:constante) ***
+objetivos: nucleo/algebra.py
+
+     ·  nucleo/algebra.py:689:35:constante                   constante: 1 → 2
+
+mutantes: 1 · murieron 1 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+*** RESUMEN: RONDA PARCIAL (1 de 426 sitios del objetivo) ***
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✗ proceso.ronda_mutacion_concluyente           valor 1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes probados murieron, pero la ronda fue PARCIAL: se probaron 1 de 426 sitios.
+Esto NO demuestra que los tests fijen el módulo completo.
