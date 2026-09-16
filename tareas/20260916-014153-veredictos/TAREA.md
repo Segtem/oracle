@@ -18,3 +18,7 @@ roja a SIN EVIDENCIA no lo ve nadie.
 A hacer: que `nucleo/dominio.generar` use `registro_de_veredicto`, medir qué fixtures de los
 consumidores cambian de contenido al re-emitirse, y re-emitirlos junto con la tarea
 `20260915-155111-consumidores`, que ya los va a tocar para subirlos de 0.17.0.
+
+### Nota (2026-09-16 02:12:31 UTC)
+
+2026-09-16: hecho el lado de Oracle (nucleo/dominio.generar usa registro_de_veredicto). Falta re-emitir los fixtures de LyraGASP y Jam, que sólo se puede con el Oracle nuevo instalado: viaja con 20260915-155111-consumidores.
