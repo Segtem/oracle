@@ -11,7 +11,7 @@ caso 019-ronda-sin-mutantes-declarada-verde:
     como_se_detecto: persona
     medida: proceso.ronda_mutacion_concluyente
     evidencia:
-        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
-            "ronda-vacia", 0, true, true, 0, 0, 0
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts, parcial
+            "ronda-vacia", 0, true, true, 0, 0, 0, false
     leccion:
         Cero mutantes no significa que todos murieron. Sin material de mutación la ronda es inconclusa y debe salir con código distinto de cero.

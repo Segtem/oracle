@@ -1389,13 +1389,22 @@ class LimiteMemoriaTests(unittest.TestCase):
             raiz, objetivo = self._entorno(d)
             limite = 4000 * 1024 * 1024
             identidad = mc._identidad_ronda(
-                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, limite)
+                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, limite,
+                False)
             self.assertEqual(identidad["limite_memoria"], limite)
             self.assertIn("limite_salida", identidad)
             self.assertIn("timeout", identidad)
 
             sin_tope = mc._identidad_ronda(
-                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, None)
+                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, None,
+                False)
+            # Y una ronda parcial no es la misma ronda que una completa, aunque todo lo demás
+            # coincida: si lo fuera, reanudar un manifiesto mezclaría las dos.
+            parcial = mc._identidad_ronda(
+                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, limite,
+                True)
+            self.assertTrue(parcial["parcial"])
+            self.assertNotEqual(identidad, parcial)
             self.assertIsNone(sin_tope["limite_memoria"])
             self.assertNotEqual(identidad, sin_tope)
 
@@ -1533,4 +1542,207 @@ class LimiteMemoriaTests(unittest.TestCase):
         datos = json.loads(out.getvalue())
         self.assertEqual(datos["error_mutacion"][0]["tipo"], "ValueError")
         self.assertIn("limite_memoria_mb", datos["error_mutacion"][0]["mensaje"])
+
+
+class FiltroSitiosTests(unittest.TestCase):
+    def _entorno(self, d: str):
+        raiz = Path(d)
+        objetivo = raiz / "m.py"
+        objetivo.write_text(FUENTE, encoding="utf-8")
+        return raiz, objetivo
+
+    def test_ronda_sin_filtro_declara_parcial_false_y_total_sitios(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            evidencia = mc.correr(raiz, [objetivo], SIEMPRE_PASA)
+            corrida = evidencia["corrida_mutacion"][0]
+            self.assertFalse(corrida["parcial"])
+            self.assertGreater(corrida["total_sitios"], 0)
+            self.assertEqual(corrida["total_sitios"], len(evidencia["mutante"]))
+
+    def test_el_manifiesto_guarda_si_la_ronda_fue_parcial(self) -> None:
+        """La identidad de la ronda viaja al manifiesto, y reanudar compara contra ella: si una ronda
+        filtrada quedara guardada como completa, reanudarla sin filtro la tomaría por la misma y
+        sumaría los resultados de un subconjunto a los de todo el archivo. El mutante que invertía
+        el `is not None` de `correr` sobrevivió a la primera ronda del 2026-09-16."""
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            manifiesto = Path(d) / "progreso.json"
+            mc.correr(raiz, [objetivo], SIEMPRE_PASA, manifiesto=manifiesto,
+                      filtro_sitios=lambda s: s.linea == 2)
+            parcial = json.loads(manifiesto.read_text(encoding="utf-8"))["identidad"]["parcial"]
+
+            completo = Path(d) / "completo.json"
+            mc.correr(raiz, [objetivo], SIEMPRE_PASA, manifiesto=completo)
+            entero = json.loads(completo.read_text(encoding="utf-8"))["identidad"]["parcial"]
+        self.assertIs(parcial, True)
+        self.assertIs(entero, False)
+
+    def test_filtro_por_rango_de_lineas(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            todos_sitios = mc.sitios_de(objetivo, raiz)
+            sitios_linea_2 = [s for s in todos_sitios if s.linea == 2]
+            self.assertTrue(sitios_linea_2)
+
+            evidencia = mc.correr(
+                raiz, [objetivo], SIEMPRE_PASA,
+                filtro_sitios=lambda s: s.linea == 2)
+            corrida = evidencia["corrida_mutacion"][0]
+            self.assertTrue(corrida["parcial"])
+            self.assertEqual(corrida["total_sitios"], len(todos_sitios))
+            self.assertEqual(len(evidencia["mutante"]), len(sitios_linea_2))
+            for m in evidencia["mutante"]:
+                self.assertIn(":2:", m["id"])
+
+    def test_filtro_por_id_de_sitio(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            todos_sitios = mc.sitios_de(objetivo, raiz)
+            elegido = todos_sitios[0]
+
+            evidencia = mc.correr(
+                raiz, [objetivo], SIEMPRE_PASA,
+                filtro_sitios={elegido.id})
+            corrida = evidencia["corrida_mutacion"][0]
+            self.assertTrue(corrida["parcial"])
+            self.assertEqual(corrida["total_sitios"], len(todos_sitios))
+            self.assertEqual(len(evidencia["mutante"]), 1)
+            self.assertEqual(evidencia["mutante"][0]["id"], elegido.id)
+
+    def test_filtro_combinado_lineas_e_ids(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            todos_sitios = mc.sitios_de(objetivo, raiz)
+            sitios_linea_2 = [s for s in todos_sitios if s.linea == 2]
+            sitios_linea_4 = [s for s in todos_sitios if s.linea == 4]
+            self.assertTrue(sitios_linea_2)
+            self.assertTrue(sitios_linea_4)
+            elegido_l4 = sitios_linea_4[0]
+
+            filtro = lambda s: s.linea == 2 or s.id == elegido_l4.id
+            evidencia = mc.correr(
+                raiz, [objetivo], SIEMPRE_PASA,
+                filtro_sitios=filtro)
+            corrida = evidencia["corrida_mutacion"][0]
+            self.assertTrue(corrida["parcial"])
+            self.assertEqual(corrida["total_sitios"], len(todos_sitios))
+            self.assertEqual(len(evidencia["mutante"]), len(sitios_linea_2) + 1)
+            ids_probados = {m["id"] for m in evidencia["mutante"]}
+            self.assertIn(elegido_l4.id, ids_probados)
+            for s in sitios_linea_2:
+                self.assertIn(s.id, ids_probados)
+
+    def test_filtro_vacio_falla_con_error_claro(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            with self.assertRaises(ValueError) as cm:
+                mc.correr(
+                    raiz, [objetivo], SIEMPRE_PASA,
+                    filtro_sitios=lambda s: s.linea == 999)
+            self.assertIn("el filtro de sitios no seleccionó ningún sitio", str(cm.exception))
+
+    def test_equivalentes_en_otras_lineas_no_se_consideran_vencidos(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            todos_sitios = mc.sitios_de(objetivo, raiz)
+            sitios_linea_4 = [s for s in todos_sitios if s.linea == 4]
+            self.assertTrue(sitios_linea_4)
+            eq_id = sitios_linea_4[0].id
+
+            evidencia = mc.correr(
+                raiz, [objetivo], SIEMPRE_PASA,
+                equivalentes={eq_id: "razon valida"},
+                filtro_sitios=lambda s: s.linea == 2)
+            corrida = evidencia["corrida_mutacion"][0]
+            self.assertTrue(corrida["parcial"])
+            self.assertEqual(len(evidencia["mutante_equivalente"]), 0)
+
+    def test_cli_parseo_y_validacion_lineas_y_sitio(self) -> None:
+        from tools import mutar_codigo
+        args = mutar_codigo.argumentos(["--lineas", "10-20", "--lineas", "35", "--sitio", "m.py:1:2:+"])
+        self.assertEqual(args.lineas, ["10-20", "35"])
+        self.assertEqual(args.sitio, ["m.py:1:2:+"])
+
+        ini, fin = mutar_codigo.parsear_rango_lineas("10-20")
+        self.assertEqual((ini, fin), (10, 20))
+        ini, fin = mutar_codigo.parsear_rango_lineas("42")
+        self.assertEqual((ini, fin), (42, 42))
+
+        with self.assertRaises(ValueError):
+            mutar_codigo.parsear_rango_lineas("20-10")
+        with self.assertRaises(ValueError):
+            mutar_codigo.parsear_rango_lineas("0-10")
+        with self.assertRaises(ValueError):
+            mutar_codigo.parsear_rango_lineas("invalido")
+
+    def test_una_ronda_parcial_con_sobrevivientes_sale_1_y_no_2(self) -> None:
+        """Cuando las dos cosas son ciertas manda el sobreviviente: es lo accionable, y la
+        parcialidad igual se lee en el informe."""
+        from tools import mutar_codigo
+
+        with mock.patch.object(mutar_codigo, "correr") as mock_correr, \
+                mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+            mock_correr.return_value = {
+                "corrida_mutacion": [{
+                    "baseline_verde": True, "bytecode_frio": True, "mutantes": 1,
+                    "errores_arnes": 0, "timeouts": 0, "primer_inconcluso_id": "",
+                    "primer_fallo_id": "", "parcial": True, "total_sitios": 50,
+                }],
+                "mutante": [{"id": "m1", "estado": "pasaron", "tests_fallaron": False,
+                             "murio": False, "timeout": False, "error_arnes": False,
+                             "equivalente_declarado": False, "cambio": "x", "tipo": "codigo",
+                             "apunta_a": "nucleo/aislamiento/escalares.py"}],
+                "mutante_equivalente": [],
+            }
+            codigo = mutar_codigo.main([
+                "--objetivo", "nucleo/aislamiento/escalares.py", "--lineas", "10-20"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("La ronda fue PARCIAL", out.getvalue())
+
+    def test_cli_filtro_vacio_retorna_codigo_2(self) -> None:
+        from tools import mutar_codigo
+        with mock.patch("sys.stderr", new_callable=io.StringIO) as err:
+            codigo = mutar_codigo.main([
+                "--objetivo", "nucleo/aislamiento/escalares.py",
+                "--lineas", "9999-9999",
+            ])
+        self.assertEqual(codigo, 2)
+        self.assertIn("filtro de sitios no seleccionó ningún sitio", err.getvalue())
+
+    def test_cli_anuncia_ronda_parcial_en_primera_linea_y_resumen(self) -> None:
+        from tools import mutar_codigo
+        with mock.patch.object(mutar_codigo, "correr") as mock_correr, \
+                mock.patch("sys.stdout", new_callable=io.StringIO) as out:
+            mock_correr.return_value = {
+                "corrida_mutacion": [{
+                    "baseline_verde": True,
+                    "bytecode_frio": True,
+                    "mutantes": 1,
+                    "errores_arnes": 0,
+                    "timeouts": 0,
+                    "primer_inconcluso_id": "",
+                    "primer_fallo_id": "",
+                    "parcial": True,
+                    "total_sitios": 50,
+                }],
+                "mutante": [{"id": "m1", "estado": "tests_fallaron", "tests_fallaron": True,
+                             "murio": True, "timeout": False, "error_arnes": False,
+                             "equivalente_declarado": False, "cambio": "", "tipo": "codigo",
+                             "apunta_a": "nucleo/aislamiento/escalares.py"}],
+                "mutante_equivalente": [],
+            }
+            codigo = mutar_codigo.main([
+                "--objetivo", "nucleo/aislamiento/escalares.py",
+                "--lineas", "10-20",
+            ])
+            # 2 y no 0: una ronda parcial es inconclusa, y con 0 quien mire sólo el código de
+            # salida no puede distinguirla de una completa.
+            self.assertEqual(codigo, 2)
+            salida = out.getvalue()
+            lineas = salida.strip().splitlines()
+            self.assertIn("*** RONDA PARCIAL DE MUTACIÓN", lineas[0])
+            self.assertIn("*** RESUMEN: RONDA PARCIAL (1 de 50 sitios", salida)
+            self.assertIn("Esto NO demuestra que los tests fijen el módulo completo.", salida)
+
 

@@ -11,7 +11,7 @@ caso 108-ronda-mutacion-concluyente:
     como_se_detecto: observacion
     medida: proceso.ronda_mutacion_concluyente
     evidencia:
-        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
-            "ronda-concluyente", 3, true, true, 2, 0, 0
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts, parcial
+            "ronda-concluyente", 3, true, true, 2, 0, 0, false
     leccion:
         Una ronda puede encontrar mutantes vivos y seguir siendo confiable; lo que la vuelve inconclusa es no saber qué ocurrió en una ejecución.

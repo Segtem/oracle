@@ -5,11 +5,19 @@
     python tools/mutar_codigo.py --timeout 90    → límite por ejecución de tests
     python tools/mutar_codigo.py --limite-memoria-mb 4000 → límite de memoria en MiB (0 desactiva)
     python tools/mutar_codigo.py --manifiesto progreso.json [--reanudar]
+    python tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 50-120
+    python tools/mutar_codigo.py --sitio nucleo/algebra.py:53:12:+
 
 Cada ronda copia el proyecto a un directorio temporal y sólo muta esa copia. Un bloqueo impide dos
 rondas sobre la misma raíz; timeout y señales terminan el grupo de procesos y limpian el aislamiento.
 
-Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Timeout, error del arnés y fallo de
+Los modificadores `--lineas` y `--sitio` permiten enfocar la mutación en un rango de líneas o en
+sitios específicos para ciclos rápidos de desarrollo. Las rondas filtradas se marcan como parciales
+(`parcial: true`), no sustituyen a una corrida completa y las medidas de proceso concluyente las
+rechazan como evidencia de release.
+
+Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Una ronda parcial —con `--lineas`
+o `--sitio`— es inconclusa aunque no sobreviva nadie: sale 2. Timeout, error del arnés y fallo de
 tests son estados distintos; sólo el último demuestra que el mutante murió.
 """
 
@@ -379,6 +387,24 @@ def dependencias_de_ronda() -> list[Path]:
 LIMITE_MEMORIA_MB_PREDETERMINADO = 4000
 
 
+def parsear_rango_lineas(rango_str: str) -> tuple[int, int]:
+    partes = rango_str.strip().split("-")
+    try:
+        if len(partes) == 1:
+            inicio = fin = int(partes[0])
+        elif len(partes) == 2:
+            inicio = int(partes[0])
+            fin = int(partes[1])
+        else:
+            raise ValueError()
+        if inicio < 1 or fin < 1 or inicio > fin:
+            raise ValueError()
+    except ValueError:
+        raise ValueError(
+            f"rango de líneas inválido: {rango_str!r} (se esperaba formato A-B o A con 1 <= A <= B)")
+    return (inicio, fin)
+
+
 def argumentos(argv: list[str]):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
@@ -395,6 +421,10 @@ def argumentos(argv: list[str]):
                    help="continuar un --manifiesto compatible, revalidando antes la baseline")
     p.add_argument("--objetivo", action="append", metavar="RUTA",
                    help="archivo relativo a Oracle que se muta; repetible para particionar")
+    p.add_argument("--lineas", action="append", metavar="A-B",
+                   help="rango de líneas inclusivo (ej. 50-120 o 50); repetible; marca la ronda como parcial")
+    p.add_argument("--sitio", action="append", metavar="ID",
+                   help="id completo del sitio a mutar (archivo:linea:col:op); repetible; marca la ronda como parcial")
     p.add_argument("--confiar-escalares", action="store_true",
                    help="ejecutar el escalares.py del proyecto externo")
     p.add_argument("--reapuntar-equivalentes", action="store_true",
@@ -638,7 +668,27 @@ def _ejecutar(proy, args) -> int:
     try:
         objetivos = resolver_objetivos(args.objetivo)
         comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
+        rangos = [parsear_rango_lineas(r) for r in (args.lineas or [])]
+        sitios_fijos = set(args.sitio or [])
+        for sid in sitios_fijos:
+            if len(sid.split(":")) < 4:
+                raise ValueError(
+                    f"id de sitio inválido: {sid!r} (se esperaba formato archivo:linea:columna:operador)")
+
+        if rangos or sitios_fijos:
+            def filtro_sitios(s):
+                return (s.id in sitios_fijos) or any(ini <= s.linea <= fin for ini, fin in rangos)
+        else:
+            filtro_sitios = None
+
         if not silencioso:
+            if filtro_sitios is not None:
+                detalles = []
+                if args.lineas:
+                    detalles.append(f"--lineas {', '.join(args.lineas)}")
+                if args.sitio:
+                    detalles.append(f"--sitio {', '.join(args.sitio)}")
+                print(f"*** RONDA PARCIAL DE MUTACIÓN (filtro: {'; '.join(detalles)}) ***")
             print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
         equivalentes = equivalentes_del_alcance(
             cargar_equivalentes(EQUIVALENTES), objetivos)
@@ -652,7 +702,8 @@ def _ejecutar(proy, args) -> int:
             limite_salida=args.limite_salida_kb * 1024,
             limite_memoria=limite_memoria,
             manifiesto=args.manifiesto, reanudar=args.reanudar,
-            dependencias=dependencias_de_ronda())
+            dependencias=dependencias_de_ronda(),
+            filtro_sitios=filtro_sitios)
     except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, AislamientoRoto,
             ManifiestoInvalido, RondaEnCurso, OSError, ValueError) as e:
         error = {"tipo": type(e).__name__, "mensaje": str(e)}
@@ -690,10 +741,14 @@ def _ejecutar(proy, args) -> int:
         return 1 if vivos else 0
 
     eq = evidencia["mutante_equivalente"]
+    es_parcial = bool(corrida.get("parcial"))
+    total_sitios = corrida.get("total_sitios", len(evidencia["mutante"]))
     print(f"\nmutantes: {len(evidencia['mutante'])} · murieron "
           f"{muertos} · sobrevivieron {len(vivos)} · "
           f"timeout {corrida['timeouts']} · errores de arnés {corrida['errores_arnes']} · "
           f"equivalentes declarados: {len(eq)}")
+    if es_parcial:
+        print(f"*** RESUMEN: RONDA PARCIAL ({len(evidencia['mutante'])} de {total_sitios} sitios del objetivo) ***")
 
     catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy))
     # `medidas_aplicables` filtra por RELACIÓN presente, no por campo. Un mutante de código y uno de
@@ -733,8 +788,19 @@ def _ejecutar(proy, args) -> int:
             print(f"  · {m['id']}\n      {m['cambio']}")
         print("\nCada uno es un test que falta, o un mutante equivalente que hay que DECLARAR en")
         print("equivalentes.json con su razón escrita. Declararlo sin razón es una excusa.")
+        if es_parcial:
+            print(f"\nATENCIÓN: La ronda fue PARCIAL ({len(evidencia['mutante'])} de {total_sitios} sitios).")
         return 1
 
+    if es_parcial:
+        print(f"\nTodos los mutantes probados murieron, pero la ronda fue PARCIAL: se probaron "
+              f"{len(evidencia['mutante'])} de {total_sitios} sitios.")
+        print("Esto NO demuestra que los tests fijen el módulo completo.")
+        # Y sale 2, no 0. El contrato de esta herramienta es que 2 significa «ronda inconclusa», y
+        # una ronda parcial lo es por definición: lo dice la medida que ella misma imprime. Con 0,
+        # quien mire sólo `$?` —un script, el CI, alguien apurado— no puede distinguirla de una
+        # completa, que es exactamente la confusión que declararla parcial existe para evitar.
+        return 2
     print("\nTodos los mutantes murieron: los tests fijan el código del núcleo.")
     return 0
 

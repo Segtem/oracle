@@ -141,6 +141,36 @@ LONGITUD_IDENTIFICADOR_BLOQUEO = 24
 DESPLAZAMIENTO_SALIDA_POR_SENAL = 128
 SENAL_SONDEO_GRUPO = 0
 
+CAMPOS_DE_RELACIONES = {
+    "corrida_mutacion": (
+        "id",
+        "mutantes",
+        "baseline_verde",
+        "baseline_estado",
+        "bytecode_frio",
+        "tests_fallaron",
+        "errores_arnes",
+        "timeouts",
+        "rondas_ejecutadas",
+        "rondas_cache_verificadas",
+        "mutantes_reutilizados",
+        "primer_fallo_id",
+        "primer_fallo_estado",
+        "primer_fallo_codigo_salida",
+        "primer_fallo_salida",
+        "primer_fallo_salida_truncada",
+        "primer_inconcluso_id",
+        "primer_inconcluso_estado",
+        "primer_inconcluso_codigo_salida",
+        "primer_inconcluso_salida",
+        "primer_inconcluso_salida_truncada",
+        "aislada",
+        "fuentes_originales_intactas",
+        "parcial",
+        "total_sitios",
+    ),
+}
+
 
 class EstadoTests(str, Enum):
     """Resultado observable de una invocación del arnés.
@@ -694,7 +724,10 @@ def _escribir_manifiesto(ruta: Path, datos: dict) -> None:
 def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path],
                      comando: list[str], equivalentes: dict, timeout: float,
                      codigos, limite_salida: int,
-                     limite_memoria: int | None = None) -> dict:
+                     limite_memoria: int | None, parcial: bool) -> dict:
+    # `parcial` no tiene valor por omisión, y es a propósito: una identidad que no dice si la ronda
+    # fue parcial está diciendo que fue completa. El mutante que ponía ese default en `True` sobrevivió
+    # a la ronda del 2026-09-16 porque nadie lo ejercitaba — no había nada que ejercitar.
     fuentes = [{"ruta": ruta.resolve().relative_to(raiz).as_posix(),
                 "sha256": hashlib.sha256(ruta.read_bytes()).hexdigest()}
                for ruta in objetivos]
@@ -706,6 +739,7 @@ def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path]
             "equivalentes": equivalentes, "timeout": timeout,
             "codigos_fallo_tests": sorted(codigos), "limite_salida": limite_salida,
             "limite_memoria": limite_memoria,
+            "parcial": parcial,
             "motor_sha256": motor}
 
 
@@ -846,7 +880,8 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                      limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
                      limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
                      limite_memoria: int | None = LIMITE_MEMORIA_PREDETERMINADO,
-                     filas_previas: list[dict] | None = None) -> dict:
+                     filas_previas: list[dict] | None = None,
+                     filtro_sitios=None) -> dict:
     """Genera y prueba todos los mutantes. Devuelve EVIDENCIA, no un informe.
 
     Restaura siempre el archivo original, incluso si el subproceso revienta: el `finally` es lo único
@@ -857,6 +892,7 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
     _validar_objetivos(raiz, objetivos)
     originales = {ruta: ruta.read_text(encoding="utf-8") for ruta in objetivos}
     sitios_por_ruta = {ruta: sitios_de(ruta, raiz) for ruta in objetivos}
+    total_sitios = sum(len(s) for s in sitios_por_ruta.values())
     ids_vigentes = {sitio.id for sitios in sitios_por_ruta.values() for sitio in sitios}
 
     razones_invalidas = [mid for mid, razon in equivalentes.items()
@@ -872,6 +908,14 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
     if type(limite_diagnostico) is not int or limite_diagnostico <= 0:
         raise ValueError("limite_diagnostico tiene que ser un entero positivo")
     limite_memoria = _normalizar_limite_memoria(limite_memoria)
+
+    es_parcial = filtro_sitios is not None
+    if es_parcial:
+        criterio = filtro_sitios if callable(filtro_sitios) else (lambda s: s.id in filtro_sitios)
+        sitios_por_ruta = {ruta: [s for s in sitios if criterio(s)]
+                           for ruta, sitios in sitios_por_ruta.items()}
+        if sum(len(s) for s in sitios_por_ruta.values()) == 0:
+            raise ValueError("el filtro de sitios no seleccionó ningún sitio")
 
     baseline = _ejecutar_ronda(
         comando, raiz, timeout=timeout_por_ejecucion,
@@ -993,6 +1037,8 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
             "primer_inconcluso_codigo_salida": primer_inconcluso_codigo,
             "primer_inconcluso_salida": inconcluso_salida,
             "primer_inconcluso_salida_truncada": inconcluso_truncado,
+            "parcial": es_parcial,
+            "total_sitios": total_sitios,
         }],
     }
 
@@ -1005,7 +1051,8 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
            limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
            limite_memoria: int | None = LIMITE_MEMORIA_PREDETERMINADO,
            manifiesto: Path | None = None,
-           reanudar: bool = False, dependencias: list[Path] | None = None) -> dict:
+           reanudar: bool = False, dependencias: list[Path] | None = None,
+           filtro_sitios=None) -> dict:
     """Muta exclusivamente una copia temporal y comprueba que los objetivos originales no cambien."""
     limite_memoria = _normalizar_limite_memoria(limite_memoria)
     raiz = _resolver_existente(Path(raiz))
@@ -1028,7 +1075,8 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
     ruta_manifiesto = Path(manifiesto).expanduser().resolve() if manifiesto else None
     identidad = _identidad_ronda(
         raiz, objetivos, dependencias, comando, equivalentes, timeout_por_ejecucion,
-        codigos_fallo_tests, limite_salida, limite_memoria)
+        codigos_fallo_tests, limite_salida, limite_memoria,
+        parcial=filtro_sitios is not None)
 
     with _bloqueo_de_ronda(raiz), _senales_de_ronda():
         if reanudar:
@@ -1069,7 +1117,8 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                 codigos_fallo_tests=codigos_fallo_tests,
                 limite_diagnostico=limite_diagnostico, limite_salida=limite_salida,
                 limite_memoria=limite_memoria,
-                filas_previas=filas_previas)
+                filas_previas=filas_previas,
+                filtro_sitios=filtro_sitios)
         if ruta_manifiesto:
             datos_manifiesto["estado"] = "completa"
             _escribir_manifiesto(ruta_manifiesto, datos_manifiesto)

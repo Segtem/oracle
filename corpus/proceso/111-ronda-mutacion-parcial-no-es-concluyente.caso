@@ -1,0 +1,17 @@
+caso 111-ronda-mutacion-parcial-no-es-concluyente:
+    fecha: "2026-09-16"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "tarea 20260915-201030-sitios"
+    procedencia: construida
+    titulo: "Una ronda parcial de mutación no demuestra fijación completa del módulo"
+    etiqueta: falso_verde
+    sintoma:
+        Una ronda filtrada por líneas o sitios donde todos los mutantes evaluados murieron pretende presentarse como evidencia concluyente de release. La medida debe rechazarla porque sólo probó un subconjunto de sitios.
+    como_se_detecto: persona
+    medida: proceso.ronda_mutacion_concluyente
+    evidencia:
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts, parcial
+            "ronda-parcial", 2, true, true, 2, 0, 0, true
+    leccion:
+        Un verde en ronda parcial es informativo en el ciclo de desarrollo rápido pero no concluyente como verificación de proceso.

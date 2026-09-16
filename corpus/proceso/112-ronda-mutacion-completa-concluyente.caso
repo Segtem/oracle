@@ -1,0 +1,17 @@
+caso 112-ronda-mutacion-completa-concluyente:
+    fecha: "2026-09-16"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "tarea 20260915-201030-sitios"
+    procedencia: construida
+    titulo: "Una ronda completa de mutación sin incidentes es concluyente"
+    etiqueta: verde_correcto
+    sintoma:
+        Una ronda sobre el inventario completo donde la línea base fue verde, no hubo timeouts ni errores del arnés y parcial es false debe resultar concluyente.
+    como_se_detecto: observacion
+    medida: proceso.ronda_mutacion_concluyente
+    evidencia:
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts, parcial
+            "ronda-completa", 10, true, true, 8, 0, 0, false
+    leccion:
+        La completitud de la ronda junto a la ausencia de anomalías de ejecución garantiza evidencia válida para el proceso.

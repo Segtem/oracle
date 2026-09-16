@@ -11,7 +11,7 @@ caso 016-timeout-contado-como-mutante-muerto:
     como_se_detecto: persona
     medida: proceso.ronda_mutacion_concluyente
     evidencia:
-        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts
-            "ronda-inconclusa", 3, true, true, 2, 0, 1
+        corrida_mutacion: id, mutantes, baseline_verde, bytecode_frio, tests_fallaron, errores_arnes, timeouts, parcial
+            "ronda-inconclusa", 3, true, true, 2, 0, 1, false
     leccion:
         Muerte, timeout y error del arnés son resultados distintos; sólo una aserción fallida es evidencia discriminante.

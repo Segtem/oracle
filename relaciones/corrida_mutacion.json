@@ -140,6 +140,18 @@
       "fuentes_originales_intactas",
       "booleano",
       "sin_unidad"
+    ],
+    [
+      "campo",
+      "parcial",
+      "booleano",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "total_sitios",
+      "entero",
+      "sin_unidad"
     ]
   ],
   [
