@@ -17,3 +17,7 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 ### Nota (2026-09-16 15:00:23 UTC)
 
 2026-09-16: preparado todo lo que no necesita a Codex, en estudios/0.26.0-codex/ (README, CONTRATO, lanzar.sh, contrastar.py). El contraste está probado: 248 comparaciones, 0 desacuerdos contra la propia referencia y 29 contra un candidato que ignora requiere. Falta la entrega: Codex sigue en usage limit con gpt-5.6-luna y gpt-6-astra. Para retomar: estudios/0.26.0-codex/lanzar.sh <dir fuera del repo> y después contrastar.py sobre su evaluador.py.
+
+### Nota (2026-09-16 15:00:59 UTC)
+
+2026-09-16: el dueño eligió esperar a Codex antes que usar agy aislado ahora: es el autor que la tarea pide y un modelo distinto de los dos que ya tocaron la referencia. Se retoma cuando vuelva la cuota (19/09).
