@@ -1,6 +1,6 @@
 # El diferencial no ejercita requiere con condición ni relaciones con variantes
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 74
 - ETIQUETAS: oracle, metalenguaje, diferencial
 
