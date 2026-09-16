@@ -110,6 +110,15 @@ class SemanticaTests(unittest.TestCase):
         self.assertEqual(len(desde(tuberia, {"tarea": TAREAS, "cierre": CIERRES})), 2)
 
 
+class AlcanceDerivadoTests(unittest.TestCase):
+    def test_la_relacion_del_sin_cuenta_como_leida(self) -> None:
+        """`oracle revisar` y el MCP calculan lo que la medida NO lee; sin esto, la relación de la
+        anti-junta no aparecía."""
+        from tools.medida import relaciones_por_alias
+        datos = ["medida", "d.x", _tuberia(_sin(CORRESPONDE)), ["resumen", "contar", 1]]
+        self.assertEqual(relaciones_por_alias(datos), {"t": "tarea", "c": "cierre"})
+
+
 class SuperficieTests(unittest.TestCase):
     TEXTO = '''medida ejemplo.cerradas_sin_cierre:
     de tarea t

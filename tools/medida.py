@@ -384,6 +384,10 @@ def relaciones_por_alias(datos: list) -> dict[str, str]:
             _fuentes(nodo[2])
 
     _fuentes(datos[2][1])
+    # La relación de un `sin` también se lee, aunque su alias no salga del paso.
+    for paso in datos[2][2:]:
+        if isinstance(paso, list) and paso and paso[0] == "sin":
+            _fuentes(paso[1])
     return alias_de
 
 
