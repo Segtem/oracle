@@ -36,6 +36,22 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
+**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.23.1`.**
+
+Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
+0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
+los cuales dicen «`VERSION_ALGEBRA` queda en `0.6`». Lo reclamó el autor de la implementación de
+referencia en [`DECISIONES.md`](diferencial/referencia/DECISIONES.md). No envejece a mano: un test la
+compara contra `nucleo/version.py`, y si alguien sube una versión y no toca esta línea, la suite se
+pone en rojo.
+
+Lo que sigue es la **crónica**: un párrafo por corte, con el argumento de por qué subió lo que subió.
+Se queda acá, y no en las notas de release, porque es lo que vuelve discutible la regla de más abajo
+—un número sin su argumento no se puede auditar—. El orden no es uno solo, y conviene saberlo: los
+seis primeros van del más viejo al más nuevo (`0.7.0` a `0.9.2`) y de ahí en adelante cada corte se
+escribió arriba del anterior. Para saber en qué versión está el lenguaje no hace falta recorrerla:
+está en la línea de arriba.
+
 **Corte 0.7.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.6.0` a `0.7.0`.** El paquete gana
 `oracle reportar` y el canal documentado de reporte. `VERSION_ALGEBRA` queda en `0.6`: no se agrega
 ningún nodo, operador, agregado, escalar ni relación de traza, ni cambia el significado de los
