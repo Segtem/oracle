@@ -12,9 +12,9 @@ import importlib
 from nucleo.algebra import (ESCALARES, ErrorDeAlgebra, LimitesAlgebra,
                             RegistroEscalares, limites_predeterminados,
                             validar_resumen, validar_tuberia)
-from nucleo.medida import Informe, Medida, evaluar, medidas_aplicables
-from nucleo.proyecto import (Proyecto, ProyectoInvalido, catalogo_efectivo,
-                             configuracion, escalares_del_proyecto,
+from nucleo.medida import Informe, Medida, evaluar, medidas_aplicables, no_aplicadas
+from nucleo.proyecto import (ORIGEN_PROYECTO, Proyecto, ProyectoInvalido, catalogo_efectivo,
+                             configuracion, cotas_de_sombra, escalares_del_proyecto,
                              macros_del_proyecto, problemas_estructura)
 
 
@@ -72,8 +72,12 @@ def _registro_propio(registro: RegistroEscalares | None) -> RegistroEscalares:
 class Motor:
     """Evaluador reusable con catálogo, UDF y límites propiedad de una instancia."""
 
-    __slots__ = ("_en_sombra", "_medidas", "_registro", "limites", "proyecto")
+    __slots__ = ("_cotas", "_en_sombra", "_medidas", "_propias", "_registro", "limites", "proyecto")
 
+    _cotas: tuple[tuple[str, int], ...]
+    # Ids cuya ausencia se informa. `None` = todas: un motor armado con medidas sueltas no hereda
+    # nada. Desde un proyecto, sólo las de su catálogo propio.
+    _propias: frozenset[str] | None
     _en_sombra: frozenset[str]
     _medidas: tuple[Medida, ...]
     _registro: RegistroEscalares
@@ -89,7 +93,9 @@ class Motor:
     @classmethod
     def _crear(cls, medidas: Iterable[Medida], registro: RegistroEscalares,
                limites: LimitesAlgebra, proyecto: Path | None = None,
-               en_sombra: frozenset[str] = frozenset()) -> "Motor":
+               en_sombra: frozenset[str] = frozenset(),
+               cotas: tuple[tuple[str, int], ...] = (),
+               propias: frozenset[str] | None = None) -> "Motor":
         recibidas = tuple(medidas)
         if any(not isinstance(medida, Medida) for medida in recibidas):
             raise ErrorDeMotor("todas las medidas deben ser instancias de Medida")
@@ -108,6 +114,8 @@ class Motor:
         object.__setattr__(motor, "limites", limites)
         object.__setattr__(motor, "proyecto", proyecto)
         object.__setattr__(motor, "_en_sombra", en_sombra)
+        object.__setattr__(motor, "_cotas", cotas)
+        object.__setattr__(motor, "_propias", propias)
         return motor
 
     @classmethod
@@ -164,7 +172,10 @@ class Motor:
         sombra = configuracion(proy, raices_perfiles=raices_perfiles).sombra
         return cls._crear(
             catalogo.values(), registro, limites_propios, proyecto=raiz,
-            en_sombra=frozenset(entrada.medida for entrada in sombra))
+            en_sombra=frozenset(entrada.medida for entrada in sombra),
+            cotas=cotas_de_sombra(sombra),
+            propias=frozenset(mid for mid, entrada in catalogo.entradas.items()
+                              if entrada.origen == ORIGEN_PROYECTO))
 
     @property
     def medidas(self) -> tuple[Medida, ...]:
@@ -185,4 +196,6 @@ class Motor:
             evidencia,
             self.limites,
             registro=self._registro,
-        ), en_sombra=self._en_sombra)
+        ), en_sombra=self._en_sombra, cotas=self._cotas, no_aplicadas=no_aplicadas(
+            [m for m in self._medidas if self._propias is None or m.id in self._propias],
+            evidencia))

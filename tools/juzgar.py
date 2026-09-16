@@ -8,14 +8,16 @@ from __future__ import annotations
 import json
 import stat
 import sys
+from dataclasses import replace
 from pathlib import Path
 
 from nucleo.algebra import ErrorDeAlgebra
 from nucleo.medida import (Catalogo, Medida, MedidaMalDeclarada, evaluar_conjunto,
-                           medidas_aplicables, relaciones_de_medida)
+                           medidas_aplicables, no_aplicadas, relaciones_de_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,
                              Proyecto, ProyectoInvalido, catalogo_efectivo,
-                             configuracion, confiar_escalares,
+                             ORIGEN_PROYECTO, configuracion, confiar_escalares,
+                             cotas_de_sombra,
                              escalares_del_proyecto, macros_del_proyecto,
                              resolver)
 
@@ -207,8 +209,14 @@ def cmd_juzgar(argv: list[str]) -> int:
                         )
                         return 2
                     medidas_a_evaluar.append(m)
+                faltantes = ()
             else:
                 medidas_a_evaluar = medidas_aplicables(catalogo.values(), evidencia)
+                # Sólo las del catálogo propio: las heredadas juzgan el catálogo, no esta evidencia,
+                # y nombrarlas en cada corrida taparía la que de verdad faltó.
+                faltantes = no_aplicadas(
+                    [catalogo[mid] for mid, entrada in catalogo.entradas.items()
+                     if entrada.origen == ORIGEN_PROYECTO], evidencia)
                 if not medidas_a_evaluar:
                     relaciones = sorted(evidencia.keys())
                     print(
@@ -220,9 +228,12 @@ def cmd_juzgar(argv: list[str]) -> int:
 
             # 7. Evaluación. Las sombras entran ACÁ y no después: desde 0.20.0 `Informe` sabe qué
             # rojo perdona la sombra, y la copia que vivía en este archivo envejecía aparte.
-            mapa_sombra = {e.medida: e for e in configuracion(proy).sombra}
+            sombra = configuracion(proy).sombra
+            mapa_sombra = {e.medida: e for e in sombra}
             informe = evaluar_conjunto(medidas_a_evaluar, evidencia,
-                                       en_sombra=frozenset(mapa_sombra))
+                                       en_sombra=frozenset(mapa_sombra),
+                                       cotas=cotas_de_sombra(sombra))
+            informe = replace(informe, no_aplicadas=faltantes)
             if informe.no_juzgaron:
                 for mid, motivo in informe.no_juzgaron:
                     print(f"ERROR AL EVALUAR — «{mid}»: {motivo}", file=sys.stderr)
@@ -250,10 +261,13 @@ def cmd_juzgar(argv: list[str]) -> int:
         for v in informe.veredictos:
             d = v.a_dict()
             d["en_sombra"] = (v.id in mapa_sombra)
+            d["supera_su_cota"] = informe.supera_su_cota(v)
             medidas_json.append(d)
         salida_json = {
             "ok": es_aprobado,
             "medidas": medidas_json,
+            "no_aplicadas": [{"id": mid, "faltan": list(faltan)}
+                             for mid, faltan in informe.no_aplicadas],
         }
         print(json.dumps(salida_json, ensure_ascii=False))
     else:
@@ -263,6 +277,8 @@ def cmd_juzgar(argv: list[str]) -> int:
             if v.id in mapa_sombra:
                 s = mapa_sombra[v.id]
                 detalles = []
+                if informe.supera_su_cota(v):
+                    detalles.append(f"SUPERA SU COTA {s.cota}: la sombra no la perdona")
                 if s.desde:
                     detalles.append(f"desde {s.desde}")
                 if s.porque:
@@ -273,6 +289,7 @@ def cmd_juzgar(argv: list[str]) -> int:
             else:
                 lineas.append(linea_base)
 
+        lineas += informe.lineas_no_aplicadas()
         if not es_aprobado:
             lineas.append(f"\nVEREDICTO: {len(rojos_fuera_de_sombra)} de {len(informe.veredictos)} medidas en rojo")
         else:

@@ -186,6 +186,11 @@ class EnSombra:
     cota: int = SIN_COTA
 
 
+def cotas_de_sombra(sombra) -> tuple[tuple[str, int], ...]:
+    """Las `(id, cota)` de las sombras que declaran cota, en la forma que espera `Informe`."""
+    return tuple((e.medida, e.cota) for e in sombra if e.cota != SIN_COTA)
+
+
 def _sombra_declarada(datos: dict) -> tuple[EnSombra, ...]:
     """Lee `sombra` de `oracle.json`. Falla cerrado ante cualquier forma que no entienda."""
     crudo = datos.get("sombra", {})
