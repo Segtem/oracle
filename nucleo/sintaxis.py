@@ -750,6 +750,12 @@ def _tipos_en_plantilla(nodo, macros, tipos: dict[str, str], contexto: str,
         if len(nodo) >= 2:
             _tipos_en_plantilla(nodo[1], macros, tipos, "expr", visitadas)
         return
+    if cabeza == "sin":
+        if len(nodo) >= 2:
+            _tipos_en_plantilla(nodo[1], macros, tipos, "fuente", visitadas)
+        if len(nodo) >= 3:
+            _tipos_en_plantilla(nodo[2], macros, tipos, "expr", visitadas)
+        return
     if cabeza == "agrupar":
         for clave in nodo[1] if len(nodo) > 1 and isinstance(nodo[1], list) else []:
             if isinstance(clave, list) and len(clave) >= 2:
@@ -1151,6 +1157,36 @@ def _leer_medida(mid: str, cuerpo: list[tuple[int, str]], *,
                 expr_txt, n, col, ubicaciones, (*ruta_paso, 1))])
             i += 1
             continue
+        if actual.startswith("sin "):
+            resto, col = _exigir_prefijo(cuerpo[i], "sin ", 1)
+            tokens = _tokenizar(resto, n, col)
+            if len(tokens) < 1 or tokens[0].tipo not in ("IDENT", "HUECO"):
+                _fallar(tokens[0].linea if tokens else n, tokens[0].columna if tokens else col, "nombre de relación")
+            relacion = ["$", tokens[0].valor] if tokens[0].tipo == "HUECO" else tokens[0].valor
+            if len(tokens) < 2 or tokens[1].tipo not in ("IDENT", "HUECO"):
+                _fallar(tokens[1].linea if len(tokens) > 1 else n,
+                        tokens[1].columna if len(tokens) > 1 else (tokens[0].columna + len(tokens[0].valor) + 1),
+                        "alias de relación")
+            alias = ["$", tokens[1].valor] if tokens[1].tipo == "HUECO" else tokens[1].valor
+            if len(tokens) < 3 or tokens[2].tipo != "IDENT" or tokens[2].valor != "donde":
+                _fallar(tokens[2].linea if len(tokens) > 2 else n,
+                        tokens[2].columna if len(tokens) > 2 else (tokens[1].columna + len(tokens[1].valor) + 1),
+                        "«donde» en paso «sin»")
+            if len(tokens) < 4:
+                _fallar(tokens[2].linea, tokens[2].columna + len("donde"), "condición después de «donde»")
+            col_expr = tokens[3].columna
+            col_en_resto = col_expr - col
+            expr_texto = resto[col_en_resto:]
+            ruta_paso = (2, len(pasos) + 2)
+            _registrar(ubicaciones, ruta_paso, n, len(IND) + 1)
+            _registrar(ubicaciones, (*ruta_paso, 0), n, len(IND) + 1)
+            _registrar(ubicaciones, (*ruta_paso, 1), tokens[0].linea, tokens[0].columna)
+            _registrar(ubicaciones, (*ruta_paso, 1, 1), tokens[0].linea, tokens[0].columna)
+            _registrar(ubicaciones, (*ruta_paso, 1, 2), tokens[1].linea, tokens[1].columna)
+            condicion = _leer_expr_en(expr_texto, n, col_expr, ubicaciones, (*ruta_paso, 2))
+            pasos.append(["sin", ["de", relacion, alias], condicion])
+            i += 1
+            continue
         if actual == "agrupar:":
             ruta_paso = (2, len(pasos) + 2)
             _registrar(ubicaciones, ruta_paso, n, len(IND) + 1)
@@ -1502,6 +1538,11 @@ def _imprimir_pasos(tuberia: list) -> list[str]:
     for paso in tuberia[2:]:
         if paso[0] == "donde":
             salida.append(f"{IND}donde {_expr(paso[1])}")
+        elif paso[0] == "sin":
+            fuente_der = paso[1]
+            if not isinstance(fuente_der, list) or len(fuente_der) != 3 or fuente_der[0] != "de":
+                raise ValueError(f"la superficie sólo imprime `sin` con fuente `de`: {paso!r}")
+            salida.append(f"{IND}sin {_nombre(fuente_der[1])} {_nombre(fuente_der[2])} donde {_expr(paso[2])}")
         elif paso[0] == "agrupar":
             salida.append(f"{IND}agrupar:")
             for nombre, expr in paso[1]:

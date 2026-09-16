@@ -241,6 +241,8 @@ def _extraer_comparaciones_de_paso(paso: Any) -> list[tuple[Any, Any]]:
     op = paso[0]
     if op == "donde" and len(paso) == 2:
         return _extraer_comparaciones_de_expr(paso[1])
+    if op == "sin" and len(paso) == 3:
+        return _extraer_comparaciones_de_expr(paso[2])
     if op == "agrupar" and len(paso) == 3:
         claves, agregados = paso[1], paso[2]
         comparaciones = []
@@ -286,9 +288,12 @@ def comparaciones_de_medida(
     # 2. Comparaciones en los pasos de la tubería
     if isinstance(medida.tuberia, list):
         for paso in medida.tuberia[2:]:
+            mapa_paso = alias_map
+            if isinstance(paso, list) and len(paso) == 3 and paso[0] == "sin":
+                mapa_paso = {**alias_map, **extraer_alias_de_fuente(paso[1])}
             for izq, der in _extraer_comparaciones_de_paso(paso):
                 es_der_paso, unidad_paso = derivar_unidad_comparacion(
-                    izq, der, alias_map, relaciones, registro, relaciones_lenguaje, columnas
+                    izq, der, mapa_paso, relaciones, registro, relaciones_lenguaje, columnas
                 )
                 filas.append({
                     "medida": medida.id,

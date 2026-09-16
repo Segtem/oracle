@@ -1,0 +1,6 @@
+ninguno meta.sin_nunca_agrega_filas:
+    de paso p
+    donde p.operador == "sin" y p.filas_despues > p.filas_antes
+    umbral <= 0 segun contrato porque "la anti-junta sólo descarta filas de la izquierda, nunca agrega filas nuevas; un operador «sin» que devuelva más filas de las que entraron viola la semántica relacional de filtrado"
+    ambito del_origen
+    alcance "compara el conteo de filas antes y después de cada paso «sin» sobre las evaluaciones ejecutadas bajo traza. NO comprueba si las filas descartadas o conservadas son exactamente las que correspondían a la condición, sólo que el número total nunca aumente. Si no hubo pasos «sin» en la traza, la relación resulta vacía y el veredicto es verde por vacuidad"

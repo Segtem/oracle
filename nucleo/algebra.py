@@ -682,6 +682,17 @@ def validar_unicidad(relacion: str, clave: tuple[str, ...], filas: list) -> None
 FUENTES = ("de", "unir")
 
 
+def _alias_de_fuente(fuente) -> set[str]:
+    """Extrae el conjunto de alias introducidos por una fuente («de» o «unir»)."""
+    if not isinstance(fuente, list) or not fuente:
+        return set()
+    if fuente[0] == "de" and len(fuente) >= 3 and isinstance(fuente[2], str):
+        return {fuente[2]}
+    if fuente[0] == "unir" and len(fuente) >= 3:
+        return _alias_de_fuente(fuente[1]) | _alias_de_fuente(fuente[2])
+    return set()
+
+
 def _de(evidencia: dict, relacion: str, alias: str, limites: LimitesAlgebra) -> list[dict]:
     if relacion not in evidencia:
         raise ErrorDeAlgebra(
@@ -736,6 +747,57 @@ def _unir(paso, evidencia: dict, limites: LimitesAlgebra,
             salida.append({**a, **b})
     if _lados is not None:
         _lados["izquierda"], _lados["derecha"] = len(filas_izq), len(filas_der)
+    return salida
+
+
+def _exigir_de_en_sin(fuente) -> None:
+    # §3 fija la forma: una relación nombrada con su alias. Un `unir` a la derecha no está en la
+    # especificación, y la implementación independiente lo rechaza.
+    if not isinstance(fuente, list) or not fuente or fuente[0] != "de":
+        raise ErrorDeAlgebra("«sin» toma una relación nombrada: ['sin', ['de', relacion, alias], "
+                             "condicion]")
+
+
+def _sin(paso, filas: list[dict], evidencia: dict, limites: LimitesAlgebra,
+         registro: Mapping[str, Callable[..., Any]], *,
+         ruta: tuple[int, ...] | None = None) -> list[dict]:
+    """`["sin", fuente, condicion]` → filtra filas de la izquierda sin coincidencia en la fuente.
+
+    Conserva sólo las columnas y alias del lado izquierdo (el alias derecho no sobrevive en la salida).
+    Evalúa la fuente derecha; si la relación no existe en la evidencia, levanta el mismo error que «de»
+    incluso si la izquierda no tiene filas.
+    Si la fuente derecha viene vacía ([]), pasan todas las filas de la izquierda.
+    Sin cortocircuito: para cada fila de la izquierda se evalúan todas las filas de la derecha;
+    si alguna levanta un error, se propaga aunque otra haya cumplido la condición.
+    """
+    fuente_der, condicion = paso[1], paso[2]
+    _exigir_de_en_sin(fuente_der)
+
+    ruta_der = (*ruta, 1) if ruta is not None else None
+    filas_der = aplicar(fuente_der, [], evidencia, limites, registro=registro, ruta=ruta_der)
+
+    alias_der_set = _alias_de_fuente(fuente_der)
+    for f in filas:
+        comunes = set(f) & alias_der_set
+        if comunes:
+            raise ErrorDeAlgebra(f"«sin» con alias repetido: {sorted(comunes)}")
+
+    tamano = len(filas) * len(filas_der)
+    if tamano > limites.producto_cartesiano:
+        raise ErrorDeAlgebra(
+            f"el producto cartesiano produciría {tamano} filas y supera el límite "
+            f"de {limites.producto_cartesiano}")
+
+    salida = []
+    ruta_cond = (*ruta, 2) if ruta is not None else None
+    for f in filas:
+        hubo_coincidencia = False
+        for b in filas_der:
+            fila_combinada = {**f, **b}
+            if evaluar_expr(condicion, fila_combinada, limites, registro=registro, ruta=ruta_cond):
+                hubo_coincidencia = True
+        if not hubo_coincidencia:
+            salida.append(f)
     return salida
 
 
@@ -810,6 +872,8 @@ def aplicar(paso, filas: list[dict], evidencia: dict,
         _anotar("producto", izquierda=lados["izquierda"], derecha=lados["derecha"],
                 salida=len(filas_unidas))
         return filas_unidas
+    if op == "sin":
+        return _sin(paso, filas, evidencia, limites, escalares, ruta=ruta)
     if op == "donde":
         ruta_expr = (*ruta, 1) if ruta is not None else None
         return [f for f in filas if evaluar_expr(
@@ -841,12 +905,25 @@ def _validar_fuente(fuente, limites: LimitesAlgebra | None = None) -> None:
 
 
 def _validar_paso(paso, limites: LimitesAlgebra | None = None, *,
-                  registro: Mapping[str, Callable[..., Any]] | None = None) -> None:
+                  registro: Mapping[str, Callable[..., Any]] | None = None,
+                  alias_activos: set[str] | None = None) -> None:
     if not isinstance(paso, list) or not paso:
         raise ErrorDeAlgebra("cada paso de una tubería tiene que ser una lista no vacía")
 
     op = paso[0]
     _validar_nombre(op, "el operador de un paso")
+    if op == "sin":
+        if len(paso) != 3:
+            raise ErrorDeAlgebra("«sin» va ['sin', ['de', relacion, alias], condicion]")
+        _exigir_de_en_sin(paso[1])
+        _validar_fuente(paso[1], limites)
+        if alias_activos is not None:
+            alias_der = _alias_de_fuente(paso[1])
+            comunes = alias_activos & alias_der
+            if comunes:
+                raise ErrorDeAlgebra(f"«sin» con alias repetido: {sorted(comunes)}")
+        validar_expr(paso[2], limites, registro=registro)
+        return
     if op == "donde":
         if len(paso) != 2:
             raise ErrorDeAlgebra("«donde» va ['donde', predicado]")
@@ -888,8 +965,11 @@ def validar_tuberia(tuberia, limites: LimitesAlgebra | None = None, *,
     if len(tuberia) < 2:
         raise ErrorDeAlgebra("una tubería «desde» necesita una fuente")
     _validar_fuente(tuberia[1], limites)
+    alias_activos = set(_alias_de_fuente(tuberia[1]))
     for paso in tuberia[2:]:
-        _validar_paso(paso, limites, registro=registro)
+        _validar_paso(paso, limites, registro=registro, alias_activos=alias_activos)
+        if isinstance(paso, list) and paso and paso[0] == "agrupar":
+            alias_activos = set()
 
 
 def validar_resumen(resumen, limites: LimitesAlgebra | None = None, *,

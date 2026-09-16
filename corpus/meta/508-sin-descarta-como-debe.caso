@@ -1,0 +1,20 @@
+caso 508-sin-descarta-como-debe:
+    fecha: "2026-09-16"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "683dde3"
+        comando: "python tools/cli.py tarea hechos --git, evaluado con trazar() sobre seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre"
+    procedencia: observada
+    titulo: "La política de cierres del tracker: un `sin` que deja 4 de 31"
+    etiqueta: verde_correcto
+    sintoma:
+        La tubería real de la política reescrita con anti-junta: `de` puebla con las 39 tareas —y crece, que es correcto y la medida no lo mira—, `donde` deja las 31 cerradas y `sin` descarta las 27 que tienen su commit de cierre.
+    como_se_detecto: observacion
+    medida: meta.sin_nunca_agrega_filas
+    evidencia:
+        paso: t, operador, filas_antes, filas_despues
+            0, "de", 0, 39
+            1, "donde", 39, 31
+            2, "sin", 31, 4
+    leccion:
+        Sin esta polaridad, quitar el filtro de operador sobreviviría: la medida se pondría roja en cada `de`, que siempre agrega filas. La propiedad es sobre `sin`, no sobre la tubería.

@@ -94,6 +94,16 @@ def quitar_requiere(datos: list) -> list | None:
     return [*d[:5], *d[6:]]
 
 
+def quitar_antijunta(datos: list) -> list | None:
+    """Sin el `sin`, las filas que sí tienen pareja en la otra relación vuelven a contar.
+
+    Un corpus que no lo nota no prueba la anti-junta: prueba el `donde` que la acompaña.
+    """
+    d = deepcopy(datos)
+    tuberia = [p for p in d[2] if not (isinstance(p, list) and p and p[0] == "sin")]
+    return [*d[:2], tuberia, *d[3:]] if len(tuberia) != len(d[2]) else None
+
+
 def negar_filtro(datos: list) -> list | None:
     d = deepcopy(datos)
     hubo = False
@@ -127,6 +137,7 @@ MUTADORES_PROPIOS = {
     "quitar_filtro": quitar_filtro,
     "quitar_requiere": quitar_requiere,
     "negar_filtro": negar_filtro,
+    "quitar_antijunta": quitar_antijunta,
 }
 
 

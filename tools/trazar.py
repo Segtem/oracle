@@ -44,6 +44,7 @@ from nucleo.proyecto import (Proyecto, catalogos_a_cargar,  # noqa: E402
 # hablaría del vigilante y no de lo vigilado.
 VIGILANTES = frozenset({
     "meta.donde_nunca_agrega_filas",
+    "meta.sin_nunca_agrega_filas",
     "meta.agrupar_no_agranda_la_relacion",
     "meta.unir_materializa_el_producto",
     "meta.los_logicos_evaluan_todos_sus_operandos",

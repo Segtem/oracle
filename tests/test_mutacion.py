@@ -512,7 +512,7 @@ class CoberturaDeMutadores(unittest.TestCase):
         with redirect_stdout(salida):
             mutar.main(["--proyecto", str(RAIZ)])
         texto = salida.getvalue()
-        self.assertIn("con 29 mutadores", texto)
+        self.assertIn("con 30 mutadores", texto)
         self.assertIn("de otro autor", texto)
         self.assertNotIn("⚠", texto)
 

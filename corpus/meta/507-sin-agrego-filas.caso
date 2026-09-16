@@ -1,0 +1,19 @@
+caso 507-sin-agrego-filas:
+    fecha: "2026-09-16"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "683dde3"
+    procedencia: construida
+    titulo: "Un `sin` que devolvió más filas de las que recibió"
+    etiqueta: falso_verde
+    sintoma:
+        La traza registró un `sin` con 31 filas de entrada y 33 de salida. Una anti-junta sólo descarta: si agrega, está dejando pasar filas combinadas con la otra relación, y los testigos que publica la medida nombran pares que nunca se demostró que no correspondieran.
+    como_se_detecto: mutacion
+    medida: meta.sin_nunca_agrega_filas
+    evidencia:
+        paso: t, operador, filas_antes, filas_despues
+            0, "de", 0, 39
+            1, "donde", 39, 31
+            2, "sin", 31, 33
+    leccion:
+        La misma propiedad que `donde` (049), enunciada para el operador nuevo del álgebra 0.8: como medida entra a la mutación y al corpus, y sale del núcleo.

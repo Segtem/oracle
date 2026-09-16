@@ -799,7 +799,13 @@ def relaciones_de_fuente(fuente) -> tuple[str, ...]:
 
 def relaciones_de_medida(medida) -> tuple[str, ...]:
     tuberia = medida.tuberia
-    return relaciones_de_fuente(tuberia[1]) if isinstance(tuberia, list) and len(tuberia) > 1 else ()
+    if not isinstance(tuberia, list) or len(tuberia) <= 1:
+        return ()
+    rels = list(relaciones_de_fuente(tuberia[1]))
+    for paso in tuberia[2:]:
+        if isinstance(paso, list) and len(paso) >= 2 and paso[0] == "sin":
+            rels.extend(relaciones_de_fuente(paso[1]))
+    return tuple(dict.fromkeys(rels))
 
 
 def medidas_aplicables(medidas, evidencia: dict) -> list:
@@ -986,7 +992,12 @@ def _pasos_de(medida) -> list[dict]:
 
 
 def _fuentes_de_medida(medida) -> list[dict]:
-    return list(_fuentes(medida.id, medida.tuberia[1], (2, 1)))
+    fuentes = list(_fuentes(medida.id, medida.tuberia[1], (2, 1)))
+    if isinstance(medida.tuberia, list):
+        for indice, paso in enumerate(medida.tuberia[2:]):
+            if isinstance(paso, list) and len(paso) >= 2 and paso[0] == "sin":
+                fuentes.extend(_fuentes(medida.id, paso[1], (2, indice + 2, 1)))
+    return fuentes
 
 
 def _fuentes(medida: str, fuente, ruta: tuple[int, ...]):

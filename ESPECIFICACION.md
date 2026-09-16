@@ -1,6 +1,6 @@
 # Especificación del álgebra
 
-Versión `0.6`, declarada de forma **legible por máquina** en `nucleo/version.py`
+La versión vigente está en la primera línea de §0, declarada de forma **legible por máquina** en `nucleo/version.py`
 (`VERSION_ALGEBRA`). Esta prosa la cita, no la define: la define el dato, y la regla de qué cambio
 sube qué parte del número está en §0. **Escrita para ser rota**: el criterio de si sirve está al
 final, y es comprobable.
@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.25.2`.**
+**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.26.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,18 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.26.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.2` a `0.26.0`, `VERSION_ALGEBRA`
+de `0.7` a `0.8` y `VERSION_SINTAXIS` de `0.5` a `0.6`.** El álgebra gana la anti-junta: un paso
+`["sin", ["de", relación, alias], condición]`, que en la superficie se escribe
+`sin <relación> <alias> donde <condición>` y deja pasar las filas que **ninguna** fila de la otra
+relación cumple (§3). Sube la **menor** del álgebra porque entra un nodo nuevo y todo lo que valía
+significa lo mismo; sube la de la sintaxis por la cláusula nueva; y sube la menor de la distribución
+porque un proyecto que la use no carga en 0.25. La prueba de valor: la política del tracker «toda
+tarea cerrada tiene su commit de cierre» se escribe ahora en la medida, y el emisor dejó de contar
+por ella. La referencia del diferencial se re-derivó contra 0.8 en aislamiento, y las sondas a sus
+decisiones dejaron dos rincones que §3 ahora decide. Cierra las tareas `20260916-151553-antijunta` y
+`20260916-200751-traceback-mutar`.
 
 **Corte 0.25.2 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.1` a `0.25.2`.** El informe de
 `oracle diferencial` queda fijado por tests y su verificador entra a la matriz de mutación de CI
@@ -709,7 +721,7 @@ a mano — el error concreto que motivó esta especificación (ver
 
 ## 3. Los operadores
 
-Cinco. Cuatro toman relaciones y devuelven una relación: **eso es la clausura**, y es lo que permite
+Seis. Cinco toman relaciones y devuelven una relación: **eso es la clausura**, y es lo que permite
 encadenarlos en cualquier orden sin un solo caso especial. `resumen` es el que la rompe a propósito,
 porque colapsa a un escalar: por eso va último y una sola vez, y por eso **la clausura es sobre
 filas, no sobre medidas**.
@@ -725,6 +737,7 @@ afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo
 | `de` | `["de", relación, alias]` | fuente |
 | `donde` | `["donde", pred]` | filtra — **define los testigos** |
 | `unir` | `["unir", izq, der]` | producto cartesiano |
+| `sin` | `["sin", ["de", relación, alias], cond]` | anti-junta: deja las filas que **ninguna** fila de la relación cumple |
 | `agrupar` | `["agrupar", [claves], [nombre, agg, expr]]` | agrupa y agrega |
 | `resumen` | `["resumen", agg, expr]` | colapsa a un escalar — **la medición** |
 
@@ -735,20 +748,42 @@ finito o una mezcla incompatible es error de álgebra, no un veredicto.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
 
-### Lenguaje activo: cinco operadores
+### Lenguaje activo: seis operadores
 
 La regla *no se agrega un operador hasta que una segunda medida lo necesite* aplica también a
 **publicarlos**: un operador sin usuario es un operador sin verificar. Corren `de`, `donde`,
-`resumen`, `unir` y `agrupar`.
+`resumen`, `unir`, `sin` y `agrupar`.
 
 | Operador | Estado |
 |---|---|
 | `unir` | ✅ entró con el catálogo de geometría: «pares de piezas que se clavan» es un producto |
 | `agrupar` | ✅ entró con la AUSENCIA — ver §8 |
+| `sin` | ✅ entró en `0.8`: cinco medidas contaban la ausencia con un sensor en Python — ver §8 |
 
 `con` y la unión izquierda no son promesas pendientes ni sintaxis aceptada: no tienen dos usuarios
 reales y por eso una declaración que los use falla al cargar. Si aparecen esos usuarios, vuelven con
 sus casos, semántica y mutantes; no como ramas dormidas.
+
+`sin` es un paso de la tubería, como `donde`. Para cada fila que llega, evalúa `cond` contra **cada**
+fila de la relación —la condición ve los alias y las columnas de la fila que llega, más el alias
+nuevo— y la deja pasar sólo si **ninguna** la cumple. La salida conserva la fila tal como llegó: el
+alias nuevo existe sólo dentro de la condición y un paso posterior no puede leerlo. Los bordes:
+
+- **Relación vacía** (`[]`): no hay con qué corresponder, así que pasan todas las filas.
+- **Relación ausente** de la evidencia: el mismo error que `de`, aunque no llegue ninguna fila. Una
+  anti-junta sobre algo que no se trajo no puede dar verde por omisión.
+- **Sin cortocircuito**: `cond` se evalúa contra **todas** las filas de la relación antes de decidir.
+  Si una evaluación es error, la medida es error, aunque otra fila ya hubiera correspondido: el orden
+  de la bolsa no puede cambiar el veredicto.
+- **Alias repetido**: si el alias nuevo ya lo introdujo la tubería —en su fuente o en un `unir`—,
+  es error de álgebra. Es un error **de la medida**, no de los datos: se rechaza aunque no llegue
+  ninguna fila. Después de `agrupar` la fila no tiene alias, así que no hay con qué chocar: una
+  columna se lee con `col` y un alias con `campo`, y el mismo nombre no es ambiguo.
+- **La derecha es una relación nombrada**, `["de", relación, alias]`; un `unir` en ese lugar es
+  error de álgebra.
+- **Presupuesto**: `|filas que llegan| × |relación|` evaluaciones, contra el mismo límite de producto
+  cartesiano que `unir` (§9).
+- **Después de `agrupar`**: vale igual; la condición lee las columnas con `["col", nombre]`.
 
 Un grupo **no es un hecho**: es un resumen. Las filas que salen de `agrupar` no llevan alias —los
 hechos se consumieron— sino columnas derivadas, que se leen con `["col", nombre]`. Ese accesor existía
@@ -893,7 +928,7 @@ operadores, se para y se rediseña — no se agregan operadores hasta que entren
 Escritas porque una especificación que finge no tener huecos es peor que una con huecos marcados.
 
 **Las cuatro originales están cerradas**, y sólo una de ellas amplió el álgebra: la ausencia trajo
-`agrupar`. El orden resultó ser un campo del hecho, la recursión salió del álgebra hacia el sensor, y
+`agrupar` (y, en `0.8`, `sin`; ver abajo). El orden resultó ser un campo del hecho, la recursión salió del álgebra hacia el sensor, y
 la igualdad de flotantes se resolvió prohibiéndola. Que tres de cuatro se cierren sin agregar
 operadores es la única prueba de que el juego chico alcanzaba.
 
@@ -926,6 +961,13 @@ operadores es la única prueba de que el juego chico alcanzaba.
 
   El caso general que esto expone: **un agregado sobre cero filas es indistinguible de un agregado
   que dio cero**, y sólo la medida sabe cuál de las dos cosas es.
+
+  **En `0.8` la anti-junta entra como operador: `sin`** (§3). El truco de `agrupar` alcanzaba para
+  una medida y no para las cinco que la necesitaban: las demás delegaban el conteo a un sensor en
+  Python —`commits_de_cierre`, `mutantes`, `casos_que_la_evaluan`…— para comparar contra cero, y un
+  conteo fuera del lenguaje no lo contrasta el diferencial, no lo toca la mutación de medidas y el
+  catálogo no puede decir qué cuenta. Con `sin`, «ninguna fila de B corresponde a esta de A» se
+  escribe en la medida. Sigue sin haber nulos: la fila sale como llegó o no sale.
 - **Recursión.** ✅ **RESUELTA, y fuera del álgebra.** «Alcanzable desde» no se expresa con los
   operadores, y es la pared que hizo falta `WITH RECURSIVE` en SQL. Un operador `cierre` habría sido
   recursión en un lenguaje que se mantiene chico a propósito, con **un solo usuario**. La salida es

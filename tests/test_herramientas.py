@@ -19,6 +19,7 @@ from nucleo.diferencial import Procedencia, crear_frescura
 from nucleo.fixtures import cargar_fixtures, evidencias as evidencias_fixture
 from nucleo.macro import EXTENSIONES_DE_MACRO
 from nucleo.medida import Medida
+from nucleo.version import VERSION_ALGEBRA
 from nucleo import algebra
 from tools import aceptacion
 from tests import test_sombras_integracion as pruebas_sombras
@@ -1459,7 +1460,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_ALGEBRA, del_nucleo
 
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
-        self.assertEqual(str(del_nucleo()), "0.7")
+        self.assertEqual(str(del_nucleo()), "0.8")
 
     def test_la_cronica_va_del_corte_mas_nuevo_al_mas_viejo(self) -> None:
         """Tuvo tres órdenes a la vez —los seis primeros ascendentes, el resto descendente y los dos
@@ -1493,7 +1494,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
 
         self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
-        self.assertEqual(str(del_nucleo_sintaxis()), "0.5")
+        self.assertEqual(str(del_nucleo_sintaxis()), "0.6")
 
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear
@@ -1553,7 +1554,7 @@ class VersionDelProyecto(unittest.TestCase):
             self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_compatible_carga_sin_queja(self) -> None:
-        for declarada in ("0.2", "0.3", "0.4", "0.5", "0.6", "0.7"):
+        for declarada in ("0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1561,7 +1562,7 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        for declarada in ("0.8", "1.0", "9.9"):
+        for declarada in ("0.9", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1569,7 +1570,7 @@ class VersionDelProyecto(unittest.TestCase):
                 with self.assertRaises(ProyectoInvalido) as ctx:
                     configuracion(Proyecto(raiz))
                 self.assertIn(declarada, str(ctx.exception))
-                self.assertIn("0.7", str(ctx.exception))
+                self.assertIn(VERSION_ALGEBRA, str(ctx.exception))
 
     def test_una_version_mal_declarada_falla_cerrado(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -1594,7 +1595,7 @@ class VersionDelProyecto(unittest.TestCase):
     def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
         from nucleo.version import VERSION_SINTAXIS
 
-        for declarada in ("0.6", "1.0", "9.9"):
+        for declarada in ("0.7", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1658,7 +1659,7 @@ class VersionDeLaReferencia(unittest.TestCase):
             with self.assertRaises(SystemExit) as ctx:
                 gen.construir(catalogo)
         self.assertIn("0.2", str(ctx.exception))
-        self.assertIn("0.7", str(ctx.exception))
+        self.assertIn(VERSION_ALGEBRA, str(ctx.exception))
 
 
 if __name__ == "__main__":

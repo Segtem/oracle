@@ -75,6 +75,8 @@ OPERADORES: dict[str, str] = {
              "todas las filas, también las que no ofendieron, y hay que leerlas a mano",
     "unir": "cruza dos relaciones fila contra fila. Los alias de los dos lados conviven en la fila "
             "resultante, así que la condición puede hablar de ambos",
+    "sin": "deja pasar cada fila para la que NINGUNA fila de la relación nombrada cumple la condición, "
+           "y la deja tal como llegó: el alias nuevo sólo existe dentro de la condición",
     "agrupar": "junta las filas por una o más claves y calcula un agregado por grupo. Devuelve una "
                "fila por grupo, no una por fila: cambia de qué habla la tubería",
     "resumen": "cierra la tubería en un solo escalar, que es lo que el umbral compara. «contar» no "
