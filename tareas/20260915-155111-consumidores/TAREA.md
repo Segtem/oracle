@@ -13,3 +13,18 @@ Seguir «Subir un consumidor» de `~/CLAUDE.md`: medir cada uno con 0.20.0 (`ora
 medidas --confiar-escalares` y su uso de `Motor`) **antes** de tocar el número; después LyraGASP sólo
 `requirements.txt`, Jam los tres lugares de su `AGENTS.md` y reinstalar `vendor/oracle-pkg/`.
 Commits y push en cada repo, con autorización del dueño.
+
+### Nota (2026-09-16 05:02:33 UTC)
+
+MEDIDO el 2026-09-16 con 0.24.0 instalado en un entorno aparte, sin tocar el de ninguno de los dos.
+
+oracle test --proyecto medidas --confiar-escalares:
+- LyraGASP: VERDE. Corpus 190, sintaxis 27 medidas, aceptacion 76 rojos / 114 verdes, diferencial 580 acuerdos y 1740 veredictos estables, mutacion de medidas 466/466. Igual que con 0.17.0, y ademas proceso.codigo_con_mutante_que_lo_mata ahora sale SIN EVIDENCIA en vez de no poder juzgar: es el requiere con condicion de 0.21.0.
+- Jam: el mismo ROJO previo, solo por medidas/diferencial/vault.json vencido (deuda propia, su emisor no corre porque al dominio le falta una polaridad). Corpus 31, sintaxis 41 medidas, aceptacion 28 / 3.
+
+Motor.desde_proyecto, que es lo que 0.20.0 cambio:
+- LyraGASP: 84 medidas (54 de Oracle, 0 sombras respetadas) con 0.17.0 -> 66 medidas (36 de Oracle, 3 sombras respetadas) con 0.24.0.
+- Jam: 101 medidas (57 de Oracle, 0 sombras) -> 83 medidas (39 de Oracle, 3 sombras).
+Las 18 que dejan de viajar en cada uno son las del_origen de Oracle, que no obligan a un consumidor.
+
+FALTA, y depende de que 0.24.0 este en PyPI: LyraGASP requirements.txt; Jam los tres lugares de su AGENTS.md mas reinstalar vendor/oracle-pkg/. Las seis sombras de los dos ya quedaron con cota (tarea exigentes).
