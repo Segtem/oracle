@@ -54,6 +54,11 @@ from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
+try:
+    import resource
+except ImportError:
+    resource = None
+
 
 class LineaBaseFallida(RuntimeError):
     """Los tests ya fallan sobre el código original, así que la mutación no puede dar evidencia."""
@@ -95,6 +100,40 @@ TIMEOUT_PREDETERMINADO = 60.0
 CODIGOS_FALLO_PREDETERMINADOS = frozenset({1})
 LIMITE_DIAGNOSTICO_PREDETERMINADO = 16_384
 LIMITE_SALIDA_PREDETERMINADO = 1_048_576
+LIMITE_MEMORIA_PREDETERMINADO = 4000 * 1024 * 1024
+
+
+def _tope_de_memoria_aplicable(limite: int | None) -> tuple[int, int] | None:
+    """El tope que se le puede pedir al hijo, y el duro que hereda.
+
+    Un proceso sin privilegios no puede subir su límite por encima del DURO que heredó, y pedirlo
+    hace fallar `setrlimit`. Quien corre la ronda con `ulimit -v` —que es justo lo que se venía
+    haciendo a mano antes de que el arnés tuviera tope— heredaba un duro más bajo que estos 4000 MiB
+    y la ronda entera moría con «Exception occurred in preexec_fn», que no dice nada.
+
+    Se recorta y se sigue: el arnés no está para pelearse con el límite de quien lo invocó, sino para
+    que ningún mutante se coma la máquina. Un tope más bajo que el pedido cumple eso igual.
+    """
+    if resource is None or limite is None:
+        return None
+    _blando, duro = resource.getrlimit(resource.RLIMIT_AS)
+    if duro != resource.RLIM_INFINITY:
+        limite = min(limite, duro)
+    return limite, duro
+
+
+def _normalizar_limite_memoria(valor):
+    """El tope de memoria, validado en UN lugar. `None` y `0` son «sin tope».
+
+    La entrada la ponen tres puertas —`ejecutar_tests`, `_correr_en_raiz` y `correr`— y cada una
+    puede ser la primera: la herramienta llama a `correr`, un test llama a `ejecutar_tests`. Tres
+    copias de la misma regla envejecen en dos.
+    """
+    if valor is None:
+        return None
+    if isinstance(valor, bool) or not isinstance(valor, int) or valor < 0:
+        raise ValueError("limite_memoria tiene que ser un entero positivo o None (0 desactiva)")
+    return valor or None
 MAX_RUTAS_DIAGNOSTICO = 3
 ESPERA_TERMINACION_SUAVE = 1.0
 ESPERA_TERMINACION_FORZADA = 2.0
@@ -421,12 +460,16 @@ def _leer_acotado(canal, limite: int, salida: list[bytes], estado: dict) -> None
 
 def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
                    codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS, entorno=None,
-                   limite_salida: int = LIMITE_SALIDA_PREDETERMINADO) -> ResultadoTests:
+                   limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
+                   limite_memoria: int | None = None) -> ResultadoTests:
     """Ejecuta un comando y conserva su categoría y diagnóstico.
 
     El protocolo por defecto reserva 0 para verde y 1 para tests que discriminaron. Otros códigos,
     señales y errores al lanzar son fallos del arnés. Un runner con otra convención debe declarar
     `codigos_fallo_tests`; inferirlo del texto haría esta función dependiente de un framework.
+
+    Un mutante que excede el tope de memoria muere con MemoryError (código 1), lo que clasifica como
+    TESTS_FALLARON y cuenta como mutante muerto, no como timeout ni error de arnés.
     """
     if (isinstance(timeout, bool) or not isinstance(timeout, (int, float))
             or not math.isfinite(timeout) or timeout <= 0):
@@ -438,12 +481,28 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
         return ResultadoTests(EstadoTests.ERROR_ARNES, None, stderr="comando de tests vacío")
     if type(limite_salida) is not int or limite_salida <= 0:
         raise ValueError("limite_salida tiene que ser un entero positivo")
+    limite_memoria = _normalizar_limite_memoria(limite_memoria)
 
+    # `preexec_fn` corre en el hijo entre el fork y el exec, y es la única forma de ponerle un
+    # límite a ESE proceso sin tocar el del arnés: `Popen` no tiene un parámetro de rlimits. La
+    # advertencia de la biblioteca —que es peligroso con varios hilos— no aplica acá: los dos hilos
+    # lectores se crean DESPUÉS de este `Popen`, y entre el fork y el exec no se toma ningún lock.
+    # Sin `resource` (Windows) no hay tope y la ronda corre igual: peor es no correr.
+    #
+    # El par se calcula en el PADRE, donde un error se puede informar: adentro del hijo, entre el
+    # fork y el exec, cualquier excepción sale como «Exception occurred in preexec_fn» y se lleva
+    # puesta la ronda sin decir cuál fue.
+    topes = _tope_de_memoria_aplicable(limite_memoria)
+
+    def _aplicar_limites():
+        resource.setrlimit(resource.RLIMIT_AS, topes)
+
+    preexec = _aplicar_limites if topes is not None else None
     try:
         proceso = subprocess.Popen(
             comando, cwd=str(raiz), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            env=entorno, start_new_session=True)
-    except (OSError, ValueError) as e:
+            env=entorno, start_new_session=True, preexec_fn=preexec)
+    except (OSError, ValueError, subprocess.SubprocessError) as e:
         return ResultadoTests(EstadoTests.ERROR_ARNES, None, stderr=f"{type(e).__name__}: {e}")
 
     stdout_b, stderr_b = [], []
@@ -498,7 +557,8 @@ def correr_tests(comando: list[str], raiz: Path,
 def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
                     codigos_fallo_tests, etapa: str,
                     permitir_cache_preexistente: bool = False,
-                    limite_salida: int = LIMITE_SALIDA_PREDETERMINADO) -> ResultadoTests:
+                    limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
+                    limite_memoria: int | None = None) -> ResultadoTests:
     """Ejecuta una ronda entre dos fronteras comprobadas de caché frío.
 
     `PYTHONPYCACHEPREFIX` apunta a un directorio temporal fresco para que CPython tampoco lea un pyc
@@ -526,7 +586,7 @@ def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
             resultado = ejecutar_tests(
                 comando, raiz, timeout=timeout,
                 codigos_fallo_tests=codigos_fallo_tests, entorno=entorno,
-                limite_salida=limite_salida)
+                limite_salida=limite_salida, limite_memoria=limite_memoria)
 
         reaparecidos = _caches_bajo(raiz)
         if reaparecidos:
@@ -633,7 +693,8 @@ def _escribir_manifiesto(ruta: Path, datos: dict) -> None:
 
 def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path],
                      comando: list[str], equivalentes: dict, timeout: float,
-                     codigos, limite_salida: int) -> dict:
+                     codigos, limite_salida: int,
+                     limite_memoria: int | None = None) -> dict:
     fuentes = [{"ruta": ruta.resolve().relative_to(raiz).as_posix(),
                 "sha256": hashlib.sha256(ruta.read_bytes()).hexdigest()}
                for ruta in objetivos]
@@ -644,6 +705,7 @@ def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path]
     return {"raiz": str(raiz), "fuentes": fuentes, "dependencias": soporte, "comando": comando,
             "equivalentes": equivalentes, "timeout": timeout,
             "codigos_fallo_tests": sorted(codigos), "limite_salida": limite_salida,
+            "limite_memoria": limite_memoria,
             "motor_sha256": motor}
 
 
@@ -783,6 +845,7 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                      codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS,
                      limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
                      limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
+                     limite_memoria: int | None = LIMITE_MEMORIA_PREDETERMINADO,
                      filas_previas: list[dict] | None = None) -> dict:
     """Genera y prueba todos los mutantes. Devuelve EVIDENCIA, no un informe.
 
@@ -808,11 +871,13 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
 
     if type(limite_diagnostico) is not int or limite_diagnostico <= 0:
         raise ValueError("limite_diagnostico tiene que ser un entero positivo")
+    limite_memoria = _normalizar_limite_memoria(limite_memoria)
 
     baseline = _ejecutar_ronda(
         comando, raiz, timeout=timeout_por_ejecucion,
         codigos_fallo_tests=codigos_fallo_tests, etapa="la línea base",
-        permitir_cache_preexistente=True, limite_salida=limite_salida)
+        permitir_cache_preexistente=True, limite_salida=limite_salida,
+        limite_memoria=limite_memoria)
     baseline_verde = baseline.pasaron
     if not baseline_verde:
         raise LineaBaseFallida(baseline)
@@ -836,7 +901,7 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                 resultado = _ejecutar_ronda(
                     comando, raiz, timeout=timeout_por_ejecucion,
                     codigos_fallo_tests=codigos_fallo_tests, etapa=f"el mutante {sitio.id}",
-                    limite_salida=limite_salida)
+                    limite_salida=limite_salida, limite_memoria=limite_memoria)
             finally:
                 _escribir_atomico(ruta, original)
 
@@ -937,9 +1002,12 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
            timeout_por_ejecucion: float = TIMEOUT_PREDETERMINADO,
            codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS,
            limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
-           limite_salida: int = LIMITE_SALIDA_PREDETERMINADO, manifiesto: Path | None = None,
+           limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
+           limite_memoria: int | None = LIMITE_MEMORIA_PREDETERMINADO,
+           manifiesto: Path | None = None,
            reanudar: bool = False, dependencias: list[Path] | None = None) -> dict:
     """Muta exclusivamente una copia temporal y comprueba que los objetivos originales no cambien."""
+    limite_memoria = _normalizar_limite_memoria(limite_memoria)
     raiz = _resolver_existente(Path(raiz))
     objetivos = [Path(ruta) if Path(ruta).is_absolute() else raiz / ruta for ruta in objetivos]
     _validar_objetivos(raiz, objetivos)
@@ -960,7 +1028,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
     ruta_manifiesto = Path(manifiesto).expanduser().resolve() if manifiesto else None
     identidad = _identidad_ronda(
         raiz, objetivos, dependencias, comando, equivalentes, timeout_por_ejecucion,
-        codigos_fallo_tests, limite_salida)
+        codigos_fallo_tests, limite_salida, limite_memoria)
 
     with _bloqueo_de_ronda(raiz), _senales_de_ronda():
         if reanudar:
@@ -1000,6 +1068,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                 timeout_por_ejecucion=timeout_por_ejecucion,
                 codigos_fallo_tests=codigos_fallo_tests,
                 limite_diagnostico=limite_diagnostico, limite_salida=limite_salida,
+                limite_memoria=limite_memoria,
                 filas_previas=filas_previas)
         if ruta_manifiesto:
             datos_manifiesto["estado"] = "completa"

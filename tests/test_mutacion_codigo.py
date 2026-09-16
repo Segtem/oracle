@@ -915,6 +915,7 @@ class CorrerTests(unittest.TestCase):
         self.assertEqual(mc.CODIGOS_FALLO_PREDETERMINADOS, frozenset({1}))
         self.assertEqual(mc.LIMITE_DIAGNOSTICO_PREDETERMINADO, 16_384)
         self.assertEqual(mc.LIMITE_SALIDA_PREDETERMINADO, 1_048_576)
+        self.assertEqual(mc.LIMITE_MEMORIA_PREDETERMINADO, 4000 * 1024 * 1024)
         self.assertEqual(mc.MAX_RUTAS_DIAGNOSTICO, 3)
         self.assertEqual(mc.ESPERA_TERMINACION_SUAVE, 1.0)
         self.assertEqual(mc.ESPERA_TERMINACION_FORZADA, 2.0)
@@ -1207,3 +1208,321 @@ class NingunModuloDelNucleoQuedaFueraDelArnesTests(unittest.TestCase):
         sin_declarar = [r for r in objetivos_disponibles()
                         if r.startswith("nucleo/") and r not in PRIORIDADES]
         self.assertEqual(sin_declarar, [])
+
+
+class LimiteMemoriaTests(unittest.TestCase):
+    def _entorno(self, d: str):
+        raiz = Path(d)
+        objetivo = raiz / "m.py"
+        objetivo.write_text(FUENTE, encoding="utf-8")
+        return raiz, objetivo
+
+    def test_constantes_limite_memoria(self) -> None:
+        from tools.mutar_codigo import LIMITE_MEMORIA_MB_PREDETERMINADO
+        self.assertEqual(mc.LIMITE_MEMORIA_PREDETERMINADO, 4000 * 1024 * 1024)
+        self.assertEqual(LIMITE_MEMORIA_MB_PREDETERMINADO, 4000)
+
+    def test_limite_memoria_limita_al_hijo_y_se_ejecuta_en_el_hijo(self) -> None:
+        try:
+            import resource
+        except ImportError:
+            resource = None
+        if resource is None or sys.platform == "win32":
+            self.skipTest("resource.setrlimit no disponible en esta plataforma")
+
+        limite = 100 * 1024 * 1024
+        comando = [
+            sys.executable, "-c",
+            "b = bytearray(300 * 1024 * 1024); raise SystemExit(0)",
+        ]
+        limite_padre_antes = resource.getrlimit(resource.RLIMIT_AS)
+        with tempfile.TemporaryDirectory() as d:
+            res_acotado = mc.ejecutar_tests(
+                comando, Path(d), timeout=2.0, limite_memoria=limite
+            )
+            # El proceso padre no fue modificado en su rlimit
+            self.assertEqual(resource.getrlimit(resource.RLIMIT_AS), limite_padre_antes)
+            self.assertEqual(res_acotado.estado, mc.EstadoTests.TESTS_FALLARON)
+            self.assertEqual(res_acotado.codigo_salida, 1)
+            # `murio` es del MUTANTE, no del resultado de los tests: acá el hecho es que los
+            # tests fallaron, que es lo que después hace morir al mutante.
+            self.assertTrue(res_acotado.tests_fallaron)
+            self.assertFalse(res_acotado.timeout)
+            self.assertFalse(res_acotado.error_arnes)
+            self.assertIn("MemoryError", res_acotado.salida)
+
+            # Sin límite (None), la asignación no falla
+            res_libre = mc.ejecutar_tests(
+                comando, Path(d), timeout=2.0, limite_memoria=None
+            )
+            self.assertEqual(resource.getrlimit(resource.RLIMIT_AS), limite_padre_antes)
+            self.assertTrue(res_libre.pasaron)
+            self.assertEqual(res_libre.codigo_salida, 0)
+
+            # El subproceso corre con start_new_session=True en su propio grupo de procesos
+            cmd_pgid = [
+                sys.executable, "-c",
+                "import os; print(os.getpgrp()); raise SystemExit(0)",
+            ]
+            res_pgid = mc.ejecutar_tests(
+                cmd_pgid, Path(d), timeout=2.0, limite_memoria=limite
+            )
+            self.assertTrue(res_pgid.pasaron)
+            import os
+            hijo_pgrp = int(res_pgid.stdout.strip())
+            self.assertNotEqual(hijo_pgrp, os.getpgrp())
+
+    def test_mutante_que_excede_memoria_cuenta_como_muerto_no_timeout_ni_error(self) -> None:
+        try:
+            import resource
+        except ImportError:
+            resource = None
+        if resource is None or sys.platform == "win32":
+            self.skipTest("resource.setrlimit no disponible en esta plataforma")
+
+        limite = 100 * 1024 * 1024
+        comando = [
+            sys.executable,
+            "-c",
+            ("from pathlib import Path; "
+             f"mutado = Path('m.py').read_text(encoding='utf-8') != {FUENTE!r}; "
+             "b = bytearray(300 * 1024 * 1024) if mutado else None; "
+             "raise SystemExit(0)"),
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            evidencia = mc.correr(
+                raiz, [objetivo], comando, timeout_por_ejecucion=2.0, limite_memoria=limite
+            )
+            corrida = evidencia["corrida_mutacion"][0]
+            self.assertTrue(corrida["baseline_verde"])
+            self.assertGreater(corrida["mutantes"], 0)
+            self.assertEqual(corrida["timeouts"], 0)
+            self.assertEqual(corrida["errores_arnes"], 0)
+            self.assertEqual(corrida["tests_fallaron"], corrida["mutantes"])
+            self.assertEqual(corrida["primer_fallo_estado"], "tests_fallaron")
+
+            for m in evidencia["mutante"]:
+                self.assertTrue(m["murio"])
+                self.assertTrue(m["tests_fallaron"])
+                self.assertFalse(m["timeout"])
+                self.assertFalse(m["error_arnes"])
+                self.assertEqual(m["codigo_salida"], 1)
+                self.assertEqual(m["estado"], "tests_fallaron")
+
+    def test_linea_base_usa_el_mismo_tope_y_falla_si_lo_excede(self) -> None:
+        try:
+            import resource
+        except ImportError:
+            resource = None
+        if resource is None or sys.platform == "win32":
+            self.skipTest("resource.setrlimit no disponible en esta plataforma")
+
+        limite = 100 * 1024 * 1024
+        comando = [
+            sys.executable,
+            "-c",
+            "b = bytearray(300 * 1024 * 1024); raise SystemExit(0)",
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            with self.assertRaises(mc.LineaBaseFallida) as ctx:
+                mc.correr(
+                    raiz, [objetivo], comando, timeout_por_ejecucion=2.0, limite_memoria=limite
+                )
+            self.assertEqual(ctx.exception.resultado.estado, mc.EstadoTests.TESTS_FALLARON)
+            self.assertEqual(ctx.exception.resultado.codigo_salida, 1)
+            self.assertTrue(ctx.exception.resultado.tests_fallaron)
+            self.assertFalse(ctx.exception.resultado.timeout)
+            self.assertFalse(ctx.exception.resultado.error_arnes)
+            self.assertIn("MemoryError", ctx.exception.resultado.salida)
+            self.assertEqual(objetivo.read_text(encoding="utf-8"), FUENTE)
+
+    def test_limite_memoria_cero_desactiva_tope(self) -> None:
+        try:
+            import resource
+        except ImportError:
+            resource = None
+        if resource is None or sys.platform == "win32":
+            self.skipTest("resource.setrlimit no disponible en esta plataforma")
+
+        comando = [
+            sys.executable,
+            "-c",
+            "b = bytearray(300 * 1024 * 1024); raise SystemExit(0)",
+        ]
+        with tempfile.TemporaryDirectory() as d:
+            resultado = mc.ejecutar_tests(
+                comando, Path(d), timeout=2.0, limite_memoria=0
+            )
+            self.assertTrue(resultado.pasaron)
+            self.assertEqual(resultado.codigo_salida, 0)
+
+            raiz, objetivo = self._entorno(d)
+            evidencia = mc.correr(
+                raiz, [objetivo], comando, timeout_por_ejecucion=2.0, limite_memoria=0
+            )
+            self.assertTrue(evidencia["corrida_mutacion"][0]["baseline_verde"])
+
+    def test_limite_memoria_invalido_se_rechaza(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            for limite in (-1, -1024, True, False, 1.5, "1024", [1024]):
+                with self.subTest(limite=limite):
+                    with self.assertRaises(ValueError):
+                        mc.ejecutar_tests(
+                            SIEMPRE_PASA, raiz, timeout=1.0, limite_memoria=limite
+                        )
+                    with self.assertRaises(ValueError):
+                        mc._correr_en_raiz(
+                            raiz, [], SIEMPRE_PASA, limite_memoria=limite
+                        )
+                    with self.assertRaises(ValueError):
+                        mc.correr(
+                            raiz, [], SIEMPRE_PASA, limite_memoria=limite
+                        )
+
+    def test_identidad_ronda_declara_limite_memoria(self) -> None:
+        """La identidad es lo que distingue una ronda de otra al reanudar: dos rondas con topes de
+        memoria distintos no son la misma ronda, y el manifiesto tiene que poder decirlo."""
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            limite = 4000 * 1024 * 1024
+            identidad = mc._identidad_ronda(
+                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, limite)
+            self.assertEqual(identidad["limite_memoria"], limite)
+            self.assertIn("limite_salida", identidad)
+            self.assertIn("timeout", identidad)
+
+            sin_tope = mc._identidad_ronda(
+                raiz, [objetivo], [], ["pytest"], {}, 60.0, frozenset({1}), 1024 * 1024, None)
+            self.assertIsNone(sin_tope["limite_memoria"])
+            self.assertNotEqual(identidad, sin_tope)
+
+
+    def test_el_tope_se_recorta_al_duro_que_heredo_el_arnes(self) -> None:
+        """Un proceso sin privilegios no puede subir su límite por encima del DURO que heredó, y
+        pedirlo hace fallar `setrlimit` adentro del hijo, donde el error no dice nada. Quien corre la
+        ronda con `ulimit -v` —lo que se hacía a mano antes de que el arnés tuviera tope— heredaba un
+        duro más bajo que estos 4000 MiB y la ronda entera moría con «Exception occurred in
+        preexec_fn»."""
+        if mc.resource is None:
+            self.skipTest("resource no disponible en esta plataforma")
+
+        duro = 2000 * 1024 * 1024
+        with mock.patch.object(mc.resource, "getrlimit", return_value=(duro, duro)):
+            self.assertEqual(mc._tope_de_memoria_aplicable(4000 * 1024 * 1024), (duro, duro))
+            self.assertEqual(mc._tope_de_memoria_aplicable(100 * 1024 * 1024),
+                             (100 * 1024 * 1024, duro))
+        sin_tope_duro = (mc.resource.RLIM_INFINITY, mc.resource.RLIM_INFINITY)
+        with mock.patch.object(mc.resource, "getrlimit", return_value=sin_tope_duro):
+            self.assertEqual(mc._tope_de_memoria_aplicable(4000 * 1024 * 1024),
+                             (4000 * 1024 * 1024, mc.resource.RLIM_INFINITY))
+        self.assertIsNone(mc._tope_de_memoria_aplicable(None))
+
+    def test_un_tope_mas_alto_que_el_heredado_no_rompe_la_ronda(self) -> None:
+        """De punta a punta: con el duro por debajo del tope pedido, los tests igual corren."""
+        if mc.resource is None:
+            self.skipTest("resource no disponible en esta plataforma")
+
+        duro = 2000 * 1024 * 1024
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch.object(mc.resource, "getrlimit", return_value=(duro, duro)):
+                resultado = mc.ejecutar_tests(
+                    SIEMPRE_PASA, Path(d), timeout=20.0, limite_memoria=4000 * 1024 * 1024)
+        self.assertTrue(resultado.pasaron, resultado.salida)
+
+    def test_si_el_tope_no_se_puede_aplicar_es_un_error_de_arnes_y_no_un_traceback(self) -> None:
+        """Lo que pasa entre el fork y el exec sale como `SubprocessError` sin decir cuál fue. Que
+        eso llegue como error de arnés —y no como un traceback que se lleva la ronda— es lo que
+        permite leer el informe y saber que ningún mutante quedó juzgado."""
+        with tempfile.TemporaryDirectory() as d:
+            with mock.patch.object(mc, "_tope_de_memoria_aplicable", return_value=(-5, -5)):
+                resultado = mc.ejecutar_tests(
+                    SIEMPRE_PASA, Path(d), timeout=20.0, limite_memoria=1024 * 1024)
+        self.assertTrue(resultado.error_arnes)
+        self.assertIn("Error", resultado.stderr)
+
+    def test_cli_limite_memoria_mb_parseo_y_valores(self) -> None:
+        from tools import mutar_codigo
+        parser_args = mutar_codigo.argumentos([])
+        self.assertEqual(
+            parser_args.limite_memoria_mb,
+            mutar_codigo.LIMITE_MEMORIA_MB_PREDETERMINADO,
+        )
+        self.assertEqual(parser_args.limite_memoria_mb, 4000)
+
+        args_custom = mutar_codigo.argumentos(["--limite-memoria-mb", "2048"])
+        self.assertEqual(args_custom.limite_memoria_mb, 2048)
+
+        args_cero = mutar_codigo.argumentos(["--limite-memoria-mb", "0"])
+        self.assertEqual(args_cero.limite_memoria_mb, 0)
+
+    def test_cli_limite_memoria_mb_propagacion_a_correr(self) -> None:
+        from tools import mutar_codigo
+        with mock.patch.object(mutar_codigo, "correr") as mock_correr:
+            mock_correr.return_value = {
+                "corrida_mutacion": [{
+                    "baseline_verde": True,
+                    "bytecode_frio": True,
+                    "mutantes": 1,
+                    "errores_arnes": 0,
+                    "timeouts": 0,
+                    "primer_inconcluso_id": "",
+                    "primer_fallo_id": "",
+                }],
+                "mutante": [{"id": "m1", "estado": "tests_fallaron", "tests_fallaron": True,
+                             "murio": True, "timeout": False, "error_arnes": False,
+                             "equivalente_declarado": False, "cambio": "", "tipo": "constante",
+                             "apunta_a": "m.py"}],
+                "mutante_equivalente": [],
+            }
+            # Predeterminado: 4000 MB -> bytes
+            with mock.patch("sys.stdout", new_callable=io.StringIO):
+                mutar_codigo.main(["--objetivo", "nucleo/aislamiento/escalares.py"])
+            _, kwargs = mock_correr.call_args
+            self.assertEqual(kwargs["limite_memoria"], 4000 * 1024 * 1024)
+
+            # Explícito: 2048 MB -> bytes
+            with mock.patch("sys.stdout", new_callable=io.StringIO):
+                mutar_codigo.main([
+                    "--objetivo", "nucleo/aislamiento/escalares.py",
+                    "--limite-memoria-mb", "2048",
+                ])
+            _, kwargs = mock_correr.call_args
+            self.assertEqual(kwargs["limite_memoria"], 2048 * 1024 * 1024)
+
+            # Cero: desactiva (None)
+            with mock.patch("sys.stdout", new_callable=io.StringIO):
+                mutar_codigo.main([
+                    "--objetivo", "nucleo/aislamiento/escalares.py",
+                    "--limite-memoria-mb", "0",
+                ])
+            _, kwargs = mock_correr.call_args
+            self.assertIsNone(kwargs["limite_memoria"])
+
+    def test_cli_limite_memoria_mb_negativo_se_rechaza(self) -> None:
+        from tools import mutar_codigo
+        with mock.patch("sys.stderr", new_callable=io.StringIO) as err, \
+                mock.patch.object(mutar_codigo, "correr") as mock_correr:
+            codigo = mutar_codigo.main([
+                "--objetivo", "nucleo/aislamiento/escalares.py",
+                "--limite-memoria-mb", "-1",
+            ])
+        self.assertEqual(codigo, 2)
+        mock_correr.assert_not_called()
+        self.assertIn("limite_memoria_mb", err.getvalue())
+
+        with mock.patch("sys.stdout", new_callable=io.StringIO) as out, \
+                mock.patch.object(mutar_codigo, "correr") as mock_correr:
+            codigo = mutar_codigo.main([
+                "--objetivo", "nucleo/aislamiento/escalares.py",
+                "--limite-memoria-mb", "-1",
+                "--hechos",
+            ])
+        self.assertEqual(codigo, 2)
+        mock_correr.assert_not_called()
+        datos = json.loads(out.getvalue())
+        self.assertEqual(datos["error_mutacion"][0]["tipo"], "ValueError")
+        self.assertIn("limite_memoria_mb", datos["error_mutacion"][0]["mensaje"])
+
