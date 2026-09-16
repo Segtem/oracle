@@ -1,6 +1,6 @@
 # oracle juzgar duplica la lógica de sombra que Informe tiene desde 0.20.0
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 50
 - ETIQUETAS: oracle, simplificacion
 
