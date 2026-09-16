@@ -147,6 +147,26 @@ class BordesDeLaMutacionTests(unittest.TestCase):
                               {"tarea": TAREAS, "cierre": CIERRES})
         self.assertIn("`2.2.2", mensaje)
 
+    def test_la_fuente_del_sin_se_publica_con_su_ruta(self) -> None:
+        from nucleo.medida import _fuentes_de_medida
+        m = Medida.de_datos(self._medida(_sin(CORRESPONDE)))
+        self.assertEqual([(f["ruta"], f["relacion"], f["alias"]) for f in _fuentes_de_medida(m)],
+                         [("2.1", "tarea", "t"), ("2.2.1", "cierre", "c")])
+
+    def test_una_tuberia_rota_no_tiene_relaciones(self) -> None:
+        from nucleo.medida import relaciones_de_medida
+        m = Medida.de_datos(self._medida(_sin(CORRESPONDE)))
+        self.assertEqual(relaciones_de_medida(m), ("tarea", "cierre"))
+        self.assertEqual(relaciones_de_medida(Medida(id="d.y", tuberia=123, resumen=None, op="<=",
+                                                     limite=0, porque="", alcance="")), ())
+
+    def test_quitar_antijunta_conserva_el_resto_de_la_medida(self) -> None:
+        from nucleo.mutacion import quitar_antijunta
+        datos = self._medida(_sin(CORRESPONDE))
+        mutada = quitar_antijunta(datos)
+        self.assertEqual(mutada[2], _tuberia())
+        self.assertEqual(mutada[:2] + mutada[3:], datos[:2] + datos[3:])
+
     def test_la_unidad_de_un_campo_del_sin_se_deriva_de_su_relacion(self) -> None:
         from nucleo.relacion import Relacion
         from nucleo.unidad import comparaciones_de_medida

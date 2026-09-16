@@ -100,7 +100,7 @@ def quitar_antijunta(datos: list) -> list | None:
     Un corpus que no lo nota no prueba la anti-junta: prueba el `donde` que la acompaña.
     """
     d = deepcopy(datos)
-    tuberia = [p for p in d[2] if not (isinstance(p, list) and p and p[0] == "sin")]
+    tuberia = [p for p in d[2] if p[:1] != ["sin"]]
     return [*d[:2], tuberia, *d[3:]] if len(tuberia) != len(d[2]) else None
 
 

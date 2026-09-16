@@ -31,7 +31,7 @@ def extraer_alias_de_medida(medida: Medida) -> dict[str, str]:
     # nombre o `["filas", relación, alias, condición]`.
     alias_map = extraer_alias_de_fuente(medida.tuberia[1])
     for paso in medida.tuberia[2:]:
-        if paso[0] == "sin":
+        if paso[:1] == ["sin"]:
             alias_map.update(extraer_alias_de_fuente(paso[1]))
     for entrada in medida.requiere:
         if not isinstance(entrada, str):
