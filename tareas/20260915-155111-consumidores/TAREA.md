@@ -32,3 +32,7 @@ FALTA, y depende de que 0.24.0 este en PyPI: LyraGASP requirements.txt; Jam los 
 ### Nota (2026-09-16 14:56:03 UTC)
 
 2026-09-16: subidos los dos a 0.24.0 (PyPI verificado: los archivos coinciden con dist/). LyraGASP a1345c2c: requirements.txt, .venv y herramienta global; oracle test VERDE igual que antes. Jam fde0f7a: los dos lugares de AGENTS.md, ORACLE_VERSION y vendor/oracle-pkg reinstalado; suite 1240 con la misma falla previa y oracle test con el mismo rojo previo de vault.json. Commits locales, sin empujar: el push de cada repo queda para el dueño.
+
+### Nota (2026-09-16 15:04:49 UTC)
+
+2026-09-16: empujados con autorización del dueño: LyraGASP a1345c2c, Jam ef0abe2 (el fde0f7a de la nota anterior, con el mensaje corregido antes del push).
