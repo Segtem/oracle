@@ -1,0 +1,320 @@
+objetivos: tools/medida.py
+
+     ·  tools/medida.py:31:40:constante                      constante: 1 → 2
+     ·  tools/medida.py:87:4:retorno                         retorno: return <algo> → return None
+     ·  tools/medida.py:100:59:constante                     constante: False → True
+     ·  tools/medida.py:102:46:constante                     constante: 0 → 1
+     ·  tools/medida.py:107:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:116:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:116:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:123:69:constante                     constante: 3 → 4
+     ·  tools/medida.py:125:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:125:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:140:34:comparador                    comparador: NotEq → Eq
+     ·  tools/medida.py:141:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:143:7:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:144:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:145:7:comparador                     comparador: Gt → GtE
+     ·  tools/medida.py:145:21:constante                     constante: 1 → 2
+     ·  tools/medida.py:147:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:158:49:constante                     constante: 0 → 1
+     ·  tools/medida.py:161:11:comparador                    comparador: Is → IsNot
+     ·  tools/medida.py:164:38:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:165:21:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:167:7:booleano                       booleano: and ↔ or
+     ·  tools/medida.py:167:22:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:168:8:retorno                        retorno: return <algo> → return None
+  VIVO  tools/medida.py:168:34:constante                     constante: 0 → 1
+     ·  tools/medida.py:169:4:retorno                        retorno: return <algo> → return None
+  VIVO  tools/medida.py:193:8:retorno                        retorno: return <algo> → return None
+  VIVO  tools/medida.py:193:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:203:11:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:206:11:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:214:11:comparador                    comparador: Is → IsNot
+  VIVO  tools/medida.py:217:30:constante                     constante: True → False
+  VIVO  tools/medida.py:217:45:constante                     constante: True → False
+  VIVO  tools/medida.py:218:58:constante                     constante: False → True
+  VIVO  tools/medida.py:218:72:constante                     constante: 2 → 3
+     ·  tools/medida.py:230:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:232:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:232:15:constante                     constante: 0 → 1
+     ·  tools/medida.py:237:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:237:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:240:49:constante                     constante: False → True
+     ·  tools/medida.py:246:41:comparador                    comparador: Is → IsNot
+     ·  tools/medida.py:247:40:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:248:15:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:248:53:constante                     constante: 0 → 1
+     ·  tools/medida.py:261:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:261:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:269:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:269:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:272:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:272:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:273:33:constante                     constante: True → False
+     ·  tools/medida.py:273:48:constante                     constante: True → False
+     ·  tools/medida.py:278:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:278:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:284:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:285:31:comparador                    comparador: Gt → GtE
+     ·  tools/medida.py:285:44:constante                     constante: 1 → 2
+     ·  tools/medida.py:285:25:constante                     constante: 1 → 2
+     ·  tools/medida.py:287:47:constante                     constante: False → True
+     ·  tools/medida.py:287:61:constante                     constante: 1 → 2
+     ·  tools/medida.py:288:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:288:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:297:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:297:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:302:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:302:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:304:24:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:304:30:constante                     constante: 0 → 1
+     ·  tools/medida.py:304:18:constante                     constante: 0 → 1
+     ·  tools/medida.py:318:31:constante                     constante: 0 → 1
+     ·  tools/medida.py:322:59:constante                     constante: True → False
+     ·  tools/medida.py:325:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:325:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:330:23:constante                     constante: 1 → 2
+     ·  tools/medida.py:331:27:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:334:22:constante                     constante: 1 → 2
+     ·  tools/medida.py:336:21:constante                     constante: 1 → 2
+     ·  tools/medida.py:337:15:comparador                    comparador: Lt → LtE
+     ·  tools/medida.py:337:31:constante                     constante: 2 → 3
+     ·  tools/medida.py:348:7:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:348:16:constante                     constante: 0 → 1
+     ·  tools/medida.py:351:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:351:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:352:7:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:352:17:constante                     constante: 0 → 1
+     ·  tools/medida.py:355:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:355:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:359:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:359:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:367:11:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:367:11:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:367:41:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:369:11:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:369:16:constante                     constante: 0 → 1
+     ·  tools/medida.py:370:26:constante                     constante: 2 → 3
+     ·  tools/medida.py:370:37:constante                     constante: 1 → 2
+     ·  tools/medida.py:371:13:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:371:18:constante                     constante: 0 → 1
+     ·  tools/medida.py:372:26:constante                     constante: 1 → 2
+     ·  tools/medida.py:373:26:constante                     constante: 2 → 3
+     ·  tools/medida.py:375:19:constante                     constante: 2 → 3
+     ·  tools/medida.py:375:22:constante                     constante: 1 → 2
+     ·  tools/medida.py:376:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:400:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:401:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:402:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:410:11:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:411:15:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:411:15:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:411:20:constante                     constante: 0 → 1
+     ·  tools/medida.py:411:38:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:411:51:constante                     constante: 3 → 4
+     ·  tools/medida.py:412:46:constante                     constante: 1 → 2
+     ·  tools/medida.py:412:60:constante                     constante: 2 → 3
+     ·  tools/medida.py:413:29:constante                     constante: 1 → 2
+     ·  tools/medida.py:420:11:comparador                    comparador: NotIn → In
+     ·  tools/medida.py:425:23:comparador                    comparador: NotIn → In
+     ·  tools/medida.py:429:56:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:429:56:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:429:74:comparador                    comparador: NotIn → In
+     ·  tools/medida.py:435:13:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:437:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:461:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:461:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:466:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:470:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:470:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:472:29:constante                     constante: 8 → 9
+     ·  tools/medida.py:477:27:constante                     constante: 12 → 13
+     ·  tools/medida.py:496:20:constante                     constante: 1 → 2
+     ·  tools/medida.py:497:22:constante                     constante: 1 → 2
+     ·  tools/medida.py:497:37:constante                     constante: 8 → 9
+     ·  tools/medida.py:498:46:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:498:37:constante                     constante: 1 → 2
+     ·  tools/medida.py:498:40:constante                     constante: 1 → 2
+     ·  tools/medida.py:500:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:500:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:503:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:503:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:509:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:509:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:514:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:514:15:constante                     constante: 0 → 1
+     ·  tools/medida.py:519:32:constante                     constante: 5 → 6
+     ·  tools/medida.py:521:11:comparador                    comparador: Gt → GtE
+     ·  tools/medida.py:521:29:constante                     constante: 5 → 6
+     ·  tools/medida.py:522:49:constante                     constante: 5 → 6
+     ·  tools/medida.py:528:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:528:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:537:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:540:74:constante                     constante: 0.25 → 1.25
+     ·  tools/medida.py:547:84:constante                     constante: True → False
+     ·  tools/medida.py:550:14:constante                     constante: True → False
+     ·  tools/medida.py:552:15:comparador                    comparador: NotEq → Eq
+     ·  tools/medida.py:555:19:comparador                    comparador: Is → IsNot
+     ·  tools/medida.py:557:32:constante                     constante: True → False
+     ·  tools/medida.py:564:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:564:15:constante                     constante: 0 → 1
+     ·  tools/medida.py:587:11:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:587:22:comparador                    comparador: LtE → Lt
+     ·  tools/medida.py:589:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:606:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:613:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:614:51:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:625:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:628:18:constante                     constante: True → False
+     ·  tools/medida.py:662:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:679:46:comparador                    comparador: Is → IsNot
+     ·  tools/medida.py:683:61:constante                     constante: 0 → 1
+     ·  tools/medida.py:683:64:constante                     constante: 0 → 1
+     ·  tools/medida.py:687:11:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:689:27:constante                     constante: 1 → 2
+     ·  tools/medida.py:690:28:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:690:23:constante                     constante: 0 → 1
+     ·  tools/medida.py:690:72:constante                     constante: 1 → 2
+     ·  tools/medida.py:690:78:constante                     constante: 1 → 2
+     ·  tools/medida.py:695:15:constante                     constante: True → False
+     ·  tools/medida.py:697:7:comparador                     comparador: Is → IsNot
+     ·  tools/medida.py:698:19:constante                     constante: False → True
+     ·  tools/medida.py:702:19:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:710:7:comparador                     comparador: IsNot → Is
+     ·  tools/medida.py:714:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:716:50:comparador                    comparador: IsNot → Is
+     ·  tools/medida.py:727:7:comparador                     comparador: In → NotIn
+     ·  tools/medida.py:728:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:729:44:constante                     constante: 0 → 1
+     ·  tools/medida.py:730:28:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:730:33:constante                     constante: 1 → 2
+     ·  tools/medida.py:736:7:booleano                       booleano: and ↔ or
+     ·  tools/medida.py:736:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:736:35:comparador                    comparador: NotIn → In
+     ·  tools/medida.py:737:11:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:737:11:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:737:16:constante                     constante: 0 → 1
+     ·  tools/medida.py:737:22:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:738:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:739:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:740:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:741:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:743:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:755:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:756:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:757:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:757:11:comparador                    comparador: NotIn → In
+     ·  tools/medida.py:764:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:764:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:766:11:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:781:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:781:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:784:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:784:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:786:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:788:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:788:15:constante                     constante: 0 → 1
+     ·  tools/medida.py:811:56:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:812:48:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:813:46:comparador                    comparador: NotIn → In
+     ·  tools/medida.py:816:32:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:816:45:constante                     constante: 1 → 2
+     ·  tools/medida.py:817:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:820:36:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:820:52:constante                     constante: 1 → 2
+     ·  tools/medida.py:821:41:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:821:59:constante                     constante: 1 → 2
+     ·  tools/medida.py:831:26:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:832:11:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:834:13:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:834:36:constante                     constante: 1 → 2
+     ·  tools/medida.py:835:50:constante                     constante: 0 → 1
+     ·  tools/medida.py:837:50:constante                     constante: 0 → 1
+     ·  tools/medida.py:838:36:constante                     constante: 1 → 2
+     ·  tools/medida.py:844:37:comparador                    comparador: Eq → NotEq
+     ·  tools/medida.py:844:42:constante                     constante: 1 → 2
+     ·  tools/medida.py:849:4:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:849:11:constante                     constante: 0 → 1
+     ·  tools/medida.py:853:32:comparador                    comparador: Is → IsNot
+     ·  tools/medida.py:853:25:constante                     constante: 1 → 2
+     ·  tools/medida.py:855:7:booleano                       booleano: and ↔ or
+     ·  tools/medida.py:855:7:negacion                       negacion: se borra el `not`
+     ·  tools/medida.py:855:19:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:855:24:constante                     constante: 0 → 1
+     ·  tools/medida.py:857:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:857:15:constante                     constante: 0 → 1
+     ·  tools/medida.py:859:7:comparador                     comparador: Is → IsNot
+     ·  tools/medida.py:860:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:860:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:861:36:comparador                    comparador: In → NotIn
+     ·  tools/medida.py:861:41:constante                     constante: 0 → 1
+     ·  tools/medida.py:866:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:866:15:constante                     constante: 1 → 2
+     ·  tools/medida.py:867:7:comparador                     comparador: In → NotIn
+     ·  tools/medida.py:867:12:constante                     constante: 0 → 1
+     ·  tools/medida.py:868:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:869:7:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:869:12:constante                     constante: 0 → 1
+     ·  tools/medida.py:870:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:871:7:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:871:12:constante                     constante: 0 → 1
+     ·  tools/medida.py:872:19:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:872:19:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:873:11:booleano                      booleano: and ↔ or
+     ·  tools/medida.py:873:24:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:874:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:874:53:constante                     constante: True → False
+     ·  tools/medida.py:877:16:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:880:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:880:19:constante                     constante: 1 → 2
+     ·  tools/medida.py:881:7:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:881:12:constante                     constante: 0 → 1
+     ·  tools/medida.py:882:11:comparador                    comparador: Lt → LtE
+     ·  tools/medida.py:882:23:constante                     constante: 2 → 3
+     ·  tools/medida.py:884:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:884:19:constante                     constante: 1 → 2
+     ·  tools/medida.py:885:28:constante                     constante: 1 → 2
+     ·  tools/medida.py:889:9:comparador                     comparador: Eq → NotEq
+     ·  tools/medida.py:889:14:constante                     constante: 0 → 1
+     ·  tools/medida.py:890:11:comparador                    comparador: Lt → LtE
+     ·  tools/medida.py:890:23:constante                     constante: 2 → 3
+     ·  tools/medida.py:892:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:892:19:constante                     constante: 1 → 2
+     ·  tools/medida.py:893:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:893:32:constante                     constante: 1 → 2
+     ·  tools/medida.py:895:25:constante                     constante: 0 → 1
+     ·  tools/medida.py:896:11:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:897:36:constante                     constante: 0 → 1
+     ·  tools/medida.py:898:11:negacion                      negacion: se borra el `not`
+     ·  tools/medida.py:899:37:constante                     constante: 0 → 1
+     ·  tools/medida.py:900:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:900:19:constante                     constante: 1 → 2
+     ·  tools/medida.py:904:12:retorno                       retorno: return <algo> → return None
+     ·  tools/medida.py:907:8:retorno                        retorno: return <algo> → return None
+     ·  tools/medida.py:907:15:constante                     constante: 1 → 2
+
+mutantes: 293 · murieron 286 · sobrevivieron 7 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✗ proceso.codigo_con_mutante_que_lo_mata       valor 7 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+CÓDIGO QUE NINGÚN TEST FIJA:
+  · tools/medida.py:168:34:constante
+      constante: 0 → 1
+  · tools/medida.py:193:8:retorno
+      retorno: return <algo> → return None
+  · tools/medida.py:193:15:constante
+      constante: 1 → 2
+  · tools/medida.py:217:30:constante
+      constante: True → False
+  · tools/medida.py:217:45:constante
+      constante: True → False
+  · tools/medida.py:218:58:constante
+      constante: False → True
+  · tools/medida.py:218:72:constante
+      constante: 2 → 3
+
+Cada uno es un test que falta, o un mutante equivalente que hay que DECLARAR en
+equivalentes.json con su razón escrita. Declararlo sin razón es una excusa.

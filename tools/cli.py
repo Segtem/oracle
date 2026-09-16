@@ -132,6 +132,7 @@ Atajos directos:
   oracle test [--rapido|--todo]          Ejecuta la secuencia completa de verificación
   oracle juzgar --con <hechos.json>      Juzga evidencia contra el catálogo del proyecto
   oracle relaciones                      Muestra las relaciones y campos observados
+      --escribir                         Borradores en relaciones-por-revisar/ de las observadas sin declarar
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
@@ -649,7 +650,9 @@ def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
     return 0
 
 
-def cmd_relaciones(proy: Proyecto) -> int:
+def cmd_relaciones(proy: Proyecto, argv: list[str] | None = None) -> int:
+    if "--escribir" in (argv or []):
+        return medida.escribir_relaciones(proy)
     return medida.relaciones(proy)
 
 
@@ -1184,7 +1187,7 @@ def main(argv: list[str] | None = None) -> int:
         if verbo == "test":
             return cmd_test(proy, argv)
         if verbo in ("relaciones", "--relaciones"):
-            return cmd_relaciones(proy)
+            return cmd_relaciones(proy, argv)
         if verbo in ("escalares", "--escalares"):
             return cmd_escalares(proy, argv)
         if verbo in ("contexto", "--contexto"):
@@ -1219,7 +1222,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_contexto(proy, argv)
 
     if subcomando in ("relaciones", "--relaciones"):
-        return cmd_relaciones(proy)
+        return cmd_relaciones(proy, argv)
 
     if subcomando in ("escalares", "--escalares"):
         return cmd_escalares(proy, argv)

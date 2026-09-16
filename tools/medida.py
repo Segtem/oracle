@@ -38,6 +38,8 @@ from nucleo.sintaxis import ErrorSintaxis  # noqa: E402
 from nucleo.fixtures import (cargar_fixtures, casos_para_mutacion,  # noqa: E402
                              evidencias as evidencias_fixture)
 from nucleo.marco import hechos_de_uso  # noqa: E402
+from nucleo.unidad import UNIDAD_SIN_UNIDAD  # noqa: E402
+from nucleo.relacion import NOMBRE_CAMPO_RE, NOMBRE_RELACION_RE  # noqa: E402
 from nucleo.medida import (Medida, MedidaMalDeclarada, cargar_catalogo,  # noqa: E402
                            cargar as cargar_medida,
                            cargar_fuente_medida)
@@ -121,6 +123,128 @@ def relaciones(proy) -> int:
             print(f"      {campo:<28} {'/'.join(sorted(tipos))}")
         print(f"      · aparece en: {', '.join(sorted(dondes[rel])[:3])}\n")
     print("Un hecho nuevo se agrega desde su SENSOR, no acá: el sensor produce, el álgebra juzga.")
+    return 0
+
+
+TIPO_POR_PYTHON = {"str": "texto", "bool": "booleano", "int": "entero", "float": "flotante"}
+TIPOS_SIN_MAGNITUD = frozenset({"texto", "booleano"})
+CARPETA_POR_REVISAR = "relaciones-por-revisar"
+
+
+def _tipo_declarable(tipos: set[str]) -> str | None:
+    """El tipo de un campo a partir de lo que la evidencia trajo, o `None` si no se puede decidir.
+
+    `int` y `float` juntos son `flotante` —un entero es un flotante que salió redondo—; cualquier
+    otra mezcla no se adivina. `None` no cuenta: un campo que a veces viene nulo sigue siendo del
+    tipo de las veces que vino.
+    """
+    vistos = {t for t in tipos if t != "NoneType"}
+    if not vistos:
+        return None
+    if vistos == {"int", "float"}:
+        return "flotante"
+    if len(vistos) > 1:
+        return None
+    return TIPO_POR_PYTHON.get(next(iter(vistos)))
+
+
+def _borrador(nombre: str, campos: dict) -> tuple[list | None, list[str]]:
+    """El borrador de una relación, o los campos que no se pudieron tipar.
+
+    Sólo se escribe lo que se puede SABER mirando la evidencia. Un campo de texto o booleano no
+    tiene magnitud, así que su `sin_unidad` es un hecho. Un número puede ser una cuenta, centímetros
+    o segundos, y eso no está en la evidencia: su unidad queda VACÍA, que el lector rechaza. Y el
+    alcance —lo que la relación no ve— también: sólo lo sabe quien escribió el sensor.
+    """
+    # Un nombre que el lector no acepta hace que el borrador no pueda cargar NUNCA, por más que
+    # alguien complete las unidades: mejor decirlo ahora que después de que lo revisen.
+    if not NOMBRE_RELACION_RE.fullmatch(nombre):
+        return None, ["el nombre de la relación no es válido"]
+    sin_decidir, declarados = [], []
+    for campo, tipos in sorted(campos.items()):
+        if not NOMBRE_CAMPO_RE.fullmatch(campo):
+            sin_decidir.append(f"{campo} (nombre inválido)")
+            continue
+        tipo = _tipo_declarable(tipos)
+        if tipo is None:
+            sin_decidir.append(f"{campo} ({'/'.join(sorted(tipos))})")
+            continue
+        unidad = UNIDAD_SIN_UNIDAD if tipo in TIPOS_SIN_MAGNITUD else ""
+        declarados.append(["campo", campo, tipo, unidad])
+    if sin_decidir or not declarados:
+        return None, sin_decidir
+    return ["relacion", nombre, ["campos", *declarados], ["alcance", ""]], []
+
+
+def escribir_relaciones(proy) -> int:
+    """Escribe BORRADORES de las relaciones observadas que el proyecto todavía no declara.
+
+    Una relación sin declarar no tiene unidades, y sin unidades
+    `meta.toda_cantidad_comparada_tiene_unidad_derivable` cuenta todas sus comparaciones: los dos
+    consumidores conocidos arrastran 114 así, con la misma razón escrita en su sombra —«se hace por
+    relación, no de golpe»—. Esto convierte la transcripción en revisar y completar.
+
+    Lo que NO hace, y es la mitad del diseño: **no cambia lo que el proyecto carga.** Los borradores
+    van a `relaciones-por-revisar/`, que el lector no mira, con la unidad de cada número y el alcance
+    vacíos; moverlos a `relaciones/` sin completarlos los hace fallar al cargar, con un mensaje que
+    dice qué falta. La primera versión escribía `sin_unidad` en todo y declaraba directo: sobre
+    LyraGASP bajaba la deuda de 60 a 0 afirmando que medidas en centímetros no tenían unidad. Eso no
+    es pagar una deuda, es fabricar un verde.
+
+    Tampoco toca lo ya declarado ni un borrador que ya existe: puede tener trabajo de alguien.
+    """
+    try:
+        campos, _dondes = inventario_de_relaciones(proy)
+    except (OSError, ValueError, json.JSONDecodeError, CasoMalDeclarado) as e:
+        print(f"no se pudo inventariar la evidencia: {e}")
+        return 1
+
+    from nucleo.medida import relaciones_del_lenguaje_declaradas
+    from nucleo.proyecto import relaciones_del_proyecto
+
+    ya_declaradas = set(relaciones_del_proyecto(proy))
+    del_lenguaje = set(relaciones_del_lenguaje_declaradas())
+    destino = proy.raiz / CARPETA_POR_REVISAR
+    escritas, salteadas, ambiguas = [], [], []
+    for nombre in sorted(campos):
+        if nombre in ya_declaradas:
+            salteadas.append((nombre, "ya declarada"))
+            continue
+        if nombre in del_lenguaje:
+            salteadas.append((nombre, "la emite Oracle y sus campos ya están declarados"))
+            continue
+        ruta = destino / f"{nombre}.json"
+        if ruta.exists():
+            salteadas.append((nombre, "ya tiene un borrador; no se pisa"))
+            continue
+        borrador, sin_decidir = _borrador(nombre, campos[nombre])
+        if borrador is None:
+            ambiguas.append((nombre, sin_decidir))
+            continue
+        # Cuántas unidades quedaron por decidir se LEE del borrador, no se lleva aparte: un contador
+        # paralelo es una segunda versión de lo mismo, y la mutación mostró que nadie lo miraba.
+        a_decidir = sum(1 for campo in borrador[2][1:] if campo[3] == "")
+        destino.mkdir(exist_ok=True)
+        # Con la misma forma que `relaciones/*.json`: el borrador lo va a editar una persona, y lo
+        # va a mover a una carpeta donde todo está escrito así. Los nombres ya son ASCII.
+        ruta.write_text(json.dumps(borrador, indent=2) + "\n", encoding="utf-8")
+        escritas.append((nombre, a_decidir))
+
+    for nombre, a_decidir in escritas:
+        faltan = f"{a_decidir} unidad(es) y el alcance" if a_decidir else "el alcance"
+        print(f"borrador: {presentar_ruta(proy, destino / f'{nombre}.json')} — falta {faltan}")
+    for nombre, razon in salteadas:
+        print(f"salteada: {nombre} — {razon}")
+    for nombre, sin_decidir in ambiguas:
+        print(f"sin borrador: {nombre} — la evidencia mezcla tipos en {', '.join(sin_decidir)}; "
+              "hay que declararla a mano")
+    if not escritas:
+        print("\nNo se escribió ningún borrador: no hay relaciones observadas sin declarar.")
+        return 0
+    print(f"\n{len(escritas)} borrador(es) en {CARPETA_POR_REVISAR}/. El proyecto no los carga "
+          "todavía: completá la unidad de cada número (una magnitud, o `sin_unidad` si de verdad no "
+          "tiene) y el alcance —lo que el sensor NO ve—, y movelos a relaciones/. Si se mueven sin "
+          "completar, el proyecto no carga y dice qué falta.")
     return 0
 
 
