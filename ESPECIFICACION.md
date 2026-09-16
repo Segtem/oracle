@@ -98,6 +98,17 @@ rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
+**Corte 0.23.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.22.0` a `0.23.0`.**
+`meta.toda_medida_declara_su_ambito` pasa de `del_origen` a `universal`: el ámbito se le exige a todo
+proyecto que seleccione el catálogo, no sólo a Oracle. Sube la **menor** por el mismo criterio que
+0.9.0 —una medida universal puede volver rojo a un consumidor que actualiza sin usar nada nuevo—, y
+acá el rojo es cierto: una medida sin `ambito` lo recibe. Los dos consumidores conocidos declararon
+sus 68 medidas antes del corte, así que salen en cero, pero eso es un hecho de sus catálogos y no una
+garantía. `VERSION_ALGEBRA` queda en `0.7` y `VERSION_SINTAXIS` en `0.5`: no entra un nodo, un
+operador, un agregado, una escalar ni una relación, el lector no gana palabras, y `sin_declarar` se
+sigue leyendo y escribiendo igual —lo que cambia es a quién obliga la medida que lo persigue—. Cierra
+la tarea `20260915-155111-ambito`, abierta desde el plan de 0.5.0.
+
 **Corte 0.22.0 (2026-09-15): `VERSION_DISTRIBUCION` sube de `0.21.0` a `0.22.0`.** La menor agrega
 una relación del lenguaje (`campo_leido`), una medida universal (`meta.toda_medida_lee_campos_que_existen`),
 la declaración de los campos de lo que emite el núcleo (`CAMPOS_DE_RELACIONES`, §1.1), ocho relaciones de

@@ -1,3 +1,51 @@
+# 0.23.0 — declarar el ámbito deja de ser cosa de Oracle
+
+```
+VERSION_DISTRIBUCION   0.22.0 → 0.23.0   la medida del ámbito obliga a todos
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+`meta.toda_medida_declara_su_ambito` se declaraba a sí misma `del_origen` desde 0.5.0. Era deliberado:
+si hubiera sido universal, los consumidores se habrían puesto en rojo al instante por medidas escritas
+antes de que la cláusula existiera. El propio plan de 0.5.0 avisaba que era la clase de decisión
+temporal que se vuelve permanente por olvido, y que nada registraba cuándo debía terminar.
+
+- **La medida pasa a `universal`.** Una medida sin `ambito` es un rojo en cualquier proyecto que
+  seleccione el catálogo, no sólo en Oracle.
+- **Los consumidores ya no tienen ninguna.** Antes del corte, las 27 medidas de LyraGASP y las 41 de
+  Jam declararon su ámbito, todas `universal`: ninguna juzga la instalación de su origen, y lo propio
+  de cada repo vive en el sensor, no en la medida. Los catálogos de Oracle y del ejemplo ya estaban
+  en cero.
+- **Nada más cambia.** `sin_declarar` se sigue leyendo y escribiendo igual; lo que cambia es a quién
+  le reclama la medida que lo persigue.
+
+Un consumidor que actualice con medidas sin `ambito` va a ver un rojo nuevo, y el remedio es
+declararlo: `universal` si la regla obliga a todo proyecto que aporte esa evidencia, `del_origen` si
+juzga la instalación de quien la escribió.
+
+## Verificación
+
+- Suite completa en verde (2146 tests); aceptación ✓ con 118 defectos en rojo y 83 verdes correctos;
+  sintaxis y diferencial al día; `verificar_instalacion` WHEEL OK.
+- Mutación de medidas: 984/984. No hay ronda de mutación de código: el corte no toca `nucleo/` ni
+  `tools/` más allá del número de versión.
+- Con este árbol, las medidas sin ámbito son cero en los cuatro catálogos medidos: Oracle (58),
+  `ejemplo/seguimiento-tareas` (3), LyraGASP (27) y Jam (41).
+- Los dos consumidores, con el Oracle 0.17.0 que corren hoy y su ámbito ya declarado: LyraGASP
+  `oracle test` VERDE (corpus 190, aceptación 76 rojos y 114 verdes); Jam sigue en el mismo ROJO
+  previo, sólo por `medidas/diferencial/vault.json`, cuyo emisor no corre por una deuda de su
+  dominio. Los demás diferenciales de los dos se re-emitieron porque cambió el texto de sus
+  catálogos.
+
+## Cómo se hizo
+
+Tarea `20260915-155111-ambito`, que existía justamente porque el plan de 0.5.0 dejó la deuda escrita.
+Se midió primero: 0 medidas sin ámbito en Oracle y en el ejemplo, 27 de 27 en LyraGASP y 41 de 41 en
+Jam. El dueño eligió declararlas y recién después promover la medida, en vez de anotar el paso con
+fecha y cota. Cada medida se leyó para decidir su ámbito; el criterio quedó en los commits de cada
+consumidor.
+
 # 0.22.0 — toda medida lee campos que existen, y un campo ausente se informa igual en todas partes
 
 ```
