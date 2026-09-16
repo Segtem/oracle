@@ -1,6 +1,6 @@
 # RELEVO.md y ~/CLAUDE.md describen versiones viejas de Oracle
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 35
 - ETIQUETAS: oracle, docs
 
