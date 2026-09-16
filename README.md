@@ -433,9 +433,15 @@ oracle juzgar --con hechos.json [--proyecto <ruta>] [--medida <id>]… [--json] 
 
 La evidencia es un objeto JSON `relación → lista de filas`. Juzga con el catálogo **efectivo** del
 proyecto —una medida `del_origen` heredada no obliga a quien la hereda— y respeta las sombras de
-`oracle.json`, igual que la aceptación: el mismo proyecto no da dos veredictos. Sale 0 si pasa, 1 si
-hay un rojo fuera de sombra o **ninguna medida aplica** (nunca un verde vacío) y 2 si la entrada o el
-proyecto son inválidos.
+`oracle.json`, igual que la aceptación: el mismo proyecto no da dos veredictos. Una sombra con `cota`
+perdona sólo hasta esa cota: por encima —o sin un número que comparar— el rojo vuelve, marcado
+`SUPERA SU COTA`. Sale 0 si pasa, 1 si hay un rojo que ninguna sombra perdona o **ninguna medida
+aplica** (nunca un verde vacío) y 2 si la entrada o el proyecto son inválidos.
+
+Una medida se aplica si la evidencia trae **todas** sus relaciones. Las del catálogo propio que no se
+aplicaron no cuentan en el veredicto, pero se nombran —`NO SE APLICARON`, y `no_aplicadas` en
+`--json`— con la relación que les faltó: «no vino su relación» es un «no miré». Las heredadas no se
+listan, porque juzgan el catálogo y no la evidencia. `Motor.evaluar` hace lo mismo.
 
 Oracle se juzga así a sí mismo en CI: `oracle tarea hechos --git` sobre su propio `tareas/`, con las
 políticas de [`ejemplo/seguimiento-tareas`](https://github.com/Segtem/oracle/tree/main/ejemplo/seguimiento-tareas).

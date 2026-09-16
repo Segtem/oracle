@@ -220,6 +220,9 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
    - `motivo`: descripción clara de la causa (ej. adjunto Markdown > 2 MiB, enlace simbólico, bytes nulos, enlaces por referencia no resueltos, sintaxis incompleta o multilínea).
 
 **Garantías de límites, seguridad y gramática**:
+- **Historia superficial**: con `--git`, un clon superficial (`git clone --depth`, el
+  `actions/checkout` por omisión) se declara como omisión de `.git` y deja `completa=false`:
+  `commit_seguimiento` sólo ve el tramo que se bajó, y una política sobre commits contaría de menos.
 - **Distinción entre centrales y adjuntos**: un documento central `TAREA.md` que supere los 2 MiB o sea un enlace simbólico invalida la integridad del tracker y hace fallar la ejecución con código 1. Por el contrario, un adjunto Markdown grande (> 2 MiB) se omite de forma controlada (`omision_seguimiento`, `completa=false`) sin abortar.
 - **Seguridad en componentes de rutas**: la inspección de referencias locales analiza cada componente original sin normalizar prematuramente con `resolve()`. Rutas como `puente/../archivo.txt` donde `puente` es un symlink detectan el enlace simbólico y se clasifican como `no_comprobado` con omisión. Componentes regulares seguidos de `/..` se reconocen como no directorios (`ausente`).
 - **Manejo estricto de errores de E/S**: sólo `FileNotFoundError` o `NotADirectoryError` acreditan ausencia. Permisos denegados (`PermissionError`) o errores operacionales abortan con código 1 sin emitir JSON parcial ni disfrazar fallos como archivos ausentes.
