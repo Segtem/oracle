@@ -218,8 +218,11 @@ def cmd_juzgar(argv: list[str]) -> int:
                     )
                     return 1
 
-            # 7. Evaluación
-            informe = evaluar_conjunto(medidas_a_evaluar, evidencia)
+            # 7. Evaluación. Las sombras entran ACÁ y no después: desde 0.20.0 `Informe` sabe qué
+            # rojo perdona la sombra, y la copia que vivía en este archivo envejecía aparte.
+            mapa_sombra = {e.medida: e for e in configuracion(proy).sombra}
+            informe = evaluar_conjunto(medidas_a_evaluar, evidencia,
+                                       en_sombra=frozenset(mapa_sombra))
             if informe.no_juzgaron:
                 for mid, motivo in informe.no_juzgaron:
                     print(f"ERROR AL EVALUAR — «{mid}»: {motivo}", file=sys.stderr)
@@ -235,11 +238,12 @@ def cmd_juzgar(argv: list[str]) -> int:
         print(f"ERROR AL EVALUAR — {e}", file=sys.stderr)
         return 2
 
-    # 8. Tratamiento de sombras y emisión de resultados
-    mapa_sombra = {e.medida: e for e in configuracion(proy).sombra}
-    rojos_fuera_de_sombra = [v for v in informe.veredictos if (not v.ok) and v.id not in mapa_sombra]
-    rojos_en_sombra = [v for v in informe.veredictos if (not v.ok) and v.id in mapa_sombra]
-    es_aprobado = (len(rojos_fuera_de_sombra) == 0)
+    # 8. Emisión de resultados. Lo propio de `juzgar` es la prosa: el `desde` y el `porque` de cada
+    # sombra, y el «verde por sombra» de cuando TODAS las aplicables estaban perdonadas. Quién está
+    # en rojo lo decide el informe.
+    rojos_fuera_de_sombra = informe.rojos
+    rojos_en_sombra = informe.perdonados
+    es_aprobado = informe.ok
 
     if es_json:
         medidas_json = []

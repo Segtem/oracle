@@ -696,6 +696,17 @@ class Informe:
         return bool(self.veredictos) and all(
             v.ok or v.id in self.en_sombra for v in self.veredictos)
 
+    @property
+    def rojos(self) -> tuple:
+        """Los rojos que la sombra NO perdona: los que hacen fallar."""
+        return tuple(v for v in self.veredictos if not v.ok and v.id not in self.en_sombra)
+
+    @property
+    def perdonados(self) -> tuple:
+        """Los rojos que están en sombra. Se miden y se informan igual; lo único que se apaga es la
+        consecuencia."""
+        return tuple(v for v in self.veredictos if not v.ok and v.id in self.en_sombra)
+
     def texto(self) -> str:
         """Nunca dice «TODO VERDE» a secas: un verde termina enumerando lo que no miró."""
         if not self.veredictos and not self.no_juzgaron:
@@ -712,8 +723,8 @@ class Informe:
             lineas.append(f"\nNO PUDIERON JUZGAR ({len(self.no_juzgaron)}):")
             for mid, motivo in self.no_juzgaron:
                 lineas.append(f"  · {mid}: {motivo}")
-        malas = [v for v in self.veredictos if not v.ok and v.id not in self.en_sombra]
-        perdonadas = sum(1 for v in self.veredictos if not v.ok and v.id in self.en_sombra)
+        malas = self.rojos
+        perdonadas = len(self.perdonados)
         if malas or self.no_juzgaron:
             partes = []
             if malas:
