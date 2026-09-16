@@ -1436,8 +1436,16 @@ class LimiteMemoriaTests(unittest.TestCase):
         """Lo que pasa entre el fork y el exec sale como `SubprocessError` sin decir cuál fue. Que
         eso llegue como error de arnés —y no como un traceback que se lleva la ronda— es lo que
         permite leer el informe y saber que ningún mutante quedó juzgado."""
+        if mc.resource is None:
+            self.skipTest("resource no disponible en esta plataforma")
+
+        # Se parchea `setrlimit` y no el valor del tope: un rlimit inválido lo trata distinto cada
+        # sistema —el 3.11 de CI aceptó (-5, -5) sin chistar y el test pasó a depender del kernel—,
+        # mientras que un `setrlimit` que levanta es lo mismo en todos. El parche viaja al hijo
+        # porque el fork copia el proceso.
         with tempfile.TemporaryDirectory() as d:
-            with mock.patch.object(mc, "_tope_de_memoria_aplicable", return_value=(-5, -5)):
+            with mock.patch.object(mc.resource, "setrlimit",
+                                   side_effect=OSError("no se pudo aplicar el tope")):
                 resultado = mc.ejecutar_tests(
                     SIEMPRE_PASA, Path(d), timeout=20.0, limite_memoria=1024 * 1024)
         self.assertTrue(resultado.error_arnes)
