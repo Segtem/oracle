@@ -1087,13 +1087,40 @@ class CifrasDelReadme(unittest.TestCase):
         with self.assertRaises(ValueError):
             cli.actualizar("<!-- x:inicio -->\nsin cierre", "x", "algo")
 
-    def test_todo_bloque_declarado_tiene_su_marca_en_el_readme(self) -> None:
+    def test_todo_bloque_declarado_lo_publica_algun_documento(self) -> None:
+        """Un bloque que no marca ningún documento custodiado es código que no mide nada. Son varios
+        documentos desde que el sitio publica su versión y sus cifras, así que la pregunta no es «¿lo
+        tiene el README?» sino «¿lo tiene alguno?»."""
         from tools import cifras as cli
 
-        readme = (RAIZ / "README.md").read_text(encoding="utf-8")
+        textos = [(RAIZ / nombre).read_text(encoding="utf-8") for nombre in cli.DOCUMENTOS]
         for nombre in cli.BLOQUES:
-            self.assertIn(f"<!-- {nombre}:inicio -->", readme, nombre)
-            self.assertIn(f"<!-- {nombre}:fin -->", readme, nombre)
+            with self.subTest(nombre):
+                self.assertTrue(
+                    any(f"<!-- {nombre}:inicio -->" in t and f"<!-- {nombre}:fin -->" in t
+                        for t in textos),
+                    f"ningún documento de DOCUMENTOS publica el bloque «{nombre}»")
+
+    def test_una_cifra_publicada_dos_veces_se_actualiza_en_las_dos(self) -> None:
+        """La portada publica la versión en el encabezado y en el pie. Con una sola pasada el pie se
+        quedó en `0.8.0` mientras el encabezado ya decía otra: una cifra custodiada que igual
+        envejece es exactamente lo que este archivo existe para que no pase."""
+        from tools import cifras as cli
+
+        documento = ("uno <!-- x:inicio -->\nviejo\n<!-- x:fin --> y dos "
+                     "<!-- x:inicio -->\nviejo\n<!-- x:fin --> fin")
+        salida = cli.actualizar(documento, "x", "nuevo", ruta="demo.html")
+        self.assertEqual(salida.count("nuevo"), 2)
+        self.assertNotIn("viejo", salida)
+        self.assertTrue(salida.endswith(" fin"))
+
+    def test_una_marca_sin_cierre_es_un_error_y_no_un_reemplazo_a_medias(self) -> None:
+        from tools import cifras as cli
+
+        with self.assertRaises(ValueError):
+            cli.actualizar("<!-- x:inicio -->\nviejo\n", "x", "nuevo", ruta="demo.html")
+        with self.assertRaises(ValueError):
+            cli.actualizar("sin marcas", "x", "nuevo", ruta="demo.html")
 
     def test_la_proporcion_publicada_es_la_que_sale_de_los_archivos(self) -> None:
         """Recalcula el cociente por otra vía: si la fórmula se afloja, esto se cae."""
@@ -1433,6 +1460,22 @@ class VersionDelAlgebra(unittest.TestCase):
 
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
         self.assertEqual(str(del_nucleo()), "0.7")
+
+    def test_la_especificacion_dice_de_entrada_en_que_versiones_esta(self) -> None:
+        """§0 abre con las tres versiones vigentes. Sin esto había que deducirlas del último párrafo
+        de una crónica de veinte cortes, y quien implementa el álgebra sin ver el núcleo —el autor de
+        la referencia del diferencial— lo reclamó por escrito."""
+        import re
+
+        from nucleo.version import VERSION_ALGEBRA, VERSION_DISTRIBUCION, VERSION_SINTAXIS
+
+        raiz = Path(__file__).resolve().parents[1]
+        texto = (raiz / "ESPECIFICACION.md").read_text(encoding="utf-8")
+        linea = re.search(
+            r"\*\*Versiones vigentes: álgebra `([^`]+)`, sintaxis `([^`]+)`, "
+            r"distribución `([^`]+)`\.\*\*", texto)
+        self.assertIsNotNone(linea, "§0 no declara las versiones vigentes en la forma esperada")
+        self.assertEqual(linea.groups(), (VERSION_ALGEBRA, VERSION_SINTAXIS, VERSION_DISTRIBUCION))
 
     def test_la_superficie_declara_su_propia_version_legible_y_estable(self) -> None:
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis

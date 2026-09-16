@@ -212,20 +212,52 @@ def cifras() -> str:
     )
 
 
+# Los tres de abajo son para el SITIO (`docs/index.html`), donde cada cifra estaba escrita a mano:
+# la portada publicó «oracle 0.8.0 · 41 medidas · 131 casos» durante ocho cortes. Es la misma deriva
+# que este archivo cerró en el README, y el mecanismo sirve igual porque las marcas son comentarios
+# HTML. Cada bloque es UN dato y nada de maquetación: el HTML alrededor se escribe a mano, que es
+# donde tiene sentido decidirlo.
+
+
+def sitio_version() -> str:
+    from nucleo.version import VERSION_DISTRIBUCION
+
+    return VERSION_DISTRIBUCION
+
+
+def sitio_medidas() -> str:
+    return str(len(_medidas_universales()))
+
+
+def sitio_casos() -> str:
+    return str(len(_casos_del_corpus()))
+
+
 BLOQUES = {"cifras": cifras, "escala": escala, "corpus": corpus, "negativas": negativas,
-           "deteccion": deteccion}
+           "deteccion": deteccion, "sitio_version": sitio_version,
+           "sitio_medidas": sitio_medidas, "sitio_casos": sitio_casos}
 
 
 def actualizar(contenido: str, nombre: str, bloque: str, ruta: str = "README.md") -> str:
+    """Reescribe TODAS las apariciones del bloque, no la primera.
+
+    La portada publica la versión dos veces —en el encabezado y en el pie— y con una sola pasada el
+    pie se quedaba en `0.8.0` mientras el encabezado ya decía la versión de hoy: una cifra
+    custodiada que igual envejecía, que es el defecto que este archivo existe para cerrar.
+    """
     inicio = f"<!-- {nombre}:inicio -->"
     fin = f"<!-- {nombre}:fin -->"
-    antes, separador, resto = contenido.partition(inicio)
-    if not separador:
+    if inicio not in contenido:
         raise ValueError(f"falta {inicio} en {ruta}")
-    _viejo, separador, despues = resto.partition(fin)
-    if not separador:
-        raise ValueError(f"falta {fin} en {ruta}")
-    return f"{antes}{inicio}\n{bloque}\n{fin}{despues}"
+    partes = []
+    resto = contenido
+    while inicio in resto:
+        antes, _sep, resto = resto.partition(inicio)
+        _viejo, separador, resto = resto.partition(fin)
+        if not separador:
+            raise ValueError(f"falta {fin} en {ruta}")
+        partes.append(f"{antes}{inicio}\n{bloque}\n{fin}")
+    return "".join(partes) + resto
 
 
 def render(contenido: str, ruta: str = "README.md") -> str:
@@ -250,7 +282,7 @@ def render(contenido: str, ruta: str = "README.md") -> str:
 # Custodiar un artefacto generado además no sirve: `estudio/` y `ORACLE-PARA-NOTEBOOKLM.md` salen de
 # `tools/estudio.py`, así que una cifra vencida ahí es un síntoma de que la fuente venció, y la
 # fuente es el README, que sí está acá. Se arregla regenerando, no vigilando la copia.
-DOCUMENTOS = ("README.md",)
+DOCUMENTOS = ("README.md", "docs/index.html")
 
 
 def custodiados_sin_versionar(raiz: Path | None = None, documentos=None) -> list[str]:

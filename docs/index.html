@@ -172,11 +172,14 @@
 
 <header class="barra">
   <div style="display:flex; align-items:center; gap:14px;">
-    <strong>oracle</strong><span class="ver">0.8.0</span>
+    <strong>oracle</strong><span class="ver"><!-- sitio_version:inicio -->
+0.23.1
+<!-- sitio_version:fin --></span>
   </div>
   <nav>
     <a href="#empezar">empezar</a>
     <a href="#medida">el lenguaje</a>
+    <a href="#tracker">el tracker</a>
     <a href="donde-entra.html">dónde entra</a>
     <a href="de-cero.html">de cero</a>
     <a href="reportar.html">reportar</a>
@@ -342,10 +345,51 @@
 </section>
 
 <section class="fila g4 oscuro">
-  <div class="pad"><p class="cifra">41</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">medidas en el catálogo</p></div>
-  <div class="pad"><p class="cifra">131</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">casos que las ponen a prueba</p></div>
+  <div class="pad"><p class="cifra"><!-- sitio_medidas:inicio -->
+61
+<!-- sitio_medidas:fin --></p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">medidas en el catálogo</p></div>
+  <div class="pad"><p class="cifra"><!-- sitio_casos:inicio -->
+208
+<!-- sitio_casos:fin --></p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">casos que las ponen a prueba</p></div>
   <div class="pad"><p class="cifra">0</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">mutantes vivos en el núcleo</p></div>
   <div class="pad"><p class="cifra">0</p><p class="cuerpo" style="font-size:15px; color:oklch(0.82 0.01 95)">dependencias</p></div>
+</section>
+
+<section id="tracker" class="fila g12">
+  <div class="pad c5">
+    <h2 class="grande">El tracker</h2>
+    <p class="cuerpo">
+      Oracle trae su propio tracker de tareas, con la forma de
+      <a href="https://github.com/tsoding/tatr">tatr</a>: una carpeta por tarea dentro de
+      <code>tareas/</code>, un <code>TAREA.md</code> con su estado, su prioridad y sus etiquetas, y
+      un ID que es la fecha y la hora. Nada de base de datos, nada de servidor: el tracker viaja en
+      el repositorio y se revisa en el mismo diff que el código.
+    </p>
+    <p class="cuerpo">
+      Lo interesante no es que exista, sino que <strong>se mide</strong>. El tracker emite hechos
+      —tareas, referencias entre ellas, qué archivos siguen sin commitear— y Oracle los juzga con
+      medidas escritas en su propio lenguaje: una tarea que enlaza a un archivo que no existe pone
+      el CI en rojo, como cualquier otro defecto.
+    </p>
+    <p class="cuerpo">
+      Las consultas se escriben en castellano: <code>:metalenguaje y prioridad desde 70</code>
+      devuelve las tareas etiquetadas <code>metalenguaje</code> con prioridad 70 o más.
+    </p>
+    <p class="cuerpo" style="font-size:15px;">
+      La guía completa —formato del ID, el lenguaje de consultas, los hechos que emite— está en
+      <a href="https://github.com/Segtem/oracle/blob/main/docs/12-tareas.md">docs/12-tareas.md</a>.
+    </p>
+  </div>
+  <div class="pad" style="grid-column: span 7; background: oklch(0.925 0.006 95);">
+<pre class="codigo"><span style="color:oklch(0.50 0.01 95)">$</span> oracle tarea init
+<span style="color:oklch(0.50 0.01 95)">$</span> oracle tarea nueva "el sensor no declara de dónde salió" --sufijo sensor
+<span style="color:oklch(0.50 0.01 95)">$</span> oracle tarea listar ":bug y prioridad desde 60"
+<span style="color:oklch(0.50 0.01 95)">$</span> oracle tarea cerrar 20260916-014153-sensor</pre>
+    <p class="cuerpo" style="margin-top:20px; font-size:15px;">
+      El mismo <code>oracle</code> que juzga tu proyecto lleva sus tareas: los cortes de Oracle se
+      hacen así, y cada commit empieza con el ID de la tarea que cierra.
+    </p>
+  </div>
 </section>
 
 <section id="empezar" class="fila g12">
@@ -353,12 +397,12 @@
     <h2 class="grande">Empezar</h2>
     <p class="cuerpo">
       Python ≥ 3.11 y nada más. Sin dependencias que resolver, se instala también sin red desde el
-      archivo del <a href="https://github.com/Segtem/oracle/releases/tag/v0.6.0">release</a>.
+      archivo del <a href="https://github.com/Segtem/oracle/releases/latest">release</a>.
       Con <code>pip</code> hace falta un entorno propio: en Arch, Debian 12+, Ubuntu 23.04+ y
       Fedora, instalar al Python del sistema falla con <code>externally-managed-environment</code>.
     </p>
     <p class="cuerpo">
-      Instala nueve comandos y el catálogo base viaja adentro, así que un proyecto nuevo ya tiene
+      Instala diez comandos y el catálogo base viaja adentro, así que un proyecto nuevo ya tiene
       quién lo juzgue desde el primer <code>oracle test</code>.
     </p>
     <p class="cuerpo">
@@ -392,7 +436,7 @@
     <p class="cuerpo" style="max-width:88ch;">
       Lo que sí hay son ocho <a href="https://github.com/Segtem/oracle#las-decisiones-y-por-qué">decisiones</a>
       escritas con lo que se descartó y por qué, unos
-      <a href="https://github.com/Segtem/oracle/releases/tag/v0.6.0">límites conocidos</a> publicados
+      <a href="https://github.com/Segtem/oracle/releases/latest">límites conocidos</a> publicados
       junto al release, y una historia de commits donde cada afirmación dice qué se midió para
       sostenerla.
     </p>
@@ -412,7 +456,9 @@
   <a href="de-cero.html">de cero</a>
   <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
   <a href="https://pypi.org/project/oracle-metalenguaje/">PyPI</a>
-  <span>0.8.0</span>
+  <span><!-- sitio_version:inicio -->
+0.23.1
+<!-- sitio_version:fin --></span>
 </footer>
 
 </body>
