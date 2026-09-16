@@ -1,7 +1,7 @@
 # tools/diferencial.py no es custodia del arnés y nadie fija al que comprueba el acuerdo
 
 - ID: 20260916-014457-custodia
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle, metalenguaje, mutacion
 - CREADA: 2026-09-16
