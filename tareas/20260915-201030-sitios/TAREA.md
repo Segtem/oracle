@@ -1,6 +1,6 @@
 # mutar_codigo sólo muta archivos enteros
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 50
 - ETIQUETAS: oracle, mutacion, idea
 
