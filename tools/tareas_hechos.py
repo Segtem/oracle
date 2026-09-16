@@ -646,12 +646,6 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
             "prioridad_declarada": t.prioridad,
             "ruta": rel_md,
             "sha256_documento": sha256_doc,
-            # Los dos conteos los pone el emisor porque el álgebra no tiene anti-junta: «una tarea
-            # que NINGÚN commit nombra» no se puede escribir uniendo dos relaciones. Contarlo acá y
-            # dejar que la medida compare contra cero es la misma división de siempre —el sensor
-            # observa, el lenguaje juzga— y es lo que permite que la regla exista.
-            "commits_que_la_nombran": 0,
-            "commits_de_cierre": 0,
         })
 
     # 6. Extraer referencias en documentos Markdown regulares dentro del tracker
@@ -813,19 +807,11 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
     tarea_seguimiento.sort(key=lambda x: x["id"])
     referencias.sort(key=lambda x: (x["origen"], x["linea"], x["destino_declarado"]))
 
-    # 7 bis. Los commits, y lo que cada tarea recibe de ellos
+    # 7 bis. Los commits
     estados = {t["id"]: t["estado_declarado"] for t in tarea_seguimiento}
     commit_seguimiento: list[dict[str, Any]] = []
     if commits_leidos is not None:
         commit_seguimiento = [_commit_del_tracker(c, estados) for c in commits_leidos]
-        por_tarea = {t["id"]: t for t in tarea_seguimiento}
-        for fila in commit_seguimiento:
-            suya = por_tarea.get(fila["tarea_nombrada"])
-            if suya is None:
-                continue
-            suya["commits_que_la_nombran"] += 1
-            if fila["es_cierre"]:
-                suya["commits_de_cierre"] += 1
     # El orden viene de `git log` —del más nuevo al más viejo— y es estable entre corridas mientras
     # la historia no cambie; no se reordena por sha para no perder esa lectura.
 

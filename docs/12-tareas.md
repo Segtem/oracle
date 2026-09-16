@@ -186,11 +186,6 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
    - `prioridad_declarada`: prioridad numérica entera.
    - `ruta`: ruta relativa POSIX al archivo `TAREA.md` desde la raíz del proyecto.
    - `sha256_documento`: hash SHA-256 en minúsculas de los bytes de `TAREA.md`.
-   - `commits_que_la_nombran`: cuántos commits de la historia empiezan con este ID (`0` sin `--git`).
-   - `commits_de_cierre`: cuántos de ésos son exactamente `<ID>: done` (`0` sin `--git`).
-     Los dos conteos los emite el tracker porque el álgebra no tiene anti-junta: «una tarea que
-     NINGÚN commit nombra» no se puede escribir uniendo dos relaciones, y contarlo acá es lo que
-     permite que la política exista.
 
 3. **`archivo_seguimiento`** (inventario recursivo de archivos bajo `tareas/`, ordenado por `ruta`):
    - `tarea_id`: identificador de la tarea para documentos y adjuntos; cadena vacía `""` para archivos auxiliares (`README.md`, `.gitignore`).
@@ -287,7 +282,7 @@ El catálogo de ejemplo en `ejemplo/seguimiento-tareas` define seis políticas d
 
 5. **`seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre`**:
    - **Qué comprueba**: que ninguna tarea `CERRADA` se haya quedado sin su `<ID>: done`
-     (`donde t.estado_declarado == "CERRADA" y t.commits_de_cierre == 0`). Cerrar editando el
+     (se expresa con anti-junta `sin commit_seguimiento c donde c.tarea_nombrada == t.id y c.es_cierre == true`). Cerrar editando el
      documento y no commitear el cierre deja el estado sin punto en el árbol.
    - **Qué NO prueba**: no comprueba que el cierre fuera correcto ni que el trabajo estuviera hecho.
      Una tarea cerrada antes de que la convención existiera cuenta igual, que es deuda declarada y

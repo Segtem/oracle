@@ -11,8 +11,11 @@ caso 023-tarea-cerrada-sin-su-commit-de-cierre:
     como_se_detecto: persona
     medida: seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre
     evidencia:
-        tarea_seguimiento: id, titulo, estado_declarado, prioridad_declarada, ruta, sha256_documento, commits_que_la_nombran, commits_de_cierre
-            "20260916-030303-suelta", "cerrada a mano", "CERRADA", 50, "tareas/20260916-030303-suelta/TAREA.md", "", 2, 0
-            "20260916-040404-abierta", "en curso", "ABIERTA", 50, "tareas/20260916-040404-abierta/TAREA.md", "", 1, 0
+        tarea_seguimiento: id, titulo, estado_declarado, prioridad_declarada, ruta, sha256_documento
+            "20260916-030303-suelta", "cerrada a mano", "CERRADA", 50, "tareas/20260916-030303-suelta/TAREA.md", ""
+            "20260916-040404-abierta", "en curso", "ABIERTA", 50, "tareas/20260916-040404-abierta/TAREA.md", ""
+        commit_seguimiento: sha, asunto, nombra_tarea, tarea_nombrada, tarea_existe, estado_de_la_tarea, es_cierre
+            "a1b2c3", "20260916-030303-suelta: en progreso", true, "20260916-030303-suelta", true, "CERRADA", false
+            "d4e5f6", "20260916-040404-abierta: avance", true, "20260916-040404-abierta", true, "ABIERTA", false
     leccion:
         Cerrar editando el documento y no commitear el cierre deja el estado sin punto en el árbol.

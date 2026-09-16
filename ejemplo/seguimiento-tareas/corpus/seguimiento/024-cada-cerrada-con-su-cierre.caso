@@ -10,8 +10,11 @@ caso 024-cada-cerrada-con-su-cierre:
     como_se_detecto: persona
     medida: seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre
     evidencia:
-        tarea_seguimiento: id, titulo, estado_declarado, prioridad_declarada, ruta, sha256_documento, commits_que_la_nombran, commits_de_cierre
-            "20260916-030303-cerrada", "hecha", "CERRADA", 50, "tareas/20260916-030303-cerrada/TAREA.md", "", 3, 1
-            "20260916-040404-abierta", "en curso", "ABIERTA", 50, "tareas/20260916-040404-abierta/TAREA.md", "", 1, 0
+        tarea_seguimiento: id, titulo, estado_declarado, prioridad_declarada, ruta, sha256_documento
+            "20260916-030303-cerrada", "hecha", "CERRADA", 50, "tareas/20260916-030303-cerrada/TAREA.md", ""
+            "20260916-040404-abierta", "en curso", "ABIERTA", 50, "tareas/20260916-040404-abierta/TAREA.md", ""
+        commit_seguimiento: sha, asunto, nombra_tarea, tarea_nombrada, tarea_existe, estado_de_la_tarea, es_cierre
+            "a1b2c3", "20260916-030303-cerrada: done", true, "20260916-030303-cerrada", true, "CERRADA", true
+            "d4e5f6", "20260916-040404-abierta: avance", true, "20260916-040404-abierta", true, "ABIERTA", false
     leccion:
         Una tarea abierta sin commit de cierre es lo normal; la política sólo mira las cerradas.

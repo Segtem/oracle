@@ -162,10 +162,11 @@ class HechosConCommitsTests(unittest.TestCase):
         self.assertTrue(inventada["es_cierre"])
 
         suya, = [t for t in datos["tarea_seguimiento"] if t["id"] == tarea]
-        self.assertEqual(suya["commits_que_la_nombran"], 1)
-        self.assertEqual(suya["commits_de_cierre"], 0)
+        # Desde 0.26.0 el cruce tarea-commit lo hace la medida con `sin`: el emisor ya no cuenta.
+        self.assertNotIn("commits_que_la_nombran", suya)
+        self.assertNotIn("commits_de_cierre", suya)
 
-    def test_sin_git_la_relacion_viene_vacia_y_los_conteos_en_cero(self) -> None:
+    def test_sin_git_la_relacion_viene_vacia(self) -> None:
         """Sin `--git` no se le pregunta a la historia, y lo que no se miró no se inventa."""
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d).resolve()
@@ -175,8 +176,7 @@ class HechosConCommitsTests(unittest.TestCase):
             datos = json.loads(salida)
         self.assertEqual(datos["commit_seguimiento"], [])
         suya, = [t for t in datos["tarea_seguimiento"] if t["id"] == tarea]
-        self.assertEqual(suya["commits_que_la_nombran"], 0)
-        self.assertEqual(suya["commits_de_cierre"], 0)
+        self.assertNotIn("commits_de_cierre", suya)
 
     def test_dos_corridas_sobre_la_misma_historia_emiten_lo_mismo(self) -> None:
         with tempfile.TemporaryDirectory() as d:
