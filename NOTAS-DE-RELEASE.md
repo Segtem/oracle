@@ -1,3 +1,54 @@
+# 0.25.1 — borradores de las relaciones que faltan declarar, sin fabricar un verde
+
+```
+VERSION_DISTRIBUCION   0.25.0 → 0.25.1   oracle relaciones --escribir
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+Los dos consumidores conocidos tapan con sombra `meta.toda_cantidad_comparada_tiene_unidad_derivable`
+—60 comparaciones en LyraGASP, 54 en Jam— con la misma razón: declarar las relaciones «se hace por
+relación, no de golpe». Ninguno declara una sola: no tienen carpeta `relaciones/`, y sin relaciones
+declaradas no hay unidades que derivar.
+
+**`oracle relaciones --escribir`** deja un borrador de cada relación que la evidencia trae y el
+proyecto no declara, en `relaciones-por-revisar/`:
+
+- **Escribe sólo lo que se puede saber mirando la evidencia**: el tipo de cada campo, y `sin_unidad`
+  para los textos y los booleanos, que no tienen magnitud.
+- **Deja vacío lo que no se puede saber**: la unidad de cada número —puede ser una cuenta,
+  centímetros o segundos— y el alcance, que sólo lo sabe quien escribió el sensor.
+- **No cambia lo que el proyecto carga.** El lector no mira esa carpeta. Mover un borrador a
+  `relaciones/` sin completarlo hace fallar la carga con el campo que falta.
+- **No pisa nada**: ni una relación ya declarada ni un borrador que ya existe. Un campo con tipos
+  mezclados o con un nombre que el lector no acepta se informa y no se escribe.
+
+La primera versión de esta herramienta declaraba directo y escribía `sin_unidad` en todo. Sobre
+LyraGASP bajaba la deuda de **60 a 0**, afirmando que medidas en centímetros no tenían unidad: eso no
+es pagar una deuda, es fabricar un verde, y la propia declaración de una relación dice «no hay
+defaults silenciosos». Con los borradores, completar uno y moverlo baja la deuda por lo que de verdad
+se decidió —en la prueba, de 60 a 58—, y el guardián de cotas avisa enseguida que la sombra del
+consumidor quedó más alta que su deuda.
+
+## Verificación
+
+- Suite completa en verde (2223 tests); aceptación ✓ con 119 defectos en rojo y 84 verdes correctos;
+  sintaxis, diferencial y cifras al día; `verificar_instalacion` WHEEL OK.
+- Mutación de código ([logs](estudios/0.25.1-declarar/verificacion/)): `tools/medida.py` **296/296**
+  y `tools/cli.py` **539/539**. La primera ronda de `tools/medida.py` dejó siete vivos, todos en el
+  código nuevo: dos en la rama de evidencia ilegible, que no tenía test; uno en un contador que se
+  llevaba aparte y nadie leía, que se borró; tres en cómo se escribe el borrador, que no cambiaban
+  nada y se borraron; y uno que pedía un test para la carpeta ya creada.
+- Probado sobre una copia de LyraGASP: 21 borradores, el proyecto cargó igual que antes (la deuda
+  siguió en 60); un borrador movido sin completar hizo fallar la carga con el campo que faltaba; uno
+  completado y movido bajó la deuda a 58, y `meta.ninguna_cota_mas_alta_que_su_deuda` avisó que la
+  sombra quedó más alta que la deuda.
+
+## Cómo se hizo
+
+Tarea `20260916-035758-declarar`, que salió del estudio de las tres sombras que los dos consumidores
+comparten (`estudios/TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md`). La escribió Claude.
+
 # 0.25.0 — mutar unos sitios sin poder confundirlo con una verificación completa
 
 ```

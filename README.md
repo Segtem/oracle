@@ -365,6 +365,11 @@ oracle revisar catalogos/<dominio>/<dominio.medida>.oracle --proyecto <tu-proyec
 export ORACLE_PROYECTO=<tu-proyecto>     # para no repetirlo
 ```
 
+`oracle relaciones --escribir` deja en `relaciones-por-revisar/` un borrador de cada relación que tu
+evidencia trae y tu proyecto no declara. El proyecto no los carga: la unidad de cada número y el
+alcance quedan vacíos, porque no se pueden saber mirando la evidencia. Completalos y movelos a
+`relaciones/`; si se mueven sin completar, el proyecto no carga y dice qué falta.
+
 Cada comando exige las carpetas que consume. Ninguno ejecuta un `escalares.py` externo salvo que se
 confirme con `--confiar-escalares`: una UDF es código Python y tiene los permisos del proceso. Ayuda,
 `--relaciones`, `--nueva` y `--escalares` sin confianza son inspecciones seguras; esta última muestra
@@ -600,7 +605,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2206 tests · 994/994 mutantes de medida · **7574 sitios de mutación de código** (7342 + 232 del motor Python).
+2223 tests · 994/994 mutantes de medida · **7610 sitios de mutación de código** (7378 + 232 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

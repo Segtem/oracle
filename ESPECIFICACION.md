@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.25.0`.**
+**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.25.1`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -113,6 +113,14 @@ y no hay cómo saltearla, así que el impresor escribía `sin_declarar` literal 
 rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene ninguna medida con
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
+
+**Corte 0.25.1 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.0` a `0.25.1`.**
+`oracle relaciones --escribir` deja en `relaciones-por-revisar/` un borrador de cada relación que la
+evidencia trae y el proyecto no declara, con lo único que se puede saber mirándola —el tipo de cada
+campo, y `sin_unidad` para textos y booleanos— y la unidad de cada número y el alcance vacíos. Sube el
+**parche**: el lector no mira esa carpeta, así que nada de lo que un proyecto carga cambia y nadie
+cambia de color. `VERSION_ALGEBRA` queda en `0.7` y `VERSION_SINTAXIS` en `0.5`. Cierra la tarea
+`20260916-035758-declarar`.
 
 **Corte 0.25.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.24.0` a `0.25.0`.** El arnés de
 mutación puede mutar un rango de líneas (`--lineas`) o sitios sueltos (`--sitio`), y una ronda así se
