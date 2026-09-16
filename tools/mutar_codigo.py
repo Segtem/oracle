@@ -81,7 +81,8 @@ PRIORIDADES = {
     "tools/censar.py": ("tests.test_censar",),
     "tools/cifras.py": ("tests.test_herramientas",),
     # Sus tests directos son los de `comparar_dominio` y los del contrato del fixture.
-    "tools/diferencial.py": ("tests.test_herramientas", "tests.test_fixtures"),
+    "tools/diferencial.py": ("tests.test_diferencial_informe", "tests.test_herramientas",
+                             "tests.test_fixtures"),
     # Medido el 2026-09-09: vigilar tarda 0,08 s y mata 48 mutantes; biblioteca, 0,23 s y 69
     # (19 compartidos). Adelantarlos evita pagar todo el CLI por sus mutantes exclusivos.
     # `test_cli.load_tests` deja el diagnóstico real al final del módulo; aceptación y
@@ -286,24 +287,11 @@ PRIORIDADES = {
 # `metamorficas.py` también entra: sus 242 sitios están fijados y su pérdida de esquinas podía
 # dejar verdes vacuamente las dos medidas de sintaxis que cerraron DECISION-004.
 # Ver estudios/CUSTODIA-DE-SONDAS-Y-COSTO-DEL-CLI.md y sus manifiestos completos.
-CUSTODIAS_SIN_MEDIR = {
-    # `diferencial.py` entra como custodia el 2026-09-16 (tarea 20260916-014457-custodia): es quien
-    # comprueba el acuerdo con la implementación independiente y la frescura de cada fixture, y si su
-    # comparación se rompe en silencio el diferencial sigue diciendo ✓. Nadie más mira eso: el corpus
-    # valida la FORMA del caso y la aceptación su POLARIDAD.
-    #
-    # NO entra a la matriz todavía, y el número es el argumento: medido el 2026-09-16 sobre una copia
-    # con el archivo declarado, **57 mutantes, 24 muertos, 32 sobrevivientes y 1 error de arnés**.
-    # Es el mismo cuadro que `sintaxis.py` en su momento: la deuda no es de este cambio y entrar hoy
-    # pondría el CI en rojo por tests que faltan desde antes. Los 32 caen en el INFORME —las marcas
-    # `✓`/`✗` y los conteos que se imprimen—, no en `comparar_dominio`, que es lo que decide; el error
-    # de arnés es el `if __name__ == "__main__"` mutado a `!=`, que corre `main()` al importarse: lo
-    # cierra el patrón `_entrada_directa` que ya usan las tres sondas.
-    "diferencial.py": (
-        "57 mutantes, 24 muertos, 32 sobrevivientes y 1 error de arnés el 2026-09-16; los "
-        "sobrevivientes están en la impresión del informe y la deuda es previa a su declaración "
-        "como custodia. Se cierra en la tarea 20260916-035324-informe."),
-}
+# `diferencial.py` estuvo acá desde que se declaró custodia (2026-09-16) con 57 mutantes y 32
+# sobrevivientes, todos en la impresión del informe y los códigos de salida. Con los tests de
+# `tests/test_diferencial_informe.py` y el patrón `_entrada_directa`, la ronda dio 55/55 en tres minutos
+# y pasó a la matriz: el costo era el síntoma de estar mal fijado, como en `medida.py` y `cli.py`.
+CUSTODIAS_SIN_MEDIR = {}
 
 
 # 0.17.0 suma `tareas_grafo.py`: una mención mal leída dibuja un grafo que parece completo.

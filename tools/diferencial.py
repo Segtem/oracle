@@ -13,7 +13,7 @@ import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
-sys.path.insert(0, str(RAIZ))
+sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
 from nucleo.fixtures import (cargar_fixtures, mismo_veredicto,  # noqa: F401,E402
@@ -168,5 +168,8 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+# Sin `if __name__ == "__main__"`: mutado a `!=`, corría `main()` al importarse y la ronda lo
+# contaba como error de arnés. Es el patrón de `observar.py` y de las dos sondas.
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    raise SystemExit(_entrada_directa())
