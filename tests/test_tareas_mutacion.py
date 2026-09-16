@@ -346,6 +346,9 @@ class TestMutacionCliComandosYCodigos(MutacionBaseTestCase):
                          "juzgar-evidencia")
         self.assertEqual(_sufijo_del_titulo("medición de sombras vencidas"), "medicion-de")
         self.assertEqual(_sufijo_del_titulo("corte"), "corte")
+        # Justo en el borde: un slug de 16 entra entero. Un carácter más y se recorta.
+        self.assertEqual(_sufijo_del_titulo("mide lo que hace"), "mide-lo-que-hace")
+        self.assertEqual(_sufijo_del_titulo("mide lo que hacen"), "mide-lo-que")
         self.assertEqual(_sufijo_del_titulo("supercalifragilisticoespialidoso"),
                          "supercalifragili")
 

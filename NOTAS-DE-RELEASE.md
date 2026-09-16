@@ -1,3 +1,81 @@
+# 0.24.0 — ningún mutante se come la máquina, y el tracker se lee de un vistazo
+
+```
+VERSION_DISTRIBUCION   0.23.1 → 0.24.0   tope de memoria en el arnés, y seis deudas cerradas
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+## El tope de memoria
+
+`tools/mutar_codigo.py` limitaba el tiempo y la salida de cada mutante, pero no su memoria. Medido el
+2026-09-15 mutando `tools/tareas_consulta.py`: el mutante `not in` → `in` de la línea 65 deja a
+`tokenizar` sin avanzar y agrega tokens sin fin; hasta el timeout de 300 s se come la RAM de la
+máquina, y el sistema mató la ronda dos veces arrastrando procesos ajenos. Desde entonces cada ronda
+se corría con `ulimit -v` puesto a mano desde afuera, que no estaba escrito en ninguna parte.
+
+- **`--limite-memoria-mb`**, 4000 por omisión, `0` desactiva. El tope se aplica en el proceso hijo
+  con `resource.setrlimit(RLIMIT_AS)`; el arnés no toca el suyo.
+- **Un mutante que excede el tope está muerto**: sale con `MemoryError`, que es un fallo de tests. No
+  es un timeout ni un error de arnés, así que la ronda sigue siendo concluyente.
+- **La línea base corre con el mismo tope**, para que un tope demasiado bajo se vea antes de mutar.
+- **El tope se recorta al máximo heredado.** Pedir más de lo que dejó un `ulimit -v` de afuera hacía
+  fallar `setrlimit` adentro del hijo, y la ronda entera moría con «Exception occurred in
+  preexec_fn», que no dice nada. Lo encontró la primera ronda real.
+- El tope viaja en la identidad de la ronda: dos rondas con topes distintos no son la misma ronda al
+  reanudar.
+
+## Lo demás que cierra el corte
+
+- **El tracker se lee de un vistazo.** Sin `--sufijo`, el ID derivaba del título hasta 40 caracteres
+  —y el ID entero es el prefijo de cada commit de esa tarea—. Ahora son 16, cortados en una palabra
+  entera. Y CI tiene un workflow propio del tracker: `verificar.yml` ignora `**.md` y un `TAREA.md`
+  es un `.md`, así que un push que sólo tocaba `tareas/` no disparaba nada.
+- **El sitio dice la verdad.** La portada publicaba «oracle 0.8.0 · 41 medidas · 131 casos» ocho
+  cortes después, escrito a mano. Las tres cifras salen ahora de `tools/cifras.py`, que corre en CI,
+  y el tracker tiene su sección: qué es, la forma tatr, el lenguaje de consultas y la guía.
+- **§0 abre diciendo en qué versiones está el lenguaje**, con un test que lo compara contra
+  `nucleo/version.py`. Había que deducirlo del último párrafo de una crónica de veinte cortes.
+- **`oracle juzgar` deja de repetir la regla de la sombra**, que `Informe` sabe desde 0.20.0.
+- **Los fixtures de dominio guardan el veredicto entero** (`ok`, valor y si levantó), como el
+  diferencial de Oracle desde 0.23.1. Los ya emitidos siguen valiendo.
+- **El equivalente declarado en 0.19.0 se borró**, que es la regla escrita del proyecto: un
+  equivalente genuino se saca, no se anota.
+
+## Verificación
+
+- Suite completa en verde (2182 tests); aceptación ✓ con 118 defectos en rojo y 83 verdes correctos;
+  diferencial ✓ (9 mundos × 5 medidas); sintaxis y cifras al día; `verificar_instalacion` WHEEL OK.
+- Mutación de medidas: 984/984. Mutación de código, una ronda por objetivo en copias aisladas y **sin
+  `ulimit` de afuera**, que es como se prueba el tope nuevo ([logs](estudios/0.24.0-memoria/verificacion/)):
+
+  | objetivo | murieron |
+  |---|--:|
+  | `nucleo/medida.py` | 313/313 |
+  | `perfiles/python/mutacion_codigo.py` | 227/227 |
+  | `nucleo/fixtures.py` | 205/205 |
+  | `tools/juzgar.py` | 105/105 |
+  | `tools/tareas_consulta.py` | 99/99 |
+  | `tools/cifras.py` | 58/58 |
+  | `nucleo/dominio.py` | 19/19 |
+  | `nucleo/version.py` | 15/15 |
+
+  La ronda de `tools/tareas.py` —la más grande del repositorio— seguía corriendo al cortar: hasta ese
+  punto llevaba **un solo vivo**, el borde exacto del sufijo nuevo (un slug de 16 caracteres), que ya
+  tiene su test y se verificó aplicando el mutante a mano. Su número completo va en el próximo corte.
+- `tools/diferencial.py` se declara custodia con su número medido (57 mutantes, 24 muertos, 32
+  sobrevivientes, 1 error de arnés) y queda en `CUSTODIAS_SIN_MEDIR` con la tarea que lo cierra: la
+  deuda es previa y entrar hoy a la matriz pondría el CI en rojo por tests que faltan desde antes.
+- Los dos consumidores, con el Oracle 0.17.0 que corren hoy: LyraGASP `oracle test` VERDE; Jam sigue
+  en su ROJO previo por `vault.json`. Las seis sombras que declaran quedaron con cota.
+
+## Cómo se hizo
+
+El tope de memoria lo implementó agy (tarea `20260915-112728-memoria`, encargo y entrega en
+`estudios/0.24.0-memoria/`); Claude revisó, corrigió lo que no corría y lo midió: el detalle está en
+[REVISION-CLAUDE.md](estudios/0.24.0-memoria/REVISION-CLAUDE.md). Las otras seis tareas salieron del
+tracker por prioridad.
+
 # 0.23.1 — el diferencial ejercita lo que el álgebra agregó, y compara el veredicto entero
 
 ```

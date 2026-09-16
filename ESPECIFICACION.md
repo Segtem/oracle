@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.23.1`.**
+**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.24.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -113,6 +113,21 @@ y no hay cómo saltearla, así que el impresor escribía `sin_declarar` literal 
 rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene ninguna medida con
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
+
+**Corte 0.24.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.23.1` a `0.24.0`.** El arnés de
+mutación le pone tope de memoria a cada ejecución de tests (`--limite-memoria-mb`, 4000 por omisión,
+`0` desactiva), aplicado en el proceso hijo y recortado al máximo que heredó: un mutante que se queda
+sin memoria muere con `MemoryError`, que es un fallo de tests, y ya no se lleva puesta la máquina ni
+la ronda. Sube la **menor** y no el parche porque el paquete gana una capacidad que antes había que
+poner a mano desde afuera con `ulimit -v`, y porque cambia lo que una ronda mide: un mutante que
+antes agotaba el tiempo —o mataba al sistema— ahora muere y la ronda queda concluyente. El corte trae
+además el sufijo corto del tracker, la portada que publica su versión y sus cifras medidas, el
+workflow propio del tracker en CI, §0 con las versiones vigentes, `juzgar` sin su copia de la regla
+de la sombra y los fixtures de dominio con el veredicto entero. `VERSION_ALGEBRA` queda en `0.7` y
+`VERSION_SINTAXIS` en `0.5`: no entra un nodo, un operador, un agregado, una escalar ni una relación,
+y el lector no gana palabras. Cierra las tareas `20260915-112728-memoria`, `20260915-023924-ci-tareas`,
+`20260915-201030-vigente`, `20260915-155111-sombra`, `20260915-010453-sufijo`,
+`20260915-155111-equivalente` y `20260915-213158-sitio`.
 
 **Corte 0.23.1 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.23.0` a `0.23.1`.** El fixture
 diferencial puede guardar el veredicto entero —`ok`, `valor` y si la evaluación levantó— y traer
