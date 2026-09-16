@@ -1,6 +1,6 @@
 # El sitio publicado quedó en 0.8 y no muestra el task tracker
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 58
 - ETIQUETAS: oracle, docs, sitio
 
