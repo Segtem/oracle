@@ -121,6 +121,10 @@ la vista: `segun` lleva meses con 41 umbrales en sombra en un consumidor, por el
 Cuando haya una fecha, esto es una **sombra declarada** (`desde` + `porque`), que es el mecanismo que
 el proyecto ya tiene para «esto está mal a propósito y con fecha». Mientras no la haya, queda acá.
 
+**Cerrado el 2026-09-15, en el corte 0.23.0.** No hizo falta la sombra: los dos consumidores
+declararon sus 68 medidas —27 en LyraGASP y 41 en Jam, todas `universal`— y la medida pasó a
+`universal`. La deuda se siguió en la tarea `20260915-155111-ambito` del tracker.
+
 ## Lo que quedó, medido
 
 - 37 medidas universales y 19 del origen.

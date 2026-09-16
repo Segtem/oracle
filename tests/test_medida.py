@@ -312,8 +312,8 @@ class ContratoMedidaTests(unittest.TestCase):
 
         ambitos = [medida.ambito for medida in catalogo.values()]
         self.assertEqual(len(ambitos), 61)
-        self.assertEqual(ambitos.count("universal"), 41)
-        self.assertEqual(ambitos.count("del_origen"), 20)
+        self.assertEqual(ambitos.count("universal"), 42)
+        self.assertEqual(ambitos.count("del_origen"), 19)
         self.assertNotIn(m.AMBITO_SIN_DECLARAR, ambitos)
 
     def test_como_hechos_marca_si_el_umbral_es_flotante(self) -> None:
