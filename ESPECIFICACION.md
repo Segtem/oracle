@@ -47,72 +47,9 @@ pone en rojo.
 
 Lo que sigue es la **crónica**: un párrafo por corte, con el argumento de por qué subió lo que subió.
 Se queda acá, y no en las notas de release, porque es lo que vuelve discutible la regla de más abajo
-—un número sin su argumento no se puede auditar—. El orden no es uno solo, y conviene saberlo: los
-seis primeros van del más viejo al más nuevo (`0.7.0` a `0.9.2`) y de ahí en adelante cada corte se
-escribió arriba del anterior. Para saber en qué versión está el lenguaje no hace falta recorrerla:
-está en la línea de arriba.
-
-**Corte 0.7.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.6.0` a `0.7.0`.** El paquete gana
-`oracle reportar` y el canal documentado de reporte. `VERSION_ALGEBRA` queda en `0.6`: no se agrega
-ningún nodo, operador, agregado, escalar ni relación de traza, ni cambia el significado de los
-existentes. `VERSION_SINTAXIS` queda en `0.2`: el lector no gana palabras ni cláusulas y sigue
-aceptando las mismas formas de `.oracle` y `.caso` con el mismo significado.
-
-**Corte 0.8.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.7.0` a `0.8.0`.** El generador
-comprueba la polaridad y respeta cotas de conteos simples, se incorpora su sonda de custodia y la
-medida de antigüedad de sombras pasa de contar incumplimientos a publicar su edad máxima en días.
-`VERSION_ALGEBRA` queda en `0.6`: cambia la fórmula de un archivo del catálogo usando `peor` y
-`max` existentes, no la semántica del evaluador, los nodos admitidos ni la forma canónica. El mismo
-archivo de medida se evalúa igual antes y después; es el catálogo distribuido el que contiene una
-fórmula distinta. `VERSION_SINTAXIS` queda en `0.2`: no cambia el lector ni las formas aceptadas
-de `.oracle` o `.caso`. El cambio observable de valor de la medida se documenta en las notas del
-corte: conservar polaridad y testigos no significa conservar el número publicado.
-
-**Corte 0.8.1 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.8.0` a `0.8.1`.** El paquete gana
-`tools/observar.py`, el recorrido que ejecuta el sensor de un consumidor y conserva su corrida como
-un caso con `procedencia: observada`. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en
-`0.2`: la herramienta **usa** el lenguaje existente —`Referente`, `hechos_de_frescura` y dos medidas
-meta que ya se distribuían— y no agrega un nodo, un operador, un agregado, una escalar, una relación
-ni una palabra del lector, ni cambia el significado de ninguno. Un `.oracle` o un `.caso` se leen y
-se evalúan exactamente igual antes y después del corte.
-
-**Corte 0.9.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.8.1` a `0.9.0`.** El catálogo
-universal distribuido gana `meta.todo_caso_observado_declara_de_donde_salio`, y la relación `caso`
-del marco gana el campo `declara_de_donde_salio` que esa medida mira. Sube la **menor** y no el
-parche por la razón que separa las dos: la medida es de ámbito universal, así que **obliga también a
-los consumidores**, y uno que actualice sin usar nada nuevo puede pasar de verde a rojo. Los dos
-consumidores conocidos salen en cero, pero eso es un hecho de sus corpus, no una garantía del corte.
-`VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un agregado, una escalar ni una
-relación de traza, y un campo nuevo en una relación que el propio marco emite no cambia lo que una
-implementación de referencia tiene que implementar. `VERSION_SINTAXIS` queda en `0.2`: el lector no
-gana palabras y un `.oracle` o un `.caso` se leen y se evalúan igual antes y después.
-
-**Corte 0.9.1 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.0` a `0.9.1`.** `oracle test`
-informa los archivos que el impresor no pudo procesar en vez de morir con un traceback en el
-primero. Sube el **parche** y no la menor, y la diferencia con el corte anterior es exactamente el
-criterio: 0.9.0 subió la menor porque una medida universal nueva podía hacer que un consumidor
-pasara de verde a rojo. Acá nadie cambia de color —un proyecto con todo imprimible seguía y sigue
-en verde; uno con un archivo ilegible ya salía distinto de cero, sólo que por una excepción sin
-atrapar—. Lo que cambia es qué se puede leer cuando ya estaba rojo, y que las etapas siguientes
-ahora se ejecutan. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.2`: no entra un
-nodo, un operador, un agregado, una escalar ni una relación, el lector no gana palabras, y un
-`.oracle` o un `.caso` se leen y se evalúan igual antes y después.
-
-**Corte 0.9.2 (2026-09-07): `VERSION_SINTAXIS` sube de `0.2` a `0.3` y `VERSION_DISTRIBUCION` de
-`0.9.1` a `0.9.2`.** El lector gana una forma que antes era un error: `sin_declarar` como valor de
-los argumentos `segun` y `ambito` de una invocación de macro. Sube la **menor de la sintaxis** por
-el caso 1 de la regla de abajo —una palabra que antes no se aceptaba— y sólo el **parche de la
-distribución**, porque nadie cambia de color: no entra ninguna medida al catálogo, ninguna cota se
-mueve, y las dos medidas que persiguen la ausencia la siguen contando exactamente igual. Medido
-sobre el consumidor que lo destapó: sus tres sombras quedaron en los mismos 9 / 54 / 41.
-
-El defecto que corrige es del propio lenguaje, y vale escribirlo: **el impresor emitía algo que el
-lector no podía leer.** En la forma `medida` la ausencia se expresa OMITIENDO la cláusula, así que
-nunca se escribe y siempre dio la vuelta; en una invocación de macro los argumentos son posicionales
-y no hay cómo saltearla, así que el impresor escribía `sin_declarar` literal y el lector lo
-rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene ninguna medida con
-esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
-agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
+—un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
+comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
+arriba.
 
 **Corte 0.25.1 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.0` a `0.25.1`.**
 `oracle relaciones --escribir` deja en `relaciones-por-revisar/` un borrador de cada relación que la
@@ -343,6 +280,20 @@ justificaba la menor era falso por dos lados: el catálogo heredado SÍ era el m
 rechazarla. Corregido el ámbito, el mecanismo existe de verdad y la menor se sostiene por el
 precedente que ya estaba escrito, no por uno inventado para el caso.
 
+**Corte 0.11.0 (2026-09-08): `VERSION_DISTRIBUCION` sube de `0.10.0` a `0.11.0`.** El paquete gana
+el verbo `oracle censar`, que cuenta el estado de varios proyectos a la vez y lo conserva con su
+fecha, en terminal o como página.
+
+Sube la **menor**, y conviene decir por cuál de los dos motivos: **no** porque un consumidor cambie
+de color —ninguno lo hace, no entra ninguna medida al catálogo ni se mueve ninguna cota—, sino por
+el mismo motivo que 0.7.0, que subió la menor porque «el paquete gana `oracle reportar`». Un verbo
+público es superficie nueva que Oracle ofrece y se compromete a mantener, y eso es más que una
+herramienta suelta: 0.8.1 ganó `tools/observar.py` entero y fue parche porque no era un verbo.
+
+`VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.3`: el censo emite una relación de
+hechos como cualquier sensor, y no agrega un nodo, un operador, un agregado ni una escalar al
+lenguaje.
+
 **Corte 0.10.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.2` a `0.10.0`.** El paquete gana
 `mutadores/`, que no viajaba: hasta 0.9.2 una instalación mutaba con los **5** mutadores propios en
 vez de los **29** declarados, y no lo decía.
@@ -357,19 +308,67 @@ por qué podría esconderse en un parche: un parche dice «actualizá sin mirar�
 una corrida que ayer daba verde. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.3`: no
 entra un nodo, un operador, un agregado, una escalar ni una relación, y el lector no gana palabras.
 
-**Corte 0.11.0 (2026-09-08): `VERSION_DISTRIBUCION` sube de `0.10.0` a `0.11.0`.** El paquete gana
-el verbo `oracle censar`, que cuenta el estado de varios proyectos a la vez y lo conserva con su
-fecha, en terminal o como página.
+**Corte 0.9.2 (2026-09-07): `VERSION_SINTAXIS` sube de `0.2` a `0.3` y `VERSION_DISTRIBUCION` de
+`0.9.1` a `0.9.2`.** El lector gana una forma que antes era un error: `sin_declarar` como valor de
+los argumentos `segun` y `ambito` de una invocación de macro. Sube la **menor de la sintaxis** por
+el caso 1 de la regla de abajo —una palabra que antes no se aceptaba— y sólo el **parche de la
+distribución**, porque nadie cambia de color: no entra ninguna medida al catálogo, ninguna cota se
+mueve, y las dos medidas que persiguen la ausencia la siguen contando exactamente igual. Medido
+sobre el consumidor que lo destapó: sus tres sombras quedaron en los mismos 9 / 54 / 41.
 
-Sube la **menor**, y conviene decir por cuál de los dos motivos: **no** porque un consumidor cambie
-de color —ninguno lo hace, no entra ninguna medida al catálogo ni se mueve ninguna cota—, sino por
-el mismo motivo que 0.7.0, que subió la menor porque «el paquete gana `oracle reportar`». Un verbo
-público es superficie nueva que Oracle ofrece y se compromete a mantener, y eso es más que una
-herramienta suelta: 0.8.1 ganó `tools/observar.py` entero y fue parche porque no era un verbo.
+El defecto que corrige es del propio lenguaje, y vale escribirlo: **el impresor emitía algo que el
+lector no podía leer.** En la forma `medida` la ausencia se expresa OMITIENDO la cláusula, así que
+nunca se escribe y siempre dio la vuelta; en una invocación de macro los argumentos son posicionales
+y no hay cómo saltearla, así que el impresor escribía `sin_declarar` literal y el lector lo
+rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene ninguna medida con
+esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
+agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
 
-`VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.3`: el censo emite una relación de
-hechos como cualquier sensor, y no agrega un nodo, un operador, un agregado ni una escalar al
-lenguaje.
+**Corte 0.9.1 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.9.0` a `0.9.1`.** `oracle test`
+informa los archivos que el impresor no pudo procesar en vez de morir con un traceback en el
+primero. Sube el **parche** y no la menor, y la diferencia con el corte anterior es exactamente el
+criterio: 0.9.0 subió la menor porque una medida universal nueva podía hacer que un consumidor
+pasara de verde a rojo. Acá nadie cambia de color —un proyecto con todo imprimible seguía y sigue
+en verde; uno con un archivo ilegible ya salía distinto de cero, sólo que por una excepción sin
+atrapar—. Lo que cambia es qué se puede leer cuando ya estaba rojo, y que las etapas siguientes
+ahora se ejecutan. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en `0.2`: no entra un
+nodo, un operador, un agregado, una escalar ni una relación, el lector no gana palabras, y un
+`.oracle` o un `.caso` se leen y se evalúan igual antes y después.
+
+**Corte 0.9.0 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.8.1` a `0.9.0`.** El catálogo
+universal distribuido gana `meta.todo_caso_observado_declara_de_donde_salio`, y la relación `caso`
+del marco gana el campo `declara_de_donde_salio` que esa medida mira. Sube la **menor** y no el
+parche por la razón que separa las dos: la medida es de ámbito universal, así que **obliga también a
+los consumidores**, y uno que actualice sin usar nada nuevo puede pasar de verde a rojo. Los dos
+consumidores conocidos salen en cero, pero eso es un hecho de sus corpus, no una garantía del corte.
+`VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un agregado, una escalar ni una
+relación de traza, y un campo nuevo en una relación que el propio marco emite no cambia lo que una
+implementación de referencia tiene que implementar. `VERSION_SINTAXIS` queda en `0.2`: el lector no
+gana palabras y un `.oracle` o un `.caso` se leen y se evalúan igual antes y después.
+
+**Corte 0.8.1 (2026-09-07): `VERSION_DISTRIBUCION` sube de `0.8.0` a `0.8.1`.** El paquete gana
+`tools/observar.py`, el recorrido que ejecuta el sensor de un consumidor y conserva su corrida como
+un caso con `procedencia: observada`. `VERSION_ALGEBRA` queda en `0.6` y `VERSION_SINTAXIS` en
+`0.2`: la herramienta **usa** el lenguaje existente —`Referente`, `hechos_de_frescura` y dos medidas
+meta que ya se distribuían— y no agrega un nodo, un operador, un agregado, una escalar, una relación
+ni una palabra del lector, ni cambia el significado de ninguno. Un `.oracle` o un `.caso` se leen y
+se evalúan exactamente igual antes y después del corte.
+
+**Corte 0.8.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.7.0` a `0.8.0`.** El generador
+comprueba la polaridad y respeta cotas de conteos simples, se incorpora su sonda de custodia y la
+medida de antigüedad de sombras pasa de contar incumplimientos a publicar su edad máxima en días.
+`VERSION_ALGEBRA` queda en `0.6`: cambia la fórmula de un archivo del catálogo usando `peor` y
+`max` existentes, no la semántica del evaluador, los nodos admitidos ni la forma canónica. El mismo
+archivo de medida se evalúa igual antes y después; es el catálogo distribuido el que contiene una
+fórmula distinta. `VERSION_SINTAXIS` queda en `0.2`: no cambia el lector ni las formas aceptadas
+de `.oracle` o `.caso`. El cambio observable de valor de la medida se documenta en las notas del
+corte: conservar polaridad y testigos no significa conservar el número publicado.
+
+**Corte 0.7.0 (2026-09-06): `VERSION_DISTRIBUCION` sube de `0.6.0` a `0.7.0`.** El paquete gana
+`oracle reportar` y el canal documentado de reporte. `VERSION_ALGEBRA` queda en `0.6`: no se agrega
+ningún nodo, operador, agregado, escalar ni relación de traza, ni cambia el significado de los
+existentes. `VERSION_SINTAXIS` queda en `0.2`: el lector no gana palabras ni cláusulas y sigue
+aceptando las mismas formas de `.oracle` y `.caso` con el mismo significado.
 
 **`MENOR` sube** cuando el álgebra **gana** algo sin cambiar el significado de lo que ya valía: un
 nodo opcional nuevo (`requiere`), un operador nuevo (`agrupar`, `unir`), un agregado nuevo, una

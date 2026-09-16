@@ -1461,6 +1461,18 @@ class VersionDelAlgebra(unittest.TestCase):
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
         self.assertEqual(str(del_nucleo()), "0.7")
 
+    def test_la_cronica_va_del_corte_mas_nuevo_al_mas_viejo(self) -> None:
+        """Tuvo tres órdenes a la vez —los seis primeros ascendentes, el resto descendente y los dos
+        últimos otra vez al revés—, y un orden que nadie comprueba se vuelve a mezclar con el próximo
+        corte escrito en el lugar equivocado."""
+        import re
+
+        texto = (RAIZ / "ESPECIFICACION.md").read_text(encoding="utf-8")
+        versiones = [tuple(int(x) for x in m.groups())
+                     for m in re.finditer(r"(?m)^\*\*Corte (\d+)\.(\d+)\.(\d+) \(", texto)]
+        self.assertGreater(len(versiones), 20)
+        self.assertEqual(versiones, sorted(versiones, reverse=True))
+
     def test_la_especificacion_dice_de_entrada_en_que_versiones_esta(self) -> None:
         """§0 abre con las tres versiones vigentes. Sin esto había que deducirlas del último párrafo
         de una crónica de veinte cortes, y quien implementa el álgebra sin ver el núcleo —el autor de
