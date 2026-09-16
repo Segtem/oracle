@@ -1,7 +1,7 @@
 # Los 32 sobrevivientes del informe de tools/diferencial.py
 
 - ID: 20260916-035324-informe
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 50
 - ETIQUETAS: oracle, mutacion
 - CREADA: 2026-09-16
