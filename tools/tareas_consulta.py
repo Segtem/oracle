@@ -237,7 +237,11 @@ class _Parser:
 
     def parsear(self) -> Nodo:
         if not self.tokens:
-            return NodoCualquiera(columna=0)
+            # El final del texto, igual que cualquier otro error de «se acabó la consulta». Era un
+            # `0` literal, y como nadie lee la columna de este nodo el mutante que lo movía a `1`
+            # sobrevivía: estaba declarado equivalente en `equivalentes.json`. La regla del proyecto
+            # es sacar el constructo, no aceptar para siempre un mutante que nadie puede matar.
+            return NodoCualquiera(columna=len(self.texto))
         raiz = self._parse_o()
         if self.pos < len(self.tokens):
             tok_sobrante = self.tokens[self.pos]
