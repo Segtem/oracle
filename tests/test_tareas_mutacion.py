@@ -323,8 +323,9 @@ class TestMutacionCliComandosYCodigos(MutacionBaseTestCase):
         texto = tarea_md.read_text(encoding="utf-8")
         self.assertIn("- PRIORIDAD: 50", texto)
 
-    def test_cmd_nueva_recorte_de_slug_largo_a_40_caracteres(self) -> None:
-        """Evita que títulos muy largos generen nombres de carpeta que superen el límite de 40 caracteres en el slug."""
+    def test_cmd_nueva_recorte_de_slug_largo(self) -> None:
+        """El ID entero es el prefijo de cada commit de esa tarea: eran 40 caracteres, y por un
+        sufijo de 41 hubo que rehacer dos commits de 0.18.0. Ahora son 16 como mucho."""
         self._callado(cli.main, ["--proyecto", str(self.raiz), "tarea", "init"])
         titulo_largo = "a" * 80
         rc, out, err = self._callado(
@@ -334,7 +335,31 @@ class TestMutacionCliComandosYCodigos(MutacionBaseTestCase):
         self.assertEqual(rc, 0, err)
         carpetas = [d for d in (self.raiz / "tareas").iterdir() if d.is_dir()]
         slug = carpetas[0].name.split("-", 2)[2]
-        self.assertEqual(len(slug), 40)
+        self.assertEqual(len(slug), 16)
+
+    def test_cmd_nueva_corta_el_sufijo_en_una_palabra_entera(self) -> None:
+        """Media palabra se lee peor que una palabra menos, y el listado está para leerse de un
+        vistazo. Si el corte cae justo en el guion, la última palabra ya está entera."""
+        from tools.tareas import _sufijo_del_titulo
+
+        self.assertEqual(_sufijo_del_titulo("juzgar evidencia real desde el CLI 0.18"),
+                         "juzgar-evidencia")
+        self.assertEqual(_sufijo_del_titulo("medición de sombras vencidas"), "medicion-de")
+        self.assertEqual(_sufijo_del_titulo("corte"), "corte")
+        self.assertEqual(_sufijo_del_titulo("supercalifragilisticoespialidoso"),
+                         "supercalifragili")
+
+    def test_cmd_nueva_con_sufijo_vacio_no_pone_ninguno(self) -> None:
+        """`--sufijo ""` es una elección, no una ausencia: el ID queda sólo con fecha y hora."""
+        self._callado(cli.main, ["--proyecto", str(self.raiz), "tarea", "init"])
+        rc, out, err = self._callado(
+            cli.main,
+            ["--proyecto", str(self.raiz), "tarea", "nueva", "un título cualquiera",
+             "--sufijo", ""]
+        )
+        self.assertEqual(rc, 0, err)
+        carpetas = [d for d in (self.raiz / "tareas").iterdir() if d.is_dir()]
+        self.assertRegex(carpetas[0].name, r"^[0-9]{8}-[0-9]{6}$")
 
     def test_cmd_listar_incompatibilidad_cerradas_y_todas_devuelve_codigo_1(self) -> None:
         """Evita que combinar --cerradas y --todas se procese exitosamente o devuelva código distinto a 1."""

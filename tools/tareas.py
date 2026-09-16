@@ -95,6 +95,27 @@ def _sanear_slug(texto: str) -> str:
     return limpio
 
 
+LARGO_SUFIJO_DERIVADO = 16
+
+
+def _sufijo_del_titulo(titulo: str) -> str:
+    """El sufijo que se deriva de un título cuando nadie pasó `--sufijo`.
+
+    Eran 40 caracteres, y el ID entero es el prefijo de cada commit de ese trabajo: la tarea de
+    0.18.0 salió `20260915-010206-juzgar-evidencia-real-desde-el-cli-0-18` y hubo que rehacer dos
+    commits. Se corta en un límite de palabra y no a la mitad de una: el punto de tener sufijo es
+    leer el listado de un vistazo, y media palabra se lee peor que una palabra menos.
+    """
+    slug = _sanear_slug(titulo)
+    if len(slug) <= LARGO_SUFIJO_DERIVADO:
+        return slug
+    recortado = slug[:LARGO_SUFIJO_DERIVADO]
+    # Si el corte cayó justo en un guion, la última palabra está entera y no hay nada que retroceder.
+    if slug[LARGO_SUFIJO_DERIVADO] != "-" and "-" in recortado:
+        recortado = recortado.rsplit("-", 1)[0]
+    return recortado.rstrip("-")
+
+
 def validar_seguridad_id(id_o_prefijo: str) -> None:
     if not isinstance(id_o_prefijo, str):
         raise RutaInsegura("el identificador de tarea debe ser texto")
@@ -645,7 +666,8 @@ def cmd_nueva(argv: list[str], args: list[str]) -> int:
         default=50,
         help="Prioridad numérica entera (defecto: 50)",
     )
-    parser.add_argument("--sufijo", default=None, help="Sufijo identificador personalizado")
+    parser.add_argument("--sufijo", default=None,
+                        help="Sufijo del ID; sin él se deriva del título, hasta 16 caracteres")
     parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
     parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
     parsed = parser.parse_args(args)
@@ -681,7 +703,7 @@ def cmd_nueva(argv: list[str], args: list[str]) -> int:
         )
         return 1
 
-    sufijo = parsed.sufijo or _sanear_slug(titulo)[:40].rstrip("-")
+    sufijo = parsed.sufijo if parsed.sufijo is not None else _sufijo_del_titulo(titulo)
 
     try:
         id_tarea, carpeta = crear_carpeta_tarea_atomica(raiz_tareas, sufijo)
@@ -1419,7 +1441,7 @@ Opciones de «init»:
 Opciones de «nueva»:
   --etiqueta, -e <etiqueta>              Agrega una o más etiquetas (separadas por coma o repetidas)
   --prioridad <n>                        Prioridad numérica entera (por defecto: 50)
-  --sufijo <slug>                        Sufijo identificador personalizado
+  --sufijo <slug>                        Sufijo del ID (sin él se deriva del título, ≤16)
   --json                                 Emite el ID y ruta en JSON
 
 Opciones de «listar» / «ls»:

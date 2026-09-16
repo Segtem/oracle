@@ -46,6 +46,10 @@ Cada tarea posee un identificador único basado en tiempo universal coordinado (
 - **Formato canónico**: `YYYYMMDD-HHMMSS[-sufijo]`
   - Ejemplo sin sufijo: `20260911-183000`
   - Ejemplo con sufijo: `20260911-183000-defecto-sensor`
+- **De dónde sale el sufijo**: el de `--sufijo`, tal cual, saneado. Sin `--sufijo` se deriva del
+  título y se corta en **16 caracteres**, en un límite de palabra: el ID entero es el prefijo de cada
+  commit de esa tarea, y con 40 caracteres el prefijo se comía el renglón. `--sufijo ""` deja el ID
+  sin sufijo, que es una elección distinta de no pasar nada.
 - **Sufijo opcional**: si se proporciona (o se deriva del título/argumento), se normaliza a minúsculas ASCII y guiones, sin caracteres especiales ni secuencias `..` o separadores de ruta.
 - **Resolución determinista de colisiones**: si se crean dos o más tareas dentro del mismo segundo en el mismo proyecto (mismo timestamp y sufijo), el sistema agrega un desambiguador numérico secuencial (`-1`, `-2`, etc.) sin sobrescribir directorios existentes ni bloquear la ejecución en bucles de espera:
   - `20260911-183000-sensor`
