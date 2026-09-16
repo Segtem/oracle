@@ -21,3 +21,7 @@ A hacer: declarar en `tools/emitir_hechos_vault.py` los defectos que activen cad
 (p. ej. un documento en una carpeta que no coincide con su `area`, una carpeta fuera de la lista, un
 frontmatter incompleto, un nombre fuera de la convención), re-emitir `vault.json` y ver `oracle test`
 de Jam en verde. Trabajo en el repositorio de Jam, con su `AGENTS.md`.
+
+### Nota (2026-09-16 15:23:30 UTC)
+
+2026-09-16, CAUSA ENCONTRADA: no le faltan defectos al dominio (los cuatro existen). El vault real de Jam está en rojo hoy —tools/vault.py da 4 de 10— por una nota SIN COMMITEAR del 2026-09-10, Vault-kb/05-DSL/El DSL (Domain-Specific Language) de Jam.md: texto pegado, sin frontmatter, con un nombre fuera de convención y en una carpeta que no está en la lista. Como el emisor copia el vault del disco, el mundo sin defecto ya nace rojo y el dominio pierde su polaridad verde; y la huella de referencia cambia. Medido en una copia sin esa carpeta: vault.py verde, el emisor escribe vault.json (10 medidas x 11 escenarios) y oracle test de Jam da VERDE. La nota es del dueño: qué hacer con ella lo decide él.
