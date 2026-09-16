@@ -1,6 +1,6 @@
 # Los commits como hechos del tracker
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle, idea
 
