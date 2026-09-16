@@ -578,6 +578,14 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
         from tools import tareas_git
 
         commits_leidos = tareas_git.commits(raiz)
+        # Una historia cortada es evidencia incompleta: se declara, y la lectura queda incompleta.
+        if commits_leidos is not None and tareas_git.historia_superficial(raiz):
+            omisiones.append({
+                "ruta": ".git",
+                "linea": 0,
+                "motivo": "historia de git superficial: los commits anteriores al corte del clon "
+                          "no se leyeron",
+            })
         datos_git = tareas_git.seguimiento(raiz)
         if datos_git.get("repositorio") is None:
             estado_git = "sin_repositorio"

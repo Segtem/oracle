@@ -101,6 +101,16 @@ def commits(raiz: Path) -> list[dict] | None:
     return filas
 
 
+def historia_superficial(raiz: Path) -> bool:
+    """Si el clon es superficial, `commits` ve sólo el tramo que se bajó y cuenta de menos.
+
+    Pasó en el CI de 0.25.2: `actions/checkout` clona con profundidad 1, y la política de cierres
+    contó 30 tareas sin su `done` en vez de 4, sin que nada dijera por qué.
+    """
+    resultado = _git(raiz, "rev-parse", "--is-shallow-repository")
+    return resultado.returncode == 0 and resultado.stdout.strip() == b"true"
+
+
 def seguimiento(raiz: Path) -> dict:
     """Observa sin hacer git add, commit, fetch ni modificar el índice."""
     tracker = raiz / "tareas"

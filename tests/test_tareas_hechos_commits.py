@@ -17,7 +17,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from pathlib import Path
 
 from tools import cli, tareas_git
-from tools.tareas_hechos import _commit_del_tracker
+from tools.tareas_hechos import _commit_del_tracker, extraer_hechos
 
 
 def _git(raiz: Path, *orden: str) -> None:
@@ -188,6 +188,32 @@ class HechosConCommitsTests(unittest.TestCase):
             _, una = self._callado("--proyecto", str(raiz), "tarea", "hechos", "--git")
             _, otra = self._callado("--proyecto", str(raiz), "tarea", "hechos", "--git")
         self.assertEqual(una, otra)
+
+
+class HistoriaSuperficialTests(unittest.TestCase):
+    def test_un_clon_superficial_se_declara_como_omision(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            origen, clon = Path(d) / "origen", Path(d) / "clon"
+            origen.mkdir()
+            _git(origen, "init", "-q")
+            with redirect_stdout(io.StringIO()):
+                cli.main(["--proyecto", str(origen), "tarea", "init"])
+            for texto in ("uno", "dos"):
+                (origen / "a.txt").write_text(texto, encoding="utf-8")
+                _git(origen, "add", "-A")
+                _git(origen, "commit", "-qm", texto)
+            subprocess.run(["git", "clone", "-q", "--depth", "1", origen.as_uri(), str(clon)],
+                           capture_output=True, check=True)
+            self.assertTrue(tareas_git.historia_superficial(clon))
+            self.assertFalse(tareas_git.historia_superficial(origen))
+            datos = extraer_hechos(clon.resolve(), con_git=True)
+        self.assertEqual(len(datos["commit_seguimiento"]), 1)
+        self.assertIn("superficial", " ".join(o["motivo"] for o in datos["omision_seguimiento"]))
+        self.assertIs(datos["lectura_seguimiento"][0]["completa"], False)
+
+    def test_sin_repositorio_no_es_superficial(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            self.assertFalse(tareas_git.historia_superficial(Path(d)))
 
 
 if __name__ == "__main__":
