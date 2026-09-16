@@ -146,7 +146,7 @@ de grave: en un solo día lo cometí tres veces.
 ### El sujeto es el que construye, no lo construido
 
 <!-- deteccion:inicio -->
-Los 110 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 75 la mutación, 26 una persona, 5 la casualidad, 4 una herramienta ajena.
+Los 111 casos no observacionales salieron a la luz por vías que no aceptan el verde nominal: 75 la mutación, 27 una persona, 5 la casualidad, 4 una herramienta ajena.
 <!-- deteccion:fin -->
 
 Ninguna de esas vías le pregunta al que escribió el código. Oracle no es un juez de artefactos — es
@@ -596,11 +596,11 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 ```
 
 <!-- corpus:inicio -->
-**208 casos**: 124 defectos y 84 verdes correctos. De los defectos, 117 deben ponerse en rojo · 0 huecos abiertos · 5 resueltos conservados · 2 límite humano. Por etiqueta: 118 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 3 deudas de diseño. Por procedencia: 113 observada, 89 construida, 6 generada y 0 sin declarar.
+**210 casos**: 125 defectos y 85 verdes correctos. De los defectos, 118 deben ponerse en rojo · 0 huecos abiertos · 5 resueltos conservados · 2 límite humano. Por etiqueta: 119 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 3 deudas de diseño. Por procedencia: 113 observada, 91 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2182 tests · 984/984 mutantes de medida · **7548 sitios de mutación de código** (7321 + 227 del motor Python).
+2206 tests · 994/994 mutantes de medida · **7574 sitios de mutación de código** (7342 + 232 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

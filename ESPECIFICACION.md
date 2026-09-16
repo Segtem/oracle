@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.24.0`.**
+**Versiones vigentes: álgebra `0.7`, sintaxis `0.5`, distribución `0.25.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -113,6 +113,19 @@ y no hay cómo saltearla, así que el impresor escribía `sin_declarar` literal 
 rechazaba. Ninguna medida lo veía porque el catálogo propio de Oracle no tiene ninguna medida con
 esos campos sin declarar. `VERSION_ALGEBRA` queda en `0.6`: no entra un nodo, un operador, un
 agregado, una escalar ni una relación de traza, y la forma canónica ya admitía los dos valores.
+
+**Corte 0.25.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.24.0` a `0.25.0`.** El arnés de
+mutación puede mutar un rango de líneas (`--lineas`) o sitios sueltos (`--sitio`), y una ronda así se
+declara **parcial**: lo dice en la primera línea del informe, lo guarda en la evidencia (`parcial` y
+`total_sitios`, campos nuevos de `corrida_mutacion`), sale con código 2 —el de ronda inconclusa— y
+`proceso.ronda_mutacion_concluyente` la rechaza. Sube la **menor** porque una medida universal cambia
+lo que acepta —una ronda parcial ya no cuenta como concluyente— y porque la relación gana dos campos
+que la evidencia anterior no tiene. Ningún consumidor conocido emite `corrida_mutacion`: esa evidencia
+es de la mutación del propio Oracle, que en un consumidor se saltea. Además entra `commit_seguimiento`
+con tres políticas nuevas en el proyecto de ejemplo, que no toca el catálogo distribuido.
+`VERSION_ALGEBRA` queda en `0.7` y `VERSION_SINTAXIS` en `0.5`: no entra un nodo, un operador, un
+agregado, una escalar ni una relación del lenguaje, y el lector no gana palabras. Cierra las tareas
+`20260915-201030-sitios` y `20260915-010452-commits`.
 
 **Corte 0.24.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.23.1` a `0.24.0`.** El arnés de
 mutación le pone tope de memoria a cada ejecución de tests (`--limite-memoria-mb`, 4000 por omisión,

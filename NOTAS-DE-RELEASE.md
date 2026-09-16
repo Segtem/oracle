@@ -1,3 +1,72 @@
+# 0.25.0 — mutar unos sitios sin poder confundirlo con una verificación completa
+
+```
+VERSION_DISTRIBUCION   0.24.0 → 0.25.0   rondas parciales declaradas, y los commits como hechos
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+## Rondas parciales
+
+`--objetivo` aceptaba archivos enteros y nada más fino. Cada simplificación de unas pocas líneas
+obligaba a relanzar la ronda completa del archivo —una hora en los grandes— o a aplicar el mutante a
+mano sobre una copia, que no queda registrado como ronda. En el corte 0.21.0 pasó tres veces; la
+noche del 15 al 16 de septiembre, cuatro más.
+
+- **`--lineas a-b` y `--sitio <id>`**, repetibles y combinables. Un filtro que no selecciona ningún
+  sitio es un error con código 2, no una ronda vacía en verde.
+- **La ronda se declara parcial** en la primera línea del informe, en el resumen, en la evidencia
+  (`parcial`, y `total_sitios` con el denominador real, calculado antes de filtrar) y en el código de
+  salida: **2**, el de ronda inconclusa. Con 0, quien mire sólo `$?` no podría distinguirla de una
+  verificación completa.
+- **`proceso.ronda_mutacion_concluyente` la rechaza**: una ronda parcial no demuestra que los tests
+  fijen el módulo, por más que no sobreviva nadie.
+- El filtro también entra en la identidad de la ronda, así que reanudar un manifiesto no mezcla una
+  parcial con una completa.
+
+## Los commits, como hechos del tracker
+
+`oracle tarea hechos --git` emite `commit_seguimiento`: una fila por commit alcanzable desde HEAD con
+lo que su asunto declara —si nombra una tarea, cuál, si existe, en qué estado está y si el resumen es
+exactamente `done`—. Sin repositorio la relación viene vacía y no se inventa nada.
+
+Con eso, el proyecto de ejemplo gana tres políticas escritas en el lenguaje: ningún commit nombra una
+tarea inexistente, toda tarea cerrada tiene su commit de cierre, y ningún `done` deja la tarea
+abierta. El catálogo distribuido no cambia.
+
+**El límite que la tarea quería medir:** el álgebra **no tiene anti-junta**. «Una tarea que ningún
+commit nombra» no se puede escribir uniendo dos relaciones, así que el tracker cuenta
+(`commits_que_la_nombran`, `commits_de_cierre`) y la medida compara contra cero. Es la división de
+siempre —el sensor observa, el lenguaje juzga—, pero acá no fue una elección.
+
+Sobre la historia real de Oracle: 459 commits, 87 nombran tarea, **ninguno** nombra una inexistente y
+4 tareas cerradas no tienen su `done` —tres anteriores a la convención y una con la firma pegada en
+el asunto—. Queda declarado con sombra y cota 4.
+
+## Verificación
+
+- Suite completa en verde (2206 tests); aceptación ✓ con 119 defectos en rojo y 84 verdes correctos;
+  corpus 210 casos; diferencial ✓ (9 mundos × 5 medidas); sintaxis y cifras al día;
+  `verificar_instalacion` WHEEL OK.
+- Mutación de medidas: 994/994. Mutación de código de `perfiles/python/mutacion_codigo.py`:
+  **232/232**. La primera ronda dio 231 de 233; los dos vivos estaban en cómo se guarda que una ronda
+  fue parcial, y se cerraron antes de esta ([logs](estudios/0.25.0-sitios/verificacion/)).
+- Rondas parciales corridas de verdad sobre `nucleo/version.py` (15 sitios): `--lineas 43-56` mutó 3
+  y salió 2; `--sitio nucleo/version.py:51:8:retorno` mutó 1 y salió 2; la ronda completa, 15/15 y
+  salió 0; un filtro sin sitios salió 2 con su mensaje.
+- `tools/mutar_codigo.py` cambió y no es objetivo del arnés («fuera del perfil activo»); lo fijan sus
+  tests.
+- Los dos consumidores no emiten `corrida_mutacion`, así que el campo nuevo no les pide nada.
+- Del corte anterior: la ronda completa de `tools/tareas.py` terminó en **388/389**; el único vivo es
+  el borde del sufijo que ya tenía su test en 0.24.0.
+
+## Cómo se hizo
+
+Las rondas parciales las implementó agy (tarea `20260915-201030-sitios`; encargo, avance e informe en
+`estudios/0.25.0-sitios/`), y Claude revisó, corrigió y midió: el detalle está en
+[REVISION-CLAUDE.md](estudios/0.25.0-sitios/REVISION-CLAUDE.md). Los commits como hechos
+(`20260915-010452-commits`) los escribió Claude.
+
 # 0.24.0 — ningún mutante se come la máquina, y el tracker se lee de un vistazo
 
 ```
