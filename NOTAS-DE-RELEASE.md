@@ -1,3 +1,55 @@
+# 0.23.1 — el diferencial ejercita lo que el álgebra agregó, y compara el veredicto entero
+
+```
+VERSION_DISTRIBUCION   0.23.0 → 0.23.1   fixtures que guardan el veredicto, no sólo el ok
+VERSION_ALGEBRA        0.7    → 0.7
+VERSION_SINTAXIS       0.5    → 0.5
+```
+
+El álgebra `0.7` agregó `requiere` con condición y relaciones con variantes, y la implementación de
+referencia se re-derivó contra esa versión. Pero los cuatro mundos del diferencial no usaban nada de
+eso: el fixture decía «de acuerdo» sin que la referencia pasara una sola vez por lo nuevo. Es el
+agujero que documenta `b250e6c`: cada extensión del lenguaje apaga un pedazo del diferencial si nadie
+agrega mundos.
+
+- **Cinco mundos nuevos**, con evidencia de `mutante` mezclando sus dos variantes: filas que cumplen
+  la condición de `requiere`, ninguna que la cumpla, la relación vacía, y —el que importa— una
+  variante sin el campo que la condición lee, detrás de una fila que sí lo tiene. Si alguna de las
+  dos implementaciones cortocircuitara al primer acierto, una levantaría y la otra no. Ninguna lo
+  hace: es la decisión que 0.21.0 tomó leyendo, y ahora está contrastada.
+- **El fixture compara el veredicto entero**: `ok`, el `valor` con que salió y si la evaluación
+  levantó. Un rojo, un SIN EVIDENCIA y un error se veían iguales en un booleano, y pasar de uno a
+  otro no se detectaba.
+- **Un fixture puede traer escritas sus medidas** (`medidas_declaradas`), para contrastar formas del
+  álgebra que ninguna medida publicada usa. Las dos del contraste no entran al catálogo y no obligan
+  a nadie.
+
+Las dos formas del veredicto conviven a propósito: la corta es lo único que afirmaron los fixtures
+anteriores —y los que siguen emitiendo los consumidores—, así que reclamarles la larga los habría
+invalidado a todos sin que nada hubiera cambiado.
+
+## Verificación
+
+- Suite completa en verde (2163 tests); aceptación ✓ con 118 defectos en rojo y 83 verdes correctos;
+  `verificar_instalacion` WHEEL OK; sintaxis y cifras al día.
+- Diferencial: 9 mundos × 5 medidas, referencia y Oracle de acuerdo en el `ok`, en el valor y en
+  cuándo levantar. Mutación de medidas: 984/984.
+- Mutación de código de `nucleo/fixtures.py`: 205 mutantes, 203 muertos en la primera ronda. De los
+  dos vivos, uno era un `return False` que un `assertFalse` no distingue de `None` —ahora lo fija un
+  `assertIs`— y el otro un valor de recuperación que nadie miraba, que se borró. Los dos verificados
+  a mano aplicando el mutante.
+- `tools/diferencial.py` cambió y **no** es objetivo del arnés: no está en `HERRAMIENTAS_CUSTODIAS`
+  ni declarado en `CUSTODIAS_SIN_MEDIR`. Lo fijan sus tests; queda la tarea
+  `20260916-014457-custodia` para decidir si entra.
+
+## Cómo se hizo
+
+Tarea `20260915-201030-diferencial`. El dueño decidió que las medidas del contraste vivan junto a los
+mundos y no en el catálogo distribuido, y que el fixture compare el veredicto entero. El contraste no
+encontró ningún desacuerdo: en los nueve mundos, las dos implementaciones coinciden en el `ok`, en el
+valor y en cuándo levantar. Queda abierta la tarea `20260916-014153-veredictos`: los fixtures de los
+consumidores siguen guardando sólo el `ok`.
+
 # 0.23.0 — declarar el ámbito deja de ser cosa de Oracle
 
 ```
