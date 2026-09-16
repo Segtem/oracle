@@ -12,7 +12,7 @@ from dataclasses import replace
 from pathlib import Path
 
 from nucleo.algebra import ErrorDeAlgebra
-from nucleo.medida import (Catalogo, Medida, MedidaMalDeclarada, evaluar_conjunto,
+from nucleo.medida import (Catalogo, Informe, Medida, MedidaMalDeclarada, evaluar_conjunto,
                            medidas_aplicables, no_aplicadas, relaciones_de_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,
                              Proyecto, ProyectoInvalido, catalogo_efectivo,
@@ -107,6 +107,66 @@ def _leer_evidencia(ruta_str: str) -> tuple[dict | None, str | None]:
     return datos, None
 
 
+class MedidaDesconocida(Exception):
+    """Una medida pedida explícitamente no existe en el catálogo efectivo."""
+
+    def __init__(self, mid: str) -> None:
+        self.mid = mid
+        super().__init__(f"MEDIDA DESCONOCIDA — «{mid}» no existe en el catálogo efectivo del proyecto")
+
+
+class MedidaNoAplicable(Exception):
+    """Una medida pedida explícitamente no aplica a las relaciones de la evidencia."""
+
+    def __init__(self, mid: str, relaciones: list[str]) -> None:
+        self.mid = mid
+        self.relaciones = relaciones
+        super().__init__(
+            f"MEDIDA NO APLICABLE — «{mid}» requiere las relaciones "
+            f"{relaciones}, no presentes en la evidencia"
+        )
+
+
+def juzgar_evidencia(
+    proy: Proyecto,
+    evidencia: dict,
+    ids: tuple[str, ...] | list[str] = (),
+) -> Informe:
+    """Evalúa evidencia contra el catálogo efectivo del proyecto, con sombras y cotas.
+
+    Aplica las sombras y cotas declaradas en `oracle.json`. Si se reciben `ids`, evalúa
+    únicamente esas medidas (levantando MedidaDesconocida o MedidaNoAplicable si alguna
+    no existe o no aplica). Si no se reciben `ids`, evalúa todas las aplicables y adjunta
+    `no_aplicadas` con las medidas del catálogo propio cuyas relaciones faltaron.
+    """
+    catalogo = catalogo_para_juzgar(proy)
+
+    if ids:
+        medidas_a_evaluar: list[Medida] = []
+        for mid in ids:
+            if mid not in catalogo:
+                raise MedidaDesconocida(mid)
+            m = catalogo[mid]
+            if not medidas_aplicables([m], evidencia):
+                relaciones = relaciones_de_medida(m)
+                raise MedidaNoAplicable(mid, list(relaciones))
+            medidas_a_evaluar.append(m)
+        faltantes: tuple = ()
+    else:
+        medidas_a_evaluar = medidas_aplicables(catalogo.values(), evidencia)
+        # Sólo las del catálogo propio: las heredadas juzgan el catálogo, no esta evidencia,
+        # y nombrarlas en cada corrida taparía la que de verdad faltó.
+        faltantes = no_aplicadas(
+            [catalogo[mid] for mid, entrada in catalogo.entradas.items()
+             if entrada.origen == ORIGEN_PROYECTO], evidencia)
+
+    sombra = configuracion(proy).sombra
+    informe = evaluar_conjunto(medidas_a_evaluar, evidencia,
+                               en_sombra=frozenset(e.medida for e in sombra),
+                               cotas=cotas_de_sombra(sombra))
+    return replace(informe, no_aplicadas=faltantes)
+
+
 def cmd_juzgar(argv: list[str]) -> int:
     """Implementa el verbo `juzgar` / `proyecto juzgar`."""
     if "-h" in argv or "--help" in argv:
@@ -187,58 +247,28 @@ def cmd_juzgar(argv: list[str]) -> int:
     # 5. Carga de catálogo y evaluación en el contexto de escalares
     try:
         with escalares_del_proyecto(proy, confiar=confiar):
-            catalogo = catalogo_para_juzgar(proy)
-
-            # 6. Selección y verificación de aplicabilidad de medidas
-            if medidas_pedidas:
-                medidas_a_evaluar: list[Medida] = []
-                for mid in medidas_pedidas:
-                    if mid not in catalogo:
-                        print(
-                            f"MEDIDA DESCONOCIDA — «{mid}» no existe en el catálogo efectivo del proyecto",
-                            file=sys.stderr,
-                        )
-                        return 2
-                    m = catalogo[mid]
-                    if not medidas_aplicables([m], evidencia):
-                        relaciones = relaciones_de_medida(m)
-                        print(
-                            f"MEDIDA NO APLICABLE — «{mid}» requiere las relaciones "
-                            f"{list(relaciones)}, no presentes en la evidencia",
-                            file=sys.stderr,
-                        )
-                        return 2
-                    medidas_a_evaluar.append(m)
-                faltantes = ()
-            else:
-                medidas_a_evaluar = medidas_aplicables(catalogo.values(), evidencia)
-                # Sólo las del catálogo propio: las heredadas juzgan el catálogo, no esta evidencia,
-                # y nombrarlas en cada corrida taparía la que de verdad faltó.
-                faltantes = no_aplicadas(
-                    [catalogo[mid] for mid, entrada in catalogo.entradas.items()
-                     if entrada.origen == ORIGEN_PROYECTO], evidencia)
-                if not medidas_a_evaluar:
-                    relaciones = sorted(evidencia.keys())
-                    print(
-                        f"SIN MEDIDAS APLICABLES — ninguna medida del catálogo aplica a "
-                        f"las relaciones de la evidencia: {relaciones}",
-                        file=sys.stderr,
-                    )
-                    return 1
-
-            # 7. Evaluación. Las sombras entran ACÁ y no después: desde 0.20.0 `Informe` sabe qué
-            # rojo perdona la sombra, y la copia que vivía en este archivo envejecía aparte.
-            sombra = configuracion(proy).sombra
-            mapa_sombra = {e.medida: e for e in sombra}
-            informe = evaluar_conjunto(medidas_a_evaluar, evidencia,
-                                       en_sombra=frozenset(mapa_sombra),
-                                       cotas=cotas_de_sombra(sombra))
-            informe = replace(informe, no_aplicadas=faltantes)
+            informe = juzgar_evidencia(proy, evidencia, ids=medidas_pedidas)
+            # Primero lo que no se pudo juzgar: una medida que levantó tampoco dejó veredicto, y
+            # contarla como «ninguna aplica» esconde el error.
             if informe.no_juzgaron:
                 for mid, motivo in informe.no_juzgaron:
                     print(f"ERROR AL EVALUAR — «{mid}»: {motivo}", file=sys.stderr)
                 return 2
+            if not informe.veredictos:
+                relaciones = sorted(evidencia.keys())
+                print(
+                    f"SIN MEDIDAS APLICABLES — ninguna medida del catálogo aplica a "
+                    f"las relaciones de la evidencia: {relaciones}",
+                    file=sys.stderr,
+                )
+                return 1
 
+    except MedidaDesconocida as e:
+        print(str(e), file=sys.stderr)
+        return 2
+    except MedidaNoAplicable as e:
+        print(str(e), file=sys.stderr)
+        return 2
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}", file=sys.stderr)
         return 2
@@ -248,6 +278,9 @@ def cmd_juzgar(argv: list[str]) -> int:
     except (MedidaMalDeclarada, ErrorDeAlgebra, KeyError) as e:
         print(f"ERROR AL EVALUAR — {e}", file=sys.stderr)
         return 2
+
+    sombra = configuracion(proy).sombra
+    mapa_sombra = {e.medida: e for e in sombra}
 
     # 8. Emisión de resultados. Lo propio de `juzgar` es la prosa: el `desde` y el `porque` de cada
     # sombra, y el «verde por sombra» de cuando TODAS las aplicables estaban perdonadas. Quién está

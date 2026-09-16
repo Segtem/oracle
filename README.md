@@ -483,6 +483,26 @@ biblioteca listar <ruta>` muestra por medida el umbral, `segun` y el `alcance` c
 `oracle biblioteca verificar <ruta>` comprueba contenido, corpus y la cifra de mutación publicada.
 Certifica esos hechos, no que la política sea correcta para un proyecto.
 
+## Servidor MCP (sólo lectura)
+
+`oracle-mcp --proyecto <ruta>` le da a un agente las mismas respuestas que el CLI, por
+[Model Context Protocol](https://modelcontextprotocol.io) sobre stdio. El proyecto se fija al arrancar
+y `--confiar-escalares` sólo se concede ahí: ninguna llamada puede ampliar esa autoridad.
+
+| herramienta | responde |
+|---|---|
+| `oracle_catalogo_efectivo` | qué medidas obligan a este proyecto, y por qué |
+| `oracle_evaluar` | qué hace una medida —por id o escrita en la llamada— con una evidencia: verde, rojo o sin evidencia, testigos y, si está en sombra, si la sombra la perdona |
+| `oracle_desafiar` | qué parte de una medida candidata todavía no está fijada: las dos polaridades y sus mutantes, sin guardar nada |
+| `oracle_juzgar` | lo mismo que `oracle juzgar`: una evidencia contra el catálogo efectivo, con sombras, cotas y las medidas que no se aplicaron |
+| `oracle_tareas` | el tracker: `listar`, `ver`, `buscar` y `hechos` |
+
+Las cinco son **de sólo lectura**, y no por prudencia genérica: los falsos verdes que un agente
+comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente fabricó
+parece una aprobación sin serlo. En el tracker, además, crear o cerrar una tarea sólo vale junto con
+su commit, y el commit no se hace por MCP. El contrato, con el porqué de cada decisión, está en
+[`estudios/MCP-CONTRATO.md`](https://github.com/Segtem/oracle/blob/main/estudios/MCP-CONTRATO.md).
+
 ## Las decisiones, y por qué
 
 Cada una registra una elección que costó discutir, con lo que se descartó y el motivo. Están en la

@@ -553,38 +553,12 @@ def cmd_adjuntar(argv: list[str], args: list[str]) -> int:
 # ---------------------------------------------------------------------------
 
 
-def cmd_buscar(argv: list[str], args: list[str]) -> int:
-    parser = ParserDeSubcomando(
-        prog="oracle tarea buscar",
-        description="Busca texto de forma literal e insensible a mayúsculas en tareas y notas",
-    )
-    parser.add_argument("texto", help="Texto literal a buscar")
-    parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
-    parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
-    parsed = parser.parse_args(args)
+def buscar_en_tracker(raiz: Path, texto_buscado: str) -> dict[str, Any]:
+    """Busca texto de forma literal e insensible a mayúsculas en tareas y notas del tracker.
 
-    texto_buscado = parsed.texto
-    if not texto_buscado:
-        print("ERROR: el texto a buscar no puede estar vacío", file=sys.stderr)
-        return 1
-
-    try:
-        raiz = resolver_raiz_tracker(argv, ruta_explicita=parsed.proyecto)
-    except (TareaError, OSError) as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
-
+    Retorna un diccionario con 'coincidencias' y 'omitidos'.
+    """
     raiz_tareas = raiz / "tareas"
-    tareas_validas, problemas = auditar_tareas(raiz_tareas)
-    if problemas:
-        print(
-            f"ERROR: se detectaron {len(problemas)} registro(s) inválido(s) en {raiz_tareas}:",
-            file=sys.stderr,
-        )
-        for p in problemas:
-            print(f"  · {p}", file=sys.stderr)
-        return 1
-
     coincidencias: list[dict[str, Any]] = []
     omitidos: list[dict[str, str]] = []
     termino_lower = texto_buscado.lower()
@@ -606,8 +580,7 @@ def cmd_buscar(argv: list[str], args: list[str]) -> int:
 
             lineas, motivo, es_error = leer_archivo_texto_si_aplica(entrada)
             if es_error:
-                print(f"ERROR: {motivo}", file=sys.stderr)
-                return 1
+                raise TareaInvalida(motivo or "error al leer archivo de texto")
             if motivo is not None:
                 omitidos.append({"ruta": ruta_rel, "motivo": motivo})
                 continue
@@ -665,8 +638,7 @@ def cmd_buscar(argv: list[str], args: list[str]) -> int:
 
                     lineas, motivo, es_error = leer_archivo_texto_si_aplica(arch)
                     if es_error:
-                        print(f"ERROR: {motivo}", file=sys.stderr)
-                        return 1
+                        raise TareaInvalida(motivo or "error al leer archivo de texto")
                     if motivo is not None:
                         omitidos.append({"ruta": ruta_rel, "motivo": motivo})
                         continue
@@ -681,18 +653,58 @@ def cmd_buscar(argv: list[str], args: list[str]) -> int:
                             })
 
             if error_walk:
-                for err_msg in error_walk:
-                    print(f"ERROR: {err_msg}", file=sys.stderr)
-                return 1
+                raise TareaError(error_walk[0])
 
     coincidencias.sort(key=lambda x: (x["ruta"], x["linea"]))
     omitidos.sort(key=lambda x: x["ruta"])
+    return {
+        "coincidencias": coincidencias,
+        "omitidos": omitidos,
+    }
+
+
+def cmd_buscar(argv: list[str], args: list[str]) -> int:
+    parser = ParserDeSubcomando(
+        prog="oracle tarea buscar",
+        description="Busca texto de forma literal e insensible a mayúsculas en tareas y notas",
+    )
+    parser.add_argument("texto", help="Texto literal a buscar")
+    parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
+    parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
+    parsed = parser.parse_args(args)
+
+    texto_buscado = parsed.texto
+    if not texto_buscado:
+        print("ERROR: el texto a buscar no puede estar vacío", file=sys.stderr)
+        return 1
+
+    try:
+        raiz = resolver_raiz_tracker(argv, ruta_explicita=parsed.proyecto)
+    except (TareaError, OSError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+
+    raiz_tareas = raiz / "tareas"
+    tareas_validas, problemas = auditar_tareas(raiz_tareas)
+    if problemas:
+        print(
+            f"ERROR: se detectaron {len(problemas)} registro(s) inválido(s) en {raiz_tareas}:",
+            file=sys.stderr,
+        )
+        for p in problemas:
+            print(f"  · {p}", file=sys.stderr)
+        return 1
+
+    try:
+        resultado = buscar_en_tracker(raiz, texto_buscado)
+    except (TareaError, OSError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
+
+    coincidencias = resultado["coincidencias"]
+    omitidos = resultado["omitidos"]
 
     if parsed.json:
-        resultado = {
-            "coincidencias": coincidencias,
-            "omitidos": omitidos,
-        }
         print(json.dumps(resultado))
         return 0
 

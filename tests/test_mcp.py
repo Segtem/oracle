@@ -238,7 +238,8 @@ class EvaluarTests(unittest.TestCase):
                    advertencias: list[str] | None = None) -> dict:
         """Explicita cada campo para que una omisión no se esconda detrás de defaults del test."""
         return {
-            "esquema": "oracle.mcp/evaluacion/v1",
+            # v2 desde 0.27.0: la sombra de `oracle.json` viaja con el veredicto.
+            "esquema": "oracle.mcp/evaluacion/v2",
             "oracle_version": VERSION_DISTRIBUCION,
             "proyecto": str(raiz.resolve()),
             "entrada_sha256": _sha_entrada(medida, evidencia),
@@ -251,6 +252,7 @@ class EvaluarTests(unittest.TestCase):
                 "segun": medida[4][4],
                 "porque": medida[4][3],
             },
+            "sombra": None,
             "testigos": testigos,
             "testigos_omitidos": omitidos,
             "alcance": medida[-1][1],

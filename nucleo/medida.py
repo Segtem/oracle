@@ -702,25 +702,26 @@ class Informe:
         valor = v.valor
         return isinstance(valor, bool) or not isinstance(valor, (int, float)) or valor > cota
 
-    def _perdona(self, v) -> bool:
+    def perdona(self, v) -> bool:
+        """Si la sombra le apaga la consecuencia a este veredicto: el mismo criterio que `ok`."""
         return not v.ok and v.id in self.en_sombra and not self.supera_su_cota(v)
 
     @property
     def ok(self) -> bool:
         if self.no_juzgaron:
             return False
-        return bool(self.veredictos) and all(v.ok or self._perdona(v) for v in self.veredictos)
+        return bool(self.veredictos) and all(v.ok or self.perdona(v) for v in self.veredictos)
 
     @property
     def rojos(self) -> tuple:
         """Los rojos que la sombra NO perdona: los que hacen fallar."""
-        return tuple(v for v in self.veredictos if not v.ok and not self._perdona(v))
+        return tuple(v for v in self.veredictos if not v.ok and not self.perdona(v))
 
     @property
     def perdonados(self) -> tuple:
         """Los rojos que están en sombra y dentro de su cota. Se miden y se informan igual; lo único
         que se apaga es la consecuencia."""
-        return tuple(v for v in self.veredictos if self._perdona(v))
+        return tuple(v for v in self.veredictos if self.perdona(v))
 
     def texto(self) -> str:
         """Nunca dice «TODO VERDE» a secas: un verde termina enumerando lo que no miró."""

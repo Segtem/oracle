@@ -21,17 +21,24 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
-from nucleo.medida import Medida, MedidaMalDeclarada, relaciones_de_medida  # noqa: E402
+from nucleo.medida import Informe, Medida, MedidaMalDeclarada, relaciones_de_medida  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
-                             ID_MEDIDA_RE, Proyecto, ProyectoInvalido,
-                             catalogo_efectivo,
+                             ID_MEDIDA_RE, SIN_COTA, Proyecto, ProyectoInvalido,
+                             catalogo_efectivo, configuracion, cotas_de_sombra,
                              escalares_del_proyecto, macros_del_proyecto,
                              presentar_ruta, relaciones_del_proyecto)
 from nucleo.sintaxis import ErrorSintaxis, fragmento_de_error, leer_con_mapa  # noqa: E402
 from nucleo.version import (VERSION_DISTRIBUCION, VersionInvalida,  # noqa: E402
                             exigir_sintaxis_compatible)
+from tools.juzgar import (MedidaDesconocida, MedidaNoAplicable,  # noqa: E402
+                          juzgar_evidencia)
 from tools.medida import ejercicio_del_catalogo, relaciones_por_alias  # noqa: E402
 from tools.sesion import resolver_cli  # noqa: E402
+from tools.tareas import (IdAmbiguo, RutaInsegura, TareaError,  # noqa: E402
+                          TareaInvalida, TareaNoEncontrada, auditar_tareas,
+                          filtrar_tareas, leer_tarea)
+from tools.tareas_contexto import buscar_en_tracker  # noqa: E402
+from tools.tareas_hechos import extraer_hechos  # noqa: E402
 
 
 PROTOCOLO = "2025-11-25"
@@ -191,11 +198,11 @@ HERRAMIENTA_EVALUAR = {
         "additionalProperties": False,
         "required": [
             "esquema", "oracle_version", "proyecto", "entrada_sha256", "medida",
-            "estado", "valor", "umbral", "testigos", "testigos_omitidos", "alcance",
+            "estado", "valor", "umbral", "sombra", "testigos", "testigos_omitidos", "alcance",
             "alcance_derivado", "advertencias",
         ],
         "properties": {
-            "esquema": {"const": "oracle.mcp/evaluacion/v1"},
+            "esquema": {"const": "oracle.mcp/evaluacion/v2"},
             "oracle_version": {"type": "string"},
             "proyecto": {"type": "string"},
             "entrada_sha256": {
@@ -214,6 +221,22 @@ HERRAMIENTA_EVALUAR = {
                     "segun": {"type": "string"},
                     "porque": {"type": "string"},
                 },
+            },
+            "sombra": {
+                "oneOf": [
+                    {"type": "null"},
+                    {
+                        "type": "object",
+                        "additionalProperties": False,
+                        "required": ["desde", "porque", "cota", "perdona"],
+                        "properties": {
+                            "desde": {"type": "string"},
+                            "porque": {"type": "string"},
+                            "cota": {"type": ["integer", "null"]},
+                            "perdona": {"type": "boolean"},
+                        },
+                    },
+                ],
             },
             "testigos": {
                 "type": "array", "items": {"type": "object"}, "maxItems": 5,
@@ -493,7 +516,240 @@ HERRAMIENTA_DESAFIAR = {
     }
 }
 
-HERRAMIENTAS = [HERRAMIENTA_CATALOGO, HERRAMIENTA_EVALUAR, HERRAMIENTA_DESAFIAR]
+HERRAMIENTA_JUZGAR = {
+    "name": "oracle_juzgar",
+    "title": "Juzgar evidencia contra el catálogo efectivo",
+    "description": (
+        "Juzga una evidencia JSON contra las medidas que obligan al proyecto (o un subconjunto "
+        "indicado en ids). Aplica el catálogo efectivo, las sombras y cotas declaradas en "
+        "oracle.json y reporta medidas no aplicadas. Devuelve ok si el conjunto satisface las "
+        "medidas evaluadas y las sombras dentro de su cota. No evalúa escalares no autorizadas "
+        "ni escribe archivos."
+    ),
+    "annotations": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+    "inputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["evidencia"],
+        "properties": {
+            "evidencia": {"$ref": "#/$defs/evidencia"},
+            "ids": {
+                "type": "array",
+                "minItems": 1,
+                "uniqueItems": True,
+                "items": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$",
+                },
+                "description": "Ids efectivos a evaluar. Omitir para evaluar todas las aplicables del catálogo.",
+            },
+        },
+        "$defs": {
+            "evidencia": {
+                "type": "object",
+                "additionalProperties": {
+                    "type": "array",
+                    "items": {"type": "object"},
+                },
+            },
+        },
+    },
+    "outputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "esquema",
+            "oracle_version",
+            "proyecto",
+            "entrada_sha256",
+            "ok",
+            "medidas",
+            "no_aplicadas",
+            "no_juzgaron",
+            "advertencias",
+        ],
+        "properties": {
+            "esquema": {"const": "oracle.mcp/juzgar/v1"},
+            "oracle_version": {"type": "string"},
+            "proyecto": {"type": "string"},
+            "entrada_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$",
+            },
+            "ok": {"type": "boolean"},
+            "medidas": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": [
+                        "id",
+                        "estado",
+                        "valor",
+                        "umbral",
+                        "sombra",
+                        "testigos",
+                        "testigos_omitidos",
+                        "alcance",
+                    ],
+                    "properties": {
+                        "id": {"type": "string"},
+                        "estado": {"enum": ["verde", "rojo", "sin_evidencia"]},
+                        "valor": {"type": "number"},
+                        "umbral": {
+                            "type": "object",
+                            "additionalProperties": False,
+                            "required": ["operador", "valor", "segun", "porque"],
+                            "properties": {
+                                "operador": {"type": "string"},
+                                "valor": {"type": ["string", "number", "boolean"]},
+                                "segun": {"type": "string"},
+                                "porque": {"type": "string"},
+                            },
+                        },
+                        "sombra": {
+                            "oneOf": [
+                                {"type": "null"},
+                                {
+                                    "type": "object",
+                                    "additionalProperties": False,
+                                    "required": ["desde", "porque", "cota", "perdona"],
+                                    "properties": {
+                                        "desde": {"type": "string"},
+                                        "porque": {"type": "string"},
+                                        "cota": {"type": ["integer", "null"]},
+                                        "perdona": {"type": "boolean"},
+                                    },
+                                },
+                            ],
+                        },
+                        "testigos": {
+                            "type": "array",
+                            "items": {"type": "object"},
+                            "maxItems": 5,
+                        },
+                        "testigos_omitidos": {"type": "integer", "minimum": 0},
+                        "alcance": {"type": "string"},
+                    },
+                },
+            },
+            "no_aplicadas": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["id", "faltan"],
+                    "properties": {
+                        "id": {"type": "string"},
+                        "faltan": {
+                            "type": "array",
+                            "items": {"type": "string"},
+                        },
+                    },
+                },
+            },
+            "no_juzgaron": {
+                "type": "array",
+                "items": {
+                    "type": "object",
+                    "additionalProperties": False,
+                    "required": ["id", "motivo"],
+                    "properties": {
+                        "id": {"type": "string"},
+                        "motivo": {"type": "string"},
+                    },
+                },
+            },
+            "advertencias": {
+                "type": "array",
+                "items": {"type": "string"},
+            },
+        },
+    },
+}
+
+HERRAMIENTA_TAREAS = {
+    "name": "oracle_tareas",
+    "title": "Consultar el tracker de tareas del proyecto",
+    "description": (
+        "Consulta tareas y notas del tracker (tareas/) de sólo lectura: listar tareas abiertas "
+        "o cerradas, ver el detalle de una tarea por id o prefijo, buscar texto en tareas y "
+        "notas, o extraer evidencia relacional de hechos. Falla con TRACKER_AUSENTE si el "
+        "proyecto no tiene tracker. No crea ni modifica tareas."
+    ),
+    "annotations": {
+        "readOnlyHint": True,
+        "destructiveHint": False,
+        "idempotentHint": True,
+        "openWorldHint": False,
+    },
+    "inputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": ["accion"],
+        "properties": {
+            "accion": {
+                "enum": ["listar", "ver", "buscar", "hechos"],
+                "description": "Acción de consulta a ejecutar en el tracker.",
+            },
+            "estado": {
+                "enum": ["ABIERTA", "CERRADA"],
+                "description": "Filtro de estado para la acción listar.",
+            },
+            "etiqueta": {
+                "type": "string",
+                "description": "Filtro por etiqueta exacta para la acción listar.",
+            },
+            "id": {
+                "type": "string",
+                "description": "Identificador canónico o prefijo inequívoco de la tarea para la acción ver.",
+            },
+            "texto": {
+                "type": "string",
+                "description": "Texto literal a buscar en tareas y notas para la acción buscar.",
+            },
+            "git": {
+                "type": "boolean",
+                "default": False,
+                "description": "Si es true, incluye diagnóstico de Git al extraer hechos.",
+            },
+        },
+    },
+    "outputSchema": {
+        "type": "object",
+        "additionalProperties": False,
+        "required": [
+            "esquema",
+            "oracle_version",
+            "proyecto",
+            "accion",
+            "resultado",
+        ],
+        "properties": {
+            "esquema": {"const": "oracle.mcp/tareas/v1"},
+            "oracle_version": {"type": "string"},
+            "proyecto": {"type": "string"},
+            "accion": {"enum": ["listar", "ver", "buscar", "hechos"]},
+            "resultado": {
+                "type": ["array", "object"],
+                "description": "Resultado de la acción: lista de tareas para listar, objeto de tarea para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos.",
+            },
+        },
+    },
+}
+
+HERRAMIENTAS = [
+    HERRAMIENTA_CATALOGO,
+    HERRAMIENTA_EVALUAR,
+    HERRAMIENTA_DESAFIAR,
+    HERRAMIENTA_JUZGAR,
+    HERRAMIENTA_TAREAS,
+]
 
 
 @dataclass
@@ -802,15 +1058,41 @@ def _entrada_sha256(medida: Medida, evidencia: dict) -> str:
     return hashlib.sha256(_json_compacto(normalizada).encode("utf-8")).hexdigest()
 
 
-def _presentar_evaluacion(proy: Proyecto, medida: Medida, veredicto: dict,
-                          evidencia: dict, declaradas: dict) -> dict:
+def _sombra_de(proy: Proyecto, informe: Informe, v) -> dict | None:
+    """La sombra de `oracle.json` que cubre a este veredicto, y si le perdona la consecuencia.
+
+    `perdona` es la misma pregunta que decide `ok` en `oracle juzgar`: no se recalcula acá.
+    """
+    entrada = next((e for e in configuracion(proy).sombra if e.medida == v.id), None)
+    if entrada is None:
+        return None
+    return {
+        "desde": entrada.desde,
+        "porque": entrada.porque,
+        "cota": None if entrada.cota == SIN_COTA else entrada.cota,
+        "perdona": informe.perdona(v),
+    }
+
+
+def _presentar_evaluacion(proy: Proyecto, medida: Medida, veredicto_obj,
+                          evidencia: dict, declaradas: dict,
+                          *, de_catalogo: bool = True) -> dict:
     """Proyecta un Veredicto ya decidido; aquí no hay una segunda comparación con el umbral."""
+    veredicto = veredicto_obj.a_dict()
+
     if veredicto["sin_evidencia"]:
         estado = "sin_evidencia"
     elif veredicto["ok"]:
         estado = "verde"
     else:
         estado = "rojo"
+
+    sombra = None
+    if de_catalogo:
+        sombra_cfg = configuracion(proy).sombra
+        informe = Informe((veredicto_obj,), en_sombra=frozenset(e.medida for e in sombra_cfg),
+                          cotas=cotas_de_sombra(sombra_cfg))
+        sombra = _sombra_de(proy, informe, veredicto_obj)
 
     advertencias = []
     if not declaradas:
@@ -825,7 +1107,7 @@ def _presentar_evaluacion(proy: Proyecto, medida: Medida, veredicto: dict,
 
     testigos = veredicto["testigos"][:5]
     return {
-        "esquema": "oracle.mcp/evaluacion/v1",
+        "esquema": "oracle.mcp/evaluacion/v2",
         "oracle_version": VERSION_DISTRIBUCION,
         "proyecto": str(proy.raiz.resolve()),
         "entrada_sha256": _entrada_sha256(medida, evidencia),
@@ -838,6 +1120,7 @@ def _presentar_evaluacion(proy: Proyecto, medida: Medida, veredicto: dict,
             "segun": medida.segun,
             "porque": veredicto["porque"],
         },
+        "sombra": sombra,
         "testigos": testigos,
         "testigos_omitidos": len(veredicto["testigos"]) - len(testigos),
         "alcance": veredicto["alcance"],
@@ -1312,14 +1595,16 @@ def evaluar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = Fa
                         raise _error_id_ausente(mid, proy, catalogo)
                     medida = catalogo[mid]
                 try:
-                    veredicto = medida.evaluar(evidencia).a_dict()
+                    veredicto = medida.evaluar(evidencia)
                 except Exception as e:
                     raise ErrorHerramienta(
                         "EVALUACION_FALLIDA",
                         f"«{medida.id}» no se pudo evaluar: {type(e).__name__}: {e}.",
                     ) from e
                 contenido = _presentar_evaluacion(
-                    proy, medida, veredicto, evidencia, declaradas)
+                    proy, medida, veredicto, evidencia, declaradas,
+                    de_catalogo=(catalogo is not None),
+                )
     except ErrorHerramienta:
         raise
     except EscalaresNoConfiables as e:
@@ -1341,6 +1626,314 @@ def evaluar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = Fa
             f"la evaluación falló cerrada: {type(e).__name__}: {e}.",
         ) from e
     return contenido
+
+
+def _validar_juzgar(argumentos) -> tuple[dict, tuple[str, ...]]:
+    if not isinstance(argumentos, dict):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$: {_json_compacto(argumentos)}; se esperaba un objeto con evidencia y opcionalmente ids.",
+        )
+    extras = sorted(set(argumentos) - {"evidencia", "ids"})
+    if extras:
+        extra = extras[0]
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.{extra}: {_json_compacto(argumentos[extra])}; se esperaba ninguna propiedad adicional.",
+        )
+    if "evidencia" not in argumentos:
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            "$: falta evidencia; se esperaba el campo obligatorio evidencia.",
+        )
+    evidencia = argumentos["evidencia"]
+    if not isinstance(evidencia, dict):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.evidencia: {_json_compacto(evidencia)}; se esperaba un objeto de relaciones.",
+        )
+    for relacion, filas in evidencia.items():
+        if not isinstance(filas, list):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.evidencia.{relacion}: {_json_compacto(filas)}; se esperaba una lista de filas objeto.",
+            )
+        for indice, fila in enumerate(filas):
+            if not isinstance(fila, dict):
+                raise ErrorHerramienta(
+                    "ARGUMENTOS_INVALIDOS",
+                    f"$.evidencia.{relacion}[{indice}]: {_json_compacto(fila)}; se esperaba una fila objeto.",
+                )
+
+    ids: tuple[str, ...] = ()
+    if "ids" in argumentos:
+        crudo_ids = argumentos["ids"]
+        if not isinstance(crudo_ids, list):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.ids: {_json_compacto(crudo_ids)}; se esperaba una lista.",
+            )
+        if not crudo_ids:
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                "$.ids: []; se esperaba una lista no vacía de identificadores.",
+            )
+        vistos = set()
+        for i, mid in enumerate(crudo_ids):
+            if not isinstance(mid, str) or ID_MEDIDA_RE.fullmatch(mid) is None:
+                raise ErrorHerramienta(
+                    "ARGUMENTOS_INVALIDOS",
+                    f"$.ids[{i}]: {_json_compacto(mid)}; se esperaba un id dominio.nombre portable.",
+                )
+            if mid in vistos:
+                raise ErrorHerramienta(
+                    "ARGUMENTOS_INVALIDOS",
+                    f"$.ids[{i}]: {_json_compacto(mid)}; id repetido en la llamada.",
+                )
+            vistos.add(mid)
+        ids = tuple(crudo_ids)
+    return evidencia, ids
+
+
+def juzgar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = False) -> dict:
+    evidencia, ids = _validar_juzgar(argumentos)
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar_escalares):
+            macros = macros_del_proyecto(proy)
+            try:
+                catalogo = catalogo_efectivo(proy, macros=macros)
+            except ProyectoInvalido:
+                raise
+            except Exception as e:
+                raise _error_catalogo(proy, e) from e
+
+            def refrescar():
+                macros_actuales = macros_del_proyecto(proy)
+                relaciones_del_proyecto(proy)
+                return catalogo_efectivo(proy, macros=macros_actuales)
+
+            with _evaluacion_estable(proy, catalogo, refrescar):
+                try:
+                    informe = juzgar_evidencia(proy, evidencia, ids=ids)
+                except MedidaDesconocida as e:
+                    raise _error_id_ausente(e.mid, proy, catalogo) from e
+                except MedidaNoAplicable as e:
+                    raise ErrorHerramienta(
+                        "MEDIDA_NO_APLICABLE",
+                        f"«{e.mid}» requiere las relaciones {e.relaciones}, no presentes en la evidencia.",
+                    ) from e
+                except Exception as e:
+                    raise ErrorHerramienta(
+                        "EVALUACION_FALLIDA",
+                        f"la evaluación de evidencia falló: {type(e).__name__}: {e}.",
+                    ) from e
+
+                medidas_resultado = []
+                for v in informe.veredictos:
+                    mid = v.id
+                    medida = catalogo[mid]
+                    if v.sin_evidencia:
+                        estado = "sin_evidencia"
+                    elif v.ok:
+                        estado = "verde"
+                    else:
+                        estado = "rojo"
+
+                    sombra = _sombra_de(proy, informe, v)
+
+                    testigos = [dict(t) for t in v.testigos[:5]]
+                    testigos_omitidos = len(v.testigos) - len(testigos)
+                    medidas_resultado.append({
+                        "id": mid,
+                        "estado": estado,
+                        "valor": v.valor,
+                        "umbral": {
+                            "operador": medida.op,
+                            "valor": medida.limite,
+                            "segun": medida.segun,
+                            "porque": v.porque,
+                        },
+                        "sombra": sombra,
+                        "testigos": testigos,
+                        "testigos_omitidos": testigos_omitidos,
+                        "alcance": v.alcance,
+                    })
+
+                advertencias = []
+                if not informe.veredictos and not informe.no_juzgaron:
+                    advertencias.append(
+                        "ninguna medida del catálogo aplica a la evidencia provista; se requiere al menos una medida aplicable",
+                    )
+    except ErrorHerramienta:
+        raise
+    except EscalaresNoConfiables as e:
+        archivo = str(e).partition(" es código Python externo")[0]
+        raise ErrorHerramienta(
+            "ESCALARES_NO_AUTORIZADAS",
+            f"{archivo} es código externo; autorizalo en la configuración de arranque del "
+            "servidor, no en esta llamada.",
+        ) from e
+    except EscalaresInvalidas as e:
+        raise _error_catalogo(proy, e) from e
+    except ProyectoInvalido as e:
+        raise ErrorHerramienta("PROYECTO_INVALIDO", f"{proy.raiz.resolve()}: {e}.") from e
+    except Exception as e:
+        raise ErrorHerramienta(
+            "EVALUACION_FALLIDA",
+            f"el juicio falló cerrado: {type(e).__name__}: {e}.",
+        ) from e
+
+    return {
+        "esquema": "oracle.mcp/juzgar/v1",
+        "oracle_version": VERSION_DISTRIBUCION,
+        "proyecto": str(proy.raiz.resolve()),
+        "entrada_sha256": hashlib.sha256(
+            json.dumps(argumentos, sort_keys=True, ensure_ascii=False).encode("utf-8")
+        ).hexdigest(),
+        "ok": bool(informe.ok),
+        "medidas": medidas_resultado,
+        "no_aplicadas": [
+            {"id": mid, "faltan": list(faltan)} for mid, faltan in informe.no_aplicadas
+        ],
+        "no_juzgaron": [
+            {"id": mid, "motivo": motivo} for mid, motivo in informe.no_juzgaron
+        ],
+        "advertencias": advertencias,
+    }
+
+
+def _validar_tareas(argumentos) -> dict:
+    if not isinstance(argumentos, dict):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$: {_json_compacto(argumentos)}; se esperaba un objeto de argumentos.",
+        )
+    extras = sorted(set(argumentos) - {"accion", "estado", "etiqueta", "id", "texto", "git"})
+    if extras:
+        extra = extras[0]
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.{extra}: {_json_compacto(argumentos[extra])}; propiedad no declarada en oracle_tareas.",
+        )
+    if "accion" not in argumentos:
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            "$: falta accion; se esperaba un campo obligatorio accion.",
+        )
+    accion = argumentos["accion"]
+    if accion not in ("listar", "ver", "buscar", "hechos"):
+        raise ErrorHerramienta(
+            "ARGUMENTOS_INVALIDOS",
+            f"$.accion: {_json_compacto(accion)}; se esperaba una de ['listar', 'ver', 'buscar', 'hechos'].",
+        )
+    if accion == "listar":
+        if "estado" in argumentos:
+            estado = argumentos["estado"]
+            if estado not in ("ABIERTA", "CERRADA"):
+                raise ErrorHerramienta(
+                    "ARGUMENTOS_INVALIDOS",
+                    f"$.estado: {_json_compacto(estado)}; se esperaba 'ABIERTA' o 'CERRADA'.",
+                )
+        if "etiqueta" in argumentos and not isinstance(argumentos["etiqueta"], str):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.etiqueta: {_json_compacto(argumentos['etiqueta'])}; se esperaba texto.",
+            )
+    elif accion == "ver":
+        if "id" not in argumentos or not isinstance(argumentos["id"], str) or not argumentos["id"].strip():
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                "$.id: se esperaba un id o prefijo de tarea no vacío para la acción 'ver'.",
+            )
+    elif accion == "buscar":
+        if "texto" not in argumentos or not isinstance(argumentos["texto"], str) or not argumentos["texto"].strip():
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                "$.texto: se esperaba un texto no vacío para la acción 'buscar'.",
+            )
+    elif accion == "hechos":
+        if "git" in argumentos and not isinstance(argumentos["git"], bool):
+            raise ErrorHerramienta(
+                "ARGUMENTOS_INVALIDOS",
+                f"$.git: {_json_compacto(argumentos['git'])}; se esperaba un booleano.",
+            )
+    return argumentos
+
+
+def tareas_para_mcp(proy: Proyecto, argumentos) -> dict:
+    validos = _validar_tareas(argumentos)
+    accion = validos["accion"]
+
+    raiz_tareas = proy.raiz / "tareas"
+    if not raiz_tareas.is_dir():
+        raise ErrorHerramienta(
+            "TRACKER_AUSENTE",
+            f"el proyecto no tiene tracker de tareas: falta {raiz_tareas.resolve()}.",
+        )
+    if raiz_tareas.is_symlink():
+        raise ErrorHerramienta(
+            "TRACKER_INVALIDO",
+            f"{raiz_tareas.resolve()} no puede ser un enlace simbólico.",
+        )
+
+    try:
+        tareas_validas, problemas = auditar_tareas(raiz_tareas)
+    except Exception as e:
+        raise ErrorHerramienta(
+            "TRACKER_INVALIDO",
+            f"error al auditar {raiz_tareas.resolve()}: {e}.",
+        ) from e
+
+    if problemas:
+        msg_problemas = "; ".join(str(p) for p in problemas)
+        raise ErrorHerramienta(
+            "TRACKER_INVALIDO",
+            f"se detectaron {len(problemas)} registro(s) inválido(s) en {raiz_tareas.resolve()}: {msg_problemas}.",
+        )
+
+    if accion == "listar":
+        estado = validos.get("estado")
+        etiqueta = validos.get("etiqueta")
+        filtradas = filtrar_tareas(
+            tareas_validas,
+            estado=estado,
+            etiqueta=etiqueta,
+            todas=False,
+        )
+        resultado = [t.a_dict() for t in filtradas]
+    elif accion == "ver":
+        ident = validos["id"].strip()
+        try:
+            tarea = leer_tarea(raiz_tareas, ident)
+        except TareaNoEncontrada as e:
+            raise ErrorHerramienta("TAREA_NO_ENCONTRADA", str(e)) from e
+        except IdAmbiguo as e:
+            raise ErrorHerramienta("ID_AMBIGUO", str(e)) from e
+        except (RutaInsegura, TareaError) as e:
+            raise ErrorHerramienta("TRACKER_INVALIDO", str(e)) from e
+        resultado = tarea.a_dict()
+    elif accion == "buscar":
+        texto = validos["texto"].strip()
+        try:
+            resultado = buscar_en_tracker(proy.raiz, texto)
+        except (TareaError, OSError) as e:
+            raise ErrorHerramienta("TRACKER_INVALIDO", str(e)) from e
+    elif accion == "hechos":
+        con_git = bool(validos.get("git", False))
+        try:
+            resultado = extraer_hechos(proy.raiz, con_git=con_git)
+        except (TareaError, OSError) as e:
+            raise ErrorHerramienta("TRACKER_INVALIDO", str(e)) from e
+    else:
+        raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", f"acción desconocida: {accion}")
+
+    return {
+        "esquema": "oracle.mcp/tareas/v1",
+        "oracle_version": VERSION_DISTRIBUCION,
+        "proyecto": str(proy.raiz.resolve()),
+        "accion": accion,
+        "resultado": resultado,
+    }
 
 
 class Servidor:
@@ -1372,6 +1965,12 @@ class Servidor:
             elif nombre == HERRAMIENTA_DESAFIAR["name"]:
                 contenido = desafiar_para_mcp(
                     self.proy, argumentos, confiar_escalares=self.confiar_escalares)
+            elif nombre == HERRAMIENTA_JUZGAR["name"]:
+                contenido = juzgar_para_mcp(
+                    self.proy, argumentos, confiar_escalares=self.confiar_escalares)
+            elif nombre == HERRAMIENTA_TAREAS["name"]:
+                contenido = tareas_para_mcp(
+                    self.proy, argumentos)
             else:
                 contenido = evaluar_para_mcp(
                     self.proy, argumentos, confiar_escalares=self.confiar_escalares)

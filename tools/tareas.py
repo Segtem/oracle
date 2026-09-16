@@ -801,32 +801,17 @@ def cmd_listar(argv: list[str], args: list[str]) -> int:
             print(f"  · {p}", file=sys.stderr)
         return 1
 
-    filtradas: list[Tarea] = []
-    for t in tareas_validas:
-        if not parsed.todas:
-            if parsed.cerradas and t.estado != "CERRADA":
-                continue
-            if not parsed.cerradas and t.estado != "ABIERTA":
-                continue
-        if parsed.etiqueta:
-            etiq_buscada = parsed.etiqueta.strip().lower()
-            if not any(e.lower() == etiq_buscada for e in t.etiquetas):
-                continue
-        if parsed.texto:
-            txt_buscado = parsed.texto.strip().lower()
-            if txt_buscado not in t.titulo.lower() and txt_buscado not in t.cuerpo.lower():
-                continue
-        if not consulta_tql.evaluar(t):
-            continue
-        filtradas.append(t)
-
-    if parsed.por_id:
-        filtradas.sort(key=lambda x: x.id, reverse=True)
-    else:
-        filtradas.sort(key=lambda x: (-x.prioridad, x.id))
-
-    if parsed.invertir:
-        filtradas.reverse()
+    estado_filtro = "CERRADA" if parsed.cerradas else None
+    filtradas = filtrar_tareas(
+        tareas_validas,
+        estado=estado_filtro,
+        etiqueta=parsed.etiqueta,
+        texto=parsed.texto,
+        consulta_tql=consulta_tql,
+        por_id=parsed.por_id,
+        invertir=parsed.invertir,
+        todas=parsed.todas,
+    )
 
     if parsed.json:
         datos = [t.a_dict() for t in filtradas]
@@ -852,6 +837,72 @@ def cmd_listar(argv: list[str], args: list[str]) -> int:
     return 0
 
 
+def filtrar_tareas(
+    tareas: list[Tarea],
+    *,
+    estado: str | None = None,
+    etiqueta: str | None = None,
+    texto: str | None = None,
+    consulta_tql: Any = None,
+    por_id: bool = False,
+    invertir: bool = False,
+    todas: bool = False,
+) -> list[Tarea]:
+    """Aplica filtros de estado, etiqueta, texto y TQL sobre una lista de tareas."""
+    filtradas: list[Tarea] = []
+    for t in tareas:
+        if not todas:
+            if estado is not None and t.estado != estado:
+                continue
+            if estado is None and t.estado != "ABIERTA":
+                continue
+        if etiqueta:
+            etiq_buscada = etiqueta.strip().lower()
+            if not any(e.lower() == etiq_buscada for e in t.etiquetas):
+                continue
+        if texto:
+            txt_buscado = texto.strip().lower()
+            if txt_buscado not in t.titulo.lower() and txt_buscado not in t.cuerpo.lower():
+                continue
+        if consulta_tql is not None and not consulta_tql.evaluar(t):
+            continue
+        filtradas.append(t)
+
+    if por_id:
+        filtradas.sort(key=lambda x: x.id, reverse=True)
+    else:
+        filtradas.sort(key=lambda x: (-x.prioridad, x.id))
+
+    if invertir:
+        filtradas.reverse()
+
+    return filtradas
+
+
+def leer_tarea(raiz_tareas: Path, id_o_prefijo: str) -> Tarea:
+    """Resuelve y carga una tarea individual por ID o prefijo único."""
+    carpeta = resolver_id_o_prefijo(raiz_tareas, id_o_prefijo)
+    tarea_md = carpeta / "TAREA.md"
+    if not tarea_md.is_file():
+        raise TareaNoEncontrada(f"{carpeta.name} no contiene TAREA.md")
+
+    asegurar_confinamiento_archivo(raiz_tareas, tarea_md)
+
+    try:
+        raw_bytes = tarea_md.read_bytes()
+    except OSError as e:
+        raise TareaError(f"no se pudo leer {tarea_md}: {e}") from e
+
+    try:
+        texto = raw_bytes.decode("utf-8")
+    except UnicodeDecodeError as e:
+        raise TareaInvalida(
+            f"{tarea_md}: codificación UTF-8 inválida en TAREA.md: {e}"
+        ) from e
+
+    return parsear_tarea(texto, tarea_md)
+
+
 def cmd_ver(argv: list[str], args: list[str]) -> int:
     parser = ParserDeSubcomando(
         prog="oracle tarea ver",
@@ -875,45 +926,13 @@ def cmd_ver(argv: list[str], args: list[str]) -> int:
 
     raiz_tareas = raiz / "tareas"
     try:
-        carpeta = resolver_id_o_prefijo(raiz_tareas, parsed.id)
+        tarea = leer_tarea(raiz_tareas, parsed.id)
     except (TareaError, OSError) as e:
         print(f"ERROR: {e}", file=sys.stderr)
         return 1
 
-    tarea_md = carpeta / "TAREA.md"
-    if not tarea_md.is_file():
-        print(f"ERROR: {carpeta.name} no contiene TAREA.md", file=sys.stderr)
-        return 1
-
-    try:
-        asegurar_confinamiento_archivo(raiz_tareas, tarea_md)
-    except RutaInsegura as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
-
-    try:
-        raw_bytes = tarea_md.read_bytes()
-    except OSError as e:
-        print(f"ERROR: no se pudo leer {tarea_md}: {e}", file=sys.stderr)
-        return 1
-
-    try:
-        texto = raw_bytes.decode("utf-8")
-    except UnicodeDecodeError as e:
-        print(
-            f"ERROR: {tarea_md}: codificación UTF-8 inválida en TAREA.md: {e}",
-            file=sys.stderr,
-        )
-        return 1
-
-    try:
-        tarea = parsear_tarea(texto, tarea_md)
-    except TareaInvalida as e:
-        print(f"ERROR: {e}", file=sys.stderr)
-        return 1
-
     if parsed.ruta:
-        print(str(tarea_md.resolve()))
+        print(str(tarea.ruta.resolve()))
         return 0
 
     if parsed.json:

@@ -5,25 +5,24 @@
 
 ## Decisión
 
-El servidor debe exponer **tres herramientas** y debe ser de sólo lectura respecto del proyecto:
-`oracle_catalogo_efectivo`, `oracle_evaluar` y `oracle_desafiar`. Las tres reciben un proyecto fijado
-al arrancar el proceso; ninguna acepta una ruta de proyecto por llamada y ninguna crea, modifica ni
-borra archivos.
+El servidor expone **cinco herramientas** y es de sólo lectura respecto del proyecto:
+`oracle_catalogo_efectivo`, `oracle_evaluar`, `oracle_desafiar`, `oracle_juzgar` y `oracle_tareas`.
+Las cinco reciben un proyecto fijado al arrancar el proceso; ninguna acepta una ruta de proyecto por
+llamada y ninguna crea, modifica ni borra archivos.
 
-Tres es el corte mínimo que conserva tres preguntas distintas del agente:
+Cinco herramientas responden a cinco preguntas distintas del agente sin mezclar costos ni autoridades:
 
-1. **¿Qué me obliga y por qué?** Es una consulta sobre el proyecto y su jurisdicción.
-2. **¿Qué hace esta medida con esta evidencia?** Es una ejecución puntual que debe conservar
-   valor, umbral, testigos y ausencia de evidencia.
-3. **¿Qué parte del candidato todavía no está fijada?** Es un experimento de falsación sobre
-   varias evidencias y los mutantes de la medida.
-
-Con dos herramientas habría que mezclar la evaluación puntual con una ronda de mutación. Eso haría
-que una pregunta barata pudiera disparar el trabajo caro y que sus resultados parecieran tener la
-misma fuerza. Con cuatro aparecería inevitablemente una herramienta de escritura o se separarían
-índice y detalle del catálogo: la primera no agrega una capacidad de Oracle y la segunda sólo obliga
-al modelo a elegir entre dos nombres para una misma pregunta. El argumento opcional `ids` alcanza
-para pasar del índice al detalle sin multiplicar la superficie.
+1. **¿Qué me obliga y por qué?** (`oracle_catalogo_efectivo`) Es una consulta sobre el proyecto y su
+   jurisdicción.
+2. **¿Qué hace esta medida con esta evidencia?** (`oracle_evaluar`) Es una ejecución puntual que
+   conserva valor, umbral, testigos, ausencia de evidencia y estado de sombra (con cota y perdón).
+3. **¿Qué parte del candidato todavía no está fijada?** (`oracle_desafiar`) Es un experimento de
+   falsación sobre varias evidencias y los mutantes de la medida.
+4. **¿Esta evidencia cumple el catálogo efectivo entero?** (`oracle_juzgar`) Es un juicio completo
+   contra el proyecto, que respeta sombras, cotas y medidas no aplicadas.
+5. **¿Cuál es el estado del tracker local?** (`oracle_tareas`) Es una lectura del seguimiento de
+   tareas (`tareas/`) para agentes sin acceso a shell, sin permitir escrituras que romperían la
+   correspondencia con Git.
 
 Esta decisión contradice la inclinación de `PLAN-0.6.0-MCP.md` hacia `oracle_proponer`. La compuerta
 «trae un rojo y un verde» es valiosa como experimento, pero no autoriza a llamar buena a la medida:
@@ -51,7 +50,7 @@ puede autorizarlo al configurar el servidor con `--confiar-escalares`; una llama
 concederse esa confianza a sí misma. Cuando una operación necesita una escalar no autorizada, falla
 con `ESCALARES_NO_AUTORIZADAS`, no carga un catálogo parcial y no devuelve una lista vacía.
 
-Las tres herramientas llevan las anotaciones `readOnlyHint: true`, `destructiveHint: false`,
+Las cinco herramientas llevan las anotaciones `readOnlyHint: true`, `destructiveHint: false`,
 `idempotentHint: true` y `openWorldHint: false`. Son pistas para el anfitrión, no controles de
 seguridad; el control real es que el despachador no tenga ningún camino de escritura y que la raíz
 no sea parte de los argumentos.
@@ -190,9 +189,9 @@ poscondición que `detalle: true` implique que todos estén presentes.
     "outputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["esquema", "oracle_version", "proyecto", "entrada_sha256", "medida", "estado", "valor", "umbral", "testigos", "testigos_omitidos", "alcance", "alcance_derivado", "advertencias"],
+      "required": ["esquema", "oracle_version", "proyecto", "entrada_sha256", "medida", "estado", "valor", "umbral", "sombra", "testigos", "testigos_omitidos", "alcance", "alcance_derivado", "advertencias"],
       "properties": {
-        "esquema": {"const": "oracle.mcp/evaluacion/v1"},
+        "esquema": {"const": "oracle.mcp/evaluacion/v2"},
         "oracle_version": {"type": "string"},
         "proyecto": {"type": "string"},
         "entrada_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -209,6 +208,22 @@ poscondición que `detalle: true` implique que todos estén presentes.
             "segun": {"type": "string"},
             "porque": {"type": "string"}
           }
+        },
+        "sombra": {
+          "oneOf": [
+            {"type": "null"},
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["desde", "porque", "cota", "perdona"],
+              "properties": {
+                "desde": {"type": "string"},
+                "porque": {"type": "string"},
+                "cota": {"type": ["integer", "null"]},
+                "perdona": {"type": "boolean"}
+              }
+            }
+          ]
         },
         "testigos": {"type": "array", "items": {"type": "object"}, "maxItems": 5},
         "testigos_omitidos": {"type": "integer", "minimum": 0},
@@ -341,6 +356,201 @@ poscondición que `detalle: true` implique que todos estén presentes.
         "advertencias": {"type": "array", "items": {"type": "string"}}
       }
     }
+  },
+  {
+    "name": "oracle_juzgar",
+    "title": "Juzgar evidencia contra el catálogo efectivo",
+    "description": "Juzga una evidencia JSON contra las medidas que obligan al proyecto (o un subconjunto indicado en ids). Aplica el catálogo efectivo, las sombras y cotas declaradas en oracle.json y reporta medidas no aplicadas. Devuelve ok si el conjunto satisface las medidas evaluadas y las sombras dentro de su cota. No evalúa escalares no autorizadas ni escribe archivos.",
+    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["evidencia"],
+      "properties": {
+        "evidencia": {"$ref": "#/$defs/evidencia"},
+        "ids": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"},
+          "description": "Ids efectivos a evaluar. Omitir para evaluar todas las aplicables del catálogo."
+        }
+      },
+      "$defs": {
+        "evidencia": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {"type": "object"}
+          }
+        }
+      }
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "esquema",
+        "oracle_version",
+        "proyecto",
+        "entrada_sha256",
+        "ok",
+        "medidas",
+        "no_aplicadas",
+        "no_juzgaron",
+        "advertencias"
+      ],
+      "properties": {
+        "esquema": {"const": "oracle.mcp/juzgar/v1"},
+        "oracle_version": {"type": "string"},
+        "proyecto": {"type": "string"},
+        "entrada_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "ok": {"type": "boolean"},
+        "medidas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id",
+              "estado",
+              "valor",
+              "umbral",
+              "sombra",
+              "testigos",
+              "testigos_omitidos",
+              "alcance"
+            ],
+            "properties": {
+              "id": {"type": "string"},
+              "estado": {"enum": ["verde", "rojo", "sin_evidencia"]},
+              "valor": {"type": "number"},
+              "umbral": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["operador", "valor", "segun", "porque"],
+                "properties": {
+                  "operador": {"type": "string"},
+                  "valor": {"type": ["string", "number", "boolean"]},
+                  "segun": {"type": "string"},
+                  "porque": {"type": "string"}
+                }
+              },
+              "sombra": {
+                "oneOf": [
+                  {"type": "null"},
+                  {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": ["desde", "porque", "cota", "perdona"],
+                    "properties": {
+                      "desde": {"type": "string"},
+                      "porque": {"type": "string"},
+                      "cota": {"type": ["integer", "null"]},
+                      "perdona": {"type": "boolean"}
+                    }
+                  }
+                ]
+              },
+              "testigos": {
+                "type": "array",
+                "items": {"type": "object"},
+                "maxItems": 5
+              },
+              "testigos_omitidos": {"type": "integer", "minimum": 0},
+              "alcance": {"type": "string"}
+            }
+          }
+        },
+        "no_aplicadas": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "faltan"],
+            "properties": {
+              "id": {"type": "string"},
+              "faltan": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "no_juzgaron": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["id", "motivo"],
+            "properties": {
+              "id": {"type": "string"},
+              "motivo": {"type": "string"}
+            }
+          }
+        },
+        "advertencias": {
+          "type": "array",
+          "items": {"type": "string"}
+        }
+      }
+    }
+  },
+  {
+    "name": "oracle_tareas",
+    "title": "Consultar el tracker de tareas del proyecto",
+    "description": "Consulta tareas y notas del tracker (tareas/) de sólo lectura: listar tareas abiertas o cerradas, ver el detalle de una tarea por id o prefijo, buscar texto en tareas y notas, o extraer evidencia relacional de hechos. Falla con TRACKER_AUSENTE si el proyecto no tiene tracker. No crea ni modifica tareas.",
+    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "inputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["accion"],
+      "properties": {
+        "accion": {
+          "enum": ["listar", "ver", "buscar", "hechos"],
+          "description": "Acción de consulta a ejecutar en el tracker."
+        },
+        "estado": {
+          "enum": ["ABIERTA", "CERRADA"],
+          "description": "Filtro de estado para la acción listar."
+        },
+        "etiqueta": {
+          "type": "string",
+          "description": "Filtro por etiqueta exacta para la acción listar."
+        },
+        "id": {
+          "type": "string",
+          "description": "Identificador canónico o prefijo inequívoco de la tarea para la acción ver."
+        },
+        "texto": {
+          "type": "string",
+          "description": "Texto literal a buscar en tareas y notas para la acción buscar."
+        },
+        "git": {
+          "type": "boolean",
+          "default": false,
+          "description": "Si es true, incluye diagnóstico de Git al extraer hechos."
+        }
+      }
+    },
+    "outputSchema": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "esquema",
+        "oracle_version",
+        "proyecto",
+        "accion",
+        "resultado"
+      ],
+      "properties": {
+        "esquema": {"const": "oracle.mcp/tareas/v1"},
+        "oracle_version": {"type": "string"},
+        "proyecto": {"type": "string"},
+        "accion": {"enum": ["listar", "ver", "buscar", "hechos"]},
+        "resultado": {
+          "type": ["array", "object"],
+          "description": "Resultado de la acción: lista de tareas para listar, objeto de tarea para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos."
+        }
+      }
+    }
   }
 ]
 ```
@@ -410,6 +620,14 @@ Una traducción que trate `sin_evidencia` como rojo sería plausible y falsa: ro
 mundo; sin evidencia afirma que no se pudo mirar. El esquema evita el booleano tentador y el corpus
 del servidor debe fijar las tres ramas.
 
+El resultado gana la clave obligatoria `sombra` (esquema `oracle.mcp/evaluacion/v2`): `null` si la
+medida no está en sombra en el `oracle.json` del proyecto o si fue evaluada en memoria (`formato`);
+si está en sombra, `{"desde": str, "porque": str, "cota": int | null, "perdona": bool}`.
+`perdona` es verdadero sólo si la medida dio rojo y la sombra lo perdona: sin cota, siempre; con
+cota, sólo si el valor es un número y no la supera (la misma regla que `Informe.supera_su_cota` en
+`nucleo/medida.py`). `estado` no cambia (`verde`, `rojo` o `sin_evidencia`): la sombra no altera la
+medición sino su consecuencia.
+
 Se devuelven a lo sumo cinco testigos, el mismo corte que ya usa `tools/medida.py::probar`, y
 `testigos_omitidos` dice cuántos quedaron afuera. Una respuesta sin testigos nunca se interpreta
 como ausencia de evidencia: esa afirmación vive exclusivamente en `estado`. Si falta una relación
@@ -459,6 +677,57 @@ La capacidad nueva es ejecutar el lazo candidato efímero → dos polaridades �
 medida ni los casos existan en disco. Ni `oracle medida revisar`, ni `oracle medida probar`, ni
 `oracle caso generar` hacen esa composición en memoria.
 
+### `oracle_juzgar`
+
+Lo mismo que `oracle juzgar --con`, sobre una evidencia JSON pasada por valor.
+
+Acepta `{"evidencia": {...}, "ids": [...]}` donde `ids` es opcional y no admite duplicados. Falla
+con `ARGUMENTOS_INVALIDOS` si faltan argumentos obligatorios o si `ids` contiene nombres malformados
+o repetidos.
+
+Aplica el catálogo **efectivo** del proyecto fijado al arranque, respetando el ámbito de cada
+medida y las sombras y cotas declaradas en `oracle.json`. Cuando `ids` se omite, evalúa todas las
+medidas aplicables y adjunta `no_aplicadas` con las medidas del catálogo propio cuyas relaciones
+faltaron en la evidencia. Si ninguna medida aplica, devuelve `ok: false` con una advertencia
+explicativa; nunca devuelve un verde vacío.
+
+Si se indica `ids` y alguna de las medidas pedidas no existe en el catálogo o no aplica a la
+evidencia provista, la herramienta falla cerrado con error de dominio (`MEDIDA_DESCONOCIDA`,
+`MEDIDA_NO_EFECTIVA` o `MEDIDA_NO_APLICABLE`), de modo análogo a `oracle_evaluar`.
+
+La salida (esquema `oracle.mcp/juzgar/v1`) incluye: `esquema`, `oracle_version`, `proyecto`,
+`entrada_sha256`, `ok`, `medidas` (con `estado`, `valor`, `umbral`, `sombra`, `testigos`,
+`testigos_omitidos` y `alcance`), `no_aplicadas`, `no_juzgaron` y `advertencias`. Conserva la misma
+protección de concurrencia que `oracle_evaluar` (`_evaluacion_estable`): si el proyecto cambia
+durante el juicio, rechaza con `PROYECTO_CAMBIO_DURANTE_LA_CONSULTA`.
+
+### `oracle_tareas`
+
+Permite que un agente sin acceso a shell consulte el tracker de tareas (`tareas/`) del proyecto.
+
+Es estrictamente de **sólo lectura** (`readOnlyHint: true`, `destructiveHint: false`,
+`idempotentHint: true`, `openWorldHint: false`). No expone acciones de escritura (`nueva`,
+`anotar`, `cerrar`, `etiquetar`): una tarea creada o cerrada sin su commit correspondiente deja el
+tracker en rojo, y el commit no se realiza por MCP.
+
+Acepta cuatro acciones mediante el parámetro obligatorio `accion`:
+
+- `listar`: enumera tareas. Admite filtro opcional por `estado` (`"ABIERTA"` o `"CERRADA"`, por
+  omisión abiertas) y por `etiqueta`.
+- `ver`: requiere `id` (identificador canónico o prefijo inequívoco). Devuelve el detalle de la
+  tarea o falla con `TAREA_NO_ENCONTRADA` o `ID_AMBIGUO`.
+- `buscar`: requiere `texto`. Busca de forma literal e insensible a mayúsculas en tareas y notas
+  del tracker, devolviendo `coincidencias` y `omitidos`.
+- `hechos`: extrae los hechos relacionales del tracker (esquema de evidencia relacional para `oracle
+  juzgar`), con soporte opcional de inspección de Git (`git: true`).
+
+Si el proyecto no tiene directorio `tareas/`, la herramienta falla con `TRACKER_AUSENTE`, nunca con
+una lista o resultado vacío. Si el tracker contiene registros inválidos o symlinks no permitidos,
+falla con `TRACKER_INVALIDO`.
+
+La salida (esquema `oracle.mcp/tareas/v1`) incluye `esquema`, `oracle_version`, `proyecto`, `accion`
+y `resultado` (con la misma información serializada por el `--json` del verbo CLI equivalente).
+
 ## Rechazos y forma de los errores
 
 Hay que separar errores del protocolo y errores de ejecución de una herramienta. JSON ilegible usa
@@ -484,11 +753,16 @@ Los códigos de dominio cerrados son:
 | `CATALOGO_INVALIDO` | una fuente seleccionada no carga, hay ids duplicados o versiones incompatibles | `CATALOGO_INVALIDO — <fuente>: <motivo de carga>. No se devolvió un catálogo parcial.` |
 | `MEDIDA_DESCONOCIDA` | el id no aparece en fuentes seleccionadas | `MEDIDA_DESCONOCIDA — «<id>» no aparece en las fuentes seleccionadas; consultá oracle_catalogo_efectivo sin ids.` |
 | `MEDIDA_NO_EFECTIVA` | el id existe pero su ámbito no obliga aquí | `MEDIDA_NO_EFECTIVA — «<id>» existe en <origen>, pero su ambito «<ambito>» no obliga a «<proyecto>».` |
+| `MEDIDA_NO_APLICABLE` | el id pedido en `oracle_juzgar` no aplica a las relaciones de la evidencia | `MEDIDA_NO_APLICABLE — «<id>» requiere las relaciones <relaciones>, no presentes en la evidencia.` |
 | `MEDIDA_INVALIDA` | el texto no parsea o no satisface `Medida.de_datos` | `MEDIDA_INVALIDA — <id o texto>: <motivo> en <línea y columna o ruta canónica>.` |
 | `EVIDENCIA_INVALIDA` | una relación no es una lista de objetos o una fila no es evaluable | `EVIDENCIA_INVALIDA — $.evidencia.<relación>[<índice>]: <motivo>.` |
 | `EVIDENCIA_INCOMPLETA` | falta la medida jueza, un fixture está vencido o no se pudo reunir todo lo que exige un juicio de fijación | `EVIDENCIA_INCOMPLETA — no se pudo juzgar la fijación: <motivo>. No se devolvieron fijaciones parciales.` |
 | `CASO_REPETIDO` | dos casos tienen el mismo id | `CASO_REPETIDO — «<id>» aparece en <origen 1> y <origen 2>; ninguno tiene precedencia.` |
 | `ESCALARES_NO_AUTORIZADAS` | haría falta ejecutar `escalares.py` no confiado | `ESCALARES_NO_AUTORIZADAS — <archivo> es código externo; autorizalo en la configuración de arranque del servidor, no en esta llamada.` |
+| `TRACKER_AUSENTE` | el proyecto no tiene directorio `tareas/` | `TRACKER_AUSENTE — el proyecto no tiene tracker de tareas: falta <ruta tareas>.` |
+| `TRACKER_INVALIDO` | el directorio `tareas/` contiene registros inválidos, documentos centrales corruptos o enlaces simbólicos | `TRACKER_INVALIDO — se detectaron <N> registro(s) inválido(s) en <ruta tareas>:` |
+| `TAREA_NO_ENCONTRADA` | el id o prefijo pedido en `oracle_tareas ver` no existe | `TAREA_NO_ENCONTRADA — no se encontró ninguna tarea con prefijo «<id>».` |
+| `ID_AMBIGUO` | el prefijo pedido en `oracle_tareas ver` coincide con más de una tarea | `ID_AMBIGUO — el prefijo «<prefijo>» coincide con <N> tareas: <ids>.` |
 | `LIMITE_DE_ALGEBRA` | se excede un presupuesto de `LimitesAlgebra` | `LIMITE_DE_ALGEBRA — <nombre>: se observó <valor> y el límite activo es <límite>.` |
 | `PROYECTO_CAMBIO_DURANTE_LA_CONSULTA` | el conjunto o contenido de entradas cambió durante la operación | `PROYECTO_CAMBIO_DURANTE_LA_CONSULTA — huella inicial <sha> y final <sha>; reintentá sobre un estado estable.` |
 | `EVALUACION_FALLO` | excepción no clasificable de una medida o escalar | `EVALUACION_FALLO — <tipo de excepción>: <mensaje>. No se produjo un veredicto.` |
@@ -544,6 +818,7 @@ La exclusión se decide por capacidad, no por cantidad:
 | `biblioteca instaladas`, `biblioteca verificar`, `biblioteca listar` | Son administración e inspección del entorno de paquetes, no una pregunta sobre la medición actual. Además aceptar una ruta de biblioteca ampliaría la autoridad fijada al arrancar. |
 | `manual` y sus ocho temas | Son referencia derivada y estable. Meterla como herramienta cobraría descripciones en cada turno para devolver texto que ya se puede leer sin ejecución. |
 | `diagnostico`, ayuda y versión | Son soporte de la instalación. La versión necesaria ya acompaña cada resultado; el resto no participa de decidir ni medir. |
+| `tarea nueva`, `tarea anotar`, `tarea cerrar`, `tarea etiquetar`, `tarea adjuntar` | Son operaciones de escritura del tracker. Modificar o cerrar una tarea sin su commit correspondiente deja el tracker en rojo, y el commit pertenece al control de versiones fuera de MCP. La consulta de sólo lectura se expone en `oracle_tareas`. |
 
 No se expone `oracle_proponer`. Su ausencia es deliberada, no una fase pendiente de esta superficie.
 Si en otra versión se quisiera escritura, tendría que responder una capacidad nueva propia —por
