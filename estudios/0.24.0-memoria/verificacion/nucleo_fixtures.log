@@ -1,0 +1,215 @@
+objetivos: nucleo/fixtures.py
+
+     ·  nucleo/fixtures.py:29:18:constante                   constante: True → False
+     ·  nucleo/fixtures.py:37:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:37:11:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:37:38:comparador                  comparador: IsNot → Is
+     ·  nucleo/fixtures.py:41:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:41:11:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:41:54:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:45:7:booleano                     booleano: and ↔ or
+     ·  nucleo/fixtures.py:45:7:negacion                     negacion: se borra el `not`
+     ·  nucleo/fixtures.py:45:42:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:46:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:50:11:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:50:11:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:50:44:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:53:11:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:61:24:constante                   constante: True → False
+     ·  nucleo/fixtures.py:63:15:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:64:32:constante                   constante: False → True
+     ·  nucleo/fixtures.py:68:19:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:68:19:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:68:49:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:70:19:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:74:11:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:79:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:83:7:negacion                     negacion: se borra el `not`
+     ·  nucleo/fixtures.py:84:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:87:7:comparador                   comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:90:7:booleano                     booleano: and ↔ or
+     ·  nucleo/fixtures.py:90:7:negacion                     negacion: se borra el `not`
+     ·  nucleo/fixtures.py:90:51:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:92:7:booleano                     booleano: and ↔ or
+     ·  nucleo/fixtures.py:92:7:comparador                   comparador: IsNot → Is
+     ·  nucleo/fixtures.py:92:47:comparador                  comparador: LtE → Lt
+     ·  nucleo/fixtures.py:92:70:constante                   constante: 0 → 1
+     ·  nucleo/fixtures.py:95:7:negacion                     negacion: se borra el `not`
+     ·  nucleo/fixtures.py:97:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:98:7:comparador                   comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:100:7:comparador                  comparador: NotIn → In
+     ·  nucleo/fixtures.py:103:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:108:15:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:108:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:108:46:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:109:20:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:109:20:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:109:46:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:110:23:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:110:55:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:113:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:117:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:117:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:117:40:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:119:13:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:119:13:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:119:39:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:121:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:139:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:139:22:constante                  constante: False → True
+     ·  nucleo/fixtures.py:139:40:constante                  constante: True → False
+     ·  nucleo/fixtures.py:141:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:141:22:constante                  constante: False → True
+     ·  nucleo/fixtures.py:142:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:148:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:149:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:150:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:155:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/fixtures.py:156:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:157:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:157:38:comparador                 comparador: Is → IsNot
+     ·  nucleo/fixtures.py:158:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:168:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/fixtures.py:169:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:169:15:comparador                 comparador: Eq → NotEq
+     ·  nucleo/fixtures.py:170:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:171:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:171:15:constante                  constante: False → True
+     ·  nucleo/fixtures.py:172:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:172:15:comparador                 comparador: Eq → NotEq
+     ·  nucleo/fixtures.py:185:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/fixtures.py:186:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:187:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:188:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:191:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/fixtures.py:194:35:constante                  constante: False → True
+     ·  nucleo/fixtures.py:195:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/fixtures.py:199:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:208:11:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:210:9:comparador                  comparador: In → NotIn
+     ·  nucleo/fixtures.py:212:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:212:16:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:212:16:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:212:48:comparador                 comparador: IsNot → Is
+     ·  nucleo/fixtures.py:213:19:comparador                 comparador: Eq → NotEq
+     ·  nucleo/fixtures.py:216:13:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:216:13:comparador                 comparador: Eq → NotEq
+     ·  nucleo/fixtures.py:218:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:229:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/fixtures.py:230:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:231:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:231:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:231:43:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:232:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:235:11:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:235:41:comparador                 comparador: NotIn → In
+     ·  nucleo/fixtures.py:237:12:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:237:12:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:237:46:comparador                 comparador: Lt → LtE
+     ·  nucleo/fixtures.py:237:62:constante                  constante: 6 → 7
+     ·  nucleo/fixtures.py:237:67:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:237:76:constante                  constante: 0 → 1
+     ·  nucleo/fixtures.py:238:19:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:238:28:constante                  constante: 1 → 2
+     ·  nucleo/fixtures.py:241:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:247:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:247:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:247:40:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:249:9:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:249:13:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:249:58:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:252:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:252:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:252:43:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:254:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:256:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:256:7:comparador                  comparador: Is → IsNot
+     ·  nucleo/fixtures.py:256:44:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:264:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:268:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:270:13:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:274:11:comparador                 comparador: IsNot → Is
+     ·  nucleo/fixtures.py:279:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:283:15:comparador                 comparador: IsNot → Is
+     ·  nucleo/fixtures.py:285:15:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:285:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:285:51:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:285:74:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:293:23:comparador                 comparador: IsNot → Is
+     ·  nucleo/fixtures.py:295:27:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:297:28:comparador                 comparador: Eq → NotEq
+     ·  nucleo/fixtures.py:298:19:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:298:33:comparador                 comparador: Is → IsNot
+     ·  nucleo/fixtures.py:298:61:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:300:20:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:300:34:comparador                 comparador: Is → IsNot
+     ·  nucleo/fixtures.py:301:28:comparador                 comparador: Is → IsNot
+     ·  nucleo/fixtures.py:302:28:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:305:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:305:23:constante                  constante: False → True
+     ·  nucleo/fixtures.py:305:30:constante                  constante: True → False
+     ·  nucleo/fixtures.py:307:61:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:307:72:constante                  constante: False → True
+     ·  nucleo/fixtures.py:307:79:constante                  constante: True → False
+     ·  nucleo/fixtures.py:310:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:315:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:315:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:315:39:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:316:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:320:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:322:11:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:322:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:322:42:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:325:11:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:325:11:comparador                 comparador: Is → IsNot
+     ·  nucleo/fixtures.py:325:35:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:330:15:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:333:15:comparador                 comparador: IsNot → Is
+     ·  nucleo/fixtures.py:338:11:comparador                 comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:338:27:constante                  constante: False → True
+     ·  nucleo/fixtures.py:338:34:constante                  constante: True → False
+     ·  nucleo/fixtures.py:340:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:346:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:347:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:348:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:348:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:348:54:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:349:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:350:37:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:350:60:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:351:7:booleano                    booleano: and ↔ or
+     ·  nucleo/fixtures.py:359:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:367:45:constante                  constante: 1 → 2
+     ·  nucleo/fixtures.py:369:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:386:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:387:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:389:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/fixtures.py:390:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:391:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:404:18:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:405:60:comparador                 comparador: NotIn → In
+     ·  nucleo/fixtures.py:406:56:comparador                 comparador: In → NotIn
+     ·  nucleo/fixtures.py:407:45:comparador                 comparador: NotIn → In
+     ·  nucleo/fixtures.py:409:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:422:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:436:43:constante                  constante: 12 → 13
+     ·  nucleo/fixtures.py:436:84:constante                  constante: 12 → 13
+     ·  nucleo/fixtures.py:438:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:444:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/fixtures.py:444:8:comparador                  comparador: Is → IsNot
+     ·  nucleo/fixtures.py:444:26:comparador                 comparador: Is → IsNot
+     ·  nucleo/fixtures.py:454:11:booleano                   booleano: and ↔ or
+     ·  nucleo/fixtures.py:454:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/fixtures.py:454:29:comparador                 comparador: IsNot → Is
+     ·  nucleo/fixtures.py:460:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/fixtures.py:466:7:comparador                  comparador: In → NotIn
+     ·  nucleo/fixtures.py:478:7:comparador                  comparador: In → NotIn
+     ·  nucleo/fixtures.py:480:15:comparador                 comparador: NotIn → In
+
+mutantes: 205 · murieron 205 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

@@ -1,0 +1,29 @@
+objetivos: nucleo/dominio.py
+
+     ·  nucleo/dominio.py:60:24:constante                    constante: 1 → 2
+     ·  nucleo/dominio.py:64:11:booleano                     booleano: and ↔ or
+     ·  nucleo/dominio.py:64:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/dominio.py:64:30:comparador                   comparador: In → NotIn
+     ·  nucleo/dominio.py:66:11:negacion                     negacion: se borra el `not`
+     ·  nucleo/dominio.py:52:18:constante                    constante: True → False
+     ·  nucleo/dominio.py:78:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/dominio.py:82:4:retorno                       retorno: return <algo> → return None
+     ·  nucleo/dominio.py:101:7:negacion                     negacion: se borra el `not`
+     ·  nucleo/dominio.py:117:25:booleano                    booleano: and ↔ or
+     ·  nucleo/dominio.py:117:67:comparador                  comparador: Gt → GtE
+     ·  nucleo/dominio.py:117:90:constante                   constante: 1 → 2
+     ·  nucleo/dominio.py:118:27:booleano                    booleano: and ↔ or
+     ·  nucleo/dominio.py:130:11:comparador                  comparador: NotEq → Eq
+     ·  nucleo/dominio.py:132:24:negacion                    negacion: se borra el `not`
+     ·  nucleo/dominio.py:141:82:comparador                  comparador: Lt → LtE
+     ·  nucleo/dominio.py:141:96:constante                   constante: 2 → 3
+     ·  nucleo/dominio.py:148:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/dominio.py:149:22:booleano                    booleano: and ↔ or
+
+mutantes: 19 · murieron 19 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

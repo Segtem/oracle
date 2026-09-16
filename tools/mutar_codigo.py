@@ -3,6 +3,7 @@
     python tools/mutar_codigo.py                 → informe
     python tools/mutar_codigo.py --hechos        → volcar la evidencia (JSON)
     python tools/mutar_codigo.py --timeout 90    → límite por ejecución de tests
+    python tools/mutar_codigo.py --limite-memoria-mb 4000 → límite de memoria en MiB (0 desactiva)
     python tools/mutar_codigo.py --manifiesto progreso.json [--reanudar]
 
 Cada ronda copia el proyecto a un directorio temporal y sólo muta esa copia. Un bloqueo impide dos
@@ -71,6 +72,8 @@ PRIORIDADES = {
     "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
     "tools/censar.py": ("tests.test_censar",),
     "tools/cifras.py": ("tests.test_herramientas",),
+    # Sus tests directos son los de `comparar_dominio` y los del contrato del fixture.
+    "tools/diferencial.py": ("tests.test_herramientas", "tests.test_fixtures"),
     # Medido el 2026-09-09: vigilar tarda 0,08 s y mata 48 mutantes; biblioteca, 0,23 s y 69
     # (19 compartidos). Adelantarlos evita pagar todo el CLI por sus mutantes exclusivos.
     # `test_cli.load_tests` deja el diagnóstico real al final del módulo; aceptación y
@@ -275,7 +278,24 @@ PRIORIDADES = {
 # `metamorficas.py` también entra: sus 242 sitios están fijados y su pérdida de esquinas podía
 # dejar verdes vacuamente las dos medidas de sintaxis que cerraron DECISION-004.
 # Ver estudios/CUSTODIA-DE-SONDAS-Y-COSTO-DEL-CLI.md y sus manifiestos completos.
-CUSTODIAS_SIN_MEDIR = {}
+CUSTODIAS_SIN_MEDIR = {
+    # `diferencial.py` entra como custodia el 2026-09-16 (tarea 20260916-014457-custodia): es quien
+    # comprueba el acuerdo con la implementación independiente y la frescura de cada fixture, y si su
+    # comparación se rompe en silencio el diferencial sigue diciendo ✓. Nadie más mira eso: el corpus
+    # valida la FORMA del caso y la aceptación su POLARIDAD.
+    #
+    # NO entra a la matriz todavía, y el número es el argumento: medido el 2026-09-16 sobre una copia
+    # con el archivo declarado, **57 mutantes, 24 muertos, 32 sobrevivientes y 1 error de arnés**.
+    # Es el mismo cuadro que `sintaxis.py` en su momento: la deuda no es de este cambio y entrar hoy
+    # pondría el CI en rojo por tests que faltan desde antes. Los 32 caen en el INFORME —las marcas
+    # `✓`/`✗` y los conteos que se imprimen—, no en `comparar_dominio`, que es lo que decide; el error
+    # de arnés es el `if __name__ == "__main__"` mutado a `!=`, que corre `main()` al importarse: lo
+    # cierra el patrón `_entrada_directa` que ya usan las tres sondas.
+    "diferencial.py": (
+        "57 mutantes, 24 muertos, 32 sobrevivientes y 1 error de arnés el 2026-09-16; los "
+        "sobrevivientes están en la impresión del informe y la deuda es previa a su declaración "
+        "como custodia. Se cierra en la tarea 20260916-035324-informe."),
+}
 
 
 # 0.17.0 suma `tareas_grafo.py`: una mención mal leída dibuja un grafo que parece completo.
@@ -284,6 +304,7 @@ CUSTODIAS_SIN_MEDIR = {}
 # políticas. Una lectura incompleta o una referencia mal clasificada puede dar un verde falso.
 # P4 conserva las rondas y sus límites en estudios/0.16.0-tareas/verificacion-p4/.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
+                          "diferencial.py",
                           "corpus.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
@@ -353,6 +374,11 @@ def dependencias_de_ronda() -> list[Path]:
     return sorted(set(rutas))
 
 
+# Los 4 GB que se venían poniendo a mano con `ulimit -v` antes de cada ronda. En un solo lugar: el
+# número también viaja en la ayuda del comando.
+LIMITE_MEMORIA_MB_PREDETERMINADO = 4000
+
+
 def argumentos(argv: list[str]):
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
@@ -360,6 +386,9 @@ def argumentos(argv: list[str]):
                    help="segundos máximos para la baseline y cada mutante (60 por defecto)")
     p.add_argument("--limite-salida-kb", type=int, default=1024,
                    help="KiB máximos conservados por stdout y stderr en cada ejecución")
+    p.add_argument("--limite-memoria-mb", type=int, default=LIMITE_MEMORIA_MB_PREDETERMINADO,
+                   help=f"MiB máximos de memoria por ejecución "
+                        f"({LIMITE_MEMORIA_MB_PREDETERMINADO} por defecto, 0 desactiva)")
     p.add_argument("--manifiesto", type=Path,
                    help="guardar progreso atómico para poder reanudar la ronda")
     p.add_argument("--reanudar", action="store_true",
@@ -613,10 +642,15 @@ def _ejecutar(proy, args) -> int:
             print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
         equivalentes = equivalentes_del_alcance(
             cargar_equivalentes(EQUIVALENTES), objetivos)
+        if args.limite_memoria_mb < 0:
+            raise ValueError("limite_memoria_mb tiene que ser mayor o igual a cero (0 desactiva)")
+        limite_memoria = (args.limite_memoria_mb * 1024 * 1024
+                          if args.limite_memoria_mb > 0 else None)
         evidencia = correr(
             RAIZ, objetivos, comando_tests, equivalentes, al_terminar_uno=progreso,
             timeout_por_ejecucion=args.timeout,
             limite_salida=args.limite_salida_kb * 1024,
+            limite_memoria=limite_memoria,
             manifiesto=args.manifiesto, reanudar=args.reanudar,
             dependencias=dependencias_de_ronda())
     except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, AislamientoRoto,
