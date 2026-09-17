@@ -1,6 +1,6 @@
 # El MCP no sabe de sombras, no juzga la evidencia entera y no lee el tracker
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 68
 - ETIQUETAS: oracle, mcp, metalenguaje
 
