@@ -1,6 +1,6 @@
 # oracle juzgar perdona un rojo en sombra aunque supere su cota
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 72
 - ETIQUETAS: oracle, metalenguaje, sombra
 
