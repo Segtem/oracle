@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.26.0`.**
+**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.27.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,16 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.27.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.26.0` a `0.27.0`.** `oracle juzgar`
+y la fachada `Motor` perdonan una sombra sólo hasta su cota —por encima, o sin un número que
+comparar, el rojo vuelve— y nombran las medidas del catálogo propio que no se aplicaron porque su
+relación no vino en la evidencia. El tracker declara como omisión una historia de git superficial. Y
+el servidor MCP se pone al día: `oracle_evaluar` informa la sombra, y entran `oracle_juzgar` y
+`oracle_tareas`, las dos de sólo lectura. Sube la **menor**: un proyecto con una sombra por encima
+de su cota cambia de color, y el paquete gana dos herramientas públicas. `VERSION_ALGEBRA` queda en
+`0.8` y `VERSION_SINTAXIS` en `0.6`. Cierra las tareas `20260916-160811-cota-juzgar`,
+`20260916-201124-juzgar-omite`, `20260916-160811-superficial` y `20260916-210604-mcp-027`.
 
 **Corte 0.26.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.25.2` a `0.26.0`, `VERSION_ALGEBRA`
 de `0.7` a `0.8` y `VERSION_SINTAXIS` de `0.5` a `0.6`.** El álgebra gana la anti-junta: un paso

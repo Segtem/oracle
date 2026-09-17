@@ -1,0 +1,422 @@
+objetivos: tools/mcp.py
+
+     ·  tools/mcp.py:21:40:constante                         constante: 1 → 2
+     ·  tools/mcp.py:57:24:constante                         constante: True → False
+     ·  tools/mcp.py:58:27:constante                         constante: False → True
+     ·  tools/mcp.py:59:26:constante                         constante: True → False
+     ·  tools/mcp.py:60:25:constante                         constante: False → True
+     ·  tools/mcp.py:64:32:constante                         constante: False → True
+     ·  tools/mcp.py:68:28:constante                         constante: 1 → 2
+     ·  tools/mcp.py:69:31:constante                         constante: True → False
+     ·  tools/mcp.py:80:32:constante                         constante: False → True
+     ·  tools/mcp.py:93:52:constante                         constante: 0 → 1
+     ·  tools/mcp.py:98:44:constante                         constante: False → True
+     ·  tools/mcp.py:105:43:constante                        constante: True → False
+     ·  tools/mcp.py:115:43:constante                        constante: True → False
+     ·  tools/mcp.py:119:52:constante                        constante: False → True
+     ·  tools/mcp.py:150:24:constante                        constante: True → False
+     ·  tools/mcp.py:151:27:constante                        constante: False → True
+     ·  tools/mcp.py:152:26:constante                        constante: True → False
+     ·  tools/mcp.py:153:25:constante                        constante: False → True
+     ·  tools/mcp.py:157:32:constante                        constante: False → True
+     ·  tools/mcp.py:164:48:constante                        constante: False → True
+     ·  tools/mcp.py:175:48:constante                        constante: False → True
+     ·  tools/mcp.py:198:32:constante                        constante: False → True
+     ·  tools/mcp.py:216:40:constante                        constante: False → True
+     ·  tools/mcp.py:230:48:constante                        constante: False → True
+     ·  tools/mcp.py:242:74:constante                        constante: 5 → 6
+     ·  tools/mcp.py:244:64:constante                        constante: 0 → 1
+     ·  tools/mcp.py:259:24:constante                        constante: True → False
+     ·  tools/mcp.py:260:27:constante                        constante: False → True
+     ·  tools/mcp.py:261:26:constante                        constante: True → False
+     ·  tools/mcp.py:262:25:constante                        constante: False → True
+     ·  tools/mcp.py:266:32:constante                        constante: False → True
+     ·  tools/mcp.py:275:48:constante                        constante: False → True
+     ·  tools/mcp.py:288:48:constante                        constante: False → True
+     ·  tools/mcp.py:309:27:constante                        constante: True → False
+     ·  tools/mcp.py:317:44:constante                        constante: False → True
+     ·  tools/mcp.py:326:41:constante                        constante: 1 → 2
+     ·  tools/mcp.py:355:32:constante                        constante: False → True
+     ·  tools/mcp.py:397:40:constante                        constante: False → True
+     ·  tools/mcp.py:408:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:412:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:416:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:420:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:424:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:432:44:constante                        constante: False → True
+     ·  tools/mcp.py:461:40:constante                        constante: False → True
+     ·  tools/mcp.py:471:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:475:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:479:35:constante                        constante: 0 → 1
+     ·  tools/mcp.py:485:52:constante                        constante: False → True
+     ·  tools/mcp.py:530:24:constante                        constante: True → False
+     ·  tools/mcp.py:531:27:constante                        constante: False → True
+     ·  tools/mcp.py:532:26:constante                        constante: True → False
+     ·  tools/mcp.py:533:25:constante                        constante: False → True
+     ·  tools/mcp.py:537:32:constante                        constante: False → True
+     ·  tools/mcp.py:543:28:constante                        constante: 1 → 2
+     ·  tools/mcp.py:544:31:constante                        constante: True → False
+     ·  tools/mcp.py:564:32:constante                        constante: False → True
+     ·  tools/mcp.py:589:44:constante                        constante: False → True
+     ·  tools/mcp.py:606:52:constante                        constante: False → True
+     ·  tools/mcp.py:620:60:constante                        constante: False → True
+     ·  tools/mcp.py:634:40:constante                        constante: 5 → 6
+     ·  tools/mcp.py:636:76:constante                        constante: 0 → 1
+     ·  tools/mcp.py:645:44:constante                        constante: False → True
+     ·  tools/mcp.py:660:44:constante                        constante: False → True
+     ·  tools/mcp.py:686:24:constante                        constante: True → False
+     ·  tools/mcp.py:687:27:constante                        constante: False → True
+     ·  tools/mcp.py:688:26:constante                        constante: True → False
+     ·  tools/mcp.py:689:25:constante                        constante: False → True
+     ·  tools/mcp.py:693:32:constante                        constante: False → True
+     ·  tools/mcp.py:718:27:constante                        constante: False → True
+     ·  tools/mcp.py:725:32:constante                        constante: False → True
+     ·  tools/mcp.py:763:8:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:767:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:767:42:constante                        constante: False → True
+     ·  tools/mcp.py:767:59:constante                        constante: True → False
+     ·  tools/mcp.py:773:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:775:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:777:21:constante                        constante: 1 → 2
+     ·  tools/mcp.py:780:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:785:46:constante                        constante: False → True
+     ·  tools/mcp.py:791:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:791:28:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:797:7:booleano                          booleano: and ↔ or
+     ·  tools/mcp.py:797:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:797:35:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:798:8:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:799:7:booleano                          booleano: and ↔ or
+     ·  tools/mcp.py:799:34:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:806:11:booleano                         booleano: and ↔ or
+     ·  tools/mcp.py:806:32:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:813:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:820:7:booleano                          booleano: and ↔ or
+     ·  tools/mcp.py:826:7:booleano                          booleano: and ↔ or
+     ·  tools/mcp.py:828:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:840:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:847:8:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:850:8:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:861:11:comparador                       comparador: NotEq → Eq
+     ·  tools/mcp.py:868:7:comparador                        comparador: NotEq → Eq
+     ·  tools/mcp.py:877:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:886:24:constante                        constante: 0 → 1
+     ·  tools/mcp.py:886:63:constante                        constante: 0 → 1
+     ·  tools/mcp.py:889:7:comparador                        comparador: NotIn → In
+     ·  tools/mcp.py:892:7:booleano                          booleano: and ↔ or
+     ·  tools/mcp.py:892:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:892:36:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:899:11:booleano                         booleano: and ↔ or
+     ·  tools/mcp.py:899:11:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:899:39:comparador                       comparador: Is → IsNot
+     ·  tools/mcp.py:905:11:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:911:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:916:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:923:23:constante                        constante: 0 → 1
+     ·  tools/mcp.py:929:65:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:933:34:constante                        constante: 0 → 1
+     ·  tools/mcp.py:937:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:944:7:comparador                        comparador: Eq → NotEq
+     ·  tools/mcp.py:946:11:booleano                         booleano: and ↔ or
+     ·  tools/mcp.py:946:11:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:946:39:comparador                       comparador: Is → IsNot
+     ·  tools/mcp.py:952:9:comparador                        comparador: Eq → NotEq
+     ·  tools/mcp.py:955:11:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:960:11:booleano                         booleano: and ↔ or
+     ·  tools/mcp.py:960:11:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:960:48:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:973:7:negacion                          negacion: se borra el `not`
+     ·  tools/mcp.py:979:11:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:986:15:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:992:4:retorno                           retorno: return <algo> → return None
+     ·  tools/mcp.py:1000:11:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1006:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1025:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1025:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1025:41:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1027:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1027:11:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1027:16:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1027:34:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1027:47:constante                       constante: 3 → 4
+     ·  tools/mcp.py:1028:42:constante                       constante: 1 → 2
+     ·  tools/mcp.py:1028:56:constante                       constante: 2 → 3
+     ·  tools/mcp.py:1029:25:constante                       constante: 1 → 2
+     ·  tools/mcp.py:1036:11:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1041:23:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1043:33:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1043:33:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1043:53:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1050:13:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1052:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1058:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1066:61:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1067:7:comparador                       comparador: Is → IsNot
+     ·  tools/mcp.py:1069:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1072:24:comparador                      comparador: Eq → NotEq
+  VIVO  tools/mcp.py:1079:49:constante                       constante: True → False
+     ·  tools/mcp.py:1098:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1103:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1103:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1103:47:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1108:38:constante                       constante: 5 → 6
+     ·  tools/mcp.py:1109:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1135:7:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:1136:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1137:43:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1138:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1139:7:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:1140:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1141:7:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:1142:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1151:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1161:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1180:7:comparador                       comparador: Is → IsNot
+     ·  tools/mcp.py:1181:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1186:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1198:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1202:79:constante                       constante: False → True
+     ·  tools/mcp.py:1220:16:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:1231:19:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1238:19:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1245:48:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1246:60:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1247:19:comparador                      comparador: IsNot → Is
+     ·  tools/mcp.py:1251:65:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1263:65:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1278:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1283:19:comparador                      comparador: IsNot → Is
+     ·  tools/mcp.py:1292:7:comparador                       comparador: IsNot → Is
+     ·  tools/mcp.py:1296:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1301:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1313:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1320:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1323:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1334:11:comparador                      comparador: NotEq → Eq
+     ·  tools/mcp.py:1341:7:comparador                       comparador: NotEq → Eq
+     ·  tools/mcp.py:1359:65:constante                       constante: True → False
+     ·  tools/mcp.py:1360:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1366:15:comparador                      comparador: NotEq → Eq
+     ·  tools/mcp.py:1370:37:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1377:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1380:62:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1387:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1408:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:1410:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:1411:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1416:11:comparador                      comparador: NotEq → Eq
+     ·  tools/mcp.py:1420:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1424:7:comparador                       comparador: NotEq → Eq
+     ·  tools/mcp.py:1425:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1429:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1432:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1433:42:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1433:72:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1434:58:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1436:25:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1442:23:constante                       constante: 1 → 2
+     ·  tools/mcp.py:1444:32:constante                       constante: False → True
+     ·  tools/mcp.py:1447:15:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1448:28:constante                       constante: True → False
+     ·  tools/mcp.py:1450:15:comparador                      comparador: NotEq → Eq
+     ·  tools/mcp.py:1451:28:constante                       constante: True → False
+     ·  tools/mcp.py:1454:24:constante                       constante: 1 → 2
+     ·  tools/mcp.py:1456:23:constante                       constante: 1 → 2
+     ·  tools/mcp.py:1470:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1479:79:constante                       constante: False → True
+     ·  tools/mcp.py:1481:7:booleano                         booleano: and ↔ or
+     ·  tools/mcp.py:1481:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1481:43:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1484:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1487:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1487:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1490:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1495:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1501:15:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1509:19:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1515:61:constante                       constante: True → False
+     ·  tools/mcp.py:1528:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1528:23:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1537:65:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1546:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1551:45:constante                       constante: True → False
+     ·  tools/mcp.py:1551:64:constante                       constante: False → True
+     ·  tools/mcp.py:1558:78:constante                       constante: False → True
+     ·  tools/mcp.py:1565:15:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1585:19:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1587:16:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:1590:19:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1594:23:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1606:33:comparador                      comparador: IsNot → Is
+     ·  tools/mcp.py:1611:65:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1628:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1632:7:negacion                         negacion: se borra el `not`
+  VIVO  tools/mcp.py:1639:23:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1644:7:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:1650:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1656:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1662:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1669:7:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:1671:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1676:11:negacion                        negacion: se borra el `not`
+  VIVO  tools/mcp.py:1683:15:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1683:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1683:43:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1688:15:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1695:4:retorno                          retorno: return <algo> → return None
+  VIVO  tools/mcp.py:1698:77:constante                       constante: False → True
+     ·  tools/mcp.py:1713:16:retorno                         retorno: return <algo> → return None
+  VIVO  tools/mcp.py:1744:61:constante                       constante: 5 → 6
+  VIVO  tools/mcp.py:1763:19:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1763:19:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1763:46:negacion                        negacion: se borra el `not`
+  VIVO  tools/mcp.py:1770:65:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1786:4:retorno                          retorno: return <algo> → return None
+  VIVO  tools/mcp.py:1791:45:constante                       constante: True → False
+  VIVO  tools/mcp.py:1791:64:constante                       constante: False → True
+     ·  tools/mcp.py:1806:7:negacion                         negacion: se borra el `not`
+  VIVO  tools/mcp.py:1813:23:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1818:7:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:1824:7:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:1829:7:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1830:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1832:15:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1837:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1837:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1837:40:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1842:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1843:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1843:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1843:37:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1843:78:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1848:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1849:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1849:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1849:40:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1849:84:negacion                        negacion: se borra el `not`
+  VIVO  tools/mcp.py:1854:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1855:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1855:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1855:35:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1860:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1868:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1894:7:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1901:18:constante                       constante: False → True
+     ·  tools/mcp.py:1904:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1915:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1921:9:comparador                       comparador: Eq → NotEq
+  VIVO  tools/mcp.py:1922:42:constante                       constante: False → True
+     ·  tools/mcp.py:1930:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1942:76:constante                       constante: False → True
+     ·  tools/mcp.py:1962:15:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1965:17:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1968:17:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1971:17:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1980:27:constante                       constante: True → False
+     ·  tools/mcp.py:1986:23:constante                       constante: False → True
+     ·  tools/mcp.py:1990:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1990:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1990:44:comparador                      comparador: NotEq → Eq
+     ·  tools/mcp.py:1990:79:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1993:63:constante                       constante: 32600 → 32601
+     ·  tools/mcp.py:1996:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:1996:19:constante                       constante: True → False
+     ·  tools/mcp.py:1998:20:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:2000:11:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2001:15:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2001:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2001:32:comparador                      comparador: NotEq → Eq
+     ·  tools/mcp.py:2001:58:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2005:34:constante                       constante: 32600 → 32601
+     ·  tools/mcp.py:2007:16:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:2007:23:constante                       constante: True → False
+     ·  tools/mcp.py:2014:13:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2015:15:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2015:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2015:33:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2017:13:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2017:13:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2017:48:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2019:13:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2019:13:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2019:54:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2021:15:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2021:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2022:38:constante                       constante: 32602 → 32603
+     ·  tools/mcp.py:2025:13:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2025:13:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2025:54:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2027:16:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2027:16:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2028:23:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2029:38:constante                       constante: 32602 → 32603
+     ·  tools/mcp.py:2030:17:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:2032:30:constante                       constante: 32602 → 32603
+     ·  tools/mcp.py:2038:13:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2038:13:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2038:52:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:2042:13:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:2042:13:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2042:34:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2043:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:2043:19:constante                       constante: False → True
+     ·  tools/mcp.py:2045:34:constante                       constante: 32601 → 32602
+     ·  tools/mcp.py:2046:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:2046:15:constante                       constante: True → False
+     ·  tools/mcp.py:2049:73:constante                       constante: False → True
+     ·  tools/mcp.py:2051:10:constante                       constante: True → False
+     ·  tools/mcp.py:2057:35:constante                       constante: 32700 → 32701
+     ·  tools/mcp.py:2062:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:2062:19:constante                       constante: 1 → 2
+     ·  tools/mcp.py:2063:11:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:2064:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:2064:24:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2064:19:constante                       constante: 0 → 1
+     ·  tools/mcp.py:2064:58:constante                       constante: 1 → 2
+     ·  tools/mcp.py:2065:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:2066:12:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:2066:24:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:2066:19:constante                       constante: 0 → 1
+     ·  tools/mcp.py:2066:58:constante                       constante: 1 → 2
+     ·  tools/mcp.py:2070:32:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:2070:25:constante                       constante: 1 → 2
+     ·  tools/mcp.py:2079:60:comparador                      comparador: IsNot → Is
+     ·  tools/mcp.py:2081:7:comparador                       comparador: Is → IsNot
+     ·  tools/mcp.py:2082:8:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:2082:15:constante                       constante: 1 → 2
+     ·  tools/mcp.py:2083:4:retorno                          retorno: return <algo> → return None
+
+mutantes: 385 · murieron 373 · sobrevivieron 12 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✗ proceso.codigo_con_mutante_que_lo_mata       valor 12 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+CÓDIGO QUE NINGÚN TEST FIJA:
+  · tools/mcp.py:1079:49:constante
+      constante: True → False
+  · tools/mcp.py:1639:23:constante
+      constante: 0 → 1
+  · tools/mcp.py:1683:15:booleano
+      booleano: and ↔ or
+  · tools/mcp.py:1698:77:constante
+      constante: False → True
+  · tools/mcp.py:1744:61:constante
+      constante: 5 → 6
+  · tools/mcp.py:1763:19:booleano
+      booleano: and ↔ or
+  · tools/mcp.py:1770:65:constante
+      constante: 0 → 1
+  · tools/mcp.py:1791:45:constante
+      constante: True → False
+  · tools/mcp.py:1791:64:constante
+      constante: False → True
+  · tools/mcp.py:1813:23:constante
+      constante: 0 → 1
+  · tools/mcp.py:1854:9:comparador
+      comparador: Eq → NotEq
+  · tools/mcp.py:1922:42:constante
+      constante: False → True
+
+Cada uno es un test que falta, o un mutante equivalente que hay que DECLARAR en
+equivalentes.json con su razón escrita. Declararlo sin razón es una excusa.

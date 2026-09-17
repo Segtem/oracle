@@ -1,3 +1,77 @@
+# 0.27.0 — una sombra perdona hasta su cota, y el MCP se pone al día
+
+```
+VERSION_DISTRIBUCION   0.26.0 → 0.27.0   juzgar honesto, historia superficial y el MCP
+VERSION_ALGEBRA        0.8    → 0.8
+VERSION_SINTAXIS       0.6    → 0.6
+```
+
+## `oracle juzgar` y `Motor`
+
+- **La sombra perdona hasta su cota.** Hasta acá la cota sólo la hacía cumplir una meta-medida de
+  `oracle test`; `oracle juzgar` perdonaba igual un 4 que un 30. Ahora, por encima de la cota —o sin
+  un número que comparar— el rojo vuelve, marcado `SUPERA SU COTA N`, y `--json` trae
+  `supera_su_cota`. Lo encontró el CI de 0.25.2, que contó 30 donde la cota decía 4 y salió verde en
+  ese punto.
+- **Lo que no se aplicó, se nombra.** Una medida del catálogo propio cuya relación no vino en la
+  evidencia no se evalúa y no cuenta en el veredicto, pero ahora aparece en `NO SE APLICARON`, con la
+  relación que le faltó, y en `no_aplicadas` del `--json`. Antes el veredicto decía «1 de 3» y la
+  cuarta no existía. Las heredadas no se listan: juzgan el catálogo, no la evidencia. Lo encontró la
+  guía de la batalla naval.
+- `Motor.evaluar` hace las dos cosas, con el mismo `Informe`.
+
+⚠ Un proyecto con una sombra por encima de su cota pasa de verde a rojo en `oracle juzgar` y en
+`Motor`. Es el cambio buscado.
+
+## El tracker
+
+`oracle tarea hechos --git` sobre un clon superficial declara la omisión (`.git`) y deja la lectura
+incompleta, en vez de contar commits de menos en silencio. Probado sobre un clon de profundidad 1 de
+este repositorio: la lectura sale roja y la política de cierres, 31 contra una cota de 4.
+
+## El MCP
+
+`oracle-mcp` no cambiaba desde 0.7.0. Ahora:
+
+- **`oracle_evaluar`** (esquema `v2`) trae `sombra`: `null`, o `desde`, `porque`, `cota` y `perdona`,
+  que es la misma pregunta que decide `ok` en `oracle juzgar`.
+- **`oracle_juzgar`**, nueva: una evidencia contra el catálogo efectivo, con sombras, cotas y las no
+  aplicadas. Comparte `juzgar_evidencia` con el CLI.
+- **`oracle_tareas`**, nueva: `listar`, `ver`, `buscar` y `hechos` del tracker. Un proyecto sin
+  `tareas/` es `TRACKER_AUSENTE`, no una lista vacía.
+
+Las cinco siguen siendo de sólo lectura, y el contrato (`estudios/MCP-CONTRATO.md`) dice por qué:
+los falsos verdes de un agente ocurren al leer, y en el tracker crear o cerrar una tarea sólo vale
+junto con su commit.
+
+## Verificación
+
+- Suite completa en verde (2364 tests); `oracle test` VERDE: corpus 212 casos, aceptación ✓ con 120
+  defectos en rojo y 85 verdes correctos, diferencial ✓, mutación de medidas 1010/1010; sintaxis y
+  cifras al día; `verificar_instalacion` WHEEL OK.
+- Mutación de código de lo tocado, sin sobrevivientes: `tools/juzgar.py` 107/107,
+  `tools/tareas.py` 384/384, `tools/tareas_contexto.py` 212/212, `tools/tareas_git.py` 53/53,
+  `tools/tareas_hechos.py` 271/271, `nucleo/medida.py` 340/340, `nucleo/proyecto.py` 152/152,
+  `oracle_metalenguaje/motor.py` 27/27. `tools/mcp.py` dio 373 de 385 en la ronda completa; los 12
+  vivos —y 6 más de los otros módulos— eran valores por omisión que nadie usaba, una rama muerta y
+  bordes sin test (uno de seguridad: nada fijaba que `oracle_juzgar` no confiara en `escalares.py`
+  por omisión). Después de cerrarlos, el código nuevo del MCP da 69/69 en ronda parcial
+  ([logs](estudios/0.27.0-mcp/verificacion/)).
+- Consumidores con un wheel de 0.27.0 antes de publicarlo: LyraGASP y Jam VERDE con las mismas
+  cifras que en 0.26.0. Sus tres sombras son medidas `meta` dentro de su cota, así que `Motor` —que
+  los dos usan— no les cambia el color.
+- El CI de 0.26.0 quedó rojo por las cifras del README, regeneradas antes de los dos últimos cambios
+  de ese corte; el código era el mismo. Acá se regeneran al final.
+
+## Cómo se hizo
+
+Claude hizo `juzgar`, `Motor` y el tracker. El MCP lo implementó agy
+(`estudios/0.27.0-mcp/`); Claude escribió 24 tests de revisión antes de leer la entrega. La entrega
+armaba mal el `Informe` de la sombra —toda evaluación de una medida en sombra fallaba— y la
+refactorización de `juzgar` convertía un error de evaluación en «sin medidas aplicables»; un test que
+ya existía lo atrapó. Las dos cosas se corrigieron, junto con siete tests de la entrega que tenían
+fixtures equivocadas.
+
 # 0.26.0 — el álgebra puede decir «ninguna»
 
 ```

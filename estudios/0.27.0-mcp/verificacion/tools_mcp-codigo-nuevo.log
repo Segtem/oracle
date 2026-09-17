@@ -1,0 +1,82 @@
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --lineas 1061-1135, 1631-1937) ***
+objetivos: tools/mcp.py
+
+     ·  tools/mcp.py:1066:61:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1067:7:comparador                       comparador: Is → IsNot
+     ·  tools/mcp.py:1069:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1072:24:comparador                      comparador: Eq → NotEq
+     ·  tools/mcp.py:1098:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1103:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1103:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1103:47:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1108:38:constante                       constante: 5 → 6
+     ·  tools/mcp.py:1109:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1135:7:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:1632:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1639:23:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1644:7:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:1650:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1656:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1662:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1669:7:comparador                       comparador: In → NotIn
+     ·  tools/mcp.py:1671:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1676:11:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1683:15:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1683:15:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1683:43:comparador                      comparador: Is → IsNot
+     ·  tools/mcp.py:1688:15:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1695:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1698:77:constante                       constante: False → True
+     ·  tools/mcp.py:1713:16:retorno                         retorno: return <algo> → return None
+     ·  tools/mcp.py:1744:61:constante                       constante: 5 → 6
+     ·  tools/mcp.py:1763:19:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1763:19:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1763:46:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1770:65:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1786:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1791:45:constante                       constante: True → False
+     ·  tools/mcp.py:1791:64:constante                       constante: False → True
+     ·  tools/mcp.py:1806:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1813:23:constante                       constante: 0 → 1
+     ·  tools/mcp.py:1818:7:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:1824:7:comparador                       comparador: NotIn → In
+     ·  tools/mcp.py:1829:7:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1830:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1832:15:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1837:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1837:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1837:40:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1842:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1843:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1843:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1843:37:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1843:78:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1848:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1849:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1849:11:comparador                      comparador: NotIn → In
+     ·  tools/mcp.py:1849:40:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1849:84:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1854:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1855:11:booleano                        booleano: and ↔ or
+     ·  tools/mcp.py:1855:11:comparador                      comparador: In → NotIn
+     ·  tools/mcp.py:1855:35:negacion                        negacion: se borra el `not`
+     ·  tools/mcp.py:1860:4:retorno                          retorno: return <algo> → return None
+     ·  tools/mcp.py:1868:7:negacion                         negacion: se borra el `not`
+     ·  tools/mcp.py:1894:7:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1901:19:constante                       constante: False → True
+     ·  tools/mcp.py:1902:21:constante                       constante: False → True
+     ·  tools/mcp.py:1903:18:constante                       constante: False → True
+     ·  tools/mcp.py:1906:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1917:9:comparador                       comparador: Eq → NotEq
+     ·  tools/mcp.py:1925:77:constante                       constante: False → True
+     ·  tools/mcp.py:1929:4:retorno                          retorno: return <algo> → return None
+
+mutantes: 69 · murieron 69 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+*** RESUMEN: RONDA PARCIAL (69 de 385 sitios del objetivo) ***
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✗ proceso.ronda_mutacion_concluyente           valor 1 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes probados murieron, pero la ronda fue PARCIAL: se probaron 69 de 385 sitios.
+Esto NO demuestra que los tests fijen el módulo completo.

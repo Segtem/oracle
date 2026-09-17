@@ -1,0 +1,281 @@
+objetivos: tools/tareas_hechos.py
+
+     ·  tools/tareas_hechos.py:36:24:constante               constante: 2 → 3
+     ·  tools/tareas_hechos.py:36:28:constante               constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:36:35:constante               constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:47:8:retorno                  retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:56:12:constante               constante: 0 → 1
+     ·  tools/tareas_hechos.py:57:14:constante               constante: 1 → 2
+     ·  tools/tareas_hechos.py:58:10:booleano                booleano: and ↔ or
+     ·  tools/tareas_hechos.py:58:10:comparador              comparador: GtE → Gt
+     ·  tools/tareas_hechos.py:58:15:constante               constante: 0 → 1
+     ·  tools/tareas_hechos.py:58:21:comparador              comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:59:17:constante               constante: 1 → 2
+     ·  tools/tareas_hechos.py:60:13:constante               constante: 1 → 2
+     ·  tools/tareas_hechos.py:61:4:retorno                  retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:61:11:comparador              comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:61:19:constante               constante: 2 → 3
+     ·  tools/tareas_hechos.py:61:24:constante               constante: 1 → 2
+     ·  tools/tareas_hechos.py:77:22:constante               constante: 1 → 2
+     ·  tools/tareas_hechos.py:79:11:comparador              comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:83:22:constante               constante: 0 → 1
+     ·  tools/tareas_hechos.py:87:22:constante               constante: 1 → 2
+     ·  tools/tareas_hechos.py:88:11:comparador              comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:91:11:comparador              comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:94:4:retorno                  retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:99:4:retorno                  retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:99:15:comparador              comparador: LtE → Lt
+     ·  tools/tareas_hechos.py:106:10:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:106:10:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:106:22:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:107:15:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:108:7:booleano                booleano: and ↔ or
+     ·  tools/tareas_hechos.py:108:7:comparador              comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:108:19:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:108:48:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:110:15:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:111:14:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:112:15:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:112:15:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:112:41:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:113:23:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:115:19:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:118:14:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:118:14:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:118:26:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:119:19:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:120:7:booleano                booleano: and ↔ or
+     ·  tools/tareas_hechos.py:120:7:comparador              comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:120:19:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:121:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:121:21:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:139:21:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:142:8:constante               constante: 0 → 1
+     ·  tools/tareas_hechos.py:144:10:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:146:17:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:150:19:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:151:28:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:153:11:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:153:12:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:153:35:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:154:31:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:155:32:constante              constante: False → True
+     ·  tools/tareas_hechos.py:156:18:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:158:25:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:160:19:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:160:19:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:160:39:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:161:40:constante              constante: True → False
+     ·  tools/tareas_hechos.py:163:19:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:163:19:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:163:39:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:166:21:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:168:15:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:170:19:comparador             comparador: GtE → Gt
+     ·  tools/tareas_hechos.py:172:21:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:176:15:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:176:15:comparador             comparador: GtE → Gt
+     ·  tools/tareas_hechos.py:176:19:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:176:29:comparador             comparador: NotEq → Eq
+     ·  tools/tareas_hechos.py:176:39:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:178:24:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:182:34:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:183:38:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:184:18:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:184:18:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:184:32:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:185:25:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:187:26:constante              constante: False → True
+     ·  tools/tareas_hechos.py:189:15:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:189:15:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:189:29:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:190:34:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:193:22:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:194:23:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:194:23:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:194:43:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:197:25:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:198:19:comparador             comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:200:79:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:201:34:comparador             comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:205:30:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:208:22:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:208:22:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:208:32:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:208:46:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:212:23:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:213:61:constante              constante: 2 → 3
+     ·  tools/tareas_hechos.py:214:29:constante              constante: 2 → 3
+     ·  tools/tareas_hechos.py:216:23:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:216:23:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:216:41:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:216:56:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:218:23:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:219:39:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:221:25:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:222:39:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:223:27:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:223:41:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:227:25:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:230:19:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:230:34:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:232:34:constante              constante: True → False
+     ·  tools/tareas_hechos.py:233:21:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:233:21:comparador             comparador: Lt → LtE
+     ·  tools/tareas_hechos.py:233:31:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:235:34:comparador             comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:237:15:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:249:17:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:255:11:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:257:71:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:257:84:constante              constante: 2 → 3
+     ·  tools/tareas_hechos.py:259:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:271:7:booleano                booleano: and ↔ or
+     ·  tools/tareas_hechos.py:271:7:comparador              comparador: GtE → Gt
+     ·  tools/tareas_hechos.py:271:29:constante              constante: 3 → 4
+     ·  tools/tareas_hechos.py:271:35:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:271:49:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:272:33:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:286:7:booleano                booleano: and ↔ or
+     ·  tools/tareas_hechos.py:289:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:295:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:306:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:317:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:323:50:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:323:64:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:328:7:comparador              comparador: In → NotIn
+     ·  tools/tareas_hechos.py:331:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:336:23:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:336:69:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:346:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:357:12:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:368:11:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:370:12:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:374:12:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:379:11:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:381:12:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:382:11:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:384:11:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:385:15:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:387:16:retorno                retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:395:7:comparador              comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:397:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:402:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:408:7:booleano                booleano: and ↔ or
+     ·  tools/tareas_hechos.py:408:28:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:410:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:413:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:419:7:comparador              comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:419:22:constante              constante: 2 → 3
+     ·  tools/tareas_hechos.py:420:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:421:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:421:18:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:421:37:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:421:44:constante              constante: 2 → 3
+     ·  tools/tareas_hechos.py:445:15:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:448:29:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:454:15:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:465:29:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:479:15:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:487:29:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:495:25:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:498:29:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:508:26:constante              constante: True → False
+     ·  tools/tareas_hechos.py:509:34:constante              constante: False → True
+     ·  tools/tareas_hechos.py:510:29:constante              constante: False → True
+     ·  tools/tareas_hechos.py:511:27:constante              constante: False → True
+     ·  tools/tareas_hechos.py:512:28:constante              constante: False → True
+     ·  tools/tareas_hechos.py:517:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:528:11:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:528:11:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:531:11:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:531:11:comparador             comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:533:11:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:533:11:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:533:29:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:538:11:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:545:11:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:547:93:constante              constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:547:100:constante             constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:551:50:constante              constante: False → True
+     ·  tools/tareas_hechos.py:554:7:negacion                negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:585:25:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:590:11:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:594:23:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:601:19:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:603:45:constante              constante: True → False
+     ·  tools/tareas_hechos.py:610:45:constante              constante: True → False
+     ·  tools/tareas_hechos.py:615:19:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:615:19:comparador             comparador: NotIn → In
+     ·  tools/tareas_hechos.py:615:49:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:623:40:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:624:34:constante              constante: False → True
+     ·  tools/tareas_hechos.py:625:42:constante              constante: True → False
+     ·  tools/tareas_hechos.py:639:59:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:643:11:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:663:11:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:663:11:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:663:33:comparador             comparador: NotEq → Eq
+     ·  tools/tareas_hechos.py:666:11:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:671:11:comparador             comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:674:11:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:677:25:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:678:93:constante              constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:678:100:constante             constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:684:53:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:688:11:comparador             comparador: Gt → GtE
+     ·  tools/tareas_hechos.py:691:25:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:692:93:constante              constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:692:100:constante             constante: 1024 → 1025
+     ·  tools/tareas_hechos.py:696:11:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:699:25:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:709:25:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:714:27:constante              constante: False → True
+     ·  tools/tareas_hechos.py:716:68:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:717:15:negacion               negacion: se borra el `not`
+     ·  tools/tareas_hechos.py:720:39:constante              constante: True → False
+     ·  tools/tareas_hechos.py:722:69:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:723:66:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:729:20:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:730:43:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:731:24:comparador             comparador: GtE → Gt
+     ·  tools/tareas_hechos.py:731:47:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:733:39:constante              constante: False → True
+     ·  tools/tareas_hechos.py:744:100:constante             constante: 1 → 2
+     ·  tools/tareas_hechos.py:753:48:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:758:56:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:759:54:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:793:23:booleano               booleano: and ↔ or
+     ·  tools/tareas_hechos.py:793:23:comparador             comparador: LtE → Lt
+     ·  tools/tareas_hechos.py:793:26:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:793:47:comparador             comparador: LtE → Lt
+     ·  tools/tareas_hechos.py:793:62:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:796:40:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:809:11:comparador             comparador: NotIn → In
+     ·  tools/tareas_hechos.py:821:7:comparador              comparador: IsNot → Is
+     ·  tools/tareas_hechos.py:827:15:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:827:39:constante              constante: 0 → 1
+     ·  tools/tareas_hechos.py:837:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:859:7:comparador              comparador: Is → IsNot
+     ·  tools/tareas_hechos.py:860:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:863:28:constante              constante: False → True
+     ·  tools/tareas_hechos.py:865:28:constante              constante: False → True
+     ·  tools/tareas_hechos.py:867:25:constante              constante: False → True
+     ·  tools/tareas_hechos.py:869:43:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:869:66:constante              constante: 2 → 3
+     ·  tools/tareas_hechos.py:870:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:873:24:constante              constante: True → False
+     ·  tools/tareas_hechos.py:875:24:comparador             comparador: In → NotIn
+     ·  tools/tareas_hechos.py:880:21:comparador             comparador: Eq → NotEq
+     ·  tools/tareas_hechos.py:912:8:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:912:15:constante              constante: 1 → 2
+     ·  tools/tareas_hechos.py:918:4:retorno                 retorno: return <algo> → return None
+     ·  tools/tareas_hechos.py:918:11:constante              constante: 0 → 1
+
+mutantes: 271 · murieron 271 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

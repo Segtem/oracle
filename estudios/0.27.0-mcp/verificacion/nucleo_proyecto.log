@@ -1,0 +1,162 @@
+objetivos: nucleo/proyecto.py
+
+     ·  nucleo/proyecto.py:34:47:constante                   constante: 1 → 2
+     ·  nucleo/proyecto.py:53:18:constante                   constante: True → False
+     ·  nucleo/proyecto.py:79:8:retorno                      retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:70:18:constante                   constante: True → False
+     ·  nucleo/proyecto.py:95:4:retorno                      retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:99:7:booleano                     booleano: and ↔ or
+     ·  nucleo/proyecto.py:99:37:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:103:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:109:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:113:12:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:113:12:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:114:42:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:115:45:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:122:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:133:65:constante                  constante: False → True
+     ·  nucleo/proyecto.py:134:47:constante                  constante: True → False
+     ·  nucleo/proyecto.py:140:15:comparador                 comparador: In → NotIn
+     ·  nucleo/proyecto.py:145:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:151:26:constante                  constante: False → True
+     ·  nucleo/proyecto.py:148:18:constante                  constante: True → False
+     ·  nucleo/proyecto.py:162:12:constante                  constante: 1 → 2
+     ·  nucleo/proyecto.py:166:18:constante                  constante: True → False
+     ·  nucleo/proyecto.py:191:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:191:55:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:197:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:202:11:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:202:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:202:39:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:204:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:210:11:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:210:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:210:41:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:217:11:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:217:11:comparador                 comparador: In → NotIn
+     ·  nucleo/proyecto.py:217:32:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:217:58:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:217:87:comparador                 comparador: Lt → LtE
+     ·  nucleo/proyecto.py:217:94:constante                  constante: 0 → 1
+     ·  nucleo/proyecto.py:222:7:comparador                  comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:224:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:230:7:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:230:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:230:29:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:231:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:238:7:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:238:28:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:244:7:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:244:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:244:38:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:247:8:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:247:8:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:248:19:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:248:19:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:248:45:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:250:15:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:256:47:constante                  constante: False → True
+     ·  nucleo/proyecto.py:257:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:260:8:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:260:8:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:261:19:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:261:19:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:261:47:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:263:15:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:271:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/proyecto.py:277:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:285:7:comparador                  comparador: IsNot → Is
+     ·  nucleo/proyecto.py:291:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:295:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:309:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:313:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:317:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:321:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:321:15:comparador                 comparador: Eq → NotEq
+     ·  nucleo/proyecto.py:324:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:303:18:constante                  constante: True → False
+     ·  nucleo/proyecto.py:331:13:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:332:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:333:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:341:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:362:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:374:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:375:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:380:7:comparador                  comparador: Eq → NotEq
+     ·  nucleo/proyecto.py:381:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:381:15:constante                  constante: True → False
+     ·  nucleo/proyecto.py:382:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:382:11:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:382:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/proyecto.py:402:26:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:409:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:411:12:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:411:12:comparador                 comparador: In → NotIn
+     ·  nucleo/proyecto.py:412:16:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:412:16:comparador                 comparador: Eq → NotEq
+     ·  nucleo/proyecto.py:434:8:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:435:20:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:437:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:455:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:456:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:465:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:469:64:constante                  constante: False → True
+     ·  nucleo/proyecto.py:487:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:490:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:499:7:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:499:31:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:506:35:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:507:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:513:23:constante                  constante: False → True
+     ·  nucleo/proyecto.py:523:27:constante                  constante: True → False
+     ·  nucleo/proyecto.py:525:21:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:525:21:comparador                 comparador: IsNot → Is
+     ·  nucleo/proyecto.py:526:25:comparador                 comparador: IsNot → Is
+     ·  nucleo/proyecto.py:527:11:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:527:11:comparador                 comparador: IsNot → Is
+     ·  nucleo/proyecto.py:527:38:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:529:11:booleano                   booleano: and ↔ or
+     ·  nucleo/proyecto.py:529:11:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:529:43:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:532:11:comparador                 comparador: IsNot → Is
+     ·  nucleo/proyecto.py:538:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:538:11:comparador                 comparador: In → NotIn
+     ·  nucleo/proyecto.py:542:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:542:44:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:546:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:559:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:568:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:611:7:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:611:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:611:35:comparador                 comparador: Is → IsNot
+     ·  nucleo/proyecto.py:615:46:constante                  constante: 0 → 1
+     ·  nucleo/proyecto.py:620:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:627:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:629:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:633:24:comparador                 comparador: IsNot → Is
+     ·  nucleo/proyecto.py:634:7:comparador                  comparador: In → NotIn
+     ·  nucleo/proyecto.py:636:11:comparador                 comparador: GtE → Gt
+     ·  nucleo/proyecto.py:636:15:constante                  constante: 1 → 2
+     ·  nucleo/proyecto.py:638:29:constante                  constante: 1 → 2
+     ·  nucleo/proyecto.py:639:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:641:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:646:11:negacion                   negacion: se borra el `not`
+     ·  nucleo/proyecto.py:648:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:651:7:booleano                    booleano: and ↔ or
+     ·  nucleo/proyecto.py:651:25:comparador                 comparador: NotEq → Eq
+     ·  nucleo/proyecto.py:652:8:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:654:7:negacion                    negacion: se borra el `not`
+     ·  nucleo/proyecto.py:657:4:retorno                     retorno: return <algo> → return None
+     ·  nucleo/proyecto.py:662:25:constante                  constante: False → True
+     ·  nucleo/proyecto.py:665:21:constante                  constante: False → True
+     ·  nucleo/proyecto.py:667:11:comparador                 comparador: Eq → NotEq
+     ·  nucleo/proyecto.py:668:21:constante                  constante: True → False
+     ·  nucleo/proyecto.py:671:4:retorno                     retorno: return <algo> → return None
+
+mutantes: 152 · murieron 152 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.
