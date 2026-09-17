@@ -185,6 +185,60 @@ class JuzgarTests(Base):
         self.assertIs(r["isError"], True)
 
 
+class BordesDeLaMutacionTests(Base):
+    """Lo que la mutación de 0.27.0 dejó vivo en `tools/mcp.py`: cada test mata uno o más."""
+
+    def texto_de_error(self, nombre: str, argumentos) -> str:
+        r = self.llamar(nombre, argumentos)
+        self.assertIs(r["isError"], True, r)
+        return r["content"][0]["text"]
+
+    def test_una_propiedad_de_mas_se_nombra(self) -> None:
+        self.assertIn("$.zzz", self.texto_de_error("oracle_juzgar", {"evidencia": {}, "zzz": 1}))
+        self.assertIn("$.zzz", self.texto_de_error("oracle_tareas", {"accion": "listar", "zzz": 1}))
+
+    def test_un_id_que_no_es_texto_es_argumento_invalido(self) -> None:
+        self.assertTrue(self.texto_de_error("oracle_juzgar", {"evidencia": {}, "ids": [123]})
+                        .startswith("ARGUMENTOS_INVALIDOS"))
+
+    def test_git_que_no_es_booleano_es_argumento_invalido(self) -> None:
+        (self.raiz / "tareas").mkdir()
+        self.assertTrue(self.texto_de_error("oracle_tareas", {"accion": "hechos", "git": "si"})
+                        .startswith("ARGUMENTOS_INVALIDOS"))
+
+    def test_hechos_sin_git_no_le_pregunta_a_la_historia(self) -> None:
+        (self.raiz / "tareas").mkdir()
+        r = self.ok("oracle_tareas", {"accion": "hechos"})
+        self.assertEqual(r["resultado"]["lectura_seguimiento"][0]["git"], "no_solicitado")
+
+    def test_juzgar_sin_autorizacion_no_ejecuta_escalares(self) -> None:
+        """Por omisión, la función tampoco confía: la autorización es del arranque."""
+        (self.raiz / "escalares.py").write_text("# código externo\n", encoding="utf-8")
+        with self.assertRaises(mcp.ErrorHerramienta) as ctx:
+            mcp.juzgar_para_mcp(mcp.Proyecto(self.raiz), {"evidencia": {}})
+        self.assertTrue(str(ctx.exception).startswith(
+            f"ESCALARES_NO_AUTORIZADAS — {self.raiz / 'escalares.py'} es código externo"),
+            str(ctx.exception))
+
+    def test_los_testigos_se_cortan_en_cinco(self) -> None:
+        r = self.ok("oracle_juzgar", {"evidencia": {"referencia_seguimiento": [
+            _referencia("ausente") for _ in range(7)]}})
+        m = r["medidas"][0]
+        self.assertEqual((len(m["testigos"]), m["testigos_omitidos"]), (5, 2))
+
+    def test_un_juicio_normal_no_trae_advertencias(self) -> None:
+        r = self.ok("oracle_juzgar", {"evidencia": {"referencia_seguimiento": [_referencia("presente")]}})
+        self.assertEqual(r["advertencias"], [])
+
+    def test_la_huella_es_la_de_los_argumentos_canonicos(self) -> None:
+        import hashlib
+        argumentos = {"ids": [REFERENCIAS],
+                      "evidencia": {"referencia_seguimiento": [dict(_referencia("presente"), nota="ñandú")]}}
+        esperada = hashlib.sha256(json.dumps(argumentos, sort_keys=True, ensure_ascii=False)
+                                  .encode("utf-8")).hexdigest()
+        self.assertEqual(self.ok("oracle_juzgar", argumentos)["entrada_sha256"], esperada)
+
+
 class TareasTests(Base):
     def setUp(self) -> None:
         super().setUp()
@@ -210,6 +264,14 @@ class TareasTests(Base):
         self.assertEqual(r["accion"], "listar")
         self.assertIn(self.cerrada, json.dumps(r["resultado"]))
         self.assertNotIn("-abierta", json.dumps(r["resultado"]))
+
+    def test_listar_ordena_por_prioridad_y_sin_filtro_trae_las_abiertas(self) -> None:
+        with self._silencio():
+            cli.main(["--proyecto", str(self.raiz), "tarea", "nueva", "Menor",
+                      "--sufijo", "menor", "--prioridad", "10"])
+        # La nueva tiene el id más alto y la prioridad más baja: por id o invertido, iría primero.
+        ids = [t["id"] for t in self.ok("oracle_tareas", {"accion": "listar"})["resultado"]]
+        self.assertEqual([i.rsplit("-", 1)[1] for i in ids], ["abierta", "menor"])
 
     def test_ver_con_prefijo(self) -> None:
         r = self.ok("oracle_tareas", {"accion": "ver", "id": self.cerrada})

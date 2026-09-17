@@ -579,7 +579,7 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
 
         commits_leidos = tareas_git.commits(raiz)
         # Una historia cortada es evidencia incompleta: se declara, y la lectura queda incompleta.
-        if commits_leidos is not None and tareas_git.historia_superficial(raiz):
+        if tareas_git.historia_superficial(raiz):
             omisiones.append({
                 "ruta": ".git",
                 "linea": 0,

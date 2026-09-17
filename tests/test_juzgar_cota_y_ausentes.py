@@ -73,6 +73,10 @@ class InformeTests(unittest.TestCase):
         informe = Informe((self._v(99),), en_sombra=frozenset({"d.x"}))
         self.assertTrue(informe.ok)
 
+    def test_sin_cota_no_supera_nada_y_lo_dice_con_un_booleano(self) -> None:
+        v = self._v(99)
+        self.assertIs(Informe((v,), en_sombra=frozenset({"d.x"})).supera_su_cota(v), False)
+
     def test_cero_es_una_cota(self) -> None:
         self.assertTrue(Informe((self._v(0),), en_sombra=frozenset({"d.x"}),
                                 cotas=(("d.x", 0),)).ok)

@@ -208,7 +208,9 @@ class HistoriaSuperficialTests(unittest.TestCase):
             self.assertFalse(tareas_git.historia_superficial(origen))
             datos = extraer_hechos(clon.resolve(), con_git=True)
         self.assertEqual(len(datos["commit_seguimiento"]), 1)
-        self.assertIn("superficial", " ".join(o["motivo"] for o in datos["omision_seguimiento"]))
+        superficiales = [o for o in datos["omision_seguimiento"] if o["ruta"] == ".git"]
+        self.assertEqual([(o["linea"], "superficial" in o["motivo"]) for o in superficiales],
+                         [(0, True)])
         self.assertIs(datos["lectura_seguimiento"][0]["completa"], False)
 
     def test_sin_repositorio_no_es_superficial(self) -> None:

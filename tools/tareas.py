@@ -844,9 +844,9 @@ def filtrar_tareas(
     etiqueta: str | None = None,
     texto: str | None = None,
     consulta_tql: Any = None,
-    por_id: bool = False,
-    invertir: bool = False,
-    todas: bool = False,
+    por_id: bool,
+    invertir: bool,
+    todas: bool,
 ) -> list[Tarea]:
     """Aplica filtros de estado, etiqueta, texto y TQL sobre una lista de tareas."""
     filtradas: list[Tarea] = []

@@ -1076,7 +1076,7 @@ def _sombra_de(proy: Proyecto, informe: Informe, v) -> dict | None:
 
 def _presentar_evaluacion(proy: Proyecto, medida: Medida, veredicto_obj,
                           evidencia: dict, declaradas: dict,
-                          *, de_catalogo: bool = True) -> dict:
+                          *, de_catalogo: bool) -> dict:
     """Proyecta un Veredicto ya decidido; aquí no hay una segunda comparación con el umbral."""
     veredicto = veredicto_obj.a_dict()
 
@@ -1898,6 +1898,8 @@ def tareas_para_mcp(proy: Proyecto, argumentos) -> dict:
             tareas_validas,
             estado=estado,
             etiqueta=etiqueta,
+            por_id=False,
+            invertir=False,
             todas=False,
         )
         resultado = [t.a_dict() for t in filtradas]
@@ -1918,14 +1920,11 @@ def tareas_para_mcp(proy: Proyecto, argumentos) -> dict:
             resultado = buscar_en_tracker(proy.raiz, texto)
         except (TareaError, OSError) as e:
             raise ErrorHerramienta("TRACKER_INVALIDO", str(e)) from e
-    elif accion == "hechos":
-        con_git = bool(validos.get("git", False))
+    else:  # `hechos`: la acción ya se validó
         try:
-            resultado = extraer_hechos(proy.raiz, con_git=con_git)
+            resultado = extraer_hechos(proy.raiz, con_git=validos.get("git", False))
         except (TareaError, OSError) as e:
             raise ErrorHerramienta("TRACKER_INVALIDO", str(e)) from e
-    else:
-        raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", f"acción desconocida: {accion}")
 
     return {
         "esquema": "oracle.mcp/tareas/v1",
