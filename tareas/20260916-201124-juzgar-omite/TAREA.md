@@ -1,6 +1,6 @@
 # oracle juzgar omite en silencio las medidas cuya relación no vino en la evidencia
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 74
 - ETIQUETAS: oracle, metalenguaje, juzgar
 
