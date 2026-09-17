@@ -1,6 +1,6 @@
 # El tracker no avisa cuando la historia de git es superficial y cuenta commits de menos
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 65
 - ETIQUETAS: oracle, tracker, ci
 
