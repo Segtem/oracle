@@ -38,3 +38,7 @@ Claude revisa `estudios/AURA-Y-ORACLE.md`.
 ### Nota (2026-09-19 13:49:12 UTC)
 
 2026-09-19, Brian: la idea es hacer un Aura propio para Godot, Unity y Unreal usando Oracle. La investigación tiene que responder eso: qué partes serían propias (el agente, los sensores por motor, el puente al editor) y cuáles ya existen; qué sería Oracle ahí (juez de cada cambio del agente, con medidas por motor escritas en superficie); qué ya está probado en casa (Jam en Unreal: sensor puro + adaptador, sondas headless; LyraGASP) y qué no (Godot y Unity: cero). Un corte mínimo realista para empezar, en un solo motor.
+
+### Nota (2026-09-19 14:15:17 UTC)
+
+2026-09-19, revisión rápida de Claude: el veredicto (Oracle como juez, no como agente; primer corte en Unreal sobre JamPlayground) es sólido. Hay que corregir §3.1: los operadores son de, donde, unir, sin, agrupar y resumen (requiere no es un operador) y 'si le sobreviven mutantes el sistema la rechaza' exagera. Los datos de §1 sobre Aura (estudio, agentes, fechas) vienen de la web y no se verificaron contra las fuentes citadas.
