@@ -1,0 +1,4 @@
+CON: 100 flotas de 17 celdas; límites H/V, colisión, adyacencia permitida, bloqueo de turno, repetición, hundimiento, victoria y derrota: OK
+SIN: mismos controles de lógica: OK
+SIN: defecto reproducido tras 2 initGame: 2 listeners de rotación; un clic rota dos veces y queda H.
+CON: callback enemigo pendiente de partida anterior dispara en nueva partida durante turno PLAYER.

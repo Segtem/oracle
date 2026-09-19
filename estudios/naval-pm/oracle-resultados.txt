@@ -1,0 +1,205 @@
+=== conservado: test --rapido | exit=0 ===
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 39 medidas · corpus: 1 casos
+
+  verde 001-flota-completa                     proceso.sintaxis_valida_tras_edicion_masiva  (valor 0)
+
+defectos que se pusieron rojos: 0 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✓ — 0 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+VEREDICTO: VERDE (se salteó: mutación de medidas (--rapido))
+
+=== conservado: test completo | exit=1 ===
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 39 medidas · corpus: 1 casos
+
+  verde 001-flota-completa                     proceso.sintaxis_valida_tras_edicion_masiva  (valor 0)
+
+defectos que se pusieron rojos: 0 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✓ — 0 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 9 · murieron 5 · sobrevivieron 4
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+  de los muertos: 5 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 9
+
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
+  ✓ meta.toda_medida_esta_fijada                        0 (<= 0)
+  ⊘ proceso.codigo_con_mutante_que_lo_mata       SIN EVIDENCIA («mutante con m.tipo == "codigo"» vacía; no se midió)
+  ✗ proceso.test_con_mutante_que_lo_mata                4 (<= 0)
+      → m=proceso.sintaxis_valida_tras_edicion_masiva·aflojar_umbral; m=proceso.sintaxis_valida_tras_edicion_masiva·aflojar_cota_superior; m=proceso.sintaxis_valida_tras_edicion_masiva·vaciar_tuberia_si_cero_aprueba +1
+
+lo que el corpus NO fija — ningún caso detecta estas mutaciones:
+  · mutar «aflojar_umbral» en proceso.sintaxis_valida_tras_edicion_masiva pasa inadvertido
+  · mutar «aflojar_cota_superior» en proceso.sintaxis_valida_tras_edicion_masiva pasa inadvertido
+  · mutar «vaciar_tuberia_si_cero_aprueba» en proceso.sintaxis_valida_tras_edicion_masiva pasa inadvertido
+  · mutar «agregado:3.1:contar→suma(0)» en proceso.sintaxis_valida_tras_edicion_masiva pasa inadvertido
+
+Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual
+demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:
+`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+VEREDICTO: ROJO (falló: mutación)
+
+=== game.js roto; caso intacto: test --rapido | exit=0 ===
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 39 medidas · corpus: 1 casos
+
+  verde 001-flota-completa                     proceso.sintaxis_valida_tras_edicion_masiva  (valor 0)
+
+defectos que se pusieron rojos: 0 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✓ — 0 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+VEREDICTO: VERDE (se salteó: mutación de medidas (--rapido))
+
+=== evidencia game.js false: test --rapido | exit=1 ===
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 39 medidas · corpus: 1 casos
+
+
+defectos que se pusieron rojos: 0 · verdes correctos: 0 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✗ meta.el_caso_se_pone_como_debe                      1 (<= 0)
+      → c=001-flota-completa
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✗ — 1 problema(s)
+  · meta.el_caso_se_pone_como_debe: el marco no cumple su propia regla
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+VEREDICTO: ROJO (falló: aceptación)
+
+=== sin casos ni medidas propias: test --rapido | exit=0 ===
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 0 casos · esquema y evidencia L0 en regla
+SINTAXIS: salteado (sin medidas ni casos todavía)
+ACEPTACIÓN: salteado (sin medidas ni casos todavía)
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+MUTACIÓN: salteada (sin medidas todavía)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+VEREDICTO: VERDE (proyecto vacío: 0 medidas, 0 casos)

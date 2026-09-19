@@ -1,0 +1,93 @@
+[
+  {
+    "path": "batalla_naval_con_oracle/corpus/juego/001-flota-completa.caso",
+    "bytes": 723,
+    "lines": 20,
+    "sha256": "2606e7370e864f35bf48b06d3ea04feee2c0474dbaf62e373d22e8c8553c7625",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_con_oracle/game.js",
+    "bytes": 27858,
+    "lines": 826,
+    "sha256": "5698a9a9d89fcddb51563e3f930899b861cefb122ed4e2005f47c18ff7e9a861",
+    "named_functions": 23
+  },
+  {
+    "path": "batalla_naval_con_oracle/index.html",
+    "bytes": 5471,
+    "lines": 151,
+    "sha256": "cba5be2463b1c115535b0091a5bc3bc1124de107e4df15cf53829118be94ab72",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_con_oracle/oracle.json",
+    "bytes": 81,
+    "lines": 5,
+    "sha256": "e935963c78750164e6c46cb13e9b42b8c04023cdb42949c9e4bc9a43811ae99b",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_con_oracle/styles.css",
+    "bytes": 13032,
+    "lines": 691,
+    "sha256": "40a175c9624fa4ba90a02b6ad84b79ac60955b777ebe2df124f2714e9443fa4d",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_con_oracle/tareas/20260918-190831-juego-batalla/TAREA.md",
+    "bytes": 1517,
+    "lines": 33,
+    "sha256": "fabe78947a368d5e9014abe20f20c56eb55b695bc83bbece76c304bf51c6b450",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_con_oracle/tareas/README.md",
+    "bytes": 176,
+    "lines": 4,
+    "sha256": "1ab0bf385b0ff6bdf621ceca09b19c033dc5356df63756c3efa27f55fd8e510a",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_sin_oracle/README.md",
+    "bytes": 3848,
+    "lines": 89,
+    "sha256": "9377c730e9f2acc7e06fd0efb10b1902c96f9782a27d97061321a6496c7b79bc",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_sin_oracle/audio.js",
+    "bytes": 9186,
+    "lines": 308,
+    "sha256": "d37aaa93330cc8eaa109d1d1cd5b9894d43a5d5f9cf545f5c5f742d762c8fe1a",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_sin_oracle/game.js",
+    "bytes": 39513,
+    "lines": 1025,
+    "sha256": "540ae268aaaca817d1831f733cde57b3e0c112703e123e741a8500ce9e7dbd35",
+    "named_functions": 41
+  },
+  {
+    "path": "batalla_naval_sin_oracle/index.html",
+    "bytes": 10115,
+    "lines": 235,
+    "sha256": "21a81d7b2f6360eec03c234ea521a86030c15cf5134449686f4e770eb1f12218",
+    "named_functions": 0
+  },
+  {
+    "path": "batalla_naval_sin_oracle/style.css",
+    "bytes": 20993,
+    "lines": 1027,
+    "sha256": "e8f95ac94e07d0d7f2e4d68eebf3145320b89d8e00963c563ec583fb858caf7c",
+    "named_functions": 0
+  },
+  {
+    "path": "el_porque_de_agy.md",
+    "bytes": 8399,
+    "lines": 80,
+    "sha256": "b3c04d1cc736f207be3c6595d2bc22e176af9793c72504b94bf4818393225b94",
+    "named_functions": 0
+  }
+]
