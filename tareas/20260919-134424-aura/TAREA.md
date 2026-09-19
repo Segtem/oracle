@@ -33,7 +33,7 @@ Sin shell: sólo lectura, edición y web. No toques código. Al final, en esta t
 
 ## Próximo paso
 
-agy lee esta tarea y la hace.
+Claude revisa `estudios/AURA-Y-ORACLE.md`.
 
 ### Nota (2026-09-19 13:49:12 UTC)
 
