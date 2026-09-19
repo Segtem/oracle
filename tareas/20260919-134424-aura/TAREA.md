@@ -34,3 +34,7 @@ Sin shell: sólo lectura, edición y web. No toques código. Al final, en esta t
 ## Próximo paso
 
 agy lee esta tarea y la hace.
+
+### Nota (2026-09-19 13:49:12 UTC)
+
+2026-09-19, Brian: la idea es hacer un Aura propio para Godot, Unity y Unreal usando Oracle. La investigación tiene que responder eso: qué partes serían propias (el agente, los sensores por motor, el puente al editor) y cuáles ya existen; qué sería Oracle ahí (juez de cada cambio del agente, con medidas por motor escritas en superficie); qué ya está probado en casa (Jam en Unreal: sensor puro + adaptador, sondas headless; LyraGASP) y qué no (Godot y Unity: cero). Un corte mínimo realista para empezar, en un solo motor.
