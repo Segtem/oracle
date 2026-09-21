@@ -221,6 +221,8 @@ sin políticas meta activas — se informa sólo el resultado operativo
 
 MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
 
