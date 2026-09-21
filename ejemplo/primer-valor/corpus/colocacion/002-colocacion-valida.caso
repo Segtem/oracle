@@ -1,0 +1,21 @@
+caso 002-colocacion-valida:
+    fecha: "2026-09-21"
+    origen:
+        repo: "ejemplo-primer-valor"
+        commit: "c010ca0"
+    procedencia: construida
+    titulo: "Flota colocada enteramente dentro de la cuadrícula 10x10"
+    etiqueta: verde_correcto
+    sintoma:
+        Despliegue reglamentario de buques con todas sus celdas dentro del rango válido de 0 a 9.
+    como_se_detecto: persona
+    medida: colocacion.dentro_del_tablero
+    evidencia:
+        celda_ocupada: barco, fila, columna
+            "fragata", 1, 2
+            "fragata", 1, 3
+            "fragata", 1, 4
+            "destructor", 8, 5
+            "destructor", 9, 5
+    leccion:
+        Una colocación reglamentaria debe dar 0 testigos ofensivos y resultar verde; fija la medida contra mutaciones que eliminen el filtro.
