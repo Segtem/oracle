@@ -1,6 +1,6 @@
 # Jam organiza su trabajo pendiente en su propio tracker
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: jam, proceso, tracker
 
