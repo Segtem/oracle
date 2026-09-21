@@ -1,6 +1,6 @@
 # Distinguir en oracle test la validación del corpus y la ausencia de medición del producto
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, ux
 
