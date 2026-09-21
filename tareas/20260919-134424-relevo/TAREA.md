@@ -1,6 +1,6 @@
 # Retomar el trabajo tiene que ser leer una tarea, no recordar una conversación
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, proceso, relevo
 
