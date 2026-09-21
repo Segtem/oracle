@@ -1,6 +1,6 @@
 # El primer corte de un Aura propio: un agente que coloca en Unreal y Oracle lo juzga
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, agentes, unreal, aura
 
