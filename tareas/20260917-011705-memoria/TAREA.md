@@ -43,3 +43,11 @@ vez: el 2026-09-15 una ronda se comió la RAM y el sistema mató procesos ajenos
 3. **Que el paralelismo no se elija a ojo:** la cantidad de rondas simultáneas sale de la memoria
    disponible y del tope, no de «4 porque sí».
 4. Un test que fije el tope nuevo, y la medición en las notas.
+
+### Nota (2026-09-21 21:46:26 UTC)
+
+Medición de línea base completa con bytecode frío: Python 3.14.7, Linux 7.2.6 x86_64, 2386 tests verdes en 152,04 s; /proc/PID/status cada 10 ms (15011 muestras): VmPeak 760328 KiB = 742,51 MiB; VmHWM 105276 KiB = 102,81 MiB. Evidencia y script reproducible en verificacion/. Tope predeterminado reducido de 4000 a 1024 MiB (37,9 % de margen virtual), con una fuente en el perfil reutilizada por el CLI y tests actualizados. docs/mutacion-memoria.md documenta concurrencia N=min(raíces, floor((MemAvailable_MiB/2)/(2*tope_MiB+512))) y un único scope systemd con MemoryMax y MemorySwapMax=0; sin integración systemd en el arnés. En curso: suite final y ronda parcial --objetivo nucleo/algebra.py --lineas 54 --timeout 300.
+
+### Nota (2026-09-21 21:47:41 UTC)
+
+Primera verificación final: 2386 tests, un fallo por ejecutar simultáneamente la ronda parcial y la suite en la misma raíz: test_cli_filtro_vacio_retorna_codigo_2 recibió RondaEnCurso. Es interferencia del bloqueo del arnés, no fallo del límite. Se conserva suite-concurrente.log y se repetirá la suite sola una vez terminada la ronda parcial. Receta validada con bash -n y lanzadores simulados (presupuestos insuficiente, 5000 y 8000 MiB; concurrencias 0, 1 y 2); no se ejecutó un scope real de systemd.

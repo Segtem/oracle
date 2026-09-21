@@ -3,7 +3,7 @@
     python tools/mutar_codigo.py                 → informe
     python tools/mutar_codigo.py --hechos        → volcar la evidencia (JSON)
     python tools/mutar_codigo.py --timeout 90    → límite por ejecución de tests
-    python tools/mutar_codigo.py --limite-memoria-mb 4000 → límite de memoria en MiB (0 desactiva)
+    python tools/mutar_codigo.py --limite-memoria-mb 1024 → límite de memoria en MiB (0 desactiva)
     python tools/mutar_codigo.py --manifiesto progreso.json [--reanudar]
     python tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 50-120
     python tools/mutar_codigo.py --sitio nucleo/algebra.py:53:12:+
@@ -35,6 +35,7 @@ import catalogos  # noqa: F401,E402
 from nucleo.medida import cargar_catalogo, evaluar_conjunto, medidas_aplicables  # noqa: E402
 from perfiles.python.mutacion_codigo import (CacheNoLimpio, EquivalenteInvalido,
                                               LineaBaseFallida, AislamientoRoto,
+                                              LIMITE_MEMORIA_PREDETERMINADO,
                                               ManifiestoInvalido, RondaEnCurso, correr,
                                               sitios_de)  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogos_a_cargar,
@@ -370,9 +371,8 @@ def dependencias_de_ronda() -> list[Path]:
     return sorted(set(rutas))
 
 
-# Los 4 GB que se venían poniendo a mano con `ulimit -v` antes de cada ronda. En un solo lugar: el
-# número también viaja en la ayuda del comando.
-LIMITE_MEMORIA_MB_PREDETERMINADO = 4000
+# El perfil define el tope en bytes; el CLI lo expresa en MiB.
+LIMITE_MEMORIA_MB_PREDETERMINADO = LIMITE_MEMORIA_PREDETERMINADO // (1024 * 1024)
 
 
 def parsear_rango_lineas(rango_str: str) -> tuple[int, int]:
@@ -401,7 +401,7 @@ def argumentos(argv: list[str]):
     p.add_argument("--limite-salida-kb", type=int, default=1024,
                    help="KiB máximos conservados por stdout y stderr en cada ejecución")
     p.add_argument("--limite-memoria-mb", type=int, default=LIMITE_MEMORIA_MB_PREDETERMINADO,
-                   help=f"MiB máximos de memoria por ejecución "
+                   help=f"MiB máximos de memoria virtual por proceso "
                         f"({LIMITE_MEMORIA_MB_PREDETERMINADO} por defecto, 0 desactiva)")
     p.add_argument("--manifiesto", type=Path,
                    help="guardar progreso atómico para poder reanudar la ronda")

@@ -100,7 +100,9 @@ TIMEOUT_PREDETERMINADO = 60.0
 CODIGOS_FALLO_PREDETERMINADOS = frozenset({1})
 LIMITE_DIAGNOSTICO_PREDETERMINADO = 16_384
 LIMITE_SALIDA_PREDETERMINADO = 1_048_576
-LIMITE_MEMORIA_PREDETERMINADO = 4000 * 1024 * 1024
+# Línea base: VmPeak 742,51 MiB (Python 3.14.7); 1024 deja un 38 % de margen.
+# Medición reproducible y presupuesto para rondas: docs/mutacion-memoria.md.
+LIMITE_MEMORIA_PREDETERMINADO = 1024 * 1024 * 1024
 
 
 def _tope_de_memoria_aplicable(limite: int | None) -> tuple[int, int] | None:

@@ -1,0 +1,23 @@
+usage: python3 -m unittest [-h] --proyecto RUTA [--hechos] [--html RUTA]
+                           [--confiar-escalares]
+python3 -m unittest: error: the following arguments are required: --proyecto
+BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+======================================================================
+FAIL: test_cli_filtro_vacio_retorna_codigo_2 (tests.test_mutacion_codigo.FiltroSitiosTests.test_cli_filtro_vacio_retorna_codigo_2)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-codex/tests/test_mutacion_codigo.py", line 1711, in test_cli_filtro_vacio_retorna_codigo_2
+    self.assertIn("filtro de sitios no seleccionó ningún sitio", err.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'filtro de sitios no seleccionó ningún sitio' not found in '\nMUTACIÓN NO CONFIABLE — RondaEnCurso\nya hay una ronda para /tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-codex (pid 4)\n'
+
+----------------------------------------------------------------------
+Ran 2386 tests in 81.037s
+
+FAILED (failures=1)
+ruido: 0 mutantes sobrevivientes para «meta.sintaxis_cubre_algebra» — no se generó ningún caso (ya está fijada)
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --lineas 9999-9999) ***
+objetivos: nucleo/aislamiento/escalares.py
+
+objetivos: nucleo/aislamiento/escalares.py
+

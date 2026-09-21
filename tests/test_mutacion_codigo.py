@@ -915,7 +915,7 @@ class CorrerTests(unittest.TestCase):
         self.assertEqual(mc.CODIGOS_FALLO_PREDETERMINADOS, frozenset({1}))
         self.assertEqual(mc.LIMITE_DIAGNOSTICO_PREDETERMINADO, 16_384)
         self.assertEqual(mc.LIMITE_SALIDA_PREDETERMINADO, 1_048_576)
-        self.assertEqual(mc.LIMITE_MEMORIA_PREDETERMINADO, 4000 * 1024 * 1024)
+        self.assertEqual(mc.LIMITE_MEMORIA_PREDETERMINADO, 1024 * 1024 * 1024)
         self.assertEqual(mc.MAX_RUTAS_DIAGNOSTICO, 3)
         self.assertEqual(mc.ESPERA_TERMINACION_SUAVE, 1.0)
         self.assertEqual(mc.ESPERA_TERMINACION_FORZADA, 2.0)
@@ -1219,8 +1219,8 @@ class LimiteMemoriaTests(unittest.TestCase):
 
     def test_constantes_limite_memoria(self) -> None:
         from tools.mutar_codigo import LIMITE_MEMORIA_MB_PREDETERMINADO
-        self.assertEqual(mc.LIMITE_MEMORIA_PREDETERMINADO, 4000 * 1024 * 1024)
-        self.assertEqual(LIMITE_MEMORIA_MB_PREDETERMINADO, 4000)
+        self.assertEqual(mc.LIMITE_MEMORIA_PREDETERMINADO, 1024 * 1024 * 1024)
+        self.assertEqual(LIMITE_MEMORIA_MB_PREDETERMINADO, 1024)
 
     def test_limite_memoria_limita_al_hijo_y_se_ejecuta_en_el_hijo(self) -> None:
         try:
@@ -1467,7 +1467,7 @@ class LimiteMemoriaTests(unittest.TestCase):
             parser_args.limite_memoria_mb,
             mutar_codigo.LIMITE_MEMORIA_MB_PREDETERMINADO,
         )
-        self.assertEqual(parser_args.limite_memoria_mb, 4000)
+        self.assertEqual(parser_args.limite_memoria_mb, 1024)
 
         args_custom = mutar_codigo.argumentos(["--limite-memoria-mb", "2048"])
         self.assertEqual(args_custom.limite_memoria_mb, 2048)
@@ -1494,11 +1494,11 @@ class LimiteMemoriaTests(unittest.TestCase):
                              "apunta_a": "m.py"}],
                 "mutante_equivalente": [],
             }
-            # Predeterminado: 4000 MB -> bytes
+            # Predeterminado: 1024 MiB -> bytes
             with mock.patch("sys.stdout", new_callable=io.StringIO):
                 mutar_codigo.main(["--objetivo", "nucleo/aislamiento/escalares.py"])
             _, kwargs = mock_correr.call_args
-            self.assertEqual(kwargs["limite_memoria"], 4000 * 1024 * 1024)
+            self.assertEqual(kwargs["limite_memoria"], 1024 * 1024 * 1024)
 
             # Explícito: 2048 MB -> bytes
             with mock.patch("sys.stdout", new_callable=io.StringIO):

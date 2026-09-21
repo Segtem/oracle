@@ -1,0 +1,30 @@
+DISPONIBLE_MIB=1; salida=1
+No alcanza: presupuesto 0 MiB; ronda 2560 MiB
+
+DISPONIBLE_MIB=10000; salida=0
+Tope por proceso: 1024 MiB; techo común: 5000 MiB; concurrencia: 1
+scope: --user --scope -p MemoryAccounting=yes -p MemoryMax=5000M -p MemorySwapMax=0 bash -c 
+        paralelas=$1; shift
+        printf "%s\0" "$@" | xargs -0 -r -n 1 -P "$paralelas" bash -c '
+            cd -- "$1" || exit 2
+            exec python3 tools/mutar_codigo.py --objetivo "$OBJETIVO" \
+                --lineas "$LINEAS" --timeout 300 \
+                --limite-memoria-mb "$LIMITE_MIB"
+        ' _
+     _ 1 /tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-codex /tmp
+ronda simulada: tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 54 --timeout 300 --limite-memoria-mb 1024
+ronda simulada: tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 54 --timeout 300 --limite-memoria-mb 1024
+
+DISPONIBLE_MIB=16000; salida=0
+Tope por proceso: 1024 MiB; techo común: 8000 MiB; concurrencia: 2
+scope: --user --scope -p MemoryAccounting=yes -p MemoryMax=8000M -p MemorySwapMax=0 bash -c 
+        paralelas=$1; shift
+        printf "%s\0" "$@" | xargs -0 -r -n 1 -P "$paralelas" bash -c '
+            cd -- "$1" || exit 2
+            exec python3 tools/mutar_codigo.py --objetivo "$OBJETIVO" \
+                --lineas "$LINEAS" --timeout 300 \
+                --limite-memoria-mb "$LIMITE_MIB"
+        ' _
+     _ 2 /tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-codex /tmp
+ronda simulada: tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 54 --timeout 300 --limite-memoria-mb 1024
+ronda simulada: tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 54 --timeout 300 --limite-memoria-mb 1024

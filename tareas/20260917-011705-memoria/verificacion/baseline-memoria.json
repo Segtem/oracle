@@ -1,0 +1,13 @@
+{
+  "comando": [
+    "python3",
+    "tools/ejecutar_suite_mutacion.py"
+  ],
+  "codigo": 0,
+  "vmpeak_kib": 760328,
+  "vmhwm_kib": 105276,
+  "muestras": 15011,
+  "segundos": 152.04,
+  "python": "Python 3.14.7",
+  "intervalo_ms": 10
+}
