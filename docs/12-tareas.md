@@ -58,7 +58,11 @@ Cada tarea posee un identificador único basado en tiempo universal coordinado (
 
 ### Seguridad y confinamiento de rutas
 
-- Los IDs y prefijos no admiten `..`, `/` ni `\`. Las rutas de proyecto sí pueden ser
+- `ver`, `anotar`, `cerrar` y `reabrir` (y `ver` del MCP) aceptan el sufijo completo
+  después de `YYYYMMDD-HHMMSS-`. Si coincide con varias tareas, enumeran los IDs
+  ambiguos. Sin coincidencia, sugieren hasta tres IDs similares, sin seleccionarlos
+  automáticamente. El ID completo conserva precedencia y los prefijos siguen admitidos.
+- Los IDs, prefijos y sufijos no admiten `..`, `/` ni `\`. Las rutas de proyecto sí pueden ser
   absolutas o relativas y contener espacios.
 - La ruta resuelta de una tarea debe pertenecer estrictamente al árbol de `tareas/` del proyecto.
 - No se siguen enlaces simbólicos que apunten fuera del directorio `tareas/`. Cualquier intento de escape se rechaza con código de error 1.
@@ -95,7 +99,7 @@ Los comandos de modificación de estado (`cerrar`, `reabrir`):
 | `oracle tarea init` | `[ruta] [--sin-readme]` | Inicializa `tareas/` y opcionalmente `tareas/README.md`. |
 | `oracle tarea nueva` | `<titulo> [--etiqueta/-e <etiqueta>]... [--prioridad <n>] [--sufijo <sufijo>] [--json]` | Crea una nueva tarea y devuelve su ID y ruta. |
 | `oracle tarea listar` / `ls` | `[consulta] [--cerradas] [--todas] [--etiqueta/-e <e>] [--texto/-t <s>] [--por-id] [--invertir] [--explicar] [--json]` | Lista tareas abiertas (o cerradas/todas). Admite expresiones TQL, orden por ID descendente e inversión. |
-| `oracle tarea ver` | `<id> [--ruta] [--json]` | Muestra detalles de la tarea. Admite prefijos inequívocos. Con `--ruta` imprime solo la ruta al archivo. |
+| `oracle tarea ver` | `<id> [--ruta] [--json]` | Muestra detalles de la tarea. Admite prefijos y sufijos exactos inequívocos. Con `--ruta` imprime solo la ruta al archivo. |
 | `oracle tarea cerrar` | `<id>` | Cambia el estado a `CERRADA` de forma atómica y preserva el resto. |
 | `oracle tarea reabrir` | `<id>` | Cambia el estado a `ABIERTA` de forma atómica y preserva el resto. |
 | `oracle tarea revisar` | `[--json]` | Audita la integridad del directorio tareas/: detecta carpetas sin `TAREA.md`, metadatos inválidos y omisiones. |

@@ -27,7 +27,15 @@ un agente sí recuerda es el **sufijo**.
 4. En el protocolo de `AGENTS.md`: referirse a una tarea por su id completo o por su sufijo, nunca
    reconstruir un id a mano ni buscarla con un glob.
 
+### Nota (2026-09-21 20:32:14 UTC)
+
+Implementado el resolvedor compartido por CLI y MCP: sufijo completo exacto y único, IdAmbiguo con IDs ordenados, sugerencias de hasta tres IDs similares (comparación con ID y sufijo, umbral 0.6), conservando precedencia del ID completo y prefijos. Actualizados AGENTS.md, ayuda del CLI y docs/12-tareas.md. Agregados 11 tests en tests/test_tareas_sufijo.py para resolvedor, seguridad, CLI ver/anotar/cerrar/reabrir, ausencia de mutaciones ante errores y MCP. Los 11 tests pasan; suite completa en ejecución. Verificación manual: tarea ver buscar-sufijo --ruta devuelve esta tarea. Sin commits.
+
+### Nota (2026-09-21 20:32:50 UTC)
+
+Validación final: python3 -B -m unittest discover -s tests -t . -q terminó con código 0: Ran 2375 tests in 74.810s, OK. git diff --check sin errores. Implementación y tests completos; no se hicieron commits por instrucción del usuario. El cierre con commit queda para Claude.
+
 ## Próximo paso
 
-Tests del resolvedor con sufijo único, sufijo ambiguo y sin coincidencia con sugerencia; después el
-cambio en `resolver_id_o_prefijo`.
+Claude: revisar los cambios validados (2375 tests OK), marcar la tarea CERRADA y crear el
+commit `20260919-171824-buscar-sufijo: done`. No quedan cambios de implementación pendientes.

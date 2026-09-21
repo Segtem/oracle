@@ -5,6 +5,7 @@ Trabajá en español.
 ## Protocolo de tareas y relevo
 
 - Para retomar: `oracle tarea listar` muestra las abiertas por prioridad; `oracle tarea ver <id>` da el contexto.
+- Referite a una tarea por su id completo o por su sufijo; nunca reconstruyas un id a mano ni la busques con un glob.
 - Desde este repo también se puede usar `python3 tools/cli.py tarea …`.
 - La tarea es la fuente de verdad: qué se pidió, qué se hizo y cuál es el próximo paso.
 - Registrá avances, evidencia y bloqueos con `oracle tarea anotar <id> "…"`.

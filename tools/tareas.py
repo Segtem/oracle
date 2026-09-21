@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import argparse
 import datetime
+import difflib
 import json
 import os
 import re
@@ -43,11 +44,11 @@ class RutaInsegura(TareaError):
 
 
 class TareaNoEncontrada(TareaError):
-    """No se encontró la tarea especificada por ID o prefijo."""
+    """No se encontró la tarea especificada por ID, prefijo o sufijo."""
 
 
 class IdAmbiguo(TareaError):
-    """El prefijo coincide con múltiples tareas candidatas."""
+    """El identificador coincide con múltiples tareas candidatas."""
 
 
 class ParserDeSubcomando(argparse.ArgumentParser):
@@ -393,23 +394,39 @@ def resolver_id_o_prefijo(raiz_tareas: Path, id_o_prefijo: str) -> Path:
         return directo
 
     candidatos: list[Path] = []
+    parecidas: list[tuple[float, str]] = []
     for entrada in sorted(raiz_tareas.iterdir()):
         if entrada.name.startswith("."):
             continue
         if not ID_COMPLETO_RE.fullmatch(entrada.name):
             continue
-        if entrada.name.startswith(id_o_prefijo):
+        sufijo = entrada.name[16:]
+        if entrada.name.startswith(id_o_prefijo) or sufijo == id_o_prefijo:
             asegurar_confinamiento(raiz_tareas, entrada)
             candidatos.append(entrada)
+        elif entrada.is_dir():
+            # Las sugerencias no resuelven ni habilitan mutaciones sobre una tarea.
+            try:
+                asegurar_confinamiento(raiz_tareas, entrada)
+            except RutaInsegura:
+                continue
+            similitud = max(
+                difflib.SequenceMatcher(None, id_o_prefijo, nombre).ratio()
+                for nombre in (entrada.name, sufijo)
+            )
+            if similitud >= 0.6:
+                parecidas.append((similitud, entrada.name))
 
     if not candidatos:
-        raise TareaNoEncontrada(
-            f"no se encontró ninguna tarea con id o prefijo «{id_o_prefijo}»"
-        )
+        mensaje = f"no se encontró ninguna tarea con id, prefijo o sufijo «{id_o_prefijo}»"
+        sugerencias = [nombre for _, nombre in sorted(parecidas, key=lambda par: (-par[0], par[1]))[:3]]
+        if sugerencias:
+            mensaje += f"; ¿quisiste decir {', '.join(sugerencias)}?"
+        raise TareaNoEncontrada(mensaje)
     if len(candidatos) > 1:
         nombres = sorted(c.name for c in candidatos)
         raise IdAmbiguo(
-            f"el prefijo «{id_o_prefijo}» es ambiguo; coincide con: {', '.join(nombres)}"
+            f"el identificador «{id_o_prefijo}» es ambiguo; coincide con: {', '.join(nombres)}"
         )
 
     return candidatos[0]
@@ -880,7 +897,7 @@ def filtrar_tareas(
 
 
 def leer_tarea(raiz_tareas: Path, id_o_prefijo: str) -> Tarea:
-    """Resuelve y carga una tarea individual por ID o prefijo único."""
+    """Resuelve y carga una tarea individual por ID, prefijo o sufijo único."""
     carpeta = resolver_id_o_prefijo(raiz_tareas, id_o_prefijo)
     tarea_md = carpeta / "TAREA.md"
     if not tarea_md.is_file():
@@ -908,7 +925,7 @@ def cmd_ver(argv: list[str], args: list[str]) -> int:
         prog="oracle tarea ver",
         description="Muestra detalles de una tarea o su ruta",
     )
-    parser.add_argument("id", help="Identificador o prefijo inequívoco de la tarea")
+    parser.add_argument("id", help="Identificador, prefijo o sufijo inequívoco de la tarea")
     parser.add_argument("--ruta", action="store_true", help="Imprime sólo la ruta a TAREA.md")
     parser.add_argument("--json", action="store_true", help="Salida en formato JSON")
     parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
@@ -961,7 +978,7 @@ def cmd_cerrar(argv: list[str], args: list[str]) -> int:
         prog="oracle tarea cerrar",
         description="Marca una tarea como CERRADA de forma atómica",
     )
-    parser.add_argument("id", help="Identificador o prefijo inequívoco de la tarea")
+    parser.add_argument("id", help="Identificador, prefijo o sufijo inequívoco de la tarea")
     parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
     parsed = parser.parse_args(args)
 
@@ -1007,7 +1024,7 @@ def cmd_reabrir(argv: list[str], args: list[str]) -> int:
         prog="oracle tarea reabrir",
         description="Marca una tarea como ABIERTA de forma atómica",
     )
-    parser.add_argument("id", help="Identificador o prefijo inequívoco de la tarea")
+    parser.add_argument("id", help="Identificador, prefijo o sufijo inequívoco de la tarea")
     parser.add_argument("--proyecto", default=None, help="Ruta al proyecto")
     parsed = parser.parse_args(args)
 
