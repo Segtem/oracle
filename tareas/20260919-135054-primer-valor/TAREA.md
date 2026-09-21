@@ -1,6 +1,6 @@
 # Documentar un camino corto desde un producto nuevo hasta su primera medida observable
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 65
 - ETIQUETAS: oracle, documentacion
 
