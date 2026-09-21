@@ -424,6 +424,26 @@ diferencias con tatr en [docs/12-tareas.md](https://github.com/Segtem/oracle/blo
 
 ## Juzgar evidencia real
 
+`oracle test` verifica medidas contra **casos guardados del corpus**. La aceptación no
+reejecuta los comandos de origen ni el producto: aun si cambia `game.js`, el resultado
+puede conservarse mientras la evidencia guardada siga igual. El resumen declara ese alcance;
+`SINTAXIS` comprueba archivos Oracle, no la sintaxis del código del producto. Las omisiones de
+`--rapido` siguen visibles en el veredicto verde y en el resumen rojo.
+
+Contrato de salida para CI (se conservan los códigos existentes):
+
+| Situación | Estado | Código |
+| --- | --- | --- |
+| Sin medidas propias, casos ni fixtures diferenciales | `SIN MEDICIÓN` (advertencia) | `0` |
+| Verificaciones aprobadas sobre casos, con medidas propias o heredadas | `VERDE`, limitado al corpus y las verificaciones ejecutadas | `0` |
+| Corpus inválido o alguna verificación fallida | `ROJO` | `1` |
+| Estructura inválida | `ROJO` | `1` |
+
+El vacío deja de anunciar `VERDE`; los consumidores que interpreten el texto deben reconocer
+`SIN MEDICIÓN`. Un catálogo con medidas propias y sin casos sigue fallando. La cantidad de
+medidas propias no permite inferir cobertura del producto. Este contrato no cambia `juzgar`
+ni su tratamiento de las medidas que no se aplicaron.
+
 `oracle test` responde si el catálogo está bien fijado. Lo que viene después —¿estos hechos cumplen
 el catálogo?— es otro veredicto, y desde 0.18.0 tiene su verbo:
 

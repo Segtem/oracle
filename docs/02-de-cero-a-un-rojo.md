@@ -51,11 +51,12 @@ Próximos pasos:
 Tres carpetas y un archivo. `oracle.json` viene con `"catalogo_base": true`: tu proyecto hereda las
 medidas universales de Oracle, que van a juzgar **tus** medidas.
 
-Un proyecto vacío pasa, y lo dice sin disimular:
+Un proyecto vacío conserva código de salida `0` para CI, con una advertencia: todavía no hay
+casos para verificar ni una medición del producto. No equivale a un corpus validado:
 
 ```
 $ oracle test
-VEREDICTO: VERDE (proyecto vacío: 0 medidas, 0 casos)
+VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)
 ```
 
 ## 3. Una medida

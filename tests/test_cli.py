@@ -170,12 +170,12 @@ class OracleCliTests(CliTestCase):
             self.assertTrue((destino / "diferencial").is_dir())
             self.assertTrue((destino / "oracle.json").is_file())
 
-            # oracle test sobre el proyecto recién inicializado debe ser verde
+            # El proyecto vacío conserva exit 0, con advertencia de ausencia de medición.
             salida_test = io.StringIO()
             with redirect_stdout(salida_test):
                 rc_test = cli.main(["test", "--proyecto", str(destino)])
             self.assertEqual(rc_test, 0)
-            self.assertIn("VEREDICTO: VERDE", salida_test.getvalue())
+            self.assertIn("VEREDICTO: SIN MEDICIÓN", salida_test.getvalue())
             self.assertIn("proyecto vacío", salida_test.getvalue())
 
     def test_init_acepta_proyecto_es_idempotente_y_escribe_json_legible(self) -> None:

@@ -195,7 +195,7 @@ class EmpaquetadoCliTests(unittest.TestCase):
                 cwd=cwd_vacio, env=env, capture_output=True, text=True,
             )
             self.assertEqual(vacio.returncode, 0, vacio.stdout + vacio.stderr)
-            self.assertIn("VEREDICTO: VERDE", vacio.stdout)
+            self.assertIn("VEREDICTO: SIN MEDICIÓN", vacio.stdout)
             self.assertIn("proyecto vacío", vacio.stdout)
 
             rels = proyecto / "relaciones"

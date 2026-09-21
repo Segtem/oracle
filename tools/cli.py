@@ -82,7 +82,7 @@ LIMITE_ILEGIBLES = 10
 from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
                                descubrir_bibliotecas,
                                verificar_biblioteca)
-from nucleo.caso import rutas_de_corpus  # noqa: E402
+from nucleo.caso import CasoMalDeclarado, rutas_de_corpus  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from tools import manual  # noqa: E402
 from tools import reportar  # noqa: E402
@@ -752,6 +752,12 @@ def _veredicto_verde(*, todo: bool, omisiones: list[str]) -> None:
         print("VEREDICTO: VERDE (todas las verificaciones aplicables en regla)")
 
 
+def _alcance_test() -> None:
+    print("ALCANCE: verificación de medidas contra casos guardados del corpus.")
+    print("PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen "
+          "ni el producto. El resultado no certifica su estado actual.")
+
+
 def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     rapido = "--rapido" in argv
     todo = "--todo" in argv
@@ -808,16 +814,22 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     # «Vacío» se mide por las medidas PROPIAS, no por las cargadas. Desde que `init` declara
     # `catalogo_base`, un proyecto recién creado hereda 34 medidas universales y dejaba de contar
     # como vacío: `aceptacion` decía «SIN CASOS» y el primer `oracle test` de alguien salía ROJO.
-    # Heredar las guardas no es tener un catálogo.
+    # Esto identifica sólo el arranque vacío; no mide cobertura del producto.
+    # Con casos, las medidas heredadas son tan legítimas como las propias.
     propias = rutas_de_catalogo(proy.catalogos)
     if len(propias) == 0 and len(casos_archivos) == 0 and len(rutas_diferencial) == 0:
-        print("CORPUS OK · 0 casos · esquema y evidencia L0 en regla")
+        print("CORPUS: sin casos guardados para verificar")
         print("SINTAXIS: salteado (sin medidas ni casos todavía)")
         print("ACEPTACIÓN: salteado (sin medidas ni casos todavía)")
         print("DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)")
         print("MUTACIÓN: salteada (sin medidas todavía)\n")
         print("MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)\n")
-        print("VEREDICTO: VERDE (proyecto vacío: 0 medidas, 0 casos)")
+        print("PRODUCTO: sin nueva medición; no se ejecutó el producto.")
+        if omisiones_veredicto:
+            print(f"OMISIONES: {'; '.join(omisiones_veredicto)}")
+        # Compatibilidad CI: iniciar un proyecto sigue siendo exitoso (exit 0).
+        print("VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: "
+              "0 medidas propias, 0 casos, 0 fixtures diferenciales)")
         return 0
 
     # 1. Corpus
@@ -887,6 +899,9 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         except (EscalaresNoConfiables, EscalaresInvalidas) as e:
             print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
             fallas_suite.append("aceptación (escalares)")
+        except CasoMalDeclarado as e:
+            print(f"ACEPTACIÓN ✗ — {e}")
+            fallas_suite.append("aceptación (caso inválido)")
     print()
 
     # 4. Diferencial
@@ -958,7 +973,10 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     print()
 
     # Veredicto final
+    _alcance_test()
     if fallas_suite:
+        if omisiones_veredicto:
+            print(f"OMISIONES: {'; '.join(omisiones_veredicto)}")
         print(f"VEREDICTO: ROJO (falló: {', '.join(fallas_suite)})")
         return 1
 
