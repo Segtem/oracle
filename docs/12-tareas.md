@@ -78,6 +78,12 @@ Un archivo `TAREA.md` se compone de tres partes ordenadas:
    - `ESTADO`: obligatorio, toma exclusivamente los valores `ABIERTA` o `CERRADA`.
    - `PRIORIDAD`: obligatorio, un número entero (ej. `50`, `100`, `0`). A mayor número, mayor prioridad en los listados. El valor por defecto al crear es `50`.
    - `ETIQUETAS`: lista de etiquetas separadas por comas (ej. `bug, sensor, urgente`).
+   - `CIERRA CON`: lista opcional de identificadores de medidas separados por comas (ej. `dedos.flexion_digital, recarga.slot`).
+     Cada identificador tiene al menos dos segmentos separados por puntos; cada segmento comienza con una letra minúscula ASCII y continúa con letras minúsculas ASCII, dígitos o `_`.
+     Se recortan espacios y se eliminan repeticiones conservando el orden.
+     Ausente o vacío significa ninguna medida; elementos vacíos entre comas o identificadores inválidos invalidan la tarea.
+     Se expone como `cierra_con` en JSON. El tracker sólo valida la declaración: no consulta el catálogo ni evalúa medidas al cerrar.
+     Los cambios de estado y etiquetas preservan el campo original.
    - **Campos adicionales**: se admiten campos personalizados (ej. `- ASIGNADO: brian`) y se preservan intactos en operaciones de actualización.
    - **Validación estricta**: campos duplicados dentro del bloque de metadatos o estados desconocidos constituyen un error que invalida la tarea.
 3. **Cuerpo libre**: todo el texto posterior al bloque de metadatos, separado por al menos una línea en blanco.

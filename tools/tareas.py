@@ -23,7 +23,9 @@ from tools.tareas_consulta import ConsultaInvalida, compilar
 
 ID_RE = re.compile(r"^[a-zA-Z0-9][a-zA-Z0-9_-]*$")
 ID_COMPLETO_RE = re.compile(r"^[0-9]{8}-[0-9]{6}(?:-[a-z0-9_-]+)*$")
-LINEA_META_RE = re.compile(r"^[ \t]*[-*][ \t]+([A-Za-z0-9_-]+)[ \t]*:[ \t]*(.*)$")
+LINEA_META_RE = re.compile(r"^[ \t]*[-*][ \t]+((?ai:CIERRA CON)|[A-Za-z0-9_-]+)[ \t]*:[ \t]*(.*)$")
+# Gramática de nucleo.proyecto.ID_MEDIDA_RE, sin importar el motor desde el tracker.
+CIERRE_MEDIDA_RE = re.compile(r"[a-z][a-z0-9_]*(?:\.[a-z][a-z0-9_]*)+")
 ARCHIVOS_AUXILIARES_PERMITIDOS = frozenset({"README.md", "README", ".gitignore", "etiquetas"})
 
 
@@ -69,6 +71,7 @@ class Tarea:
     campos_adicionales: dict[str, str]
     cuerpo: str
     ruta: Path
+    cierra_con: tuple[str, ...] = ()
 
     def a_dict(self) -> dict[str, Any]:
         return {
@@ -77,6 +80,7 @@ class Tarea:
             "estado": self.estado,
             "prioridad": self.prioridad,
             "etiquetas": list(self.etiquetas),
+            "cierra_con": list(self.cierra_con),
             "campos_adicionales": dict(self.campos_adicionales),
             "cuerpo": self.cuerpo,
             "ruta": str(self.ruta.resolve()),
@@ -240,7 +244,7 @@ def parsear_tarea(texto: str, ruta: Path) -> Tarea:
         campos_vistos.add(clave_norm)
         campos[clave_norm] = valor
 
-        if clave_norm not in ("ESTADO", "PRIORIDAD", "ETIQUETAS"):
+        if clave_norm not in ("ESTADO", "PRIORIDAD", "ETIQUETAS", "CIERRA CON"):
             campos_adicionales[clave_cruda] = valor
 
         idx += 1
@@ -267,6 +271,15 @@ def parsear_tarea(texto: str, ruta: Path) -> Tarea:
     etiquetas_raw = campos.get("ETIQUETAS", "")
     etiquetas = tuple(e.strip() for e in etiquetas_raw.split(",") if e.strip())
 
+    cierre_raw = campos.get("CIERRA CON", "")
+    medidas_cierre = [m.strip() for m in cierre_raw.split(",")] if cierre_raw else []
+    for medida in medidas_cierre:
+        if CIERRE_MEDIDA_RE.fullmatch(medida) is None:
+            raise TareaInvalida(
+                f"{ruta}: identificador de medida inválido en CIERRA CON: «{medida}»"
+            )
+    cierra_con = tuple(dict.fromkeys(medidas_cierre))
+
     cuerpo = "\n".join(lineas[idx:]).strip()
     id_tarea = ruta.parent.name
 
@@ -279,6 +292,7 @@ def parsear_tarea(texto: str, ruta: Path) -> Tarea:
         campos_adicionales=campos_adicionales,
         cuerpo=cuerpo,
         ruta=ruta,
+        cierra_con=cierra_con,
     )
 
 

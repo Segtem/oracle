@@ -44,8 +44,9 @@ La evidencia de la última aceptación se reifica como la relación **`aceptacio
 - **`medida`** (`texto`, `sin_unidad`): identificador canónico de la medida (ej. `dedos.flexion_digital`).
 - **`ok`** (`booleano`, `sin_unidad`): `true` si la medida está en el catálogo y pasó la aceptación; `false` si dio rojo.
 - **De dónde sale**:
-  - En proyectos con `oracle test`: exportación de los veredictos de medidas emitidos por la suite de aceptación.
-  - En proyectos que juzgan evidencia del dominio: los veredictos emitidos por `oracle juzgar --json` (campo `medidas` con su `id` y `ok`).
+  - Emisor elegido: `oracle juzgar --json` sobre la evidencia actual del dominio y el catálogo del proyecto. El flujo consumidor convierte `medidas` (`id`, `ok`) a `aceptacion_medida` (`medida`, `ok`).
+  - `oracle test` comprueba el corpus (incluidos rojos esperados); su éxito no acredita que las medidas estén verdes sobre el dominio. No se agregará `oracle test --hechos-aceptacion`.
+  - Se conserva el `ok` individual, incluso si una sombra perdona un rojo. `no_aplicadas` no aporta filas. Sólo se convierte una salida JSON válida de una ejecución terminada con código 0 o 1; cualquier error aborta el flujo, sin reutilizar evidencia anterior.
   - Si una medida no existe en el catálogo o no fue evaluada, no figura con `ok: true` en `aceptacion_medida`.
 
 ### 3. Composición de la evidencia para `oracle juzgar`
@@ -72,9 +73,9 @@ Se implementará en `ejemplo/seguimiento-tareas/catalogos/seguimiento.toda_tarea
 ```oracle
 medida seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre:
     de tarea_cierre_medida cm
-    unir de tarea_seguimiento t
+    unir tarea_seguimiento t
     donde cm.tarea_id == t.id y t.estado_declarado == "CERRADA"
-    sin de aceptacion_medida am donde am.medida == cm.medida y am.ok == true
+    sin aceptacion_medida am donde am.medida == cm.medida y am.ok == true
     resumen contar(1)
     umbral <= 0 segun contrato porque "toda tarea cerrada cuyo criterio de cierre nombre medidas exige que esas medidas existan en el catálogo y estén verdes en la última aceptación"
     ambito del_origen
@@ -83,6 +84,7 @@ medida seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre:
 
 ### 5. Plan de implementación por pasos
 
+0. **Paso 0 (Emisor decidido)**: convertir la salida actual de `oracle juzgar --json` en el flujo consumidor, según el contrato de la sección 2.
 1. **Paso 1 (Parser)**: en `tools/tareas.py`, parsear `- CIERRA CON: ...` en `parsear_tarea` guardando la tupla de medidas saneadas en `Tarea.cierra_con`, preservando el campo en operaciones atómicas (`actualizar_estado_tarea`, `etiquetar`).
 2. **Paso 2 (Hechos del tracker)**: en `tools/tareas_hechos.py`, emitir la relación `tarea_cierre_medida` (siempre presente en la salida de `oracle tarea hechos`).
 3. **Paso 3 (Declaraciones L−1)**: crear `ejemplo/seguimiento-tareas/relaciones/tarea_cierre_medida.json` y `aceptacion_medida.json`.
@@ -101,10 +103,18 @@ medida seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre:
 - Conforme a la instrucción, no se ejecutó shell ni se afirmaron verificaciones dinámicas no corridas en este turno.
 
 
-## Próximo paso
-
-Implementar en `tools/tareas.py` el soporte del campo de metadatos `- CIERRA CON:` en `parsear_tarea`, agregando el atributo `cierra_con: tuple[str, ...]` al dataclass `Tarea`, validando los identificadores de medidas y preservando el campo de forma atómica en modificaciones del documento.
-
 ### Nota (2026-09-21 20:43:24 UTC)
 
 2026-09-21, revisión de Claude del diseño de agy: la dirección es buena (el tracker sólo declara tarea_cierre_medida; el veredicto viene de la aceptación; la política usa sin). Dos correcciones antes de implementar: (1) la superficie de la medida está mal — es 'unir tarea_seguimiento t' y 'sin aceptacion_medida am donde …', sin 'de'; (2) falta el paso 0: hoy NADIE emite aceptacion_medida. oracle test no exporta sus veredictos como hechos; oracle juzgar --json sí trae id y ok por medida. Hay que decidir el emisor (por ejemplo 'oracle test --hechos-aceptacion <ruta>') antes que el parser.
+
+### Nota (2026-09-21 21:29:34 UTC)
+
+Decisión del paso 0 (antes del parser): el emisor elegido es oracle juzgar --json sobre evidencia actual del dominio y catálogo del proyecto. El flujo consumidor transforma medidas[].id/ok en aceptacion_medida[].medida/ok; conserva el ok individual (un rojo perdonado por sombra NO es verde), omite no_aplicadas y sólo publica evidencia si juzgar termina con 0 o 1 y entrega JSON válido. Errores de ejecución abortan el flujo sin reutilizar una corrida anterior. oracle test valida expectativas del corpus, incluidos rojos esperados, y no se usará como prueba de dominio verde. La implementación de este turno cubre el próximo paso del parser; la composición queda para la integración posterior. Se corrige también la superficie del diseño: unir tarea_seguimiento t y sin aceptacion_medida am, sin de.
+
+### Nota (2026-09-21 21:32:22 UTC)
+
+Implementado el paso 1: parsear_tarea reconoce CIERRA CON en el bloque de metadatos; Tarea.cierra_con es una tupla opcional y a_dict la publica como lista. Valida la gramática ASCII de medidas sin importar el motor, recorta espacios y deduplica conservando orden; rechaza identificadores inválidos, elementos vacíos entre comas y campos duplicados. Ausente o vacío conserva compatibilidad. Estado y etiquetas preservan los bytes del criterio mediante las escrituras atómicas existentes. Documentado en docs/12-tareas.md. Agregados 7 tests en tests/test_tareas_cierre_medidas.py: opcionalidad/JSON, saneamiento, errores, aislamiento del cuerpo, orden de metadatos, preservación LF/CRLF y permisos, y fallo de reemplazo sin modificar el original. Verificación: 11 tests específicos (incluidos test_tareas_atomicas) OK; nueva corrida de los 7 tests tras acotar IGNORECASE al nombre del campo OK; suite solicitada python3 -B -m unittest discover -s tests -t . -q: 2386 tests en 81.556 s, OK. git diff --check OK. Sin commits. La tarea sigue ABIERTA: resta emitir relaciones y aplicar la política; el parser no bloquea cierres por veredictos.
+
+## Próximo paso
+
+Implementar el paso 2 en `tools/tareas_hechos.py`: emitir siempre `tarea_cierre_medida`, con una fila `{tarea_id, medida}` por entrada de `Tarea.cierra_con`, incluyendo `[]` si ninguna tarea declara medidas. Agregar tests y actualizar el contrato de hechos. Luego continuar los pasos 3–5: declaraciones de relaciones, política con `unir`/`sin` sin `de`, corpus y flujo consumidor probado que convierta los veredictos actuales de `oracle juzgar --json` a `aceptacion_medida` según la decisión del paso 0; no usar el éxito de `oracle test` como evidencia de dominio verde. Verificar relación ausente versus vacía, medidas verdes, rojas, no evaluadas/inexistentes y rojo perdonado por sombra.
