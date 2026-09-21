@@ -5,11 +5,13 @@ desde una regla de dominio hasta juzgar una corrida real mediante hechos observa
 
 No usa medidas de proceso ni de sintaxis genérica: evalúa una regla concreta de la lógica del juego.
 
+Los comandos se ejecutan desde la raíz del repositorio. La [guía completa](../../docs/13-primer-valor.md) registra el entorno, la preparación y la salida real de `oracle test`.
+
 ---
 
 ## 1. El producto y su regla
 
-El producto es [`colocador.py`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/colocador.py), un módulo que ubica buques en una cuadrícula de 10×10.
+El producto es [`colocador.py`](colocador.py), un módulo que ubica buques en una cuadrícula de 10×10.
 
 - **Regla del juego**: Ningún buque puede tener celdas fuera del tablero (las coordenadas `fila` y `columna` deben estar en el rango `0..9`).
 - **El sensor**: El mismo producto expone una función o CLI (`--exportar <archivo>`) que emite la relación de nivel L0:
@@ -26,17 +28,22 @@ ejemplo/primer-valor/
   catalogos/
     colocacion/
       colocacion.dentro_del_tablero.oracle              ← la regla enunciada en Oracle
+  diferencial/.gitkeep                                ← directorio requerido; aún sin fixtures
   corpus/
     colocacion/
       001-desborde-tablero.caso                         ← caso negativo (falso_verde): espera ROJO
       002-colocacion-valida.caso                        ← caso positivo (verde_correcto): espera VERDE
+      003-fila-negativa.caso                            ← fila -1
+      004-columna-negativa.caso                         ← columna -1
+      005-columna-desbordada.caso                       ← columna 10
+      006-sin-celdas.caso                               ← relación vacía
 ```
 
 ---
 
 ## 3. La medida: enunciar lo que ofende
 
-Archivo [`catalogos/colocacion/colocacion.dentro_del_tablero.oracle`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/catalogos/colocacion/colocacion.dentro_del_tablero.oracle):
+Archivo [`catalogos/colocacion/colocacion.dentro_del_tablero.oracle`](catalogos/colocacion/colocacion.dentro_del_tablero.oracle):
 
 ```oracle
 medida colocacion.dentro_del_tablero:
@@ -60,8 +67,10 @@ Notar tres principios fundamentales:
 
 Antes de juzgar el producto, comprobamos que la medida funcione y discrimine usando casos guardados en `corpus/`:
 
-- [`001-desborde-tablero.caso`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso): declara una celda en `(10, 5)`. Como tiene `etiqueta: falso_verde`, la prueba exige que la medida dé **ROJO**. Además, al tener exactamente 1 celda ofensiva, mata el mutante `aflojar_umbral` (que prueba relajar a `<= 1`).
-- [`002-colocacion-valida.caso`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso): declara 5 celdas legales en rango `0..9`. Con `etiqueta: verde_correcto`, la prueba exige que la medida dé **VERDE**. Esto mata el mutante `quitar_filtro` (que al contar todas las filas daría 5 > 0, haciendo fallar el caso).
+- [`001-desborde-tablero.caso`](corpus/colocacion/001-desborde-tablero.caso): declara una celda en `(10, 5)`. Como tiene `etiqueta: falso_verde`, la prueba exige que la medida dé **ROJO**. Además, al tener exactamente 1 celda ofensiva, mata el mutante `aflojar_umbral` (que prueba relajar a `<= 1`).
+- [`002-colocacion-valida.caso`](corpus/colocacion/002-colocacion-valida.caso): declara 5 celdas legales en rango `0..9`. Con `etiqueta: verde_correcto`, la prueba exige que la medida dé **VERDE**. Esto mata el mutante `quitar_filtro` (que al contar todas las filas daría 5 > 0, haciendo fallar el caso).
+
+El corpus agrega fila -1, columna -1, columna 10 y una relación vacía para fijar todos los predicados y `requiere`: seis casos, 20 mutantes muertos y ninguno vivo. `diferencial/.gitkeep` conserva el directorio obligatorio; no hay fixtures diferenciales y la CLI informa esa omisión.
 
 Comando de verificación:
 
@@ -86,11 +95,11 @@ python3 ejemplo/primer-valor/colocador.py --defecto --exportar /tmp/hechos-defec
 oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-defecto.json
 ```
 
-**Salida esperada (falla, exit 1):**
+**Salida real registrada (falla, exit 1):**
 
 ```text
-✗ colocacion.dentro_del_tablero                     1 (<= 0)
-      → c={'barco': 'destructor', 'columna': 5, 'fila': 10}
+✗ colocacion.dentro_del_tablero                       1 (<= 0)
+      → c={'barco': 'destructor', 'fila': 10, 'columna': 5}
 
 VEREDICTO: 1 de 1 medidas en rojo
 ```
@@ -106,10 +115,10 @@ python3 ejemplo/primer-valor/colocador.py --exportar /tmp/hechos-corregido.json
 oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-corregido.json
 ```
 
-**Salida esperada (pasa, exit 0):**
+**Salida real registrada (pasa, exit 0):**
 
 ```text
-✓ colocacion.dentro_del_tablero                     0 (<= 0)
+✓ colocacion.dentro_del_tablero                       0 (<= 0)
 
 VEREDICTO: verde en 1 medidas. SIN MIRAR:
   · colocacion.dentro_del_tablero: valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí

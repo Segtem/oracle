@@ -1,8 +1,8 @@
 caso 001-desborde-tablero:
     fecha: "2026-09-21"
     origen:
-        repo: "ejemplo-primer-valor"
-        commit: "c010ca0"
+        repo: "Segtem/oracle/ejemplo/primer-valor"
+        commit: "sin-commit"
     procedencia: construida
     titulo: "Buque colocado parcialmente fuera del tablero (fila 10)"
     etiqueta: falso_verde

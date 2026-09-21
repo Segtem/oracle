@@ -2,6 +2,22 @@
 
 Un recorrido breve, ejecutable y reproducible para conectar un producto con Oracle y juzgarlo con una medida pertinente de sus reglas, sin rituales innecesarios.
 
+## Entorno y preparación verificados
+
+Ejecutado el 2026-09-21 con Python 3.14.7 y Oracle 0.27.0 (álgebra 0.8, sintaxis 0.6), desde una copia sin `.git` del checkout base `3d27050a50cc949dc3fc6bf6dc9df168bf5f9ab5` más los cambios de esta tarea. Se construyó un wheel local y se instaló sin red en un venv nuevo; los comandos de abajo se ejecutaron desde la raíz de esa copia, sin `PYTHONPATH` ni `ORACLE_PROYECTO` heredados.
+
+Para preparar otra copia del repositorio con este ejemplo, desde su raíz (el Python de construcción necesita `pip` y `setuptools>=68`):
+
+```bash
+python3 -m pip wheel --no-deps --no-build-isolation --wheel-dir /tmp/oracle-primer-valor-ruedas .
+python3 -m venv /tmp/oracle-primer-valor-venv
+/tmp/oracle-primer-valor-venv/bin/python -m pip install --no-index /tmp/oracle-primer-valor-ruedas/oracle_metalenguaje-0.27.0-py3-none-any.whl
+source /tmp/oracle-primer-valor-venv/bin/activate
+unset PYTHONPATH ORACLE_PROYECTO
+```
+
+Las salidas siguientes son capturas reales. Cada exportación termina con exit 0 e imprime `Hechos exportados a /tmp/hechos-defecto.json` o `Hechos exportados a /tmp/hechos-corregido.json`, respectivamente. El test del catálogo termina con exit 0.
+
 ---
 
 ## 1. El objetivo de este recorrido
@@ -18,7 +34,7 @@ Este documento presenta la **ruta mínima de primer valor**:
 4. Validar el catálogo con `oracle test`.
 5. Juzgar una corrida real del producto con `oracle juzgar`.
 
-El ejemplo completo y reproducible se encuentra en el repositorio bajo [`ejemplo/primer-valor/`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/README.md).
+El ejemplo completo y reproducible se encuentra en el repositorio bajo [`ejemplo/primer-valor/`](../ejemplo/primer-valor/README.md).
 
 ---
 
@@ -32,7 +48,7 @@ En el juego de Batalla Naval, una regla elemental de colocación establece:
 
 Oracle no inspecciona el DOM ni adivina el estado interno del juego: el producto debe emitir hechos observables estructurados en formato JSON (una tabla o relación de filas).
 
-En nuestro ejemplo, el producto [`ejemplo/primer-valor/colocador.py`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/colocador.py) expone la opción `--exportar <archivo>` para volcar las celdas ocupadas por la flota:
+En nuestro ejemplo, el producto [`ejemplo/primer-valor/colocador.py`](../ejemplo/primer-valor/colocador.py) expone la opción `--exportar <archivo>` para volcar las celdas ocupadas por la flota:
 
 ```json
 {
@@ -52,7 +68,7 @@ Cada hecho es un dato puro: no hay juicios de valor en el JSON, sólo hechos del
 
 ## 3. Paso 2: Crear el proyecto y enunciar la regla en una medida
 
-Un proyecto Oracle se inicializa con `oracle init <directorio>` o creando un archivo `oracle.json`:
+Un proyecto Oracle se inicializa con `oracle init <directorio>` o creando `catalogos/`, `corpus/`, `diferencial/` y un archivo `oracle.json`:
 
 ```json
 {
@@ -94,14 +110,14 @@ Una medida sin casos es una intención sin comprobar: podría estar invertida y 
 
 ### Caso 1: Polaridad negativa (`falso_verde` esperado ROJO)
 
-Archivo [`corpus/colocacion/001-desborde-tablero.caso`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso):
+Archivo [`corpus/colocacion/001-desborde-tablero.caso`](../ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso):
 
 ```caso
 caso 001-desborde-tablero:
     fecha: "2026-09-21"
     origen:
-        repo: "ejemplo-primer-valor"
-        commit: "c010ca0"
+        repo: "Segtem/oracle/ejemplo/primer-valor"
+        commit: "sin-commit"
     procedencia: construida
     titulo: "Buque colocado parcialmente fuera del tablero (fila 10)"
     etiqueta: falso_verde
@@ -124,14 +140,14 @@ caso 001-desborde-tablero:
 
 ### Caso 2: Polaridad positiva (`verde_correcto` esperado VERDE)
 
-Archivo [`corpus/colocacion/002-colocacion-valida.caso`](file:///tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-agy2/ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso):
+Archivo [`corpus/colocacion/002-colocacion-valida.caso`](../ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso):
 
 ```caso
 caso 002-colocacion-valida:
     fecha: "2026-09-21"
     origen:
-        repo: "ejemplo-primer-valor"
-        commit: "c010ca0"
+        repo: "Segtem/oracle/ejemplo/primer-valor"
+        commit: "sin-commit"
     procedencia: construida
     titulo: "Flota colocada enteramente dentro de la cuadrícula 10x10"
     etiqueta: verde_correcto
@@ -156,6 +172,12 @@ caso 002-colocacion-valida:
 
 ---
 
+### Casos adicionales necesarios
+
+Los dos casos anteriores no alcanzan: dejaban seis mutantes vivos. El corpus incluye también fila -1, columna -1, columna 10 y una relación vacía (`celda_ocupada:` sin filas). Este último queda ROJO aunque el valor sea 0 porque incumple `requiere`. Los seis casos son construidos; `sin-commit` evita atribuirles un commit ficticio.
+
+El directorio obligatorio `diferencial/` se conserva con `.gitkeep`. No contiene fixtures: esta ruta mínima no aporta una comparación con un evaluador independiente y `oracle test` lo informa como salteado.
+
 ## 5. Paso 4: Validar el catálogo con `oracle test`
 
 Corremos `oracle test` para verificar que las medidas del catálogo compilen, satisfagan los contratos sintácticos y queden fijadas contra mutación:
@@ -164,36 +186,46 @@ Corremos `oracle test` para verificar que las medidas del catálogo compilen, sa
 oracle test --proyecto ejemplo/primer-valor
 ```
 
-### Salida esperada de `oracle test`:
+### Salida real registrada de `oracle test`:
 
 ```text
 UNITARIOS: salteados (sólo aplican al propio Oracle)
 
-CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
+CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 2 casos
+SINTAXIS OK · 1 medidas · 0 macros · 6 casos
 
-catálogo: 1 medidas · corpus: 2 casos
+catálogo: 1 medidas · corpus: 6 casos
 
-  ROJO  001-desborde-tablero                 colocacion.dentro_del_tablero  (valor 1)
-  verde 002-colocacion-valida                colocacion.dentro_del_tablero  (valor 0)
+  ROJO  001-desborde-tablero                   colocacion.dentro_del_tablero  (valor 1)
+  verde 002-colocacion-valida                  colocacion.dentro_del_tablero  (valor 0)
+  ROJO  003-fila-negativa                      colocacion.dentro_del_tablero  (valor 1)
+  ROJO  004-columna-negativa                   colocacion.dentro_del_tablero  (valor 1)
+  ROJO  005-columna-desbordada                 colocacion.dentro_del_tablero  (valor 1)
+  ROJO  006-sin-celdas                         colocacion.dentro_del_tablero  (valor 0)
 
-defectos que se pusieron rojos: 1 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
 
-ACEPTACIÓN ✓ — 1 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
-mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
-  de los muertos: 9 por conducta (invirtió el veredicto, cambió testigos o cambió el valor)
+mutantes de medida (medida × mutador): 20 · murieron 20 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+  de los muertos: 20 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 120
+
+sin políticas meta activas — se informa sólo el resultado operativo
 
 MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 
-VEREDICTO: VERDE
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
 
 > [!IMPORTANT]
-> Este veredicto verde certifica que **el catálogo de Oracle está sano y bien calibrado**. No certifica en absoluto el estado del código del juego en este momento.
+> Este veredicto verde indica que **el catálogo satisface las verificaciones aplicables y los casos presentes**. No certifica en absoluto el estado del código del juego en este momento.
 
 ---
 
@@ -213,11 +245,11 @@ python3 ejemplo/primer-valor/colocador.py --defecto --exportar /tmp/hechos-defec
 oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-defecto.json
 ```
 
-**Salida (exit code 1):**
+**Salida real registrada (exit code 1):**
 
 ```text
-✗ colocacion.dentro_del_tablero                     1 (<= 0)
-      → c={'barco': 'destructor', 'columna': 5, 'fila': 10}
+✗ colocacion.dentro_del_tablero                       1 (<= 0)
+      → c={'barco': 'destructor', 'fila': 10, 'columna': 5}
 
 VEREDICTO: 1 de 1 medidas en rojo
 ```
@@ -236,10 +268,10 @@ python3 ejemplo/primer-valor/colocador.py --exportar /tmp/hechos-corregido.json
 oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-corregido.json
 ```
 
-**Salida (exit code 0):**
+**Salida real registrada (exit code 0):**
 
 ```text
-✓ colocacion.dentro_del_tablero                     0 (<= 0)
+✓ colocacion.dentro_del_tablero                       0 (<= 0)
 
 VEREDICTO: verde en 1 medidas. SIN MIRAR:
   · colocacion.dentro_del_tablero: valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí
@@ -267,3 +299,5 @@ La corrida pasa limpiamente y el reporte final imprime de forma transparente el 
 ### El tracker es una herramienta independiente
 
 La gestión de tareas (`oracle tarea init`, `oracle tarea nueva`, etc.) no es un requisito previo para usar medidas ni para juzgar hechos. Podés medir cualquier producto sin inicializar `tareas/`.
+
+El tutorial completo es una opción para profundizar; el tracker y ese tutorial son independientes de este recorrido.

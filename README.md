@@ -77,6 +77,8 @@ oracle nueva <dominio.nombre>
 oracle test
 ```
 
+Para llegar a una regla del producto medida sobre una corrida real, seguí [De un producto nuevo a su primera medida observable](https://github.com/Segtem/oracle/blob/main/docs/13-primer-valor.md): incluye un defecto, su corrección y las salidas verificadas. El tracker de tareas es optativo.
+
 `--confiar-escalares` hace falta sólo si tu proyecto declara funciones propias en `escalares.py`;
 sin esa bandera, Oracle no ejecuta código de nadie.
 

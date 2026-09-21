@@ -1,8 +1,8 @@
 caso 002-colocacion-valida:
     fecha: "2026-09-21"
     origen:
-        repo: "ejemplo-primer-valor"
-        commit: "c010ca0"
+        repo: "Segtem/oracle/ejemplo/primer-valor"
+        commit: "sin-commit"
     procedencia: construida
     titulo: "Flota colocada enteramente dentro de la cuadrícula 10x10"
     etiqueta: verde_correcto
