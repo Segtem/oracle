@@ -1,6 +1,6 @@
 # Un agente no encuentra una tarea que existe porque adivina el prefijo de su id
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle, tracker, agentes
 
