@@ -40,6 +40,13 @@ class TestSufijos(unittest.TestCase):
             with self.subTest(valor=valor):
                 self.assertEqual(self.resolver(valor).name, self.id)
 
+    def test_una_similitud_justo_en_el_umbral_se_sugiere(self):
+        # «abcxy» contra el sufijo «abcde»: 3 de 5 letras en común, similitud exactamente 0,6.
+        self.crear('20260101-000000-abcde')
+        with self.assertRaises(tareas.TareaNoEncontrada) as ctx:
+            self.resolver('abcxy')
+        self.assertIn('20260101-000000-abcde', str(ctx.exception))
+
     def test_sufijo_completo_con_guiones_y_colision_numerica(self):
         otro = '20260919-140309-multi-malla-1'
         self.crear(otro)
