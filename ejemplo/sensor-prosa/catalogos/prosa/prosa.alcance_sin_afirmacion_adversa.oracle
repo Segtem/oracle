@@ -1,0 +1,8 @@
+medida prosa.alcance_sin_afirmacion_adversa:
+    de afirmacion_prosa a
+    donde (a.pregunta == "alcance_vacio" y a.respuesta == true y a.probabilidad >= 0.8) o (a.pregunta == "alcance_concreto" y a.respuesta == false y a.probabilidad <= 0.2)
+    resumen contar(1)
+    umbral <= 0 segun convencion porque "ninguna medida con una afirmación adversa de alta probabilidad sobre su alcance; una señal de alta probabilidad exige revisión de la prosa antes de dar por buena la medida"
+    requiere afirmacion_prosa
+    ambito del_origen
+    alcance "Estas filas las produjo un modelo probabilístico; el umbral de probabilidad es una decisión, no un hecho. NO juzga la verdad de la prosa ni el razonamiento del sensor, y no detecta preguntas o medidas omitidas de una relación entregada parcialmente."
