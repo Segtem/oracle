@@ -23,10 +23,13 @@ que es un fallo de tests y cuenta como muerto.
 - Un mutante que excede el tope es un mutante muerto, no una ronda inconclusa; un test lo fija.
 - La baseline corre con el mismo tope, para que un tope demasiado bajo se vea antes de mutar.
 - El job `mutacion-codigo` de CI usa el tope.
+
+
+### Nota (2026-09-22 10:55:06 UTC)
+
+El relevo de Codex sobre reducir el límite, medir memoria y verificar rondas se trasladó a la tarea abierta 20260917-011705-memoria. Esta tarea conserva su cierre original sobre incorporar RLIMIT_AS.
+
 ## Próximo paso
 
-Codex empezó el 2026-09-21 (unificó el límite de 4000 MiB, que estaba duplicado en el perfil y el
-CLI; receta del techo común en `docs/mutacion-memoria.md`; medición en `verificacion/`) y se quedó
-sin cuota a mitad. Su trabajo está en la rama local **`t-codex`**, commit `7d93d78`, **sin
-verificar**: retomar desde ahí (`git checkout t-codex` o un worktree de esa rama), terminar los puntos
-1, 3 y 4 de «Qué hacer», correr la suite y pasarlo a `main`.
+Sin trabajo pendiente en esta tarea cerrada. El seguimiento del límite y del paralelismo
+continúa en `20260917-011705-memoria`.

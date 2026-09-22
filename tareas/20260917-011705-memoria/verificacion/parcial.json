@@ -1,0 +1,48 @@
+{
+  "mutante": [
+    {
+      "id": "nucleo/algebra.py:54:8:retorno",
+      "apunta_a": "nucleo/algebra.py",
+      "cambio": "retorno: return <algo> → return None",
+      "tipo": "codigo",
+      "murio": true,
+      "estado": "tests_fallaron",
+      "tests_fallaron": true,
+      "error_arnes": false,
+      "timeout": false,
+      "codigo_salida": 1,
+      "equivalente_declarado": false,
+      "razon_equivalente": ""
+    }
+  ],
+  "mutante_equivalente": [],
+  "corrida_mutacion": [
+    {
+      "id": "mutacion_de_codigo",
+      "mutantes": 1,
+      "baseline_verde": true,
+      "baseline_estado": "pasaron",
+      "bytecode_frio": true,
+      "tests_fallaron": 1,
+      "errores_arnes": 0,
+      "timeouts": 0,
+      "rondas_ejecutadas": 2,
+      "rondas_cache_verificadas": 2,
+      "mutantes_reutilizados": 0,
+      "primer_fallo_id": "nucleo/algebra.py:54:8:retorno",
+      "primer_fallo_estado": "tests_fallaron",
+      "primer_fallo_codigo_salida": 1,
+      "primer_fallo_salida": "..................................F\n======================================================================\nFAIL: test_propiedades_y_manipulacion_de_ruta_en_error_de_algebra (tests.test_algebra.RutasDeErrorDelAlgebraTests.test_propiedades_y_manipulacion_de_ruta_en_error_de_algebra)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"/tmp/oracle-mutacion-v8_3gvux/proyecto/tests/test_algebra.py\", line 687, in test_propiedades_y_manipulacion_de_ruta_en_error_de_algebra\n    self.assertIs(err.descartar_ruta(), err)\n    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: None is not ErrorDeAlgebra('fallo')\n\n----------------------------------------------------------------------\nRan 35 tests in 0.017s\n\nFAILED (failures=1)",
+      "primer_fallo_salida_truncada": false,
+      "primer_inconcluso_id": "",
+      "primer_inconcluso_estado": "",
+      "primer_inconcluso_codigo_salida": null,
+      "primer_inconcluso_salida": "",
+      "primer_inconcluso_salida_truncada": false,
+      "parcial": true,
+      "total_sitios": 426,
+      "aislada": true,
+      "fuentes_originales_intactas": true
+    }
+  ]
+}

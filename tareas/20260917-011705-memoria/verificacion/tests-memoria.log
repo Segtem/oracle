@@ -1,0 +1,24 @@
+test_cli_limite_memoria_mb_negativo_se_rechaza (tests.test_mutacion_codigo.LimiteMemoriaTests.test_cli_limite_memoria_mb_negativo_se_rechaza) ... ok
+test_cli_limite_memoria_mb_parseo_y_valores (tests.test_mutacion_codigo.LimiteMemoriaTests.test_cli_limite_memoria_mb_parseo_y_valores) ... ok
+test_cli_limite_memoria_mb_propagacion_a_correr (tests.test_mutacion_codigo.LimiteMemoriaTests.test_cli_limite_memoria_mb_propagacion_a_correr) ... ok
+test_constantes_limite_memoria (tests.test_mutacion_codigo.LimiteMemoriaTests.test_constantes_limite_memoria) ... ok
+test_el_tope_se_recorta_al_duro_que_heredo_el_arnes (tests.test_mutacion_codigo.LimiteMemoriaTests.test_el_tope_se_recorta_al_duro_que_heredo_el_arnes)
+Un proceso sin privilegios no puede subir su límite por encima del DURO que heredó, y ... ok
+test_identidad_ronda_declara_limite_memoria (tests.test_mutacion_codigo.LimiteMemoriaTests.test_identidad_ronda_declara_limite_memoria)
+La identidad es lo que distingue una ronda de otra al reanudar: dos rondas con topes de ... ok
+test_limite_memoria_cero_desactiva_tope (tests.test_mutacion_codigo.LimiteMemoriaTests.test_limite_memoria_cero_desactiva_tope) ... ok
+test_limite_memoria_invalido_se_rechaza (tests.test_mutacion_codigo.LimiteMemoriaTests.test_limite_memoria_invalido_se_rechaza) ... ok
+test_limite_memoria_limita_al_hijo_y_se_ejecuta_en_el_hijo (tests.test_mutacion_codigo.LimiteMemoriaTests.test_limite_memoria_limita_al_hijo_y_se_ejecuta_en_el_hijo) ... ok
+test_linea_base_usa_el_mismo_tope_y_falla_si_lo_excede (tests.test_mutacion_codigo.LimiteMemoriaTests.test_linea_base_usa_el_mismo_tope_y_falla_si_lo_excede) ... ok
+test_mutante_que_excede_memoria_cuenta_como_muerto_no_timeout_ni_error (tests.test_mutacion_codigo.LimiteMemoriaTests.test_mutante_que_excede_memoria_cuenta_como_muerto_no_timeout_ni_error) ... ok
+test_si_el_tope_no_se_puede_aplicar_es_un_error_de_arnes_y_no_un_traceback (tests.test_mutacion_codigo.LimiteMemoriaTests.test_si_el_tope_no_se_puede_aplicar_es_un_error_de_arnes_y_no_un_traceback)
+Lo que pasa entre el fork y el exec sale como `SubprocessError` sin decir cuál fue. Que ... ok
+test_un_tope_mas_alto_que_el_heredado_no_rompe_la_ronda (tests.test_mutacion_codigo.LimiteMemoriaTests.test_un_tope_mas_alto_que_el_heredado_no_rompe_la_ronda)
+De punta a punta: con el duro por debajo del tope pedido, los tests igual corren. ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 2.520s
+
+OK
+objetivos: nucleo/aislamiento/escalares.py
+

@@ -1,3 +1,16 @@
+# Sin publicar — memoria de la mutación
+
+El límite predeterminado de `--limite-memoria-mb` baja de 4000 a **1024 MiB**,
+compartido por el perfil Python y el CLI. La línea base completa (2386 tests,
+Python 3.14.7, Linux x86_64) midió **742,51 MiB de memoria virtual máxima**:
+el nuevo tope deja 37,9 % de margen. El valor explícito y `0` para desactivarlo
+siguen disponibles.
+
+El límite es por proceso. Para varias rondas, la [receta de memoria y
+paralelismo](docs/mutacion-memoria.md) calcula la concurrencia a partir de
+`MemAvailable` y reúne el lote en un único scope de systemd con `MemoryMax`
+y `MemorySwapMax=0`. Allí están la medición reproducible y sus límites.
+
 # 0.27.0 — una sombra perdona hasta su cota, y el MCP se pone al día
 
 ```

@@ -51,3 +51,16 @@ Medición de línea base completa con bytecode frío: Python 3.14.7, Linux 7.2.6
 ### Nota (2026-09-21 21:47:41 UTC)
 
 Primera verificación final: 2386 tests, un fallo por ejecutar simultáneamente la ronda parcial y la suite en la misma raíz: test_cli_filtro_vacio_retorna_codigo_2 recibió RondaEnCurso. Es interferencia del bloqueo del arnés, no fallo del límite. Se conserva suite-concurrente.log y se repetirá la suite sola una vez terminada la ronda parcial. Receta validada con bash -n y lanzadores simulados (presupuestos insuficiente, 5000 y 8000 MiB; concurrencias 0, 1 y 2); no se ejecutó un scope real de systemd.
+
+### Nota (2026-09-22 10:56:31 UTC)
+
+Continuación completada el 2026-09-22, sin commits. Revisados el límite único de 1024 MiB, su propagación al CLI y la receta de concurrencia/techo común; la medición previa de VmPeak 742,51 MiB respalda 37,9 % de margen. Agregada sección Sin publicar en NOTAS-DE-RELEASE.md con la medición y enlace a la receta. Verificación secuencial: python3 -m unittest tests.test_mutacion_codigo.LimiteMemoriaTests -v: 13 tests OK (2,520 s); python3 -m unittest discover -s tests -t . -q: 2386 tests OK (80,389 s). Ronda python3 tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 54 --timeout 300 --hechos: baseline verde, bytecode frío, 1 mutante muerto por tests, 0 timeouts, 0 errores de arnés, fuentes originales intactas. Evidencia en verificacion/tests-memoria.log, suite-final.log y parcial.json; --hechos salió 0 al emitir evidencia, pero parcial=true no acredita una ronda completa de release. La receta de systemd mantiene la validación simulada previa; no se probó un scope real en este entorno. El relevo obsoleto de la tarea cerrada 20260915-112728-memoria se reemplazó por una referencia a esta tarea. Quedan para Claude los commits, la integración y el cierre; .git no se modificó.
+
+## Próximo paso
+
+Claude: revisar los cambios y la evidencia en `verificacion/`, hacer los commits con
+el ID `20260917-011705-memoria`, integrar a `main` y cerrar la tarea con el commit
+`20260917-011705-memoria: done`. Implementación y verificación terminadas:
+13 tests de memoria y suite completa de 2386 tests en verde; ronda parcial con
+línea base verde y su único mutante muerto por tests. No quedan cambios de código
+pendientes de este relevo. Codex no hizo commits porque `.git` es de sólo lectura.

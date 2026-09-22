@@ -1,0 +1,5 @@
+Comando: python3 tools/mutar_codigo.py --objetivo nucleo/algebra.py --lineas 54 --timeout 300 --hechos
+Código de salida: 0 (emisión de hechos; parcial=true).
+stderr: vacío.
+Resultado: baseline verde con bytecode frío y tope predeterminado de 1024 MiB; 1 mutante muerto por tests; 0 timeouts; 0 errores de arnés; fuentes originales intactas.
+Evidencia: parcial.json. No sustituye una ronda completa de release.
