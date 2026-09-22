@@ -611,6 +611,8 @@ def cmd_caso_generar(proy: Proyecto, mid: str, argv: list[str]) -> int:
 
 
 def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
+    from nucleo.proyecto import relaciones_del_proyecto
+
     ruta = Path(ruta_str)
     if not ruta.exists():
         ruta = proy.raiz / ruta_str
@@ -619,10 +621,14 @@ def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
         return 1
     try:
         with escalares_del_proyecto(proy, confiar=confiar_escalares(argv)):
+            relaciones_del_proyecto(proy)
             return medida.revisar(proy, ruta)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         return 1
+    except ProyectoInvalido as e:
+        print(f"PROYECTO INVÁLIDO — {e}", file=sys.stderr)
+        return 2
 
 
 def cmd_probar(proy: Proyecto, ruta_str: str, texto: str, *, argv: list[str] | None = None,
@@ -780,14 +786,20 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         print("\nVEREDICTO: ROJO (escalares.py no confiado)")
         return 1
 
-    macros = macros_del_proyecto(proy)
+    from nucleo.proyecto import relaciones_del_proyecto
+
     try:
+        relaciones_del_proyecto(proy)
+        macros = macros_del_proyecto(proy)
         with escalares_del_proyecto(proy, confiar=confiar):
             catalogo = cargar_catalogo(catalogos_a_cargar(proy), macros=macros)
     except (EscalaresNoConfiables, EscalaresInvalidas) as e:
         print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
         print("\nVEREDICTO: ROJO (escalares.py no pudo cargarse)")
         return 1
+    except ProyectoInvalido as e:
+        print(f"PROYECTO INVÁLIDO — {e}", file=sys.stderr)
+        return 2
     except Exception as e:
         print(f"CATÁLOGO INVÁLIDO — {e}")
         print("\nVEREDICTO: ROJO (catálogo no pudo cargarse)")

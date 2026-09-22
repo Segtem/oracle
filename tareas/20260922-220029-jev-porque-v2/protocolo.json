@@ -1,0 +1,24 @@
+{
+  "estado": "PREPARADO; pendiente juicio independiente de Claude; ninguna llamada realizada",
+  "fecha": "2026-09-22",
+  "semilla_mezcla": 20260923,
+  "preguntas": {
+    "porque_origen": "¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?",
+    "porque_vecino": "Para este umbral distinto de cero, ¿la defensa explica por qué se eligió ese valor y no uno vecino, mediante una restricción o un criterio de elección?"
+  },
+  "criterio_compartido": "CRITERIO.md completo para Claude y Jev",
+  "contexto_compartido": "alcance, porque, umbral, segun, tuberia, resumen, limite, aplica_vecino; sin nombre de medida, marcas ni expectativas",
+  "muestra": "Las mismas 15 medidas reales; se agregan los mismos 10 controles sin marcar al paquete ciego",
+  "lote": "Las mismas 62 medidas y 10 controles; orden e ids nuevos",
+  "corte_si": 0.5,
+  "no_aplica": "P2 omitida de las preguntas a Jev cuando limite == 0; null para comparar y fuera del denominador",
+  "metricas": "Acuerdo por pregunta y denominador aplicable en las 15 reales; controles atrapados y patrón completo por separado; probabilidades, costo usage.cost y latencia por solicitud y total",
+  "limitacion": "Las 15 reales de la muestra tienen umbral cero. P2 tendrá denominador 0 y acuerdo no estimable. Sólo una medida del catálogo tiene límite no cero (90), fuera de la muestra. No ampliar muestra después de ver respuestas.",
+  "orden": "Entregar sólo paquete ciego y criterio a Claude nuevo; guardar juicio, versión, fecha y SHA-256 antes de llamar a Jev; conservar solicitudes y respuestas crudas; comparar después",
+  "modelo_previsto": "typesafe/jev-1.13",
+  "presupuesto_local_usd": 0.05,
+  "tamano_lote": 12,
+  "max_solicitudes": 6,
+  "costo_actual_usd": 0,
+  "decision": "Informar también un nuevo fracaso; sin adopción productiva ni porcentaje de éxito inventado a posteriori"
+}

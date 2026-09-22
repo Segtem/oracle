@@ -335,8 +335,16 @@ def cargar_relaciones(*directorios) -> dict[str, Relacion]:
     for p in rutas_de_relaciones(*directorios):
         r = cargar(p)
         if r.nombre in salida:
+            anterior = fuentes[r.nombre]
+            base = Path(__file__).resolve().parents[1] / "relaciones"
+            if any(ruta.resolve().parent == base for ruta in (anterior, p)):
+                raise RelacionMalDeclarada(
+                    f"la relación «{r.nombre}» ya existe en Oracle: {anterior} y {p}; "
+                    "eliminá la declaración duplicada del proyecto para usar la de Oracle "
+                    "tal cual, o renombrá la relación propia y sus referencias")
             raise RelacionMalDeclarada(
-                f"la relación «{r.nombre}» está dos veces: {fuentes[r.nombre]} y {p}")
+                f"la relación «{r.nombre}» está dos veces: {anterior} y {p}; "
+                "eliminá una declaración o renombrá la relación y sus referencias")
         salida[r.nombre] = r
         fuentes[r.nombre] = p
     return salida

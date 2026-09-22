@@ -38,6 +38,29 @@ confianza**, dudó. Esa calibración es parte del resultado.
 
 La clave sigue en `$OPENROUTER_API_KEY`; gastar centavos y anotar el costo.
 
+
+### Nota (2026-09-22 22:12:14 UTC)
+
+Preparación v2 lista sin llamadas a modelos (costo USD 0). CRITERIO.md fija dos preguntas y dos ejemplos por polaridad para cada una. preparar.py conserva las 62 medidas y los 10 controles anteriores, añade tubería/resumen y mezcla con ids nuevos. paquete-ciego-claude.zip contiene sólo criterio, instrucciones, 15 reales + 10 controles sin marcar y plantilla vacía; no contiene clave ni resultados. Las 15 reales son de umbral cero: P2 no aplica y su acuerdo no será estimable; sólo una medida no cero queda fuera de la muestra, limitación fijada antes del juicio. Cuatro pruebas del paquete pasan y oracle test da VERDE con 2401 unitarios OK y 1010/1010 mutantes de medida muertos; verificación adicional --todo en curso. Bloqueo deliberado: falta juicio independiente de Claude en sesión nueva, pedido por la tarea; no se inventó ni se lanzó Jev. Se conservaron los cambios ajenos preexistentes y no se hicieron commits.
+
+### Nota (2026-09-22 22:14:12 UTC)
+
+Verificación final: 4/4 pruebas del paquete, integridad SHA-256 y git diff --check OK. oracle test sale 0: 2401 tests OK (83,193 s), corpus/sintaxis/aceptación/diferencial/autocertificación verdes y 1010/1010 mutantes de medida muertos. oracle test --todo sale 1: sus 2401 unitarios también pasan (82,645 s), pero la línea base de mutación de código expira a los 60 s (LineaBaseFallida; 1235 tests alcanzados). No es verde completo de --todo y no se generó evidencia válida de mutación de código. Logs íntegros en verificacion/oracle-test.log y oracle-test-todo.log. Se registra pendiente separado timeout-suite-mutacion; no se alteró el arnés fuera del alcance de preparar el juicio ciego. Paquete listo, gasto cero, sin commits.
+
 ## Próximo paso
 
-Codex escribe las preguntas nuevas y los ejemplos de cada lado, y pide el juicio a ciegas de Claude.
+Entregar `paquete-ciego-claude.zip` a Claude en una sesión nueva y sin acceso al
+repositorio ni a los resultados anteriores. La solicitud exacta está en
+`ciego/INSTRUCCIONES.md`; no entregar esta tarea ni `clave-operador.json` al juez.
+Guardar su `juicio-ciego-claude.json`, versión, fecha, declaración de exposición
+previa y SHA-256 antes de cualquier llamada a Jev. Éste es el bloqueo actual:
+falta ese juicio independiente; Codex se detiene aquí por instrucción del usuario.
+
+Una vez recibido, validar IDs completos, booleanos, justificaciones y P2 null
+cuando no aplica; implementar la corrida con el criterio íntegro y `lote.json`,
+sin enviar claves ni el juicio. Respetar `protocolo.json` (tope USD 0,05), guardar
+solicitudes/respuestas y costos, comparar por pregunta y controles, y publicar la
+segunda corrida en `estudios/JEV-COMO-SENSOR.md`, incluso si falla. La muestra
+real no permite estimar acuerdo de P2: los 15 umbrales son cero. No cambiarla a
+posteriori para ocultar ese límite. Revalidar artefactos con
+`python3 tareas/20260922-220029-jev-porque-v2/preparar.py --verificar`.

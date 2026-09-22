@@ -15,8 +15,7 @@ import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
 
-from nucleo.proyecto import Proyecto, relaciones_del_proyecto
-from nucleo.relacion import RelacionMalDeclarada
+from nucleo.proyecto import Proyecto, ProyectoInvalido, relaciones_del_proyecto
 from tools import cli
 from tools.medida import CARPETA_POR_REVISAR, _borrador, _tipo_declarable
 
@@ -118,7 +117,7 @@ class EscribirBorradoresTests(unittest.TestCase):
         destino = self.raiz / "relaciones"
         destino.mkdir(exist_ok=True)
         (self.raiz / CARPETA_POR_REVISAR / "tornillo.json").rename(destino / "tornillo.json")
-        with self.assertRaisesRegex(RelacionMalDeclarada, "tornillo.alto: falta unidad"):
+        with self.assertRaisesRegex(ProyectoInvalido, "tornillo.alto: falta unidad"):
             relaciones_del_proyecto(Proyecto(self.raiz))
 
     def test_completado_y_movido_carga_con_lo_que_decidio_el_autor(self) -> None:

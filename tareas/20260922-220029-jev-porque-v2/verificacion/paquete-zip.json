@@ -1,0 +1,12 @@
+{
+  "archivo": "paquete-ciego-claude.zip",
+  "sha256": "57ea6009c4d3c76ec1eaa319bb58b0d2bb255526e7d013377c0ba93e1465fcc2",
+  "contenido": [
+    "CRITERIO.md",
+    "INSTRUCCIONES.md",
+    "registros.json",
+    "plantilla.json"
+  ],
+  "sin_juicio": true,
+  "sin_resultados": true
+}

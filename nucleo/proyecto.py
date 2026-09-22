@@ -417,7 +417,7 @@ def catalogo_efectivo(proy: "Proyecto", *, raices_perfiles=(), registro=None,
 
 def relaciones_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> dict[str, Any]:
     """Carga juntas las relaciones seleccionadas para que ningún id repetido gane en silencio."""
-    from .relacion import cargar_relaciones
+    from .relacion import RelacionMalDeclarada, cargar_relaciones
 
     config = configuracion(proy, raices_perfiles=raices_perfiles)
     directorios = []
@@ -434,7 +434,10 @@ def relaciones_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> dict[str
     if (dir_proy.is_dir()
             and all(dir_proy.resolve() != directorio.resolve() for directorio in directorios)):
         directorios.append(dir_proy)
-    return cargar_relaciones(directorios)
+    try:
+        return cargar_relaciones(directorios)
+    except RelacionMalDeclarada as e:
+        raise ProyectoInvalido(str(e)) from e
 
 
 def macros_del_proyecto(proy: "Proyecto", *, raices_perfiles=()) -> "RegistroMacros":

@@ -139,6 +139,9 @@ def juzgar_evidencia(
     no existe o no aplica). Si no se reciben `ids`, evalúa todas las aplicables y adjunta
     `no_aplicadas` con las medidas del catálogo propio cuyas relaciones faltaron.
     """
+    from nucleo.proyecto import relaciones_del_proyecto
+
+    relaciones_del_proyecto(proy)
     catalogo = catalogo_para_juzgar(proy)
 
     if ids:

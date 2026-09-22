@@ -454,8 +454,8 @@ ninguno demo.oracle:
         self.assertEqual(
             _desenmarcar(resultado.stdout)[1],
             _resultado_error(
-                2, "RELACIONES_INVALIDAS — no se pudo derivar el alcance: item: la relación "
-                "debe declarar al menos un campo. No se devolvió un alcance vacío."),
+                2, f"PROYECTO_INVALIDO — {raiz.resolve()}: item: la relación "
+                "debe declarar al menos un campo."),
         )
 
     def test_id_desconocido_y_textos_rotos_fallan_sin_resultado_estructurado(self) -> None:
@@ -621,7 +621,7 @@ ninguno demo.oracle:
             with mock.patch.object(mcp, "_presentar_evaluacion", side_effect=romper):
                 codigo = mcp.servir(mcp.Proyecto(raiz), io.BytesIO(entrada), salida)
             marca = {
-                "error": "RelacionMalDeclarada",
+                "error": "ProyectoInvalido",
                 "mensaje": "item: la relación debe declarar al menos un campo",
             }
             final = hashlib.sha256(json.dumps(
