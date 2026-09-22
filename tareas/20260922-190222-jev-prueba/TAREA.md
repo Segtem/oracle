@@ -59,6 +59,25 @@ tiene, y hay que discutir dónde entra sin romper la doctrina (una medida juzga 
 pueden venir de un modelo si se declara). Si es bajo, queda escrito que esa prosa no se puede
 delegar, que es un resultado igual de útil.
 
+## El juicio a ciegas ya está hecho (2026-09-22)
+
+Claude respondió las tres preguntas sobre 15 medidas al azar (semilla 20260922) **antes** de que
+existiera ninguna respuesta de Jev: `juicio-ciego-claude.json` y `muestra-jev.json`, acá al lado.
+
+Y al hacerlo apareció un problema de diseño: **las 15 dan el mismo patrón** (sí, sí, no). La prosa
+del catálogo de Oracle es pareja, así que un modelo que conteste siempre «sí, sí, no» tendría 100 %
+de acuerdo sin leer nada. Un experimento sin las dos polaridades no prueba nada —es la misma regla
+que Oracle le exige a cualquier medida—.
+
+**Entonces el lote lleva controles rojos**, mezclados y sin marcar: 10 variantes deliberadamente
+malas, hechas a partir de medidas reales, con el `alcance` reemplazado por una promesa vacía
+(«no ve nada más», «no cubre otros casos») o el `porque` por una no-defensa («porque sí», «es lo
+razonable»).
+Sus respuestas esperadas son las opuestas, y quedan anotadas junto al lote antes de correrlo.
+
+Lo que se mide entonces: acuerdo sobre las 15 reales, **y** cuántos de los 10 controles atrapa. Un
+modelo que no atrape los controles no sirve para esto, por más que coincida en las reales.
+
 ## Próximo paso
 
 Brian: una clave de OpenRouter (y decir el tope de gasto). Con eso, Codex arma el lote, corre las
@@ -67,3 +86,7 @@ recetas y mide.
 ### Nota (2026-09-22 19:59:39 UTC)
 
 2026-09-22: bloqueo levantado. La clave de OpenRouter vive en ~/.config/openrouter/key (permisos 600), la exporta ~/.config/fish/config.fish como OPENROUTER_API_KEY, y tiene tope de 5 USD mensuales (usado 0). Los agentes la leen del archivo, nunca de un archivo del proyecto, y ningún comando debe imprimir la cabecera de autorización. Ojo: había una clave vieja guardada como variable universal de fish que daba 401; se borra con set -Ue OPENROUTER_API_KEY.
+
+### Nota (2026-09-22 20:00:48 UTC)
+
+2026-09-22: juicio a ciegas de Claude guardado (sha256 dc84bda7d7be8c00) antes de correr nada; el lote tiene que llevar 10 controles rojos con prosa deliberadamente vacía, mezclados y sin marcar.

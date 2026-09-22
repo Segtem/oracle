@@ -1,0 +1,87 @@
+{
+ "fecha": "2026-09-22",
+ "juez": "Claude, a ciegas, antes de cualquier respuesta de Jev",
+ "preguntas": [
+  "P1 el alcance nombra algo concreto que la medida NO mira",
+  "P2 el porque explica por que ESE numero y no otro",
+  "P3 el alcance es una promesa vacia del tipo «no ve todo lo demas»"
+ ],
+ "respuestas": {
+  "meta.agrupar_no_agranda_la_relacion": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.donde_compone": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.el_caso_reclama_una_medida_que_existe": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.el_diagnostico_no_publica_el_dominio": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.ninguna_sombra_supera_su_cota": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.toda_medida_declara_su_ambito": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.toda_medida_esta_ejercitada": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.toda_medida_filtra_o_agrupa": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.todo_caso_observado_declara_de_donde_salio": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.todo_umbral_declara_de_donde_sale": [
+   "si",
+   "si",
+   "no"
+  ],
+  "meta.una_macro_equivale_a_su_expansion": [
+   "si",
+   "si",
+   "no"
+  ],
+  "proceso.sintaxis_valida_tras_edicion_masiva": [
+   "si",
+   "si",
+   "no"
+  ],
+  "proceso.verificacion_vigente": [
+   "si",
+   "si",
+   "no"
+  ],
+  "proceso.verificador_sin_falsos_rojos": [
+   "si",
+   "si",
+   "no"
+  ],
+  "simulacion.la_traza_no_tiene_huecos": [
+   "si",
+   "si",
+   "no"
+  ]
+ },
+ "observacion": "Las 15 dan el mismo patron: la prosa del catalogo de Oracle es pareja y no hay casos malos. Sin controles rojos, el acuerdo no distingue un modelo que lee de uno que contesta siempre lo mismo."
+}

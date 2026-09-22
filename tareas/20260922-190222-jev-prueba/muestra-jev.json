@@ -1,0 +1,17 @@
+[
+ "meta.agrupar_no_agranda_la_relacion",
+ "meta.donde_compone",
+ "meta.el_caso_reclama_una_medida_que_existe",
+ "meta.el_diagnostico_no_publica_el_dominio",
+ "meta.ninguna_sombra_supera_su_cota",
+ "meta.toda_medida_declara_su_ambito",
+ "meta.toda_medida_esta_ejercitada",
+ "meta.toda_medida_filtra_o_agrupa",
+ "meta.todo_caso_observado_declara_de_donde_salio",
+ "meta.todo_umbral_declara_de_donde_sale",
+ "meta.una_macro_equivale_a_su_expansion",
+ "proceso.sintaxis_valida_tras_edicion_masiva",
+ "proceso.verificacion_vigente",
+ "proceso.verificador_sin_falsos_rojos",
+ "simulacion.la_traza_no_tiene_huecos"
+]
