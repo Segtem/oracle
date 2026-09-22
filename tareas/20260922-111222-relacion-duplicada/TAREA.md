@@ -1,6 +1,6 @@
 # Dos relaciones con el mismo nombre hacen caer oracle test con un traceback
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, errores, relaciones
 
