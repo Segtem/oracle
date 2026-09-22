@@ -1,15 +1,66 @@
-# Sin publicar — memoria de la mutación
+# 0.28.0 — retomar es leer una tarea
 
-El límite predeterminado de `--limite-memoria-mb` baja de 4000 a **1024 MiB**,
-compartido por el perfil Python y el CLI. La línea base completa (2386 tests,
-Python 3.14.7, Linux x86_64) midió **742,51 MiB de memoria virtual máxima**:
-el nuevo tope deja 37,9 % de margen. El valor explícito y `0` para desactivarlo
-siguen disponibles.
+```
+VERSION_DISTRIBUCION   0.27.0 → 0.28.0   el tracker como relevo, oracle test honesto y el tope de memoria
+VERSION_ALGEBRA        0.8    → 0.8
+VERSION_SINTAXIS       0.6    → 0.6
+```
 
-El límite es por proceso. Para varias rondas, la [receta de memoria y
-paralelismo](docs/mutacion-memoria.md) calcula la concurrencia a partir de
-`MemAvailable` y reúne el lote en un único scope de systemd con `MemoryMax`
-y `MemorySwapMax=0`. Allí están la medición reproducible y sus límites.
+## El tracker es el relevo
+
+El estado del trabajo vivía repartido entre la memoria de cada agente, `RELEVO.md`, planes y `.md`
+sueltos. Ahora vive en las tareas: se retoma con `oracle tarea listar` y `oracle tarea ver <id>`, y
+cada tarea termina con una sola sección `## Próximo paso`. El protocolo está en `AGENTS.md`, los
+`RELEVO*.md` quedaron en un puntero, y LyraGASP y Jam tienen su propio tracker.
+
+- **Una tarea se encuentra por su sufijo.** `oracle tarea ver multimalla` resuelve
+  `20260919-140308-multimalla`; si el sufijo es ambiguo, lo dice con la lista, y si no existe, sugiere
+  el más parecido («¿quisiste decir …?»). Salió de un agente que declaró inexistente una tarea que
+  existía porque adivinó mal la marca de tiempo del id. El MCP lo hereda.
+- **Una tarea declara con qué medidas se cierra**: `- CIERRA CON: recarga.montaje, dedos.flexion`.
+  `oracle tarea hechos` lo emite como `tarea_cierre_medida`, y la política
+  `seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre` pone rojo una tarea CERRADA cuyas medidas
+  no existen o no están verdes en la aceptación (`aceptacion_medida`, que emite
+  `ejemplo/seguimiento-tareas/cierre_medidas.py`). Sin `CIERRA CON`, una tarea sigue siendo válida.
+
+## `oracle test` dice lo que no midió
+
+El postmortem de una batalla naval hecha por un agente con Oracle encontró un verde que no medía
+nada del juego: el catálogo estaba vacío y el verde validaba un caso por su sintaxis. Ahora:
+
+- Cada corrida termina con `ALCANCE` (medidas contra casos guardados) y `PRODUCTO` (sin nueva
+  medición: no reejecuta el producto ni certifica su estado actual).
+- Un proyecto sin medidas propias, sin casos ni fixtures sale `VEREDICTO: SIN MEDICIÓN` —con salida
+  0, para no romper un CI recién creado— en vez de VERDE.
+- **Un camino corto a la primera medida real** (`docs/13-primer-valor.md`, `ejemplo/primer-valor/`):
+  del producto a un hecho exportado, a una medida y a `oracle juzgar`, probado de punta a punta.
+
+## Memoria de la mutación
+
+Cuatro rondas en paralelo podían sumar 16 GB: el tope por mutante era 4000 MiB por proceso, trece
+veces lo que la suite necesita. La línea base completa midió **742,51 MiB de memoria virtual
+máxima**; el tope baja a **1024 MiB** (37,9 % de margen), en un solo lugar —estaba duplicado entre
+el perfil y el CLI—, y
+`docs/mutacion-memoria.md` dice cuántas rondas lanzar según la memoria disponible y cómo ponerlas
+bajo un techo común de systemd. Las rondas de este corte corrieron así.
+
+## Verificación
+
+- Suite completa en verde (2394 tests); `oracle test` VERDE; cifras al día; `verificar_instalacion` WHEEL OK.
+- Mutación de código de lo tocado, en cinco rondas paralelas bajo un techo de systemd de 12 GB y con el
+  tope nuevo de 1024 MiB, sin cortes de memoria: `tools/cli.py` 539/539, `tools/tareas_hechos.py`
+  271/271, `perfiles/python/mutacion_codigo.py` 232/232 y `tools/tareas.py` 392 de 393 —el vivo era
+  el borde exacto del umbral de similitud de las sugerencias; un test con similitud 0,6 lo mata—
+  ([logs](tareas/20260922-114811-corte-028/verificacion/)).
+- El ejemplo del tracker (`ejemplo/seguimiento-tareas`) con la política nueva: VERDE, 33 casos,
+  109/109 mutantes de medida.
+
+## Cómo se hizo
+
+Codex (gpt-6-astra) implementó `buscar-sufijo`, `test-alcance`, `cierre-medidas` y `memoria`, y
+verificó `primer-valor`, que escribió agy. agy diseñó `cierre-medidas`. Claude revisó cada entrega
+—corrigió la sintaxis del diseño, la salida documentada del recorrido y un paso que faltaba—, unió y
+cortó.
 
 # 0.27.0 — una sombra perdona hasta su cota, y el MCP se pone al día
 

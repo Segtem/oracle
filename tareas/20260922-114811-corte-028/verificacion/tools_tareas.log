@@ -1,0 +1,408 @@
+objetivos: tools/tareas.py
+
+     ·  tools/tareas.py:61:17:constante                      constante: 2 → 3
+     ·  tools/tareas.py:77:8:retorno                         retorno: return <algo> → return None
+     ·  tools/tareas.py:98:51:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:100:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:103:24:constante                     constante: 16 → 17
+     ·  tools/tareas.py:115:7:comparador                     comparador: LtE → Lt
+     ·  tools/tareas.py:116:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:119:7:booleano                       booleano: and ↔ or
+     ·  tools/tareas.py:119:7:comparador                     comparador: NotEq → Eq
+     ·  tools/tareas.py:119:46:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:120:42:constante                     constante: 1 → 2
+     ·  tools/tareas.py:120:45:constante                     constante: 0 → 1
+     ·  tools/tareas.py:121:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:125:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:128:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:135:47:constante                     constante: True → False
+     ·  tools/tareas.py:144:47:constante                     constante: True → False
+     ·  tools/tareas.py:155:27:constante                     constante: False → True
+     ·  tools/tareas.py:167:7:comparador                     comparador: Is → IsNot
+     ·  tools/tareas.py:168:26:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:169:11:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:171:15:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:171:15:comparador                    comparador: GtE → Gt
+     ·  tools/tareas.py:171:21:constante                     constante: 1 → 2
+     ·  tools/tareas.py:171:62:constante                     constante: 1 → 2
+     ·  tools/tareas.py:173:39:constante                     constante: 1 → 2
+     ·  tools/tareas.py:175:22:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:177:7:comparador                     comparador: IsNot → Is
+     ·  tools/tareas.py:181:11:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:181:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:181:34:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:183:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:187:10:constante                     constante: True → False
+     ·  tools/tareas.py:189:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:193:11:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:198:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:208:10:constante                     constante: 0 → 1
+     ·  tools/tareas.py:209:10:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:209:10:comparador                    comparador: Lt → LtE
+     ·  tools/tareas.py:209:32:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:210:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:212:7:comparador                     comparador: GtE → Gt
+     ·  tools/tareas.py:216:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:221:26:constante                     constante: 2 → 3
+     ·  tools/tareas.py:222:11:constante                     constante: 1 → 2
+     ·  tools/tareas.py:223:10:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:223:10:comparador                    comparador: Lt → LtE
+     ·  tools/tareas.py:223:32:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:224:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:230:10:comparador                    comparador: Lt → LtE
+     ·  tools/tareas.py:232:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:235:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:238:30:constante                     constante: 1 → 2
+     ·  tools/tareas.py:239:24:constante                     constante: 2 → 3
+     ·  tools/tareas.py:242:11:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:247:11:comparador                    comparador: NotIn → In
+     ·  tools/tareas.py:250:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:252:7:comparador                     comparador: NotIn → In
+     ·  tools/tareas.py:255:7:comparador                     comparador: NotIn → In
+     ·  tools/tareas.py:260:7:comparador                     comparador: NotIn → In
+     ·  tools/tareas.py:277:11:comparador                    comparador: Is → IsNot
+     ·  tools/tareas.py:286:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:306:61:constante                     constante: False → True
+     ·  tools/tareas.py:317:47:constante                     constante: True → False
+     ·  tools/tareas.py:327:7:comparador                     comparador: NotIn → In
+     ·  tools/tareas.py:341:7:comparador                     comparador: Eq → NotEq
+     ·  tools/tareas.py:342:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:342:15:constante                     constante: False → True
+     ·  tools/tareas.py:346:15:constante                     constante: 0 → 1
+     ·  tools/tareas.py:347:43:constante                     constante: True → False
+     ·  tools/tareas.py:349:11:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:349:21:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:349:33:constante                     constante: 1 → 2
+     ·  tools/tareas.py:350:32:constante                     constante: 2 → 3
+     ·  tools/tareas.py:351:44:constante                     constante: 2 → 3
+     ·  tools/tareas.py:352:41:constante                     constante: 2 → 3
+     ·  tools/tareas.py:355:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:355:19:constante                     constante: True → False
+     ·  tools/tareas.py:366:12:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:376:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:381:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:382:10:comparador                    comparador: Lt → LtE
+     ·  tools/tareas.py:382:21:constante                     constante: 10000 → 10001
+     ·  tools/tareas.py:387:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:389:24:constante                     constante: 1 → 2
+     ·  tools/tareas.py:400:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:404:7:booleano                       booleano: and ↔ or
+     ·  tools/tareas.py:406:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:408:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:415:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:417:30:constante                     constante: 16 → 17
+     ·  tools/tareas.py:418:11:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:418:52:comparador                    comparador: Eq → NotEq
+  VIVO  tools/tareas.py:431:15:comparador                    comparador: GtE → Gt
+     ·  tools/tareas.py:431:28:constante                     constante: 0.6 → 1.6
+     ·  tools/tareas.py:434:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:436:87:constante                     constante: 0 → 1
+     ·  tools/tareas.py:436:95:constante                     constante: 1 → 2
+     ·  tools/tareas.py:436:101:constante                    constante: 3 → 4
+     ·  tools/tareas.py:440:7:comparador                     comparador: Gt → GtE
+     ·  tools/tareas.py:440:25:constante                     constante: 1 → 2
+     ·  tools/tareas.py:446:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:446:22:constante                     constante: 0 → 1
+     ·  tools/tareas.py:459:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:466:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:467:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:471:11:comparador                    comparador: Gt → GtE
+     ·  tools/tareas.py:471:24:constante                     constante: 2 → 3
+     ·  tools/tareas.py:471:28:constante                     constante: 1024 → 1025
+     ·  tools/tareas.py:471:35:constante                     constante: 1024 → 1025
+     ·  tools/tareas.py:472:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:480:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:490:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:501:64:constante                     constante: 1 → 2
+     ·  tools/tareas.py:503:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:507:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:509:27:constante                     constante: 1 → 2
+     ·  tools/tareas.py:510:23:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:510:31:constante                     constante: 2 → 3
+     ·  tools/tareas.py:513:11:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:525:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:531:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:533:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:534:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:544:15:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:547:48:constante                     constante: True → False
+     ·  tools/tareas.py:558:15:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:564:15:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:569:15:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:604:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:629:27:constante                     constante: True → False
+     ·  tools/tareas.py:630:27:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:634:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:634:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:642:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:642:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:645:34:constante                     constante: True → False
+     ·  tools/tareas.py:645:49:constante                     constante: True → False
+     ·  tools/tareas.py:648:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:648:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:650:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:657:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:657:19:constante                     constante: 1 → 2
+     ·  tools/tareas.py:675:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:675:19:constante                     constante: 1 → 2
+     ·  tools/tareas.py:678:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:678:11:constante                     constante: 0 → 1
+     ·  tools/tareas.py:697:16:constante                     constante: 50 → 51
+     ·  tools/tareas.py:707:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:709:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:709:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:710:7:comparador                     comparador: NotEq → Eq
+     ·  tools/tareas.py:712:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:712:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:716:11:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:716:20:comparador                    comparador: NotEq → Eq
+     ·  tools/tareas.py:718:12:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:718:19:constante                     constante: 1 → 2
+     ·  tools/tareas.py:727:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:727:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:735:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:735:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:737:30:comparador                    comparador: IsNot → Is
+     ·  tools/tareas.py:743:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:743:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:757:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:757:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:765:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:765:11:constante                     constante: 0 → 1
+     ·  tools/tareas.py:800:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:800:15:constante                     constante: 2 → 3
+     ·  tools/tareas.py:804:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:804:15:constante                     constante: 0 → 1
+     ·  tools/tareas.py:806:7:booleano                       booleano: and ↔ or
+     ·  tools/tareas.py:811:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:811:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:817:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:817:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:824:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:824:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:833:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:833:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:850:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:850:15:constante                     constante: 0 → 1
+     ·  tools/tareas.py:852:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:854:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:854:15:constante                     constante: 0 → 1
+     ·  tools/tareas.py:865:67:constante                     constante: 4 → 5
+     ·  tools/tareas.py:866:38:constante                     constante: 4 → 5
+     ·  tools/tareas.py:868:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:868:11:constante                     constante: 0 → 1
+     ·  tools/tareas.py:885:11:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:886:15:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:886:15:comparador                    comparador: IsNot → Is
+     ·  tools/tareas.py:886:38:comparador                    comparador: NotEq → Eq
+     ·  tools/tareas.py:888:15:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:888:15:comparador                    comparador: Is → IsNot
+     ·  tools/tareas.py:888:34:comparador                    comparador: NotEq → Eq
+     ·  tools/tareas.py:892:15:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:892:23:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:896:15:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:896:15:comparador                    comparador: NotIn → In
+     ·  tools/tareas.py:896:55:comparador                    comparador: NotIn → In
+     ·  tools/tareas.py:898:11:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:898:11:comparador                    comparador: IsNot → Is
+     ·  tools/tareas.py:898:40:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:903:51:constante                     constante: True → False
+     ·  tools/tareas.py:910:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:917:7:negacion                       negacion: se borra el `not`
+     ·  tools/tareas.py:934:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:948:7:booleano                       booleano: and ↔ or
+     ·  tools/tareas.py:950:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:950:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:956:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:956:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:963:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:963:15:constante                     constante: 1 → 2
+     ·  tools/tareas.py:967:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:967:15:constante                     constante: 0 → 1
+     ·  tools/tareas.py:971:8:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:971:15:constante                     constante: 0 → 1
+     ·  tools/tareas.py:987:4:retorno                        retorno: return <algo> → return None
+     ·  tools/tareas.py:987:11:constante                     constante: 0 → 1
+     ·  tools/tareas.py:1003:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1003:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1010:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1010:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1013:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1015:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1015:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1021:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1021:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1027:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1027:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1033:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1033:11:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1049:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1049:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1056:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1056:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1059:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1061:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1061:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1067:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1067:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1073:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1073:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1079:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1079:11:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1095:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1095:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1102:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1102:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1110:18:comparador                   comparador: Eq → NotEq
+     ·  tools/tareas.py:1110:36:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1115:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1115:20:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1115:15:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1115:39:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1124:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1124:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1127:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1127:11:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1142:43:constante                    constante: True → False
+     ·  tools/tareas.py:1143:24:comparador                   comparador: In → NotIn
+     ·  tools/tareas.py:1145:10:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1146:10:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1146:10:comparador                   comparador: Lt → LtE
+     ·  tools/tareas.py:1146:36:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1147:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1149:7:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:1149:7:comparador                    comparador: GtE → Gt
+     ·  tools/tareas.py:1149:33:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1152:11:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1153:10:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1153:10:comparador                   comparador: Lt → LtE
+     ·  tools/tareas.py:1153:36:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1154:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1161:10:comparador                   comparador: Lt → LtE
+     ·  tools/tareas.py:1163:11:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1165:11:comparador                   comparador: Eq → NotEq
+     ·  tools/tareas.py:1165:19:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1168:20:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1170:7:comparador                    comparador: IsNot → Is
+     ·  tools/tareas.py:1171:42:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1172:42:constante                    constante: 2 → 3
+     ·  tools/tareas.py:1176:53:constante                    constante: 2 → 3
+     ·  tools/tareas.py:1178:31:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1183:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1187:15:comparador                   comparador: NotIn → In
+     ·  tools/tareas.py:1190:9:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1192:61:comparador                   comparador: NotIn → In
+     ·  tools/tareas.py:1197:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1198:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1198:15:constante                    constante: False → True
+     ·  tools/tareas.py:1201:7:comparador                    comparador: IsNot → Is
+     ·  tools/tareas.py:1205:11:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1205:37:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1206:34:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1222:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1222:11:constante                    constante: True → False
+     ·  tools/tareas.py:1228:11:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1228:20:comparador                   comparador: NotEq → Eq
+     ·  tools/tareas.py:1231:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1233:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1255:12:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1255:19:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1284:12:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1284:19:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1288:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1288:15:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1297:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1297:11:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1322:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1324:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1332:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1332:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1343:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1343:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1349:15:comparador                   comparador: NotIn → In
+     ·  tools/tareas.py:1353:12:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1353:19:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1355:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1401:7:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:1403:7:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:1403:23:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1405:7:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:1407:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1416:12:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1416:19:constante                    constante: 2 → 3
+     ·  tools/tareas.py:1423:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1423:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1434:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1434:15:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1441:19:comparador                   comparador: NotIn → In
+     ·  tools/tareas.py:1445:16:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1445:23:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1448:15:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1449:19:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1449:39:comparador                   comparador: NotEq → Eq
+     ·  tools/tareas.py:1451:19:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1451:19:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1451:43:comparador                   comparador: NotEq → Eq
+     ·  tools/tareas.py:1453:15:booleano                     booleano: and ↔ or
+     ·  tools/tareas.py:1453:15:comparador                   comparador: IsNot → Is
+     ·  tools/tareas.py:1453:44:negacion                     negacion: se borra el `not`
+     ·  tools/tareas.py:1457:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1542:7:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:1542:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1542:20:comparador                   comparador: In → NotIn
+     ·  tools/tareas.py:1544:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1544:15:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1546:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1547:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1548:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1549:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1550:7:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:1551:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1552:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1553:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1554:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1555:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1556:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1557:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1558:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1559:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1560:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1561:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1562:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1563:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1564:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1566:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1567:7:comparador                    comparador: In → NotIn
+     ·  tools/tareas.py:1577:12:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1581:12:retorno                      retorno: return <algo> → return None
+     ·  tools/tareas.py:1581:19:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1582:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1584:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1585:7:comparador                    comparador: Eq → NotEq
+     ·  tools/tareas.py:1587:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1590:4:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1590:11:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1594:38:comparador                   comparador: Is → IsNot
+     ·  tools/tareas.py:1594:31:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1595:7:booleano                      booleano: and ↔ or
+     ·  tools/tareas.py:1595:7:negacion                      negacion: se borra el `not`
+     ·  tools/tareas.py:1595:25:comparador                   comparador: In → NotIn
+     ·  tools/tareas.py:1595:36:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1597:8:retorno                       retorno: return <algo> → return None
+     ·  tools/tareas.py:1597:15:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1599:23:constante                    constante: 0 → 1
+     ·  tools/tareas.py:1600:22:constante                    constante: 1 → 2
+     ·  tools/tareas.py:1601:4:retorno                       retorno: return <algo> → return None
+
+mutantes: 393 · murieron 392 · sobrevivieron 1 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✗ proceso.codigo_con_mutante_que_lo_mata       valor 1 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+CÓDIGO QUE NINGÚN TEST FIJA:
+  · tools/tareas.py:431:15:comparador
+      comparador: GtE → Gt
+
+Cada uno es un test que falta, o un mutante equivalente que hay que DECLARAR en
+equivalentes.json con su razón escrita. Declararlo sin razón es una excusa.

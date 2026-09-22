@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.27.0`.**
+**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.28.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,15 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.28.0 (2026-09-22): `VERSION_DISTRIBUCION` sube de `0.27.0` a `0.28.0`.** Retomar el
+trabajo pasa a ser leer una tarea: el tracker encuentra una tarea por su sufijo y sugiere la más
+parecida cuando un id no existe, y una tarea puede declarar con qué medidas se cierra —`CIERRA CON:`—,
+con una política que cruza ese criterio con los veredictos de la aceptación. `oracle test` dice qué
+verificó y que no midió el producto, y un proyecto vacío sale `SIN MEDICIÓN` en vez de VERDE. El tope
+de memoria por mutante baja de 4000 a 1024 MiB. Sube la **menor**: el tracker gana un campo y una
+relación, y la salida de `oracle test` cambia. `VERSION_ALGEBRA` queda en `0.8` y `VERSION_SINTAXIS`
+en `0.6`. Cierra `buscar-sufijo`, `test-alcance`, `primer-valor`, `cierre-medidas` y `memoria`.
 
 **Corte 0.27.0 (2026-09-16): `VERSION_DISTRIBUCION` sube de `0.26.0` a `0.27.0`.** `oracle juzgar`
 y la fachada `Motor` perdonan una sombra sólo hasta su cota —por encima, o sin un número que
