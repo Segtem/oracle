@@ -1,6 +1,6 @@
 # La mutación en paralelo puede comerse la memoria de la máquina
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, mutacion, infra
 
