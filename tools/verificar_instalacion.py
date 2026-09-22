@@ -425,7 +425,9 @@ def main() -> int:
         _correr([str(oracle), "init", str(proyecto_cli)], cwd=vacio, env=env)
         vacio_cli = _correr(
             [str(oracle), "test", "--proyecto", str(proyecto_cli)], cwd=vacio, env=env)
-        if "VEREDICTO: VERDE" not in vacio_cli.stdout or "proyecto vacío" not in vacio_cli.stdout:
+        # Desde 0.28.0 un proyecto vacío no sale VERDE sino SIN MEDICIÓN, con salida 0: no midió nada.
+        if ("VEREDICTO: SIN MEDICIÓN" not in vacio_cli.stdout
+                or "proyecto vacío" not in vacio_cli.stdout):
             raise RuntimeError("oracle test no aceptó un proyecto recién inicializado")
 
         # `oracle manual` es el candidato natural a romperse SÓLO en el paquete instalado: arma
