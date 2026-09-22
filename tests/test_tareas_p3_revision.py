@@ -27,7 +27,7 @@ class PoliticasSeguimientoTests(unittest.TestCase):
         """Cada política optativa tiene defectos que rechaza y estados correctos que acepta."""
         catalogo = cargar_catalogo([EJEMPLO / "catalogos"])
         casos = cargar_casos(EJEMPLO / "corpus")
-        self.assertEqual(len(catalogo), 6)
+        self.assertEqual(len(catalogo), 7)
         for mid, medida in catalogo.items():
             propios = [c for c in casos if c["medida"] == mid]
             self.assertEqual({c["etiqueta"] == "verde_correcto" for c in propios}, {True, False})
@@ -87,10 +87,13 @@ class EvidenciaTareasRevisionTests(unittest.TestCase):
         self.assertEqual(datos["lectura_seguimiento"][0]["git"], "no_solicitado")
         self.assertFalse(datos["archivo_seguimiento"][0]["git_comprobado"])
         relaciones = cargar_relaciones([EJEMPLO / "relaciones"])
-        self.assertEqual(set(datos), set(relaciones))
+        # La aceptación es evidencia externa: el tracker sólo declara los criterios.
+        self.assertEqual(set(datos), set(relaciones) - {"aceptacion_medida"})
+        self.assertNotIn("aceptacion_medida", datos)
         tipos = {"texto": str, "entero": int, "booleano": bool}
-        for nombre, relacion in relaciones.items():
-            for fila in datos[nombre]:
+        for nombre, filas in datos.items():
+            relacion = relaciones[nombre]
+            for fila in filas:
                 self.assertEqual(set(fila), {c.nombre for c in relacion.campos})
                 for campo in relacion.campos:
                     self.assertIs(type(fila[campo.nombre]), tipos[campo.tipo])

@@ -841,6 +841,11 @@ def extraer_hechos(raiz: Path, *, con_git: bool = False) -> dict[str, list[dict[
         "omision_seguimiento": omisiones_dedup,
         "referencia_seguimiento": referencias,
         "tarea_seguimiento": tarea_seguimiento,
+        "tarea_cierre_medida": [
+            {"tarea_id": t.id, "medida": medida}
+            for t in sorted(tareas_validas, key=lambda t: t.id)
+            for medida in t.cierra_con
+        ],
     }
 
 

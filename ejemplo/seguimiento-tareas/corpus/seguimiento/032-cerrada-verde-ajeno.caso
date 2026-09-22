@@ -1,0 +1,20 @@
+caso 032-cerrada-verde-ajeno:
+    fecha: "2026-09-22"
+    origen:
+        tipo: "ejemplo construido para fijar el cierre por medidas"
+    procedencia: construida
+    titulo: "cerrada-verde-ajeno"
+    etiqueta: falso_verde
+    sintoma:
+        Cada criterio de una tarea cerrada exige su propio veredicto verde.
+    como_se_detecto: persona
+    medida: seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre
+    evidencia:
+        tarea_seguimiento: id, estado_declarado
+            "t1", "CERRADA"
+        tarea_cierre_medida: tarea_id, medida
+            "t1", "dominio.a"
+        aceptacion_medida: medida, ok
+            "dominio.b", true
+    leccion:
+        Sólo las tareas cerradas con criterios declarados exigen aceptación verde.

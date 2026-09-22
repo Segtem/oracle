@@ -1,0 +1,66 @@
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 33 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 7 medidas · 0 macros · 33 casos
+
+catálogo: 7 medidas · corpus: 33 casos
+
+  verde 001-local-presente                     seguimiento.referencias_locales_presentes  (valor 0)
+  verde 002-sin-referencias                    seguimiento.referencias_locales_presentes  (valor 0)
+  verde 003-remota-no-comprobada               seguimiento.referencias_locales_presentes  (valor 0)
+  verde 004-ancla-no-comprobada                seguimiento.referencias_locales_presentes  (valor 0)
+  verde 005-no-admitida-no-comprobada          seguimiento.referencias_locales_presentes  (valor 0)
+  ROJO  006-local-ausente                      seguimiento.referencias_locales_presentes  (valor 1)
+  ROJO  007-local-fuera-del-proyecto           seguimiento.referencias_locales_presentes  (valor 1)
+  ROJO  008-local-no-comprobado                seguimiento.referencias_locales_presentes  (valor 1)
+  verde 009-archivo-confirmado                 seguimiento.archivos_confirmados_sin_cambios  (valor 0)
+  ROJO  010-sin-archivos                       seguimiento.archivos_confirmados_sin_cambios  (valor 0)
+  ROJO  011-git-no-comprobado                  seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  ROJO  012-solo-en-indice                     seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  ROJO  013-sin-head-con-indice-vacio          seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  ROJO  014-cambio-en-indice                   seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  ROJO  015-cambio-local                       seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  ROJO  016-archivo-ignorado                   seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  ROJO  017-archivo-borrado                    seguimiento.archivos_confirmados_sin_cambios  (valor 1)
+  verde 018-lectura-completa                   seguimiento.lectura_sin_omisiones  (valor 0)
+  ROJO  019-lectura-incompleta                 seguimiento.lectura_sin_omisiones  (valor 1)
+  ROJO  020-sin-lectura                        seguimiento.lectura_sin_omisiones  (valor 0)
+  ROJO  021-commit-nombra-una-tarea-que-no-existe seguimiento.ningun_commit_nombra_una_tarea_inexistente  (valor 1)
+  verde 022-commits-que-nombran-tareas-existentes seguimiento.ningun_commit_nombra_una_tarea_inexistente  (valor 0)
+  ROJO  023-tarea-cerrada-sin-su-commit-de-cierre seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre  (valor 1)
+  verde 024-cada-cerrada-con-su-cierre         seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre  (valor 0)
+  ROJO  025-un-cierre-sobre-una-tarea-abierta  seguimiento.ningun_cierre_deja_la_tarea_abierta  (valor 1)
+  verde 026-los-cierres-coinciden-con-el-estado seguimiento.ningun_cierre_deja_la_tarea_abierta  (valor 0)
+  verde 027-abierta-con-medida                 seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 0)
+  verde 028-cerrada-sin-medidas                seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 0)
+  verde 029-cerrada-verdes                     seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 0)
+  ROJO  030-cerrada-roja                       seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 1)
+  ROJO  031-cerrada-inexistente                seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 1)
+  ROJO  032-cerrada-verde-ajeno                seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 1)
+  ROJO  033-cerrada-parcial                    seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre  (valor 1)
+
+defectos que se pusieron rojos: 20 · verdes correctos: 13 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+EN SOMBRA — 1 medida(s) que se miden y no hacen fallar:
+  · seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre  (hace 6 días)
+      porque: 4 tareas cerradas sin su commit `<ID>: done`, y las cuatro son deuda que no se puede saldar hacia atrás. Tres —20260912-223232-mutacion-tracker, 20260912-223233-corte-016 y 20260912-223233-uso-propio— se cerraron el 2026-09-12, antes de que la convención existiera: fue el 2026-09-15, con 0.18.0, que cada trabajo pasó a ser una tarea con sus commits. La cuarta, 20260915-155111-ambito, tiene su commit de cierre pero con la firma pegada en el asunto por un error al armar el mensaje, y arreglarlo sería reescribir historia ya publicada y etiquetada. La cota impide que la deuda crezca: una tarea nueva que se cierre sin su commit pone la corrida en rojo.
+
+ACEPTACIÓN ✓ — 20 defectos en rojo, 13 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 109 · murieron 109 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+  de los muertos: 95 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 14 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 579
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)

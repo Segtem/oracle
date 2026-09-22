@@ -181,7 +181,7 @@ El comando `oracle tarea hechos [--git] [--json] [--proyecto RUTA]` emite un obj
 
 La salida no se escribe en el tracker ni en disco; se redirige típicamente mediante tuberías o redirección shell hacia un archivo fuera del árbol de tareas (`oracle tarea hechos > /tmp/hechos.json`).
 
-El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adicionales:
+El JSON relacional contiene siempre siete relaciones clave sin envoltorios adicionales:
 
 1. **`lectura_seguimiento`** (exactamente una fila):
    - `esquema`: `"oracle.tareas.hechos/v1"`.
@@ -257,6 +257,27 @@ El JSON relacional contiene siempre cinco relaciones clave sin envoltorios adici
    No ve el cuerpo del mensaje, ni el autor, ni la fecha, ni los archivos tocados, y **no** comprueba
    que el trabajo del commit tenga que ver con la tarea que nombra: eso no lo puede saber ninguna
    medida.
+
+7. **`tarea_cierre_medida`** (siempre presente, incluso `[]`):
+   - `tarea_id`: identificador canónico de la tarea, abierta o cerrada.
+   - `medida`: cada identificador saneado de `CIERRA CON`, sin duplicados por tarea.
+   - Orden: tareas por `id`, medidas en el orden declarado. Sin criterios no aporta filas.
+
+El tracker no consulta catálogos ni evalúa medidas. La relación externa
+`aceptacion_medida` contiene `{medida: texto, ok: booleano}` y se obtiene de
+`medidas[].id/ok` de una corrida actual de `oracle juzgar --json` sobre el dominio.
+Sólo se admiten códigos 0/1 con informe válido; errores abortan sin reutilizar evidencia.
+`no_aplicadas` no aporta filas y un rojo perdonado por sombra conserva `ok: false`.
+El éxito de `oracle test` valida el corpus, incluidos rojos esperados; no acredita dominio verde.
+
+La política optativa `seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre` exige
+un veredicto verde por cada criterio de una tarea CERRADA. Sin `aceptacion_medida`
+no aplica (compatibilidad); con `[]` aplica y rechaza cierres con criterios.
+Tareas abiertas o sin criterios no requieren veredictos. Medidas inexistentes o no
+evaluadas carecen de evidencia verde. Esto audita cierres; no bloquea `tarea cerrar`.
+El flujo ejecutable y copiable está en
+[`ejemplo/seguimiento-tareas/cierre_medidas.py`](../ejemplo/seguimiento-tareas/cierre_medidas.py),
+con instrucciones en el README del ejemplo.
 
 ### Juzgar los hechos del tracker con `oracle juzgar`
 

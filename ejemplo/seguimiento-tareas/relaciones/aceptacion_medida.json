@@ -1,0 +1,23 @@
+[
+  "relacion",
+  "aceptacion_medida",
+  [
+    "campos",
+    [
+      "campo",
+      "medida",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "ok",
+      "booleano",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "Veredictos individuales de la aceptación actual del dominio con oracle juzgar --json; no prueba vigencia por sí sola."
+  ]
+]

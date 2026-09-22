@@ -1,0 +1,9 @@
+medida seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre:
+    de tarea_cierre_medida cm
+    unir tarea_seguimiento t
+    donde cm.tarea_id == t.id y t.estado_declarado == "CERRADA"
+    sin aceptacion_medida am donde am.medida == cm.medida y am.ok == true
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "toda tarea cerrada cuyo criterio de cierre nombre medidas exige que esas medidas existan en el catálogo y estén verdes en la última aceptación; cero porque cada medida declarada es una obligación de cierre"
+    ambito del_origen
+    alcance "cruza CIERRA CON de tareas CERRADAS con aceptacion_medida; no evalúa código ni acredita la vigencia de los veredictos provistos. Sin CIERRA CON cumple por vacuidad. Sin la relación de aceptación no aplica; con relación vacía exige evidencia verde para cada criterio"

@@ -1,0 +1,19 @@
+caso 027-abierta-con-medida:
+    fecha: "2026-09-22"
+    origen:
+        tipo: "ejemplo construido para fijar el cierre por medidas"
+    procedencia: construida
+    titulo: "abierta-con-medida"
+    etiqueta: verde_correcto
+    sintoma:
+        Cada criterio de una tarea cerrada exige su propio veredicto verde.
+    como_se_detecto: persona
+    medida: seguimiento.toda_tarea_cerrada_cumple_medidas_de_cierre
+    evidencia:
+        tarea_seguimiento: id, estado_declarado
+            "t1", "ABIERTA"
+        tarea_cierre_medida: tarea_id, medida
+            "t1", "dominio.a"
+        aceptacion_medida:
+    leccion:
+        Sólo las tareas cerradas con criterios declarados exigen aceptación verde.
