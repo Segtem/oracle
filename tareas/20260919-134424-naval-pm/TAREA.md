@@ -48,3 +48,7 @@ agy?), y para eso hacen falta las sesiones de agy del 2026-09-18: en esta máqui
 (`~/.gemini/antigravity-cli/conversations` y `log/` saltan del 17 al 19) y las rutas que cita agy
 (`/c/holamundo/…`) sugieren que el juego se hizo en otra. Si Brian las exporta, Codex completa la
 cronología; si no, se cierra con ese hueco declarado.
+
+### Nota (2026-09-22 20:06:08 UTC)
+
+2026-09-22: réplica con 0.28.0 y un prompt que sugiere en vez de guiar (Brian corrió agy; resultado en ~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280). Esta vez SÍ midió el producto: 11 medidas sobre reglas navales, un sensor propio (js/trace.js) que exporta celda_barco, tiro y partida, y una partida real de 130 tiros juzgada con oracle juzgar — verde en 11 medidas, con la lista de lo que no miró. Comprobado por Claude: al corromper la evidencia, cada mentira cae con la medida correcta y salida 1 (impacto→agua: veracidad_impacto_negativo; agua→impacto: veracidad_impacto_positivo; tiro fuera: tiros_dentro_del_tablero). Debilidad honesta: su corpus tiene 2 casos y oracle test da ROJO por mutación, con 2 mutantes vivos que confunden fila con columna. Diferencia con el 18/09: entonces catalogos/ estaba vacío y el verde no medía nada del juego.
