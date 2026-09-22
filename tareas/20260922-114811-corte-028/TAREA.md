@@ -1,6 +1,6 @@
 # Corte 0.28.0
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, release
 
