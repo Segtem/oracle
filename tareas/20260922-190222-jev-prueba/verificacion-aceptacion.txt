@@ -1,0 +1,12 @@
+catálogo: 1 medidas · corpus: 4 casos
+
+  ROJO  001-senal-alcance-concreto             prosa.senales_de_prosa_deficiente  (valor 1)
+  ROJO  002-senal-porque-defiende              prosa.senales_de_prosa_deficiente  (valor 1)
+  ROJO  003-senal-alcance-vacio                prosa.senales_de_prosa_deficiente  (valor 1)
+  verde 004-sin-senal                          prosa.senales_de_prosa_deficiente  (valor 0)
+
+defectos que se pusieron rojos: 3 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 3 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar

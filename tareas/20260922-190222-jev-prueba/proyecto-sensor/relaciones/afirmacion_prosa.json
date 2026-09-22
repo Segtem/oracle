@@ -1,0 +1,41 @@
+[
+  "relacion",
+  "afirmacion_prosa",
+  [
+    "campos",
+    [
+      "campo",
+      "registro",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "medida",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "pregunta",
+      "texto",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "respuesta",
+      "booleano",
+      "sin_unidad"
+    ],
+    [
+      "campo",
+      "probabilidad",
+      "flotante",
+      "sin_unidad"
+    ]
+  ],
+  [
+    "alcance",
+    "Respuestas del sensor Jev; probabilidad es P(sí), no probabilidad de que la clasificación sea correcta."
+  ]
+]

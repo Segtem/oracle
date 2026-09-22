@@ -1,0 +1,20 @@
+{
+  "fecha": "2026-09-22T20:04:07.235664+00:00",
+  "semilla": 20260922,
+  "modelo": "typesafe/jev-1.13",
+  "reales": 62,
+  "controles": 10,
+  "preguntas": {
+    "alcance_concreto": "¿El alcance nombra algo concreto que la medida no mira?",
+    "porque_defiende": "¿El porque explica por qué ESE número del umbral y no otro?",
+    "alcance_vacio": "¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+  },
+  "umbral_si": 0.5,
+  "tamano_lote": 12,
+  "regla": "Sí si noul >= 0.5; control atrapado si alguna respuesta señala defecto; informar también patrón completo.",
+  "presupuesto_local_usd": 0.05,
+  "max_corridas": 6,
+  "fuente_api": "https://openrouter.ai/labs/jev/triage",
+  "limitaciones": "La tarea revela el patrón agregado de Claude. No se leyó su archivo. Controles sustituyen ambos campos para fijar las tres polaridades opuestas.",
+  "sha256_lote": "7debde005ad70b4ac4af3f2195cb2195f86836ea10ef02aa4e8cb2bd4ecf7fa0"
+}

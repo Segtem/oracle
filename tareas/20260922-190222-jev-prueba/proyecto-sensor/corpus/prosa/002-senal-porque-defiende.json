@@ -1,0 +1,27 @@
+{
+  "id": "002-senal-porque-defiende",
+  "fecha": "2026-09-22",
+  "origen": {
+    "repo": "Oracle",
+    "comando": "python3 tareas/20260922-190222-jev-prueba/experimento.py correr",
+    "archivo": "../respuesta-cruda-01.json a respuesta-cruda-06.json"
+  },
+  "procedencia": "observada",
+  "titulo": "002-senal-porque-defiende",
+  "etiqueta": "falso_verde",
+  "sintoma": "Señal probabilística observada; se comprueba el cableado del sensor, no la verdad de la prosa.",
+  "como_se_detecto": "persona",
+  "medida": "prosa.senales_de_prosa_deficiente",
+  "evidencia": {
+    "afirmacion_prosa": [
+      {
+        "registro": "r001",
+        "medida": "meta.donde_nunca_agrega_filas",
+        "pregunta": "porque_defiende",
+        "respuesta": false,
+        "probabilidad": 0.47
+      }
+    ]
+  },
+  "leccion": "Oracle juzga respuestas del sensor; no certifica su exactitud semántica."
+}

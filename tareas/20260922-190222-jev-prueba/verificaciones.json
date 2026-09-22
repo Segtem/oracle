@@ -1,0 +1,106 @@
+[
+  {
+    "nombre": "corpus",
+    "comando": [
+      "python3",
+      "tools/corpus.py",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor"
+    ],
+    "exit_code": 0,
+    "esperado": 0,
+    "ok": true
+  },
+  {
+    "nombre": "aceptacion",
+    "comando": [
+      "python3",
+      "tools/aceptacion.py",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor"
+    ],
+    "exit_code": 0,
+    "esperado": 0,
+    "ok": true
+  },
+  {
+    "nombre": "caso-01",
+    "comando": [
+      "python3",
+      "tools/cli.py",
+      "juzgar",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor",
+      "--con",
+      "tareas/20260922-190222-jev-prueba/caso-evidencia-01.json",
+      "--json"
+    ],
+    "exit_code": 1,
+    "esperado": 1,
+    "ok": true
+  },
+  {
+    "nombre": "caso-02",
+    "comando": [
+      "python3",
+      "tools/cli.py",
+      "juzgar",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor",
+      "--con",
+      "tareas/20260922-190222-jev-prueba/caso-evidencia-02.json",
+      "--json"
+    ],
+    "exit_code": 1,
+    "esperado": 1,
+    "ok": true
+  },
+  {
+    "nombre": "caso-03",
+    "comando": [
+      "python3",
+      "tools/cli.py",
+      "juzgar",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor",
+      "--con",
+      "tareas/20260922-190222-jev-prueba/caso-evidencia-03.json",
+      "--json"
+    ],
+    "exit_code": 1,
+    "esperado": 1,
+    "ok": true
+  },
+  {
+    "nombre": "caso-04",
+    "comando": [
+      "python3",
+      "tools/cli.py",
+      "juzgar",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor",
+      "--con",
+      "tareas/20260922-190222-jev-prueba/caso-evidencia-04.json",
+      "--json"
+    ],
+    "exit_code": 0,
+    "esperado": 0,
+    "ok": true
+  },
+  {
+    "nombre": "lote",
+    "comando": [
+      "python3",
+      "tools/cli.py",
+      "juzgar",
+      "--proyecto",
+      "tareas/20260922-190222-jev-prueba/proyecto-sensor",
+      "--con",
+      "tareas/20260922-190222-jev-prueba/afirmacion_prosa.json",
+      "--json"
+    ],
+    "exit_code": 1,
+    "esperado": 1,
+    "ok": true
+  }
+]

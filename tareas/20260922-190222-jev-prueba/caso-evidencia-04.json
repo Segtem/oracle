@@ -1,0 +1,25 @@
+{
+  "afirmacion_prosa": [
+    {
+      "registro": "r003",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r003",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.91
+    },
+    {
+      "registro": "r003",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.06
+    }
+  ]
+}

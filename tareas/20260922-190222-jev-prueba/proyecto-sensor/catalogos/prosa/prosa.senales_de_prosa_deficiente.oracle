@@ -1,0 +1,8 @@
+medida prosa.senales_de_prosa_deficiente:
+    de afirmacion_prosa a
+    donde (a.pregunta == "alcance_concreto" y a.respuesta == false) o (a.pregunta == "porque_defiende" y a.respuesta == false) o (a.pregunta == "alcance_vacio" y a.respuesta == true)
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "cero señales adversas para declarar verde en esta prueba del sensor; cada señal exige revisión de la prosa, no prueba un defecto"
+    requiere afirmacion_prosa
+    ambito universal
+    alcance "Hechos probabilísticos producidos por Jev typesafe/jev-1.13-20260917, con respuesta sí desde P(sí) >= 0.5. El margen de error se mide en analisis.json: muestra pequeña, sin garantía de calibración ni generalización. NO juzga la verdad de la prosa, ni detecta preguntas o medidas ausentes de una relación parcialmente entregada."

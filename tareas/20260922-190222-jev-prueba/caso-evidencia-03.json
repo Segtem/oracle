@@ -1,0 +1,11 @@
+{
+  "afirmacion_prosa": [
+    {
+      "registro": "r004",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.9
+    }
+  ]
+}

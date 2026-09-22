@@ -1,0 +1,238 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": {
+    "description": "Prosa de medidas de Oracle. alcance declara puntos ciegos; porque defiende el umbral. Evaluar sólo el registro indicado, sin completar ni mejorar su texto.",
+    "records": [
+      {
+        "id": "r001",
+        "alcance": "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción",
+        "porque": "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r002",
+        "alcance": "ve que el campo `ambito` esté declarado y no en `sin_declarar`. NO juzga si el ámbito declarado es el correcto: esa segunda pregunta no la contesta ninguna medida",
+        "porque": "toda medida tiene que declarar dónde obliga: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas durante la migración, no una declaración aceptable",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r003",
+        "alcance": "mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`",
+        "porque": "un flotante literal comparado con `==` o `!=` dentro de un filtro exige exactitud binaria sobre una cantidad medida: 0.1 más 0.2 no da 0.3, así que el filtro puede aceptar o rechazar por cómo quedó el número en binario y no por el margen que la medida defiende. El límite es cero y no un margen porque una sola igualdad exacta ya vuelve arbitrario el corte",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r004",
+        "alcance": "No ve todo lo demás.",
+        "porque": "Es el número adecuado.",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r005",
+        "alcance": "cree lo que la declaración dice y NO verifica que el sensor emita en esa unidad",
+        "porque": "una medida que compara cantidades cuya unidad no se puede derivar —porque una relación no declaró el campo o una escalar no declaró su unidad de retorno— no puede garantizar que las magnitudes comparadas sean compatibles",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r006",
+        "alcance": "ve si los dos campos están declarados. NO juzga si el motivo es bueno ni si la fecha es cierta, ni ve las medidas que deberían estar en sombra y no se pusieron",
+        "porque": "una sombra sin fecha no se puede envejecer y una sin motivo no se puede discutir: sin las dos, apagar un rojo sale gratis y deja de ser una decisión para pasar a ser una comodidad",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r007",
+        "alcance": "compara las dos formas sobre una sonda construida con filas que pasan cada filtro y filas que no. NO cubre predicados con UDF ni con `o` anidado, y no dice nada sobre el catálogo publicado: hoy ninguna medida usa dos `donde`, así que esta propiedad se comprueba antes de tener usuario. Si equivalencia viene vacía no hay fallas de composición y verde es correcto; además metamorficas.py construye las sondas por construcción",
+        "porque": "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»: son la misma pregunta escrita de dos maneras. Se exigen las tres coincidencias y no sólo el veredicto, porque las filas que sobreviven al último `donde` SON los testigos, y dos formas que dan el mismo número señalando filas distintas mandan a una persona a mirar el lugar equivocado",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r008",
+        "alcance": "ve la corrida que lo declara. NO ve otras formas de caché: módulos ya importados en memoria, o un import hecho por otro test antes de la mutación. Si corrida_mutacion viene vacía significa que no hubo corridas con bytecode caliente en la sesión y verde es correcto",
+        "porque": "CPython invalida el .pyc por (mtime, tamaño): mutar y restaurar dentro del mismo segundo deja a Python corriendo el bytecode mutado sobre el código ya restaurado",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r009",
+        "alcance": "mira el operador y el tipo del valor final del umbral de cada medida. NO ve igualdades exactas dentro de expresiones o agregados — de ésas se ocupa el álgebra al evaluar — y NO juzga `==` sobre enteros, textos ni booleanos, que se comparan exacto",
+        "porque": "un umbral `==` o `!=` sobre un flotante compara cantidades medidas con una exactitud que la representación no garantiza: 0.1+0.2 no es 0.3, y una igualdad exacta ahí es una falsedad silenciosa que se lee como verde. La comparación de orden con tolerancia (`cerca`) deja el margen a la vista y con su defensa",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r010",
+        "alcance": "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde",
+        "porque": "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r011",
+        "alcance": "compara `unir A B` contra `unir B A` sobre una sonda construida y sobre las medidas reales que usan `unir`, con la evidencia de sus casos. NO ve `unir` anidados de más de dos lados ni el costo: dos formas equivalentes pueden materializar el mismo producto con presupuestos muy distintos. Si equivalencia viene vacía no hay fallas de conmutatividad y verde es correcto; además metamorficas.py construye las sondas por construcción",
+        "porque": "el producto cartesiano no tiene lado: cada fila lleva los dos alias, así que dar vuelta los operandos sólo cambia el orden en que salen las filas, y el orden de una bolsa no es parte del contrato. Si el veredicto, el valor o los testigos cambian al voltear, el operador está haciendo algo que depende de la posición y eso no es un producto",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r012",
+        "alcance": "cuenta mutantes que ningún caso observó, de ninguna de las cuatro maneras. NO ve los mutantes que nadie generó: una medida sin ningún mutador aplicable da cero y sale verde. Tampoco distingue un mutante equivalente —imposible de matar— de uno que el corpus todavía no fija; esa diferencia hay que declararla a mano. Si mutante viene vacía o sin mutantes de medida, la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—",
+        "porque": "un mutante que sobrevive es un test que no discrimina: pasa con el código roto, así que su verde no significa nada. Cuenta como detección cualquiera de las tres formas en que un caso puede notarlo —invertir el veredicto, cambiar los testigos o cambiar el valor— porque las tres son contrato: los testigos son lo que una persona LEE para actuar, y el valor explica cuánto y no sólo de qué lado cayó. Un rechazo del álgebra tampoco deja al mutante vivo, pero es otra cosa y por eso se cuenta aparte: ahí ningún caso discriminó nada, el mutante ni siquiera llegó a evaluar",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      }
+    ]
+  },
+  "questions": {
+    "r001__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r001: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r001__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r001: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r001__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r001: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r002__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r002: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r002__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r002: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r002__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r002: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r003__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r003: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r003__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r003: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r003__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r003: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r004__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r004: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r004__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r004: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r004__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r004: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r005__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r005: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r005__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r005: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r005__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r005: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r006__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r006: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r006__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r006: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r006__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r006: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r007__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r007: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r007__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r007: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r007__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r007: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r008__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r008: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r008__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r008: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r008__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r008: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r009__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r009: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r009__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r009: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r009__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r009: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r010__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r010: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r010__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r010: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r010__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r010: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r011__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r011: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r011__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r011: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r011__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r011: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r012__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r012: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r012__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r012: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r012__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r012: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    }
+  }
+}

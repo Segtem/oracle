@@ -1,0 +1,11 @@
+{
+  "afirmacion_prosa": [
+    {
+      "registro": "r001",
+      "medida": "meta.donde_nunca_agrega_filas",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.47
+    }
+  ]
+}

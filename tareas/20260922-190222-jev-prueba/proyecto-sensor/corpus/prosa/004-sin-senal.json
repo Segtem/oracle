@@ -1,0 +1,41 @@
+{
+  "id": "004-sin-senal",
+  "fecha": "2026-09-22",
+  "origen": {
+    "repo": "Oracle",
+    "comando": "python3 tareas/20260922-190222-jev-prueba/experimento.py correr",
+    "archivo": "../respuesta-cruda-01.json a respuesta-cruda-06.json"
+  },
+  "procedencia": "observada",
+  "titulo": "004-sin-senal",
+  "etiqueta": "verde_correcto",
+  "sintoma": "Señal probabilística observada; se comprueba el cableado del sensor, no la verdad de la prosa.",
+  "como_se_detecto": "persona",
+  "medida": "prosa.senales_de_prosa_deficiente",
+  "evidencia": {
+    "afirmacion_prosa": [
+      {
+        "registro": "r003",
+        "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+        "pregunta": "alcance_concreto",
+        "respuesta": true,
+        "probabilidad": 0.98
+      },
+      {
+        "registro": "r003",
+        "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+        "pregunta": "porque_defiende",
+        "respuesta": true,
+        "probabilidad": 0.91
+      },
+      {
+        "registro": "r003",
+        "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+        "pregunta": "alcance_vacio",
+        "respuesta": false,
+        "probabilidad": 0.06
+      }
+    ]
+  },
+  "leccion": "Oracle juzga respuestas del sensor; no certifica su exactitud semántica."
+}

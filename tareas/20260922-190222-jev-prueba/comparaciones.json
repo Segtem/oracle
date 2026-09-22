@@ -1,0 +1,752 @@
+[
+  {
+    "registro": "r002",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.94,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r002",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.21,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r002",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.05,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r004",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.22,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r004",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.15,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r004",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.9,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r007",
+    "medida": "meta.donde_compone",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.97,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r007",
+    "medida": "meta.donde_compone",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.47,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r007",
+    "medida": "meta.donde_compone",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.04,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r016",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.21,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r016",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.1,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r016",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.84,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r017",
+    "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.98,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r017",
+    "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+    "pregunta": "porque_defiende",
+    "respuesta": true,
+    "probabilidad": 0.84,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r017",
+    "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.34,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r023",
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.95,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r023",
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.27,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r023",
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.29,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r024",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.97,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r024",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.46,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r024",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.39,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r027",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.97,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r027",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.44,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r027",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.14,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r029",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.1,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r029",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.07,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r029",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.88,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r030",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.97,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r030",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.25,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r030",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.1,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r039",
+    "medida": "proceso.verificacion_vigente",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.16,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r039",
+    "medida": "proceso.verificacion_vigente",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.06,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r039",
+    "medida": "proceso.verificacion_vigente",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.87,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r043",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.7,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r043",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.14,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r043",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.09,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r044",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.16,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r044",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.06,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r044",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.81,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r045",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.35,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r045",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.41,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r045",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.93,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r046",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.95,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r046",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.25,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r046",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.05,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r049",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.21,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r049",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.04,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r049",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.88,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r050",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.34,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r050",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.08,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r050",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.79,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r059",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.94,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r059",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.12,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r059",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.22,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r060",
+    "medida": "proceso.verificacion_vigente",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.97,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r060",
+    "medida": "proceso.verificacion_vigente",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.14,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r060",
+    "medida": "proceso.verificacion_vigente",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.18,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r061",
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.96,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r061",
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.39,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r061",
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.28,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r063",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.96,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r063",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.22,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r063",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.26,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r068",
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.69,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r068",
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.36,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r068",
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.17,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r070",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "pregunta": "alcance_concreto",
+    "respuesta": true,
+    "probabilidad": 0.96,
+    "control": false,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r070",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.16,
+    "control": false,
+    "esperado": true,
+    "acuerdo": false
+  },
+  {
+    "registro": "r070",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "pregunta": "alcance_vacio",
+    "respuesta": false,
+    "probabilidad": 0.18,
+    "control": false,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r071",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.05,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r071",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.06,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r071",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.89,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  },
+  {
+    "registro": "r072",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "pregunta": "alcance_concreto",
+    "respuesta": false,
+    "probabilidad": 0.1,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r072",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "pregunta": "porque_defiende",
+    "respuesta": false,
+    "probabilidad": 0.05,
+    "control": true,
+    "esperado": false,
+    "acuerdo": true
+  },
+  {
+    "registro": "r072",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "pregunta": "alcance_vacio",
+    "respuesta": true,
+    "probabilidad": 0.91,
+    "control": true,
+    "esperado": true,
+    "acuerdo": true
+  }
+]

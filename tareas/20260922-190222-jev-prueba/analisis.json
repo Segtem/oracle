@@ -1,0 +1,176 @@
+{
+  "preguntas": {
+    "alcance_concreto": {
+      "reales_acuerdo": 15,
+      "reales_total": 15,
+      "controles_acuerdo": 10,
+      "controles_total": 10
+    },
+    "porque_defiende": {
+      "reales_acuerdo": 1,
+      "reales_total": 15,
+      "controles_acuerdo": 10,
+      "controles_total": 10
+    },
+    "alcance_vacio": {
+      "reales_acuerdo": 15,
+      "reales_total": 15,
+      "controles_acuerdo": 10,
+      "controles_total": 10
+    }
+  },
+  "reales_acuerdo": 31,
+  "reales_total": 45,
+  "reales_patron_completo": 1,
+  "controles_acuerdo": 30,
+  "controles_total": 30,
+  "controles_atrapados": 10,
+  "controles_patron_completo": 10,
+  "costo_total_usd": 0.000877044,
+  "latencia_total_segundos": 9.53896079500555,
+  "latencia_mediana_segundos": 1.2890888914989773,
+  "desacuerdos": [
+    {
+      "registro": "r002",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.21,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r007",
+      "medida": "meta.donde_compone",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.47,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r023",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.27,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r024",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.46,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r027",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.44,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r030",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r043",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.14,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r046",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r059",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.12,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r060",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.14,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r061",
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.39,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r063",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.22,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r068",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.36,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    },
+    {
+      "registro": "r070",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.16,
+      "control": false,
+      "esperado": true,
+      "acuerdo": false
+    }
+  ],
+  "sha256_juicio": "dc84bda7d7be8c0063f88e2363179187bc6042fbae16b26a2f6ceaa88f1df618",
+  "fecha_analisis": "2026-09-22T20:06:13.848730+00:00"
+}

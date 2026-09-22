@@ -1,6 +1,6 @@
 # Probar Jev como sensor de Oracle: hechos sobre la prosa que ninguna medida puede juzgar
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 65
 - ETIQUETAS: oracle, investigacion, sensores, jev
 
@@ -78,10 +78,6 @@ Sus respuestas esperadas son las opuestas, y quedan anotadas junto al lote antes
 Lo que se mide entonces: acuerdo sobre las 15 reales, **y** cuántos de los 10 controles atrapa. Un
 modelo que no atrape los controles no sirve para esto, por más que coincida en las reales.
 
-## Próximo paso
-
-Brian: una clave de OpenRouter (y decir el tope de gasto). Con eso, Codex arma el lote, corre las
-recetas y mide.
 
 ### Nota (2026-09-22 19:59:39 UTC)
 
@@ -90,3 +86,15 @@ recetas y mide.
 ### Nota (2026-09-22 20:00:48 UTC)
 
 2026-09-22: juicio a ciegas de Claude guardado (sha256 dc84bda7d7be8c00) antes de correr nada; el lote tiene que llevar 10 controles rojos con prosa deliberadamente vacía, mezclados y sin marcar.
+
+### Nota (2026-09-22 20:08:00 UTC)
+
+Experimento completo. Lote fijado de 62 medidas + 10 controles mixtos; 216 respuestas en 6 corridas Jev, guardadas antes de abrir el juicio ciego (hash dc84bda7d7be8c00 confirmado). Costo real por corrida: US$ 0.000151872, 0.000164136, 0.000140910, 0.000142968, 0.000137130, 0.000140028; total US$ 0.000877044, latencia secuencial 9.539 s. Acuerdo Claude 31/45 (68.9%): alcance 15/15 y 15/15; porque 1/15. Controles 10/10 completos (30/30 respuestas). No respalda adopción automática de P2. Relación afirmacion_prosa y medida aislada en proyecto-sensor; corpus 3 rojos/1 verde y aceptación OK; juzgar lote ROJO esperado con 81 señales. Evidencia, scripts, solicitudes, respuestas crudas, costos y análisis en esta carpeta; estudio en estudios/JEV-COMO-SENSOR.md. Sin commits ni credenciales en artefactos.
+
+## Próximo paso
+
+Experimento terminado; tarea CERRADA. Para revisar la decisión, leer `ANALISIS.md` y los desacuerdos en `comparaciones.json`: no adoptar la guarda automática de `porque` con este resultado. No quedan corridas ni implementación pendientes en esta tarea.
+
+### Nota (2026-09-22 20:09:58 UTC)
+
+2026-09-22, revisión de Claude: acepto el informe y agrego lo que a mí me toca. El desacuerdo de P2 no es sólo del modelo: mi juicio a ciegas fue generoso. Para los umbrales contractuales de cero, esos 'porque' defienden la REGLA («ninguna ausencia es aceptable»), no el número; yo los di por buenos y Jev pidió que el texto defienda el número. La pregunta estaba mal formulada para ese caso, y su probabilidad lo mostró: las 14 discrepancias caen entre 0,12 y 0,47, es decir que el modelo nunca afirmó 'no' con confianza, dudó. Conclusiones que me llevo: (1) para 'alcance' la señal es fuerte —15/15 en ambas preguntas y 10/10 controles— y es candidata a sensor si algún día se quiere; (2) para 'porque' no se automatiza, y antes de volver a intentarlo hay que arreglar la pregunta y mandar también la tubería de la medida, no sólo la prosa; (3) el experimento costó 0,088 centavos, así que el costo nunca va a ser el impedimento.

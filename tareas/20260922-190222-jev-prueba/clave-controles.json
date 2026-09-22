@@ -1,0 +1,474 @@
+[
+  {
+    "id": "r001",
+    "medida": "meta.donde_nunca_agrega_filas",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r002",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r003",
+    "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r004",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r005",
+    "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r006",
+    "medida": "meta.toda_sombra_declara_desde_y_porque",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r007",
+    "medida": "meta.donde_compone",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r008",
+    "medida": "proceso.arnes_con_bytecode_frio",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r009",
+    "medida": "meta.ningun_umbral_flotante_de_igualdad",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r010",
+    "medida": "proceso.modulo_alcanzable",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r011",
+    "medida": "meta.unir_conmuta",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r012",
+    "medida": "proceso.test_con_mutante_que_lo_mata",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r013",
+    "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r014",
+    "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r015",
+    "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r016",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r017",
+    "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r018",
+    "medida": "meta.sintaxis_ida_y_vuelta",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r019",
+    "medida": "proceso.codigo_con_mutante_que_lo_mata",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r020",
+    "medida": "meta.unir_materializa_el_producto",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r021",
+    "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r022",
+    "medida": "meta.sintaxis_cubre_algebra",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r023",
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r024",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r025",
+    "medida": "meta.toda_medida_lee_campos_que_existen",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r026",
+    "medida": "meta.el_caso_se_pone_como_debe",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r027",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r028",
+    "medida": "simulacion.corrida_reproducible",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r029",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r030",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r031",
+    "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r032",
+    "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r033",
+    "medida": "meta.ningun_campo_sin_unidad_declarada",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r034",
+    "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r035",
+    "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r036",
+    "medida": "meta.ninguna_medida_sin_alcance",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r037",
+    "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r038",
+    "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r039",
+    "medida": "proceso.verificacion_vigente",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r040",
+    "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r041",
+    "medida": "proceso.afirmacion_declara_alcance",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r042",
+    "medida": "meta.sintaxis_casos_cubre_casos",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r043",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r044",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r045",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r046",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r047",
+    "medida": "meta.toda_sombra_declara_una_fecha_real",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r048",
+    "medida": "meta.sin_nunca_agrega_filas",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r049",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r050",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r051",
+    "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r052",
+    "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r053",
+    "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r054",
+    "medida": "meta.ninguna_sombra_ya_en_verde",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r055",
+    "medida": "meta.ningun_umbral_de_igualdad",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r056",
+    "medida": "proceso.ronda_mutacion_concluyente",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r057",
+    "medida": "meta.todo_tanteo_explica_por_que",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r058",
+    "medida": "simulacion.no_se_agoto_el_presupuesto",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r059",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r060",
+    "medida": "proceso.verificacion_vigente",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r061",
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r062",
+    "medida": "meta.toda_medida_esta_fijada",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r063",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r064",
+    "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r065",
+    "medida": "meta.sintaxis_casos_ida_y_vuelta",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r066",
+    "medida": "meta.el_hueco_declarado_explica_por_que",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r067",
+    "medida": "proceso.modulo_con_consumidor",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r068",
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r069",
+    "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r070",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "control": false,
+    "esperado": null
+  },
+  {
+    "id": "r071",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  },
+  {
+    "id": "r072",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "control": true,
+    "esperado": {
+      "alcance_concreto": false,
+      "porque_defiende": false,
+      "alcance_vacio": true
+    }
+  }
+]

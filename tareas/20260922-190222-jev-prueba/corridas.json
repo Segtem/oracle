@@ -1,0 +1,56 @@
+[
+  {
+    "corrida": 1,
+    "fecha": "2026-09-22T20:04:07.356415+00:00",
+    "http": 200,
+    "latencia_segundos": 3.0821787620079704,
+    "costo_usd": 0.000151872,
+    "preguntas": 36,
+    "sha256_respuesta": "bd4d3d28f1768de3dee1ea85ba2cfcd08144bb81fe5906b14d095c73c628fe77"
+  },
+  {
+    "corrida": 2,
+    "fecha": "2026-09-22T20:04:10.438963+00:00",
+    "http": 200,
+    "latencia_segundos": 1.6046317120053573,
+    "costo_usd": 0.000164136,
+    "preguntas": 36,
+    "sha256_respuesta": "3e65f3eafe1daa031e9fa6ef029d407878f6acd335f9900611d802505bb26193"
+  },
+  {
+    "corrida": 3,
+    "fecha": "2026-09-22T20:04:12.043957+00:00",
+    "http": 200,
+    "latencia_segundos": 0.9556134510057746,
+    "costo_usd": 0.00014091,
+    "preguntas": 36,
+    "sha256_respuesta": "145e6cda26fa8f621189d55aa2dda663c39606c92912e1a80e805f13edf308a8"
+  },
+  {
+    "corrida": 4,
+    "fecha": "2026-09-22T20:04:12.999924+00:00",
+    "http": 200,
+    "latencia_segundos": 0.9561115539981984,
+    "costo_usd": 0.000142968,
+    "preguntas": 36,
+    "sha256_respuesta": "1411e2540ac7fab6c3ee1b58fcf7bedf7370b926394421f3f9b9bbbb51915cb8"
+  },
+  {
+    "corrida": 5,
+    "fecha": "2026-09-22T20:04:13.956404+00:00",
+    "http": 200,
+    "latencia_segundos": 0.9735460709925974,
+    "costo_usd": 0.00013713,
+    "preguntas": 36,
+    "sha256_respuesta": "9e516279655cf37a6ba8302f00aca04030bf1040d1d59b01ca5de29d794d9799"
+  },
+  {
+    "corrida": 6,
+    "fecha": "2026-09-22T20:04:14.930308+00:00",
+    "http": 200,
+    "latencia_segundos": 1.9668792449956527,
+    "costo_usd": 0.000140028,
+    "preguntas": 36,
+    "sha256_respuesta": "ceac65189d7a1f7fc75d58085306d3c69fabd464c8998eebac9670d3b5457bde"
+  }
+]

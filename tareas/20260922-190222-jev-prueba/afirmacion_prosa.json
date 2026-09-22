@@ -1,0 +1,1516 @@
+{
+  "afirmacion_prosa": [
+    {
+      "registro": "r001",
+      "medida": "meta.donde_nunca_agrega_filas",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r001",
+      "medida": "meta.donde_nunca_agrega_filas",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.47
+    },
+    {
+      "registro": "r001",
+      "medida": "meta.donde_nunca_agrega_filas",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r002",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.94
+    },
+    {
+      "registro": "r002",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r002",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r003",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r003",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.91
+    },
+    {
+      "registro": "r003",
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r004",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.22
+    },
+    {
+      "registro": "r004",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.15
+    },
+    {
+      "registro": "r004",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.9
+    },
+    {
+      "registro": "r005",
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.94
+    },
+    {
+      "registro": "r005",
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r005",
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.08
+    },
+    {
+      "registro": "r006",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r006",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.22
+    },
+    {
+      "registro": "r006",
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r007",
+      "medida": "meta.donde_compone",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r007",
+      "medida": "meta.donde_compone",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.47
+    },
+    {
+      "registro": "r007",
+      "medida": "meta.donde_compone",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.04
+    },
+    {
+      "registro": "r008",
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r008",
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.24
+    },
+    {
+      "registro": "r008",
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r009",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r009",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.47
+    },
+    {
+      "registro": "r009",
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r010",
+      "medida": "proceso.modulo_alcanzable",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r010",
+      "medida": "proceso.modulo_alcanzable",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.18
+    },
+    {
+      "registro": "r010",
+      "medida": "proceso.modulo_alcanzable",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.04
+    },
+    {
+      "registro": "r011",
+      "medida": "meta.unir_conmuta",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r011",
+      "medida": "meta.unir_conmuta",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.4
+    },
+    {
+      "registro": "r011",
+      "medida": "meta.unir_conmuta",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.04
+    },
+    {
+      "registro": "r012",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r012",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.44
+    },
+    {
+      "registro": "r012",
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r013",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r013",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.86
+    },
+    {
+      "registro": "r013",
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.43
+    },
+    {
+      "registro": "r014",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r014",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.79
+    },
+    {
+      "registro": "r014",
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.39
+    },
+    {
+      "registro": "r015",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r015",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.6
+    },
+    {
+      "registro": "r015",
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.29
+    },
+    {
+      "registro": "r016",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r016",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.1
+    },
+    {
+      "registro": "r016",
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.84
+    },
+    {
+      "registro": "r017",
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r017",
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.84
+    },
+    {
+      "registro": "r017",
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.34
+    },
+    {
+      "registro": "r018",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r018",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.42
+    },
+    {
+      "registro": "r018",
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.26
+    },
+    {
+      "registro": "r019",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.98
+    },
+    {
+      "registro": "r019",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.87
+    },
+    {
+      "registro": "r019",
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.29
+    },
+    {
+      "registro": "r020",
+      "medida": "meta.unir_materializa_el_producto",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r020",
+      "medida": "meta.unir_materializa_el_producto",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.6
+    },
+    {
+      "registro": "r020",
+      "medida": "meta.unir_materializa_el_producto",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.33
+    },
+    {
+      "registro": "r021",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r021",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.81
+    },
+    {
+      "registro": "r021",
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.29
+    },
+    {
+      "registro": "r022",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r022",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.46
+    },
+    {
+      "registro": "r022",
+      "medida": "meta.sintaxis_cubre_algebra",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.2
+    },
+    {
+      "registro": "r023",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r023",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.27
+    },
+    {
+      "registro": "r023",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.29
+    },
+    {
+      "registro": "r024",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r024",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.46
+    },
+    {
+      "registro": "r024",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.39
+    },
+    {
+      "registro": "r025",
+      "medida": "meta.toda_medida_lee_campos_que_existen",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r025",
+      "medida": "meta.toda_medida_lee_campos_que_existen",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.2
+    },
+    {
+      "registro": "r025",
+      "medida": "meta.toda_medida_lee_campos_que_existen",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r026",
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r026",
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.42
+    },
+    {
+      "registro": "r026",
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.14
+    },
+    {
+      "registro": "r027",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r027",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.44
+    },
+    {
+      "registro": "r027",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.14
+    },
+    {
+      "registro": "r028",
+      "medida": "simulacion.corrida_reproducible",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r028",
+      "medida": "simulacion.corrida_reproducible",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.26
+    },
+    {
+      "registro": "r028",
+      "medida": "simulacion.corrida_reproducible",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.14
+    },
+    {
+      "registro": "r029",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.1
+    },
+    {
+      "registro": "r029",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.07
+    },
+    {
+      "registro": "r029",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.88
+    },
+    {
+      "registro": "r030",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r030",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25
+    },
+    {
+      "registro": "r030",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.1
+    },
+    {
+      "registro": "r031",
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.9
+    },
+    {
+      "registro": "r031",
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.19
+    },
+    {
+      "registro": "r031",
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r032",
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r032",
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.87
+    },
+    {
+      "registro": "r032",
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.15
+    },
+    {
+      "registro": "r033",
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.89
+    },
+    {
+      "registro": "r033",
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25
+    },
+    {
+      "registro": "r033",
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.11
+    },
+    {
+      "registro": "r034",
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r034",
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.35
+    },
+    {
+      "registro": "r034",
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.15
+    },
+    {
+      "registro": "r035",
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.92
+    },
+    {
+      "registro": "r035",
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r035",
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.15
+    },
+    {
+      "registro": "r036",
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.57
+    },
+    {
+      "registro": "r036",
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.12
+    },
+    {
+      "registro": "r036",
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.36
+    },
+    {
+      "registro": "r037",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r037",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.61
+    },
+    {
+      "registro": "r037",
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.09
+    },
+    {
+      "registro": "r038",
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r038",
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.3
+    },
+    {
+      "registro": "r038",
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r039",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r039",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r039",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.87
+    },
+    {
+      "registro": "r040",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.87
+    },
+    {
+      "registro": "r040",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25
+    },
+    {
+      "registro": "r040",
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r041",
+      "medida": "proceso.afirmacion_declara_alcance",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.88
+    },
+    {
+      "registro": "r041",
+      "medida": "proceso.afirmacion_declara_alcance",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.18
+    },
+    {
+      "registro": "r041",
+      "medida": "proceso.afirmacion_declara_alcance",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.32
+    },
+    {
+      "registro": "r042",
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r042",
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r042",
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.04
+    },
+    {
+      "registro": "r043",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.7
+    },
+    {
+      "registro": "r043",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.14
+    },
+    {
+      "registro": "r043",
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.09
+    },
+    {
+      "registro": "r044",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r044",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r044",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.81
+    },
+    {
+      "registro": "r045",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.35
+    },
+    {
+      "registro": "r045",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.41
+    },
+    {
+      "registro": "r045",
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.93
+    },
+    {
+      "registro": "r046",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r046",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25
+    },
+    {
+      "registro": "r046",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r047",
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r047",
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.18
+    },
+    {
+      "registro": "r047",
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.07
+    },
+    {
+      "registro": "r048",
+      "medida": "meta.sin_nunca_agrega_filas",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r048",
+      "medida": "meta.sin_nunca_agrega_filas",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.34
+    },
+    {
+      "registro": "r048",
+      "medida": "meta.sin_nunca_agrega_filas",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.07
+    },
+    {
+      "registro": "r049",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r049",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.04
+    },
+    {
+      "registro": "r049",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.88
+    },
+    {
+      "registro": "r050",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.34
+    },
+    {
+      "registro": "r050",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.08
+    },
+    {
+      "registro": "r050",
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.79
+    },
+    {
+      "registro": "r051",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r051",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.1
+    },
+    {
+      "registro": "r051",
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.18
+    },
+    {
+      "registro": "r052",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r052",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.13
+    },
+    {
+      "registro": "r052",
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r053",
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r053",
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r053",
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r054",
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r054",
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.12
+    },
+    {
+      "registro": "r054",
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.34
+    },
+    {
+      "registro": "r055",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r055",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "pregunta": "porque_defiende",
+      "respuesta": true,
+      "probabilidad": 0.51
+    },
+    {
+      "registro": "r055",
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.27
+    },
+    {
+      "registro": "r056",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.79
+    },
+    {
+      "registro": "r056",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.15
+    },
+    {
+      "registro": "r056",
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.15
+    },
+    {
+      "registro": "r057",
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.93
+    },
+    {
+      "registro": "r057",
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.13
+    },
+    {
+      "registro": "r057",
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.41
+    },
+    {
+      "registro": "r058",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r058",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.14
+    },
+    {
+      "registro": "r058",
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.24
+    },
+    {
+      "registro": "r059",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.94
+    },
+    {
+      "registro": "r059",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.12
+    },
+    {
+      "registro": "r059",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.22
+    },
+    {
+      "registro": "r060",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.97
+    },
+    {
+      "registro": "r060",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.14
+    },
+    {
+      "registro": "r060",
+      "medida": "proceso.verificacion_vigente",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.18
+    },
+    {
+      "registro": "r061",
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r061",
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.39
+    },
+    {
+      "registro": "r061",
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.28
+    },
+    {
+      "registro": "r062",
+      "medida": "meta.toda_medida_esta_fijada",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r062",
+      "medida": "meta.toda_medida_esta_fijada",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.38
+    },
+    {
+      "registro": "r062",
+      "medida": "meta.toda_medida_esta_fijada",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.26
+    },
+    {
+      "registro": "r063",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r063",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.22
+    },
+    {
+      "registro": "r063",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.26
+    },
+    {
+      "registro": "r064",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r064",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.21
+    },
+    {
+      "registro": "r064",
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.19
+    },
+    {
+      "registro": "r065",
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.95
+    },
+    {
+      "registro": "r065",
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.34
+    },
+    {
+      "registro": "r065",
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.27
+    },
+    {
+      "registro": "r066",
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.94
+    },
+    {
+      "registro": "r066",
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.25
+    },
+    {
+      "registro": "r066",
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.19
+    },
+    {
+      "registro": "r067",
+      "medida": "proceso.modulo_con_consumidor",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.94
+    },
+    {
+      "registro": "r067",
+      "medida": "proceso.modulo_con_consumidor",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.26
+    },
+    {
+      "registro": "r067",
+      "medida": "proceso.modulo_con_consumidor",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r068",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.69
+    },
+    {
+      "registro": "r068",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.36
+    },
+    {
+      "registro": "r068",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.17
+    },
+    {
+      "registro": "r069",
+      "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r069",
+      "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.17
+    },
+    {
+      "registro": "r069",
+      "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.26
+    },
+    {
+      "registro": "r070",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "alcance_concreto",
+      "respuesta": true,
+      "probabilidad": 0.96
+    },
+    {
+      "registro": "r070",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.16
+    },
+    {
+      "registro": "r070",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "pregunta": "alcance_vacio",
+      "respuesta": false,
+      "probabilidad": 0.18
+    },
+    {
+      "registro": "r071",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r071",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.06
+    },
+    {
+      "registro": "r071",
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.89
+    },
+    {
+      "registro": "r072",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "alcance_concreto",
+      "respuesta": false,
+      "probabilidad": 0.1
+    },
+    {
+      "registro": "r072",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "porque_defiende",
+      "respuesta": false,
+      "probabilidad": 0.05
+    },
+    {
+      "registro": "r072",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "pregunta": "alcance_vacio",
+      "respuesta": true,
+      "probabilidad": 0.91
+    }
+  ]
+}

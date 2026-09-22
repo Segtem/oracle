@@ -1,0 +1,238 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": {
+    "description": "Prosa de medidas de Oracle. alcance declara puntos ciegos; porque defiende el umbral. Evaluar sólo el registro indicado, sin completar ni mejorar su texto.",
+    "records": [
+      {
+        "id": "r061",
+        "alcance": "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción",
+        "porque": "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r062",
+        "alcance": "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción",
+        "porque": "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r063",
+        "alcance": "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto",
+        "porque": "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r064",
+        "alcance": "cruza el ámbito declarado de cada medida con el de las relaciones que consume, por fuente y por requiere. NO demuestra que una medida universal sea realmente universal: no ve una suposición del origen escondida en un literal, ni una convención que sólo explica la prosa, ni —sobre todo— si el receptor tiene de verdad un remedio disponible. Detecta una contradicción derivable, no la pertinencia. Y sólo mira hacia lo ancho: declarar un ámbito más estrecho que las dependencias pierde cobertura y esta medida no lo señala",
+        "porque": "una medida no puede obligar a más proyectos que aquellos donde su evidencia tiene dueño. Si consume una relación que describe la instalación del origen —la configuración del arnés, el manual, la ayuda del CLI— su rojo sólo lo puede arreglar el origen, y declararla universal se lo manda a un consumidor que no tiene remedio. Es la contradicción que DECISION-012 vuelve falsable, y la única que se deriva sin leer prosa. No usa la macro «ninguno» porque cruza tres relaciones y la macro admite una sola fuente",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r065",
+        "alcance": "comprueba los casos publicados del corpus, en `.caso` y en `.json`. NO demuestra que la plantilla sea suficiente para escribir cualquier caso ni valida el significado de la evidencia; sólo que la forma canónica de caso vuelve al mismo JSON y al mismo texto. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py recorre el corpus por construcción",
+        "porque": "la superficie de casos es reversible sólo si cada caso publicado conserva el JSON de almacenamiento y el texto canónico al imprimirse, releerse y reimprimirse",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r066",
+        "alcance": "mira sólo casos propios (`es_heredado == false`) y ve que cada caso marcado explícitamente como hueco abierto tenga una explicación; los huecos de una biblioteca responden ante su certificación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción",
+        "porque": "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r067",
+        "alcance": "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama",
+        "porque": "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r068",
+        "alcance": "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos",
+        "porque": "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r069",
+        "alcance": "compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir. Si medida viene vacía no hay medidas que confundan nivel con dominio y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción",
+        "porque": "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca",
+        "umbral": "<= 0",
+        "segun": "convencion"
+      },
+      {
+        "id": "r070",
+        "alcance": "mira todos los casos, propios y heredados, y ve el id que cada caso RECLAMA: un caso de biblioteca colgado puede señalar una selección incompleta del proyecto. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2",
+        "porque": "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r071",
+        "alcance": "No mira otras cosas.",
+        "porque": "Es lo que corresponde.",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      },
+      {
+        "id": "r072",
+        "alcance": "No cubre el resto.",
+        "porque": "Porque se decidió así.",
+        "umbral": "<= 0",
+        "segun": "contrato"
+      }
+    ]
+  },
+  "questions": {
+    "r061__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r061: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r061__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r061: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r061__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r061: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r062__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r062: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r062__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r062: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r062__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r062: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r063__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r063: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r063__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r063: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r063__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r063: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r064__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r064: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r064__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r064: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r064__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r064: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r065__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r065: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r065__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r065: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r065__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r065: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r066__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r066: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r066__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r066: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r066__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r066: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r067__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r067: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r067__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r067: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r067__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r067: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r068__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r068: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r068__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r068: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r068__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r068: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r069__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r069: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r069__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r069: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r069__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r069: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r070__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r070: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r070__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r070: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r070__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r070: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r071__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r071: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r071__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r071: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r071__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r071: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    },
+    "r072__alcance_concreto": {
+      "type": "noul",
+      "instructions": "Para el registro r072: ¿El alcance nombra algo concreto que la medida no mira?"
+    },
+    "r072__porque_defiende": {
+      "type": "noul",
+      "instructions": "Para el registro r072: ¿El porque explica por qué ESE número del umbral y no otro?"
+    },
+    "r072__alcance_vacio": {
+      "type": "noul",
+      "instructions": "Para el registro r072: ¿El alcance es una promesa vacía del tipo «no ve todo lo demás»?"
+    }
+  }
+}
