@@ -1,6 +1,6 @@
 # Una tarea no puede declarar con qué medidas se cierra, así que cerrarla no se comprueba
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: oracle, tracker, metalenguaje
 
