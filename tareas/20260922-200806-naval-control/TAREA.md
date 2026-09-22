@@ -1,0 +1,66 @@
+# El control del experimento: la misma batalla naval sin sugerir Oracle
+
+- ESTADO: ABIERTA
+- PRIORIDAD: 70
+- ETIQUETAS: oracle, experimento, agentes
+
+
+## Por qué
+
+El 2026-09-22 Brian corrió con agy un prompt que **sugiere** Oracle sin guiarlo, y el resultado
+(`~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280`) midió el juego de verdad: sensor propio,
+11 medidas navales y una partida real de 130 tiros juzgada; Claude comprobó que tres mentiras
+distintas en la evidencia caen con la medida correcta. Está anotado en
+[`20260919-134424-naval-pm`](../20260919-134424-naval-pm/TAREA.md).
+
+Falta la mitad que convierte eso en una medición y no en una anécdota: **la misma corrida sin la
+frase que ofrece Oracle**. Sin control no se puede decir qué agrega Oracle ni qué cuesta, que es
+justo lo que el postmortem del 18/09 no pudo demostrar en ninguna dirección.
+
+## Los dos prompts
+
+**A (con la oferta), el que ya se corrió:**
+
+> Hacé una batalla naval jugable en HTML5, con la estructura que te parezca.
+>
+> Cuando la termines no me alcanza con que me digas que anda: quiero poder creerle al resultado.
+> Mostrame cómo comprobás que las reglas del juego se cumplen de verdad, sobre una partida.
+>
+> Si te sirve, existe `pip install oracle-metalenguaje` (`oracle --help`). Usalo o no, como
+> prefieras, y decime por qué.
+
+**B (el control):** exactamente el mismo texto **sin el último párrafo**. No se agrega nada: la
+diferencia entre A y B tiene que ser esa frase y nada más.
+
+## Cómo correrlo
+
+- Directorio vacío por corrida, fuera de los repos (`~/Dev/lab/naval-A-1`, `-A-2`, `-B-1`, `-B-2`).
+- Mismo modelo y mismas opciones que la corrida que ya existe (agy, `--new-project`, sin más
+  contexto); anotar modelo y fecha.
+- **Dos corridas por rama**, porque con una sola no se distingue el efecto del azar del modelo.
+- Guardar la respuesta final del agente y, si se puede, el registro de la sesión.
+
+## Qué se mide (lo mismo en las cuatro)
+
+1. **¿Se puede falsar?** Tomar la evidencia o el estado que produzca cada corrida y corromperla de
+   tres maneras (un impacto registrado como agua, un agua como impacto, un tiro fuera del tablero).
+   ¿Algo lo detecta? Es la pregunta central: en B habrá `assert` o comprobaciones dentro del mismo
+   juego, y hay que ver si atrapan esas tres.
+2. **Qué reglas quedan cubiertas**, listadas una por una, y cuáles no.
+3. **Cuánto juego hay**: archivos, tamaño, qué funciona al abrirlo, qué falta (sonido, IA, colocación
+   interactiva). Anotar lo que se ve, sin puntaje inventado.
+4. **Qué costó**: turnos, tiempo y —si el registro lo dice— llamadas a herramientas, separando las
+   que fueron al juego de las que fueron a la herramienta de verificación.
+5. **Qué dijo el agente** sobre por qué eligió lo que eligió.
+
+## Lo que el experimento NO puede decir
+
+Con cuatro corridas y un solo modelo no se mide productividad en general. Lo que sí puede mostrar es
+si, en el mismo pedido y con el mismo modelo, **el resultado sin Oracle resiste o no las tres
+mentiras**. Si las resiste, Oracle aporta menos de lo que creemos acá y hay que decirlo; si no las
+resiste, la diferencia está medida y no argumentada.
+
+## Próximo paso
+
+Brian corre B dos veces y A una más (ya hay una de A). Después, Claude o Codex aplican las tres
+mentiras a las cuatro y escriben `estudios/NAVAL-CON-Y-SIN-ORACLE.md` con la tabla.
