@@ -63,3 +63,7 @@ delegar, que es un resultado igual de útil.
 
 Brian: una clave de OpenRouter (y decir el tope de gasto). Con eso, Codex arma el lote, corre las
 recetas y mide.
+
+### Nota (2026-09-22 19:59:39 UTC)
+
+2026-09-22: bloqueo levantado. La clave de OpenRouter vive en ~/.config/openrouter/key (permisos 600), la exporta ~/.config/fish/config.fish como OPENROUTER_API_KEY, y tiene tope de 5 USD mensuales (usado 0). Los agentes la leen del archivo, nunca de un archivo del proyecto, y ningún comando debe imprimir la cabecera de autorización. Ojo: había una clave vieja guardada como variable universal de fish que daba 401; se borra con set -Ue OPENROUTER_API_KEY.
