@@ -40,6 +40,40 @@ palabra** con el código. Mover sin mirar rompe la suite y el paquete.
 6. Mover con `git mv`, en commits chicos por tema, para que la historia de cada archivo siga.
 7. Suite, `verificar_instalacion`, el tracker y los enlaces del README en verde después de cada paso.
 
+## Diseño: cómo se desacopla el código de los documentos (Claude, 2026-09-23)
+
+Medido con `git grep`: de las ~30 menciones de `DECISION-*` y `estudios/` en código y tests, casi
+todas son **citas**, no dependencias. Hay que separar cuatro clases, porque cada una se resuelve
+distinto:
+
+1. **Citas por identificador** en comentarios y docstrings («ver DECISION-011», «corrección 6 de
+   DECISION-007»). Son sanas: explican el porqué en el lugar del código. No se tocan. Lo único que
+   hace falta es que el identificador **sea estable y exista**: un test que junte cada
+   `DECISION-NNN` citado en el código y verifique que está en el registro de decisiones. La cita
+   apunta a un id, nunca a una ruta, así que mover el archivo no la rompe.
+2. **Mensajes que ve el usuario** que citan archivos del repo: `tools/mutar.py` imprime «(ver
+   DECISION-011)» a alguien que instaló desde PyPI, donde ese archivo **no existe** (el wheel no
+   trae los `.md`). Eso sí es un defecto. Un mensaje al usuario cita una URL absoluta o `oracle
+   manual <tema>`, nunca un archivo del repositorio.
+3. **Un documento normativo guardado como estudio**: `estudios/MCP-CONTRATO.md` es el contrato del
+   producto, y hoy el mismo JSON vive dos veces —en `tools/mcp.py` y en el documento— sincronizado a
+   mano y vigilado por un test. Lo óptimo es **una sola fuente**: el código (`HERRAMIENTAS`) es la
+   verdad y el bloque del documento se **genera**, igual que `docs/manual.html` sale de
+   `oracle manual --html`; el test pasa a comprobar que el documento está regenerado. Y el contrato
+   se muda a `docs/`, que es documentación del producto, no bitácora.
+4. **Herramientas que leen rutas fijas**: `tools/estudio.py` arma un paquete de estudio con tres
+   `DECISION-*` por ruta. Que tome los documentos del registro de decisiones, no de una lista de
+   rutas escrita a mano.
+
+**Dónde viven las decisiones.** No en `vault-kb/`: las `DECISION-*` son el porqué del motor, el
+código las cita y alguien que evalúa Oracle las necesita. Van a `docs/decisiones/`, con un índice
+(id, título, fecha, estado). `vault-kb/` queda para la bitácora: planes cumplidos, estudios, relatos,
+relevos viejos, postmortems.
+
+**Los docstrings de tests que dicen «escrita contra `estudios/X/ENCARGO-AGY.md`»** son procedencia;
+se actualizan a la ruta nueva dentro de `vault-kb/` al mover, o citan el id de la tarea, que no se
+mueve nunca. Mejor lo segundo: la tarea es el identificador estable del trabajo.
+
 ## Próximo paso
 
 El inventario del punto 1, para revisión de Brian antes de mover nada.
