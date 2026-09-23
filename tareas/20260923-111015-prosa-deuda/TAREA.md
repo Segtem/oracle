@@ -1,4 +1,4 @@
-# Dieciocho de veinticinco defensas de umbral explican la regla, no el número
+# Ocho de quince defensas de umbral explican la regla, no el número
 
 - ESTADO: ABIERTA
 - PRIORIDAD: 78
@@ -8,7 +8,8 @@
 ## Lo medido
 
 `20260922-220029-jev-porque-v2` (cerrada): un juez ciego —una sesión limpia, que sólo vio el criterio
-y 25 registros con ids opacos— marcó **18 de 25 defensas como insuficientes**. El criterio: una
+y 25 registros con ids opacos— marcó **8 de las 15 medidas reales** de la muestra como insuficientes (los otros 10 «no» del
+lote eran los controles sintéticos, escritos mal a propósito). El criterio: una
 defensa sirve si permite derivar el valor del umbral (una regla universal, una fuente o un cálculo);
 no sirve si sólo dice por qué la regla importa. Jev coincidió 15/15 con ese juez.
 
@@ -34,7 +35,17 @@ porque ninguna medida puede leer prosa.
    [`sensor-prosa`](../20260922-220029-sensor-prosa/TAREA.md). Mientras no exista, esto es trabajo a
    mano y está bien que lo sea.
 
+## Avance
+
+- Se auditaron los 25 registros evaluados en `tareas/20260922-220029-jev-porque-v2/comparaciones.json` y `juicio-ciego-claude.json`.
+- Se aclaró la composición de las «18 insuficientes»: 10 corresponden a controles artificiales con prosa vacía sintética («Porque sí.», «Es lo razonable.», etc.), y exactamente 8 corresponden a medidas reales del catálogo con su texto original (`control=false` y `claude=false`).
+- Se leyeron las 8 medidas completas en `catalogos/` (tubería, resumen, umbral, `segun` y `alcance`).
+- Se redactaron las 8 propuestas en `PROPUESTAS.md`, vinculando formalmente cada umbral (`<= 0`) a una regla universal explícita de admisibilidad cero («ninguna X es admisible»), preservando la fidelidad a lo que cada medida computa y sin modificar ningún archivo del catálogo.
+
 ## Próximo paso
 
-Listar las 18 con su id real (está en `tareas/20260922-220029-jev-porque-v2/comparaciones.json`), y
-redactar las propuestas para revisión de Brian.
+Brian revisa `PROPUESTAS.md`: son 8 defensas reescritas por agy, cada una con el texto viejo, el
+nuevo y el dictamen del juez. Ojo con la primera (`meta.toda_medida_filtra_o_agrupa`): la defensa
+original **admitía a propósito** los conteos brutos y la nueva los prohíbe, así que no es reescribir
+un texto sino cambiar la regla. Las que se aprueben se aplican al catálogo y se vuelve a pasar el
+juez ciego sobre ellas.
