@@ -1,6 +1,6 @@
 # El porque no se pudo juzgar: la pregunta estaba mal y al modelo le faltaba la medida
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, sensores, jev, experimento
 
