@@ -726,7 +726,7 @@ def _escribir_manifiesto(ruta: Path, datos: dict) -> None:
 def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path],
                      comando: list[str], equivalentes: dict, timeout: float,
                      codigos, limite_salida: int,
-                     limite_memoria: int | None, parcial: bool) -> dict:
+                     limite_memoria: int | None, parcial: bool, timeout_base: float | None = None) -> dict:
     # `parcial` no tiene valor por omisión, y es a propósito: una identidad que no dice si la ronda
     # fue parcial está diciendo que fue completa. El mutante que ponía ese default en `True` sobrevivió
     # a la ronda del 2026-09-16 porque nadie lo ejercitaba — no había nada que ejercitar.
@@ -739,6 +739,7 @@ def _identidad_ronda(raiz: Path, objetivos: list[Path], dependencias: list[Path]
     motor = hashlib.sha256(Path(__file__).read_bytes()).hexdigest()
     return {"raiz": str(raiz), "fuentes": fuentes, "dependencias": soporte, "comando": comando,
             "equivalentes": equivalentes, "timeout": timeout,
+            "timeout_base": timeout if timeout_base is None else timeout_base,
             "codigos_fallo_tests": sorted(codigos), "limite_salida": limite_salida,
             "limite_memoria": limite_memoria,
             "parcial": parcial,
@@ -878,6 +879,7 @@ def _comando_en_copia(comando: list[str], raiz: Path, copia: Path) -> list[str]:
 def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                      equivalentes: dict[str, str] | None = None, al_terminar_uno=None, *,
                      timeout_por_ejecucion: float = TIMEOUT_PREDETERMINADO,
+                     timeout_base: float | None = None,
                      codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS,
                      limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
                      limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
@@ -920,7 +922,7 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
             raise ValueError("el filtro de sitios no seleccionó ningún sitio")
 
     baseline = _ejecutar_ronda(
-        comando, raiz, timeout=timeout_por_ejecucion,
+        comando, raiz, timeout=timeout_por_ejecucion if timeout_base is None else timeout_base,
         codigos_fallo_tests=codigos_fallo_tests, etapa="la línea base",
         permitir_cache_preexistente=True, limite_salida=limite_salida,
         limite_memoria=limite_memoria)
@@ -1048,6 +1050,7 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
 def correr(raiz: Path, objetivos: list[Path], comando: list[str],
            equivalentes: dict[str, str] | None = None, al_terminar_uno=None, *,
            timeout_por_ejecucion: float = TIMEOUT_PREDETERMINADO,
+           timeout_base: float | None = None,
            codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS,
            limite_diagnostico: int = LIMITE_DIAGNOSTICO_PREDETERMINADO,
            limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
@@ -1078,7 +1081,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
     identidad = _identidad_ronda(
         raiz, objetivos, dependencias, comando, equivalentes, timeout_por_ejecucion,
         codigos_fallo_tests, limite_salida, limite_memoria,
-        parcial=filtro_sitios is not None)
+        parcial=filtro_sitios is not None, timeout_base=timeout_base)
 
     with _bloqueo_de_ronda(raiz), _senales_de_ronda():
         if reanudar:
@@ -1115,7 +1118,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
             evidencia = _correr_en_raiz(
                 copia, objetivos_copia, comando_copia, equivalentes,
                 guardar if ruta_manifiesto or al_terminar_uno else None,
-                timeout_por_ejecucion=timeout_por_ejecucion,
+                timeout_por_ejecucion=timeout_por_ejecucion, timeout_base=timeout_base,
                 codigos_fallo_tests=codigos_fallo_tests,
                 limite_diagnostico=limite_diagnostico, limite_salida=limite_salida,
                 limite_memoria=limite_memoria,

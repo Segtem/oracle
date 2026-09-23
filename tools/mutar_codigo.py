@@ -398,6 +398,8 @@ def argumentos(argv: list[str]):
     p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="segundos máximos para la baseline y cada mutante (60 por defecto)")
+    p.add_argument("--timeout-base", type=float,
+                   help="segundos máximos sólo para la línea base (por defecto usa --timeout)")
     p.add_argument("--limite-salida-kb", type=int, default=1024,
                    help="KiB máximos conservados por stdout y stderr en cada ejecución")
     p.add_argument("--limite-memoria-mb", type=int, default=LIMITE_MEMORIA_MB_PREDETERMINADO,
@@ -686,7 +688,7 @@ def _ejecutar(proy, args) -> int:
                           if args.limite_memoria_mb > 0 else None)
         evidencia = correr(
             RAIZ, objetivos, comando_tests, equivalentes, al_terminar_uno=progreso,
-            timeout_por_ejecucion=args.timeout,
+            timeout_por_ejecucion=args.timeout, timeout_base=args.timeout_base,
             limite_salida=args.limite_salida_kb * 1024,
             limite_memoria=limite_memoria,
             manifiesto=args.manifiesto, reanudar=args.reanudar,

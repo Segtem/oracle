@@ -16,3 +16,7 @@ Reproducir con tiempo suficiente sin debilitar el criterio de muerte, agregar la
 prueba pertinente y correr las verificaciones. No declarar verde la mutación con
 una línea base interrumpida. Evidencia inicial en
 `tareas/20260922-220029-jev-porque-v2/verificacion/oracle-test-todo.log`.
+
+### Nota (2026-09-23 00:48:05 UTC)
+
+En curso: confirmado que oracle test --todo usa el mismo timeout de 60 s para base y mutantes. Medición aislada iniciada con techo diagnóstico de 600 s, bytecode frío y límite de memoria original; evidencia en verificacion/medicion-base.log. Implementada opción independiente timeout_base/--timeout-base con herencia del timeout anterior si se omite; pendiente fijar presupuesto de --todo después de medir y validar suite completa. Sin commits.

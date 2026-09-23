@@ -216,6 +216,33 @@ class CorrerTests(unittest.TestCase):
         self.assertEqual(corrida["primer_inconcluso_id"], sitios[2].id)
         self.assertEqual(corrida["primer_inconcluso_estado"], "error_arnes")
 
+    def test_timeout_base_independiente_se_propaga_sin_matar_por_timeout(self) -> None:
+        for plazo_base in (None, 180.0):
+            with self.subTest(plazo_base=plazo_base), tempfile.TemporaryDirectory() as d:
+                raiz, objetivo = self._entorno(d)
+                resultados = [mc.ResultadoTests(mc.EstadoTests.PASARON, 0)] + [
+                    mc.ResultadoTests(mc.EstadoTests.TIMEOUT, None)
+                ] * len(mc.sitios_de(objetivo, raiz))
+                with mock.patch.object(mc, "ejecutar_tests", side_effect=resultados) as ejecutar:
+                    ev = mc.correr(raiz, [objetivo], SIEMPRE_PASA,
+                                   timeout_por_ejecucion=0.05, timeout_base=plazo_base)
+                plazos = [llamada.kwargs["timeout"] for llamada in ejecutar.call_args_list]
+                self.assertEqual(plazos[0], 0.05 if plazo_base is None else plazo_base)
+                self.assertTrue(all(plazo == 0.05 for plazo in plazos[1:]))
+                self.assertTrue(ev["corrida_mutacion"][0]["baseline_verde"])
+                self.assertTrue(all(fila["timeout"] and not fila["murio"]
+                                    for fila in ev["mutante"]))
+
+    def test_reanudar_rechaza_cambio_del_timeout_base(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz, objetivo = self._entorno(d)
+            manifiesto = Path(d) / "progreso.json"
+            mc.correr(raiz, [objetivo], SIEMPRE_PASA, manifiesto=manifiesto,
+                      timeout_base=1.0)
+            with self.assertRaises(mc.ManifiestoInvalido):
+                mc.correr(raiz, [objetivo], SIEMPRE_PASA, manifiesto=manifiesto,
+                          reanudar=True, timeout_base=2.0)
+
     def test_si_la_linea_base_falla_aborta_sin_tocar_la_fuente(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             raiz, objetivo = self._entorno(d)
@@ -1459,6 +1486,17 @@ class LimiteMemoriaTests(unittest.TestCase):
                     SIEMPRE_PASA, Path(d), timeout=20.0, limite_memoria=1024 * 1024)
         self.assertTrue(resultado.error_arnes)
         self.assertIn("Error", resultado.stderr)
+
+    def test_cli_propaga_timeout_base_y_conserva_timeout_mutante(self) -> None:
+        from tools import mutar_codigo
+        for opciones, plazo_base in (([], None), (["--timeout-base", "180"], 180.0)):
+            with self.subTest(opciones=opciones), mock.patch.object(
+                    mutar_codigo, "correr", side_effect=ValueError("fin de prueba")) as correr:
+                with mock.patch("sys.stdout", new_callable=io.StringIO):
+                    rc = mutar_codigo.main(["--hechos", "--timeout", "7", *opciones])
+                self.assertEqual(rc, 2)
+                self.assertEqual(correr.call_args.kwargs["timeout_base"], plazo_base)
+                self.assertEqual(correr.call_args.kwargs["timeout_por_ejecucion"], 7.0)
 
     def test_cli_limite_memoria_mb_parseo_y_valores(self) -> None:
         from tools import mutar_codigo
