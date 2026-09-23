@@ -25,3 +25,14 @@ Propuesta derivada de ergonomia 6.1: cinco comandos reproducidos y traceback de 
 ## Próximo paso
 
 Revisar esta propuesta junto con VERIFICACION.md de ergonomia y decidir su implementación; comenzar por el diagnóstico de caso generar y la receta local, sin cambiar el lenguaje.
+
+### Nota (2026-09-23 20:10:02 UTC)
+
+Implementada la forma mínima: receta oracle-local en README con proyecto y confianza explícitos, y captura de EscalaresNoConfiables/EscalaresInvalidas en cmd_caso_generar. Regresión real por subprocess: rechazo sin ejecución ni archivos; receta extraída del README y ejecutada para verificar argumentos, código de salida y los cinco comandos. Evidencia roja al retirar sólo la captura: verificacion/antes.log. Se conservan cambios previos de ergo-orden; sin cambios de álgebra/sintaxis ni commits.
+
+## 2026-09-23 — cortada por cuota
+
+Codex se quedó sin cuota a mitad del encargo. Lo hecho vive en la rama `t-ergo2` (commit WIP, no está
+en `main`): mensaje de `tools/cli.py`, sección del README con el wrapper `oracle-local`, y
+`tests/test_confianza_cli.py`. Falta revisar lo hecho, correr la suite y regenerar cifras. Se retoma
+sobre esa rama.

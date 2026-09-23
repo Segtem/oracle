@@ -1,0 +1,31 @@
+======================================================================
+FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (tests.test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=[])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 58, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
+    self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", r.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in ''
+
+======================================================================
+FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (tests.test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--imprimir'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 58, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
+    self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", r.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in ''
+
+======================================================================
+FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (tests.test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--directorio', '/tmp/oracle confianza uaqscux9/salida'])
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 58, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
+    self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", r.stdout)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in ''
+
+----------------------------------------------------------------------
+Ran 1 test in 0.208s
+
+FAILED (failures=3)

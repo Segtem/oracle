@@ -79,8 +79,8 @@ oracle test
 
 Para llegar a una regla del producto medida sobre una corrida real, seguí [De un producto nuevo a su primera medida observable](https://github.com/Segtem/oracle/blob/main/docs/13-primer-valor.md): incluye un defecto, su corrección y las salidas verificadas. El tracker de tareas es optativo.
 
-`--confiar-escalares` hace falta sólo si tu proyecto declara funciones propias en `escalares.py`;
-sin esa bandera, Oracle no ejecuta código de nadie.
+`--confiar-escalares` hace falta al cargar el catálogo si tu proyecto tiene un `escalares.py`,
+aunque esté vacío o ninguna medida use sus funciones. Sin esa bandera, Oracle no ejecuta ese archivo externo.
 
 ### Desde el repositorio
 
@@ -384,6 +384,32 @@ Cada comando exige las carpetas que consume. Ninguno ejecuta un `escalares.py` e
 confirme con `--confiar-escalares`: una UDF es código Python y tiene los permisos del proceso. Ayuda,
 `--relaciones`, `--nueva` y `--escalares` sin confianza son inspecciones seguras; esta última muestra
 el inventario base y avisa que omitió las UDF externas.
+
+Si revisaste y confiás en el `escalares.py` de un proyecto, guardá este wrapper como
+`oracle-local` en la raíz de ese proyecto (junto a `oracle.json`) y dale permiso con
+`chmod +x oracle-local`. Requiere `oracle` instalado en el `PATH`:
+
+```sh
+#!/bin/sh
+raiz=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd) || exit 1
+exec oracle "$@" --proyecto "$raiz" --confiar-escalares
+```
+
+La receta pasa proyecto y confianza explícitamente en cada invocación, conserva los argumentos
+con espacios y devuelve el código de salida de Oracle. No guarda confianza global. Por ejemplo:
+
+```bash
+./oracle-local test --rapido
+./oracle-local juzgar --con "hechos de hoy.json"
+./oracle-local revisar catalogos/demo/demo.prueba.oracle
+./oracle-local medida listar
+./oracle-local caso generar demo.prueba --imprimir
+```
+
+También podés invocarlo por ruta absoluta desde otra carpeta; las rutas de argumentos como
+`--con` o `--directorio` siguen siendo relativas al directorio desde el que lo invocás.
+Sin el wrapper ni la bandera, `caso generar` rechaza la carga externa con la causa y la indicación
+de repetir con `--confiar-escalares`, sin traceback ni casos generados.
 
 **El motor no impone políticas.** Las medidas incluidas de `proceso`, `meta` y `simulacion` sirven
 para proyectos construidos con un LLM —mutantes que sobreviven, afirmaciones sin alcance,

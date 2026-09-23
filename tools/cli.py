@@ -610,7 +610,11 @@ def cmd_caso_listar(proy: Proyecto) -> int:
 
 
 def cmd_caso_generar(proy: Proyecto, mid: str, argv: list[str]) -> int:
-    return corpus.generar(proy, mid, argv)
+    try:
+        return corpus.generar(proy, mid, argv)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
 
 
 def cmd_revisar(proy: Proyecto, ruta_str: str, argv: list[str]) -> int:
