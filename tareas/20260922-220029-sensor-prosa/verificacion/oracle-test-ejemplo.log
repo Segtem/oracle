@@ -1,0 +1,44 @@
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 15 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 15 casos
+
+catálogo: 1 medidas · corpus: 15 casos
+
+  ROJO  001-vacio-en-corte                     prosa.alcance_sin_afirmacion_adversa  (valor 1)
+  ROJO  002-concreto-en-corte                  prosa.alcance_sin_afirmacion_adversa  (valor 1)
+  verde 003-vacio-debajo                       prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 004-concreto-encima                    prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  ROJO  005-vacio-alto                         prosa.alcance_sin_afirmacion_adversa  (valor 1)
+  ROJO  006-concreto-bajo                      prosa.alcance_sin_afirmacion_adversa  (valor 1)
+  verde 007-pregunta-ajena                     prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 008-ajena-baja                         prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 009-vacio-respuesta-no                 prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 010-concreto-respuesta-si              prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 011-medio                              prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 012-concreto-favorable                 prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  verde 013-vacio-favorable                    prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  ROJO  014-sin-relacion                       prosa.alcance_sin_afirmacion_adversa  (valor 0)
+  ROJO  015-relacion-vacia                     prosa.alcance_sin_afirmacion_adversa  (valor 0)
+
+defectos que se pusieron rojos: 6 · verdes correctos: 9 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 6 defectos en rojo, 9 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 35 · murieron 35 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+  de los muertos: 23 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 12 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 525
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)

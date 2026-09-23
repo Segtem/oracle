@@ -41,19 +41,43 @@ delegar y cuál no. Corte candidato: 0.30.0.
 
 ## Avance
 
-- **Relación declarada (`relaciones/afirmacion_prosa.json`):**
-  - Creada en formato canónico L−1 con los campos requeridos: `medida` (texto), `pregunta` (texto), `respuesta` (booleano), `probabilidad` (flotante), `modelo` (texto) y `fecha` (texto), todos `sin_unidad`.
-  - Alcance explícito: declara que observa respuestas probabilísticas de un modelo (probabilidad = P(sí)) y que NO observa si la prosa es veraz ni valida el razonamiento: la respuesta la produjo un modelo probabilístico y no una persona.
-- **Medida de ejemplo y su alcance (`ejemplo/catalogos/prosa/prosa.alcance_sin_afirmacion_adversa.oracle`):**
-  - Creada en `ejemplo/` (con `ejemplo/oracle.json`), aislada del catálogo base para no obligar a ningún proyecto.
-  - Juzga señales adversas de alta probabilidad sobre el alcance (`alcance_vacio` con P(sí) >= 0.8 o `alcance_concreto` con P(sí) <= 0.2).
-  - Alcance exacto según la decisión de diseño: *«Estas filas las produjo un modelo probabilístico; el umbral de probabilidad es una decisión, no un hecho. NO juzga la verdad de la prosa ni el razonamiento del sensor, y no detecta preguntas o medidas omitidas de una relación entregada parcialmente.»*
-- Estado de verificación: no se ejecutaron verificaciones en shell ni se realizaron commits en esta sesión, conforme a las restricciones operativas.
+El patrón vive íntegramente en `ejemplo/sensor-prosa/`, con `catalogo_base: false`,
+relación local y medida `del_origen`. No modifica el catálogo obligatorio.
 
-## Próximo paso
-
-Aguardar la conclusión del experimento `jev-porque-v2` para determinar si el patrón abarca también la defensa del umbral (`porque`) o si se circunscribe a `alcance`. Con ese resultado, armar en `ejemplo/` el corpus con las dos polaridades, escribir el arnés desacoplado `sensor_prosa.py` y documentar el patrón en `docs/`.
+- Corpus construido: 15 casos de ambas polaridades, bordes 0,2/0,8, filtros,
+  señal intermedia y relación ausente/vacía. `requiere` rechaza ambas como SIN EVIDENCIA.
+- Sensor opcional `sensor_prosa.py`: protocolo HTTP decisions/noul reutilizado de
+  `jev-porque-v2`, con proveedor, modelo y nombre de variable de clave parametrizables.
+  Prepara sin red; sólo `correr` consume API. Envía también tubería y resumen.
+- Publica evidencia sólo al completar todos los lotes y validar todas las respuestas.
+  Conserva respuestas y consumo informado; sin reintentos ni redirecciones.
+  La zona 0,4–0,6 inclusive queda en `revision-humana.json` y produce salida 2.
+- Documentación en `docs/14-sensor-prosa.md`, enlazada desde docs y el ejemplo:
+  sensor probabilístico no es juez; cortes elegidos por el proyecto; calibración
+  observada de `porque` con dos casos en 0,50; no extrapolarla a `alcance`.
+- Sin diferencial semántico: no hay referencia independiente aplicable al ejemplo.
+  La comparación ciega del estudio no se presenta como fixture universal.
+- Siete pruebas offline del adaptador y de las polaridades del corpus. Ninguna
+  llamada real al proveedor en esta entrega. No se hicieron commits.
 
 ### Nota (2026-09-22 22:16:08 UTC)
 
 2026-09-22, revisión de Claude sobre la entrega de agy: la relación y el alcance están bien escritos, pero las dos ubicaciones estaban mal y una era seria. (1) afirmacion_prosa.json quedó en relaciones/, que son las relaciones que Oracle DISTRIBUYE a todos los proyectos: es lo mismo que hizo chocar a Jam con pieza. (2) ejemplo/oracle.json y ejemplo/catalogos/ convertían ejemplo/ —que es una carpeta de proyectos de ejemplo— en un proyecto. Todo se movió a ejemplo/sensor-prosa/, con catalogo_base en false. Además la medida se declaraba de ambito universal y pasó a del_origen: obliga a su proyecto, no a quien la herede. oracle test del ejemplo da ROJO sólo por falta de casos, que es el paso siguiente.
+
+### Nota (2026-09-23 11:17:17 UTC)
+
+Patrón completado en ejemplo/sensor-prosa: 15 casos construidos de ambas polaridades, bordes 0,2/0,8 y evidencia ausente/vacía; oracle test del ejemplo VERDE, 35/35 mutantes muertos. Sensor opcional adaptado del protocolo decisions/noul de jev-porque-v2, proveedor/modelo/variable de clave parametrizables, preparación sin red, lotes de 12 con tubería, validación estricta y publicación sólo completa. Zona 0,4–0,6 inclusive guardada para revisión humana con salida 2. Documentación docs/14-sensor-prosa.md enlazada: no es un juez, cortes por decisión del proyecto, calibración de porque 0,50–0,68 vs 0,09–0,33 con dos 0,50; sin extrapolarla a alcance. Sin diferencial semántico por falta de referencia independiente aplicable; motivo documentado. Pruebas offline del adaptador y suite estándar en verificación; ninguna llamada real ni commits. Cambios ajenos de timeout-suite-mutacion preservados.
+
+### Nota (2026-09-23 11:20:50 UTC)
+
+Verificación final completada: python3 tools/cli.py test --proyecto ejemplo/sensor-prosa sale 0 VERDE (15 casos; 6 defectos rojos y 9 verdes correctos; 35/35 mutantes muertos). python3 tools/cli.py test sale 0 VERDE: 2411 unitarios OK, corpus/sintaxis/aceptación/diferencial/autocertificación/cifras en regla y 1010/1010 mutantes de medidas muertos. Logs íntegros en verificacion/oracle-test-ejemplo.log y verificacion/oracle-test.log. Siete pruebas propias offline pasan; preparación de 62 medidas del catálogo completo sin red comprobada. Se corrigió la expectativa del caso vacío: requiere produce SIN EVIDENCIA, igual que relación ausente. README regenerado con herramientas del repo para reflejar cifras actuales, incluidas las modificaciones preexistentes de timeout-suite-mutacion. No se ejecutó --todo ni se declara verde su mutación de código: ese pendiente sigue en timeout-suite-mutacion. git diff --check OK. Sin llamadas reales ni commits.
+
+## Próximo paso
+
+El patrón está terminado y verificado con el ejemplo y la suite estándar en verde;
+revisar los cambios para su integración cuando corresponda, sin hacer commits en
+esta sesión. La adopción por un proyecto debe fijar sus cortes y registrar la
+revisión humana de la zona intermedia. No hay llamadas a API pendientes para completar
+este ejemplo. La mutación de código completa (`--todo`) sigue en la tarea existente
+`20260922-221412-timeout-suite-mutacion`; continuar allí, sin atribuirle el verde
+de la suite estándar registrado en esta tarea.

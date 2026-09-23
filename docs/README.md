@@ -17,6 +17,7 @@ Ordenado por la pregunta que contesta, no por el tema.
 | **10 · Contexto** | `oracle contexto [--compacto]` — lo que hace falta para escribir una medida en TU proyecto, derivado de él |
 | **11 · Manual** | `oracle manual` en la terminal —incluidas las 54 medidas universales con qué NO ve cada una—, `man oracle-segun` tras `oracle manual --instalar-man <dir>`, o [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html) |
 | **12 · [Tareas y contexto](12-tareas.md)** | `oracle tarea` — tracker local de tareas y pendientes en carpetas y Markdown |
+| **14 · [Sensor probabilístico de prosa](14-sensor-prosa.md)** | patrón optativo, proveedor externo, calibración y revisión humana |
 
 Los pasos 2, 5 y 7 se escribieron corriendo cada comando contra el paquete publicado, y las salidas
 están copiadas de esas corridas. Si alguna no te da igual, es un defecto de la documentación:
