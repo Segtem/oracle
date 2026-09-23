@@ -1,0 +1,49 @@
+test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion (tests.test_requiere_orden.RequiereOrdenTests.test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion) ... 
+  test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion (tests.test_requiere_orden.RequiereOrdenTests.test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion) (posicion=3) ... FAIL
+  test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion (tests.test_requiere_orden.RequiereOrdenTests.test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion) (posicion=4) ... FAIL
+test_orden_valido_conserva_ast_y_evaluacion (tests.test_requiere_orden.RequiereOrdenTests.test_orden_valido_conserva_ast_y_evaluacion) ... ok
+test_otro_prefijo_incorrecto_conserva_el_diagnostico (tests.test_requiere_orden.RequiereOrdenTests.test_otro_prefijo_incorrecto_conserva_el_diagnostico) ... ok
+test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo (tests.test_requiere_orden.RequiereOrdenTests.test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo) ... 
+  test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo (tests.test_requiere_orden.RequiereOrdenTests.test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo) (esperado='resumen') ... FAIL
+  test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo (tests.test_requiere_orden.RequiereOrdenTests.test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo) (esperado='umbral') ... FAIL
+
+======================================================================
+FAIL: test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion (tests.test_requiere_orden.RequiereOrdenTests.test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion) (posicion=3)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_requiere_orden.py", line 56, in test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion
+    self.assertIn('«requiere» va después de «umbral» y antes de «ambito» o «alcance»', salida.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '«requiere» va después de «umbral» y antes de «ambito» o «alcance»' not found in "✗ línea 4, columna 5: se esperaba línea «resumen»; llegó 'requiere dato'\n   4 |     requiere dato\n     |     ^\n"
+
+======================================================================
+FAIL: test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion (tests.test_requiere_orden.RequiereOrdenTests.test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion) (posicion=4)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_requiere_orden.py", line 56, in test_cli_conserva_codigo_de_fallo_y_muestra_la_indicacion
+    self.assertIn('«requiere» va después de «umbral» y antes de «ambito» o «alcance»', salida.getvalue())
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '«requiere» va después de «umbral» y antes de «ambito» o «alcance»' not found in "✗ línea 5, columna 5: se esperaba línea «umbral»; llegó 'requiere dato'\n   5 |     requiere dato\n     |     ^\n"
+
+======================================================================
+FAIL: test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo (tests.test_requiere_orden.RequiereOrdenTests.test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo) (esperado='resumen')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_requiere_orden.py", line 39, in test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo
+    self.assertIn('«requiere» va después de «umbral» y antes de «ambito» o «alcance»', str(error))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '«requiere» va después de «umbral» y antes de «ambito» o «alcance»' not found in "línea 4, columna 5: se esperaba línea «resumen»; llegó 'requiere dato'"
+
+======================================================================
+FAIL: test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo (tests.test_requiere_orden.RequiereOrdenTests.test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo) (esperado='umbral')
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_requiere_orden.py", line 39, in test_requiere_antes_de_resumen_o_umbral_explica_donde_moverlo
+    self.assertIn('«requiere» va después de «umbral» y antes de «ambito» o «alcance»', str(error))
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '«requiere» va después de «umbral» y antes de «ambito» o «alcance»' not found in "línea 5, columna 5: se esperaba línea «umbral»; llegó 'requiere dato'"
+
+----------------------------------------------------------------------
+Ran 4 tests in 0.002s
+
+FAILED (failures=4)

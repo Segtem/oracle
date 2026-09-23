@@ -497,7 +497,10 @@ def _exigir_prefijo(item: tuple[int, str], prefijo: str, nivel: int) -> tuple[st
     n, linea = item
     cuerpo = _indentada(linea, nivel, n)
     if not cuerpo.startswith(prefijo):
-        _fallar(n, len(linea) - len(cuerpo) + 1, f"línea «{prefijo.strip()}»", cuerpo)
+        esperado = f"línea «{prefijo.strip()}»"
+        if prefijo in ("resumen ", "umbral ") and cuerpo.startswith("requiere "):
+            esperado += "\n«requiere» va después de «umbral» y antes de «ambito» o «alcance»"
+        _fallar(n, len(linea) - len(cuerpo) + 1, esperado, cuerpo)
     return cuerpo[len(prefijo):], len(linea) - len(cuerpo) + len(prefijo) + 1
 
 
