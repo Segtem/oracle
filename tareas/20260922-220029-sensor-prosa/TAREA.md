@@ -1,6 +1,6 @@
 # Un patrón para que un proyecto use un modelo como sensor de su prosa, sin que Oracle dependa de él
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 72
 - ETIQUETAS: oracle, sensores, metalenguaje, jev
 
