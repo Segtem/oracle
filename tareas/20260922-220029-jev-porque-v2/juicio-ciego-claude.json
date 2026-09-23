@@ -1,0 +1,227 @@
+[
+  {
+    "id": "v005",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "La defensa concede que la forma puede ser valida como conteo bruto y solo afirma que «suele significar» un olvido: no enuncia ninguna exigencia de que toda medida declare un `donde` o un `agrupar`, ni ninguna fuente del limite.",
+    "cita_origen": "puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v010",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Solo afirma que el valor es razonable; repite la conveniencia sin regla, fuente ni calculo del que derivar el limite.",
+    "cita_origen": "Es lo razonable.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v015",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "No hay defensa: la frase es circular y no aporta regla, fuente ni calculo.",
+    "cita_origen": "Porque sí.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v017",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Describe el perjuicio de una medida que nadie ejecuta (es decoracion, no puede fallar), pero no enuncia la exigencia de que toda medida propia sea evaluada por al menos un caso ni otra regla que fije el limite.",
+    "cita_origen": "una medida que ningún caso ni fixture evalúa nunca es decoración",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v019",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Apela a que el valor «corresponde» sin dar regla, fuente ni calculo; es circular.",
+    "cita_origen": "Es lo que corresponde.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v021",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Solo expresa que el valor es razonable, sin vincular lo que se cuenta con el limite.",
+    "cita_origen": "Es lo razonable.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v024",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Ademas de explicar el perjuicio, fija cuando debe haber rojo: el dia que la deuda sube o el dia que deja de medirse, es decir ante cualquier ocurrencia de lo que la tuberia cuenta, lo que deriva el cero.",
+    "cita_origen": "El rojo vuelve el día que la deuda sube o el día que deja de medirse, que son los dos días en que hace falta",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v026",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "No hay defensa derivable: la frase es circular.",
+    "cita_origen": "Porque sí.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v029",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Enuncia una regla explicita y universal —el evaluador no deberia poder distinguir la macro de su expansion—, de modo que ninguna discrepancia es admisible y el conteo de discrepancias debe ser cero.",
+    "cita_origen": "expande a la forma canónica ANTES de construir la medida, así que el evaluador no debería poder distinguir una de otra",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v030",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Describe el perjuicio de publicar datos del dominio y su irreversibilidad, pero no enuncia la exigencia de que ningun campo del diagnostico contenga datos propios ni otra regla que derive el limite.",
+    "cita_origen": "se comparten sin que nadie los mire dos veces, y no se pueden despublicar",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v033",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Da una regla explicita de igualdad exacta entre las dos formas y exige las tres coincidencias, con lo cual cualquier caso de no coincidencia es inadmisible y el limite queda en cero.",
+    "cita_origen": "filtrar por P y después por Q tiene que dejar exactamente las mismas filas que filtrar una vez por «P y Q»",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v034",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Declara el valor y el criterio del que sale: el limite es cero porque la ausencia se hace visible de a un caso y no en promedio, lo que vincula el conteo con el limite.",
+    "cita_origen": "El límite es cero por lo mismo que en `segun`: la ausencia se hace visible de a un caso, no en promedio",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v040",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Invoca una decision sin regla, fuente ni calculo; es circular.",
+    "cita_origen": "Porque se decidió así.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v044",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Explica por que una traza con huecos invalida lo que se mida sobre ella, es decir el perjuicio, pero no enuncia ninguna exigencia sobre cuantas trazas con huecos se admiten ni fuente del limite.",
+    "cita_origen": "una traza con huecos describe otra corrida que la que ocurrió",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v046",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Enuncia una regla universal explicita —toda medida tiene que declarar donde obliga— y declara `sin_declarar` inaceptable, de donde se deriva que no se admite ninguna.",
+    "cita_origen": "toda medida tiene que declarar dónde obliga: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas durante la migración, no una declaración aceptable",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v051",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Apela a una decision previa sin regla, fuente ni calculo.",
+    "cita_origen": "Porque se decidió así.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v052",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Regla universal explicita —todo umbral tiene que declarar de donde salio su numero— mas el rechazo de `sin_declarar` como etiqueta aceptable: ninguna excepcion, luego cero.",
+    "cita_origen": "todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v053",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Describe el dano que causa un falso rojo, que es importancia, sin enunciar cuantos se admiten ni de donde sale el limite.",
+    "cita_origen": "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v055",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Explica la consecuencia de un caso que apunta a una medida inexistente, pero no formula ninguna exigencia de universalidad ni fuente del valor.",
+    "cita_origen": "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v056",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Expone el perjuicio —afirmar una verificacion vieja es mentir— sin enunciar ninguna regla sobre cuantos cambios de codigo vivo se admiten ni fuente del limite.",
+    "cita_origen": "si después se tocó código vivo la foto es de otro código, y afirmarla es mentir",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v058",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Argumenta el riesgo de la edicion masiva y la conveniencia de la comprobacion («es una línea»), sin enunciar que ningun archivo roto sea admisible ni dar fuente o calculo del limite.",
+    "cita_origen": "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v064",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Afirma que el numero es el adecuado sin decir de donde sale: es circular.",
+    "cita_origen": "Es el número adecuado.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v065",
+    "porque_origen": true,
+    "porque_vecino": null,
+    "justificacion_origen": "Da una regla explicita sobre el operador —los grupos no pueden ser mas que las filas que los originaron—, de la que se sigue que ningun paso puede agrandar la relacion y por lo tanto el conteo debe ser cero.",
+    "cita_origen": "agrupar colapsa: una fila por grupo, y los grupos no pueden ser más que las filas que los originaron",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v068",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Sostiene que el valor corresponde, sin regla, fuente ni calculo.",
+    "cita_origen": "Es lo que corresponde.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  },
+  {
+    "id": "v072",
+    "porque_origen": false,
+    "porque_vecino": null,
+    "justificacion_origen": "Declara adecuado el numero sin derivarlo de nada.",
+    "cita_origen": "Es el número adecuado.",
+    "justificacion_vecino": "no aplica: umbral cero",
+    "cita_vecino": ""
+  }
+]
