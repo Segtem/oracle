@@ -1,0 +1,10 @@
+Llamé a cada sonda una vez. Estos son todos los códigos con forma LETRA-NÚMERO que vi:
+
+| Código | Dónde lo vi |
+|---|---|
+| **D-6637** | En la descripción de `sonda_con_texto`, que llegó con el esquema cargado por ToolSearch: «Marca de descripción: D-6637.» |
+| **D-7579** | En la descripción de `sonda_sin_texto`, también en el esquema de ToolSearch: «Marca de descripción: D-7579.» |
+| **E-1332** | En el resultado de `sonda_con_texto`: `{"marca":"E-1332"}` |
+| **E-2661** | En el resultado de `sonda_sin_texto`: `{"marca":"E-2661"}` |
+
+Las dos llamadas me devolvieron algo visible. `sonda_sin_texto` no volvió vacía, a pesar del nombre: trajo su JSON con la marca `E-2661`. Los esquemas de parámetros de las dos herramientas estaban vacíos y no traían ningún código. En el resto del contexto (CLAUDE.md, memoria, git) no encontré ningún código con esa forma.

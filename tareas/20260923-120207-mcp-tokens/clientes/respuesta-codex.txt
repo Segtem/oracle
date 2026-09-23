@@ -1,0 +1,10 @@
+Llamé a ambas herramientas una vez, en el orden pedido. Vi estos códigos:
+
+- `X-1234`: en el ejemplo de tu mensaje.
+- `D-6798`: en la descripción de `sonda_con_texto`.
+- `D-9748`: en la descripción de `sonda_sin_texto`.
+- `T-4479`: en el texto del resultado de `sonda_con_texto`.
+- `E-1581`: en `structuredContent.marca` del resultado de `sonda_con_texto`.
+- `E-4824`: en `structuredContent.marca` del resultado de `sonda_sin_texto`.
+
+No vi códigos en los esquemas. `sonda_sin_texto` devolvió `content: []`, pero sí mostró el resultado estructurado indicado; ninguna llamada quedó sin nada visible.

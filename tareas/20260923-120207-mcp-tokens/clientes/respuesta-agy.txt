@@ -1,0 +1,18 @@
+Se ejecutaron ambas herramientas en orden:
+
+1. **`sonda_con_texto`**:
+   - **Resultado obtenido:** `Marca de texto: T-8789.`
+
+2. **`sonda_sin_texto`**:
+   - **Resultado obtenido:** No devolvió nada visible (la salida fue una cadena vacía).
+
+---
+
+### Códigos encontrados (formato LETRA-NÚMERO)
+
+* **`D-8393`**:
+  * **Dónde se vio:** En el esquema/descripción de la herramienta [`sonda_con_texto.json`](~/.gemini/antigravity-cli/mcp/sonda/sonda_con_texto.json) (`"description": "Sonda de diagnóstico. Marca de descripción: D-8393."`).
+* **`D-7217`**:
+  * **Dónde se vio:** En el esquema/descripción de la herramienta [`sonda_sin_texto.json`](~/.gemini/antigravity-cli/mcp/sonda/sonda_sin_texto.json) (`"description": "Sonda de diagnóstico. Marca de descripción: D-7217."`).
+* **`T-8789`**:
+  * **Dónde se vio:** En el resultado de la ejecución de `sonda_con_texto`.

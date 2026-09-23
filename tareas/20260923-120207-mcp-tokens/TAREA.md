@@ -1,6 +1,6 @@
 # El MCP gasta tokens que el agente paga antes de hacer nada
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 76
 - ETIQUETAS: oracle, mcp, tokens
 
@@ -118,8 +118,33 @@ Verificación final: suite completa 2415 tests OK en 84,360 s (verificacion/suit
 
 Cierre de esta intervención, sin commits: 2415 tests de suite completa OK, 147 tests MCP OK, contrato regenerado y --check OK, cifras README regeneradas y --check OK. oracle test repetido terminó exit 0 / VERDE (verificacion/oracle-test.log); mutación de medidas 1010/1010, alcance corpus guardado y omisión de mutación de código explícitos. Propuestas separadas y cuantificadas en el cuerpo; sólo listar sin cuerpos y descripciones breves implementadas. Pendiente: medir al menos dos clientes para las variantes del esquema y la duplicación; tarea ABIERTA.
 
+## Qué recibe el modelo en cada cliente (2026-09-23)
+
+La sonda `clientes/sonda_mcp.py` pone una marca aleatoria distinta en la descripción (D), en el
+`outputSchema` (S), en el bloque de texto (T) y en `structuredContent` (E), y ofrece una segunda
+herramienta con `content: []`. `clientes/correr.sh` le pide a cada cliente que copie las marcas que
+vio; `marcas-*.json` es lo emitido y `respuesta-*.txt` lo visto.
+
+| Cliente | D | S | T | E | con `content: []` |
+|---|---|---|---|---|---|
+| Claude Code 2.1.281 | sí | **no** | **no** | sí | ve E |
+| Codex 0.155.1 | sí | **no** | sí | sí | ve E |
+| agy (Gemini 3.8 Flash) | sí | **no** | sí | **no** | no ve nada |
+
+Lo que decide:
+
+- **`outputSchema` no llega al modelo en ninguno.** Quitarlo no ahorra contexto, sólo transporte, y
+  se perdería el contrato que valida los clientes. Se conserva.
+- **Las dos copias hacen falta.** Claude Code descarta el texto cuando hay `structuredContent`;
+  agy descarta `structuredContent`. Quitar cualquiera de las dos deja ciego a un cliente. Sólo Codex
+  paga las dos, y el texto ya es JSON compacto (`separators=(",", ":")`): no queda recorte sin pérdida.
+- **Agrupar catálogo** rompe el contrato v1 por 904 tokens; ya estaba descartado.
+
+Lo que sí ahorraba (listar sin cuerpos, −87 %, y descripciones breves) está en `main` desde
+b7f89cd. Las cifras valen para estas versiones de cliente; si una cambia, `clientes/correr.sh
+<claude|codex>` repite la medición (agy necesita `agy mcp add` antes y `--sandbox
+--dangerously-skip-permissions`, porque el modo sin interacción rechaza la herramienta).
+
 ## Próximo paso
 
-Medir qué recibe el modelo en al menos dos clientes (Claude Code, Codex o agy) antes de decidir
-sobre outputSchema y las dos copias. Para agrupar catálogo, definir migración del contrato v1 y
-compatibilidad de consumidores. Implementación autorizada y verificaciones terminadas; sin commits.
+Ninguno: la tarea queda cerrada con lo medido.
