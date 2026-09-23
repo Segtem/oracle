@@ -1,31 +1,48 @@
+test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) ...
+  test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=[]) ... FAIL
+  test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--imprimir']) ... FAIL
+  test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--directorio', '/tmp/oracle confianza n8oqqc3e/salida']) ... FAIL
+test_wrapper_conserva_argumentos_y_codigo (test_confianza_cli.ConfianzaCliTests.test_wrapper_conserva_argumentos_y_codigo) ... ok
+test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita (test_confianza_cli.ConfianzaCliTests.test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita) ...
+  test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita (test_confianza_cli.ConfianzaCliTests.test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita) (args=['caso', 'generar', 'demo.prueba', '--imprimir']) ... FAIL
+
 ======================================================================
-FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (tests.test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=[])
+FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=[])
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 58, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 67, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
     self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", r.stdout)
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in ''
 
 ======================================================================
-FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (tests.test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--imprimir'])
+FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--imprimir'])
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 58, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 67, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
     self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", r.stdout)
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in ''
 
 ======================================================================
-FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (tests.test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--directorio', '/tmp/oracle confianza uaqscux9/salida'])
+FAIL: test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) (extras=['--directorio', '/tmp/oracle confianza n8oqqc3e/salida'])
 ----------------------------------------------------------------------
 Traceback (most recent call last):
-  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 58, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 67, in test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica
     self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", r.stdout)
     ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in ''
 
+======================================================================
+FAIL: test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita (test_confianza_cli.ConfianzaCliTests.test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita) (args=['caso', 'generar', 'demo.prueba', '--imprimir'])
 ----------------------------------------------------------------------
-Ran 1 test in 0.208s
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tests/test_confianza_cli.py", line 105, in test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita
+    self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", rechazado.stdout + rechazado.stderr)
+    ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 'ESCALARES EXTERNAS NO EJECUTADAS' not found in 'Traceback (most recent call last):\n  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tools/cli.py", line 1310, in <module>\n    sys.exit(_entrada_directa())\n             ~~~~~~~~~~~~~~~~^^\n  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tools/cli.py", line 1219, in main\n    return cmd_caso_generar(proy, args[0], argv)\n  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tools/cli.py", line 613, in cmd_caso_generar\n    return corpus.generar(proy, mid, argv)\n           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^\n  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/tools/corpus.py", line 182, in generar\n    rc, _ = generar_caso(\n            ~~~~~~~~~~~~^\n        proy,\n        ^^^^^\n    ...<3 lines>...\n        imprimir_solo=imprimir_solo,\n        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n    )\n    ^\n  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/nucleo/generador.py", line 707, in generar_caso\n    with escalares_del_proyecto(proy, confiar=confiar):\n         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^\n  File "/usr/lib/python3.14/contextlib.py", line 141, in __enter__\n    return next(self.gen)\n  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo2/nucleo/proyecto.py", line 494, in escalares_del_proyecto\n    raise EscalaresNoConfiables(\n        f"{archivo} es código Python externo; repetí con `--confiar-escalares` para ejecutarlo")\nnucleo.proyecto.EscalaresNoConfiables: /tmp/oracle confianza d1tlkx3u/escalares.py es código Python externo; repetí con `--confiar-escalares` para ejecutarlo\n'
 
-FAILED (failures=3)
+----------------------------------------------------------------------
+Ran 3 tests in 1.456s
+
+FAILED (failures=4)

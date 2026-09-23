@@ -28,6 +28,15 @@ class ConfianzaCliTests(unittest.TestCase):
 ''')
         (self.raiz / "hechos con espacios.json").write_text('{"dato": [{"x": 0}]}')
         (self.raiz / "escalares.py").write_text('# Sin funciones externas.\n')
+        for cid, x, etiqueta in (("001-verde", 0, "verde_correcto"), ("002-rojo", 1, "falso_verde")):
+            (self.raiz / "corpus" / f"{cid}.json").write_text(json.dumps({
+                "id": cid, "fecha": "2026-09-23",
+                "origen": {"repo": "prueba", "commit": "local"},
+                "procedencia": "construida", "titulo": cid, "etiqueta": etiqueta,
+                "sintoma": "Valores positivos son defectos.", "como_se_detecto": "persona",
+                "medida": "demo.prueba", "evidencia": {"dato": [{"x": x}]},
+                "leccion": "Distinguir cero de un valor positivo.",
+            }))
 
     def correr(self, args, **kwargs):
         return subprocess.run(args, cwd="/tmp", capture_output=True, text=True,
@@ -95,6 +104,7 @@ class ConfianzaCliTests(unittest.TestCase):
                 self.assertEqual(rechazado.returncode, sin_confianza)
                 self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", rechazado.stdout + rechazado.stderr)
                 directo = self.cli(*args, "--confiar-escalares")
+                self.assertEqual(directo.returncode, 0, directo.stdout + directo.stderr)
                 local = self.correr([str(wrapper), *args], env={**os.environ, "PATH": str(binario) + os.pathsep + os.environ["PATH"]})
                 self.assertEqual((local.returncode, local.stdout, local.stderr),
                                  (directo.returncode, directo.stdout, directo.stderr))

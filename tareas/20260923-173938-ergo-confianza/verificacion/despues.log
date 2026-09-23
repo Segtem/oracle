@@ -1,4 +1,8 @@
+test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica (test_confianza_cli.ConfianzaCliTests.test_generar_sin_confianza_no_ejecuta_ni_escribe_y_explica) ... ok
+test_wrapper_conserva_argumentos_y_codigo (test_confianza_cli.ConfianzaCliTests.test_wrapper_conserva_argumentos_y_codigo) ... ok
+test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita (test_confianza_cli.ConfianzaCliTests.test_wrapper_permite_los_cinco_comandos_como_invocacion_explicita) ... ok
+
 ----------------------------------------------------------------------
-Ran 17 tests in 1.361s
+Ran 3 tests in 1.690s
 
 OK

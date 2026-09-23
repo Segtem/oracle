@@ -1,6 +1,6 @@
 # Propuesta: simplificar la invocación confiada y el error de caso generar
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: ergonomia, propuesta
 
@@ -22,10 +22,6 @@ La forma mínima es documentar un wrapper local que pase explícitamente --proye
 
 Propuesta derivada de ergonomia 6.1: cinco comandos reproducidos y traceback de caso generar en SALIDAS.txt. Sólo se escribió alcance y aceptación; sin implementación ni commits.
 
-## Próximo paso
-
-Revisar esta propuesta junto con VERIFICACION.md de ergonomia y decidir su implementación; comenzar por el diagnóstico de caso generar y la receta local, sin cambiar el lenguaje.
-
 ### Nota (2026-09-23 20:10:02 UTC)
 
 Implementada la forma mínima: receta oracle-local en README con proyecto y confianza explícitos, y captura de EscalaresNoConfiables/EscalaresInvalidas en cmd_caso_generar. Regresión real por subprocess: rechazo sin ejecución ni archivos; receta extraída del README y ejecutada para verificar argumentos, código de salida y los cinco comandos. Evidencia roja al retirar sólo la captura: verificacion/antes.log. Se conservan cambios previos de ergo-orden; sin cambios de álgebra/sintaxis ni commits.
@@ -36,3 +32,15 @@ Codex se quedó sin cuota a mitad del encargo. Lo hecho vive en la rama `t-ergo2
 en `main`): mensaje de `tools/cli.py`, sección del README con el wrapper `oracle-local`, y
 `tests/test_confianza_cli.py`. Falta revisar lo hecho, correr la suite y regenerar cifras. Se retoma
 sobre esa rama.
+
+### Nota (2026-09-23 22:48:07 UTC)
+
+Revisado HEAD 8b4418b: la captura y la receta local cumplen el alcance mínimo, sin tocar lenguaje. Se reforzó test_confianza_cli: la equivalencia wrapper/directo podía aprobar con ambos en error por corpus vacío; ahora el fixture tiene casos verde y rojo y exige exit 0 para los cinco comandos. Tres tests pasan; al retirar temporalmente sólo la captura fallan las regresiones (verificacion/antes.log), luego se restauró. Suite completa en curso.
+
+### Nota (2026-09-23 22:49:54 UTC)
+
+Aceptación completa: los 3 tests específicos pasan; sin la captura fallan 4 subcasos (antes.log). Suite solicitada: python3 -m unittest discover -s tests, exit 0, 2422 tests en 86.377s, OK (verificacion/suite.log). Ejecutado python3 tools/cifras.py --actualizar: README actualizado a 2422 tests y 7909 sitios; comprobación posterior CIFRAS OK. Se conserva la implementación mínima del WIP; sólo se reforzó el fixture y la aserción de éxito. Álgebra 0.8 y sintaxis 0.6 intactas. Sin commits ni escrituras en .git.
+
+## Próximo paso
+
+Ninguno: tarea completa y CERRADA. Evidencia en `verificacion/antes.log`, `despues.log` y `suite.log`; cifras regeneradas. Cambios listos para revisión, sin commits por instrucción del usuario.
