@@ -1,6 +1,6 @@
 # Propuesta: armar casos observados desde JSON sin transcribir filas
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 65
 - ETIQUETAS: ergonomia, propuesta
 
@@ -23,6 +23,10 @@ Proponer primero una receta ejecutable que lea una captura, reciba metadatos de 
 
 Propuesta derivada de ergonomia 5.2: deudas 16/17 verificadas y round-trip de 1000 filas correcto. Sólo se escribió alcance y aceptación; sin implementación ni commits.
 
+### Nota (2026-09-23 22:55:22 UTC)
+
+Implementada la receta mínima en ejemplo/caso-observado/convertir.py y README.md, enlazada desde observaciones/README.md. Captura real: observaciones/2026-09-09-aceptacion/evidencia.json; metadatos originales copiados explícitamente, sin afirmar una corrida nueva. Se guarda JSON íntegro sin ejecutar comandos de origen ni inferir procedencia, medida o etiqueta. Prueba previa sin receta: 5 tests ejecutados, 9 fallos incluidos subtests. Tras implementar: 5 tests verdes, cubriendo captura real, mil filas, relaciones vacías, duplicados, tipos, claves, metadatos obligatorios y no sobrescritura. Recorrido literal del README verificado con cargar_fuente_caso, corpus.verificar y medida.evaluar: valor 0, ok=True. Suite completa: python3 -m unittest discover -s tests, 2427 tests en 86.469 s, OK. Cifras regeneradas con python3 tools/cifras.py --actualizar y verificadas: CIFRAS OK. git diff --check limpio. Álgebra 0.8 y sintaxis 0.6 intactas; sin commits ni cambios al corpus histórico. No sustituye sensores Unreal ni reconstruye procedencias. Aceptación completa.
+
 ## Próximo paso
 
-Revisar la propuesta en ergonomia y seleccionar una captura real disponible para probar la receta; no inventar metadatos ni convertir casos construidos en observados.
+Ninguno: tarea completa y CERRADA. Receta, regresiones, suite completa y cifras verificadas; sin commits por instrucción del usuario.

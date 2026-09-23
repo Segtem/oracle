@@ -37,3 +37,5 @@ Después de optimizar el validador, ese mismo día, la observación inicial dete
 de `nucleo/algebra.py` aunque la evidencia era igual. Se conservó intacta y se capturó una nueva,
 que revalidó sin cambios. El [contraste de ambas lecturas](../estudios/2026-09-10-validacion/jam-tras-validacion.json)
 distingue esas historias; una optimización compatible también cambia un referente de código.
+
+Si ya tenés el JSON del sensor, seguí la [receta de captura a caso observado](../ejemplo/caso-observado/README.md): recibe metadatos explícitos y conserva las filas sin transcribirlas.
