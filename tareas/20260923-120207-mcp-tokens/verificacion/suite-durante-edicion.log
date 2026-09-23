@@ -1,0 +1,44 @@
+usage: python3 -m unittest [-h] --proyecto RUTA [--hechos] [--html RUTA]
+                           [--confiar-escalares]
+python3 -m unittest: error: the following arguments are required: --proyecto
+BIBLIOTECA INVÁLIDA — id inválido: 'SinPunto'. Va como `publicador.nombre`, en minúsculas ASCII
+Sensor incompleto: revisar configuración y artefactos; no se autoriza reintento automático.
+======================================================================
+FAIL: test_handshake_lista_llamada_y_apagado_viajan_por_stdin_y_stdout (tests.test_mcp.AConversacionCompletaTests.test_handshake_lista_llamada_y_apagado_viajan_por_stdin_y_stdout)
+Una llamada directa no descubriría framing incorrecto ni texto humano en stdout.
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tests/test_mcp.py", line 178, in test_handshake_lista_llamada_y_apagado_viajan_por_stdin_y_stdout
+    self.assertEqual(respuestas[1]["result"]["tools"], mcp.HERRAMIENTAS)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: Lists differ: [{'na[2068 chars]alúa una medida efectiva por id o texto sin gu[10419 chars]}}}}] != [{'na[2068 chars]alúa por id o texto sin guardar. Distingue ver[10319 chars]}}}}]
+
+First differing element 1:
+{'nam[82 chars]alúa una medida efectiva por id o texto sin gu[2337 chars]}}}}}
+{'nam[82 chars]alúa por id o texto sin guardar. Distingue ver[2295 chars]}}}}}
+
+Diff is 39133 characters long. Set self.maxDiff to None to see it.
+
+======================================================================
+FAIL: test_tools_list_publica_las_cinco_con_el_contrato_normativo_entero (tests.test_mcp_027.ContratoNormativoTests.test_tools_list_publica_las_cinco_con_el_contrato_normativo_entero)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tests/test_mcp_027.py", line 104, in test_tools_list_publica_las_cinco_con_el_contrato_normativo_entero
+    self.assertEqual(contrato, regenerar(contrato), "Regenerar el contrato MCP")
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: '# Co[9598 chars]alúa una medida efectiva por id o texto sin gu[59875 chars]e.\n' != '# Co[9598 chars]alúa por id o texto sin guardar. Distingue ver[59775 chars]e.\n' : Regenerar el contrato MCP
+
+----------------------------------------------------------------------
+Ran 2415 tests in 83.104s
+
+FAILED (failures=2)
+ruido: 0 mutantes sobrevivientes para «meta.sintaxis_cubre_algebra» — no se generó ningún caso (ya está fijada)
+*** RONDA PARCIAL DE MUTACIÓN (filtro: --lineas 9999-9999) ***
+objetivos: nucleo/aislamiento/escalares.py
+
+objetivos: nucleo/aislamiento/escalares.py
+
+2 respuestas; 2 pendientes de revisión humana
+2 respuestas; 2 pendientes de revisión humana
+2 respuestas; 2 pendientes de revisión humana
+1 medidas preparadas; sin red

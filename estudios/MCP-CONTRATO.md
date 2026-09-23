@@ -80,14 +80,22 @@ esquemas cierran propiedades con `additionalProperties: false`: un error de nomb
 Los campos opcionales de una medida sólo aparecen en modo detalle; el servidor valida como
 poscondición que `detalle: true` implique que todos estén presentes.
 
+El bloque siguiente se genera desde `tools.mcp.HERRAMIENTAS` con
+`python3 -m tools.mcp_contrato` (verificar con `--check`).
+
 <!-- herramientas-json:inicio -->
 ```json
 [
   {
     "name": "oracle_catalogo_efectivo",
     "title": "Catálogo efectivo de Oracle",
-    "description": "Consulta las medidas que obligan al proyecto fijado al arrancar el servidor. Sin ids devuelve un índice compacto; con ids devuelve el detalle de esas medidas. Usa catalogo_efectivo: no confunde todo lo instalado con lo que tiene jurisdicción aquí. No evalúa evidencia ni escribe archivos.",
-    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "description": "Consulta medidas efectivas del proyecto fijado. Sin ids: índice; con ids: detalle. No evalúa evidencia.",
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
     "inputSchema": {
       "type": "object",
       "additionalProperties": false,
@@ -96,7 +104,10 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"},
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+          },
           "description": "Ids efectivos cuyo detalle se pide. Omitir para listar todos."
         }
       }
@@ -104,41 +115,120 @@ poscondición que `detalle: true` implique que todos estén presentes.
     "outputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["esquema", "oracle_version", "proyecto", "huella_proyecto", "detalle", "total", "medidas"],
+      "required": [
+        "esquema",
+        "oracle_version",
+        "proyecto",
+        "huella_proyecto",
+        "detalle",
+        "total",
+        "medidas"
+      ],
       "properties": {
-        "esquema": {"const": "oracle.mcp/catalogo-efectivo/v1"},
-        "oracle_version": {"type": "string"},
-        "proyecto": {"type": "string"},
-        "huella_proyecto": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "detalle": {"type": "boolean"},
-        "total": {"type": "integer", "minimum": 0},
+        "esquema": {
+          "const": "oracle.mcp/catalogo-efectivo/v1"
+        },
+        "oracle_version": {
+          "type": "string"
+        },
+        "proyecto": {
+          "type": "string"
+        },
+        "huella_proyecto": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "detalle": {
+          "type": "boolean"
+        },
+        "total": {
+          "type": "integer",
+          "minimum": 0
+        },
         "medidas": {
           "type": "array",
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "origen", "fijacion"],
+            "required": [
+              "id",
+              "origen",
+              "fijacion"
+            ],
             "properties": {
-              "id": {"type": "string"},
-              "origen": {"type": "string"},
-              "relaciones": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
-              "fijacion": {"enum": ["evidencia", "arnes", "heredada", "sin_fijar"]},
-              "ambito": {"enum": ["universal", "del_origen", "sin_declarar"]},
-              "requiere": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+              "id": {
+                "type": "string"
+              },
+              "origen": {
+                "type": "string"
+              },
+              "relaciones": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              },
+              "fijacion": {
+                "enum": [
+                  "evidencia",
+                  "arnes",
+                  "heredada",
+                  "sin_fijar"
+                ]
+              },
+              "ambito": {
+                "enum": [
+                  "universal",
+                  "del_origen",
+                  "sin_declarar"
+                ]
+              },
+              "requiere": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "uniqueItems": true
+              },
               "umbral": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["operador", "valor", "segun", "porque"],
+                "required": [
+                  "operador",
+                  "valor",
+                  "segun",
+                  "porque"
+                ],
                 "properties": {
-                  "operador": {"type": "string"},
-                  "valor": {"type": ["string", "number", "boolean"]},
-                  "segun": {"type": "string"},
-                  "porque": {"type": "string"}
+                  "operador": {
+                    "type": "string"
+                  },
+                  "valor": {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  "segun": {
+                    "type": "string"
+                  },
+                  "porque": {
+                    "type": "string"
+                  }
                 }
               },
-              "alcance": {"type": "string"},
-              "fuente": {"type": "string"},
-              "fuente_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+              "alcance": {
+                "type": "string"
+              },
+              "fuente": {
+                "type": "string"
+              },
+              "fuente_sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              }
             }
           }
         }
@@ -148,40 +238,69 @@ poscondición que `detalle: true` implique que todos estén presentes.
   {
     "name": "oracle_evaluar",
     "title": "Evaluar una medida en memoria",
-    "description": "Evalúa una medida efectiva por id o un texto de medida sin guardarlo contra una evidencia JSON. Devuelve verde, rojo o sin_evidencia como estados distintos, además del valor, umbral, testigos y alcance. Use esta herramienta para entender conducta puntual; no prueba que la medida sea correcta.",
-    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "description": "Evalúa una medida efectiva por id o texto sin guardar contra evidencia JSON. Distingue verde, rojo y sin_evidencia; incluye umbral, testigos y alcance. No demuestra corrección de la medida.",
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
     "inputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["medida", "evidencia"],
+      "required": [
+        "medida",
+        "evidencia"
+      ],
       "properties": {
         "medida": {
           "oneOf": [
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
-              "properties": {"id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"}}
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+                }
+              }
             },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["texto", "formato"],
+              "required": [
+                "texto",
+                "formato"
+              ],
               "properties": {
-                "texto": {"type": "string"},
-                "formato": {"enum": ["oracle", "json"]}
+                "texto": {
+                  "type": "string"
+                },
+                "formato": {
+                  "enum": [
+                    "oracle",
+                    "json"
+                  ]
+                }
               }
             }
           ]
         },
-        "evidencia": {"$ref": "#/$defs/evidencia"}
+        "evidencia": {
+          "$ref": "#/$defs/evidencia"
+        }
       },
       "$defs": {
         "evidencia": {
           "type": "object",
           "additionalProperties": {
             "type": "array",
-            "items": {"type": "object"}
+            "items": {
+              "type": "object"
+            }
           }
         }
       }
@@ -189,75 +308,189 @@ poscondición que `detalle: true` implique que todos estén presentes.
     "outputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["esquema", "oracle_version", "proyecto", "entrada_sha256", "medida", "estado", "valor", "umbral", "sombra", "testigos", "testigos_omitidos", "alcance", "alcance_derivado", "advertencias"],
+      "required": [
+        "esquema",
+        "oracle_version",
+        "proyecto",
+        "entrada_sha256",
+        "medida",
+        "estado",
+        "valor",
+        "umbral",
+        "sombra",
+        "testigos",
+        "testigos_omitidos",
+        "alcance",
+        "alcance_derivado",
+        "advertencias"
+      ],
       "properties": {
-        "esquema": {"const": "oracle.mcp/evaluacion/v2"},
-        "oracle_version": {"type": "string"},
-        "proyecto": {"type": "string"},
-        "entrada_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "medida": {"type": "string"},
-        "estado": {"enum": ["verde", "rojo", "sin_evidencia"]},
-        "valor": {"type": "number"},
+        "esquema": {
+          "const": "oracle.mcp/evaluacion/v2"
+        },
+        "oracle_version": {
+          "type": "string"
+        },
+        "proyecto": {
+          "type": "string"
+        },
+        "entrada_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "medida": {
+          "type": "string"
+        },
+        "estado": {
+          "enum": [
+            "verde",
+            "rojo",
+            "sin_evidencia"
+          ]
+        },
+        "valor": {
+          "type": "number"
+        },
         "umbral": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["operador", "valor", "segun", "porque"],
+          "required": [
+            "operador",
+            "valor",
+            "segun",
+            "porque"
+          ],
           "properties": {
-            "operador": {"type": "string"},
-            "valor": {"type": ["string", "number", "boolean"]},
-            "segun": {"type": "string"},
-            "porque": {"type": "string"}
+            "operador": {
+              "type": "string"
+            },
+            "valor": {
+              "type": [
+                "string",
+                "number",
+                "boolean"
+              ]
+            },
+            "segun": {
+              "type": "string"
+            },
+            "porque": {
+              "type": "string"
+            }
           }
         },
         "sombra": {
           "oneOf": [
-            {"type": "null"},
+            {
+              "type": "null"
+            },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["desde", "porque", "cota", "perdona"],
+              "required": [
+                "desde",
+                "porque",
+                "cota",
+                "perdona"
+              ],
               "properties": {
-                "desde": {"type": "string"},
-                "porque": {"type": "string"},
-                "cota": {"type": ["integer", "null"]},
-                "perdona": {"type": "boolean"}
+                "desde": {
+                  "type": "string"
+                },
+                "porque": {
+                  "type": "string"
+                },
+                "cota": {
+                  "type": [
+                    "integer",
+                    "null"
+                  ]
+                },
+                "perdona": {
+                  "type": "boolean"
+                }
               }
             }
           ]
         },
-        "testigos": {"type": "array", "items": {"type": "object"}, "maxItems": 5},
-        "testigos_omitidos": {"type": "integer", "minimum": 0},
-        "alcance": {"type": "string"},
-        "alcance_derivado": {"type": "array", "items": {"type": "string"}},
-        "advertencias": {"type": "array", "items": {"type": "string"}}
+        "testigos": {
+          "type": "array",
+          "items": {
+            "type": "object"
+          },
+          "maxItems": 5
+        },
+        "testigos_omitidos": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "alcance": {
+          "type": "string"
+        },
+        "alcance_derivado": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "advertencias": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   },
   {
     "name": "oracle_desafiar",
     "title": "Desafiar una medida con corpus y mutación",
-    "description": "Falsa en memoria una medida por id o texto. Combina, si se pide, sus casos del corpus y diferenciales del proyecto con casos efímeros, exige ambas polaridades y ejecuta mutación de medidas. Informa discordancias, mutantes sobrevivientes y rechazos del álgebra; nunca declara que la medida sea semánticamente correcta ni escribe evidencia.",
-    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "description": "Desafía por id o texto con corpus y diferenciales opcionales y casos efímeros. Exige ambas polaridades y muta; informa discordancias, sobrevivientes y rechazos. No demuestra corrección semántica.",
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
     "inputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["medida"],
+      "required": [
+        "medida"
+      ],
       "properties": {
         "medida": {
           "oneOf": [
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["id"],
-              "properties": {"id": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"}}
+              "required": [
+                "id"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+                }
+              }
             },
             {
               "type": "object",
               "additionalProperties": false,
-              "required": ["texto", "formato"],
+              "required": [
+                "texto",
+                "formato"
+              ],
               "properties": {
-                "texto": {"type": "string"},
-                "formato": {"enum": ["oracle", "json"]}
+                "texto": {
+                  "type": "string"
+                },
+                "formato": {
+                  "enum": [
+                    "oracle",
+                    "json"
+                  ]
+                }
               }
             }
           ]
@@ -273,11 +506,25 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "espera", "evidencia"],
+            "required": [
+              "id",
+              "espera",
+              "evidencia"
+            ],
             "properties": {
-              "id": {"type": "string", "minLength": 1},
-              "espera": {"enum": ["verde", "rojo"]},
-              "evidencia": {"$ref": "#/$defs/evidencia"}
+              "id": {
+                "type": "string",
+                "minLength": 1
+              },
+              "espera": {
+                "enum": [
+                  "verde",
+                  "rojo"
+                ]
+              },
+              "evidencia": {
+                "$ref": "#/$defs/evidencia"
+              }
             }
           }
         }
@@ -287,7 +534,9 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "type": "object",
           "additionalProperties": {
             "type": "array",
-            "items": {"type": "object"}
+            "items": {
+              "type": "object"
+            }
           }
         }
       }
@@ -295,26 +544,76 @@ poscondición que `detalle: true` implique que todos estén presentes.
     "outputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["esquema", "oracle_version", "proyecto", "entrada_sha256", "medida", "conclusion", "casos", "discordancias", "mutacion", "advertencias"],
+      "required": [
+        "esquema",
+        "oracle_version",
+        "proyecto",
+        "entrada_sha256",
+        "medida",
+        "conclusion",
+        "casos",
+        "discordancias",
+        "mutacion",
+        "advertencias"
+      ],
       "properties": {
-        "esquema": {"const": "oracle.mcp/desafio/v1"},
-        "oracle_version": {"type": "string"},
-        "proyecto": {"type": "string"},
-        "entrada_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "medida": {"type": "string"},
+        "esquema": {
+          "const": "oracle.mcp/desafio/v1"
+        },
+        "oracle_version": {
+          "type": "string"
+        },
+        "proyecto": {
+          "type": "string"
+        },
+        "entrada_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "medida": {
+          "type": "string"
+        },
         "conclusion": {
-          "enum": ["original_no_reproduce", "faltan_polaridades", "sin_mutantes", "sobrevivientes", "sin_sobrevivientes_con_rechazos", "todos_detectados_por_conducta"]
+          "enum": [
+            "original_no_reproduce",
+            "faltan_polaridades",
+            "sin_mutantes",
+            "sobrevivientes",
+            "sin_sobrevivientes_con_rechazos",
+            "todos_detectados_por_conducta"
+          ]
         },
         "casos": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["total", "del_proyecto", "efimeros", "esperan_verde", "esperan_rojo"],
+          "required": [
+            "total",
+            "del_proyecto",
+            "efimeros",
+            "esperan_verde",
+            "esperan_rojo"
+          ],
           "properties": {
-            "total": {"type": "integer", "minimum": 0},
-            "del_proyecto": {"type": "integer", "minimum": 0},
-            "efimeros": {"type": "integer", "minimum": 0},
-            "esperan_verde": {"type": "integer", "minimum": 0},
-            "esperan_rojo": {"type": "integer", "minimum": 0}
+            "total": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "del_proyecto": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "efimeros": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "esperan_verde": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "esperan_rojo": {
+              "type": "integer",
+              "minimum": 0
+            }
           }
         },
         "discordancias": {
@@ -322,57 +621,119 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["caso", "esperado", "obtenido"],
+            "required": [
+              "caso",
+              "esperado",
+              "obtenido"
+            ],
             "properties": {
-              "caso": {"type": "string"},
-              "esperado": {"enum": ["verde", "rojo"]},
-              "obtenido": {"enum": ["verde", "rojo", "sin_evidencia", "error"]}
+              "caso": {
+                "type": "string"
+              },
+              "esperado": {
+                "enum": [
+                  "verde",
+                  "rojo"
+                ]
+              },
+              "obtenido": {
+                "enum": [
+                  "verde",
+                  "rojo",
+                  "sin_evidencia",
+                  "error"
+                ]
+              }
             }
           }
         },
         "mutacion": {
           "type": "object",
           "additionalProperties": false,
-          "required": ["generados", "detectados_por_conducta", "rechazados_por_el_algebra", "no_detectados"],
+          "required": [
+            "generados",
+            "detectados_por_conducta",
+            "rechazados_por_el_algebra",
+            "no_detectados"
+          ],
           "properties": {
-            "generados": {"type": "integer", "minimum": 0},
-            "detectados_por_conducta": {"type": "integer", "minimum": 0},
-            "rechazados_por_el_algebra": {"type": "integer", "minimum": 0},
+            "generados": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "detectados_por_conducta": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "rechazados_por_el_algebra": {
+              "type": "integer",
+              "minimum": 0
+            },
             "no_detectados": {
               "type": "array",
               "items": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["id", "cambio", "estado"],
+                "required": [
+                  "id",
+                  "cambio",
+                  "estado"
+                ],
                 "properties": {
-                  "id": {"type": "string"},
-                  "cambio": {"type": "string"},
-                  "estado": {"enum": ["sobrevivio", "rechazado_por_el_algebra"]}
+                  "id": {
+                    "type": "string"
+                  },
+                  "cambio": {
+                    "type": "string"
+                  },
+                  "estado": {
+                    "enum": [
+                      "sobrevivio",
+                      "rechazado_por_el_algebra"
+                    ]
+                  }
                 }
               }
             }
           }
         },
-        "advertencias": {"type": "array", "items": {"type": "string"}}
+        "advertencias": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     }
   },
   {
     "name": "oracle_juzgar",
     "title": "Juzgar evidencia contra el catálogo efectivo",
-    "description": "Juzga una evidencia JSON contra las medidas que obligan al proyecto (o un subconjunto indicado en ids). Aplica el catálogo efectivo, las sombras y cotas declaradas en oracle.json y reporta medidas no aplicadas. Devuelve ok si el conjunto satisface las medidas evaluadas y las sombras dentro de su cota. No evalúa escalares no autorizadas ni escribe archivos.",
-    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "description": "Juzga evidencia contra el catálogo efectivo (ids selecciona un subconjunto). Informa no aplicadas, sombras y cotas. ok exige medidas satisfechas y sombras dentro de cota; no ejecuta escalares no autorizadas.",
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
     "inputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["evidencia"],
+      "required": [
+        "evidencia"
+      ],
       "properties": {
-        "evidencia": {"$ref": "#/$defs/evidencia"},
+        "evidencia": {
+          "$ref": "#/$defs/evidencia"
+        },
         "ids": {
           "type": "array",
           "minItems": 1,
           "uniqueItems": true,
-          "items": {"type": "string", "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"},
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+          },
           "description": "Ids efectivos a evaluar. Omitir para evaluar todas las aplicables del catálogo."
         }
       },
@@ -381,7 +742,9 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "type": "object",
           "additionalProperties": {
             "type": "array",
-            "items": {"type": "object"}
+            "items": {
+              "type": "object"
+            }
           }
         }
       }
@@ -401,11 +764,22 @@ poscondición que `detalle: true` implique que todos estén presentes.
         "advertencias"
       ],
       "properties": {
-        "esquema": {"const": "oracle.mcp/juzgar/v1"},
-        "oracle_version": {"type": "string"},
-        "proyecto": {"type": "string"},
-        "entrada_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
-        "ok": {"type": "boolean"},
+        "esquema": {
+          "const": "oracle.mcp/juzgar/v1"
+        },
+        "oracle_version": {
+          "type": "string"
+        },
+        "proyecto": {
+          "type": "string"
+        },
+        "entrada_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "ok": {
+          "type": "boolean"
+        },
         "medidas": {
           "type": "array",
           "items": {
@@ -422,43 +796,95 @@ poscondición que `detalle: true` implique que todos estén presentes.
               "alcance"
             ],
             "properties": {
-              "id": {"type": "string"},
-              "estado": {"enum": ["verde", "rojo", "sin_evidencia"]},
-              "valor": {"type": "number"},
+              "id": {
+                "type": "string"
+              },
+              "estado": {
+                "enum": [
+                  "verde",
+                  "rojo",
+                  "sin_evidencia"
+                ]
+              },
+              "valor": {
+                "type": "number"
+              },
               "umbral": {
                 "type": "object",
                 "additionalProperties": false,
-                "required": ["operador", "valor", "segun", "porque"],
+                "required": [
+                  "operador",
+                  "valor",
+                  "segun",
+                  "porque"
+                ],
                 "properties": {
-                  "operador": {"type": "string"},
-                  "valor": {"type": ["string", "number", "boolean"]},
-                  "segun": {"type": "string"},
-                  "porque": {"type": "string"}
+                  "operador": {
+                    "type": "string"
+                  },
+                  "valor": {
+                    "type": [
+                      "string",
+                      "number",
+                      "boolean"
+                    ]
+                  },
+                  "segun": {
+                    "type": "string"
+                  },
+                  "porque": {
+                    "type": "string"
+                  }
                 }
               },
               "sombra": {
                 "oneOf": [
-                  {"type": "null"},
+                  {
+                    "type": "null"
+                  },
                   {
                     "type": "object",
                     "additionalProperties": false,
-                    "required": ["desde", "porque", "cota", "perdona"],
+                    "required": [
+                      "desde",
+                      "porque",
+                      "cota",
+                      "perdona"
+                    ],
                     "properties": {
-                      "desde": {"type": "string"},
-                      "porque": {"type": "string"},
-                      "cota": {"type": ["integer", "null"]},
-                      "perdona": {"type": "boolean"}
+                      "desde": {
+                        "type": "string"
+                      },
+                      "porque": {
+                        "type": "string"
+                      },
+                      "cota": {
+                        "type": [
+                          "integer",
+                          "null"
+                        ]
+                      },
+                      "perdona": {
+                        "type": "boolean"
+                      }
                     }
                   }
                 ]
               },
               "testigos": {
                 "type": "array",
-                "items": {"type": "object"},
+                "items": {
+                  "type": "object"
+                },
                 "maxItems": 5
               },
-              "testigos_omitidos": {"type": "integer", "minimum": 0},
-              "alcance": {"type": "string"}
+              "testigos_omitidos": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "alcance": {
+                "type": "string"
+              }
             }
           }
         },
@@ -467,10 +893,20 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "faltan"],
+            "required": [
+              "id",
+              "faltan"
+            ],
             "properties": {
-              "id": {"type": "string"},
-              "faltan": {"type": "array", "items": {"type": "string"}}
+              "id": {
+                "type": "string"
+              },
+              "faltan": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
             }
           }
         },
@@ -479,16 +915,25 @@ poscondición que `detalle: true` implique que todos estén presentes.
           "items": {
             "type": "object",
             "additionalProperties": false,
-            "required": ["id", "motivo"],
+            "required": [
+              "id",
+              "motivo"
+            ],
             "properties": {
-              "id": {"type": "string"},
-              "motivo": {"type": "string"}
+              "id": {
+                "type": "string"
+              },
+              "motivo": {
+                "type": "string"
+              }
             }
           }
         },
         "advertencias": {
           "type": "array",
-          "items": {"type": "string"}
+          "items": {
+            "type": "string"
+          }
         }
       }
     }
@@ -496,19 +941,34 @@ poscondición que `detalle: true` implique que todos estén presentes.
   {
     "name": "oracle_tareas",
     "title": "Consultar el tracker de tareas del proyecto",
-    "description": "Consulta tareas y notas del tracker (tareas/) de sólo lectura: listar tareas abiertas o cerradas, ver el detalle de una tarea por id o prefijo, buscar texto en tareas y notas, o extraer evidencia relacional de hechos. Falla con TRACKER_AUSENTE si el proyecto no tiene tracker. No crea ni modifica tareas.",
-    "annotations": {"readOnlyHint": true, "destructiveHint": false, "idempotentHint": true, "openWorldHint": false},
+    "description": "Lee tareas/: listar sin cuerpos; ver por id o sufijo/prefijo con cuerpo completo; buscar texto o extraer hechos. Sin tracker: TRACKER_AUSENTE.",
+    "annotations": {
+      "readOnlyHint": true,
+      "destructiveHint": false,
+      "idempotentHint": true,
+      "openWorldHint": false
+    },
     "inputSchema": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["accion"],
+      "required": [
+        "accion"
+      ],
       "properties": {
         "accion": {
-          "enum": ["listar", "ver", "buscar", "hechos"],
+          "enum": [
+            "listar",
+            "ver",
+            "buscar",
+            "hechos"
+          ],
           "description": "Acción de consulta a ejecutar en el tracker."
         },
         "estado": {
-          "enum": ["ABIERTA", "CERRADA"],
+          "enum": [
+            "ABIERTA",
+            "CERRADA"
+          ],
           "description": "Filtro de estado para la acción listar."
         },
         "etiqueta": {
@@ -541,13 +1001,29 @@ poscondición que `detalle: true` implique que todos estén presentes.
         "resultado"
       ],
       "properties": {
-        "esquema": {"const": "oracle.mcp/tareas/v1"},
-        "oracle_version": {"type": "string"},
-        "proyecto": {"type": "string"},
-        "accion": {"enum": ["listar", "ver", "buscar", "hechos"]},
+        "esquema": {
+          "const": "oracle.mcp/tareas/v1"
+        },
+        "oracle_version": {
+          "type": "string"
+        },
+        "proyecto": {
+          "type": "string"
+        },
+        "accion": {
+          "enum": [
+            "listar",
+            "ver",
+            "buscar",
+            "hechos"
+          ]
+        },
         "resultado": {
-          "type": ["array", "object"],
-          "description": "Resultado de la acción: lista de tareas para listar, objeto de tarea para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos."
+          "type": [
+            "array",
+            "object"
+          ],
+          "description": "Resultado de la acción: lista de tareas sin cuerpo para listar, objeto de tarea con cuerpo completo para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos."
         }
       }
     }
@@ -712,10 +1188,10 @@ tracker en rojo, y el commit no se realiza por MCP.
 
 Acepta cuatro acciones mediante el parámetro obligatorio `accion`:
 
-- `listar`: enumera tareas. Admite filtro opcional por `estado` (`"ABIERTA"` o `"CERRADA"`, por
+- `listar`: enumera tareas sin `cuerpo`, conservando todos sus metadatos. Admite filtro opcional por `estado` (`"ABIERTA"` o `"CERRADA"`, por
   omisión abiertas) y por `etiqueta`.
 - `ver`: requiere `id` (identificador canónico o prefijo inequívoco). Devuelve el detalle de la
-  tarea o falla con `TAREA_NO_ENCONTRADA` o `ID_AMBIGUO`.
+  tarea con su `cuerpo` completo (incluidas las notas) o falla con `TAREA_NO_ENCONTRADA` o `ID_AMBIGUO`.
 - `buscar`: requiere `texto`. Busca de forma literal e insensible a mayúsculas en tareas y notas
   del tracker, devolviendo `coincidencias` y `omitidos`.
 - `hechos`: extrae los hechos relacionales del tracker (esquema de evidencia relacional para `oracle
@@ -726,7 +1202,8 @@ una lista o resultado vacío. Si el tracker contiene registros inválidos o syml
 falla con `TRACKER_INVALIDO`.
 
 La salida (esquema `oracle.mcp/tareas/v1`) incluye `esquema`, `oracle_version`, `proyecto`, `accion`
-y `resultado` (con la misma información serializada por el `--json` del verbo CLI equivalente).
+y `resultado` (con la información del `--json` del verbo CLI equivalente, salvo `listar`,
+que omite `cuerpo`; `ver` conserva el contenido completo).
 
 ## Rechazos y forma de los errores
 

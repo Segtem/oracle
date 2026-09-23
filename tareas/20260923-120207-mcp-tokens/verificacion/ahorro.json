@@ -1,0 +1,23 @@
+{
+  "regla": "Bytes UTF-8 de JSON compacto / 4; estimación, no tokens reales ni facturación. Captura original inmutable.",
+  "tools_list": {
+    "antes_bytes": 12376,
+    "despues_bytes": 11658,
+    "ahorro_bytes": 718,
+    "ahorro_estimado_bytes_div_4": 179.5
+  },
+  "listar_captura_fija": {
+    "antes_bytes": 39966,
+    "despues_bytes": 5234,
+    "ahorro_bytes": 34732,
+    "ahorro_estimado_bytes_div_4": 8683.0
+  },
+  "listar_tracker_actual": {
+    "antes_bytes": 51648,
+    "despues_bytes": 5234,
+    "ahorro_bytes": 46414,
+    "ahorro_estimado_bytes_div_4": 11603.5
+  },
+  "evaluar_desafiar_juzgar_catalogo": "Payloads idénticos salvo huella_proyecto del catálogo; se conservan alcance, testigos y metadatos.",
+  "transporte": "Se conservan ambas copias y outputSchema."
+}

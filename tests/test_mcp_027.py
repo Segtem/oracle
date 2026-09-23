@@ -100,6 +100,8 @@ class ContratoNormativoTests(unittest.TestCase):
 
     def test_tools_list_publica_las_cinco_con_el_contrato_normativo_entero(self) -> None:
         contrato = (mcp.RAIZ / "estudios" / "MCP-CONTRATO.md").read_text(encoding="utf-8")
+        from tools.mcp_contrato import regenerar
+        self.assertEqual(contrato, regenerar(contrato), "Regenerar el contrato MCP")
         bloque = re.search(
             r"<!-- herramientas-json:inicio -->\n```json\n(.*?)\n```\n"
             r"<!-- herramientas-json:fin -->",
@@ -413,6 +415,29 @@ class TareasMcpTests(unittest.TestCase):
             res_etiqueta = mcp.tareas_para_mcp(proy, {"accion": "listar", "etiqueta": "backend"})
             ids_etiqueta = [t["id"] for t in res_etiqueta["resultado"]]
             self.assertEqual(ids_etiqueta, ["20260901-100000-tarea-abierta"])
+
+    def test_listar_omite_solo_cuerpo_y_ver_conserva_detalle_y_notas(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            raiz = _inicializar_tracker(Path(td))
+            proy = mcp.Proyecto(raiz)
+            ruta = raiz / "tareas" / "20260901-100000-tarea-abierta" / "TAREA.md"
+            with ruta.open("a", encoding="utf-8") as archivo:
+                archivo.write("\n### Nota (2026-09-23)\n\nTestigo y alcance completos.\n")
+            for filtros in ({}, {"estado": "CERRADA"}, {"etiqueta": "backend"}):
+                with self.subTest(filtros=filtros):
+                    listado = mcp.tareas_para_mcp(proy, {"accion": "listar", **filtros})
+                    self.assertTrue(listado["resultado"])
+                    for resumen in listado["resultado"]:
+                        detalle = mcp.tareas_para_mcp(
+                            proy, {"accion": "ver", "id": resumen["id"]})["resultado"]
+                        self.assertNotIn("cuerpo", resumen)
+                        self.assertEqual(resumen, {k: v for k, v in detalle.items() if k != "cuerpo"})
+            detalle = mcp.tareas_para_mcp(proy, {"accion": "ver", "id": "tarea-abierta"})
+            self.assertIn("Detalle de la tarea de backend", detalle["resultado"]["cuerpo"])
+            self.assertIn("Testigo y alcance completos.", detalle["resultado"]["cuerpo"])
+            self.assertTrue(mcp.tareas_para_mcp(
+                proy, {"accion": "buscar", "texto": "Testigo y alcance completos."}
+            )["resultado"]["coincidencias"])
 
     def test_ver_tarea_existente_inexistente_y_ambigua(self) -> None:
         with tempfile.TemporaryDirectory() as td:

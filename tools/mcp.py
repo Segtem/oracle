@@ -47,12 +47,7 @@ NOMBRE_SERVIDOR = "oracle-mcp"
 HERRAMIENTA_CATALOGO = {
     "name": "oracle_catalogo_efectivo",
     "title": "Catálogo efectivo de Oracle",
-    "description": (
-        "Consulta las medidas que obligan al proyecto fijado al arrancar el servidor. Sin ids "
-        "devuelve un índice compacto; con ids devuelve el detalle de esas medidas. Usa "
-        "catalogo_efectivo: no confunde todo lo instalado con lo que tiene jurisdicción aquí. "
-        "No evalúa evidencia ni escribe archivos."
-    ),
+    "description": "Consulta medidas efectivas del proyecto fijado. Sin ids: índice; con ids: detalle. No evalúa evidencia.",
     "annotations": {
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -140,12 +135,7 @@ HERRAMIENTA_CATALOGO = {
 HERRAMIENTA_EVALUAR = {
     "name": "oracle_evaluar",
     "title": "Evaluar una medida en memoria",
-    "description": (
-        "Evalúa una medida efectiva por id o un texto de medida sin guardarlo contra una "
-        "evidencia JSON. Devuelve verde, rojo o sin_evidencia como estados distintos, además "
-        "del valor, umbral, testigos y alcance. Use esta herramienta para entender conducta "
-        "puntual; no prueba que la medida sea correcta."
-    ),
+    "description": "Evalúa una medida efectiva por id o texto sin guardar contra evidencia JSON. Distingue verde, rojo y sin_evidencia; incluye umbral, testigos y alcance. No demuestra corrección de la medida.",
     "annotations": {
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -249,12 +239,12 @@ HERRAMIENTA_EVALUAR = {
     },
 }
 
-# La declaración es la del contrato, palabra por palabra: `MCP-CONTRATO.md` es normativo y un
-# test compara los dos. Divergir acá sería anunciar una herramienta que nadie documentó.
+# HERRAMIENTAS es la fuente del bloque normativo de MCP-CONTRATO.md.
+# Regenerar con python3 -m tools.mcp_contrato; la suite verifica que esté actualizado.
 HERRAMIENTA_DESAFIAR = {
     "name": "oracle_desafiar",
     "title": "Desafiar una medida con corpus y mutación",
-    "description": "Falsa en memoria una medida por id o texto. Combina, si se pide, sus casos del corpus y diferenciales del proyecto con casos efímeros, exige ambas polaridades y ejecuta mutación de medidas. Informa discordancias, mutantes sobrevivientes y rechazos del álgebra; nunca declara que la medida sea semánticamente correcta ni escribe evidencia.",
+    "description": "Desafía por id o texto con corpus y diferenciales opcionales y casos efímeros. Exige ambas polaridades y muta; informa discordancias, sobrevivientes y rechazos. No demuestra corrección semántica.",
     "annotations": {
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -519,13 +509,7 @@ HERRAMIENTA_DESAFIAR = {
 HERRAMIENTA_JUZGAR = {
     "name": "oracle_juzgar",
     "title": "Juzgar evidencia contra el catálogo efectivo",
-    "description": (
-        "Juzga una evidencia JSON contra las medidas que obligan al proyecto (o un subconjunto "
-        "indicado en ids). Aplica el catálogo efectivo, las sombras y cotas declaradas en "
-        "oracle.json y reporta medidas no aplicadas. Devuelve ok si el conjunto satisface las "
-        "medidas evaluadas y las sombras dentro de su cota. No evalúa escalares no autorizadas "
-        "ni escribe archivos."
-    ),
+    "description": "Juzga evidencia contra el catálogo efectivo (ids selecciona un subconjunto). Informa no aplicadas, sombras y cotas. ok exige medidas satisfechas y sombras dentro de cota; no ejecuta escalares no autorizadas.",
     "annotations": {
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -676,12 +660,7 @@ HERRAMIENTA_JUZGAR = {
 HERRAMIENTA_TAREAS = {
     "name": "oracle_tareas",
     "title": "Consultar el tracker de tareas del proyecto",
-    "description": (
-        "Consulta tareas y notas del tracker (tareas/) de sólo lectura: listar tareas abiertas "
-        "o cerradas, ver el detalle de una tarea por id o prefijo, buscar texto en tareas y "
-        "notas, o extraer evidencia relacional de hechos. Falla con TRACKER_AUSENTE si el "
-        "proyecto no tiene tracker. No crea ni modifica tareas."
-    ),
+    "description": "Lee tareas/: listar sin cuerpos; ver por id o sufijo/prefijo con cuerpo completo; buscar texto o extraer hechos. Sin tracker: TRACKER_AUSENTE.",
     "annotations": {
         "readOnlyHint": True,
         "destructiveHint": False,
@@ -737,7 +716,7 @@ HERRAMIENTA_TAREAS = {
             "accion": {"enum": ["listar", "ver", "buscar", "hechos"]},
             "resultado": {
                 "type": ["array", "object"],
-                "description": "Resultado de la acción: lista de tareas para listar, objeto de tarea para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos.",
+                "description": "Resultado de la acción: lista de tareas sin cuerpo para listar, objeto de tarea con cuerpo completo para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos.",
             },
         },
     },
@@ -1902,7 +1881,10 @@ def tareas_para_mcp(proy: Proyecto, argumentos) -> dict:
             invertir=False,
             todas=False,
         )
-        resultado = [t.a_dict() for t in filtradas]
+        resultado = [
+            {k: v for k, v in t.a_dict().items() if k != "cuerpo"}
+            for t in filtradas
+        ]
     elif accion == "ver":
         ident = validos["id"].strip()
         try:
