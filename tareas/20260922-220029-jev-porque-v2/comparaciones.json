@@ -1,0 +1,252 @@
+[
+  {
+    "id": "v005",
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "control": false,
+    "claude": false,
+    "p_si": 0.26,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v010",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "control": true,
+    "claude": false,
+    "p_si": 0.04,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v015",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "control": true,
+    "claude": false,
+    "p_si": 0.02,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v017",
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "control": false,
+    "claude": false,
+    "p_si": 0.27,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v019",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "control": true,
+    "claude": false,
+    "p_si": 0.04,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v021",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "control": true,
+    "claude": false,
+    "p_si": 0.04,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v024",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "control": false,
+    "claude": true,
+    "p_si": 0.55,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v026",
+    "medida": "proceso.verificacion_vigente",
+    "control": true,
+    "claude": false,
+    "p_si": 0.02,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v029",
+    "medida": "meta.una_macro_equivale_a_su_expansion",
+    "control": false,
+    "claude": true,
+    "p_si": 0.5,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v030",
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "control": false,
+    "claude": false,
+    "p_si": 0.2,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v033",
+    "medida": "meta.donde_compone",
+    "control": false,
+    "claude": true,
+    "p_si": 0.5,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v034",
+    "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+    "control": false,
+    "claude": true,
+    "p_si": 0.56,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v040",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "control": true,
+    "claude": false,
+    "p_si": 0.03,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v044",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "control": false,
+    "claude": false,
+    "p_si": 0.26,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v046",
+    "medida": "meta.toda_medida_declara_su_ambito",
+    "control": false,
+    "claude": true,
+    "p_si": 0.59,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v051",
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "control": true,
+    "claude": false,
+    "p_si": 0.03,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v052",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "control": false,
+    "claude": true,
+    "p_si": 0.51,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v053",
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "control": false,
+    "claude": false,
+    "p_si": 0.09,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v055",
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "control": false,
+    "claude": false,
+    "p_si": 0.2,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v056",
+    "medida": "proceso.verificacion_vigente",
+    "control": false,
+    "claude": false,
+    "p_si": 0.33,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v058",
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "control": false,
+    "claude": false,
+    "p_si": 0.14,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v064",
+    "medida": "meta.todo_umbral_declara_de_donde_sale",
+    "control": true,
+    "claude": false,
+    "p_si": 0.04,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v065",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "control": false,
+    "claude": true,
+    "p_si": 0.68,
+    "jev": true,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v068",
+    "medida": "meta.ninguna_sombra_supera_su_cota",
+    "control": true,
+    "claude": false,
+    "p_si": 0.04,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  },
+  {
+    "id": "v072",
+    "medida": "meta.agrupar_no_agranda_la_relacion",
+    "control": true,
+    "claude": false,
+    "p_si": 0.04,
+    "jev": false,
+    "acuerdo": true,
+    "porque_vecino": null
+  }
+]

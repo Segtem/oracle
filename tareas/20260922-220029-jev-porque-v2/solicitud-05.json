@@ -1,0 +1,630 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": {
+    "description": "# Criterio fijado para la segunda corrida\n\nFecha: 2026-09-22. Fijado antes del nuevo juicio de Claude y de cualquier llamada a Jev.\nSe evalúa lo que dice `porque` en relación con la tubería, el resumen y el umbral.\nNo se completa la defensa con conocimientos externos ni con la etiqueta `segun`.\nLa pregunta evalúa si hay una justificación textual, no si su afirmación es verdadera.\n\n## P1 — origen del valor (`porque_origen`)\n\n¿La defensa permite derivar el valor del umbral, mediante una regla explícita,\nuna fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?\n\nSí: vincula lo que se cuenta o resume con el límite. Para un conteo de infracciones\ncon umbral cero, una exigencia explícita de universalidad o de ninguna excepción\njustifica cero aunque no escriba el numeral. No basta describir un perjuicio.\nNo: sólo expresa importancia, conveniencia, un perjuicio o una decisión circular.\n`segun: contrato` por sí solo no convierte una defensa en sí.\n\nEjemplos sí (inventados, ajenos al lote):\n\n- Conteo de entregas sin firma, <= 0: «Todas las entregas deben estar firmadas;\n  ninguna entrega sin firma es admisible». La regla universal deriva cero.\n- Máximo de días de retención, <= 30: «El contrato fija un máximo de 30 días de\n  retención». Identifica una fuente del valor, aunque no explique su elección.\n\nEjemplos no:\n\n- Conteo de entregas sin firma, <= 0: «Las firmas ayudan a resolver disputas».\n  Explica importancia, no cuántas ausencias se permiten.\n- Máximo de días de retención, <= 30: «Treinta días es lo razonable».\n  Repite el valor sin fuente, regla ni cálculo.\n\n## P2 — elección entre valores vecinos (`porque_vecino`)\n\nPara este umbral distinto de cero, ¿la defensa explica por qué se eligió ese\nvalor y no uno vecino, mediante una restricción o un criterio de elección?\n\nSólo se pregunta si el límite numérico es distinto de cero. Para cero se registra\n`no_aplica`; no se convierte en no ni se envía como pregunta binaria al modelo.\nSí: aporta un criterio que distingue ese corte de otro cercano; no necesita\nnombrar literalmente los dos vecinos. No: sólo repite un valor o una autoridad,\no justifica la importancia de tener algún límite.\n\nEjemplos sí:\n\n- Máximo de días de retención, <= 30: «Las reclamaciones se reciben hasta el día\n  30 inclusive: borrar antes pierde respaldo y conservar después no tiene uso\n  permitido; elegimos el último día necesario».\n- Conteo de conexiones simultáneas, <= 8: «Cada conexión reserva 1 GiB y hay\n  8 GiB disponibles; nueve exceden memoria y siete desperdician una plaza».\n\nEjemplos no:\n\n- Máximo de días de retención, <= 30: «El contrato fija 30 días».\n  Da procedencia (P1 sí), pero no el criterio que eligió ese valor (P2 no).\n- Conteo de conexiones simultáneas, <= 8: «Hay que evitar la saturación».\n  No distingue ocho de siete ni de nueve.\n\n## Contexto y registro\n\nLa tubería canónica `desde` define la fuente y los pasos de selección; `resumen`\ndefine el agregado que se compara con `umbral`. `campo` accede a una columna,\n`lit` a un literal. Leer esas formas junto con la prosa, sin ejecutar ni corregirla.\nCada respuesta de Claude llevará sí/no (booleano), una justificación breve y una\ncita de `porque` (puede ser vacía si falta defensa). En P2 no aplicable, usar null.\nNo deducir una respuesta de otra: P1 sí no obliga a P2 sí.\n\nLas preguntas de alcance no se repiten: esta segunda prueba aísla las dos preguntas\nnuevas de `porque`. Los controles conservan ambos textos degradados de la primera\ncorrida, aunque ahora sólo se juzga `porque`.\n",
+    "records": [
+      {
+        "id": "v049",
+        "alcance": "cuenta importadores que no son tests, agrupando por módulo. Si `importa` viene vacía la medida NO concluye —lo declara en `requiere`, y sale SIN EVIDENCIA en vez de verde—. NO distingue un importador que usa el módulo de uno que lo importa y no lo llama",
+        "porque": "un módulo entero, con tests en verde y sin un solo importador REAL, está verde y no está en uso. Un test no es un consumidor: prueba que el módulo funciona, no que alguien lo necesite",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "unir",
+            [
+              "de",
+              "modulo",
+              "m"
+            ],
+            [
+              "de",
+              "importa",
+              "i"
+            ]
+          ],
+          [
+            "agrupar",
+            [
+              [
+                "modulo",
+                [
+                  "campo",
+                  "m",
+                  "nombre"
+                ]
+              ]
+            ],
+            [
+              [
+                "importadores_reales",
+                "suma",
+                [
+                  "y",
+                  [
+                    "==",
+                    [
+                      "campo",
+                      "i",
+                      "b"
+                    ],
+                    [
+                      "campo",
+                      "m",
+                      "nombre"
+                    ]
+                  ],
+                  [
+                    "==",
+                    [
+                      "campo",
+                      "i",
+                      "es_test"
+                    ],
+                    false
+                  ]
+                ]
+              ]
+            ]
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "col",
+                "importadores_reales"
+              ],
+              0
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v050",
+        "alcance": "ve si los dos campos están declarados. NO juzga si el motivo es bueno ni si la fecha es cierta, ni ve las medidas que deberían estar en sombra y no se pusieron",
+        "porque": "una sombra sin fecha no se puede envejecer y una sin motivo no se puede discutir: sin las dos, apagar un rojo sale gratis y deja de ser una decisión para pasar a ser una comodidad",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "sombra",
+            "s"
+          ],
+          [
+            "donde",
+            [
+              "o",
+              [
+                "==",
+                [
+                  "campo",
+                  "s",
+                  "declara_desde"
+                ],
+                false
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "s",
+                  "declara_porque"
+                ],
+                false
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v051",
+        "alcance": "No cubre el resto.",
+        "porque": "Porque se decidió así.",
+        "umbral": "<= 0",
+        "segun": "convencion",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "evento",
+            "e"
+          ],
+          [
+            "agrupar",
+            [
+              [
+                "corrida",
+                [
+                  "campo",
+                  "e",
+                  "corrida"
+                ]
+              ]
+            ],
+            [
+              [
+                "registrados",
+                "contar",
+                1
+              ],
+              [
+                "ultimo",
+                "max",
+                [
+                  "campo",
+                  "e",
+                  "t"
+                ]
+              ]
+            ]
+          ],
+          [
+            "donde",
+            [
+              "!=",
+              [
+                "col",
+                "registrados"
+              ],
+              [
+                "mas",
+                [
+                  "col",
+                  "ultimo"
+                ],
+                1
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v052",
+        "alcance": "ve si la etiqueta `segun` quedó en `sin_declarar`. NO juzga si la etiqueta elegida es verdadera ni si el número está bien defendido",
+        "porque": "todo umbral tiene que declarar de dónde salió su número: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas, no una etiqueta aceptable",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "medida",
+            "m"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "m",
+                "segun"
+              ],
+              "sin_declarar"
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v053",
+        "alcance": "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos",
+        "porque": "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "hallazgo",
+            "h"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "h",
+                "era_real"
+              ],
+              false
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v054",
+        "alcance": "mira sólo casos propios (`es_heredado == false`) y ve que cada caso marcado explícitamente como hueco abierto tenga una explicación; los huecos de una biblioteca responden ante su certificación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción",
+        "porque": "un caso sin medida y sin explicación es un caso que alguien va a borrar por prolijidad, y con él se va la memoria de lo que el marco todavía no puede medir",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "caso",
+            "c"
+          ],
+          [
+            "donde",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "es_heredado"
+                ],
+                false
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "tiene_medida"
+                ],
+                false
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "es_hueco_abierto"
+                ],
+                true
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "explica_el_hueco"
+                ],
+                false
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v055",
+        "alcance": "mira todos los casos, propios y heredados, y ve el id que cada caso RECLAMA: un caso de biblioteca colgado puede señalar una selección incompleta del proyecto. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2",
+        "porque": "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "caso",
+            "c"
+          ],
+          [
+            "donde",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "tiene_medida"
+                ],
+                true
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "medida_existe"
+                ],
+                false
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v056",
+        "alcance": "cuenta cambios marcados como código vivo. En v0.1 NO compara fechas ni sabe cuál verificación quedó vieja: cualquier cambio vivo la invalida. Hace falta comparar contra el commit de la verificación. Si cambio viene vacía significa que no hubo cambios recientes, por lo que la verificación sigue vigente",
+        "porque": "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "cambio",
+            "c"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "c",
+                "es_codigo_vivo"
+              ],
+              true
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v057",
+        "alcance": "comprueba que el NOMBRE aparezca en la referencia del propio Oracle. NO juzga si lo que dice de ella es correcto, si está actualizado ni si alcanza para usarla. En un proyecto consumidor la relación viene VACÍA y la medida sale SIN EVIDENCIA en vez de roja: documentar el lenguaje es responsabilidad de quien lo publica, no de quien lo usa",
+        "porque": "una relación que el lenguaje emite y la referencia no nombra es una superficie pública que nadie puede aprender a usar salvo leyendo el código; el límite es cero porque cada relación es una que alguien va a necesitar y no va a encontrar",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "relacion_documentada",
+            "r"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "r",
+                "nombrada_en_la_referencia"
+              ],
+              false
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v058",
+        "alcance": "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto",
+        "porque": "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "archivo",
+            "a"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "a",
+                "sintaxis_valida"
+              ],
+              false
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v059",
+        "alcance": "mira sólo el operador final del umbral de cada medida. NO ve igualdades dentro de filtros o agregados, ni decide si `!=` es una política válida para un dominio concreto. Si medida viene vacía significa que no hay medidas en el catálogo que ofendan la regla y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción",
+        "porque": "un umbral `==` no tiene borde útil para la mutación: un caso pegado al límite no puede distinguir entre una igualdad exacta bien elegida y una tolerancia que faltó escribir como comparación de orden",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "medida",
+            "m"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "m",
+                "comparador"
+              ],
+              "=="
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v060",
+        "alcance": "compara las dos formas para los cinco agregados, sobre una sonda construida. NO compara testigos —difieren por diseño— ni cubre `agrupar` CON claves, donde la equivalencia no aplica porque hay más de un grupo. Si equivalencia viene vacía no hay desacuerdos observados y verde es correcto; además metamorficas.py construye las sondas por construcción",
+        "porque": "sin claves hay un solo grupo, así que agregar por grupo y agregar sobre todo tienen que dar el mismo número. Si no coinciden, `agrupar` pierde o inventa filas al colapsar, y todo agregado calculado sobre un grupo así es un número sin evidencia detrás. NO se exigen los mismos testigos, y no es una concesión: un grupo no es un hecho, los hechos se consumieron al agruparse, así que las dos formas señalan cosas distintas a propósito",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "equivalencia",
+            "e"
+          ],
+          [
+            "donde",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "e",
+                  "propiedad"
+                ],
+                "agrupar_sin_claves_es_el_resumen_global"
+              ],
+              [
+                "o",
+                [
+                  "==",
+                  [
+                    "campo",
+                    "e",
+                    "mismo_veredicto"
+                  ],
+                  false
+                ],
+                [
+                  "==",
+                  [
+                    "campo",
+                    "e",
+                    "mismo_valor"
+                  ],
+                  false
+                ]
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      }
+    ]
+  },
+  "questions": {
+    "v049__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v049: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v050__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v050: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v051__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v051: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v052__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v052: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v053__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v053: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v054__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v054: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v055__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v055: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v056__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v056: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v057__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v057: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v058__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v058: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v059__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v059: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v060__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v060: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    }
+  }
+}

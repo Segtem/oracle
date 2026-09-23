@@ -1,0 +1,19 @@
+{
+  "fecha_registro_utc": "2026-09-23T00:06:50.092140+00:00",
+  "sha256": "afb4f78d0bd0a21eb18ce75aed00c2aa735599e68125e9e31456974e4c1cb574",
+  "entradas": 25,
+  "si": 7,
+  "version_claude": "No consignada en el archivo recibido",
+  "fecha_juicio": "No consignada en el archivo recibido",
+  "procedencia": "Usuario confirma sesión limpia de Claude que sólo vio CRITERIO.md, INSTRUCCIONES.md y registros.json; nota de tarea documenta delegación el 2026-09-23 UTC.",
+  "exposicion_operador": "Leyó el juicio v2 para validarlo antes de llamar; no se envía al modelo ni altera el criterio.",
+  "hashes_insumos": {
+    "lote.json": "e019ade2f4bb95867a25b367de59b429b8fc02c8466053c535c359057241c550",
+    "clave-operador.json": "855b06be71aed1198dd109852873fae94347b6f655401515a4df762e5d30bcc9",
+    "ciego/registros.json": "a91fe2e555d724c127cdc4bdae8f4f561364c34976317aaf9330db37bcc718cd",
+    "ciego/plantilla.json": "000f55e2895812cde50a161c8d7f9621ae46e9607d478ac234917efd3a61a83e",
+    "CRITERIO.md": "419ad157a19432277891ece1d0e3f18632fe885b2a4a009cf7718af40bcd3f33",
+    "ciego/INSTRUCCIONES.md": "a0126e860277c93e00ef34db8b603187e3daccd5aac7d915f4bab73ad4c9d303",
+    "protocolo.json": "d1514ee2e6ac367bb27eff017a916ae9c3f65fb0997d6a8307680f6ad516de9b"
+  }
+}

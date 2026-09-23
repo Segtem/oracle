@@ -1,0 +1,56 @@
+[
+  {
+    "corrida": 1,
+    "fecha": "2026-09-23T00:06:50.092397+00:00",
+    "http": 200,
+    "latencia_segundos": 1.2090587409911677,
+    "costo_usd": 0.00025158,
+    "preguntas": 13,
+    "sha256_respuesta": "d9008cc1a1127ea231e13970bed0afb27bf22d1611de8be30b22284d9b0a3c86"
+  },
+  {
+    "corrida": 2,
+    "fecha": "2026-09-23T00:06:51.301817+00:00",
+    "http": 200,
+    "latencia_segundos": 1.4437225820001913,
+    "costo_usd": 0.000227724,
+    "preguntas": 12,
+    "sha256_respuesta": "45ef71745744e3d4bd8a4d8ad3029261132a2b2d260873fc440ec10fd56f0b34"
+  },
+  {
+    "corrida": 3,
+    "fecha": "2026-09-23T00:06:52.745935+00:00",
+    "http": 200,
+    "latencia_segundos": 1.3907216299994616,
+    "costo_usd": 0.000252168,
+    "preguntas": 12,
+    "sha256_respuesta": "9834030bac16a65d814d2c469ccfbc0f2b6b3b60ddc229f791de4883b87a2f4d"
+  },
+  {
+    "corrida": 4,
+    "fecha": "2026-09-23T00:06:54.136972+00:00",
+    "http": 200,
+    "latencia_segundos": 0.773565815994516,
+    "costo_usd": 0.000228228,
+    "preguntas": 12,
+    "sha256_respuesta": "de98cbfdad707c3ebd422d4f838f9696335630c8e9ddaab40dece9d0272bd894"
+  },
+  {
+    "corrida": 5,
+    "fecha": "2026-09-23T00:06:54.910847+00:00",
+    "http": 200,
+    "latencia_segundos": 1.4432093700015685,
+    "costo_usd": 0.000226674,
+    "preguntas": 12,
+    "sha256_respuesta": "0e49f92a8347426936e4307a728a3850904b22b0a9fbdef8712a6d7e96552ca5"
+  },
+  {
+    "corrida": 6,
+    "fecha": "2026-09-23T00:06:56.354399+00:00",
+    "http": 200,
+    "latencia_segundos": 1.2425954789941898,
+    "costo_usd": 0.000257292,
+    "preguntas": 12,
+    "sha256_respuesta": "eb2a8767dd0acddf52e35a300dc1ff68d91a5c975f6ee628b15f5495c05ae5ea"
+  }
+]

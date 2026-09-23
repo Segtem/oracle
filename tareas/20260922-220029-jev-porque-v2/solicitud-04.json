@@ -1,0 +1,614 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": {
+    "description": "# Criterio fijado para la segunda corrida\n\nFecha: 2026-09-22. Fijado antes del nuevo juicio de Claude y de cualquier llamada a Jev.\nSe evalúa lo que dice `porque` en relación con la tubería, el resumen y el umbral.\nNo se completa la defensa con conocimientos externos ni con la etiqueta `segun`.\nLa pregunta evalúa si hay una justificación textual, no si su afirmación es verdadera.\n\n## P1 — origen del valor (`porque_origen`)\n\n¿La defensa permite derivar el valor del umbral, mediante una regla explícita,\nuna fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?\n\nSí: vincula lo que se cuenta o resume con el límite. Para un conteo de infracciones\ncon umbral cero, una exigencia explícita de universalidad o de ninguna excepción\njustifica cero aunque no escriba el numeral. No basta describir un perjuicio.\nNo: sólo expresa importancia, conveniencia, un perjuicio o una decisión circular.\n`segun: contrato` por sí solo no convierte una defensa en sí.\n\nEjemplos sí (inventados, ajenos al lote):\n\n- Conteo de entregas sin firma, <= 0: «Todas las entregas deben estar firmadas;\n  ninguna entrega sin firma es admisible». La regla universal deriva cero.\n- Máximo de días de retención, <= 30: «El contrato fija un máximo de 30 días de\n  retención». Identifica una fuente del valor, aunque no explique su elección.\n\nEjemplos no:\n\n- Conteo de entregas sin firma, <= 0: «Las firmas ayudan a resolver disputas».\n  Explica importancia, no cuántas ausencias se permiten.\n- Máximo de días de retención, <= 30: «Treinta días es lo razonable».\n  Repite el valor sin fuente, regla ni cálculo.\n\n## P2 — elección entre valores vecinos (`porque_vecino`)\n\nPara este umbral distinto de cero, ¿la defensa explica por qué se eligió ese\nvalor y no uno vecino, mediante una restricción o un criterio de elección?\n\nSólo se pregunta si el límite numérico es distinto de cero. Para cero se registra\n`no_aplica`; no se convierte en no ni se envía como pregunta binaria al modelo.\nSí: aporta un criterio que distingue ese corte de otro cercano; no necesita\nnombrar literalmente los dos vecinos. No: sólo repite un valor o una autoridad,\no justifica la importancia de tener algún límite.\n\nEjemplos sí:\n\n- Máximo de días de retención, <= 30: «Las reclamaciones se reciben hasta el día\n  30 inclusive: borrar antes pierde respaldo y conservar después no tiene uso\n  permitido; elegimos el último día necesario».\n- Conteo de conexiones simultáneas, <= 8: «Cada conexión reserva 1 GiB y hay\n  8 GiB disponibles; nueve exceden memoria y siete desperdician una plaza».\n\nEjemplos no:\n\n- Máximo de días de retención, <= 30: «El contrato fija 30 días».\n  Da procedencia (P1 sí), pero no el criterio que eligió ese valor (P2 no).\n- Conteo de conexiones simultáneas, <= 8: «Hay que evitar la saturación».\n  No distingue ocho de siete ni de nueve.\n\n## Contexto y registro\n\nLa tubería canónica `desde` define la fuente y los pasos de selección; `resumen`\ndefine el agregado que se compara con `umbral`. `campo` accede a una columna,\n`lit` a un literal. Leer esas formas junto con la prosa, sin ejecutar ni corregirla.\nCada respuesta de Claude llevará sí/no (booleano), una justificación breve y una\ncita de `porque` (puede ser vacía si falta defensa). En P2 no aplicable, usar null.\nNo deducir una respuesta de otra: P1 sí no obliga a P2 sí.\n\nLas preguntas de alcance no se repiten: esta segunda prueba aísla las dos preguntas\nnuevas de `porque`. Los controles conservan ambos textos degradados de la primera\ncorrida, aunque ahora sólo se juzga `porque`.\n",
+    "records": [
+      {
+        "id": "v037",
+        "alcance": "ve la clasificación producida por el contrato de terminación. NO ve si el presupuesto era razonable, ni si una corrida que terminó a tiempo lo hizo por el motivo correcto. Si corrida viene vacía la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+        "porque": "una corrida que se quedó sin pasos no observó el sistema: observó el presupuesto. Cualquier conclusión que salga de ahí habla de la paciencia del que simuló, no de lo simulado",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "corrida",
+            "c"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "c",
+                "presupuesto_agotado"
+              ],
+              true
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v038",
+        "alcance": "ve los estados estructurados publicados por cada corrida. Una ronda parcial marcada con parcial == true se considera inconclusa para propósitos de verificación formal del catálogo. NO distingue por sí sola si un código no cero fue una aserción o un error: eso depende del protocolo explícito del runner. Si corrida_mutacion viene vacía significa que no hubo rondas de mutación inconclusas y verde es correcto",
+        "porque": "sin mutantes no hay material; una ronda parcial, un timeout, un error del arnés o una línea base roja dejan la mutación inconclusa: ninguno demuestra que los tests fijen el módulo completo",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "corrida_mutacion",
+            "c"
+          ],
+          [
+            "donde",
+            [
+              "o",
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "parcial"
+                ],
+                true
+              ],
+              [
+                "<=",
+                [
+                  "campo",
+                  "c",
+                  "mutantes"
+                ],
+                0
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "baseline_verde"
+                ],
+                false
+              ],
+              [
+                ">",
+                [
+                  "campo",
+                  "c",
+                  "errores_arnes"
+                ],
+                0
+              ],
+              [
+                ">",
+                [
+                  "campo",
+                  "c",
+                  "timeouts"
+                ],
+                0
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v039",
+        "alcance": "ve si los campos leídos por las medidas están declarados en relaciones conocidas. NO ve relaciones sin declarar, ni si la variante leída es la que la medida filtra",
+        "porque": "una medida que lee un campo inexistente de una relación conocida falla al evaluar cuando la evidencia no lo trae",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "campo_leido",
+            "c"
+          ],
+          [
+            "donde",
+            [
+              "y",
+              [
+                "!=",
+                [
+                  "campo",
+                  "c",
+                  "origen"
+                ],
+                "sin_declarar"
+              ],
+              [
+                "==",
+                [
+                  "campo",
+                  "c",
+                  "existe"
+                ],
+                false
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v040",
+        "alcance": "No cubre el resto.",
+        "porque": "Porque se decidió así.",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "archivo",
+            "a"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "a",
+                "sintaxis_valida"
+              ],
+              false
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v041",
+        "alcance": "cuenta palabras, no las lee: NO juzga si la explicación es correcta ni si distingue de verdad. Y NO ve un vocabulario cerrado que no esté en el registro del manual — para eso está `meta.todo_vocabulario_cerrado_esta_en_el_manual`",
+        "porque": "un vocabulario cerrado es la parte del lenguaje que más se equivoca quien recién llega, porque los cinco nombres se parecen entre sí; una opción explicada en cinco palabras o menos no distingue de las otras cuatro, que es lo único que el lector necesita. El límite es cero: no hay opción que valga la pena tener y no valga la pena explicar",
+        "umbral": "<= 0",
+        "segun": "convencion",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "opcion_del_vocabulario",
+            "o"
+          ],
+          [
+            "donde",
+            [
+              "<=",
+              [
+                "campo",
+                "o",
+                "palabras_del_sentido"
+              ],
+              5
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v042",
+        "alcance": "compara el conteo antes y después de cada `donde` sobre las evaluaciones que se trazaron. NO ve si las filas que quedaron son las correctas —sólo cuántas—, ni cubre una evaluación que no se corrió bajo traza. Si paso viene vacía no hay filtros que agranden la relación y verde es correcto; además trazar.py garantiza pasos trazados por construcción",
+        "porque": "un filtro que agrega filas no es un filtro, y los testigos que publica no son los que sobrevivieron: el informe estaría nombrando filas que la medida nunca vio ofender",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "paso",
+            "p"
+          ],
+          [
+            "donde",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "p",
+                  "operador"
+                ],
+                "donde"
+              ],
+              [
+                ">",
+                [
+                  "campo",
+                  "p",
+                  "filas_despues"
+                ],
+                [
+                  "campo",
+                  "p",
+                  "filas_antes"
+                ]
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v043",
+        "alcance": "compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir. Si medida viene vacía no hay medidas que confundan nivel con dominio y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción",
+        "porque": "el dominio dice QUÉ se mide y el nivel dice SOBRE QUÉ; mezclarlos hace que una medida del mundo se archive como si fuera del lenguaje, y ahí deja de encontrarla quien la busca",
+        "umbral": "<= 0",
+        "segun": "convencion",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "medida",
+            "m"
+          ],
+          [
+            "donde",
+            [
+              "!=",
+              [
+                "campo",
+                "m",
+                "es_meta_por_el_nombre"
+              ],
+              [
+                "campo",
+                "m",
+                "es_meta_por_lo_que_mide"
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v044",
+        "alcance": "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+        "porque": "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó",
+        "umbral": "<= 0",
+        "segun": "convencion",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "evento",
+            "e"
+          ],
+          [
+            "agrupar",
+            [
+              [
+                "corrida",
+                [
+                  "campo",
+                  "e",
+                  "corrida"
+                ]
+              ]
+            ],
+            [
+              [
+                "registrados",
+                "contar",
+                1
+              ],
+              [
+                "ultimo",
+                "max",
+                [
+                  "campo",
+                  "e",
+                  "t"
+                ]
+              ]
+            ]
+          ],
+          [
+            "donde",
+            [
+              "!=",
+              [
+                "col",
+                "registrados"
+              ],
+              [
+                "mas",
+                [
+                  "col",
+                  "ultimo"
+                ],
+                1
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v045",
+        "alcance": "ve si el `alcance` está VACÍO. NO impone una fórmula textual ni un idioma, y NO juzga si el punto ciego declarado es el correcto o el completo",
+        "porque": "un verde que no declara qué NO miró se lee como «está bien»: el informe termina enumerando los puntos ciegos de cada medida, y sin `alcance` esa enumeración queda muda justo donde más importa",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "medida",
+            "m"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "m",
+                "alcance"
+              ],
+              ""
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v046",
+        "alcance": "ve que el campo `ambito` esté declarado y no en `sin_declarar`. NO juzga si el ámbito declarado es el correcto: esa segunda pregunta no la contesta ninguna medida",
+        "porque": "toda medida tiene que declarar dónde obliga: `sin_declarar` es la ausencia visible que dejan las formas viejas o incompletas durante la migración, no una declaración aceptable",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "medida",
+            "m"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "m",
+                "ambito"
+              ],
+              "sin_declarar"
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v047",
+        "alcance": "mira el registro `VOCABULARIOS` de `tools/manual.py`, no la salida del comando: NO ve si la sección se imprime rota. Y NO puede ver un vocabulario cerrado que no esté ni en el manual ni en el registro de hechos: eso lo atrapa el test que enumera los módulos del núcleo",
+        "porque": "el manual no es un documento aparte sino una vista de estas mismas declaraciones, y por eso no puede quedar viejo — salvo de una manera: que aparezca un vocabulario nuevo y nadie lo agregue al registro. Ésa es la única grieta, y es exactamente lo que mide esta medida",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "opcion_del_vocabulario",
+            "o"
+          ],
+          [
+            "donde",
+            [
+              "==",
+              [
+                "campo",
+                "o",
+                "en_el_manual"
+              ],
+              false
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      },
+      {
+        "id": "v048",
+        "alcance": "comprueba medidas sintéticas generadas exhaustivamente sobre combinaciones de la gramática del álgebra (fuentes de y unir encadenados hasta 3 niveles, donde con 6 comparadores, accesores campo/hecho/col, literales true/false/null/números/textos, expresiones lógicas y/o/no anidadas, agrupar con 0 a 2 claves y 0 a 2 agregados, 5 agregados de resumen, 0 a 2 relaciones en requiere y umbrales escalares). NO cubre árboles de unir no lineales o con ramas derechas no atómicas, expresiones de profundidad mayor a 5 ni UDFs registradas externamente. Si equivalencia viene vacía no hay fallas de reversibilidad y verde es correcto; además metamorficas.py genera las sondas por construcción",
+        "porque": "toda medida aceptada por el álgebra dentro del espacio gramatical cubierto debe ser reversible: imprimirla y releerla produce exactamente el mismo AST JSON y el mismo texto canónico sin pérdida de información",
+        "umbral": "<= 0",
+        "segun": "contrato",
+        "tuberia": [
+          "desde",
+          [
+            "de",
+            "equivalencia",
+            "e"
+          ],
+          [
+            "donde",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "e",
+                  "propiedad"
+                ],
+                "sintaxis_cubre_algebra"
+              ],
+              [
+                "o",
+                [
+                  "==",
+                  [
+                    "campo",
+                    "e",
+                    "mismo_veredicto"
+                  ],
+                  false
+                ],
+                [
+                  "==",
+                  [
+                    "campo",
+                    "e",
+                    "mismo_valor"
+                  ],
+                  false
+                ],
+                [
+                  "==",
+                  [
+                    "campo",
+                    "e",
+                    "mismos_testigos"
+                  ],
+                  false
+                ],
+                [
+                  "!=",
+                  [
+                    "campo",
+                    "e",
+                    "error"
+                  ],
+                  ""
+                ]
+              ]
+            ]
+          ]
+        ],
+        "resumen": [
+          "resumen",
+          "contar",
+          1
+        ],
+        "limite": 0,
+        "aplica_vecino": false
+      }
+    ]
+  },
+  "questions": {
+    "v037__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v037: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v038__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v038: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v039__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v039: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v040__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v040: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v041__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v041: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v042__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v042: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v043__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v043: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v044__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v044: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v045__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v045: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v046__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v046: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v047__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v047: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    },
+    "v048__porque_origen": {
+      "type": "noul",
+      "instructions": "Para el registro v048: ¿La defensa permite derivar el valor del umbral, mediante una regla explícita, una fuente o un cálculo, en lugar de limitarse a decir por qué la regla importa?"
+    }
+  }
+}

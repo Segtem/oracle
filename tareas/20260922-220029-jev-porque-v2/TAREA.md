@@ -47,24 +47,24 @@ Preparación v2 lista sin llamadas a modelos (costo USD 0). CRITERIO.md fija dos
 
 Verificación final: 4/4 pruebas del paquete, integridad SHA-256 y git diff --check OK. oracle test sale 0: 2401 tests OK (83,193 s), corpus/sintaxis/aceptación/diferencial/autocertificación verdes y 1010/1010 mutantes de medida muertos. oracle test --todo sale 1: sus 2401 unitarios también pasan (82,645 s), pero la línea base de mutación de código expira a los 60 s (LineaBaseFallida; 1235 tests alcanzados). No es verde completo de --todo y no se generó evidencia válida de mutación de código. Logs íntegros en verificacion/oracle-test.log y oracle-test-todo.log. Se registra pendiente separado timeout-suite-mutacion; no se alteró el arnés fuera del alcance de preparar el juicio ciego. Paquete listo, gasto cero, sin commits.
 
-## Próximo paso
-
-Entregar `paquete-ciego-claude.zip` a Claude en una sesión nueva y sin acceso al
-repositorio ni a los resultados anteriores. La solicitud exacta está en
-`ciego/INSTRUCCIONES.md`; no entregar esta tarea ni `clave-operador.json` al juez.
-Guardar su `juicio-ciego-claude.json`, versión, fecha, declaración de exposición
-previa y SHA-256 antes de cualquier llamada a Jev. Éste es el bloqueo actual:
-falta ese juicio independiente; Codex se detiene aquí por instrucción del usuario.
-
-Una vez recibido, validar IDs completos, booleanos, justificaciones y P2 null
-cuando no aplica; implementar la corrida con el criterio íntegro y `lote.json`,
-sin enviar claves ni el juicio. Respetar `protocolo.json` (tope USD 0,05), guardar
-solicitudes/respuestas y costos, comparar por pregunta y controles, y publicar la
-segunda corrida en `estudios/JEV-COMO-SENSOR.md`, incluso si falla. La muestra
-real no permite estimar acuerdo de P2: los 15 umbrales son cero. No cambiarla a
-posteriori para ocultar ese límite. Revalidar artefactos con
-`python3 tareas/20260922-220029-jev-porque-v2/preparar.py --verificar`.
-
 ### Nota (2026-09-23 00:03:25 UTC)
 
 2026-09-22, Claude, dos observaciones antes del juicio: (1) NO puedo ser yo el juez ciego de esta segunda corrida: hice el juicio de la primera, conozco sus resultados (alcance 15/15, porque 1/15), el diseño y qué son los controles; las propias INSTRUCCIONES piden una sesión nueva sin acceso a nada de eso. Lo delegué a un agente limpio, sin esta conversación, que sólo lee CRITERIO.md, INSTRUCCIONES.md y registros.json. (2) Las 25 entradas del lote tienen umbral <= 0, así que la pregunta P2 (por qué ese valor y no uno vecino) no se puede evaluar en esta corrida: queda 'no aplica' en las 25. Es un límite del catálogo de Oracle, que casi no tiene umbrales distintos de cero; si se quiere probar P2 hay que traer prosa de un proyecto con umbrales numéricos (LyraGASP y Jam tienen varios) o construir controles con umbral distinto de cero.
+
+### Nota (2026-09-23 00:09:43 UTC)
+
+Segunda corrida ejecutada con CRITERIO.md íntegro y los 72 registros congelados con tubería; los 25 del juicio son subconjunto idéntico. Referencia validada y SHA-256 afb4f78d0bd0a21eb18ce75aed00c2aa735599e68125e9e31456974e4c1cb574 sellado antes de llamadas; sesión limpia confirmada por usuario, versión exacta y fecha del juicio no constan. Jev typesafe/jev-1.13-20260917: P1 15/15 reales (7 sí, 8 no), controles 10/10, total 25/25. P2 no evaluable: las 25 entradas tienen umbral <= 0, límite cero; única respuesta no cero en lote completo (v003, 0,40) sin referencia. Seis HTTP 200, 73 respuestas, sin reintentos: USD 0,001443666 (0,1443666 centavos), 7,503 s. Calibración descriptiva: Brier reales 0,122093 y total 0,073744; ECE 0,324 y 0,208, seis positivos cerca de 0,5 y dos exactamente en el corte. No adopción automática. Informe publicado como segunda corrida en estudios/JEV-COMO-SENSOR.md; solicitudes, respuestas, costos y análisis reproducible guardados. Suite estándar python3 tools/cli.py test salida 0 VERDE, 2401 unitarios OK y 1010/1010 mutantes de medidas; 4/4 pruebas de paquete e integridad OK. No se repitió --todo ni se declara verde su mutación de código: timeout previo sigue en timeout-suite-mutacion. Sin commits.
+
+## Próximo paso
+
+La segunda corrida y su informe están completos; revisar el resultado en
+`estudios/JEV-COMO-SENSOR.md` y cerrar administrativamente esta tarea cuando
+corresponda, sin lanzar nuevas llamadas ni hacer commits en esta sesión.
+No queda pendiente una comparación de P2 con este lote: su denominador es cero.
+La mutación de código completa sigue pendiente por el timeout ya registrado en
+`20260922-221412-timeout-suite-mutacion`; continuar allí el arreglo del arnés
+y su verificación, sin confundir el verde de la suite estándar con `--todo`.
+
+### Nota (2026-09-23 00:11:11 UTC)
+
+2026-09-22, revisión de Claude: comprobé la comparación por mi cuenta y da lo que informa Codex — 15/15 en las reales, 10/10 controles, y usa el juicio ciego comiteado. Pero la separación es angosta y hay que decirlo: los 'sí' caen entre 0,50 y 0,68, los 'no' entre 0,09 y 0,33, y DOS de los sí están exactamente en 0,50. Con un corte en 0,5 esos dos se deciden por el redondeo; con 0,55 se pierden dos verdaderos. O sea: la señal existe y el orden es correcto, pero no hay margen para un umbral fijo. Si esto se usa alguna vez, el umbral es una decisión del proyecto y la zona 0,4-0,6 debería mandarse a revisión humana en vez de decidirse sola. La conclusión de fondo cambia respecto de la primera corrida: el problema era la pregunta y la falta de la tubería, no el modelo.
