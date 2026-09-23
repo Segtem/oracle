@@ -1,0 +1,90 @@
+{
+  "esquema": "oracle.mcp/catalogo-efectivo/v1",
+  "oracle_version": "0.28.0",
+  "proyecto": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp",
+  "huella_proyecto": "79654cee7bf4e3402e158f82cf12d3124b1c5084efabb5748e32771ee59c5a13",
+  "detalle": false,
+  "total": 62,
+  "grupos": [
+    {
+      "origen": "catalogo_base:oracle",
+      "fijacion": "evidencia",
+      "ids": [
+        "meta.agrupar_no_agranda_la_relacion",
+        "meta.agrupar_sin_claves_es_el_resumen_global",
+        "meta.donde_compone",
+        "meta.donde_nunca_agrega_filas",
+        "meta.el_caso_se_pone_como_debe",
+        "meta.el_diagnostico_no_publica_el_dominio",
+        "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+        "meta.los_logicos_evaluan_todos_sus_operandos",
+        "meta.ningun_campo_sin_unidad_declarada",
+        "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+        "meta.ningun_umbral_de_igualdad",
+        "meta.ningun_umbral_flotante_de_igualdad",
+        "meta.ninguna_cota_mas_alta_que_su_deuda",
+        "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+        "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+        "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+        "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+        "meta.ninguna_medida_sin_alcance",
+        "meta.ninguna_sombra_envejece_sin_revisarse",
+        "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+        "meta.ninguna_sombra_supera_su_cota",
+        "meta.ninguna_sombra_ya_en_verde",
+        "meta.sin_nunca_agrega_filas",
+        "meta.sintaxis_casos_cubre_casos",
+        "meta.sintaxis_casos_ida_y_vuelta",
+        "meta.sintaxis_cubre_algebra",
+        "meta.sintaxis_ida_y_vuelta",
+        "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+        "meta.toda_medida_de_ausencia_declara_requiere",
+        "meta.toda_medida_declara_su_ambito",
+        "meta.toda_medida_filtra_o_agrupa",
+        "meta.toda_medida_lee_campos_que_existen",
+        "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+        "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+        "meta.toda_sombra_declara_desde_y_porque",
+        "meta.toda_sombra_declara_una_fecha_real",
+        "meta.todo_caso_observado_declara_de_donde_salio",
+        "meta.todo_tanteo_explica_por_que",
+        "meta.todo_umbral_declara_de_donde_sale",
+        "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+        "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+        "meta.una_macro_equivale_a_su_expansion",
+        "meta.unir_conmuta",
+        "meta.unir_materializa_el_producto",
+        "proceso.afirmacion_declara_alcance",
+        "proceso.codigo_con_mutante_que_lo_mata",
+        "proceso.ronda_mutacion_concluyente",
+        "proceso.sintaxis_valida_tras_edicion_masiva",
+        "proceso.test_con_mutante_que_lo_mata",
+        "proceso.verificacion_vigente",
+        "proceso.verificador_sin_falsos_rojos",
+        "simulacion.corrida_reproducible",
+        "simulacion.la_traza_no_tiene_huecos",
+        "simulacion.no_se_agoto_el_presupuesto"
+      ]
+    },
+    {
+      "origen": "catalogo_base:oracle",
+      "fijacion": "arnes",
+      "ids": [
+        "meta.el_caso_reclama_una_medida_que_existe",
+        "meta.el_hueco_declarado_explica_por_que",
+        "meta.el_nivel_no_se_confunde_con_el_dominio",
+        "meta.toda_medida_esta_ejercitada",
+        "meta.toda_medida_esta_fijada"
+      ]
+    },
+    {
+      "origen": "perfil:python",
+      "fijacion": "heredada",
+      "ids": [
+        "proceso.arnes_con_bytecode_frio",
+        "proceso.modulo_alcanzable",
+        "proceso.modulo_con_consumidor"
+      ]
+    }
+  ]
+}

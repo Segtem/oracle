@@ -1,0 +1,299 @@
+{
+  "tools": [
+    {
+      "name": "oracle_catalogo_efectivo",
+      "title": "Catálogo efectivo de Oracle",
+      "description": "Consulta medidas efectivas del proyecto fijado. Sin ids: índice; con ids: detalle. No evalúa evidencia.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+            },
+            "description": "Ids efectivos cuyo detalle se pide. Omitir para listar todos."
+          }
+        }
+      }
+    },
+    {
+      "name": "oracle_evaluar",
+      "title": "Evaluar una medida en memoria",
+      "description": "Evalúa por id o texto sin guardar. Distingue verde, rojo y sin_evidencia; incluye umbral, testigos y alcance. No demuestra corrección de la medida.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "medida",
+          "evidencia"
+        ],
+        "properties": {
+          "medida": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "texto",
+                  "formato"
+                ],
+                "properties": {
+                  "texto": {
+                    "type": "string"
+                  },
+                  "formato": {
+                    "enum": [
+                      "oracle",
+                      "json"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "evidencia": {
+            "$ref": "#/$defs/evidencia"
+          }
+        },
+        "$defs": {
+          "evidencia": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "oracle_desafiar",
+      "title": "Desafiar una medida con corpus y mutación",
+      "description": "Desafía por id o texto con corpus, diferenciales y casos efímeros. Exige ambas polaridades y muta; informa discordancias, sobrevivientes y rechazos. No demuestra corrección semántica.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "medida"
+        ],
+        "properties": {
+          "medida": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "id"
+                ],
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+                  }
+                }
+              },
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "texto",
+                  "formato"
+                ],
+                "properties": {
+                  "texto": {
+                    "type": "string"
+                  },
+                  "formato": {
+                    "enum": [
+                      "oracle",
+                      "json"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          "usar_evidencia_del_proyecto": {
+            "type": "boolean",
+            "default": true,
+            "description": "Incluye corpus y diferenciales que nombran el id de la medida."
+          },
+          "casos": {
+            "type": "array",
+            "default": [],
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "id",
+                "espera",
+                "evidencia"
+              ],
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "espera": {
+                  "enum": [
+                    "verde",
+                    "rojo"
+                  ]
+                },
+                "evidencia": {
+                  "$ref": "#/$defs/evidencia"
+                }
+              }
+            }
+          }
+        },
+        "$defs": {
+          "evidencia": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "oracle_juzgar",
+      "title": "Juzgar evidencia contra el catálogo efectivo",
+      "description": "Juzga evidencia contra el catálogo efectivo o ids. Informa no aplicadas, sombras y cotas. ok incluye sombras dentro de cota; no ejecuta escalares no autorizadas.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "evidencia"
+        ],
+        "properties": {
+          "evidencia": {
+            "$ref": "#/$defs/evidencia"
+          },
+          "ids": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+            },
+            "description": "Ids efectivos a evaluar. Omitir para evaluar todas las aplicables del catálogo."
+          }
+        },
+        "$defs": {
+          "evidencia": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "name": "oracle_tareas",
+      "title": "Consultar el tracker de tareas del proyecto",
+      "description": "Lee el tracker tareas/: listar, ver por id o prefijo, buscar texto o extraer hechos. Sin tracker: TRACKER_AUSENTE.",
+      "annotations": {
+        "readOnlyHint": true,
+        "destructiveHint": false,
+        "idempotentHint": true,
+        "openWorldHint": false
+      },
+      "inputSchema": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "accion"
+        ],
+        "properties": {
+          "accion": {
+            "enum": [
+              "listar",
+              "ver",
+              "buscar",
+              "hechos"
+            ],
+            "description": "Acción de consulta a ejecutar en el tracker."
+          },
+          "estado": {
+            "enum": [
+              "ABIERTA",
+              "CERRADA"
+            ],
+            "description": "Filtro de estado para la acción listar."
+          },
+          "etiqueta": {
+            "type": "string",
+            "description": "Filtro por etiqueta exacta para la acción listar."
+          },
+          "id": {
+            "type": "string",
+            "description": "Identificador canónico o prefijo inequívoco de la tarea para la acción ver."
+          },
+          "texto": {
+            "type": "string",
+            "description": "Texto literal a buscar en tareas y notas para la acción buscar."
+          },
+          "git": {
+            "type": "boolean",
+            "default": false,
+            "description": "Si es true, incluye diagnóstico de Git al extraer hechos."
+          }
+        }
+      }
+    }
+  ]
+}

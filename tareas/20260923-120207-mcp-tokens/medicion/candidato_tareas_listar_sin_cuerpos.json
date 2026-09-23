@@ -1,0 +1,186 @@
+{
+  "esquema": "oracle.mcp/tareas/v1",
+  "oracle_version": "0.28.0",
+  "proyecto": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp",
+  "accion": "listar",
+  "resultado": [
+    {
+      "id": "20260919-134424-naval-pm",
+      "titulo": "Postmortem de la batalla naval hecha por agy con Oracle y sin Oracle",
+      "estado": "ABIERTA",
+      "prioridad": 80,
+      "etiquetas": [
+        "oracle",
+        "postmortem",
+        "agentes"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260919-134424-naval-pm/TAREA.md"
+    },
+    {
+      "id": "20260923-111015-prosa-deuda",
+      "titulo": "Ocho de quince defensas de umbral explican la regla, no el número",
+      "estado": "ABIERTA",
+      "prioridad": 78,
+      "etiquetas": [
+        "oracle",
+        "prosa",
+        "deuda"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260923-111015-prosa-deuda/TAREA.md"
+    },
+    {
+      "id": "20260923-120207-mcp-tokens",
+      "titulo": "El MCP gasta tokens que el agente paga antes de hacer nada",
+      "estado": "ABIERTA",
+      "prioridad": 76,
+      "etiquetas": [
+        "oracle",
+        "mcp",
+        "tokens"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260923-120207-mcp-tokens/TAREA.md"
+    },
+    {
+      "id": "20260923-113951-repo-limpio",
+      "titulo": "El repositorio mezcla el motor con relatos, planes y estudios sueltos",
+      "estado": "ABIERTA",
+      "prioridad": 75,
+      "etiquetas": [
+        "oracle",
+        "repo",
+        "documentacion"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260923-113951-repo-limpio/TAREA.md"
+    },
+    {
+      "id": "20260923-113951-web-028",
+      "titulo": "La web no muestra nada de lo que Oracle ganó desde 0.26",
+      "estado": "ABIERTA",
+      "prioridad": 75,
+      "etiquetas": [
+        "oracle",
+        "web",
+        "documentacion"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260923-113951-web-028/TAREA.md"
+    },
+    {
+      "id": "20260923-120207-ergonomia",
+      "titulo": "Qué le falta al lenguaje para que escribir medidas sea cómodo",
+      "estado": "ABIERTA",
+      "prioridad": 75,
+      "etiquetas": [
+        "oracle",
+        "metalenguaje",
+        "ergonomia"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260923-120207-ergonomia/TAREA.md"
+    },
+    {
+      "id": "20260916-202010-predicado-bool",
+      "titulo": "Un predicado que no es booleano pasa por verdadero en el núcleo y es error en la referencia",
+      "estado": "ABIERTA",
+      "prioridad": 70,
+      "etiquetas": [
+        "oracle",
+        "metalenguaje",
+        "diferencial"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260916-202010-predicado-bool/TAREA.md"
+    },
+    {
+      "id": "20260922-200806-naval-control",
+      "titulo": "El control del experimento: la misma batalla naval sin sugerir Oracle",
+      "estado": "ABIERTA",
+      "prioridad": 70,
+      "etiquetas": [
+        "oracle",
+        "experimento",
+        "agentes"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260922-200806-naval-control/TAREA.md"
+    },
+    {
+      "id": "20260919-134424-aura",
+      "titulo": "¿Se puede construir con Oracle un agente de videojuegos como Aura?",
+      "estado": "ABIERTA",
+      "prioridad": 60,
+      "etiquetas": [
+        "oracle",
+        "investigacion",
+        "agentes"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260919-134424-aura/TAREA.md"
+    },
+    {
+      "id": "20260923-120207-refactor",
+      "titulo": "El código creció por capas y conviene una auditoría de lo que sobra",
+      "estado": "ABIERTA",
+      "prioridad": 60,
+      "etiquetas": [
+        "oracle",
+        "refactor"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260923-120207-refactor/TAREA.md"
+    },
+    {
+      "id": "20260922-221412-timeout-suite-mutacion",
+      "titulo": "oracle test --todo: la línea base supera el timeout de 60 segundos",
+      "estado": "ABIERTA",
+      "prioridad": 50,
+      "etiquetas": [],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260922-221412-timeout-suite-mutacion/TAREA.md"
+    },
+    {
+      "id": "20260915-201030-codex",
+      "titulo": "Contrastar la referencia 0.7 con Codex cuando vuelva su cuota",
+      "estado": "ABIERTA",
+      "prioridad": 30,
+      "etiquetas": [
+        "oracle",
+        "diferencial",
+        "idea"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260915-201030-codex/TAREA.md"
+    },
+    {
+      "id": "20260915-220452-idioma",
+      "titulo": "Oracle en inglés, con léxicos intercambiables: español hoy, francés o alemán después",
+      "estado": "ABIERTA",
+      "prioridad": 10,
+      "etiquetas": [
+        "oracle",
+        "metalenguaje",
+        "idioma",
+        "v1.0.0"
+      ],
+      "cierra_con": [],
+      "campos_adicionales": {},
+      "ruta": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp/tareas/20260915-220452-idioma/TAREA.md"
+    }
+  ]
+}

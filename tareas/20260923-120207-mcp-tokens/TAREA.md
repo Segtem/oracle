@@ -33,3 +33,7 @@ Brian (2026-09-23): «investigar cómo mejorar el MCP y bajar tokens».
 ## Próximo paso
 
 La medición del punto 1 y la lista de propuestas con su cifra, para revisión antes de implementar.
+
+### Nota (2026-09-23 12:15:26 UTC)
+
+2026-09-23: Codex midió y se quedó sin cuota antes de proponer (vuelve 13:11). Lo medido, verificado por Claude sobre medicion/resultados.json: (1) outputSchema es el 55 % de tools/list (6.741 de 12.366 bytes); (2) cada respuesta lleva el mismo JSON dos veces —content[0].text es exactamente structuredContent serializado—, así que pesa x2,03 a x2,23 lo necesario; (3) oracle_tareas listar devuelve 40 KB porque trae el cuerpo de cada tarea. Matiz antes de recortar: la especificación de MCP RECOMIENDA el texto duplicado por compatibilidad, y outputSchema es opcional; lo que se paga no son los bytes del cable sino lo que cada cliente (Claude Code, Codex, agy) le pasa al modelo. Primero medir eso en al menos dos clientes; la ganancia segura, sin depender del cliente, es listar sin cuerpos. Sin tokenizador instalado: la regla es bytes/4, declarada.

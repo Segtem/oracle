@@ -1,0 +1,673 @@
+{
+  "entorno": {
+    "commit": "111d7369f74262571c33948b0a19709616bde121",
+    "python": "3.14.7 (main, Aug 13 2026, 07:40:04) [GCC 16.2.1 20260810]",
+    "raiz": "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-mcp",
+    "oracle": "0.28.0",
+    "mcp_sha256": "c0b3069251214662b0744f85c292d6c3a130939ec5dfa3c6ffbe507bdc69a63a",
+    "tokenizadores_instalados": {
+      "tiktoken": false,
+      "tokenizers": false,
+      "transformers": false
+    },
+    "regla": "bytes UTF-8 / 4; no son tokens reales ni facturación"
+  },
+  "tools_list": {
+    "lista_sola": {
+      "bytes": 12366,
+      "tokens_estimados": 3091.5
+    },
+    "result": {
+      "bytes": 12376,
+      "tokens_estimados": 3094.0
+    },
+    "jsonrpc_sin_lf": {
+      "bytes": 12410,
+      "tokens_estimados": 3102.5
+    },
+    "desglose": [
+      {
+        "name": "oracle_catalogo_efectivo",
+        "total": {
+          "bytes": 2021,
+          "tokens_estimados": 505.25
+        },
+        "bytes_por_campo_incluye_clave_y_coma": {
+          "description": 309,
+          "inputSchema": 288,
+          "outputSchema": 1246,
+          "resto": 178
+        }
+      },
+      {
+        "name": "oracle_evaluar",
+        "total": {
+          "bytes": 2390,
+          "tokens_estimados": 597.5
+        },
+        "bytes_por_campo_incluye_clave_y_coma": {
+          "description": 312,
+          "inputSchema": 590,
+          "outputSchema": 1319,
+          "resto": 169
+        }
+      },
+      {
+        "name": "oracle_desafiar",
+        "total": {
+          "bytes": 3333,
+          "tokens_estimados": 833.25
+        },
+        "bytes_por_campo_incluye_clave_y_coma": {
+          "description": 359,
+          "inputSchema": 940,
+          "outputSchema": 1851,
+          "resto": 183
+        }
+      },
+      {
+        "name": "oracle_juzgar",
+        "total": {
+          "bytes": 2826,
+          "tokens_estimados": 706.5
+        },
+        "bytes_por_campo_incluye_clave_y_coma": {
+          "description": 377,
+          "inputSchema": 479,
+          "outputSchema": 1786,
+          "resto": 184
+        }
+      },
+      {
+        "name": "oracle_tareas",
+        "total": {
+          "bytes": 1790,
+          "tokens_estimados": 447.5
+        },
+        "bytes_por_campo_incluye_clave_y_coma": {
+          "description": 322,
+          "inputSchema": 747,
+          "outputSchema": 539,
+          "resto": 182
+        }
+      }
+    ]
+  },
+  "respuestas": {
+    "catalogo": {
+      "herramienta": "oracle_catalogo_efectivo",
+      "argumentos": {},
+      "payload": {
+        "bytes": 6650,
+        "tokens_estimados": 1662.5
+      },
+      "texto_decodificado_bytes": 6650,
+      "result": {
+        "bytes": 14142,
+        "tokens_estimados": 3535.5
+      },
+      "jsonrpc_sin_lf": {
+        "bytes": 14176,
+        "tokens_estimados": 3544.0
+      }
+    },
+    "evaluar": {
+      "herramienta": "oracle_evaluar",
+      "argumentos": {
+        "medida": {
+          "id": "meta.donde_nunca_agrega_filas"
+        },
+        "evidencia": {
+          "paso": [
+            {
+              "t": 0,
+              "operador": "de",
+              "filas_antes": 0,
+              "filas_despues": 3
+            },
+            {
+              "t": 1,
+              "operador": "donde",
+              "filas_antes": 3,
+              "filas_despues": 4
+            }
+          ]
+        }
+      },
+      "payload": {
+        "bytes": 1148,
+        "tokens_estimados": 287.0
+      },
+      "texto_decodificado_bytes": 1148,
+      "result": {
+        "bytes": 2442,
+        "tokens_estimados": 610.5
+      },
+      "jsonrpc_sin_lf": {
+        "bytes": 2476,
+        "tokens_estimados": 619.0
+      }
+    },
+    "desafiar": {
+      "herramienta": "oracle_desafiar",
+      "argumentos": {
+        "medida": {
+          "id": "meta.donde_nunca_agrega_filas"
+        }
+      },
+      "payload": {
+        "bytes": 500,
+        "tokens_estimados": 125.0
+      },
+      "texto_decodificado_bytes": 500,
+      "result": {
+        "bytes": 1116,
+        "tokens_estimados": 279.0
+      },
+      "jsonrpc_sin_lf": {
+        "bytes": 1150,
+        "tokens_estimados": 287.5
+      }
+    },
+    "juzgar": {
+      "herramienta": "oracle_juzgar",
+      "argumentos": {
+        "evidencia": {
+          "paso": [
+            {
+              "t": 0,
+              "operador": "de",
+              "filas_antes": 0,
+              "filas_despues": 3
+            },
+            {
+              "t": 1,
+              "operador": "donde",
+              "filas_antes": 3,
+              "filas_despues": 4
+            }
+          ]
+        }
+      },
+      "payload": {
+        "bytes": 2682,
+        "tokens_estimados": 670.5
+      },
+      "texto_decodificado_bytes": 2682,
+      "result": {
+        "bytes": 5586,
+        "tokens_estimados": 1396.5
+      },
+      "jsonrpc_sin_lf": {
+        "bytes": 5620,
+        "tokens_estimados": 1405.0
+      }
+    },
+    "tareas": {
+      "herramienta": "oracle_tareas",
+      "argumentos": {
+        "accion": "ver",
+        "id": "mcp-tokens"
+      },
+      "payload": {
+        "bytes": 2475,
+        "tokens_estimados": 618.75
+      },
+      "texto_decodificado_bytes": 2475,
+      "result": {
+        "bytes": 5105,
+        "tokens_estimados": 1276.25
+      },
+      "jsonrpc_sin_lf": {
+        "bytes": 5139,
+        "tokens_estimados": 1284.75
+      }
+    },
+    "tareas_listar": {
+      "herramienta": "oracle_tareas",
+      "argumentos": {
+        "accion": "listar",
+        "estado": "ABIERTA"
+      },
+      "payload": {
+        "bytes": 39966,
+        "tokens_estimados": 9991.5
+      },
+      "texto_decodificado_bytes": 39966,
+      "result": {
+        "bytes": 80953,
+        "tokens_estimados": 20238.25
+      },
+      "jsonrpc_sin_lf": {
+        "bytes": 80987,
+        "tokens_estimados": 20246.75
+      }
+    }
+  },
+  "propuestas": {
+    "sin_outputSchema": {
+      "antes": {
+        "bytes": 12376,
+        "tokens_estimados": 3094.0
+      },
+      "despues": {
+        "bytes": 5635,
+        "tokens_estimados": 1408.75
+      },
+      "ahorro_bytes": 6741,
+      "ahorro_tokens_estimados": 1685.25
+    },
+    "descripciones_breves": {
+      "antes": {
+        "bytes": 12376,
+        "tokens_estimados": 3094.0
+      },
+      "despues": {
+        "bytes": 11499,
+        "tokens_estimados": 2874.75
+      },
+      "ahorro_bytes": 877,
+      "ahorro_tokens_estimados": 219.25
+    },
+    "combinadas": {
+      "antes": {
+        "bytes": 12376,
+        "tokens_estimados": 3094.0
+      },
+      "despues": {
+        "bytes": 4758,
+        "tokens_estimados": 1189.5
+      },
+      "ahorro_bytes": 7618,
+      "ahorro_tokens_estimados": 1904.5
+    },
+    "una_copia_catalogo": {
+      "antes": {
+        "bytes": 14142,
+        "tokens_estimados": 3535.5
+      },
+      "despues": {
+        "bytes": 7471,
+        "tokens_estimados": 1867.75
+      },
+      "ahorro_bytes": 6671,
+      "ahorro_tokens_estimados": 1667.75
+    },
+    "sin_metadatos_catalogo": {
+      "antes": {
+        "bytes": 6650,
+        "tokens_estimados": 1662.5
+      },
+      "despues": {
+        "bytes": 6510,
+        "tokens_estimados": 1627.5
+      },
+      "ahorro_bytes": 140,
+      "ahorro_tokens_estimados": 35.0
+    },
+    "sin_huella_catalogo": {
+      "antes": {
+        "bytes": 6650,
+        "tokens_estimados": 1662.5
+      },
+      "despues": {
+        "bytes": 6650,
+        "tokens_estimados": 1662.5
+      },
+      "ahorro_bytes": 0,
+      "ahorro_tokens_estimados": 0.0
+    },
+    "catalogo_agrupado": {
+      "antes": {
+        "bytes": 6650,
+        "tokens_estimados": 1662.5
+      },
+      "despues": {
+        "bytes": 3032,
+        "tokens_estimados": 758.0
+      },
+      "ahorro_bytes": 3618,
+      "ahorro_tokens_estimados": 904.5
+    },
+    "una_copia_evaluar": {
+      "antes": {
+        "bytes": 2442,
+        "tokens_estimados": 610.5
+      },
+      "despues": {
+        "bytes": 1273,
+        "tokens_estimados": 318.25
+      },
+      "ahorro_bytes": 1169,
+      "ahorro_tokens_estimados": 292.25
+    },
+    "sin_metadatos_evaluar": {
+      "antes": {
+        "bytes": 1148,
+        "tokens_estimados": 287.0
+      },
+      "despues": {
+        "bytes": 1008,
+        "tokens_estimados": 252.0
+      },
+      "ahorro_bytes": 140,
+      "ahorro_tokens_estimados": 35.0
+    },
+    "sin_huella_evaluar": {
+      "antes": {
+        "bytes": 1148,
+        "tokens_estimados": 287.0
+      },
+      "despues": {
+        "bytes": 1064,
+        "tokens_estimados": 266.0
+      },
+      "ahorro_bytes": 84,
+      "ahorro_tokens_estimados": 21.0
+    },
+    "NO_recortar_falsabilidad_evaluar": {
+      "antes": {
+        "bytes": 1148,
+        "tokens_estimados": 287.0
+      },
+      "despues": {
+        "bytes": 619,
+        "tokens_estimados": 154.75
+      },
+      "ahorro_bytes": 529,
+      "ahorro_tokens_estimados": 132.25
+    },
+    "una_copia_desafiar": {
+      "antes": {
+        "bytes": 1116,
+        "tokens_estimados": 279.0
+      },
+      "despues": {
+        "bytes": 595,
+        "tokens_estimados": 148.75
+      },
+      "ahorro_bytes": 521,
+      "ahorro_tokens_estimados": 130.25
+    },
+    "sin_metadatos_desafiar": {
+      "antes": {
+        "bytes": 500,
+        "tokens_estimados": 125.0
+      },
+      "despues": {
+        "bytes": 360,
+        "tokens_estimados": 90.0
+      },
+      "ahorro_bytes": 140,
+      "ahorro_tokens_estimados": 35.0
+    },
+    "sin_huella_desafiar": {
+      "antes": {
+        "bytes": 500,
+        "tokens_estimados": 125.0
+      },
+      "despues": {
+        "bytes": 416,
+        "tokens_estimados": 104.0
+      },
+      "ahorro_bytes": 84,
+      "ahorro_tokens_estimados": 21.0
+    },
+    "una_copia_juzgar": {
+      "antes": {
+        "bytes": 5586,
+        "tokens_estimados": 1396.5
+      },
+      "despues": {
+        "bytes": 2883,
+        "tokens_estimados": 720.75
+      },
+      "ahorro_bytes": 2703,
+      "ahorro_tokens_estimados": 675.75
+    },
+    "sin_metadatos_juzgar": {
+      "antes": {
+        "bytes": 2682,
+        "tokens_estimados": 670.5
+      },
+      "despues": {
+        "bytes": 2542,
+        "tokens_estimados": 635.5
+      },
+      "ahorro_bytes": 140,
+      "ahorro_tokens_estimados": 35.0
+    },
+    "sin_huella_juzgar": {
+      "antes": {
+        "bytes": 2682,
+        "tokens_estimados": 670.5
+      },
+      "despues": {
+        "bytes": 2598,
+        "tokens_estimados": 649.5
+      },
+      "ahorro_bytes": 84,
+      "ahorro_tokens_estimados": 21.0
+    },
+    "NO_recortar_falsabilidad_juzgar": {
+      "antes": {
+        "bytes": 2682,
+        "tokens_estimados": 670.5
+      },
+      "despues": {
+        "bytes": 1448,
+        "tokens_estimados": 362.0
+      },
+      "ahorro_bytes": 1234,
+      "ahorro_tokens_estimados": 308.5
+    },
+    "una_copia_tareas": {
+      "antes": {
+        "bytes": 5105,
+        "tokens_estimados": 1276.25
+      },
+      "despues": {
+        "bytes": 2609,
+        "tokens_estimados": 652.25
+      },
+      "ahorro_bytes": 2496,
+      "ahorro_tokens_estimados": 624.0
+    },
+    "sin_metadatos_tareas": {
+      "antes": {
+        "bytes": 2475,
+        "tokens_estimados": 618.75
+      },
+      "despues": {
+        "bytes": 2335,
+        "tokens_estimados": 583.75
+      },
+      "ahorro_bytes": 140,
+      "ahorro_tokens_estimados": 35.0
+    },
+    "sin_huella_tareas": {
+      "antes": {
+        "bytes": 2475,
+        "tokens_estimados": 618.75
+      },
+      "despues": {
+        "bytes": 2475,
+        "tokens_estimados": 618.75
+      },
+      "ahorro_bytes": 0,
+      "ahorro_tokens_estimados": 0.0
+    },
+    "una_copia_tareas_listar": {
+      "antes": {
+        "bytes": 80953,
+        "tokens_estimados": 20238.25
+      },
+      "despues": {
+        "bytes": 40966,
+        "tokens_estimados": 10241.5
+      },
+      "ahorro_bytes": 39987,
+      "ahorro_tokens_estimados": 9996.75
+    },
+    "sin_metadatos_tareas_listar": {
+      "antes": {
+        "bytes": 39966,
+        "tokens_estimados": 9991.5
+      },
+      "despues": {
+        "bytes": 39826,
+        "tokens_estimados": 9956.5
+      },
+      "ahorro_bytes": 140,
+      "ahorro_tokens_estimados": 35.0
+    },
+    "sin_huella_tareas_listar": {
+      "antes": {
+        "bytes": 39966,
+        "tokens_estimados": 9991.5
+      },
+      "despues": {
+        "bytes": 39966,
+        "tokens_estimados": 9991.5
+      },
+      "ahorro_bytes": 0,
+      "ahorro_tokens_estimados": 0.0
+    },
+    "tareas_listar_sin_cuerpos": {
+      "antes": {
+        "bytes": 39966,
+        "tokens_estimados": 9991.5
+      },
+      "despues": {
+        "bytes": 5234,
+        "tokens_estimados": 1308.5
+      },
+      "ahorro_bytes": 34732,
+      "ahorro_tokens_estimados": 8683.0
+    }
+  },
+  "repeticiones": [
+    {
+      "campo": "oracle_version",
+      "esquema": {
+        "type": "string"
+      },
+      "apariciones": [
+        "oracle_catalogo_efectivo/outputSchema",
+        "oracle_evaluar/outputSchema",
+        "oracle_desafiar/outputSchema",
+        "oracle_juzgar/outputSchema",
+        "oracle_tareas/outputSchema"
+      ],
+      "bytes_valor_repetido_extra": 68
+    },
+    {
+      "campo": "proyecto",
+      "esquema": {
+        "type": "string"
+      },
+      "apariciones": [
+        "oracle_catalogo_efectivo/outputSchema",
+        "oracle_evaluar/outputSchema",
+        "oracle_desafiar/outputSchema",
+        "oracle_juzgar/outputSchema",
+        "oracle_tareas/outputSchema"
+      ],
+      "bytes_valor_repetido_extra": 68
+    },
+    {
+      "campo": "medida",
+      "esquema": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "id"
+            ],
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "texto",
+              "formato"
+            ],
+            "properties": {
+              "texto": {
+                "type": "string"
+              },
+              "formato": {
+                "enum": [
+                  "oracle",
+                  "json"
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "apariciones": [
+        "oracle_evaluar/inputSchema",
+        "oracle_desafiar/inputSchema"
+      ],
+      "bytes_valor_repetido_extra": 323
+    },
+    {
+      "campo": "evidencia",
+      "esquema": {
+        "$ref": "#/$defs/evidencia"
+      },
+      "apariciones": [
+        "oracle_evaluar/inputSchema",
+        "oracle_juzgar/inputSchema"
+      ],
+      "bytes_valor_repetido_extra": 28
+    },
+    {
+      "campo": "entrada_sha256",
+      "esquema": {
+        "type": "string",
+        "pattern": "^[0-9a-f]{64}$"
+      },
+      "apariciones": [
+        "oracle_evaluar/outputSchema",
+        "oracle_desafiar/outputSchema",
+        "oracle_juzgar/outputSchema"
+      ],
+      "bytes_valor_repetido_extra": 88
+    },
+    {
+      "campo": "medida",
+      "esquema": {
+        "type": "string"
+      },
+      "apariciones": [
+        "oracle_evaluar/outputSchema",
+        "oracle_desafiar/outputSchema"
+      ],
+      "bytes_valor_repetido_extra": 17
+    },
+    {
+      "campo": "advertencias",
+      "esquema": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      },
+      "apariciones": [
+        "oracle_evaluar/outputSchema",
+        "oracle_desafiar/outputSchema",
+        "oracle_juzgar/outputSchema"
+      ],
+      "bytes_valor_repetido_extra": 84
+    }
+  ]
+}
