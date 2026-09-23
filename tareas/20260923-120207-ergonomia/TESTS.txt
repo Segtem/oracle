@@ -1,0 +1,28 @@
+test_con_todas_las_relaciones_no_hay_bloque (tests.test_juzgar_cota_y_ausentes.NoAplicadasTests.test_con_todas_las_relaciones_no_hay_bloque) ... ok
+test_el_json_las_trae (tests.test_juzgar_cota_y_ausentes.NoAplicadasTests.test_el_json_las_trae) ... ok
+test_el_motor_tambien_las_nombra (tests.test_juzgar_cota_y_ausentes.NoAplicadasTests.test_el_motor_tambien_las_nombra) ... ok
+test_juzgar_nombra_la_medida_propia_cuya_relacion_no_vino (tests.test_juzgar_cota_y_ausentes.NoAplicadasTests.test_juzgar_nombra_la_medida_propia_cuya_relacion_no_vino) ... ok
+test_una_relacion_presente_y_vacia_no_es_una_relacion_ausente (tests.test_sintaxis.SintaxisDeCasosTests.test_una_relacion_presente_y_vacia_no_es_una_relacion_ausente) ... ok
+test_corpus_propio_y_heredado_no_reejecutan_el_producto (tests.test_test_alcance.TestAlcanceTests.test_corpus_propio_y_heredado_no_reejecutan_el_producto) ... ok
+test_estructura_invalida_no_es_sin_medicion (tests.test_test_alcance.TestAlcanceTests.test_estructura_invalida_no_es_sin_medicion) ... ok
+test_vacio_advierte_sin_cambiar_codigo_ci (tests.test_test_alcance.TestAlcanceTests.test_vacio_advierte_sin_cambiar_codigo_ci) ... ok
+test_catalogo_y_corridas_reales (tests.test_primer_valor.PrimerValorTests.test_catalogo_y_corridas_reales) ... ok
+test_agrupar_no_se_extrapola_como_si_contara_filas (tests.test_generador.TestUmbralDeclarado.test_agrupar_no_se_extrapola_como_si_contara_filas) ... ok
+test_cero_filas_ofensoras_no_se_puede_amplificar (tests.test_generador.TestUmbralDeclarado.test_cero_filas_ofensoras_no_se_puede_amplificar) ... ok
+test_el_comando_escribe_solo_casos_con_polaridad_correcta (tests.test_generador.TestUmbralDeclarado.test_el_comando_escribe_solo_casos_con_polaridad_correcta) ... ok
+test_el_comando_rechaza_sin_escribir_y_explica_el_umbral (tests.test_generador.TestUmbralDeclarado.test_el_comando_rechaza_sin_escribir_y_explica_el_umbral) ... ok
+test_el_conteo_no_se_convierte_en_existencia (tests.test_generador.TestUmbralDeclarado.test_el_conteo_no_se_convierte_en_existencia) ... ok
+test_el_presupuesto_se_comprueba_antes_de_multiplicar_filas (tests.test_generador.TestUmbralDeclarado.test_el_presupuesto_se_comprueba_antes_de_multiplicar_filas) ... ok
+test_el_rojo_supera_el_limite_real_del_conteo (tests.test_generador.TestUmbralDeclarado.test_el_rojo_supera_el_limite_real_del_conteo) ... ok
+test_no_se_omite_el_primer_paso_al_descartar_agrupaciones (tests.test_generador.TestUmbralDeclarado.test_no_se_omite_el_primer_paso_al_descartar_agrupaciones) ... ok
+test_se_admite_exactamente_el_presupuesto_de_filas (tests.test_generador.TestUmbralDeclarado.test_se_admite_exactamente_el_presupuesto_de_filas) ... ok
+test_sin_evidencia_no_es_un_defecto_demostrado (tests.test_generador.TestUmbralDeclarado.test_sin_evidencia_no_es_un_defecto_demostrado) ... ok
+test_tambien_se_comprueba_el_candidato_verde (tests.test_generador.TestUmbralDeclarado.test_tambien_se_comprueba_el_candidato_verde) ... ok
+test_un_error_de_evaluacion_explica_la_negativa (tests.test_generador.TestUmbralDeclarado.test_un_error_de_evaluacion_explica_la_negativa) ... ok
+test_un_maximo_que_no_alcanza_no_se_disfraza_de_rojo (tests.test_generador.TestUmbralDeclarado.test_un_maximo_que_no_alcanza_no_se_disfraza_de_rojo) ... ok
+test_una_magnitud_que_si_discrimina_se_conserva (tests.test_generador.TestUmbralDeclarado.test_una_magnitud_que_si_discrimina_se_conserva) ... ok
+
+----------------------------------------------------------------------
+Ran 23 tests in 9.580s
+
+OK

@@ -1,0 +1,322 @@
+
+### versión
+0.28.0 0.8 0.6
+a891cf41a25688faf51d623913c477af41673c45
+
+### 1.1
+a.x + 1
+ErrorSintaxis: línea 3, columna 15: se esperaba expresión; llegó '+'
+a.x - 1
+ErrorSintaxis: línea 3, columna 15: se esperaba expresión; llegó '-'
+a.x * 2
+ErrorSintaxis: línea 3, columna 15: se esperaba expresión; llegó '*'
+mas(a.x, 1)
+['donde', ['>', ['mas', ['campo', 'a', 'x'], 1], 0]]
+naval.alternancia_turnos.oracle:4: donde t2.turno == mas(t1.turno, 1) y t1.tirador == t2.tirador
+naval.turnos_sin_huecos.oracle:6: donde registrados != mas(ultimo, 1)
+
+### 1.2
+!= rojo: valor=2, original.ok=False, aflojar_umbral.ok=False
+!= verde: valor=0, original.ok=True, aflojar_umbral.ok=True
+< rojo: valor=1, original.ok=False, aflojar_umbral.ok=True
+< verde: valor=0, original.ok=True, aflojar_umbral.ok=True
+
+### 2.1
+AGREGADOS = ['contar', 'max', 'min', 'promedio', 'suma']
+MedidaMalDeclarada: demo.prueba: agregado desconocido: «contar_distintos» (hay ['contar', 'max', 'min', 'promedio', 'suma'])
+doble agrupar: 2 ({'_': {'grupo': 'A', 'distintos': 2}},)
+
+### 2.2
+macros: ['ninguno', 'ninguno-par', 'ninguno-requiere', 'peor']
+ninguno requiere= () filtro compuesto valor= 1
+ninguno-requiere requiere= ('dato',) filtro compuesto valor= 1
+ninguno-par requiere= () filtro compuesto valor= 1
+ErrorSintaxis: línea 7, columna 1: la macro ninguno lleva exactamente 5 líneas de cuerpo (de, donde, umbral, ambito, alcance) y llegaron 6
+naval.flota_reglamentaria.oracle:
+medida naval.flota_reglamentaria:
+    de celda_barco c
+    agrupar:
+        clave jugador = c.jugador
+        agregado celdas = contar(1)
+    donde celdas != 17
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la flota reglamentaria de cada jugador debe sumar exactamente 17 casillas (portaaviones 5 + acorazado 4 + crucero 3 + submarino 3 + destructor 2)"
+    requiere celda_barco
+    ambito universal
+    alcance "agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos."
+
+naval.turnos_sin_huecos.oracle:
+medida naval.turnos_sin_huecos:
+    de tiro t
+    agrupar:
+        agregado registrados = contar(1)
+        agregado ultimo = max(t.turno)
+    donde registrados != mas(ultimo, 1)
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la secuencia de turnos debe ser continua, arrancando en 0 y avanzando de a 1 sin huecos ni saltos"
+    requiere tiro
+    ambito universal
+    alcance "compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores."
+
+
+### 3.1
+requiere antes de resumen
+ErrorSintaxis: línea 4, columna 5: se esperaba línea «resumen»; llegó 'requiere dato'
+requiere antes de umbral
+ErrorSintaxis: línea 5, columna 5: se esperaba línea «umbral»; llegó 'requiere dato'
+requiere antes de ambito
+('dato',)
+
+### 3.2
+alcance= no ve otros datos ; meta.ok= True
+/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo usos contiene: []
+/home/workstation/Dev/jam/medidas usos contiene: []
+/home/workstation/Dev/games/unreal/LyraGASP/medidas usos contiene: []
+
+### 4.1
+RelacionMalDeclarada: /tmp/tmpo1l8vffu/dato.oracle: JSON inválido — Expecting value: line 1 column 1 (char 0)
+JSON dentro de .oracle: ['relacion', 'dato', ['campos', ['campo', 'x', 'entero', 'celdas']], ['alcance', 'no ve otros datos']]
+
+### 4.2 / 4.3 / 5.2 /home/workstation/Dev/jam/medidas
+meta.toda_cantidad_comparada_tiene_unidad_derivable cota= 51 valor= 51 ok= False
+meta.todo_umbral_declara_de_donde_sale cota= 41 valor= 41 ok= False
+meta.la_medida_no_se_fija_solo_con_evidencia_fabricada cota= 16 valor= 16 ok= False
+vault.enlace_resuelve segun= sin_declarar
+
+### 4.2 / 4.3 / 5.2 /home/workstation/Dev/games/unreal/LyraGASP/medidas
+meta.toda_cantidad_comparada_tiene_unidad_derivable cota= 61 valor= 61 ok= False
+meta.todo_umbral_declara_de_donde_sale cota= 27 valor= 27 ok= False
+meta.la_medida_no_se_fija_solo_con_evidencia_fabricada cota= 17 valor= 17 ok= False
+recarga.montage_en_slot_cuerpo_entero segun= sin_declarar
+
+### 5.1
+caso 999-vacio:
+    fecha: "2026-09-23"
+    origen:
+        repo: "test"
+        commit: "sin-commit"
+    titulo: "vacío"
+    etiqueta: verde_correcto
+    sintoma:
+        prueba
+    como_se_detecto: observacion
+    medida: demo.prueba
+    evidencia:
+        impacto:
+    leccion:
+        prueba
+
+relectura evidencia= {'impacto': []}
+
+### 5.2 conversión sin transcribir filas
+1000 filas: leer(imprimir(datos)) == datos: True
+$ python3 tools/cli.py caso --help
+exit=0
+oracle caso — operaciones sobre casos del corpus
+
+Uso:
+  oracle caso nuevo <grupo/id>            Crea un caso de prueba en el corpus con plantilla lista
+  oracle caso listar                      Lista los casos del corpus, su etiqueta y qué medida reclaman
+  oracle caso generar <dominio.medida>    Fabrica evidencia discriminante para fijar mutaciones
+sombra Oracle: {'meta.todo_caso_observado_declara_de_donde_salio': {'desde': '2026-09-07', 'porque': '94 de los 102 casos `observada` del corpus propio declaran sólo `repo` y `commit`, que sitúan un árbol y no una corrida. Se cierran de a uno, escribiendo en cada `origen` el comando que lo produjo, y sólo cuando alguien puede afirmar cuál fue: rellenarlos de memoria sería inventar la procedencia que la medida existe para hacer visible, y el árbol contra el que corrieron ya no existe, así que tampoco se puede reconstruir midiendo. Los casos nuevos ya nacen cumpliéndola, y la `cota` impide que la deuda crezca mientras tanto: si sube a 95, la corrida vuelve a fallar', 'cota': 94}}
+
+### 5.3
+medida flota.dos_barcos_en_la_misma_celda:
+    de celda_ocupada a
+    unir celda_ocupada b
+    donde a.barco < b.barco y a.x == b.x y a.y == b.y
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "dos barcos en la misma celda hacen que un solo impacto dane a los dos: la regla del juego exige flotas disjuntas"
+    ambito universal
+    alcance "compara celdas ya expandidas. NO ve barcos adyacentes ni si la expansion de celdas es correcta"
+
+generación no posible: flota.dos_barcos_en_la_misma_celda: no se pudo fabricar verde_correcto con contar y umbral <= 0; la evidencia propuesta da valor 4, verde=False. Hace falta evidencia del dominio — no se escribió ningún archivo
+exit= 1 archivos corpus= []
+
+### 6.1 / 6.2
+$ python3 tools/cli.py juzgar --proyecto /tmp/tmp5pzmhbj1 --con /tmp/tmp5pzmhbj1/hechos.json
+exit=1
+SIN MEDIDAS APLICABLES — ninguna medida del catálogo aplica a las relaciones de la evidencia: ['otra']
+$ python3 tools/cli.py juzgar --proyecto /tmp/tmp5pzmhbj1 --con /tmp/tmp5pzmhbj1/hechos.json
+exit=0
+✓ demo.otra                                           0 (<= 0)
+
+NO SE APLICARON (1) — su relación no vino en la evidencia:
+  · demo.prueba: falta dato
+
+VEREDICTO: verde en 1 medidas. SIN MIRAR:
+  · demo.otra: no ve otros datos
+$ python3 tools/cli.py test --rapido --proyecto /tmp/tmp5pzmhbj1
+exit=1
+ESCALARES EXTERNAS NO EJECUTADAS — /tmp/tmp5pzmhbj1/escalares.py es código Python externo; repetí con `--confiar-escalares` para ejecutarlo
+
+VEREDICTO: ROJO (escalares.py no confiado)
+$ python3 tools/cli.py juzgar --con /tmp/tmp5pzmhbj1/hechos.json --proyecto /tmp/tmp5pzmhbj1
+exit=2
+ESCALARES EXTERNAS NO EJECUTADAS — /tmp/tmp5pzmhbj1/escalares.py es código Python externo; repetí con `--confiar-escalares` para ejecutarlo
+$ python3 tools/cli.py revisar /tmp/tmp5pzmhbj1/catalogos/demo.oracle --proyecto /tmp/tmp5pzmhbj1
+exit=1
+ESCALARES EXTERNAS NO EJECUTADAS — /tmp/tmp5pzmhbj1/escalares.py es código Python externo; repetí con `--confiar-escalares` para ejecutarlo
+$ python3 tools/cli.py medida listar --proyecto /tmp/tmp5pzmhbj1
+exit=1
+ESCALARES EXTERNAS NO EJECUTADAS — /tmp/tmp5pzmhbj1/escalares.py es código Python externo; repetí con `--confiar-escalares` para ejecutarlo
+$ python3 tools/cli.py caso generar demo.prueba --proyecto /tmp/tmp5pzmhbj1
+exit=1
+Traceback (most recent call last):
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo/tools/cli.py", line 1310, in <module>
+    sys.exit(_entrada_directa())
+             ~~~~~~~~~~~~~~~~^^
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo/tools/cli.py", line 1219, in main
+    return cmd_caso_generar(proy, args[0], argv)
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo/tools/cli.py", line 613, in cmd_caso_generar
+    return corpus.generar(proy, mid, argv)
+           ~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo/tools/corpus.py", line 182, in generar
+    rc, _ = generar_caso(
+            ~~~~~~~~~~~~^
+        proy,
+        ^^^^^
+    ...<3 lines>...
+        imprimir_solo=imprimir_solo,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo/nucleo/generador.py", line 707, in generar_caso
+    with escalares_del_proyecto(proy, confiar=confiar):
+         ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/lib/python3.14/contextlib.py", line 141, in __enter__
+    return next(self.gen)
+  File "/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo/nucleo/proyecto.py", line 494, in escalares_del_proyecto
+    raise EscalaresNoConfiables(
+        f"{archivo} es código Python externo; repetí con `--confiar-escalares` para ejecutarlo")
+nucleo.proyecto.EscalaresNoConfiables: /tmp/tmp5pzmhbj1/escalares.py es código Python externo; repetí con `--confiar-escalares` para ejecutarlo
+$ python3 tools/cli.py medida listar --proyecto /tmp/tmp5pzmhbj1 --confiar-escalares
+exit=0
+CATÁLOGO (2 medidas · 0 fijadas · 2 sin fijar):
+
+  demo.otra
+    umbral:   <= 0
+    segun:    contrato
+    fijación: 0 casos  ⚠ SIN FIJAR — ninguna evidencia la pone a prueba
+    alcance:  no ve otros datos
+
+  demo.prueba
+    umbral:   <= 0
+    segun:    contrato
+    fijación: 0 casos  ⚠ SIN FIJAR — ninguna evidencia la pone a prueba
+    alcance:  no ve otros datos
+$ python3 tools/cli.py caso listar --proyecto /tmp/tmp5pzmhbj1
+exit=0
+CORPUS: 0 casos en corpus
+
+### 5.2 deuda de procedencia Oracle
+meta.todo_caso_observado_declara_de_donde_salio valor= 94 ok= False
+
+### 6.3 reproducción actual en copia del laboratorio
+conservado
+$ python3 tools/cli.py test --rapido --proyecto /tmp/tmpwz2fu1jd/juego
+exit=0
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 39 medidas · corpus: 1 casos
+
+  verde 001-flota-completa                     proceso.sintaxis_valida_tras_edicion_masiva  (valor 0)
+
+defectos que se pusieron rojos: 0 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✓ — 0 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (se salteó: mutación de medidas (--rapido))
+game.js roto
+$ python3 tools/cli.py test --rapido --proyecto /tmp/tmpwz2fu1jd/juego
+exit=0
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 39 medidas · corpus: 1 casos
+
+  verde 001-flota-completa                     proceso.sintaxis_valida_tras_edicion_masiva  (valor 0)
+
+defectos que se pusieron rojos: 0 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✓ — 0 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (se salteó: mutación de medidas (--rapido))
+sin casos
+$ python3 tools/cli.py test --rapido --proyecto /tmp/tmpwz2fu1jd/juego
+exit=0
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS: sin casos guardados para verificar
+SINTAXIS: salteado (sin medidas ni casos todavía)
+ACEPTACIÓN: salteado (sin medidas ni casos todavía)
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+MUTACIÓN: salteada (sin medidas todavía)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+PRODUCTO: sin nueva medición; no se ejecutó el producto.
+VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)

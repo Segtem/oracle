@@ -43,10 +43,14 @@ No se responde con gustos: se responde con evidencia de uso real. Hay mucha:
     - El recorrido paso a paso de [`~/TestOracleEjemplo/GUIA22.md`](file:///home/workstation/TestOracleEjemplo/GUIA22.md) (aritmética mediante funciones escalares `mas()`, doble `agrupar` para contar distintos, auto-unión con `<` en lugar de `!=` para matar mutantes, rigidez en el orden de cláusulas en `_leer_medida`, incapacidad de `.caso` para denotar relaciones vacías y sobrecarga del flag `--confiar-escalares`).
   - *Nota*: La redacción del inventario se realizó por lectura y análisis estricto de los fuentes; no se ejecutaron comandos de shell ni se corrieron verificaciones en este turno.
 
-## Próximo paso
-
-Punto 2 del encargo: agrupar las fricciones inventariadas en `FRICCIONES.md` y formular para cada grupo la forma más chica que la resolvería (macro, azúcar de superficie, verbo, mensaje de error o nada), indicando el impacto correspondiente en `VERSION_ALGEBRA` o `VERSION_SINTAXIS` bajo la regla de no agregar operadores sin una segunda medida que los requiera.
-
 ### Nota (2026-09-23 12:16:01 UTC)
 
 2026-09-23, revisión de Claude sobre FRICCIONES.md (agy): NO se puede usar tal cual. Verifiqué tres de las catorce: (a) 1.1 es CIERTA — el tokenizador rechaza + y - y las medidas navales tuvieron que escribir mas(t1.turno, 1); (b) 6.2 está VENCIDA — la omisión silenciosa de juzgar se resolvió en 0.27.0 (NO SE APLICARON); agy la tomó de la guía de Brian, que se escribió contra 0.25.2 y en ese punto quedó desactualizada; (c) 3.2 es FALSA — ninguna medida de Oracle, Jam ni LyraGASP usa contiene() para exigir 'NO' en mayúsculas; la escalar existe y su docstring dice que se pensó para eso, pero nadie la usa, así que el fallo descripto no ocurre. Antes de agrupar y proponer (punto 2), cada fricción tiene que verificarse contra el código y la versión actual, con el comando que la reproduce.
+
+### Nota (2026-09-23 17:43:54 UTC)
+
+Auditoría ejecutada contra main a891cf41a25688faf51d623913c477af41673c45 (v0.28.0+31; álgebra 0.8, sintaxis 0.6). VERIFICACION.md cubre las 15 entradas de FRICCIONES.md: 10 ciertas con alcance corregido, 3 falsas (2.2, 3.2, 5.1) y 2 vencidas (6.2, 6.3; causalidad de atención no acreditada). Se reejecutaron las tres revisadas previamente. Reproducciones en verificar.py y SALIDAS.txt, 23 tests focalizados OK en TESTS.txt. Deudas actuales confirmadas: unidades Jam/Lyra 51/61, segun 41/27, evidencia observada 16/17 y procedencia Oracle 94. Agrupación sólo de ciertas con soluciones mínimas e impacto de versiones. Propuestas registradas: 20260923-173938-ergo-confianza, 20260923-173938-ergo-observados y 20260923-173938-ergo-orden. No se modificó el lenguaje, los proyectos externos ni FRICCIONES.md; sin commits. Sin bloqueos para esta auditoría; el costo humano/60% no puede acreditarse con la evidencia disponible.
+
+## Próximo paso
+
+Revisar [VERIFICACION.md](VERIFICACION.md), sus salidas y las tres tareas propuestas (ergo-confianza, ergo-observados, ergo-orden); decidir cuál iniciar. Las 15 fricciones ya se verificaron y agruparon: no repetir el inventario ni implementar operadores a partir de las entradas descartadas. Los grupos 4–8 quedan aquí como alternativas pendientes de priorización. La auditoría está completa, sin bloqueos técnicos; mantener el lenguaje sin cambios y no hacer commits dentro de este encargo.
