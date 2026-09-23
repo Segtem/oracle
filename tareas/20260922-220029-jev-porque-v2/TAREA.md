@@ -64,3 +64,7 @@ segunda corrida en `estudios/JEV-COMO-SENSOR.md`, incluso si falla. La muestra
 real no permite estimar acuerdo de P2: los 15 umbrales son cero. No cambiarla a
 posteriori para ocultar ese límite. Revalidar artefactos con
 `python3 tareas/20260922-220029-jev-porque-v2/preparar.py --verificar`.
+
+### Nota (2026-09-23 00:03:25 UTC)
+
+2026-09-22, Claude, dos observaciones antes del juicio: (1) NO puedo ser yo el juez ciego de esta segunda corrida: hice el juicio de la primera, conozco sus resultados (alcance 15/15, porque 1/15), el diseño y qué son los controles; las propias INSTRUCCIONES piden una sesión nueva sin acceso a nada de eso. Lo delegué a un agente limpio, sin esta conversación, que sólo lee CRITERIO.md, INSTRUCCIONES.md y registros.json. (2) Las 25 entradas del lote tienen umbral <= 0, así que la pregunta P2 (por qué ese valor y no uno vecino) no se puede evaluar en esta corrida: queda 'no aplica' en las 25. Es un límite del catálogo de Oracle, que casi no tiene umbrales distintos de cero; si se quiere probar P2 hay que traer prosa de un proyecto con umbrales numéricos (LyraGASP y Jam tienen varios) o construir controles con umbral distinto de cero.
