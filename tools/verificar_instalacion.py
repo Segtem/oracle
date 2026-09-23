@@ -6,6 +6,7 @@ from __future__ import annotations
 import json
 import os
 import shutil
+import shlex
 import subprocess
 import sys
 import tempfile
@@ -195,6 +196,44 @@ def _recorrer_tareas(oracle: Path, *, temporal: Path, env: dict[str, str]) -> No
         raise RuntimeError("una consulta de tipo inválido instalada no sale 2 con su posición")
 
 
+def _recorrer_plantilla(oracle: Path, python: Path, *, temporal: Path,
+                       env: dict[str, str], recursos: dict[str, bytes]) -> None:
+    """Ejecuta literalmente el primer bloque del README empaquetado, sin checkout ni API."""
+    consumidor = temporal / "consumidor prosa á"
+    consumidor.mkdir()
+    cwd = consumidor
+    readme = recursos["README.md"].decode("utf-8")
+    comandos = readme.split("```bash\n", 1)[1].split("```", 1)[0].splitlines()
+    for linea in comandos:
+        args = shlex.split(linea)
+        if not args:
+            continue
+        if args[0] == "cd":
+            cwd = cwd / args[1]
+            continue
+        args[0] = str({"oracle": oracle, "python": python}[args[0]])
+        resultado = _correr(args, cwd=cwd, env=env)
+        if "plantilla" in args:
+            for paso in ("OPENROUTER_API_KEY", "sensor_prosa.py correr", "oracle juzgar"):
+                if paso not in resultado.stdout:
+                    raise RuntimeError(f"la plantilla no indica el siguiente paso: {paso}")
+            destino = consumidor / "prosa"
+            copiados = {str(p.relative_to(destino)).replace(os.sep, "/"): p.read_bytes()
+                        for p in destino.rglob("*") if p.is_file()}
+            if copiados != recursos:
+                raise RuntimeError("la copia no coincide con los recursos del wheel")
+        if "test" in args and "VEREDICTO: VERDE" not in resultado.stdout:
+            raise RuntimeError("el corpus de la plantilla instalada no está verde")
+    if not (cwd / "preparada").is_dir() or not (cwd / "hechos-construidos.json").is_file():
+        raise RuntimeError("el recorrido sin red del README no produjo sus artefactos")
+    antes = {p: p.read_bytes() for p in cwd.rglob("*") if p.is_file()}
+    repetido = subprocess.run([str(oracle), "plantilla", "sensor-prosa", str(cwd)],
+                             cwd=consumidor, env=env, capture_output=True, text=True)
+    despues = {p: p.read_bytes() for p in cwd.rglob("*") if p.is_file()}
+    if repetido.returncode != 1 or antes != despues:
+        raise RuntimeError("la plantilla no rechaza un destino existente sin tocarlo")
+
+
 def _hablarle_al_lsp(ejecutable: Path, *, proyecto: Path, cwd: Path, env: dict[str, str]) -> None:
     """Le habla al servidor por stdio como haría un editor y exige que conteste sus capacidades.
 
@@ -250,6 +289,17 @@ def main() -> int:
             raise RuntimeError(f"se esperaba un wheel de Oracle, no {encontradas}")
         with zipfile.ZipFile(encontradas[0]) as wheel:
             nombres = set(wheel.namelist())
+            prefijo = "oracle_metalenguaje/plantilla_sensor_prosa/"
+            recursos = {n[len(prefijo):]: wheel.read(n) for n in nombres
+                        if n.startswith(prefijo) and not n.endswith("/")
+                        and not n[len(prefijo):].startswith("__")}
+            fuente_plantilla = RAIZ / "ejemplo" / "sensor-prosa"
+            esperados_plantilla = {
+                p.relative_to(fuente_plantilla).as_posix(): p.read_bytes()
+                for p in fuente_plantilla.rglob("*") if p.is_file()
+                and "__pycache__" not in p.parts and p.name != "__init__.py"}
+            if recursos != esperados_plantilla:
+                raise RuntimeError("el wheel no contiene la plantilla completa y fiel al ejemplo")
         genericos = ("nucleo/", "catalogos/", "perfiles/", "tools/")
         filtrados = sorted(nombre for nombre in nombres if nombre.startswith(genericos))
         if filtrados:
@@ -420,6 +470,7 @@ def main() -> int:
                 "una instalación sin corpus debe exigir --proyecto: " + diagnostico)
 
         oracle = binarios / "oracle"
+        _recorrer_plantilla(oracle, python, temporal=temporal, env=env, recursos=recursos)
         _recorrer_tareas(oracle, temporal=temporal, env=env)
         proyecto_cli = temporal / "proyecto-cli"
         _correr([str(oracle), "init", str(proyecto_cli)], cwd=vacio, env=env)
@@ -502,7 +553,7 @@ def main() -> int:
 
     print(
         "WHEEL OK · namespace, datos, "
-        f"{len(entry_points)} entry points, oracle test, tracker y dos motores aislados "
+        f"{len(entry_points)} entry points, plantilla sensor-prosa (README sin red), oracle test, tracker y dos motores aislados "
         "fuera del checkout"
     )
     return 0

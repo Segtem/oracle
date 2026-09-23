@@ -69,9 +69,11 @@ packages = [
   "oracle_metalenguaje.perfiles.python",
   "oracle_metalenguaje.relaciones",
   "oracle_metalenguaje.tools",
+  "oracle_metalenguaje.plantilla_sensor_prosa",
 ]
 
 [tool.setuptools.package-dir]
+"oracle_metalenguaje.plantilla_sensor_prosa" = "ejemplo/sensor-prosa"
 "oracle_metalenguaje.catalogos" = "catalogos"
 # `mutadores/` viaja desde 0.10.0. Hasta 0.9.2 NO estaba acá, y la consecuencia se midió:
 # el paquete instalado mutaba con los 5 mutadores propios en vez de los 29 declarados, sin
@@ -87,6 +89,7 @@ packages = [
 "oracle_metalenguaje.tools" = "tools"
 
 [tool.setuptools.package-data]
+"oracle_metalenguaje.plantilla_sensor_prosa" = ["README.md", "oracle.json", "catalogos/**/*.oracle", "relaciones/*.json", "corpus/**/*.json", "diferencial/*.md"]
 "oracle_metalenguaje.catalogos" = ["**/*.json", "**/*.oracle"]
 "oracle_metalenguaje.nucleo" = ["macros/*.json", "macros/*.oracle"]
 "oracle_metalenguaje.perfiles.python" = ["catalogos/**/*.json", "catalogos/**/*.oracle"]

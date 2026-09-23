@@ -338,6 +338,14 @@ La salida son tres señales que no le preguntan al LLM: la **mutación** (mecán
 **prueba diferencial** contra una implementación independiente, y **una persona** que dice «esto está
 mal» cuando el verde no se movió.
 
+## Sensor de prosa opcional (Jev)
+
+El paquete incluye una plantilla editable: `oracle plantilla sensor-prosa prosa` la copia a un destino nuevo.
+Oracle entrega el sensor; el usuario lo ejecuta explícitamente y Oracle juzga las filas sin red.
+El primer estudio costó US$ 0.000877044 en seis solicitudes; es consumo observado, no una tarifa futura.
+Un sensor probabilístico no es un juez: un verde no certifica verdad y la zona media requiere revisión humana.
+[README con el recorrido sin red y los pasos de API](https://github.com/Segtem/oracle/blob/main/ejemplo/sensor-prosa/README.md).
+
 ## La herramienta y el proyecto
 
 Oracle **no tiene dominios**. Los dominios son de quien construye:

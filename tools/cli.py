@@ -3,6 +3,7 @@
     oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto, biblioteca, tarea)
     oracle <sustantivo>                     ayuda del sustantivo con sus verbos
 
+    oracle plantilla sensor-prosa <destino> copia el sensor opcional sin ejecutarlo ni pisar archivos
     oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
     oracle medida revisar <archivo>         revisa y evalúa una medida suelta contra la evidencia
     oracle medida probar <archivo> --con <filas>   corre una medida contra filas escritas a mano
@@ -113,6 +114,7 @@ def ayuda() -> None:
 Uso:
   oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, listar, expandir)
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
+  oracle plantilla sensor-prosa <destino> Copia el sensor opcional a un directorio nuevo
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
@@ -373,6 +375,7 @@ def cmd_reportar(proy, argv: list[str]) -> int:
 # Cada entrada es el verbo canónico. Los alias se derivan: `--verbo` para todos, más los que
 # `ALIAS` declare aparte.
 VERBOS = {
+    "plantilla": ("sensor-prosa",),
     "medida": ("nueva", "revisar", "probar", "listar", "expandir"),
     "caso": ("nuevo", "listar", "generar"),
     "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto"),
@@ -1023,6 +1026,12 @@ def main(argv: list[str] | None = None) -> int:
 
     subcomando = posicionales[0]
     resto = posicionales[1:]
+
+    if subcomando == "plantilla":
+        if resto and resto[0] not in ("-h", "--help", "help") and resto[0] not in verbos_aceptados("plantilla"):
+            return _verbo_desconocido("plantilla", resto[0])
+        from tools import plantilla
+        return plantilla.main(argv[1:])
 
     # ANTES de resolver el proyecto, y con el `argv` CRUDO. `censar` es el único verbo que toma
     # VARIOS `--proyecto`, y la resolución de más abajo consume esa bandera para quedarse con uno.
