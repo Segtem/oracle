@@ -1,3 +1,91 @@
+# 0.29.0 — un modelo como sensor de la prosa, y un lenguaje que avisa mejor
+
+```
+VERSION_DISTRIBUCION   0.28.0 → 0.29.0   el patrón del sensor de prosa, ergonomía y un MCP medido
+VERSION_ALGEBRA        0.8    → 0.8
+VERSION_SINTAXIS       0.6    → 0.6
+```
+
+## Un modelo como sensor, nunca como juez
+
+Hay reglas de un catálogo que viven en prosa: si un `alcance` dice de verdad qué no mira, o si un
+`porque` defiende el número. Ninguna medida determinista puede leer eso. El patrón nuevo deja que un
+modelo lo lea **como sensor**: emite hechos (`afirmacion_prosa`: qué texto, qué pregunta, qué
+respondió, con qué probabilidad) y Oracle los juzga como cualquier otro hecho. Oracle no llama a
+ningún modelo ni abre la red: el sensor es un programa del proyecto, opcional, que se corre aparte.
+
+- **`oracle plantilla sensor-prosa <destino>`** copia el patrón a un directorio nuevo: la relación, una
+  medida de ejemplo, un corpus de 15 casos y `sensor_prosa.py`, que usa sólo la biblioteca estándar y
+  recibe el proveedor, el modelo y la variable de la clave como parámetros. Se prueba entero sin red
+  ni clave. Explicado en `docs/14-sensor-prosa.md`.
+- **Lo medido con Jev (TypeSafe AI) y dónde no alcanza.** Separa bien la prosa real de la vacía
+  (10/10 controles) y coincidió 15/15 con un juez ciego en si el `porque` defiende el número. En los
+  pilotos de Jam y LyraGASP, con criterios más finos, el acuerdo bajó (síntoma 9/15, con el modelo
+  indulgente en los nueve desacuerdos). Por eso lo que cae en la zona media (0,4–0,6) no se decide:
+  va a `revision-humana.json` y el sensor sale con código 2.
+
+## El lenguaje avisa mejor
+
+- **`requiere` fuera de lugar dice dónde va**: después de `umbral`, antes de `ambito` o `alcance`.
+- **`caso generar` sin `--confiar-escalares`** explica por qué no ejecutó el `escalares.py` del
+  proyecto en vez de terminar en un traceback; el README trae un wrapper `oracle-local` para un
+  proyecto cuyo `escalares.py` ya se revisó.
+- **Una captura del sensor se vuelve un caso observado** con la receta de `ejemplo/caso-observado/`:
+  metadatos explícitos, evidencia copiada sin transcribir, sin verbo nuevo.
+- **Dos relaciones con el mismo nombre** son un `PROYECTO INVÁLIDO` con instrucciones (salida 2), no
+  un traceback.
+- **`oracle init --help`** muestra la ayuda. Antes creaba un proyecto en una carpeta llamada `--help`;
+  lo mismo en los demás verbos que reciben una ruta.
+
+## El MCP, medido en tres clientes
+
+`oracle_tareas listar` ya no devuelve los cuerpos (−87 %) y las descripciones son más cortas. El
+contrato de `estudios/MCP-CONTRATO.md` se genera desde el código (`tools/mcp_contrato.py --check`).
+Qué ve el modelo en cada cliente, medido con marcas aleatorias en cada parte de la respuesta:
+ninguno recibe `outputSchema`; Claude Code ve sólo `structuredContent`, agy sólo el texto y Codex los
+dos. Por eso se conservan las dos copias: quitar cualquiera deja ciego a un cliente.
+
+## La especificación, leída por un tercer autor
+
+Codex escribió una implementación del álgebra 0.8 desde cero, aislado, con la especificación y sin
+ver la referencia. El contraste encontró tres preguntas que el texto no contestaba y que ahora
+contesta con lo que el núcleo ya hacía: `ambito` va después de `requiere` y antes de `alcance`;
+`y`/`o` aceptan dos o más operandos; `min`/`max` aceptan booleanos homogéneos, con `false < true`.
+La tercera escondía un defecto de la **referencia** del diferencial, que rechazaba esos booleanos
+aunque el núcleo los aceptaba; está corregido. Ninguna versión sube: el lenguaje no cambió, se
+escribió. Detalle en `estudios/0.26.0-codex/entrega-2026-09-24/`.
+
+## Mantenimiento
+
+- **Nueve duplicaciones borradas** (132 líneas en `tools/mcp.py` y `nucleo/caso.py`), comprobadas
+  por AST antes de tocarlas, con el anuncio del MCP idéntico por bytes y sin mutantes vivos antes ni
+  después.
+- **`oracle test --todo`** le da a la línea base de la mutación 240 s (medida en 164 s) y conserva 60 s
+  por mutante: antes la base se cortaba con el mismo plazo que un mutante.
+
+## Verificación
+
+- Suite completa en verde (2432 tests); `oracle test` VERDE con 1010/1010 mutantes de medida; cifras
+  al día ([log](tareas/20260924-100921-corte-029/verificacion/oracle-test.log)).
+- Mutación de código de lo tocado desde 0.28.0, en rondas paralelas bajo un techo de systemd de
+  12 GB, sin vivos: `nucleo/sintaxis.py` 1140/1140, `tools/cli.py` 595/595, `tools/mcp.py` 363/363,
+  `perfiles/python/mutacion_codigo.py` 234/234, `nucleo/caso.py` 203/203, `nucleo/relacion.py`
+  171/171, `nucleo/proyecto.py` 152/152 y `tools/juzgar.py` 107/107
+  ([logs](tareas/20260924-100921-corte-029/verificacion/)). La primera ronda de `tools/cli.py` dejó
+  7 vivos en la guarda de `--help` de `init-ayuda`: ningún test exigía el `0` exacto de esas ramas.
+  Dos tests nuevos los matan y la ronda repetida dio 595/595.
+- `tools/mcp_contrato.py`, `tools/mutar_codigo.py`, `tools/plantilla.py` y
+  `tools/verificar_instalacion.py` también cambiaron pero **no se mutaron**: están fuera del perfil de
+  mutación de código, que los rechaza como objetivo. Los cubre la suite.
+
+## Cómo se hizo
+
+Codex (gpt-6-astra y gpt-6-sol) implementó el patrón de prosa, su distribución, la ergonomía, el
+refactor, el timeout y `init --help`. agy investigó Jev, inventarió las fricciones del lenguaje y
+escribió la primera versión de la relación de prosa. Claude corrió el juicio a ciegas y la medición
+del MCP en tres clientes, revisó cada entrega —una relación mal ubicada, un inventario con
+afirmaciones falsas, ejemplos inventados— y cortó.
+
 # 0.28.0 — retomar es leer una tarea
 
 ```

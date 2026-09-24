@@ -1,0 +1,219 @@
+objetivos: nucleo/caso.py
+
+     ·  nucleo/caso.py:20:13:constante                       constante: 2 → 3
+     ·  nucleo/caso.py:21:13:constante                       constante: 3 → 4
+     ·  nucleo/caso.py:95:4:retorno                          retorno: return <algo> → return None
+     ·  nucleo/caso.py:100:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:102:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:107:8:constante                       constante: 0 → 1
+     ·  nucleo/caso.py:109:10:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:110:14:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:110:14:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:111:17:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:112:11:comparador                     comparador: GtE → Gt
+     ·  nucleo/caso.py:120:14:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:120:14:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:121:17:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:122:11:comparador                     comparador: GtE → Gt
+     ·  nucleo/caso.py:124:11:comparador                     comparador: NotEq → Eq
+     ·  nucleo/caso.py:126:13:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:127:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:129:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:133:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:133:42:constante                      constante: False → True
+     ·  nucleo/caso.py:138:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:142:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:146:7:booleano                        booleano: and ↔ or
+     ·  nucleo/caso.py:146:36:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:146:50:comparador                     comparador: Eq → NotEq
+     ·  nucleo/caso.py:146:61:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:146:68:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:146:74:comparador                     comparador: Eq → NotEq
+     ·  nucleo/caso.py:146:81:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:146:84:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:147:23:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:147:26:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:148:24:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:150:7:comparador                      comparador: IsNot → Is
+     ·  nucleo/caso.py:151:11:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:151:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:151:42:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:154:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:155:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:157:57:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:157:25:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:159:8:booleano                        booleano: and ↔ or
+     ·  nucleo/caso.py:160:16:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:160:40:comparador                     comparador: Eq → NotEq
+     ·  nucleo/caso.py:174:16:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:174:22:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:174:60:comparador                     comparador: NotIn → In
+     ·  nucleo/caso.py:176:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:179:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:181:71:constante                      constante: False → True
+     ·  nucleo/caso.py:182:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:185:7:comparador                      comparador: IsNot → Is
+     ·  nucleo/caso.py:188:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:197:17:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:200:14:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:202:15:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:202:33:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:204:22:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:207:11:comparador                     comparador: GtE → Gt
+     ·  nucleo/caso.py:208:39:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:209:12:retorno                        retorno: return <algo> → return None
+     ·  nucleo/caso.py:210:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:210:24:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:212:53:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:215:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:219:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:223:26:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:224:52:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:225:13:comparador                     comparador: Eq → NotEq
+     ·  nucleo/caso.py:226:52:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:228:57:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:229:18:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:230:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:232:54:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:234:11:comparador                     comparador: Is → IsNot
+     ·  nucleo/caso.py:236:53:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:236:69:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:238:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:245:14:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:247:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:250:22:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:251:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:252:24:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:252:27:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:253:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:260:14:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:262:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:264:39:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:266:15:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:266:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:266:26:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:267:40:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:268:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:269:53:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:270:15:comparador                     comparador: In → NotIn
+     ·  nucleo/caso.py:271:40:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:272:46:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:272:80:constante                      constante: 3 → 4
+     ·  nucleo/caso.py:273:22:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:274:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:275:24:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:275:27:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:276:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:283:15:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:283:21:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:287:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:291:19:comparador                     comparador: Gt → GtE
+     ·  nucleo/caso.py:291:35:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:292:53:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:293:53:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:293:77:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:294:89:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:296:32:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:298:19:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:299:51:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:300:30:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:303:15:comparador                     comparador: Gt → GtE
+     ·  nucleo/caso.py:303:31:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:304:60:comparador                     comparador: IsNot → Is
+     ·  nucleo/caso.py:304:55:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:304:83:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:305:49:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:306:49:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:306:73:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:307:76:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:309:11:comparador                     comparador: NotEq → Eq
+     ·  nucleo/caso.py:311:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:318:14:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:320:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:323:43:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:324:43:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:326:15:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:326:15:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:326:26:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:327:43:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:329:15:comparador                     comparador: In → NotIn
+     ·  nucleo/caso.py:330:43:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:331:55:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:333:22:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:335:18:comparador                     comparador: Lt → LtE
+     ·  nucleo/caso.py:337:19:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:339:53:constante                      constante: 3 → 4
+     ·  nucleo/caso.py:342:52:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:345:73:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:347:23:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:348:52:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:350:77:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:351:23:comparador                     comparador: NotEq → Eq
+     ·  nucleo/caso.py:355:31:comparador                     comparador: Eq → NotEq
+     ·  nucleo/caso.py:355:43:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:354:47:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:360:40:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:363:36:constante                      constante: True → False
+     ·  nucleo/caso.py:366:26:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:367:15:booleano                       booleano: and ↔ or
+     ·  nucleo/caso.py:367:26:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:368:59:constante                      constante: 2 → 3
+     ·  nucleo/caso.py:370:43:comparador                     comparador: IsNot → Is
+     ·  nucleo/caso.py:372:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:373:24:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:373:27:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:374:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:380:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:381:23:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:382:22:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:383:11:comparador                     comparador: Is → IsNot
+     ·  nucleo/caso.py:384:46:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:387:18:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:392:11:comparador                     comparador: IsNot → Is
+     ·  nucleo/caso.py:394:15:comparador                     comparador: NotIn → In
+     ·  nucleo/caso.py:400:11:comparador                     comparador: NotIn → In
+     ·  nucleo/caso.py:406:11:comparador                     comparador: NotIn → In
+     ·  nucleo/caso.py:411:34:comparador                     comparador: Eq → NotEq
+     ·  nucleo/caso.py:414:11:comparador                     comparador: IsNot → Is
+     ·  nucleo/caso.py:415:48:constante                      constante: 0 → 1
+     ·  nucleo/caso.py:417:15:comparador                     comparador: IsNot → Is
+     ·  nucleo/caso.py:418:26:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:424:11:comparador                     comparador: NotEq → Eq
+     ·  nucleo/caso.py:426:76:constante                      constante: 1 → 2
+     ·  nucleo/caso.py:428:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:432:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:445:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:465:7:comparador                      comparador: NotIn → In
+     ·  nucleo/caso.py:467:7:booleano                        booleano: and ↔ or
+     ·  nucleo/caso.py:467:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:467:43:comparador                     comparador: Is → IsNot
+     ·  nucleo/caso.py:476:7:comparador                      comparador: In → NotIn
+     ·  nucleo/caso.py:482:53:comparador                     comparador: IsNot → Is
+     ·  nucleo/caso.py:483:7:comparador                      comparador: In → NotIn
+     ·  nucleo/caso.py:486:11:comparador                     comparador: In → NotIn
+     ·  nucleo/caso.py:492:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:497:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:498:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:499:7:booleano                        booleano: and ↔ or
+     ·  nucleo/caso.py:499:28:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:507:11:comparador                     comparador: NotIn → In
+     ·  nucleo/caso.py:516:11:negacion                       negacion: se borra el `not`
+     ·  nucleo/caso.py:519:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:523:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:532:7:comparador                      comparador: Eq → NotEq
+     ·  nucleo/caso.py:537:9:comparador                      comparador: Eq → NotEq
+     ·  nucleo/caso.py:545:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:548:7:booleano                        booleano: and ↔ or
+     ·  nucleo/caso.py:548:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/caso.py:548:35:comparador                     comparador: Is → IsNot
+     ·  nucleo/caso.py:552:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/caso.py:562:15:comparador                     comparador: In → NotIn
+     ·  nucleo/caso.py:567:4:retorno                         retorno: return <algo> → return None
+
+mutantes: 203 · murieron 203 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 6
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

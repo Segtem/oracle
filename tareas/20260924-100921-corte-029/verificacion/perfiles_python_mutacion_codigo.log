@@ -1,0 +1,244 @@
+objetivos: perfiles/python/mutacion_codigo.py
+
+     ·  perfiles/python/mutacion_codigo.py:68:22:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:99:25:constante   constante: 60.0 → 61.0
+     ·  perfiles/python/mutacion_codigo.py:100:43:constante  constante: 1 → 2
+     ·  perfiles/python/mutacion_codigo.py:101:36:constante  constante: 16384 → 16385
+     ·  perfiles/python/mutacion_codigo.py:102:31:constante  constante: 1048576 → 1048577
+     ·  perfiles/python/mutacion_codigo.py:105:32:constante  constante: 1024 → 1025
+     ·  perfiles/python/mutacion_codigo.py:105:39:constante  constante: 1024 → 1025
+     ·  perfiles/python/mutacion_codigo.py:105:46:constante  constante: 1024 → 1025
+     ·  perfiles/python/mutacion_codigo.py:119:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:119:7:comparador  comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:119:27:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:122:7:comparador  comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:124:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:134:7:comparador  comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:136:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:136:34:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:136:64:comparador comparador: Lt → LtE
+     ·  perfiles/python/mutacion_codigo.py:136:72:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:138:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:138:11:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:139:24:constante  constante: 3 → 4
+     ·  perfiles/python/mutacion_codigo.py:140:27:constante  constante: 1.0 → 2.0
+     ·  perfiles/python/mutacion_codigo.py:141:29:constante  constante: 2.0 → 3.0
+     ·  perfiles/python/mutacion_codigo.py:142:33:constante  constante: 24 → 25
+     ·  perfiles/python/mutacion_codigo.py:143:34:constante  constante: 128 → 129
+     ·  perfiles/python/mutacion_codigo.py:144:21:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:197:28:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:198:28:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:207:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:211:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:211:15:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:215:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:215:15:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:219:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:219:15:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:223:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:223:15:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:191:18:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:250:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:238:18:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:264:15:comparador comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:281:65:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:283:78:constante  constante: 1 → 2
+     ·  perfiles/python/mutacion_codigo.py:286:11:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:286:11:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:286:38:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:287:16:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:287:57:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:297:24:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:300:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:300:16:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:300:16:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:301:20:comparador comparador: Eq → NotEq
+     ·  perfiles/python/mutacion_codigo.py:302:20:comparador comparador: Eq → NotEq
+     ·  perfiles/python/mutacion_codigo.py:303:20:comparador comparador: Eq → NotEq
+     ·  perfiles/python/mutacion_codigo.py:309:19:comparador comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:311:36:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:313:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:319:28:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:320:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:324:11:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:325:28:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:326:12:retorno    retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:327:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:332:42:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:334:55:constante  constante: 1 → 2
+     ·  perfiles/python/mutacion_codigo.py:335:28:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:336:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:342:28:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:343:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:350:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:357:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:360:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:376:30:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:376:48:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:379:19:comparador comparador: Eq → NotEq
+     ·  perfiles/python/mutacion_codigo.py:383:56:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:386:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:386:67:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:391:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:391:31:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:396:7:comparador  comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:398:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:418:11:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:425:11:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:425:11:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:425:30:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:428:15:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:428:33:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:439:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:444:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:444:11:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:481:12:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:485:15:comparador comparador: Gt → GtE
+     ·  perfiles/python/mutacion_codigo.py:485:28:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:489:29:comparador comparador: Gt → GtE
+     ·  perfiles/python/mutacion_codigo.py:506:8:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:506:37:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:507:15:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:507:45:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:507:56:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:510:11:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:510:11:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:510:33:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:510:38:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:512:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:513:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:514:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:514:7:comparador  comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:514:41:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:514:58:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:532:34:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:536:43:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:538:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:552:14:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:557:22:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:571:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:574:7:comparador  comparador: Eq → NotEq
+     ·  perfiles/python/mutacion_codigo.py:574:17:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:576:9:comparador  comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:580:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:586:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:591:56:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:602:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:630:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:638:13:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:639:26:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:640:7:comparador  comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:642:8:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:643:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:643:58:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:648:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:667:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:682:11:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:704:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:704:42:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:704:59:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:708:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:712:30:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:712:45:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:740:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:742:39:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:754:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:754:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:754:38:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:756:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:756:7:comparador  comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:756:46:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:759:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:759:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:759:38:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:762:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:762:7:comparador  comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:762:33:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:762:62:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:762:66:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:768:12:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:768:12:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:768:16:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:769:19:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:770:19:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:771:19:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:772:19:comparador comparador: NotIn → In
+     ·  perfiles/python/mutacion_codigo.py:773:19:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:774:19:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:775:19:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:775:53:comparador comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:776:19:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:778:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:786:30:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:795:24:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:804:25:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:806:32:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:822:42:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:829:15:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:837:7:comparador  comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:859:32:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:871:47:constante  constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:876:4:retorno     retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:894:19:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:903:28:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:903:28:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:903:58:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:912:7:booleano    booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:912:7:comparador  comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:912:46:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:912:68:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:916:17:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:918:76:comparador comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:921:11:comparador comparador: Eq → NotEq
+     ·  perfiles/python/mutacion_codigo.py:921:60:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:925:56:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:927:36:constante  constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:930:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:933:29:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:935:23:constante  constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:942:15:comparador comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:945:15:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:968:41:comparador comparador: In → NotIn
+     ·  perfiles/python/mutacion_codigo.py:972:32:constante  constante: 1 → 2
+     ·  perfiles/python/mutacion_codigo.py:973:15:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:973:15:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:973:41:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:975:15:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:975:16:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:975:64:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:985:7:negacion    negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:988:34:negacion   negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:1003:26:constante constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:1017:30:constante constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:1019:4:retorno    retorno: return <algo> → return None
+     ·  perfiles/python/mutacion_codigo.py:1031:33:constante constante: 1 → 2
+     ·  perfiles/python/mutacion_codigo.py:1032:40:constante constante: 1 → 2
+     ·  perfiles/python/mutacion_codigo.py:1059:28:constante constante: False → True
+     ·  perfiles/python/mutacion_codigo.py:1067:33:booleano  booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1072:19:booleano  booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1075:28:booleano  booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1075:28:negacion  negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:1075:58:negacion  negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:1076:7:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1076:28:negacion  negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:1076:32:comparador comparador: LtE → Lt
+     ·  perfiles/python/mutacion_codigo.py:1078:7:booleano   booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1078:20:comparador comparador: Is → IsNot
+     ·  perfiles/python/mutacion_codigo.py:1084:16:comparador comparador: IsNot → Is
+     ·  perfiles/python/mutacion_codigo.py:1120:27:booleano  booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1132:20:booleano  booleano: and ↔ or
+     ·  perfiles/python/mutacion_codigo.py:1132:20:negacion  negacion: se borra el `not`
+     ·  perfiles/python/mutacion_codigo.py:1132:41:comparador comparador: NotEq → Eq
+     ·  perfiles/python/mutacion_codigo.py:1135:34:constante constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:1135:50:constante constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:1136:34:constante constante: 0 → 1
+     ·  perfiles/python/mutacion_codigo.py:1136:70:constante constante: True → False
+     ·  perfiles/python/mutacion_codigo.py:1137:4:retorno    retorno: return <algo> → return None
+
+mutantes: 234 · murieron 234 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

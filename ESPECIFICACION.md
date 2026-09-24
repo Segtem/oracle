@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.28.0`.**
+**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.29.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,19 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.29.0 (2026-09-24): `VERSION_DISTRIBUCION` sube de `0.28.0` a `0.29.0`.** Un modelo puede
+leer la prosa del catálogo como sensor, nunca como juez: `oracle plantilla sensor-prosa` copia a un
+proyecto la relación `afirmacion_prosa`, una medida de ejemplo, un corpus y un sensor opcional que
+Oracle no invoca. El lenguaje avisa mejor (`requiere` fuera de lugar, escalares no confiadas,
+relaciones duplicadas, `init --help`), el MCP deja de devolver cuerpos al listar tareas y su contrato
+se genera desde el código, y `oracle test --todo` separa el plazo de la línea base del de cada
+mutante. Sube la **menor**: hay un verbo nuevo (`plantilla`) y cambian salidas de la CLI.
+`VERSION_ALGEBRA` queda en `0.8` y `VERSION_SINTAXIS` en `0.6`. Cierra `jev-pypi`, `sensor-prosa`,
+`relacion-duplicada`, `ergo-orden`, `ergo-confianza`, `ergo-observados`, `init-ayuda`,
+`timeout-suite-mutacion`, `mcp-tokens`, `refactor` y `codex`: un tercer autor, sin ver la
+referencia, encontró tres preguntas que el texto no contestaba —dónde va `ambito`, la aridad de
+`y`/`o`, `min`/`max` sobre booleanos—, y ahora están escritas con lo que el núcleo ya hacía.
 
 **Corte 0.28.0 (2026-09-22): `VERSION_DISTRIBUCION` sube de `0.27.0` a `0.28.0`.** Retomar el
 trabajo pasa a ser leer una tarea: el tracker encuentra una tarea por su sufijo y sugiere la más
