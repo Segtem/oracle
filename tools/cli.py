@@ -547,7 +547,7 @@ def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
         raiz = Path(ruta_str).expanduser().resolve()
     elif "--proyecto" in argv:
         i = argv.index("--proyecto")
-        if i + 1 >= len(argv):
+        if i + 1 >= len(argv) or argv[i + 1].startswith("-"):
             print("PROYECTO INVÁLIDO — --proyecto necesita una ruta", file=sys.stderr)
             return 1
         raiz = Path(argv[i + 1]).expanduser().resolve()
@@ -1079,6 +1079,28 @@ def main(argv: list[str] | None = None) -> int:
         ayuda_reportar()
         return 0
 
+    # `resto` ya excluye `--proyecto <ruta>` mediante sin_banderas_comunes.
+    # Estos verbos reciben una ruta posicional: la ayuda debe resolverse antes de usarla.
+    if "-h" in resto or "--help" in resto:
+        if subcomando == "init":
+            ayuda()
+            return 0
+        if subcomando == "proyecto" and resto[0] == "init":
+            ayuda_proyecto()
+            return 0
+        if subcomando == "biblioteca" and resto[0] in ("nueva", "verificar", "listar"):
+            ayuda_biblioteca()
+            return 0
+        if subcomando == "medida" and resto[0] in ("revisar", "probar", "expandir"):
+            ayuda_medida()
+            return 0
+        if subcomando == "caso" and resto[0] == "nuevo":
+            ayuda_caso()
+            return 0
+        if subcomando in ("revisar", "expandir", "convertir"):
+            ayuda()
+            return 0
+
     # 2. Inicialización de proyecto (no requiere proyecto previo)
     if subcomando == "manual":
         tema = resto[0] if resto and not resto[0].startswith("-") else None
@@ -1101,12 +1123,11 @@ def main(argv: list[str] | None = None) -> int:
             print(manual.texto(tema))
         return 0
 
-    if subcomando == "init":
-        args = [a for a in resto if a != "--rapido"]
-        ruta = args[0] if args else None
-        return cmd_init(ruta, argv)
-    if subcomando == "proyecto" and resto and resto[0] == "init":
-        args = [a for a in resto[1:] if a != "--rapido"]
+    if subcomando == "init" or (subcomando == "proyecto" and resto and resto[0] == "init"):
+        args = [a for a in resto[1 if subcomando == "proyecto" else 0:] if a != "--rapido"]
+        if args and args[0].startswith("-"):
+            print(f"opción desconocida: {args[0]}", file=sys.stderr)
+            return 2
         ruta = args[0] if args else None
         return cmd_init(ruta, argv)
 

@@ -178,6 +178,45 @@ class OracleCliTests(CliTestCase):
             self.assertIn("VEREDICTO: SIN MEDICIÓN", salida_test.getvalue())
             self.assertIn("proyecto vacío", salida_test.getvalue())
 
+    def test_ayuda_en_lugar_de_ruta_no_crea_archivos(self) -> None:
+        comandos = (
+            (("init",), "oracle init"),
+            (("proyecto", "init"), "oracle proyecto init"),
+            (("biblioteca", "nueva", "demo.prueba"), "oracle biblioteca nueva"),
+            (("biblioteca", "verificar"), "oracle biblioteca verificar"),
+            (("biblioteca", "listar"), "oracle biblioteca listar"),
+            (("medida", "revisar"), "oracle medida revisar"),
+            (("medida", "probar"), "oracle medida probar"),
+            (("medida", "expandir"), "oracle medida expandir"),
+            (("caso", "nuevo"), "oracle caso nuevo"),
+            (("revisar",), "oracle revisar"),
+            (("expandir",), "oracle expandir"),
+            (("convertir",), "oracle convertir"),
+        )
+        for comando, uso in comandos:
+            for bandera in ("-h", "--help"):
+                with self.subTest(comando=comando, bandera=bandera):
+                    with tempfile.TemporaryDirectory() as td:
+                        resultado = subprocess.run(
+                            [sys.executable, str(RAIZ / "tools" / "cli.py"),
+                             *comando, bandera],
+                            cwd=td, capture_output=True, text=True, timeout=10)
+                        self.assertEqual(resultado.returncode, 0, resultado.stderr)
+                        self.assertIn(uso, resultado.stdout)
+                        self.assertFalse((Path(td) / bandera).exists())
+
+    def test_init_no_usa_una_opcion_desconocida_como_ruta(self) -> None:
+        for comando in (("init",), ("proyecto", "init")):
+            with self.subTest(comando=comando):
+                with tempfile.TemporaryDirectory() as td:
+                    resultado = subprocess.run(
+                        [sys.executable, str(RAIZ / "tools" / "cli.py"),
+                         *comando, "--inexistente"],
+                        cwd=td, capture_output=True, text=True, timeout=10)
+                    self.assertEqual(resultado.returncode, 2)
+                    self.assertIn("opción desconocida: --inexistente", resultado.stderr)
+                    self.assertFalse((Path(td) / "--inexistente").exists())
+
     def test_init_acepta_proyecto_es_idempotente_y_escribe_json_legible(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             destino = Path(td) / "por-bandera"
@@ -203,6 +242,15 @@ class OracleCliTests(CliTestCase):
 
         self.assertEqual(rc, 1)
         self.assertIn("--proyecto necesita una ruta", stderr.getvalue())
+
+        with tempfile.TemporaryDirectory() as td:
+            resultado = subprocess.run(
+                [sys.executable, str(RAIZ / "tools" / "cli.py"),
+                 "init", "--proyecto", "--help"],
+                cwd=td, capture_output=True, text=True, timeout=10)
+            self.assertEqual(resultado.returncode, 1)
+            self.assertIn("--proyecto necesita una ruta", resultado.stderr)
+            self.assertFalse((Path(td) / "--help").exists())
 
     def test_init_propaga_error_de_escritura_como_uno(self) -> None:
         with tempfile.TemporaryDirectory() as td:
