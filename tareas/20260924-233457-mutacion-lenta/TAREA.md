@@ -22,6 +22,19 @@ defecto que la mutación existe para evitar.
    `tareas/*-corte-029/verificacion/` y `tareas/*-corte-030/verificacion/`.
 3. Lo que cambie el criterio (qué cuenta como muerto) no se hace sin decisión de Brian.
 
+## Avance
+
+Se completó el análisis de los puntos 1 y 2 en `tareas/20260924-233457-mutacion-lenta/ANALISIS.md` sin modificar código ni ejecutar comandos de shell:
+- Se constató que `failfast=True` ya opera en `tools/ejecutar_suite_mutacion.py:26`. Los mutantes muertos por módulos prioritarios no pagan la suite descubierta; la suite completa (~86-90 s) la sufren los mutantes vivos/equivalentes y los que escapan a las prioridades declaradas.
+- En `nucleo/sintaxis.py` (~6,1 s/mutante), el costo se explica porque `tests/test_sintaxis.py` tiene 3163 líneas y se evalúa secuencialmente hasta hallar el test que falla, más la sobrecarga fija por mutante (subproceso frío, escrituras atómicas con `fsync` y múltiples barridos `os.walk` de caché).
+- En `tools/cli.py`, `PRIORIDADES` antepone cuatro módulos ajenos (`test_reportar`, `test_vigilar`, `test_biblioteca`, `test_tareas`) antes de `test_cli`.
+- Al agregar tests para mutantes vivos, el arnés invalida el manifiesto (`perfiles/python/mutacion_codigo.py:756-757`), forzando a reejecutar los 595 mutantes completos (>1 h) para release.
+- Se documentaron cuatro propuestas graduales que preservan intacto el criterio de muerte.
+
 ## Próximo paso
 
-El análisis de 1 y 2.
+Decidir con Brian qué propuesta adoptar (la intervención mínima: reordenar `PRIORIDADES["tools/cli.py"]` en `tools/mutar_codigo.py:92-95` poniendo `tests.test_cli` primero; y evaluar granularidad de clases/métodos en `--prioridad` para `nucleo/sintaxis.py`) e implementar la alternativa acordada.
+
+### Nota (2026-09-24 23:43:15 UTC)
+
+2026-09-24, revisión de Claude: verificado tools/mutar_codigo.py:92-95 (test_tareas, grande, corre antes que test_cli) y el comentario de :226-227 que ya proponía reordenar sin medirlo. Matiz: test_reportar va primero a propósito (21 tests en 0,003 s); lo caro es test_tareas antes de test_cli. Las propuestas 1 a 3 no cambian el criterio de muerte (el veredicto es el mismo: muerto si algún test falla). La 4 (conservar los muertos cuando sólo se agregan tests) cambia qué certifica una ronda de release y es decisión de Brian.
