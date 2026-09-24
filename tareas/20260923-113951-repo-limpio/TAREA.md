@@ -74,6 +74,27 @@ relevos viejos, postmortems.
 se actualizan a la ruta nueva dentro de `vault-kb/` al mover, o citan el id de la tarea, que no se
 mueve nunca. Mejor lo segundo: la tarea es el identificador estable del trabajo.
 
+## Avance
+
+- 2026-09-23:
+  - Se completó el inventario de todo lo que no es motor en [`INVENTARIO.md`](INVENTARIO.md), estructurado en tres columnas: qué es, quién lo referencia (con archivo y línea comprobados) y a dónde va (propuesta para Brian).
+  - Se inspeccionaron directamente mediante lectura (`view_file`):
+    - Las 11 decisiones normativas (`DECISION-001` a `DECISION-011`).
+    - Los 6 planes históricos en raíz (`PLAN-LENGUAJE.md`, `PLAN-CORRECCION.md`, `PLAN-0.3.0.md`, `PLAN-0.6.0-MCP.md`, `PLAN-0.14-LO-QUE-FALTA.md`, `PLAN-IDE.md`).
+    - Los 3 punteros de relevo en raíz (`RELEVO.md`, `RELEVO-PARA-CODEX.md`, `RELEVO-2026-09-10.md`).
+    - Las guías y tutoriales en raíz (`ESCRIBIR-UNA-MEDIDA.md`, `ORACLE-TUTORIAL-PRACTICO.md`, `ORACLE-PARA-NOTEBOOKLM.md`).
+    - El protocolo de agentes en raíz (`AGENTS.md`).
+    - Estudios analizados: `estudios/MCP-CONTRATO.md`, `estudios/MCP-FALLAS.md`, `estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md`, `estudios/AUTENTICIDAD-Y-TRANSCRIPCION.md`.
+    - Planes de observación: `observaciones/README.md`, `observaciones/aceptacion.plan.json`.
+    - Código fuente acoplado a rutas fijas: `tools/sintaxis.py` (`DOCUMENTOS_CON_SUPERFICIE`), `tools/estudio.py` (`documento_unico()` y `como_escribir()`), `tools/mcp_contrato.py` y `tests/test_mcp.py` (`MCP-CONTRATO.md`), `tools/mutar.py` (`DECISION-011`), y comentarios en `nucleo/diagnostico.py`, `nucleo/medida.py`, `nucleo/mutacion.py`, `tools/cli.py`.
+  - Se documentaron en detalle los acoplamientos rígidos que romperían la suite si se mueven archivos sin adaptar el código.
+  - El trabajo se realizó exclusivamente mediante lectura y edición de archivos; no se ejecutaron comandos de shell, no se hicieron commits y no se afirmaron verificaciones que no fueron corridas en este turno.
+
 ## Próximo paso
 
-El inventario del punto 1, para revisión de Brian antes de mover nada.
+Revisión del inventario en [INVENTARIO.md](INVENTARIO.md) por Brian para definir:
+1. Ubicación de `DECISION-*` (`docs/decisiones/` con índice normativo y test de existencia de IDs vs. `vault-kb/decisiones/`).
+2. Aprobación del desacople de `estudios/MCP-CONTRATO.md` hacia `docs/mcp-contrato.md` generado desde `tools.mcp.HERRAMIENTAS`.
+3. Destino de `ESCRIBIR-UNA-MEDIDA.md` y `ORACLE-TUTORIAL-PRACTICO.md` (y actualización de `tools/sintaxis.py` y `tools/estudio.py`).
+4. Definición sobre `editores/` (permanencia como tooling de integración vs. reubicación).
+5. Tras el acuerdo de destinos, ejecutar la mudanza mediante commits temáticos y atómicos con `git mv` en un entorno con permisos de ejecución.
