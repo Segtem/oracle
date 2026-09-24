@@ -1,6 +1,6 @@
 # La web no muestra nada de lo que Oracle ganó desde 0.26
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, web, documentacion
 
@@ -48,6 +48,10 @@ contenido se quedó atrás. Nada de lo que entró desde 0.26 está explicado ah�
 - Diseñado el índice propuesto de 12 bloques para la nueva portada de `docs/index.html`.
 - No se ejecutaron verificaciones de suite ni herramientas por la restricción expresa de operar sin shell.
 
+### Nota (2026-09-24 15:26:04 UTC)
+
+Portada reescrita en 12 bloques con las correcciones obligatorias de INVENTARIO.md: anti-junta real, sintaxis 0.7, juzgar con cota y no aplicadas, MCP y clientes, tracker, test honesto, primer valor y Jev con límites. Corridas actuales y comandos exactos en corridas/: primer valor 6 casos y 20/20 mutantes, rojo y verde del producto, sombra y relación ausente, proyecto vacío. Suite completa: 2440 tests OK; test_manual: 62 OK; 40 enlaces revisados sin rotos; marcas de cifras preservadas; git diff --check OK. Sin commits.
+
 ## Próximo paso
 
-Revisión por parte de Brian del inventario y del índice propuesto en [`INVENTARIO.md`](INVENTARIO.md); tras su aprobación y la confirmación de rutas de `repo-limpio`, redactar las secciones de `docs/index.html` y verificar con `tools/cifras.py` y `tests/test_manual.py`.
+Ninguno: la portada, las corridas y las verificaciones están completas; tarea CERRADA.

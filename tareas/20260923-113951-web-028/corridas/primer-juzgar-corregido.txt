@@ -1,0 +1,7 @@
+$ python3 tools/cli.py juzgar --proyecto ejemplo/primer-valor --con tareas/20260923-113951-web-028/corridas/hechos-corregido.json
+✓ colocacion.dentro_del_tablero                       0 (<= 0)
+
+VEREDICTO: verde en 1 medidas. SIN MIRAR:
+  · colocacion.dentro_del_tablero: valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí
+
+[código de salida: 0]

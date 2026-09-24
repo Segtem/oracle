@@ -1,0 +1,15 @@
+$ python3 tools/cli.py test --rapido --proyecto tareas/20260923-113951-web-028/corridas/proyecto-vacio
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS: sin casos guardados para verificar
+SINTAXIS: salteado (sin medidas ni casos todavía)
+ACEPTACIÓN: salteado (sin medidas ni casos todavía)
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+MUTACIÓN: salteada (sin medidas todavía)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+PRODUCTO: sin nueva medición; no se ejecutó el producto.
+VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)
+
+[código de salida: 0]

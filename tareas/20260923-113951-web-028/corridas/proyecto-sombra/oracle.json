@@ -1,0 +1,12 @@
+{
+  "esquema": "oracle.proyecto/v1",
+  "catalogo_base": false,
+  "perfiles": [],
+  "sombra": {
+    "colocacion.dentro_del_tablero": {
+      "desde": "2026-09-24",
+      "porque": "piloto de cota",
+      "cota": 0
+    }
+  }
+}

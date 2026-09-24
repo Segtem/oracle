@@ -1,0 +1,7 @@
+$ python3 tools/cli.py --version
+oracle 0.29.0
+  álgebra:  0.8   (qué SIGNIFICA una medida)
+  sintaxis: 0.7   (cómo se ESCRIBE)
+  corriendo desde: <repo>
+
+[código de salida: 0]

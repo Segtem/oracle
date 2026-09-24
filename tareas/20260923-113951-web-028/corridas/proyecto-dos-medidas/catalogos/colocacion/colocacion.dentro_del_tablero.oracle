@@ -1,0 +1,8 @@
+medida colocacion.dentro_del_tablero:
+    de celda_ocupada c
+    donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el tablero es de 10x10 (coordenadas 0 a 9); cualquier casilla fuera de ese rango corrompe el estado del juego"
+    requiere celda_ocupada
+    ambito universal
+    alcance "valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí"

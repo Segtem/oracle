@@ -1,0 +1,7 @@
+$ python3 tools/cli.py juzgar --proyecto tareas/20260923-113951-web-028/corridas/proyecto-sombra --con tareas/20260923-113951-web-028/corridas/hechos-defecto.json
+✗ colocacion.dentro_del_tablero                       1 (<= 0)   [EN SOMBRA] (SUPERA SU COTA 0: la sombra no la perdona; desde 2026-09-24; porque: piloto de cota)
+      → c={'barco': 'destructor', 'fila': 10, 'columna': 5}
+
+VEREDICTO: 1 de 1 medidas en rojo
+
+[código de salida: 1]

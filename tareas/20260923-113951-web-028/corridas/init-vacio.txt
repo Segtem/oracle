@@ -1,0 +1,13 @@
+$ python3 tools/cli.py init tareas/20260923-113951-web-028/corridas/proyecto-vacio
+Proyecto Oracle inicializado en <repo>/tareas/20260923-113951-web-028/corridas/proyecto-vacio:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá una medida:  oracle nueva <dominio.nombre>
+  2. Creá un caso:     oracle caso <grupo/id>
+  3. Verificá todo:    oracle test
+
+[código de salida: 0]

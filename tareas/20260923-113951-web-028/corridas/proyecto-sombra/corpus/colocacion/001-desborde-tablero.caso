@@ -1,0 +1,18 @@
+caso 001-desborde-tablero:
+    fecha: "2026-09-21"
+    origen:
+        repo: "Segtem/oracle/ejemplo/primer-valor"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Buque colocado parcialmente fuera del tablero (fila 10)"
+    etiqueta: falso_verde
+    sintoma:
+        Un buque destructor colocado verticalmente en fila 9 desborda hacia la fila 10, fuera de la cuadrícula 10x10.
+    como_se_detecto: persona
+    medida: colocacion.dentro_del_tablero
+    evidencia:
+        celda_ocupada: barco, fila, columna
+            "destructor", 9, 5
+            "destructor", 10, 5
+    leccion:
+        La medida debe detectar la celda fuera de rango (10, 5) y ponerse en rojo para evitar desbordes de memoria o estado inválido.

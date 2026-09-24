@@ -1,0 +1,4 @@
+$ python3 ejemplo/primer-valor/colocador.py --defecto --exportar tareas/20260923-113951-web-028/corridas/hechos-defecto.json
+Hechos exportados a tareas/20260923-113951-web-028/corridas/hechos-defecto.json
+
+[código de salida: 0]

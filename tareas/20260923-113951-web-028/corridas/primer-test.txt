@@ -1,0 +1,33 @@
+$ python3 tools/cli.py test --rapido --proyecto ejemplo/primer-valor
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 6 casos
+
+catálogo: 1 medidas · corpus: 6 casos
+
+  ROJO  001-desborde-tablero                   colocacion.dentro_del_tablero  (valor 1)
+  verde 002-colocacion-valida                  colocacion.dentro_del_tablero  (valor 0)
+  ROJO  003-fila-negativa                      colocacion.dentro_del_tablero  (valor 1)
+  ROJO  004-columna-negativa                   colocacion.dentro_del_tablero  (valor 1)
+  ROJO  005-columna-desbordada                 colocacion.dentro_del_tablero  (valor 1)
+  ROJO  006-sin-celdas                         colocacion.dentro_del_tablero  (valor 0)
+
+defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (se salteó: mutación de medidas (--rapido))
+
+[código de salida: 0]

@@ -1,0 +1,29 @@
+{
+  "celda_ocupada": [
+    {
+      "barco": "fragata",
+      "fila": 1,
+      "columna": 2
+    },
+    {
+      "barco": "fragata",
+      "fila": 1,
+      "columna": 3
+    },
+    {
+      "barco": "fragata",
+      "fila": 1,
+      "columna": 4
+    },
+    {
+      "barco": "destructor",
+      "fila": 9,
+      "columna": 5
+    },
+    {
+      "barco": "destructor",
+      "fila": 10,
+      "columna": 5
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+caso 003-fila-negativa:
+    fecha: "2026-09-21"
+    origen:
+        repo: "Segtem/oracle/ejemplo/primer-valor"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Fila justo por debajo del tablero"
+    etiqueta: falso_verde
+    sintoma:
+        Fila justo por debajo del tablero; la medida debe rechazar esta evidencia.
+    como_se_detecto: mutacion
+    medida: colocacion.dentro_del_tablero
+    evidencia:
+        celda_ocupada: barco, fila, columna
+            "borde", -1, 5
+    leccion:
+        Cada borde y la falta de evidencia deben quedar fijados por el corpus.
