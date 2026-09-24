@@ -755,8 +755,6 @@ def _validar_escalar(valor: Any, contexto: str) -> Scalar:
 
 def _tipo_escalar_comparable(valor: Any) -> type:
     _validar_escalar(valor, "valor de min/max")
-    if isinstance(valor, bool):
-        raise ErrorDeAlgebra("min/max exige valores ordenables")
     return type(valor)
 
 

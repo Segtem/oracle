@@ -201,6 +201,21 @@ class EvaluadorTests(unittest.TestCase):
                 self.assertTrue(resultado["ok"])
                 self.assertEqual(resultado["testigos"], [])
 
+    def test_min_max_aceptan_booleanos_homogeneos(self):
+        evidencia = {"muestra": [{"x": True}, {"x": False}, {"x": True}]}
+        for agregado, esperado in (("min", False), ("max", True)):
+            with self.subTest(agregado=agregado):
+                medida = [
+                    "medida", f"booleanos.{agregado}",
+                    ["desde", ["de", "muestra", "m"]],
+                    ["resumen", agregado, ["campo", "m", "x"]],
+                    ["umbral", "==", esperado, "orden booleano"],
+                    ["alcance", "booleanos homogeneos"],
+                ]
+                resultado = evaluar(medida, evidencia)
+                self.assertIs(resultado["valor"], esperado)
+                self.assertTrue(resultado["ok"])
+
     def test_version_algebra_es_0_8(self):
         self.assertEqual(VERSION_ALGEBRA, "0.8")
 

@@ -645,13 +645,16 @@ la fila no trae.
   ["alcance", "solape de AABB. NO ve la malla real, ni oclusión, ni si quedó flotando"]]
 ```
 
-**La forma canónica admite un nodo opcional `requiere`, y va antes de `alcance`:**
+**La forma canónica admite `requiere` y `ambito` opcionales, en ese orden antes de `alcance`:**
 
 ```json
 ["medida", "<id>", <tubería>, <resumen>, <umbral>,
   ["requiere", "<relación>", …],
+  ["ambito", "del_origen"],
   ["alcance", "<qué NO ve>"]]
 ```
+
+Por ejemplo, con ambos nodos: `["medida", "ejemplo.con_ambito", ["desde", ["de", "pieza", "p"]], ["resumen", "contar", 1], ["umbral", "==", 1, "una pieza"], ["requiere", "pieza"], ["ambito", "del_origen"], ["alcance", "sólo cuenta piezas declaradas"]]`. Si falta `requiere`, `ambito` sigue inmediatamente al `umbral`.
 
 Es el espejo de `alcance`: uno declara qué NO ve la medida, el otro **qué NECESITA ver para
 concluir**. Si alguna de las relaciones listadas viene vacía, la evaluación no mide: devuelve
@@ -762,7 +765,7 @@ afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo
 
 Agregados: `max`, `min`, `suma`, `promedio`, `contar`. `contar` **no evalúa la expresión**: cuenta
 filas. Los agregados sobre cero filas dan `0`. `suma` y `promedio` aceptan números finitos y
-booleanos como indicadores 0/1; `min` y `max` exigen escalares homogéneos y comparables. Un valor no
+booleanos como indicadores 0/1; `min` y `max` exigen escalares homogéneos y comparables, incluidos booleanos homogéneos con `false < true`. Un valor no
 finito o una mezcla incompatible es error de álgebra, no un veredicto.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
@@ -815,6 +818,8 @@ Explícito siempre: `["campo", alias, nombre]` para un campo, `["hecho", alias]`
 
 Comparar contra un campo ausente **levanta un error**, no devuelve `False`: en una medida eso es casi
 siempre un nombre mal escrito, y un `False` silencioso lo convertiría en un verde.
+
+Los operadores lógicos `y` y `o` aceptan dos o más operandos: `["y", a, b, c]` es una forma válida.
 
 Al evaluar un conjunto de medidas, ese error **no corta la corrida ni se pierde**: el núcleo deja la
 medida entre las que **no pudieron juzgar**, con su motivo, aparte de los rojos y de los `SIN

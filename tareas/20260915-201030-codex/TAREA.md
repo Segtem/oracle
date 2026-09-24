@@ -1,6 +1,6 @@
 # Contrastar la referencia 0.7 con Codex cuando vuelva su cuota
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 30
 - ETIQUETAS: oracle, diferencial, idea
 
@@ -39,10 +39,23 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 2026-09-24: ejecuté contraste adaptado (285 comparaciones, 66 desacuerdos) y clasifiqué cada pareja origen+medida en estudios/0.26.0-codex/entrega-2026-09-24/CLASIFICACION.md. Tres causas: 14 defectos del candidato por relación requerida ausente (§2: SIN EVIDENCIA); 49 huecos por aridad de y/o; 3 huecos por min/max de booleanos. Incluido el hueco previo de posición canónica de ambito. Ningún defecto de referencia entre estos 66. Pendientes decisiones del dueño sobre los tres huecos y tratamiento del defecto del candidato.
 
 
-## Próximo paso
-
-El dueño debe decidir tres preguntas de la especificación: (1) ¿`ambito` va antes o después de `alcance` en la forma canónica? (2) ¿`y` y `o` admiten más de dos operandos? (3) ¿`min`/`max` aceptan booleanos homogéneos? Después, definir si se corrige o se conserva como evidencia histórica el defecto del candidato ante una relación ausente en `requiere`; §2 ya prescribe `SIN EVIDENCIA`. Usar `estudios/0.26.0-codex/entrega-2026-09-24/CLASIFICACION.md` para las 66 parejas clasificadas. La tarea sigue ABIERTA.
-
 ### Nota (2026-09-24 10:23:59 UTC)
 
 2026-09-24, Claude y Brian: los tres huecos se resuelven con lo que ya hace el núcleo, sin cambiar el lenguaje. (1) ambito va antes de alcance, como lo emite Medida.a_datos. (2) y/o aceptan dos o más operandos: el núcleo evalúa ["y", a, b, c]. (3) min/max aceptan booleanos homogéneos con false < true: el núcleo da 12, 1 y 0 en los casos 015, 024 y 116 de proceso.modulo_alcanzable, igual que el candidato; la que se aparta es la referencia, que los rechaza. Eso no es un hueco (clase 1) sino un defecto de la referencia frente al núcleo (clase 3), y la clasificación lo había puesto mal.
+
+### Nota (2026-09-24 10:27:15 UTC)
+
+2026-09-24, Codex: verifiqué en nucleo/medida.py y nucleo/algebra.py el orden requiere → ambito → alcance, la aridad de y/o (mínimo dos) y min/max de booleanos homogéneos (false < true). Aclaré §2–3 de ESPECIFICACION.md sin tocar versiones ni nucleo/. Test nuevo de referencia rojo antes del cambio y verde después; corregí su rechazo de booleanos. Regeneré diferencial/simulacion.json con tools/generar_diferencial.py --escribir y el emisor confirmó 10 mundos × 8 medidas con acuerdo referencia/Oracle. Contrasté adaptado.py: 285 comparaciones, 63 desacuerdos restantes: 49 por aridad y/o y 14 por requiere ausente; ambos son ahora clase 2 del candidato. Corregí CLASIFICACION.md (los 3 casos de min/max eran clase 3). Suite tests: 2430 OK. Sin commits ni cierre.
+
+## Resultado
+
+Tercer autor, sin ver la referencia: de 285 comparaciones, los desacuerdos se explican por tres
+preguntas que la especificación no contestaba —posición de `ambito`, aridad de `y`/`o`, `min`/`max`
+sobre booleanos— y un defecto de la referencia (el último). Las tres quedaron escritas en
+`ESPECIFICACION.md` con lo que ya hace el núcleo, sin subir versiones, y la referencia se corrigió.
+Los 63 desacuerdos que quedan son defectos del candidato (clase 2); la entrega se conserva sin
+tocar como evidencia de lo que un tercer autor lee en el texto.
+
+## Próximo paso
+
+Ninguno.

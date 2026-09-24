@@ -6,7 +6,9 @@ Comando reproducido el 2026-09-24:
 python3 estudios/0.26.0-codex/contrastar.py estudios/0.26.0-codex/entrega-2026-09-24/adaptado.py --json
 ```
 
-Resultado: **285 comparaciones, 66 desacuerdos**. El adaptador sólo mueve el nodo `ambito`; no corrige semántica. Cada fila de la tabla final corresponde a un elemento del JSON, identificado por `origen` y `medida`. Las clases son: **1** hueco de especificación, **2** defecto del candidato y **3** defecto de la referencia. En los 66 casos: 52 de clase 1, 14 de clase 2 y 0 de clase 3. Son **tres causas**, no 66 hallazgos.
+Resultado previo a corregir la referencia: **285 comparaciones, 66 desacuerdos**. El adaptador sólo mueve el nodo `ambito`; no corrige semántica. Cada fila de la tabla final corresponde a un elemento del JSON, identificado por `origen` y `medida`. Las clases son: **1** hueco de especificación, **2** defecto del candidato y **3** defecto de la referencia. En los 66 casos: 49 de clase 1, 14 de clase 2 y 3 de clase 3. Son **tres causas**, no 66 hallazgos.
+
+Tras admitir booleanos homogéneos en la referencia y aclarar §2–3, el mismo comando da **285 comparaciones, 63 desacuerdos**: 49 por la aridad de `y`/`o` y 14 por `requiere` ausente. Ambas reglas ya están explícitas en la especificación; los 63 desacuerdos restantes son defectos del candidato (clase 2). La tabla conserva los 66 casos históricos para mostrar los tres que corrigió la referencia.
 
 ## Causas
 
@@ -18,9 +20,9 @@ El candidato lanza `ErrorDeAlgebra` cuando la relación requerida ni siquiera es
 
 El candidato exige exactamente dos operandos; la referencia admite tres o más. **§3, «Acceso a los datos» y tabla de operadores**, nombra expresiones y predicados, pero no da gramática ni aridad de `y`/`o`. **§8, párrafo «Ausencia»**, sólo muestra un ejemplo de `y` binario; no cierra la forma general. Una lectura binaria estricta y una lectura variádica son defendibles. Las medidas canónicas publicadas incluyen, por ejemplo, `meta.donde_compone` con `o` de tres argumentos y `proceso.ronda_mutacion_concluyente` con `o` de cinco. Las 49 diferencias son rechazo de forma antes de evaluar filas; no prueban divergencias en la lógica de verdad.
 
-### C. `max` de booleanos homogéneos: clase 1, 3 desacuerdos
+### C. `max` de booleanos homogéneos: clase 3, 3 desacuerdos
 
-`proceso.modulo_alcanzable` agrega `es_paquete_vacio` con `max`. El candidato considera comparables los booleanos homogéneos y sigue hasta `contar`; la referencia los rechaza como no ordenables. **§3, párrafo «Agregados»**, sólo exige a `min`/`max` «escalares homogéneos y comparables», sin precisar si `false < true` vale en el álgebra. **§0, párrafo de `MAYOR`**, usa expresamente «qué hace `min`/`max` con booleanos» como ejemplo de semántica que habría que decidir. Ambas lecturas son defendibles. En los casos 015, 024 y 116 el candidato da respectivamente 12, 1 y 0; la referencia levanta.
+`proceso.modulo_alcanzable` agrega `es_paquete_vacio` con `max`. El candidato considera comparables los booleanos homogéneos y sigue hasta `contar`; la referencia los rechazaba como no ordenables. El núcleo acepta esa familia homogénea y ordena `false < true`; §3 ahora lo dice expresamente. Por eso el rechazo de la referencia era un defecto suyo, no un hueco del álgebra. En los casos 015, 024 y 116 el candidato da respectivamente 12, 1 y 0; la referencia anterior levantaba.
 
 ## Hueco anterior al adaptador: posición de `ambito`, clase 1
 
@@ -89,12 +91,12 @@ El contraste directo registrado en la tarea dio 274 desacuerdos; el adaptador de
 | 55 | `caso:495-dos-cotas-con-holgura-y-una-deuda-en-cero` | `meta.ninguna_cota_mas_alta_que_su_deuda` | 1 / B | error | 2 |
 | 56 | `caso:500-un-campo-con-espacio-se-escribia-como-tabla` | `meta.sintaxis_casos_cubre_casos` | 1 / B | error | 2 |
 | 57 | `caso:501-las-dos-formas-del-impresor-eligen-bien` | `meta.sintaxis_casos_cubre_casos` | 1 / B | error | 0 |
-| 58 | `caso:015-racimo-inalcanzable` | `proceso.modulo_alcanzable` | 1 / C | 12 | error |
+| 58 | `caso:015-racimo-inalcanzable` | `proceso.modulo_alcanzable` | 3 / C | 12 | error |
 | 59 | `caso:016-timeout-contado-como-mutante-muerto` | `proceso.ronda_mutacion_concluyente` | 1 / B | error | 1 |
 | 60 | `caso:017-error-de-arnes-contado-como-mutante-muerto` | `proceso.ronda_mutacion_concluyente` | 1 / B | error | 1 |
 | 61 | `caso:019-ronda-sin-mutantes-declarada-verde` | `proceso.ronda_mutacion_concluyente` | 1 / B | error | 1 |
-| 62 | `caso:024-una-variante-no-vacia-inalcanzable` | `proceso.modulo_alcanzable` | 1 / C | 1 | error |
+| 62 | `caso:024-una-variante-no-vacia-inalcanzable` | `proceso.modulo_alcanzable` | 3 / C | 1 | error |
 | 63 | `caso:108-ronda-mutacion-concluyente` | `proceso.ronda_mutacion_concluyente` | 1 / B | error | 0 |
 | 64 | `caso:111-ronda-mutacion-parcial-no-es-concluyente` | `proceso.ronda_mutacion_concluyente` | 1 / B | error | 1 |
 | 65 | `caso:112-ronda-mutacion-completa-concluyente` | `proceso.ronda_mutacion_concluyente` | 1 / B | error | 0 |
-| 66 | `caso:116-todo-el-nucleo-es-alcanzable` | `proceso.modulo_alcanzable` | 1 / C | 0 | error |
+| 66 | `caso:116-todo-el-nucleo-es-alcanzable` | `proceso.modulo_alcanzable` | 3 / C | 0 | error |
