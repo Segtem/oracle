@@ -24,3 +24,15 @@ especificación que lo diga. Puede cambiar colores → MENOR.
 ### Nota (2026-09-24 18:37:31 UTC)
 
 2026-09-24, auditoría (§2.1 y §4.1): es el único falso verde conocido del álgebra y la primera recomendación. Plan: Codex mide cuántas medidas de Oracle, Jam, LyraGASP y commander dependen de que un predicado no booleano pase por verdad de Python, con archivo:línea y el valor que tomaría. Después Brian decide exigir bool, que sube el álgebra a 1.0.
+
+### Nota (2026-09-24 18:45:18 UTC)
+
+Medición completada en MEDICION.md y medir.py, sin modificar nucleo/ ni el lenguaje. Censo: Oracle catalogos/ 59 medidas y 64 predicados; ejemplo/ 11 y 13; Jam 41 y 42; LyraGASP 28 y 28. Una sospecha estática: LyraGASP personaje.ancla_requerida_ausente.json:38, campo a.presente bajo no. Instrumentación en copia: 0 resultados completos no bool en donde/sin/requiere durante corpus y aceptación; 10 valores None en ese operando de no, sin cambio de color por exigir bool al predicado completo. Aceptación pasó en todos; código final 1 de Oracle por cifras README y de Jam/Lyra por procedencia diferencial ausente en estos checkouts. Sin commits. Próximo paso: Brian decide semántica de bool y versionado.
+
+## Próximo paso
+
+Brian revisa `MEDICION.md` y decide si exigir `bool` al resultado completo de `donde` y `sin`, y si el alcance también incluye operandos lógicos como el `None` observado en LyraGASP; después define el versionado correspondiente antes de implementar.
+
+### Nota (2026-09-24 18:53:07 UTC)
+
+2026-09-24, revisión de Claude: la medición se reproduce con las rutas reales de Jam y LyraGASP (medir.py ya no depende de copias). Resultado para decidir: exigir bool al resultado de donde, sin y requiere no cambia el color de ninguna de las 139 medidas propias. Pero hay un caso adentro de un predicado: en LyraGASP personaje.ancla_requerida_ausente hace no(a.presente) con a.presente = None diez veces en su corpus, y no None da verdadero por verdad de Python, que es el mismo falso verde un nivel más adentro. Propuesta para álgebra 1.0: exigir bool también a los operandos de y, o y no; y en LyraGASP, que el sensor emita presente como bool (o la medida lo compare explícito) antes de subir a 1.0.
