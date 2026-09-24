@@ -1,0 +1,3 @@
+Escribí [evaluador.py](evaluador.py), [test_evaluador.py](test_evaluador.py) y [DECISIONES.md](DECISIONES.md). Corrí `python3 -m unittest`: pasaron las 10 pruebas.
+
+Donde la especificación dejó margen, fijé la gramática y evaluación de expresiones, la forma de los testigos, los tipos comparables y los límites de evaluación. También resolví en `DECISIONES.md` la tensión entre los agregados `min`/`max` sobre texto o booleanos y el contrato que exige un `valor` final numérico.

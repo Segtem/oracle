@@ -1,0 +1,142 @@
+285 comparaciones · 66 desacuerdos
+     6  meta.sintaxis_ida_y_vuelta
+     6  proceso.ronda_mutacion_concluyente
+     5  meta.sintaxis_cubre_algebra
+     5  meta.sintaxis_casos_cubre_casos
+     4  simulacion.traza_sin_fallas_con_mutantes_de_codigo
+     4  simulacion.corrida_con_mutantes_que_pasaron
+     4  meta.toda_medida_de_ausencia_declara_requiere
+     4  meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+     4  meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias
+     3  meta.donde_compone
+     3  meta.unir_conmuta
+     3  meta.una_macro_equivale_a_su_expansion
+     3  meta.sintaxis_casos_ida_y_vuelta
+     3  meta.ninguna_cota_mas_alta_que_su_deuda
+     3  proceso.modulo_alcanzable
+     1  meta.ninguna_evidencia_declara_un_referente_sin_huella
+     1  meta.ninguna_evidencia_se_juzga_con_referente_vencido
+     1  meta.todo_verbo_del_cli_esta_en_la_ayuda
+     1  meta.toda_opcion_del_vocabulario_declara_su_sentido
+     1  meta.todo_vocabulario_cerrado_esta_en_el_manual
+     1  meta.toda_relacion_del_lenguaje_esta_en_la_referencia
+
+  mundo:todo-en-orden · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:todo-en-orden · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:presupuesto-agotado · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:presupuesto-agotado · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:traza-con-un-hueco · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:traza-con-un-hueco · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  caso:061-ausencia-sin-requiere · meta.toda_medida_de_ausencia_declara_requiere
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:062-ausencia-cubierta-o-no-aplica · meta.toda_medida_de_ausencia_declara_requiere
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:063-ausencia-sin-terminos-no-concluye · meta.toda_medida_de_ausencia_declara_requiere
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  caso:075-las-dos-medidas-reales-de-unir-y-agrupar-declaran-requiere · meta.toda_medida_de_ausencia_declara_requiere
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:100-donde-no-compone · meta.donde_compone
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:101-donde-compone-bien · meta.donde_compone
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:102-unir-no-conmuta · meta.unir_conmuta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:103-unir-conmuta-bien · meta.unir_conmuta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:106-macro-expande-distinto · meta.una_macro_equivale_a_su_expansion
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:107-macro-equivale · meta.una_macro_equivale_a_su_expansion
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:108-donde-compone-un-campo-por-vez · meta.donde_compone
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 3}
+
+  caso:109-unir-conmuta-un-campo-por-vez · meta.unir_conmuta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 3}
+
+  caso:111-una-macro-equivale-a-su-expansion-un-campo-por-vez · meta.una_macro_equivale_a_su_expansion
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 3}
+
+  caso:120-sintaxis-no-vuelve-igual · meta.sintaxis_ida_y_vuelta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:121-sintaxis-vuelve-exacta · meta.sintaxis_ida_y_vuelta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:122-sintaxis-revienta-al-leer · meta.sintaxis_ida_y_vuelta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:123-sintaxis-un-campo-por-vez · meta.sintaxis_ida_y_vuelta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 3}
+
+  caso:124-sintaxis-cubre-algebra-no-vuelve-igual · meta.sintaxis_cubre_algebra
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:125-sintaxis-cubre-algebra-vuelve-exacta · meta.sintaxis_cubre_algebra
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  caso:126-sintaxis-cubre-algebra-un-campo-por-vez · meta.sintaxis_cubre_algebra
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 4}
+
+  caso:127-sintaxis-casos-no-vuelve-igual · meta.sintaxis_casos_ida_y_vuelta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  caso:128-sintaxis-casos-vuelve-exacta · meta.sintaxis_casos_ida_y_vuelta
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}

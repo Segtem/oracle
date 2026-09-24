@@ -29,3 +29,7 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 ### Nota (2026-09-16 20:26:16 UTC)
 
 2026-09-16: el estudio (CONTRATO, README, lanzar.sh) apunta al álgebra 0.8, con los rincones de sin que la especificación ahora decide y la referencia no.
+
+### Nota (2026-09-24 10:15:21 UTC)
+
+2026-09-24, Claude: entrega de Codex (gpt-6-sol), aislado, en estudios/0.26.0-codex/entrega-2026-09-24/. Contraste directo: 285 comparaciones, 274 desacuerdos, casi todos por UN hueco de la especificación: dice que la sintaxis 0.6 sumó un nodo opcional ambito pero ninguna forma canónica muestra dónde va; Codex lo espera después de alcance y la referencia lo emite antes. Con un adaptador que sólo reordena ese nodo (adaptado.py) quedan 66 desacuerdos, por clasificar.

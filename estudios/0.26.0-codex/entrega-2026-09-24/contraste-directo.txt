@@ -1,0 +1,183 @@
+285 comparaciones · 274 desacuerdos
+    14  simulacion.corrida_reproducible
+    14  simulacion.la_traza_no_tiene_huecos
+    14  simulacion.no_se_agoto_el_presupuesto
+    10  simulacion.traza_sin_fallas_con_mutantes_de_codigo
+    10  simulacion.corrida_sin_ningun_evento
+    10  simulacion.actor_que_nunca_termina
+    10  proceso.test_con_mutante_que_lo_mata
+     8  simulacion.corrida_con_mutantes_que_pasaron
+     6  meta.sintaxis_ida_y_vuelta
+     6  meta.ninguna_sombra_envejece_sin_revisarse
+     6  proceso.ronda_mutacion_concluyente
+     6  proceso.codigo_con_mutante_que_lo_mata
+     5  meta.toda_medida_filtra_o_agrupa
+     5  meta.sintaxis_cubre_algebra
+     5  meta.sintaxis_casos_cubre_casos
+     5  meta.toda_opcion_del_vocabulario_declara_su_sentido
+     5  meta.ninguna_sombra_supera_su_cota
+     4  simulacion.corrida_sin_mutante_muerto
+     4  meta.toda_medida_de_ausencia_declara_requiere
+     4  meta.ningun_umbral_flotante_de_igualdad
+     4  meta.ningun_flotante_comparado_por_igualdad_en_un_filtro
+     4  meta.ninguna_evidencia_declara_un_referente_sin_huella
+     4  meta.todo_verbo_del_cli_esta_en_la_ayuda
+     4  meta.todo_vocabulario_cerrado_esta_en_el_manual
+     4  meta.toda_sombra_declara_desde_y_porque
+     4  meta.toda_relacion_del_lenguaje_esta_en_la_referencia
+     4  meta.ninguna_exclusion_de_mutador_se_aplica_globalmente
+     4  meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias
+     4  proceso.modulo_con_consumidor
+     3  meta.los_logicos_evaluan_todos_sus_operandos
+     3  meta.ningun_umbral_de_igualdad
+     3  meta.todo_umbral_declara_de_donde_sale
+     3  meta.ninguna_medida_sin_alcance
+     3  meta.donde_compone
+     3  meta.unir_conmuta
+     3  meta.agrupar_sin_claves_es_el_resumen_global
+     3  meta.una_macro_equivale_a_su_expansion
+     3  meta.sintaxis_casos_ida_y_vuelta
+     3  meta.todo_tanteo_explica_por_que
+     3  meta.toda_cantidad_comparada_tiene_unidad_derivable
+     3  meta.ninguna_evidencia_se_juzga_con_referente_vencido
+     3  meta.el_diagnostico_no_publica_el_dominio
+     3  meta.ninguna_sombra_sobre_una_medida_que_no_existe
+     3  meta.ninguna_sombra_ya_en_verde
+     3  meta.toda_sombra_declara_una_fecha_real
+     3  meta.toda_medida_declara_su_ambito
+     3  meta.ninguna_cota_mas_alta_que_su_deuda
+     3  meta.toda_medida_lee_campos_que_existen
+     3  proceso.afirmacion_declara_alcance
+     3  proceso.verificacion_vigente
+     3  proceso.verificador_sin_falsos_rojos
+     2  meta.donde_nunca_agrega_filas
+     2  meta.agrupar_no_agranda_la_relacion
+     2  meta.unir_materializa_el_producto
+     2  meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
+     2  meta.ningun_campo_sin_unidad_declarada
+     2  meta.el_caso_se_pone_como_debe
+     2  meta.todo_caso_observado_declara_de_donde_salio
+     2  meta.sin_nunca_agrega_filas
+     2  proceso.arnes_con_bytecode_frio
+     2  proceso.sintaxis_valida_tras_edicion_masiva
+     1  proceso.modulo_alcanzable
+
+  mundo:todo-en-orden · simulacion.corrida_reproducible
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:todo-en-orden · simulacion.la_traza_no_tiene_huecos
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:todo-en-orden · simulacion.no_se_agoto_el_presupuesto
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:todo-en-orden · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:todo-en-orden · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:todo-en-orden · simulacion.corrida_sin_ningun_evento
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:todo-en-orden · simulacion.actor_que_nunca_termina
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.corrida_reproducible
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.la_traza_no_tiene_huecos
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.no_se_agoto_el_presupuesto
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.corrida_sin_ningun_evento
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:corrida-que-no-se-reproduce · simulacion.actor_que_nunca_termina
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:presupuesto-agotado · simulacion.corrida_reproducible
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:presupuesto-agotado · simulacion.la_traza_no_tiene_huecos
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:presupuesto-agotado · simulacion.no_se_agoto_el_presupuesto
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  mundo:presupuesto-agotado · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:presupuesto-agotado · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:presupuesto-agotado · simulacion.corrida_sin_ningun_evento
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:presupuesto-agotado · simulacion.actor_que_nunca_termina
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:traza-con-un-hueco · simulacion.corrida_reproducible
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:traza-con-un-hueco · simulacion.la_traza_no_tiene_huecos
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 1}
+
+  mundo:traza-con-un-hueco · simulacion.no_se_agoto_el_presupuesto
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:traza-con-un-hueco · simulacion.traza_sin_fallas_con_mutantes_de_codigo
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:traza-con-un-hueco · simulacion.corrida_con_mutantes_que_pasaron
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': False, 'valor': 'SIN EVIDENCIA'}
+
+  mundo:traza-con-un-hueco · simulacion.corrida_sin_ningun_evento
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:traza-con-un-hueco · simulacion.actor_que_nunca_termina
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:mutantes-de-codigo-muertos · simulacion.corrida_reproducible
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
+
+  mundo:mutantes-de-codigo-muertos · simulacion.la_traza_no_tiene_huecos
+      candidato:  {'ok': False, 'levanta': True}
+      referencia: {'ok': True, 'valor': 0}
