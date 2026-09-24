@@ -25,7 +25,7 @@ Escribir `estudios/JEV-Y-ORACLE.md`:
    - **¿Oracle la usaría adentro?** ¿Para qué parte —sensores, álgebra, mutación, tracker— y a costa
      de qué? Recordar la regla: conectar un consumidor no debe exigir tocar `nucleo/`.
    - **¿La juzgaría desde afuera?** Es el papel que ya se le dio en
-     [`estudios/AURA-Y-ORACLE.md`](../../estudios/AURA-Y-ORACLE.md): Oracle como juez determinista de
+     `estudios/AURA-Y-ORACLE.md` (desde el 2026-09-23 en `~/Dev/commander/docs/`): Oracle como juez determinista de
      lo que produce otra herramienta.
    - **¿Compite con Oracle?** Si hace lo mismo, decirlo derecho, con qué hace mejor y qué peor.
 4. **Un veredicto en una página** y, si sale trabajo concreto, listarlo al final como tareas

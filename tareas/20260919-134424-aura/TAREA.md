@@ -1,6 +1,6 @@
 # ¿Se puede construir con Oracle un agente de videojuegos como Aura?
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle, investigacion, agentes
 
@@ -46,3 +46,7 @@ Claude revisa `estudios/AURA-Y-ORACLE.md`.
 ### Nota (2026-09-24 00:51:34 UTC)
 
 2026-09-23, Claude: corregido §3.1 de estudios/AURA-Y-ORACLE.md — los seis operadores son de, donde, unir, sin, agrupar y resumen (requiere es cláusula), y la mutación o la falta de polaridades ponen rojo oracle test, no rechazan la medida. Queda sin verificar §1 (datos de Aura tomados de la web).
+
+### Nota (2026-09-24 00:57:58 UTC)
+
+2026-09-23, Brian: Aura es un proyecto aparte, ~/Dev/commander, que consume oracle-metalenguaje desde PyPI. Los dos estudios (AURA-Y-ORACLE, AURA-PROPIO-CORTE-1) se mudaron a commander/docs/; la verificación de §1 sigue allá como tarea «fuentes» y el bucle del corte 1 como «corte-1». Las piezas del motor siguen en el tracker de Jam.
