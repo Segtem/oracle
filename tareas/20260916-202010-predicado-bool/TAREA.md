@@ -20,3 +20,7 @@ especificación que lo diga. Puede cambiar colores → MENOR.
 ### Nota (2026-09-16 20:34:27 UTC)
 
 2026-09-16: no se implementa sin decisión del dueño: exigir bool cambia la semántica de donde, que ya existía, y por §0 eso sube la MAYOR del álgebra (1.0). Antes de decidir conviene medir cuántas medidas de Oracle, LyraGASP y Jam usan un predicado no booleano.
+
+### Nota (2026-09-24 18:37:31 UTC)
+
+2026-09-24, auditoría (§2.1 y §4.1): es el único falso verde conocido del álgebra y la primera recomendación. Plan: Codex mide cuántas medidas de Oracle, Jam, LyraGASP y commander dependen de que un predicado no booleano pase por verdad de Python, con archivo:línea y el valor que tomaría. Después Brian decide exigir bool, que sube el álgebra a 1.0.
