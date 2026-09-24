@@ -65,8 +65,13 @@ El inventario de fricciones (`ergonomia/VERIFICACION.md`) tiene 10 ciertas; 0.29
 cuatro (orden de `requiere`, confianza, observados y aritmética). Quedan, entre otras:
 
 - **contar distintos por grupo**, que hoy exige un doble `agrupar` (2.1 del inventario);
-- **una relación vacía en `.caso`**, que hoy no se puede escribir;
 - `/`: no existe, y es lo primero que un LLM escribe para una proporción.
+
+> **Corrección (2026-09-24, tarea `lenguaje-faltantes`):** esta sección también decía que `.caso`
+> no puede escribir una relación vacía. Es falso, y `ergonomia/VERIFICACION.md` ya lo había
+> falsado: `ejemplo/primer-valor/corpus/colocacion/006-sin-celdas.caso` la escribe. Medidas las dos
+> formas que quedan, ninguna tiene dos usos reales en Oracle, Jam ni LyraGASP: el doble `agrupar`
+> sólo aparece en `GUIA22.md` y `/` en ningún catálogo. Por la regla del proyecto, no se agregan.
 
 La regla del proyecto («no se agrega un operador hasta que una segunda medida lo necesite») es
 buena; conviene aplicarla midiendo los catálogos de los consumidores, no esperando a que alguien
