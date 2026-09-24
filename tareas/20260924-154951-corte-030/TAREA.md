@@ -1,6 +1,6 @@
 # Corte 0.30.0
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, release
 
@@ -13,4 +13,8 @@ los consumidores (LyraGASP, Jam, commander) directo a 0.30.0, medidos antes de c
 
 ## Próximo paso
 
-Claude corta.
+Brian sube a PyPI con `uvx twine upload dist/oracle_metalenguaje-0.30.0*`; Claude verifica y sube los consumidores.
+
+### Nota (2026-09-24 19:13:28 UTC)
+
+2026-09-24: cortado. Tag v0.30.0 y release https://github.com/Segtem/oracle/releases/tag/v0.30.0, wheel bc424bb2… y sdist 862eafdf…, build en worktree limpio, verificar_instalacion WHEEL OK. La web se publicó con el push. Falta que Brian suba a PyPI; después los consumidores.
