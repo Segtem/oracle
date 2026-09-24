@@ -40,7 +40,7 @@ ningún modelo ni abre la red: el sensor es un programa del proyecto, opcional, 
 ## El MCP, medido en tres clientes
 
 `oracle_tareas listar` ya no devuelve los cuerpos (−87 %) y las descripciones son más cortas. El
-contrato de `estudios/MCP-CONTRATO.md` se genera desde el código (`tools/mcp_contrato.py --check`).
+contrato de `docs/mcp-contrato.md` se genera desde el código (`tools/mcp_contrato.py --check`).
 Qué ve el modelo en cada cliente, medido con marcas aleatorias en cada parte de la respuesta:
 ninguno recibe `outputSchema`; Claude Code ve sólo `structuredContent`, agy sólo el texto y Codex los
 dos. Por eso se conservan las dos copias: quitar cualquiera deja ciego a un cliente.
@@ -53,7 +53,7 @@ contesta con lo que el núcleo ya hacía: `ambito` va después de `requiere` y a
 `y`/`o` aceptan dos o más operandos; `min`/`max` aceptan booleanos homogéneos, con `false < true`.
 La tercera escondía un defecto de la **referencia** del diferencial, que rechazaba esos booleanos
 aunque el núcleo los aceptaba; está corregido. Ninguna versión sube: el lenguaje no cambió, se
-escribió. Detalle en `estudios/0.26.0-codex/entrega-2026-09-24/`.
+escribió. Detalle en `vault-kb/estudios/0.26.0-codex/entrega-2026-09-24/`.
 
 ## Mantenimiento
 
