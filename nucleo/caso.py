@@ -13,6 +13,8 @@ from pathlib import Path
 
 from .proyecto import ID_CASO_RE
 from .sintaxis import ErrorSintaxis, fragmento_de_error
+from .sintaxis import _fallar, _indentada
+from .vocabulario import opciones
 
 IND = "    "
 IND2 = IND * 2
@@ -79,33 +81,8 @@ PROCEDENCIAS = {
 }
 
 
-def opciones(vocabulario: dict) -> str:
-    """Las opciones de un vocabulario cerrado, cada una con lo que significa.
-
-    Antes el error decía sólo la lista de nombres. Quien escribe `falso_rojo` donde iba
-    `falso_verde` no necesita saber que existen cinco: necesita saber cuál es cuál, y el momento
-    en que lo necesita es exactamente ése.
-    """
-    return "\n".join(f"        {nombre}: {sentido}" for nombre, sentido in
-                     sorted(vocabulario.items()))
-
-
 class CasoMalDeclarado(ValueError):
     pass
-
-
-def _fallar(linea: int, columna: int, esperado: str, encontrado: object = "",
-            *, literal: bool = False) -> None:
-    raise ErrorSintaxis(linea, columna, esperado,
-                        repr(encontrado) if encontrado != "" else "", literal)
-
-
-def _indentada(linea: str, nivel: int, n: int) -> str:
-    esperado = IND * nivel
-    if not linea.startswith(esperado) or linea.startswith(esperado + " "):
-        col = len(linea) - len(linea.lstrip()) + 1
-        _fallar(n, col, f"indentación de {len(esperado)} espacios", linea[:col])
-    return linea[len(esperado):]
 
 
 def _json_valor(texto: str, linea: int, columna: int):

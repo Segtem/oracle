@@ -1,12 +1,15 @@
-"""Pruebas de duplicación de la auditoría; sólo lee fuentes, no importa el proyecto."""
+"""Auditoría previa por AST; --despues importa el MCP y verifica su declaración real."""
 
+import argparse
 import ast
 import copy
 import hashlib
 import json
+import sys
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[2]
+SHA256_DECLARACIONES = "ba56e283a38179e3fdcfe9391bd3096fb96e33f6149edfdcdf8d8442db0ddbac"
 
 
 def arbol(ruta):
@@ -40,7 +43,40 @@ def serializar(valor):
     return json.dumps(valor, ensure_ascii=False, separators=(",", ":")).encode()
 
 
+def verificar_despues():
+    sys.path.insert(0, str(RAIZ))
+    from tools import mcp
+
+    huella = hashlib.sha256(serializar(mcp.HERRAMIENTAS)).hexdigest()
+    if huella != SHA256_DECLARACIONES:
+        raise AssertionError(f"JSON MCP distinto: SHA256 {huella}; esperado {SHA256_DECLARACIONES}")
+    print("OK: bytes JSON MCP conservados; SHA256", huella)
+
+    # Ningún diccionario o lista puede compartirse entre declaraciones ni con
+    # las plantillas: cambiar una herramienta no debe alterar otra ni su fuente.
+    vistos = set()
+
+    def independientes(valor):
+        if isinstance(valor, (dict, list)):
+            if id(valor) in vistos:
+                raise AssertionError("Las declaraciones comparten una estructura mutable")
+            vistos.add(id(valor))
+            for hijo in (valor.values() if isinstance(valor, dict) else valor):
+                independientes(hijo)
+
+    for valor in [*mcp.HERRAMIENTAS, mcp._ESQUEMA_MEDIDA, mcp._ANOTACIONES,
+                  mcp._ESQUEMA_UMBRAL, mcp._DEFS_EVIDENCIA, mcp._ESQUEMA_SOMBRA]:
+        independientes(valor)
+    print("OK: estructuras mutables independientes, incluidas las plantillas")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--despues", action="store_true",
+                        help="verifica el contrato y las copias tras el refactor")
+    if parser.parse_args().despues:
+        verificar_despues()
+        return
     mcp = arbol("tools/mcp.py")
     # Líneas físicas inclusivas. Cada constante conserva el bloque más corto;
     # se agregan una referencia por sitio y dos líneas separadoras por constante.
