@@ -40,8 +40,8 @@ from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, catalogo
 from tools.sesion import resolver_cli  # noqa: E402
 
 
-def _git(*args) -> str:
-    r = subprocess.run(["git", "-C", str(RAIZ), *args], capture_output=True, text=True)
+def _git(*args, raiz: Path = RAIZ) -> str:
+    r = subprocess.run(["git", "-C", str(raiz), *args], capture_output=True, text=True)
     return r.stdout if r.returncode == 0 else ""
 
 
@@ -60,22 +60,22 @@ def _docstring(ruta: Path) -> str:
 
 # ---------------------------------------------------------------- documentos
 
-def esencia() -> str:
+def esencia(raiz: Path = RAIZ) -> str:
     """El README, tal cual: ya es autocontenido y no tiene enlaces que se rompan al sacarlo."""
-    texto = (RAIZ / "README.md").read_text(encoding="utf-8")
+    texto = (raiz / "README.md").read_text(encoding="utf-8")
     # los enlaces a archivos del repo no significan nada fuera de él
     import re
     texto = re.sub(r"\[([^\]]+)\]\((?!http)[^)]+\)", r"\1", texto)
     return "# oracle — qué es y por qué\n\n" + texto.split("\n", 1)[1]
 
 
-def algebra() -> str:
-    return (RAIZ / "ESPECIFICACION.md").read_text(encoding="utf-8")
+def algebra(raiz: Path = RAIZ) -> str:
+    return (raiz / "ESPECIFICACION.md").read_text(encoding="utf-8")
 
 
-def como_escribir() -> str:
+def como_escribir(raiz: Path = RAIZ) -> str:
     import re
-    t = (RAIZ / "docs" / "03-escribir-una-medida.md").read_text(encoding="utf-8")
+    t = (raiz / "docs" / "03-escribir-una-medida.md").read_text(encoding="utf-8")
     return re.sub(r"\[([^\]]+)\]\((?!http)[^)]+\)", r"\1", t)
 
 
@@ -156,9 +156,9 @@ def corpus_en_prosa(raiz_corpus: Path) -> str:
     return "\n".join(out)
 
 
-def modulos(carpeta: str, titulo: str, intro: str) -> str:
+def modulos(carpeta: str, titulo: str, intro: str, raiz: Path = RAIZ) -> str:
     out = [f"# {titulo}", "", intro, ""]
-    for p in sorted((RAIZ / carpeta).glob("*.py")):
+    for p in sorted((raiz / carpeta).glob("*.py")):
         if p.name == "__init__.py":
             continue
         doc = _docstring(p)
@@ -169,13 +169,14 @@ def modulos(carpeta: str, titulo: str, intro: str) -> str:
     return "\n".join(out)
 
 
-def diario() -> str:
+def diario(raiz: Path = RAIZ) -> str:
     out = ["# El diario: por qué las cosas son como son", "",
            "Los mensajes de commit, del más viejo al más nuevo. Acá vive buena parte del",
            "razonamiento —y casi todas las correcciones—: qué se intentó, qué salió mal, qué mutante",
            "sobrevivió, qué afirmación hubo que retirar. Leído en orden, es la historia de un autor",
            "equivocándose y siendo atrapado por lo que estaba construyendo.", ""]
-    crudo = _git("log", "--reverse", "--format=%H%x1f%ad%x1f%s%x1f%b%x1e", "--date=short")
+    crudo = _git("log", "--reverse", "--format=%H%x1f%ad%x1f%s%x1f%b%x1e", "--date=short",
+                 raiz=raiz)
     for entrada in crudo.split("\x1e"):
         if not entrada.strip():
             continue
@@ -184,15 +185,15 @@ def diario() -> str:
     return "\n".join(out)
 
 
-def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
+def numeros(catalogos_dirs, raiz_corpus: Path, macros=None, *, raiz: Path = RAIZ) -> str:
     cat = cargar_catalogo(catalogos_dirs, macros=macros)
     hechos = como_hechos(cat.values())
     lineas_nucleo = sum(len(p.read_text(encoding="utf-8").splitlines())
-                        for p in (RAIZ / "nucleo").glob("*.py"))
+                        for p in (raiz / "nucleo").glob("*.py"))
     lineas_catalogo = sum(len(p.read_text(encoding="utf-8").splitlines())
                           for p in rutas_de_catalogo(catalogos_dirs))
     negativas = sum(p.read_text(encoding="utf-8").count("raise ")
-                    for p in (RAIZ / "nucleo").glob("*.py"))
+                    for p in (raiz / "nucleo").glob("*.py"))
     casos = rutas_de_corpus(raiz_corpus)
     return "\n".join([
         "# Los números, y qué dicen", "",
@@ -201,7 +202,7 @@ def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
         f"| líneas de medidas escritas en él | {lineas_catalogo} | lo escrito en el lenguaje |",
         f"| proporción | {lineas_nucleo / max(lineas_catalogo, 1):.0f} a 1 | la apuesta: que el "
         "segundo crezca y el primero no |",
-        f"| (contando sólo el catálogo base) | {lineas_nucleo / max(sum(len(x.read_text(encoding='utf-8').splitlines()) for x in rutas_de_catalogo(RAIZ / 'catalogos')), 1):.0f} a 1 | "
+        f"| (contando sólo el catálogo base) | {lineas_nucleo / max(sum(len(x.read_text(encoding='utf-8').splitlines()) for x in rutas_de_catalogo(raiz / 'catalogos')), 1):.0f} a 1 | "
         "sin ningún proyecto que lo use |",
         f"| negativas en el núcleo (`raise`) | {negativas} | su naturaleza es rechazar, no medir |",
         f"| medidas | {len(cat)} | de las cuales "
@@ -210,7 +211,7 @@ def numeros(catalogos_dirs, raiz_corpus: Path, macros=None) -> str:
         # Acá decía «cerca de la mitad corrigen una afirmación propia». Era un juicio del autor sin
         # ningún respaldo mecánico, replicado desde el README. Se retiró de los dos lados: el conteo
         # de commits es un hecho, la interpretación no lo era.
-        f"| commits | {len(_git('log', '--format=%H').splitlines())} | el historial completo |",
+        f"| commits | {len(_git('log', '--format=%H', raiz=raiz).splitlines())} | el historial completo |",
         "",
         # Acá decía «si en seis meses la proporción no se movió, el lenguaje no valió la pena».
         # Se retiró el 2026-08-24 junto con la puerta de abandono: era una afirmación de producto
@@ -246,25 +247,42 @@ def indice(archivos) -> str:
         f" · {len(archivos)} documentos.*", ""])
 
 
+def _raiz_fuentes(proy) -> Path:
+    """El wheel no lleva los documentos del checkout; con --proyecto se leen de ese árbol."""
+    if (RAIZ / "README.md").is_file():
+        return RAIZ
+    raiz = proy.raiz
+    if not all((raiz / nombre).is_file() for nombre in
+               ("README.md", "ESPECIFICACION.md", "docs/03-escribir-una-medida.md",
+                "tools/estudio.py")):
+        raise FileNotFoundError(
+            "oracle-estudio instalado necesita --proyecto con un checkout de Oracle")
+    return raiz
+
+
 def _documentos(proy) -> dict[str, str]:
+    raiz = _raiz_fuentes(proy)
     dirs = catalogos_a_cargar(proy)
+    if raiz != RAIZ:
+        # El checkout ya aporta el catálogo base; no repetir el del wheel instalado.
+        dirs = [fuente for fuente in dirs if Path(fuente) != RAIZ / "catalogos"]
     macros = macros_del_proyecto(proy)
     docs = {
-        "00-esencia.md": esencia(),
-        "01-el-algebra.md": algebra(),
-        "02-escribir-una-medida.md": como_escribir(),
+        "00-esencia.md": esencia(raiz),
+        "01-el-algebra.md": algebra(raiz),
+        "02-escribir-una-medida.md": como_escribir(raiz),
         "03-el-catalogo.md": catalogo_en_prosa(dirs, macros),
         "04-el-corpus.md": corpus_en_prosa(proy.corpus),
         "05-el-nucleo.md": modulos(
             "nucleo", "El núcleo, módulo por módulo",
             "Los docstrings enteros: ahí vive el razonamiento y las decisiones descartadas, que es lo "
-            "que no se puede reconstruir leyendo el código."),
+            "que no se puede reconstruir leyendo el código.", raiz),
         "06-las-herramientas.md": modulos(
             "tools", "Las herramientas",
             "Cada una existe por un motivo que está escrito en su encabezado. Varias nacieron de un "
-            "defecto concreto del corpus."),
-        "07-el-diario.md": diario(),
-        "08-los-numeros.md": numeros(dirs, proy.corpus, macros),
+            "defecto concreto del corpus.", raiz),
+        "07-el-diario.md": diario(raiz),
+        "08-los-numeros.md": numeros(dirs, proy.corpus, macros, raiz=raiz),
     }
     docs["README.md"] = indice(docs)
     return docs
@@ -283,7 +301,7 @@ def _bajar_titulos(texto: str) -> str:
     return "\n".join(salida)
 
 
-def documento_unico(docs: dict[str, str], *, extras=None) -> str:
+def documento_unico(docs: dict[str, str], *, extras=None, raiz: Path = RAIZ) -> str:
     """Compone el paquete de estudio en una única fuente autocontenida para NotebookLM."""
     if extras is None:
         # Se declaran acá, y un archivo declarado que no está es un ERROR y no un salto: si faltara
@@ -292,7 +310,7 @@ def documento_unico(docs: dict[str, str], *, extras=None) -> str:
         # fuera del repositorio, a `~/Dev/auditorias/oracle/`, y dejó la referencia colgando.
         # `COMPROMISOS.json` salió el mismo día: la puerta de abandono se retiró entera al declarar
         # el proyecto EXPERIMENTAL, y un experimento no se gobierna con plazos.
-        registro = RAIZ / "docs" / "decisiones"
+        registro = raiz / "docs" / "decisiones"
         decisiones = []
         for numero, nombre in (("001", "09-decision-relaciones-como-bolsas.md"),
                                ("002", "10-decision-sin-composicion.md"),
@@ -302,7 +320,7 @@ def documento_unico(docs: dict[str, str], *, extras=None) -> str:
                 raise FileNotFoundError(f"se esperaba una DECISION-{numero} en {registro}")
             decisiones.append((nombre, coincidencias[0]))
         declarados = (*decisiones,
-                      ("12-plan-de-correccion.md", RAIZ / "vault-kb" / "planes" /
+                      ("12-plan-de-correccion.md", raiz / "vault-kb" / "planes" /
                        "vault-kb/planes/PLAN-CORRECCION.md"))
         faltan = [str(origen) for _n, origen in declarados if not origen.exists()]
         if faltan:
@@ -318,7 +336,7 @@ def documento_unico(docs: dict[str, str], *, extras=None) -> str:
     partes.extend(extras)
     fecha = subprocess.run(
         ["date", "+%Y-%m-%d"], capture_output=True, text=True).stdout.strip()
-    commit = _git("rev-parse", "--short=12", "HEAD").strip() or "desconocido"
+    commit = _git("rev-parse", "--short=12", "HEAD", raiz=raiz).strip() or "desconocido"
     salida = [
         "# Oracle — documento integral para NotebookLM",
         "",
@@ -370,7 +388,7 @@ def _ejecutar_archivo(proy, destino: Path) -> int:
     if destino.suffix.lower() != ".md":
         print("--archivo debe terminar en .md")
         return 1
-    texto = documento_unico(_documentos(proy))
+    texto = documento_unico(_documentos(proy), raiz=_raiz_fuentes(proy))
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(texto, encoding="utf-8")
     print(f"DOCUMENTO INTEGRAL · {len(texto.splitlines())} líneas · {destino}")

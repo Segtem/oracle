@@ -183,6 +183,18 @@ class EmpaquetadoCliTests(unittest.TestCase):
             oracle = binarios / ("oracle.exe" if sys.platform == "win32" else "oracle")
             cwd_vacio = temporal / "cwd-vacio"
             cwd_vacio.mkdir()
+            estudio = binarios / ("oracle-estudio.exe" if sys.platform == "win32" else "oracle-estudio")
+            destino_estudio = temporal / "estudio"
+            generado = subprocess.run(
+                [str(estudio), "--proyecto", str(fuente), "--destino", str(destino_estudio)],
+                cwd=cwd_vacio, env=env, capture_output=True, text=True,
+            )
+            self.assertEqual(generado.returncode, 0, generado.stdout + generado.stderr)
+            self.assertIn("10 documentos", generado.stdout)
+            self.assertIn("# oracle — qué es y por qué",
+                          (destino_estudio / "00-esencia.md").read_text(encoding="utf-8"))
+            self.assertIn("# El diario:",
+                          (destino_estudio / "07-el-diario.md").read_text(encoding="utf-8"))
             proyecto = temporal / "proyecto"
 
             init = subprocess.run(
@@ -252,4 +264,3 @@ class EmpaquetadoCliTests(unittest.TestCase):
             self.assertIn("SINTAXIS OK", con_macro.stdout)
             self.assertIn("ACEPTACIÓN", con_macro.stdout)
             self.assertIn("VEREDICTO: VERDE", con_macro.stdout)
-
