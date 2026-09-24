@@ -42,3 +42,7 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 ## Próximo paso
 
 El dueño debe decidir tres preguntas de la especificación: (1) ¿`ambito` va antes o después de `alcance` en la forma canónica? (2) ¿`y` y `o` admiten más de dos operandos? (3) ¿`min`/`max` aceptan booleanos homogéneos? Después, definir si se corrige o se conserva como evidencia histórica el defecto del candidato ante una relación ausente en `requiere`; §2 ya prescribe `SIN EVIDENCIA`. Usar `estudios/0.26.0-codex/entrega-2026-09-24/CLASIFICACION.md` para las 66 parejas clasificadas. La tarea sigue ABIERTA.
+
+### Nota (2026-09-24 10:23:59 UTC)
+
+2026-09-24, Claude y Brian: los tres huecos se resuelven con lo que ya hace el núcleo, sin cambiar el lenguaje. (1) ambito va antes de alcance, como lo emite Medida.a_datos. (2) y/o aceptan dos o más operandos: el núcleo evalúa ["y", a, b, c]. (3) min/max aceptan booleanos homogéneos con false < true: el núcleo da 12, 1 y 0 en los casos 015, 024 y 116 de proceso.modulo_alcanzable, igual que el candidato; la que se aparta es la referencia, que los rechaza. Eso no es un hueco (clase 1) sino un defecto de la referencia frente al núcleo (clase 3), y la clasificación lo había puesto mal.
