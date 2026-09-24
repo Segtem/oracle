@@ -14,12 +14,15 @@ name: verificar
 #     con el cupo en cero, programar 68 minutos diarios es volver a empezar. Cuando se renueve, ahí
 #     se decide. Sigue siendo obligatoria antes de integrar; la corre quien integra, sobre su rama,
 #     que es cuando el número sirve para decidir.
-#   · Un push que sólo toca documentación no dispara nada.
+#   · Los cambios en `docs/` y en Markdown disparan CI: la suite lee parte de esos archivos.
+#     Según la cuenta de arriba, cuestan ~8 minutos de Actions por push (68 - 60 de mutación
+#     de código) y ~68 por pull request, donde sí corre la mutación. `tareas/` conserva su
+#     workflow propio; `vault-kb/` sigue fuera de éste.
 on:
   push:
-    paths-ignore: ["**.md", "docs/**", ".gitignore"]
+    paths-ignore: ["vault-kb/**", "tareas/**"]
   pull_request:
-    paths-ignore: ["**.md", "docs/**", ".gitignore"]
+    paths-ignore: ["vault-kb/**", "tareas/**"]
   workflow_dispatch:
 
 concurrency:

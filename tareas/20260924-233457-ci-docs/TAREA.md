@@ -1,6 +1,6 @@
 # El CI no corre cuando sólo cambia docs/, y docs/ ya tiene archivos que oracle test lee
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, ci, flaqueza
 
@@ -21,6 +21,10 @@ Que el CI corra cuando cambia cualquier archivo que algo verifica. Lo más chico
 `**.md` del ignore, y dejar ignorados sólo `vault-kb/**` y lo que de verdad nadie lee. Medir el costo
 en minutos de Actions con la cuenta del propio comentario del workflow.
 
+### Nota (2026-09-24 23:46:05 UTC)
+
+Test nuevo: tests.test_ci_docs falló con el filtro anterior y pasó con el cambio. verificar.yml ignora vault-kb/** y tareas/**; tracker.yml cubre tareas/**. Costo estimado según el comentario del workflow: ~8 min de Actions por push de docs y ~68 min por pull request. Suite completa: 2441 tests OK; test --rapido: VERDE tras actualizar cifras. Sin ids de equivalentes afectados.
+
 ## Próximo paso
 
-Implementar.
+Integrar los cambios desde un entorno con escritura en `.git`.

@@ -1,13 +1,12 @@
 name: tracker
 
-# `verificar.yml` ignora `**.md`, y un `tareas/*/TAREA.md` es un .md: un push que sólo toca el
+# `verificar.yml` ignoraba `**.md`, y un `tareas/*/TAREA.md` es un .md: un push que sólo tocaba el
 # tracker no disparaba NADA. Pasó con el push de `20260915-023750-tql`, que no dejó una sola corrida.
 # Un enlace roto o un adjunto sin commitear recién aparecía con el próximo push de código, y le
 # ensuciaba el rojo a un cambio que no tenía nada que ver.
 #
-# Va aparte y no como una excepción de `verificar.yml` por dos razones:
-#   · `paths-ignore` no admite negación —no hay forma de decir «todos los .md menos tareas/»—, así
-#     que la única manera de pedir «esto sí» es un `paths` propio.
+# Va aparte de `verificar.yml` por dos razones:
+#   · `tareas/**` tiene un `paths` propio y queda fuera del filtro de `verificar.yml`.
 #   · `concurrency` es por grupo, y el de `verificar` cancela lo que esté corriendo en la rama. Una
 #     corrida manual de mutación de código tarda horas; un push al tracker la mataba. Con su propio
 #     grupo, el tracker sólo se cancela a sí mismo.
