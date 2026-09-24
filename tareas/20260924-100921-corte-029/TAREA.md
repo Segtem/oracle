@@ -1,6 +1,6 @@
 # Corte 0.29.0
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, release
 
@@ -17,3 +17,7 @@ Guardia de ayuda de tools/cli.py (1087-1102): agregados dos tests en tests/test_
 ## Próximo paso
 
 Continuar el corte 0.29.0: completar la verificación de los demás cambios y preparar notas, crónica, cifras y build limpio antes del tag y release.
+
+### Nota (2026-09-24 13:36:52 UTC)
+
+2026-09-24: cortado. Tag v0.29.0 y release https://github.com/Segtem/oracle/releases/tag/v0.29.0 con wheel (sha256 ec5b9c72…) y sdist (f103849b…), construidos en un worktree limpio; verificar_instalacion WHEEL OK. Falta que Brian suba a PyPI.
