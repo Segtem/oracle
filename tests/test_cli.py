@@ -205,6 +205,28 @@ class OracleCliTests(CliTestCase):
                         self.assertIn(uso, resultado.stdout)
                         self.assertFalse((Path(td) / bandera).exists())
 
+    def test_ayuda_en_lugar_de_ruta_devuelve_cero_exacto(self) -> None:
+        comandos = (
+            ("init", "--help"),
+            ("proyecto", "init", "--help"),
+            ("biblioteca", "nueva", "--help"),
+            ("medida", "revisar", "--help"),
+            ("caso", "nuevo", "--help"),
+            ("revisar", "--help"),
+        )
+        for comando in comandos:
+            with self.subTest(comando=comando):
+                codigo, salida = self._callado(cli.main, list(comando))
+                self.assertEqual(codigo, 0)
+                self.assertIs(type(codigo), int)
+                self.assertIn("oracle", salida)
+
+    def test_ayuda_caso_nuevo_no_intercepta_otro_subcomando(self) -> None:
+        codigo, salida = self._callado(cli.main, ["proyecto", "nuevo", "--help"])
+        self.assertEqual(codigo, 1)
+        self.assertIn("verbo desconocido para «proyecto»: nuevo", salida)
+        self.assertNotIn("oracle caso nuevo", salida)
+
     def test_init_no_usa_una_opcion_desconocida_como_ruta(self) -> None:
         for comando in (("init",), ("proyecto", "init")):
             with self.subTest(comando=comando):
