@@ -5,6 +5,7 @@ estudio/
 build/
 dist/
 *.egg-info/
+/ORACLE-PARA-NOTEBOOKLM.md
 
 # Andamiaje de delegación: se escribe por tarea en el worktree, no vive en el repo
 /TAREA.md

@@ -4,7 +4,7 @@ Cada test de acá pone una corrida que **discrimina**: no ejercita el camino fel
 que rompe una sola cosa —la salida vacía, la lectura que cambia, el referente que se mueve, la
 etiqueta que no corresponde, el valor que no es el declarado— y exige que el recorrido se plante.
 Un recorrido que sólo sabe pasar convierte cualquier corrida en evidencia «observada», que es
-exactamente la mentira que `PLAN-0.8.1-SENSOR.md` llama la más barata del proyecto.
+exactamente la mentira que `vault-kb/planes/PLAN-0.8.1-SENSOR.md` llama la más barata del proyecto.
 """
 
 import io

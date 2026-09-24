@@ -78,7 +78,7 @@ esta tarea:
 con `donde` la relación requerida, y en todas el `donde` selecciona violaciones. Un `requiere` «sobre
 las filas filtradas» las pasaría de verde a SIN EVIDENCIA; por eso el plan lo diseña como `requiere`
 **con condición** propia (`requiere mutante m donde m.tipo == "codigo"`), aditivo. Plan:
-[`PLAN-0.21.0-MUTANTE.md`](../../PLAN-0.21.0-MUTANTE.md).
+[`PLAN-0.21.0-MUTANTE.md`](../../vault-kb/planes/PLAN-0.21.0-MUTANTE.md).
 
 Flujo: plan, encargo a agy, revisión, mutación y corte.
 

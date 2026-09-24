@@ -114,7 +114,7 @@ Contrastando la portada actual con las notas de versión ([`NOTAS-DE-RELEASE.md#
   ```
 
 ### Brecha 3: El servidor MCP con cinco herramientas de sólo lectura y su justificación (0.27)
-- **Sustento documental:** [`tools/mcp.py#L47-L731`](../../tools/mcp.py#L47-L731), [`estudios/MCP-CONTRATO.md#L8-L38`](../../estudios/MCP-CONTRATO.md#L8-L38), [`NOTAS-DE-RELEASE.md#L96-L110`](../../NOTAS-DE-RELEASE.md#L96-L110).
+- **Sustento documental:** [`tools/mcp.py#L47-L731`](../../tools/mcp.py#L47-L731), [`docs/mcp-contrato.md#L8-L38`](../../docs/mcp-contrato.md#L8-L38), [`NOTAS-DE-RELEASE.md#L96-L110`](../../NOTAS-DE-RELEASE.md#L96-L110).
 - **Situación actual:** Totalmente ausente en la web. No hay mención a la integración de Oracle con agentes mediante Model Context Protocol.
 - **Qué aporta:** Servidor JSON-RPC autónomo (`oracle-mcp`) sobre stdio con cinco herramientas especializadas:
   1. `oracle_catalogo_efectivo`: Consulta qué medidas obligan al proyecto y sus alcances.
@@ -122,7 +122,7 @@ Contrastando la portada actual con las notas de versión ([`NOTAS-DE-RELEASE.md#
   3. `oracle_desafiar`: Desafía una medida contra corpus y mutaciones sin persistir archivos.
   4. `oracle_juzgar`: Juzga evidencia contra el catálogo completo respetando sombras y cotas.
   5. `oracle_tareas`: Consulta el tracker (`listar`, `ver`, `buscar`, `hechos`).
-- **Por qué sólo lectura:** La especificación ([`estudios/MCP-CONTRATO.md#L8-L33`](../../estudios/MCP-CONTRATO.md#L8-L33)) fundamenta la decisión: los defectos habituales de los agentes de IA se producen al interpretar la realidad (falsos verdes por leer mal la evidencia); permitir escrituras mediante MCP crearía una falsa sensación de aprobación y rompería la correspondencia atómica que el tracker mantiene con cada commit de Git.
+- **Por qué sólo lectura:** La especificación ([`docs/mcp-contrato.md#L8-L33`](../../docs/mcp-contrato.md#L8-L33)) fundamenta la decisión: los defectos habituales de los agentes de IA se producen al interpretar la realidad (falsos verdes por leer mal la evidencia); permitir escrituras mediante MCP crearía una falsa sensación de aprobación y rompería la correspondencia atómica que el tracker mantiene con cada commit de Git.
 
 ### Brecha 4: Retomar es leer una tarea: el tracker como relevo, sufijos y `CIERRA CON` (0.28)
 - **Sustento documental:** [`NOTAS-DE-RELEASE.md#L9-L25`](../../NOTAS-DE-RELEASE.md#L9-L25), [`docs/12-tareas.md#L44-L86`](../../docs/12-tareas.md#L44-L86), [`AGENTS.md#L1-L25`](../../AGENTS.md#L1-L25).
@@ -165,15 +165,15 @@ Contrastando la portada actual con las notas de versión ([`NOTAS-DE-RELEASE.md#
   5. `oracle juzgar` juzga el producto vivo: corrida con defecto sale 1 (señalando testigo `fila: 10`); corrida corregida sale 0 e imprime `SIN MIRAR:` con su punto ciego.
 
 ### Brecha 7: Jev como sensor probabilístico de prosa: hechos vs juicio, calibración y plantilla en PyPI
-- **Sustento documental:** [`docs/14-sensor-prosa.md#L1-L120`](../../docs/14-sensor-prosa.md#L1-L120), [`tareas/20260923-113127-jev-pypi/TAREA.md#L8-L60`](../../tareas/20260923-113127-jev-pypi/TAREA.md#L8-L60), [`estudios/JEV-COMO-SENSOR.md#L9-L84`](../../estudios/JEV-COMO-SENSOR.md#L9-L84), [`tareas/20260922-220029-jev-porque-v2/TAREA.md#L10-L57`](../../tareas/20260922-220029-jev-porque-v2/TAREA.md#L10-L57), [`ejemplo/sensor-prosa/README.md#L1-L47`](../../ejemplo/sensor-prosa/README.md#L1-L47).
+- **Sustento documental:** [`docs/14-sensor-prosa.md#L1-L120`](../../docs/14-sensor-prosa.md#L1-L120), [`tareas/20260923-113127-jev-pypi/TAREA.md#L8-L60`](../20260923-113127-jev-pypi/TAREA.md#L8-L60), [`vault-kb/estudios/JEV-COMO-SENSOR.md#L9-L84`](../../vault-kb/estudios/JEV-COMO-SENSOR.md#L9-L84), [`tareas/20260922-220029-jev-porque-v2/TAREA.md#L10-L57`](../20260922-220029-jev-porque-v2/TAREA.md#L10-L57), [`ejemplo/sensor-prosa/README.md#L1-L47`](../../ejemplo/sensor-prosa/README.md#L1-L47).
 - **Situación actual:** La web no menciona en absoluto el uso de modelos de lenguaje ni el patrón de sensores de prosa.
 - **Qué aporta:**
   1. *División rigurosa sensor vs. juez:* Un modelo probabilístico no es un juez. El modelo actúa como **sensor** emitiendo hechos (`afirmacion_prosa`); **Oracle juzga** esas filas de forma determinista, reproducible y sin conexión a red.
   2. *Cifras reales medidas (sin promesas vacías):*
-     - En el primer estudio ([`estudios/JEV-COMO-SENSOR.md#L9-L19`](../../estudios/JEV-COMO-SENSOR.md#L9-L19)): Jev detectó 10/10 controles de prosa vacía, con costo observado de **US$ 0,000877** (menos de 0,1 centavos de dólar). En preguntas sobre `alcance` coincidió 15/15 con Claude como juez ciego.
-     - En la segunda corrida ([`docs/14-sensor-prosa.md#L36-L42`](../../docs/14-sensor-prosa.md#L36-L42), [`tareas/20260922-220029-jev-porque-v2/TAREA.md#L55`](../../tareas/20260922-220029-jev-porque-v2/TAREA.md#L55)): Acuerdo 15/15 en reales y 10/10 en controles con referencia ciega; los *sí* se ubicaron entre 0,50 y 0,68; los *no* entre 0,09 y 0,33.
+     - En el primer estudio ([`vault-kb/estudios/JEV-COMO-SENSOR.md#L9-L19`](../../vault-kb/estudios/JEV-COMO-SENSOR.md#L9-L19)): Jev detectó 10/10 controles de prosa vacía, con costo observado de **US$ 0,000877** (menos de 0,1 centavos de dólar). En preguntas sobre `alcance` coincidió 15/15 con Claude como juez ciego.
+     - En la segunda corrida ([`docs/14-sensor-prosa.md#L36-L42`](../../docs/14-sensor-prosa.md#L36-L42), [`tareas/20260922-220029-jev-porque-v2/TAREA.md#L55`](../20260922-220029-jev-porque-v2/TAREA.md#L55)): Acuerdo 15/15 en reales y 10/10 en controles con referencia ciega; los *sí* se ubicaron entre 0,50 y 0,68; los *no* entre 0,09 y 0,33.
   3. *Zona media a revisión humana:* La estrechez de margen no autoriza automatización ciega. Las filas con probabilidad entre 0,4 y 0,6 se aíslan en `revision-humana.json` y el sensor finaliza con código 2; la decisión final sobre la prosa sigue siendo humana.
-  4. *Disponible en PyPI:* Tras cerrarse [`tareas/20260923-113127-jev-pypi/TAREA.md`](../../tareas/20260923-113127-jev-pypi/TAREA.md), quien instala Oracle vía pip o uv recibe la plantilla directamente con el comando:
+  4. *Disponible en PyPI:* Tras cerrarse [`tareas/20260923-113127-jev-pypi/TAREA.md`](../20260923-113127-jev-pypi/TAREA.md), quien instala Oracle vía pip o uv recibe la plantilla directamente con el comando:
      ```bash
      oracle plantilla sensor-prosa <directorio-nuevo>
      ```
@@ -188,12 +188,12 @@ En [`tareas/20260923-113951-web-028/TAREA.md#L30-L31`](TAREA.md#L30-L31) se espe
 
 En [`tareas/20260923-113951-repo-limpio/TAREA.md#L20-L75`](../20260923-113951-repo-limpio/TAREA.md#L20-L75) se detallan los movimientos previstos:
 1. Las decisiones `DECISION-*.md` se mudarán a `docs/decisiones/` (o permanecerán normativas en `docs/`).
-2. El contrato del MCP (`estudios/MCP-CONTRATO.md`) se trasladará a `docs/` como documentación viva del producto, generada desde `tools/mcp.py`.
+2. El contrato del MCP (`docs/mcp-contrato.md`) se trasladará a `docs/` como documentación viva del producto, generada desde `tools/mcp.py`.
 3. Relatos, planes viejos (`PLAN-*`), relevos y estudios experimentales pasarán a la base de conocimiento `vault-kb/`.
 4. El motor esencial (`nucleo/`, `catalogos/`, `tools/`, `tareas/`, `docs/`, `ejemplo/`) se mantendrá en su ubicación.
 
 **Implicancia directa para la web:**
-- Ningún enlace de `docs/index.html` debe apuntar directamente a archivos en `estudios/` o planes `PLAN-*.md`.
+- Ningún enlace de `docs/index.html` debe apuntar directamente a archivos en `vault-kb/estudios/` o planes `PLAN-*.md`.
 - Los enlaces documentales deben referenciar exclusivamente archivos dentro de `docs/` o URL canónicas del sitio (`https://segtem.github.io/oracle/manual.html`, etc.).
 - Las cifras dinámicas del HTML continuarán garantizadas por `tools/cifras.py` ([`tools/cifras.py#L285`](../../tools/cifras.py#L285)) y la coherencia del manual por el test `LaPaginaPublicadaNoSeDespegaTests` ([`tests/test_manual.py#L240-L250`](../../tests/test_manual.py#L240-L250)).
 

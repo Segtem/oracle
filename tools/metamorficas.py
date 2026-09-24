@@ -7,7 +7,7 @@ Una propiedad metamórfica no dice cuál es el resultado correcto: dice que **do
 escribir la misma medida tienen que coincidir**. Por eso atrapa defectos que nadie imaginó — no hace
 falta saber la respuesta, sólo que los dos caminos lleguen al mismo lugar.
 
-`PLAN-LENGUAJE.md` §(e.1) enumeró cinco. Una ya vive como medida sobre la traza
+`vault-kb/planes/PLAN-LENGUAJE.md` §(e.1) enumeró cinco. Una ya vive como medida sobre la traza
 (`meta.donde_nunca_agrega_filas`); las demás son equivalencias, y una equivalencia no se lee de una
 traza: hay que **correr las dos formas y comparar**. Eso es lo que hace este sensor.
 

@@ -1,6 +1,6 @@
 """Tests de revisión de la anti-junta (0.26.0), escritos por Claude ANTES de leer la entrega.
 
-Fijan el plan aprobado (`PLAN-0.26.0-ANTIJUNTA.md`) desde afuera, con la API pública: `desde`, la
+Fijan el plan aprobado (`vault-kb/planes/PLAN-0.26.0-ANTIJUNTA.md`) desde afuera, con la API pública: `desde`, la
 superficie, `Medida` y las versiones. Si la entrega los pasa sin cambios, la semántica es la que se
 pidió; si no, o la entrega o el plan están mal, y hay que decir cuál.
 """

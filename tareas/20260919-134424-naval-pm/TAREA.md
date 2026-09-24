@@ -22,7 +22,7 @@ Brian: «pasó algo raro; quiero un postmortem y ver si se desprenden tareas par
 
 ## Qué hacer (Codex)
 
-Un postmortem **sin culpas y con evidencia**, en `estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md` de Oracle:
+Un postmortem **sin culpas y con evidencia**, en `vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md` de Oracle:
 1. **Qué se construyó en cada versión**, medido (archivos, tamaño, funciones, qué reglas del juego
    cumple cada una). Corré los dos juegos si hace falta (son HTML; con node se puede cargar la
    lógica). ¿La versión con Oracle **midió algo del juego**? `catalogos/` está vacío: ¿qué verificó

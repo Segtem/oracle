@@ -99,7 +99,7 @@ class ContratoNormativoTests(unittest.TestCase):
     """Verifica que el bloque JSON normativo de MCP-CONTRATO.md describe exactamente 5 herramientas."""
 
     def test_tools_list_publica_las_cinco_con_el_contrato_normativo_entero(self) -> None:
-        contrato = (mcp.RAIZ / "estudios" / "MCP-CONTRATO.md").read_text(encoding="utf-8")
+        contrato = (mcp.RAIZ / "docs" / "mcp-contrato.md").read_text(encoding="utf-8")
         from tools.mcp_contrato import regenerar
         self.assertEqual(contrato, regenerar(contrato), "Regenerar el contrato MCP")
         bloque = re.search(

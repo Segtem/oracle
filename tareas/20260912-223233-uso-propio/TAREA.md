@@ -6,7 +6,7 @@
 
 ### Nota (2026-09-12 22:33:26 UTC)
 
-Pendiente vigente de P4: registrar estos tres pendientes reales, enlazar sus fuentes, reencontrarlos por búsqueda, revisar referencias y observar Git. Origen: [roadmap 0.16.0](../../PLAN-0.16.0-TAREAS.md) y pedido del dueño de continuar el 2026-09-12. No migrar limitaciones históricas cerradas como pendientes. Este registro es trabajo propio real, no un caso construido del corpus.
+Pendiente vigente de P4: registrar estos tres pendientes reales, enlazar sus fuentes, reencontrarlos por búsqueda, revisar referencias y observar Git. Origen: [roadmap 0.16.0](../../vault-kb/planes/PLAN-0.16.0-TAREAS.md) y pedido del dueño de continuar el 2026-09-12. No migrar limitaciones históricas cerradas como pendientes. Este registro es trabajo propio real, no un caso construido del corpus.
 
 - Adjunto: [oracle-uso-propio-20260912.json](oracle-uso-propio-20260912.json)
 

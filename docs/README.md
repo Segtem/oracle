@@ -6,11 +6,11 @@ Ordenado por la pregunta que contesta, no por el tema.
 |---|---|
 | **1 · Qué problema resuelve** | [Goodhart, y por qué una regla tiene que negarse](../README.md) |
 | **2 · [De cero a un rojo](02-de-cero-a-un-rojo.md)** | instalar, escribir una medida, ver testigos. Cinco minutos |
-| **3 · Anatomía de una medida** | [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) |
+| **3 · Anatomía de una medida** | [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) |
 | **4 · El primer caso** | polaridad, `etiqueta`, `procedencia` — dentro del paso 2 |
 | **5 · [Por qué la mutación](05-por-que-la-mutacion.md)** | dos autores, 28 mutadores en aislamiento, y qué hacer con un sobreviviente |
 | **Operación · [Memoria y paralelismo](mutacion-memoria.md)** | medir memoria virtual, calcular concurrencia y limitar todas las rondas con systemd |
-| **6 · Los cinco niveles** | [DECISION-005](../DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) |
+| **6 · Los cinco niveles** | [DECISION-005](decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) |
 | **7 · [Conectar a un proyecto propio](07-conectar-a-un-proyecto-propio.md)** | sensor puro, adaptador, escalares, migración a PyPI y la sombra |
 | **8 · El editor** | [editores/README.md](../editores/README.md) |
 | **9 · Referencia** | [ESPECIFICACION.md](../ESPECIFICACION.md) |

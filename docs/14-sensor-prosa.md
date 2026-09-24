@@ -33,7 +33,7 @@ normal deriva el booleano de P(sí). No se evalúa `porque` en este ejemplo.
 
 ## Calibración y revisión humana
 
-La [segunda corrida del estudio](../estudios/JEV-COMO-SENSOR.md) cambió la pregunta
+La [segunda corrida del estudio](../vault-kb/estudios/JEV-COMO-SENSOR.md) cambió la pregunta
 sobre `porque` e incluyó la tubería completa: obtuvo acuerdo 15/15 en las medidas
 reales y 10/10 en controles con la referencia ciega. Los **sí quedaron entre 0,50 y
 0,68; los no, entre 0,09 y 0,33; dos sí quedaron exactamente en 0,50**. Esa separación

@@ -1,6 +1,6 @@
 """Revisión independiente de 0.21.0: `requiere` con condición, relaciones con variantes y `mutante`.
 
-Escrita por Claude contra `estudios/0.21.0-mutante/ENCARGO-AGY.md`, antes de leer la implementación.
+Escrita por Claude contra `vault-kb/estudios/0.21.0-mutante/ENCARGO-AGY.md`, antes de leer la implementación.
 Tarea `20260915-155111-mutante`.
 """
 

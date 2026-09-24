@@ -1,6 +1,6 @@
 """Revisión independiente de `oracle juzgar` (0.18.0).
 
-Escrita por Claude contra `estudios/0.18.0-juzgar/ENCARGO-AGY.md`, antes de leer la implementación.
+Escrita por Claude contra `vault-kb/estudios/0.18.0-juzgar/ENCARGO-AGY.md`, antes de leer la implementación.
 El catálogo es una copia de `ejemplo/seguimiento-tareas`; todo pasa por el CLI público.
 """
 

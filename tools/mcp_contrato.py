@@ -23,7 +23,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    ruta = RAIZ / "estudios" / "MCP-CONTRATO.md"
+    ruta = RAIZ / "docs" / "mcp-contrato.md"
     original = ruta.read_text(encoding="utf-8")
     generado = regenerar(original)
     if args.check:

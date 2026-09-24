@@ -6,7 +6,7 @@
 
 ## Problema y evidencia
 
-Derivada de 20260919-134424-naval-pm; ver [postmortem](../../estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md).
+Derivada de 20260919-134424-naval-pm; ver [postmortem](../../vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md).
 La tarea naval prometió medidas de reglas del juego, pero terminó con catálogo propio vacío y un caso que declara sintaxis válida. El README abre con init → nueva → test y “ya tiene quién lo juzgue”; la guía GUIA22 explica correctamente sensores y límites, pero su recorrido completo tiene 1.171 líneas y cuatro medidas. No hay evidencia para atribuirle el 60 % de atención ni afirmar que el tracker fuera obligatorio.
 
 ## Resultado buscado

@@ -1,6 +1,6 @@
 """Tests de revisión del MCP de 0.27.0, escritos por Claude ANTES de leer la entrega de agy.
 
-Fijan el encargo (`estudios/0.27.0-mcp/ENCARGO-AGY.md`) desde el protocolo: `tools/list` y
+Fijan el encargo (`vault-kb/estudios/0.27.0-mcp/ENCARGO-AGY.md`) desde el protocolo: `tools/list` y
 `tools/call`, sin nombres internos. Corren sobre una copia de `ejemplo/seguimiento-tareas`, que tiene
 tracker propio no, pero sí políticas y una sombra con cota; el tracker se arma en el temporal.
 """

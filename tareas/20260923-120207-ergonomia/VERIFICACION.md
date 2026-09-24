@@ -53,7 +53,7 @@ naval.turnos_sin_huecos.oracle:6: donde registrados != mas(ultimo, 1)
 < verde: valor=0, original.ok=True, aflojar_umbral.ok=True
 ```
 
-**Código:** `nucleo/algebra.py:desde`, `nucleo/mutacion.py`; `DECISION-001-RELACIONES-COMO-BOLSAS.md`. Con `!=` el mutante sobrevive a ambas polaridades; con `<` muere. La multiplicidad es semántica deliberada de bolsas. Usar `<` exige una clave comparable que distinga el par; el ejemplo ya tiene identificadores de barcos, no demuestra que siempre haya que inventar un campo artificial.
+**Código:** `nucleo/algebra.py:desde`, `nucleo/mutacion.py`; `docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md`. Con `!=` el mutante sobrevive a ambas polaridades; con `<` muere. La multiplicidad es semántica deliberada de bolsas. Usar `<` exige una clave comparable que distinga el par; el ejemplo ya tiene identificadores de barcos, no demuestra que siempre haya que inventar un campo artificial.
 
 ### 2.1 — CIERTA, acotada: falta contar distintos por grupo directamente
 
@@ -79,7 +79,7 @@ ninguno-par requiere= () filtro compuesto valor= 1
 ErrorSintaxis: línea 7, columna 1: la macro ninguno lleva exactamente 5 líneas de cuerpo (de, donde, umbral, ambito, alcance) y llegaron 6
 ```
 
-**Código:** `nucleo/macros/ninguno-requiere.oracle:4`, `nucleo/sintaxis.py:_leer_macro_por_plantilla`, `nucleo/macro.py:expandir`; `DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md`.
+**Código:** `nucleo/macros/ninguno-requiere.oracle:4`, `nucleo/sintaxis.py:_leer_macro_por_plantilla`, `nucleo/macro.py:expandir`; `docs/decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md`.
 
 La rigidez de **esa** plantilla es cierta, pero ya existe una hermana para exigir la relación recorrida. Las macros admiten predicados compuestos. Además, `naval.flota_reglamentaria` y `naval.turnos_sin_huecos` tienen `agrupar` y agregados propios: **no** están expandidas “únicamente para incluir requiere”. Ninguna de esas macros es una tubería arbitraria con `sin`; esa restricción sigue existiendo, pero no justifica el diagnóstico general ni parámetros opcionales. No se propone trabajo a partir de esta entrada falseada.
 

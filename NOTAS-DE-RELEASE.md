@@ -192,7 +192,7 @@ este repositorio: la lectura sale roja y la política de cierres, 31 contra una 
 - **`oracle_tareas`**, nueva: `listar`, `ver`, `buscar` y `hechos` del tracker. Un proyecto sin
   `tareas/` es `TRACKER_AUSENTE`, no una lista vacía.
 
-Las cinco siguen siendo de sólo lectura, y el contrato (`estudios/MCP-CONTRATO.md`) dice por qué:
+Las cinco siguen siendo de sólo lectura, y el contrato (`docs/mcp-contrato.md`) dice por qué:
 los falsos verdes de un agente ocurren al leer, y en el tracker crear o cerrar una tarea sólo vale
 junto con su commit.
 
@@ -208,7 +208,7 @@ junto con su commit.
   vivos —y 6 más de los otros módulos— eran valores por omisión que nadie usaba, una rama muerta y
   bordes sin test (uno de seguridad: nada fijaba que `oracle_juzgar` no confiara en `escalares.py`
   por omisión). Después de cerrarlos, el código nuevo del MCP da 69/69 en ronda parcial
-  ([logs](estudios/0.27.0-mcp/verificacion/)).
+  ([logs](vault-kb/estudios/0.27.0-mcp/verificacion/)).
 - Consumidores con un wheel de 0.27.0 antes de publicarlo: LyraGASP y Jam VERDE con las mismas
   cifras que en 0.26.0. Sus tres sombras son medidas `meta` dentro de su cota, así que `Motor` —que
   los dos usan— no les cambia el color.
@@ -218,7 +218,7 @@ junto con su commit.
 ## Cómo se hizo
 
 Claude hizo `juzgar`, `Motor` y el tracker. El MCP lo implementó agy
-(`estudios/0.27.0-mcp/`); Claude escribió 24 tests de revisión antes de leer la entrega. La entrega
+(`vault-kb/estudios/0.27.0-mcp/`); Claude escribió 24 tests de revisión antes de leer la entrega. La entrega
 armaba mal el `Informe` de la sombra —toda evaluación de una medida en sombra fallaba— y la
 refactorización de `juzgar` convertía un error de evaluación en «sin medidas aplicables»; un test que
 ya existía lo atrapó. Las dos cosas se corrigieron, junto con siete tests de la entrega que tenían
@@ -310,7 +310,7 @@ Las sondas a sus nueve decisiones nuevas dieron cuatro desacuerdos:
   `nucleo/mutacion.py` 190/190, `nucleo/campo_leido.py` 28/28, `tools/tareas_hechos.py` 270/270,
   `tools/medida.py` 302/302. La primera ronda dejó 31 vivos, casi todos guardas redundantes que la
   entrega agregó sobre datos ya validados y bordes sin test; los dos últimos se cerraron con rondas
-  parciales sobre su sitio ([logs](estudios/0.26.0-antijunta/verificacion/)).
+  parciales sobre su sitio ([logs](vault-kb/estudios/0.26.0-antijunta/verificacion/)).
 - La política de cierres del tracker, escrita con `sin`, da 4 sobre la historia real, como el
   conteo en Python que reemplaza.
 - Consumidores con un wheel de 0.26.0 antes de publicarlo: LyraGASP VERDE (66 medidas, 190 casos,
@@ -353,7 +353,7 @@ contado por su propio verificador.
 
 - **La crónica de `ESPECIFICACION.md` §0 va en un solo orden**, del corte más nuevo al más viejo.
   Tenía tres a la vez. Se movieron sólo bloques enteros, y un test falla si se vuelve a mezclar.
-- **El estudio de Codex** (`estudios/0.26.0-codex/`): el contrato de aislamiento, versionado; un
+- **El estudio de Codex** (`vault-kb/estudios/0.26.0-codex/`): el contrato de aislamiento, versionado; un
   lanzador que arma un directorio fuera del repositorio sólo con la especificación y frena si Codex
   no tiene cuota; y un contraste que compara el veredicto entero de dos implementaciones sobre los
   mundos del diferencial y todo el corpus (248 comparaciones). Codex todavía no tiene cuota.
@@ -375,14 +375,14 @@ Subidos a 0.25.1 con el mismo resultado que en 0.24.0. Y los dos quedaron con su
   diferencial ✓; sintaxis y cifras al día; mutación de medidas 994/994; `verificar_instalacion`
   WHEEL OK.
 - Mutación de código de `tools/diferencial.py`: **55/55**
-  ([log](estudios/0.25.2-informe/verificacion/)).
+  ([log](vault-kb/estudios/0.25.2-informe/verificacion/)).
 - Consumidores con 0.25.1 instalado desde PyPI: LyraGASP VERDE y su suite 148 sin fallas; Jam VERDE y
   su suite 1240 sin fallas.
 
 ## Cómo se hizo
 
 Claude cerró `informe` y `cronica`; la nota del vault de Jam la convirtió agy
-(`estudios/vault-jam/`) y la verificó Claude. Este corte se hizo desde un worktree limpio de `main`,
+(`vault-kb/estudios/vault-jam/`) y la verificó Claude. Este corte se hizo desde un worktree limpio de `main`,
 mientras agy trabaja en la anti-junta del álgebra 0.8 en el árbol principal.
 
 # 0.25.1 — borradores de las relaciones que faltan declarar, sin fabricar un verde
@@ -421,7 +421,7 @@ consumidor quedó más alta que su deuda.
 
 - Suite completa en verde (2223 tests); aceptación ✓ con 119 defectos en rojo y 84 verdes correctos;
   sintaxis, diferencial y cifras al día; `verificar_instalacion` WHEEL OK.
-- Mutación de código ([logs](estudios/0.25.1-declarar/verificacion/)): `tools/medida.py` **296/296**
+- Mutación de código ([logs](vault-kb/estudios/0.25.1-declarar/verificacion/)): `tools/medida.py` **296/296**
   y `tools/cli.py` **539/539**. La primera ronda de `tools/medida.py` dejó siete vivos, todos en el
   código nuevo: dos en la rama de evidencia ilegible, que no tenía test; uno en un contador que se
   llevaba aparte y nadie leía, que se borró; tres en cómo se escribe el borrador, que no cambiaban
@@ -434,7 +434,7 @@ consumidor quedó más alta que su deuda.
 ## Cómo se hizo
 
 Tarea `20260916-035758-declarar`, que salió del estudio de las tres sombras que los dos consumidores
-comparten (`estudios/TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md`). La escribió Claude.
+comparten (`vault-kb/estudios/TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md`). La escribió Claude.
 
 # 0.25.0 — mutar unos sitios sin poder confundirlo con una verificación completa
 
@@ -488,7 +488,7 @@ el asunto—. Queda declarado con sombra y cota 4.
   `verificar_instalacion` WHEEL OK.
 - Mutación de medidas: 994/994. Mutación de código de `perfiles/python/mutacion_codigo.py`:
   **232/232**. La primera ronda dio 231 de 233; los dos vivos estaban en cómo se guarda que una ronda
-  fue parcial, y se cerraron antes de esta ([logs](estudios/0.25.0-sitios/verificacion/)).
+  fue parcial, y se cerraron antes de esta ([logs](vault-kb/estudios/0.25.0-sitios/verificacion/)).
 - Rondas parciales corridas de verdad sobre `nucleo/version.py` (15 sitios): `--lineas 43-56` mutó 3
   y salió 2; `--sitio nucleo/version.py:51:8:retorno` mutó 1 y salió 2; la ronda completa, 15/15 y
   salió 0; un filtro sin sitios salió 2 con su mensaje.
@@ -501,8 +501,8 @@ el asunto—. Queda declarado con sombra y cota 4.
 ## Cómo se hizo
 
 Las rondas parciales las implementó agy (tarea `20260915-201030-sitios`; encargo, avance e informe en
-`estudios/0.25.0-sitios/`), y Claude revisó, corrigió y midió: el detalle está en
-[REVISION-CLAUDE.md](estudios/0.25.0-sitios/REVISION-CLAUDE.md). Los commits como hechos
+`vault-kb/estudios/0.25.0-sitios/`), y Claude revisó, corrigió y midió: el detalle está en
+[REVISION-CLAUDE.md](vault-kb/estudios/0.25.0-sitios/REVISION-CLAUDE.md). Los commits como hechos
 (`20260915-010452-commits`) los escribió Claude.
 
 # 0.24.0 — ningún mutante se come la máquina, y el tracker se lee de un vistazo
@@ -554,7 +554,7 @@ se corría con `ulimit -v` puesto a mano desde afuera, que no estaba escrito en 
 - Suite completa en verde (2182 tests); aceptación ✓ con 118 defectos en rojo y 83 verdes correctos;
   diferencial ✓ (9 mundos × 5 medidas); sintaxis y cifras al día; `verificar_instalacion` WHEEL OK.
 - Mutación de medidas: 984/984. Mutación de código, una ronda por objetivo en copias aisladas y **sin
-  `ulimit` de afuera**, que es como se prueba el tope nuevo ([logs](estudios/0.24.0-memoria/verificacion/)):
+  `ulimit` de afuera**, que es como se prueba el tope nuevo ([logs](vault-kb/estudios/0.24.0-memoria/verificacion/)):
 
   | objetivo | murieron |
   |---|--:|
@@ -579,8 +579,8 @@ se corría con `ulimit -v` puesto a mano desde afuera, que no estaba escrito en 
 ## Cómo se hizo
 
 El tope de memoria lo implementó agy (tarea `20260915-112728-memoria`, encargo y entrega en
-`estudios/0.24.0-memoria/`); Claude revisó, corrigió lo que no corría y lo midió: el detalle está en
-[REVISION-CLAUDE.md](estudios/0.24.0-memoria/REVISION-CLAUDE.md). Las otras seis tareas salieron del
+`vault-kb/estudios/0.24.0-memoria/`); Claude revisó, corrigió lo que no corría y lo midió: el detalle está en
+[REVISION-CLAUDE.md](vault-kb/estudios/0.24.0-memoria/REVISION-CLAUDE.md). Las otras seis tareas salieron del
 tracker por prioridad.
 
 # 0.23.1 — el diferencial ejercita lo que el álgebra agregó, y compara el veredicto entero
@@ -725,7 +725,7 @@ duplicados; y el plan dejaba sin declarar dos relaciones de proceso que el volca
 
 ## Verificación
 
-- Mutación de código ([logs](estudios/0.22.0-campos/verificacion/)): `nucleo/medida.py` 311/312,
+- Mutación de código ([logs](vault-kb/estudios/0.22.0-campos/verificacion/)): `nucleo/medida.py` 311/312,
   `nucleo/relacion.py` 169/169, `tools/juzgar.py` 113/113, `nucleo/marco.py` 78/79, `tools/aceptacion.py`
   76/78 y `nucleo/campo_leido.py` 24/24. Los dos vivos de `aceptacion.py` eran la rama por la que la
   sombra perdonaba una medida que no pudo juzgar, y se borró; los de `marco.py` y `medida.py` tienen test,
@@ -736,8 +736,8 @@ duplicados; y el plan dejaba sin declarar dos relaciones de proceso que el volca
   correctos; los casos 504 (falso verde), 505 y el observado 506 salen como deben.
 - Sobre el catálogo de Oracle, `campo_leido` emite 160 lecturas —131 de relaciones del lenguaje, 29 de
   declaradas— y todas nombran un campo que existe.
-- [Plan](PLAN-0.22.0-CAMPOS.md), [encargo](estudios/0.22.0-campos/ENCARGO-AGY.md),
-  [revisión](estudios/0.22.0-campos/REVISION-CLAUDE.md) y [cierre](estudios/0.22.0-campos/CIERRE.md).
+- [Plan](vault-kb/planes/PLAN-0.22.0-CAMPOS.md), [encargo](vault-kb/estudios/0.22.0-campos/ENCARGO-AGY.md),
+  [revisión](vault-kb/estudios/0.22.0-campos/REVISION-CLAUDE.md) y [cierre](vault-kb/estudios/0.22.0-campos/CIERRE.md).
 
 Álgebra y sintaxis no cambian: `campo_leido` es una relación de hechos, como `sombra` o `verbo_del_cli`.
 La publicación en PyPI la realiza el dueño.
@@ -785,7 +785,7 @@ cambie el veredicto. Se corrigió el núcleo y §2 lo dice.
 
 ## Verificación
 
-- Mutación de código ([logs](estudios/0.21.0-mutante/verificacion/)): `nucleo/sintaxis.py` 1050/1050,
+- Mutación de código ([logs](vault-kb/estudios/0.21.0-mutante/verificacion/)): `nucleo/sintaxis.py` 1050/1050,
   `nucleo/medida.py` 311/316, `tools/medida.py` 263/263, `perfiles/python/mutacion_codigo.py` 211/211,
   `nucleo/unidad.py` 198/198, `nucleo/mutacion.py` 182/182 y `nucleo/relacion.py` 149/149. De los cinco
   vivos de `medida.py`, tres eran código redundante y se borró; los otros dos tienen test, verificado
@@ -795,8 +795,8 @@ cambie el veredicto. Se corrigió el núcleo y §2 lo dice.
 - Referencia independiente re-derivada contra 0.7 (21 tests) y diferencial regenerado: referencia y
   Oracle de acuerdo en 4 mundos × 3 medidas.
 - LyraGASP y Jam cargan con el núcleo nuevo y sus medidas no cambian de veredicto.
-- [Plan](PLAN-0.21.0-MUTANTE.md), [encargo](estudios/0.21.0-mutante/ENCARGO-AGY.md),
-  [revisión](estudios/0.21.0-mutante/REVISION-CLAUDE.md), [cierre](estudios/0.21.0-mutante/CIERRE.md) y
+- [Plan](vault-kb/planes/PLAN-0.21.0-MUTANTE.md), [encargo](vault-kb/estudios/0.21.0-mutante/ENCARGO-AGY.md),
+  [revisión](vault-kb/estudios/0.21.0-mutante/REVISION-CLAUDE.md), [cierre](vault-kb/estudios/0.21.0-mutante/CIERRE.md) y
   [procedencia de la referencia](diferencial/referencia/PROCEDENCIA.md).
 
 Un proyecto que declara `"algebra": "0.6"` sigue cargando. La publicación en PyPI la realiza el dueño.
@@ -834,7 +834,7 @@ tienen proyecto y siguen sin sombras.
 ## Verificación
 
 - Suite: 2055 tests en verde, con tests escritos antes del arreglo que fallaban sobre 0.19.0.
-- Mutación de código ([logs](estudios/0.20.0-motor/verificacion/)): `oracle_metalenguaje/motor.py`
+- Mutación de código ([logs](vault-kb/estudios/0.20.0-motor/verificacion/)): `oracle_metalenguaje/motor.py`
   23/23 y `nucleo/medida.py` 260/261. El sobreviviente contaba como «rojo perdonado» una medida
   verde en sombra; lo mata un test agregado con la ronda terminada y verificado aplicando el mutante
   a mano.
@@ -893,8 +893,8 @@ paréntesis, símbolos y un `-explain` que no tiene.
   `tools/tareas_contexto.py` 212/212 y `tools/tareas.py` 380/381, con el sobreviviente cubierto por un
   test verificado contra el mutante. `tools/tareas_consulta.py` entra a la matriz de custodias de CI.
 
-- [Plan](PLAN-0.19.0-TQL.md), [encargo](estudios/0.19.0-tql/ENCARGO-AGY.md),
-  [revisión](estudios/0.19.0-tql/REVISION-CLAUDE.md) y [cierre](estudios/0.19.0-tql/CIERRE.md).
+- [Plan](vault-kb/planes/PLAN-0.19.0-TQL.md), [encargo](vault-kb/estudios/0.19.0-tql/ENCARGO-AGY.md),
+  [revisión](vault-kb/estudios/0.19.0-tql/REVISION-CLAUDE.md) y [cierre](vault-kb/estudios/0.19.0-tql/CIERRE.md).
 
 Álgebra y sintaxis no cambian. La publicación en PyPI la realiza el dueño.
 
@@ -978,8 +978,8 @@ cerraron borrando ramas sin conducta y con tests, y el timeout de `cli.py` resul
 `reportar` que esperaba stdin. Pasaron `verificar_instalacion` —con `oracle juzgar` desde el
 wheel—, las cifras, el manual y el paso nuevo de CI, simulado sobre el `tareas/` de Oracle.
 
-- [Plan](PLAN-0.18.0-JUZGAR.md), [encargo](estudios/0.18.0-juzgar/ENCARGO-AGY.md),
-  [revisión](estudios/0.18.0-juzgar/REVISION-CLAUDE.md) y [cierre](estudios/0.18.0-juzgar/CIERRE.md).
+- [Plan](vault-kb/planes/PLAN-0.18.0-JUZGAR.md), [encargo](vault-kb/estudios/0.18.0-juzgar/ENCARGO-AGY.md),
+  [revisión](vault-kb/estudios/0.18.0-juzgar/REVISION-CLAUDE.md) y [cierre](vault-kb/estudios/0.18.0-juzgar/CIERRE.md).
 
 Álgebra y sintaxis no cambian. La publicación en PyPI la realiza el dueño.
 
@@ -1032,8 +1032,8 @@ declarados. Los sobrevivientes de las primeras rondas se cerraron con tests o bo
 efecto observable. Pasaron el wheel instalado fuera del checkout —con un recorrido nuevo de
 `etiquetar`, `desetiquetar`, `tareas/etiquetas` y `grafo`—, las cifras del README y el manual.
 
-- [Encargo](estudios/0.17.0-tatr/ENCARGO-AGY.md), [revisión](estudios/0.17.0-tatr/REVISION-CLAUDE.md)
-  y [cierre](estudios/0.17.0-tatr/CIERRE.md).
+- [Encargo](vault-kb/estudios/0.17.0-tatr/ENCARGO-AGY.md), [revisión](vault-kb/estudios/0.17.0-tatr/REVISION-CLAUDE.md)
+  y [cierre](vault-kb/estudios/0.17.0-tatr/CIERRE.md).
 
 Álgebra y sintaxis no cambian: el tracker no toca el núcleo. La publicación en PyPI la realiza el dueño.
 
@@ -1087,9 +1087,9 @@ del checkout, las sondas, la traza y la aceptación de Jam. Las tres tareas del 
 cerradas con notas de evidencia. No se migró material personal; el tutorial usa ejemplos construidos.
 
 - [Contrato y tutorial](docs/12-tareas.md).
-- [Roadmap completado](PLAN-0.16.0-TAREAS.md).
-- [Cierre y evidencia de P4](estudios/0.16.0-tareas/CIERRE-P4.md).
-- [Verificación del corte 0.16.0](estudios/2026-09-13-corte-0.16.0/README.md).
+- [Roadmap completado](vault-kb/planes/PLAN-0.16.0-TAREAS.md).
+- [Cierre y evidencia de P4](vault-kb/estudios/0.16.0-tareas/CIERRE-P4.md).
+- [Verificación del corte 0.16.0](vault-kb/estudios/2026-09-13-corte-0.16.0/README.md).
 
 La menor de distribución incorpora esta superficie y su formato persistente. Álgebra y sintaxis
 conservan significado, nodos y gramática. La publicación en PyPI la realiza el dueño.
@@ -1144,7 +1144,7 @@ La verificación previa al corte cerró con **1536 tests**, corpus de **203 caso
 **115 defectos, 81 verdes correctos y 0 huecos**, y **959/959 mutantes de medidas**. También pasaron
 cifras, manual, instalación de la rueda, sondas, traza y aceptación de Jam. Las mediciones y sus
 premisas están en los estudios del 2026-09-10; la repetición sobre la versión 0.15.0 queda registrada
-en `estudios/2026-09-11-corte-0.15.0/`. La publicación en PyPI la realiza el dueño.
+en `vault-kb/estudios/2026-09-11-corte-0.15.0/`. La publicación en PyPI la realiza el dueño.
 
 ---
 
@@ -1635,7 +1635,7 @@ distinto al que motivó 0.9.2. Mientras se escribía, tres medidas del propio pr
 trabajo — el verbo tenía que estar en la ayuda y en el manual, y **la distribución no puede nombrar
 a un consumidor conocido**.
 
-El detalle está en `estudios/EL-CENSO-CUENTA-Y-NO-JUZGA.md`.
+El detalle está en `vault-kb/estudios/EL-CENSO-CUENTA-Y-NO-JUZGA.md`.
 
 ---
 
@@ -1713,7 +1713,7 @@ construcción · mutación de medidas **915/915** · las cuatro comprobaciones l
 Desde un venv limpio con el wheel nuevo, los dos consumidores ven los mismos números que el árbol:
 Jam 428 con sus 9, LyraGASP 139 con sus 2.
 
-El detalle está en `estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md`.
+El detalle está en `vault-kb/estudios/EL-PAQUETE-MEDIA-CON-CINCO-DE-VEINTINUEVE.md`.
 
 ---
 
@@ -1780,7 +1780,7 @@ el verde no dependa sólo del caso nuevo.
 Los seis tests del arreglo los escribió `codex` a pedido, y los verificó mutando en memoria seis
 veces para comprobar que discriminan. Se adoptaron con los imports de la suite.
 
-El detalle está en `estudios/LA-AUSENCIA-VISIBLE-NO-SE-PODIA-ESCRIBIR.md`.
+El detalle está en `vault-kb/estudios/LA-AUSENCIA-VISIBLE-NO-SE-PODIA-ESCRIBIR.md`.
 
 ---
 
@@ -1862,7 +1862,7 @@ con el número escrito, como se hizo con `aceptacion.py`. El error de arnés es 
 anotado: mutar `if __name__ == "__main__"` hace que el módulo corra `main()` al importarse y rompa
 el descubrimiento de tests.
 
-El detalle está en `estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md`.
+El detalle está en `vault-kb/estudios/UNA-HERRAMIENTA-QUE-SE-CAE-NO-INFORMA.md`.
 
 ---
 
@@ -1958,7 +1958,7 @@ Sobre la primera ronda de mutación de la sonda quedaron **cuatro sobrevivientes
 compran nada, y se **retiraron** en vez de declararse equivalentes. El cuarto era `sys.argv[1:]` sin
 test, y ahora lo tiene.
 
-El detalle está en `estudios/PROCEDENCIA-DE-DONDE-SALIO-UN-CASO.md`.
+El detalle está en `vault-kb/estudios/PROCEDENCIA-DE-DONDE-SALIO-UN-CASO.md`.
 
 ---
 
@@ -2053,7 +2053,7 @@ y produciendo la misma evidencia que el árbol de trabajo.
 
 Primer uso real: el sensor de dataset de LyraGASP, 37 clips declarados, 37 FBX presentes y 0 ground
 truth, con la evidencia y el caso conservados en ese repositorio. Detalle en
-`estudios/OBSERVAR-0.8.1-RECORRIDO.md`.
+`vault-kb/estudios/OBSERVAR-0.8.1-RECORRIDO.md`.
 
 # 0.8.0 — el generador tiene que romper el umbral que la medida declara
 
@@ -2306,7 +2306,7 @@ proyecto sin parsear salidas pensadas para personas:
 Las tres operan sobre la raíz fijada al arrancar el servidor. **El servidor no escribe nada**: no
 guarda medidas ni evidencias, no modifica el proyecto y no persiste los candidatos recibidos en
 memoria. Las **16 conversaciones JSON-RPC** de las tres herramientas están en
-[`estudios/MCP-CONVERSACIONES.md`](estudios/MCP-CONVERSACIONES.md), capturadas contra el servidor
+[`vault-kb/estudios/MCP-CONVERSACIONES.md`](vault-kb/estudios/MCP-CONVERSACIONES.md), capturadas contra el servidor
 real.
 
 ## Por qué NO hay una herramienta que guarde medidas
@@ -2837,7 +2837,7 @@ la ruta. En el repo **no agrega ninguna entrada**, porque las dos raíces coinci
   paquete de nivel superior, así que ese archivo termina importado **dos veces bajo dos nombres,
   como dos objetos distintos**, y desde el que se usa el layout del wheel es invisible.
 
-Está escrito en [`DECISION-010`](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
+Está escrito en [`DECISION-010`](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
 
 ## De paso
 
@@ -3089,7 +3089,7 @@ el tamaño real, que son 264 sitios.
 
 Sigue siendo **`EXPERIMENTAL`**. Abrir el repositorio no es declarar que está terminado: la
 reflexión sobre el catálogo sigue fijada en Python, que es justo lo que un metalenguaje no
-debería necesitar. El camino está en `PLAN-LENGUAJE.md`.
+debería necesitar. El camino está en `vault-kb/planes/PLAN-LENGUAJE.md`.
 
 ## Instalación
 

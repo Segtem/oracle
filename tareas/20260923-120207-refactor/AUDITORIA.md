@@ -169,7 +169,7 @@ La mejora aquí es mantener una sola definición de cada estructura.
 - `_desafiar` descarta el detalle de `observar` (`_detalle`, `_d`), pero eliminar
   su formato de excepción puede cambiar efectos de `str(e)`; no se incluye
   como borrado probado.
-- `estudios/MCP-CONTRATO.md` contiene una copia **generada** de las herramientas;
+- `docs/mcp-contrato.md` contiene una copia **generada** de las herramientas;
   `tools/mcp_contrato.py:9–15` y su `--check` le dan una función verificable.
   No se cuenta el documento como duplicación borrable.
 - No se ejecutó mutación ni se afirma que exista una rama irrelevante por tener

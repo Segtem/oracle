@@ -176,13 +176,13 @@ def verificar_catalogo(raiz: Path = RAIZ) -> dict:
 
 # Los documentos que enseñan la superficie llevan bloques cercados. Sólo ```oracle promete ser una
 # medida completa y verificable; las otras dos etiquetas declaran por qué un bloque NO se ejecuta, y
-# esa declaración es el punto. `ORACLE-TUTORIAL-PRACTICO.md` afirma en su encabezado que todos sus
+# esa declaración es el punto. `docs/tutorial-practico.md` afirma en su encabezado que todos sus
 # ejemplos fueron verificados contra el código vigente, y hasta hoy esa afirmación no la ejercitaba
 # nada: la sostenía la palabra de quien escribió el documento, que es exactamente la clase de
 # afirmación que este repositorio no acepta en ningún otro lado.
 # Los cuatro documentos que muestran superficie. Eran dos: al entrar la superficie de CASOS, los
 # ejemplos nuevos aparecieron también en el README y en la especificación, y ahí nadie los miraba.
-DOCUMENTOS_CON_SUPERFICIE = ("ESCRIBIR-UNA-MEDIDA.md", "ORACLE-TUTORIAL-PRACTICO.md",
+DOCUMENTOS_CON_SUPERFICIE = ("docs/03-escribir-una-medida.md", "docs/tutorial-practico.md",
                              "README.md", "ESPECIFICACION.md")
 # Dos superficies, dos lectores. `oracle` es una medida y `caso` es un caso del corpus; las
 # etiquetas con sufijo declaran por qué un bloque NO se ejecuta, y esa declaración es el punto.

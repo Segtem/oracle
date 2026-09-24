@@ -6,7 +6,7 @@
 
 ## Problema y evidencia
 
-Derivada de 20260919-134424-naval-pm; ver [postmortem](../../estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md) y [reproducciones](../../estudios/naval-pm/oracle-resultados.txt).
+Derivada de 20260919-134424-naval-pm; ver [postmortem](../../vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md) y [reproducciones](../../vault-kb/postmortems/naval-pm/oracle-resultados.txt).
 Con Oracle 0.27.0, un catálogo propio vacío y un caso sobre una medida heredada de sintaxis reciben verde con `test --rapido`, aun destruyendo game.js en una copia temporal. El caso guarda booleanos; el comando valida ese corpus, no reejecuta el juego. Sin casos ni medidas propias, cmd_test emite explícitamente VERDE de proyecto vacío. Son dos escenarios diferentes.
 
 ## Resultado buscado

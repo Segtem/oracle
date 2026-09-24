@@ -24,7 +24,7 @@ ENCABEZADO_RE = re.compile(r"caso\s+(\S+):")
 # El vocabulario cerrado DECLARA su significado donde se define, no en un `.md` aparte.
 #
 # Hasta el 2026-09-01 eran nombres sueltos en un `frozenset`, y qué querían decir vivía repartido
-# entre cuatro documentos distintos —el tutorial, `corpus/README.md`, `PLAN-LENGUAJE.md` y una
+# entre cuatro documentos distintos —el tutorial, `corpus/README.md`, `vault-kb/planes/PLAN-LENGUAJE.md` y una
 # guía—. Cuatro copias que nadie podía mantener sincronizadas, para cinco palabras.
 #
 # Acá el significado es DATO, así que el CLI puede explicarlo en el momento en que hace falta

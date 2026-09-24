@@ -14,7 +14,7 @@ final, y es comprobable.
 > izquierda se retiraron de la especificación activa al no alcanzar dos usuarios — ver §3.
 > **(c)** La 0.3 resuelve la contradicción entre “conjunto” y la multiplicidad real: una relación es
 > una **bolsa sin orden semántico**. La decisión completa está en
-> [`DECISION-001-RELACIONES-COMO-BOLSAS.md`](DECISION-001-RELACIONES-COMO-BOLSAS.md).
+> [`docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md`](docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md).
 > **(d)** La 0.4 hace explícito de dónde sale cada umbral con el campo `segun`: medición,
 > contrato, convención o tanteo.
 > **(e)** La 0.5 permite que una escalar declare la unidad de cada argumento; una declaración vieja
@@ -773,7 +773,7 @@ filas, no sobre medidas**.
 Conviene decirlo fuerte, porque la versión corta de esta frase engañaba: una medida termina en un
 escalar y un umbral, y ahí se acaba. **Ninguna medida puede consumir los testigos ni el veredicto de
 otra**, y eso no es una limitación pendiente sino una decisión tomada y registrada en
-[`DECISION-002`](DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md). Las preguntas que esa decisión deja
+[`DECISION-002`](docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md). Las preguntas que esa decisión deja
 afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo el catálogo como relación.
 
 | Operador | Forma | Qué hace |

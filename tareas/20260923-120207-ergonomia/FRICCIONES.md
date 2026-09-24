@@ -1,6 +1,6 @@
 # Inventario de fricciones del metalenguaje Oracle
 
-Este inventario documenta las fricciones ergonómicas reales encontradas al escribir y mantener medidas en Oracle. Cada entrada cuenta con evidencia empírica directa (archivo y línea, o comando y salida) proveniente de los proyectos activos (Oracle (`/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo`), Jam (`~/Dev/jam/medidas`), LyraGASP (`~/Dev/games/unreal/LyraGASP/medidas`)), la guía de batalla naval (`~/TestOracleEjemplo/GUIA22.md`), el postmortem (`estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md`) y los proyectos del laboratorio naval (naval-0280 (`~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280`) y batalla_naval_test (`~/Dev/lab/batalla_naval_test`)).
+Este inventario documenta las fricciones ergonómicas reales encontradas al escribir y mantener medidas en Oracle. Cada entrada cuenta con evidencia empírica directa (archivo y línea, o comando y salida) proveniente de los proyectos activos (Oracle (`/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo`), Jam (`~/Dev/jam/medidas`), LyraGASP (`~/Dev/games/unreal/LyraGASP/medidas`)), la guía de batalla naval (`~/TestOracleEjemplo/GUIA22.md`), el postmortem (`vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md`) y los proyectos del laboratorio naval (naval-0280 (`~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280`) y batalla_naval_test (`~/Dev/lab/batalla_naval_test`)).
 
 ---
 
@@ -229,7 +229,7 @@ oracle test        --proyecto medidas --confiar-escalares
 ### 6.3. Sobrecarga de proceso ("Ceremony & Overhead") para agentes y desarrolladores
 - **Problema**: La exigencia de formalizar tareas, inicializar estructuras, escribir casos formales con ambas polaridades, matar mutantes y satisfacer medidas metalingüísticas genera una barrera de entrada elevada. Un agente externo con presupuesto de contexto acotado tiende a quedar atrapado en el ritual de proceso, recurriendo a casos triviales o medidas heredadas de proceso para conseguir un veredicto verde formal sin llegar a medir la lógica real del producto.
 - **Evidencia citada**:
-  - `POSTMORTEM-BATALLA-NAVAL-AGY.md` (`estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md:7-9`):
+  - `POSTMORTEM-BATALLA-NAVAL-AGY.md` (`vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md:7-9`):
     > *«La versión con Oracle no midió reglas de batalla naval: guardó un caso sobre sintaxis de archivos, sin sensor del juego ni medidas propias. Con el checkout actual, su `oracle test --rapido` da verde aunque se destruya el JavaScript...»*
   - `Dev/lab/batalla_naval_test/el_porque_de_agy.md` (`~/Dev/lab/batalla_naval_test/el_porque_de_agy.md:11-22`):
     > *«Aproximadamente el 60% de la atención y llamadas a herramientas del agente se consumieron en interactuar con el entorno de Oracle: 1. Instalar la herramienta CLI... 2. Inicializar la estructura... 3. Gestionar tareas... 4. Redactar el caso formal con su sintaxis... 5. Ejecutar y depurar las verificaciones... 6. Registrar anotaciones...»*

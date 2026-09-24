@@ -1,7 +1,7 @@
 # La implementación de referencia — qué vio y qué no
 
 `evaluador.py` es una implementación independiente del álgebra, escrita para poblar la pata que
-`PLAN-LENGUAJE.md` (e.2) declaraba estructuralmente vacía. El requisito real de esa sección no es
+`vault-kb/planes/PLAN-LENGUAJE.md` (e.2) declaraba estructuralmente vacía. El requisito real de esa sección no es
 «otro código»: es **otro autor**. Por eso lo que importa acá no es el código sino esta declaración.
 
 ## Procedencia
@@ -9,7 +9,7 @@
 - **Autor:** Codex CLI (`gpt-5.5`, reasoning `xhigh`), invocado el 2026-08-24 desde un directorio
   aislado fuera de este repositorio.
 - **Archivos que vio, y son todos:** `ESPECIFICACION.md`,
-  `DECISION-001-RELACIONES-COMO-BOLSAS.md`, `DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md`, y un
+  `docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md`, `docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md`, y un
   `CONTRATO.md` que fijaba únicamente la firma pública (`evaluar`, `ErrorDeAlgebra`) y las reglas
   duras ya publicadas en la especificación.
 - **Lo que NO vio:** `nucleo/` completo —en particular `algebra.py` y `medida.py`—, los 391 tests,
@@ -80,7 +80,7 @@ los desacuerdos digan dónde el documento no alcanzaba.
   no nombra el repositorio una sola vez).
 - **Archivos que vio, y son todos:** `ESPECIFICACION.md` ya con `sin` en §3 y §8; `DECISION-001` y
   `DECISION-002`; esta implementación, sus tests y `DECISIONES.md`; y el contrato de
-  [`estudios/0.26.0-antijunta/referencia/`](../../estudios/0.26.0-antijunta/referencia/CONTRATO.md),
+  [`vault-kb/estudios/0.26.0-antijunta/referencia/`](../../vault-kb/estudios/0.26.0-antijunta/referencia/CONTRATO.md),
   con las huellas de la entrada al lado. No se le dijo qué había cambiado.
 - **Sin ejecutar nada**, como en 0.7: escribió el código, 21 tests nuevos y nueve decisiones sin
   correrlos; los 41 tests los corrió Claude después, sin tocar el código, y pasaron.

@@ -274,9 +274,9 @@ Reúne en una sola salida:
 
 - [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 28 mutadores en aislamiento y qué
   hacer cuando uno sobrevive.
-- [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) — la guía completa de autoría.
+- [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) — la guía completa de autoría.
 - [`docs/migracion/de-subtree-a-pypi.md`](migracion/de-subtree-a-pypi.md) — guía paso a paso de migración
   desde subtree a PyPI.
-- [`DECISION-010`](../DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) — por qué el paquete
+- [`DECISION-010`](decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) — por qué el paquete
   instalado es otro proyecto y cómo se mide.
 - [ESPECIFICACION.md](../ESPECIFICACION.md) — la referencia formal del lenguaje.

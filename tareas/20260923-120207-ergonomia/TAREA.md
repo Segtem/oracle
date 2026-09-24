@@ -16,7 +16,7 @@ No se responde con gustos: se responde con evidencia de uso real. Hay mucha:
   forma de la superficie? ¿Qué medidas tuvieron que torcer el álgebra para decir algo simple?
 - **Los agentes que escribieron Oracle desde afuera**: la batalla naval de agy
   (`~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280`), la guía de la batalla naval
-  (`~/TestOracleEjemplo/GUIA22.md`), el postmortem (`estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md`):
+  (`~/TestOracleEjemplo/GUIA22.md`), el postmortem (`vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md`):
   dónde se trabaron, qué errores de carga vieron, qué mensaje no entendieron.
 - **Lo que ya se tuvo que agregar por necesidad**: `sin` (0.26), `requiere` con condición, el doble
   `agrupar` para contar distintos que apareció en la guía. Cada uno fue una fricción antes de ser
@@ -39,7 +39,7 @@ No se responde con gustos: se responde con evidencia de uso real. Hay mucha:
   - Se completó el punto 1 del encargo: inventario de fricciones con evidencia empírica citada (archivo y línea, o comando y salida), registrado en `tareas/20260923-120207-ergonomia/FRICCIONES.md`.
   - Se relevaron y citaron fricciones a partir de:
     - Los catálogos reales de Oracle (`/tmp/claude-1000/-home-workstation-Dev-oracle/27d97167-363a-4362-9167-701b6c10974b/scratchpad/wt-ergo`), Jam (`~/Dev/jam/medidas`) y LyraGASP (`~/Dev/games/unreal/LyraGASP/medidas`), evidenciando deuda acumulada en directivas `sombra` por unidades dimensionales (`meta.toda_cantidad_comparada_tiene_unidad_derivable`: cotas 51 y 61), umbrales preexistentes sin `segun` (cotas 41 y 27) y falta de evidencia observada en assets reales (cotas 16 y 17).
-    - La experiencia de desarrollo externo y agentes en la batalla naval (`estudios/POSTMORTEM-BATALLA-NAVAL-AGY.md`, `el_porque_de_agy.md` (`~/Dev/lab/batalla_naval_test/el_porque_de_agy.md`) y `naval-0280` (`~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280`)).
+    - La experiencia de desarrollo externo y agentes en la batalla naval (`vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md`, `el_porque_de_agy.md` (`~/Dev/lab/batalla_naval_test/el_porque_de_agy.md`) y `naval-0280` (`~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280`)).
     - El recorrido paso a paso de `~/TestOracleEjemplo/GUIA22.md` (aritmética mediante funciones escalares `mas()`, doble `agrupar` para contar distintos, auto-unión con `<` en lugar de `!=` para matar mutantes, rigidez en el orden de cláusulas en `_leer_medida`, incapacidad de `.caso` para denotar relaciones vacías y sobrecarga del flag `--confiar-escalares`).
   - *Nota*: La redacción del inventario se realizó por lectura y análisis estricto de los fuentes; no se ejecutaron comandos de shell ni se corrieron verificaciones en este turno.
 

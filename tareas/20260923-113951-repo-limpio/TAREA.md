@@ -1,6 +1,6 @@
 # El repositorio mezcla el motor con relatos, planes y estudios sueltos
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, repo, documentacion
 
@@ -116,11 +116,11 @@ funciona (verificar); `verificar.yml` ignora `**.md` y `docs/**`, así que la mu
 mano (suite + `oracle test`). Los enlaces de la página de PyPI de 0.28.0 a lo que se mueve van a dar
 404: no tiene arreglo, se asume.
 
+### Nota (2026-09-24 11:57:14 UTC)
+
+2026-09-24: Ejecutada la decisión aprobada por Brian con mv, sin git mv ni commits: 12 decisiones a docs/decisiones con índice, 18 planes a vault-kb/planes, estudios a vault-kb/estudios, postmortem naval a vault-kb/postmortems, contrato MCP y dos guías a docs; borrados tres RELEVO de raíz y compendio generado, agregado a .gitignore. Actualizados código, tests, referencias y enlaces; índices y test de IDs DECISION y de .md sueltos. Verificación: 2434 tests OK; python3 tools/cli.py test --rapido VERDE; tools/mcp_contrato.py --check OK; cifras.py --actualizar ejecutado; enlaces rotos a rutas movidas 0; git diff --check OK. oracle-estudio desde el árbol generó 10 documentos; en wheel instalado salió 1 por ausencia de README.md en site-packages/oracle_metalenguaje. Seguimiento del empaquetado: [20260924-115728-estudio-instalado](../20260924-115728-estudio-instalado/TAREA.md).
+
 ## Próximo paso
 
-Revisión del inventario en [INVENTARIO.md](INVENTARIO.md) por Brian para definir:
-1. Ubicación de `DECISION-*` (`docs/decisiones/` con índice normativo y test de existencia de IDs vs. `vault-kb/decisiones/`).
-2. Aprobación del desacople de `estudios/MCP-CONTRATO.md` hacia `docs/mcp-contrato.md` generado desde `tools.mcp.HERRAMIENTAS`.
-3. Destino de `ESCRIBIR-UNA-MEDIDA.md` y `ORACLE-TUTORIAL-PRACTICO.md` (y actualización de `tools/sintaxis.py` y `tools/estudio.py`).
-4. Definición sobre `editores/` (permanencia como tooling de integración vs. reubicación).
-5. Tras el acuerdo de destinos, ejecutar la mudanza mediante commits temáticos y atómicos con `git mv` en un entorno con permisos de ejecución.
+Ninguno para la reorganización aprobada. El funcionamiento de `oracle-estudio` instalado
+se sigue en [20260924-115728-estudio-instalado](../20260924-115728-estudio-instalado/TAREA.md).

@@ -1829,6 +1829,7 @@ class DocumentacionVerificadaTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d)
             for nombre in sintaxis.DOCUMENTOS_CON_SUPERFICIE:
+                (raiz / nombre).parent.mkdir(parents=True, exist_ok=True)
                 (raiz / nombre).write_text("texto\n\n```oracle\nmedida x:\n    de\n```\n",
                                            encoding="utf-8")
             informe = sintaxis.verificar_documentos(raiz)
@@ -1849,6 +1850,7 @@ class DocumentacionVerificadaTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d)
             for nombre in sintaxis.DOCUMENTOS_CON_SUPERFICIE:
+                (raiz / nombre).parent.mkdir(parents=True, exist_ok=True)
                 (raiz / nombre).write_text(f"```oracle\n{cuerpo}```\n", encoding="utf-8")
             fallas = sintaxis.verificar_documentos(raiz)["fallas"]
             self.assertTrue(fallas)
@@ -2290,6 +2292,7 @@ class LosBloquesDeCasoDeLaDocumentacionTambienSeVerificanTests(unittest.TestCase
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d)
             for nombre in sintaxis.DOCUMENTOS_CON_SUPERFICIE:
+                (raiz / nombre).parent.mkdir(parents=True, exist_ok=True)
                 (raiz / nombre).write_text("```caso\ncaso 999-roto:\n    fecha\n```\n",
                                            encoding="utf-8")
             fallas = sintaxis.verificar_documentos(raiz)["fallas"]

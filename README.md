@@ -31,7 +31,7 @@ aconsejan.
 > salen `medida`, `fuente`, `termino`, `requiere` y `paso_de_medida`, y tres medidas meta nuevas se
 > escribieron sin tocar Python. El límite siguiente sigue abierto: ningún consumidor escribió todavía
 > una medida meta que exija una relación que sus sensores no emitan. Ese disparador, no una fecha, está
-> en [`PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/PLAN-LENGUAJE.md).
+> en [`vault-kb/planes/PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/main/vault-kb/planes/PLAN-LENGUAJE.md).
 >
 > **No hay fecha de corte, ni condición de cierre, ni tope de tamaño.** Las hubo por un rato, en
 > respuesta a dos auditorías externas que midieron a Oracle con la vara de un producto adoptable —
@@ -557,27 +557,28 @@ Las cinco son **de sólo lectura**, y no por prudencia genérica: los falsos ver
 comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente fabricó
 parece una aprobación sin serlo. En el tracker, además, crear o cerrar una tarea sólo vale junto con
 su commit, y el commit no se hace por MCP. El contrato, con el porqué de cada decisión, está en
-[`estudios/MCP-CONTRATO.md`](https://github.com/Segtem/oracle/blob/main/estudios/MCP-CONTRATO.md).
+[`docs/mcp-contrato.md`](https://github.com/Segtem/oracle/blob/main/docs/mcp-contrato.md).
 
 ## Las decisiones, y por qué
 
-Cada una registra una elección que costó discutir, con lo que se descartó y el motivo. Están en la
-raíz porque son parte del proyecto, no documentación anexa: cuando algo del diseño parece
-arbitrario, la respuesta suele estar acá.
+Cada una registra una elección que costó discutir, con lo que se descartó y el motivo. Están en
+[docs/decisiones/](https://github.com/Segtem/oracle/blob/main/docs/decisiones/README.md): cuando algo del diseño parece arbitrario, la
+respuesta suele estar ahí.
 
 | | |
 |---|---|
-| [001](https://github.com/Segtem/oracle/blob/main/DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
-| [002](https://github.com/Segtem/oracle/blob/main/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
-| [003](https://github.com/Segtem/oracle/blob/main/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
-| [004](https://github.com/Segtem/oracle/blob/main/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
-| [005](https://github.com/Segtem/oracle/blob/main/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
-| [006](https://github.com/Segtem/oracle/blob/main/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
-| [007](https://github.com/Segtem/oracle/blob/main/DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
-| [008](https://github.com/Segtem/oracle/blob/main/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
-| [009](https://github.com/Segtem/oracle/blob/main/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
-| [010](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | El paquete instalado es otro proyecto, y hay que medirlo como tal |
-| [011](https://github.com/Segtem/oracle/blob/main/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) | Los mutadores tienen autor, y hasta hoy era uno solo |
+| [001](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
+| [002](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
+| [003](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
+| [004](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
+| [005](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
+| [006](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
+| [007](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
+| [008](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
+| [009](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
+| [010](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | El paquete instalado es otro proyecto, y hay que medirlo como tal |
+| [011](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) | Los mutadores tienen autor, y hasta hoy era uno solo |
+| [012](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.md) | Cada medida declara dónde obliga |
 
 ## Estado
 
@@ -585,7 +586,7 @@ arbitrario, la respuesta suele estar acá.
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
 > subprocesos acotados y reanudación verificable. El detalle está en
-> [`PLAN-CORRECCION.md`](https://github.com/Segtem/oracle/blob/main/PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
+> [`vault-kb/planes/PLAN-CORRECCION.md`](https://github.com/Segtem/oracle/blob/main/vault-kb/planes/PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
 > DeepSeek, agosto 2026) se respondieron en el commit `c81a87c`, y su informe se retiró del
 > árbol cuando dejó de tener puntos abiertos.
 
@@ -593,7 +594,7 @@ arbitrario, la respuesta suele estar acá.
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](https://github.com/Segtem/oracle/tree/main/catalogos/) —como
 archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
-**¿Querés escribir una medida?** → [`ESCRIBIR-UNA-MEDIDA.md`](https://github.com/Segtem/oracle/blob/main/ESCRIBIR-UNA-MEDIDA.md).
+**¿Querés escribir una medida?** → [`docs/03-escribir-una-medida.md`](https://github.com/Segtem/oracle/blob/main/docs/03-escribir-una-medida.md).
 `oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
 `oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
@@ -623,7 +624,7 @@ El wheel distribuye sus archivos bajo `oracle_metalenguaje.*`, pero la fachada t
 `nucleo`, `catalogos` y `perfiles` como nombres de nivel superior para sostener imports absolutos del
 núcleo. Ya no registra `tools` al importar la biblioteca: hacerlo le borraba al consumidor su propio
 paquete. La colisión con los otros tres nombres sigue siendo posible y está declarada en
-[`DECISION-010`](https://github.com/Segtem/oracle/blob/main/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
+[`DECISION-010`](https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
 
 El wheel tampoco distribuye el corpus ni los fixtures de autocertificación del checkout. Por eso un
 comando instalado fuera de un proyecto requiere `--proyecto` (o `ORACLE_PROYECTO`) y falla si no lo
@@ -687,7 +688,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2438 tests · 1010/1010 mutantes de medida · **7960 sitios de mutación de código** (7726 + 234 del motor Python).
+2440 tests · 1010/1010 mutantes de medida · **7960 sitios de mutación de código** (7726 + 234 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

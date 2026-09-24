@@ -1,6 +1,6 @@
 """Revisión independiente de 0.22.0: campos de las relaciones, `campo_leido` y lo que no se pudo juzgar.
 
-Escrita por Claude contra `estudios/0.22.0-campos/ENCARGO-AGY.md`, antes de leer la implementación.
+Escrita por Claude contra `vault-kb/estudios/0.22.0-campos/ENCARGO-AGY.md`, antes de leer la implementación.
 Tarea `20260915-155654-campos`. Fija sólo lo que el encargo nombra: el lector de campos, `Informe`,
 `_politicas_ok` de `mutar.py`, las declaraciones de `relaciones/` y la conducta de `aceptacion` y
 `oracle juzgar` desde afuera.

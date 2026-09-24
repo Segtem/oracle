@@ -39,11 +39,11 @@ contenido se quedó atrás. Nada de lo que entró desde 0.26 está explicado ah�
 - Documentadas las 7 brechas mayores desde 0.26 sustentadas con rutas y líneas exactas:
   1. Anti-junta `sin ... donde ...` (`NOTAS-DE-RELEASE.md`, `nucleo/vocabulario.py`).
   2. Cotas de sombra (`SUPERA SU COTA`) y no aplicadas (`NO SE APLICARON`) en `oracle juzgar` (`NOTAS-DE-RELEASE.md`, `tools/juzgar.py`, `nucleo/medida.py`).
-  3. Servidor MCP de sólo lectura con cinco herramientas y su fundamento (`tools/mcp.py`, `estudios/MCP-CONTRATO.md`).
+  3. Servidor MCP de sólo lectura con cinco herramientas y su fundamento (`tools/mcp.py`, `docs/mcp-contrato.md`).
   4. El tracker como relevo determinista, búsqueda por sufijo y `CIERRA CON` (`NOTAS-DE-RELEASE.md`, `docs/12-tareas.md`, `AGENTS.md`).
   5. `oracle test` honesto con `ALCANCE`, `PRODUCTO` y `VEREDICTO: SIN MEDICIÓN` (`tools/cli.py`, `NOTAS-DE-RELEASE.md`).
   6. Ruta mínima de primer valor (`docs/13-primer-valor.md`, `ejemplo/primer-valor/`).
-  7. Jev como sensor probabilístico de prosa, separación hechos/juicio, calibración medida, zona media a revisión humana y plantilla PyPI (`docs/14-sensor-prosa.md`, `estudios/JEV-COMO-SENSOR.md`, `tareas/20260923-113127-jev-pypi/TAREA.md`, `ejemplo/sensor-prosa/README.md`).
+  7. Jev como sensor probabilístico de prosa, separación hechos/juicio, calibración medida, zona media a revisión humana y plantilla PyPI (`docs/14-sensor-prosa.md`, `vault-kb/estudios/JEV-COMO-SENSOR.md`, `tareas/20260923-113127-jev-pypi/TAREA.md`, `ejemplo/sensor-prosa/README.md`).
 - Analizada la dependencia con `repo-limpio` (`tareas/20260923-113951-repo-limpio/TAREA.md`) para no enlazar rutas sujetas a mudanza.
 - Diseñado el índice propuesto de 12 bloques para la nueva portada de `docs/index.html`.
 - No se ejecutaron verificaciones de suite ni herramientas por la restricción expresa de operar sin shell.

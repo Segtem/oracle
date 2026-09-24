@@ -189,7 +189,7 @@ pide `--timeout 180`: la línea base tarda 50,5 s contra el plazo por omisión d
 - [De cero a un rojo](02-de-cero-a-un-rojo.md) — si todavía no armaste el proyecto de juguete.
 - [Conectar Oracle a un proyecto propio](07-conectar-a-un-proyecto-propio.md) — de dónde sale la
   evidencia observada.
-- [DECISION-011](../DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) — el protocolo del segundo autor y
+- [DECISION-011](decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) — el protocolo del segundo autor y
   los 24 mutadores en aislamiento.
 - `mutadores/` — el contrato, la procedencia y el código del segundo autor.
 - [ESPECIFICACION.md](../ESPECIFICACION.md) — la lista completa de mutadores del lenguaje.

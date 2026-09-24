@@ -1,6 +1,6 @@
 """Revisión independiente del tramo 0.17.0: lo que faltaba de tatr.
 
-Escrita por Claude contra `estudios/0.17.0-tatr/ENCARGO-AGY.md`, antes de leer la implementación.
+Escrita por Claude contra `vault-kb/estudios/0.17.0-tatr/ENCARGO-AGY.md`, antes de leer la implementación.
 Todo pasa por el CLI público y proyectos temporales con IDs fijos.
 """
 

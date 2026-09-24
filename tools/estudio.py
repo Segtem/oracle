@@ -75,7 +75,7 @@ def algebra() -> str:
 
 def como_escribir() -> str:
     import re
-    t = (RAIZ / "ESCRIBIR-UNA-MEDIDA.md").read_text(encoding="utf-8")
+    t = (RAIZ / "docs" / "03-escribir-una-medida.md").read_text(encoding="utf-8")
     return re.sub(r"\[([^\]]+)\]\((?!http)[^)]+\)", r"\1", t)
 
 
@@ -292,19 +292,24 @@ def documento_unico(docs: dict[str, str], *, extras=None) -> str:
         # fuera del repositorio, a `~/Dev/auditorias/oracle/`, y dejó la referencia colgando.
         # `COMPROMISOS.json` salió el mismo día: la puerta de abandono se retiró entera al declarar
         # el proyecto EXPERIMENTAL, y un experimento no se gobierna con plazos.
-        declarados = (
-            ("09-decision-relaciones-como-bolsas.md", "DECISION-001-RELACIONES-COMO-BOLSAS.md"),
-            ("10-decision-sin-composicion.md", "DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md"),
-            ("11-decision-sin-parametros-opcionales.md",
-             "DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md"),
-            ("12-plan-de-correccion.md", "PLAN-CORRECCION.md"),
-        )
-        faltan = [origen for _n, origen in declarados if not (RAIZ / origen).exists()]
+        registro = RAIZ / "docs" / "decisiones"
+        decisiones = []
+        for numero, nombre in (("001", "09-decision-relaciones-como-bolsas.md"),
+                               ("002", "10-decision-sin-composicion.md"),
+                               ("003", "11-decision-sin-parametros-opcionales.md")):
+            coincidencias = sorted(registro.glob(f"DECISION-{numero}-*.md"))
+            if len(coincidencias) != 1:
+                raise FileNotFoundError(f"se esperaba una DECISION-{numero} en {registro}")
+            decisiones.append((nombre, coincidencias[0]))
+        declarados = (*decisiones,
+                      ("12-plan-de-correccion.md", RAIZ / "vault-kb" / "planes" /
+                       "vault-kb/planes/PLAN-CORRECCION.md"))
+        faltan = [str(origen) for _n, origen in declarados if not origen.exists()]
         if faltan:
             raise FileNotFoundError(
                 f"el paquete de estudio declara documentos que no están: {faltan}")
         extras = tuple(
-            (nombre, (RAIZ / origen).read_text(encoding="utf-8"))
+            (nombre, origen.read_text(encoding="utf-8"))
             for nombre, origen in declarados)
     partes = [
         (nombre, texto) for nombre, texto in sorted(docs.items())

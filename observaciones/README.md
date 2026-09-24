@@ -31,11 +31,11 @@ una observación nueva; una lista vieja no descubre por sí sola archivos que nu
 El registro se mantiene fuera del corpus porque incorporarlo modifica el mundo que acaba de medir.
 La captura sirve para comenzar evidencia nueva con un comando probado, no para reparar
 retroactivamente los 23 casos de Jam sin procedencia. El límite de autenticidad está estudiado en
-[Una relectura correcta no demuestra una ejecución pasada](../estudios/AUTENTICIDAD-Y-TRANSCRIPCION.md).
+[Una relectura correcta no demuestra una ejecución pasada](../vault-kb/estudios/AUTENTICIDAD-Y-TRANSCRIPCION.md).
 
 Después de optimizar el validador, ese mismo día, la observación inicial detectó el cambio de huella
 de `nucleo/algebra.py` aunque la evidencia era igual. Se conservó intacta y se capturó una nueva,
-que revalidó sin cambios. El [contraste de ambas lecturas](../estudios/2026-09-10-validacion/jam-tras-validacion.json)
+que revalidó sin cambios. El [contraste de ambas lecturas](../vault-kb/estudios/2026-09-10-validacion/jam-tras-validacion.json)
 distingue esas historias; una optimización compatible también cambia un referente de código.
 
 Si ya tenés el JSON del sensor, seguí la [receta de captura a caso observado](../ejemplo/caso-observado/README.md): recibe metadatos explícitos y conserva las filas sin transcribirlas.

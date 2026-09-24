@@ -7,7 +7,7 @@
 - CREADA: 2026-09-16
 
 Sale de [`20260915-155111-exigentes`](../20260915-155111-exigentes/TAREA.md) y del estudio
-[TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md](../../estudios/TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md).
+[TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md](../../vault-kb/estudios/TRES-MEDIDAS-QUE-TODOS-PONEN-EN-SOMBRA.md).
 
 `meta.toda_cantidad_comparada_tiene_unidad_derivable` exige que la relación comparada esté declarada
 con la unidad de sus campos. Ninguno de los dos consumidores declara una sola relación —no tienen

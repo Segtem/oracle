@@ -56,7 +56,7 @@ pregunta abierta.
   - **¿Desde afuera?**: Rol central (análogo a Aura en `estudios/AURA-Y-ORACLE.md`). Oracle actúa como tribunal determinista independiente y fail-closed vía MCP (`oracle_juzgar`) para auditar la coherencia global y contener la ley de Goodhart ante el aluvión de micro-decisiones probabilísticas que la paradoja de Jevons fomenta.
   - **¿Compite?**: NO. Son categorías disjuntas: inferencia estadística probabilística sobre lenguaje natural vs metalenguaje determinista de rechazo sobre álgebra relacional de hechos escalares con alcance obligatorio.
 - **Entregable:**
-  - Estudio completo documentado en [`estudios/JEV-Y-ORACLE.md`](../../estudios/JEV-Y-ORACLE.md), con veredicto estructurado y 3 tareas propuestas para el tracker: `sensor-systemone-l0-contrato`, `meta-medida-comparacion-probabilistica` y `estudio-auditoria-decisiones-mcp`.
+  - Estudio completo documentado en [`estudios/JEV-Y-ORACLE.md`](../../vault-kb/estudios/JEV-Y-ORACLE.md), con veredicto estructurado y 3 tareas propuestas para el tracker: `sensor-systemone-l0-contrato`, `meta-medida-comparacion-probabilistica` y `estudio-auditoria-decisiones-mcp`.
 
 ## Próximo paso
 

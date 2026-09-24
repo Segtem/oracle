@@ -102,7 +102,9 @@ def _ejecutar(proy, args: list[str]) -> int:
     cobertura = cobertura_de_mutadores()
     if cobertura["hay_ajenos"]:
         print(f"  con {cobertura['total']} mutadores: {cobertura['propios']} de quien escribió el "
-              f"lenguaje y {cobertura['ajenos']} de otro autor (ver DECISION-011)")
+              f"lenguaje y {cobertura['ajenos']} de otro autor "
+              "(ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/"
+              "DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)")
     else:
         print(f"  ⚠ con {cobertura['propios']} mutadores, TODOS del mismo autor que las medidas: "
               f"faltan los de `mutadores/`, que esta instalación no trae. Un mutador que nadie "

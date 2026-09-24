@@ -1,7 +1,7 @@
 """Tests directos del lector de `CAMPOS_DE_RELACIONES`, de `campo_leido` y de `evaluar_conjunto` (0.22.0).
 
 Reescritos por Claude en la revisión: los que acompañaban la entrega usaban una API que no existe
-(ver `estudios/0.22.0-campos/REVISION-CLAUDE.md`). La conducta desde afuera la fija
+(ver `vault-kb/estudios/0.22.0-campos/REVISION-CLAUDE.md`). La conducta desde afuera la fija
 `tests/test_campos_revision.py`; éstos fijan las ramas que la mutación necesita ver.
 """
 

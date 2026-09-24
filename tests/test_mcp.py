@@ -205,7 +205,7 @@ class AConversacionCompletaTests(unittest.TestCase):
 
     def test_tools_list_publica_las_tres_con_el_contrato_normativo_entero(self) -> None:
         """Comparar sólo el nombre dejaría divergir la unión cerrada y los tres estados sin ruido."""
-        contrato = (mcp.RAIZ / "estudios" / "MCP-CONTRATO.md").read_text(encoding="utf-8")
+        contrato = (mcp.RAIZ / "docs" / "mcp-contrato.md").read_text(encoding="utf-8")
         bloque = re.search(
             r"<!-- herramientas-json:inicio -->\n```json\n(.*?)\n```\n"
             r"<!-- herramientas-json:fin -->",

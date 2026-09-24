@@ -3,7 +3,7 @@
 Un vocabulario cerrado —las cinco etiquetas de un caso, los cuatro orígenes de un umbral— es la
 parte del lenguaje que más se equivoca quien recién llega, porque los nombres se parecen entre sí
 y el archivo no dice cuál es cuál. Durante meses ese significado vivió en prosa suelta:
-`PLAN-LENGUAJE.md`, `corpus/README.md`, el tutorial y `docs/07-conectar-a-un-proyecto-propio.md`
+`vault-kb/planes/PLAN-LENGUAJE.md`, `corpus/README.md`, el tutorial y `docs/07-conectar-a-un-proyecto-propio.md`
 decían cada uno una parte, y ninguno era la fuente.
 
 Acá la declaración ES la fuente: el nombre y su sentido viajan juntos en la misma estructura. De

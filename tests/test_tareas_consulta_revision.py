@@ -1,6 +1,6 @@
 """Revisión independiente de las consultas de tareas (0.19.0).
 
-Escrita por Claude contra `estudios/0.19.0-tql/ENCARGO-AGY.md`, antes de leer la implementación.
+Escrita por Claude contra `vault-kb/estudios/0.19.0-tql/ENCARGO-AGY.md`, antes de leer la implementación.
 Todo pasa por el CLI público y trackers temporales con IDs fijos.
 """
 

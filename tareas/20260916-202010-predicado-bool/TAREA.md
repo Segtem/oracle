@@ -6,7 +6,7 @@
 
 
 Encontrado el 2026-09-16 al sondear la referencia re-derivada contra 0.8
-(`estudios/0.26.0-antijunta/referencia/`). `["donde", ["campo", "x", "k"]]` con `k` numérico: el
+(`vault-kb/estudios/0.26.0-antijunta/referencia/`). `["donde", ["campo", "x", "k"]]` con `k` numérico: el
 núcleo lo evalúa por verdad de Python (un 2 pasa, un 0 no), la referencia levanta
 `ErrorDeAlgebra` porque decidió que un predicado tiene que dar `bool` (`DECISIONES.md`, sección de
 `requiere` con condición). Es anterior a 0.8 y `sin` lo hereda igual.

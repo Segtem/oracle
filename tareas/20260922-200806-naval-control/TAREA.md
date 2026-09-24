@@ -63,4 +63,4 @@ resiste, la diferencia está medida y no argumentada.
 ## Próximo paso
 
 Brian corre B dos veces y A una más (ya hay una de A). Después, Claude o Codex aplican las tres
-mentiras a las cuatro y escriben `estudios/NAVAL-CON-Y-SIN-ORACLE.md` con la tabla.
+mentiras a las cuatro y escriben `vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md` con la tabla.

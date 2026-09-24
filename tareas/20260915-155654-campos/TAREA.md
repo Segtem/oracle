@@ -54,4 +54,4 @@ resuelto por las fuentes y por las entradas con condición de `requiere`):
    veredicto NO JUZGÓ (cambia el contrato de evaluación, MAYOR) y dejarlo como está.
 
 Medido además: las 25 relaciones del lenguaje emiten filas uniformes sobre el catálogo de Oracle, así
-que un esquema fijo por relación alcanza. Plan: [`PLAN-0.22.0-CAMPOS.md`](../../PLAN-0.22.0-CAMPOS.md).
+que un esquema fijo por relación alcanza. Plan: [`PLAN-0.22.0-CAMPOS.md`](../../vault-kb/planes/PLAN-0.22.0-CAMPOS.md).

@@ -268,7 +268,7 @@ lo que devolvió. Hasta entonces el rojo es honesto y conviene dejarlo a la vist
   cuando uno sobrevive.
 - [Conectar Oracle a un proyecto propio](07-conectar-a-un-proyecto-propio.md) — de dónde sale la
   evidencia `observada`, migración a PyPI y la sombra.
-- [ESCRIBIR-UNA-MEDIDA.md](../ESCRIBIR-UNA-MEDIDA.md) — la guía de autoría con `oracle contexto`.
+- [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) — la guía de autoría con `oracle contexto`.
 - `oracle manual` — la referencia del lenguaje en la terminal (con `oracle manual medidas` para
   las 54 universales y sus puntos ciegos).
 - [El editor](../editores/README.md) — diagnósticos, completado con unidades y CodeLens en Emacs y
