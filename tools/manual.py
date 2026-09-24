@@ -92,7 +92,7 @@ def _lista(vocabulario: dict[str, str]) -> list[tuple[str, str]]:
 
 def temas() -> tuple[str, ...]:
     """Los temas que el manual sabe mostrar, en el orden en que conviene leerlos."""
-    return tuple(VOCABULARIOS) + ("verbos", "medidas")
+    return tuple(VOCABULARIOS) + ("aritmetica", "verbos", "medidas")
 
 
 def _verbos() -> dict[str, tuple[str, ...]]:
@@ -111,6 +111,19 @@ def entradas(tema: str) -> list[tuple[str, str]]:
     """Las entradas de un tema: pares (nombre, qué significa)."""
     if tema in VOCABULARIOS:
         return _lista(VOCABULARIOS[tema][1])
+    if tema == "aritmetica":
+        return [
+            ("a + b", "suma: equivale a mas(a, b)"),
+            ("a - b", "resta: equivale a menos(a, b), también sin espacios (a-b). "
+                      "En expresiones el guion siempre es resta; los nombres de macro "
+                      "con guion siguen válidos en encabezados"),
+            ("a * b", "producto: equivale a por(a, b) y se agrupa antes que + y -"),
+            ("(a + b) * c", "los paréntesis cambian la precedencia; operadores del mismo nivel "
+                              "se agrupan de izquierda a derecha"),
+            ("-1", "literal negativo; también se acepta después de un operador, como a - -1"),
+            ("/", "no hay división infija ni escalar de división incorporada; declarà una "
+                   "escalar y llamala por su nombre"),
+        ]
     if tema == "verbos":
         return [(_nombre_comando(sustantivo), " · ".join(vs))
                 for sustantivo, vs in _verbos().items()]
@@ -122,6 +135,8 @@ def entradas(tema: str) -> list[tuple[str, str]]:
 def titulo(tema: str) -> str:
     if tema in VOCABULARIOS:
         return VOCABULARIOS[tema][0]
+    if tema == "aritmetica":
+        return "aritmética infija de expresiones"
     if tema == "verbos":
         return "los verbos del CLI, por sustantivo"
     if tema == "medidas":

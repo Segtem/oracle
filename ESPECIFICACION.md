@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.8`, sintaxis `0.6`, distribución `0.29.0`.**
+**Versiones vigentes: álgebra `0.8`, sintaxis `0.7`, distribución `0.29.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,15 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Sintaxis 0.7 (2026-09-24): `VERSION_SINTAXIS` sube de `0.6` a `0.7`.** La superficie
+acepta `a + b`, `a - b` y `a * b` con precedencia usual, asociación a izquierda y paréntesis;
+`-` siempre es resta dentro de una expresión, aun sin espacios (`t1.turno-1`, `a.x-a.y`). Los
+nombres de macro con guion siguen válidos en encabezados. El
+lector los traduce a las escalares existentes `mas`, `menos` y `por`. Los literales negativos
+siguen siendo números y el impresor conserva las llamadas funcionales. Sube la **menor** porque
+se agregan escrituras sin cambiar ningún árbol canónico ni su significado. `VERSION_ALGEBRA`
+queda en `0.8`; sale con la distribución `0.30.0`.
 
 **Corte 0.29.0 (2026-09-24): `VERSION_DISTRIBUCION` sube de `0.28.0` a `0.29.0`.** Un modelo puede
 leer la prosa del catálogo como sensor, nunca como juez: `oracle plantilla sensor-prosa` copia a un

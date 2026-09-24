@@ -93,6 +93,7 @@
   <a href="#manual-procedencia">procedencia</a>
   <a href="#manual-como_se_detecto">como_se_detecto</a>
   <a href="#manual-relaciones">relaciones</a>
+  <a href="#manual-aritmetica">aritmetica</a>
   <a href="#manual-verbos">verbos</a>
   <a href="#manual-medidas">medidas</a>
 </div>
@@ -160,12 +161,23 @@
 <dt>verbo_<wbr>del_<wbr>cli</dt><dd>cada verbo que el comando acepta y si la ayuda lo nombra; un verbo fuera de la ayuda es trabajo terminado que nadie va a encontrar</dd>
 </dl>
 </section>
+<section class="tema" id="manual-aritmetica">
+<div class="rotulo"><h2>aritmetica</h2><p>aritmética infija de expresiones</p></div>
+<dl>
+<dt>a + b</dt><dd>suma: equivale a mas(a, b)</dd>
+<dt>a - b</dt><dd>resta: equivale a menos(a, b), también sin espacios (a-b). En expresiones el guion siempre es resta; los nombres de macro con guion siguen válidos en encabezados</dd>
+<dt>a * b</dt><dd>producto: equivale a por(a, b) y se agrupa antes que + y -</dd>
+<dt>(a + b) * c</dt><dd>los paréntesis cambian la precedencia; operadores del mismo nivel se agrupan de izquierda a derecha</dd>
+<dt>-1</dt><dd>literal negativo; también se acepta después de un operador, como a - -1</dd>
+<dt>/</dt><dd>no hay división infija ni escalar de división incorporada; declarà una escalar y llamala por su nombre</dd>
+</dl>
+</section>
 <section class="tema" id="manual-verbos">
 <div class="rotulo"><h2>verbos</h2><p>los verbos del CLI, por sustantivo</p></div>
 <dl>
 <dt>oracle biblioteca</dt><dd>instaladas · listar · nueva · verificar</dd>
 <dt>oracle caso</dt><dd>generar · listar · nuevo</dd>
-<dt>oracle manual</dt><dd>como_se_detecto · etiqueta · medidas · operadores · procedencia · relaciones · segun · verbos</dd>
+<dt>oracle manual</dt><dd>aritmetica · como_se_detecto · etiqueta · medidas · operadores · procedencia · relaciones · segun · verbos</dd>
 <dt>oracle medida</dt><dd>expandir · listar · nueva · probar · revisar</dd>
 <dt>oracle</dt><dd>censar · juzgar · reportar</dd>
 <dt>oracle plantilla</dt><dd>sensor-prosa</dd>

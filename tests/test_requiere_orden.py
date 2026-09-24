@@ -76,7 +76,7 @@ class RequiereOrdenTests(unittest.TestCase):
                 resultado = medida.evaluar(hechos)
                 self.assertEqual((resultado.valor, resultado.ok, resultado.sin_evidencia),
                                  (valor, ok, sin_evidencia))
-        self.assertEqual((VERSION_ALGEBRA, VERSION_SINTAXIS), ('0.8', '0.6'))
+        self.assertEqual((VERSION_ALGEBRA, VERSION_SINTAXIS), ('0.8', '0.7'))
 
     def test_otro_prefijo_incorrecto_conserva_el_diagnostico(self):
         texto = self._texto(3).replace('requiere dato', 'requierex dato')

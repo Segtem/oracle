@@ -21,7 +21,14 @@ class TemasTests(unittest.TestCase):
         """`verbos` y `medidas` no son vocabularios cerrados: se derivan del CLI y del catálogo, y
         por eso no entran en la relación que vigilan las dos medidas del manual."""
         self.assertEqual(set(manual.temas()),
-                         set(manual.VOCABULARIOS) | {"verbos", "medidas"})
+                         set(manual.VOCABULARIOS) | {"aritmetica", "verbos", "medidas"})
+
+    def test_la_aritmetica_de_superficie_aparece_en_el_manual(self) -> None:
+        entradas = dict(manual.entradas("aritmetica"))
+        self.assertIn("mas(a, b)", entradas["a + b"])
+        self.assertIn("menos(a, b)", entradas["a - b"])
+        self.assertIn("por(a, b)", entradas["a * b"])
+        self.assertIn("guion", entradas["a - b"])
 
     def test_los_vocabularios_van_antes_que_los_temas_derivados(self) -> None:
         """El orden es el de lectura: primero lo que hay que entender para escribir una medida, y

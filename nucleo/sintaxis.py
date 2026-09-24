@@ -21,6 +21,8 @@ COMPARADORES = ("==", "!=", "<=", ">=", "<", ">")
 LOGICOS = {"y": 2, "o": 1}
 PALABRAS_LITERAL = {"true": True, "false": False, "null": None}
 IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_-]*")
+# Los encabezados y parámetros de macro conservan el guion. En una expresión es siempre resta.
+EXPR_IDENT_RE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 DEFMACRO_RE = re.compile(r"defmacro\s+([^\s(]+)\s*\(([^)]*)\)\s*:")
 ENCABEZADO_RE = re.compile(r"([^\s]+)\s+(\S+):")
 NUMERO_RE = re.compile(r"-?(?:0|[1-9][0-9]*)(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?")
@@ -217,8 +219,19 @@ def _tokenizar(texto: str, linea: int, columna_base: int) -> list[Token]:
             tokens.append(Token(c, c, linea, col))
             i += 1
             continue
+        # El signo forma parte del literal sólo donde se espera un operando. Después de un
+        # identificador o un número es la resta infija; así `a - -1` conserva ambos sentidos.
+        anterior = tokens[-1] if tokens else None
+        signo_numerico = (c == "-" and i + 1 < len(texto) and texto[i + 1].isdigit()
+                          and (anterior is None or anterior.tipo in {"OP", "ARIT", "(", ","}
+                               or (anterior.tipo == "IDENT"
+                                   and anterior.valor in {"y", "o", "no"})))
+        if c in "+-*" and not signo_numerico:
+            tokens.append(Token("ARIT", c, linea, col))
+            i += 1
+            continue
         if c == "$":
-            m = IDENT_RE.match(texto, i + 1)
+            m = EXPR_IDENT_RE.match(texto, i + 1)
             if not m:
                 _fallar(linea, col, "nombre de parámetro después de «$»", c)
             tokens.append(Token("HUECO", m.group(0), linea, col))
@@ -231,7 +244,7 @@ def _tokenizar(texto: str, linea: int, columna_base: int) -> list[Token]:
             tokens.append(Token("NUMBER", valor, linea, col))
             i = m.end()
             continue
-        m = IDENT_RE.match(texto, i)
+        m = EXPR_IDENT_RE.match(texto, i)
         if m:
             tokens.append(Token("IDENT", m.group(0), linea, col))
             i = m.end()
@@ -243,6 +256,10 @@ def _tokenizar(texto: str, linea: int, columna_base: int) -> list[Token]:
             _fallar(linea, col,
                     "la comparación se escribe «==», no «=»; «=» sola no es un operador del lenguaje",
                     literal=True)
+        if c in "/%^":
+            _fallar(linea, col,
+                    f"«{c}» no es un operador del lenguaje; declarà una función escalar "
+                    "y llamala por su nombre, como mas(a, b)", literal=True)
         if unicodedata.category(c).startswith("L"):
             _fallar(linea, col,
                     f"«{c}» no puede ir en un nombre: relaciones, alias y campos usan minúsculas "
@@ -314,17 +331,34 @@ class _Expr:
         return self._comparacion()
 
     def _comparacion(self) -> _Nodo:
-        izq = self._primario()
+        izq = self._suma()
         if self.actual().tipo != "OP":
             return izq
         token = self.actual()
         op = str(token.valor)
         self.i += 1
-        der = self._primario()
+        der = self._suma()
         if self.actual().tipo == "OP":
             t = self.actual()
             _fallar(t.linea, t.columna, "un solo comparador por expresión", t.valor)
         return _lista(op, token, [izq, der])
+
+    def _suma(self) -> _Nodo:
+        izq = self._producto()
+        while self.actual().tipo == "ARIT" and self.actual().valor in {"+", "-"}:
+            token = self.actual()
+            self.i += 1
+            der = self._producto()
+            izq = _lista("mas" if token.valor == "+" else "menos", token, [izq, der])
+        return izq
+
+    def _producto(self) -> _Nodo:
+        izq = self._primario()
+        while self.actual().tipo == "ARIT" and self.actual().valor == "*":
+            token = self.actual()
+            self.i += 1
+            izq = _lista("por", token, [izq, self._primario()])
+        return izq
 
     def _primario(self) -> _Nodo:
         t = self.actual()
@@ -345,6 +379,11 @@ class _Expr:
             if nombre in PALABRAS_LITERAL:
                 return _hoja(PALABRAS_LITERAL[nombre], t)
             if self._tomar(".", "."):
+                if self.actual().tipo == "ARIT" and self.actual().valor == "-":
+                    guion = self.actual()
+                    _fallar(guion.linea, guion.columna,
+                            "un nombre de campo sin guion: en expresiones «-» siempre es resta",
+                            literal=True)
                 campo = self._exigir("IDENT", "nombre de campo")
                 return _Nodo(
                     ["campo", nombre, campo.valor], t.linea, t.columna,
@@ -381,6 +420,10 @@ class _Expr:
             expr = self.expresion()
             self._exigir(")", "')'")
             return expr
+        if t.tipo == "ARIT" and t.valor == "-":
+            _fallar(t.linea, t.columna,
+                    "un nombre sin guion o un número negativo: en expresiones «-» siempre es resta",
+                    literal=True)
         _fallar(t.linea, t.columna, "expresión", t.valor)
 
 

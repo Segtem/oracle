@@ -45,6 +45,7 @@
     oracle tarea grafo [--json]             emite el grafo de referencias entre tareas en DOT o JSON
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería
+    oracle manual aritmetica                suma, resta y producto infijos en expresiones
     oracle manual segun                     de dónde sale el número de un umbral
     oracle manual etiqueta                  qué enseña un caso del corpus
     oracle manual procedencia               de dónde salió la evidencia de un caso
