@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.8`, sintaxis `0.7`, distribución `0.29.0`.**
+**Versiones vigentes: álgebra `0.8`, sintaxis `0.7`, distribución `0.30.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,13 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.30.0 (2026-09-24): `VERSION_DISTRIBUCION` sube de `0.29.0` a `0.30.0`.** Sale la sintaxis
+0.7 (párrafo siguiente): un LLM escribe `a + 1` o `t1.turno-1` y Oracle lo lee como `mas`/`menos`, sin
+cambiar la forma canónica. El repositorio queda en el motor: las decisiones en `docs/decisiones/`, las
+guías y el contrato del MCP en `docs/`, los planes y estudios en `vault-kb/`; `oracle mutar` ya no
+manda a leer un archivo que el paquete instalado no trae. Sube la **menor** por la sintaxis nueva.
+`VERSION_ALGEBRA` queda en `0.8`. Cierra `aritmetica`, `repo-limpio` y `web-028`.
 
 **Sintaxis 0.7 (2026-09-24): `VERSION_SINTAXIS` sube de `0.6` a `0.7`.** La superficie
 acepta `a + b`, `a - b` y `a * b` con precedencia usual, asociación a izquierda y paréntesis;

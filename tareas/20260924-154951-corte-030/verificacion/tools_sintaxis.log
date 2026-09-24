@@ -1,0 +1,109 @@
+objetivos: tools/sintaxis.py
+
+     ·  tools/sintaxis.py:16:40:constante                    constante: 1 → 2
+     ·  tools/sintaxis.py:17:16:constante                    constante: 0 → 1
+     ·  tools/sintaxis.py:34:4:retorno                       retorno: return <algo> → return None
+     ·  tools/sintaxis.py:46:7:negacion                      negacion: se borra el `not`
+     ·  tools/sintaxis.py:47:8:retorno                       retorno: return <algo> → return None
+     ·  tools/sintaxis.py:48:4:retorno                       retorno: return <algo> → return None
+     ·  tools/sintaxis.py:49:21:booleano                     booleano: and ↔ or
+     ·  tools/sintaxis.py:49:21:comparador                   comparador: In → NotIn
+     ·  tools/sintaxis.py:53:4:retorno                       retorno: return <algo> → return None
+     ·  tools/sintaxis.py:57:4:retorno                       retorno: return <algo> → return None
+     ·  tools/sintaxis.py:57:15:constante                    constante: 1 → 2
+     ·  tools/sintaxis.py:89:4:retorno                       retorno: return <algo> → return None
+     ·  tools/sintaxis.py:91:20:constante                    constante: False → True
+     ·  tools/sintaxis.py:93:22:constante                    constante: False → True
+     ·  tools/sintaxis.py:94:23:constante                    constante: False → True
+     ·  tools/sintaxis.py:95:27:constante                    constante: 0 → 1
+     ·  tools/sintaxis.py:96:33:constante                    constante: 0 → 1
+     ·  tools/sintaxis.py:97:27:constante                    constante: 0 → 1
+     ·  tools/sintaxis.py:98:33:constante                    constante: 0 → 1
+     ·  tools/sintaxis.py:105:31:comparador                  comparador: Eq → NotEq
+     ·  tools/sintaxis.py:114:8:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:115:51:constante                   constante: False → True
+     ·  tools/sintaxis.py:116:4:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:118:20:constante                   constante: True → False
+     ·  tools/sintaxis.py:120:22:comparador                  comparador: Eq → NotEq
+     ·  tools/sintaxis.py:121:23:comparador                  comparador: Eq → NotEq
+     ·  tools/sintaxis.py:136:8:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:137:51:constante                   constante: False → True
+     ·  tools/sintaxis.py:138:4:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:140:20:constante                   constante: True → False
+     ·  tools/sintaxis.py:142:22:comparador                  comparador: Eq → NotEq
+     ·  tools/sintaxis.py:143:23:comparador                  comparador: Eq → NotEq
+     ·  tools/sintaxis.py:174:4:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:195:42:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:195:45:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:198:11:negacion                    negacion: se borra el `not`
+     ·  tools/sintaxis.py:205:49:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:205:61:constante                   constante: 2 → 3
+     ·  tools/sintaxis.py:205:73:constante                   constante: 3 → 4
+     ·  tools/sintaxis.py:206:52:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:208:30:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:210:27:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:211:52:comparador                  comparador: Eq → NotEq
+     ·  tools/sintaxis.py:218:15:comparador                  comparador: NotEq → Eq
+     ·  tools/sintaxis.py:221:4:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:225:4:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:225:15:constante                   constante: 100 → 101
+     ·  tools/sintaxis.py:229:32:comparador                  comparador: Is → IsNot
+     ·  tools/sintaxis.py:229:25:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:230:7:booleano                     booleano: and ↔ or
+     ·  tools/sintaxis.py:230:7:negacion                     negacion: se borra el `not`
+     ·  tools/sintaxis.py:230:19:comparador                  comparador: In → NotIn
+     ·  tools/sintaxis.py:230:24:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:232:8:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:232:15:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:233:7:comparador                   comparador: Eq → NotEq
+     ·  tools/sintaxis.py:233:12:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:234:11:comparador                  comparador: NotEq → Eq
+     ·  tools/sintaxis.py:234:24:constante                   constante: 2 → 3
+     ·  tools/sintaxis.py:236:12:retorno                     retorno: return <algo> → return None
+     ·  tools/sintaxis.py:236:19:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:237:54:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:238:8:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:238:15:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:239:7:comparador                   comparador: Eq → NotEq
+     ·  tools/sintaxis.py:239:12:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:240:11:comparador                  comparador: NotEq → Eq
+     ·  tools/sintaxis.py:240:24:constante                   constante: 2 → 3
+     ·  tools/sintaxis.py:242:12:retorno                     retorno: return <algo> → return None
+     ·  tools/sintaxis.py:242:19:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:250:26:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:256:12:retorno                     retorno: return <algo> → return None
+     ·  tools/sintaxis.py:256:19:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:258:45:constante                   constante: False → True
+     ·  tools/sintaxis.py:259:8:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:259:15:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:260:7:comparador                   comparador: Eq → NotEq
+     ·  tools/sintaxis.py:260:12:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:266:11:comparador                  comparador: NotEq → Eq
+     ·  tools/sintaxis.py:266:24:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:268:33:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:269:12:retorno                     retorno: return <algo> → return None
+     ·  tools/sintaxis.py:269:19:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:272:14:booleano                    booleano: and ↔ or
+     ·  tools/sintaxis.py:272:67:comparador                  comparador: Gt → GtE
+     ·  tools/sintaxis.py:272:88:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:273:18:comparador                  comparador: Gt → GtE
+     ·  tools/sintaxis.py:273:38:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:273:44:comparador                  comparador: Gt → GtE
+     ·  tools/sintaxis.py:273:63:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:273:69:negacion                    negacion: se borra el `not`
+     ·  tools/sintaxis.py:274:18:comparador                  comparador: Gt → GtE
+     ·  tools/sintaxis.py:274:40:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:290:8:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:290:15:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:290:28:constante                   constante: 1 → 2
+     ·  tools/sintaxis.py:291:39:constante                   constante: 0 → 1
+     ·  tools/sintaxis.py:292:4:retorno                      retorno: return <algo> → return None
+     ·  tools/sintaxis.py:292:11:constante                   constante: 1 → 2
+
+mutantes: 99 · murieron 99 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

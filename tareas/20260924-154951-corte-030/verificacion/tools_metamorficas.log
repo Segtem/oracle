@@ -1,0 +1,252 @@
+objetivos: tools/metamorficas.py
+
+     ·  tools/metamorficas.py:35:40:constante                constante: 1 → 2
+     ·  tools/metamorficas.py:56:20:constante                constante: 0 → 1
+     ·  tools/metamorficas.py:64:19:constante                constante: 1 → 2
+     ·  tools/metamorficas.py:64:27:constante                constante: 10 → 11
+     ·  tools/metamorficas.py:64:38:constante                constante: 2 → 3
+     ·  tools/metamorficas.py:64:46:constante                constante: 20 → 21
+     ·  tools/metamorficas.py:64:57:constante                constante: 3 → 4
+     ·  tools/metamorficas.py:64:65:constante                constante: 10 → 11
+     ·  tools/metamorficas.py:64:76:constante                constante: 4 → 5
+     ·  tools/metamorficas.py:64:84:constante                constante: 30 → 31
+     ·  tools/metamorficas.py:79:8:retorno                   retorno: return <algo> → return None
+     ·  tools/metamorficas.py:79:26:constante                constante: False → True
+     ·  tools/metamorficas.py:80:35:constante                constante: False → True
+     ·  tools/metamorficas.py:80:57:constante                constante: False → True
+     ·  tools/metamorficas.py:80:83:constante                constante: False → True
+     ·  tools/metamorficas.py:81:4:retorno                   retorno: return <algo> → return None
+     ·  tools/metamorficas.py:82:18:constante                constante: True → False
+     ·  tools/metamorficas.py:84:27:comparador               comparador: Eq → NotEq
+     ·  tools/metamorficas.py:85:23:comparador               comparador: Eq → NotEq
+     ·  tools/metamorficas.py:87:27:comparador               comparador: Eq → NotEq
+     ·  tools/metamorficas.py:93:30:constante                constante: False → True
+     ·  tools/metamorficas.py:95:30:constante                constante: True → False
+     ·  tools/metamorficas.py:98:8:retorno                   retorno: return <algo> → return None
+     ·  tools/metamorficas.py:98:26:constante                constante: False → True
+     ·  tools/metamorficas.py:99:35:constante                constante: False → True
+     ·  tools/metamorficas.py:99:57:constante                constante: False → True
+     ·  tools/metamorficas.py:99:83:constante                constante: False → True
+     ·  tools/metamorficas.py:100:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:101:18:constante               constante: True → False
+     ·  tools/metamorficas.py:103:27:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:104:23:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:105:27:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:110:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:116:35:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:117:35:constante               constante: 30 → 31
+     ·  tools/metamorficas.py:118:36:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:127:11:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:127:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:127:22:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:127:45:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:130:24:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:131:24:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:135:15:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:135:20:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:136:28:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:138:19:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:138:46:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:138:51:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:140:57:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:141:28:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:141:42:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:141:77:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:146:36:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:147:15:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:147:15:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:147:24:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:147:42:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:147:50:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:147:53:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:149:44:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:149:56:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:149:59:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:150:22:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:150:36:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:150:88:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:153:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:161:36:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:171:11:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:171:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:171:22:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:171:45:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:174:23:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:174:26:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:175:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:175:16:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:175:56:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:175:63:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:178:17:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:178:20:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:178:41:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:178:52:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:181:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:187:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:187:11:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:187:18:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:196:11:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:196:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:196:22:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:196:45:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:199:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:199:40:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:207:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:230:11:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:230:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:230:22:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:230:45:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:233:24:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:234:15:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:234:17:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:234:50:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:236:24:constante               constante: 3 → 4
+     ·  tools/metamorficas.py:237:28:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:237:40:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:240:23:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:241:23:constante               constante: 3 → 4
+     ·  tools/metamorficas.py:245:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:258:11:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:258:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:258:22:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:258:45:comparador              comparador: NotIn → In
+     ·  tools/metamorficas.py:261:11:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:266:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:281:58:constante               constante: False → True
+     ·  tools/metamorficas.py:283:45:constante               constante: False → True
+     ·  tools/metamorficas.py:283:67:constante               constante: False → True
+     ·  tools/metamorficas.py:284:45:constante               constante: False → True
+     ·  tools/metamorficas.py:287:54:constante               constante: True → False
+     ·  tools/metamorficas.py:290:41:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:291:37:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:292:41:constante               constante: True → False
+     ·  tools/metamorficas.py:293:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:314:60:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:316:50:constante               constante: True → False
+     ·  tools/metamorficas.py:317:51:constante               constante: False → True
+     ·  tools/metamorficas.py:319:50:constante               constante: 3.14 → 4.140000000000001
+     ·  tools/metamorficas.py:322:48:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:323:43:constante               constante: 5 → 6
+     ·  tools/metamorficas.py:325:27:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:326:36:constante               constante: 10 → 11
+     ·  tools/metamorficas.py:327:42:constante               constante: True → False
+     ·  tools/metamorficas.py:342:97:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:359:40:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:364:45:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:369:45:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:378:39:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:379:41:constante               constante: True → False
+     ·  tools/metamorficas.py:380:43:constante               constante: False → True
+     ·  tools/metamorficas.py:381:41:constante               constante: 3.14 → 4.140000000000001
+     ·  tools/metamorficas.py:382:40:constante               constante: 5 → 6
+     ·  tools/metamorficas.py:397:42:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:399:77:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:409:35:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:409:56:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:418:46:negacion                negacion: se borra el `not`
+     ·  tools/metamorficas.py:418:40:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:420:39:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:426:42:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:426:63:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:428:117:constante              constante: 1 → 2
+     ·  tools/metamorficas.py:429:72:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:431:102:constante              constante: 1 → 2
+     ·  tools/metamorficas.py:431:139:constante              constante: 0 → 1
+     ·  tools/metamorficas.py:432:72:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:434:117:constante              constante: 1 → 2
+     ·  tools/metamorficas.py:434:154:constante              constante: 0 → 1
+     ·  tools/metamorficas.py:435:72:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:437:131:constante              constante: 1 → 2
+     ·  tools/metamorficas.py:437:206:constante              constante: 1 → 2
+     ·  tools/metamorficas.py:438:72:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:444:41:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:450:46:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:455:82:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:456:30:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:463:32:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:465:112:constante              constante: 1 → 2
+     ·  tools/metamorficas.py:466:65:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:474:23:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:474:52:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:474:61:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:474:66:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:475:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:496:60:constante               constante: False → True
+     ·  tools/metamorficas.py:498:45:constante               constante: False → True
+     ·  tools/metamorficas.py:498:67:constante               constante: False → True
+     ·  tools/metamorficas.py:499:45:constante               constante: False → True
+     ·  tools/metamorficas.py:502:56:constante               constante: True → False
+     ·  tools/metamorficas.py:503:41:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:504:37:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:505:41:constante               constante: True → False
+     ·  tools/metamorficas.py:506:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:521:56:constante               constante: False → True
+     ·  tools/metamorficas.py:523:45:constante               constante: False → True
+     ·  tools/metamorficas.py:523:67:constante               constante: False → True
+     ·  tools/metamorficas.py:524:45:constante               constante: False → True
+     ·  tools/metamorficas.py:527:52:constante               constante: True → False
+     ·  tools/metamorficas.py:528:41:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:529:37:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:530:41:constante               constante: True → False
+     ·  tools/metamorficas.py:531:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:539:18:constante               constante: 7 → 8
+     ·  tools/metamorficas.py:540:17:constante               constante: 2.5 → 3.5
+     ·  tools/metamorficas.py:541:21:constante               constante: True → False
+     ·  tools/metamorficas.py:542:17:constante               constante: False → True
+     ·  tools/metamorficas.py:546:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:547:79:constante               constante: 8 → 9
+     ·  tools/metamorficas.py:551:34:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:570:7:comparador               comparador: Is → IsNot
+     ·  tools/metamorficas.py:574:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:585:32:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:585:35:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:587:21:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:587:24:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:587:27:constante               constante: 3 → 4
+     ·  tools/metamorficas.py:599:17:constante               constante: 5 → 6
+     ·  tools/metamorficas.py:600:34:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:600:45:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:607:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:620:60:constante               constante: False → True
+     ·  tools/metamorficas.py:622:45:constante               constante: False → True
+     ·  tools/metamorficas.py:622:67:constante               constante: False → True
+     ·  tools/metamorficas.py:623:45:constante               constante: False → True
+     ·  tools/metamorficas.py:626:56:constante               constante: True → False
+     ·  tools/metamorficas.py:627:41:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:628:37:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:629:41:constante               constante: True → False
+     ·  tools/metamorficas.py:630:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:634:11:booleano                booleano: and ↔ or
+     ·  tools/metamorficas.py:635:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:649:32:comparador              comparador: Is → IsNot
+     ·  tools/metamorficas.py:649:25:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:650:7:comparador               comparador: In → NotIn
+     ·  tools/metamorficas.py:652:8:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:652:15:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:653:7:comparador               comparador: NotIn → In
+     ·  tools/metamorficas.py:655:8:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:655:15:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:662:7:comparador               comparador: Eq → NotEq
+     ·  tools/metamorficas.py:663:49:constante               constante: False → True
+     ·  tools/metamorficas.py:663:63:constante               constante: 2 → 3
+     ·  tools/metamorficas.py:664:8:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:664:15:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:672:26:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:672:46:comparador              comparador: Eq → NotEq
+     ·  tools/metamorficas.py:680:7:negacion                 negacion: se borra el `not`
+     ·  tools/metamorficas.py:682:8:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:682:15:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:685:7:negacion                 negacion: se borra el `not`
+     ·  tools/metamorficas.py:687:8:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:687:15:constante               constante: 1 → 2
+     ·  tools/metamorficas.py:692:4:retorno                  retorno: return <algo> → return None
+     ·  tools/metamorficas.py:692:11:constante               constante: 0 → 1
+     ·  tools/metamorficas.py:692:32:constante               constante: 1 → 2
+
+mutantes: 242 · murieron 242 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

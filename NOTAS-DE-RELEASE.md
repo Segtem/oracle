@@ -1,3 +1,71 @@
+# 0.30.0 — escribí la aritmética como la pensás
+
+```
+VERSION_DISTRIBUCION   0.29.0 → 0.30.0   aritmética infija, el repo en el motor y la web al día
+VERSION_ALGEBRA        0.8    → 0.8
+VERSION_SINTAXIS       0.6    → 0.7
+```
+
+## `a + 1`, como lo escribe un modelo
+
+Un LLM escribe `t2.turno == t1.turno + 1`. Hasta 0.29.0 el lector lo rechazaba y había que escribir
+`mas(t1.turno, 1)`. Ahora la superficie acepta `+`, `-` y `*`, con la precedencia de siempre,
+asociación a izquierda y paréntesis, y los lee como las escalares `mas`, `menos` y `por` que ya
+existían. **La forma canónica no cambia**: `a + 1` produce exactamente `["mas", a, 1]`, así que ninguna
+medida cambia de significado y el álgebra sigue en 0.8.
+
+- **Dentro de una expresión el guion es siempre resta**, también sin espacios: `t1.turno-1` es
+  `menos(t1.turno, 1)` y no un campo llamado `turno-1`, que es como lo escribe un modelo. Los nombres
+  de macro con guion (`ninguno-requiere`) siguen valiendo en los encabezados.
+- Los literales negativos siguen siendo números: `a.x > -1`, `a.x - -1`.
+- `/`, `%` y `^` no existen, y el error lo dice con la alternativa: declarar una escalar y llamarla
+  por su nombre.
+
+## El repositorio es el motor
+
+La raíz tenía el motor mezclado con doce decisiones, dieciocho planes, tres relevos, un compendio
+generado de 16 000 líneas y más de sesenta entradas en `estudios/`. Tres modelos (Codex, agy y Claude) propusieron a ciegas
+dónde va cada cosa y coincidieron en todo salvo en una carpeta:
+
+- Las **decisiones** están en [`docs/decisiones/`](docs/decisiones/README.md), con índice, y un test
+  falla si el código o la documentación citan una `DECISION-NNN` que no existe.
+- Las **guías** (`docs/03-escribir-una-medida.md`, `docs/tutorial-practico.md`) y el **contrato del
+  MCP** (`docs/mcp-contrato.md`) están en `docs/`.
+- Los **planes, estudios y postmortems** están en [`vault-kb/`](vault-kb/README.md), una wiki de
+  Obsidian.
+- Los relevos y el compendio para NotebookLM se borraron: el tracker es el relevo y el compendio se
+  genera.
+- `oracle mutar` mandaba a leer «DECISION-011», un archivo que el paquete instalado no trae; ahora da
+  la URL.
+
+Los enlaces de la página de PyPI de versiones anteriores a lo que se movió dan 404: GitHub no
+redirige un archivo movido.
+
+## La web
+
+[segtem.github.io/oracle](https://segtem.github.io/oracle/) muestra lo que Oracle es hoy: la
+anti-junta, las cotas de sombra, el MCP medido en tres clientes, el tracker como relevo, `oracle test`
+honesto, el primer valor, Jev con sus límites y la aritmética infija. Cada salida de terminal de la
+página es de una corrida guardada en la tarea `web-028`.
+
+## Verificación
+
+- Suite completa en verde (2440 tests); `oracle test` VERDE con 1010/1010 mutantes de medida; cifras
+  al día ([log](tareas/20260924-154951-corte-030/verificacion/oracle-test.log)).
+- Mutación de código de lo tocado desde 0.29.0, en rondas paralelas bajo un techo de systemd de
+  12 GB, sin vivos: `nucleo/sintaxis.py` 1177/1177, `tools/cli.py` 595/595,
+  `tools/metamorficas.py` 242/242, `tools/sintaxis.py` 99/99, `tools/manual.py` 84/84 y
+  `nucleo/vocabulario.py` 1/1 ([logs](tareas/20260924-154951-corte-030/verificacion/)).
+- `tools/estudio.py`, `tools/mutar.py` y `tools/mcp_contrato.py` cambiaron sus rutas y **no se
+  mutaron**: están fuera del perfil de mutación de código. Los cubre la suite, con un test nuevo que
+  falla si se cita una decisión que no existe.
+
+## Cómo se hizo
+
+Codex (gpt-6-sol) implementó la aritmética, la mudanza del repositorio y la web. Codex, agy y Claude
+investigaron a ciegas el orden del repositorio. Claude encontró que `t1.turno-1` se leía como un
+campo y lo devolvió a Codex, revisó cada entrega y cortó.
+
 # 0.29.0 — un modelo como sensor de la prosa, y un lenguaje que avisa mejor
 
 ```
