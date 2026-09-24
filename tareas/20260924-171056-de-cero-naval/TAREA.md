@@ -39,7 +39,12 @@ varias cosas cambiaron. Por ejemplo, la omisión silenciosa de `juzgar`, que 0.2
 Base: GUIA22.md para el recorrido y el tono; naval-0280 para el código. Donde se contradigan, manda la
 versión vigente de Oracle.
 
+### Nota (2026-09-24 17:15:40 UTC)
+
+2026-09-24, Brian: de-cero tiene que ser DE CERO, no un repo para bajar. La persona copia y pega y va creando el juego de a poco con oracle-metalenguaje: instala, oracle init, pega el primer HTML, lo abre, pega la primera medida, escribe su primer caso rojo, corre oracle test, lo ve fallar y lo arregla, y así hasta el juego entero. Cada paso es un bloque para copiar, lo que tiene que ver en la pantalla o la terminal, y qué hacer si ve otra cosa. El código en ejemplo/batalla-naval/ no es lo que se baja: es el respaldo que verifica la guía. Un test arma el juego pegando los bloques de la guía en orden, desde un directorio vacío, y corre oracle test después de cada paso; si un bloque de la página cambia, el test lo nota.
+
 ## Próximo paso
 
-Revisar naval-0280 contra 0.30.0 (¿su catálogo y su corpus pasan `oracle test` hoy?) y marcar qué
-de GUIA22 quedó vencido.
+Revisar naval-0280 contra 0.30.0 (¿su catálogo y su corpus pasan `oracle test` hoy?), marcar qué de
+GUIA22 quedó vencido, y partir el juego en pasos chicos que se puedan pegar en orden, cada uno con
+algo visible que funcione y una medida o un caso nuevo.
