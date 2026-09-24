@@ -450,6 +450,14 @@ class OracleCliTests(CliTestCase):
         self.assertNotIn("se salteó", salida)
         self.assertIn("VEREDICTO: VERDE (todo: todas las verificaciones en regla", salida)
 
+    def test_test_todo_da_mas_tiempo_solo_a_la_linea_base(self) -> None:
+        rc, _, _, _, mutacion = self._cmd_test_oracle_simulado("--todo")
+
+        self.assertEqual(rc, 0)
+        args = mutacion.call_args.args[1]
+        self.assertEqual(args.timeout_base, 240.0)
+        self.assertEqual(args.timeout, 60.0)
+
     def test_rapido_en_oracle_nombra_todo_lo_salteado(self) -> None:
         rc, salida, m_unit, m_mutar, m_mutar_codigo = self._cmd_test_oracle_simulado("--rapido")
 

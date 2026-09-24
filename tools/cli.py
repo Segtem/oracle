@@ -976,7 +976,10 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     if proy.es_el_propio_oracle:
         if todo:
             from tools import mutar_codigo
-            rc_mutar_codigo = mutar_codigo._ejecutar(proy, mutar_codigo.argumentos([]))
+            # La suite completa de la línea base tardó 163,716 s con bytecode frío
+            # (tarea timeout-suite-mutacion). El plazo por mutante sigue en 60 s.
+            args_mutacion = mutar_codigo.argumentos(["--timeout-base", "240"])
+            rc_mutar_codigo = mutar_codigo._ejecutar(proy, args_mutacion)
             if rc_mutar_codigo != 0:
                 fallas_suite.append("mutación de código")
         else:
