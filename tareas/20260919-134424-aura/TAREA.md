@@ -42,3 +42,7 @@ Claude revisa `estudios/AURA-Y-ORACLE.md`.
 ### Nota (2026-09-19 14:15:17 UTC)
 
 2026-09-19, revisión rápida de Claude: el veredicto (Oracle como juez, no como agente; primer corte en Unreal sobre JamPlayground) es sólido. Hay que corregir §3.1: los operadores son de, donde, unir, sin, agrupar y resumen (requiere no es un operador) y 'si le sobreviven mutantes el sistema la rechaza' exagera. Los datos de §1 sobre Aura (estudio, agentes, fechas) vienen de la web y no se verificaron contra las fuentes citadas.
+
+### Nota (2026-09-24 00:51:34 UTC)
+
+2026-09-23, Claude: corregido §3.1 de estudios/AURA-Y-ORACLE.md — los seis operadores son de, donde, unir, sin, agrupar y resumen (requiere es cláusula), y la mutación o la falta de polaridades ponen rojo oracle test, no rechazan la medida. Queda sin verificar §1 (datos de Aura tomados de la web).
