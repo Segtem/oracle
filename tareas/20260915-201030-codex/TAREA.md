@@ -33,3 +33,12 @@ mundos de `20260915-201030-diferencial` y se clasifican los desacuerdos. Si coin
 ### Nota (2026-09-24 10:15:21 UTC)
 
 2026-09-24, Claude: entrega de Codex (gpt-6-sol), aislado, en estudios/0.26.0-codex/entrega-2026-09-24/. Contraste directo: 285 comparaciones, 274 desacuerdos, casi todos por UN hueco de la especificación: dice que la sintaxis 0.6 sumó un nodo opcional ambito pero ninguna forma canónica muestra dónde va; Codex lo espera después de alcance y la referencia lo emite antes. Con un adaptador que sólo reordena ese nodo (adaptado.py) quedan 66 desacuerdos, por clasificar.
+
+### Nota (2026-09-24 10:18:02 UTC)
+
+2026-09-24: ejecuté contraste adaptado (285 comparaciones, 66 desacuerdos) y clasifiqué cada pareja origen+medida en estudios/0.26.0-codex/entrega-2026-09-24/CLASIFICACION.md. Tres causas: 14 defectos del candidato por relación requerida ausente (§2: SIN EVIDENCIA); 49 huecos por aridad de y/o; 3 huecos por min/max de booleanos. Incluido el hueco previo de posición canónica de ambito. Ningún defecto de referencia entre estos 66. Pendientes decisiones del dueño sobre los tres huecos y tratamiento del defecto del candidato.
+
+
+## Próximo paso
+
+El dueño debe decidir tres preguntas de la especificación: (1) ¿`ambito` va antes o después de `alcance` en la forma canónica? (2) ¿`y` y `o` admiten más de dos operandos? (3) ¿`min`/`max` aceptan booleanos homogéneos? Después, definir si se corrige o se conserva como evidencia histórica el defecto del candidato ante una relación ausente en `requiere`; §2 ya prescribe `SIN EVIDENCIA`. Usar `estudios/0.26.0-codex/entrega-2026-09-24/CLASIFICACION.md` para las 66 parejas clasificadas. La tarea sigue ABIERTA.
