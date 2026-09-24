@@ -48,3 +48,7 @@ versión vigente de Oracle.
 Revisar naval-0280 contra 0.30.0 (¿su catálogo y su corpus pasan `oracle test` hoy?), marcar qué de
 GUIA22 quedó vencido, y partir el juego en pasos chicos que se puedan pegar en orden, cada uno con
 algo visible que funcione y una medida o un caso nuevo.
+
+### Nota (2026-09-24 17:18:15 UTC)
+
+2026-09-24, Brian: el corpus de naval-0280 está flojo. Medido: 11 medidas en catalogos/naval/ y 2 casos en corpus/naval/ (001-tiro-fuera-de-tablero y 002-tiro-valido), los dos de naval.tiros_dentro_del_tablero; las otras diez no tienen ningún caso. Para la guía: cada medida con al menos un caso rojo (el defecto que atrapa, sacado de una partida plausible) y uno verde, y la mutación de medidas con todos los mutantes muertos. Si un mutante sobrevive, se agrega el caso que lo mata. Y la guía lo enseña como lección: primero muestra que 11 medidas con 2 casos dan verde igual, corre la mutación, ve sobrevivir a los mutantes y escribe los casos que faltan. Es la diferencia entre un verde que mide y uno que decora.
