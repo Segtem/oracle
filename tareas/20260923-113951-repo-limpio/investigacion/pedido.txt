@@ -1,0 +1,11 @@
+Sos consultor del repositorio Oracle (/home/workstation/Dev/oracle, público en GitHub y publicado en PyPI como oracle-metalenguaje). Leé tareas/20260923-113951-repo-limpio/TAREA.md y tareas/20260923-113951-repo-limpio/INVENTARIO.md entero, incluida la «Revisión de Claude» al final.
+
+Hay que decidir dónde queda cada cosa:
+1. Las 12 DECISION-*.md de la raíz: ¿docs/decisiones/, vault-kb/decisiones/, u otro lugar?
+2. ESCRIBIR-UNA-MEDIDA.md y ORACLE-TUTORIAL-PRACTICO.md: ¿pasan a docs/ o se quedan en la raíz?
+3. editores/ (clientes VS Code y Emacs del LSP): ¿se queda en el repo, dónde?
+4. vault-kb/: qué carpetas tiene y qué va ahí (los 18 PLAN-*, los 3 RELEVO*, estudios/, ORACLE-PARA-NOTEBOOKLM.md), y qué se borra en vez de moverse.
+
+Criterios: quién lee cada cosa (usuario que instaló desde PyPI, contribuyente, agente de IA que retoma trabajo), qué viaja en el wheel (mirá pyproject.toml y MANIFEST si hay), qué enlaza la web (docs/index.html) y el README, los acoplamientos del §3 del inventario, y las convenciones de proyectos Python comparables (dónde ponen sus ADR, docs y clientes de editor).
+
+Para cada una de las cuatro: recomendación, la mejor alternativa, por qué, y qué habría que actualizar para que nada se rompa. Verificá cada afirmación contra el árbol real; si no leíste algo, no lo afirmes. No modifiques ningún archivo. Respondé en español, en no más de 800 palabras.

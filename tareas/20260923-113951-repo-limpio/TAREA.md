@@ -90,6 +90,32 @@ mueve nunca. Mejor lo segundo: la tarea es el identificador estable del trabajo.
   - Se documentaron en detalle los acoplamientos rígidos que romperían la suite si se mueven archivos sin adaptar el código.
   - El trabajo se realizó exclusivamente mediante lectura y edición de archivos; no se ejecutaron comandos de shell, no se hicieron commits y no se afirmaron verificaciones que no fueron corridas en este turno.
 
+## Investigación con tres modelos (2026-09-24)
+
+Mismo pedido ([investigacion/pedido.txt](investigacion/pedido.txt)), a ciegas entre sí: Codex
+gpt-6-sol ([codex.md](investigacion/codex.md)), agy Gemini ([agy.md](investigacion/agy.md)) y un
+agente Claude nuevo ([claude.md](investigacion/claude.md)).
+
+| | Codex | agy | Claude | Decisión propuesta |
+|---|---|---|---|---|
+| DECISION-* | `docs/decisiones/` + índice | ídem + test de ids | ídem | **`docs/decisiones/`**, índice, test de ids, fila 012 en el README |
+| Guías | `docs/` | `docs/` | `docs/` (numerada) | **`docs/03-escribir-una-medida.md`** y **`docs/tutorial-practico.md`** |
+| editores/ | se queda | se queda | se queda | **se queda** |
+| PLAN-* | `vault-kb/planes/` | ídem | ídem | **`vault-kb/planes/`** |
+| estudios/ | `vault-kb/estudios/` | ídem | ídem | **`vault-kb/estudios/`** con estructura intacta |
+| postmortems | carpeta propia | carpeta propia | no (rutas por nada) | **carpeta propia** (2 de 3), sólo el postmortem naval y `naval-pm/` |
+| RELEVO* | borrar | borrar | borrar | **borrar** |
+| NOTEBOOKLM | borrar + ignore | ídem | ídem | **borrar** y `.gitignore` |
+| MCP-CONTRATO | `docs/` | `docs/` | `docs/` | **`docs/mcp-contrato.md`** |
+| observaciones/ | se queda | se queda | se queda | **se queda** |
+
+Además, a arreglar en la misma pasada: `tools/mutar.py` da «ver DECISION-011» a quien instaló
+desde PyPI (→ URL); `ejemplo/sensor-prosa/diferencial/README.md` viaja en el wheel y cita
+`estudios/`; la web dice «ocho» decisiones y son doce; `oracle-estudio` instalado probablemente no
+funciona (verificar); `verificar.yml` ignora `**.md` y `docs/**`, así que la mudanza se verifica a
+mano (suite + `oracle test`). Los enlaces de la página de PyPI de 0.28.0 a lo que se mueve van a dar
+404: no tiene arreglo, se asume.
+
 ## Próximo paso
 
 Revisión del inventario en [INVENTARIO.md](INVENTARIO.md) por Brian para definir:
