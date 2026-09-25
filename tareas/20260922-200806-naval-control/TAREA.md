@@ -1,6 +1,6 @@
 # El control del experimento: la misma batalla naval sin sugerir Oracle
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, experimento, agentes
 
@@ -81,3 +81,7 @@ independientemente. Esta tarea sigue ABIERTA; no hay commit del análisis.
 ### Nota (2026-09-25 22:08:51 UTC)
 
 2026-09-25: análisis completo en vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md. Copias en /tmp/naval-control-analisis.37aGY9; originales intactos. Ejecuté baseline y tres mutaciones por corrida: A-1 y A-2 rechazan las tres en JSON con Oracle (salida 1); B-1 deja pasar las tres mentiras en moveHistory; B-2 las rechaza en board.attacks (salida 1) pero deja pasar las mismas mentiras en game.history. A-2 terminó salida 0 y verifiqué sus dos partidas JSON, corpus rápido y script adaptado sólo en la copia. Tabla de reglas, producto, costo, explicación de agentes y límites en el estudio. Sin commit; tarea abierta.
+
+### Nota (2026-09-25 22:17:20 UTC)
+
+2026-09-25, Claude: revisado y cerrado. El estudio (vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md) responde la pregunta de la tarea con lo que cuatro corridas pueden responder: con la oferta, las dos exportan la partida y la juzgan con medidas que rechazan las tres mentiras; sin ella, B-1 no juzga su historial y B-2 audita el tablero vivo pero su traza puede mentir. Costo: A-2 9 min, B-1 5, B-2 3,5. Lo que no puede decir está escrito en el estudio. Una réplica con las cuatro en el mismo contenedor queda como opción (unos 9 min por corrida con naval-corrida.sh), no como deuda: no cambiaría lo observado. Las respuestas finales de B-1, B-2 y A-2 y sus prompts quedaron en esta carpeta.

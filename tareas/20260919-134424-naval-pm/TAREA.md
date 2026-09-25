@@ -1,6 +1,6 @@
 # Postmortem de la batalla naval hecha por agy con Oracle y sin Oracle
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: oracle, postmortem, agentes
 
@@ -52,3 +52,7 @@ cronología; si no, se cierra con ese hueco declarado.
 ### Nota (2026-09-22 20:06:08 UTC)
 
 2026-09-22: réplica con 0.28.0 y un prompt que sugiere en vez de guiar (Brian corrió agy; resultado en ~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280). Esta vez SÍ midió el producto: 11 medidas sobre reglas navales, un sensor propio (js/trace.js) que exporta celda_barco, tiro y partida, y una partida real de 130 tiros juzgada con oracle juzgar — verde en 11 medidas, con la lista de lo que no miró. Comprobado por Claude: al corromper la evidencia, cada mentira cae con la medida correcta y salida 1 (impacto→agua: veracidad_impacto_negativo; agua→impacto: veracidad_impacto_positivo; tiro fuera: tiros_dentro_del_tablero). Debilidad honesta: su corpus tiene 2 casos y oracle test da ROJO por mutación, con 2 mutantes vivos que confunden fila con columna. Diferencia con el 18/09: entonces catalogos/ estaba vacío y el verde no medía nada del juego.
+
+### Nota (2026-09-25 22:17:20 UTC)
+
+2026-09-25, Claude: se cierra con el hueco declarado, como preveía el próximo paso: las sesiones de agy del 2026-09-18 no están en esta máquina y la cronología (el «60 %») queda sin verificar. Lo que el postmortem quería saber —qué agrega Oracle— lo midió después naval-control, con control: vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md.
