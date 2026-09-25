@@ -31,9 +31,13 @@ Se completó el análisis de los puntos 1 y 2 en `tareas/20260924-233457-mutacio
 - Al agregar tests para mutantes vivos, el arnés invalida el manifiesto (`perfiles/python/mutacion_codigo.py:756-757`), forzando a reejecutar los 595 mutantes completos (>1 h) para release.
 - Se documentaron cuatro propuestas graduales que preservan intacto el criterio de muerte.
 
+### Nota (2026-09-25 01:53:39 UTC)
+
+Medidos con perf_counter, tres veces cada uno, los mutantes tools/cli.py:293:7:comparador (muere en test_reportar, 0,388–0,391 s) y tools/cli.py:83:19:constante (muere en test_cli, 7,750–7,753 s). Desglose por fases y reproducción exacta en DESGLOSE.md; sin descubrimiento general ni cambios al arnés original.
+
 ## Próximo paso
 
-Medir UN mutante de `tools/cli.py` por partes —arranque del subproceso, import de los tests, cada
-módulo prioritario, limpieza de caches— y recién con ese desglose proponer. La medición A/B refutó
-que el orden de las prioridades sea la causa ([medicion/ab-tiempos.txt](medicion/ab-tiempos.txt)).
-La propuesta 4 (conservar muertos al agregar tests) sigue siendo decisión de Brian.
+Decisión de Brian: el costo es casi todo intrínseco (arranque en frío más el módulo de tests propio,
+[DESGLOSE.md](DESGLOSE.md)). Opciones: aceptarlo; abaratar el test de 1,28 s de `test_cli`; o la
+propuesta 4, conservar los mutantes muertos cuando sólo se agregan tests, que ahorra la ronda
+repetida pero cambia qué certifica una ronda de release.
