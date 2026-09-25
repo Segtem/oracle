@@ -33,8 +33,7 @@ Se completó el análisis de los puntos 1 y 2 en `tareas/20260924-233457-mutacio
 
 ## Próximo paso
 
-Decidir con Brian qué propuesta adoptar (la intervención mínima: reordenar `PRIORIDADES["tools/cli.py"]` en `tools/mutar_codigo.py:92-95` poniendo `tests.test_cli` primero; y evaluar granularidad de clases/métodos en `--prioridad` para `nucleo/sintaxis.py`) e implementar la alternativa acordada.
-
-### Nota (2026-09-24 23:43:15 UTC)
-
-2026-09-24, revisión de Claude: verificado tools/mutar_codigo.py:92-95 (test_tareas, grande, corre antes que test_cli) y el comentario de :226-227 que ya proponía reordenar sin medirlo. Matiz: test_reportar va primero a propósito (21 tests en 0,003 s); lo caro es test_tareas antes de test_cli. Las propuestas 1 a 3 no cambian el criterio de muerte (el veredicto es el mismo: muerto si algún test falla). La 4 (conservar los muertos cuando sólo se agregan tests) cambia qué certifica una ronda de release y es decisión de Brian.
+Medir UN mutante de `tools/cli.py` por partes —arranque del subproceso, import de los tests, cada
+módulo prioritario, limpieza de caches— y recién con ese desglose proponer. La medición A/B refutó
+que el orden de las prioridades sea la causa ([medicion/ab-tiempos.txt](medicion/ab-tiempos.txt)).
+La propuesta 4 (conservar muertos al agregar tests) sigue siendo decisión de Brian.
