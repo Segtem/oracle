@@ -28,7 +28,7 @@ RAIZ_PAQUETE = Path(RAIZ)
 sys.path = [RAIZ, *sys.path]
 
 from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS          # noqa: E402
-from nucleo.vocabulario import (OPERADORES, ORIGENES_DE_UMBRAL,        # noqa: E402
+from nucleo.vocabulario import (AMBITOS, OPERADORES, ORIGENES_DE_UMBRAL, # noqa: E402
                                 RELACIONES_EXPLICADAS)
 
 
@@ -38,6 +38,7 @@ class TemaDesconocido(KeyError):
 
 # Cada vocabulario cerrado del lenguaje, con el campo donde se escribe y su registro.
 VOCABULARIOS: dict[str, tuple[str, dict[str, str]]] = {
+    "ambito": ("dónde obliga una medida (campo `ambito`)", AMBITOS),
     "operadores": ("los seis operadores de una tubería", OPERADORES),
     "segun": ("de dónde salió el número de un umbral (campo `segun`)", ORIGENES_DE_UMBRAL),
     "etiqueta": ("qué enseña un caso del corpus (campo `etiqueta`)", ETIQUETAS),

@@ -211,7 +211,7 @@ class EmpaquetadoCliTests(unittest.TestCase):
             self.assertIn("proyecto vacío", vacio.stdout)
 
             rels = proyecto / "relaciones"
-            rels.mkdir()
+            rels.mkdir(exist_ok=True)
             (rels / "item.json").write_text(
                 json.dumps([
                     "relacion", "item",

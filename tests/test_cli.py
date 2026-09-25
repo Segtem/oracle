@@ -1250,7 +1250,7 @@ class NounVerbCliTests(CliTestCase):
             self.assertNotIn('"COMMIT"', escrito)
             self.assertNotIn('"FECHA"', escrito)
             # Los dos juicios NO se derivan: procedencia y etiqueta las decide quien escribe.
-            self.assertIn("# procedencia:", escrito)
+            self.assertIn("procedencia: PROCEDENCIA", escrito)
             self.assertIn("etiqueta: ETIQUETA", escrito)
 
     def test_caso_nuevo_sin_git_falla_abierto(self) -> None:

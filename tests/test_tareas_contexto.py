@@ -598,4 +598,4 @@ class TestComportamientoGlobalP2(TareasContextoTestCase):
                     ["--proyecto", str(self.raiz), "tarea", verbo, *posicionales, "--opcion-inventada"],
                 )
                 self.assertEqual(rc, 2)
-                self.assertIn("unrecognized arguments", err.lower())
+                self.assertIn("argumentos no reconocidos", err.lower())

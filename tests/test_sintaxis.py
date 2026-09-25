@@ -1731,12 +1731,12 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
 
         texto = PLANTILLA.format(cid="999-caso-nuevo", fecha="2026-01-01", repo="REPO", commit="COMMIT")
         self.assertIn("ETIQUETA", texto)
-        self.assertIn("# procedencia:", texto)
+        self.assertIn("procedencia: PROCEDENCIA", texto)
         self.assertNotIn("    procedencia: observada", texto)
         self.assertIn("COMO_SE_DETECTO", texto)
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis_caso.leer(texto)
-        self.assertIn("se esperaba una etiqueta declarada", str(cm.exception))
+        self.assertIn("se esperaba una procedencia declarada", str(cm.exception))
 
     def test_el_error_del_marcador_enumera_los_valores_validos(self) -> None:
         from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS
@@ -1745,15 +1745,20 @@ class CasoNuevoNaceEnLaSuperficieTests(unittest.TestCase):
         texto = PLANTILLA.format(cid="999-caso-nuevo", fecha="2026-01-01", repo="REPO", commit="COMMIT")
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
             sintaxis_caso.leer(texto)
-        for valor, sentido in ETIQUETAS.items():
+        for valor, sentido in PROCEDENCIAS.items():
             self.assertIn(f"{valor}: {sentido}", str(cm.exception))
         for valor in PROCEDENCIAS:
             self.assertIn(valor, texto)
-        con_etiqueta = texto.replace("etiqueta: ETIQUETA", "etiqueta: falso_verde")
+        con_procedencia = texto.replace("procedencia: PROCEDENCIA", "procedencia: construida")
         with self.assertRaises(sintaxis.ErrorSintaxis) as cm2:
+            sintaxis_caso.leer(con_procedencia)
+        for valor, sentido in ETIQUETAS.items():
+            self.assertIn(f"{valor}: {sentido}", str(cm2.exception))
+        con_etiqueta = con_procedencia.replace("etiqueta: ETIQUETA", "etiqueta: falso_verde")
+        with self.assertRaises(sintaxis.ErrorSintaxis) as cm3:
             sintaxis_caso.leer(con_etiqueta)
         for valor, sentido in DETECCIONES.items():
-            self.assertIn(f"{valor}: {sentido}", str(cm2.exception))
+            self.assertIn(f"{valor}: {sentido}", str(cm3.exception))
 
     def test_el_andamio_lista_los_conjuntos_cerrados_al_crear_el_caso(self) -> None:
         """El momento de decidirlos es al crear el archivo, no dos comandos después."""

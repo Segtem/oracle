@@ -259,9 +259,14 @@ def cmd_juzgar(argv: list[str]) -> int:
                 return 2
             if not informe.veredictos:
                 relaciones = sorted(evidencia.keys())
+                esperadas = sorted({relacion
+                                    for medida in catalogo_para_juzgar(proy).values()
+                                    for relacion in relaciones_de_medida(medida)})
                 print(
                     f"SIN MEDIDAS APLICABLES — ninguna medida del catálogo aplica a "
-                    f"las relaciones de la evidencia: {relaciones}",
+                    f"las relaciones de la evidencia: {relaciones}.\n"
+                    f"Relaciones que espera el catálogo: {esperadas}. "
+                    "Usá `oracle contexto` para ver el inventario completo.",
                     file=sys.stderr,
                 )
                 return 1

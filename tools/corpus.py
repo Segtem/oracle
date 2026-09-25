@@ -56,7 +56,8 @@ caso {{cid}}:
     origen:
         repo: "{{repo}}"
         commit: "{{commit}}"
-    # procedencia: {PROCEDENCIAS_EN_PLANTILLA}
+    procedencia: PROCEDENCIA
+    # opciones de procedencia: {PROCEDENCIAS_EN_PLANTILLA}
     titulo: "TITULO"
     etiqueta: ETIQUETA
     sintoma:
@@ -163,6 +164,7 @@ def nuevo(proy, ubicacion: str) -> int:
     print(f"  etiqueta:         {' · '.join(sorted(ETIQUETAS))}")
     print(f"  procedencia:      {' · '.join(sorted(PROCEDENCIAS))}")
     print(f"  como_se_detecto:  {' · '.join(sorted(DETECCIONES))}\n")
+    print("Consultá `oracle manual etiqueta` para conocer la polaridad esperada de cada etiqueta.")
     print("Después:  oracle test")
     return 0
 

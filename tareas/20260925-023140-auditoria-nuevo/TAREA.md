@@ -1,6 +1,6 @@
 # Auditoría: qué traba a quien llega nuevo a Oracle desde PyPI, humano o LLM
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: oracle, auditoria, flaqueza
 
@@ -36,10 +36,14 @@ Se detectaron 15 hallazgos con archivo:línea y su arreglo mínimo:
 14. `tools/juzgar.py:264-266`: `oracle juzgar` no informa qué relaciones espera el catálogo cuando no hay medidas aplicables.
 15. `tools/tareas.py:58-63`: errores de argumentos en subcomandos de `oracle tarea` se emiten en inglés por delegación directa a `argparse`.
 
-## Próximo paso
-
-Revisión humana de `HALLAZGOS.md` y priorización para la implementación de las correcciones mínimas en código y documentación, iniciando por las inconsistencias de mayor fricción (plantilla de `docs/02`, soporte de `ambito` en `manual.py`, ayuda en `oracle test` y mensaje de proyecto ausente en `nucleo/proyecto.py`).
-
 ### Nota (2026-09-25 02:46:54 UTC)
 
 2026-09-25, Claude, verificado ejecutando la CLI: CIERTOS 1 y 2 (oracle --help no menciona manual ni contexto), 4 (oracle test --help NO muestra ayuda: corre la verificación), 6 (init no crea relaciones/), 7 (instalado desde PyPI, oracle test fuera de un proyecto dice «esta instalación no incluye el proyecto de autocertificación», que no le dice nada a quien llega), 9 (medida nueva omite SEGUN y AMBITO en su instrucción) y 10 (no hay tema manual ambito). FALSO en 8: los valores de ambito que cita (unidad, integracion, sistema, contrato, aceptacion) no existen; son universal y del_origen, y la plantilla ya los muestra en un comentario. El resto (3, 5, 11–15) no se verificó; se comprueba antes de implementar.
+
+### Nota (2026-09-25 04:56:43 UTC)
+
+Corregidos los hallazgos verificados 1, 2, 4, 6, 7, 9 y 10. Reproducidos y corregidos 3, 5, 11, 12, 13, 14 y 15: ayuda, orden de init, guía de conversión para PyPI, procedencia del caso, orientación de etiqueta, relaciones esperadas en juzgar y errores de argumentos. No hubo hallazgos 3/5/11-15 que no se reprodujeran. Se ignoró 8 por sus ámbitos inventados, según la nota de Claude. Pruebas nuevas rojas antes de la corrección; luego 2516 tests OK, referencia 48 OK, oracle test --rapido VERDE tras actualizar cifras. equivalentes.json no contiene entradas de los archivos y líneas movidos.
+
+## Próximo paso
+
+Ninguno: tarea cerrada; las correcciones y verificaciones solicitadas están completas.

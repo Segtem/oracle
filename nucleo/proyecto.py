@@ -656,7 +656,8 @@ def resolver(argv: list[str] | None = None) -> Proyecto:
 
     if not (RAIZ_ORACLE / "corpus").is_dir():
         raise ProyectoInvalido(
-            "esta instalación no incluye el proyecto de autocertificación; indicá `--proyecto`")
+            "no se encontró un proyecto de Oracle en el directorio actual; "
+            "ejecutá `oracle init` o indicá `--proyecto RUTA`")
     return Proyecto(RAIZ_ORACLE)
 
 

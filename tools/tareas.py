@@ -57,6 +57,9 @@ class ParserDeSubcomando(argparse.ArgumentParser):
     """Parser de argumentos que reporta errores sin volcar tracebacks."""
 
     def error(self, message: str) -> None:
+        message = message.replace("the following arguments are required:",
+                                  "se requieren los siguientes argumentos:")
+        message = message.replace("unrecognized arguments:", "argumentos no reconocidos:")
         sys.stderr.write(f"ERROR: {self.prog}: {message}\n")
         sys.exit(2)
 

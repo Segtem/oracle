@@ -102,8 +102,8 @@ una divergencia esperando.
 
 - `oracle caso <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
 - `oracle nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
-- `python tools/sintaxis.py --imprimir <archivo.json>`: pasa una medida vieja a la superficie.
-- `python tools/sintaxis.py --leer <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
+- `oracle convertir <archivo.json>`: pasa una medida vieja a la superficie.
+- `oracle convertir <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
 
 El id tiene gramática cerrada y **ASCII**: `dominio.nombre` para medidas y `NNN-descripcion` para
 casos (minúsculas, dígitos y `_`/`-`). No es que el proyecto no sea en español —la prosa de

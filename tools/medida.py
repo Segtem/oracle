@@ -284,7 +284,7 @@ def nueva(proy, mid: str) -> int:
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")
     print(f"creada: {presentar_ruta(proy, destino)}\n")
-    print("Reemplazá RELACION, CAMPO y los dos textos en MAYÚSCULAS. Después:")
+    print("Reemplazá RELACION, CAMPO, SEGUN, AMBITO y los dos textos en MAYÚSCULAS. Después:")
     print(f"  oracle revisar {presentar_ruta(proy, destino)}")
     return 0
 

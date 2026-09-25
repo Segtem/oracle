@@ -14,7 +14,7 @@
     oracle caso listar                      lista los casos del corpus, su etiqueta y qué medida reclaman
     oracle caso generar <medida>            propone casos a partir de los mutantes que sobreviven
 
-    oracle proyecto init [ruta]             inicializa un proyecto con catalogos/, corpus/, diferencial/ y oracle.json
+    oracle proyecto init [ruta]             inicializa un proyecto con catalogos/, corpus/, diferencial/, relaciones/ y oracle.json
     oracle proyecto test [--rapido|--todo]  ejecuta la secuencia completa de verificación con veredicto final
     oracle proyecto juzgar --con <archivo>  juzga evidencia contra el catálogo del proyecto (alias juzgar)
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
@@ -46,6 +46,7 @@
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería
     oracle manual aritmetica                suma, resta y producto infijos en expresiones
+    oracle manual ambito                    dónde obliga una medida
     oracle manual segun                     de dónde sale el número de un umbral
     oracle manual etiqueta                  qué enseña un caso del corpus
     oracle manual procedencia               de dónde salió la evidencia de un caso
@@ -113,13 +114,15 @@ def ayuda() -> None:
     print("""Oracle — metalenguaje para medir evidencia, alcance y mutación.
 
 Uso:
-  oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, listar, expandir)
+  oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, probar, listar, expandir)
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle plantilla sensor-prosa <destino> Copia el sensor opcional a un directorio nuevo
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
+  oracle manual [tema]                    Manual integrado y vocabularios cerrados
+  oracle contexto                        Inventario de relaciones y medidas activas
   oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
   oracle censar --proyecto <ruta> ...     Censa varios proyectos y conserva el estado con su fecha
   oracle --help                           Muestra esta ayuda
@@ -185,7 +188,8 @@ Uso:
   oracle proyecto test [--rapido|--todo]  Ejecuta la secuencia completa de verificación
   oracle proyecto juzgar --con <archivo>  Juzga evidencia contra el catálogo del proyecto
   oracle proyecto relaciones              Muestra las relaciones y campos observados
-  oracle proyecto escalares               Muestra las funciones escalares y operadores""")
+  oracle proyecto escalares               Muestra las funciones escalares y operadores
+  oracle contexto                        Inventario de relaciones y medidas activas""")
 
 
 def ayuda_biblioteca() -> None:
@@ -558,12 +562,14 @@ def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
     catalogos_dir = raiz / "catalogos"
     corpus_dir = raiz / "corpus"
     diferencial_dir = raiz / "diferencial"
+    relaciones_dir = raiz / "relaciones"
     oracle_json = raiz / "oracle.json"
 
     try:
         catalogos_dir.mkdir(parents=True, exist_ok=True)
         corpus_dir.mkdir(exist_ok=True)
         diferencial_dir.mkdir(exist_ok=True)
+        relaciones_dir.mkdir(exist_ok=True)
         if not oracle_json.exists():
             # `catalogo_base` NO es opcional en un proyecto nuevo, y es lo más importante que
             # escribe `init`. Sin él, el proyecto carga SÓLO sus propias medidas y se queda sin las
@@ -586,10 +592,11 @@ def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
     print("  · catalogos/")
     print("  · corpus/")
     print("  · diferencial/")
+    print("  · relaciones/")
     print("  · oracle.json\n")
     print("Próximos pasos:")
-    print("  1. Creá una medida:  oracle nueva <dominio.nombre>")
-    print("  2. Creá un caso:     oracle caso <grupo/id>")
+    print("  1. Creá un caso:     oracle caso <grupo/id>")
+    print("  2. Creá una medida:  oracle nueva <dominio.nombre>")
     print("  3. Verificá todo:    oracle test")
     return 0
 
@@ -1083,6 +1090,9 @@ def main(argv: list[str] | None = None) -> int:
     # `resto` ya excluye `--proyecto <ruta>` mediante sin_banderas_comunes.
     # Estos verbos reciben una ruta posicional: la ayuda debe resolverse antes de usarla.
     if "-h" in resto or "--help" in resto:
+        if subcomando == "test" or (subcomando == "proyecto" and resto[0] == "test"):
+            print("Uso: oracle test [--rapido|--todo] [--proyecto <ruta>]")
+            return 0
         if subcomando == "init":
             ayuda()
             return 0
