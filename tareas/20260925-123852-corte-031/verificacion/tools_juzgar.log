@@ -1,0 +1,126 @@
+objetivos: tools/juzgar.py
+
+     ·  tools/juzgar.py:25:26:constante                      constante: 50 → 51
+     ·  tools/juzgar.py:25:31:constante                      constante: 1024 → 1025
+     ·  tools/juzgar.py:25:38:constante                      constante: 1024 → 1025
+     ·  tools/juzgar.py:52:4:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:66:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:68:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:70:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:73:7:comparador                      comparador: Gt → GtE
+     ·  tools/juzgar.py:74:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:80:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:85:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:90:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:92:7:negacion                        negacion: se borra el `not`
+     ·  tools/juzgar.py:93:8:retorno                         retorno: return <algo> → return None
+     ·  tools/juzgar.py:97:11:negacion                       negacion: se borra el `not`
+     ·  tools/juzgar.py:98:12:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:100:11:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:101:12:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:104:15:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:105:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:108:4:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:151:15:comparador                    comparador: NotIn → In
+     ·  tools/juzgar.py:154:15:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:165:16:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:171:4:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:176:7:booleano                       booleano: and ↔ or
+     ·  tools/juzgar.py:176:7:comparador                     comparador: In → NotIn
+     ·  tools/juzgar.py:176:23:comparador                    comparador: In → NotIn
+     ·  tools/juzgar.py:178:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:178:15:constante                     constante: 0 → 1
+     ·  tools/juzgar.py:184:14:constante                     constante: False → True
+     ·  tools/juzgar.py:185:14:constante                     constante: False → True
+     ·  tools/juzgar.py:188:8:constante                      constante: 0 → 1
+     ·  tools/juzgar.py:189:10:comparador                    comparador: Lt → LtE
+     ·  tools/juzgar.py:191:11:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:192:15:comparador                    comparador: IsNot → Is
+     ·  tools/juzgar.py:194:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:194:23:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:195:15:booleano                      booleano: and ↔ or
+     ·  tools/juzgar.py:195:15:comparador                    comparador: GtE → Gt
+     ·  tools/juzgar.py:195:19:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:195:46:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:197:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:197:23:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:198:42:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:199:17:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:200:13:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:201:15:booleano                      booleano: and ↔ or
+     ·  tools/juzgar.py:201:15:comparador                    comparador: GtE → Gt
+     ·  tools/juzgar.py:201:19:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:201:46:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:203:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:203:23:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:204:27:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:205:15:comparador                    comparador: In → NotIn
+     ·  tools/juzgar.py:207:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:207:23:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:209:17:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:210:13:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:211:22:constante                     constante: True → False
+     ·  tools/juzgar.py:212:17:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:213:13:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:214:22:constante                     constante: True → False
+     ·  tools/juzgar.py:215:17:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:216:13:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:217:17:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:218:13:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:219:15:booleano                      booleano: and ↔ or
+     ·  tools/juzgar.py:219:15:comparador                    comparador: GtE → Gt
+     ·  tools/juzgar.py:219:19:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:219:46:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:221:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:221:23:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:222:17:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:225:12:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:225:19:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:227:7:comparador                     comparador: Is → IsNot
+     ·  tools/juzgar.py:229:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:229:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:237:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:237:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:241:7:booleano                       booleano: and ↔ or
+     ·  tools/juzgar.py:241:49:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:247:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:247:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:251:7:comparador                     comparador: IsNot → Is
+     ·  tools/juzgar.py:253:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:253:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:264:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:264:23:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:265:15:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:277:16:retorno                       retorno: return <algo> → return None
+     ·  tools/juzgar.py:277:23:constante                     constante: 1 → 2
+     ·  tools/juzgar.py:281:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:281:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:284:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:284:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:287:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:287:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:290:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:290:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:293:8:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:293:15:constante                     constante: 2 → 3
+     ·  tools/juzgar.py:303:18:booleano                      booleano: and ↔ or
+     ·  tools/juzgar.py:303:34:booleano                      booleano: and ↔ or
+     ·  tools/juzgar.py:303:45:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:309:30:comparador                    comparador: In → NotIn
+     ·  tools/juzgar.py:318:51:constante                     constante: False → True
+     ·  tools/juzgar.py:323:15:comparador                    comparador: In → NotIn
+     ·  tools/juzgar.py:339:11:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:342:15:booleano                      booleano: and ↔ or
+     ·  tools/juzgar.py:342:40:negacion                      negacion: se borra el `not`
+     ·  tools/juzgar.py:346:15:comparador                    comparador: Eq → NotEq
+     ·  tools/juzgar.py:362:4:retorno                        retorno: return <algo> → return None
+     ·  tools/juzgar.py:362:11:constante                     constante: 0 → 1
+     ·  tools/juzgar.py:362:33:constante                     constante: 1 → 2
+
+mutantes: 116 · murieron 116 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

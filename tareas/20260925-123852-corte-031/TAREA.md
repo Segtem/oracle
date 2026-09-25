@@ -1,6 +1,6 @@
 # Corte 0.31.0
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, release
 
@@ -22,3 +22,7 @@ final, build limpio, tag y release; Brian sube a PyPI.
 ### Nota (2026-09-25 13:00:54 UTC)
 
 2026-09-25: la ronda encontró dos puntos flojos, arreglados en beea467 (null en corrida_mutacion → -1; unir indexado con claves bool cede al producto). En la rama corte-031 (worktree del scratchpad): --help de nueva/medida/caso, versión 0.31.0, crónica y notas. algebra.py y cli.py se re-mutan desde esa rama al terminar la ronda (tanda c031b); después, cifras, build, tag.
+
+### Nota (2026-09-25 19:04:06 UTC)
+
+2026-09-25: mutación de los 18 módulos tocados, 3657 mutantes y 0 sobrevivientes (logs en verificacion/). La primera pasada dejó 11 vivos, todos fijados: null en corrida_mutacion, unir indexado con bool y sin ubicación en el error, oracle nueva sin tope, --help de test y de medida/caso. oracle test VERDE.

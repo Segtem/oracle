@@ -1,0 +1,122 @@
+objetivos: tools/corpus.py
+
+     ·  tools/corpus.py:29:49:constante                      constante: 1 → 2
+     ·  tools/corpus.py:79:4:retorno                         retorno: return <algo> → return None
+     ·  tools/corpus.py:84:7:comparador                      comparador: NotEq → Eq
+     ·  tools/corpus.py:84:22:constante                      constante: 2 → 3
+     ·  tools/corpus.py:87:7:comparador                      comparador: Is → IsNot
+     ·  tools/corpus.py:89:7:comparador                      comparador: Is → IsNot
+     ·  tools/corpus.py:98:4:retorno                         retorno: return <algo> → return None
+     ·  tools/corpus.py:108:27:constante                     constante: True → False
+     ·  tools/corpus.py:109:17:constante                     constante: True → False
+     ·  tools/corpus.py:110:20:constante                     constante: 5 → 6
+     ·  tools/corpus.py:113:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:114:7:comparador                     comparador: NotEq → Eq
+     ·  tools/corpus.py:114:31:constante                     constante: 0 → 1
+     ·  tools/corpus.py:115:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:116:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:132:13:booleano                      booleano: and ↔ or
+     ·  tools/corpus.py:136:59:constante                     constante: 2 → 3
+     ·  tools/corpus.py:139:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:147:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:147:15:constante                     constante: 1 → 2
+     ·  tools/corpus.py:150:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:150:15:constante                     constante: 1 → 2
+     ·  tools/corpus.py:151:34:constante                     constante: True → False
+     ·  tools/corpus.py:158:20:comparador                    comparador: NotIn → In
+     ·  tools/corpus.py:169:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:169:11:constante                     constante: 0 → 1
+     ·  tools/corpus.py:175:11:booleano                      booleano: and ↔ or
+     ·  tools/corpus.py:176:14:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:177:20:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:179:7:comparador                     comparador: In → NotIn
+     ·  tools/corpus.py:181:11:comparador                    comparador: Lt → LtE
+     ·  tools/corpus.py:181:17:constante                     constante: 1 → 2
+     ·  tools/corpus.py:182:49:constante                     constante: 1 → 2
+     ·  tools/corpus.py:191:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:204:7:booleano                       booleano: and ↔ or
+     ·  tools/corpus.py:204:7:negacion                       negacion: se borra el `not`
+     ·  tools/corpus.py:204:42:negacion                      negacion: se borra el `not`
+     ·  tools/corpus.py:205:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:207:11:negacion                      negacion: se borra el `not`
+     ·  tools/corpus.py:216:15:negacion                      negacion: se borra el `not`
+     ·  tools/corpus.py:220:19:negacion                      negacion: se borra el `not`
+     ·  tools/corpus.py:223:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:228:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:230:7:comparador                     comparador: NotIn → In
+     ·  tools/corpus.py:231:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:235:7:negacion                       negacion: se borra el `not`
+     ·  tools/corpus.py:236:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:237:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:252:45:comparador                    comparador: NotIn → In
+     ·  tools/corpus.py:257:11:comparador                    comparador: NotEq → Eq
+     ·  tools/corpus.py:259:11:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:263:11:comparador                    comparador: NotIn → In
+     ·  tools/corpus.py:265:11:comparador                    comparador: NotIn → In
+     ·  tools/corpus.py:268:11:booleano                      booleano: and ↔ or
+     ·  tools/corpus.py:268:11:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:268:34:comparador                    comparador: NotIn → In
+     ·  tools/corpus.py:277:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:292:44:comparador                    comparador: Eq → NotEq
+     ·  tools/corpus.py:305:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:305:15:constante                     constante: 1 → 2
+     ·  tools/corpus.py:308:7:negacion                       negacion: se borra el `not`
+     ·  tools/corpus.py:310:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:310:15:constante                     constante: 0 → 1
+     ·  tools/corpus.py:320:12:retorno                       retorno: return <algo> → return None
+     ·  tools/corpus.py:320:19:constante                     constante: 1 → 2
+     ·  tools/corpus.py:322:40:negacion                      negacion: se borra el `not`
+     ·  tools/corpus.py:326:28:comparador                    comparador: Eq → NotEq
+     ·  tools/corpus.py:326:39:constante                     constante: 1 → 2
+     ·  tools/corpus.py:327:7:negacion                       negacion: se borra el `not`
+     ·  tools/corpus.py:331:44:comparador                    comparador: Eq → NotEq
+     ·  tools/corpus.py:331:59:constante                     constante: 1 → 2
+     ·  tools/corpus.py:346:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:346:11:constante                     constante: 0 → 1
+     ·  tools/corpus.py:350:32:comparador                    comparador: Is → IsNot
+     ·  tools/corpus.py:350:25:constante                     constante: 1 → 2
+     ·  tools/corpus.py:352:7:booleano                       booleano: and ↔ or
+     ·  tools/corpus.py:352:7:comparador                     comparador: In → NotIn
+     ·  tools/corpus.py:352:23:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:354:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:354:15:constante                     constante: 0 → 1
+     ·  tools/corpus.py:356:7:comparador                     comparador: Is → IsNot
+     ·  tools/corpus.py:357:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:357:15:constante                     constante: 1 → 2
+     ·  tools/corpus.py:361:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:361:15:constante                     constante: 1 → 2
+     ·  tools/corpus.py:362:7:booleano                       booleano: and ↔ or
+     ·  tools/corpus.py:362:16:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:362:21:constante                     constante: 0 → 1
+     ·  tools/corpus.py:363:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:364:7:booleano                       booleano: and ↔ or
+     ·  tools/corpus.py:364:16:comparador                    comparador: In → NotIn
+     ·  tools/corpus.py:364:21:constante                     constante: 0 → 1
+     ·  tools/corpus.py:365:11:comparador                    comparador: NotEq → Eq
+     ·  tools/corpus.py:365:24:constante                     constante: 2 → 3
+     ·  tools/corpus.py:367:12:retorno                       retorno: return <algo> → return None
+     ·  tools/corpus.py:367:19:constante                     constante: 1 → 2
+     ·  tools/corpus.py:368:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:368:34:constante                     constante: 1 → 2
+     ·  tools/corpus.py:369:7:booleano                       booleano: and ↔ or
+     ·  tools/corpus.py:369:16:comparador                    comparador: Eq → NotEq
+     ·  tools/corpus.py:369:21:constante                     constante: 0 → 1
+     ·  tools/corpus.py:370:11:comparador                    comparador: NotEq → Eq
+     ·  tools/corpus.py:370:24:constante                     constante: 2 → 3
+     ·  tools/corpus.py:372:12:retorno                       retorno: return <algo> → return None
+     ·  tools/corpus.py:372:19:constante                     constante: 1 → 2
+     ·  tools/corpus.py:373:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:373:32:constante                     constante: 1 → 2
+     ·  tools/corpus.py:379:8:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:379:15:constante                     constante: 1 → 2
+     ·  tools/corpus.py:381:7:comparador                     comparador: In → NotIn
+     ·  tools/corpus.py:383:4:retorno                        retorno: return <algo> → return None
+     ·  tools/corpus.py:383:11:constante                     constante: 0 → 1
+
+mutantes: 112 · murieron 112 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

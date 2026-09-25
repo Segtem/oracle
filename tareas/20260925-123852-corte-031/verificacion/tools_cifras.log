@@ -1,0 +1,82 @@
+objetivos: tools/cifras.py
+
+     ·  tools/cifras.py:22:40:constante                      constante: 1 → 2
+     ·  tools/cifras.py:23:16:constante                      constante: 0 → 1
+     ·  tools/cifras.py:37:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:38:21:booleano                       booleano: and ↔ or
+     ·  tools/cifras.py:38:21:comparador                     comparador: NotEq → Eq
+     ·  tools/cifras.py:38:49:comparador                     comparador: NotIn → In
+     ·  tools/cifras.py:57:23:booleano                       booleano: and ↔ or
+     ·  tools/cifras.py:57:23:comparador                     comparador: In → NotIn
+     ·  tools/cifras.py:58:7:negacion                        negacion: se borra el `not`
+     ·  tools/cifras.py:62:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:69:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:76:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:81:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:82:8:constante                       constante: 1 → 2
+     ·  tools/cifras.py:92:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:99:4:retorno                         retorno: return <algo> → return None
+     ·  tools/cifras.py:117:45:constante                     constante: 0 → 1
+     ·  tools/cifras.py:118:70:comparador                    comparador: NotEq → Eq
+     ·  tools/cifras.py:122:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:146:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:177:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:198:8:constante                      constante: 1 → 2
+     ·  tools/cifras.py:199:11:booleano                      booleano: and ↔ or
+     ·  tools/cifras.py:208:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:225:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:229:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:233:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:247:53:constante                     constante: 1 → 2
+     ·  tools/cifras.py:250:37:constante                     constante: 1 → 2
+     ·  tools/cifras.py:251:11:booleano                      booleano: and ↔ or
+     ·  tools/cifras.py:251:51:comparador                    comparador: In → NotIn
+     ·  tools/cifras.py:251:77:constante                     constante: 1 → 2
+     ·  tools/cifras.py:251:80:constante                     constante: 0 → 1
+     ·  tools/cifras.py:252:12:retorno                       retorno: return <algo> → return None
+     ·  tools/cifras.py:252:38:constante                     constante: 0 → 1
+     ·  tools/cifras.py:255:8:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:257:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:269:7:comparador                     comparador: NotIn → In
+     ·  tools/cifras.py:273:10:comparador                    comparador: In → NotIn
+     ·  tools/cifras.py:276:11:negacion                      negacion: se borra el `not`
+     ·  tools/cifras.py:279:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:290:11:comparador                    comparador: NotIn → In
+     ·  tools/cifras.py:293:7:comparador                     comparador: Eq → NotEq
+     ·  tools/cifras.py:297:9:comparador                     comparador: Eq → NotEq
+     ·  tools/cifras.py:301:40:constante                     constante: 1 → 2
+     ·  tools/cifras.py:302:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:333:19:comparador                    comparador: Is → IsNot
+     ·  tools/cifras.py:334:7:comparador                     comparador: NotEq → Eq
+     ·  tools/cifras.py:335:37:constante                     constante: True → False
+     ·  tools/cifras.py:335:48:constante                     constante: True → False
+     ·  tools/cifras.py:335:68:constante                     constante: 0 → 1
+     ·  tools/cifras.py:336:8:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:338:33:comparador                    comparador: Is → IsNot
+     ·  tools/cifras.py:340:58:constante                     constante: True → False
+     ·  tools/cifras.py:340:69:constante                     constante: True → False
+     ·  tools/cifras.py:341:11:comparador                    comparador: NotEq → Eq
+     ·  tools/cifras.py:341:33:constante                     constante: 0 → 1
+     ·  tools/cifras.py:343:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:347:32:comparador                    comparador: Is → IsNot
+     ·  tools/cifras.py:347:25:constante                     constante: 1 → 2
+     ·  tools/cifras.py:348:22:comparador                    comparador: In → NotIn
+     ·  tools/cifras.py:353:8:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:353:15:constante                     constante: 1 → 2
+     ·  tools/cifras.py:360:15:comparador                    comparador: NotEq → Eq
+     ·  tools/cifras.py:364:11:comparador                    comparador: NotEq → Eq
+     ·  tools/cifras.py:367:8:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:367:15:constante                     constante: 0 → 1
+     ·  tools/cifras.py:371:8:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:371:15:constante                     constante: 1 → 2
+     ·  tools/cifras.py:375:4:retorno                        retorno: return <algo> → return None
+     ·  tools/cifras.py:375:11:constante                     constante: 0 → 1
+     ·  tools/cifras.py:378:3:comparador                     comparador: Eq → NotEq
+
+mutantes: 71 · murieron 71 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 1
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

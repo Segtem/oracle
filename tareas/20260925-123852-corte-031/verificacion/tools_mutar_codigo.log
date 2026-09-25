@@ -1,0 +1,185 @@
+objetivos: tools/mutar_codigo.py
+
+     ·  tools/mutar_codigo.py:31:40:constante                constante: 1 → 2
+     ·  tools/mutar_codigo.py:32:16:constante                constante: 0 → 1
+     ·  tools/mutar_codigo.py:359:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:359:11:comparador              comparador: NotEq → Eq
+     ·  tools/mutar_codigo.py:359:40:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:368:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:396:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:397:15:comparador              comparador: NotEq → Eq
+     ·  tools/mutar_codigo.py:402:7:negacion                 negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:403:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:404:55:comparador              comparador: NotIn → In
+     ·  tools/mutar_codigo.py:408:7:comparador               comparador: NotEq → Eq
+     ·  tools/mutar_codigo.py:410:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:419:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:419:11:comparador              comparador: LtE → Lt
+     ·  tools/mutar_codigo.py:419:89:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:426:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:434:16:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:434:35:comparador              comparador: NotIn → In
+     ·  tools/mutar_codigo.py:434:71:comparador              comparador: NotEq → Eq
+     ·  tools/mutar_codigo.py:436:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:440:69:constante               constante: 1024 → 1025
+     ·  tools/mutar_codigo.py:440:76:constante               constante: 1024 → 1025
+     ·  tools/mutar_codigo.py:446:11:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:446:26:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:447:38:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:448:13:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:448:28:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:449:32:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:450:29:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:453:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:453:11:comparador              comparador: Lt → LtE
+     ·  tools/mutar_codigo.py:453:20:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:453:25:comparador              comparador: Lt → LtE
+     ·  tools/mutar_codigo.py:453:31:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:453:36:comparador              comparador: Gt → GtE
+     ·  tools/mutar_codigo.py:458:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:464:52:constante               constante: 60.0 → 61.0
+     ·  tools/mutar_codigo.py:468:59:constante               constante: 1024 → 1025
+     ·  tools/mutar_codigo.py:487:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:496:7:negacion                 negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:497:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:502:7:negacion                 negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:507:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:510:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:510:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:510:39:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:512:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:512:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:512:41:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:515:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:515:11:comparador              comparador: IsNot → Is
+     ·  tools/mutar_codigo.py:515:40:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:515:40:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:515:76:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:518:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:518:11:comparador              comparador: IsNot → Is
+     ·  tools/mutar_codigo.py:518:36:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:518:65:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:518:97:comparador              comparador: Lt → LtE
+     ·  tools/mutar_codigo.py:518:107:constante              constante: 1 → 2
+     ·  tools/mutar_codigo.py:520:11:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:523:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:533:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:546:7:comparador               comparador: Is → IsNot
+     ·  tools/mutar_codigo.py:548:7:negacion                 negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:550:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:550:15:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:556:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:556:15:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:563:11:comparador              comparador: NotIn → In
+     ·  tools/mutar_codigo.py:565:15:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:569:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:579:11:comparador              comparador: NotEq → Eq
+     ·  tools/mutar_codigo.py:579:26:constante               constante: 4 → 5
+     ·  tools/mutar_codigo.py:592:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:604:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:604:11:comparador              comparador: Is → IsNot
+     ·  tools/mutar_codigo.py:604:34:comparador              comparador: Is → IsNot
+     ·  tools/mutar_codigo.py:605:15:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:605:15:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:605:35:comparador              comparador: LtE → Lt
+     ·  tools/mutar_codigo.py:605:35:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:606:50:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:607:39:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:607:76:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:608:19:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:609:71:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:618:31:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:618:68:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:619:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:623:11:comparador              comparador: Gt → GtE
+     ·  tools/mutar_codigo.py:629:46:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:634:11:comparador              comparador: NotIn → In
+     ·  tools/mutar_codigo.py:640:11:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:646:24:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:652:15:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:654:15:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:659:47:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:659:63:constante               constante: False → True
+     ·  tools/mutar_codigo.py:676:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:676:15:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:678:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:678:11:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:704:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:705:15:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:705:31:constante               constante: 3 → 4
+     ·  tools/mutar_codigo.py:705:34:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:712:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:721:76:constante               constante: True → False
+     ·  tools/mutar_codigo.py:726:52:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:727:27:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:729:15:comparador              comparador: Lt → LtE
+     ·  tools/mutar_codigo.py:729:37:constante               constante: 4 → 5
+     ·  tools/mutar_codigo.py:733:11:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:735:16:retorno                 retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:735:23:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:735:24:comparador              comparador: In → NotIn
+     ·  tools/mutar_codigo.py:735:53:comparador              comparador: LtE → Lt
+     ·  tools/mutar_codigo.py:739:11:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:740:15:comparador              comparador: IsNot → Is
+     ·  tools/mutar_codigo.py:750:11:comparador              comparador: Lt → LtE
+     ·  tools/mutar_codigo.py:750:36:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:753:29:comparador              comparador: Gt → GtE
+     ·  tools/mutar_codigo.py:753:54:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:752:51:constante               constante: 1024 → 1025
+     ·  tools/mutar_codigo.py:752:58:constante               constante: 1024 → 1025
+     ·  tools/mutar_codigo.py:757:50:constante               constante: 1024 → 1025
+     ·  tools/mutar_codigo.py:768:34:constante               constante: False → True
+     ·  tools/mutar_codigo.py:773:34:constante               constante: 16384 → 16385
+     ·  tools/mutar_codigo.py:774:36:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:774:36:comparador              comparador: Gt → GtE
+     ·  tools/mutar_codigo.py:774:50:constante               constante: 16384 → 16385
+     ·  tools/mutar_codigo.py:778:71:constante               constante: False → True
+     ·  tools/mutar_codigo.py:778:85:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:781:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:781:15:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:783:44:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:785:48:comparador              comparador: Eq → NotEq
+     ·  tools/mutar_codigo.py:786:24:booleano                booleano: and ↔ or
+     ·  tools/mutar_codigo.py:786:24:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:787:27:negacion                negacion: se borra el `not`
+     ·  tools/mutar_codigo.py:788:27:comparador              comparador: LtE → Lt
+     ·  tools/mutar_codigo.py:788:50:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:789:27:comparador              comparador: Gt → GtE
+     ·  tools/mutar_codigo.py:789:54:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:790:27:comparador              comparador: Gt → GtE
+     ·  tools/mutar_codigo.py:790:49:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:793:49:constante               constante: False → True
+     ·  tools/mutar_codigo.py:793:63:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:795:12:retorno                 retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:795:19:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:796:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:796:15:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:796:31:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:838:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:838:15:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:848:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:848:15:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:858:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:858:15:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:860:4:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:860:11:constante               constante: 0 → 1
+     ·  tools/mutar_codigo.py:864:32:comparador              comparador: Is → IsNot
+     ·  tools/mutar_codigo.py:864:25:constante               constante: 1 → 2
+     ·  tools/mutar_codigo.py:868:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:870:7:comparador               comparador: Is → IsNot
+     ·  tools/mutar_codigo.py:871:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:871:15:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:874:12:retorno                 retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:877:8:retorno                  retorno: return <algo> → return None
+     ·  tools/mutar_codigo.py:877:15:constante               constante: 2 → 3
+     ·  tools/mutar_codigo.py:880:3:comparador               comparador: Eq → NotEq
+
+mutantes: 172 · murieron 172 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 1
+
+  4 medida(s) NO pudieron juzgar esta evidencia — la relación estaba, los campos no:
+    · proceso.codigo_con_mutante_que_lo_mata: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.ronda_mutacion_concluyente: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.test_con_mutante_que_lo_mata: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.arnes_con_bytecode_frio: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

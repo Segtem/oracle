@@ -1,0 +1,93 @@
+objetivos: nucleo/marco.py
+
+     ·  nucleo/marco.py:89:7:negacion                        negacion: se borra el `not`
+     ·  nucleo/marco.py:93:8:retorno                         retorno: return <algo> → return None
+     ·  nucleo/marco.py:94:4:retorno                         retorno: return <algo> → return None
+     ·  nucleo/marco.py:97:31:comparador                     comparador: In → NotIn
+     ·  nucleo/marco.py:98:29:comparador                     comparador: In → NotIn
+     ·  nucleo/marco.py:119:7:negacion                       negacion: se borra el `not`
+     ·  nucleo/marco.py:123:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:124:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:125:58:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:140:7:negacion                       negacion: se borra el `not`
+     ·  nucleo/marco.py:141:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:142:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:144:33:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:162:7:negacion                       negacion: se borra el `not`
+     ·  nucleo/marco.py:163:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:165:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:168:25:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:181:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:181:11:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:181:11:negacion                      negacion: se borra el `not`
+     ·  nucleo/marco.py:187:7:booleano                       booleano: and ↔ or
+     ·  nucleo/marco.py:187:34:negacion                      negacion: se borra el `not`
+     ·  nucleo/marco.py:188:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:188:16:constante                     constante: 1 → 2
+     ·  nucleo/marco.py:189:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:206:10:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:207:14:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:214:20:constante                     constante: 1 → 2
+     ·  nucleo/marco.py:223:61:constante                     constante: False → True
+     ·  nucleo/marco.py:224:22:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:240:28:comparador                    comparador: GtE → Gt
+     ·  nucleo/marco.py:240:44:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:248:30:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:248:30:comparador                    comparador: GtE → Gt
+     ·  nucleo/marco.py:248:46:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:248:52:comparador                    comparador: Gt → GtE
+     ·  nucleo/marco.py:250:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:263:7:negacion                       negacion: se borra el `not`
+     ·  nucleo/marco.py:264:8:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:264:15:constante                     constante: False → True
+     ·  nucleo/marco.py:269:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:269:15:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:276:14:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:277:17:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:277:31:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:278:19:comparador                    comparador: Eq → NotEq
+     ·  nucleo/marco.py:286:22:negacion                      negacion: se borra el `not`
+     ·  nucleo/marco.py:300:32:comparador                    comparador: Eq → NotEq
+     ·  nucleo/marco.py:302:53:constante                     constante: False → True
+     ·  nucleo/marco.py:305:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:324:23:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:325:16:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:330:38:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:332:14:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:333:11:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:334:30:constante                     constante: 1 → 2
+     ·  nucleo/marco.py:335:42:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:335:37:constante                     constante: 1 → 2
+     ·  nucleo/marco.py:335:71:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:337:34:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:338:34:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:339:26:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:340:11:negacion                      negacion: se borra el `not`
+     ·  nucleo/marco.py:343:11:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:343:11:negacion                      negacion: se borra el `not`
+     ·  nucleo/marco.py:343:39:comparador                    comparador: NotIn → In
+     ·  nucleo/marco.py:346:15:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:346:15:comparador                    comparador: IsNot → Is
+     ·  nucleo/marco.py:346:37:comparador                    comparador: Lt → LtE
+     ·  nucleo/marco.py:346:41:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:350:22:constante                     constante: 1 → 2
+     ·  nucleo/marco.py:353:11:negacion                      negacion: se borra el `not`
+     ·  nucleo/marco.py:354:26:constante                     constante: 1 → 2
+     ·  nucleo/marco.py:360:4:retorno                        retorno: return <algo> → return None
+     ·  nucleo/marco.py:362:54:comparador                    comparador: In → NotIn
+     ·  nucleo/marco.py:363:32:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:363:32:comparador                    comparador: NotIn → In
+     ·  nucleo/marco.py:364:10:booleano                      booleano: and ↔ or
+     ·  nucleo/marco.py:364:10:comparador                    comparador: Gt → GtE
+     ·  nucleo/marco.py:364:27:constante                     constante: 0 → 1
+     ·  nucleo/marco.py:364:32:comparador                    comparador: NotIn → In
+
+mutantes: 81 · murieron 81 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+
+  4 medida(s) NO pudieron juzgar esta evidencia — la relación estaba, los campos no:
+    · proceso.codigo_con_mutante_que_lo_mata: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.ronda_mutacion_concluyente: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.test_con_mutante_que_lo_mata: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.arnes_con_bytecode_frio: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

@@ -1,0 +1,613 @@
+objetivos: tools/cli.py
+
+     ·  tools/cli.py:74:40:constante                         constante: 1 → 2
+     ·  tools/cli.py:85:19:constante                         constante: 10 → 11
+     ·  tools/cli.py:215:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:228:36:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:230:24:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:230:24:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:230:47:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:231:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:231:36:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:232:46:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:243:7:comparador                        comparador: In → NotIn
+     ·  tools/cli.py:245:11:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:245:11:comparador                       comparador: GtE → Gt
+     ·  tools/cli.py:245:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:245:44:constante                        constante: 1 → 2
+     ·  tools/cli.py:247:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:247:19:constante                        constante: 1 → 2
+     ·  tools/cli.py:248:28:constante                        constante: 1 → 2
+     ·  tools/cli.py:250:55:constante                        constante: False → True
+     ·  tools/cli.py:257:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:257:19:constante                        constante: 1 → 2
+     ·  tools/cli.py:260:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:260:15:constante                        constante: 0 → 1
+     ·  tools/cli.py:262:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:262:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:267:7:comparador                        comparador: NotIn → In
+     ·  tools/cli.py:268:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:270:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:270:7:comparador                        comparador: GtE → Gt
+     ·  tools/cli.py:270:11:constante                        constante: 1 → 2
+     ·  tools/cli.py:270:38:constante                        constante: 1 → 2
+     ·  tools/cli.py:271:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:272:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:272:20:constante                        constante: 1 → 2
+     ·  tools/cli.py:277:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:300:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:300:7:comparador                        comparador: In → NotIn
+     ·  tools/cli.py:300:27:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:302:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:302:15:constante                        constante: 0 → 1
+     ·  tools/cli.py:308:11:comparador                       comparador: Gt → GtE
+     ·  tools/cli.py:308:32:constante                        constante: 1 → 2
+     ·  tools/cli.py:310:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:310:19:constante                        constante: 1 → 2
+     ·  tools/cli.py:314:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:314:19:constante                        constante: 1 → 2
+     ·  tools/cli.py:318:25:constante                        constante: 1 → 2
+     ·  tools/cli.py:318:56:constante                        constante: 1 → 2
+     ·  tools/cli.py:319:24:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:319:24:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:319:40:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:320:50:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:320:50:comparador                       comparador: NotIn → In
+     ·  tools/cli.py:320:77:comparador                       comparador: NotIn → In
+     ·  tools/cli.py:322:73:constante                        constante: 0 → 1
+     ·  tools/cli.py:323:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:323:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:326:45:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:328:45:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:331:24:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:336:24:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:347:11:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:350:16:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:350:16:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:351:24:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:354:15:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:365:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:365:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:368:7:comparador                        comparador: IsNot → Is
+     ·  tools/cli.py:373:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:373:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:421:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:436:48:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:437:55:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:438:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:444:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:444:11:constante                        constante: 1 → 2
+     ·  tools/cli.py:454:19:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:459:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:459:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:474:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:474:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:489:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:489:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:491:60:comparador                       comparador: IsNot → Is
+     ·  tools/cli.py:492:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:496:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:496:15:constante                        constante: 0 → 1
+     ·  tools/cli.py:501:38:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:517:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:517:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:518:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:518:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:523:7:comparador                        comparador: Is → IsNot
+     ·  tools/cli.py:524:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:524:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:531:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:531:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:536:7:comparador                        comparador: Is → IsNot
+     ·  tools/cli.py:537:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:537:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:544:17:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:545:37:constante                        constante: 0 → 1
+     ·  tools/cli.py:546:28:constante                        constante: 1 → 2
+     ·  tools/cli.py:549:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:549:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:554:7:comparador                        comparador: IsNot → Is
+     ·  tools/cli.py:556:9:comparador                        comparador: In → NotIn
+     ·  tools/cli.py:558:11:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:558:11:comparador                       comparador: GtE → Gt
+     ·  tools/cli.py:558:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:558:42:constante                        constante: 1 → 2
+     ·  tools/cli.py:560:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:560:19:constante                        constante: 1 → 2
+     ·  tools/cli.py:561:29:constante                        constante: 1 → 2
+     ·  tools/cli.py:572:36:constante                        constante: True → False
+     ·  tools/cli.py:572:51:constante                        constante: True → False
+     ·  tools/cli.py:573:34:constante                        constante: True → False
+     ·  tools/cli.py:574:39:constante                        constante: True → False
+     ·  tools/cli.py:575:38:constante                        constante: True → False
+     ·  tools/cli.py:576:11:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:588:67:constante                        constante: True → False
+     ·  tools/cli.py:589:60:constante                        constante: 2 → 3
+     ·  tools/cli.py:592:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:592:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:604:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:604:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:608:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:612:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:616:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:620:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:625:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:628:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:628:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:635:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:637:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:639:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:639:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:643:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:646:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:646:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:649:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:649:15:constante                        constante: 2 → 3
+     ·  tools/cli.py:653:31:constante                        constante: False → True
+     ·  tools/cli.py:655:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:657:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:659:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:659:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:662:68:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:663:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:666:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:666:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:672:40:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:674:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:674:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:678:7:comparador                        comparador: In → NotIn
+     ·  tools/cli.py:678:24:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:679:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:680:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:684:15:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:684:15:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:685:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:685:20:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:686:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:686:56:constante                        constante: True → False
+     ·  tools/cli.py:689:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:692:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:692:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:697:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:699:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:701:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:701:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:702:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:720:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:722:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:724:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:724:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:730:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:730:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:733:11:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:735:13:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:736:70:constante                        constante: False → True
+     ·  tools/cli.py:737:13:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:738:71:constante                        constante: False → True
+     ·  tools/cli.py:738:85:constante                        constante: 2 → 3
+     ·  tools/cli.py:740:40:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:741:12:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:741:19:constante                        constante: 1 → 2
+     ·  tools/cli.py:744:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:744:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:748:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:748:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:749:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:749:11:constante                        constante: 0 → 1
+     ·  tools/cli.py:763:57:constante                        constante: True → False
+     ·  tools/cli.py:763:68:constante                        constante: True → False
+     ·  tools/cli.py:766:28:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:766:52:constante                        constante: 0 → 1
+     ·  tools/cli.py:767:4:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:783:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:793:13:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:794:11:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:797:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:800:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:800:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:806:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:806:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:808:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:808:49:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:808:82:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:812:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:812:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:838:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:838:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:841:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:841:15:constante                        constante: 2 → 3
+     ·  tools/cli.py:845:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:845:15:constante                        constante: 1 → 2
+     ·  tools/cli.py:860:15:comparador                       comparador: NotEq → Eq
+     ·  tools/cli.py:860:31:constante                        constante: 0 → 1
+     ·  tools/cli.py:872:7:booleano                          booleano: and ↔ or
+     ·  tools/cli.py:872:7:comparador                        comparador: Eq → NotEq
+     ·  tools/cli.py:872:23:constante                        constante: 0 → 1
+     ·  tools/cli.py:872:29:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:872:52:constante                        constante: 0 → 1
+     ·  tools/cli.py:872:58:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:872:84:constante                        constante: 0 → 1
+     ·  tools/cli.py:885:8:retorno                           retorno: return <algo> → return None
+     ·  tools/cli.py:885:15:constante                        constante: 0 → 1
+     ·  tools/cli.py:904:24:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:909:24:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:909:53:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:909:82:constante                        constante: 0 → 1
+     ·  tools/cli.py:921:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:938:15:comparador                       comparador: Gt → GtE
+     ·  tools/cli.py:941:13:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:960:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:971:19:comparador                       comparador: NotEq → Eq
+     ·  tools/cli.py:971:36:constante                        constante: 0 → 1
+     ·  tools/cli.py:982:7:negacion                          negacion: se borra el `not`
+     ·  tools/cli.py:988:19:comparador                       comparador: NotEq → Eq
+     ·  tools/cli.py:988:37:constante                        constante: 0 → 1
+     ·  tools/cli.py:999:11:comparador                       comparador: NotEq → Eq
+     ·  tools/cli.py:999:24:constante                        constante: 0 → 1
+     ·  tools/cli.py:1004:11:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1004:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1009:11:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1009:24:constante                       constante: 0 → 1
+     ·  tools/cli.py:1014:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1014:24:constante                       constante: 0 → 1
+     ·  tools/cli.py:1023:19:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1023:31:constante                       constante: 0 → 1
+     ·  tools/cli.py:1038:15:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1038:34:constante                       constante: 0 → 1
+     ·  tools/cli.py:1058:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1058:15:constante                       constante: 1 → 2
+     ·  tools/cli.py:1061:4:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1061:11:constante                       constante: 0 → 1
+     ·  tools/cli.py:1080:32:comparador                      comparador: Is → IsNot
+     ·  tools/cli.py:1080:25:constante                       constante: 1 → 2
+     ·  tools/cli.py:1082:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1082:7:negacion                         negacion: se borra el `not`
+     ·  tools/cli.py:1082:27:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1082:40:constante                       constante: 0 → 1
+     ·  tools/cli.py:1084:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1084:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1085:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1085:20:constante                       constante: 0 → 1
+     ·  tools/cli.py:1087:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1087:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1089:30:constante                       constante: 0 → 1
+     ·  tools/cli.py:1090:25:constante                       constante: 1 → 2
+     ·  tools/cli.py:1092:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1093:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1093:21:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1093:27:constante                       constante: 0 → 1
+     ·  tools/cli.py:1093:66:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1093:72:constante                       constante: 0 → 1
+     ·  tools/cli.py:1094:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1094:57:constante                       constante: 0 → 1
+     ·  tools/cli.py:1096:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1096:35:constante                       constante: 1 → 2
+     ·  tools/cli.py:1101:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1103:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1103:45:constante                       constante: 1 → 2
+     ·  tools/cli.py:1103:52:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1105:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1105:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1106:8:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1106:8:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1106:47:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1106:53:constante                       constante: 0 → 1
+     ·  tools/cli.py:1112:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1113:30:constante                       constante: 0 → 1
+     ·  tools/cli.py:1114:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1117:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1117:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1117:35:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1117:35:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1117:48:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1117:54:constante                       constante: 0 → 1
+     ·  tools/cli.py:1119:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1119:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1120:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1120:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1120:33:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1120:33:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1120:46:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1120:52:constante                       constante: 0 → 1
+     ·  tools/cli.py:1122:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1122:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1123:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1123:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1123:37:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1123:37:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1123:50:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1123:56:constante                       constante: 0 → 1
+     ·  tools/cli.py:1125:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1125:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1126:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1126:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1126:39:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1126:39:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1126:52:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1126:58:constante                       constante: 0 → 1
+     ·  tools/cli.py:1128:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1128:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1129:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1129:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1129:34:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1129:34:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1129:47:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1129:53:constante                       constante: 0 → 1
+     ·  tools/cli.py:1131:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1131:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1132:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1132:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1133:16:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1133:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1135:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1135:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1139:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1139:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1139:24:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1140:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1140:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1140:36:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1140:36:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1140:65:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1140:71:constante                       constante: 0 → 1
+     ·  tools/cli.py:1142:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1142:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1143:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1145:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1145:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1146:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1146:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1146:40:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1146:46:constante                       constante: 0 → 1
+     ·  tools/cli.py:1148:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1148:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1149:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1149:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1149:42:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1149:48:constante                       constante: 0 → 1
+     ·  tools/cli.py:1151:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1151:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1154:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1156:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1156:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1157:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1159:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1159:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1160:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1162:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1162:19:constante                       constante: 0 → 1
+     ·  tools/cli.py:1165:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1166:27:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1166:37:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1166:47:constante                       constante: 0 → 1
+     ·  tools/cli.py:1166:21:constante                       constante: 0 → 1
+     ·  tools/cli.py:1167:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1167:11:comparador                      comparador: IsNot → Is
+     ·  tools/cli.py:1167:32:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1168:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1169:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1172:54:constante                       constante: 1 → 2
+     ·  tools/cli.py:1173:15:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1173:15:comparador                      comparador: GtE → Gt
+     ·  tools/cli.py:1175:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1175:23:constante                       constante: 2 → 3
+     ·  tools/cli.py:1178:13:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1180:13:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1184:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1184:15:constante                       constante: 0 → 1
+     ·  tools/cli.py:1186:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1186:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1186:32:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1186:32:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1186:71:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1186:77:constante                       constante: 0 → 1
+     ·  tools/cli.py:1187:38:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1187:33:constante                       constante: 1 → 2
+     ·  tools/cli.py:1187:68:constante                       constante: 0 → 1
+     ·  tools/cli.py:1187:75:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1188:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1188:25:constante                       constante: 0 → 1
+     ·  tools/cli.py:1189:47:constante                       constante: 0 → 1
+     ·  tools/cli.py:1190:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1190:19:constante                       constante: 2 → 3
+     ·  tools/cli.py:1191:20:constante                       constante: 0 → 1
+     ·  tools/cli.py:1192:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1195:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1195:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1195:44:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1195:50:constante                       constante: 0 → 1
+     ·  tools/cli.py:1196:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1196:50:constante                       constante: 0 → 1
+     ·  tools/cli.py:1198:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1198:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1198:42:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1198:48:constante                       constante: 0 → 1
+     ·  tools/cli.py:1200:11:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1200:11:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1200:28:constante                       constante: 0 → 1
+     ·  tools/cli.py:1200:35:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1200:66:constante                       constante: 0 → 1
+     ·  tools/cli.py:1201:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1201:52:constante                       constante: 0 → 1
+     ·  tools/cli.py:1203:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1203:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1203:46:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1203:52:constante                       constante: 0 → 1
+     ·  tools/cli.py:1204:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1204:52:constante                       constante: 0 → 1
+     ·  tools/cli.py:1206:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1206:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1206:43:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1206:49:constante                       constante: 0 → 1
+     ·  tools/cli.py:1207:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1207:49:constante                       constante: 0 → 1
+     ·  tools/cli.py:1209:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1210:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1211:11:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1212:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1213:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1214:15:comparador                      comparador: Lt → LtE
+     ·  tools/cli.py:1214:28:constante                       constante: 2 → 3
+     ·  tools/cli.py:1216:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1216:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1217:15:comparador                      comparador: Gt → GtE
+     ·  tools/cli.py:1217:28:constante                       constante: 3 → 4
+     ·  tools/cli.py:1219:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1219:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1220:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1220:46:constante                       constante: 1 → 2
+     ·  tools/cli.py:1220:62:comparador                      comparador: Gt → GtE
+     ·  tools/cli.py:1220:75:constante                       constante: 2 → 3
+     ·  tools/cli.py:1220:56:constante                       constante: 2 → 3
+     ·  tools/cli.py:1221:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1222:15:comparador                      comparador: Gt → GtE
+     ·  tools/cli.py:1222:28:constante                       constante: 1 → 2
+     ·  tools/cli.py:1224:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1224:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1227:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1228:11:comparador                      comparador: Lt → LtE
+     ·  tools/cli.py:1228:24:constante                       constante: 2 → 3
+     ·  tools/cli.py:1230:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1230:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1231:11:comparador                      comparador: Gt → GtE
+     ·  tools/cli.py:1231:24:constante                       constante: 2 → 3
+     ·  tools/cli.py:1233:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1233:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1234:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1235:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1235:50:constante                       constante: 1 → 2
+     ·  tools/cli.py:1236:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1236:43:constante                       constante: 1 → 2
+     ·  tools/cli.py:1238:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1240:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1242:21:constante                       constante: 1 → 2
+     ·  tools/cli.py:1243:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1250:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1250:15:constante                       constante: 1 → 2
+     ·  tools/cli.py:1253:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1254:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1255:33:constante                       constante: 1 → 2
+     ·  tools/cli.py:1255:40:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1256:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1257:15:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1259:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1259:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1260:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1260:40:constante                       constante: 0 → 1
+     ·  tools/cli.py:1261:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1262:15:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1264:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1264:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1265:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1265:42:constante                       constante: 0 → 1
+     ·  tools/cli.py:1266:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1267:15:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1269:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1269:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1270:16:booleano                        booleano: and ↔ or
+     ·  tools/cli.py:1270:16:comparador                      comparador: NotIn → In
+     ·  tools/cli.py:1271:23:comparador                      comparador: GtE → Gt
+     ·  tools/cli.py:1271:45:constante                       constante: 1 → 2
+     ·  tools/cli.py:1272:50:constante                       constante: 1 → 2
+     ·  tools/cli.py:1276:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1276:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1277:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1279:21:constante                       constante: 0 → 1
+     ·  tools/cli.py:1280:43:constante                       constante: 1 → 2
+     ·  tools/cli.py:1282:24:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1284:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1285:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1286:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1287:15:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1289:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1289:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1290:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1290:43:constante                       constante: 0 → 1
+     ·  tools/cli.py:1293:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1294:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1295:33:constante                       constante: 1 → 2
+     ·  tools/cli.py:1295:40:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1296:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1297:15:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1299:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1299:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1300:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1300:39:constante                       constante: 0 → 1
+     ·  tools/cli.py:1301:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1302:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1303:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1304:15:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1306:16:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1306:23:constante                       constante: 1 → 2
+     ·  tools/cli.py:1307:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1307:47:constante                       constante: 0 → 1
+     ·  tools/cli.py:1309:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1312:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1313:22:constante                       constante: 0 → 1
+     ·  tools/cli.py:1314:11:comparador                      comparador: Eq → NotEq
+     ·  tools/cli.py:1315:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1316:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1317:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1318:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1319:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1320:11:comparador                      comparador: In → NotIn
+     ·  tools/cli.py:1321:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1324:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1325:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1327:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1328:36:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1329:11:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1331:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1331:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1332:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1332:36:constante                       constante: 0 → 1
+     ·  tools/cli.py:1334:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1335:36:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1336:11:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1338:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1338:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1339:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1339:35:constante                       constante: 0 → 1
+     ·  tools/cli.py:1341:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1342:36:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1343:11:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1345:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1345:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1346:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1346:38:constante                       constante: 0 → 1
+     ·  tools/cli.py:1348:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1349:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1351:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1352:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1354:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1355:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1357:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1360:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1362:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1363:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1365:7:comparador                       comparador: Eq → NotEq
+     ·  tools/cli.py:1366:36:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1367:11:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1369:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1369:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1370:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1370:40:constante                       constante: 0 → 1
+     ·  tools/cli.py:1372:7:comparador                       comparador: In → NotIn
+     ·  tools/cli.py:1373:36:comparador                      comparador: NotEq → Eq
+     ·  tools/cli.py:1374:11:negacion                        negacion: se borra el `not`
+     ·  tools/cli.py:1376:12:retorno                         retorno: return <algo> → return None
+     ·  tools/cli.py:1376:19:constante                       constante: 1 → 2
+     ·  tools/cli.py:1377:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1377:39:constante                       constante: 0 → 1
+     ·  tools/cli.py:1388:7:booleano                         booleano: and ↔ or
+     ·  tools/cli.py:1389:8:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1393:4:retorno                          retorno: return <algo> → return None
+     ·  tools/cli.py:1393:11:constante                       constante: 1 → 2
+
+mutantes: 603 · murieron 603 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.
