@@ -76,6 +76,8 @@ class AceptacionCliTests(_cli_tests.CliTestCase):
             )
             proy = Proyecto(raiz)
             _, _ = self._callado(cli.cmd_nueva, proy, "demo.prueba")
+            for andamio in (raiz / "corpus" / "demo").glob("*.caso"):
+                andamio.unlink()  # este escenario aporta su propio caso completo
             medida_path = raiz / "catalogos" / "demo" / "demo.prueba.oracle"
             medida_path.write_text(
                 "ninguno demo.prueba:\n"

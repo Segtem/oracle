@@ -33,7 +33,8 @@ sys.path = [str(RAIZ), *sys.path]
 
 import catalogos  # noqa: F401,E402
 from nucleo.algebra import AGREGADOS, COMPARADORES, ESCALARES, separar_clave  # noqa: E402
-from nucleo.caso import CasoMalDeclarado, cargar_casos, leer as leer_caso  # noqa: E402
+from nucleo.caso import (CasoMalDeclarado, cargar_casos, cargar_fuente_caso,
+                         es_andamio, rutas_de_corpus, leer as leer_caso)  # noqa: E402
 from nucleo.sintaxis import ErrorSintaxis  # noqa: E402
 from nucleo.fixtures import (cargar_fixtures, casos_para_mutacion,  # noqa: E402
                              evidencias as evidencias_fixture)
@@ -44,6 +45,7 @@ from nucleo.medida import (Medida, MedidaMalDeclarada, cargar_catalogo,  # noqa:
                            cargar as cargar_medida,
                            cargar_fuente_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
+                             Proyecto,
                              catalogos_a_cargar, catalogos_base_a_cargar, confiar_escalares,
                              escalares_del_proyecto,
                              RAIZ_ORACLE, macros_del_proyecto, presentar_ruta,
@@ -281,11 +283,41 @@ def nueva(proy, mid: str) -> int:
     if destino.exists():
         print(f"ya existe: {presentar_ruta(proy, destino)}")
         return 1
+    from tools import corpus
+
+    proy_casos = Proyecto(proy.raiz)
+    grupo = mid.split(".")[0]
+    nombre = "-".join(mid.split(".")[1:]).replace("_", "-")
+    numero = 1
+    while True:
+        rojo = corpus.ruta_de_caso_nuevo(proy_casos, f"{grupo}/{numero:03d}-{nombre}-rojo")
+        verde = corpus.ruta_de_caso_nuevo(proy_casos, f"{grupo}/{numero + 1:03d}-{nombre}-verde")
+        if not rojo.exists() and not verde.exists():
+            break
+        numero += 2
+
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")
+    fecha, repo, commit = corpus._del_repositorio(proy.raiz)
+    for ruta, etiqueta in ((rojo, "falso_verde"), (verde, "verde_correcto")):
+        ruta.parent.mkdir(parents=True, exist_ok=True)
+        plantilla = corpus.PLANTILLA.format(
+            cid=ruta.stem, fecha=fecha, repo=repo, commit=commit)
+        plantilla = plantilla.replace("etiqueta: ETIQUETA", f"etiqueta: {etiqueta}")
+        plantilla = plantilla.replace("procedencia: PROCEDENCIA", "procedencia: construida")
+        plantilla = plantilla.replace("como_se_detecto: COMO_SE_DETECTO",
+                                      "como_se_detecto: persona")
+        plantilla = plantilla.replace("medida: DOMINIO.MEDIDA", f"medida: {mid}")
+        plantilla = plantilla.replace("RELACION: CAMPO", "pendiente: valor")
+        plantilla = plantilla.replace('"VALOR"', '"POR_COMPLETAR"')
+        ruta.write_text("# ANDAMIO: completar evidencia y quitar esta marca\n" + plantilla,
+                        encoding="utf-8")
     print(f"creada: {presentar_ruta(proy, destino)}\n")
+    print(f"casos de andamio: {presentar_ruta(proy, rojo)} y "
+          f"{presentar_ruta(proy, verde)}")
     print("Reemplazá RELACION, CAMPO, SEGUN, AMBITO y los dos textos en MAYÚSCULAS. Después:")
     print(f"  oracle revisar {presentar_ruta(proy, destino)}")
+    print("Completá ambos casos con evidencia que ejerza la medida y quitá la marca ANDAMIO.")
     return 0
 
 
@@ -693,7 +725,8 @@ def ejercicio_del_catalogo(proy, catalogo, macros, heredadas=None) -> Ejercicio:
     jueza = _jueza_del_ejercicio(proy, macros)
     heredadas = frozenset(_heredadas(proy) if heredadas is None else heredadas)
 
-    casos = cargar_casos(proy.corpus) if proy.corpus.is_dir() else []
+    casos = ([cargar_fuente_caso(ruta) for ruta in rutas_de_corpus(proy.corpus)
+              if not es_andamio(ruta)] if proy.corpus.is_dir() else [])
     por_medida: defaultdict[str, int] = defaultdict(int)
     polaridad: defaultdict[str, list] = defaultdict(lambda: [0, 0])
 

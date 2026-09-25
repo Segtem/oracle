@@ -523,6 +523,12 @@ def rutas_de_corpus(raiz: Path) -> list[Path]:
     return _rutas_en_corpus(Path(raiz))
 
 
+def es_andamio(ruta: Path) -> bool:
+    """La marca explícita de un caso creado por `oracle nueva`."""
+    return any(linea.strip().startswith("# ANDAMIO:")
+               for linea in ruta.read_text(encoding="utf-8").splitlines())
+
+
 def cargar_fuente_caso(ruta: Path) -> dict:
     ruta = Path(ruta)
     try:

@@ -86,7 +86,7 @@ LIMITE_ILEGIBLES = 10
 from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
                                descubrir_bibliotecas,
                                verificar_biblioteca)
-from nucleo.caso import CasoMalDeclarado, rutas_de_corpus  # noqa: E402
+from nucleo.caso import CasoMalDeclarado, es_andamio, rutas_de_corpus  # noqa: E402
 from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from tools import manual  # noqa: E402
@@ -806,6 +806,20 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
 
     from nucleo.proyecto import relaciones_del_proyecto
 
+    casos_archivos = rutas_de_corpus(proy.corpus)
+    andamios = []
+    for ruta in casos_archivos:
+        try:
+            if es_andamio(ruta):
+                andamios.append(ruta)
+        except (OSError, UnicodeError):
+            continue  # corpus.verificar informará el archivo ilegible
+    if andamios:
+        print(f"ANDAMIO ✗ — {len(andamios)} caso(s) con evidencia por completar:")
+        for ruta in andamios:
+            print(f"  · {presentar_ruta(proy, ruta)}")
+        print()
+
     try:
         relaciones_del_proyecto(proy)
         macros = macros_del_proyecto(proy)
@@ -823,9 +837,10 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         print("\nVEREDICTO: ROJO (catálogo no pudo cargarse)")
         return 1
 
-    casos_archivos = rutas_de_corpus(proy.corpus)
     rutas_diferencial = sorted(proy.diferencial.glob("*.json"))
     fallas_suite: list[str] = []
+    if andamios:
+        fallas_suite.append("casos de andamio")
     omisiones_veredicto: list[str] = []
 
     # 0. Tests unitarios de Oracle
