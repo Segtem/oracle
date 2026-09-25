@@ -74,7 +74,7 @@
 .cifras p:last-child { color: var(--gris); margin: 8px 0 0; font-size: 15px; }
 
 /* ---------------------------------------------------------------- recorridos */
-.recorridos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.recorridos { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .recorrido { display: grid; gap: 6px; align-content: start; padding: 20px; border: 1px solid var(--linea); border-radius: 8px;
              color: var(--tinta); text-decoration: none; background: var(--papel); transition: border-color 0.15s, transform 0.15s; }
 .recorrido:hover { border-color: var(--acento); transform: translateY(-2px); }

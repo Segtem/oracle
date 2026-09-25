@@ -4,15 +4,22 @@ Esta guía es para alguien que recién empieza a programar y programa con un mod
 armar, **copiando y pegando**, una batalla naval que corre en el navegador. Y vas a aprender a contestar
 la pregunta que el juego solo no puede contestar: **¿cumple las reglas?**
 
-Cada paso tiene la misma forma: una **pregunta** para que la pienses vos, la **respuesta** plegada
-(abrila cuando quieras), el **bloque para copiar**, y **lo que tenés que ver**. Si ves otra cosa, el paso
-te dice qué hacer.
+La guía es una travesía de **nueve misiones**. Cada una tiene la misma forma: una **pregunta** para
+que la pienses vos, la **respuesta** plegada (abrila cuando quieras), el **bloque para copiar**, y **lo
+que tenés que ver**. Si ves otra cosa, el paso te dice qué hacer.
+
+En el sitio, además, se juega: antes de cada salida **predecís** qué va a decir Oracle, en la misión 5
+**rompés la regla** en un tablero, y en la 6 **cazás los mutantes** de tu regla eligiendo casos. Cada
+cosa suma experiencia y algunas dan logros; la bitácora, abajo a la derecha, lleva la cuenta. Todo queda
+en tu navegador: no se manda a ningún lado.
 
 > Un test del repositorio arma el juego pegando los bloques de esta guía en orden, desde una carpeta
 > vacía, y corre `oracle test` después de cada paso. Las salidas que ves acá salen de esa corrida: si un
 > bloque cambia, el test lo nota.
 
 ## Paso 1 · Preparar la carpeta
+
+<!-- juego {"tipo": "mision", "n": 1, "objetivo": "Instalar Oracle, crear el proyecto y ver tu primer SIN MEDICIÓN.", "xp": 50, "logro": "enrolado", "sprite": "ancla"} -->
 
 Oracle se instala una sola vez. Necesitás Python 3.11 o posterior y `uv`.
 
@@ -22,6 +29,8 @@ oracle init batalla-naval
 cd batalla-naval
 oracle test
 ```
+
+<!-- juego {"tipo": "predecir", "id": "p1", "pregunta": "Recién creado: sin reglas y sin casos. ¿Qué dice `oracle test`?", "opciones": ["VERDE", "ROJO", "SIN MEDICIÓN"], "correcta": "SIN MEDICIÓN", "explica": "Sin reglas no hay nada que medir, y Oracle no llama verde a lo que no midió."} -->
 
 ```text salida
 Proyecto Oracle inicializado en batalla-naval:
@@ -69,6 +78,8 @@ las vamos a encender al final. Por ahora, apagalo:
 
 ## Paso 2 · El tablero
 
+<!-- juego {"tipo": "mision", "n": 2, "objetivo": "Ver la cabecera y los paneles del juego en el navegador.", "xp": 30, "sprite": "barco"} -->
+
 Un juego en el navegador son tres cosas: **HTML** (qué hay en la pantalla), **CSS** (cómo se ve) y
 **JavaScript** (qué pasa cuando hacés algo). Empezamos por las dos primeras.
 
@@ -92,6 +103,8 @@ Abrí `index.html` en el navegador (doble clic, o arrastralo a una pestaña). Va
 paneles, **sin tableros todavía**: los tableros los dibuja el JavaScript.
 
 ## Paso 3 · El juego
+
+<!-- juego {"tipo": "mision", "n": 3, "objetivo": "Jugar una partida entera contra la computadora.", "xp": 40, "sprite": "barco"} -->
 
 Estos cuatro archivos son el juego: el sonido, el registro de lo que pasa, el motor con las reglas y
 la interfaz que dibuja los tableros.
@@ -134,6 +147,8 @@ lo que el modelo ya creía.
 
 ## Paso 4 · Que el juego cuente lo que pasó
 
+<!-- juego {"tipo": "mision", "n": 4, "objetivo": "Entender qué anota el juego: hechos, no opiniones.", "xp": 60, "sprite": "hoja"} -->
+
 <p class="pregunta">**Pensalo.** Para juzgar un disparo después de la partida, ¿qué tendría que haber anotado el juego?</p>
 
 <details>
@@ -165,7 +180,11 @@ Así se ve el primer tiro de una partida real:
 tiro y el resultado final en filas planas, y que lo descargue como JSON». Y **desconfiá** si en vez de
 anotar lo que pasó, el registro anota conclusiones («partida válida: sí»): eso ya es opinión.
 
+<!-- juego {"tipo": "elegir", "id": "hecho", "titulo": "Hecho u opinión", "xp": 30, "logro": "cronista", "pregunta": "El modelo te propone tres filas para el registro. ¿Cuál es un hecho que Oracle puede juzgar?", "opciones": [{"texto": "{\"partida_valida\": true}", "codigo": true, "ok": false, "porque": "Es una conclusión: el juego se juzga a sí mismo. Si está mal, esta fila también."}, {"texto": "{\"turno\": 7, \"tirador\": \"cpu\", \"fila\": 4, \"columna\": 2, \"es_impacto\": true}", "codigo": true, "ok": true, "porque": "Es un hecho: qué pasó y dónde. Una regla puede cruzarlo con dónde estaban los barcos y decir si el impacto era verdad."}, {"texto": "{\"reglas_cumplidas\": 11}", "codigo": true, "ok": false, "porque": "Es un resultado, no un hecho: ¿qué reglas, medidas cómo? Oracle necesita lo que pasó para contarlo él."}]} -->
+
 ## Paso 5 · La primera regla, empezando por el caso rojo
+
+<!-- juego {"tipo": "mision", "n": 5, "objetivo": "Escribir el caso rojo, después la regla, y romperla en el tablero.", "xp": 100, "logro": "primer_rojo", "sprite": "bandera"} -->
 
 La regla más simple: **ningún barco fuera del tablero de 10 por 10.**
 
@@ -187,6 +206,8 @@ En Oracle ese ejemplo se llama **caso**. Guardalo en `corpus/naval/`:
 ```bash paso
 oracle test
 ```
+
+<!-- juego {"tipo": "predecir", "id": "p2", "pregunta": "Hay un caso que reclama una regla que todavía no escribiste. ¿Qué dice `oracle test`?", "opciones": ["VERDE", "ROJO", "SIN MEDICIÓN"], "correcta": "ROJO", "explica": "El caso nombra una medida que el catálogo no tiene, y la aceptación falla."} -->
 
 ```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -237,9 +258,13 @@ mirar se lee como «está todo bien».
 
 </details>
 
+<!-- juego {"tipo": "tablero", "id": "t5", "proyecto": "ejemplo/batalla-naval", "medida": "naval.barcos_dentro_del_tablero", "titulo": "Rompé la regla", "xp": 60, "logro": "cartografo", "inicial": [[9, 4], [10, 4]], "consigna": "Así queda el caso 005: un barco que asoma por la fila 10. Tocá casillas para mover la flota, también en el borde que no existe, y mirá qué filas se vuelven testigos. Reto: poné la regla roja con cada una de sus cuatro condiciones."} -->
+
 ```bash paso
 oracle test
 ```
+
+<!-- juego {"tipo": "predecir", "id": "p3", "pregunta": "Ya está la regla y el caso rojo sale rojo. ¿Ahora sí verde?", "opciones": ["VERDE", "ROJO"], "correcta": "ROJO", "explica": "El caso anda, pero sobreviven mutantes: versiones debilitadas de la regla que tu único caso no nota."} -->
 
 ```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -290,6 +315,8 @@ VEREDICTO: ROJO (falló: mutación)
 
 ## Paso 6 · Un caso rojo no alcanza: la mutación
 
+<!-- juego {"tipo": "mision", "n": 6, "objetivo": "Que ningún mutante de la regla del tablero sobreviva.", "xp": 120, "sprite": "mutante"} -->
+
 Todavía rojo, pero por otra razón: **sobreviven mutantes**. Oracle debilita tu regla a propósito
 (afloja el umbral, invierte una comparación, le quita el filtro) y se fija si tus casos lo notan. A cada
 versión debilitada la llama **mutante**.
@@ -304,12 +331,16 @@ que esté en el borde (fila 9), para que también se note si alguien corre el l�
 
 </details>
 
+<!-- juego {"tipo": "cazamutantes", "id": "c6", "proyecto": "ejemplo/batalla-naval", "medida": "naval.barcos_dentro_del_tablero", "titulo": "Cacería de mutantes", "xp": 80, "logro": "cazamutantes", "activos": ["005-barco-fila-desbordada"], "consigna": "Estos son los mutantes reales que Oracle genera para tu regla. Empezás con el caso 005. Sumá casos hasta que no quede ninguno vivo: ¿cuántos hacen falta, y cuál mata a cada uno?"} -->
+
 ```oracle archivo=corpus/naval/006-barco-en-borde.caso incluir=ejemplo/batalla-naval/corpus/naval/006-barco-en-borde.caso
 ```
 
 ```bash paso
 oracle test
 ```
+
+<!-- juego {"tipo": "predecir", "id": "p4", "pregunta": "Agregaste el caso verde del borde. ¿Verde?", "opciones": ["VERDE", "ROJO"], "correcta": "ROJO", "explica": "Murieron más mutantes, pero todavía viven los que tocan las otras tres condiciones del donde."} -->
 
 ```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -371,6 +402,8 @@ columna menor que 0, columna mayor que 9) y tu caso rojo sólo prueba una. Los o
 oracle test
 ```
 
+<!-- juego {"tipo": "predecir", "id": "p5", "pregunta": "Un caso rojo por cada condición. ¿Y ahora?", "opciones": ["VERDE", "ROJO"], "correcta": "VERDE", "explica": "Cada forma de debilitar la regla la nota algún caso."} -->
+
 ```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
 
@@ -411,6 +444,8 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 **Verde, y ahora el verde significa algo**: cada forma de debilitar la regla la nota algún caso.
 
 ## Paso 7 · Diez reglas más, y la trampa de los pocos casos
+
+<!-- juego {"tipo": "mision", "n": 7, "objetivo": "Once reglas, cada una con casos que la puedan romper.", "xp": 150, "logro": "flota", "sprite": "barco"} -->
 
 El juego tiene más reglas. Pegá las diez que faltan de una vez, cada una con su idea:
 
@@ -480,6 +515,8 @@ decoración: puede estar mal escrita y dar verde siempre, y nunca te vas a enter
 ```bash paso
 oracle test
 ```
+
+<!-- juego {"tipo": "predecir", "id": "p6", "pregunta": "Once reglas y siete casos. ¿Qué dice `oracle test`?", "opciones": ["VERDE", "ROJO", "SIN MEDICIÓN"], "correcta": "ROJO", "explica": "Nueve reglas no tienen ni un caso: MEDIDAS SIN CASOS, y la mutación tampoco cierra."} -->
 
 ```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -640,6 +677,8 @@ Los casos que faltan: para cada regla, al menos uno que la ponga roja cerca del 
 oracle test
 ```
 
+<!-- juego {"tipo": "predecir", "id": "p7", "pregunta": "Con todos los casos que faltan. ¿Verde?", "opciones": ["VERDE", "ROJO"], "correcta": "VERDE", "explica": "Once reglas y ningún mutante vivo."} -->
+
 ```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
 
@@ -709,6 +748,8 @@ Once reglas, cada una con casos que la pueden romper, y ningún mutante vivo.
 
 ## Paso 8 · Juzgar una partida de verdad
 
+<!-- juego {"tipo": "mision", "n": 8, "objetivo": "Juzgar una partida real y leer lo que quedó sin mirar.", "xp": 120, "logro": "juez", "sprite": "ojo"} -->
+
 Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel
 de auditoría y descargá `hechos_partida.json` en la carpeta del proyecto. (Si todavía no jugaste, podés
 [bajar la partida del ejemplo](https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json)
@@ -725,6 +766,8 @@ y guardarla con ese nombre.)
 ```bash paso
 oracle juzgar --con hechos_partida.json
 ```
+
+<!-- juego {"tipo": "predecir", "id": "p8", "pregunta": "Juzgás una partida jugada de verdad. ¿Qué dice?", "opciones": ["VERDE", "ROJO"], "correcta": "VERDE", "explica": "Las once reglas se cumplieron en esta partida. Mirá la lista SIN MIRAR: es la otra mitad de la respuesta."} -->
 
 ```text salida
 ✓ naval.alternancia_turnos                            0 (<= 0)
@@ -780,6 +823,8 @@ python3 -c "import json; d = json.load(open('hechos_partida.json')); json.dump({
 oracle juzgar --con sin-tiros.json
 ```
 
+<!-- juego {"tipo": "predecir", "id": "p9", "pregunta": "El archivo no trae la relación `tiro`. ¿Qué pasa?", "opciones": ["VERDE", "ROJO", "NO SE APLICARON"], "correcta": "NO SE APLICARON", "explica": "Siete reglas no tenían qué mirar. Oracle no las da por buenas: las lista aparte y falla la corrida."} -->
+
 ```text salida
 ✓ naval.barcos_dentro_del_tablero                     0 (<= 0)
 ✓ naval.barcos_sin_solapamiento                       0 (<= 0)
@@ -803,6 +848,8 @@ volvés a hablar al modelo con precisión: «el tiro del turno 14 se marcó como
 en esa casilla; corregilo».
 
 ## Paso 9 · Qué le falta a este juego
+
+<!-- juego {"tipo": "mision", "n": 9, "objetivo": "Diseñar, en tu cabeza, la regla que le falta al juego.", "xp": 100, "logro": "disenador", "sprite": "hoja"} -->
 
 Once reglas miran lo principal, no todo. Ninguna mira hoy:
 
@@ -837,3 +884,5 @@ de los campos y sostener cada regla con partidas **observadas**, no sólo con ca
 
 Después de esto, [La primera medida real](13-primer-valor.html) muestra el mismo recorrido con menos
 explicación, y [Escribir una medida](03-escribir-una-medida.html) es la referencia del lenguaje.
+
+<!-- juego {"tipo": "cierre"} -->

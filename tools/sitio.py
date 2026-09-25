@@ -169,6 +169,85 @@ def _celdas(linea: str) -> list[str]:
     return [c.strip() for c in re.split(r"(?<!\\)\|", linea)]
 
 
+# ------------------------------------------------------------------------------ juego
+
+# `<!-- juego {...} -->`: invisible en GitHub, y en el sitio un bloque que `assets/guia.js` vuelve
+# interactivo. El JSON dice qué pieza es; los datos que afirman algo de Oracle —qué mutantes mata
+# cada caso— los calcula Oracle acá, al generar la página, y no se escriben a mano.
+_JUEGO = re.compile(r"<!-- juego (\{.*\}) -->")
+TIPOS_DE_JUEGO = ("mision", "predecir", "elegir", "tablero", "cazamutantes", "cierre")
+
+
+def juego(texto: str) -> str:
+    import json
+    datos = json.loads(texto)
+    if datos.get("tipo") not in TIPOS_DE_JUEGO:
+        raise ValueError(f"tipo de juego desconocido: {datos.get('tipo')!r}")
+    if datos["tipo"] == "cazamutantes":
+        datos = {**datos, **_cazamutantes(datos["proyecto"], datos["medida"])}
+    if datos["tipo"] == "tablero":
+        datos = {**datos, **_tablero(datos["proyecto"], datos["medida"])}
+    carga = html.escape(json.dumps(datos, ensure_ascii=False, sort_keys=True), quote=True)
+    return f'<div class="juego juego-{datos["tipo"]}" data-juego="{carga}"></div>'
+
+
+def _medida(proyecto: str, mid: str):
+    sys.path.insert(0, str(RAIZ))
+    from nucleo.proyecto import Proyecto
+    from tools.juzgar import catalogo_para_juzgar
+    return catalogo_para_juzgar(Proyecto(RAIZ / proyecto))[mid]
+
+
+def _tablero(proyecto: str, mid: str) -> dict:
+    """El `donde` canónico de la medida real: el tablero lo evalúa tal cual, no una copia a mano."""
+    datos = _medida(proyecto, mid).a_datos()
+    tuberia = datos[2]
+    donde = [p[1] for p in tuberia[2:] if p[0] == "donde"]
+    if len(donde) != 1 or tuberia[1][0] != "de":
+        raise ValueError(f"{mid}: el tablero necesita una fuente `de` y un solo `donde`")
+    requiere = next((n[1:] for n in datos if isinstance(n, list) and n[:1] == ["requiere"]), [])
+    return {"relacion": tuberia[1][1], "alias": tuberia[1][2], "donde": donde[0],
+            "umbral": datos[4][1:3], "requiere": requiere}
+
+
+def _cazamutantes(proyecto: str, mid: str) -> dict:
+    """La regla, sus mutantes reales y qué caso mata a cuál, calculados por Oracle."""
+    sys.path.insert(0, str(RAIZ))
+    from nucleo import mutacion, sintaxis
+    from nucleo.caso import cargar_casos
+    from nucleo.proyecto import Proyecto
+    from tools.juzgar import catalogo_para_juzgar
+
+    raiz = RAIZ / proyecto
+    medida = catalogo_para_juzgar(Proyecto(raiz))[mid]
+    datos = medida.a_datos()
+
+    def cuerpo(d) -> list[str]:
+        # Sólo las líneas que un mutante puede cambiar; `porque` y `alcance` no se mutan.
+        lineas = sintaxis.imprimir(d).splitlines()[1:]
+        return [re.sub(r" segun .*$", "", l.strip()) for l in lineas
+                if not l.strip().startswith(("ambito", "alcance"))]
+
+    original = cuerpo(datos)
+    casos = sorted((c for c in cargar_casos(raiz / "corpus") if c.get("medida") == mid),
+                   key=lambda c: c["id"])
+    hechos = mutacion.correr({mid: medida}, casos)
+    mata: dict[str, list[str]] = {}
+    for d in hechos["deteccion"]:
+        if (d["invirtio_el_veredicto"] or d["cambio_los_testigos"] or d["cambio_el_valor"]
+                or d["rechazado_por_el_algebra"]):
+            mata.setdefault(d["mutante"].split("·", 1)[1], []).append(d["caso"])
+    return {
+        "regla": original,
+        "casos": [{"id": c["id"], "titulo": c.get("titulo", ""), "etiqueta": c["etiqueta"],
+                   "evidencia": c["evidencia"]} for c in casos],
+        "mutantes": [{"id": nombre, "cambia": [l for l in cuerpo(d) if l not in original],
+                      "quita": [l for l in original if l not in cuerpo(d)],
+                      "muere_con": sorted(mata.get(nombre, []))}
+                     for nombre, d in mutacion.mutantes(datos)],
+    }
+
+
 class Convertidor:
     def __init__(self, origen: Path, salida: Path):
         self.origen, self.salida = origen, salida
@@ -193,6 +272,11 @@ class Convertidor:
                 i += 1
                 continue
             crudo = linea.strip()
+            m_juego = _JUEGO.fullmatch(crudo)
+            if m_juego:
+                salida.append(juego(m_juego.group(1)))
+                i += 1
+                continue
             if crudo.startswith('<p class="pregunta">') and crudo.endswith("</p>"):
                 salida.append(f'<p class="pregunta">{self.linea(crudo[20:-4])}</p>')
                 i += 1
@@ -383,7 +467,7 @@ def pagina(p: Pagina) -> str:
     {"<p class='menu-grupo'>En esta página</p><ul>" + indice + "</ul>" if indice else ""}
   </aside>
 </div>
-<script>
+{f'<script src="{raiz}assets/guia.js" defer></script>{chr(10)}' if 'class="juego ' in cuerpo else ""}<script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {{
   const b = document.createElement("button");

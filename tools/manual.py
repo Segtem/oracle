@@ -13,6 +13,7 @@ perfil de mutación: custodia una afirmación —«el manual está completo»—
 from __future__ import annotations
 
 import argparse
+import re
 import html as _html
 import sys
 from datetime import date
@@ -366,8 +367,9 @@ def html() -> str:
         # Archivo Black a 32px es más ancho que su columna, y sin corte se dibujaba encima de la
         # primera entrada de la columna de al lado. Es el mismo defecto que el del `dt`, en el
         # título de la sección, y sobrevivió al primer arreglo porque miré sólo los términos.
+        rotulo = re.sub(r"`([^`]+)`", r"<code>\1</code>", _html.escape(titulo(tema)))
         partes.append(f'<div class="rotulo"><h2>{_cortable(tema)}</h2>'
-                      f'<p>{_html.escape(titulo(tema))}</p></div>')
+                      f'<p>{rotulo}</p></div>')
         partes.append("<dl>")
         for nombre, sentido in entradas(tema):
             partes.append(f"<dt>{_cortable(nombre)}</dt>"
