@@ -1,6 +1,6 @@
 # Auditoría: dónde puede quedar todavía un falso verde en el núcleo
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle, auditoria, flaqueza
 
@@ -43,3 +43,7 @@ Se completó la auditoría del núcleo y herramientas (`nucleo/` y `tools/`) y s
 ## Próximo paso
 
 Revisar con Brian la recomendación de `RONDA2.md` para declarar `sin_evidencia` como resultado esperado distinto del rojo medido en los casos que prueban `requiere`; decidir si se incorpora esa distinción al esquema de casos y a la aceptación.
+
+### Nota (2026-09-25 21:59:50 UTC)
+
+2026-09-25, Claude: ronda 2 revisada y unida (el falso verde del MCP, con test que fallaba antes). La pregunta de diseño de la fila 2 pasa a su propia tarea, sin-evidencia-esperada, porque cambia la sintaxis de los casos; mientras tanto la mutación cubre el riesgo. Entre las dos rondas quedaron cerrados cuatro falsos verdes (requiere con cabecera sola, unir con tipos, caso descartado sin catálogo base, MCP con medidas sin aplicar) y los caminos de continue/pass de aceptación, mutar, diferencial, corpus, juzgar, cierre y MCP quedaron recorridos con su reproducción en RONDA2.md.
