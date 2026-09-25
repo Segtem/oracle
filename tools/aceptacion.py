@@ -140,7 +140,16 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
         elif inf.veredictos:
             v = inf.veredictos[0]
             if v.ok != esperado_ok:
-                pass          # lo dictamina `meta.el_caso_se_pone_como_debe`, no un `if` de acá
+                # Es el criterio 4 de la especificación, no una política: tiene que fallar también
+                # sin el catálogo base. Antes esto sólo lo dictaminaba
+                # `meta.el_caso_se_pone_como_debe`, y un proyecto con `catalogo_base: false` —el de
+                # la guía de la batalla naval— descartaba el caso en silencio y salía VERDE.
+                esperado = "VERDE" if esperado_ok else "ROJO"
+                estado = "SIN EVIDENCIA" if v.sin_evidencia else ("verde" if v.ok else "ROJO")
+                fallas.append(f"{c['id']}: salió {estado} con {mid} y su etiqueta "
+                              f"«{c['etiqueta']}» pide {esperado}")
+                print(f"  FALLA {c['id']:<38} {mid}  (valor {v.valor}; salió {estado}, "
+                      f"se esperaba {esperado})")
             elif esperado_ok:
                 verdes += 1
                 print(f"  verde {c['id']:<38} {mid}  (valor {v.valor})")

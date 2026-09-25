@@ -13,7 +13,8 @@ from pathlib import Path
 
 from nucleo.algebra import ErrorDeAlgebra
 from nucleo.medida import (Catalogo, Informe, Medida, MedidaMalDeclarada, evaluar_conjunto,
-                           medidas_aplicables, no_aplicadas, relaciones_de_medida)
+                           medidas_aplicables, no_aplicadas, partes_de_lo_que_falla,
+                           relaciones_de_medida)
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,
                              Proyecto, ProyectoInvalido, catalogo_efectivo,
                              ORIGEN_PROYECTO, configuracion, confiar_escalares,
@@ -101,6 +102,10 @@ def _leer_evidencia(ruta_str: str) -> tuple[dict | None, str | None]:
             return None, (f"el valor de la relación «{relacion}» debe ser una lista de filas "
                           f"en «{ruta}»")
         for i, fila in enumerate(filas):
+            # `["clave", [...]]` a la cabeza declara la unicidad (ESPECIFICACION §1); su forma y
+            # los duplicados los valida el núcleo, que es quien los define.
+            if i == 0 and isinstance(fila, list) and fila[:1] == ["clave"]:
+                continue
             if not isinstance(fila, dict):
                 return None, (f"la fila {i} de la relación «{relacion}» debe ser un objeto "
                               f"(recibido {type(fila).__name__}) en «{ruta}»")
@@ -337,8 +342,7 @@ def cmd_juzgar(argv: list[str]) -> int:
 
         lineas += informe.lineas_no_aplicadas()
         if not es_aprobado:
-            partes = ([f"{len(rojos_fuera_de_sombra)} de {len(informe.veredictos)} medidas en rojo"]
-                      if rojos_fuera_de_sombra else [])
+            partes = partes_de_lo_que_falla(rojos_fuera_de_sombra, len(informe.veredictos))
             if informe.no_aplicadas and not parcial:
                 partes.append(f"{len(informe.no_aplicadas)} medidas propias sin aplicar (usá --parcial para una corrida deliberadamente parcial)")
             lineas.append(f"\nVEREDICTO: {', '.join(partes)}")

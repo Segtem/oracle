@@ -683,6 +683,23 @@ def cargar_catalogo(*directorios, registro=None,
     return Catalogo(entradas.values())
 
 
+def partes_de_lo_que_falla(fallan, total: int) -> list[str]:
+    """El resumen de lo que hace fallar una corrida, sin llamar rojo a lo que no se midió.
+
+    Un `SIN EVIDENCIA` no es verde y tampoco es un rojo del mundo (ESPECIFICACION §2): contarlo
+    entre «las medidas en rojo» le decía a quien lee que el producto rompió una regla cuando en
+    realidad faltaron los datos para mirarla.
+    """
+    sin_evidencia = sum(1 for v in fallan if v.sin_evidencia)
+    rojos = len(fallan) - sin_evidencia
+    partes = []
+    if rojos:
+        partes.append(f"{rojos} de {total} medidas en rojo")
+    if sin_evidencia:
+        partes.append(f"{sin_evidencia} de {total} sin evidencia (no se midieron)")
+    return partes
+
+
 @dataclass(frozen=True)
 class Informe:
     veredictos: tuple
@@ -745,9 +762,7 @@ class Informe:
         malas = self.rojos
         perdonadas = len(self.perdonados)
         if malas or self.no_juzgaron:
-            partes = []
-            if malas:
-                partes.append(f"{len(malas)} de {len(self.veredictos)} medidas en rojo")
+            partes = partes_de_lo_que_falla(malas, len(self.veredictos))
             if self.no_juzgaron:
                 partes.append(f"{len(self.no_juzgaron)} no pudieron juzgar")
             lineas.append(f"\nVEREDICTO: {', '.join(partes)}")
