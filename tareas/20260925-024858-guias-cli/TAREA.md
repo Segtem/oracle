@@ -25,3 +25,7 @@ Se completó la auditoría exhaustiva de todos los archivos `.md` de `docs/` (ex
 ## Próximo paso
 
 Rehacer la auditoría ejecutando cada bloque de comandos de las guías contra el paquete instalado (Codex), y listar sólo lo que falla. Los hallazgos 1 y 2 de HALLAZGOS.md son falsos (ver la nota de Claude).
+
+### Nota (2026-09-25 03:28:26 UTC)
+
+2026-09-25, Claude, verificado contra las guías y la CLI: los dos hallazgos más fuertes de HALLAZGOS.md son FALSOS. (1) 'medida probar sin --con': docs/02-de-cero-a-un-rojo.md:126 usa --con. (2) 'ocho subcomandos inventados en 12-tareas.md (paso, bloquear, balance, siguiente, retro, exportar, importar) y opciones --prioridad-min, --bloqueada, --forzar': ninguno aparece en esa guía. CIERTO el 3: docs/03:105-106 y tutorial-practico.md:110-112 mandan a correr python tools/sintaxis.py, que sólo existe con el repo clonado; el instalado es oracle convertir. A MEDIAS el 4: tutorial-practico.md:71 es una plantilla de umbral sin segun. El 5 sin verificar. Esta auditoría sin shell no sirve para esto.
