@@ -21,6 +21,18 @@ Las que el núcleo y la referencia resuelven igual se escriben en la especificac
 hacen; las que resuelven distinto son defectos; las que ninguno resuelve son decisiones de Brian.
 Descartar lo que no se pueda sostener con cita.
 
+## Avance
+
+Se realizó la lectura completa de `ESPECIFICACION.md` contrastando el texto con `nucleo/` (`algebra.py`, `medida.py`, `version.py`) y la implementación de referencia (`diferencial/referencia/evaluador.py`, `diferencial/referencia/DECISIONES.md`).
+Se generó el relevamiento en `tareas/20260925-014900-huecos-spec/HUECOS.md` identificando y documentando 19 preguntas sin contestar con cita exacta `archivo:línea` en cada afirmación:
+- 8 casos de especificación incompleta donde el núcleo y la referencia resuelven igual (lógicos sin cortocircuito, existencia y aridad de `no`, relación ausente en `requiere`, `agrupar` sobre cero filas, prohibición de `resumen` como paso de tubería, prohibición de `sin` como fuente primaria, vocabulario de `ambito`, y cero claves en `agrupar`).
+- 11 casos de defectos por discrepancia entre el núcleo y la referencia (desigualdad `!=` en flotantes, formato y valor de `SIN EVIDENCIA`, forma sintáctica de agregados en `agrupar`, semántica de testigos tras pasos posteriores a `donde`, tipeo booleano estricto vs truthiness en predicados, alcance perezoso vs ansioso de validación de claves, numeración de filas en error de clave, subconsultas en `unir`, tratamiento de literales `None`/`null`, validación de orígenes en `segun`, y discrepancias en nombres y cotas de `LimitesAlgebra`).
+No se corrió ninguna verificación por shell ni suite de tests.
+
 ## Próximo paso
 
-La lectura y la lista.
+Abordar las preguntas listadas en `tareas/20260925-014900-huecos-spec/HUECOS.md`: redactar e incorporar a `ESPECIFICACION.md` los 8 puntos donde núcleo y referencia resuelven igual, y coordinar o resolver la armonización de los 11 defectos identificados donde difieren.
+
+### Nota (2026-09-25 01:56:48 UTC)
+
+2026-09-24, revisión de Claude: verificadas ejecutando núcleo y referencia con la misma entrada: 2.1 (!= entre flotantes: el núcleo levanta, la referencia da False,1), 2.3 (la forma de agrupar de la tabla de §3 la rechaza el núcleo con MedidaMalDeclarada; la referencia acepta las dos) y 2.5 (donde con un número: el núcleo lo toma como verdadero, la referencia levanta; es la tarea predicado-bool). Propuesta: la sección 1 (8 preguntas) se escribe con lo que núcleo y referencia ya hacen; en 2.1, 2.3, 2.7, 2.8, 2.10 y 2.11 se sigue al núcleo (se corrige la especificación o la referencia); 2.2 es una diferencia de interfaz, no de semántica; 2.4 (qué son los testigos si hay pasos después del último donde), 2.5 (predicado-bool), 2.6 (validar claves de toda la evidencia o sólo de la usada) y 2.9 (un null explícito en un hecho) cambian lo que una medida dice y son decisión de Brian.
