@@ -2047,8 +2047,8 @@ class MacrosEnLaSuperficieTests(unittest.TestCase):
         from nucleo.macro import macros_base
         base = pathlib.Path(RAIZ / "nucleo" / "macros")
         self.assertTrue(any(p.suffix == ".oracle" for p in base.iterdir()))
-        self.assertEqual(sorted(macros_base()), ["ninguno", "ninguno-par", "ninguno-requiere",
-                                                 "peor"])
+        self.assertEqual(sorted(macros_base()), ["ninguno", "ninguno-par", "ninguno-par-requiere",
+                                                 "ninguno-requiere", "peor", "peor-requiere"])
 
     def test_el_mismo_nombre_en_los_dos_formatos_es_un_error(self) -> None:
         """No gana ninguno: un ganador silencioso es una divergencia esperando."""

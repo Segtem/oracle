@@ -281,6 +281,18 @@ la expansión.
 | `ninguno-par` | `ninguno-par <id>:\n    relacion <rel>\n    aliasA <a1>\n    aliasB <a2>\n    predicado <pred>\n    porque "..."\n    segun <origen>\n    ambito <ámbito>\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
 | `peor` | `peor <id>:\n    relacion <rel>\n    alias <alias>\n    expresion <expr>\n    tolerancia <tol>\n    porque "..."\n    segun <origen>\n    ambito <ámbito>\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
 
+Las tres macros de la tabla admiten una relación vacía: sirve cuando la relación sólo registra
+infracciones y `[]` significa que no hubo ninguna. Si la relación es el **universo de sujetos**
+que debe examinarse, usá `ninguno-requiere`, `ninguno-par-requiere` o `peor-requiere`.
+Tienen los mismos parámetros y agregan `requiere <relación>` antes de evaluar: una relación
+ausente o vacía produce `SIN EVIDENCIA`. Un `resumen` sobre cero filas sigue dando `0`;
+`requiere` es la guarda ante la ausencia de sujetos.
+
+En `oracle juzgar --con hechos.json`, las medidas propias sin relación en la evidencia se
+informan y hacen fallar la corrida. Para evaluar deliberadamente sólo parte del catálogo,
+usá `--parcial` o seleccioná medidas con `--medida <id>`. Una sombra no perdona
+`SIN EVIDENCIA`, aunque su cota admita el valor numérico del veredicto.
+
 ### `ninguno` — el caso común
 
 ```oracle
@@ -862,7 +874,7 @@ va primero: es lo único que lee la intención.
 | **requiere** | declaración explícita de relaciones necesarias para no emitir veredictos vacíos |
 | **alcance** | lo que la medida explícitamente NO mira — obligatorio, no puede estar vacío |
 | **escalar (UDF)** | una función de dominio declarada con `@escalar`, para lo que el álgebra no sabe hacer sola |
-| **macro** | azúcar sintáctica (`ninguno`, `ninguno-requiere`, `ninguno-par`, `peor`) que expande a la forma canónica |
+| **macro** | azúcar sintáctica (`ninguno`, `ninguno-requiere`, `ninguno-par`, `ninguno-par-requiere`, `peor`, `peor-requiere`) que expande a la forma canónica |
 | **corpus** | la colección de casos reales (defectos y aciertos) que fija que las medidas midan lo que dicen medir |
 | **dominio** | el conjunto de medidas + escenario + implementación de referencia que verifica un proyecto externo (geometría, vault, etc.) |
 | **fixture diferencial** | evidencia versionada + veredicto de una implementación independiente, para comparar contra Oracle |

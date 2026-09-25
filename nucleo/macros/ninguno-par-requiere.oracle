@@ -1,0 +1,12 @@
+# Si la relación es el universo a evaluar, su ausencia impide concluir.
+defmacro ninguno-par-requiere(id, relacion, aliasA, aliasB, predicado, porque, segun, ambito, alcance):
+    guarda $aliasA != $aliasB "los dos alias de «ninguno-par-requiere» tienen que ser distintos"
+    medida $id:
+        de $relacion $aliasA
+        unir $relacion $aliasB
+        donde $predicado
+        resumen contar(1)
+        umbral <= 0 segun $segun porque $porque
+        requiere $relacion
+        ambito $ambito
+        alcance $alcance

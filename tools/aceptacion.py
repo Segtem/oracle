@@ -219,10 +219,11 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
         print(" ", veredicto + salto + resto)
         if v.ok:
             continue
-        if v.id in en_sombra:
+        if v.id in en_sombra and not v.sin_evidencia:
             ensombrecidas.append(v)
         else:
-            fallas.append(f"{v.id}: el marco no cumple su propia regla")
+            motivo = "sin evidencia para juzgar" if v.sin_evidencia else "el marco no cumple su propia regla"
+            fallas.append(f"{v.id}: {motivo}")
 
     # La segunda vuelta: las medidas que juzgan la sombra misma. Van aparte porque necesitan los
     # veredictos de la primera —una sombra «ya en verde» no se puede saber antes de medir—.

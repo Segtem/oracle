@@ -706,7 +706,7 @@ class Informe:
 
     def perdona(self, v) -> bool:
         """Si la sombra le apaga la consecuencia a este veredicto: el mismo criterio que `ok`."""
-        return not v.ok and v.id in self.en_sombra and not self.supera_su_cota(v)
+        return not v.ok and not v.sin_evidencia and v.id in self.en_sombra and not self.supera_su_cota(v)
 
     @property
     def ok(self) -> bool:

@@ -161,6 +161,10 @@ def _recorrer_tareas(oracle: Path, *, temporal: Path, env: dict[str, str]) -> No
     if not opciones_hechos:
         juzgar.extend(["--medida", "seguimiento.referencias_locales_presentes",
                        "--medida", "seguimiento.lectura_sin_omisiones"])
+    else:
+        # Este recorrido verifica el sensor del tracker; la política de aceptación de medidas
+        # necesita evidencia del dominio que el recorrido no genera.
+        juzgar.append("--parcial")
     _correr(juzgar, cwd=temporal, env=env)
     with ruta.open("a", encoding="utf-8") as documento:
         documento.write("\n[Defecto construido](ausente-p3.txt)\n")

@@ -38,6 +38,17 @@ también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
 **Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.30.0`.**
 
+**Decisiones para el corte 0.31.0 (2026-09-25, tarea `verde-diseno`).** Una sombra perdona
+un rojo dentro de su cota, pero nunca un `SIN EVIDENCIA`: falta la relación necesaria para
+juzgar. Las macros `ninguno`, `ninguno-par` y `peor` siguen abiertas: una relación de
+infracciones vacía puede significar éxito. Se agregan `ninguno-par-requiere` y
+`peor-requiere` a `ninguno-requiere`. **Si la relación es el universo a evaluar, se usa la
+variante `-requiere`** para impedir un verde sin sujetos. Los agregados sobre cero filas
+siguen dando `0`, también `max`, `min` y `promedio`; la guarda de existencia es `requiere`,
+no el agregado. `oracle juzgar` sin selección falla con código 1 si alguna medida propia
+no se aplicó; `--parcial` permite explícitamente una corrida modular y `--medida` selecciona
+un subconjunto. `--json` conserva `no_aplicadas` y refleja el resultado en `ok`.
+
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
 los cuales dicen «`VERSION_ALGEBRA` queda en `0.6`». Lo reclamó el autor de la implementación de

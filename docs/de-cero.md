@@ -770,7 +770,8 @@ es la mitad de la respuesta.
 <summary>Ver la respuesta</summary>
 
 Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las
-lista aparte, en `NO SE APLICARON`, para que no confundas «no se miró» con «está bien». Probalo:
+lista aparte, en `NO SE APLICARON`, y falla la corrida completa. Si ejecutás sólo una parte del
+catálogo a propósito, `--parcial` permite esa omisión. Probalo:
 
 </details>
 
@@ -794,11 +795,7 @@ NO SE APLICARON (7) — su relación no vino en la evidencia:
   · naval.veracidad_impacto_negativo: falta tiro
   · naval.veracidad_impacto_positivo: falta tiro
 
-VEREDICTO: verde en 4 medidas. SIN MIRAR:
-  · naval.barcos_dentro_del_tablero: revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.
-  · naval.barcos_sin_solapamiento: detecta pares de celdas distintas del mismo jugador con id1 < id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.
-  · naval.flota_reglamentaria: agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.
-  · naval.ganador_legitimo: comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.
+VEREDICTO: 7 medidas propias sin aplicar (usá --parcial para una corrida deliberadamente parcial)
 ```
 
 Si una regla sale roja, el veredicto trae **testigos**: las filas exactas que ofendieron. Con eso le

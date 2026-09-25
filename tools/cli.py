@@ -46,6 +46,7 @@
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería
     oracle manual aritmetica                suma, resta y producto infijos en expresiones
+    oracle manual macros                    macros abiertas y variantes que requieren evidencia
     oracle manual ambito                    dónde obliga una medida
     oracle manual segun                     de dónde sale el número de un umbral
     oracle manual etiqueta                  qué enseña un caso del corpus

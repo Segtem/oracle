@@ -1,0 +1,10 @@
+# Si la relación es el universo a evaluar, su ausencia impide concluir.
+defmacro peor-requiere(id, relacion, alias, expresion, tolerancia, porque, segun, ambito, alcance):
+    medida $id:
+        de $relacion $alias
+        donde $expresion > $tolerancia
+        resumen max($expresion)
+        umbral <= $tolerancia segun $segun porque $porque
+        requiere $relacion
+        ambito $ambito
+        alcance $alcance

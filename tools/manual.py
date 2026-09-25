@@ -93,7 +93,7 @@ def _lista(vocabulario: dict[str, str]) -> list[tuple[str, str]]:
 
 def temas() -> tuple[str, ...]:
     """Los temas que el manual sabe mostrar, en el orden en que conviene leerlos."""
-    return tuple(VOCABULARIOS) + ("aritmetica", "verbos", "medidas")
+    return tuple(VOCABULARIOS) + ("aritmetica", "macros", "verbos", "medidas")
 
 
 def _verbos() -> dict[str, tuple[str, ...]]:
@@ -125,6 +125,17 @@ def entradas(tema: str) -> list[tuple[str, str]]:
             ("/", "no hay división infija ni escalar de división incorporada; declarà una "
                    "escalar y llamala por su nombre"),
         ]
+    if tema == "macros":
+        from nucleo.macro import macros_base
+        explicaciones = {
+            "ninguno": "cuenta infracciones; una relación vacía significa cero infracciones",
+            "ninguno-par": "cuenta infracciones entre pares; admite una relación vacía",
+            "peor": "mide el peor exceso; admite una relación vacía",
+            "ninguno-requiere": "como ninguno, pero exige filas en la relación de origen",
+            "ninguno-par-requiere": "como ninguno-par, pero exige filas en la relación de origen",
+            "peor-requiere": "como peor, pero exige filas en la relación de origen",
+        }
+        return [(nombre, explicaciones[nombre]) for nombre in sorted(macros_base())]
     if tema == "verbos":
         return [(_nombre_comando(sustantivo), " · ".join(vs))
                 for sustantivo, vs in _verbos().items()]
@@ -138,6 +149,8 @@ def titulo(tema: str) -> str:
         return VOCABULARIOS[tema][0]
     if tema == "aritmetica":
         return "aritmética infija de expresiones"
+    if tema == "macros":
+        return "si la relación es el universo a evaluar, usá la variante -requiere"
     if tema == "verbos":
         return "los verbos del CLI, por sustantivo"
     if tema == "medidas":

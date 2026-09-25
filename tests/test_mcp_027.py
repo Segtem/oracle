@@ -211,7 +211,7 @@ class EvaluarSombrasTests(unittest.TestCase):
             self.assertEqual(res_verde["estado"], "verde")
             self.assertFalse(res_verde["sombra"]["perdona"])
 
-            # 2. Caso sin_evidencia: sin cota, la sombra lo perdona como en juzgar
+            # 2. Caso sin_evidencia: la sombra no puede perdonar la ausencia del sensor
             (raiz / "catalogos" / "demo" / "demo.sombra_verde.json").write_text(json.dumps(
                 _medida("demo.sombra_verde", limite=0, requiere=("item",))), encoding="utf-8")
             res_sin_ev = mcp.evaluar_para_mcp(
@@ -219,7 +219,7 @@ class EvaluarSombrasTests(unittest.TestCase):
                 {"medida": {"id": "demo.sombra_verde"}, "evidencia": {"item": []}},
             )
             self.assertEqual(res_sin_ev["estado"], "sin_evidencia")
-            self.assertTrue(res_sin_ev["sombra"]["perdona"])
+            self.assertFalse(res_sin_ev["sombra"]["perdona"])
 
     def test_sombra_con_cota_dentro_y_fuera_de_cota(self) -> None:
         m = _medida("demo.sombra_cota", limite=0)

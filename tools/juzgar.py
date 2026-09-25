@@ -30,7 +30,7 @@ def ayuda() -> None:
 
 Uso:
   oracle proyecto juzgar --con <hechos.json> [--proyecto <ruta>]
-                         [--confiar-escalares] [--medida <id>]... [--json]
+                         [--confiar-escalares] [--medida <id>]... [--parcial] [--json]
   oracle juzgar --con <hechos.json> ...    (alias directo)
 
 Opciones:
@@ -38,6 +38,7 @@ Opciones:
   --proyecto <ruta>      Ruta al proyecto (por defecto: directorio actual o $ORACLE_PROYECTO)
   --confiar-escalares    Autoriza la ejecución de funciones en escalares.py
   --medida <id>          Evalúa sólo esta medida (repetible, sin duplicados)
+  --parcial              Permite omitir medidas propias sin cambiar los veredictos evaluados
   --json                 Emite el informe como JSON en stdout""")
 
 
@@ -181,6 +182,7 @@ def cmd_juzgar(argv: list[str]) -> int:
     # 1. Parseo de banderas CLI
     ruta_evidencia_str: str | None = None
     es_json = False
+    parcial = False
     medidas_pedidas: list[str] = []
 
     i = 0
@@ -207,6 +209,9 @@ def cmd_juzgar(argv: list[str]) -> int:
             i += 2
         elif arg == "--json":
             es_json = True
+            i += 1
+        elif arg == "--parcial":
+            parcial = True
             i += 1
         elif arg == "--confiar-escalares":
             i += 1
@@ -295,7 +300,7 @@ def cmd_juzgar(argv: list[str]) -> int:
     # en rojo lo decide el informe.
     rojos_fuera_de_sombra = informe.rojos
     rojos_en_sombra = informe.perdonados
-    es_aprobado = informe.ok
+    es_aprobado = informe.ok and (parcial or not informe.no_aplicadas)
 
     if es_json:
         medidas_json = []
@@ -332,7 +337,11 @@ def cmd_juzgar(argv: list[str]) -> int:
 
         lineas += informe.lineas_no_aplicadas()
         if not es_aprobado:
-            lineas.append(f"\nVEREDICTO: {len(rojos_fuera_de_sombra)} de {len(informe.veredictos)} medidas en rojo")
+            partes = ([f"{len(rojos_fuera_de_sombra)} de {len(informe.veredictos)} medidas en rojo"]
+                      if rojos_fuera_de_sombra else [])
+            if informe.no_aplicadas and not parcial:
+                partes.append(f"{len(informe.no_aplicadas)} medidas propias sin aplicar (usá --parcial para una corrida deliberadamente parcial)")
+            lineas.append(f"\nVEREDICTO: {', '.join(partes)}")
         else:
             if len(rojos_en_sombra) == len(informe.veredictos):
                 lineas.append(

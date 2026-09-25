@@ -5596,7 +5596,7 @@ VEREDICTO: verde en 11 medidas. SIN MIRAR:
 <p class="pregunta"><strong>Pensalo.</strong> ¿Y si el juego se olvidara de anotar los tiros?</p>
 <details>
 <summary>Ver la respuesta</summary>
-<p>Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las lista aparte, en <code>NO SE APLICARON</code>, para que no confundas «no se miró» con «está bien». Probalo:</p>
+<p>Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las lista aparte, en <code>NO SE APLICARON</code>, y falla la corrida completa. Si ejecutás sólo una parte del catálogo a propósito, <code>--parcial</code> permite esa omisión. Probalo:</p>
 </details>
 <pre data-lenguaje="bash"><code>python3 -c &quot;import json; d = json.load(open(&#x27;hechos_partida.json&#x27;)); json.dump({&#x27;celda_barco&#x27;: d[&#x27;celda_barco&#x27;], &#x27;partida&#x27;: d[&#x27;partida&#x27;]}, open(&#x27;sin-tiros.json&#x27;, &#x27;w&#x27;))&quot;
 oracle juzgar --con sin-tiros.json</code></pre>
@@ -5614,11 +5614,7 @@ NO SE APLICARON (7) — su relación no vino en la evidencia:
   · naval.veracidad_impacto_negativo: falta tiro
   · naval.veracidad_impacto_positivo: falta tiro
 
-VEREDICTO: verde en 4 medidas. SIN MIRAR:
-  · naval.barcos_dentro_del_tablero: revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.
-  · naval.barcos_sin_solapamiento: detecta pares de celdas distintas del mismo jugador con id1 &lt; id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.
-  · naval.flota_reglamentaria: agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.
-  · naval.ganador_legitimo: comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.</code></pre>
+VEREDICTO: 7 medidas propias sin aplicar (usá --parcial para una corrida deliberadamente parcial)</code></pre>
 <p>Si una regla sale roja, el veredicto trae <strong>testigos</strong>: las filas exactas que ofendieron. Con eso le volvés a hablar al modelo con precisión: «el tiro del turno 14 se marcó como impacto y no había barco en esa casilla; corregilo».</p>
 <h2 id="paso-9--qué-le-falta-a-este-juego">Paso 9 · Qué le falta a este juego<a class="ancla" href="#paso-9--qué-le-falta-a-este-juego" aria-label="Enlace a esta sección">#</a></h2>
 <p>Once reglas miran lo principal, no todo. Ninguna mira hoy:</p>

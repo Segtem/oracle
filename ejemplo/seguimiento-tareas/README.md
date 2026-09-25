@@ -23,7 +23,9 @@ oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.jso
 
 `oracle juzgar` carga el catálogo efectivo de este proyecto, evalúa las medidas aplicables a esa
 evidencia y muestra veredictos y testigos. Sale 0 si pasan, 1 si hay un rojo fuera de sombra o
-ninguna medida aplica, y 2 si la entrada o el proyecto son inválidos. `--medida` restringe a una
+alguna medida propia no se aplicó o ninguna medida aplica, y 2 si la entrada o el proyecto son inválidos.
+Si el sensor aporta deliberadamente sólo parte de las relaciones, `--parcial` permite omitir
+medidas propias y conserva la lista `no_aplicadas` en el informe. `--medida` restringe a una
 política y se puede repetir:
 
 ```bash

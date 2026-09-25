@@ -84,13 +84,13 @@
   "razon": "Al ejecutar este script, sys.path[0] es tools/, que no contiene paquetes homónimos de los imports calificados del verificador. Insertar RAIZ en índice 0 o 1 resuelve los mismos módulos para este punto de entrada; la única diferencia es una prioridad frente a tools/ que ningún import usa. Es el mismo caso ya documentado para mutar.py, trazar.py y generar_diferencial.py."
  },
  {
-  "id": "tools/verificar_instalacion.py:220:41:constante",
+  "id": "tools/verificar_instalacion.py:224:41:constante",
   "linea_texto": "comandos = readme.split(\"```bash\\n\", 1)[1].split(\"```\", 1)[0].splitlines()",
   "ordinal": 1,
   "razon": "split(\"```bash\\n\", 1)[1] y split(..., 2)[1] sólo difieren si hay un segundo bloque bash. En ese caso el siguiente split(\"```\", 1)[0] corta en el cierre del primer bloque, antes de ese segundo bloque. La lista de comandos resulta idéntica para todo README con primer bloque cerrado; sin cierre, ambos conservan el mismo prefijo."
  },
  {
-  "id": "tools/verificar_instalacion.py:220:60:constante",
+  "id": "tools/verificar_instalacion.py:224:60:constante",
   "linea_texto": "comandos = readme.split(\"```bash\\n\", 1)[1].split(\"```\", 1)[0].splitlines()",
   "ordinal": 1,
   "razon": "split(\"```\", 1)[0] y split(\"```\", 2)[0] producen exactamente la subcadena anterior al primer cierre para cualquier texto. El máximo de separaciones sólo afecta partes posteriores que el índice [0] descarta."

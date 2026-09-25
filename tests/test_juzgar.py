@@ -164,7 +164,8 @@ class TestVeredictosYSalidas(BaseJuzgarTest):
         rc, out, err = self.correr_cli(
             "juzgar", "--con", str(con), "--proyecto", str(self.proyecto),
         )
-        self.assertEqual(rc, 0, out + err)
+        self.assertEqual(rc, 1, out + err)
+        self.assertIn("medidas propias sin aplicar", out)
         self.assertIn(POLITICA_REFERENCIAS, out)
         self.assertIn(POLITICA_LECTURA, out)
 
@@ -364,7 +365,7 @@ class TestAyudasYNoMutacion(BaseJuzgarTest):
         self.assertIn("oracle proyecto juzgar", out2)
 
         rc3, _, _ = self.correr_cli(
-            "juzgar", "--con", str(con), "--proyecto", str(self.proyecto), "--json"
+            "juzgar", "--con", str(con), "--proyecto", str(self.proyecto), "--parcial", "--json"
         )
         self.assertEqual(rc3, 0)
         self.assertEqual(self.instantanea_archivos(), antes)

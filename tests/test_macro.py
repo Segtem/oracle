@@ -73,6 +73,21 @@ class ExpansionTests(unittest.TestCase):
         # y la expresión es LA MISMA en el filtro y en el resumen: no hay dos copias que divergir
         self.assertIs(d[2][2][1][1], d[3][2])
 
+    def test_macros_requiere_cubren_el_universo_sin_cambiar_las_abiertas(self) -> None:
+        casos = (
+            ("ninguno", ["d.n", "pieza", "p", PRED, "razón", "contrato", "universal", "NO ve"]),
+            ("peor", ["d.p", "pieza", "p", ["campo", "p", "valor"], 0,
+                       "razón", "contrato", "universal", "NO ve"]),
+            ("ninguno-par", ["d.par", "pieza", "a", "b", PRED,
+                              "razón", "contrato", "universal", "NO ve"]),
+        )
+        for nombre, argumentos in casos:
+            with self.subTest(macro=nombre):
+                abierta = expandir([nombre, *argumentos])
+                cerrada = expandir([nombre + "-requiere", *argumentos])
+                self.assertNotIn(["requiere", "pieza"], abierta)
+                self.assertEqual(cerrada, [*abierta[:-2], ["requiere", "pieza"], *abierta[-2:]])
+
     def test_cada_macro_exige_su_cantidad_de_argumentos(self) -> None:
         for nombre in macros_base():
             with self.subTest(macro=nombre):
@@ -221,7 +236,8 @@ class DeclaracionTests(unittest.TestCase):
     def test_las_universales_salen_de_datos_y_no_de_python(self) -> None:
         archivos = {p.stem for p in DIRECTORIO_BASE.iterdir()
                     if p.suffix in EXTENSIONES_DE_MACRO and p.is_file()}
-        self.assertEqual(archivos, {"ninguno", "ninguno-par", "ninguno-requiere", "peor"})
+        self.assertEqual(archivos, {"ninguno", "ninguno-par", "ninguno-requiere",
+                                    "ninguno-par-requiere", "peor", "peor-requiere"})
         self.assertEqual(set(macros_base()), archivos)
         for macro in macros_base().values():
             self.assertIsInstance(macro, Macro)

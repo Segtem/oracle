@@ -118,7 +118,7 @@ class CierreIntegracionTests(unittest.TestCase):
                 self.assertIs(medida["ok"], esperado)
                 if caso == "sombra":
                     rc, out, err = self.llamar(["juzgar", "--proyecto", str(self.proyecto),
-                                               "--con", str(self.evidencia), "--json"])
+                                               "--con", str(self.evidencia), "--parcial", "--json"])
                     self.assertEqual(rc, 0, err)
                     self.assertIs(json.loads(out)["medidas"][0]["ok"], False)
 

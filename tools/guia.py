@@ -80,7 +80,8 @@ def correr(comando: str, cwd: Path, temporal: Path) -> tuple[str, Path]:
                        stderr=subprocess.STDOUT, text=True, timeout=180)
     salida = normalizar(p.stdout, temporal)
     if p.returncode and not ("VEREDICTO: ROJO" in salida or
-                             (" medidas en rojo" in salida and argumentos[2] == "juzgar")):
+                             ((" medidas en rojo" in salida or " medidas propias sin aplicar" in salida)
+                              and argumentos[2] == "juzgar")):
         raise RuntimeError(f"Falló `{comando}` (código {p.returncode}):\n{salida}")
     return salida, cwd
 

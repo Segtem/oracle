@@ -58,6 +58,21 @@ class CotaDeLaSombraTests(BaseJuzgarTest):
         self.assertFalse(informe.ok)
         self.assertIn("SUPERA SU COTA 1", informe.texto())
 
+    def test_sombra_no_perdona_sensor_sin_evidencia_en_cli(self) -> None:
+        ruta = self.proyecto / "oracle.json"
+        config = json.loads(ruta.read_text(encoding="utf-8"))
+        config["sombra"] = {POLITICA_LECTURA: {"desde": "2026-09-25", "porque": "deuda",
+                                               "cota": 0}}
+        ruta.write_text(json.dumps(config), encoding="utf-8")
+        con = self.escribir_evidencia({"lectura_seguimiento": []})
+        rc, out, err = self.correr_cli("juzgar", "--con", str(con),
+                                       "--proyecto", str(self.proyecto),
+                                       "--medida", POLITICA_LECTURA, "--json")
+        self.assertEqual(rc, 1, out + err)
+        datos = json.loads(out)
+        self.assertFalse(datos["ok"])
+        self.assertEqual(datos["medidas"][0]["sin_evidencia"], "lectura_seguimiento")
+
 
 class InformeTests(unittest.TestCase):
     def _v(self, valor) -> Veredicto:
@@ -83,6 +98,16 @@ class InformeTests(unittest.TestCase):
         self.assertFalse(Informe((self._v(1),), en_sombra=frozenset({"d.x"}),
                                  cotas=(("d.x", 0),)).ok)
 
+    def test_sombra_no_perdona_sin_evidencia_aun_con_cota(self) -> None:
+        v = Veredicto(id="d.x", valor=0, ok=False, umbral="<= 0", porque="p",
+                      alcance="a", testigos=[], sin_evidencia="pieza")
+        for cotas in ((), (("d.x", 0),)):
+            with self.subTest(cotas=cotas):
+                informe = Informe((v,), en_sombra=frozenset({"d.x"}), cotas=cotas)
+                self.assertFalse(informe.ok)
+                self.assertEqual(informe.rojos, (v,))
+                self.assertEqual(informe.perdonados, ())
+
 
 class NoAplicadasTests(BaseJuzgarTest):
     def _evidencia(self):
@@ -92,7 +117,7 @@ class NoAplicadasTests(BaseJuzgarTest):
         con = self.escribir_evidencia(self._evidencia())
         rc, out, err = self.correr_cli("juzgar", "--con", str(con),
                                        "--proyecto", str(self.proyecto))
-        self.assertEqual(rc, 0, out + err)
+        self.assertEqual(rc, 1, out + err)
         self.assertIn("NO SE APLICARON", out)
         self.assertIn(f"{POLITICA_LECTURA}: falta lectura_seguimiento", out)
         # Las heredadas juzgan el catálogo, no esta evidencia: no se listan.
@@ -102,7 +127,8 @@ class NoAplicadasTests(BaseJuzgarTest):
         con = self.escribir_evidencia(self._evidencia())
         rc, out, _ = self.correr_cli("juzgar", "--con", str(con),
                                      "--proyecto", str(self.proyecto), "--json")
-        self.assertEqual(rc, 0)
+        self.assertEqual(rc, 1)
+        self.assertIs(json.loads(out)["ok"], False)
         faltantes = {f["id"]: f["faltan"] for f in json.loads(out)["no_aplicadas"]}
         self.assertEqual(faltantes[POLITICA_LECTURA], ["lectura_seguimiento"])
         self.assertNotIn(POLITICA_REFERENCIAS, faltantes)
@@ -113,6 +139,14 @@ class NoAplicadasTests(BaseJuzgarTest):
                                      str(self.proyecto), "--medida", POLITICA_REFERENCIAS)
         self.assertEqual(rc, 0)
         self.assertNotIn("NO SE APLICARON", out)
+
+    def test_parcial_permite_omitir_medidas_propias(self) -> None:
+        con = self.escribir_evidencia(self._evidencia())
+        rc, out, err = self.correr_cli("juzgar", "--con", str(con),
+                                       "--proyecto", str(self.proyecto), "--parcial", "--json")
+        self.assertEqual(rc, 0, out + err)
+        self.assertTrue(json.loads(out)["ok"])
+        self.assertTrue(json.loads(out)["no_aplicadas"])
 
     def test_el_motor_tambien_las_nombra(self) -> None:
         informe = Motor.desde_proyecto(self.proyecto).evaluar(self._evidencia())
