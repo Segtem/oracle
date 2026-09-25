@@ -37,7 +37,29 @@
 oracle init batalla-naval
 cd batalla-naval
 oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>Proyecto Oracle inicializado en batalla-naval:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso &lt;grupo/id&gt;
+  2. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
+  3. Verificá todo:    oracle test
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS: sin casos guardados para verificar
+SINTAXIS: salteado (sin medidas ni casos todavía)
+ACEPTACIÓN: salteado (sin medidas ni casos todavía)
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+MUTACIÓN: salteada (sin medidas todavía)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+PRODUCTO: sin nueva medición; no se ejecutó el producto.
+VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)</code></pre>
 <p><strong>Si ves otra cosa.</strong> Si dice <code>oracle: command not found</code>, cerrá y abrí la terminal: <code>uv</code> agrega <code>oracle</code> al <code>PATH</code> pero la terminal abierta no se entera.</p>
 <details>
 <summary>¿Por qué dice «sin medición» y no «verde»?</summary>
@@ -2920,7 +2942,31 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
     leccion:
         Una celda <span class="c-kw">de</span> barco cae en fila 10.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+
+catálogo: 0 medidas · corpus: 1 casos
+
+
+defectos que se pusieron rojos: 0 · verdes correctos: 0 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✗ — 1 problema(s)
+  · 005-barco-fila-desbordada: reclama la medida «naval.barcos_dentro_del_tablero» y no está en el catálogo
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada (sin medidas todavía)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: aceptación)</code></pre>
 <p>Rojo, y está bien: el caso reclama una regla que todavía no existe. Ahora sí, la regla. En Oracle se llama <strong>medida</strong>:</p>
 <pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno</span> naval.barcos_dentro_del_tablero:
     <span class="c-kw">de</span> celda_barco c
@@ -2935,7 +2981,50 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
 <p>Lo dice su <code>alcance</code>: no mira si dos barcos se pisan ni si un barco es una línea continua. Un verde de esta regla no promete eso. Por eso el <code>alcance</code> es obligatorio: un verde que no dice qué dejó sin mirar se lee como «está todo bien».</p>
 </details>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 1 casos
+
+catálogo: 1 medidas · corpus: 1 casos
+
+  ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
+
+defectos que se pusieron rojos: 1 · verdes correctos: 0 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 1 defectos en rojo, 0 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 18 · murieron 10 · sobrevivieron 8
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 10 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 18
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+lo que el corpus NO fija — ningún caso detecta estas mutaciones:
+  · mutar «quitar_filtro» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «alejar_limite_de_defecto» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «expresion:comparador@2.2.1.1:&lt;→&gt;=» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «expresion:comparador@2.2.1.3:&lt;→&gt;=» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «expresion:comparador@2.2.1.4:&gt;→&lt;=» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.1.1.2:fila→columna» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.3.1.2:columna→fila» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.4.1.2:columna→fila» en naval.barcos_dentro_del_tablero pasa inadvertido
+
+Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual
+demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:
+`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: mutación)</code></pre>
 <h2 id="paso-6--un-caso-rojo-no-alcanza-la-mutación">Paso 6 · Un caso rojo no alcanza: la mutación<a class="ancla" href="#paso-6--un-caso-rojo-no-alcanza-la-mutación" aria-label="Enlace a esta sección">#</a></h2>
 <p>Todavía rojo, pero por otra razón: <strong>sobreviven mutantes</strong>. Oracle debilita tu regla a propósito (afloja el umbral, invierte una comparación, le quita el filtro) y se fija si tus casos lo notan. A cada versión debilitada la llama <strong>mutante</strong>.</p>
 <p class="pregunta"><strong>Pensalo.</strong> Si Oracle le quita el <code>donde</code> a la regla, pasa a contar todas las casillas. Tu único caso sigue saliendo rojo. ¿Qué caso haría falta para que se note?</p>
@@ -2962,7 +3051,47 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
     leccion:
         La celda <span class="c-kw">de</span> barco está en el borde válido.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 2 casos
+
+catálogo: 1 medidas · corpus: 2 casos
+
+  ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
+  verde 006-barco-en-borde                     naval.barcos_dentro_del_tablero  (valor 0)
+
+defectos que se pusieron rojos: 1 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 1 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 18 · murieron 14 · sobrevivieron 4
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 14 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 36
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+lo que el corpus NO fija — ningún caso detecta estas mutaciones:
+  · mutar «alejar_limite_de_defecto» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.1.1.2:fila→columna» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.3.1.2:columna→fila» en naval.barcos_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.4.1.2:columna→fila» en naval.barcos_dentro_del_tablero pasa inadvertido
+
+Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual
+demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:
+`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: mutación)</code></pre>
 <p>Quedan mutantes vivos. La regla tiene cuatro formas de ofender (fila menor que 0, fila mayor que 9, columna menor que 0, columna mayor que 9) y tu caso rojo sólo prueba una. Los otros tres casos rojos:</p>
 <pre class="archivo" data-lenguaje="corpus/naval/026-barco-columna-desbordada.caso"><code><span class="c-kw">caso</span> 026-barco-columna-desbordada:
     fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
@@ -3019,7 +3148,40 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
     leccion:
         Una celda <span class="c-kw">de</span> barco cae en columna negativa.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 5 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 5 casos
+
+catálogo: 1 medidas · corpus: 5 casos
+
+  ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
+  verde 006-barco-en-borde                     naval.barcos_dentro_del_tablero  (valor 0)
+  ROJO  026-barco-columna-desbordada           naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
+
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 4 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 18 · murieron 18 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 18 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 90
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <p><strong>Verde, y ahora el verde significa algo</strong>: cada forma de debilitar la regla la nota algún caso.</p>
 <h2 id="paso-7--diez-reglas-más-y-la-trampa-de-los-pocos-casos">Paso 7 · Diez reglas más, y la trampa de los pocos casos<a class="ancla" href="#paso-7--diez-reglas-más-y-la-trampa-de-los-pocos-casos" aria-label="Enlace a esta sección">#</a></h2>
 <p>El juego tiene más reglas. Pegá las diez que faltan de una vez, cada una con su idea:</p>
@@ -3151,7 +3313,73 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
 <p>Que la mayoría de las reglas no las prueba nadie. Una regla sin casos que puedan romperla es decoración: puede estar mal escrita y dar verde siempre, y nunca te vas a enterar.</p>
 </details>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 7 casos · esquema, evidencia L0 y trazabilidad en regla
+
+MEDIDAS SIN CASOS ✗ — 9 medida(s) propias sin ejercitar:
+  · naval.alternancia_turnos: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.barcos_sin_solapamiento: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.fin_de_juego_sin_tiros_posteriores: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.flota_reglamentaria: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.ganador_legitimo: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.tiros_sin_repeticion: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.turnos_sin_huecos: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.veracidad_impacto_negativo: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.veracidad_impacto_positivo: escribí un caso rojo y uno verde que ejerzan esta medida
+
+SINTAXIS OK · 11 medidas · 0 macros · 7 casos
+
+catálogo: 11 medidas · corpus: 7 casos
+
+  ROJO  001-tiro-fuera-de-tablero              naval.tiros_dentro_del_tablero  (valor 1)
+  verde 002-tiro-valido                        naval.tiros_dentro_del_tablero  (valor 0)
+  ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
+  verde 006-barco-en-borde                     naval.barcos_dentro_del_tablero  (valor 0)
+  ROJO  026-barco-columna-desbordada           naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
+
+defectos que se pusieron rojos: 5 · verdes correctos: 2 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 5 defectos en rojo, 2 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 36 · murieron 32 · sobrevivieron 4
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 32 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 126
+
+medidas que no se pudieron mutar por falta de casos:
+  · naval.alternancia_turnos: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.barcos_sin_solapamiento: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.fin_de_juego_sin_tiros_posteriores: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.flota_reglamentaria: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.ganador_legitimo: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.tiros_sin_repeticion: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.turnos_sin_huecos: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.veracidad_impacto_negativo: escribí un caso rojo y uno verde que ejerzan esta medida
+  · naval.veracidad_impacto_positivo: escribí un caso rojo y uno verde que ejerzan esta medida
+sin políticas meta activas — se informa sólo el resultado operativo
+
+lo que el corpus NO fija — ningún caso detecta estas mutaciones:
+  · mutar «alejar_limite_de_defecto» en naval.tiros_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.1.1.2:fila→columna» en naval.tiros_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.3.1.2:columna→fila» en naval.tiros_dentro_del_tablero pasa inadvertido
+  · mutar «campo:2.2.1.4.1.2:columna→fila» en naval.tiros_dentro_del_tablero pasa inadvertido
+
+Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual
+demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:
+`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
 <p>Los casos que faltan: para cada regla, al menos uno que la ponga roja cerca del borde y uno verde.</p>
 <details>
 <summary>Ver los casos que faltan</summary>
@@ -3678,12 +3906,1688 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
         El tiro ocurre en el turno final permitido.</code></pre>
 </details>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 33 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 11 medidas · 0 macros · 33 casos
+
+catálogo: 11 medidas · corpus: 33 casos
+
+  ROJO  001-tiro-fuera-de-tablero              naval.tiros_dentro_del_tablero  (valor 1)
+  verde 002-tiro-valido                        naval.tiros_dentro_del_tablero  (valor 0)
+  ROJO  003-mismo-tirador-seguido              naval.alternancia_turnos  (valor 1)
+  verde 004-tiradores-alternos                 naval.alternancia_turnos  (valor 0)
+  ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
+  verde 006-barco-en-borde                     naval.barcos_dentro_del_tablero  (valor 0)
+  ROJO  007-barcos-superpuestos                naval.barcos_sin_solapamiento  (valor 1)
+  verde 008-barcos-separados                   naval.barcos_sin_solapamiento  (valor 0)
+  ROJO  009-tiro-despues-del-final             naval.fin_de_juego_sin_tiros_posteriores  (valor 1)
+  verde 010-tiro-en-turno-final                naval.fin_de_juego_sin_tiros_posteriores  (valor 0)
+  ROJO  011-flota-de-dieciseis                 naval.flota_reglamentaria  (valor 1)
+  verde 012-flota-de-diecisiete                naval.flota_reglamentaria  (valor 0)
+  ROJO  013-ganador-con-dieciseis-impactos     naval.ganador_legitimo  (valor 1)
+  verde 014-ganador-con-diecisiete-impactos    naval.ganador_legitimo  (valor 0)
+  ROJO  015-tiro-repetido                      naval.tiros_sin_repeticion  (valor 1)
+  verde 016-tiros-distintos                    naval.tiros_sin_repeticion  (valor 0)
+  ROJO  017-turno-saltado                      naval.turnos_sin_huecos  (valor 1)
+  verde 018-turnos-contiguos                   naval.turnos_sin_huecos  (valor 0)
+  ROJO  019-barco-reportado-como-agua          naval.veracidad_impacto_negativo  (valor 1)
+  verde 020-agua-reportada-como-agua           naval.veracidad_impacto_negativo  (valor 0)
+  ROJO  021-impacto-fantasma                   naval.veracidad_impacto_positivo  (valor 1)
+  verde 022-impacto-real                       naval.veracidad_impacto_positivo  (valor 0)
+  ROJO  023-columna-desbordada                 naval.tiros_dentro_del_tablero  (valor 1)
+  ROJO  024-fila-negativa                      naval.tiros_dentro_del_tablero  (valor 1)
+  ROJO  025-columna-negativa                   naval.tiros_dentro_del_tablero  (valor 1)
+  ROJO  026-barco-columna-desbordada           naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
+  ROJO  029-flota-sin-celdas                   naval.flota_reglamentaria  (valor 0)
+  ROJO  030-sin-tiros-registrados              naval.turnos_sin_huecos  (valor 0)
+  verde 031-distinta-fila-igual-turno-ajeno    naval.tiros_sin_repeticion  (valor 0)
+  verde 032-agua-declarada-agua                naval.veracidad_impacto_positivo  (valor 0)
+  verde 033-fila-confundida-con-turno          naval.tiros_sin_repeticion  (valor 0)
+
+defectos que se pusieron rojos: 19 · verdes correctos: 14 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 19 defectos en rojo, 14 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 209 · murieron 209 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 158 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 51 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 634
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <p>Once reglas, cada una con casos que la pueden romper, y ningún mutante vivo.</p>
 <h2 id="paso-8--juzgar-una-partida-de-verdad">Paso 8 · Juzgar una partida de verdad<a class="ancla" href="#paso-8--juzgar-una-partida-de-verdad" aria-label="Enlace a esta sección">#</a></h2>
 <p>Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel de auditoría y descargá <code>hechos_partida.json</code> en la carpeta del proyecto. (Si todavía no jugaste, podés <a href="https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json" rel="noopener">bajar la partida del ejemplo</a> y guardarla con ese nombre.)</p>
+<details>
+<summary>Ver la partida del ejemplo (hechos_partida.json)</summary>
+<pre class="archivo" data-lenguaje="hechos_partida.json"><code>{
+  &quot;celda_barco&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 1,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 2,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 3,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 4,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 4,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 5,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 6,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 7,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 8,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 9,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 10,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 11,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 12,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 2
+    },
+    {
+      &quot;id&quot;: 13,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 3
+    },
+    {
+      &quot;id&quot;: 14,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 4
+    },
+    {
+      &quot;id&quot;: 15,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 16,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 17,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 2
+    },
+    {
+      &quot;id&quot;: 18,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 3
+    },
+    {
+      &quot;id&quot;: 19,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 4
+    },
+    {
+      &quot;id&quot;: 20,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 5
+    },
+    {
+      &quot;id&quot;: 21,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 4,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 22,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 5
+    },
+    {
+      &quot;id&quot;: 23,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 24,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 25,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 8
+    },
+    {
+      &quot;id&quot;: 26,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 1
+    },
+    {
+      &quot;id&quot;: 27,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 2
+    },
+    {
+      &quot;id&quot;: 28,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 3
+    },
+    {
+      &quot;id&quot;: 29,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 4
+    },
+    {
+      &quot;id&quot;: 30,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 5
+    },
+    {
+      &quot;id&quot;: 31,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 32,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 8
+    },
+    {
+      &quot;id&quot;: 33,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 8
+    }
+  ],
+  &quot;tiro&quot;: [
+    {
+      &quot;turno&quot;: 0,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 1,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 2,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 3,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 4,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 5,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 6,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 7,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 8,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 9,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 10,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 11,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 12,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 13,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 14,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 15,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 16,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 17,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 18,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 19,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 20,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 21,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 22,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 23,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 24,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 25,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;submarino&quot;
+    },
+    {
+      &quot;turno&quot;: 26,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 27,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 28,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 29,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 30,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 31,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 32,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 33,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 34,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 35,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 36,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 37,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 38,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 39,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 40,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 41,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 42,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;destructor&quot;
+    },
+    {
+      &quot;turno&quot;: 43,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 44,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 45,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 46,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 47,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;acorazado&quot;
+    },
+    {
+      &quot;turno&quot;: 48,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 49,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 50,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 51,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 52,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 53,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 54,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 55,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 56,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 57,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 58,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 59,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 60,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 61,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 62,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 63,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 64,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 65,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 66,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 67,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 68,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 69,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 70,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 71,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 72,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 73,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 74,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 75,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;crucero&quot;
+    },
+    {
+      &quot;turno&quot;: 76,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 77,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 78,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 79,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 80,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 81,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 82,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 83,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 84,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 85,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 86,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 87,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 88,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 89,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 90,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 91,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 92,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 93,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 94,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 95,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 96,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 97,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 98,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 7,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 99,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 100,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 101,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 102,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 103,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 104,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 105,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 106,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 107,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 108,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 0,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 109,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 110,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 111,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 112,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 113,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 114,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;submarino&quot;
+    },
+    {
+      &quot;turno&quot;: 115,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 116,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 9,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 117,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 118,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 4,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 119,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 120,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 3,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 121,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;portaaviones&quot;
+    },
+    {
+      &quot;turno&quot;: 122,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 2,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 123,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 1,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 124,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 125,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 126,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 6,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 127,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 128,
+      &quot;tirador&quot;: &quot;jugador&quot;,
+      &quot;receptor&quot;: &quot;cpu&quot;,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 5,
+      &quot;es_impacto&quot;: false,
+      &quot;hundio_barco&quot;: false,
+      &quot;barco_hundido&quot;: &quot;ninguno&quot;
+    },
+    {
+      &quot;turno&quot;: 129,
+      &quot;tirador&quot;: &quot;cpu&quot;,
+      &quot;receptor&quot;: &quot;jugador&quot;,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 8,
+      &quot;es_impacto&quot;: true,
+      &quot;hundio_barco&quot;: true,
+      &quot;barco_hundido&quot;: &quot;destructor&quot;
+    }
+  ],
+  &quot;partida&quot;: [
+    {
+      &quot;estado&quot;: &quot;terminada&quot;,
+      &quot;ganador&quot;: &quot;cpu&quot;,
+      &quot;perdedor&quot;: &quot;jugador&quot;,
+      &quot;turno_final&quot;: 129,
+      &quot;total_tiros&quot;: 130,
+      &quot;impactos_ganador&quot;: 17,
+      &quot;impactos_perdedor&quot;: 12
+    }
+  ]
+}</code></pre>
+</details>
 <pre data-lenguaje="bash"><code>oracle juzgar --con hechos_partida.json</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>✓ naval.alternancia_turnos                            0 (&lt;= 0)
+✓ naval.barcos_dentro_del_tablero                     0 (&lt;= 0)
+✓ naval.barcos_sin_solapamiento                       0 (&lt;= 0)
+✓ naval.fin_de_juego_sin_tiros_posteriores            0 (&lt;= 0)
+✓ naval.flota_reglamentaria                           0 (&lt;= 0)
+✓ naval.ganador_legitimo                              0 (&lt;= 0)
+✓ naval.tiros_dentro_del_tablero                      0 (&lt;= 0)
+✓ naval.tiros_sin_repeticion                          0 (&lt;= 0)
+✓ naval.turnos_sin_huecos                             0 (&lt;= 0)
+✓ naval.veracidad_impacto_negativo                    0 (&lt;= 0)
+✓ naval.veracidad_impacto_positivo                    0 (&lt;= 0)
+
+VEREDICTO: verde en 11 medidas. SIN MIRAR:
+  · naval.alternancia_turnos: compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo.
+  · naval.barcos_dentro_del_tablero: revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.
+  · naval.barcos_sin_solapamiento: detecta pares de celdas distintas del mismo jugador con id1 &lt; id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.
+  · naval.fin_de_juego_sin_tiros_posteriores: compara el turno de cada tiro contra el turno final registrado en el estado de la partida. No valida si la partida debió terminar antes.
+  · naval.flota_reglamentaria: agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.
+  · naval.ganador_legitimo: comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.
+  · naval.tiros_dentro_del_tablero: comprueba que las coordenadas de cada disparo estén en el rango [0, 9]. No comprueba si el casillero ya fue disparado previamente ni la validez del turno.
+  · naval.tiros_sin_repeticion: detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.
+  · naval.turnos_sin_huecos: compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores.
+  · naval.veracidad_impacto_negativo: cruza cada disparo contra las celdas de la flota rival y detecta impactos omitidos registrados falsamente como agua. No verifica la secuencia de turnos.
+  · naval.veracidad_impacto_positivo: detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido.</code></pre>
 <p class="pregunta"><strong>Pensalo.</strong> Todo verde. ¿Quiere decir que el juego está bien?</p>
 <details>
 <summary>Ver la respuesta</summary>
@@ -3696,7 +5600,25 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
 </details>
 <pre data-lenguaje="bash"><code>python3 -c &quot;import json; d = json.load(open(&#x27;hechos_partida.json&#x27;)); json.dump({&#x27;celda_barco&#x27;: d[&#x27;celda_barco&#x27;], &#x27;partida&#x27;: d[&#x27;partida&#x27;]}, open(&#x27;sin-tiros.json&#x27;, &#x27;w&#x27;))&quot;
 oracle juzgar --con sin-tiros.json</code></pre>
-<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>✓ naval.barcos_dentro_del_tablero                     0 (&lt;= 0)
+✓ naval.barcos_sin_solapamiento                       0 (&lt;= 0)
+✓ naval.flota_reglamentaria                           0 (&lt;= 0)
+✓ naval.ganador_legitimo                              0 (&lt;= 0)
+
+NO SE APLICARON (7) — su relación no vino en la evidencia:
+  · naval.alternancia_turnos: falta tiro
+  · naval.fin_de_juego_sin_tiros_posteriores: falta tiro
+  · naval.tiros_dentro_del_tablero: falta tiro
+  · naval.tiros_sin_repeticion: falta tiro
+  · naval.turnos_sin_huecos: falta tiro
+  · naval.veracidad_impacto_negativo: falta tiro
+  · naval.veracidad_impacto_positivo: falta tiro
+
+VEREDICTO: verde en 4 medidas. SIN MIRAR:
+  · naval.barcos_dentro_del_tablero: revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.
+  · naval.barcos_sin_solapamiento: detecta pares de celdas distintas del mismo jugador con id1 &lt; id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.
+  · naval.flota_reglamentaria: agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.
+  · naval.ganador_legitimo: comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.</code></pre>
 <p>Si una regla sale roja, el veredicto trae <strong>testigos</strong>: las filas exactas que ofendieron. Con eso le volvés a hablar al modelo con precisión: «el tiro del turno 14 se marcó como impacto y no había barco en esa casilla; corregilo».</p>
 <h2 id="paso-9--qué-le-falta-a-este-juego">Paso 9 · Qué le falta a este juego<a class="ancla" href="#paso-9--qué-le-falta-a-este-juego" aria-label="Enlace a esta sección">#</a></h2>
 <p>Once reglas miran lo principal, no todo. Ninguna mira hoy:</p>
