@@ -68,3 +68,7 @@ mentiras a las cuatro y escriben `vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md` c
 ### Nota (2026-09-25 21:43:31 UTC)
 
 2026-09-25 18:43: corridas lanzadas por Claude con agy 1.2.10 (modelo por omisión de agy), --new-project --mode accept-edits --print-timeout 3h, sin más contexto que el prompt, cada una en un directorio vacío: B-1 y después A-2 en ~/Dev/lab/naval-B-1 y naval-A-2 (agy1), B-2 en ~/Dev/lab/naval-B-2 (agy2). Los prompts son los de esta tarea, texto exacto; se guardan con la respuesta final en el scratchpad de la sesión y se copian acá al terminar. Diferencia con A-1: Brian la corrió a mano; ésta es no interactiva (-p).
+
+### Nota (2026-09-25 21:52:33 UTC)
+
+2026-09-25 18:51: el primer lanzamiento falló en 10 s sin crear nada: agy -p no puede pedir el permiso «command» y lo niega solo. Con OK de Brian, las tres corren dentro de un contenedor Docker (imagen agy-naval: python 3.13-slim + git, node, npm, curl, uv; red habilitada) con --dangerously-skip-permissions, montando sólo la carpeta vacía de la corrida, el binario de agy (sólo lectura) y una copia reflink de ~/.gemini por corrida. agy 1.2.11 (se actualizó solo entre el 1.2.10 del primer intento y éste). Diferencia a declarar en el estudio: A-1 corrió en el host, a mano; B-1, B-2 y A-2 en el contenedor, sin intervención.
