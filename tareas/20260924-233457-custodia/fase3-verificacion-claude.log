@@ -1,0 +1,177 @@
+objetivos: tools/verificar_instalacion.py
+
+     ·  tools/verificar_instalacion.py:18:40:constante       constante: 1 → 2
+  VIVO  tools/verificar_instalacion.py:19:16:constante       constante: 0 → 1
+     ·  tools/verificar_instalacion.py:28:8:booleano         booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:28:8:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:29:15:comparador      comparador: In → NotIn
+     ·  tools/verificar_instalacion.py:30:15:comparador      comparador: In → NotIn
+     ·  tools/verificar_instalacion.py:31:15:comparador      comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:40:4:retorno          retorno: return <algo> → return None
+     ·  tools/verificar_instalacion.py:48:23:constante       constante: True → False
+     ·  tools/verificar_instalacion.py:49:13:constante       constante: True → False
+     ·  tools/verificar_instalacion.py:51:7:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:51:31:constante       constante: 0 → 1
+     ·  tools/verificar_instalacion.py:56:4:retorno          retorno: return <algo> → return None
+     ·  tools/verificar_instalacion.py:64:8:retorno          retorno: return <algo> → return None
+     ·  tools/verificar_instalacion.py:84:29:constante       constante: True → False
+     ·  tools/verificar_instalacion.py:87:7:booleano         booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:87:7:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:87:21:constante       constante: 1 → 2
+     ·  tools/verificar_instalacion.py:87:26:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:87:32:constante       constante: 0 → 1
+     ·  tools/verificar_instalacion.py:90:7:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:93:7:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:93:69:constante       constante: 1 → 2
+     ·  tools/verificar_instalacion.py:96:7:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:99:7:booleano         booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:99:7:comparador       comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:99:40:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:104:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:104:7:negacion        negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:104:53:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:111:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:111:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:111:52:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:115:7:negacion        negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:120:7:negacion        negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:120:15:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:124:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:124:46:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:127:55:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:133:12:retorno        retorno: return <algo> → return None
+     ·  tools/verificar_instalacion.py:135:15:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:138:11:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:138:19:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:138:38:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:143:11:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:143:19:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:143:36:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:149:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:152:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:152:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:152:42:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:152:47:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:152:80:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:154:7:comparador      comparador: In → NotIn
+     ·  tools/verificar_instalacion.py:161:7:negacion        negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:172:46:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:172:57:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:172:71:constante      constante: 30 → 31
+     ·  tools/verificar_instalacion.py:173:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:173:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:173:29:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:173:34:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:180:7:comparador      comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:184:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:189:7:comparador      comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:189:94:constante      constante: False → True
+     ·  tools/verificar_instalacion.py:197:7:comparador      comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:200:7:negacion        negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:205:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:208:45:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:208:56:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:208:70:constante      constante: 30 → 31
+     ·  tools/verificar_instalacion.py:209:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:209:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:209:30:constante      constante: 2 → 3
+     ·  tools/verificar_instalacion.py:209:35:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:209:65:comparador     comparador: In → NotIn
+  VIVO  tools/verificar_instalacion.py:220:41:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:220:44:constante      constante: 1 → 2
+  VIVO  tools/verificar_instalacion.py:220:60:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:220:63:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:223:11:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:225:11:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:225:16:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:226:29:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:228:13:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:228:64:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:230:11:comparador     comparador: In → NotIn
+     ·  tools/verificar_instalacion.py:232:19:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:237:15:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:239:11:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:239:11:comparador     comparador: In → NotIn
+     ·  tools/verificar_instalacion.py:239:30:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:241:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:241:7:negacion        negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:241:43:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:245:69:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:245:80:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:247:7:booleano        booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:247:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:247:30:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:247:35:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:262:8:retorno         retorno: return <algo> → return None
+     ·  tools/verificar_instalacion.py:265:39:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:266:39:constante      constante: 2 → 3
+     ·  tools/verificar_instalacion.py:271:38:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:271:70:constante      constante: 120 → 121
+     ·  tools/verificar_instalacion.py:272:7:comparador      comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:272:31:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:278:11:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:281:36:constante      constante: 600 → 601
+     ·  tools/verificar_instalacion.py:302:11:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:302:31:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:304:41:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:311:27:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:311:53:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:312:28:negacion       negacion: se borra el `not`
+     ·  tools/verificar_instalacion.py:316:56:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:317:20:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:317:53:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:318:15:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:323:92:constante      constante: 5 → 6
+     ·  tools/verificar_instalacion.py:346:11:comparador     comparador: NotEq → Eq
+     ·  tools/verificar_instalacion.py:346:28:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:348:35:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:350:24:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:350:63:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:350:90:constante      constante: 1 → 2
+     ·  tools/verificar_instalacion.py:352:15:comparador     comparador: Is → IsNot
+     ·  tools/verificar_instalacion.py:357:33:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:358:52:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:360:78:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:377:61:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:389:47:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:392:31:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:397:29:constante      constante: 10 → 11
+     ·  tools/verificar_instalacion.py:414:49:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:425:59:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:429:29:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:463:41:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:474:43:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:480:11:comparador     comparador: Lt → LtE
+     ·  tools/verificar_instalacion.py:480:31:constante      constante: 2 → 3
+     ·  tools/verificar_instalacion.py:483:15:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:494:11:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:498:36:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:498:47:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:500:12:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:500:12:comparador     comparador: Eq → NotEq
+     ·  tools/verificar_instalacion.py:500:39:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:500:44:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:501:19:comparador     comparador: In → NotIn
+     ·  tools/verificar_instalacion.py:513:12:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:513:12:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:514:19:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:524:15:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:526:11:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:529:11:booleano       booleano: and ↔ or
+     ·  tools/verificar_instalacion.py:529:11:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:529:47:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:536:38:constante      constante: True → False
+     ·  tools/verificar_instalacion.py:584:11:comparador     comparador: NotIn → In
+     ·  tools/verificar_instalacion.py:592:4:retorno         retorno: return <algo> → return None
+     ·  tools/verificar_instalacion.py:592:11:constante      constante: 0 → 1
+     ·  tools/verificar_instalacion.py:595:3:comparador      comparador: Eq → NotEq
+
+mutantes: 162 · murieron 162 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 3
+
+  4 medida(s) NO pudieron juzgar esta evidencia — la relación estaba, los campos no:
+    · proceso.codigo_con_mutante_que_lo_mata: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.ronda_mutacion_concluyente: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.test_con_mutante_que_lo_mata: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+    · proceso.arnes_con_bytecode_frio: la relación «corrida_mutacion» trae null explícito en la fila 0, campo «primer_inconcluso_codigo_salida»
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

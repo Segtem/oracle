@@ -168,6 +168,7 @@ jobs:
           - tools/mutar.py
           - tools/mutar_codigo.py
           - tools/trazar.py
+          - tools/verificar_instalacion.py
           - tools/cli.py
           # Entra el 2026-09-03, y entra porque se lo midió. Tenía 114 sobrevivientes y tardaba ~90
           # minutos; con los tests que faltaban quedó en 264/264 y **201 segundos**. El costo era el

@@ -32,6 +32,10 @@ class CustodiaMutarCodigo(unittest.TestCase):
         self.assertEqual(comando.count("--prioridad"), 4)
         self.assertIn("--solo-prioridad", comando)
         self.assertIn("tests.test_mutar_codigo_custodia", comando)
+        instalacion = mc.comando_de_tests(
+            [disponibles["tools/verificar_instalacion.py"]], priorizar=True)
+        self.assertIn("--solo-prioridad", instalacion)
+        self.assertIn("tests.test_verificar_instalacion", instalacion)
 
     def test_rango_lineas(self):
         self.assertEqual(mc.parsear_rango_lineas("1-3"), (1, 3))

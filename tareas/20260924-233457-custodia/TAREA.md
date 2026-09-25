@@ -1,6 +1,6 @@
 # Los arneses que verifican a Oracle no están bajo mutación: mutar, mutar_codigo y generar_diferencial quedan fuera del perfil
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 88
 - ETIQUETAS: oracle, mutacion, flaqueza
 
@@ -56,6 +56,14 @@ Fase 2 (diseño sin código) completada en `DISENO-FASE2.md`:
 
 Fase 2 implementada sin commits: el runner testigo se ejecuta desde la raíz y carga tests de la copia; --solo-prioridad limita las rondas de los dos arneses a sus suites testigo. Ambos entraron en HERRAMIENTAS_CUSTODIAS, PRIORIDADES, matriz CI y test_herramientas. Mutación completa: ejecutar_suite_mutacion.py 44/44 muertos, mutar_codigo.py 167/167 muertos más 1 equivalente documentado en equivalentes.json, cero vivos, timeouts o errores de arnés. Evidencia con rutas relativas: tareas/20260924-233457-custodia/fase2-runner.json y fase2-mutador.json; manifiestos y stderr en la misma carpeta. Suite completa 2506 tests OK: fase2-suite-completa.log. python3 tools/cli.py test --rapido VERDE: fase2-test-rapido.log. python3 tools/cifras.py --actualizar aplicado: fase2-cifras.log. Logs archivados con rutas normalizadas relativas, sin /tmp. Queda Fase 3 verificar_instalacion.py; tarea ABIERTA.
 
+### Nota (2026-09-25 06:14:22 UTC)
+
+Fase 3 completada sin commits: tools/verificar_instalacion.py entró a HERRAMIENTAS_CUSTODIAS, PRIORIDADES y matriz CI. tests/test_verificar_instalacion.py usa fixtures mínimos de wheel/sdist, dobles y tracker temporal; no construye un wheel por mutante. Ronda completa: 165 sitios, 162/162 mutantes ejecutados muertos, 3 equivalentes justificados en equivalentes.json, cero vivos, timeouts o errores de arnés (fase3-mutacion-cierre.json; fase3-manifiesto-cierre.json). Revalidación de mutar_codigo.py: 168 ejecutados muertos y 1 equivalente (fase3-mutador.json). Suite completa: 2545 tests OK (fase3-suite-completa.log). test --rapido VERDE tras cifras.py --actualizar (fase3-test-rapido-final.log; fase3-cifras.log). Logs con rutas relativas en esta carpeta.
+
 ## Próximo paso
 
-Implementar la Fase 3 para `tools/verificar_instalacion.py`: definir sus tests directos, incorporarlo a HERRAMIENTAS_CUSTODIAS, PRIORIDADES y la matriz CI, ejecutar su ronda completa y matar los vivos o justificar equivalentes; después repetir suite completa, `test --rapido` y `cifras.py --actualizar`. Mantener la tarea ABIERTA hasta completar esa fase.
+Ninguno: la custodia y sus verificaciones quedaron completas; cerrar la tarea.
+
+### Nota (2026-09-25 06:20:01 UTC)
+
+2026-09-25, Claude: Codex se quedó sin cuota justo al final; la ronda de verificar_instalacion.py se repitió acá: 162/162 muertos, 0 sobrevivientes, 3 equivalentes con razón (fase3-verificacion-claude.log). Suite 2545 OK. Custodia completa: los doce módulos revisados, los seis custodios bajo mutación.

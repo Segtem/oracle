@@ -96,6 +96,7 @@ PRIORIDADES = {
                        "tests.test_mutacion"),
     "tools/trazar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
                         "tests.test_algebra"),
+    "tools/verificar_instalacion.py": ("tests.test_verificar_instalacion",),
     # Medido el 2026-09-09: vigilar tarda 0,08 s y mata 48 mutantes; biblioteca, 0,23 s y 69
     # (19 compartidos). Adelantarlos evita pagar todo el CLI por sus mutantes exclusivos.
     # `test_cli.load_tests` deja el diagnóstico real al final del módulo; aceptación y
@@ -323,7 +324,7 @@ HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "
                           "mutar.py", "mutar_codigo.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
                           "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
-                          "trazar.py")
+                          "trazar.py", "verificar_instalacion.py")
 
 # `lsp.py` SALIÓ de la lista el 2026-09-09, y no por costo: mide 140/140 en 2,2 minutos. Salió
 # porque no cumple el criterio. Es un adaptador de editor: no lo corre CI, no lo corre `oracle
@@ -371,10 +372,10 @@ def resolver_objetivos(declarados: list[str] | None) -> list[Path]:
 def comando_de_tests(objetivos: list[Path], *, priorizar: bool) -> list[str]:
     comando = list(TESTS)
     if priorizar:
-        # Los dos arneses se prueban con suites testigo aisladas. Descubrir toda la suite
-        # para cada mutante volvería a ejecutar rondas ajenas y puede recursar.
+        # Los arneses usan suites testigo; la instalación usa fixtures de wheel mínimos.
+        # Descubrir toda la suite por mutante volvería muy costosa la ronda.
         relativos = {ruta.relative_to(RAIZ).as_posix() for ruta in objetivos}
-        if relativos <= {"tools/ejecutar_suite_mutacion.py", "tools/mutar_codigo.py"}:
+        if relativos <= {"tools/ejecutar_suite_mutacion.py", "tools/mutar_codigo.py"} or relativos == {"tools/verificar_instalacion.py"}:
             comando.append("--solo-prioridad")
         modulos = dict.fromkeys(
             modulo for ruta in objetivos
