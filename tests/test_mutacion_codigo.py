@@ -189,12 +189,12 @@ class CorrerTests(unittest.TestCase):
             corrida = ev["corrida_mutacion"][0]
             self.assertEqual(corrida["primer_fallo_id"], "")
             self.assertEqual(corrida["primer_fallo_estado"], "")
-            self.assertIsNone(corrida["primer_fallo_codigo_salida"])
+            self.assertEqual(corrida["primer_fallo_codigo_salida"], mc.SIN_CODIGO)
             self.assertEqual(corrida["primer_fallo_salida"], "")
             self.assertIs(corrida["primer_fallo_salida_truncada"], False)
             self.assertEqual(corrida["primer_inconcluso_id"], "")
             self.assertEqual(corrida["primer_inconcluso_estado"], "")
-            self.assertIsNone(corrida["primer_inconcluso_codigo_salida"])
+            self.assertEqual(corrida["primer_inconcluso_codigo_salida"], mc.SIN_CODIGO)
             self.assertEqual(corrida["primer_inconcluso_salida"], "")
             self.assertIs(corrida["primer_inconcluso_salida_truncada"], False)
 
@@ -288,6 +288,10 @@ class CorrerTests(unittest.TestCase):
         self.assertEqual(corrida["rondas_ejecutadas"], len(ev["mutante"]) + 1)
         self.assertEqual(corrida["rondas_cache_verificadas"], len(ev["mutante"]) + 1)
         self.assertEqual(corrida["mutantes_reutilizados"], 0)
+        # Álgebra 1.0 rechaza el null explícito: una corrida con None no se puede juzgar.
+        for relacion in ev.values():
+            for fila in relacion:
+                self.assertNotIn(None, fila.values(), fila)
 
     def test_un_fallo_de_tests_es_la_UNICA_muerte_valida(self) -> None:
         with tempfile.TemporaryDirectory() as d:

@@ -52,3 +52,19 @@ class Algebra10(unittest.TestCase):
         for indexado in (False, True):
             with self.subTest(indexado=indexado), forzar_plan_unir(indexado), self.assertRaisesRegex(ErrorDeAlgebra, "tipos incompatibles"):
                 desde(tuberia, evidencia)
+
+    def test_unir_indexado_no_cambia_la_semantica_con_claves_no_indexables(self):
+        tuberia = ["desde", ["unir", ["de", "a", "a"], ["de", "b", "b"]],
+                   ["donde", ["==", ["campo", "a", "id"], ["campo", "b", "id"]]]]
+        for clave in (True, 1.5, None):
+            evidencia = {"a": [{"id": clave}, {"id": clave}], "b": [{"id": clave}]}
+            resultados = []
+            for indexado in (False, True):
+                with forzar_plan_unir(indexado):
+                    try:
+                        resultados.append(desde(tuberia, evidencia))
+                    except ErrorDeAlgebra as e:
+                        resultados.append(type(e))
+            with self.subTest(clave=clave):
+                self.assertEqual(resultados[0], resultados[1])
+

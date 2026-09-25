@@ -99,6 +99,14 @@ ESQUEMA_MANIFIESTO = "oracle.mutacion-codigo/v1"
 TIMEOUT_PREDETERMINADO = 60.0
 CODIGOS_FALLO_PREDETERMINADOS = frozenset({1})
 LIMITE_DIAGNOSTICO_PREDETERMINADO = 16_384
+# Código de salida publicado cuando no hubo proceso que termine (timeout, o ningún fallo que
+# reportar). Álgebra 1.0 rechaza el null explícito: con None, las medidas de proceso quedaban sin
+# poder juzgar la corrida entera.
+SIN_CODIGO = -1
+
+
+def _codigo(codigo: int | None) -> int:
+    return SIN_CODIGO if codigo is None else codigo
 LIMITE_SALIDA_PREDETERMINADO = 1_048_576
 # Línea base: VmPeak 742,51 MiB (Python 3.14.7); 1024 deja un 38 % de margen.
 # Medición reproducible y presupuesto para rondas: docs/mutacion-memoria.md.
@@ -988,7 +996,9 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
     if not bytecode_frio:
         raise CacheNoLimpio("el árbol conserva bytecode después de la limpieza final")
 
-    reales = [f for f in filas if not f["equivalente_declarado"]]
+    publicadas = [{**f, "codigo_salida": _codigo(f["codigo_salida"])}
+                  for f in filas]
+    reales = [f for f in publicadas if not f["equivalente_declarado"]]
     errores_arnes = sum(f["error_arnes"] for f in filas)
     timeouts = sum(f["timeout"] for f in filas)
     fallos_tests = sum(f["tests_fallaron"] for f in filas)
@@ -997,11 +1007,11 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
         primer_fallo_salida, salida_truncada = _diagnostico(resultado_fallo, limite_diagnostico)
         primer_fallo_id = sitio_fallo.id
         primer_fallo_estado = resultado_fallo.estado.value
-        primer_fallo_codigo = resultado_fallo.codigo_salida
+        primer_fallo_codigo = _codigo(resultado_fallo.codigo_salida)
     else:
         primer_fallo_id = ""
         primer_fallo_estado = ""
-        primer_fallo_codigo = None
+        primer_fallo_codigo = SIN_CODIGO
         primer_fallo_salida = ""
         salida_truncada = False
 
@@ -1011,17 +1021,17 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
             resultado_inconcluso, limite_diagnostico)
         primer_inconcluso_id = sitio_inconcluso.id
         primer_inconcluso_estado = resultado_inconcluso.estado.value
-        primer_inconcluso_codigo = resultado_inconcluso.codigo_salida
+        primer_inconcluso_codigo = _codigo(resultado_inconcluso.codigo_salida)
     else:
         primer_inconcluso_id = ""
         primer_inconcluso_estado = ""
-        primer_inconcluso_codigo = None
+        primer_inconcluso_codigo = SIN_CODIGO
         inconcluso_salida = ""
         inconcluso_truncado = False
 
     return {
         "mutante": reales,
-        "mutante_equivalente": [f for f in filas if f["equivalente_declarado"]],
+        "mutante_equivalente": [f for f in publicadas if f["equivalente_declarado"]],
         "corrida_mutacion": [{
             "id": "mutacion_de_codigo",
             "mutantes": len(reales),

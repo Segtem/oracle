@@ -1056,17 +1056,15 @@ def _clave_cruzada(predicado, alias_izq: set, alias_der: set):
     return None
 
 
-def _clave_indexable(valor):
-    """El valor de una clave, o `ErrorDeAlgebra` si no puede compararse por igualdad.
+def _clave_indexable(valor) -> bool:
+    """Si el valor puede ser clave de un índice sin cambiar lo que `==` decidiría par por par.
 
-    Sin esto, una clave inválida no rompe: simplemente no casa con nada, el par nunca se arma y el
-    error que el camino ingenuo SÍ levantaría desaparece. Un plan que calla un error que el otro
-    plan da no es una optimización: es otra semántica.
+    `bool` queda afuera porque `True` y `1` caen en la misma entrada de un dict; flotantes, nulos y
+    listas, porque `==` los rechaza o los compara con reglas propias. Con cualquiera de ellos el
+    plan cede al producto ingenuo, que es la semántica de referencia: un plan que da otro
+    resultado —o calla un error que el otro da— no es una optimización, es otra semántica.
     """
-    if isinstance(valor, bool) or not isinstance(valor, (int, str)):
-        raise ErrorDeAlgebra(
-            f"«unir» indexado necesita claves enteras o de texto, y recibió {valor!r}")
-    return valor
+    return isinstance(valor, (int, str)) and not isinstance(valor, bool)
 
 
 def _unir_donde_indexado(paso_unir, paso_donde, evidencia: dict, limites: LimitesAlgebra,
@@ -1100,22 +1098,23 @@ def _unir_donde_indexado(paso_unir, paso_donde, evidencia: dict, limites: Limite
     # deben fallar también cuando el índice no encuentra ninguna coincidencia.
     tipos_izq = {}
     tipos_der = {}
-    for fila in filas_izq:
-        valor = _clave_indexable(fila[alias_a].get(campo_a))
-        tipos_izq.setdefault(type(valor), valor)
-    for fila in filas_der:
-        valor = _clave_indexable(fila[alias_b].get(campo_b))
-        tipos_der.setdefault(type(valor), valor)
+    for filas, alias, campo, tipos in ((filas_izq, alias_a, campo_a, tipos_izq),
+                                       (filas_der, alias_b, campo_b, tipos_der)):
+        for fila in filas:
+            valor = fila[alias].get(campo)
+            if not _clave_indexable(valor):
+                return None
+            tipos.setdefault(type(valor), valor)
     for izquierdo in tipos_izq.values():
         for derecho in tipos_der.values():
             comparar("==", izquierdo, derecho)
 
     indice: dict = {}
     for fila in filas_der:
-        indice.setdefault(_clave_indexable(fila[alias_b].get(campo_b)), []).append(fila)
+        indice.setdefault(fila[alias_b][campo_b], []).append(fila)
     salida = []
     for a in filas_izq:
-        for b in indice.get(_clave_indexable(a[alias_a].get(campo_a)), ()):
+        for b in indice.get(a[alias_a][campo_a], ()):
             salida.append({**a, **b})
     return salida, len(filas_izq) * len(filas_der), {"izquierda": len(filas_izq),
                                                      "derecha": len(filas_der)}
