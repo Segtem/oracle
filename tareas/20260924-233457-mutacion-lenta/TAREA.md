@@ -1,6 +1,6 @@
 # La mutación de código tarda horas por módulo y cada corte espera dos horas
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: oracle, mutacion, flaqueza
 
@@ -37,7 +37,4 @@ Medidos con perf_counter, tres veces cada uno, los mutantes tools/cli.py:293:7:c
 
 ## Próximo paso
 
-Decisión de Brian: el costo es casi todo intrínseco (arranque en frío más el módulo de tests propio,
-[DESGLOSE.md](DESGLOSE.md)). Opciones: aceptarlo; abaratar el test de 1,28 s de `test_cli`; o la
-propuesta 4, conservar los mutantes muertos cuando sólo se agregan tests, que ahorra la ronda
-repetida pero cambia qué certifica una ronda de release.
+Ninguno: el costo es intrínseco (DESGLOSE.md), las propuestas 1–3 no mejoran la ronda completa (medición A/B) y la 4 se descartó por decisión de Brian.

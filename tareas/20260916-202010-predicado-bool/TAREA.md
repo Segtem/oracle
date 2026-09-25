@@ -36,3 +36,7 @@ Brian revisa `MEDICION.md` y decide si exigir `bool` al resultado completo de `d
 ### Nota (2026-09-24 18:53:07 UTC)
 
 2026-09-24, revisión de Claude: la medición se reproduce con las rutas reales de Jam y LyraGASP (medir.py ya no depende de copias). Resultado para decidir: exigir bool al resultado de donde, sin y requiere no cambia el color de ninguna de las 139 medidas propias. Pero hay un caso adentro de un predicado: en LyraGASP personaje.ancla_requerida_ausente hace no(a.presente) con a.presente = None diez veces en su corpus, y no None da verdadero por verdad de Python, que es el mismo falso verde un nivel más adentro. Propuesta para álgebra 1.0: exigir bool también a los operandos de y, o y no; y en LyraGASP, que el sensor emita presente como bool (o la medida lo compare explícito) antes de subir a 1.0.
+
+### Nota (2026-09-25 02:17:57 UTC)
+
+2026-09-24, Brian: se exige bool en donde, sin, requiere y en los operandos de y/o/no; álgebra 1.0. Se implementa en la tarea algebra-10, junto con otras tres decisiones de huecos-spec.
