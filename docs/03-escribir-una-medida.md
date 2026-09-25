@@ -298,7 +298,7 @@ cuando el rojo viene de una medida que no escribiste vos:
 
 - **`oracle manual`** es la referencia del lenguaje armada de las declaraciones, no escrita aparte.
   Incluye los operadores, orígenes de umbral, etiquetas, relaciones explicadas y el tema `medidas`
-  (`oracle manual medidas`), que lista las 54 medidas universales con qué NO ve cada una. Ofrece tres
+  (`oracle manual medidas`), que lista las medidas universales con qué NO ve cada una. Ofrece tres
   vistas de la misma fuente: en terminal, en HTML para el sitio (`--html`), o en formato de páginas
   de manual (`oracle manual --instalar-man <dir>` deja `man oracle(1)` y `man oracle-segun(7)`
   funcionando).

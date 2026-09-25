@@ -6,6 +6,12 @@
 uv tool install oracle-metalenguaje
 ```
 
+**Empezá por [Tu primer juego con un LLM](https://segtem.github.io/oracle/de-cero.html)**: una
+batalla naval en nueve misiones, desde una carpeta vacía hasta una partida juzgada, con cada salida
+real. Después, [Cómo funciona Oracle](https://segtem.github.io/oracle/como-funciona.html) cuenta qué
+hace en qué orden, y [el camino](https://segtem.github.io/oracle/documentacion.html) ordena el resto
+por la pregunta que contesta.
+
 **Un modo de estructurar el problema de construir herramientas con un LLM.**
 
 No es una biblioteca de verificadores. Es un lenguaje para enunciar *medidas* sobre lo que un
@@ -157,7 +163,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**10936 líneas de lenguaje** (`nucleo/`, código y macros) y **452 negativas explícitas** (`raise`). Contra las 62 medidas universales escritas en él (443 líneas): **24,7 a 1**. 53 de las 62 pasan por una macro.
+**10936 líneas de lenguaje** (`nucleo/`, código y macros) y **452 negativas explícitas** (`raise`). Contra las 62 medidas del catálogo escritas en él (443 líneas): **24,7 a 1**. 53 de las 62 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el

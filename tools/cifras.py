@@ -122,7 +122,7 @@ def escala() -> str:
     return (
         f"**{lineas_nucleo} líneas de lenguaje** (`{NUCLEO}/`, código y macros) y "
         f"**{negativas_} negativas explícitas** "
-        f"(`raise`). Contra las {len(medidas)} medidas universales escritas en él "
+        f"(`raise`). Contra las {len(medidas)} medidas del catálogo escritas en él "
         f"({lineas_medidas} líneas): **{proporcion} a 1**. "
         f"{por_macro} de las {len(medidas)} pasan por una macro."
     )

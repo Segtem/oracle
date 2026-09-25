@@ -1,37 +1,45 @@
 # El camino
 
-Ordenado por la pregunta que contesta, no por el tema.
+Hay una sola puerta de entrada, y el resto es referencia: cada documento contesta una pregunta y
+tiene algo que no está en ningún otro.
 
-| | |
-|---|---|
-| **1 · Qué problema resuelve** | [Goodhart, y por qué una regla tiene que negarse](../README.md) |
-| **2 · [De cero a un rojo](02-de-cero-a-un-rojo.md)** | instalar, escribir una medida, ver testigos. Cinco minutos |
-| **3 · Anatomía de una medida** | [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) |
-| **4 · El primer caso** | polaridad, `etiqueta`, `procedencia` — dentro del paso 2 |
-| **5 · [Por qué la mutación](05-por-que-la-mutacion.md)** | dos autores, 30 mutadores en aislamiento, y qué hacer con un sobreviviente |
-| **Operación · [Memoria y paralelismo](mutacion-memoria.md)** | medir memoria virtual, calcular concurrencia y limitar todas las rondas con systemd |
-| **6 · Los cinco niveles** | [DECISION-005](decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) |
-| **7 · [Conectar a un proyecto propio](07-conectar-a-un-proyecto-propio.md)** | sensor puro, adaptador, escalares, migración a PyPI y la sombra |
-| **8 · El editor** | [editores/README.md](../editores/README.md) |
-| **9 · Referencia** | [ESPECIFICACION.md](../ESPECIFICACION.md) |
-| **10 · Contexto** | `oracle contexto [--compacto]` — lo que hace falta para escribir una medida en TU proyecto, derivado de él |
-| **11 · Manual** | `oracle manual` en la terminal —incluidas las 54 medidas universales con qué NO ve cada una—, `man oracle-segun` tras `oracle manual --instalar-man <dir>`, o [la misma vista en el sitio](https://segtem.github.io/oracle/manual.html) |
-| **12 · [Tareas y contexto](12-tareas.md)** | `oracle tarea` — tracker local de tareas y pendientes en carpetas y Markdown |
-| **14 · [Sensor probabilístico de prosa](14-sensor-prosa.md)** | patrón optativo, proveedor externo, calibración y revisión humana |
+## Empezá por acá
 
-Los pasos 2, 5 y 7 se escribieron corriendo cada comando contra el paquete publicado, y las salidas
-están copiadas de esas corridas. Si alguna no te da igual, es un defecto de la documentación:
-[abrí un issue](https://github.com/Segtem/oracle/issues).
+**[Tu primer juego con un LLM](de-cero.md)**. Una batalla naval en nueve misiones, desde una carpeta
+vacía: el juego, el registro de lo que pasa, el primer caso rojo, la regla, los mutantes, once reglas
+y una partida juzgada. En el sitio se juega: predecís cada salida, rompés la regla en un tablero y
+cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
 
-Los demás enlazan a documentos que ya existen. **Una sola fuente por documento**: duplicarlos acá
-para que se vean prolijos sería garantizar que se desincronicen.
+## Después, según lo que necesites
 
-Los pasos 10 y 11 no son documentos: `oracle contexto` junta lo que tu proyecto declara hoy
-(relaciones, campos, operadores, escalares y medidas) y `--compacto` lo entrega en ~1.600 tokens;
-`oracle manual` arma la referencia leyendo las declaraciones del propio lenguaje —los vocabularios
-cerrados, las relaciones que emite sobre sí mismo, los verbos del comando y las 54 medidas universales
-con qué NO ve cada una—, así que no hay dónde quede vieja. Dos medidas vigilan lo único que sí
-podría envejecer: que una opción quede sin explicar, y que un vocabulario nuevo quede fuera del
-registro.
+| si querés… | leé | y ahí está, sólo ahí… |
+|---|---|---|
+| saber qué problema resuelve | [Por qué Oracle](por-que.html) | la batalla naval que dio verde sin medir nada, y un test contra una medida |
+| entender qué hace Oracle, en qué orden y qué contesta | [Cómo funciona Oracle](como-funciona.md) | los seis pasos de `juzgar`, las capas de `oracle test` en orden y cada estado posible, todo ejecutado |
+| tu primer rojo en cinco minutos, si ya programás | [De cero a un rojo](02-de-cero-a-un-rojo.md) | `oracle medida probar` con evidencia en la línea de comandos |
+| medir tu propio producto | [La primera medida real](13-primer-valor.md) | Oracle contra un `assert`, y cuándo apagar el catálogo base |
+| conectar un proyecto que ya existe | [Conectar un proyecto](07-conectar-a-un-proyecto-propio.md) | el sensor partido en puro y adaptador, las escalares propias y la sombra |
+| escribir medidas con soltura | [Escribir una medida](03-escribir-una-medida.md) | cómo se aíslan las escalares, por qué los ids son ASCII, cuánto se usa cada macro |
+| ver un dominio completo con geometría | [Tutorial práctico](tutorial-practico.md) | un `LEFT JOIN` sin nulos, escalares de volumen y penetración, la API `Motor` desde Python |
+| saber por qué hace falta mutar | [Por qué la mutación](05-por-que-la-mutacion.md) | los dos autores de los mutadores y qué hacer con un sobreviviente |
+| correr la mutación sin quedarte sin memoria | [Memoria de la mutación](mutacion-memoria.md) | cómo medir la memoria y limitar las rondas con systemd |
+| llevar las tareas del proyecto | [El tracker de tareas](12-tareas.md) | `oracle tarea` y el próximo paso como relevo |
+| usar un modelo como sensor de prosa | [Un modelo como sensor](14-sensor-prosa.md) | el patrón optativo, con calibración y revisión humana |
+| conectar un agente por MCP | [El servidor MCP](mcp-contrato.md) | el contrato de las herramientas, sólo de lectura |
+| implementar el álgebra sin ver el núcleo | [Especificación](../ESPECIFICACION.md) | el álgebra entera y la crónica de cada versión |
+| escribir medidas en tu editor, con diagnósticos | [Editores](../editores/README.md) | el servidor de lenguaje y la configuración de cada editor |
+| saber por qué algo es como es | [Decisiones](decisiones/README.md) | las decisiones de diseño, con lo que se descartó |
 
-> El sitio con la portada está en [segtem.github.io/oracle](https://segtem.github.io/oracle/).
+## Lo que no es un documento
+
+- **`oracle manual`**, en la terminal o [en el sitio](manual.html): la referencia del lenguaje armada
+  de sus propias declaraciones —los vocabularios cerrados, las relaciones que emite, los verbos del
+  comando y las medidas universales con qué NO ve cada una—, así que no hay dónde quede vieja.
+  `oracle manual --instalar-man <dir>` deja `man oracle` funcionando.
+- **`oracle contexto [--compacto]`**: lo que tu proyecto declara hoy (relaciones, campos, operadores,
+  escalares y medidas), para pasárselo a un modelo en unos 1.600 tokens.
+
+Las guías con comandos —la de la batalla naval, *Cómo funciona*, *De cero a un rojo*, *Por qué la
+mutación*, *Conectar un proyecto* y *La primera medida real*— se ejecutan en la suite del
+repositorio desde una carpeta vacía, y cada salida que muestran es la de esa corrida. Si alguna no
+te da igual, es un defecto de la documentación: [abrí un issue](https://github.com/Segtem/oracle/issues).

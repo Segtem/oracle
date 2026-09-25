@@ -38,7 +38,7 @@ La corrección fue metodológica: **otro autor, en aislamiento verificable.**
   directorio y ninguna lectura hacia afuera.
 - Escribió **24 mutadores** (`mutadores/segundo_autor.py`).
 
-Sobre el catálogo real de 54 medidas universales:
+Sobre el catálogo real de entonces, 54 medidas:
 - Generaron **179 mutantes aplicables**.
 - El corpus mató **142 en la primera corrida (79%)**.
 - De los 37 sobrevivientes, 6 los rechazó el álgebra y quedaron **31 reales**.

@@ -1,6 +1,6 @@
 # Hay cinco caminos para empezar con Oracle que se pisan entre sí
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 78
 - ETIQUETAS: oracle, documentacion
 
@@ -32,3 +32,7 @@ Avanzar con el punto 2 (Codex o Claude tras completarse `de-cero-naval`): unific
 ### Nota (2026-09-25 03:35:05 UTC)
 
 2026-09-25, Claude: el inventario cita textualmente; un script verificó 139 de 202 citas tal cual y una muestra a mano de las 63 restantes también existe (sólo difiere el formato Markdown: backticks, negritas, saltos de línea). docs/de-cero.md, que se leyó como sexta entrada, vive en la rama t-web-diseno hasta que se publique la web.
+
+### Nota (2026-09-25 21:49:08 UTC)
+
+2026-09-25, Claude: hecho. El inventario mostró que cada documento tiene algo que ningún otro tiene, así que la unificación no funde documentos: hay UNA puerta —la guía de la batalla naval, que en el sitio se juega— y el resto es referencia, cada una con la pregunta que contesta y lo que sólo está ahí (docs/README.md, «El camino», reescrito como tabla). El README arranca con esa puerta, antes de la historia. De paso: el índice decía «54 medidas universales» y la portada «62 medidas universales»: son 62 en el catálogo, 42 universales y 20 del_origen; la portada y cifras.py dicen ahora «medidas en el catálogo», y la ayuda de la CLI y la guía 03 ya no escriben el número a mano.
