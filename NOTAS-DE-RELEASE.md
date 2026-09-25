@@ -18,9 +18,9 @@ Sube la **mayor** del álgebra porque hay medidas que antes daban otro resultado
   booleano aparte (`x_decidible`), no con un hueco que cada comparación interpreta a su modo.
 - **Una relación con cabecera `clave` y cero hechos es vacía** para `requiere`: antes la cabecera
   sola alcanzaba para que `requiere` la diera por presente.
-- **`unir … donde` da los mismos errores con índice que sin él.** Con tipos incompatibles falla
-  igual; con claves que no son enteros ni texto (booleanos, flotantes) el plan indexado cede al
-  producto, que es la semántica de referencia.
+- **`unir … donde` da el mismo resultado y el mismo error con índice que sin él**, con la misma
+  ubicación (`en 2.2.1`). Antes, con claves booleanas el índice fallaba donde el producto unía, y sus
+  errores de tipos no decían en qué paso ocurrían.
 
 ⚠️ **Si tu evidencia trae `null`, no subas sin migrar.** Oracle te dice qué relación, qué fila y
 qué campo. LyraGASP y Jam siguen en 0.30.0 hasta migrar.
@@ -54,7 +54,8 @@ qué campo. LyraGASP y Jam siguen en 0.30.0 hasta migrar.
 
 - Catorce fricciones de quien llega desde PyPI, corregidas: la ayuda lleva al manual,
   `oracle test --help` no corre nada, y `oracle nueva --help`, `medida nueva --help` y
-  `caso generar -h` muestran la ayuda en vez de leer la bandera como un id.
+  `caso generar -h` muestran la ayuda en vez de leer la bandera como un id. `oracle nueva` ya no
+  puede quedar en un bucle sin fin buscando números libres para sus casos.
 - **Las guías se ejecutan.** `tools/guia.py` arma cada recorrido desde una carpeta vacía pegando los
   bloques en orden y compara cada salida con la real: `de-cero`, `02`, `05`, `07` y `13`. Una guía
   que envejece pone roja la suite.

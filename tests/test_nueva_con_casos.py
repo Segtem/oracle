@@ -41,6 +41,38 @@ class NuevaConCasosTests(unittest.TestCase):
             self.assertIn("002-prueba-verde.caso", salida.getvalue())
             self.assertIn("VEREDICTO: ROJO", salida.getvalue())
 
+    def test_nueva_saltea_los_numeros_ocupados_de_a_pares(self):
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self.assertEqual(cli.cmd_init(str(raiz), []), 0)
+            grupo = raiz / "corpus/demo"
+            grupo.mkdir(parents=True)
+            # Basta que uno solo de los dos exista para que el par esté ocupado.
+            (grupo / "001-prueba-rojo.caso").write_text("", encoding="utf-8")
+            self.assertEqual(cli.cmd_nueva(Proyecto(raiz), "demo.prueba"), 0)
+            self.assertEqual(sorted(p.name for p in grupo.iterdir()),
+                             ["001-prueba-rojo.caso", "003-prueba-rojo.caso",
+                              "004-prueba-verde.caso"])
+
+    def test_nueva_sin_numeros_libres_falla_sin_crear_la_medida(self):
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            self.assertEqual(cli.cmd_init(str(raiz), []), 0)
+            grupo = raiz / "corpus/demo"
+            grupo.mkdir(parents=True)
+            # El par 999/1000 queda libre: ya no es de tres cifras y no se usa.
+            for numero in range(2, 999, 2):
+                (grupo / f"{numero:03d}-prueba-verde.caso").write_text("", encoding="utf-8")
+            from contextlib import redirect_stdout
+            from io import StringIO
+            salida = StringIO()
+            with redirect_stdout(salida):
+                rc = cli.cmd_nueva(Proyecto(raiz), "demo.prueba")
+            self.assertEqual(rc, 1)
+            self.assertEqual(salida.getvalue(),
+                             "sin números libres para los casos de demo.prueba en corpus/demo/\n")
+            self.assertFalse((raiz / "catalogos/demo/demo.prueba.oracle").exists())
+
 
 if __name__ == "__main__":
     unittest.main()

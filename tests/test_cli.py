@@ -224,6 +224,15 @@ class OracleCliTests(CliTestCase):
                 self.assertIs(type(codigo), int)
                 self.assertIn("oracle", salida)
 
+    def test_ayuda_de_test_no_corre_el_test(self) -> None:
+        # Con una carpeta vacía, si la ayuda no intercepta, el test corre y termina enseguida con
+        # otra salida en vez de recorrer un proyecto entero.
+        for comando in (("test", "--help"), ("proyecto", "test", "-h")):
+            with self.subTest(comando=comando), tempfile.TemporaryDirectory() as td:
+                codigo, salida = self._callado(cli.main, [*comando, "--proyecto", td])
+                self.assertIs(codigo, 0)
+                self.assertEqual(salida.strip(), "Uso: oracle test [--rapido|--todo] [--proyecto <ruta>]")
+
     def test_ayuda_caso_nuevo_no_intercepta_otro_subcomando(self) -> None:
         codigo, salida = self._callado(cli.main, ["proyecto", "nuevo", "--help"])
         self.assertEqual(codigo, 1)

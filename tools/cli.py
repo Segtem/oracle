@@ -776,7 +776,7 @@ def _veredicto_verde(*, todo: bool, omisiones: list[str]) -> None:
         print("VEREDICTO: VERDE (todas las verificaciones aplicables en regla)")
 
 
-def _alcance_test(*, todo: bool = False, propio_oracle: bool = False) -> None:
+def _alcance_test(*, todo: bool, propio_oracle: bool) -> None:
     print("ALCANCE: verificación de medidas contra casos guardados del corpus.")
     print("PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen "
           "ni el producto. El resultado no certifica su estado actual.")

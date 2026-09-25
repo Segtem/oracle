@@ -56,7 +56,7 @@ class Algebra10(unittest.TestCase):
     def test_unir_indexado_no_cambia_la_semantica_con_claves_no_indexables(self):
         tuberia = ["desde", ["unir", ["de", "a", "a"], ["de", "b", "b"]],
                    ["donde", ["==", ["campo", "a", "id"], ["campo", "b", "id"]]]]
-        for clave in (True, 1.5, None):
+        for clave in (True, 1.5, None, [1]):
             evidencia = {"a": [{"id": clave}, {"id": clave}], "b": [{"id": clave}]}
             resultados = []
             for indexado in (False, True):
@@ -64,7 +64,18 @@ class Algebra10(unittest.TestCase):
                     try:
                         resultados.append(desde(tuberia, evidencia))
                     except ErrorDeAlgebra as e:
-                        resultados.append(type(e))
+                        resultados.append(str(e))
             with self.subTest(clave=clave):
                 self.assertEqual(resultados[0], resultados[1])
+
+    def test_unir_indexado_ubica_el_error_como_el_producto(self):
+        tuberia = ["desde", ["unir", ["de", "a", "a"], ["de", "b", "b"]],
+                   ["donde", ["==", ["campo", "a", "id"], ["campo", "b", "id"]]]]
+        mensajes = []
+        for indexado in (False, True):
+            with forzar_plan_unir(indexado), self.assertRaises(ErrorDeAlgebra) as error:
+                desde(tuberia, {"a": [{"id": 1}], "b": [{"id": "1"}]})
+            mensajes.append(str(error.exception))
+        self.assertEqual(mensajes[0], mensajes[1])
+        self.assertIn("en `", mensajes[1])
 

@@ -69,8 +69,8 @@ Los seis arneses que custodian la mutación entran ellos mismos a la mutación, 
 queda afuera y por qué, y las cinco guías con comandos se ejecutan en la suite. Dos arreglos salen
 de la propia ronda de mutación del corte: el arnés publicaba `null` como código de salida y las
 medidas de proceso no podían juzgar la corrida (ahora `-1`), y la unión indexada daba error con
-claves booleanas donde el producto ingenuo unía (ahora cede al producto con toda clave que no sea
-entero ni texto). Sube la **menor**: `VERSION_ALGEBRA` sube a `1.0` y cambian salidas de la CLI.
+claves booleanas donde el producto ingenuo unía, y sus errores no decían en qué paso (ahora da el
+mismo resultado y el mismo mensaje que el producto). Sube la **menor**: `VERSION_ALGEBRA` sube a `1.0` y cambian salidas de la CLI.
 Cierra `algebra-10` en el núcleo (los consumidores migran sus `null` antes de subir),
 `medida-sin-casos`, `verde-diseno`, `nueva-con-casos`, `auditoria-nuevo`, `huecos-spec`, `custodia`,
 `perfil-mutacion`, `guias-cli`, `guias-ejecutables`, `web-diseno` y `de-cero-naval`.

@@ -28,6 +28,16 @@ class TestAlcanceTests(unittest.TestCase):
         self.assertIn("tools/mcp_contrato.py", texto)
         self.assertIn("tools/__init__.py", texto)
 
+    def test_el_perfil_de_mutacion_solo_se_informa_con_todo_y_en_oracle(self):
+        # El perfil es del propio Oracle: un consumidor no tiene esos módulos, y sin --todo no se
+        # mutó nada.
+        for todo, propio in ((True, False), (False, True), (False, False)):
+            with self.subTest(todo=todo, propio=propio):
+                salida = io.StringIO()
+                with redirect_stdout(salida):
+                    cli._alcance_test(todo=todo, propio_oracle=propio)
+                self.assertNotIn("MUTACIÓN DE CÓDIGO", salida.getvalue())
+
     def test_perfil_exige_razon_para_cada_modulo_fuera(self):
         from tools import mutar_codigo
 

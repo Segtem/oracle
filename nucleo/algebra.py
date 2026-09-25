@@ -1056,17 +1056,6 @@ def _clave_cruzada(predicado, alias_izq: set, alias_der: set):
     return None
 
 
-def _clave_indexable(valor) -> bool:
-    """Si el valor puede ser clave de un índice sin cambiar lo que `==` decidiría par por par.
-
-    `bool` queda afuera porque `True` y `1` caen en la misma entrada de un dict; flotantes, nulos y
-    listas, porque `==` los rechaza o los compara con reglas propias. Con cualquiera de ellos el
-    plan cede al producto ingenuo, que es la semántica de referencia: un plan que da otro
-    resultado —o calla un error que el otro da— no es una optimización, es otra semántica.
-    """
-    return isinstance(valor, (int, str)) and not isinstance(valor, bool)
-
-
 def _unir_donde_indexado(paso_unir, paso_donde, evidencia: dict, limites: LimitesAlgebra,
                          registro: Mapping[str, Callable[..., Any]],
                          ruta_unir):
@@ -1095,19 +1084,23 @@ def _unir_donde_indexado(paso_unir, paso_donde, evidencia: dict, limites: Limite
     (alias_a, campo_a), (alias_b, campo_b) = clave
 
     # El producto ingenuo compara todos los pares. Una clave ausente o tipos incompatibles
-    # deben fallar también cuando el índice no encuentra ninguna coincidencia.
+    # deben fallar también cuando el índice no encuentra ninguna coincidencia. Comparar un
+    # representante de cada tipo alcanza, y además deja afuera del índice todo lo que `==` no
+    # acepta (flotantes, listas) y la mezcla de `True` con `1`, que en un dict caerían juntos.
     tipos_izq = {}
     tipos_der = {}
     for filas, alias, campo, tipos in ((filas_izq, alias_a, campo_a, tipos_izq),
                                        (filas_der, alias_b, campo_b, tipos_der)):
         for fila in filas:
             valor = fila[alias].get(campo)
-            if not _clave_indexable(valor):
-                return None
             tipos.setdefault(type(valor), valor)
     for izquierdo in tipos_izq.values():
         for derecho in tipos_der.values():
-            comparar("==", izquierdo, derecho)
+            try:
+                comparar("==", izquierdo, derecho)
+            except ErrorDeAlgebra as e:
+                # La misma ubicación que da `donde` al evaluar el predicado par por par.
+                raise e.prefijar_ruta((*ruta_unir[:-1], ruta_unir[-1] + 1, 1))
 
     indice: dict = {}
     for fila in filas_der:

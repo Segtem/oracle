@@ -288,13 +288,16 @@ def nueva(proy, mid: str) -> int:
     proy_casos = Proyecto(proy.raiz)
     grupo = mid.split(".")[0]
     nombre = "-".join(mid.split(".")[1:]).replace("_", "-")
-    numero = 1
-    while True:
+    # Con tope: los casos se numeran con tres cifras, y un bucle sin fin ante un corpus lleno no
+    # es un error que alguien pueda leer.
+    for numero in range(1, 999, 2):
         rojo = corpus.ruta_de_caso_nuevo(proy_casos, f"{grupo}/{numero:03d}-{nombre}-rojo")
         verde = corpus.ruta_de_caso_nuevo(proy_casos, f"{grupo}/{numero + 1:03d}-{nombre}-verde")
         if not rojo.exists() and not verde.exists():
             break
-        numero += 2
+    else:
+        print(f"sin números libres para los casos de {mid} en corpus/{grupo}/")
+        return 1
 
     destino.parent.mkdir(parents=True, exist_ok=True)
     destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")

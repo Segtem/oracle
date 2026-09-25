@@ -189,12 +189,12 @@ class CorrerTests(unittest.TestCase):
             corrida = ev["corrida_mutacion"][0]
             self.assertEqual(corrida["primer_fallo_id"], "")
             self.assertEqual(corrida["primer_fallo_estado"], "")
-            self.assertEqual(corrida["primer_fallo_codigo_salida"], mc.SIN_CODIGO)
+            self.assertEqual(corrida["primer_fallo_codigo_salida"], -1)
             self.assertEqual(corrida["primer_fallo_salida"], "")
             self.assertIs(corrida["primer_fallo_salida_truncada"], False)
             self.assertEqual(corrida["primer_inconcluso_id"], "")
             self.assertEqual(corrida["primer_inconcluso_estado"], "")
-            self.assertEqual(corrida["primer_inconcluso_codigo_salida"], mc.SIN_CODIGO)
+            self.assertEqual(corrida["primer_inconcluso_codigo_salida"], -1)
             self.assertEqual(corrida["primer_inconcluso_salida"], "")
             self.assertIs(corrida["primer_inconcluso_salida_truncada"], False)
 
