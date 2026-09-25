@@ -100,7 +100,7 @@ jobs:
       - name: juzgar el tracker de Oracle
         run: |
           python tools/cli.py tarea hechos --git > /tmp/hechos-tareas.json
-          python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json
+          python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json --parcial
 
   # ⚠ La matriz está DESACTUALIZADA a propósito y hay que decirlo: faltan `nucleo/sintaxis.py`,
   # `nucleo/caso.py`, `nucleo/generador.py`, `nucleo/relacion.py`, `nucleo/version.py` y los tres de

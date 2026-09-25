@@ -5,7 +5,7 @@ desde una regla de dominio hasta juzgar una corrida real mediante hechos observa
 
 No usa medidas de proceso ni de sintaxis genérica: evalúa una regla concreta de la lógica del juego.
 
-Los comandos se ejecutan desde la raíz del repositorio. La [guía completa](../../docs/13-primer-valor.md) registra el entorno, la preparación y la salida real de `oracle test`.
+Los comandos se ejecutan desde la raíz del repositorio. La [guía completa](../../../../docs/13-primer-valor.md) registra el entorno, la preparación y la salida real de `oracle test`.
 
 ---
 

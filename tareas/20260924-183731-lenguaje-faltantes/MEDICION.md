@@ -15,10 +15,10 @@ Regla del proyecto: «no se agrega un operador hasta que una segunda medida lo n
    - `ejemplo/sensor-prosa/catalogos/` ([ejemplo/sensor-prosa/oracle.json:1-6](../../ejemplo/sensor-prosa/oracle.json#L1-L6)).
 2. **Jam (copia de consumidor)**:
    - Ubicación: `Jam medidas/`.
-   - Estado: 41 archivos de catálogo ([oracle.json:10](Jam: medidas/oracle.json#L10)), basados predominantemente en expansiones de macros como `ninguno` ([catalogos/vault/vault.enlace_resuelve.json:1-11](Jam: medidas/catalogos/vault/vault.enlace_resuelve.json#L1-L11)).
+   - Estado: 41 archivos de catálogo (oracle.json:10 (`Jam: medidas/oracle.json#L10`)), basados predominantemente en expansiones de macros como `ninguno` (catalogos/vault/vault.enlace_resuelve.json:1-11 (`Jam: medidas/catalogos/vault/vault.enlace_resuelve.json#L1-L11`)).
 3. **LyraGASP (copia de consumidor)**:
    - Ubicación: `LyraGASP medidas/`.
-   - Estado: 27 medidas históricas ([oracle.json:13](LyraGASP: medidas/oracle.json#L13)), estructuradas con `ninguno` ([catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json:1-11](LyraGASP: medidas/catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json#L1-L11)).
+   - Estado: 27 medidas históricas (oracle.json:13 (`LyraGASP: medidas/oracle.json#L13`)), estructuradas con `ninguno` (catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json:1-11 (`LyraGASP: medidas/catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json#L1-L11`)).
 4. **Commander**:
    - **No disponible / No leído**: no fue copiado a `(copia de consumidor)`. El intento de lectura sobre `consumidores/commander/oracle.json` falló por archivo inexistente (*no such file or directory*). Siguiendo la regla de no afirmar sobre lo no leído, no se asume su contenido.
 
@@ -56,8 +56,8 @@ Regla del proyecto: «no se agrega un operador hasta que una segunda medida lo n
    - En `ejemplo/seguimiento-tareas/` ([catalogos/](../../ejemplo/seguimiento-tareas/)): 3 medidas usan plantillas de macro `ninguno` o `ninguno-requiere` y 1 usa anti-junta `sin` ([seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre.oracle:4](../../ejemplo/seguimiento-tareas/catalogos/seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre.oracle#L4)); ninguna agrupa.
    - En `ejemplo/sensor-prosa/`: la medida `prosa.alcance_sin_afirmacion_adversa` ([catalogos/prosa/prosa.alcance_sin_afirmacion_adversa.oracle:1-9](../../ejemplo/sensor-prosa/catalogos/prosa/prosa.alcance_sin_afirmacion_adversa.oracle#L1-L9)) filtra directamente con `donde` y `resumen contar(1)` sin agrupar.
 3. **Catálogos de consumidores (Jam y LyraGASP)**:
-   - En `consumidores/jam-medidas/`: 41 medidas leídas en JSON; todas usan macros estándar `ninguno` o `ninguno-par` ([catalogos/vault/vault.enlace_resuelve.json:1-6](Jam: medidas/catalogos/vault/vault.enlace_resuelve.json#L1-L6)), sin pasos de agrupación múltiple.
-   - En `consumidores/lyragasp-medidas/`: 27 medidas leídas en JSON; todas usan macros estándar ([catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json:1-6](LyraGASP: medidas/catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json#L1-L6)), sin pasos de agrupación.
+   - En `consumidores/jam-medidas/`: 41 medidas leídas en JSON; todas usan macros estándar `ninguno` o `ninguno-par` (catalogos/vault/vault.enlace_resuelve.json:1-6 (`Jam: medidas/catalogos/vault/vault.enlace_resuelve.json#L1-L6`)), sin pasos de agrupación múltiple.
+   - En `consumidores/lyragasp-medidas/`: 27 medidas leídas en JSON; todas usan macros estándar (catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json:1-6 (`LyraGASP: medidas/catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json#L1-L6`)), sin pasos de agrupación.
 
 ---
 
@@ -113,9 +113,9 @@ Regla del proyecto: «no se agrega un operador hasta que una segunda medida lo n
      - Donde se juzgan tasas o señales (como en `prosa.alcance_sin_afirmacion_adversa.oracle:3`), el sensor entrega el valor ya normalizado como probabilidad flotante (`probabilidad >= 0.8`), comparándose directamente sin cociente algebraico.
      - En el cálculo de proporciones del propio proyecto (la proporción líneas de núcleo vs. líneas de medidas para el README), el cálculo se realiza fuera del metalenguaje, en Python ([tools/cifras.py:121](../../tools/cifras.py#L121): `proporcion = f"{lineas_nucleo / lineas_medidas:.1f}"`).
    - **Jam**:
-     - Las 41 medidas evaluadas ([oracle.json:10](Jam: medidas/oracle.json#L10)) se limitan a invariantes booleanas y conteos de infracciones unitarias ([catalogos/vault/vault.enlace_resuelve.json:6](Jam: medidas/catalogos/vault/vault.enlace_resuelve.json#L6)). Ninguna realiza multiplicación cruzada o rodeos aritméticos para simular divisiones.
+     - Las 41 medidas evaluadas (oracle.json:10 (`Jam: medidas/oracle.json#L10`)) se limitan a invariantes booleanas y conteos de infracciones unitarias (catalogos/vault/vault.enlace_resuelve.json:6 (`Jam: medidas/catalogos/vault/vault.enlace_resuelve.json#L6`)). Ninguna realiza multiplicación cruzada o rodeos aritméticos para simular divisiones.
    - **LyraGASP**:
-     - Las 27 medidas evaluadas ([oracle.json:13](LyraGASP: medidas/oracle.json#L13)) evalúan presencia de configuraciones indebidas en slots y montajes ([catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json:6](LyraGASP: medidas/catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json#L6)). Ninguna calcula razones o proporciones.
+     - Las 27 medidas evaluadas (oracle.json:13 (`LyraGASP: medidas/oracle.json#L13`)) evalúan presencia de configuraciones indebidas en slots y montajes (catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json:6 (`LyraGASP: medidas/catalogos/recarga/recarga.montage_en_slot_cuerpo_entero.json#L6`)). Ninguna calcula razones o proporciones.
 
 ---
 
