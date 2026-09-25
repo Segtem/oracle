@@ -1,0 +1,6 @@
+ninguno naval.barcos_dentro_del_tablero:
+    de celda_barco c
+    donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
+    umbral <= 0 segun contrato porque "todas las celdas ocupadas por barcos deben ubicarse dentro de la cuadrícula de 10x10"
+    ambito universal
+    alcance "revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad."

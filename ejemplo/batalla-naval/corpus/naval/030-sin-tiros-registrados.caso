@@ -1,0 +1,17 @@
+caso 030-sin-tiros-registrados:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "sin tiros registrados"
+    etiqueta: falso_verde
+    sintoma:
+        Sin tiros registrados no se puede afirmar continuidad de turnos.
+    como_se_detecto: persona
+    medida: naval.turnos_sin_huecos
+    evidencia:
+        tiro:
+
+    leccion:
+        Sin tiros registrados no se puede afirmar continuidad de turnos.

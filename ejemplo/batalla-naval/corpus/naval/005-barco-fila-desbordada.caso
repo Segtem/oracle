@@ -1,0 +1,18 @@
+caso 005-barco-fila-desbordada:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "barco fila desbordada"
+    etiqueta: falso_verde
+    sintoma:
+        Una celda de barco cae en fila 10.
+    como_se_detecto: persona
+    medida: naval.barcos_dentro_del_tablero
+    evidencia:
+        celda_barco: id, jugador, fila, columna
+            "b1", "jugador", 10, 4
+
+    leccion:
+        Una celda de barco cae en fila 10.

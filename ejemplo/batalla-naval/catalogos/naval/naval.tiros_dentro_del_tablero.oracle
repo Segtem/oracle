@@ -1,0 +1,6 @@
+ninguno naval.tiros_dentro_del_tablero:
+    de tiro t
+    donde t.fila < 0 o t.fila > 9 o t.columna < 0 o t.columna > 9
+    umbral <= 0 segun contrato porque "el tablero reglamentario es de 10x10; cualquier coordenada con fila o columna fuera de [0, 9] es un tiro inválido"
+    ambito universal
+    alcance "comprueba que las coordenadas de cada disparo estén en el rango [0, 9]. No comprueba si el casillero ya fue disparado previamente ni la validez del turno."

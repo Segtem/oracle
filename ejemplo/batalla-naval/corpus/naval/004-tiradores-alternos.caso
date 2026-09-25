@@ -1,0 +1,19 @@
+caso 004-tiradores-alternos:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "tiradores alternos"
+    etiqueta: verde_correcto
+    sintoma:
+        Los turnos consecutivos cambian de tirador.
+    como_se_detecto: persona
+    medida: naval.alternancia_turnos
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 1, 1, false
+            1, "cpu", "jugador", 2, 2, false
+
+    leccion:
+        Los turnos consecutivos cambian de tirador.

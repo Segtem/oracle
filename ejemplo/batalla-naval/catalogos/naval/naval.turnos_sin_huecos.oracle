@@ -1,0 +1,11 @@
+medida naval.turnos_sin_huecos:
+    de tiro t
+    agrupar:
+        agregado registrados = contar(1)
+        agregado ultimo = max(t.turno)
+    donde registrados != ultimo + 1
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la secuencia de turnos debe ser continua, arrancando en 0 y avanzando de a 1 sin huecos ni saltos"
+    requiere tiro
+    ambito universal
+    alcance "compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores."

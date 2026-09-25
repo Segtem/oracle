@@ -43,12 +43,6 @@ versión vigente de Oracle.
 
 2026-09-24, Brian: de-cero tiene que ser DE CERO, no un repo para bajar. La persona copia y pega y va creando el juego de a poco con oracle-metalenguaje: instala, oracle init, pega el primer HTML, lo abre, pega la primera medida, escribe su primer caso rojo, corre oracle test, lo ve fallar y lo arregla, y así hasta el juego entero. Cada paso es un bloque para copiar, lo que tiene que ver en la pantalla o la terminal, y qué hacer si ve otra cosa. El código en ejemplo/batalla-naval/ no es lo que se baja: es el respaldo que verifica la guía. Un test arma el juego pegando los bloques de la guía en orden, desde un directorio vacío, y corre oracle test después de cada paso; si un bloque de la página cambia, el test lo nota.
 
-## Próximo paso
-
-Revisar naval-0280 contra 0.30.0 (¿su catálogo y su corpus pasan `oracle test` hoy?), marcar qué de
-GUIA22 quedó vencido, y partir el juego en pasos chicos que se puedan pegar en orden, cada uno con
-algo visible que funcione y una medida o un caso nuevo.
-
 ### Nota (2026-09-24 17:18:15 UTC)
 
 2026-09-24, Brian: el corpus de naval-0280 está flojo. Medido: 11 medidas en catalogos/naval/ y 2 casos en corpus/naval/ (001-tiro-fuera-de-tablero y 002-tiro-valido), los dos de naval.tiros_dentro_del_tablero; las otras diez no tienen ningún caso. Para la guía: cada medida con al menos un caso rojo (el defecto que atrapa, sacado de una partida plausible) y uno verde, y la mutación de medidas con todos los mutantes muertos. Si un mutante sobrevive, se agrega el caso que lo mata. Y la guía lo enseña como lección: primero muestra que 11 medidas con 2 casos dan verde igual, corre la mutación, ve sobrevivir a los mutantes y escribe los casos que faltan. Es la diferencia entre un verde que mide y uno que decora.
@@ -56,3 +50,15 @@ algo visible que funcione y una medida o un caso nuevo.
 ### Nota (2026-09-24 17:20:23 UTC)
 
 2026-09-24, Brian: la guía tiene que ser pedagógica: que plantee preguntas y dé soluciones, y que meta al lector en el pensamiento de Oracle. Forma de cada paso: primero una pregunta que el lector puede intentar contestar solo (¿qué tendría que ser cierto en una partida para que este tiro sea legal?, ¿qué partida pondría roja esta medida?, ¿qué no está mirando?), un espacio para pensarlo (un <details> plegado con la solución), y después la respuesta con el código. Las preguntas recorren el modo de pensar de Oracle: el producto emite hechos y no se juzga a sí mismo; una regla nombra el defecto, no la virtud; antes de la medida va el caso rojo; cada medida dice qué NO mira (alcance) y por qué ese número (porque); un verde sin casos que lo puedan romper es decoración; SIN MIRAR y NO SE APLICARON son parte de la respuesta, no letra chica. Cuando el lector trabaja con un LLM, la guía le enseña qué preguntarle y qué desconfiar de lo que devuelve.
+
+### Nota (2026-09-25 05:00:49 UTC)
+
+Punto 1 y verificación del 3: copié naval-0280 a ejemplo/batalla-naval sin tocar el origen; cambié mas(...) por + en dos medidas, corregí enlaces file://, y declaré construidos los 2 casos originales porque no hay observación verificable. Agregué 31 casos .caso (003–033): rojo y verde de alternancia, límites de barcos, solapamiento, fin, flota, ganador, repetición, continuidad y veracidad de impactos. Los extras 023–028 cubren los cuatro bordes fila/columna; 029–030 fijan requiere ante relaciones vacías; 031 y 033 distinguen fila de turno en tiros repetidos; 032 fija el filtro de impacto positivo. Resultado: 33 casos, 19 rojos, 14 verdes; 209/209 mutantes muertos. verificar_oraculo.py ahora juzga partida_real.json guardada y falla si no detecta una infracción; tests/test_ejemplo_batalla_naval.py exige VERDE del ejemplo y juicio verde de la partida.
+
+### Nota (2026-09-25 05:01:34 UTC)
+
+Verificación final: python3 -m unittest discover -s tests: 2515 tests, OK; cd diferencial/referencia && python3 -m unittest: 48 tests, OK; python3 tools/cli.py test --rapido: VERDE; python3 tools/cli.py test --proyecto ejemplo/batalla-naval: VERDE, 209/209 mutantes muertos; python3 ejemplo/batalla-naval/verificar_oraculo.py: VERDE en 11 medidas y cuatro infracciones detectadas; python3 tools/cifras.py --actualizar ejecutado. tools/sitio.py no existe en este checkout. equivalentes.json no requirió cambios: no se movieron líneas referidas. Sin commits por .git de sólo lectura.
+
+## Próximo paso
+
+Claude: escribir la guía paso a paso en docs/de-cero.html usando el juego y los 33 casos de ejemplo/batalla-naval/; crear el test que reconstruye el juego al pegar los bloques en orden y ejecuta oracle test tras cada paso; comprobar las salidas reales y el diseño en teléfono. Mantener esta tarea abierta hasta completar y verificar esos puntos 2, 3 restante y 4.

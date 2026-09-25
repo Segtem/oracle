@@ -1,0 +1,6 @@
+ninguno naval.ganador_legitimo:
+    de partida p
+    donde p.impactos_ganador != 17
+    umbral <= 0 segun contrato porque "el ganador de la partida debe haber destruido la totalidad de las 17 casillas de la flota enemiga"
+    ambito universal
+    alcance "comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto."

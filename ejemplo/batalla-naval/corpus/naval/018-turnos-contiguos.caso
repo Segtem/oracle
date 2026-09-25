@@ -1,0 +1,19 @@
+caso 018-turnos-contiguos:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "turnos contiguos"
+    etiqueta: verde_correcto
+    sintoma:
+        La secuencia comienza en 0 y no tiene huecos.
+    como_se_detecto: persona
+    medida: naval.turnos_sin_huecos
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 1, 1, false
+            1, "cpu", "jugador", 2, 2, false
+
+    leccion:
+        La secuencia comienza en 0 y no tiene huecos.

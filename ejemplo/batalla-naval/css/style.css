@@ -1,0 +1,1016 @@
+/* ==========================================================================
+   style.css - Batalla Naval: Tactical Naval Operations Theme
+   ========================================================================== */
+
+:root {
+  --bg-primary: #0a0f1d;
+  --bg-surface: #111a2e;
+  --bg-card: #16223b;
+  --bg-card-hover: #1c2b4a;
+  --border-color: #233554;
+  --border-active: #00f0ff;
+
+  --accent-cyan: #00f0ff;
+  --accent-blue: #0077b6;
+  --accent-green: #00f59b;
+  --accent-red: #ff3366;
+  --accent-yellow: #ffb703;
+  --accent-orange: #fb8500;
+
+  --text-main: #e2e8f0;
+  --text-muted: #8da2c0;
+  --text-bright: #ffffff;
+
+  --cell-size: 34px;
+  --font-mono: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --radius: 8px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --glow-cyan: 0 0 12px rgba(0, 240, 255, 0.45);
+  --glow-red: 0 0 12px rgba(255, 51, 102, 0.5);
+  --glow-green: 0 0 12px rgba(0, 245, 155, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(0, 119, 182, 0.15) 0%, transparent 70%),
+    linear-gradient(rgba(10, 15, 29, 0.96), rgba(10, 15, 29, 0.98));
+  overflow-x: hidden;
+}
+
+/* Header */
+header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.radar-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-cyan);
+  position: relative;
+  box-shadow: var(--glow-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.radar-logo::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent 75%, rgba(0, 240, 255, 0.4) 100%);
+  animation: radar-sweep 2.5s linear infinite;
+  border-radius: 50%;
+}
+
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.brand-text h1 {
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  font-weight: 800;
+  color: var(--text-bright);
+  text-transform: uppercase;
+}
+
+.brand-text h1 span {
+  color: var(--accent-cyan);
+}
+
+.brand-text .tagline {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botones */
+.btn {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), #0096c7);
+  border-color: var(--accent-cyan);
+  color: var(--text-bright);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0096c7, var(--accent-cyan));
+  color: #000;
+}
+
+.btn-accent {
+  background: rgba(0, 245, 155, 0.15);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.btn-accent:hover {
+  background: var(--accent-green);
+  color: #000;
+  box-shadow: var(--glow-green);
+}
+
+.btn-danger {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.btn-danger:hover {
+  background: var(--accent-red);
+  color: #fff;
+  box-shadow: var(--glow-red);
+}
+
+.btn-icon {
+  padding: 8px 10px;
+}
+
+/* Contenedor Principal */
+main {
+  flex: 1;
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Barra de Estado / Turno */
+.status-banner {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-banner::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: var(--glow-green);
+  animation: pulse-dot 1.8s infinite;
+}
+
+.status-indicator.waiting {
+  background: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
+}
+
+.status-indicator.cpu {
+  background: var(--accent-red);
+  box-shadow: var(--glow-red);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.7; }
+}
+
+.status-text h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.status-text p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.game-metrics {
+  display: flex;
+  gap: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+/* Área de Juego: Tableros y Paneles */
+.battlefield {
+  display: grid;
+  grid-template-columns: auto auto 320px;
+  gap: 20px;
+  align-items: start;
+  justify-content: center;
+}
+
+@media (max-width: 1180px) {
+  .battlefield {
+    grid-template-columns: 1fr 1fr;
+  }
+  .side-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 820px) {
+  .battlefield {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tarjetas de Tablero */
+.board-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board-card.active-target {
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.board-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.board-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.badge-player {
+  background: rgba(0, 119, 182, 0.3);
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+}
+
+.badge-enemy {
+  background: rgba(255, 51, 102, 0.2);
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+}
+
+/* Grilla Naval 10x10 */
+.grid-container {
+  display: inline-block;
+  background: #0d1527;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #1a2948;
+}
+
+.grid-table {
+  border-collapse: collapse;
+}
+
+.grid-label {
+  width: var(--cell-size);
+  height: 22px;
+  text-align: center;
+  vertical-align: middle;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.grid-label-row {
+  width: 22px;
+  height: var(--cell-size);
+  text-align: center;
+  vertical-align: middle;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.grid-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #1b2845;
+  background-color: #0f192c;
+  position: relative;
+  cursor: default;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+/* Celdas del Radar Enemigo (Interactivas) */
+.enemy-grid .grid-cell {
+  cursor: crosshair;
+}
+
+.enemy-grid .grid-cell:hover:not(.shot) {
+  background-color: rgba(0, 240, 255, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* Estados de Casilla */
+.grid-cell.ship-present {
+  background-color: #2a3d5e;
+  border-color: #3b537e;
+}
+
+.grid-cell.ship-present::before {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  background: #3e5884;
+  border-radius: 3px;
+  border: 1px solid #5a7ea8;
+}
+
+.grid-cell.shot.miss {
+  background-color: #0b1424;
+}
+
+.grid-cell.shot.miss::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  background-color: #48cae4;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(72, 202, 228, 0.8);
+  animation: splash-pop 0.3s ease-out;
+}
+
+.grid-cell.shot.hit {
+  background-color: rgba(255, 51, 102, 0.25);
+  border-color: var(--accent-red);
+}
+
+.grid-cell.shot.hit::after {
+  content: '✕';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent-red);
+  font-weight: 900;
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px var(--accent-red);
+  animation: hit-shake 0.3s ease-in-out;
+}
+
+.grid-cell.sunk {
+  background-color: rgba(255, 51, 102, 0.45) !important;
+  border-color: #ff0044 !important;
+  animation: sunk-flash 0.8s ease-in-out;
+}
+
+/* Hover de colocación de barcos */
+.grid-cell.placement-valid {
+  background-color: rgba(0, 245, 155, 0.35) !important;
+  border-color: var(--accent-green) !important;
+}
+
+.grid-cell.placement-invalid {
+  background-color: rgba(255, 51, 102, 0.35) !important;
+  border-color: var(--accent-red) !important;
+}
+
+@keyframes splash-pop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes hit-shake {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  25% { transform: translate(-45%, -55%) scale(1.3); }
+  50% { transform: translate(-55%, -45%) scale(1.2); }
+  75% { transform: translate(-48%, -52%) scale(1.1); }
+}
+
+@keyframes sunk-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Panel de Preparación / Colocación */
+.placement-tools {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.placement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.placement-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.ships-dock {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ship-dock-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s;
+  min-width: 110px;
+}
+
+.ship-dock-item:hover:not(.placed) {
+  border-color: var(--accent-cyan);
+  background: var(--bg-card-hover);
+}
+
+.ship-dock-item.selected {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  box-shadow: var(--glow-cyan);
+}
+
+.ship-dock-item.placed {
+  opacity: 0.45;
+  border-color: #2a3a5a;
+  cursor: not-allowed;
+}
+
+.ship-dock-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ship-dock-name span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.ship-preview-blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.preview-block {
+  width: 14px;
+  height: 14px;
+  background: #3e5884;
+  border-radius: 2px;
+}
+
+.placement-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Panel Lateral: Rastreador de Flotas & Bitácora */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.side-card h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Rastreador de Barcos */
+.fleet-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roster-group-title {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.roster-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  padding: 4px 8px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  border: 1px solid #1a2742;
+}
+
+.roster-item.sunk {
+  opacity: 0.4;
+  text-decoration: line-through;
+  border-color: var(--accent-red);
+}
+
+.roster-blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.roster-block {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--accent-green);
+}
+
+.roster-block.hit {
+  background: var(--accent-red);
+}
+
+/* Bitácora de Combate */
+.combat-log {
+  height: 220px;
+  overflow-y: auto;
+  background: #0b1120;
+  border: 1px solid #18233c;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combat-log::-webkit-scrollbar {
+  width: 5px;
+}
+
+.combat-log::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.log-entry {
+  padding: 4px 6px;
+  border-radius: 3px;
+  line-height: 1.3;
+}
+
+.log-entry.player-shot {
+  border-left: 2px solid var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.05);
+}
+
+.log-entry.cpu-shot {
+  border-left: 2px solid var(--accent-red);
+  background: rgba(255, 51, 102, 0.05);
+}
+
+.log-entry.sunk-event {
+  border-left: 2px solid var(--accent-yellow);
+  background: rgba(255, 183, 3, 0.1);
+  font-weight: 700;
+  color: var(--accent-yellow);
+}
+
+.log-turn {
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+/* Modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 820px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  animation: modal-enter 0.25s ease-out;
+}
+
+@keyframes modal-enter {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem;
+  color: var(--text-bright);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text-bright);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--bg-card);
+  color: var(--accent-cyan);
+  border: 1px solid var(--border-color);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Auditoría de Reglas Lista */
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-item.passed {
+  border-left: 3px solid var(--accent-green);
+}
+
+.rule-item.failed {
+  border-left: 3px solid var(--accent-red);
+}
+
+.rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rule-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.rule-id {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.rule-status {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.rule-status.green {
+  background: rgba(0, 245, 155, 0.15);
+  color: var(--accent-green);
+}
+
+.rule-status.red {
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--accent-red);
+}
+
+.rule-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.json-viewer {
+  background: #080d19;
+  border: 1px solid #16223b;
+  border-radius: 6px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #a5d6a7;
+  max-height: 380px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cli-instruction {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cli-code {
+  background: #080d19;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  font-size: 0.82rem;
+  user-select: all;
+}
+
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Modal de Fin de Juego */
+.gameover-modal-content {
+  text-align: center;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.gameover-title {
+  font-size: 2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.gameover-title.win {
+  color: var(--accent-green);
+  text-shadow: var(--glow-green);
+}
+
+.gameover-title.loss {
+  color: var(--accent-red);
+  text-shadow: var(--glow-red);
+}
+
+.gameover-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  margin: 10px 0;
+}
+
+.gameover-stat-box {
+  background: var(--bg-card);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.gameover-stat-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.gameover-stat-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}

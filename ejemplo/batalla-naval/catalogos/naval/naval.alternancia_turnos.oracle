@@ -1,0 +1,8 @@
+medida naval.alternancia_turnos:
+    de tiro t1
+    unir tiro t2
+    donde t2.turno == t1.turno + 1 y t1.tirador == t2.tirador
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos"
+    ambito universal
+    alcance "compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo."

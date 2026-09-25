@@ -1,0 +1,18 @@
+caso 024-fila-negativa:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "fila negativa"
+    etiqueta: falso_verde
+    sintoma:
+        La fila negativa está fuera del tablero.
+    como_se_detecto: persona
+    medida: naval.tiros_dentro_del_tablero
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", -1, 5, false
+
+    leccion:
+        La fila negativa está fuera del tablero.

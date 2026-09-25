@@ -1,0 +1,17 @@
+caso 002-tiro-valido:
+    fecha: "2026-09-22"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Disparo válido dentro del tablero de 10x10"
+    etiqueta: verde_correcto
+    sintoma:
+        Un disparo dentro del rango válido no debe generar alertas.
+    como_se_detecto: persona
+    medida: naval.tiros_dentro_del_tablero
+    evidencia:
+        tiro: turno, tirador, fila, columna
+            0, "jugador", 5, 5
+    leccion:
+        Las coordenadas entre 0 y 9 son aceptadas sin faltas.

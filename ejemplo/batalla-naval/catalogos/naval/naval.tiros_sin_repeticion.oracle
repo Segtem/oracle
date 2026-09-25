@@ -1,0 +1,8 @@
+medida naval.tiros_sin_repeticion:
+    de tiro t1
+    unir tiro t2
+    donde t1.tirador == t2.tirador y t1.turno < t2.turno y t1.fila == t2.fila y t1.columna == t2.columna
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un jugador no puede disparar dos veces a la misma casilla en una partida"
+    ambito universal
+    alcance "detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto."

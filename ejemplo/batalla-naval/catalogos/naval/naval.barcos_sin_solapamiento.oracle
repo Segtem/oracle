@@ -1,0 +1,8 @@
+medida naval.barcos_sin_solapamiento:
+    de celda_barco c1
+    unir celda_barco c2
+    donde c1.jugador == c2.jugador y c1.id < c2.id y c1.fila == c2.fila y c1.columna == c2.columna
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "dos casillas de barco del mismo jugador no pueden coincidir en la misma fila y columna"
+    ambito universal
+    alcance "detecta pares de celdas distintas del mismo jugador con id1 < id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos."

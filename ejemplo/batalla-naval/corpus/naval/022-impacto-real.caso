@@ -1,0 +1,20 @@
+caso 022-impacto-real:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "impacto real"
+    etiqueta: verde_correcto
+    sintoma:
+        El impacto declarado coincide con un barco rival.
+    como_se_detecto: persona
+    medida: naval.veracidad_impacto_positivo
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 2, 3, true
+        celda_barco: id, jugador, fila, columna
+            "a", "cpu", 2, 3
+
+    leccion:
+        El impacto declarado coincide con un barco rival.

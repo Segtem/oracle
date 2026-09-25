@@ -1,0 +1,20 @@
+caso 021-impacto-fantasma:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "impacto fantasma"
+    etiqueta: falso_verde
+    sintoma:
+        El disparo se declara impacto sin barco rival en la casilla.
+    como_se_detecto: persona
+    medida: naval.veracidad_impacto_positivo
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 2, 3, true
+        celda_barco: id, jugador, fila, columna
+            "a", "cpu", 2, 4
+
+    leccion:
+        El disparo se declara impacto sin barco rival en la casilla.

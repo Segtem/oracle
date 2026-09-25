@@ -1,0 +1,20 @@
+caso 019-barco-reportado-como-agua:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "barco reportado como agua"
+    etiqueta: falso_verde
+    sintoma:
+        El disparo toca un barco rival y se registra como agua.
+    como_se_detecto: persona
+    medida: naval.veracidad_impacto_negativo
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 2, 3, false
+        celda_barco: id, jugador, fila, columna
+            "a", "cpu", 2, 3
+
+    leccion:
+        El disparo toca un barco rival y se registra como agua.

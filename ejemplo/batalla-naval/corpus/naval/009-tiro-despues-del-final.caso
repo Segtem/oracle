@@ -1,0 +1,20 @@
+caso 009-tiro-despues-del-final:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "tiro despues del final"
+    etiqueta: falso_verde
+    sintoma:
+        El turno del tiro supera el turno final.
+    como_se_detecto: persona
+    medida: naval.fin_de_juego_sin_tiros_posteriores
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            5, "jugador", "cpu", 1, 1, false
+        partida: turno_final, impactos_ganador
+            4, 17
+
+    leccion:
+        El turno del tiro supera el turno final.

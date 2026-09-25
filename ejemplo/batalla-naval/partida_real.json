@@ -1,0 +1,1589 @@
+{
+  "celda_barco": [
+    {
+      "id": 0,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 0,
+      "fila": 3,
+      "columna": 0
+    },
+    {
+      "id": 1,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 1,
+      "fila": 4,
+      "columna": 0
+    },
+    {
+      "id": 2,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 2,
+      "fila": 5,
+      "columna": 0
+    },
+    {
+      "id": 3,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 3,
+      "fila": 6,
+      "columna": 0
+    },
+    {
+      "id": 4,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 4,
+      "fila": 7,
+      "columna": 0
+    },
+    {
+      "id": 5,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 0,
+      "fila": 0,
+      "columna": 9
+    },
+    {
+      "id": 6,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 1,
+      "fila": 1,
+      "columna": 9
+    },
+    {
+      "id": 7,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 2,
+      "fila": 2,
+      "columna": 9
+    },
+    {
+      "id": 8,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 3,
+      "fila": 3,
+      "columna": 9
+    },
+    {
+      "id": 9,
+      "jugador": "cpu",
+      "barco_id": "crucero",
+      "segmento_idx": 0,
+      "fila": 3,
+      "columna": 7
+    },
+    {
+      "id": 10,
+      "jugador": "cpu",
+      "barco_id": "crucero",
+      "segmento_idx": 1,
+      "fila": 4,
+      "columna": 7
+    },
+    {
+      "id": 11,
+      "jugador": "cpu",
+      "barco_id": "crucero",
+      "segmento_idx": 2,
+      "fila": 5,
+      "columna": 7
+    },
+    {
+      "id": 12,
+      "jugador": "cpu",
+      "barco_id": "submarino",
+      "segmento_idx": 0,
+      "fila": 1,
+      "columna": 2
+    },
+    {
+      "id": 13,
+      "jugador": "cpu",
+      "barco_id": "submarino",
+      "segmento_idx": 1,
+      "fila": 1,
+      "columna": 3
+    },
+    {
+      "id": 14,
+      "jugador": "cpu",
+      "barco_id": "submarino",
+      "segmento_idx": 2,
+      "fila": 1,
+      "columna": 4
+    },
+    {
+      "id": 15,
+      "jugador": "cpu",
+      "barco_id": "destructor",
+      "segmento_idx": 0,
+      "fila": 1,
+      "columna": 6
+    },
+    {
+      "id": 16,
+      "jugador": "cpu",
+      "barco_id": "destructor",
+      "segmento_idx": 1,
+      "fila": 2,
+      "columna": 6
+    },
+    {
+      "id": 17,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 0,
+      "fila": 9,
+      "columna": 2
+    },
+    {
+      "id": 18,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 1,
+      "fila": 9,
+      "columna": 3
+    },
+    {
+      "id": 19,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 2,
+      "fila": 9,
+      "columna": 4
+    },
+    {
+      "id": 20,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 3,
+      "fila": 9,
+      "columna": 5
+    },
+    {
+      "id": 21,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 4,
+      "fila": 9,
+      "columna": 6
+    },
+    {
+      "id": 22,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 0,
+      "fila": 7,
+      "columna": 5
+    },
+    {
+      "id": 23,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 1,
+      "fila": 7,
+      "columna": 6
+    },
+    {
+      "id": 24,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 2,
+      "fila": 7,
+      "columna": 7
+    },
+    {
+      "id": 25,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 3,
+      "fila": 7,
+      "columna": 8
+    },
+    {
+      "id": 26,
+      "jugador": "jugador",
+      "barco_id": "crucero",
+      "segmento_idx": 0,
+      "fila": 8,
+      "columna": 1
+    },
+    {
+      "id": 27,
+      "jugador": "jugador",
+      "barco_id": "crucero",
+      "segmento_idx": 1,
+      "fila": 8,
+      "columna": 2
+    },
+    {
+      "id": 28,
+      "jugador": "jugador",
+      "barco_id": "crucero",
+      "segmento_idx": 2,
+      "fila": 8,
+      "columna": 3
+    },
+    {
+      "id": 29,
+      "jugador": "jugador",
+      "barco_id": "submarino",
+      "segmento_idx": 0,
+      "fila": 4,
+      "columna": 4
+    },
+    {
+      "id": 30,
+      "jugador": "jugador",
+      "barco_id": "submarino",
+      "segmento_idx": 1,
+      "fila": 4,
+      "columna": 5
+    },
+    {
+      "id": 31,
+      "jugador": "jugador",
+      "barco_id": "submarino",
+      "segmento_idx": 2,
+      "fila": 4,
+      "columna": 6
+    },
+    {
+      "id": 32,
+      "jugador": "jugador",
+      "barco_id": "destructor",
+      "segmento_idx": 0,
+      "fila": 1,
+      "columna": 8
+    },
+    {
+      "id": 33,
+      "jugador": "jugador",
+      "barco_id": "destructor",
+      "segmento_idx": 1,
+      "fila": 2,
+      "columna": 8
+    }
+  ],
+  "tiro": [
+    {
+      "turno": 0,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 1,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 5,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 2,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 3,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 3,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 3,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 4,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 6,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 5,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 6,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 6,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 7,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 8,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 9,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 1,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 10,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 11,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 0,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 12,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 5,
+      "columna": 0,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 13,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 14,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 3,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 15,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 4,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 16,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 17,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 3,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 18,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 0,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 19,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 5,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 20,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 21,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 22,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 23,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 5,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 24,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 25,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 6,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "submarino"
+    },
+    {
+      "turno": 26,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 3,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 27,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 28,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 29,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 5,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 30,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 31,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 6,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 32,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 5,
+      "columna": 7,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 33,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 0,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 34,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 35,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 7,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 36,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 3,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 37,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 6,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 38,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 4,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 39,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 40,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 7,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 41,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 6,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 42,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 6,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "destructor"
+    },
+    {
+      "turno": 43,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 5,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 44,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 45,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 46,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 9,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 47,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 8,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "acorazado"
+    },
+    {
+      "turno": 48,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 49,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 3,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 50,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 51,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 52,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 53,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 54,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 55,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 2,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 56,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 57,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 3,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 58,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 3,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 59,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 2,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 60,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 5,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 61,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 62,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 5,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 63,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 0,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 64,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 65,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 1,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 66,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 67,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 2,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 68,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 9,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 69,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 70,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 9,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 71,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 2,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 72,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 0,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 73,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 1,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 74,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 7,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 75,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 3,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "crucero"
+    },
+    {
+      "turno": 76,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 0,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 77,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 3,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 78,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 2,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 79,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 5,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 80,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 81,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 6,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 82,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 0,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 83,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 84,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 85,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 1,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 86,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 0,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 87,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 8,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 88,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 9,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 89,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 2,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 90,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 7,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 91,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 1,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 92,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 9,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 93,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 6,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 94,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 5,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 95,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 96,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 0,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 97,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 7,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 98,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 7,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 99,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 0,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 100,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 5,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 101,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 2,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 102,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 9,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 103,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 3,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 104,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 8,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 105,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 4,
+      "columna": 0,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 106,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 107,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 1,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 108,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 0,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 109,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 5,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 110,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 7,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 111,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 6,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 112,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 113,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 7,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 114,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 1,
+      "columna": 2,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "submarino"
+    },
+    {
+      "turno": 115,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 3,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 116,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 9,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 117,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 4,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 118,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 7,
+      "columna": 4,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 119,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 5,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 120,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 3,
+      "columna": 3,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 121,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 6,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "portaaviones"
+    },
+    {
+      "turno": 122,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 6,
+      "columna": 2,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 123,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 9,
+      "columna": 1,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 124,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 8,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 125,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 0,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 126,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 4,
+      "columna": 6,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 127,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 2,
+      "columna": 8,
+      "es_impacto": true,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 128,
+      "tirador": "jugador",
+      "receptor": "cpu",
+      "fila": 0,
+      "columna": 5,
+      "es_impacto": false,
+      "hundio_barco": false,
+      "barco_hundido": "ninguno"
+    },
+    {
+      "turno": 129,
+      "tirador": "cpu",
+      "receptor": "jugador",
+      "fila": 1,
+      "columna": 8,
+      "es_impacto": true,
+      "hundio_barco": true,
+      "barco_hundido": "destructor"
+    }
+  ],
+  "partida": [
+    {
+      "estado": "terminada",
+      "ganador": "cpu",
+      "perdedor": "jugador",
+      "turno_final": 129,
+      "total_tiros": 130,
+      "impactos_ganador": 17,
+      "impactos_perdedor": 12
+    }
+  ]
+}

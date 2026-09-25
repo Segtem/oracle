@@ -1,0 +1,18 @@
+caso 013-ganador-con-dieciseis-impactos:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "ganador con dieciseis impactos"
+    etiqueta: falso_verde
+    sintoma:
+        El ganador sólo acumuló 16 impactos.
+    como_se_detecto: persona
+    medida: naval.ganador_legitimo
+    evidencia:
+        partida: turno_final, impactos_ganador
+            30, 16
+
+    leccion:
+        El ganador sólo acumuló 16 impactos.

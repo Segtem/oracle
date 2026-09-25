@@ -1,0 +1,17 @@
+caso 029-flota-sin-celdas:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "flota sin celdas"
+    etiqueta: falso_verde
+    sintoma:
+        Sin ninguna celda de barco no se puede declarar reglamentaria la flota.
+    como_se_detecto: persona
+    medida: naval.flota_reglamentaria
+    evidencia:
+        celda_barco:
+
+    leccion:
+        Sin ninguna celda de barco no se puede declarar reglamentaria la flota.

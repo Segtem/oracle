@@ -1,0 +1,19 @@
+caso 003-mismo-tirador-seguido:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "mismo tirador seguido"
+    etiqueta: falso_verde
+    sintoma:
+        Dos turnos consecutivos pertenecen al mismo tirador.
+    como_se_detecto: persona
+    medida: naval.alternancia_turnos
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 1, 1, false
+            1, "jugador", "cpu", 2, 2, false
+
+    leccion:
+        Dos turnos consecutivos pertenecen al mismo tirador.

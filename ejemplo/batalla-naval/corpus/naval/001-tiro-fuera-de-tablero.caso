@@ -1,0 +1,17 @@
+caso 001-tiro-fuera-de-tablero:
+    fecha: "2026-09-22"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Disparo con coordenada fuera del tablero de 10x10"
+    etiqueta: falso_verde
+    sintoma:
+        Un disparo reporta fila 10, fuera del tablero reglamentario.
+    como_se_detecto: persona
+    medida: naval.tiros_dentro_del_tablero
+    evidencia:
+        tiro: turno, tirador, fila, columna
+            0, "jugador", 10, 4
+    leccion:
+        Todo disparo debe acotarse estrictamente entre las filas 0 a 9 y columnas 0 a 9.

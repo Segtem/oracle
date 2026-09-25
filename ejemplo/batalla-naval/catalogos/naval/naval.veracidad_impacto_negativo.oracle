@@ -1,0 +1,8 @@
+medida naval.veracidad_impacto_negativo:
+    de tiro t
+    unir celda_barco c
+    donde c.jugador == t.receptor y c.fila == t.fila y c.columna == t.columna y t.es_impacto == false
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un disparo en una casilla que contiene un barco no puede ser reportado como agua"
+    ambito universal
+    alcance "cruza cada disparo contra las celdas de la flota rival y detecta impactos omitidos registrados falsamente como agua. No verifica la secuencia de turnos."

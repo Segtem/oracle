@@ -1,0 +1,19 @@
+caso 031-distinta-fila-igual-turno-ajeno:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "distinta fila igual turno ajeno"
+    etiqueta: verde_correcto
+    sintoma:
+        La fila cambia aunque coincida con el número de turno previo.
+    como_se_detecto: persona
+    medida: naval.tiros_sin_repeticion
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 1, 3, false
+            2, "jugador", "cpu", 0, 3, false
+
+    leccion:
+        La fila cambia aunque coincida con el número de turno previo.

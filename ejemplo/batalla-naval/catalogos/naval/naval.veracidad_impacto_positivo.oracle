@@ -1,0 +1,8 @@
+medida naval.veracidad_impacto_positivo:
+    de tiro t
+    sin celda_barco c donde c.jugador == t.receptor y c.fila == t.fila y c.columna == t.columna
+    donde t.es_impacto == true
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un disparo no puede declararse impacto si en esa casilla no había un segmento de barco rival"
+    ambito universal
+    alcance "detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido."

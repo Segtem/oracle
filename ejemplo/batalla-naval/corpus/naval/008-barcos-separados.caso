@@ -1,0 +1,19 @@
+caso 008-barcos-separados:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "barcos separados"
+    etiqueta: verde_correcto
+    sintoma:
+        Dos barcos del mismo jugador ocupan casillas distintas.
+    como_se_detecto: persona
+    medida: naval.barcos_sin_solapamiento
+    evidencia:
+        celda_barco: id, jugador, fila, columna
+            "a", "jugador", 3, 4
+            "b", "jugador", 3, 5
+
+    leccion:
+        Dos barcos del mismo jugador ocupan casillas distintas.

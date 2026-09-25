@@ -1,0 +1,19 @@
+caso 015-tiro-repetido:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "tiro repetido"
+    etiqueta: falso_verde
+    sintoma:
+        El mismo tirador repite la misma casilla.
+    como_se_detecto: persona
+    medida: naval.tiros_sin_repeticion
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 2, 3, false
+            2, "jugador", "cpu", 2, 3, false
+
+    leccion:
+        El mismo tirador repite la misma casilla.

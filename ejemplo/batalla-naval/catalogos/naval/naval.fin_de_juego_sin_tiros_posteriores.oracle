@@ -1,0 +1,8 @@
+medida naval.fin_de_juego_sin_tiros_posteriores:
+    de tiro t
+    unir partida p
+    donde t.turno > p.turno_final
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "una vez finalizada la partida no se permiten más disparos"
+    ambito universal
+    alcance "compara el turno de cada tiro contra el turno final registrado en el estado de la partida. No valida si la partida debió terminar antes."

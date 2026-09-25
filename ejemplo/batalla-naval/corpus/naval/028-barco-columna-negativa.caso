@@ -1,0 +1,18 @@
+caso 028-barco-columna-negativa:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "barco columna negativa"
+    etiqueta: falso_verde
+    sintoma:
+        Una celda de barco cae en columna negativa.
+    como_se_detecto: persona
+    medida: naval.barcos_dentro_del_tablero
+    evidencia:
+        celda_barco: id, jugador, fila, columna
+            "b1", "jugador", 5, -1
+
+    leccion:
+        Una celda de barco cae en columna negativa.

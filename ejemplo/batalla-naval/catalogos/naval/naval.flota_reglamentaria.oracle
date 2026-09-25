@@ -1,0 +1,11 @@
+medida naval.flota_reglamentaria:
+    de celda_barco c
+    agrupar:
+        clave jugador = c.jugador
+        agregado celdas = contar(1)
+    donde celdas != 17
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la flota reglamentaria de cada jugador debe sumar exactamente 17 casillas (portaaviones 5 + acorazado 4 + crucero 3 + submarino 3 + destructor 2)"
+    requiere celda_barco
+    ambito universal
+    alcance "agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos."

@@ -1,0 +1,18 @@
+caso 006-barco-en-borde:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "barco en borde"
+    etiqueta: verde_correcto
+    sintoma:
+        La celda de barco está en el borde válido.
+    como_se_detecto: persona
+    medida: naval.barcos_dentro_del_tablero
+    evidencia:
+        celda_barco: id, jugador, fila, columna
+            "b1", "jugador", 0, 9
+
+    leccion:
+        La celda de barco está en el borde válido.

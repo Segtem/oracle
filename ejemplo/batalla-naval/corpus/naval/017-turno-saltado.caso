@@ -1,0 +1,19 @@
+caso 017-turno-saltado:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "turno saltado"
+    etiqueta: falso_verde
+    sintoma:
+        La secuencia salta el turno 1.
+    como_se_detecto: persona
+    medida: naval.turnos_sin_huecos
+    evidencia:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, "jugador", "cpu", 1, 1, false
+            2, "cpu", "jugador", 2, 2, false
+
+    leccion:
+        La secuencia salta el turno 1.

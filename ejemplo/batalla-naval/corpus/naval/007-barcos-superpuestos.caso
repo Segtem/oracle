@@ -1,0 +1,19 @@
+caso 007-barcos-superpuestos:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/batalla-naval"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "barcos superpuestos"
+    etiqueta: falso_verde
+    sintoma:
+        Dos barcos del mismo jugador comparten una casilla.
+    como_se_detecto: persona
+    medida: naval.barcos_sin_solapamiento
+    evidencia:
+        celda_barco: id, jugador, fila, columna
+            "a", "jugador", 3, 4
+            "b", "jugador", 3, 4
+
+    leccion:
+        Dos barcos del mismo jugador comparten una casilla.
