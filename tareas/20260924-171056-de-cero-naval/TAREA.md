@@ -63,6 +63,10 @@ Punto 1 y verificación del 3: copié naval-0280 a ejemplo/batalla-naval sin toc
 
 Verificación final: python3 -m unittest discover -s tests: 2515 tests, OK; cd diferencial/referencia && python3 -m unittest: 48 tests, OK; python3 tools/cli.py test --rapido: VERDE; python3 tools/cli.py test --proyecto ejemplo/batalla-naval: VERDE, 209/209 mutantes muertos; python3 ejemplo/batalla-naval/verificar_oraculo.py: VERDE en 11 medidas y cuatro infracciones detectadas; python3 tools/cifras.py --actualizar ejecutado. tools/sitio.py no existe en este checkout. equivalentes.json no requirió cambios: no se movieron líneas referidas. Sin commits por .git de sólo lectura.
 
+### Nota (2026-09-25 05:24:38 UTC)
+
+2026-09-25, Codex: implementé tools/guia.py y tests/test_guia.py. El arnés arma batalla-naval desde una carpeta temporal vacía con los bloques archivo/incluir, ejecuta los 9 bloques bash paso en orden (uv tool install se saltea; oracle usa tools/cli.py), normaliza rutas y tiempos, compara las salidas y --escribir las actualiza. Completé las 9 salidas reales de docs/de-cero.md y regeneré docs/de-cero.html con tools/sitio.py --escribir. Desajuste confirmado: el paso 8 pedía juzgar hechos_partida.json, pero ese archivo sólo se mencionaba como descarga manual y no lo creaba ningún bloque; añadí el bloque archivo=hechos_partida.json incluir=ejemplo/batalla-naval/partida_real.json antes del comando, sin cambiar el comando ni la prosa. La partida juzgada da verde en 11 medidas; al quitar tiro, 7 quedan en NO SE APLICARON. Verificación: python3 tools/guia.py (9 pasos, 0 salidas viejas), python3 tools/sitio.py y python3 -m unittest discover -s tests (2533 tests, OK). Sin commits.
+
 ## Próximo paso
 
-Claude: escribir la guía paso a paso en docs/de-cero.html usando el juego y los 33 casos de ejemplo/batalla-naval/; crear el test que reconstruye el juego al pegar los bloques en orden y ejecuta oracle test tras cada paso; comprobar las salidas reales y el diseño en teléfono. Mantener esta tarea abierta hasta completar y verificar esos puntos 2, 3 restante y 4.
+Claude: revisar docs/de-cero.html en un teléfono y ajustar el diseño si algún bloque o tabla desborda; después verificar python3 tools/guia.py y python3 tools/sitio.py antes de cerrar la tarea.
