@@ -18,3 +18,7 @@ migrar sus null (`algebra-10-null` en LyraGASP y Jam).
 
 La mutación de lo tocado (18 módulos, lanzada el 2026-09-25), después notas, crónica, cifras al
 final, build limpio, tag y release; Brian sube a PyPI.
+
+### Nota (2026-09-25 13:00:54 UTC)
+
+2026-09-25: la ronda encontró dos puntos flojos, arreglados en beea467 (null en corrida_mutacion → -1; unir indexado con claves bool cede al producto). En la rama corte-031 (worktree del scratchpad): --help de nueva/medida/caso, versión 0.31.0, crónica y notas. algebra.py y cli.py se re-mutan desde esa rama al terminar la ronda (tanda c031b); después, cifras, build, tag.
