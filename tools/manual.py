@@ -39,7 +39,7 @@ class TemaDesconocido(KeyError):
 # Cada vocabulario cerrado del lenguaje, con el campo donde se escribe y su registro.
 VOCABULARIOS: dict[str, tuple[str, dict[str, str]]] = {
     "ambito": ("dónde obliga una medida (campo `ambito`)", AMBITOS),
-    "operadores": ("los seis operadores de una tubería", OPERADORES),
+    "operadores": ("los seis operadores de una tubería, y `desde`, que la encabeza", OPERADORES),
     "segun": ("de dónde salió el número de un umbral (campo `segun`)", ORIGENES_DE_UMBRAL),
     "etiqueta": ("qué enseña un caso del corpus (campo `etiqueta`)", ETIQUETAS),
     "procedencia": ("de dónde salió la evidencia de un caso (campo `procedencia`)", PROCEDENCIAS),
@@ -378,115 +378,67 @@ def html() -> str:
     return "\n".join(partes)
 
 
-ESTILO = """
-  :root { --tinta: oklch(0.16 0 0); --papel: oklch(0.96 0.004 95);
-          --acento: oklch(0.58 0.20 45); --regla: 3px; --mg: 44px;
-          --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-          --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif; }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--papel); color: var(--tinta); font-size: 17px;
-         line-height: 1.5; font-family: 'Archivo', system-ui, -apple-system, sans-serif; }
-  a { color: inherit; text-underline-offset: 3px; }
-  a:hover { color: var(--acento); }
-  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
-           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
-           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
-           text-transform: uppercase; flex-wrap: wrap; }
-  .barra a { text-decoration: none; }
-  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
-  .encabezado { padding: 48px var(--mg) 30px; }
-  .encabezado h1 { font-family: var(--negra); font-size: clamp(40px, 8vw, 78px); margin: 0 0 20px;
-                   line-height: 0.92; letter-spacing: -0.035em; text-transform: uppercase; }
-  .encabezado p { max-width: 62ch; font-size: 19px; margin: 0; text-wrap: pretty; }
-  .indice { display: flex; flex-wrap: wrap; gap: 10px; padding: 0 var(--mg) 34px; }
-  .indice a { font-family: var(--mono); font-size: 13px; text-decoration: none;
-              padding: 7px 14px; box-shadow: inset 0 0 0 2px var(--tinta); }
-  .indice a:hover { background: var(--tinta); color: var(--papel); }
-  .tema { display: grid; grid-template-columns: 19rem minmax(0, 1fr);
-          border-top: var(--regla) solid var(--tinta); }
-  .rotulo { padding: 26px var(--mg); border-right: var(--regla) solid var(--tinta);
-            position: sticky; top: 0; align-self: start; }
-  .rotulo h2 { font-family: var(--negra); font-size: clamp(24px, 2.6vw, 32px);
-               margin: 0 0 10px; line-height: 1.02; text-transform: uppercase;
-               letter-spacing: -0.02em; overflow-wrap: break-word; }
-  .rotulo p { margin: 0; font-family: var(--mono); font-size: 12px; line-height: 1.55;
-              color: oklch(0.45 0.01 95); }
-  /* Sin hueco entre columnas: con `column-gap` la línea de cada fila se parte en dos trazos y
-     parece un borde roto. El aire lo pone el padding del término, que sí se puede subrayar. */
-  .manual dl { margin: 0; padding: 26px var(--mg); display: grid;
-               grid-template-columns: minmax(10rem, 14rem) minmax(0, 1fr); gap: 0; }
-  .manual dt { font-family: var(--mono); font-weight: 700;
-               padding: 10px 30px 10px 0; overflow-wrap: break-word; }
-  .manual dd { margin: 0; padding: 10px 0; max-width: 92ch; text-wrap: pretty; }
-  .manual dt:not(:first-of-type), .manual dt:not(:first-of-type) + dd {
-    border-top: 1px solid oklch(0.16 0 0 / 0.14); }
-  .pie { border-top: var(--regla) solid var(--tinta); padding: 26px var(--mg);
-         font-family: var(--mono); font-size: 13px; }
-  @media (max-width: 1000px) {
-    .tema { grid-template-columns: 1fr; }
-    .rotulo { position: static; border-right: 0;
-              border-bottom: var(--regla) solid var(--tinta); padding-bottom: 18px; }
-    .manual dl { padding-top: 18px; }
-  }
-  @media (max-width: 760px) {
-    :root { --mg: 20px; }
-    .manual dl { grid-template-columns: 1fr; gap: 0; }
-    .manual dd { padding-top: 4px; padding-bottom: 16px; border-top: 0; }
-    .manual dt:not(:first-of-type) { padding-top: 12px; }
-  }
-"""
-
-
 def pagina() -> str:
     """La página del sitio, con el mismo cuerpo que imprime la terminal.
 
     `docs/manual.html` es exactamente la salida de `oracle manual --html`, y un test lo compara:
     la página del sitio no puede quedar atrasada respecto del lenguaje sin que la corrida lo diga.
+    Usa la hoja y la barra del resto del sitio (`assets/sitio.css`): el manual tenía un estilo
+    propio y era la única página que no parecía de Oracle.
     """
     indice = "\n".join(
-        f'  <a href="#manual-{_html.escape(t)}">{_html.escape(t)}</a>' for t in temas())
+        f'<li><a href="#manual-{_html.escape(t)}">{_cortable(t)}'
+        f' <span class="cuenta">{len(entradas(t))}</span></a></li>' for t in temas())
+    total = sum(len(entradas(t)) for t in temas())
     return f"""<!doctype html>
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Manual — Oracle</title>
 <meta name="description" content="La referencia del lenguaje Oracle: los operadores de una tubería, los vocabularios cerrados de una medida y de un caso, las relaciones que el lenguaje emite sobre sí mismo y los verbos del comando.">
 <link rel="canonical" href="https://segtem.github.io/oracle/manual.html">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<style>{ESTILO}</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/sitio.css">
+<link rel="icon" href="assets/emblema.svg" type="image/svg+xml">
 </head>
-<body>
-
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="barra">
-  <div><strong>oracle</strong> · manual</div>
-  <nav>
-    <a href="./">inicio</a>
-    <a href="documentacion.html">documentación</a>
-    <a href="https://github.com/Segtem/oracle">github</a>
+  <a class="marca" href="./"><img src="assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="por-que.html">Por qué</a>
+    <a href="documentacion.html">Documentación</a>
+    <a href="manual.html" aria-current="page">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
   </nav>
 </header>
-
-<div class="encabezado">
-  <h1>Manual</h1>
-  <p>Esta página no se escribió: se generó. Cada entrada sale de la declaración que el lenguaje
-  ya tiene —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los verbos del
-  comando—, así que no hay dónde quede vieja. Lo mismo se lee en la terminal con
-  <code>oracle manual</code>.</p>
-</div>
-
-<div class="indice">
+<div class="doc-rejilla manual-rejilla">
+  <details class="menu" open>
+    <summary>Temas</summary>
+    <nav aria-label="Temas del manual"><p class="menu-grupo">Temas</p><ul>
 {indice}
-</div>
-
+    </ul></nav>
+  </details>
+  <main id="contenido">
+    <header class="manual-cabeza">
+      <p class="pixel ceja">referencia · {len(temas())} temas · {total} entradas</p>
+      <h1>Manual</h1>
+      <p>Esta página no se escribió: se generó. Cada entrada sale de la declaración que el
+      lenguaje ya tiene —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los
+      verbos del comando—, así que no hay dónde quede vieja. Lo mismo se lee en la terminal con
+      <code>oracle manual</code> y <code>oracle manual &lt;tema&gt;</code>.</p>
+    </header>
 {html()}
-
-<footer class="pie">
-  Generado con <code>oracle manual --html</code> · <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
-</footer>
-
+    <p class="fuente">Generado con <code>oracle manual --html</code> desde
+    <a href="https://github.com/Segtem/oracle/blob/main/tools/manual.py" rel="noopener">tools/manual.py</a>.</p>
+  </main>
+</div>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+</script>
 </body>
 </html>
 """

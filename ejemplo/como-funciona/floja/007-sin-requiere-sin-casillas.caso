@@ -1,0 +1,17 @@
+caso 007-sin-requiere-sin-casillas:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/como-funciona"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "el juego no anotó ninguna casilla"
+    etiqueta: falso_verde
+    sintoma:
+        La partida terminó sin una sola casilla de barco anotada.
+    como_se_detecto: persona
+    medida: flota.casillas_dentro_sin_requiere
+    evidencia:
+        casilla:
+
+    leccion:
+        Con ninguno a secas, cero casillas cuenta cero infracciones y sale verde.

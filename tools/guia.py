@@ -18,7 +18,7 @@ import shutil
 
 RAIZ = Path(__file__).resolve().parents[1]
 GUIAS = tuple(RAIZ / "docs" / nombre for nombre in (
-    "de-cero.md", "02-de-cero-a-un-rojo.md", "05-por-que-la-mutacion.md",
+    "de-cero.md", "como-funciona.md", "02-de-cero-a-un-rojo.md", "05-por-que-la-mutacion.md",
     "07-conectar-a-un-proyecto-propio.md", "13-primer-valor.md"))
 GUIA = GUIAS[0]
 CLI = RAIZ / "tools/cli.py"
@@ -59,7 +59,7 @@ def normalizar(salida: str, temporal: Path) -> str:
     return salida.rstrip("\n") + ("\n" if salida else "")
 
 
-def correr(comando: str, cwd: Path, temporal: Path) -> tuple[str, Path]:
+def correr(comando: str, cwd: Path, temporal: Path, falla: bool = False) -> tuple[str, Path]:
     comando = comando.replace("\\\n", "")
     # La guía 07 pasa al CLI la salida del sensor sin invocar un shell general.
     sustitucion = re.search(r'"\$\((python3 [^()]+)\)"', comando)
@@ -95,6 +95,12 @@ def correr(comando: str, cwd: Path, temporal: Path) -> tuple[str, Path]:
     p = subprocess.run(argumentos, cwd=cwd, env=entorno, stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT, text=True, timeout=180)
     salida = normalizar(p.stdout, temporal)
+    # Un paso `bash paso falla` muestra un error a propósito: tiene que fallar, y si no falla la
+    # guía está mostrando algo que Oracle ya no hace.
+    if falla:
+        if not p.returncode:
+            raise RuntimeError(f"Se esperaba que fallara `{comando}` y terminó bien:\n{salida}")
+        return salida, cwd
     if p.returncode and not (len(argumentos) > 2 and argumentos[2] == "revisar" or
                              "VEREDICTO: ROJO" in salida or "CATÁLOGO INVÁLIDO" in salida or
                              ((" medidas en rojo" in salida or " medidas propias sin aplicar" in salida)
@@ -122,8 +128,9 @@ def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
                     shutil.copytree(fuente, destino, dirs_exist_ok=True)
                 else:
                     destino.write_bytes(fuente.read_bytes())
-            if cabecera != ["bash", "paso"]:
+            if cabecera not in (["bash", "paso"], ["bash", "paso", "falla"]):
                 continue
+            falla = cabecera[2:] == ["falla"]
             salida = ""
             comandos = []
             for linea in cuerpo.splitlines():
@@ -135,7 +142,7 @@ def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
                     comandos.append(linea)
             for comando in comandos:
                 if comando.strip() and not comando.lstrip().startswith("#"):
-                    fragmento, cwd = correr(comando, cwd, temporal)
+                    fragmento, cwd = correr(comando, cwd, temporal, falla)
                     salida += fragmento
             if n + 1 >= len(encontrados) or encontrados[n + 1][2] != ["text", "salida"]:
                 raise ValueError(f"Falta `text salida` después del paso en línea {inicio + 1}")
@@ -149,7 +156,7 @@ def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
         for inicio, fin, salida in reversed(cambios):
             lineas[inicio:fin] = salida.splitlines(keepends=True)
         guia.write_text("".join(lineas), encoding="utf-8")
-    print(f"{guia.relative_to(RAIZ)}: {sum(b[2] == ['bash', 'paso'] for b in encontrados)} pasos, "
+    print(f"{guia.relative_to(RAIZ)}: {sum(b[2][:2] == ['bash', 'paso'] for b in encontrados)} pasos, "
           f"{len(cambios)} salidas actualizadas")
 
 

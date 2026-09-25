@@ -1,0 +1,496 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cómo funciona Oracle — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html" aria-current=page>Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="cómo-funciona-oracle">Cómo funciona Oracle<a class="ancla" href="#cómo-funciona-oracle" aria-label="Enlace a esta sección">#</a></h1>
+<p>Esta página cuenta qué hace Oracle, en qué orden y qué contesta en cada caso. No hay ninguna salida inventada: un test del repositorio arma el proyecto de esta página desde una carpeta vacía, corre cada comando y compara lo que sale con lo que ves acá. Si Oracle cambia y la página no, el test se pone rojo.</p>
+<p>El proyecto es chico a propósito: una sola regla de la batalla naval —<strong>ningún barco fuera del tablero de 10×10</strong>— para mirar de cerca cada pieza. La guía <a href="de-cero.html">Tu primer juego con un LLM</a> arma el juego completo; esta página explica la máquina.</p>
+<pre data-lenguaje="bash"><code>oracle --version</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.31.0
+  álgebra:  1.0   (qué SIGNIFICA una medida)
+  sintaxis: 0.7   (cómo se ESCRIBE)
+  corriendo desde: …/oracle</code></pre>
+<p>Tres versiones, y son tres cosas distintas. El <strong>álgebra</strong> versiona lo que una medida significa: si sube la mayor, una medida que ya tenías puede dar otro resultado. La <strong>sintaxis</strong> versiona cómo se escribe un <code>.oracle</code> o un <code>.caso</code>. La <strong>distribución</strong> es el paquete que instalás, y cambia también cuando se arregla una herramienta sin tocar el lenguaje.</p>
+<h2 id="las-tres-piezas">Las tres piezas<a class="ancla" href="#las-tres-piezas" aria-label="Enlace a esta sección">#</a></h2>
+<p>Todo en Oracle es uno de estos tres archivos:</p>
+<div class="tabla"><table><thead><tr><th>pieza</th><th>archivo</th><th>qué es</th></tr></thead><tbody><tr><td><strong>evidencia</strong></td><td>un <code>.json</code></td><td>lo que pasó, en filas planas. La escribe un <strong>sensor</strong> de tu proyecto, no Oracle</td></tr><tr><td><strong>medida</strong></td><td>un <code>.oracle</code> en <code>catalogos/</code></td><td>una regla: qué filas cuentan como infracción y cuántas se toleran</td></tr><tr><td><strong>caso</strong></td><td>un <code>.caso</code> en <code>corpus/</code></td><td>una evidencia guardada y lo que la medida <strong>tiene</strong> que decir sobre ella</td></tr></tbody></table></div>
+<p>Y dos verbos:</p>
+<ul><li><code>oracle juzgar --con hechos.json</code> cruza tus medidas con una evidencia nueva y da un veredicto.</li><li><code>oracle test</code> cruza tus medidas con los casos guardados, y además <strong>ataca a las medidas</strong> para ver si los casos las sostienen.</li></ul>
+<p>Oracle no corre tu juego, no abre la red y no llama a ningún modelo. Juzga lo que el sensor le entrega, y cada veredicto dice qué no miró.</p>
+<h2 id="el-proyecto">El proyecto<a class="ancla" href="#el-proyecto" aria-label="Enlace a esta sección">#</a></h2>
+<pre data-lenguaje="bash"><code>oracle init .</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>Proyecto Oracle inicializado en .:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso &lt;grupo/id&gt;
+  2. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
+  3. Verificá todo:    oracle test</code></pre>
+<p><code>init</code> crea <code>catalogos/</code>, <code>corpus/</code>, <code>diferencial/</code>, <code>relaciones/</code> y <code>oracle.json</code>. Para esta página apagamos el catálogo base: así lo único que se mide son nuestras reglas y cada salida es corta. En un proyecto real conviene dejarlo prendido, porque trae las <strong>políticas</strong> que vigilan tu catálogo (que toda medida declare qué no ve, de dónde sale cada umbral, etc.).</p>
+<pre class="archivo" data-lenguaje="oracle.json"><code>{
+  &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
+  &quot;catalogo_base&quot;: false,
+  &quot;perfiles&quot;: []
+}</code></pre>
+<h2 id="una-medida-línea-por-línea">Una medida, línea por línea<a class="ancla" href="#una-medida-línea-por-línea" aria-label="Enlace a esta sección">#</a></h2>
+<pre class="archivo" data-lenguaje="catalogos/flota/flota.casillas_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno-requiere</span> flota.casillas_dentro_del_tablero:
+    <span class="c-kw">de</span> casilla c
+    <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el tablero es de 10x10: filas y columnas van de 0 a 9&quot;</span>
+    <span class="c-kw">requiere</span> casilla
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;mira cada casilla ocupada que el juego anotó. NO ve si los barcos se tocan ni si la flota está completa&quot;</span></code></pre>
+<div class="tabla"><table><thead><tr><th>línea</th><th>qué dice</th><th>qué pasa si falta</th></tr></thead><tbody><tr><td><code>ninguno-requiere flota.casillas_dentro_del_tablero:</code></td><td>la <strong>forma</strong> de la regla y su id. <code>ninguno</code> = «no tiene que haber ninguna infracción»; <code>-requiere</code> = «y tiene que haber algo que mirar»</td><td>el id es obligatorio: <code>dominio.nombre</code>, en ASCII</td></tr><tr><td><code>de casilla c</code></td><td>de qué <strong>relación</strong> de la evidencia salen las filas, y con qué alias se nombran</td><td>sin fuente no hay medida</td></tr><tr><td><code>donde …</code></td><td>qué fila cuenta como <strong>infracción</strong>. Tiene que dar <code>true</code> o <code>false</code>: un número o un texto es error</td><td>sin filtro, toda casilla sería una infracción</td></tr><tr><td><code>umbral &lt;= 0 segun contrato porque &quot;…&quot;</code></td><td>cuántas infracciones se toleran, <strong>de dónde salió ese número</strong> (<code>contrato</code>, <code>medicion</code>, <code>convencion</code> o <code>tanteo</code>) y por qué</td><td>es obligatorio: una regla sin umbral no decide nada</td></tr><tr><td><code>requiere casilla</code></td><td>la relación que <strong>tiene</strong> que traer filas. Si viene vacía, el veredicto es SIN EVIDENCIA</td><td>con <code>ninguno</code> a secas, cero filas son cero infracciones: verde</td></tr><tr><td><code>ambito universal</code></td><td>dónde obliga la regla: <code>universal</code> (siempre) o <code>del_origen</code> (sólo en el proyecto que la escribió)</td><td>se asume <code>sin_declarar</code></td></tr><tr><td><code>alcance &quot;…&quot;</code></td><td>qué <strong>no</strong> ve la medida. Oracle lo repite al final de cada verde</td><td>es obligatorio: un verde sin alcance promete de más</td></tr></tbody></table></div>
+<p>Una macro como <code>ninguno-requiere</code> es sólo una forma corta. Oracle la expande a la forma canónica, que es un dato JSON: así se guarda, se compara y se muta.</p>
+<details>
+<summary>Ver la forma canónica de esta medida</summary>
+<pre data-lenguaje="bash"><code>oracle medida expandir catalogos/flota/flota.casillas_dentro_del_tablero.oracle</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>[
+ &quot;medida&quot;,
+ &quot;flota.casillas_dentro_del_tablero&quot;,
+ [
+  &quot;desde&quot;,
+  [
+   &quot;de&quot;,
+   &quot;casilla&quot;,
+   &quot;c&quot;
+  ],
+  [
+   &quot;donde&quot;,
+   [
+    &quot;o&quot;,
+    [
+     &quot;&lt;&quot;,
+     [
+      &quot;campo&quot;,
+      &quot;c&quot;,
+      &quot;fila&quot;
+     ],
+     0
+    ],
+    [
+     &quot;&gt;&quot;,
+     [
+      &quot;campo&quot;,
+      &quot;c&quot;,
+      &quot;fila&quot;
+     ],
+     9
+    ],
+    [
+     &quot;&lt;&quot;,
+     [
+      &quot;campo&quot;,
+      &quot;c&quot;,
+      &quot;columna&quot;
+     ],
+     0
+    ],
+    [
+     &quot;&gt;&quot;,
+     [
+      &quot;campo&quot;,
+      &quot;c&quot;,
+      &quot;columna&quot;
+     ],
+     9
+    ]
+   ]
+  ]
+ ],
+ [
+  &quot;resumen&quot;,
+  &quot;contar&quot;,
+  1
+ ],
+ [
+  &quot;umbral&quot;,
+  &quot;&lt;=&quot;,
+  0,
+  &quot;el tablero es de 10x10: filas y columnas van de 0 a 9&quot;,
+  &quot;contrato&quot;
+ ],
+ [
+  &quot;requiere&quot;,
+  &quot;casilla&quot;
+ ],
+ [
+  &quot;ambito&quot;,
+  &quot;universal&quot;
+ ],
+ [
+  &quot;alcance&quot;,
+  &quot;mira cada casilla ocupada que el juego anotó. NO ve si los barcos se tocan ni si la flota está completa&quot;
+ ]
+]</code></pre>
+<p><code>ninguno</code> se vuelve una <strong>tubería</strong> (<code>desde</code>: de dónde salen las filas y cómo se filtran), un <strong>resumen</strong> (<code>contar</code> las filas que quedaron) y un <strong>umbral</strong> (<code>&lt;= 0</code>). Toda medida tiene esa forma.</p>
+</details>
+<h2 id="qué-pasa-cuando-juzgás">Qué pasa cuando juzgás<a class="ancla" href="#qué-pasa-cuando-juzgás" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>oracle juzgar</code> hace siempre lo mismo, en este orden:</p>
+<ol><li><strong>Carga el catálogo.</strong> Cada medida se valida al leerla: vocabularios cerrados, <code>alcance</code> obligatorio, macros completas. Una medida mal escrita no se evalúa a medias: la corrida no empieza.</li><li><strong>Lee la evidencia.</strong> Un objeto JSON: cada clave es una relación y su valor, una lista de filas.</li><li><strong>Valida la evidencia entera, antes de medir nada.</strong> Un <code>null</code> se rechaza, y las claves de unicidad se comprueban en <strong>todas</strong> las relaciones, también en las que ninguna medida usa.</li><li><strong>Mide cada regla.</strong> Si una relación de <code>requiere</code> viene vacía, esa medida sale SIN EVIDENCIA y no se mide. Si no, corre la tubería: las filas que sobreviven son los <strong>testigos</strong>, el resumen las cuenta y el umbral decide.</li><li><strong>Aplica las sombras.</strong> Una medida en sombra se mide igual, pero su rojo no hace fallar la corrida mientras no supere su cota. Un SIN EVIDENCIA no se perdona nunca.</li><li><strong>Da el veredicto y un código de salida</strong>: <code>0</code> si todo pasó; <code>1</code> si hubo un rojo, un SIN EVIDENCIA o una medida propia que no se pudo aplicar; <code>2</code> si no se pudo juzgar (evidencia inválida, error del álgebra, uso incorrecto).</li></ol>
+<p>Veámoslo con cinco evidencias.</p>
+<pre class="archivo" data-lenguaje="evidencia/en-regla.json"><code>{
+  &quot;casilla&quot;: [
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: 3, &quot;columna&quot;: 4},
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: 3, &quot;columna&quot;: 5}
+  ]
+}</code></pre>
+<pre class="archivo" data-lenguaje="evidencia/fuera.json"><code>{
+  &quot;casilla&quot;: [
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: 9, &quot;columna&quot;: 4},
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: 10, &quot;columna&quot;: 4}
+  ]
+}</code></pre>
+<pre class="archivo" data-lenguaje="evidencia/vacia.json"><code>{
+  &quot;casilla&quot;: []
+}</code></pre>
+<pre class="archivo" data-lenguaje="evidencia/con-null.json"><code>{
+  &quot;casilla&quot;: [
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: null, &quot;columna&quot;: 4}
+  ]
+}</code></pre>
+<pre class="archivo" data-lenguaje="evidencia/repetida.json"><code>{
+  &quot;casilla&quot;: [
+    [&quot;clave&quot;, [&quot;barco&quot;, &quot;fila&quot;, &quot;columna&quot;]],
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: 3, &quot;columna&quot;: 4},
+    {&quot;barco&quot;: &quot;b1&quot;, &quot;fila&quot;: 3, &quot;columna&quot;: 4}
+  ]
+}</code></pre>
+<h3 id="verde-y-lo-que-no-miró">Verde: y lo que no miró<a class="ancla" href="#verde-y-lo-que-no-miró" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="bash"><code>oracle juzgar --con evidencia/en-regla.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>✓ flota.casillas_dentro_del_tablero                   0 (&lt;= 0)
+
+VEREDICTO: verde en 1 medidas. SIN MIRAR:
+  · flota.casillas_dentro_del_tablero: mira cada casilla ocupada que el juego anotó. NO ve si los barcos se tocan ni si la flota está completa</code></pre>
+<p><code>0 (&lt;= 0)</code>: cero infracciones contra un umbral de cero. Un verde <strong>nunca</strong> termina ahí: siempre enumera lo que no se miró, que es el <code>alcance</code> de cada medida.</p>
+<h3 id="rojo-con-el-testigo-exacto">Rojo: con el testigo exacto<a class="ancla" href="#rojo-con-el-testigo-exacto" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="bash"><code>oracle juzgar --con evidencia/fuera.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>✗ flota.casillas_dentro_del_tablero                   1 (&lt;= 0)
+      → c={&#x27;barco&#x27;: &#x27;b1&#x27;, &#x27;fila&#x27;: 10, &#x27;columna&#x27;: 4}
+
+VEREDICTO: 1 de 1 medidas en rojo</code></pre>
+<p>El <strong>testigo</strong> es la fila que hizo fallar la regla, tal como vino en la evidencia. La casilla de la fila 9 no aparece: está dentro del tablero. Con el testigo sabés qué corregir sin adivinar.</p>
+<h3 id="sin-evidencia-no-es-verde-ni-rojo">Sin evidencia: no es verde ni rojo<a class="ancla" href="#sin-evidencia-no-es-verde-ni-rojo" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="bash"><code>oracle juzgar --con evidencia/vacia.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>⊘ flota.casillas_dentro_del_tablero            SIN EVIDENCIA («casilla» vacía; no se midió)
+
+VEREDICTO: 1 de 1 sin evidencia (no se midieron)</code></pre>
+<p>La partida no anotó ninguna casilla. Eso no prueba que los barcos estén bien: prueba que el sensor no miró. Oracle no lo cuenta como verde, y tampoco como un rojo del juego: lo nombra aparte, y la corrida falla igual.</p>
+<p class="pregunta"><strong>Pensalo.</strong> ¿Y si la regla no tuviera <code>requiere</code>?</p>
+<details>
+<summary>Probalo</summary>
+<p>La misma regla con <code>ninguno</code> a secas:</p>
+<pre class="archivo" data-lenguaje="catalogos/flota/flota.casillas_dentro_sin_requiere.oracle"><code><span class="c-kw">ninguno</span> flota.casillas_dentro_sin_requiere:
+    <span class="c-kw">de</span> casilla c
+    <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;la misma regla, escrita sin exigir que haya casillas&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;la misma regla que flota.casillas_dentro_del_tablero; existe para mostrar qué pasa sin requiere&quot;</span></code></pre>
+<pre data-lenguaje="bash"><code>oracle juzgar --con evidencia/vacia.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>⊘ flota.casillas_dentro_del_tablero            SIN EVIDENCIA («casilla» vacía; no se midió)
+✓ flota.casillas_dentro_sin_requiere                  0 (&lt;= 0)
+
+VEREDICTO: 1 de 2 sin evidencia (no se midieron)</code></pre>
+<p>Sobre la misma evidencia vacía, la versión sin <code>requiere</code> dice <strong>verde</strong>: cero filas, cero infracciones. Es la trampa más común de un catálogo, y por eso existe <code>-requiere</code>: <strong>si la relación es el universo que se evalúa, usá la variante <code>-requiere</code></strong>. Más abajo, <code>oracle test</code> va a atrapar esta medida floja por su cuenta.</p>
+</details>
+<h3 id="evidencia-inválida-no-se-juzga">Evidencia inválida: no se juzga<a class="ancla" href="#evidencia-inválida-no-se-juzga" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="bash"><code>oracle juzgar --con evidencia/con-null.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>ERROR AL EVALUAR — «flota.casillas_dentro_del_tablero»: la relación «casilla» trae null explícito en la fila 0, campo «fila»
+ERROR AL EVALUAR — «flota.casillas_dentro_sin_requiere»: la relación «casilla» trae null explícito en la fila 0, campo «fila»</code></pre>
+<p>Un <code>null</code> no dice si la casilla estaba bien o mal: cada comparación lo interpretaría a su manera. Oracle lo rechaza antes de medir. Si tu sensor no pudo decidir un dato, que lo diga con un campo aparte (<code>fila_decidible: false</code>), no con un hueco.</p>
+<p>Una relación puede declarar su <strong>clave de unicidad</strong> poniendo <code>[&quot;clave&quot;, [campos…]]</code> como primera fila. Oracle la comprueba en toda la evidencia antes de medir:</p>
+<pre data-lenguaje="bash"><code>oracle juzgar --con evidencia/repetida.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>ERROR AL EVALUAR — «flota.casillas_dentro_del_tablero»: la relación «casilla» declara la clave (barco, fila, columna) y la fila 1 la repite: ya la traía la fila 0 — {&#x27;barco&#x27;: &#x27;b1&#x27;, &#x27;fila&#x27;: 3, &#x27;columna&#x27;: 4}
+ERROR AL EVALUAR — «flota.casillas_dentro_sin_requiere»: la relación «casilla» declara la clave (barco, fila, columna) y la fila 1 la repite: ya la traía la fila 0 — {&#x27;barco&#x27;: &#x27;b1&#x27;, &#x27;fila&#x27;: 3, &#x27;columna&#x27;: 4}</code></pre>
+<p>Sin la cabecera, dos filas iguales son dos hechos: Oracle no deduplica, porque no puede inventar una identidad que tu dominio no declaró.</p>
+<h2 id="qué-comprueba-oracle-test">Qué comprueba <code>oracle test</code><a class="ancla" href="#qué-comprueba-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>juzgar</code> mira una partida. <code>test</code> mira <strong>tus reglas</strong>: ¿se ponen rojas cuando deben y verdes cuando deben? ¿Y se nota si alguien las rompe?</p>
+<pre data-lenguaje="bash"><code>oracle test --rapido</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 0 casos · esquema, evidencia L0 y trazabilidad en regla
+
+MEDIDAS SIN CASOS ✗ — 2 medida(s) propias sin ejercitar:
+  · flota.casillas_dentro_del_tablero: escribí un caso rojo y uno verde que ejerzan esta medida
+  · flota.casillas_dentro_sin_requiere: escribí un caso rojo y uno verde que ejerzan esta medida
+
+SINTAXIS OK · 2 medidas · 0 macros · 0 casos
+
+ACEPTACIÓN ✗ — sin casos en el corpus: un catálogo con medidas no puede verificarse sin casos
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+OMISIONES: mutación de medidas (--rapido)
+VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
+<p>Dos medidas y ningún caso: nada respalda a esas reglas. Un caso es una evidencia guardada con su <strong>etiqueta</strong>, que dice qué tiene que contestar la medida:</p>
+<div class="tabla"><table><thead><tr><th>etiqueta</th><th>la medida tiene que dar</th></tr></thead><tbody><tr><td><code>falso_verde</code></td><td>rojo: la evidencia trae un defecto que la regla no puede dejar pasar</td></tr><tr><td><code>verde_correcto</code></td><td>verde: todo en regla, y la regla lo reconoce</td></tr></tbody></table></div>
+<p>Para esta regla hacen falta seis: un rojo por cada una de las cuatro condiciones del <code>donde</code>, un verde en los cuatro bordes y una partida sin casillas. Y uno más, contra la medida floja.</p>
+<details>
+<summary>Ver los siete casos</summary>
+<pre class="archivo" data-lenguaje="corpus/flota/001-fila-desbordada.caso"><code><span class="c-kw">caso</span> 001-fila-desbordada:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;una casilla en la fila 10&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El juego anotó un barco en la fila 10, fuera del tablero <span class="c-kw">de</span> 0 a 9.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        casilla: barco, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, 9, 4
+            <span class="c-txt">&quot;b1&quot;</span>, 10, 4
+
+    leccion:
+        El borde <span class="c-kw">de</span> abajo se prueba con la primera fila que ya <span class="c-kw">no</span> existe.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/flota/002-fila-negativa.caso"><code><span class="c-kw">caso</span> 002-fila-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;una casilla en la fila -1&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El juego anotó un barco en la fila -1.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        casilla: barco, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, -1, 4
+
+    leccion:
+        Sin este <span class="c-kw">caso</span>, borrar la condición c.fila &lt; 0 <span class="c-kw">no</span> se nota.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/flota/003-columna-desbordada.caso"><code><span class="c-kw">caso</span> 003-columna-desbordada:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;una casilla en la columna 10&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El juego anotó un barco en la columna 10.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        casilla: barco, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, 4, 10
+
+    leccion:
+        Cada una <span class="c-kw">de</span> las cuatro condiciones necesita su propio <span class="c-kw">caso</span> rojo.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/flota/004-columna-negativa.caso"><code><span class="c-kw">caso</span> 004-columna-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;una casilla en la columna -1&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El juego anotó un barco en la columna -1.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        casilla: barco, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, 4, -1
+
+    leccion:
+        Cada una <span class="c-kw">de</span> las cuatro condiciones necesita su propio <span class="c-kw">caso</span> rojo.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/flota/005-las-cuatro-esquinas.caso"><code><span class="c-kw">caso</span> 005-las-cuatro-esquinas:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;las cuatro esquinas del tablero&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Casillas en 0 <span class="c-kw">y</span> en 9, filas <span class="c-kw">y</span> columnas: todas válidas.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        casilla: barco, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, 0, 0
+            <span class="c-txt">&quot;b2&quot;</span>, 0, 9
+            <span class="c-txt">&quot;b3&quot;</span>, 9, 0
+            <span class="c-txt">&quot;b4&quot;</span>, 9, 9
+
+    leccion:
+        Sin un verde en el borde, cambiar &gt; 9 por &gt;= 9 <span class="c-kw">no</span> se nota.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/flota/006-partida-sin-casillas.caso"><code><span class="c-kw">caso</span> 006-partida-sin-casillas:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;el juego no anotó ninguna casilla&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La partida terminó <span class="c-kw">sin</span> una sola casilla <span class="c-kw">de</span> barco anotada.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        casilla:
+
+    leccion:
+        Cero casillas <span class="c-kw">no</span> es un tablero en regla: es un sensor que <span class="c-kw">no</span> miró.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/flota/007-sin-requiere-sin-casillas.caso"><code><span class="c-kw">caso</span> 007-sin-requiere-sin-casillas:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/como-funciona&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;el juego no anotó ninguna casilla&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La partida terminó <span class="c-kw">sin</span> una sola casilla <span class="c-kw">de</span> barco anotada.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: flota.casillas_dentro_sin_requiere
+    <span class="c-kw">evidencia</span>:
+        casilla:
+
+    leccion:
+        Con <span class="c-kw">ninguno</span> a secas, cero casillas cuenta cero infracciones <span class="c-kw">y</span> sale verde.</code></pre>
+</details>
+<pre data-lenguaje="bash"><code>oracle test --rapido</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 7 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 2 medidas · 0 macros · 7 casos
+
+catálogo: 2 medidas · corpus: 7 casos
+
+  ROJO  001-fila-desbordada                    flota.casillas_dentro_del_tablero  (valor 1)
+  ROJO  002-fila-negativa                      flota.casillas_dentro_del_tablero  (valor 1)
+  ROJO  003-columna-desbordada                 flota.casillas_dentro_del_tablero  (valor 1)
+  ROJO  004-columna-negativa                   flota.casillas_dentro_del_tablero  (valor 1)
+  verde 005-las-cuatro-esquinas                flota.casillas_dentro_del_tablero  (valor 0)
+  ROJO  006-partida-sin-casillas               flota.casillas_dentro_del_tablero  (SIN EVIDENCIA: «casilla» vacía)
+  FALLA 007-sin-requiere-sin-casillas          flota.casillas_dentro_sin_requiere  (valor 0; salió verde, se esperaba ROJO)
+
+defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✗ — 1 problema(s)
+  · 007-sin-requiere-sin-casillas: salió verde con flota.casillas_dentro_sin_requiere y su etiqueta «falso_verde» pide ROJO
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+MUTACIÓN: salteada por --rapido
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+OMISIONES: mutación de medidas (--rapido)
+VEREDICTO: ROJO (falló: aceptación)</code></pre>
+<p>El caso 007 dice que una partida sin casillas es un defecto, y la medida sin <code>requiere</code> la deja pasar en verde. <code>oracle test</code> no la perdona: la nombra, dice qué esperaba y se pone rojo. La salida es borrar la medida floja, porque la otra ya dice lo mismo, y bien:</p>
+<pre data-lenguaje="bash"><code>rm -f catalogos/flota/flota.casillas_dentro_sin_requiere.oracle
+rm -f corpus/flota/007-sin-requiere-sin-casillas.caso
+oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 6 casos
+
+catálogo: 1 medidas · corpus: 6 casos
+
+  ROJO  001-fila-desbordada                    flota.casillas_dentro_del_tablero  (valor 1)
+  ROJO  002-fila-negativa                      flota.casillas_dentro_del_tablero  (valor 1)
+  ROJO  003-columna-desbordada                 flota.casillas_dentro_del_tablero  (valor 1)
+  ROJO  004-columna-negativa                   flota.casillas_dentro_del_tablero  (valor 1)
+  verde 005-las-cuatro-esquinas                flota.casillas_dentro_del_tablero  (valor 0)
+  ROJO  006-partida-sin-casillas               flota.casillas_dentro_del_tablero  (SIN EVIDENCIA: «casilla» vacía)
+
+defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 20 · murieron 20 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 20 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 120
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
+<h3 id="las-capas-en-orden">Las capas, en orden<a class="ancla" href="#las-capas-en-orden" aria-label="Enlace a esta sección">#</a></h3>
+<p><code>oracle test</code> corre estas capas una detrás de otra. Con <code>--rapido</code> saltea la mutación; con <code>--todo</code> agrega la mutación de código, que sólo existe dentro del propio Oracle.</p>
+<div class="tabla"><table><thead><tr><th>capa</th><th>qué comprueba</th><th>se pone roja si…</th></tr></thead><tbody><tr><td><strong>estructura</strong></td><td>que existan <code>catalogos/</code>, <code>corpus/</code> y <code>diferencial/</code></td><td>falta alguna</td></tr><tr><td><strong>andamio</strong></td><td>los casos que creó <code>oracle nueva</code></td><td>alguno sigue sin evidencia real</td></tr><tr><td><strong>catálogo</strong></td><td>que cada medida se pueda leer</td><td>una medida está mal escrita</td></tr><tr><td><strong>corpus</strong></td><td>el esquema de cada caso y su evidencia</td><td>un caso está mal formado</td></tr><tr><td><strong>medidas sin casos</strong></td><td>que cada medida propia tenga al menos un caso, también con <code>--rapido</code></td><td>una medida no tiene ninguno</td></tr><tr><td><strong>sintaxis</strong></td><td>que cada medida y cada caso se impriman y se vuelvan a leer iguales</td><td>la ida y vuelta cambia algo</td></tr><tr><td><strong>aceptación</strong></td><td>que cada caso salga como pide su etiqueta; y, con el catálogo base, las políticas que vigilan tu catálogo</td><td>un caso sale al revés</td></tr><tr><td><strong>diferencial</strong></td><td>los fixtures de <code>diferencial/</code>: veredictos guardados contra una implementación independiente</td><td>un veredicto cambió</td></tr><tr><td><strong>mutación de medidas</strong></td><td>ataca cada medida con cada mutador (afloja el umbral, quita un filtro, invierte una comparación…) y exige que algún caso lo note</td><td>sobrevive un mutante</td></tr></tbody></table></div>
+<p>El veredicto final es uno de tres: <strong>VERDE</strong>, <strong>ROJO</strong> (y qué capas fallaron) o <strong>SIN MEDICIÓN</strong> (no hay medidas ni casos: no hay nada que decir, y no es verde). Un VERDE con capas salteadas lo dice en el mismo renglón: <code>VERDE (se salteó: mutación de medidas (--rapido))</code>.</p>
+<h3 id="por-qué-la-mutación">Por qué la mutación<a class="ancla" href="#por-qué-la-mutación" aria-label="Enlace a esta sección">#</a></h3>
+<p>Un caso rojo no alcanza. El mutador <code>alejar_limite_de_defecto</code> cambia <code>c.fila &lt; 0</code> por <code>c.fila &lt; -1</code>: la regla sigue pareciendo razonable, pero ya no ve la fila -1. De los siete casos, <strong>sólo el 002</strong> lo nota, porque es el único con una casilla en la fila -1; sin él, ese mutante sobreviviría y <code>oracle test</code> se pondría rojo. La mutación prueba que tus casos <strong>sostienen</strong> cada parte de tu regla, no sólo que la ejercitan. Lo cuenta en detalle <a href="05-por-que-la-mutacion.html">Por qué la mutación</a>.</p>
+<h2 id="lo-que-oracle-no-hace">Lo que Oracle no hace<a class="ancla" href="#lo-que-oracle-no-hace" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><strong>No corre tu producto.</strong> Juzga lo que el sensor exportó. Un verde dice que la regla se cumple sobre esos hechos, dentro de su <code>alcance</code>; no dice que el juego esté bien en todo lo demás.</li><li><strong>No llama a la red ni a ningún modelo.</strong> El núcleo es determinista: la misma evidencia da el mismo veredicto.</li><li><strong>No confía en tu código sin permiso.</strong> Si tu proyecto trae funciones propias en <code>escalares.py</code>, Oracle las ejecuta sólo con <code>--confiar-escalares</code>, y en un proceso aislado que no puede leer ni escribir fuera del proyecto, abrir la red ni lanzar procesos.</li><li><strong>No compone medidas.</strong> Una medida termina en un número y un umbral. Ninguna puede leer el veredicto de otra: las preguntas sobre el catálogo se contestan midiendo el catálogo, en el nivel meta.</li></ul>
+<p>La referencia completa del lenguaje está en la <a href="especificacion.html">especificación</a> y en el <a href="manual.html">manual</a>, que se genera de las mismas declaraciones que usa Oracle.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/como-funciona.md" rel="noopener">docs/como-funciona.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#las-tres-piezas">Las tres piezas</a></li><li class="n2"><a href="#el-proyecto">El proyecto</a></li><li class="n2"><a href="#una-medida-línea-por-línea">Una medida, línea por línea</a></li><li class="n2"><a href="#qué-pasa-cuando-juzgás">Qué pasa cuando juzgás</a></li><li class="n3"><a href="#verde-y-lo-que-no-miró">Verde: y lo que no miró</a></li><li class="n3"><a href="#rojo-con-el-testigo-exacto">Rojo: con el testigo exacto</a></li><li class="n3"><a href="#sin-evidencia-no-es-verde-ni-rojo">Sin evidencia: no es verde ni rojo</a></li><li class="n3"><a href="#evidencia-inválida-no-se-juzga">Evidencia inválida: no se juzga</a></li><li class="n2"><a href="#qué-comprueba-oracle-test">Qué comprueba oracle test</a></li><li class="n3"><a href="#las-capas-en-orden">Las capas, en orden</a></li><li class="n3"><a href="#por-qué-la-mutación">Por qué la mutación</a></li><li class="n2"><a href="#lo-que-oracle-no-hace">Lo que Oracle no hace</a></li></ul>
+  </aside>
+</div>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
+</body>
+</html>

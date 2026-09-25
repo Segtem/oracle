@@ -1,0 +1,7 @@
+{
+  "casilla": [
+    ["clave", ["barco", "fila", "columna"]],
+    {"barco": "b1", "fila": 3, "columna": 4},
+    {"barco": "b1", "fila": 3, "columna": 4}
+  ]
+}

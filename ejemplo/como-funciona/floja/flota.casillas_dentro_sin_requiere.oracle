@@ -1,0 +1,6 @@
+ninguno flota.casillas_dentro_sin_requiere:
+    de casilla c
+    donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
+    umbral <= 0 segun contrato porque "la misma regla, escrita sin exigir que haya casillas"
+    ambito universal
+    alcance "la misma regla que flota.casillas_dentro_del_tablero; existe para mostrar qué pasa sin requiere"

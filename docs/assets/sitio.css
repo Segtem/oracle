@@ -164,3 +164,33 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
 .prosa details > :last-child { margin-bottom: 16px; }
 .prosa details > summary + * { margin-top: 14px; }
 .prosa .pregunta { font-family: var(--sans); font-size: 17px; background: var(--acento-suave); border-left: 3px solid var(--acento); padding: 12px 16px; border-radius: 0 6px 6px 0; }
+
+/* ---------------------------------------------------------------- manual (tools/manual.py) */
+.manual-rejilla { grid-template-columns: 230px minmax(0, 1fr); }
+.manual-rejilla main { min-width: 0; max-width: 1060px; }
+.menu .cuenta { float: right; font-family: var(--pixel); font-size: 10px; color: var(--gris); }
+.menu li a { overflow-wrap: anywhere; }
+.ceja { color: var(--acento); margin: 0 0 10px; }
+.manual-cabeza { margin-bottom: 36px; }
+.manual-cabeza h1 { font-size: clamp(36px, 5vw, 56px); font-weight: 800; letter-spacing: -0.03em; margin: 0 0 16px; }
+.manual-cabeza p:not(.ceja) { font-family: var(--serif); font-size: 19px; max-width: 64ch; color: var(--tinta-2); margin: 0; }
+.manual-cabeza code, .manual dd code { font-size: 0.86em; background: var(--papel-2); padding: 1px 5px; border-radius: 3px; }
+.manual .tema { border: 2px solid var(--tinta); border-radius: 2px; margin: 0 0 28px; background: var(--papel);
+                box-shadow: 4px 4px 0 var(--linea); scroll-margin-top: 84px; }
+.manual .rotulo { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; padding: 14px 20px;
+                  background: var(--tinta); color: var(--papel); }
+.manual .rotulo h2 { font-family: var(--pixel); font-weight: 400; font-size: 18px; letter-spacing: 0.04em;
+                     margin: 0; overflow-wrap: anywhere; text-transform: uppercase; }
+.manual .rotulo p { margin: 0; font-size: 14px; opacity: 0.8; }
+/* Sin hueco entre columnas: con `column-gap` la línea de cada fila se parte en dos trazos. */
+.manual dl { margin: 0; display: grid; grid-template-columns: minmax(10rem, 16rem) minmax(0, 1fr); }
+.manual dt { font-family: var(--mono); font-weight: 600; font-size: 14px; padding: 12px 18px 12px 20px;
+             overflow-wrap: break-word; color: var(--acento); }
+.manual dd { margin: 0; padding: 12px 20px 12px 0; font-family: var(--serif); font-size: 16.5px; line-height: 1.6; }
+.manual dt:not(:first-of-type), .manual dt:not(:first-of-type) + dd { border-top: 1px solid var(--linea); }
+@media (max-width: 760px) {
+  .manual-rejilla { grid-template-columns: minmax(0, 1fr); }
+  .manual dl { grid-template-columns: 1fr; }
+  .manual dt { padding-bottom: 2px; }
+  .manual dd { padding: 0 20px 14px; border-top: 0 !important; }
+}

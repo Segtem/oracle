@@ -1,0 +1,21 @@
+caso 005-las-cuatro-esquinas:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/como-funciona"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "las cuatro esquinas del tablero"
+    etiqueta: verde_correcto
+    sintoma:
+        Casillas en 0 y en 9, filas y columnas: todas válidas.
+    como_se_detecto: persona
+    medida: flota.casillas_dentro_del_tablero
+    evidencia:
+        casilla: barco, fila, columna
+            "b1", 0, 0
+            "b2", 0, 9
+            "b3", 9, 0
+            "b4", 9, 9
+
+    leccion:
+        Sin un verde en el borde, cambiar > 9 por >= 9 no se nota.

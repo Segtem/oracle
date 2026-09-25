@@ -41,6 +41,7 @@ PAGINAS = (
     Pagina("docs/02-de-cero-a-un-rojo.md", "02-de-cero-a-un-rojo.html", "Empezar", "De cero a un rojo"),
     Pagina("docs/03-escribir-una-medida.md", "03-escribir-una-medida.html", "Empezar", "Escribir una medida"),
     Pagina("docs/13-primer-valor.md", "13-primer-valor.html", "Empezar", "La primera medida real"),
+    Pagina("docs/como-funciona.md", "como-funciona.html", "Entender", "Cómo funciona Oracle"),
     Pagina("docs/05-por-que-la-mutacion.md", "05-por-que-la-mutacion.html", "Entender", "Por qué la mutación"),
     Pagina("docs/07-conectar-a-un-proyecto-propio.md", "07-conectar-a-un-proyecto-propio.html", "Entender", "Conectar un proyecto"),
     Pagina("docs/tutorial-practico.md", "tutorial-practico.html", "Entender", "Tutorial práctico"),
@@ -80,6 +81,10 @@ def _destino(dest: str, origen: Path, salida: Path) -> str:
     if objetivo in _POR_ORIGEN:
         destino = DOCS / _POR_ORIGEN[objetivo].salida
         return _relativa(destino, salida) + ancla
+    # Una página del sitio que no sale de un .md (el manual, la portada) se enlaza en el sitio,
+    # no en GitHub, donde se vería como código fuente.
+    if objetivo.suffix == ".html" and objetivo.is_file() and objetivo.is_relative_to(DOCS):
+        return _relativa(objetivo, salida) + ancla
     try:
         relativa = objetivo.relative_to(RAIZ).as_posix()
     except ValueError:

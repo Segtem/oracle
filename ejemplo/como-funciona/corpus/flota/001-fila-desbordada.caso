@@ -1,0 +1,19 @@
+caso 001-fila-desbordada:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/como-funciona"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "una casilla en la fila 10"
+    etiqueta: falso_verde
+    sintoma:
+        El juego anotó un barco en la fila 10, fuera del tablero de 0 a 9.
+    como_se_detecto: persona
+    medida: flota.casillas_dentro_del_tablero
+    evidencia:
+        casilla: barco, fila, columna
+            "b1", 9, 4
+            "b1", 10, 4
+
+    leccion:
+        El borde de abajo se prueba con la primera fila que ya no existe.

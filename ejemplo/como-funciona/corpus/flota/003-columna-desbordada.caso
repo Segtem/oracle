@@ -1,0 +1,18 @@
+caso 003-columna-desbordada:
+    fecha: "2026-09-25"
+    origen:
+        repo: "ejemplo/como-funciona"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "una casilla en la columna 10"
+    etiqueta: falso_verde
+    sintoma:
+        El juego anotó un barco en la columna 10.
+    como_se_detecto: persona
+    medida: flota.casillas_dentro_del_tablero
+    evidencia:
+        casilla: barco, fila, columna
+            "b1", 4, 10
+
+    leccion:
+        Cada una de las cuatro condiciones necesita su propio caso rojo.

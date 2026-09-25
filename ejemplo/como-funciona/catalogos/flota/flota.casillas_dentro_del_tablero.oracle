@@ -1,0 +1,7 @@
+ninguno-requiere flota.casillas_dentro_del_tablero:
+    de casilla c
+    donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
+    umbral <= 0 segun contrato porque "el tablero es de 10x10: filas y columnas van de 0 a 9"
+    requiere casilla
+    ambito universal
+    alcance "mira cada casilla ocupada que el juego anotó. NO ve si los barcos se tocan ni si la flota está completa"

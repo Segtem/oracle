@@ -155,7 +155,11 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
                 print(f"  verde {c['id']:<38} {mid}  (valor {v.valor})")
             else:
                 rojos += 1
-                print(f"  ROJO  {c['id']:<38} {mid}  (valor {v.valor})")
+                # Un SIN EVIDENCIA cumple la polaridad de un defecto, pero no es un valor medido:
+                # imprimir «valor 0» sugería que la regla contó cero infracciones.
+                detalle = (f"SIN EVIDENCIA: «{v.sin_evidencia}» vacía" if v.sin_evidencia
+                           else f"valor {v.valor}")
+                print(f"  ROJO  {c['id']:<38} {mid}  ({detalle})")
 
     print(f"\ndefectos que se pusieron rojos: {rojos} · verdes correctos: {verdes} · "
           f"huecos declarados: {len(huecos)}")

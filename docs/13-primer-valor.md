@@ -175,7 +175,7 @@ catálogo: 1 medidas · corpus: 6 casos
   ROJO  003-fila-negativa                      colocacion.dentro_del_tablero  (valor 1)
   ROJO  004-columna-negativa                   colocacion.dentro_del_tablero  (valor 1)
   ROJO  005-columna-desbordada                 colocacion.dentro_del_tablero  (valor 1)
-  ROJO  006-sin-celdas                         colocacion.dentro_del_tablero  (valor 0)
+  ROJO  006-sin-celdas                         colocacion.dentro_del_tablero  (SIN EVIDENCIA: «celda_ocupada» vacía)
 
 defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
 
