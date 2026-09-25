@@ -732,6 +732,11 @@ class Informe:
         return bool(self.veredictos) and all(v.ok or self.perdona(v) for v in self.veredictos)
 
     @property
+    def ok_completo(self) -> bool:
+        """Juicio de una corrida que no declaró alcance parcial."""
+        return self.ok and not self.no_aplicadas
+
+    @property
     def rojos(self) -> tuple:
         """Los rojos que la sombra NO perdona: los que hacen fallar."""
         return tuple(v for v in self.veredictos if not v.ok and not self.perdona(v))

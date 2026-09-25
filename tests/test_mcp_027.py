@@ -291,7 +291,7 @@ class JuzgarMcpTests(unittest.TestCase):
 
             self.assertEqual(res["esquema"], "oracle.mcp/juzgar/v1")
             self.assertEqual(res["oracle_version"], VERSION_DISTRIBUCION)
-            self.assertTrue(res["ok"])  # 1 item está dentro de cota 2
+            self.assertFalse(res["ok"])  # otra medida propia quedó sin aplicar
             self.assertEqual(len(res["medidas"]), 1)
             med = res["medidas"][0]
             self.assertEqual(med["id"], "demo.item")

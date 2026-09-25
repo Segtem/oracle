@@ -305,7 +305,7 @@ def cmd_juzgar(argv: list[str]) -> int:
     # en rojo lo decide el informe.
     rojos_fuera_de_sombra = informe.rojos
     rojos_en_sombra = informe.perdonados
-    es_aprobado = informe.ok and (parcial or not informe.no_aplicadas)
+    es_aprobado = informe.ok if parcial else informe.ok_completo
 
     if es_json:
         medidas_json = []

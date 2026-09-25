@@ -137,7 +137,7 @@ class JuzgarTests(Base):
     def test_juzga_el_catalogo_y_nombra_las_no_aplicadas(self) -> None:
         r = self.ok("oracle_juzgar", {"evidencia": {"referencia_seguimiento": [_referencia("presente")]}})
         self.assertEqual(r["esquema"], "oracle.mcp/juzgar/v1")
-        self.assertIs(r["ok"], True)
+        self.assertIs(r["ok"], False)
         self.assertEqual([m["id"] for m in r["medidas"]], [REFERENCIAS])
         faltan = {f["id"]: f["faltan"] for f in r["no_aplicadas"]}
         self.assertEqual(faltan[LECTURA], ["lectura_seguimiento"])
@@ -152,11 +152,11 @@ class JuzgarTests(Base):
     def test_la_sombra_con_cota_decide_ok(self) -> None:
         ev = {"referencia_seguimiento": [_referencia("ausente"), _referencia("ausente")]}
         self.sombra(REFERENCIAS, 2)
-        r = self.ok("oracle_juzgar", {"evidencia": ev})
+        r = self.ok("oracle_juzgar", {"evidencia": ev, "ids": [REFERENCIAS]})
         self.assertIs(r["ok"], True)
         self.assertIs(r["medidas"][0]["sombra"]["perdona"], True)
         self.sombra(REFERENCIAS, 1)
-        r = self.ok("oracle_juzgar", {"evidencia": ev})
+        r = self.ok("oracle_juzgar", {"evidencia": ev, "ids": [REFERENCIAS]})
         self.assertIs(r["ok"], False)
         self.assertIs(r["medidas"][0]["sombra"]["perdona"], False)
 

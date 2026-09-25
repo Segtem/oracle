@@ -1660,7 +1660,7 @@ def juzgar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = Fal
         "entrada_sha256": hashlib.sha256(
             json.dumps(argumentos, sort_keys=True, ensure_ascii=False).encode("utf-8")
         ).hexdigest(),
-        "ok": bool(informe.ok),
+        "ok": bool(informe.ok_completo),
         "medidas": medidas_resultado,
         "no_aplicadas": [
             {"id": mid, "faltan": list(faltan)} for mid, faltan in informe.no_aplicadas
