@@ -30,14 +30,21 @@
 <h1 id="13--de-un-producto-nuevo-a-su-primera-medida-observable">13 · De un producto nuevo a su primera medida observable<a class="ancla" href="#13--de-un-producto-nuevo-a-su-primera-medida-observable" aria-label="Enlace a esta sección">#</a></h1>
 <p>Un recorrido breve, ejecutable y reproducible para conectar un producto con Oracle y juzgarlo con una medida pertinente de sus reglas, sin rituales innecesarios.</p>
 <h2 id="entorno-y-preparación-verificados">Entorno y preparación verificados<a class="ancla" href="#entorno-y-preparación-verificados" aria-label="Enlace a esta sección">#</a></h2>
-<p>Ejecutado el 2026-09-21 con Python 3.14.7 y Oracle 0.27.0 (álgebra 0.8, sintaxis 0.6), desde una copia sin <code>.git</code> del checkout base <code>3d27050a50cc949dc3fc6bf6dc9df168bf5f9ab5</code> más los cambios de esta tarea. Se construyó un wheel local y se instaló sin red en un venv nuevo; los comandos de abajo se ejecutaron desde la raíz de esa copia, sin <code>PYTHONPATH</code> ni <code>ORACLE_PROYECTO</code> heredados.</p>
-<p>Para preparar otra copia del repositorio con este ejemplo, desde su raíz (el Python de construcción necesita <code>pip</code> y <code>setuptools&gt;=68</code>):</p>
-<pre data-lenguaje="bash"><code>python3 -m pip wheel --no-deps --no-build-isolation --wheel-dir /tmp/oracle-primer-valor-ruedas .
-python3 -m venv /tmp/oracle-primer-valor-venv
-/tmp/oracle-primer-valor-venv/bin/python -m pip install --no-index /tmp/oracle-primer-valor-ruedas/oracle_metalenguaje-0.27.0-py3-none-any.whl
-source /tmp/oracle-primer-valor-venv/bin/activate
-unset PYTHONPATH ORACLE_PROYECTO</code></pre>
-<p>Las salidas siguientes son capturas reales. Cada exportación termina con exit 0 e imprime <code>Hechos exportados a /tmp/hechos-defecto.json</code> o <code>Hechos exportados a /tmp/hechos-corregido.json</code>, respectivamente. El test del catálogo termina con exit 0.</p>
+<p>Los comandos se ejecutan en una carpeta temporal con el Oracle de este repositorio. Un test reconstruye el ejemplo y comprueba cada salida.</p>
+<p>Primero creá el proyecto:</p>
+<pre data-lenguaje="bash"><code>oracle init ejemplo/primer-valor</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>Proyecto Oracle inicializado en ./ejemplo/primer-valor:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso &lt;grupo/id&gt;
+  2. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
+  3. Verificá todo:    oracle test</code></pre>
+<p>Las salidas siguientes provienen de esa ejecución. Los hechos exportados se guardan en la carpeta temporal del ejemplo.</p>
 <hr>
 <h2 id="1-el-objetivo-de-este-recorrido">1. El objetivo de este recorrido<a class="ancla" href="#1-el-objetivo-de-este-recorrido" aria-label="Enlace a esta sección">#</a></h2>
 <p>Cuando alguien se acerca a Oracle para medir un desarrollo —especialmente en iteraciones guiadas por agentes o LLMs— surgen con frecuencia dos confusiones habituales:</p>
@@ -65,7 +72,7 @@ unset PYTHONPATH ORACLE_PROYECTO</code></pre>
 <hr>
 <h2 id="3-paso-2-crear-el-proyecto-y-enunciar-la-regla-en-una-medida">3. Paso 2: Crear el proyecto y enunciar la regla en una medida<a class="ancla" href="#3-paso-2-crear-el-proyecto-y-enunciar-la-regla-en-una-medida" aria-label="Enlace a esta sección">#</a></h2>
 <p>Un proyecto Oracle se inicializa con <code>oracle init &lt;directorio&gt;</code> o creando <code>catalogos/</code>, <code>corpus/</code>, <code>diferencial/</code> y un archivo <code>oracle.json</code>:</p>
-<pre data-lenguaje="json"><code>{
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/oracle.json"><code>{
   &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
   &quot;catalogo_base&quot;: false,
   &quot;perfiles&quot;: []
@@ -73,7 +80,7 @@ unset PYTHONPATH ORACLE_PROYECTO</code></pre>
 <blockquote><p>[!TIP] Si tu proyecto recién comienza y busca verificar reglas de negocio propias, podés fijar <code>&quot;catalogo_base&quot;: false</code> para concentrarte exclusivamente en tus medidas de dominio sin evaluar políticas de proceso universales heredadas.</p></blockquote>
 <h3 id="la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle">La medida: <code>catalogos/colocacion/colocacion.dentro_del_tablero.oracle</code><a class="ancla" href="#la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle" aria-label="Enlace a esta sección">#</a></h3>
 <p>En Oracle, las medidas se enuncian buscando <strong>lo que ofende</strong> (el defecto), no lo que está bien:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> colocacion.dentro_del_tablero:
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/catalogos/colocacion/colocacion.dentro_del_tablero.oracle"><code><span class="c-kw">medida</span> colocacion.dentro_del_tablero:
     <span class="c-kw">de</span> celda_ocupada c
     <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
     <span class="c-kw">resumen</span> contar(1)
@@ -88,7 +95,7 @@ unset PYTHONPATH ORACLE_PROYECTO</code></pre>
 <p>Una medida sin casos es una intención sin comprobar: podría estar invertida y pasar sin ser detectada. El corpus en <code>corpus/</code> necesita al menos dos casos:</p>
 <h3 id="caso-1-polaridad-negativa-falso_verde-esperado-rojo">Caso 1: Polaridad negativa (<code>falso_verde</code> esperado ROJO)<a class="ancla" href="#caso-1-polaridad-negativa-falso_verde-esperado-rojo" aria-label="Enlace a esta sección">#</a></h3>
 <p>Archivo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso" rel="noopener"><code>corpus/colocacion/001-desborde-tablero.caso</code></a>:</p>
-<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 001-desborde-tablero:
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso"><code><span class="c-kw">caso</span> 001-desborde-tablero:
     fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
     origen:
         repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
@@ -109,7 +116,7 @@ unset PYTHONPATH ORACLE_PROYECTO</code></pre>
 <ul><li>Este caso contiene exactamente 1 celda ofensiva (<code>fila: 10</code>).</li><li>Falla la condición del umbral (<code>1 &lt;= 0</code> es falso), por lo que la medida se pone en <strong>ROJO</strong>.</li><li>Como declara <code>etiqueta: falso_verde</code>, la suite de aceptación confirma que la medida atrapó el defecto.</li><li>Mata el mutante <code>aflojar_umbral</code> (que probaría relajar el umbral a <code>&lt;= 1</code>).</li></ul>
 <h3 id="caso-2-polaridad-positiva-verde_correcto-esperado-verde">Caso 2: Polaridad positiva (<code>verde_correcto</code> esperado VERDE)<a class="ancla" href="#caso-2-polaridad-positiva-verde_correcto-esperado-verde" aria-label="Enlace a esta sección">#</a></h3>
 <p>Archivo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso" rel="noopener"><code>corpus/colocacion/002-colocacion-valida.caso</code></a>:</p>
-<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 002-colocacion-valida:
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso"><code><span class="c-kw">caso</span> 002-colocacion-valida:
     fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
     origen:
         repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
@@ -134,12 +141,179 @@ unset PYTHONPATH ORACLE_PROYECTO</code></pre>
 <hr>
 <h3 id="casos-adicionales-necesarios">Casos adicionales necesarios<a class="ancla" href="#casos-adicionales-necesarios" aria-label="Enlace a esta sección">#</a></h3>
 <p>Los dos casos anteriores no alcanzan: dejaban seis mutantes vivos. El corpus incluye también fila -1, columna -1, columna 10 y una relación vacía (<code>celda_ocupada:</code> sin filas). Este último queda ROJO aunque el valor sea 0 porque incumple <code>requiere</code>. Los seis casos son construidos; <code>sin-commit</code> evita atribuirles un commit ficticio.</p>
-<p>El directorio obligatorio <code>diferencial/</code> se conserva con <code>.gitkeep</code>. No contiene fixtures: esta ruta mínima no aporta una comparación con un evaluador independiente y <code>oracle test</code> lo informa como salteado.</p>
+<p>El directorio obligatorio <code>diferencial/</code> se conserva vacío. No contiene fixtures: esta ruta mínima no aporta una comparación con un evaluador independiente y <code>oracle test</code> lo informa como salteado.</p>
 <h2 id="5-paso-4-validar-el-catálogo-con-oracle-test">5. Paso 4: Validar el catálogo con <code>oracle test</code><a class="ancla" href="#5-paso-4-validar-el-catálogo-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
 <p>Corremos <code>oracle test</code> para verificar que las medidas del catálogo compilen, satisfagan los contratos sintácticos y queden fijadas contra mutación:</p>
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/003-fila-negativa.caso"><code><span class="c-kw">caso</span> 003-fila-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Fila justo por debajo del tablero&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Fila justo por debajo del tablero; la <span class="c-kw">medida</span> debe rechazar esta <span class="c-kw">evidencia</span>.
+    como_se_detecto: mutacion
+    <span class="c-kw">medida</span>: colocacion.dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_ocupada: barco, fila, columna
+            <span class="c-txt">&quot;borde&quot;</span>, -1, 5
+    leccion:
+        Cada borde <span class="c-kw">y</span> la falta <span class="c-kw">de</span> <span class="c-kw">evidencia</span> deben quedar fijados por el corpus.</code></pre>
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/004-columna-negativa.caso"><code><span class="c-kw">caso</span> 004-columna-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Columna justo por debajo del tablero&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Columna justo por debajo del tablero; la <span class="c-kw">medida</span> debe rechazar esta <span class="c-kw">evidencia</span>.
+    como_se_detecto: mutacion
+    <span class="c-kw">medida</span>: colocacion.dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_ocupada: barco, fila, columna
+            <span class="c-txt">&quot;borde&quot;</span>, 5, -1
+    leccion:
+        Cada borde <span class="c-kw">y</span> la falta <span class="c-kw">de</span> <span class="c-kw">evidencia</span> deben quedar fijados por el corpus.</code></pre>
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/005-columna-desbordada.caso"><code><span class="c-kw">caso</span> 005-columna-desbordada:
+    fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Columna justo por encima del tablero&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Columna justo por encima del tablero; la <span class="c-kw">medida</span> debe rechazar esta <span class="c-kw">evidencia</span>.
+    como_se_detecto: mutacion
+    <span class="c-kw">medida</span>: colocacion.dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_ocupada: barco, fila, columna
+            <span class="c-txt">&quot;borde&quot;</span>, 5, 10
+    leccion:
+        Cada borde <span class="c-kw">y</span> la falta <span class="c-kw">de</span> <span class="c-kw">evidencia</span> deben quedar fijados por el corpus.</code></pre>
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/corpus/colocacion/006-sin-celdas.caso"><code><span class="c-kw">caso</span> 006-sin-celdas:
+    fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Sensor sin celdas observadas&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Sensor <span class="c-kw">sin</span> celdas observadas; la <span class="c-kw">medida</span> debe rechazar esta <span class="c-kw">evidencia</span>.
+    como_se_detecto: mutacion
+    <span class="c-kw">medida</span>: colocacion.dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_ocupada:
+    leccion:
+        Cada borde <span class="c-kw">y</span> la falta <span class="c-kw">de</span> <span class="c-kw">evidencia</span> deben quedar fijados por el corpus.</code></pre>
+<pre class="archivo" data-lenguaje="ejemplo/primer-valor/colocador.py"><code>&quot;&quot;&quot;Lógica mínima de colocación de buques para Batalla Naval.
+
+Este script representa el producto bajo análisis: coloca buques en un tablero
+de 10x10 y extrae los hechos observables (nivel L0) en formato JSON para que
+Oracle pueda juzgarlos de forma independiente.
+&quot;&quot;&quot;
+
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from dataclasses import asdict, dataclass
+
+
+@dataclass(frozen=True)
+class CeldaOcupada:
+    barco: str
+    fila: int
+    columna: int
+
+
+def colocar_buque(
+    barco: str,
+    fila: int,
+    columna: int,
+    longitud: int,
+    orientacion: str,
+    permitir_desborde: bool = False,
+) -&gt; list[CeldaOcupada]:
+    &quot;&quot;&quot;Coloca un buque de cierta longitud a partir de (fila, columna).
+
+    orientacion: &#x27;H&#x27; (horizontal) o &#x27;V&#x27; (vertical).
+    Si permitir_desborde es True, omite la validación interna simulando un bug.
+    &quot;&quot;&quot;
+    celdas: list[CeldaOcupada] = []
+    for i in range(longitud):
+        r = fila + (i if orientacion == &quot;V&quot; else 0)
+        c = columna + (i if orientacion == &quot;H&quot; else 0)
+        if not permitir_desborde:
+            if not (0 &lt;= r &lt; 10 and 0 &lt;= c &lt; 10):
+                raise ValueError(
+                    f&quot;Colocación inválida: {barco} excede el tablero en ({r}, {c})&quot;
+                )
+        celdas.append(CeldaOcupada(barco=barco, fila=r, columna=c))
+    return celdas
+
+
+def generar_despliegue(con_defecto: bool = False) -&gt; dict[str, list[dict]]:
+    &quot;&quot;&quot;Genera una disposición de buques y retorna los hechos en formato Oracle.&quot;&quot;&quot;
+    flota: list[CeldaOcupada] = []
+
+    # Buque 1: Fragata (3 celdas), posición (1, 2) Horizontal
+    flota.extend(colocar_buque(&quot;fragata&quot;, 1, 2, 3, &quot;H&quot;))
+
+    # Buque 2: Destructor (2 celdas)
+    if con_defecto:
+        # DEFECTO: colocado en fila 9 Vertical, ocupando celdas (9, 5) y (10, 5).
+        # La celda (10, 5) queda fuera de la cuadrícula de 10x10 (índices 0 a 9).
+        flota.extend(colocar_buque(&quot;destructor&quot;, 9, 5, 2, &quot;V&quot;, permitir_desborde=True))
+    else:
+        # CORREGIDO: colocado en fila 8 Vertical, ocupando celdas (8, 5) y (9, 5).
+        flota.extend(colocar_buque(&quot;destructor&quot;, 8, 5, 2, &quot;V&quot;, permitir_desborde=False))
+
+    return {
+        &quot;celda_ocupada&quot;: [asdict(c) for c in flota]
+    }
+
+
+def main(argv: list[str] | None = None) -&gt; int:
+    parser = argparse.ArgumentParser(
+        description=&quot;Colocador de buques con exportación de hechos para Oracle.&quot;
+    )
+    parser.add_argument(
+        &quot;--defecto&quot;,
+        action=&quot;store_true&quot;,
+        help=&quot;Simular defecto de colocación con desborde del tablero.&quot;,
+    )
+    parser.add_argument(
+        &quot;--exportar&quot;,
+        type=str,
+        metavar=&quot;RUTA&quot;,
+        help=&quot;Ruta donde escribir el archivo JSON de hechos.&quot;,
+    )
+    args = parser.parse_args(argv)
+
+    hechos = generar_despliegue(con_defecto=args.defecto)
+    salida = json.dumps(hechos, indent=2, ensure_ascii=False)
+
+    if args.exportar:
+        with open(args.exportar, &quot;w&quot;, encoding=&quot;utf-8&quot;) as f:
+            f.write(salida + &quot;\n&quot;)
+        print(f&quot;Hechos exportados a {args.exportar}&quot;)
+    else:
+        print(salida)
+    return 0
+
+
+if __name__ == &quot;__main__&quot;:
+    sys.exit(main())</code></pre>
 <pre data-lenguaje="bash"><code>oracle test --proyecto ejemplo/primer-valor</code></pre>
 <h3 id="salida-real-registrada-de-oracle-test">Salida real registrada de <code>oracle test</code>:<a class="ancla" href="#salida-real-registrada-de-oracle-test" aria-label="Enlace a esta sección">#</a></h3>
-<pre data-lenguaje="text"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
 
@@ -180,26 +354,22 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <p>Ahora sí conectamos el producto vivo con Oracle.</p>
 <h3 id="escenario-a-corrida-con-defecto">Escenario A: Corrida con defecto<a class="ancla" href="#escenario-a-corrida-con-defecto" aria-label="Enlace a esta sección">#</a></h3>
 <p>El colocador tiene un bug y posiciona un destructor en la fila 9 vertical, desbordando hacia la fila 10:</p>
-<pre data-lenguaje="bash"><code># 1. Ejecutar el producto y extraer hechos reales
-python3 ejemplo/primer-valor/colocador.py --defecto --exportar /tmp/hechos-defecto.json
-
-# 2. Juzgar los hechos contra el catálogo
-oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-defecto.json</code></pre>
+<pre data-lenguaje="bash"><code>python3 ejemplo/primer-valor/colocador.py --defecto --exportar hechos-defecto.json
+oracle juzgar --proyecto ejemplo/primer-valor --con hechos-defecto.json</code></pre>
 <p><strong>Salida real registrada (exit code 1):</strong></p>
-<pre data-lenguaje="text"><code>✗ colocacion.dentro_del_tablero                       1 (&lt;= 0)
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>Hechos exportados a hechos-defecto.json
+✗ colocacion.dentro_del_tablero                       1 (&lt;= 0)
       → c={&#x27;barco&#x27;: &#x27;destructor&#x27;, &#x27;fila&#x27;: 10, &#x27;columna&#x27;: 5}
 
 VEREDICTO: 1 de 1 medidas en rojo</code></pre>
 <p>Oracle rechaza la corrida y señala exactamente el testigo infractor: <code>fila: 10</code>.</p>
 <h3 id="escenario-b-corrida-corregida">Escenario B: Corrida corregida<a class="ancla" href="#escenario-b-corrida-corregida" aria-label="Enlace a esta sección">#</a></h3>
 <p>Arreglamos el defecto en el producto (el destructor se ubica en la fila 8 vertical, ocupando filas 8 y 9):</p>
-<pre data-lenguaje="bash"><code># 1. Regenerar los hechos tras la corrección
-python3 ejemplo/primer-valor/colocador.py --exportar /tmp/hechos-corregido.json
-
-# 2. Juzgar los nuevos hechos
-oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-corregido.json</code></pre>
+<pre data-lenguaje="bash"><code>python3 ejemplo/primer-valor/colocador.py --exportar hechos-corregido.json
+oracle juzgar --proyecto ejemplo/primer-valor --con hechos-corregido.json</code></pre>
 <p><strong>Salida real registrada (exit code 0):</strong></p>
-<pre data-lenguaje="text"><code>✓ colocacion.dentro_del_tablero                       0 (&lt;= 0)
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>Hechos exportados a hechos-corregido.json
+✓ colocacion.dentro_del_tablero                       0 (&lt;= 0)
 
 VEREDICTO: verde en 1 medidas. SIN MIRAR:
   · colocacion.dentro_del_tablero: valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí</code></pre>
@@ -207,7 +377,7 @@ VEREDICTO: verde en 1 medidas. SIN MIRAR:
 <hr>
 <h2 id="7-clarificaciones-fundamentales">7. Clarificaciones fundamentales<a class="ancla" href="#7-clarificaciones-fundamentales" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="evidencia-guardada-vs-evidencia-regenerada">Evidencia guardada vs. Evidencia regenerada<a class="ancla" href="#evidencia-guardada-vs-evidencia-regenerada" aria-label="Enlace a esta sección">#</a></h3>
-<ul><li>Los archivos en <code>corpus/</code> (<code>001-desborde-tablero.caso</code>, etc.) son <strong>evidencia histórica guardada</strong> para comprobar las medidas. Si editás el producto, estos archivos no cambian ni deben cambiar automáticamente.</li><li>Los archivos generados por el sensor (<code>/tmp/hechos-*.json</code>) son <strong>evidencia viva de una corrida particular</strong>. Si modificás el producto, debés volver a ejecutar el sensor para generar un nuevo archivo de hechos antes de invocar <code>oracle juzgar</code>.</li></ul>
+<ul><li>Los archivos en <code>corpus/</code> (<code>001-desborde-tablero.caso</code>, etc.) son <strong>evidencia histórica guardada</strong> para comprobar las medidas. Si editás el producto, estos archivos no cambian ni deben cambiar automáticamente.</li><li>Los archivos generados por el sensor (<code>hechos-*.json</code>) son <strong>evidencia viva de una corrida particular</strong>. Si modificás el producto, debés volver a ejecutar el sensor para generar un nuevo archivo de hechos antes de invocar <code>oracle juzgar</code>.</li></ul>
 <h3 id="cuándo-basta-un-assert-y-cuándo-aporta-oracle">¿Cuándo basta un <code>assert</code> y cuándo aporta Oracle?<a class="ancla" href="#cuándo-basta-un-assert-y-cuándo-aporta-oracle" aria-label="Enlace a esta sección">#</a></h3>
 <ul><li><strong>Basta un <code>assert</code></strong> cuando estás programando una comprobación interna rápida en una función (<code>assert 0 &lt;= fila &lt; 10</code>), o en una prueba unitaria clásica donde el mismo desarrollador escribe el código y el test.</li><li><strong>Aporta Oracle</strong> cuando:
 <ol><li><strong>Hay riesgo de Goodhart:</strong> Quien escribe el código (por ejemplo, un LLM o agente) tiende a adaptar el test para que dé verde; en Oracle las medidas están desacopladas y custodiadas por mutación obligatoria.</li><li><strong>Se necesita explicitar el punto ciego:</strong> Un <code>assert</code> que pasa produce silencio; una medida de Oracle que pasa concluye enumerando su <code>alcance</code> (lo que no puede garantizar).</li><li><strong>Auditoría de artefactos en caja negra:</strong> Querés evaluar la validez de los datos producidos por un proceso sin acoplarte a cómo está implementado el generador por dentro.</li></ol></li></ul>

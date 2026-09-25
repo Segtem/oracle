@@ -31,9 +31,57 @@ Los detalles de qué se midió en cada uno están en [`docs/migracion/`](migraci
 
 ## El sensor
 
+Para reproducirlo desde una carpeta vacía, prepará el proyecto de biblioteca:
+
+```bash paso
+oracle init biblioteca
+cd biblioteca
+```
+
+```text salida
+Proyecto Oracle inicializado en ./biblioteca:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso <grupo/id>
+  2. Creá una medida:  oracle nueva <dominio.nombre>
+  3. Verificá todo:    oracle test
+```
+
+```json archivo=oracle.json incluir=ejemplo/biblioteca-guia/oracle.json
+```
+
+```oracle archivo=catalogos/documento/documento.nombre_sigue_la_convencion.oracle incluir=ejemplo/biblioteca-guia/catalogos/documento/documento.nombre_sigue_la_convencion.oracle
+```
+
+```caso archivo=corpus/documento/001-un-nombre-fuera-de-convencion.caso incluir=ejemplo/biblioteca-guia/corpus/documento/001-un-nombre-fuera-de-convencion.caso
+```
+
+```caso archivo=corpus/documento/002-un-lote-en-convencion.caso incluir=ejemplo/biblioteca-guia/corpus/documento/002-un-lote-en-convencion.caso
+```
+
+```json archivo=relaciones/documento.json incluir=ejemplo/biblioteca-guia/relaciones/documento.json
+```
+
+Los cuatro documentos de prueba están en `docs-de-prueba/`:
+
+```text archivo=docs-de-prueba/2026-08-31-GUIA-Convencion-v1.0.md incluir=ejemplo/biblioteca-guia/docs-de-prueba/2026-08-31-GUIA-Convencion-v1.0.md
+```
+```text archivo=docs-de-prueba/2026-09-01-INFORME-Primera-Medida-v1.0.md incluir=ejemplo/biblioteca-guia/docs-de-prueba/2026-09-01-INFORME-Primera-Medida-v1.0.md
+```
+```text archivo=docs-de-prueba/borrador.md incluir=ejemplo/biblioteca-guia/docs-de-prueba/borrador.md
+```
+```text archivo=docs-de-prueba/notas-finales.md incluir=ejemplo/biblioteca-guia/docs-de-prueba/notas-finales.md
+```
+
+
 `sensores/nombres.py` — no importa nada del sistema de archivos:
 
-```python
+```python archivo=sensores/nombres.py incluir=ejemplo/biblioteca-guia/sensores/nombres.py
 """El SENSOR: puro. Decide si un nombre sigue la convención, y nada más."""
 import re
 
@@ -50,7 +98,7 @@ Eso se testea con `assert sigue_convencion("borrador.md") is False`. No hace fal
 
 `mide_nombres.py` — camina la carpeta y emite filas en la superficie que Oracle lee:
 
-```python
+```python archivo=mide_nombres.py incluir=ejemplo/biblioteca-guia/mide_nombres.py
 """El ADAPTADOR: habla con el disco y emite evidencia. No decide nada."""
 import json, sys
 from pathlib import Path
@@ -66,25 +114,31 @@ for p in sorted(carpeta.glob("*.md")):
 
 Fijate que **el adaptador no tiene ni un `if` sobre la convención**: pregunta y transcribe.
 
+```bash paso
+python3 mide_nombres.py docs-de-prueba
 ```
-$ python3 mide_nombres.py docs-de-prueba
+
+```text salida
 documento: nombre, sigue_convencion
     "2026-08-31-GUIA-Convencion-v1.0.md", true
     "2026-09-01-INFORME-Primera-Medida-v1.0.md", true
     "borrador.md", false
-    "notas finales.md", false
+    "notas-finales.md", false
 ```
 
 ## Medir el mundo real
 
-```
-$ oracle medida probar catalogos/documento/documento.nombre_sigue_la_convencion.oracle \
+```bash paso
+oracle medida probar catalogos/documento/documento.nombre_sigue_la_convencion.oracle \
       --con "$(python3 mide_nombres.py docs-de-prueba)"
+```
+
+```text salida
 ROJO   valor 2  (<= 0)
 
   testigos (2) — las filas que ofenden, no un resumen:
     {'d': {'nombre': 'borrador.md', 'sigue_convencion': False}}
-    {'d': {'nombre': 'notas finales.md', 'sigue_convencion': False}}
+    {'d': {'nombre': 'notas-finales.md', 'sigue_convencion': False}}
 
   alcance: no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena
     de `documento` NO lee: nombre
@@ -100,28 +154,7 @@ por `sigue_convencion`—. No es un error; es información sobre qué parte del 
 
 Un caso con `procedencia: observada` es evidencia que **pasó**, copiada tal cual:
 
-```
-caso 003-la-biblioteca-real:
-    fecha: "2026-09-01"
-    origen:
-        repo: "aula/biblioteca"
-        commit: "sin-commit"
-        comando: "python3 mide_nombres.py docs-de-prueba"
-    procedencia: observada
-    titulo: "Dos archivos de la carpeta real están fuera de convención"
-    etiqueta: falso_verde
-    sintoma:
-        Corriendo el sensor sobre docs-de-prueba/ aparecieron dos nombres fuera de convención
-        que nadie había notado: `borrador.md` y `notas finales.md`.
-    como_se_detecto: herramienta_ajena
-    medida: documento.nombre_sigue_la_convencion
-    evidencia:
-        documento: nombre, sigue_convencion
-            "2026-08-31-GUIA-Convencion-v1.0.md", true
-            …
-    leccion:
-        La evidencia observada es la que el sensor devolvió, copiada tal cual. Si se la edita para
-        que quede prolija deja de ser observada.
+```caso archivo=corpus/documento/003-la-biblioteca-real.caso incluir=ejemplo/biblioteca-guia/corpus/documento/003-la-biblioteca-real.caso
 ```
 
 **`observada` es una afirmación sobre el pasado**, y Oracle no puede verificarla: el `alcance` de la
@@ -133,17 +166,64 @@ honesto, y no cierra nada que no deba cerrarse.
 
 Con ese caso, el proyecto cierra:
 
+```bash paso
+oracle test
 ```
-$ oracle test
+
+```text salida
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
 CORPUS OK · 3 casos · esquema, evidencia L0 y trazabilidad en regla
 
-  ROJO  001-un-nombre-fuera-de-convencion  documento.nombre_sigue_la_convencion  (valor 1)
-  verde 002-un-lote-en-convencion          documento.nombre_sigue_la_convencion  (valor 0)
-  ROJO  003-la-biblioteca-real             documento.nombre_sigue_la_convencion  (valor 2)
+SINTAXIS OK · 1 medidas · 0 macros · 3 casos
+
+catálogo: 40 medidas · corpus: 3 casos
+
+  ROJO  001-un-nombre-fuera-de-convencion      documento.nombre_sigue_la_convencion  (valor 1)
+  verde 002-un-lote-en-convencion              documento.nombre_sigue_la_convencion  (valor 0)
+  ROJO  003-la-biblioteca-real                 documento.nombre_sigue_la_convencion  (valor 2)
+
+defectos que se pusieron rojos: 2 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        0 (<= 0)
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
 
 ACEPTACIÓN ✓ — 2 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
-mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
 
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
+  de los muertos: 9 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 27
+
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
+  ✓ meta.toda_medida_esta_fijada                        0 (<= 0)
+  ⊘ proceso.codigo_con_mutante_que_lo_mata       SIN EVIDENCIA («mutante con m.tipo == "codigo"» vacía; no se midió)
+  ✓ proceso.test_con_mutante_que_lo_mata                0 (<= 0)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
 

@@ -1,0 +1,17 @@
+caso 001-un-nombre-fuera-de-convencion:
+    fecha: "2026-09-25"
+    origen:
+        repo: "aula/biblioteca"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un nombre fuera de convención"
+    etiqueta: falso_verde
+    sintoma:
+        Un documento tiene nombre fuera de convención.
+    como_se_detecto: persona
+    medida: documento.nombre_sigue_la_convencion
+    evidencia:
+        documento: nombre, sigue_convencion
+            "notas finales.md", false
+    leccion:
+        El nombre fuera de convención debe ponerse rojo.

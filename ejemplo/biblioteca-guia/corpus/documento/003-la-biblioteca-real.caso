@@ -1,0 +1,21 @@
+caso 003-la-biblioteca-real:
+    fecha: "2026-09-25"
+    origen:
+        repo: "aula/biblioteca"
+        commit: "sin-commit"
+        comando: "python3 mide_nombres.py docs-de-prueba"
+    procedencia: observada
+    titulo: "Dos archivos de la carpeta real están fuera de convención"
+    etiqueta: falso_verde
+    sintoma:
+        Un documento tiene nombre fuera de convención.
+    como_se_detecto: persona
+    medida: documento.nombre_sigue_la_convencion
+    evidencia:
+        documento: nombre, sigue_convencion
+            "2026-08-31-GUIA-Convencion-v1.0.md", true
+            "2026-09-01-INFORME-Primera-Medida-v1.0.md", true
+            "borrador.md", false
+            "notas-finales.md", false
+    leccion:
+        El nombre fuera de convención debe ponerse rojo.

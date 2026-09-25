@@ -1,6 +1,6 @@
 # Las guías que no se ejecutan se pudren: docs/02 ya muestra una salida vieja de oracle nueva
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 82
 - ETIQUETAS: oracle, documentacion, flaqueza
 
@@ -22,4 +22,4 @@ de andamio), ajustar la prosa al comportamiento actual.
 
 ## Próximo paso
 
-Codex implementa.
+Si cambia un comando o un fixture de estas guías, ejecutar `python3 tools/guia.py` y regenerar sus salidas y el sitio antes de publicar.

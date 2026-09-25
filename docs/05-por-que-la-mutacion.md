@@ -58,15 +58,107 @@ Hoy el motor informa **30 mutadores activos** (6 propios + 24 del segundo autor)
 
 ## La mutación en tu medida
 
+Reconstruí el proyecto de la guía anterior con estos archivos:
+
+```bash paso
+oracle init biblioteca
+cd biblioteca
+```
+
+```text salida
+Proyecto Oracle inicializado en ./biblioteca:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso <grupo/id>
+  2. Creá una medida:  oracle nueva <dominio.nombre>
+  3. Verificá todo:    oracle test
+```
+
+```json archivo=oracle.json incluir=ejemplo/biblioteca-guia/oracle.json
+```
+
+```oracle archivo=catalogos/documento/documento.nombre_sigue_la_convencion.oracle incluir=ejemplo/biblioteca-guia/catalogos/documento/documento.nombre_sigue_la_convencion.oracle
+```
+
+```caso archivo=corpus/documento/001-un-nombre-fuera-de-convencion.caso incluir=ejemplo/biblioteca-guia/corpus/documento/001-un-nombre-fuera-de-convencion.caso
+```
+
+```caso archivo=corpus/documento/002-un-lote-en-convencion.caso incluir=ejemplo/biblioteca-guia/corpus/documento/002-un-lote-en-convencion.caso
+```
+
+```json archivo=relaciones/documento.json incluir=ejemplo/biblioteca-guia/relaciones/documento.json
+```
+
+
 En el proyecto de juguete, tu medida tiene una estructura simple: una sola fuente, un filtro
 booleano, conteo y umbral `<= 0`. De los 30 mutadores del motor, **nueve** aplican a esa sintaxis
 (los otros mutan uniones, agrupamientos, cotas o agregados que esa medida no usa):
 
+```bash paso
+oracle test
 ```
-$ oracle test
+
+```text salida
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 2 casos
+
+catálogo: 40 medidas · corpus: 2 casos
+
+  ROJO  001-un-nombre-fuera-de-convencion      documento.nombre_sigue_la_convencion  (valor 1)
+  verde 002-un-lote-en-convencion              documento.nombre_sigue_la_convencion  (valor 0)
+
+defectos que se pusieron rojos: 1 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        1 (<= 0)
+      → _={'medida': 'documento.nombre_sigue_la_convencion', 'casos': 2, 'no_observados': 2}
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✗ — 1 problema(s)
+  · meta.la_medida_no_se_fija_solo_con_evidencia_fabricada: el marco no cumple su propia regla
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
 mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 9 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
 detecciones evaluadas (mutante × caso): 18
+
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
+  ✓ meta.toda_medida_esta_fijada                        0 (<= 0)
+  ⊘ proceso.codigo_con_mutante_que_lo_mata       SIN EVIDENCIA («mutante con m.tipo == "codigo"» vacía; no se midió)
+  ✓ proceso.test_con_mutante_que_lo_mata                0 (<= 0)
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: aceptación)
 ```
 
 Oracle rompió tu medida de nueve maneras —le sacó el filtro, le aflojó el umbral, le dio vuelta un
@@ -81,9 +173,52 @@ tu corpus lo hubiera atrapado.
 
 Borrá el caso verde y dejá sólo el rojo:
 
+```bash paso
+rm -f corpus/documento/002-un-lote-en-convencion.caso
+oracle test
 ```
-$ oracle test
+
+```text salida
+UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 1 casos
+
+catálogo: 40 medidas · corpus: 1 casos
+
+  ROJO  001-un-nombre-fuera-de-convencion      documento.nombre_sigue_la_convencion  (valor 1)
+
+defectos que se pusieron rojos: 1 · verdes correctos: 0 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+  ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)
+  ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
+  ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
+  ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        1 (<= 0)
+      → _={'medida': 'documento.nombre_sigue_la_convencion', 'casos': 1, 'no_observados': 1}
+  ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)
+  ✓ meta.ningun_flotante_comparado_por_igualdad_en_un_filtro        0 (<= 0)
+  ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
+  ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
+  ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.toda_cantidad_comparada_tiene_unidad_derivable        0 (<= 0)
+  ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)
+  ✓ meta.toda_medida_declara_su_ambito                  0 (<= 0)
+  ✓ meta.toda_medida_filtra_o_agrupa                    0 (<= 0)
+  ✓ meta.toda_medida_lee_campos_que_existen             0 (<= 0)
+  ✓ meta.todo_caso_observado_declara_de_donde_salio        0 (<= 0)
+  ✓ meta.todo_tanteo_explica_por_que                    0 (<= 0)
+  ✓ meta.todo_umbral_declara_de_donde_sale              0 (<= 0)
+
+ACEPTACIÓN ✗ — 1 problema(s)
+  · meta.la_medida_no_se_fija_solo_con_evidencia_fabricada: el marco no cumple su propia regla
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
 mutantes de medida (medida × mutador): 9 · murieron 8 · sobrevivieron 1
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 8 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
 detecciones evaluadas (mutante × caso): 9
 
@@ -91,6 +226,7 @@ juzgado por las medidas del catálogo:
   ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
   ✗ meta.toda_medida_esta_fijada                        1 (<= 0)
       → m=documento.nombre_sigue_la_convencion
+  ⊘ proceso.codigo_con_mutante_que_lo_mata       SIN EVIDENCIA («mutante con m.tipo == "codigo"» vacía; no se midió)
   ✗ proceso.test_con_mutante_que_lo_mata                1 (<= 0)
       → m=documento.nombre_sigue_la_convencion·quitar_filtro
 
@@ -100,6 +236,12 @@ lo que el corpus NO fija — ningún caso detecta estas mutaciones:
 Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual
 demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:
 `quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: ROJO (falló: aceptación, mutación)
 ```
 
 **Por qué sobrevive.** `quitar_filtro` borra el `donde`, así que la medida cuenta **todos** los
@@ -136,10 +278,19 @@ Un ataque obvio a una medida molesta es correrle el umbral. Probalo:
 umbral <= 1 segun contrato porque "…"
 ```
 
+```oracle archivo=catalogos/documento/documento.nombre_sigue_la_convencion.oracle incluir=ejemplo/biblioteca-guia/catalogos/documento/medida-umbral-invalido.txt
 ```
-$ oracle test
-CATÁLOGO INVÁLIDO — …/documento.nombre_sigue_la_convencion.oracle: línea 4, columna 5:
-la macro ninguno no coincide con su plantilla declarada: se esperaba 0; llegó 1
+
+```bash paso
+oracle test
+```
+
+```text salida
+CATÁLOGO INVÁLIDO — ./biblioteca/catalogos/documento/documento.nombre_sigue_la_convencion.oracle: línea 4, columna 5: la macro ninguno no coincide con su plantilla declarada: se esperaba 0; llegó 1
+   4 |     umbral <= 1 segun contrato porque "la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe"
+     |     ^
+
+VEREDICTO: ROJO (catálogo no pudo cargarse)
 ```
 
 **`ninguno` significa cero.** No es un nombre bonito para `<= 0`: es una macro con una plantilla, y

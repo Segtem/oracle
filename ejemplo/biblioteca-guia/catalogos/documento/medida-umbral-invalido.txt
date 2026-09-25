@@ -1,0 +1,6 @@
+ninguno documento.nombre_sigue_la_convencion:
+    de documento d
+    donde d.sigue_convencion == false
+    umbral <= 1 segun contrato porque "la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe"
+    ambito universal
+    alcance "no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena"

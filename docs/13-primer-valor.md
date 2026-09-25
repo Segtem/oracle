@@ -4,19 +4,29 @@ Un recorrido breve, ejecutable y reproducible para conectar un producto con Orac
 
 ## Entorno y preparación verificados
 
-Ejecutado el 2026-09-21 con Python 3.14.7 y Oracle 0.27.0 (álgebra 0.8, sintaxis 0.6), desde una copia sin `.git` del checkout base `3d27050a50cc949dc3fc6bf6dc9df168bf5f9ab5` más los cambios de esta tarea. Se construyó un wheel local y se instaló sin red en un venv nuevo; los comandos de abajo se ejecutaron desde la raíz de esa copia, sin `PYTHONPATH` ni `ORACLE_PROYECTO` heredados.
+Los comandos se ejecutan en una carpeta temporal con el Oracle de este repositorio. Un test reconstruye el ejemplo y comprueba cada salida.
 
-Para preparar otra copia del repositorio con este ejemplo, desde su raíz (el Python de construcción necesita `pip` y `setuptools>=68`):
+Primero creá el proyecto:
 
-```bash
-python3 -m pip wheel --no-deps --no-build-isolation --wheel-dir /tmp/oracle-primer-valor-ruedas .
-python3 -m venv /tmp/oracle-primer-valor-venv
-/tmp/oracle-primer-valor-venv/bin/python -m pip install --no-index /tmp/oracle-primer-valor-ruedas/oracle_metalenguaje-0.27.0-py3-none-any.whl
-source /tmp/oracle-primer-valor-venv/bin/activate
-unset PYTHONPATH ORACLE_PROYECTO
+```bash paso
+oracle init ejemplo/primer-valor
 ```
 
-Las salidas siguientes son capturas reales. Cada exportación termina con exit 0 e imprime `Hechos exportados a /tmp/hechos-defecto.json` o `Hechos exportados a /tmp/hechos-corregido.json`, respectivamente. El test del catálogo termina con exit 0.
+```text salida
+Proyecto Oracle inicializado en ./ejemplo/primer-valor:
+  · catalogos/
+  · corpus/
+  · diferencial/
+  · relaciones/
+  · oracle.json
+
+Próximos pasos:
+  1. Creá un caso:     oracle caso <grupo/id>
+  2. Creá una medida:  oracle nueva <dominio.nombre>
+  3. Verificá todo:    oracle test
+```
+
+Las salidas siguientes provienen de esa ejecución. Los hechos exportados se guardan en la carpeta temporal del ejemplo.
 
 ---
 
@@ -70,12 +80,7 @@ Cada hecho es un dato puro: no hay juicios de valor en el JSON, sólo hechos del
 
 Un proyecto Oracle se inicializa con `oracle init <directorio>` o creando `catalogos/`, `corpus/`, `diferencial/` y un archivo `oracle.json`:
 
-```json
-{
-  "esquema": "oracle.proyecto/v1",
-  "catalogo_base": false,
-  "perfiles": []
-}
+```json archivo=ejemplo/primer-valor/oracle.json incluir=ejemplo/primer-valor/oracle.json
 ```
 
 > [!TIP]
@@ -85,15 +90,7 @@ Un proyecto Oracle se inicializa con `oracle init <directorio>` o creando `catal
 
 En Oracle, las medidas se enuncian buscando **lo que ofende** (el defecto), no lo que está bien:
 
-```oracle
-medida colocacion.dentro_del_tablero:
-    de celda_ocupada c
-    donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
-    resumen contar(1)
-    umbral <= 0 segun contrato porque "el tablero es de 10x10 (coordenadas 0 a 9); cualquier casilla fuera de ese rango corrompe el estado del juego"
-    requiere celda_ocupada
-    ambito universal
-    alcance "valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí"
+```oracle archivo=ejemplo/primer-valor/catalogos/colocacion/colocacion.dentro_del_tablero.oracle incluir=ejemplo/primer-valor/catalogos/colocacion/colocacion.dentro_del_tablero.oracle
 ```
 
 Los cuatro componentes esenciales:
@@ -112,25 +109,7 @@ Una medida sin casos es una intención sin comprobar: podría estar invertida y 
 
 Archivo [`corpus/colocacion/001-desborde-tablero.caso`](../ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso):
 
-```caso
-caso 001-desborde-tablero:
-    fecha: "2026-09-21"
-    origen:
-        repo: "Segtem/oracle/ejemplo/primer-valor"
-        commit: "sin-commit"
-    procedencia: construida
-    titulo: "Buque colocado parcialmente fuera del tablero (fila 10)"
-    etiqueta: falso_verde
-    sintoma:
-        Un buque destructor colocado verticalmente en fila 9 desborda hacia la fila 10, fuera de la cuadrícula 10x10.
-    como_se_detecto: persona
-    medida: colocacion.dentro_del_tablero
-    evidencia:
-        celda_ocupada: barco, fila, columna
-            "destructor", 9, 5
-            "destructor", 10, 5
-    leccion:
-        La medida debe detectar la celda fuera de rango (10, 5) y ponerse en rojo para evitar desbordes de memoria o estado inválido.
+```caso archivo=ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso incluir=ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso
 ```
 
 - Este caso contiene exactamente 1 celda ofensiva (`fila: 10`).
@@ -142,28 +121,7 @@ caso 001-desborde-tablero:
 
 Archivo [`corpus/colocacion/002-colocacion-valida.caso`](../ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso):
 
-```caso
-caso 002-colocacion-valida:
-    fecha: "2026-09-21"
-    origen:
-        repo: "Segtem/oracle/ejemplo/primer-valor"
-        commit: "sin-commit"
-    procedencia: construida
-    titulo: "Flota colocada enteramente dentro de la cuadrícula 10x10"
-    etiqueta: verde_correcto
-    sintoma:
-        Despliegue reglamentario de buques con todas sus celdas dentro del rango válido de 0 a 9.
-    como_se_detecto: persona
-    medida: colocacion.dentro_del_tablero
-    evidencia:
-        celda_ocupada: barco, fila, columna
-            "fragata", 1, 2
-            "fragata", 1, 3
-            "fragata", 1, 4
-            "destructor", 8, 5
-            "destructor", 9, 5
-    leccion:
-        Una colocación reglamentaria debe dar 0 testigos ofensivos y resultar verde; fija la medida contra mutaciones que eliminen el filtro.
+```caso archivo=ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso incluir=ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso
 ```
 
 - Este caso contiene 5 celdas legítimas.
@@ -176,19 +134,34 @@ caso 002-colocacion-valida:
 
 Los dos casos anteriores no alcanzan: dejaban seis mutantes vivos. El corpus incluye también fila -1, columna -1, columna 10 y una relación vacía (`celda_ocupada:` sin filas). Este último queda ROJO aunque el valor sea 0 porque incumple `requiere`. Los seis casos son construidos; `sin-commit` evita atribuirles un commit ficticio.
 
-El directorio obligatorio `diferencial/` se conserva con `.gitkeep`. No contiene fixtures: esta ruta mínima no aporta una comparación con un evaluador independiente y `oracle test` lo informa como salteado.
+El directorio obligatorio `diferencial/` se conserva vacío. No contiene fixtures: esta ruta mínima no aporta una comparación con un evaluador independiente y `oracle test` lo informa como salteado.
 
 ## 5. Paso 4: Validar el catálogo con `oracle test`
 
 Corremos `oracle test` para verificar que las medidas del catálogo compilen, satisfagan los contratos sintácticos y queden fijadas contra mutación:
 
-```bash
+```caso archivo=ejemplo/primer-valor/corpus/colocacion/003-fila-negativa.caso incluir=ejemplo/primer-valor/corpus/colocacion/003-fila-negativa.caso
+```
+
+```caso archivo=ejemplo/primer-valor/corpus/colocacion/004-columna-negativa.caso incluir=ejemplo/primer-valor/corpus/colocacion/004-columna-negativa.caso
+```
+
+```caso archivo=ejemplo/primer-valor/corpus/colocacion/005-columna-desbordada.caso incluir=ejemplo/primer-valor/corpus/colocacion/005-columna-desbordada.caso
+```
+
+```caso archivo=ejemplo/primer-valor/corpus/colocacion/006-sin-celdas.caso incluir=ejemplo/primer-valor/corpus/colocacion/006-sin-celdas.caso
+```
+
+```python archivo=ejemplo/primer-valor/colocador.py incluir=ejemplo/primer-valor/colocador.py
+```
+
+```bash paso
 oracle test --proyecto ejemplo/primer-valor
 ```
 
 ### Salida real registrada de `oracle test`:
 
-```text
+```text salida
 UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
@@ -239,17 +212,15 @@ Ahora sí conectamos el producto vivo con Oracle.
 
 El colocador tiene un bug y posiciona un destructor en la fila 9 vertical, desbordando hacia la fila 10:
 
-```bash
-# 1. Ejecutar el producto y extraer hechos reales
-python3 ejemplo/primer-valor/colocador.py --defecto --exportar /tmp/hechos-defecto.json
-
-# 2. Juzgar los hechos contra el catálogo
-oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-defecto.json
+```bash paso
+python3 ejemplo/primer-valor/colocador.py --defecto --exportar hechos-defecto.json
+oracle juzgar --proyecto ejemplo/primer-valor --con hechos-defecto.json
 ```
 
 **Salida real registrada (exit code 1):**
 
-```text
+```text salida
+Hechos exportados a hechos-defecto.json
 ✗ colocacion.dentro_del_tablero                       1 (<= 0)
       → c={'barco': 'destructor', 'fila': 10, 'columna': 5}
 
@@ -262,17 +233,15 @@ Oracle rechaza la corrida y señala exactamente el testigo infractor: `fila: 10`
 
 Arreglamos el defecto en el producto (el destructor se ubica en la fila 8 vertical, ocupando filas 8 y 9):
 
-```bash
-# 1. Regenerar los hechos tras la corrección
-python3 ejemplo/primer-valor/colocador.py --exportar /tmp/hechos-corregido.json
-
-# 2. Juzgar los nuevos hechos
-oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-corregido.json
+```bash paso
+python3 ejemplo/primer-valor/colocador.py --exportar hechos-corregido.json
+oracle juzgar --proyecto ejemplo/primer-valor --con hechos-corregido.json
 ```
 
 **Salida real registrada (exit code 0):**
 
-```text
+```text salida
+Hechos exportados a hechos-corregido.json
 ✓ colocacion.dentro_del_tablero                       0 (<= 0)
 
 VEREDICTO: verde en 1 medidas. SIN MIRAR:
@@ -288,7 +257,7 @@ La corrida pasa limpiamente y el reporte final imprime de forma transparente el 
 ### Evidencia guardada vs. Evidencia regenerada
 
 - Los archivos en `corpus/` (`001-desborde-tablero.caso`, etc.) son **evidencia histórica guardada** para comprobar las medidas. Si editás el producto, estos archivos no cambian ni deben cambiar automáticamente.
-- Los archivos generados por el sensor (`/tmp/hechos-*.json`) son **evidencia viva de una corrida particular**. Si modificás el producto, debés volver a ejecutar el sensor para generar un nuevo archivo de hechos antes de invocar `oracle juzgar`.
+- Los archivos generados por el sensor (`hechos-*.json`) son **evidencia viva de una corrida particular**. Si modificás el producto, debés volver a ejecutar el sensor para generar un nuevo archivo de hechos antes de invocar `oracle juzgar`.
 
 ### ¿Cuándo basta un `assert` y cuándo aporta Oracle?
 

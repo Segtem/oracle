@@ -1,0 +1,18 @@
+caso 002-un-lote-en-convencion:
+    fecha: "2026-09-25"
+    origen:
+        repo: "aula/biblioteca"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Dos nombres en convención"
+    etiqueta: verde_correcto
+    sintoma:
+        Ambos nombres respetan la convención.
+    como_se_detecto: persona
+    medida: documento.nombre_sigue_la_convencion
+    evidencia:
+        documento: nombre, sigue_convencion
+            "2026-08-31-GUIA-Convencion-v1.0.md", true
+            "2026-09-01-INFORME-Primera-Medida-v1.0.md", true
+    leccion:
+        Ninguno de estos nombres debe ponerse rojo.
