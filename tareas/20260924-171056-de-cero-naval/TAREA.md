@@ -1,6 +1,6 @@
 # La página de cero enseña una medida suelta; falta la guía completa de una batalla naval en HTML5, paso a paso, para quien empieza a programar con un LLM
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 80
 - ETIQUETAS: oracle, web, documentacion, guia
 
@@ -69,4 +69,4 @@ Verificación final: python3 -m unittest discover -s tests: 2515 tests, OK; cd d
 
 ## Próximo paso
 
-Claude: revisar docs/de-cero.html en un teléfono y ajustar el diseño si algún bloque o tabla desborda; después verificar python3 tools/guia.py y python3 tools/sitio.py antes de cerrar la tarea.
+Ninguno: publicada.
