@@ -53,6 +53,7 @@ PAGINAS = (
     Pagina("ESPECIFICACION.md", "especificacion.html", "Referencia", "Especificación"),
     Pagina("docs/decisiones/README.md", "decisiones/index.html", "Referencia", "Decisiones"),
     Pagina("NOTAS-DE-RELEASE.md", "notas.html", "Referencia", "Notas de release"),
+    Pagina("docs/notas/anteriores-a-0.20.md", "notas/anteriores-a-0.20.html", "Referencia", "Notas anteriores a 0.20"),
     *(Pagina(f"docs/decisiones/{p.name}", f"decisiones/{p.stem}.html", "Decisiones",
              p.stem.replace("DECISION-", "").split("-", 1)[0])
       for p in sorted((DOCS / "decisiones").glob("DECISION-*.md"))),

@@ -233,9 +233,33 @@ def sitio_casos() -> str:
     return str(len(_casos_del_corpus()))
 
 
+NOTAS = "NOTAS-DE-RELEASE.md"
+NOTAS_ANTERIORES = "docs/notas/anteriores-a-0.20.md"
+
+
+def notas_indice() -> str:
+    """Una fila por versión, leída de los títulos del propio archivo: el índice no se escribe a mano.
+
+    El ancla es la que GitHub y el sitio le dan al título (`tools/sitio.py:slug`), así que el mismo
+    enlace sirve en los dos.
+    """
+    from tools.sitio import slug
+
+    filas = []
+    for linea in (RAIZ / NOTAS).read_text(encoding="utf-8").splitlines():
+        m = re.match(r"^# (\d+\.\d+\.\d+) — (.+)$", linea)
+        if m:
+            titulo = f"{m.group(1)} — {m.group(2)}".replace("`", "")
+            filas.append(f"| [{m.group(1)}](#{slug(titulo)}) | {m.group(2)} |")
+    if not filas:
+        raise ValueError(f"{NOTAS} no tiene ningún título de versión «# X.Y.Z — …»")
+    filas.append(f"| 0.19.0 y anteriores | en [{NOTAS_ANTERIORES}]({NOTAS_ANTERIORES}) |")
+    return "| versión | qué trae |\n|---|---|\n" + "\n".join(filas)
+
+
 BLOQUES = {"cifras": cifras, "escala": escala, "corpus": corpus, "negativas": negativas,
            "deteccion": deteccion, "sitio_version": sitio_version,
-           "sitio_medidas": sitio_medidas, "sitio_casos": sitio_casos}
+           "sitio_medidas": sitio_medidas, "sitio_casos": sitio_casos, "notas_indice": notas_indice}
 
 REPO = "https://github.com/Segtem/oracle"
 ENLACE = re.compile(r"(?<!!)\]\(([^\s)]+)\)")
@@ -310,7 +334,7 @@ def render(contenido: str, ruta: str = "README.md") -> str:
 # Custodiar un artefacto generado además no sirve: `estudio/` y `ORACLE-PARA-NOTEBOOKLM.md` salen de
 # `tools/estudio.py`, así que una cifra vencida ahí es un síntoma de que la fuente venció, y la
 # fuente es el README, que sí está acá. Se arregla regenerando, no vigilando la copia.
-DOCUMENTOS = ("README.md", "docs/index.html", "pyproject.toml")
+DOCUMENTOS = ("README.md", "docs/index.html", "pyproject.toml", "NOTAS-DE-RELEASE.md")
 
 
 def custodiados_sin_versionar(raiz: Path | None = None, documentos=None) -> list[str]:

@@ -38,3 +38,18 @@ class ElConvertidorTests(unittest.TestCase):
         salida = self.convertir("| a | b |\n|---|---|\n| 1 | 2 |")
         self.assertIn("<th>a</th>", salida)
         self.assertIn("<td>2</td>", salida)
+
+
+class ElIndiceDeLasNotasLlegaASuVersionTests(unittest.TestCase):
+    def test_cada_ancla_del_indice_existe_en_la_pagina(self):
+        import re
+        pagina = sitio.pagina(next(p for p in sitio.PAGINAS if p.salida == "notas.html"))
+        texto = (sitio.RAIZ / "NOTAS-DE-RELEASE.md").read_text(encoding="utf-8")
+        indice = texto.split("<!-- notas_indice:inicio -->")[1].split("<!-- notas_indice:fin -->")[0]
+        anclas = re.findall(r"\]\(#([^)]+)\)", indice)
+        self.assertGreater(len(anclas), 10)
+        ids = set(re.findall(r'id="([^"]+)"', pagina))
+        for ancla in anclas:
+            with self.subTest(ancla=ancla):
+                self.assertIn(ancla, ids)
+
