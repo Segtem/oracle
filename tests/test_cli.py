@@ -213,6 +213,9 @@ class OracleCliTests(CliTestCase):
             ("medida", "revisar", "--help"),
             ("caso", "nuevo", "--help"),
             ("revisar", "--help"),
+            ("nueva", "--help"),
+            ("medida", "nueva", "--help"),
+            ("caso", "generar", "-h"),
         )
         for comando in comandos:
             with self.subTest(comando=comando):

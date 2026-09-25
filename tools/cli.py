@@ -1149,10 +1149,12 @@ def main(argv: list[str] | None = None) -> int:
         if subcomando == "biblioteca" and resto[0] in ("nueva", "verificar", "listar"):
             ayuda_biblioteca()
             return 0
-        if subcomando == "medida" and resto[0] in ("revisar", "probar", "expandir"):
+        # Todo verbo de `medida` y `caso` toma un id posicional: `--help` no puede terminar leído
+        # como id (`oracle nueva --help` decía «id inválido»).
+        if subcomando in ("medida", "nueva", "--nueva"):
             ayuda_medida()
             return 0
-        if subcomando == "caso" and resto[0] == "nuevo":
+        if subcomando in ("caso", "--caso", "--nuevo"):
             ayuda_caso()
             return 0
         if subcomando in ("revisar", "expandir", "convertir"):
