@@ -1,0 +1,4 @@
+objetivos: tools/mutar.py
+
+     ·  tools/mutar.py:19:40:constante                       constante: 1 → 2
+  VIVO  tools/mutar.py:20:16:constante                       constante: 0 → 1

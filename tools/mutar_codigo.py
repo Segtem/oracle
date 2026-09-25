@@ -84,6 +84,12 @@ PRIORIDADES = {
     # Sus tests directos son los de `comparar_dominio` y los del contrato del fixture.
     "tools/diferencial.py": ("tests.test_diferencial_informe", "tests.test_herramientas",
                              "tests.test_fixtures"),
+    "tools/generar_diferencial.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
+                                      "tests.test_fixtures"),
+    "tools/mutar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
+                       "tests.test_mutacion"),
+    "tools/trazar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
+                        "tests.test_algebra"),
     # Medido el 2026-09-09: vigilar tarda 0,08 s y mata 48 mutantes; biblioteca, 0,23 s y 69
     # (19 compartidos). Adelantarlos evita pagar todo el CLI por sus mutantes exclusivos.
     # `test_cli.load_tests` deja el diagnóstico real al final del módulo; aceptación y
@@ -292,6 +298,10 @@ PRIORIDADES = {
 # sobrevivientes, todos en la impresión del informe y los códigos de salida. Con los tests de
 # `tests/test_diferencial_informe.py` y el patrón `_entrada_directa`, la ronda dio 55/55 en tres minutos
 # y pasó a la matriz: el costo era el síntoma de estar mal fijado, como en `medida.py` y `cli.py`.
+# Fase 1 de la custodia de arneses (2026-09-24): `mutar.py` decide si las medidas discriminan,
+# `generar_diferencial.py` fija el acuerdo con la referencia y la frescura del fixture, y
+# `trazar.py` comprueba los invariantes operacionales del álgebra. Si cualquiera calla un fallo,
+# su verde deja una afirmación sin verificar. Ninguno se muta a sí mismo en esta ronda.
 CUSTODIAS_SIN_MEDIR = {}
 
 
@@ -301,11 +311,12 @@ CUSTODIAS_SIN_MEDIR = {}
 # políticas. Una lectura incompleta o una referencia mal clasificada puede dar un verde falso.
 # P4 conserva las rondas y sus límites en vault-kb/estudios/0.16.0-tareas/verificacion-p4/.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
-                          "diferencial.py",
+                          "diferencial.py", "generar_diferencial.py",
                           "corpus.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
-                          "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
+                          "mutar.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
-                          "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py")
+                          "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
+                          "trazar.py")
 
 # `lsp.py` SALIÓ de la lista el 2026-09-09, y no por costo: mide 140/140 en 2,2 minutos. Salió
 # porque no cumple el criterio. Es un adaptador de editor: no lo corre CI, no lo corre `oracle

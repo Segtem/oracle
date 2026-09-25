@@ -36,10 +36,14 @@ verde de mutación o de diferencial deja de significar lo que dice. `lsp.py` sal
 - 6 no lo cumplen: `estudio.py`, `lsp.py`, `mcp_contrato.py`, `oracle.py`, `plantilla.py` y `sesion.py` (adaptadores, shims, generadores de documentación o helpers).
 - Para los arneses autorreferenciales (`ejecutar_suite_mutacion.py` y `mutar_codigo.py`), se definió la arquitectura de desacoplamiento con arnés testigo inmutable desde la raíz base y tests unitarios específicos para evitar recursión.
 
-## Próximo paso
-
-Fase 1 de incorporación (punto 3): sumar a `HERRAMIENTAS_CUSTODIAS` en `tools/mutar_codigo.py`, `PRIORIDADES` y `.github/workflows/verificar.yml` los tres módulos directos sin autorreferencia (`generar_diferencial.py`, `mutar.py` y `trazar.py`), medir su mutación y escribir los tests necesarios para matar los mutantes que sobrevivan.
-
 ### Nota (2026-09-24 23:48:59 UTC)
 
 2026-09-24, revisión de Claude: agy también escribió un ANALISIS.md y una nota dentro de 20260916-014457-custodia, que está CERRADA; se revirtió: la historia cerrada no se reescribe. Las cifras de sitios son estimaciones (sin shell); la Fase 1 las mide.
+
+### Nota (2026-09-25 00:32:15 UTC)
+
+Fase 1 completada sin commits: mutar.py, generar_diferencial.py y trazar.py incorporados a HERRAMIENTAS_CUSTODIAS, PRIORIDADES y matriz de CI; tests/test_herramientas.py fija su presencia. Sitios AST reales: 48, 110 y 34 (192 total). Rondas completas con timeout 300: 47/47, 109/109 y 33/33 mutantes ejecutados muertos, cero vivos, cero timeouts y cero errores de arnés; un equivalente por archivo en sys.path.insert(0, RAIZ) documentado en equivalentes.json. Nueve tests directos agregados en tests/test_custodia_fase1.py. Logs y manifiestos en esta carpeta. Suite completa: 2453 tests OK; oracle test --rapido: VERDE tras actualizar README con cifras.py.
+
+## Próximo paso
+
+Fase 2: desacoplar el ejecutor de mutación de código con un arnés testigo inmutable y tests que demuestren que un fallo del runner no se clasifica como muerte; después incorporar `tools/ejecutar_suite_mutacion.py` y `tools/mutar_codigo.py` al perfil, medir sus sitios y cerrar los mutantes vivos o equivalentes. Mantener esta tarea ABIERTA para la Fase 3 (`tools/verificar_instalacion.py`).

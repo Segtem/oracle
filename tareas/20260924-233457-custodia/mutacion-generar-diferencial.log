@@ -1,0 +1,120 @@
+objetivos: tools/generar_diferencial.py
+
+     ·  tools/generar_diferencial.py:22:40:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:23:16:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:43:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:43:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:44:57:constante         constante: True → False
+     ·  tools/generar_diferencial.py:44:86:constante         constante: False → True
+     ·  tools/generar_diferencial.py:45:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:46:42:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:47:42:constante         constante: 2 → 3
+     ·  tools/generar_diferencial.py:50:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:50:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:51:57:constante         constante: False → True
+     ·  tools/generar_diferencial.py:51:87:constante         constante: False → True
+     ·  tools/generar_diferencial.py:52:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:53:42:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:56:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:56:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:57:59:constante         constante: True → False
+     ·  tools/generar_diferencial.py:57:88:constante         constante: True → False
+     ·  tools/generar_diferencial.py:58:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:59:42:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:62:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:62:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:63:57:constante         constante: True → False
+     ·  tools/generar_diferencial.py:63:86:constante         constante: False → True
+     ·  tools/generar_diferencial.py:65:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:66:42:constante         constante: 2 → 3
+     ·  tools/generar_diferencial.py:72:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:72:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:73:57:constante         constante: True → False
+     ·  tools/generar_diferencial.py:73:86:constante         constante: False → True
+     ·  tools/generar_diferencial.py:74:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:75:42:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:80:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:80:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:81:57:constante         constante: True → False
+     ·  tools/generar_diferencial.py:81:86:constante         constante: False → True
+     ·  tools/generar_diferencial.py:82:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:83:42:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:90:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:90:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:91:57:constante         constante: True → False
+     ·  tools/generar_diferencial.py:91:86:constante         constante: False → True
+     ·  tools/generar_diferencial.py:92:42:constante         constante: 0 → 1
+     ·  tools/generar_diferencial.py:93:42:constante         constante: 1 → 2
+     ·  tools/generar_diferencial.py:94:81:constante         constante: True → False
+     ·  tools/generar_diferencial.py:98:65:constante         constante: 7 → 8
+     ·  tools/generar_diferencial.py:98:77:constante         constante: 3 → 4
+     ·  tools/generar_diferencial.py:99:57:constante         constante: True → False
+     ·  tools/generar_diferencial.py:99:86:constante         constante: False → True
+     ·  tools/generar_diferencial.py:100:42:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:101:42:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:108:65:constante        constante: 7 → 8
+     ·  tools/generar_diferencial.py:108:77:constante        constante: 3 → 4
+     ·  tools/generar_diferencial.py:109:57:constante        constante: True → False
+     ·  tools/generar_diferencial.py:109:86:constante        constante: False → True
+     ·  tools/generar_diferencial.py:110:42:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:111:42:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:113:81:constante        constante: True → False
+     ·  tools/generar_diferencial.py:118:65:constante        constante: 7 → 8
+     ·  tools/generar_diferencial.py:118:77:constante        constante: 3 → 4
+     ·  tools/generar_diferencial.py:119:57:constante        constante: True → False
+     ·  tools/generar_diferencial.py:119:86:constante        constante: False → True
+     ·  tools/generar_diferencial.py:120:65:constante        constante: 8 → 9
+     ·  tools/generar_diferencial.py:120:77:constante        constante: 3 → 4
+     ·  tools/generar_diferencial.py:121:57:constante        constante: True → False
+     ·  tools/generar_diferencial.py:121:86:constante        constante: False → True
+     ·  tools/generar_diferencial.py:122:42:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:123:42:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:142:27:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:143:22:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:153:27:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:154:22:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:168:27:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:169:22:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:174:79:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:178:27:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:179:22:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:185:27:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:186:22:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:204:4:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:213:8:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:213:22:constante        constante: False → True
+     ·  tools/generar_diferencial.py:213:40:constante        constante: True → False
+     ·  tools/generar_diferencial.py:214:4:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:241:23:comparador       comparador: NotEq → Eq
+     ·  tools/generar_diferencial.py:265:4:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:272:34:comparador       comparador: NotIn → In
+     ·  tools/generar_diferencial.py:278:52:comparador       comparador: In → NotIn
+     ·  tools/generar_diferencial.py:284:4:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:284:42:constante        constante: False → True
+     ·  tools/generar_diferencial.py:284:59:constante        constante: True → False
+     ·  tools/generar_diferencial.py:284:72:constante        constante: 2 → 3
+     ·  tools/generar_diferencial.py:285:32:constante        constante: False → True
+     ·  tools/generar_diferencial.py:289:32:comparador       comparador: Is → IsNot
+     ·  tools/generar_diferencial.py:289:25:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:299:8:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:299:15:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:302:7:comparador        comparador: In → NotIn
+     ·  tools/generar_diferencial.py:306:8:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:306:15:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:307:7:negacion          negacion: se borra el `not`
+     ·  tools/generar_diferencial.py:310:8:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:310:15:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:311:7:comparador        comparador: NotEq → Eq
+     ·  tools/generar_diferencial.py:314:8:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:314:15:constante        constante: 1 → 2
+     ·  tools/generar_diferencial.py:318:4:retorno           retorno: return <algo> → return None
+     ·  tools/generar_diferencial.py:318:11:constante        constante: 0 → 1
+     ·  tools/generar_diferencial.py:321:3:comparador        comparador: Eq → NotEq
+
+mutantes: 109 · murieron 109 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 1
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

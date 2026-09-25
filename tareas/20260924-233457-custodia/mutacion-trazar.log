@@ -1,0 +1,44 @@
+objetivos: tools/trazar.py
+
+     ·  tools/trazar.py:31:40:constante                      constante: 1 → 2
+     ·  tools/trazar.py:32:16:constante                      constante: 0 → 1
+     ·  tools/trazar.py:80:4:retorno                         retorno: return <algo> → return None
+     ·  tools/trazar.py:101:11:comparador                    comparador: NotEq → Eq
+     ·  tools/trazar.py:103:4:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:107:4:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:118:27:constante                     constante: 0 → 1
+     ·  tools/trazar.py:122:11:booleano                      booleano: and ↔ or
+     ·  tools/trazar.py:122:11:negacion                      negacion: se borra el `not`
+     ·  tools/trazar.py:122:22:comparador                    comparador: NotIn → In
+     ·  tools/trazar.py:122:45:comparador                    comparador: Is → IsNot
+     ·  tools/trazar.py:122:66:comparador                    comparador: In → NotIn
+     ·  tools/trazar.py:127:25:constante                     constante: 1 → 2
+     ·  tools/trazar.py:129:24:constante                     constante: 1 → 2
+     ·  tools/trazar.py:134:4:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:138:32:comparador                    comparador: Is → IsNot
+     ·  tools/trazar.py:138:25:constante                     constante: 1 → 2
+     ·  tools/trazar.py:143:7:comparador                     comparador: In → NotIn
+     ·  tools/trazar.py:144:49:constante                     constante: False → True
+     ·  tools/trazar.py:144:63:constante                     constante: 2 → 3
+     ·  tools/trazar.py:145:8:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:145:15:constante                     constante: 0 → 1
+     ·  tools/trazar.py:155:63:negacion                      negacion: se borra el `not`
+     ·  tools/trazar.py:159:8:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:159:15:constante                     constante: 1 → 2
+     ·  tools/trazar.py:162:7:negacion                       negacion: se borra el `not`
+     ·  tools/trazar.py:164:8:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:164:15:constante                     constante: 1 → 2
+     ·  tools/trazar.py:177:8:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:177:15:constante                     constante: 1 → 2
+     ·  tools/trazar.py:184:4:retorno                        retorno: return <algo> → return None
+     ·  tools/trazar.py:184:11:constante                     constante: 0 → 1
+     ·  tools/trazar.py:184:32:constante                     constante: 1 → 2
+     ·  tools/trazar.py:187:3:comparador                     comparador: Eq → NotEq
+
+mutantes: 33 · murieron 33 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 1
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.
