@@ -47,6 +47,7 @@ PAGINAS = (
     Pagina("docs/14-sensor-prosa.md", "14-sensor-prosa.html", "Herramientas", "Un modelo como sensor"),
     Pagina("docs/mcp-contrato.md", "mcp-contrato.html", "Herramientas", "El servidor MCP"),
     Pagina("docs/mutacion-memoria.md", "mutacion-memoria.html", "Herramientas", "Memoria de la mutación"),
+    Pagina("docs/reportar.md", "reportar.html", "Herramientas", "Reportar un límite"),
     Pagina("ESPECIFICACION.md", "especificacion.html", "Referencia", "Especificación"),
     Pagina("docs/decisiones/README.md", "decisiones/index.html", "Referencia", "Decisiones"),
     Pagina("NOTAS-DE-RELEASE.md", "notas.html", "Referencia", "Notas de release"),
