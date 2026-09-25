@@ -1,0 +1,790 @@
+[
+  {
+    "id": "w001",
+    "alcance": "cuenta cambios marcados como código vivo. En v0.1 NO compara fechas ni sabe cuál verificación quedó vieja: cualquier cambio vivo la invalida. Hace falta comparar contra el commit de la verificación. Si cambio viene vacía significa que no hubo cambios recientes, por lo que la verificación sigue vigente",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "cambio",
+        "c"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "c",
+            "es_codigo_vivo"
+          ],
+          true
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"
+  },
+  {
+    "id": "w002",
+    "alcance": "mira todos los casos, propios y heredados, y ve el id que cada caso RECLAMA: un caso de biblioteca colgado puede señalar una selección incompleta del proyecto. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "caso",
+        "c"
+      ],
+      [
+        "donde",
+        [
+          "y",
+          [
+            "==",
+            [
+              "campo",
+              "c",
+              "tiene_medida"
+            ],
+            true
+          ],
+          [
+            "==",
+            [
+              "campo",
+              "c",
+              "medida_existe"
+            ],
+            false
+          ]
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto"
+  },
+  {
+    "id": "w003",
+    "alcance": "recorre los valores de texto del diagnóstico y los compara contra lo que el proyecto sabe que es suyo —ids de medidas, nombres de archivos, la raíz y el home—. NO detecta un dato del dominio que no esté en esa lista, ni juzga si un campo nuevo debería estar; de eso responde quien lo agrega",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "campo_diagnostico",
+        "d"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "d",
+            "es_del_dominio"
+          ],
+          true
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "el diagnóstico existe para pegarse en un issue público: un id de medida, un nombre de archivo o una ruta con el usuario adentro se comparten sin que nadie los mire dos veces, y no se pueden despublicar"
+  },
+  {
+    "id": "w004",
+    "alcance": "cuenta cambios marcados como código vivo. En v0.1 NO compara fechas ni sabe cuál verificación quedó vieja: cualquier cambio vivo la invalida. Hace falta comparar contra el commit de la verificación. Si cambio viene vacía significa que no hubo cambios recientes, por lo que la verificación sigue vigente",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "cambio",
+        "c"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "c",
+            "es_codigo_vivo"
+          ],
+          true
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "un «corrió verde» vale sólo para el código que se corrió: no se admite ningún cambio de código vivo posterior sin volver a verificar, porque afirmar la foto vieja es mentir"
+  },
+  {
+    "id": "w005",
+    "alcance": "recorre los valores de texto del diagnóstico y los compara contra lo que el proyecto sabe que es suyo —ids de medidas, nombres de archivos, la raíz y el home—. NO detecta un dato del dominio que no esté en esa lista, ni juzga si un campo nuevo debería estar; de eso responde quien lo agrega",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "campo_diagnostico",
+        "d"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "d",
+            "es_del_dominio"
+          ],
+          true
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "ningún valor del diagnóstico puede traer un dato propio del proyecto —un id de medida, un nombre de archivo, una ruta con el usuario—: el diagnóstico se pega en issues públicos y lo publicado no se puede retirar"
+  },
+  {
+    "id": "w006",
+    "alcance": "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional",
+    "umbral": "<= 0",
+    "segun": "convencion",
+    "tuberia": [
+      "desde",
+      [
+        "unir",
+        [
+          "de",
+          "medida",
+          "m"
+        ],
+        [
+          "de",
+          "termino",
+          "t"
+        ]
+      ],
+      [
+        "agrupar",
+        [
+          [
+            "medida",
+            [
+              "campo",
+              "m",
+              "id"
+            ]
+          ]
+        ],
+        [
+          [
+            "operadores_estructurales",
+            "suma",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "t",
+                  "medida"
+                ],
+                [
+                  "campo",
+                  "m",
+                  "id"
+                ]
+              ],
+              [
+                "o",
+                [
+                  "==",
+                  [
+                    "campo",
+                    "t",
+                    "cabeza"
+                  ],
+                  "donde"
+                ],
+                [
+                  "==",
+                  [
+                    "campo",
+                    "t",
+                    "cabeza"
+                  ],
+                  "agrupar"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "col",
+            "operadores_estructurales"
+          ],
+          0
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "por convención de este catálogo, toda medida declara qué hecho ofende con al menos un `donde` o un `agrupar`: una medida que cuenta la relación entera no declaró nada, y no se admite ninguna así"
+  },
+  {
+    "id": "w007",
+    "alcance": "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "archivo",
+        "a"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "a",
+            "sintaxis_valida"
+          ],
+          false
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea"
+  },
+  {
+    "id": "w008",
+    "alcance": "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+    "umbral": "<= 0",
+    "segun": "convencion",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "evento",
+        "e"
+      ],
+      [
+        "agrupar",
+        [
+          [
+            "corrida",
+            [
+              "campo",
+              "e",
+              "corrida"
+            ]
+          ]
+        ],
+        [
+          [
+            "registrados",
+            "contar",
+            1
+          ],
+          [
+            "ultimo",
+            "max",
+            [
+              "campo",
+              "e",
+              "t"
+            ]
+          ]
+        ]
+      ],
+      [
+        "donde",
+        [
+          "!=",
+          [
+            "col",
+            "registrados"
+          ],
+          [
+            "mas",
+            [
+              "col",
+              "ultimo"
+            ],
+            1
+          ]
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
+  },
+  {
+    "id": "w009",
+    "alcance": "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "medida_en_uso",
+        "m"
+      ],
+      [
+        "donde",
+        [
+          "y",
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "es_heredada"
+            ],
+            false
+          ],
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "casos_que_la_evaluan"
+            ],
+            0
+          ]
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre"
+  },
+  {
+    "id": "w010",
+    "alcance": "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "hallazgo",
+        "h"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "h",
+            "era_real"
+          ],
+          false
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno"
+  },
+  {
+    "id": "w011",
+    "alcance": "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.",
+    "umbral": "<= 0",
+    "segun": "convencion",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "evento",
+        "e"
+      ],
+      [
+        "agrupar",
+        [
+          [
+            "corrida",
+            [
+              "campo",
+              "e",
+              "corrida"
+            ]
+          ]
+        ],
+        [
+          [
+            "registrados",
+            "contar",
+            1
+          ],
+          [
+            "ultimo",
+            "max",
+            [
+              "campo",
+              "e",
+              "t"
+            ]
+          ]
+        ]
+      ],
+      [
+        "donde",
+        [
+          "!=",
+          [
+            "col",
+            "registrados"
+          ],
+          [
+            "mas",
+            [
+              "col",
+              "ultimo"
+            ],
+            1
+          ]
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "por convención el tiempo simulado arranca en 0 y avanza de a uno, así que una corrida completa registra exactamente max(t) + 1 eventos: ninguna corrida puede registrar otra cantidad"
+  },
+  {
+    "id": "w012",
+    "alcance": "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional",
+    "umbral": "<= 0",
+    "segun": "convencion",
+    "tuberia": [
+      "desde",
+      [
+        "unir",
+        [
+          "de",
+          "medida",
+          "m"
+        ],
+        [
+          "de",
+          "termino",
+          "t"
+        ]
+      ],
+      [
+        "agrupar",
+        [
+          [
+            "medida",
+            [
+              "campo",
+              "m",
+              "id"
+            ]
+          ]
+        ],
+        [
+          [
+            "operadores_estructurales",
+            "suma",
+            [
+              "y",
+              [
+                "==",
+                [
+                  "campo",
+                  "t",
+                  "medida"
+                ],
+                [
+                  "campo",
+                  "m",
+                  "id"
+                ]
+              ],
+              [
+                "o",
+                [
+                  "==",
+                  [
+                    "campo",
+                    "t",
+                    "cabeza"
+                  ],
+                  "donde"
+                ],
+                [
+                  "==",
+                  [
+                    "campo",
+                    "t",
+                    "cabeza"
+                  ],
+                  "agrupar"
+                ]
+              ]
+            ]
+          ]
+        ]
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "col",
+            "operadores_estructurales"
+          ],
+          0
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende"
+  },
+  {
+    "id": "w013",
+    "alcance": "ve hallazgos que YA fueron etiquetados como falsos. NO puede decidir sola si un hallazgo es real: alguien tuvo que mirarlo. Si hallazgo viene vacía significa que el verificador no reportó nada, por lo que el mundo está limpio de falsos rojos",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "hallazgo",
+        "h"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "h",
+            "era_real"
+          ],
+          false
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "todo hallazgo que reporta el verificador tiene que ser un defecto real: no se admite ninguno que alguien ya confirmó como falso, porque un falso rojo enseña a ignorar al verificador"
+  },
+  {
+    "id": "w014",
+    "alcance": "ve archivos marcados como no parseables. NO ve el daño que SÍ parsea: una regex puede cambiar el significado de una línea sin romper la sintaxis. Si archivo viene vacía significa que no se detectaron archivos con sintaxis rota tras la edición masiva y verde es correcto",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "archivo",
+        "a"
+      ],
+      [
+        "donde",
+        [
+          "==",
+          [
+            "campo",
+            "a",
+            "sintaxis_valida"
+          ],
+          false
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "después de una edición masiva, todo archivo tocado tiene que seguir parseando: no se admite ninguno roto, y comprobarlo cuesta una línea"
+  },
+  {
+    "id": "w015",
+    "alcance": "cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "medida_en_uso",
+        "m"
+      ],
+      [
+        "donde",
+        [
+          "y",
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "es_heredada"
+            ],
+            false
+          ],
+          [
+            "==",
+            [
+              "campo",
+              "m",
+              "casos_que_la_evaluan"
+            ],
+            0
+          ]
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "toda medida propia tiene que evaluarla al menos un caso o un fixture, porque una medida que nadie corre no puede fallar nunca: no se admite ninguna sin ejercitar"
+  },
+  {
+    "id": "w016",
+    "alcance": "mira todos los casos, propios y heredados, y ve el id que cada caso RECLAMA: un caso de biblioteca colgado puede señalar una selección incompleta del proyecto. NO confunde esto con un hueco declarado —un caso sin medida no reclama nada— y NO ve si el id que existe es el adecuado para ese caso. Si caso viene vacía no hay casos que reclamen medidas inexistentes y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar L2",
+    "umbral": "<= 0",
+    "segun": "contrato",
+    "tuberia": [
+      "desde",
+      [
+        "de",
+        "caso",
+        "c"
+      ],
+      [
+        "donde",
+        [
+          "y",
+          [
+            "==",
+            [
+              "campo",
+              "c",
+              "tiene_medida"
+            ],
+            true
+          ],
+          [
+            "==",
+            [
+              "campo",
+              "c",
+              "medida_existe"
+            ],
+            false
+          ]
+        ]
+      ]
+    ],
+    "resumen": [
+      "resumen",
+      "contar",
+      1
+    ],
+    "limite": 0,
+    "aplica_vecino": false,
+    "porque": "todo caso que nombra una medida tiene que nombrar una que existe en el catálogo: un caso colgado no fija nada y pasa por cobertura, así que no se admite ninguno"
+  }
+]

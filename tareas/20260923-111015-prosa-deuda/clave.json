@@ -1,0 +1,66 @@
+{
+  "w001": {
+    "medida": "proceso.verificacion_vigente",
+    "version": "vieja"
+  },
+  "w002": {
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "version": "vieja"
+  },
+  "w003": {
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "version": "vieja"
+  },
+  "w004": {
+    "medida": "proceso.verificacion_vigente",
+    "version": "nueva"
+  },
+  "w005": {
+    "medida": "meta.el_diagnostico_no_publica_el_dominio",
+    "version": "nueva"
+  },
+  "w006": {
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "version": "nueva"
+  },
+  "w007": {
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "version": "vieja"
+  },
+  "w008": {
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "version": "vieja"
+  },
+  "w009": {
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "version": "vieja"
+  },
+  "w010": {
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "version": "vieja"
+  },
+  "w011": {
+    "medida": "simulacion.la_traza_no_tiene_huecos",
+    "version": "nueva"
+  },
+  "w012": {
+    "medida": "meta.toda_medida_filtra_o_agrupa",
+    "version": "vieja"
+  },
+  "w013": {
+    "medida": "proceso.verificador_sin_falsos_rojos",
+    "version": "nueva"
+  },
+  "w014": {
+    "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+    "version": "nueva"
+  },
+  "w015": {
+    "medida": "meta.toda_medida_esta_ejercitada",
+    "version": "nueva"
+  },
+  "w016": {
+    "medida": "meta.el_caso_reclama_una_medida_que_existe",
+    "version": "nueva"
+  }
+}

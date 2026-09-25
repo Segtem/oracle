@@ -1,0 +1,10 @@
+{
+  "meta.toda_medida_filtra_o_agrupa": "una medida sin `donde` ni `agrupar` mide la relación completa: puede ser válida como conteo bruto, pero en el catálogo de oráculos suele significar que faltó declarar qué hecho ofende",
+  "meta.toda_medida_esta_ejercitada": "una medida que ningún caso ni fixture evalúa nunca es decoración: está en el catálogo, se cuenta en el informe, y no puede fallar porque nadie la corre",
+  "meta.el_diagnostico_no_publica_el_dominio": "el diagnóstico existe para pegarse en un issue público: un id de medida, un nombre de archivo o una ruta con el usuario adentro se comparten sin que nadie los mire dos veces, y no se pueden despublicar",
+  "simulacion.la_traza_no_tiene_huecos": "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó",
+  "proceso.verificador_sin_falsos_rojos": "un falso rojo enseña a ignorar el verificador, y eso lo vuelve peor que no tener ninguno",
+  "meta.el_caso_reclama_una_medida_que_existe": "un caso que apunta a una medida inexistente no fija nada y nadie se enteraría: pasaría por el corpus como si estuviera cubierto",
+  "proceso.sintaxis_valida_tras_edicion_masiva": "reescribir N archivos con una expresión regular puede romper la sintaxis, y comprobar que los N siguen parseando es una línea",
+  "proceso.verificacion_vigente": "un «corrió verde» es una foto con fecha; si después se tocó código vivo la foto es de otro código, y afirmarla es mentir"
+}

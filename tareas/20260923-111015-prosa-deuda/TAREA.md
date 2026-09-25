@@ -1,6 +1,6 @@
 # Ocho de quince defensas de umbral explican la regla, no el número
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 78
 - ETIQUETAS: oracle, prosa, deuda
 
@@ -49,3 +49,7 @@ nuevo y el dictamen del juez. Ojo con la primera (`meta.toda_medida_filtra_o_agr
 original **admitía a propósito** los conteos brutos y la nueva los prohíbe, así que no es reescribir
 un texto sino cambiar la regla. Las que se aprueben se aplican al catálogo y se vuelve a pasar el
 juez ciego sobre ellas.
+
+### Nota (2026-09-25 21:45:21 UTC)
+
+2026-09-25, Claude: decisión y aplicación. Las 8 se aprueban en el fondo; la objeción sobre la 1 (meta.toda_medida_filtra_o_agrupa) no se sostiene: la medida YA cuenta como infracción toda medida sin donde ni agrupar con umbral <= 0, así que la defensa vieja, que concedía el conteo bruto, contradecía a la regla; la nueva la alinea, no la cambia. Los textos de agy eran largos y repetían «por lo que el límite es cero»: se reescribieron cortos, cada uno enunciando la regla de la que sale el cero y conservando la razón. Aplicadas al catálogo; diferencial/simulacion.json regenerado (sólo cambió la huella del catálogo). Re-juicio ciego con Jev (rejuicio.py, typesafe/jev-1.13, el CRITERIO.md de jev-porque-v2, una llamada, US$0,0003): las 8 nuevas entre 0,79 y 0,85 de P(sí), y cada nueva por encima de su vieja; las viejas entre 0,30 y 0,67 (tres pasan 0,5: como control, Jev discrimina menos que el juez de la v2). Resultados en resultado.json y respuesta-cruda.json.

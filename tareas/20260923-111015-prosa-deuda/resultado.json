@@ -1,0 +1,105 @@
+{
+  "fecha_utc": "2026-09-25T21:45:08.550408+00:00",
+  "http": 200,
+  "latencia_segundos": 0.71,
+  "costo_usd": 0.000289212,
+  "sha256_respuesta": "a804ff5b67f6557245e815c3a650ba2736a0ff6d5c65b821f3cbc93d220e4c47",
+  "filas": [
+    {
+      "id": "w001",
+      "medida": "proceso.verificacion_vigente",
+      "version": "vieja",
+      "p_si": 0.67
+    },
+    {
+      "id": "w002",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "version": "vieja",
+      "p_si": 0.34
+    },
+    {
+      "id": "w003",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "version": "vieja",
+      "p_si": 0.54
+    },
+    {
+      "id": "w004",
+      "medida": "proceso.verificacion_vigente",
+      "version": "nueva",
+      "p_si": 0.84
+    },
+    {
+      "id": "w005",
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "version": "nueva",
+      "p_si": 0.8
+    },
+    {
+      "id": "w006",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "version": "nueva",
+      "p_si": 0.85
+    },
+    {
+      "id": "w007",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "version": "vieja",
+      "p_si": 0.3
+    },
+    {
+      "id": "w008",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "version": "vieja",
+      "p_si": 0.31
+    },
+    {
+      "id": "w009",
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "version": "vieja",
+      "p_si": 0.56
+    },
+    {
+      "id": "w010",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "version": "vieja",
+      "p_si": 0.34
+    },
+    {
+      "id": "w011",
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "version": "nueva",
+      "p_si": 0.85
+    },
+    {
+      "id": "w012",
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "version": "vieja",
+      "p_si": 0.39
+    },
+    {
+      "id": "w013",
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "version": "nueva",
+      "p_si": 0.82
+    },
+    {
+      "id": "w014",
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "version": "nueva",
+      "p_si": 0.82
+    },
+    {
+      "id": "w015",
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "version": "nueva",
+      "p_si": 0.84
+    },
+    {
+      "id": "w016",
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "version": "nueva",
+      "p_si": 0.79
+    }
+  ]
+}
