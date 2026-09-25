@@ -20,3 +20,7 @@ releases de GitHub enlazan `NOTAS-DE-RELEASE.md`.
 ## Próximo paso
 
 Después del corte 0.30.0, para no pisar sus notas.
+
+### Nota (2026-09-25 12:12:14 UTC)
+
+2026-09-25, Claude: después del corte 0.31.0, para no pisar sus notas.

@@ -1,6 +1,6 @@
 # Cada corte tarda horas porque se muta el módulo entero aunque haya cambiado una línea
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, mutacion
 
@@ -20,3 +20,7 @@ con el informe diciendo qué se mutó y qué no.
 ## Próximo paso
 
 Diseñar cómo se mapean las líneas cambiadas a los sitios de mutación.
+
+### Nota (2026-09-25 12:12:13 UTC)
+
+2026-09-25, Claude con la delegación de Brian: DESCARTADA. Mutar sólo las líneas cambiadas es una ronda parcial, y Brian decidió el 2026-09-24 que la ronda de release es completa (mutacion-lenta, propuesta 4). El costo por mutante se midió y es intrínseco (mutacion-lenta/DESGLOSE.md).

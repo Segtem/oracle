@@ -21,3 +21,7 @@ andamio. Tests que fallen hoy.
 ## Próximo paso
 
 Implementar.
+
+### Nota (2026-09-25 12:12:14 UTC)
+
+2026-09-25, Claude: va. Complementa medida-sin-casos (una medida propia sin casos ya pone rojo oracle test): que oracle nueva cree además el caso rojo y el verde de andamio, marcados como andamio, y que oracle test no dé verde mientras lo sean. Implementa Codex.

@@ -23,3 +23,7 @@ y `tools/mutar.py`. El arnés de mutación no se muta a sí mismo.
 ## Próximo paso
 
 Leer cómo arma el perfil `perfiles/python/mutacion_codigo.py` y por qué rechaza esos módulos.
+
+### Nota (2026-09-25 12:12:14 UTC)
+
+2026-09-25, Claude: el punto 3 lo resolvió custodia (fases 1-3: mutar, generar_diferencial, trazar, ejecutar_suite_mutacion, mutar_codigo y verificar_instalacion entraron, sin vivos). Quedan 1 (el perfil declara qué queda fuera y por qué: estudio, lsp, mcp_contrato, oracle, plantilla, sesion, con la razón que ya da custodia/ANALISIS.md) y 2 (oracle test --todo informa lo que queda fuera). Implementa Codex.

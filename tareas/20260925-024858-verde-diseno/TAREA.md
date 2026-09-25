@@ -26,3 +26,7 @@ Se completó el análisis exhaustivo en `ANALISIS.md` de las cuatro decisiones d
 ## Próximo paso
 
 Revisión y decisión por parte de Brian sobre las alternativas recomendadas en `ANALISIS.md`.
+
+### Nota (2026-09-25 12:12:13 UTC)
+
+2026-09-25, Brian delegó: «tomá las mejores decisiones». Decidido: 1.A (la sombra nunca perdona un SIN EVIDENCIA), 2.B (se conservan ninguno/peor/ninguno-par abiertas y se agregan peor-requiere y ninguno-par-requiere, con la regla escrita: si la relación es el universo a evaluar, se usa la variante -requiere), 3.A (los agregados sobre cero filas siguen dando 0; la guarda es requiere) y 4.C (oracle juzgar falla por omisión si hay medidas propias sin aplicar; --parcial lo permite explícitamente). Implementa Codex antes del corte 0.31.0.
