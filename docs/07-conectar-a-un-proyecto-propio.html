@@ -89,6 +89,7 @@ ROJO   valor 2  (&lt;= 0)
     origen:
         repo: &quot;aula/biblioteca&quot;
         commit: &quot;sin-commit&quot;
+        comando: &quot;python3 mide_nombres.py docs-de-prueba&quot;
     procedencia: observada
     titulo: &quot;Dos archivos de la carpeta real están fuera de convención&quot;
     etiqueta: falso_verde
@@ -115,7 +116,7 @@ CORPUS OK · 3 casos · esquema, evidencia L0 y trazabilidad en regla
   ROJO  003-la-biblioteca-real             documento.nombre_sigue_la_convencion  (valor 2)
 
 ACEPTACIÓN ✓ — 2 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
-mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
+mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
 
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <h2 id="funciones-propias-escalarespy">Funciones propias: <code>escalares.py</code><a class="ancla" href="#funciones-propias-escalarespy" aria-label="Enlace a esta sección">#</a></h2>
@@ -168,7 +169,7 @@ git status --short -- vendor/oracle         # tiene que dar vacío</code></pre>
 <ol><li>Lo que toda medida declara (<code>umbral ... segun ... porque ...</code>, <code>alcance ...</code>).</li><li>Las relaciones y campos disponibles en tu proyecto (derivados de tu evidencia).</li><li>Con qué se escribe: operadores (<code>agrupar</code>, <code>de</code>, <code>donde</code>, <code>resumen</code>, <code>unir</code>), comparadores, lógicos, agregados y escalares declaradas.</li><li>Las medidas que ya existen en el catálogo con sus puntos ciegos declarados.</li><li>La regla de orden: escribir el caso antes que la medida.</li></ol>
 <hr>
 <h2 id="qué-sigue">Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
-<ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 28 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía completa de autoría.</li><li><a href="https://github.com/Segtem/oracle/blob/main/docs/migracion/de-subtree-a-pypi.md" rel="noopener"><code>docs/migracion/de-subtree-a-pypi.md</code></a> — guía paso a paso de migración desde subtree a PyPI.</li><li><a href="decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.html"><code>DECISION-010</code></a> — por qué el paquete instalado es otro proyecto y cómo se mide.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
+<ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 30 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía completa de autoría.</li><li><a href="https://github.com/Segtem/oracle/blob/main/docs/migracion/de-subtree-a-pypi.md" rel="noopener"><code>docs/migracion/de-subtree-a-pypi.md</code></a> — guía paso a paso de migración desde subtree a PyPI.</li><li><a href="decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.html"><code>DECISION-010</code></a> — por qué el paquete instalado es otro proyecto y cómo se mide.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/07-conectar-a-un-proyecto-propio.md" rel="noopener">docs/07-conectar-a-un-proyecto-propio.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">

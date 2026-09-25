@@ -49,7 +49,7 @@ oracle test --proyecto &lt;tu-proyecto&gt; --confiar-escalares</code></pre>
 <ul><li>una medida escrita primero se escribe para pasar, no para atrapar;</li><li>la herramienta puede decirte si tu medida está mal <em>formada</em>, pero <strong>no puede saber qué quisiste decir</strong>. Una condición invertida —que selecciona lo que está bien en vez de lo que ofende— pasa todas las comprobaciones automáticas. El caso es lo único que lo detecta.</li></ul>
 <pre data-lenguaje="bash"><code># 1. el caso: la evidencia del defecto, y que se espera ROJO
 #    (el andamio ya nace en superficie .caso, o copiá uno que exista)
-oracle caso proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
+oracle caso proceso/001-lo-que-paso   # crea corpus/proceso/001-lo-que-paso.caso
 
 # 2. mirá con qué contás: el contexto de tu proyecto en un solo comando
 oracle contexto           # relaciones, campos, escalares, operadores y medidas existentes
