@@ -547,6 +547,7 @@ un veredicto verde, no un error genérico. Un campo de la clave ausente en un he
 una identidad a medias no se puede comprobar, y un nulo implícito la dejaría sin comprobar en
 silencio. Sin el nodo, la relación es exactamente la bolsa de siempre, y la multiplicidad intencional
 sigue siendo expresable sin declarar nada.
+La fila informada se numera desde cero entre los hechos, sin contar el nodo `clave`.
 
 ### 1.1 Las relaciones que el lenguaje emite
 
@@ -685,11 +686,17 @@ la fila no trae.
 
 Por ejemplo, con ambos nodos: `["medida", "ejemplo.con_ambito", ["desde", ["de", "pieza", "p"]], ["resumen", "contar", 1], ["umbral", "==", 1, "una pieza"], ["requiere", "pieza"], ["ambito", "del_origen"], ["alcance", "sólo cuenta piezas declaradas"]]`. Si falta `requiere`, `ambito` sigue inmediatamente al `umbral`.
 
+Los valores admitidos para `ambito` son `"universal"`, `"del_origen"` y `"sin_declarar"`.
+El último también es el valor asumido cuando se omite el nodo.
+Si `umbral` incluye `segun`, sus valores admitidos son `"medicion"`, `"contrato"`,
+`"convencion"`, `"tanteo"` y `"sin_declarar"`.
+
 Es el espejo de `alcance`: uno declara qué NO ve la medida, el otro **qué NECESITA ver para
 concluir**. Si alguna de las relaciones listadas viene vacía, la evaluación no mide: devuelve
 `SIN EVIDENCIA`, que no es verde y tampoco es un rojo del mundo. Existe porque el álgebra no puede
 expresarlo —un agregado sobre cero filas da `0` y un umbral `<= 0` lo lee como éxito— y la ausencia
 total salía verde justo cuando el mundo estaba peor; el caso completo está en §8.
+En `requiere`, una relación omitida del mapa de evidencia equivale a una relación presente con `[]`.
 
 En la terminología de Shi, Zhang y Cui, *A Programming Paradigm for Spatiotemporal
 Composability*, §3.2, `requiere` es un **coefecto**: una especificación de dependencias que se
@@ -787,9 +794,9 @@ afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo
 |---|---|---|
 | `de` | `["de", relación, alias]` | fuente |
 | `donde` | `["donde", pred]` | filtra — **define los testigos** |
-| `unir` | `["unir", izq, der]` | producto cartesiano |
+| `unir` | `["unir", fuente_izq, fuente_der]` | producto cartesiano de fuentes `de` o `unir` anidadas |
 | `sin` | `["sin", ["de", relación, alias], cond]` | anti-junta: deja las filas que **ninguna** fila de la relación cumple |
-| `agrupar` | `["agrupar", [claves], [nombre, agg, expr]]` | agrupa y agrega |
+| `agrupar` | `["agrupar", [[nombre, expr], …], [[nombre, agg, expr], …]]` | agrupa y agrega |
 | `resumen` | `["resumen", agg, expr]` | colapsa a un escalar — **la medición** |
 
 Agregados: `max`, `min`, `suma`, `promedio`, `contar`. `contar` **no evalúa la expresión**: cuenta
@@ -798,6 +805,13 @@ booleanos como indicadores 0/1; `min` y `max` exigen escalares homogéneos y com
 finito o una mezcla incompatible es error de álgebra, no un veredicto.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
+Su fuente inicial sólo puede ser `de` o `unir`; cada lado de `unir` también debe ser una fuente
+`de` o `unir`, nunca una sub-tubería `desde`. `resumen` sólo ocupa el nodo de la medida posterior
+a la tubería; no es un paso de `desde`.
+
+En `agrupar`, tanto las claves como los agregados son listas de entradas. Las claves pueden ser
+`[]`: si entran filas, todas forman un único grupo. Si no entra ninguna fila, salen cero grupos,
+incluso con cero claves; no se crea una fila sintética con agregados en `0`.
 
 ### Lenguaje activo: seis operadores
 
@@ -815,7 +829,8 @@ La regla *no se agrega un operador hasta que una segunda medida lo necesite* apl
 reales y por eso una declaración que los use falla al cargar. Si aparecen esos usuarios, vuelven con
 sus casos, semántica y mutantes; no como ramas dormidas.
 
-`sin` es un paso de la tubería, como `donde`. Para cada fila que llega, evalúa `cond` contra **cada**
+`sin` sólo puede aparecer como paso posterior a la fuente inicial de `desde`, nunca como fuente
+inicial ni como lado de `unir`. Para cada fila que llega, evalúa `cond` contra **cada**
 fila de la relación —la condición ve los alias y las columnas de la fila que llega, más el alias
 nuevo— y la deja pasar sólo si **ninguna** la cumple. La salida conserva la fila tal como llegó: el
 alias nuevo existe sólo dentro de la condición y un paso posterior no puede leerlo. Los bordes:
@@ -849,6 +864,8 @@ Comparar contra un campo ausente **levanta un error**, no devuelve `False`: en u
 siempre un nombre mal escrito, y un `False` silencioso lo convertiría en un verde.
 
 Los operadores lógicos `y` y `o` aceptan dos o más operandos: `["y", a, b, c]` es una forma válida.
+Evalúan todos sus operandos, sin cortocircuito, incluso si uno ya determina el resultado.
+La negación lógica `no` acepta exactamente un operando: `["no", expr]`.
 
 Al evaluar un conjunto de medidas, ese error **no corta la corrida ni se pierde**: el núcleo deja la
 medida entre las que **no pudieron juzgar**, con su motivo, aparte de los rojos y de los `SIN
@@ -1051,6 +1068,8 @@ operadores es la única prueba de que el juego chico alcanzaba.
 
   Las comparaciones de ORDEN sobre flotantes siguen permitidas: una tolerancia *es* una comparación
   de orden.
+  Tanto `==` como `!=` sobre un flotante levantan error al evaluar, aunque el otro operando sea
+  entero. La prohibición vale para expresiones y para el umbral final.
 - **Orden.** ✅ **RESUELTO: es un campo del hecho.** No puede ser una propiedad de la relación, porque
   L0 dice que una relación es una **bolsa sin orden semántico**. Entonces «consecutivos» es aritmética
   sobre el campo ordinal, y para eso alcanzó con declarar las escalares `mas` y `menos`.
@@ -1062,9 +1081,11 @@ operadores es la única prueba de que el juego chico alcanzaba.
 ## 9. Presupuesto de evaluación
 
 Una medida puede recibir evidencia hostil o simplemente demasiado grande. `LimitesAlgebra` forma
-parte de la llamada de evaluación y acota tres amplificaciones: filas por relación, filas que puede
-materializar un producto cartesiano y profundidad de una expresión. Los valores por defecto son
-finitos; un consumidor puede elegir otros sin alterar un global compartido. Superar un límite es
+parte de la llamada de evaluación y acota filas por relación (`filas_por_relacion = 100_000`),
+filas que puede materializar un producto cartesiano (`producto_cartesiano = 1_000_000`),
+profundidad de una expresión (`profundidad_expresion = 64`) y expansiones de macros
+(`expansiones_maximas = 16`). Un consumidor puede elegir otros valores sin alterar un global
+compartido. Superar un límite es
 `ErrorDeAlgebra`, nunca un veredicto verde ni una evaluación parcial.
 
 Estos techos no son umbrales de una medida: protegen al evaluador y por eso no deciden nada sobre el

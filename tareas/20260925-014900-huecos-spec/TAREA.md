@@ -29,10 +29,14 @@ Se generó el relevamiento en `tareas/20260925-014900-huecos-spec/HUECOS.md` ide
 - 11 casos de defectos por discrepancia entre el núcleo y la referencia (desigualdad `!=` en flotantes, formato y valor de `SIN EVIDENCIA`, forma sintáctica de agregados en `agrupar`, semántica de testigos tras pasos posteriores a `donde`, tipeo booleano estricto vs truthiness en predicados, alcance perezoso vs ansioso de validación de claves, numeración de filas en error de clave, subconsultas en `unir`, tratamiento de literales `None`/`null`, validación de orígenes en `segun`, y discrepancias en nombres y cotas de `LimitesAlgebra`).
 No se corrió ninguna verificación por shell ni suite de tests.
 
-## Próximo paso
-
-Abordar las preguntas listadas en `tareas/20260925-014900-huecos-spec/HUECOS.md`: redactar e incorporar a `ESPECIFICACION.md` los 8 puntos donde núcleo y referencia resuelven igual, y coordinar o resolver la armonización de los 11 defectos identificados donde difieren.
-
 ### Nota (2026-09-25 01:56:48 UTC)
 
 2026-09-24, revisión de Claude: verificadas ejecutando núcleo y referencia con la misma entrada: 2.1 (!= entre flotantes: el núcleo levanta, la referencia da False,1), 2.3 (la forma de agrupar de la tabla de §3 la rechaza el núcleo con MedidaMalDeclarada; la referencia acepta las dos) y 2.5 (donde con un número: el núcleo lo toma como verdadero, la referencia levanta; es la tarea predicado-bool). Propuesta: la sección 1 (8 preguntas) se escribe con lo que núcleo y referencia ya hacen; en 2.1, 2.3, 2.7, 2.8, 2.10 y 2.11 se sigue al núcleo (se corrige la especificación o la referencia); 2.2 es una diferencia de interfaz, no de semántica; 2.4 (qué son los testigos si hay pasos después del último donde), 2.5 (predicado-bool), 2.6 (validar claves de toda la evidencia o sólo de la usada) y 2.9 (un null explícito en un hecho) cambian lo que una medida dice y son decisión de Brian.
+
+### Nota (2026-09-25 02:02:05 UTC)
+
+Se incorporaron en ESPECIFICACION.md los 8 acuerdos de HUECOS §1, contrastados con nucleo/algebra.py y nucleo/medida.py. Se alinearon §2.1, 2.3, 2.7, 2.8, 2.10 y 2.11 con el núcleo mediante texto y cambios en diferencial/referencia/evaluador.py, con 6 tests de regresión en test_evaluador.py; se actualizaron DECISIONES.md y el fixture con tools/generar_diferencial.py --escribir. Verificaciones: 48 tests de la referencia OK; 2453 tests de la suite completa OK; test --rapido VERDE. Quedan reservados a Brian §2.4, 2.5, 2.6 y 2.9; §2.2 es sólo interfaz. No se modificó nucleo/ ni se subieron versiones. No hubo que reapuntar equivalentes.json: no contiene líneas de los archivos modificados.
+
+## Próximo paso
+
+Brian debe decidir la semántica de los puntos 2.4, 2.5, 2.6 y 2.9 de HUECOS.md. Después, armonizar especificación, núcleo y referencia según esas decisiones y verificar el diferencial.

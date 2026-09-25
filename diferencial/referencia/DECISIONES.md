@@ -14,21 +14,13 @@ Si la tuberia no contiene ningun `donde`, `testigos` es la relacion final de `de
 
 ## `agrupar` con uno o varios agregados
 
-Seccion ambigua: tabla de operadores de la seccion 3 y ejemplo de ausencia en la seccion 8.
-
-Decision: se aceptan dos formas para los agregados de `agrupar`:
-
-```json
-["agrupar", [["k", ["campo", "a", "id"]]], ["n", "contar", 1]]
-```
-
-y
+La seccion 3 exige una lista de agregados, como el ejemplo de ausencia de la seccion 8:
 
 ```json
 ["agrupar", [["k", ["campo", "a", "id"]]], [["n", "contar", 1]]]
 ```
 
-La segunda forma permite mas de un agregado, aunque los casos actuales usen uno.
+La forma con un agregado individual sin lista exterior es invalida.
 
 ## `agrupar` sobre cero filas
 
@@ -50,9 +42,7 @@ la medida. Dentro de `desde`, `resumen` falla porque ya no produce una relacion 
 
 Seccion ambigua: igualdad exacta de flotantes.
 
-Decision: se prohibe exactamente `["==", a, b]` cuando ambos operandos evaluan a `float`, tal como
-dice el contrato. `["!=", a, b]` queda permitido si los tipos son compatibles y los floats son
-finitos.
+Decision: `==` y `!=` levantan error cuando cualquiera de los operandos es flotante.
 
 ## Logicos sin cortocircuito
 
@@ -65,9 +55,8 @@ o un valor no finito no queda oculto por cortocircuito.
 
 Seccion ambigua: relacion entre operadores y tuberia.
 
-Decision: `de`, `unir` y `desde` son fuentes o subexpresiones de relacion. Los pasos que consumen la
-relacion corriente son `donde` y `agrupar`. `resumen` queda fuera de la tuberia por la decision
-anterior.
+Decision: `de` y `unir` son fuentes; cada lado de `unir` admite solo estas dos formas.
+`desde` encabeza la tuberia, y `donde`, `agrupar` y `sin` son pasos. `resumen` queda fuera de la tuberia.
 
 ## Codificacion de `SIN EVIDENCIA`
 
@@ -94,7 +83,7 @@ relaciones usadas por la medida.
 Decision: se validan todas las claves declaradas en la evidencia recibida antes de medir, incluso si
 la relacion no aparece en la tuberia. El nodo `["clave", campos]` no cuenta como hecho. Los campos de
 clave deben ser textos no vacios, no repetidos, y una clave sin campos es invalida. La fila informada
-en errores es el indice dentro de la lista JSON de la relacion, contando el nodo `clave` si existe.
+en errores se cuenta desde cero entre los hechos, sin contar el nodo `clave`.
 
 ## Limites con API fija
 
@@ -102,7 +91,9 @@ Seccion ambigua: la especificacion dice que `LimitesAlgebra` forma parte de la l
 fija la API publica como `evaluar(medida, evidencia, escalares=None)`.
 
 Decision: el evaluador mantiene la firma publica y usa limites finitos internos: 100000 filas por
-relacion, 1000000 filas materializadas por producto cartesiano y profundidad maxima de expresion 100.
+relacion, 1000000 filas por producto cartesiano, profundidad maxima de expresion 64 y 16 expansiones
+maximas. Los campos se llaman `filas_por_relacion`, `producto_cartesiano`,
+`profundidad_expresion` y `expansiones_maximas`, como en el nucleo.
 Superarlos levanta `ErrorDeAlgebra`.
 
 ## `min`/`max` sobre booleanos
@@ -205,11 +196,10 @@ Decision: cuando `sin` se ubica tras un paso `agrupar`, la fila entrante contien
 
 Seccion ambigua: §3 ("Presupuesto: |filas que llegan| × |relacion| evaluaciones, contra el mismo limite de producto cartesiano que unir (§9)").
 
-Decision: antes de iterar sobre los hechos de la relacion derecha, se verifica si `len(filas) * len(evidencia[relacion]) > limites.filas_materializadas`. Si el producto excede dicho limite, se levanta `ErrorDeAlgebra("sin supera el limite de filas materializadas")`.
+Decision: antes de iterar sobre los hechos de la relacion derecha, se verifica si `len(filas) * len(evidencia[relacion]) > limites.producto_cartesiano`. Si el producto excede dicho limite, se levanta `ErrorDeAlgebra("sin supera el limite de filas materializadas")`.
 
 ## Aislamiento del alias nuevo de `sin`
 
 Seccion ambigua: §3 ("La salida conserva la fila tal como llego: el alias nuevo existe solo dentro de la condicion y un paso posterior no puede leerlo").
 
 Decision: al pasar una fila que sobrevivio al filtro de `sin`, se copia la fila original entrante sin agregarle el alias del hecho derecho. Cualquier paso posterior en la tuberia que intente referenciar el alias de `sin` levantara `ErrorDeAlgebra("alias ausente: ...")`. Asimismo, dos pasos `sin` sucesivos en la misma tuberia pueden reutilizar el mismo nombre de alias sin considerarse colision.
-

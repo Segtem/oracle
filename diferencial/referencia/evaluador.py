@@ -16,6 +16,7 @@ Row = dict[str, Any]
 _AGREGADOS = {"max", "min", "suma", "promedio", "contar"}
 _COMPARADORES = {"==", "!=", "<", "<=", ">", ">="}
 _AMBITOS = {"sin_declarar", "universal", "del_origen"}
+_ORIGENES_DE_UMBRAL = {"medicion", "contrato", "convencion", "tanteo", "sin_declarar"}
 _SIN_EVIDENCIA = "SIN EVIDENCIA"
 
 # Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
@@ -42,14 +43,16 @@ Requisito = RequisitoSimple | RequisitoFilas
 @dataclass(frozen=True)
 class LimitesAlgebra:
     filas_por_relacion: int = 100_000
-    filas_materializadas: int = 1_000_000
-    profundidad_expr: int = 100
+    producto_cartesiano: int = 1_000_000
+    profundidad_expresion: int = 64
+    expansiones_maximas: int = 16
 
     def __post_init__(self) -> None:
         for nombre, valor in (
             ("filas_por_relacion", self.filas_por_relacion),
-            ("filas_materializadas", self.filas_materializadas),
-            ("profundidad_expr", self.profundidad_expr),
+            ("producto_cartesiano", self.producto_cartesiano),
+            ("profundidad_expresion", self.profundidad_expresion),
+            ("expansiones_maximas", self.expansiones_maximas),
         ):
             if not isinstance(valor, int) or isinstance(valor, bool) or valor < 1:
                 raise ErrorDeAlgebra(f"{nombre} debe ser un entero positivo")
@@ -128,8 +131,10 @@ def _parsear_medida(medida: Any) -> tuple[str, list, list, list, list[Requisito]
     _validar_escalar(umbral[2], "valor de umbral")
     if not isinstance(umbral[3], str):
         raise ErrorDeAlgebra("la defensa del umbral debe ser texto")
-    if len(umbral) == 5 and not isinstance(umbral[4], str):
-        raise ErrorDeAlgebra("el origen del umbral debe ser texto")
+    if len(umbral) == 5 and (
+        not isinstance(umbral[4], str) or umbral[4] not in _ORIGENES_DE_UMBRAL
+    ):
+        raise ErrorDeAlgebra("origen del umbral desconocido")
     if not _es_lista_con_tag(alcance, "alcance") or len(alcance) != 2:
         raise ErrorDeAlgebra("seccion alcance invalida")
     if not isinstance(alcance[1], str):
@@ -246,7 +251,7 @@ def _normalizar_relacion(
         hechos.append(hecho_copiado)
 
     if clave is not None:
-        _validar_clave_unica(nombre, clave, hechos, comienzo_hechos)
+        _validar_clave_unica(nombre, clave, hechos)
     return hechos
 
 
@@ -271,12 +276,12 @@ def _extraer_clave(nombre: str, relacion: list) -> tuple[list[str] | None, int]:
 
 
 def _validar_clave_unica(
-    nombre: str, campos: list[str], hechos: list[dict[str, Scalar]], comienzo_hechos: int
+    nombre: str, campos: list[str], hechos: list[dict[str, Scalar]]
 ) -> None:
     vistos: dict[tuple[tuple[type, Scalar], ...], int] = {}
     clave_texto = ", ".join(campos)
     for offset, hecho in enumerate(hechos):
-        indice = comienzo_hechos + offset
+        indice = offset
         valores: list[tuple[type, Scalar]] = []
         for campo in campos:
             if campo not in hecho:
@@ -340,12 +345,12 @@ def _evaluar_relacion(
     if operador == "unir":
         if len(expr) != 3:
             raise ErrorDeAlgebra("unir espera dos relaciones")
+        for lado in expr[1:]:
+            if not isinstance(lado, list) or not lado or lado[0] not in {"de", "unir"}:
+                raise ErrorDeAlgebra("unir espera fuentes de o unir")
         izquierda = _evaluar_relacion(expr[1], evidencia, escalares, limites)
         derecha = _evaluar_relacion(expr[2], evidencia, escalares, limites)
         return _unir(izquierda, derecha, limites)
-    if operador == "desde":
-        filas, _testigos = _evaluar_desde(expr, evidencia, escalares, limites)
-        return filas
     if operador in {"donde", "agrupar", "sin"}:
         raise ErrorDeAlgebra(f"{operador} solo puede aparecer como paso de desde")
     if operador == "resumen":
@@ -371,7 +376,7 @@ def _relacion_de(
 
 
 def _unir(izquierda: list[Row], derecha: list[Row], limites: LimitesAlgebra) -> list[Row]:
-    if len(izquierda) * len(derecha) > limites.filas_materializadas:
+    if len(izquierda) * len(derecha) > limites.producto_cartesiano:
         raise ErrorDeAlgebra("unir supera el limite de filas materializadas")
     filas: list[Row] = []
     for fila_izq in izquierda:
@@ -428,7 +433,7 @@ def _aplicar_sin(
         raise ErrorDeAlgebra(f"relacion ausente: {relacion}")
     relacion_filas = evidencia[relacion]
 
-    if len(filas) * len(relacion_filas) > limites.filas_materializadas:
+    if len(filas) * len(relacion_filas) > limites.producto_cartesiano:
         raise ErrorDeAlgebra("sin supera el limite de filas materializadas")
 
     for fila in filas:
@@ -512,15 +517,11 @@ def _parsear_claves(claves: Any) -> list[tuple[str, Any]]:
 
 
 def _parsear_agregados_grupo(agregados: Any) -> list[tuple[str, str, Any]]:
-    if _parece_agregado_grupo(agregados):
-        candidatos = [agregados]
-    elif isinstance(agregados, list):
-        candidatos = agregados
-    else:
+    if not isinstance(agregados, list):
         raise ErrorDeAlgebra("los agregados de agrupar deben ser una lista")
 
     resultado: list[tuple[str, str, Any]] = []
-    for agregado in candidatos:
+    for agregado in agregados:
         if not _parece_agregado_grupo(agregado):
             raise ErrorDeAlgebra("cada agregado debe ser [nombre, agg, expr]")
         nombre, agg, expr = agregado
@@ -596,7 +597,7 @@ def _evaluar_expr(
     limites: LimitesAlgebra,
     profundidad: int = 0,
 ) -> Any:
-    if profundidad > limites.profundidad_expr:
+    if profundidad > limites.profundidad_expresion:
         raise ErrorDeAlgebra("expresion supera el limite de profundidad")
     if not isinstance(expr, list):
         return _validar_escalar(expr, "literal")
@@ -699,7 +700,7 @@ def _comparar(op: str, izquierda: Any, derecha: Any) -> bool:
     izquierda = _validar_escalar(izquierda, "operando izquierdo")
     derecha = _validar_escalar(derecha, "operando derecho")
 
-    if op == "==" and isinstance(izquierda, float) and isinstance(derecha, float):
+    if op in {"==", "!="} and (isinstance(izquierda, float) or isinstance(derecha, float)):
         raise ErrorDeAlgebra("la igualdad exacta entre flotantes esta prohibida")
 
     if op in {"==", "!="}:

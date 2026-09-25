@@ -1,7 +1,7 @@
 import math
 import unittest
 
-from evaluador import VERSION_ALGEBRA, ErrorDeAlgebra, evaluar
+from evaluador import VERSION_ALGEBRA, ErrorDeAlgebra, LimitesAlgebra, evaluar
 
 
 class EvaluadorTests(unittest.TestCase):
@@ -1064,6 +1064,68 @@ class EvaluadorTests(unittest.TestCase):
         self.assertEqual(resultado["valor"], 1)
         self.assertTrue(resultado["ok"])
         self.assertEqual(resultado["testigos"], [{"t": {"id": "t3"}}])
+
+
+class ConcordanciaConNucleoTests(unittest.TestCase):
+    def medida(self, fuente=None, umbral=None):
+        return [
+            "medida", "concordancia",
+            ["desde", fuente or ["de", "pieza", "p"]],
+            ["resumen", "contar", 1],
+            umbral or ["umbral", "==", 1, "una pieza"],
+            ["alcance", "contrato del álgebra"],
+        ]
+
+    def test_desigualdad_con_cualquier_flotante_levanta(self):
+        for izquierda, derecha in ((1.0, 2.0), (1, 1.0), (1.0, 1)):
+            with self.subTest(izquierda=izquierda, derecha=derecha):
+                medida = self.medida(umbral=["umbral", "!=", derecha, "desigualdad"])
+                medida[3] = ["resumen", "max", ["campo", "p", "x"]]
+                with self.assertRaises(ErrorDeAlgebra):
+                    evaluar(medida, {"pieza": [{"x": izquierda}]})
+
+    def test_agrupar_exige_lista_de_agregados(self):
+        medida = self.medida()
+        medida[2].append(["agrupar", [], ["total", "contar", 1]])
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, {"pieza": [{"id": 1}]})
+        medida[2][-1][2] = [["total", "contar", 1]]
+        self.assertEqual(evaluar(medida, {"pieza": [{"id": 1}]})["valor"], 1)
+
+    def test_clave_numera_hechos_desde_cero(self):
+        medida = self.medida()
+        for hechos, fragmento in (
+            ([{"id": 1}, {"id": 1}], "fila 1; primera fila 0"),
+            ([{"id": 1}, {"otro": 2}], "fila 1: id"),
+        ):
+            with self.subTest(hechos=hechos):
+                with self.assertRaises(ErrorDeAlgebra) as error:
+                    evaluar(medida, {"pieza": [["clave", ["id"]], *hechos]})
+                self.assertIn(fragmento, str(error.exception))
+
+    def test_unir_rechaza_subtuberia_desde(self):
+        medida = self.medida(["unir", ["desde", ["de", "pieza", "p"]],
+                              ["de", "pieza", "q"]])
+        with self.assertRaises(ErrorDeAlgebra):
+            evaluar(medida, {"pieza": [{"id": 1}]})
+
+    def test_segun_tiene_vocabulario_cerrado(self):
+        evidencia = {"pieza": [{"id": 1}]}
+        for origen in ("inventado", [], None):
+            with self.subTest(origen=origen):
+                with self.assertRaises(ErrorDeAlgebra):
+                    evaluar(self.medida(umbral=["umbral", "==", 1, "uno", origen]), evidencia)
+        for origen in ("medicion", "contrato", "convencion", "tanteo", "sin_declarar"):
+            with self.subTest(origen=origen):
+                self.assertTrue(evaluar(
+                    self.medida(umbral=["umbral", "==", 1, "uno", origen]), evidencia
+                )["ok"])
+
+    def test_limites_tienen_nombres_y_valores_del_nucleo(self):
+        self.assertEqual(LimitesAlgebra(), LimitesAlgebra(
+            filas_por_relacion=100_000, producto_cartesiano=1_000_000,
+            profundidad_expresion=64, expansiones_maximas=16,
+        ))
 
 
 if __name__ == "__main__":
