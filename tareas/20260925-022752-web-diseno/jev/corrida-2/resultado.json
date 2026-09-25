@@ -1,0 +1,110 @@
+[
+  {
+    "id": "index-0",
+    "titulo": "Reglas que fallan, y dicen por qué.",
+    "explica_porque": 0.81,
+    "sin_jerga": 0.58
+  },
+  {
+    "id": "index-1",
+    "titulo": "Quien escribe el código no puede ser el único que decide si está bien.",
+    "explica_porque": 0.93,
+    "sin_jerga": 0.66
+  },
+  {
+    "id": "index-2",
+    "titulo": "Tu producto cuenta hechos. Las medidas los juzgan.",
+    "explica_porque": 0.51,
+    "sin_jerga": 0.48
+  },
+  {
+    "id": "index-3",
+    "titulo": "Un barco fuera del tablero, atrapado.",
+    "explica_porque": 0.79,
+    "sin_jerga": 0.47
+  },
+  {
+    "id": "index-4",
+    "titulo": "Una medida que nada puede romper es decoración.",
+    "explica_porque": 0.73,
+    "sin_jerga": 0.53
+  },
+  {
+    "id": "index-5",
+    "titulo": "La sombra perdona, pero sólo hasta su cota.",
+    "explica_porque": 0.72,
+    "sin_jerga": 0.69
+  },
+  {
+    "id": "index-6",
+    "titulo": "El agente escribe. Oracle juzga desde afuera.",
+    "explica_porque": 0.64,
+    "sin_jerga": 0.39
+  },
+  {
+    "id": "index-8",
+    "titulo": "Elegí según lo que necesitás hoy.",
+    "explica_porque": 0.18,
+    "sin_jerga": 0.64
+  },
+  {
+    "id": "index-9",
+    "titulo": "Tres comandos.",
+    "explica_porque": 0.11,
+    "sin_jerga": 0.72
+  },
+  {
+    "id": "por-que-0",
+    "titulo": "Un verde que no mide nada es peor que un rojo.",
+    "explica_porque": 0.89,
+    "sin_jerga": 0.71
+  },
+  {
+    "id": "por-que-1",
+    "titulo": "Un agente construyó una batalla naval «con Oracle». El test dio verde.",
+    "explica_porque": 0.78,
+    "sin_jerga": 0.53
+  },
+  {
+    "id": "por-que-2",
+    "titulo": "Un test verifica una función. Una medida vigila una regla del proyecto.",
+    "explica_porque": 0.72,
+    "sin_jerga": 0.46
+  },
+  {
+    "id": "por-que-3",
+    "titulo": "De dónde sale cada dato, hasta el catálogo que se juzga a sí mismo.",
+    "explica_porque": 0.53,
+    "sin_jerga": 0.34
+  },
+  {
+    "id": "por-que-4",
+    "titulo": "Cuanto menos mira un humano, más hace falta un juez que no sea el autor.",
+    "explica_porque": 0.88,
+    "sin_jerga": 0.46
+  },
+  {
+    "id": "por-que-5",
+    "titulo": "Cuándo Oracle no es lo que necesitás.",
+    "explica_porque": 0.23,
+    "sin_jerga": 0.69
+  },
+  {
+    "id": "por-que-6",
+    "titulo": "Tu primer rojo, en cinco minutos.",
+    "explica_porque": 0.13,
+    "sin_jerga": 0.67
+  },
+  {
+    "id": "control-sin-porque",
+    "titulo": "Comandos disponibles",
+    "explica_porque": 0.04,
+    "sin_jerga": 0.6
+  },
+  {
+    "id": "control-jerga",
+    "titulo": "Sombra y cota",
+    "explica_porque": 0.11,
+    "sin_jerga": 0.13
+  }
+]

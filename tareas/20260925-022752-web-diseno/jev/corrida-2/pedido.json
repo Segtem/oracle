@@ -1,0 +1,244 @@
+{
+  "model": "typesafe/jev-1.13",
+  "state": {
+    "description": "Capítulos de la web de Oracle, un lenguaje para escribir reglas verificables de un proyecto.",
+    "records": [
+      {
+        "id": "index-0",
+        "titulo": "Reglas que fallan, y dicen por qué.",
+        "texto": "metalenguaje de medidas Reglas que fallan, y dicen por qué. Cuando un programa, o un modelo de lenguaje, escribe el código y también decide si está bien, un verde deja de significar algo. Oracle es un lenguaje para escribir las reglas de tu proyecto aparte, de forma que se puedan poner rojas: con un número, un umbral que dice de dónde sale y las filas exactas que ofendieron. Empezar en cinco minutos Por qué hace falta uv tool install oracle-metalenguaje Python 3.11 o posterior · cero dependencias · MIT"
+      },
+      {
+        "id": "index-1",
+        "titulo": "Quien escribe el código no puede ser el único que decide si está bien.",
+        "texto": "el problema Quien escribe el código no puede ser el único que decide si está bien. Cuando la misma persona, o el mismo modelo de lenguaje, escribe el código y en la misma pasada escribe los tests, los tests confirman lo que ya se quería ver. Es la ley de Goodhart aplicada a la programación: cuando una medida se vuelve el objetivo, deja de medir. Oracle separa las dos cosas. Las reglas viven en un catálogo aparte, escritas en un lenguaje chico que al cargarse no ejecuta código. Cada regla dice qué no ve. Y el catálogo mismo se pone a prueba: se lo debilita a propósito para ver si sus casos lo notan."
+      },
+      {
+        "id": "index-2",
+        "titulo": "Tu producto cuenta hechos. Las medidas los juzgan.",
+        "texto": "cómo funciona Tu producto cuenta hechos. Las medidas los juzgan. 1 Tu producto un juego, un servicio, un repositorio 2 Un sensor un programa tuyo que lo observa 3 Hechos filas planas en JSON, sin opinión 4 Medidas reglas escritas en Oracle 5 Veredicto valor, umbral, testigos y lo que no vio Oracle nunca mira tu código ni corre tu producto: juzga lo que el sensor le cuenta. Por eso el veredicto trae siempre su alcance , la frase que dice qué quedó sin mirar."
+      },
+      {
+        "id": "index-3",
+        "titulo": "Un barco fuera del tablero, atrapado.",
+        "texto": "una medida real Un barco fuera del tablero, atrapado. Un juego de batalla naval tiene una regla simple: ningún barco fuera del tablero de 10 por 10. Escrita como medida, esa regla no dice «revisá la colocación»: cuando se rompe, te muestra el barco exacto y la casilla. Así sabés qué corregir sin adivinar. colocacion.dentro_del_tablero.oracle Recorte del archivo real de la primera medida real . Los … acortan el texto del porque . de, donde qué filas mirar y cuáles ofenden umbral cuántas ofensas se toleran: cero segun de dónde sale ese número: un contrato, una medición, una convención o un tanteo porque la defensa del número, en prosa requiere sin celdas no hay veredicto: sale sin evidencia , no verde alcance lo que la medida admite no ver salida real · oracle juzgar"
+      },
+      {
+        "id": "index-4",
+        "titulo": "Una medida que nada puede romper es decoración.",
+        "texto": "la medida se pone a prueba Una medida que nada puede romper es decoración. Oracle debilita cada medida a propósito: afloja el umbral de 0 a 1 , invierte un comparador, le quita el filtro o el requiere . A cada versión debilitada la llama mutante. Si algún caso del corpus nota la diferencia, el mutante muere. Si ninguno la nota, esa parte de la medida no la está fijando nadie, y Oracle lo dice. Por qué la mutación"
+      },
+      {
+        "id": "index-5",
+        "titulo": "La sombra perdona, pero sólo hasta su cota.",
+        "texto": "deuda con límite La sombra perdona, pero sólo hasta su cota. Un proyecto real tiene deuda. Una medida en sombra se evalúa y se informa, pero no pone rojo el veredicto. Tiene una cota: el máximo que se tolera. Si la deuda la supera, la sombra deja de perdonar y el rojo vuelve. Así la deuda no crece sin que nadie se entere."
+      },
+      {
+        "id": "index-6",
+        "titulo": "El agente escribe. Oracle juzga desde afuera.",
+        "texto": "agentes El agente escribe. Oracle juzga desde afuera. Un agente de programación puede consultar a Oracle por MCP : qué reglas aplican, qué dice una medida sobre estos hechos, cuál es el veredicto del catálogo entero. El servidor es de sólo lectura: por ahí el agente no puede cambiar las reglas para darse la razón. El lenguaje se amolda a cómo escriben los modelos: t2.turno == t1.turno + 1 se lee tal cual. Y un modelo puede servir de sensor de la prosa de un catálogo, nunca de juez: un modelo como sensor ."
+      },
+      {
+        "id": "index-8",
+        "titulo": "Elegí según lo que necesitás hoy.",
+        "texto": "por dónde seguir Elegí según lo que necesitás hoy. 5 minutos De cero a un rojo Instalar, escribir una medida y verla fallar con sus testigos. tu producto La primera medida real De un producto nuevo a un hecho exportado, una medida y un veredicto. el lenguaje Escribir una medida Anatomía, macros, la forma canónica y los errores que te dice. integrar Conectar un proyecto Sensor puro, adaptador, escalares propias y la sombra. trabajo El tracker de tareas Tareas en carpetas y Markdown, con el próximo paso como relevo. referencia Especificación El álgebra entera, para implementarla sin ver el núcleo."
+      },
+      {
+        "id": "index-9",
+        "titulo": "Tres comandos.",
+        "texto": "empezar Tres comandos. Un proyecto recién creado sale sin medición : todavía no midió nada, y Oracle no lo disfraza de verde. El paso siguiente está en de cero a un rojo ."
+      },
+      {
+        "id": "por-que-0",
+        "titulo": "Un verde que no mide nada es peor que un rojo.",
+        "texto": "por qué oracle Un verde que no mide nada es peor que un rojo. Un rojo te dice que algo está mal. Un verde vacío te dice que está todo bien cuando nadie miró. Oracle existe para que cada verde diga qué midió, con qué número y qué quedó sin mirar."
+      },
+      {
+        "id": "por-que-1",
+        "titulo": "Un agente construyó una batalla naval «con Oracle». El test dio verde.",
+        "texto": "una historia real Un agente construyó una batalla naval «con Oracle». El test dio verde. En septiembre de 2026 le pedimos a un agente de programación el mismo juego dos veces: una batalla naval con Oracle y otra sin Oracle. Las dos versiones funcionaban. La versión con Oracle tenía su catálogo de medidas, su corpus y un oracle test en verde. Al revisarla encontramos que el catálogo estaba vacío . El único caso del corpus validaba la sintaxis de un archivo, no una regla del juego. Ninguna medida sabía qué era un barco, una casilla o un turno. El verde era cierto y no decía nada: se podía borrar la lógica del juego y seguía verde. El defecto era de Oracle, y lo arreglamos en Oracle: oracle test ahora termina diciendo su alcance (qué verificó) y que no volvió a medir el producto. Un proyecto sin medidas propias sale sin medición , no verde. Hay un camino corto a la primera regla real del producto: del juego a un hecho exportado, a una medida y a un veredicto . Es el ejemplo del barco en la fila 10 de la portada. El postmortem completo, con las cifras de cada versión y lo que no se pudo sostener, está en el repositorio ."
+      },
+      {
+        "id": "por-que-2",
+        "titulo": "Un test verifica una función. Una medida vigila una regla del proyecto.",
+        "texto": "qué cambia Un test verifica una función. Una medida vigila una regla del proyecto. Un test unitario Una medida de Oracle Qué mira el código, llamándolo hechos que un sensor exporta del producto Dónde vive junto al código que prueba en un catálogo aparte, con su propio historial El umbral implícito en el assert explícito, con segun : contrato, medición, convención o tanteo Lo que no ve no lo dice lo declara en alcance , obligatorio Al fallar una excepción el valor, el umbral y las filas que ofendieron Si falta el dato depende de cómo se escribió requiere : sale sin evidencia, nunca verde Quién la vigila nadie, salvo mutación de código aparte la mutación de medidas, siempre: si un caso no la nota, se sabe No compiten. Los tests siguen verificando funciones; las medidas vigilan lo que el proyecto promete de sí mismo, con la evidencia a la vista."
+      },
+      {
+        "id": "por-que-3",
+        "titulo": "De dónde sale cada dato, hasta el catálogo que se juzga a sí mismo.",
+        "texto": "cinco niveles De dónde sale cada dato, hasta el catálogo que se juzga a sí mismo. Un veredicto vale lo que vale el dato que lo sostiene. Por eso Oracle separa cinco pisos: qué se observó, con qué instrumento, qué filas salieron, qué regla las juzga y quién vigila a las reglas. Si un piso falla, se sabe cuál, en vez de desconfiar de todo. L2 El catálogo se juzga a sí mismo medidas sobre las medidas: toda medida declara su alcance, ninguna sombra supera su cota L1 Medidas reglas escritas en Oracle, con umbral, defensa y alcance L0 Hechos filas planas, sin opinión: lo que el sensor vio L−1 El sensor unidades, límites y de qué programa salió cada fila L−2 El referente qué archivo o corrida se observó, con su huella, para saber si sigue vigente Cada nivel se apoya en el de abajo y lo puede poner en duda. La decisión completa está en la decisión 005 ."
+      },
+      {
+        "id": "por-que-4",
+        "titulo": "Cuanto menos mira un humano, más hace falta un juez que no sea el autor.",
+        "texto": "programar con agentes Cuanto menos mira un humano, más hace falta un juez que no sea el autor. Un agente que escribe código y sus tests en la misma pasada se da la razón a sí mismo. Oracle pone las reglas afuera, de sólo lectura para el agente, y le devuelve un rojo con el testigo exacto que tiene que corregir. Cuando el agente trabaja solo, Oracle hace de andamiaje: cada paso se juzga con medidas deterministas, y el humano entra cuando quiere, no porque el agente necesite que alguien le diga si está bien."
+      },
+      {
+        "id": "por-que-5",
+        "titulo": "Cuándo Oracle no es lo que necesitás.",
+        "texto": "cuándo no Cuándo Oracle no es lo que necesitás. Si querés probar una función. Para eso está un test unitario, y es más corto. Si no podés exportar hechos. Oracle juzga lo que un sensor le cuenta. Sin sensor no hay veredicto, y el proyecto sale sin medición. Si esperás una prueba de corrección. Una medida verde dice que su regla se cumple sobre esos hechos, dentro de su alcance. No demuestra que el producto esté bien en todo lo demás."
+      },
+      {
+        "id": "por-que-6",
+        "titulo": "Tu primer rojo, en cinco minutos.",
+        "texto": "empezar Tu primer rojo, en cinco minutos. Instalar, escribir una medida y verla fallar con sus testigos. De cero a un rojo"
+      },
+      {
+        "id": "control-sin-porque",
+        "titulo": "Comandos disponibles",
+        "texto": "Oracle tiene los comandos init, test, juzgar, mutar, tarea y manual. El comando test acepta --rapido y --todo. El comando juzgar acepta --con y --proyecto."
+      },
+      {
+        "id": "control-jerga",
+        "titulo": "Sombra y cota",
+        "texto": "La sombra perdona hasta su cota salvo que el L0 del sensor no emita la relación del requiere, en cuyo caso el testigo no llega al L1 y el mutante de aflojar_umbral sobrevive."
+      }
+    ]
+  },
+  "questions": {
+    "index-0__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-0: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-0__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-0: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-1__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-1: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-1__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-1: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-2__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-2: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-2__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-2: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-3__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-3: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-3__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-3: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-4__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-4: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-4__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-4: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-5__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-5: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-5__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-5: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-6__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-6: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-6__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-6: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-8__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-8: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-8__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-8: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "index-9__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro index-9: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "index-9__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro index-9: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-0__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-0: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-0__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-0: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-1__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-1: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-1__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-1: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-2__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-2: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-2__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-2: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-3__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-3: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-3__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-3: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-4__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-4: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-4__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-4: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-5__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-5: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-5__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-5: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "por-que-6__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-6: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "por-que-6__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro por-que-6: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "control-sin-porque__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro control-sin-porque: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "control-sin-porque__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro control-sin-porque: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    },
+    "control-jerga__explica_porque": {
+      "type": "noul",
+      "instructions": "Para el registro control-jerga: ¿El texto le explica a alguien que no conoce Oracle POR QUÉ le serviría, es decir qué problema concreto le resuelve, y no sólo QUÉ es o cómo se usa?"
+    },
+    "control-jerga__sin_jerga": {
+      "type": "noul",
+      "instructions": "Para el registro control-jerga: ¿Se entiende el texto sin conocer de antemano los términos internos de Oracle (por ejemplo sombra, cota, testigo, alcance, L0, mutante), porque los que usa los explica?"
+    }
+  }
+}
