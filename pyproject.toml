@@ -37,10 +37,10 @@ classifiers = [
 "Repositorio" = "https://github.com/Segtem/oracle"
 "Sitio" = "https://segtem.github.io/oracle/"
 "Manual" = "https://segtem.github.io/oracle/manual.html"
-"Documentación" = "https://github.com/Segtem/oracle/blob/v0.30.0/docs/README.md"
-"Especificación" = "https://github.com/Segtem/oracle/blob/v0.30.0/ESPECIFICACION.md"
+"Documentación" = "https://github.com/Segtem/oracle/blob/v0.31.0/docs/README.md"
+"Especificación" = "https://github.com/Segtem/oracle/blob/v0.31.0/ESPECIFICACION.md"
 "Issues" = "https://github.com/Segtem/oracle/issues"
-"Cambios" = "https://github.com/Segtem/oracle/blob/v0.30.0/NOTAS-DE-RELEASE.md"
+"Cambios" = "https://github.com/Segtem/oracle/blob/v0.31.0/NOTAS-DE-RELEASE.md"
 
 [project.scripts]
 oracle = "oracle_metalenguaje.tools.cli:main"

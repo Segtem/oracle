@@ -36,18 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.30.0`.**
-
-**Decisiones para el corte 0.31.0 (2026-09-25, tarea `verde-diseno`).** Una sombra perdona
-un rojo dentro de su cota, pero nunca un `SIN EVIDENCIA`: falta la relación necesaria para
-juzgar. Las macros `ninguno`, `ninguno-par` y `peor` siguen abiertas: una relación de
-infracciones vacía puede significar éxito. Se agregan `ninguno-par-requiere` y
-`peor-requiere` a `ninguno-requiere`. **Si la relación es el universo a evaluar, se usa la
-variante `-requiere`** para impedir un verde sin sujetos. Los agregados sobre cero filas
-siguen dando `0`, también `max`, `min` y `promedio`; la guarda de existencia es `requiere`,
-no el agregado. `oracle juzgar` sin selección falla con código 1 si alguna medida propia
-no se aplicó; `--parcial` permite explícitamente una corrida modular y `--medida` selecciona
-un subconjunto. `--json` conserva `no_aplicadas` y refleja el resultado en `ok`.
+**Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.31.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -61,6 +50,30 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.31.0 (2026-09-25): `VERSION_DISTRIBUCION` sube de `0.30.0` a `0.31.0`.** Sale el
+álgebra 1.0 (párrafo siguiente) y se cierran los caminos a un verde que no midió nada: una medida
+propia sin casos pone rojo `oracle test` y se nombra; `oracle nueva` crea la medida con un caso rojo
+y uno verde de andamio, y el verde no llega mientras sigan siendo andamio. Desde `verde-diseno`, una
+sombra perdona
+un rojo dentro de su cota, pero nunca un `SIN EVIDENCIA`: falta la relación necesaria para
+juzgar. Las macros `ninguno`, `ninguno-par` y `peor` siguen abiertas: una relación de
+infracciones vacía puede significar éxito. Se agregan `ninguno-par-requiere` y
+`peor-requiere` a `ninguno-requiere`. **Si la relación es el universo a evaluar, se usa la
+variante `-requiere`** para impedir un verde sin sujetos. Los agregados sobre cero filas
+siguen dando `0`, también `max`, `min` y `promedio`; la guarda de existencia es `requiere`,
+no el agregado. `oracle juzgar` sin selección falla con código 1 si alguna medida propia
+no se aplicó; `--parcial` permite explícitamente una corrida modular y `--medida` selecciona
+un subconjunto. `--json` conserva `no_aplicadas` y refleja el resultado en `ok`.
+Los seis arneses que custodian la mutación entran ellos mismos a la mutación, el perfil declara qué
+queda afuera y por qué, y las cinco guías con comandos se ejecutan en la suite. Dos arreglos salen
+de la propia ronda de mutación del corte: el arnés publicaba `null` como código de salida y las
+medidas de proceso no podían juzgar la corrida (ahora `-1`), y la unión indexada daba error con
+claves booleanas donde el producto ingenuo unía (ahora cede al producto con toda clave que no sea
+entero ni texto). Sube la **menor**: `VERSION_ALGEBRA` sube a `1.0` y cambian salidas de la CLI.
+Cierra `algebra-10` en el núcleo (los consumidores migran sus `null` antes de subir),
+`medida-sin-casos`, `verde-diseno`, `nueva-con-casos`, `auditoria-nuevo`, `huecos-spec`, `custodia`,
+`perfil-mutacion`, `guias-cli`, `guias-ejecutables`, `web-diseno` y `de-cero-naval`.
 
 **Álgebra 1.0 (2026-09-25): `VERSION_ALGEBRA` sube de `0.8` a `1.0`.** Cambia el
 significado de medidas existentes: los testigos son las filas finales de `desde`; `donde`,

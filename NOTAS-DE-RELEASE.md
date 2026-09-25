@@ -1,3 +1,73 @@
+# 0.31.0 — un verde que no midió nada ya no sale verde
+
+```
+VERSION_DISTRIBUCION   0.30.0 → 0.31.0   álgebra 1.0, verdes vacíos cerrados, la web nueva
+VERSION_ALGEBRA        0.8    → 1.0
+VERSION_SINTAXIS       0.7    → 0.7
+```
+
+## El álgebra 1.0
+
+Sube la **mayor** del álgebra porque hay medidas que antes daban otro resultado, a veces verde:
+
+- **Los testigos son las filas que salen de la tubería completa**, no las de un paso intermedio.
+- **`donde`, `sin`, `requiere` condicional, `y`, `o` y `no` exigen un booleano.** `donde 1` o
+  `donde "sí"` eran verdad por accidente; ahora son un error con su ubicación.
+- **Las claves se validan en toda la evidencia recibida**, también en relaciones que la medida no
+  lee, y **un `null` explícito se rechaza**: si un dato no se pudo decidir, se dice con un campo
+  booleano aparte (`x_decidible`), no con un hueco que cada comparación interpreta a su modo.
+- **Una relación con cabecera `clave` y cero hechos es vacía** para `requiere`: antes la cabecera
+  sola alcanzaba para que `requiere` la diera por presente.
+- **`unir … donde` da los mismos errores con índice que sin él.** Con tipos incompatibles falla
+  igual; con claves que no son enteros ni texto (booleanos, flotantes) el plan indexado cede al
+  producto, que es la semántica de referencia.
+
+⚠️ **Si tu evidencia trae `null`, no subas sin migrar.** Oracle te dice qué relación, qué fila y
+qué campo. LyraGASP y Jam siguen en 0.30.0 hasta migrar.
+
+## Los caminos a un verde vacío, cerrados
+
+- **Una medida propia sin casos pone rojo `oracle test`** (`MEDIDAS SIN CASOS ✗`) y se nombra.
+  Antes, nueve medidas sin ningún caso daban VERDE.
+- **`oracle nueva` crea la medida con un caso rojo y uno verde de andamio**, y `oracle test` dice
+  `ANDAMIO ✗` mientras sigan sin evidencia real.
+- **Una sombra perdona un rojo dentro de su cota, nunca un `SIN EVIDENCIA`.**
+- **`oracle juzgar` falla si una medida propia no se aplicó.** `--parcial` pide explícitamente una
+  corrida modular; `--json` conserva `no_aplicadas`.
+- Macros nuevas **`peor-requiere`** y **`ninguno-par-requiere`**, junto a `ninguno-requiere`: si la
+  relación es el universo que se evalúa, la variante `-requiere` impide un verde sin sujetos.
+- Los agregados sobre cero filas siguen dando `0`, y ahora está escrito: la guarda es `requiere`.
+
+## La mutación se vigila a sí misma
+
+- **Los seis arneses que custodian la mutación entran a la mutación** (`mutar`,
+  `generar_diferencial`, `trazar`, `ejecutar_suite_mutacion`, `mutar_codigo`,
+  `verificar_instalacion`). El runner congelado de la raíz juzga siempre, así que un arnés mutado
+  no puede declararse verde.
+- **El perfil declara qué queda fuera de la mutación y por qué**, y falla si aparece un módulo sin
+  declarar. `oracle test --todo` lo informa.
+- **El arnés publicaba `null` como código de salida** cuando no hubo proceso que terminara, y álgebra
+  1.0 lo rechaza: las medidas de proceso no podían juzgar la corrida. Ahora publica `-1`. Lo encontró
+  la ronda de mutación de este mismo corte.
+
+## Quien llega nuevo
+
+- Catorce fricciones de quien llega desde PyPI, corregidas: la ayuda lleva al manual,
+  `oracle test --help` no corre nada, y `oracle nueva --help`, `medida nueva --help` y
+  `caso generar -h` muestran la ayuda en vez de leer la bandera como un id.
+- **Las guías se ejecutan.** `tools/guia.py` arma cada recorrido desde una carpeta vacía pegando los
+  bloques en orden y compara cada salida con la real: `de-cero`, `02`, `05`, `07` y `13`. Una guía
+  que envejece pone roja la suite.
+- **La web nueva**: [segtem.github.io/oracle](https://segtem.github.io/oracle/), con varias páginas,
+  la documentación renderizada dentro del sitio, escenas en pixel art y la guía «de cero» de una
+  batalla naval para quien empieza con un LLM.
+- **`ejemplo/batalla-naval/`**: el juego de esa guía, con 11 medidas y 33 casos que las fijan.
+
+## La especificación contesta más
+
+Ocho preguntas en las que el núcleo y la implementación de referencia coincidían sin que el texto lo
+dijera quedan escritas, y las divergencias entre los dos se resolvieron con el álgebra 1.0.
+
 # 0.30.0 — escribí la aritmética como la pensás
 
 ```
