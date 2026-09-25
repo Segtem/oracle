@@ -64,3 +64,7 @@ resiste, la diferencia está medida y no argumentada.
 
 Brian corre B dos veces y A una más (ya hay una de A). Después, Claude o Codex aplican las tres
 mentiras a las cuatro y escriben `vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md` con la tabla.
+
+### Nota (2026-09-25 21:43:31 UTC)
+
+2026-09-25 18:43: corridas lanzadas por Claude con agy 1.2.10 (modelo por omisión de agy), --new-project --mode accept-edits --print-timeout 3h, sin más contexto que el prompt, cada una en un directorio vacío: B-1 y después A-2 en ~/Dev/lab/naval-B-1 y naval-A-2 (agy1), B-2 en ~/Dev/lab/naval-B-2 (agy2). Los prompts son los de esta tarea, texto exacto; se guardan con la respuesta final en el scratchpad de la sesión y se copian acá al terminar. Diferencia con A-1: Brian la corrió a mano; ésta es no interactiva (-p).
