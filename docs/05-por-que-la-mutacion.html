@@ -104,6 +104,18 @@ la macro ninguno no coincide con su plantilla declarada: se esperaba 0; llegó 1
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-problema-que-resuelve">El problema que resuelve</a></li><li class="n2"><a href="#los-mutadores-tienen-autor-decision-011">Los mutadores tienen autor (DECISION-011)</a></li><li class="n2"><a href="#la-mutación-en-tu-medida">La mutación en tu medida</a></li><li class="n2"><a href="#un-sobreviviente-provocado-a-propósito">Un sobreviviente, provocado a propósito</a></li><li class="n2"><a href="#lo-que-no-hay-que-hacer">Lo que NO hay que hacer</a></li><li class="n2"><a href="#aflojar-el-umbral-no-siempre-se-puede">Aflojar el umbral no siempre se puede</a></li><li class="n2"><a href="#la-pregunta-ante-un-sobreviviente">La pregunta ante un sobreviviente</a></li><li class="n2"><a href="#los-dos-niveles">Los dos niveles</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

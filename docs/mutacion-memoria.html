@@ -92,6 +92,18 @@ systemd-run --user --scope \
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#calcular-antes-de-lanzar">Calcular antes de lanzar</a></li><li class="n2"><a href="#un-scope-para-todo-el-lote">Un scope para todo el lote</a></li><li class="n2"><a href="#medición-que-justifica-el-predeterminado">Medición que justifica el predeterminado</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

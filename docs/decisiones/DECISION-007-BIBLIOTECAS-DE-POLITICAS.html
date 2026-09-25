@@ -69,6 +69,18 @@
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#lo-que-se-adopta-sin-cambios">Lo que se adopta sin cambios</a></li><li class="n2"><a href="#las-seis-correcciones">Las seis correcciones</a></li><li class="n3"><a href="#1-una-biblioteca-sin-número-de-mutación-es-un-catálogo-que-nadie-rompió">1. Una biblioteca sin número de mutación es un catálogo que nadie rompió</a></li><li class="n3"><a href="#2-procedencia-cruza-la-frontera-del-paquete-y-nadie-miró-qué-significa-ahí">2. procedencia cruza la frontera del paquete, y nadie miró qué significa ahí</a></li><li class="n3"><a href="#3-lo-que-hay-que-leer-antes-de-instalar-es-el-alcance-y-no-está-en-el-flujo">3. Lo que hay que leer antes de instalar es el alcance, y no está en el flujo</a></li><li class="n3"><a href="#4-falta-el-modo-sombra-y-sin-él-nadie-adopta-una-biblioteca">4. Falta el modo sombra, y sin él nadie adopta una biblioteca</a></li><li class="n3"><a href="#5-una-biblioteca-es-también-un-vector-para-aflojar-y-eso-no-está-nombrado">5. Una biblioteca es también un vector para AFLOJAR, y eso no está nombrado</a></li><li class="n3"><a href="#6-telemetría-sólo-la-fase-1-y-el-motivo-no-es-la-privacidad">6. Telemetría: sólo la fase 1, y el motivo no es la privacidad</a></li><li class="n2"><a href="#lo-que-no-se-decide-todavía">Lo que NO se decide todavía</a></li><li class="n2"><a href="#estado-del-prototipo">Estado del prototipo</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

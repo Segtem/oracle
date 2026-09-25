@@ -57,6 +57,18 @@
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#qué-se-decide">Qué se decide</a></li><li class="n2"><a href="#por-qué">Por qué</a></li><li class="n2"><a href="#qué-se-publica-que-antes-no">Qué se publica que antes no</a></li><li class="n2"><a href="#por-qué-no-se-reescribió-la-historia">Por qué NO se reescribió la historia</a></li><li class="n2"><a href="#por-qué-no-se-creó-un-repositorio-limpio">Por qué NO se creó un repositorio limpio</a></li><li class="n2"><a href="#consecuencias">Consecuencias</a></li><li class="n2"><a href="#pypi-se-publicó-el-mismo-día">PyPI: se publicó el mismo día</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

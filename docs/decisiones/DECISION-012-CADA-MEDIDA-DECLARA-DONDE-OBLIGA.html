@@ -88,6 +88,18 @@ ambito del_origen    obliga sólo cuando el proyecto evaluado es el dueño de la
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho-y-el-hueco">El hecho y el hueco</a></li><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#el-orden-de-las-preguntas">El orden de las preguntas</a></li><li class="n2"><a href="#por-qué-no-es-un-nivel-nuevo">Por qué NO es un nivel nuevo</a></li><li class="n2"><a href="#por-qué-no-es-visibilidad-ni-ocultamiento">Por qué NO es visibilidad ni ocultamiento</a></li><li class="n2"><a href="#el-resultado-medido">El resultado medido</a></li><li class="n2"><a href="#el-costo-la-migración-y-la-falta-de-omisión-creíble">El costo, la migración y la falta de omisión creíble</a></li><li class="n2"><a href="#la-asimetría-aceptada">La asimetría aceptada</a></li><li class="n2"><a href="#lo-que-la-decisión-no-puede-prometer">Lo que la decisión NO puede prometer</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

@@ -1165,6 +1165,18 @@ catalogo_total= 57 detalle_id= meta.agrupar_no_agranda_la_relacion caso_evaluado
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#decisión">Decisión</a></li><li class="n2"><a href="#autoridad-y-modelo-de-ejecución">Autoridad y modelo de ejecución</a></li><li class="n2"><a href="#superficie-normativa">Superficie normativa</a></li><li class="n3"><a href="#oracle_catalogo_efectivo">oracle_catalogo_efectivo</a></li><li class="n3"><a href="#oracle_evaluar">oracle_evaluar</a></li><li class="n3"><a href="#oracle_desafiar">oracle_desafiar</a></li><li class="n3"><a href="#oracle_juzgar">oracle_juzgar</a></li><li class="n3"><a href="#oracle_tareas">oracle_tareas</a></li><li class="n2"><a href="#rechazos-y-forma-de-los-errores">Rechazos y forma de los errores</a></li><li class="n2"><a href="#por-qué-no-se-exponen-los-verbos-del-cli">Por qué no se exponen los verbos del CLI</a></li><li class="n2"><a href="#transporte">Transporte</a></li><li class="n2"><a href="#costo-de-contexto">Costo de contexto</a></li><li class="n2"><a href="#una-respuesta-plausible-y-equivocada">Una respuesta plausible y equivocada</a></li><li class="n2"><a href="#verificación-del-servidor">Verificación del servidor</a></li><li class="n3"><a href="#la-afirmación-que-custodia-y-nadie-más-comprueba">La afirmación que custodia y nadie más comprueba</a></li><li class="n2"><a href="#condiciones-de-aceptación-del-diseño">Condiciones de aceptación del diseño</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

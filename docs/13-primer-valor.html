@@ -220,6 +220,18 @@ VEREDICTO: verde en 1 medidas. SIN MIRAR:
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#entorno-y-preparación-verificados">Entorno y preparación verificados</a></li><li class="n2"><a href="#1-el-objetivo-de-este-recorrido">1. El objetivo de este recorrido</a></li><li class="n2"><a href="#2-paso-1-elegir-una-regla-y-extraer-hechos">2. Paso 1: Elegir una regla y extraer hechos</a></li><li class="n3"><a href="#el-sensor-del-producto">El sensor del producto</a></li><li class="n2"><a href="#3-paso-2-crear-el-proyecto-y-enunciar-la-regla-en-una-medida">3. Paso 2: Crear el proyecto y enunciar la regla en una medida</a></li><li class="n3"><a href="#la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle">La medida: catalogos/colocacion/colocacion.dentro_del_tablero.oracle</a></li><li class="n2"><a href="#4-paso-3-fijar-la-medida-con-casos-de-ambas-polaridades-en-el-corpus">4. Paso 3: Fijar la medida con casos de ambas polaridades en el corpus</a></li><li class="n3"><a href="#caso-1-polaridad-negativa-falso_verde-esperado-rojo">Caso 1: Polaridad negativa (falso_verde esperado ROJO)</a></li><li class="n3"><a href="#caso-2-polaridad-positiva-verde_correcto-esperado-verde">Caso 2: Polaridad positiva (verde_correcto esperado VERDE)</a></li><li class="n3"><a href="#casos-adicionales-necesarios">Casos adicionales necesarios</a></li><li class="n2"><a href="#5-paso-4-validar-el-catálogo-con-oracle-test">5. Paso 4: Validar el catálogo con oracle test</a></li><li class="n3"><a href="#salida-real-registrada-de-oracle-test">Salida real registrada de oracle test:</a></li><li class="n2"><a href="#6-paso-5-juzgar-una-corrida-real-con-oracle-juzgar">6. Paso 5: Juzgar una corrida real con oracle juzgar</a></li><li class="n3"><a href="#escenario-a-corrida-con-defecto">Escenario A: Corrida con defecto</a></li><li class="n3"><a href="#escenario-b-corrida-corregida">Escenario B: Corrida corregida</a></li><li class="n2"><a href="#7-clarificaciones-fundamentales">7. Clarificaciones fundamentales</a></li><li class="n3"><a href="#evidencia-guardada-vs-evidencia-regenerada">Evidencia guardada vs. Evidencia regenerada</a></li><li class="n3"><a href="#cuándo-basta-un-assert-y-cuándo-aporta-oracle">¿Cuándo basta un assert y cuándo aporta Oracle?</a></li><li class="n3"><a href="#el-tracker-es-una-herramienta-independiente">El tracker es una herramienta independiente</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

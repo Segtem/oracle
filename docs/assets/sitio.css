@@ -148,3 +148,19 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* ---------------------------------------------------------------- guía: archivos, salidas, preguntas */
+.prosa pre { position: relative; }
+.prosa pre.archivo { border-top: 3px solid var(--acento); }
+.prosa pre.salida { background: var(--papel-2); color: var(--tinta); border: 1px solid var(--linea); }
+.prosa pre.salida::before { color: var(--gris); }
+.copiar { position: absolute; top: 10px; right: 10px; font: 600 12px var(--sans); padding: 5px 10px; border-radius: 4px;
+          border: 1px solid #3A4650; background: #26303A; color: #E3E9E5; cursor: pointer; }
+.copiar:hover { background: #33404C; }
+.prosa details { margin: 0 0 20px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel-2); }
+.prosa details > summary { cursor: pointer; padding: 12px 16px; font-family: var(--sans); font-weight: 600; color: var(--acento); }
+.prosa details[open] > summary { border-bottom: 1px solid var(--linea); }
+.prosa details > :not(summary) { margin-inline: 16px; }
+.prosa details > :last-child { margin-bottom: 16px; }
+.prosa details > summary + * { margin-top: 14px; }
+.prosa .pregunta { font-family: var(--sans); font-size: 17px; background: var(--acento-suave); border-left: 3px solid var(--acento); padding: 12px 16px; border-radius: 0 6px 6px 0; }

@@ -69,7 +69,7 @@ oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y m
 <p><strong>Por qué complementa esta guía en vez de acortarla:</strong> este documento explica la semántica del álgebra, el modelo homoicónico en JSON, las macros, los comparadores prohibidos (como la igualdad flotante) y las reglas de diseño. <code>oracle contexto</code> no reemplaza esas explicaciones: entrega el inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras escribís.</p>
 <h3 id="los-dos-formatos-del-catálogo-y-del-corpus">Los dos formatos del catálogo y del corpus<a class="ancla" href="#los-dos-formatos-del-catálogo-y-del-corpus" aria-label="Enlace a esta sección">#</a></h3>
 <p>El catálogo y el corpus cargan <strong>superficie (<code>.oracle</code>, <code>.caso</code>) y <code>.json</code> por igual</strong>: los archivos en superficie no necesitan traducirse a nada para funcionar. El mismo id en los dos formatos es un error que nombra los dos archivos — no gana ninguno, porque un ganador silencioso es una divergencia esperando.</p>
-<ul><li><code>oracle caso &lt;grupo/NNN-descripcion&gt;</code>: crea el andamio del caso, ya en superficie <code>.caso</code>.</li><li><code>oracle nueva &lt;dominio.nombre&gt;</code>: crea el andamio de la medida, ya en superficie <code>.oracle</code>.</li><li><code>python tools/sintaxis.py --imprimir &lt;archivo.json&gt;</code>: pasa una medida vieja a la superficie.</li><li><code>python tools/sintaxis.py --leer &lt;archivo.oracle&gt;</code>: el camino inverso para medidas, si alguna vez lo necesitás.</li></ul>
+<ul><li><code>oracle caso &lt;grupo/NNN-descripcion&gt;</code>: crea el andamio del caso, ya en superficie <code>.caso</code>.</li><li><code>oracle nueva &lt;dominio.nombre&gt;</code>: crea el andamio de la medida, ya en superficie <code>.oracle</code>.</li><li><code>oracle convertir &lt;archivo.json&gt;</code>: pasa una medida vieja a la superficie.</li><li><code>oracle convertir &lt;archivo.oracle&gt;</code>: el camino inverso para medidas, si alguna vez lo necesitás.</li></ul>
 <p>El id tiene gramática cerrada y <strong>ASCII</strong>: <code>dominio.nombre</code> para medidas y <code>NNN-descripcion</code> para casos (minúsculas, dígitos y <code>_</code>/<code>-</code>). No es que el proyecto no sea en español —la prosa de <code>porque</code> y de <code>alcance</code> lo es entera—: es que el id es también un nombre de archivo, y en Unicode <code>dueño</code> puede ser dos secuencias de bytes distintas que se dibujan idénticas (NFC contra NFD). Dos ids que nadie puede distinguir mirando son una divergencia silenciosa, y eso se cierra por gramática.</p>
 <h3 id="frontera-de-confianza">Frontera de confianza<a class="ancla" href="#frontera-de-confianza" aria-label="Enlace a esta sección">#</a></h3>
 <p>Si el proyecto declara funciones en <code>escalares.py</code>, los comandos que cargan o evalúan su catálogo requieren <code>--confiar-escalares</code>. Esa bandera autoriza cargar código Python externo, pero Oracle lo ejecuta en un trabajador separado: el proceso principal sólo recibe metadatos y resultados JSON.</p>
@@ -167,6 +167,18 @@ oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y m
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#instalación">Instalación</a></li><li class="n2"><a href="#el-orden-importa-primero-el-caso-después-la-medida">El orden importa: primero el caso, después la medida</a></li><li class="n3"><a href="#oracle-contexto-el-inventario-vivo-de-tu-proyecto">oracle contexto: el inventario vivo de tu proyecto</a></li><li class="n3"><a href="#los-dos-formatos-del-catálogo-y-del-corpus">Los dos formatos del catálogo y del corpus</a></li><li class="n3"><a href="#frontera-de-confianza">Frontera de confianza</a></li><li class="n2"><a href="#la-forma-corta-las-macros">La forma corta: las macros</a></li><li class="n2"><a href="#la-forma-canónica">La forma canónica</a></li><li class="n2"><a href="#el-formato-de-almacenamiento-por-qué-json">El formato de almacenamiento: por qué JSON</a></li><li class="n2"><a href="#tres-ejemplos-de-menor-a-mayor">Tres ejemplos, de menor a mayor</a></li><li class="n3"><a href="#1-contar-lo-que-ofende">1. Contar lo que ofende</a></li><li class="n3"><a href="#2-medir-una-magnitud-no-contar">2. Medir una magnitud, no contar</a></li><li class="n3"><a href="#3-comparar-filas-entre-sí">3. Comparar filas entre sí</a></li><li class="n2"><a href="#los-errores-que-la-herramienta-sí-te-dice">Los errores que la herramienta sí te dice</a></li><li class="n2"><a href="#lo-que-no-te-puede-decir">Lo que NO te puede decir</a></li><li class="n2"><a href="#cuando-la-medida-no-es-tuya">Cuando la medida no es tuya</a></li><li class="n2"><a href="#si-te-falta-un-hecho">Si te falta un hecho</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

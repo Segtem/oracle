@@ -60,6 +60,18 @@
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#la-pregunta">La pregunta</a></li><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#y-no-es-uniforme-dos-miran-lo-propio-dos-miran-todo">Y no es uniforme: dos miran lo propio, dos miran todo</a></li><li class="n2"><a href="#el-campo">El campo</a></li><li class="n2"><a href="#por-qué-el-código-no-se-escribe-hoy">Por qué el código NO se escribe hoy</a></li><li class="n2"><a href="#lo-que-se-descartó">Lo que se descartó</a></li><li class="n2"><a href="#cómo-se-llegó">Cómo se llegó</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

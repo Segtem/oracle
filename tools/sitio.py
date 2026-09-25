@@ -130,7 +130,7 @@ _CLAVES_ORACLE = ("medida", "ninguno", "ninguno-requiere", "caso", "de", "donde"
                   "requiere", "etiqueta", "evidencia", "defmacro", "sombra", "y", "o", "no")
 
 
-def codigo(texto: str, lenguaje: str) -> str:
+def codigo(texto: str, lenguaje: str, archivo: str | None = None, es_salida: bool = False) -> str:
     cuerpo = html.escape(texto)
     if lenguaje in ("oracle", "caso"):
         cuerpo = re.sub(r"(&quot;.*?&quot;)", r'<span class="c-txt">\1</span>', cuerpo)
@@ -138,14 +138,17 @@ def codigo(texto: str, lenguaje: str) -> str:
         partes = re.split(r'(<span class="c-txt">.*?</span>)', cuerpo)
         cuerpo = "".join(p if p.startswith("<span") else
                          re.sub(patron, r'<span class="c-kw">\1</span>', p) for p in partes)
-    etiqueta = f' data-lenguaje="{html.escape(lenguaje)}"' if lenguaje else ""
-    return f"<pre{etiqueta}><code>{cuerpo}</code></pre>"
+    if es_salida:
+        return f'<pre class="salida" data-lenguaje="lo que tenés que ver"><code>{cuerpo}</code></pre>'
+    etiqueta = f' data-lenguaje="{html.escape(archivo or lenguaje)}"' if (archivo or lenguaje) else ""
+    clase = ' class="archivo"' if archivo else ""
+    return f"<pre{clase}{etiqueta}><code>{cuerpo}</code></pre>"
 
 
 # ------------------------------------------------------------------------------ bloques
 
 _ITEM = re.compile(r"^( *)([-*+]|\d+[.)]) +(.*)$")
-_FENCE = re.compile(r"^ *(`{3,}|~{3,})\s*([\w+-]*)")
+_FENCE = re.compile(r"^ *(`{3,}|~{3,})\s*([\w+-]*)(.*)$")
 
 
 def _es_separador_tabla(linea: str) -> bool:
@@ -184,6 +187,17 @@ class Convertidor:
             if not linea.strip():
                 i += 1
                 continue
+            crudo = linea.strip()
+            if crudo.startswith('<p class="pregunta">') and crudo.endswith("</p>"):
+                salida.append(f'<p class="pregunta">{self.linea(crudo[20:-4])}</p>')
+                i += 1
+                continue
+            if crudo in ("<details>", "</details>") or re.fullmatch(r"<summary>.*</summary>", crudo):
+                if crudo.startswith("<summary>"):
+                    crudo = f"<summary>{self.linea(crudo[9:-10])}</summary>"
+                salida.append(crudo)
+                i += 1
+                continue
             m = _FENCE.match(linea)
             if m:
                 cerca = m.group(1)
@@ -193,7 +207,11 @@ class Convertidor:
                 sangria = len(linea) - len(linea.lstrip())
                 cuerpo = "\n".join(l[sangria:] if l[:sangria].strip() == "" else l
                                    for l in lineas[i + 1:j])
-                salida.append(codigo(cuerpo, m.group(2)))
+                attrs = dict(re.findall(r"(\w+)=(\S+)", m.group(3)))
+                if "incluir" in attrs:
+                    cuerpo = (RAIZ / attrs["incluir"]).read_text(encoding="utf-8").rstrip("\n")
+                salida.append(codigo(cuerpo, m.group(2), attrs.get("archivo"),
+                                     "salida" in m.group(3).split()))
                 i = j + 1
                 continue
             m = re.match(r"^(#{1,6}) +(.*?)\s*#*\s*$", linea)
@@ -360,7 +378,19 @@ def pagina(p: Pagina) -> str:
     {"<p class='menu-grupo'>En esta página</p><ul>" + indice + "</ul>" if indice else ""}
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {{
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {{
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => {{ b.textContent = "Copiado"; setTimeout(() => {{ b.textContent = "Copiar"; }}, 1500); }})
+      .catch(() => {{ const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }});
+  }});
+  pre.append(b);
+}});
+</script>
 </body>
 </html>
 """
