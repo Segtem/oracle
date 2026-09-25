@@ -326,6 +326,47 @@ HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "
                           "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
                           "trazar.py", "verificar_instalacion.py")
 
+# Alcance de la matriz: cada Python de tools/ que no custodia una afirmación propia debe
+# quedar nombrado. Las seis primeras razones provienen de custodia/ANALISIS.md (§2).
+# guia.py y sitio.py sólo generan y verifican vistas de documentación; sus salidas se
+# comprueban por separado. __init__.py registra un alias de importación, no un veredicto.
+FUERA_TOOLS = {
+    "tools/__init__.py": "registra el alias de importación tools; no emite un veredicto propio",
+    "tools/estudio.py": "genera documentación para uso externo; no lo ejecuta CI ni juzga hechos",
+    "tools/guia.py": "reconstruye la guía de documentación; su salida se comprueba por separado",
+    "tools/lsp.py": "adapta el editor; no lo ejecuta CI y los cálculos viven en nucleo/",
+    "tools/mcp_contrato.py": "sincroniza documentación; el protocolo operativo lo custodia mcp.py",
+    "tools/oracle.py": "es un alias sin lógica propia de cli.py, que sí está en la matriz",
+    "tools/plantilla.py": "copia recursos iniciales; verificar_instalacion.py comprueba su uso",
+    "tools/sesion.py": "es un helper de errores; proyecto.py custodia la validación sustantiva",
+    "tools/sitio.py": "genera el sitio desde Markdown; su salida se comprueba por separado",
+}
+FUERA_NUCLEO = {
+    "nucleo/__init__.py": "archivo vacío de inicialización, sin código que mutar",
+    "nucleo/aislamiento/__init__.py": "sólo tiene una docstring, sin código que mutar",
+}
+
+
+def alcance_del_perfil() -> dict[str, dict]:
+    """Inventario completo de nucleo/ y tools/, con exclusiones justificadas."""
+    dentro = set(objetivos_disponibles())
+    resultado = {}
+    for directorio, razones in (("nucleo", FUERA_NUCLEO), ("tools", FUERA_TOOLS)):
+        encontrados = {ruta.relative_to(RAIZ).as_posix()
+                       for ruta in (RAIZ / directorio).rglob("*.py")}
+        incluidos = encontrados & dentro
+        fuera = encontrados - incluidos
+        if fuera != set(razones) or any(not razon.strip() for razon in razones.values()):
+            raise ValueError(
+                f"alcance de mutación de {directorio}/ sin declarar: "
+                f"{sorted(fuera - set(razones))}; exclusiones vencidas: "
+                f"{sorted(set(razones) - fuera)}")
+        resultado[directorio] = {
+            "total": len(encontrados), "dentro": incluidos,
+            "fuera": {ruta: razones[ruta] for ruta in sorted(fuera)},
+        }
+    return resultado
+
 # `lsp.py` SALIÓ de la lista el 2026-09-09, y no por costo: mide 140/140 en 2,2 minutos. Salió
 # porque no cumple el criterio. Es un adaptador de editor: no lo corre CI, no lo corre `oracle
 # test`, no lo corre ningún consumidor, y todo lo que expone —sintaxis, validación, fijación por

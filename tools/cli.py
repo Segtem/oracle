@@ -776,10 +776,17 @@ def _veredicto_verde(*, todo: bool, omisiones: list[str]) -> None:
         print("VEREDICTO: VERDE (todas las verificaciones aplicables en regla)")
 
 
-def _alcance_test() -> None:
+def _alcance_test(*, todo: bool = False, propio_oracle: bool = False) -> None:
     print("ALCANCE: verificación de medidas contra casos guardados del corpus.")
     print("PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen "
           "ni el producto. El resultado no certifica su estado actual.")
+    if todo and propio_oracle:
+        from tools.mutar_codigo import alcance_del_perfil
+        for directorio, datos in alcance_del_perfil().items():
+            print(f"MUTACIÓN DE CÓDIGO — {directorio}/: "
+                  f"{len(datos['fuera'])} de {datos['total']} módulos fuera del perfil")
+            for ruta, razon in datos["fuera"].items():
+                print(f"  · {ruta}: {razon}")
 
 
 def cmd_test(proy: Proyecto, argv: list[str]) -> int:
@@ -1043,7 +1050,7 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     print()
 
     # Veredicto final
-    _alcance_test()
+    _alcance_test(todo=todo, propio_oracle=proy.es_el_propio_oracle)
     if fallas_suite:
         if omisiones_veredicto:
             print(f"OMISIONES: {'; '.join(omisiones_veredicto)}")

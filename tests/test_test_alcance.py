@@ -11,6 +11,34 @@ from tools import cli
 
 
 class TestAlcanceTests(unittest.TestCase):
+    def test_todo_declara_los_modulos_fuera_de_la_mutacion(self):
+        from tools import mutar_codigo
+
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            cli._alcance_test(todo=True, propio_oracle=True)
+        informe = mutar_codigo.alcance_del_perfil()
+        texto = salida.getvalue()
+        for directorio in ("nucleo", "tools"):
+            fuera = informe[directorio]["fuera"]
+            self.assertIn(f"{directorio}/: {len(fuera)} de {informe[directorio]['total']}", texto)
+            for ruta, razon in fuera.items():
+                self.assertIn(ruta, texto)
+                self.assertIn(razon, texto)
+        self.assertIn("tools/mcp_contrato.py", texto)
+        self.assertIn("tools/__init__.py", texto)
+
+    def test_perfil_exige_razon_para_cada_modulo_fuera(self):
+        from tools import mutar_codigo
+
+        informe = mutar_codigo.alcance_del_perfil()
+        for directorio in ("nucleo", "tools"):
+            encontrados = {p.relative_to(mutar_codigo.RAIZ).as_posix()
+                           for p in (mutar_codigo.RAIZ / directorio).rglob("*.py")}
+            self.assertEqual(encontrados, informe[directorio]["dentro"] |
+                             set(informe[directorio]["fuera"]))
+            self.assertTrue(all(informe[directorio]["fuera"].values()))
+
     def ejecutar(self, *args):
         salida = io.StringIO()
         with redirect_stdout(salida):
