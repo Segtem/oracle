@@ -1,6 +1,6 @@
 # oracle test da VERDE con medidas que no tienen ningún caso: no se mutan ni se nombran
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 97
 - ETIQUETAS: oracle, mutacion, flaqueza, falso-verde
 
@@ -29,6 +29,14 @@ su emisor. La mutación tiene que informar las medidas que no pudo mutar por fal
 que fallen hoy con el escenario de `reproducir.sh`. Revisar que el ejemplo `ejemplo/batalla-naval`
 siga VERDE (tiene casos para las 11).
 
+### Nota (2026-09-25 05:12:13 UTC)
+
+Reproducción confirmada: sin catálogo base daba VERDE con 36/36 mutantes, y con base meta.toda_medida_esta_fijada daba 0. Tests de regresión escritos y vistos fallar antes del arreglo. Corregí el emisor de debe_tener_mutantes, agregué diagnóstico nominal y fallo de oracle test aun con --rapido y sin base; mutación lista medidas sin casos. Reproductor reapuntado a este árbol. Batalla naval completa VERDE (209/209). Suite y cifras en verificación.
+
+### Nota (2026-09-25 05:17:02 UTC)
+
+Verificación final: 2526 tests de unittest VERDE; ejemplo/batalla-naval VERDE (209/209); reproductor ROJO en ambos modos, con nueve medidas nombradas y meta.toda_medida_esta_fijada = 9 con base; oracle test --rapido VERDE; oracle test VERDE (1010/1010 mutantes). equivalentes.json no requiere reapunte: único sitio del archivo afectado es tools/mutar.py:20, línea que no se movió. Sin commits, según pedido.
+
 ## Próximo paso
 
-Codex implementa.
+Ninguno: tarea terminada y verificada. Los cambios quedan sin commit por pedido expreso.

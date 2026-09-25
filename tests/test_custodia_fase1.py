@@ -65,7 +65,7 @@ class MutacionDeMedidas(unittest.TestCase):
                                  cobertura_de_mutadores=lambda: {"hay_ajenos": True,
                                     "total": 2, "propios": 1, "ajenos": 1},
                                  evaluadas_en_otro_arnes=lambda *_: set(),
-                                 hechos_de_uso=lambda *_a, **_k: {},
+                                 hechos_de_uso=lambda *_a, **_k: {"medida_en_uso": []},
                                  medidas_aplicables=lambda *_: [],
                                  evaluar_conjunto=lambda *_: informe):
             with redirect_stdout(io.StringIO()) as salida:

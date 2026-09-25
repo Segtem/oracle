@@ -86,6 +86,7 @@ from nucleo.biblioteca import (BibliotecaInvalida, andamio,  # noqa: E402
                                descubrir_bibliotecas,
                                verificar_biblioteca)
 from nucleo.caso import CasoMalDeclarado, rutas_de_corpus  # noqa: E402
+from nucleo.marco import hechos_de_uso  # noqa: E402
 from nucleo.medida import cargar_catalogo, rutas_de_catalogo  # noqa: E402
 from tools import manual  # noqa: E402
 from tools import reportar  # noqa: E402
@@ -98,6 +99,7 @@ from nucleo.proyecto import (  # noqa: E402
     ProyectoInvalido,
     configuracion,
     catalogos_a_cargar,
+    catalogos_base_a_cargar,
     confiar_escalares,
     escalares_del_proyecto,
     macros_del_proyecto,
@@ -869,6 +871,28 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     else:
         print(f"CORPUS OK · {len(cargados_casos)} casos · esquema, evidencia L0 y trazabilidad en regla")
     print()
+
+    # La cobertura de medidas propias es un requisito aun en --rapido y sin catálogo base.
+    # Los fixtures diferenciales también cuentan como casos para la mutación.
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar):
+            casos_de_uso = mutar.casos(proy, catalogo)
+        heredadas = (set(cargar_catalogo(catalogos_base_a_cargar(proy), macros=macros))
+                     if not proy.es_el_propio_oracle else set())
+        uso = hechos_de_uso(catalogo, casos_de_uso,
+                           evaluadas_aparte=mutar.evaluadas_en_otro_arnes(catalogo),
+                           heredadas=heredadas)["medida_en_uso"]
+        sin_casos = [m["id"] for m in uso
+                     if m["debe_tener_mutantes"] and m["casos_que_la_evaluan"] == 0]
+        if sin_casos:
+            print(f"MEDIDAS SIN CASOS ✗ — {len(sin_casos)} medida(s) propias sin ejercitar:")
+            for mid in sin_casos:
+                print(f"  · {mid}: escribí un caso rojo y uno verde que ejerzan esta medida")
+            fallas_suite.append("medidas sin casos")
+            print()
+    except ValueError:
+        # La ronda diferencial informará los fixtures inválidos con su diagnóstico preciso.
+        pass
 
     # 2. Sintaxis
     if not any((catalogo, casos_archivos)):

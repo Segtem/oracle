@@ -123,6 +123,12 @@ def _ejecutar(proy, args: list[str]) -> int:
             if not proy.es_el_propio_oracle else {})
     evidencia.update(hechos_de_uso(catalogo, listado, evidencia["mutante"],
                                    evaluadas_aparte=metas, heredadas=set(base)))
+    sin_casos = [m["id"] for m in evidencia["medida_en_uso"]
+                 if m["debe_tener_mutantes"] and m["casos_que_la_evaluan"] == 0]
+    if sin_casos:
+        print("medidas que no se pudieron mutar por falta de casos:")
+        for mid in sin_casos:
+            print(f"  · {mid}: escribí un caso rojo y uno verde que ejerzan esta medida")
 
     juezas = medidas_aplicables(catalogo.values(), evidencia)
     informe = evaluar_conjunto(juezas, evidencia)
@@ -148,7 +154,7 @@ def _ejecutar(proy, args: list[str]) -> int:
 
     # Que sobreviva un mutante es el contrato operativo de esta herramienta, no una política de
     # dominio. Las medidas meta, cuando el host las activa, pueden imponer condiciones adicionales.
-    return 0 if not vivos and _politicas_ok(informe) else 1
+    return 0 if not vivos and not sin_casos and _politicas_ok(informe) else 1
 
 
 def _politicas_ok(informe: Informe) -> bool:

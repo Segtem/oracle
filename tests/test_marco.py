@@ -193,15 +193,11 @@ class TodaMedidaEstaFijadaTests(unittest.TestCase):
         self.assertTrue(uso["debe_tener_mutantes"])
         self.assertFalse(veredicto.ok)
 
-    def test_sin_ningun_caso_la_obligacion_no_nace_y_de_eso_se_ocupa_otra_medida(self) -> None:
-        """Antes la exención salía del prefijo `meta.` del id; ahora sale de una propiedad
-        comprobable. Una medida que ningún caso declara no puede mutarse, así que exigirle mutantes
-        sería un falso rojo — de que nadie la ejercite se ocupa `meta.toda_medida_esta_ejercitada`,
-        y las dos preguntas quedan separadas en vez de resueltas por una convención de nombre."""
+    def test_sin_ningun_caso_la_medida_propia_no_esta_fijada(self) -> None:
         uso, veredicto = self._evaluar(casos=[])
         self.assertEqual(uso["casos_que_la_evaluan"], 0)
-        self.assertFalse(uso["debe_tener_mutantes"])
-        self.assertTrue(veredicto.ok)
+        self.assertTrue(uso["debe_tener_mutantes"])
+        self.assertFalse(veredicto.ok)
 
     def test_estar_evaluada_aparte_no_exime_de_tener_mutantes(self) -> None:
         """El agujero que cerró esto: las dos cosas iban juntas, así que una medida evaluada por

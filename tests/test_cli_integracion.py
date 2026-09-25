@@ -28,6 +28,37 @@ class AceptacionCliTests(_cli_tests.CliTestCase):
     MEDIDA_INVERTIDA = _cli_tests.InitDejaLasGuardasPuestasTests.MEDIDA_INVERTIDA
     CASO = _cli_tests.InitDejaLasGuardasPuestasTests.CASO
 
+    def test_medidas_navales_sin_casos_fallan_con_y_sin_catalogo_base(self) -> None:
+        ejemplo = RAIZ / "ejemplo" / "batalla-naval"
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos" / "naval").mkdir(parents=True)
+            (raiz / "corpus" / "naval").mkdir(parents=True)
+            (raiz / "diferencial").mkdir()
+            for archivo in (ejemplo / "catalogos" / "naval").glob("*.oracle"):
+                shutil.copy(archivo, raiz / "catalogos" / "naval")
+            for numero in ("001", "002", "005", "006", "023", "024", "025", "026", "027", "028"):
+                for archivo in (ejemplo / "corpus" / "naval").glob(f"{numero}-*.caso"):
+                    shutil.copy(archivo, raiz / "corpus" / "naval")
+            for base in (False, True):
+                (raiz / "oracle.json").write_text(json.dumps({
+                    "esquema": "oracle.proyecto/v1", "catalogo_base": base, "perfiles": []
+                }), encoding="utf-8")
+                for rapido in (False, True):
+                    with self.subTest(catalogo_base=base, rapido=rapido):
+                        args = ["test", "--proyecto", str(raiz)]
+                        if rapido:
+                            args.append("--rapido")
+                        codigo, salida = self._callado(cli.main, args)
+                        self.assertEqual(codigo, 1, salida)
+                        self.assertIn("naval.alternancia_turnos", salida)
+                        self.assertIn("caso rojo y uno verde", salida)
+                        self.assertIn("VEREDICTO: ROJO", salida)
+                        if not rapido:
+                            self.assertIn("no se pudieron mutar", salida)
+                            if base:
+                                self.assertIn("meta.toda_medida_esta_fijada", salida)
+
     def test_rapido_saltea_mutacion_y_lo_informa_en_el_veredicto(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)

@@ -311,14 +311,13 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
     """Un hecho por medida del catálogo: cuántos casos la evalúan y cuántos mutantes le sobreviven.
 
     `debe_tener_mutantes` declara la política: una medida propia y ordinaria tiene que generar al
-    menos uno; una heredada responde ante el corpus de origen. Así «cero mutantes» no se confunde con
-    «todos sus mutantes murieron».
+    menos uno, incluso si aún no tiene casos; una heredada responde ante el corpus de origen.
 
     **Estar evaluada aparte NO exime de tener mutantes**, y confundir las dos cosas era un agujero
     del denominador. `evaluadas_aparte` responde «¿alguien la ejercita?» —y sí: las medidas meta las
     evalúa `tools/aceptacion.py` sobre el catálogo mismo—. Que deba tener mutantes es otra pregunta,
-    y su respuesta es comprobable: **la tiene que tener si algún caso del corpus la declara**, porque
-    ahí la mutación puede correr y significa algo. Mientras las dos iban juntas, escribir una medida
+    y su respuesta es comprobable: **la tiene que tener si algún caso del corpus la declara o no
+    existe otro arnés que la evalúe**. Mientras las dos iban juntas, escribir una medida
     con prefijo `meta.` la sacaba del denominador aunque tuviera casos, y una clase entera de medidas
     quedaba sin mutar por una convención de nombre en vez de por una propiedad verificable.
     """
@@ -361,5 +360,6 @@ def hechos_de_uso(catalogo: dict, casos: list[dict], mutantes: list[dict] | None
     return {"medida_en_uso": [
         {"id": mid, "casos_que_la_evaluan": evalua[mid], "mutantes": total[mid],
          "mutantes_vivos": vivos[mid], "es_heredada": mid in heredadas,
-         "debe_tener_mutantes": mid not in heredadas and por_casos[mid] > 0}
+         "debe_tener_mutantes": mid not in heredadas and
+         (por_casos[mid] > 0 or mid not in evaluadas_aparte)}
         for mid in sorted(catalogo)]}
