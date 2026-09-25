@@ -988,7 +988,10 @@ El esquema vigente es `oracle.diferencial/v1`. Todo fixture declara su versión 
 `frescura` con cuatro huellas SHA-256: emisor, fuentes de referencia, catálogo canónico de las
 medidas usadas y configuración del dominio. Las rutas son relativas a la raíz del proyecto o a su
 padre inmediato; no se aceptan rutas absolutas ni ancestros arbitrarios. Si una huella actual no
-coincide, el fixture está **vencido** y no se evalúa.
+coincide, el fixture está **vencido** y no se evalúa. Al recorrer una fuente que es un directorio, no
+se cuentan las entradas ocultas (las que empiezan con `.`) ni `__pycache__`: las escriben el editor
+o el intérprete al abrirlo, y con ellas dos checkouts del mismo commit daban huellas distintas. Un
+archivo oculto nombrado a mano como fuente sí se cuenta.
 
 En el formato `escenarios`, `referencia_ok` conserva únicamente la respuesta global de la
 implementación independiente. `oracle_al_generar.global_ok` y

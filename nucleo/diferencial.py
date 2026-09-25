@@ -78,6 +78,18 @@ def _resolver_entrada(raiz: Path, entrada: str) -> tuple[str, Path]:
     return relativa.as_posix(), fisica
 
 
+def _estado_local(relativa: Path) -> bool:
+    """Si un archivo dentro de un directorio de procedencia es estado local de una herramienta.
+
+    Las entradas ocultas (`.obsidian/workspace.json`, `.DS_Store`) y `__pycache__` las reescriben
+    el editor o el intérprete al abrir el directorio, no el autor: contarlas hacía que dos checkouts
+    del mismo commit dieran huellas distintas, y un fixture recién generado salía vencido en el
+    repositorio de al lado (medido el 2026-09-25 con un vault de Obsidian). Sólo aplica al recorrer
+    un directorio: un archivo oculto nombrado a mano como fuente se sigue contando.
+    """
+    return any(parte.startswith(".") or parte == "__pycache__" for parte in relativa.parts)
+
+
 def _archivos(raiz: Path, entradas: tuple[str, ...] | list[str]) -> list[tuple[str, Path]]:
     encontrados: dict[str, Path] = {}
     try:
@@ -86,7 +98,8 @@ def _archivos(raiz: Path, entradas: tuple[str, ...] | list[str]) -> list[tuple[s
         raise ProcedenciaInvalida(f"raíz de procedencia inválida: {raiz}: {e}") from e
     for entrada in entradas:
         relativa, fisica = _resolver_entrada(raiz, entrada)
-        candidatos = [fisica] if fisica.is_file() else sorted(p for p in fisica.rglob("*") if p.is_file())
+        candidatos = [fisica] if fisica.is_file() else sorted(
+            p for p in fisica.rglob("*") if p.is_file() and not _estado_local(p.relative_to(fisica)))
         if not candidatos:
             raise ProcedenciaInvalida(f"la procedencia {entrada!r} no contiene archivos")
         for archivo in candidatos:
