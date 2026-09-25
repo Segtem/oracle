@@ -175,6 +175,18 @@ git status --short -- vendor/oracle         # tiene que dar vacío</code></pre>
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#la-partición-el-sensor-no-juzga">La partición: el sensor no juzga</a></li><li class="n2"><a href="#el-sensor">El sensor</a></li><li class="n2"><a href="#el-adaptador">El adaptador</a></li><li class="n2"><a href="#medir-el-mundo-real">Medir el mundo real</a></li><li class="n2"><a href="#guardar-lo-que-se-observó">Guardar lo que se observó</a></li><li class="n2"><a href="#funciones-propias-escalarespy">Funciones propias: escalares.py</a></li><li class="n2"><a href="#el-paquete-instalado-es-otro-proyecto-decision-010">El paquete instalado es otro proyecto (DECISION-010)</a></li><li class="n3"><a href="#1-el-comando-vs-el-paquete">1. El comando vs el paquete</a></li><li class="n3"><a href="#2-aislamiento-de-escalares-en-layouts-no-estándar">2. Aislamiento de escalares en layouts no estándar</a></li><li class="n3"><a href="#3-la-fachada-no-debe-ocupar-nombres-ajenos">3. La fachada no debe ocupar nombres ajenos</a></li><li class="n3"><a href="#4-antes-de-borrar-un-subtree">4. Antes de borrar un subtree</a></li><li class="n2"><a href="#heredar-un-catálogo-la-sombra-y-su-envejecimiento">Heredar un catálogo: la sombra y su envejecimiento</a></li><li class="n3"><a href="#la-sombra-envejece-dos-medidas-nuevas">La sombra envejece (dos medidas nuevas)</a></li><li class="n2"><a href="#todo-el-contexto-en-un-comando-oracle-contexto">Todo el contexto en un comando: oracle contexto</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

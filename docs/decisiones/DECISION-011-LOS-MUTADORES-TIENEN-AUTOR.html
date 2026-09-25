@@ -66,6 +66,18 @@
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho">El hecho</a></li><li class="n2"><a href="#lo-que-se-hizo">Lo que se hizo</a></li><li class="n2"><a href="#el-resultado-y-por-qué-el-del-medio-era-el-bueno">El resultado, y por qué el del medio era el bueno</a></li><li class="n3"><a href="#tres-eran-huecos-de-verdad-y-en-medidas-escritas-ese-mismo-día">Tres eran huecos de verdad, y en medidas escritas ese mismo día</a></li><li class="n3"><a href="#veintiocho-eran-un-mutante-equivalente-y-se-declara-como-tal">Veintiocho eran un mutante equivalente, y se declara como tal</a></li><li class="n3"><a href="#diecisiete-no-aplicaron-a-ninguna-medida-y-eso-también-es-un-dato">Diecisiete no aplicaron a ninguna medida, y eso también es un dato</a></li><li class="n2"><a href="#la-consecuencia-que-rompió-algo-y-estuvo-bien-que-lo-rompiera">La consecuencia que rompió algo, y estuvo bien que lo rompiera</a></li><li class="n2"><a href="#lo-que-no-se-hizo">Lo que NO se hizo</a></li><li class="n2"><a href="#el-costo-medido">El costo, medido</a></li><li class="n2"><a href="#lo-que-queda-abierto">Lo que queda abierto</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

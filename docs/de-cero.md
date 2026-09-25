@@ -1,246 +1,504 @@
 # Tu primer juego con un LLM, y cómo saber si está bien
 
-Esta guía es para alguien que recién empieza a programar y programa con un modelo de lenguaje: le
-pedís el código, lo probás y seguís. Vamos a hacer una batalla naval que corre en el navegador y, sobre
-todo, vamos a responder una pregunta que el juego solo no puede contestar: **¿cumple las reglas?**
+Esta guía es para alguien que recién empieza a programar y programa con un modelo de lenguaje. Vas a
+armar, **copiando y pegando**, una batalla naval que corre en el navegador. Y vas a aprender a contestar
+la pregunta que el juego solo no puede contestar: **¿cumple las reglas?**
 
-No hace falta saber programar. Hace falta paciencia para leer lo que el modelo te devuelve y ganas de
-preguntar «¿cómo sé que esto está bien?».
+Cada paso tiene la misma forma: una **pregunta** para que la pienses vos, la **respuesta** plegada
+(abrila cuando quieras), el **bloque para copiar**, y **lo que tenés que ver**. Si ves otra cosa, el paso
+te dice qué hacer.
 
-> **Estado de esta guía.** El recorrido y las explicaciones están escritos. Las salidas de terminal
-> marcadas como *pendiente* se completan con corridas reales cuando el ejemplo `ejemplo/batalla-naval/`
-> quede verde en el repositorio (tarea `de-cero-naval`). Ninguna salida de esta guía se escribe a mano.
+> Un test del repositorio arma el juego pegando los bloques de esta guía en orden, desde una carpeta
+> vacía, y corre `oracle test` después de cada paso. Las salidas que ves acá salen de esa corrida: si un
+> bloque cambia, el test lo nota.
 
-## Lo que vas a construir
+## Paso 1 · Preparar la carpeta
 
-Un juego de batalla naval en un tablero de 10 por 10. Cada jugador tiene cinco barcos: un portaaviones
-de 5 casillas, un acorazado de 4, un crucero de 3, un submarino de 3 y un destructor de 2. En total, 17
-casillas por flota. Se dispara por turnos y gana quien hunde toda la flota del otro.
+Oracle se instala una sola vez. Necesitás Python 3.11 o posterior y `uv`.
 
-Y al lado del juego, un **catálogo de reglas** escritas en Oracle que miran cada partida y dicen si se
-respetaron, con la prueba en la mano cuando no.
-
-## HTML, CSS y JavaScript, lo justo
-
-Un juego en el navegador son tres archivos que se reparten el trabajo:
-
-| Archivo | Qué hace | En la batalla naval |
-|---|---|---|
-| `index.html` | la estructura: qué hay en la pantalla | los dos tableros, los botones, el panel de la partida |
-| `css/…` | el aspecto: colores, tamaños, posiciones | el agua, los barcos, las explosiones |
-| `js/…` | el comportamiento: qué pasa cuando hacés algo | colocar barcos, disparar, decidir quién gana |
-
-Para esta guía no hace falta leer el CSS. Del JavaScript nos importa un archivo: el que **cuenta lo
-que pasó** en la partida. Lo vemos más abajo.
-
-## Pedirle el juego a un modelo
-
-Un pedido que funciona bien es concreto sobre las reglas y sobre la forma:
-
-```text
-Haceme una batalla naval en HTML5, CSS y JavaScript, sin librerías.
-Tablero de 10x10. Flota: portaaviones 5, acorazado 4, crucero 3, submarino 3, destructor 2.
-Contra la computadora, por turnos alternados. Gana quien hunde las 17 casillas del otro.
-Separá el código en index.html, css/estilos.css y js/ (motor, interfaz).
+```bash paso
+uv tool install oracle-metalenguaje
+oracle init batalla-naval
+cd batalla-naval
+oracle test
 ```
 
-Cuando te devuelva el código, abrí `index.html` en el navegador y jugá una partida. Si anda, **todavía
-no sabés si está bien**. Sabés que anda. Son cosas distintas, y el resto de la guía es sobre esa
-diferencia.
+```text salida
+(se completa con la corrida real)
+```
 
-## El problema: un juego que anda no es un juego correcto
+**Si ves otra cosa.** Si dice `oracle: command not found`, cerrá y abrí la terminal: `uv` agrega
+`oracle` al `PATH` pero la terminal abierta no se entera.
 
-Mirá estas preguntas. Ninguna se contesta jugando una vez:
+<details>
+<summary>¿Por qué dice «sin medición» y no «verde»?</summary>
 
-- ¿Puede quedar un barco con una casilla fuera del tablero?
-- ¿Pueden dos barcos del mismo jugador ocupar la misma casilla?
-- ¿Alternan de verdad los turnos, o a veces tira dos veces el mismo?
-- Cuando el juego dice «¡impacto!», ¿había un barco en esa casilla?
-- ¿El ganador hundió las 17 casillas, o el juego terminó antes?
+Porque todavía no hay ninguna regla. Un verde sin reglas diría «está todo bien» sin haber mirado nada.
+Oracle prefiere decir lo que pasó: no midió.
 
-Si le pedís al mismo modelo que escriba el juego y también los tests, los tests van a confirmar lo que
-el modelo ya creía. Por eso las reglas van **aparte**, en un lenguaje hecho para eso, y miran lo que el
-juego hizo, no lo que el juego cree que hizo.
+</details>
 
-> Esto pasó de verdad. Un agente construyó una batalla naval «con Oracle» y `oracle test` dio verde.
-> El catálogo estaba vacío: el verde validaba la sintaxis de un archivo, no el juego. Está contado en
-> [Por qué Oracle](por-que.html). Desde entonces, un proyecto sin medidas sale *sin medición*, no verde.
+Una cosa más antes de seguir. `oracle init` deja activado el **catálogo base**: las reglas de Oracle
+sobre tus reglas. Son exigentes (piden unidades declaradas y evidencia observada de partidas reales) y
+las vamos a encender al final. Por ahora, apagalo:
 
-## Que el juego cuente lo que pasó
+```json archivo=oracle.json incluir=ejemplo/batalla-naval/oracle.json
+```
 
-La idea central: **el juego no se juzga a sí mismo, cuenta lo que pasó.** Mientras se juega, un archivo
-anota cada hecho en filas planas, sin opinar. En el ejemplo ese archivo es `js/trace.js`, y anota tres
-cosas:
+## Paso 2 · El tablero
+
+Un juego en el navegador son tres cosas: **HTML** (qué hay en la pantalla), **CSS** (cómo se ve) y
+**JavaScript** (qué pasa cuando hacés algo). Empezamos por las dos primeras.
+
+<details>
+<summary>Ver el archivo index.html</summary>
+
+```html archivo=index.html incluir=ejemplo/batalla-naval/index.html
+```
+
+</details>
+
+<details>
+<summary>Ver el archivo css/style.css</summary>
+
+```css archivo=css/style.css incluir=ejemplo/batalla-naval/css/style.css
+```
+
+</details>
+
+Abrí `index.html` en el navegador (doble clic, o arrastralo a una pestaña). Vas a ver la cabecera y los
+paneles, **sin tableros todavía**: los tableros los dibuja el JavaScript.
+
+## Paso 3 · El juego
+
+Estos cuatro archivos son el juego: el sonido, el registro de lo que pasa, el motor con las reglas y
+la interfaz que dibuja los tableros.
+
+<details>
+<summary>Ver los cuatro archivos de JavaScript</summary>
+
+```javascript archivo=js/audio.js incluir=ejemplo/batalla-naval/js/audio.js
+```
+
+```javascript archivo=js/trace.js incluir=ejemplo/batalla-naval/js/trace.js
+```
+
+```javascript archivo=js/engine.js incluir=ejemplo/batalla-naval/js/engine.js
+```
+
+```javascript archivo=js/ui.js incluir=ejemplo/batalla-naval/js/ui.js
+```
+
+</details>
+
+Recargá la página. Ahora se juega: colocá tus barcos (o usá el despliegue automático) y disparale a
+la computadora.
+
+**Si ves otra cosa.** Si la página queda en blanco, abrí la consola del navegador (F12, pestaña
+Consola). Casi siempre es un archivo guardado con otro nombre o en otra carpeta: tienen que quedar
+`js/audio.js`, `js/trace.js`, `js/engine.js` y `js/ui.js`.
+
+<p class="pregunta">**Pensalo.** El juego anda. ¿Eso quiere decir que cumple las reglas?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+No. Quiere decir que anda. Jugando una vez no sabés si un barco puede quedar fuera del tablero, si dos
+barcos se pueden pisar, si los turnos alternan siempre o si un «¡impacto!» tenía un barco abajo. Y si
+le pedís al mismo modelo que escribió el juego que también escriba los tests, los tests van a confirmar
+lo que el modelo ya creía.
+
+</details>
+
+## Paso 4 · Que el juego cuente lo que pasó
+
+<p class="pregunta">**Pensalo.** Para juzgar un disparo después de la partida, ¿qué tendría que haber anotado el juego?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+El turno, quién tiró, a quién, en qué casilla, y si el juego lo dio por impacto. Para juzgar si ese
+impacto era verdad, también dónde estaba cada barco. Y para juzgar el final, quién ganó y con cuántos
+impactos.
+
+</details>
+
+Esa es la idea central de Oracle: **el juego no se juzga a sí mismo, cuenta lo que pasó.** El archivo
+`js/trace.js`, que ya pegaste, anota tres cosas en filas planas, sin opinar:
 
 | Relación | Una fila por… | Campos |
 |---|---|---|
 | `celda_barco` | cada casilla ocupada por un barco | `id`, `jugador`, `barco_id`, `segmento_idx`, `fila`, `columna` |
 | `tiro` | cada disparo | `turno`, `tirador`, `receptor`, `fila`, `columna`, `es_impacto`, `hundio_barco`, `barco_hundido` |
-| `partida` | el final de la partida | `estado`, `ganador`, `perdedor`, `turno_final`, `total_tiros`, `impactos_ganador`, `impactos_perdedor` |
+| `partida` | el final | `estado`, `ganador`, `perdedor`, `turno_final`, `total_tiros`, `impactos_ganador`, `impactos_perdedor` |
 
-Al terminar, el juego descarga esas filas como un archivo JSON. Así se ve el primer tiro de una partida real (`partida_real.json` del ejemplo):
+Al terminar una partida, el panel de auditoría del juego descarga esas filas como `hechos_partida.json`.
+Así se ve el primer tiro de una partida real:
 
 ```json
-{
-  "tiro": [
-    {"turno": 0, "tirador": "jugador", "receptor": "cpu", "fila": 2, "columna": 3, "es_impacto": false, "hundio_barco": false, "barco_hundido": "ninguno"}
-  ]
-}
+{"turno": 0, "tirador": "jugador", "receptor": "cpu", "fila": 2, "columna": 3, "es_impacto": false, "hundio_barco": false, "barco_hundido": "ninguno"}
 ```
 
-Si trabajás con un modelo, **pedile esto explícitamente**: «agregá un registro que anote cada casilla
-de barco, cada tiro y el resultado final, y que lo descargue como JSON». Es lo que después vas a
-juzgar.
+**Si trabajás con un modelo**, pedíselo así: «agregá un registro que anote cada casilla de barco, cada
+tiro y el resultado final en filas planas, y que lo descargue como JSON». Y **desconfiá** si en vez de
+anotar lo que pasó, el registro anota conclusiones («partida válida: sí»): eso ya es opinión.
 
-## Instalar Oracle y crear el proyecto
+## Paso 5 · La primera regla, empezando por el caso rojo
 
-Oracle se instala con `uv` (o `pip` dentro de un entorno virtual). Necesita Python 3.11 o posterior.
+La regla más simple: **ningún barco fuera del tablero de 10 por 10.**
 
-```bash
-uv tool install oracle-metalenguaje
-oracle init reglas-naval
-cd reglas-naval
+<p class="pregunta">**Pensalo.** Antes de escribir la regla: ¿qué partida tendría que ponerla roja?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+Una con un barco en una casilla que no existe: por ejemplo, en la fila 10 (las filas van de 0 a 9).
+Escribir primero ese ejemplo te obliga a decir qué es un defecto antes de escribir cómo buscarlo.
+
+</details>
+
+En Oracle ese ejemplo se llama **caso**. Guardalo en `corpus/naval/`:
+
+```oracle archivo=corpus/naval/005-barco-fila-desbordada.caso incluir=ejemplo/batalla-naval/corpus/naval/005-barco-fila-desbordada.caso
+```
+
+```bash paso
 oracle test
 ```
 
-Un proyecto recién creado sale **sin medición**: todavía no hay ninguna regla, y Oracle no lo disfraza
-de verde.
-
-## La primera regla: ningún barco fuera del tablero
-
-Las reglas de Oracle se llaman **medidas**. Esta es la primera, tal como está en el ejemplo:
-
-```oracle
-ninguno naval.barcos_dentro_del_tablero:
-    de celda_barco c
-    donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
-    umbral <= 0 segun contrato porque "todas las celdas ocupadas por barcos deben ubicarse dentro de la cuadrícula de 10x10"
-    ambito universal
-    alcance "revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad."
+```text salida
+(se completa con la corrida real)
 ```
 
-Línea por línea:
+Rojo, y está bien: el caso reclama una regla que todavía no existe. Ahora sí, la regla. En Oracle se
+llama **medida**:
 
-- `ninguno` dice qué clase de regla es: **no tiene que haber ninguna** fila que ofenda.
-- `de celda_barco c` elige las filas a mirar: las casillas de barco, y a cada una la llama `c`.
-- `donde …` dice cuáles ofenden: las que tienen una fila o columna fuera de 0 a 9.
-- `umbral <= 0` es cuántas se toleran: cero. `segun contrato` dice de dónde sale ese cero: de las
-  reglas del juego, no de una intuición. `porque` lo defiende en palabras.
-- `ambito universal` dice que la regla vale para cualquier partida.
-- `alcance` dice **lo que la regla no mira**. Es obligatorio. Un verde que no dice qué dejó sin mirar
-  se lee como «está todo bien», y eso es justo lo que queremos evitar.
-
-## Probar la regla antes de confiar en ella
-
-Una regla nueva puede estar mal escrita y dar verde siempre. Por eso, **antes** de usarla, se prueba
-con dos ejemplos que vos armás: uno donde tiene que ponerse **roja** (un barco en la fila 10) y otro
-donde tiene que quedar **verde** (todos dentro). Esos ejemplos se llaman **casos** y viven en el
-**corpus**.
-
-*Salida pendiente: el caso rojo y el caso verde del ejemplo, y lo que dice `oracle test` sobre ellos.*
-
-## Por qué dos casos no alcanzan: la mutación
-
-Oracle no se conforma con que tus casos pasen. Debilita cada regla a propósito: afloja el umbral de 0
-a 1, invierte una comparación, le quita el filtro. A cada versión debilitada la llama **mutante**. Si
-algún caso nota la diferencia, el mutante muere. Si ninguno la nota, esa parte de la regla no la está
-cuidando nadie.
-
-Esto no es teoría. El juego del ejemplo llegó con **11 reglas y 2 casos**. Medido el 2026-09-25, su
-`oracle test` salió **rojo por mutación**: la mayoría de los mutantes sobrevivían, porque dos casos no
-alcanzan para fijar once reglas. Un verde con dos casos habría sido otra vez el verde que no mide nada.
-
-La cuenta es simple: cada regla necesita al menos un caso que la ponga roja cerca del borde y uno
-verde, para que aflojarla o dejarla sin filtro se note.
-
-*Salida pendiente: el `oracle test` del ejemplo con sus casos completos, en verde.*
-
-## Más reglas, cada una con su idea
-
-Con la primera entendida, el resto son variaciones. Cada una enseña una pieza del lenguaje.
-
-**Turnos que alternan.** Compara cada tiro con el siguiente. Se lee como lo pensarías:
-
-```oracle
-medida naval.alternancia_turnos:
-    de tiro t1
-    unir tiro t2
-    donde t2.turno == t1.turno + 1 y t1.tirador == t2.tirador
-    resumen contar(1)
-    umbral <= 0 segun contrato porque "los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos"
-    ambito universal
-    alcance "compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo."
+```oracle archivo=catalogos/naval/naval.barcos_dentro_del_tablero.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.barcos_dentro_del_tablero.oracle
 ```
 
-`unir` junta cada tiro con cada otro tiro, y el `donde` se queda con los pares donde el mismo jugador
-tiró en dos turnos seguidos. `t1.turno + 1` se escribe así, como en cualquier lenguaje.
+Línea por línea: `ninguno` dice que **no tiene que haber ninguna** fila que ofenda; `de celda_barco c`
+elige qué mirar; `donde` dice cuáles ofenden; `umbral <= 0` cuántas se toleran, `segun contrato` de
+dónde sale ese cero y `porque` lo defiende; `alcance` dice **qué no mira**.
 
-**Barcos que no se pisan.** Mismo recurso, sobre las casillas de barco: dos casillas distintas del mismo
-jugador en la misma coordenada son una ofensa. Está en `naval.barcos_sin_solapamiento`.
+<p class="pregunta">**Pensalo.** ¿Qué no está mirando esta regla?</p>
 
-**La flota completa.** `naval.flota_reglamentaria` usa `agrupar` para contar las casillas de cada
-jugador y exige exactamente 17. Además dice `requiere celda_barco`: si el juego no mandó ninguna
-casilla, la regla no sale verde, sale **sin evidencia**. Cero barcos no es una flota correcta, es un
-registro roto.
+<details>
+<summary>Ver la respuesta</summary>
 
-**Un impacto que era verdad.** `naval.veracidad_impacto_positivo` usa `sin`: busca los tiros marcados
-como impacto **sin** ninguna casilla de barco del rival en ese lugar.
+Lo dice su `alcance`: no mira si dos barcos se pisan ni si un barco es una línea continua. Un verde de
+esta regla no promete eso. Por eso el `alcance` es obligatorio: un verde que no dice qué dejó sin
+mirar se lee como «está todo bien».
 
-```oracle
-medida naval.veracidad_impacto_positivo:
-    de tiro t
-    sin celda_barco c donde c.jugador == t.receptor y c.fila == t.fila y c.columna == t.columna
-    donde t.es_impacto == true
-    resumen contar(1)
-    umbral <= 0 segun contrato porque "un disparo no puede declararse impacto si en esa casilla no había un segmento de barco rival"
-    ambito universal
-    alcance "detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido."
+</details>
+
+```bash paso
+oracle test
 ```
 
-El ejemplo completo tiene once reglas: límites, solapamiento, flota, tiros dentro del tablero, tiros
-sin repetir, turnos que alternan, turnos sin huecos, impactos verdaderos (a favor y en contra), ganador
-legítimo y que nadie dispare después del final.
+```text salida
+(se completa con la corrida real)
+```
 
-## Juzgar una partida de verdad
+## Paso 6 · Un caso rojo no alcanza: la mutación
 
-Las reglas ya están probadas. Ahora se juzga una partida real: jugás, el juego descarga el JSON y se lo
-pasás a Oracle.
+Todavía rojo, pero por otra razón: **sobreviven mutantes**. Oracle debilita tu regla a propósito
+(afloja el umbral, invierte una comparación, le quita el filtro) y se fija si tus casos lo notan. A cada
+versión debilitada la llama **mutante**.
 
-```bash
+<p class="pregunta">**Pensalo.** Si Oracle le quita el `donde` a la regla, pasa a contar todas las casillas. Tu único caso sigue saliendo rojo. ¿Qué caso haría falta para que se note?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+Uno **verde**: una partida con todos los barcos dentro, que la regla sin filtro pondría roja. Y conviene
+que esté en el borde (fila 9), para que también se note si alguien corre el límite.
+
+</details>
+
+```oracle archivo=corpus/naval/006-barco-en-borde.caso incluir=ejemplo/batalla-naval/corpus/naval/006-barco-en-borde.caso
+```
+
+```bash paso
+oracle test
+```
+
+```text salida
+(se completa con la corrida real)
+```
+
+Quedan mutantes vivos. La regla tiene cuatro formas de ofender (fila menor que 0, fila mayor que 9,
+columna menor que 0, columna mayor que 9) y tu caso rojo sólo prueba una. Los otros tres casos rojos:
+
+```oracle archivo=corpus/naval/026-barco-columna-desbordada.caso incluir=ejemplo/batalla-naval/corpus/naval/026-barco-columna-desbordada.caso
+```
+
+```oracle archivo=corpus/naval/027-barco-fila-negativa.caso incluir=ejemplo/batalla-naval/corpus/naval/027-barco-fila-negativa.caso
+```
+
+```oracle archivo=corpus/naval/028-barco-columna-negativa.caso incluir=ejemplo/batalla-naval/corpus/naval/028-barco-columna-negativa.caso
+```
+
+```bash paso
+oracle test
+```
+
+```text salida
+(se completa con la corrida real)
+```
+
+**Verde, y ahora el verde significa algo**: cada forma de debilitar la regla la nota algún caso.
+
+## Paso 7 · Diez reglas más, y la trampa de los pocos casos
+
+El juego tiene más reglas. Pegá las diez que faltan de una vez, cada una con su idea:
+
+<details>
+<summary>Ver las diez medidas</summary>
+
+```oracle archivo=catalogos/naval/naval.tiros_dentro_del_tablero.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.tiros_dentro_del_tablero.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.barcos_sin_solapamiento.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.barcos_sin_solapamiento.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.flota_reglamentaria.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.flota_reglamentaria.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.alternancia_turnos.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.alternancia_turnos.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.turnos_sin_huecos.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.turnos_sin_huecos.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.tiros_sin_repeticion.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.tiros_sin_repeticion.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.veracidad_impacto_positivo.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.veracidad_impacto_positivo.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.veracidad_impacto_negativo.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.veracidad_impacto_negativo.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.ganador_legitimo.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.ganador_legitimo.oracle
+```
+
+```oracle archivo=catalogos/naval/naval.fin_de_juego_sin_tiros_posteriores.oracle incluir=ejemplo/batalla-naval/catalogos/naval/naval.fin_de_juego_sin_tiros_posteriores.oracle
+```
+
+</details>
+
+Tres para mirar con calma, porque cada una enseña algo del lenguaje:
+
+- `naval.alternancia_turnos` compara cada tiro con el siguiente usando `unir`, y se escribe como lo
+  pensás: `t2.turno == t1.turno + 1`.
+- `naval.flota_reglamentaria` usa `agrupar` para contar las casillas de cada jugador y dice `requiere
+  celda_barco`: si el juego no mandó ningún barco, la regla no sale verde, sale **sin evidencia**. Cero
+  barcos no es una flota correcta, es un registro roto.
+- `naval.veracidad_impacto_positivo` usa `sin`: busca los tiros marcados como impacto **sin** ningún
+  barco del rival en esa casilla.
+
+Con el juego original venían sólo dos casos, los dos de la regla de tiros:
+
+```oracle archivo=corpus/naval/001-tiro-fuera-de-tablero.caso incluir=ejemplo/batalla-naval/corpus/naval/001-tiro-fuera-de-tablero.caso
+```
+
+```oracle archivo=corpus/naval/002-tiro-valido.caso incluir=ejemplo/batalla-naval/corpus/naval/002-tiro-valido.caso
+```
+
+<p class="pregunta">**Pensalo.** Once reglas y siete casos, casi todos de dos reglas. ¿Qué tendría que decir `oracle test`?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+Que la mayoría de las reglas no las prueba nadie. Una regla sin casos que puedan romperla es
+decoración: puede estar mal escrita y dar verde siempre, y nunca te vas a enterar.
+
+</details>
+
+```bash paso
+oracle test
+```
+
+```text salida
+(se completa con la corrida real)
+```
+
+Los casos que faltan: para cada regla, al menos uno que la ponga roja cerca del borde y uno verde.
+
+<details>
+<summary>Ver los casos que faltan</summary>
+
+```oracle archivo=corpus/naval/023-columna-desbordada.caso incluir=ejemplo/batalla-naval/corpus/naval/023-columna-desbordada.caso
+```
+
+```oracle archivo=corpus/naval/024-fila-negativa.caso incluir=ejemplo/batalla-naval/corpus/naval/024-fila-negativa.caso
+```
+
+```oracle archivo=corpus/naval/025-columna-negativa.caso incluir=ejemplo/batalla-naval/corpus/naval/025-columna-negativa.caso
+```
+
+```oracle archivo=corpus/naval/007-barcos-superpuestos.caso incluir=ejemplo/batalla-naval/corpus/naval/007-barcos-superpuestos.caso
+```
+
+```oracle archivo=corpus/naval/008-barcos-separados.caso incluir=ejemplo/batalla-naval/corpus/naval/008-barcos-separados.caso
+```
+
+```oracle archivo=corpus/naval/011-flota-de-dieciseis.caso incluir=ejemplo/batalla-naval/corpus/naval/011-flota-de-dieciseis.caso
+```
+
+```oracle archivo=corpus/naval/012-flota-de-diecisiete.caso incluir=ejemplo/batalla-naval/corpus/naval/012-flota-de-diecisiete.caso
+```
+
+```oracle archivo=corpus/naval/029-flota-sin-celdas.caso incluir=ejemplo/batalla-naval/corpus/naval/029-flota-sin-celdas.caso
+```
+
+```oracle archivo=corpus/naval/003-mismo-tirador-seguido.caso incluir=ejemplo/batalla-naval/corpus/naval/003-mismo-tirador-seguido.caso
+```
+
+```oracle archivo=corpus/naval/004-tiradores-alternos.caso incluir=ejemplo/batalla-naval/corpus/naval/004-tiradores-alternos.caso
+```
+
+```oracle archivo=corpus/naval/017-turno-saltado.caso incluir=ejemplo/batalla-naval/corpus/naval/017-turno-saltado.caso
+```
+
+```oracle archivo=corpus/naval/018-turnos-contiguos.caso incluir=ejemplo/batalla-naval/corpus/naval/018-turnos-contiguos.caso
+```
+
+```oracle archivo=corpus/naval/030-sin-tiros-registrados.caso incluir=ejemplo/batalla-naval/corpus/naval/030-sin-tiros-registrados.caso
+```
+
+```oracle archivo=corpus/naval/015-tiro-repetido.caso incluir=ejemplo/batalla-naval/corpus/naval/015-tiro-repetido.caso
+```
+
+```oracle archivo=corpus/naval/016-tiros-distintos.caso incluir=ejemplo/batalla-naval/corpus/naval/016-tiros-distintos.caso
+```
+
+```oracle archivo=corpus/naval/031-distinta-fila-igual-turno-ajeno.caso incluir=ejemplo/batalla-naval/corpus/naval/031-distinta-fila-igual-turno-ajeno.caso
+```
+
+```oracle archivo=corpus/naval/033-fila-confundida-con-turno.caso incluir=ejemplo/batalla-naval/corpus/naval/033-fila-confundida-con-turno.caso
+```
+
+```oracle archivo=corpus/naval/021-impacto-fantasma.caso incluir=ejemplo/batalla-naval/corpus/naval/021-impacto-fantasma.caso
+```
+
+```oracle archivo=corpus/naval/022-impacto-real.caso incluir=ejemplo/batalla-naval/corpus/naval/022-impacto-real.caso
+```
+
+```oracle archivo=corpus/naval/032-agua-declarada-agua.caso incluir=ejemplo/batalla-naval/corpus/naval/032-agua-declarada-agua.caso
+```
+
+```oracle archivo=corpus/naval/019-barco-reportado-como-agua.caso incluir=ejemplo/batalla-naval/corpus/naval/019-barco-reportado-como-agua.caso
+```
+
+```oracle archivo=corpus/naval/020-agua-reportada-como-agua.caso incluir=ejemplo/batalla-naval/corpus/naval/020-agua-reportada-como-agua.caso
+```
+
+```oracle archivo=corpus/naval/013-ganador-con-dieciseis-impactos.caso incluir=ejemplo/batalla-naval/corpus/naval/013-ganador-con-dieciseis-impactos.caso
+```
+
+```oracle archivo=corpus/naval/014-ganador-con-diecisiete-impactos.caso incluir=ejemplo/batalla-naval/corpus/naval/014-ganador-con-diecisiete-impactos.caso
+```
+
+```oracle archivo=corpus/naval/009-tiro-despues-del-final.caso incluir=ejemplo/batalla-naval/corpus/naval/009-tiro-despues-del-final.caso
+```
+
+```oracle archivo=corpus/naval/010-tiro-en-turno-final.caso incluir=ejemplo/batalla-naval/corpus/naval/010-tiro-en-turno-final.caso
+```
+
+</details>
+
+```bash paso
+oracle test
+```
+
+```text salida
+(se completa con la corrida real)
+```
+
+Once reglas, cada una con casos que la pueden romper, y ningún mutante vivo.
+
+## Paso 8 · Juzgar una partida de verdad
+
+Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel
+de auditoría y descargá `hechos_partida.json` en la carpeta del proyecto. (Si todavía no jugaste, podés
+[bajar la partida del ejemplo](https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json)
+y guardarla con ese nombre.)
+
+```bash paso
 oracle juzgar --con hechos_partida.json
 ```
 
-*Salida pendiente: `oracle juzgar` sobre `partida_real.json` del ejemplo.*
+```text salida
+(se completa con la corrida real)
+```
 
-Dos cosas del resultado son las que más importan:
+<p class="pregunta">**Pensalo.** Todo verde. ¿Quiere decir que el juego está bien?</p>
 
-- **`SIN MIRAR`** junta los `alcance` de las reglas que se aplicaron: lo que el verde no garantiza.
-- **`NO SE APLICARON`** lista las reglas cuya relación no vino en el archivo. Si el juego se olvidó de
-  anotar los tiros, las reglas de tiros no te dan un verde de regalo: aparecen acá.
+<details>
+<summary>Ver la respuesta</summary>
+
+Quiere decir que esas once reglas se cumplieron en esta partida. La lista `SIN MIRAR` dice lo que
+ninguna regla garantiza, por ejemplo que cada barco sea una línea recta. Esa lista no es letra chica:
+es la mitad de la respuesta.
+
+</details>
+
+<p class="pregunta">**Pensalo.** ¿Y si el juego se olvidara de anotar los tiros?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las
+lista aparte, en `NO SE APLICARON`, para que no confundas «no se miró» con «está bien». Probalo:
+
+</details>
+
+```bash paso
+python3 -c "import json; d = json.load(open('hechos_partida.json')); json.dump({'celda_barco': d['celda_barco'], 'partida': d['partida']}, open('sin-tiros.json', 'w'))"
+oracle juzgar --con sin-tiros.json
+```
+
+```text salida
+(se completa con la corrida real)
+```
 
 Si una regla sale roja, el veredicto trae **testigos**: las filas exactas que ofendieron. Con eso le
-volvés a hablar al modelo: «el tiro del turno 14 se marcó como impacto y no había barco en esa
-casilla; corregilo».
+volvés a hablar al modelo con precisión: «el tiro del turno 14 se marcó como impacto y no había barco
+en esa casilla; corregilo».
 
-## Qué le falta a este juego
+## Paso 9 · Qué le falta a este juego
 
-El juego del ejemplo anda y sus reglas miran lo principal, pero no todo. Lo que ninguna de sus reglas
-mira hoy, y serían buenas siguientes reglas:
+Once reglas miran lo principal, no todo. Ninguna mira hoy:
 
-- que cada barco sea una línea recta y continua (hoy se cuentan casillas, no la forma);
+- que cada barco sea una línea recta y continua (se cuentan casillas, no la forma);
 - que un barco hundido tenga todas sus casillas impactadas;
 - que la computadora no sepa dónde están tus barcos antes de dispararles.
 
-Cada una empieza igual: ¿qué hecho necesita que el juego anote?, ¿qué fila ofendería?, ¿qué caso rojo
-y qué caso verde la fijan?
+<p class="pregunta">**Pensalo.** Elegí una. ¿Qué hecho tendría que anotar el juego, qué fila ofendería y qué caso rojo la fijaría?</p>
 
-## Si trabajás con un modelo, cinco consejos
+<details>
+<summary>Ver una respuesta, para la de la línea recta</summary>
 
-1. **Pedile que el juego cuente lo que pasa**, en filas planas. Sin eso no hay nada que juzgar.
+Con `celda_barco` alcanza: las casillas de un mismo `barco_id` tienen que compartir la fila (y tener
+columnas consecutivas) o compartir la columna (y tener filas consecutivas). Una fila ofende si su barco
+tiene casillas en dos filas y dos columnas distintas a la vez. El caso rojo: un destructor con una
+casilla en (2,3) y otra en (3,4), en diagonal.
+
+</details>
+
+Y el catálogo base que apagaste en el paso 1: encendelo (`"catalogo_base": true`) y corré `oracle
+test`. Te va a pedir lo que falta para que estas reglas valgan fuera de esta guía: declarar las unidades
+de los campos y sostener cada regla con partidas **observadas**, no sólo con casos construidos.
+
+## Si trabajás con un modelo
+
+1. **Pedile que el juego cuente lo que pasa**, en filas planas, sin conclusiones.
 2. **No le pidas las reglas y el código en la misma pasada.** Escribí o revisá vos las reglas.
-3. **Probá cada regla con un caso rojo y uno verde** antes de creerle.
+3. **Pedile primero el caso rojo**, después la regla. Si te da la regla sin caso, desconfiá.
 4. **Leé el `alcance`** de cada regla: es lo que el verde no te promete.
-5. **Cuando algo sale rojo, pasale al modelo los testigos**, no una descripción vaga.
+5. **Cuando algo sale rojo, pasale los testigos**, no una descripción vaga.
+6. **Si te dice «ya está todo verificado», preguntale qué mutantes sobrevivieron** y qué dice `SIN MIRAR`.
 
 Después de esto, [La primera medida real](13-primer-valor.html) muestra el mismo recorrido con menos
 explicación, y [Escribir una medida](03-escribir-una-medida.html) es la referencia del lenguaje.

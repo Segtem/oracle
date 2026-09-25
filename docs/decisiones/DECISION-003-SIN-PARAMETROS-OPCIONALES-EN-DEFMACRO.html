@@ -66,6 +66,18 @@
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#contexto">Contexto</a></li><li class="n2"><a href="#decisión">Decisión</a></li><li class="n2"><a href="#por-qué">Por qué</a></li><li class="n3"><a href="#1--la-cadena-completa-costaba-mucho-más-que-el-primer-eslabón">1 · La cadena completa costaba mucho más que el primer eslabón</a></li><li class="n3"><a href="#2--el-caso-real-no-necesita-nada-de-eso--y-se-comprobó">2 · El caso real no necesita nada de eso — y se comprobó</a></li><li class="n3"><a href="#3--la-regla-propia-del-repositorio">3 · La regla propia del repositorio</a></li><li class="n2"><a href="#consecuencias">Consecuencias</a></li><li class="n2"><a href="#qué-evidencia-revierte-esta-decisión">Qué evidencia revierte esta decisión</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

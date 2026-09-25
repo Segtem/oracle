@@ -180,6 +180,18 @@ RELACIONES que se pueden medir hoy:
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#1-instalar">1. Instalar</a></li><li class="n2"><a href="#2-un-proyecto">2. Un proyecto</a></li><li class="n2"><a href="#3-una-medida">3. Una medida</a></li><li class="n2"><a href="#4-el-rojo-sin-escribir-todavía-un-caso">4. El rojo, sin escribir todavía un caso</a></li><li class="n2"><a href="#5-los-dos-casos">5. Los dos casos</a></li><li class="n2"><a href="#6-el-ciclo-completo">6. El ciclo completo</a></li><li class="n2"><a href="#7-declarar-el-sensor-l1">7. Declarar el sensor (L−1)</a></li><li class="n2"><a href="#8-el-rojo-que-queda-y-por-qué-está-bien">8. El rojo que queda, y por qué está bien</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

@@ -28,67 +28,3029 @@
   </details>
   <main id="contenido" class="prosa">
 <h1 id="tu-primer-juego-con-un-llm-y-cómo-saber-si-está-bien">Tu primer juego con un LLM, y cómo saber si está bien<a class="ancla" href="#tu-primer-juego-con-un-llm-y-cómo-saber-si-está-bien" aria-label="Enlace a esta sección">#</a></h1>
-<p>Esta guía es para alguien que recién empieza a programar y programa con un modelo de lenguaje: le pedís el código, lo probás y seguís. Vamos a hacer una batalla naval que corre en el navegador y, sobre todo, vamos a responder una pregunta que el juego solo no puede contestar: <strong>¿cumple las reglas?</strong></p>
-<p>No hace falta saber programar. Hace falta paciencia para leer lo que el modelo te devuelve y ganas de preguntar «¿cómo sé que esto está bien?».</p>
-<blockquote><p><strong>Estado de esta guía.</strong> El recorrido y las explicaciones están escritos. Las salidas de terminal marcadas como <em>pendiente</em> se completan con corridas reales cuando el ejemplo <code>ejemplo/batalla-naval/</code> quede verde en el repositorio (tarea <code>de-cero-naval</code>). Ninguna salida de esta guía se escribe a mano.</p></blockquote>
-<h2 id="lo-que-vas-a-construir">Lo que vas a construir<a class="ancla" href="#lo-que-vas-a-construir" aria-label="Enlace a esta sección">#</a></h2>
-<p>Un juego de batalla naval en un tablero de 10 por 10. Cada jugador tiene cinco barcos: un portaaviones de 5 casillas, un acorazado de 4, un crucero de 3, un submarino de 3 y un destructor de 2. En total, 17 casillas por flota. Se dispara por turnos y gana quien hunde toda la flota del otro.</p>
-<p>Y al lado del juego, un <strong>catálogo de reglas</strong> escritas en Oracle que miran cada partida y dicen si se respetaron, con la prueba en la mano cuando no.</p>
-<h2 id="html-css-y-javascript-lo-justo">HTML, CSS y JavaScript, lo justo<a class="ancla" href="#html-css-y-javascript-lo-justo" aria-label="Enlace a esta sección">#</a></h2>
-<p>Un juego en el navegador son tres archivos que se reparten el trabajo:</p>
-<div class="tabla"><table><thead><tr><th>Archivo</th><th>Qué hace</th><th>En la batalla naval</th></tr></thead><tbody><tr><td><code>index.html</code></td><td>la estructura: qué hay en la pantalla</td><td>los dos tableros, los botones, el panel de la partida</td></tr><tr><td><code>css/…</code></td><td>el aspecto: colores, tamaños, posiciones</td><td>el agua, los barcos, las explosiones</td></tr><tr><td><code>js/…</code></td><td>el comportamiento: qué pasa cuando hacés algo</td><td>colocar barcos, disparar, decidir quién gana</td></tr></tbody></table></div>
-<p>Para esta guía no hace falta leer el CSS. Del JavaScript nos importa un archivo: el que <strong>cuenta lo que pasó</strong> en la partida. Lo vemos más abajo.</p>
-<h2 id="pedirle-el-juego-a-un-modelo">Pedirle el juego a un modelo<a class="ancla" href="#pedirle-el-juego-a-un-modelo" aria-label="Enlace a esta sección">#</a></h2>
-<p>Un pedido que funciona bien es concreto sobre las reglas y sobre la forma:</p>
-<pre data-lenguaje="text"><code>Haceme una batalla naval en HTML5, CSS y JavaScript, sin librerías.
-Tablero de 10x10. Flota: portaaviones 5, acorazado 4, crucero 3, submarino 3, destructor 2.
-Contra la computadora, por turnos alternados. Gana quien hunde las 17 casillas del otro.
-Separá el código en index.html, css/estilos.css y js/ (motor, interfaz).</code></pre>
-<p>Cuando te devuelva el código, abrí <code>index.html</code> en el navegador y jugá una partida. Si anda, <strong>todavía no sabés si está bien</strong>. Sabés que anda. Son cosas distintas, y el resto de la guía es sobre esa diferencia.</p>
-<h2 id="el-problema-un-juego-que-anda-no-es-un-juego-correcto">El problema: un juego que anda no es un juego correcto<a class="ancla" href="#el-problema-un-juego-que-anda-no-es-un-juego-correcto" aria-label="Enlace a esta sección">#</a></h2>
-<p>Mirá estas preguntas. Ninguna se contesta jugando una vez:</p>
-<ul><li>¿Puede quedar un barco con una casilla fuera del tablero?</li><li>¿Pueden dos barcos del mismo jugador ocupar la misma casilla?</li><li>¿Alternan de verdad los turnos, o a veces tira dos veces el mismo?</li><li>Cuando el juego dice «¡impacto!», ¿había un barco en esa casilla?</li><li>¿El ganador hundió las 17 casillas, o el juego terminó antes?</li></ul>
-<p>Si le pedís al mismo modelo que escriba el juego y también los tests, los tests van a confirmar lo que el modelo ya creía. Por eso las reglas van <strong>aparte</strong>, en un lenguaje hecho para eso, y miran lo que el juego hizo, no lo que el juego cree que hizo.</p>
-<blockquote><p>Esto pasó de verdad. Un agente construyó una batalla naval «con Oracle» y <code>oracle test</code> dio verde. El catálogo estaba vacío: el verde validaba la sintaxis de un archivo, no el juego. Está contado en <a href="https://github.com/Segtem/oracle/blob/main/docs/por-que.html" rel="noopener">Por qué Oracle</a>. Desde entonces, un proyecto sin medidas sale <em>sin medición</em>, no verde.</p></blockquote>
-<h2 id="que-el-juego-cuente-lo-que-pasó">Que el juego cuente lo que pasó<a class="ancla" href="#que-el-juego-cuente-lo-que-pasó" aria-label="Enlace a esta sección">#</a></h2>
-<p>La idea central: <strong>el juego no se juzga a sí mismo, cuenta lo que pasó.</strong> Mientras se juega, un archivo anota cada hecho en filas planas, sin opinar. En el ejemplo ese archivo es <code>js/trace.js</code>, y anota tres cosas:</p>
-<div class="tabla"><table><thead><tr><th>Relación</th><th>Una fila por…</th><th>Campos</th></tr></thead><tbody><tr><td><code>celda_barco</code></td><td>cada casilla ocupada por un barco</td><td><code>id</code>, <code>jugador</code>, <code>barco_id</code>, <code>segmento_idx</code>, <code>fila</code>, <code>columna</code></td></tr><tr><td><code>tiro</code></td><td>cada disparo</td><td><code>turno</code>, <code>tirador</code>, <code>receptor</code>, <code>fila</code>, <code>columna</code>, <code>es_impacto</code>, <code>hundio_barco</code>, <code>barco_hundido</code></td></tr><tr><td><code>partida</code></td><td>el final de la partida</td><td><code>estado</code>, <code>ganador</code>, <code>perdedor</code>, <code>turno_final</code>, <code>total_tiros</code>, <code>impactos_ganador</code>, <code>impactos_perdedor</code></td></tr></tbody></table></div>
-<p>Al terminar, el juego descarga esas filas como un archivo JSON. Así se ve el primer tiro de una partida real (<code>partida_real.json</code> del ejemplo):</p>
-<pre data-lenguaje="json"><code>{
-  &quot;tiro&quot;: [
-    {&quot;turno&quot;: 0, &quot;tirador&quot;: &quot;jugador&quot;, &quot;receptor&quot;: &quot;cpu&quot;, &quot;fila&quot;: 2, &quot;columna&quot;: 3, &quot;es_impacto&quot;: false, &quot;hundio_barco&quot;: false, &quot;barco_hundido&quot;: &quot;ninguno&quot;}
-  ]
-}</code></pre>
-<p>Si trabajás con un modelo, <strong>pedile esto explícitamente</strong>: «agregá un registro que anote cada casilla de barco, cada tiro y el resultado final, y que lo descargue como JSON». Es lo que después vas a juzgar.</p>
-<h2 id="instalar-oracle-y-crear-el-proyecto">Instalar Oracle y crear el proyecto<a class="ancla" href="#instalar-oracle-y-crear-el-proyecto" aria-label="Enlace a esta sección">#</a></h2>
-<p>Oracle se instala con <code>uv</code> (o <code>pip</code> dentro de un entorno virtual). Necesita Python 3.11 o posterior.</p>
+<p>Esta guía es para alguien que recién empieza a programar y programa con un modelo de lenguaje. Vas a armar, <strong>copiando y pegando</strong>, una batalla naval que corre en el navegador. Y vas a aprender a contestar la pregunta que el juego solo no puede contestar: <strong>¿cumple las reglas?</strong></p>
+<p>Cada paso tiene la misma forma: una <strong>pregunta</strong> para que la pienses vos, la <strong>respuesta</strong> plegada (abrila cuando quieras), el <strong>bloque para copiar</strong>, y <strong>lo que tenés que ver</strong>. Si ves otra cosa, el paso te dice qué hacer.</p>
+<blockquote><p>Un test del repositorio arma el juego pegando los bloques de esta guía en orden, desde una carpeta vacía, y corre <code>oracle test</code> después de cada paso. Las salidas que ves acá salen de esa corrida: si un bloque cambia, el test lo nota.</p></blockquote>
+<h2 id="paso-1--preparar-la-carpeta">Paso 1 · Preparar la carpeta<a class="ancla" href="#paso-1--preparar-la-carpeta" aria-label="Enlace a esta sección">#</a></h2>
+<p>Oracle se instala una sola vez. Necesitás Python 3.11 o posterior y <code>uv</code>.</p>
 <pre data-lenguaje="bash"><code>uv tool install oracle-metalenguaje
-oracle init reglas-naval
-cd reglas-naval
+oracle init batalla-naval
+cd batalla-naval
 oracle test</code></pre>
-<p>Un proyecto recién creado sale <strong>sin medición</strong>: todavía no hay ninguna regla, y Oracle no lo disfraza de verde.</p>
-<h2 id="la-primera-regla-ningún-barco-fuera-del-tablero">La primera regla: ningún barco fuera del tablero<a class="ancla" href="#la-primera-regla-ningún-barco-fuera-del-tablero" aria-label="Enlace a esta sección">#</a></h2>
-<p>Las reglas de Oracle se llaman <strong>medidas</strong>. Esta es la primera, tal como está en el ejemplo:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> naval.barcos_dentro_del_tablero:
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p><strong>Si ves otra cosa.</strong> Si dice <code>oracle: command not found</code>, cerrá y abrí la terminal: <code>uv</code> agrega <code>oracle</code> al <code>PATH</code> pero la terminal abierta no se entera.</p>
+<details>
+<summary>¿Por qué dice «sin medición» y no «verde»?</summary>
+<p>Porque todavía no hay ninguna regla. Un verde sin reglas diría «está todo bien» sin haber mirado nada. Oracle prefiere decir lo que pasó: no midió.</p>
+</details>
+<p>Una cosa más antes de seguir. <code>oracle init</code> deja activado el <strong>catálogo base</strong>: las reglas de Oracle sobre tus reglas. Son exigentes (piden unidades declaradas y evidencia observada de partidas reales) y las vamos a encender al final. Por ahora, apagalo:</p>
+<pre class="archivo" data-lenguaje="oracle.json"><code>{
+  &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
+  &quot;catalogo_base&quot;: false,
+  &quot;perfiles&quot;: []
+}</code></pre>
+<h2 id="paso-2--el-tablero">Paso 2 · El tablero<a class="ancla" href="#paso-2--el-tablero" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un juego en el navegador son tres cosas: <strong>HTML</strong> (qué hay en la pantalla), <strong>CSS</strong> (cómo se ve) y <strong>JavaScript</strong> (qué pasa cuando hacés algo). Empezamos por las dos primeras.</p>
+<details>
+<summary>Ver el archivo index.html</summary>
+<pre class="archivo" data-lenguaje="index.html"><code>&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;es&quot;&gt;
+&lt;head&gt;
+  &lt;meta charset=&quot;UTF-8&quot;&gt;
+  &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+  &lt;title&gt;Batalla Naval · HTML5 con Auditoría Formal&lt;/title&gt;
+  &lt;link rel=&quot;stylesheet&quot; href=&quot;css/style.css&quot;&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;!-- Encabezado de la Sala de Operaciones Navales --&gt;
+  &lt;header&gt;
+    &lt;div class=&quot;brand&quot;&gt;
+      &lt;div class=&quot;radar-logo&quot;&gt;&lt;/div&gt;
+      &lt;div class=&quot;brand-text&quot;&gt;
+        &lt;h1&gt;Batalla &lt;span&gt;Naval&lt;/span&gt;&lt;/h1&gt;
+        &lt;div class=&quot;tagline&quot;&gt;Tácticas Navales · Auditoría Formal con Oracle&lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;div class=&quot;header-controls&quot;&gt;
+      &lt;button id=&quot;btnOpenAudit&quot; class=&quot;btn btn-accent&quot; title=&quot;Verificar formalmente las reglas sobre la traza&quot;&gt;
+        &lt;span&gt;⚖&lt;/span&gt; Auditoría &amp; Traza Oracle
+      &lt;/button&gt;
+      &lt;button id=&quot;btnToggleSound&quot; class=&quot;btn&quot; title=&quot;Activar/desactivar efectos sonoros&quot;&gt;
+        🔊 Sonido
+      &lt;/button&gt;
+      &lt;button id=&quot;btnNewGame&quot; class=&quot;btn btn-danger&quot; title=&quot;Reiniciar y comenzar una nueva batalla&quot;&gt;
+        ↻ Nueva Partida
+      &lt;/button&gt;
+    &lt;/div&gt;
+  &lt;/header&gt;
+
+  &lt;!-- Contenedor Principal --&gt;
+  &lt;main&gt;
+    &lt;!-- Barra de Estado / Turnos / Métricas --&gt;
+    &lt;section class=&quot;status-banner&quot;&gt;
+      &lt;div class=&quot;status-info&quot;&gt;
+        &lt;div id=&quot;statusIndicator&quot; class=&quot;status-indicator&quot;&gt;&lt;/div&gt;
+        &lt;div class=&quot;status-text&quot;&gt;
+          &lt;h2 id=&quot;statusTitle&quot;&gt;Fase de Despliegue&lt;/h2&gt;
+          &lt;p id=&quot;statusSubtitle&quot;&gt;Ubicá tus 5 buques en el tablero o pulsá &quot;Auto-Desplegar&quot;&lt;/p&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;game-metrics&quot;&gt;
+        &lt;div class=&quot;metric-item&quot;&gt;
+          &lt;span class=&quot;metric-label&quot;&gt;Turno&lt;/span&gt;
+          &lt;span id=&quot;metricTurns&quot; class=&quot;metric-value&quot;&gt;0&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;metric-item&quot;&gt;
+          &lt;span class=&quot;metric-label&quot;&gt;Impactos&lt;/span&gt;
+          &lt;span id=&quot;metricHits&quot; class=&quot;metric-value&quot;&gt;0 / 17&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;metric-item&quot;&gt;
+          &lt;span class=&quot;metric-label&quot;&gt;Precisión&lt;/span&gt;
+          &lt;span id=&quot;metricAccuracy&quot; class=&quot;metric-value&quot;&gt;0%&lt;/span&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Herramientas para la fase de colocación de buques --&gt;
+    &lt;section id=&quot;placementTools&quot; class=&quot;placement-tools&quot;&gt;
+      &lt;div class=&quot;placement-header&quot;&gt;
+        &lt;h3&gt;Despliegue de la Flota Aliada&lt;/h3&gt;
+        &lt;div class=&quot;placement-actions&quot;&gt;
+          &lt;button id=&quot;btnRotate&quot; class=&quot;btn&quot; title=&quot;Rotar orientación del barco (tecla R)&quot;&gt;
+            Rotar [R]: &lt;strong id=&quot;orientationBadge&quot;&gt;HORIZONTAL&lt;/strong&gt;
+          &lt;/button&gt;
+          &lt;button id=&quot;btnAutoPlace&quot; class=&quot;btn&quot; title=&quot;Colocar todos los barcos al azar&quot;&gt;
+            🎲 Auto-Desplegar
+          &lt;/button&gt;
+          &lt;button id=&quot;btnClearPlacement&quot; class=&quot;btn&quot; title=&quot;Limpiar todas las posiciones&quot;&gt;
+            Limpiar
+          &lt;/button&gt;
+          &lt;button id=&quot;btnStartBattle&quot; class=&quot;btn btn-primary&quot; disabled title=&quot;Comenzar el combate&quot;&gt;
+            ⚔ Iniciar Batalla
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+      &lt;div id=&quot;shipsDock&quot; class=&quot;ships-dock&quot;&gt;
+        &lt;!-- Generado dinámicamente por ui.js --&gt;
+      &lt;/div&gt;
+    &lt;/section&gt;
+
+    &lt;!-- Zona de Batalla: Tableros Navales y Paneles --&gt;
+    &lt;section class=&quot;battlefield&quot;&gt;
+
+      &lt;!-- Tablero Aliado (Tu Flota) --&gt;
+      &lt;div class=&quot;board-card&quot;&gt;
+        &lt;div class=&quot;board-header&quot;&gt;
+          &lt;div class=&quot;board-title&quot;&gt;
+            &lt;span&gt;🛡 Tu Flota&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;span class=&quot;badge badge-player&quot;&gt;Defensa&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;grid-container&quot;&gt;
+          &lt;table id=&quot;playerGrid&quot; class=&quot;grid-table player-grid&quot;&gt;
+            &lt;!-- Celdas generadas por JS --&gt;
+          &lt;/table&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- Tablero Hostil (Radar Enemigo) --&gt;
+      &lt;div class=&quot;board-card enemy-card&quot;&gt;
+        &lt;div class=&quot;board-header&quot;&gt;
+          &lt;div class=&quot;board-title&quot;&gt;
+            &lt;span&gt;🎯 Radar Enemigo&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;span class=&quot;badge badge-enemy&quot;&gt;Ataque&lt;/span&gt;
+        &lt;/div&gt;
+        &lt;div class=&quot;grid-container&quot;&gt;
+          &lt;table id=&quot;enemyGrid&quot; class=&quot;grid-table enemy-grid&quot;&gt;
+            &lt;!-- Celdas generadas por JS --&gt;
+          &lt;/table&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;!-- Panel Lateral: Rastreador de Barcos y Bitácora --&gt;
+      &lt;aside class=&quot;side-panel&quot;&gt;
+        &lt;div class=&quot;side-card&quot;&gt;
+          &lt;h3&gt;Estado de Flotas&lt;/h3&gt;
+          &lt;div class=&quot;fleet-roster&quot;&gt;
+            &lt;div class=&quot;roster-group-title&quot;&gt;Enemigo (Objetivos)&lt;/div&gt;
+            &lt;div id=&quot;cpuRoster&quot;&gt;&lt;/div&gt;
+
+            &lt;div class=&quot;roster-group-title&quot; style=&quot;margin-top: 10px;&quot;&gt;Aliados&lt;/div&gt;
+            &lt;div id=&quot;playerRoster&quot;&gt;&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;side-card&quot;&gt;
+          &lt;h3&gt;Bitácora de Combate&lt;/h3&gt;
+          &lt;div id=&quot;combatLog&quot; class=&quot;combat-log&quot;&gt;
+            &lt;!-- Entradas de registro --&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/aside&gt;
+
+    &lt;/section&gt;
+  &lt;/main&gt;
+
+  &lt;!-- Modal de Auditoría Formal de Reglas con Oracle --&gt;
+  &lt;div id=&quot;auditModal&quot; class=&quot;modal-overlay&quot;&gt;
+    &lt;div class=&quot;modal-container&quot;&gt;
+      &lt;div class=&quot;modal-header&quot;&gt;
+        &lt;h3&gt;&lt;span&gt;⚖&lt;/span&gt; Auditoría Formal de Reglas (Oracle Metalenguaje)&lt;/h3&gt;
+        &lt;button id=&quot;btnCloseAudit&quot; class=&quot;modal-close&quot;&gt;&amp;times;&lt;/button&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;modal-body&quot;&gt;
+        &lt;div class=&quot;modal-tabs&quot;&gt;
+          &lt;button class=&quot;tab-btn active&quot; data-tab=&quot;tabRules&quot;&gt;11 Medidas Formales&lt;/button&gt;
+          &lt;button class=&quot;tab-btn&quot; data-tab=&quot;tabJson&quot;&gt;Traza de Hechos (`hechos.json`)&lt;/button&gt;
+          &lt;button class=&quot;tab-btn&quot; data-tab=&quot;tabCli&quot;&gt;Verificar con CLI&lt;/button&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Pestaña 1: Medidas Formales Evaluadas --&gt;
+        &lt;div id=&quot;tabRules&quot; class=&quot;tab-content active&quot;&gt;
+          &lt;p style=&quot;font-size: 0.82rem; color: var(--text-muted);&quot;&gt;
+            Cada movimiento de la partida es registrado de forma inmutable. Estas 11 medidas formales
+            garantizan que ninguna regla del juego sea violada (espacialidad, alternancia, no-duplicación, veracidad de impacto y hundimiento).
+          &lt;/p&gt;
+          &lt;div id=&quot;rulesList&quot; class=&quot;rules-list&quot;&gt;
+            &lt;!-- Generado dinámicamente por trace.js / ui.js --&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Pestaña 2: Traza JSON en Crudo --&gt;
+        &lt;div id=&quot;tabJson&quot; class=&quot;tab-content&quot;&gt;
+          &lt;p style=&quot;font-size: 0.82rem; color: var(--text-muted);&quot;&gt;
+            Esta es la evidencia relacional exacta producida por el juego, compuesta por las relaciones:
+            &lt;code&gt;celda_barco&lt;/code&gt;, &lt;code&gt;tiro&lt;/code&gt; y &lt;code&gt;partida&lt;/code&gt;.
+          &lt;/p&gt;
+          &lt;pre id=&quot;jsonViewer&quot; class=&quot;json-viewer&quot;&gt;&lt;/pre&gt;
+        &lt;/div&gt;
+
+        &lt;!-- Pestaña 3: Instrucciones de Verificación CLI con Oracle --&gt;
+        &lt;div id=&quot;tabCli&quot; class=&quot;tab-content&quot;&gt;
+          &lt;div class=&quot;cli-instruction&quot;&gt;
+            &lt;strong&gt;1. Descargá el archivo de evidencia:&lt;/strong&gt;
+            &lt;span&gt;Pulsá el botón &quot;Descargar hechos.json&quot; abajo para guardar la traza de la partida.&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;cli-instruction&quot;&gt;
+            &lt;strong&gt;2. Ejecutá el evaluador independiente de Oracle en tu terminal:&lt;/strong&gt;
+            &lt;div class=&quot;cli-code&quot;&gt;oracle juzgar --con hechos_partida.json&lt;/div&gt;
+            &lt;span&gt;Oracle evaluará las 11 medidas del catálogo sobre tu archivo y emitirá el veredicto formal independiente con sus testigos y alcances.&lt;/span&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;cli-instruction&quot;&gt;
+            &lt;strong&gt;3. O corré el script de auditoría completa del proyecto:&lt;/strong&gt;
+            &lt;div class=&quot;cli-code&quot;&gt;python3 verificar_oraculo.py&lt;/div&gt;
+            &lt;span&gt;Ejecuta una partida legítima y además prueba que el oráculo detecta infracciones (falsabilidad).&lt;/span&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+
+      &lt;div class=&quot;modal-footer&quot;&gt;
+        &lt;button id=&quot;btnCopyJson&quot; class=&quot;btn&quot;&gt;Copiar JSON&lt;/button&gt;
+        &lt;button id=&quot;btnDownloadJson&quot; class=&quot;btn btn-primary&quot;&gt;⬇ Descargar hechos_partida.json&lt;/button&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Modal de Fin de Partida --&gt;
+  &lt;div id=&quot;gameOverModal&quot; class=&quot;modal-overlay&quot;&gt;
+    &lt;div class=&quot;modal-container&quot; style=&quot;max-width: 500px;&quot;&gt;
+      &lt;div class=&quot;gameover-modal-content&quot;&gt;
+        &lt;h2 id=&quot;gameOverTitle&quot; class=&quot;gameover-title win&quot;&gt;¡VICTORIA NAVAL!&lt;/h2&gt;
+        &lt;p style=&quot;color: var(--text-muted); font-size: 0.88rem;&quot;&gt;
+          El combate ha concluido. Todas las operaciones han quedado registradas en la traza relacional.
+        &lt;/p&gt;
+
+        &lt;div class=&quot;gameover-stats&quot;&gt;
+          &lt;div class=&quot;gameover-stat-box&quot;&gt;
+            &lt;div id=&quot;goWinner&quot; class=&quot;gameover-stat-val&quot;&gt;JUGADOR&lt;/div&gt;
+            &lt;div class=&quot;gameover-stat-lbl&quot;&gt;Ganador&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;gameover-stat-box&quot;&gt;
+            &lt;div id=&quot;goTurns&quot; class=&quot;gameover-stat-val&quot;&gt;42&lt;/div&gt;
+            &lt;div class=&quot;gameover-stat-lbl&quot;&gt;Turnos Totales&lt;/div&gt;
+          &lt;/div&gt;
+          &lt;div class=&quot;gameover-stat-box&quot;&gt;
+            &lt;div id=&quot;goAccuracy&quot; class=&quot;gameover-stat-val&quot;&gt;48%&lt;/div&gt;
+            &lt;div class=&quot;gameover-stat-lbl&quot;&gt;Precisión&lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div style=&quot;display: flex; gap: 10px; width: 100%; justify-content: center; margin-top: 10px;&quot;&gt;
+          &lt;button id=&quot;btnVerifyFromGameOver&quot; class=&quot;btn btn-accent&quot; style=&quot;flex: 1;&quot;&gt;
+            ⚖ Auditar con Oracle
+          &lt;/button&gt;
+          &lt;button id=&quot;btnRestart&quot; class=&quot;btn btn-primary&quot; style=&quot;flex: 1;&quot;&gt;
+            ↻ Jugar de Nuevo
+          &lt;/button&gt;
+        &lt;/div&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- Scripts del Juego --&gt;
+  &lt;script src=&quot;js/audio.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/trace.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/engine.js&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;js/ui.js&quot;&gt;&lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</code></pre>
+</details>
+<details>
+<summary>Ver el archivo css/style.css</summary>
+<pre class="archivo" data-lenguaje="css/style.css"><code>/* ==========================================================================
+   style.css - Batalla Naval: Tactical Naval Operations Theme
+   ========================================================================== */
+
+:root {
+  --bg-primary: #0a0f1d;
+  --bg-surface: #111a2e;
+  --bg-card: #16223b;
+  --bg-card-hover: #1c2b4a;
+  --border-color: #233554;
+  --border-active: #00f0ff;
+
+  --accent-cyan: #00f0ff;
+  --accent-blue: #0077b6;
+  --accent-green: #00f59b;
+  --accent-red: #ff3366;
+  --accent-yellow: #ffb703;
+  --accent-orange: #fb8500;
+
+  --text-main: #e2e8f0;
+  --text-muted: #8da2c0;
+  --text-bright: #ffffff;
+
+  --cell-size: 34px;
+  --font-mono: &#x27;JetBrains Mono&#x27;, &#x27;Fira Code&#x27;, &#x27;Courier New&#x27;, monospace;
+  --font-sans: &#x27;Inter&#x27;, system-ui, -apple-system, sans-serif;
+  --radius: 8px;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  --glow-cyan: 0 0 12px rgba(0, 240, 255, 0.45);
+  --glow-red: 0 0 12px rgba(255, 51, 102, 0.5);
+  --glow-green: 0 0 12px rgba(0, 245, 155, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-image: 
+    radial-gradient(circle at 50% 0%, rgba(0, 119, 182, 0.15) 0%, transparent 70%),
+    linear-gradient(rgba(10, 15, 29, 0.96), rgba(10, 15, 29, 0.98));
+  overflow-x: hidden;
+}
+
+/* Header */
+header {
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-color);
+  padding: 12px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.radar-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid var(--accent-cyan);
+  position: relative;
+  box-shadow: var(--glow-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.radar-logo::after {
+  content: &#x27;&#x27;;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: conic-gradient(from 0deg, transparent 75%, rgba(0, 240, 255, 0.4) 100%);
+  animation: radar-sweep 2.5s linear infinite;
+  border-radius: 50%;
+}
+
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.brand-text h1 {
+  font-size: 1.3rem;
+  letter-spacing: 2px;
+  font-weight: 800;
+  color: var(--text-bright);
+  text-transform: uppercase;
+}
+
+.brand-text h1 span {
+  color: var(--accent-cyan);
+}
+
+.brand-text .tagline {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Botones */
+.btn {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border-color);
+  padding: 8px 14px;
+  border-radius: var(--radius);
+  font-family: var(--font-sans);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn:hover {
+  background: var(--bg-card-hover);
+  border-color: var(--accent-cyan);
+  color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-blue), #0096c7);
+  border-color: var(--accent-cyan);
+  color: var(--text-bright);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #0096c7, var(--accent-cyan));
+  color: #000;
+}
+
+.btn-accent {
+  background: rgba(0, 245, 155, 0.15);
+  border-color: var(--accent-green);
+  color: var(--accent-green);
+}
+
+.btn-accent:hover {
+  background: var(--accent-green);
+  color: #000;
+  box-shadow: var(--glow-green);
+}
+
+.btn-danger {
+  background: rgba(255, 51, 102, 0.15);
+  border-color: var(--accent-red);
+  color: var(--accent-red);
+}
+
+.btn-danger:hover {
+  background: var(--accent-red);
+  color: #fff;
+  box-shadow: var(--glow-red);
+}
+
+.btn-icon {
+  padding: 8px 10px;
+}
+
+/* Contenedor Principal */
+main {
+  flex: 1;
+  max-width: 1300px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Barra de Estado / Turno */
+.status-banner {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 12px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.status-banner::before {
+  content: &#x27;&#x27;;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent-green);
+  box-shadow: var(--glow-green);
+  animation: pulse-dot 1.8s infinite;
+}
+
+.status-indicator.waiting {
+  background: var(--accent-yellow);
+  box-shadow: 0 0 10px rgba(255, 183, 3, 0.5);
+}
+
+.status-indicator.cpu {
+  background: var(--accent-red);
+  box-shadow: var(--glow-red);
+}
+
+@keyframes pulse-dot {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.25); opacity: 0.7; }
+}
+
+.status-text h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.status-text p {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.game-metrics {
+  display: flex;
+  gap: 18px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.metric-label {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  text-transform: uppercase;
+}
+
+.metric-value {
+  color: var(--accent-cyan);
+  font-weight: 700;
+}
+
+/* Área de Juego: Tableros y Paneles */
+.battlefield {
+  display: grid;
+  grid-template-columns: auto auto 320px;
+  gap: 20px;
+  align-items: start;
+  justify-content: center;
+}
+
+@media (max-width: 1180px) {
+  .battlefield {
+    grid-template-columns: 1fr 1fr;
+  }
+  .side-panel {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 820px) {
+  .battlefield {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Tarjetas de Tablero */
+.board-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.board-card.active-target {
+  border-color: var(--accent-cyan);
+  box-shadow: var(--glow-cyan);
+}
+
+.board-header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.board-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.badge {
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+}
+
+.badge-player {
+  background: rgba(0, 119, 182, 0.3);
+  color: var(--accent-cyan);
+  border: 1px solid var(--accent-cyan);
+}
+
+.badge-enemy {
+  background: rgba(255, 51, 102, 0.2);
+  color: var(--accent-red);
+  border: 1px solid var(--accent-red);
+}
+
+/* Grilla Naval 10x10 */
+.grid-container {
+  display: inline-block;
+  background: #0d1527;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #1a2948;
+}
+
+.grid-table {
+  border-collapse: collapse;
+}
+
+.grid-label {
+  width: var(--cell-size);
+  height: 22px;
+  text-align: center;
+  vertical-align: middle;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.grid-label-row {
+  width: 22px;
+  height: var(--cell-size);
+  text-align: center;
+  vertical-align: middle;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.grid-cell {
+  width: var(--cell-size);
+  height: var(--cell-size);
+  border: 1px solid #1b2845;
+  background-color: #0f192c;
+  position: relative;
+  cursor: default;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+/* Celdas del Radar Enemigo (Interactivas) */
+.enemy-grid .grid-cell {
+  cursor: crosshair;
+}
+
+.enemy-grid .grid-cell:hover:not(.shot) {
+  background-color: rgba(0, 240, 255, 0.2);
+  border-color: var(--accent-cyan);
+  box-shadow: inset 0 0 8px rgba(0, 240, 255, 0.4);
+}
+
+/* Estados de Casilla */
+.grid-cell.ship-present {
+  background-color: #2a3d5e;
+  border-color: #3b537e;
+}
+
+.grid-cell.ship-present::before {
+  content: &#x27;&#x27;;
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  background: #3e5884;
+  border-radius: 3px;
+  border: 1px solid #5a7ea8;
+}
+
+.grid-cell.shot.miss {
+  background-color: #0b1424;
+}
+
+.grid-cell.shot.miss::after {
+  content: &#x27;&#x27;;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 8px;
+  height: 8px;
+  transform: translate(-50%, -50%);
+  background-color: #48cae4;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(72, 202, 228, 0.8);
+  animation: splash-pop 0.3s ease-out;
+}
+
+.grid-cell.shot.hit {
+  background-color: rgba(255, 51, 102, 0.25);
+  border-color: var(--accent-red);
+}
+
+.grid-cell.shot.hit::after {
+  content: &#x27;✕&#x27;;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: var(--accent-red);
+  font-weight: 900;
+  font-size: 1.1rem;
+  text-shadow: 0 0 8px var(--accent-red);
+  animation: hit-shake 0.3s ease-in-out;
+}
+
+.grid-cell.sunk {
+  background-color: rgba(255, 51, 102, 0.45) !important;
+  border-color: #ff0044 !important;
+  animation: sunk-flash 0.8s ease-in-out;
+}
+
+/* Hover de colocación de barcos */
+.grid-cell.placement-valid {
+  background-color: rgba(0, 245, 155, 0.35) !important;
+  border-color: var(--accent-green) !important;
+}
+
+.grid-cell.placement-invalid {
+  background-color: rgba(255, 51, 102, 0.35) !important;
+  border-color: var(--accent-red) !important;
+}
+
+@keyframes splash-pop {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  60% { transform: translate(-50%, -50%) scale(1.4); opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+
+@keyframes hit-shake {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  25% { transform: translate(-45%, -55%) scale(1.3); }
+  50% { transform: translate(-55%, -45%) scale(1.2); }
+  75% { transform: translate(-48%, -52%) scale(1.1); }
+}
+
+@keyframes sunk-flash {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* Panel de Preparación / Colocación */
+.placement-tools {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.placement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.placement-header h3 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.ships-dock {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.ship-dock-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s;
+  min-width: 110px;
+}
+
+.ship-dock-item:hover:not(.placed) {
+  border-color: var(--accent-cyan);
+  background: var(--bg-card-hover);
+}
+
+.ship-dock-item.selected {
+  border-color: var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.1);
+  box-shadow: var(--glow-cyan);
+}
+
+.ship-dock-item.placed {
+  opacity: 0.45;
+  border-color: #2a3a5a;
+  cursor: not-allowed;
+}
+
+.ship-dock-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: space-between;
+}
+
+.ship-dock-name span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.ship-preview-blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.preview-block {
+  width: 14px;
+  height: 14px;
+  background: #3e5884;
+  border-radius: 2px;
+}
+
+.placement-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+/* Panel Lateral: Rastreador de Flotas &amp; Bitácora */
+.side-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.side-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.side-card h3 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-bright);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Rastreador de Barcos */
+.fleet-roster {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roster-group-title {
+  font-size: 0.7rem;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+
+.roster-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  padding: 4px 8px;
+  background: var(--bg-card);
+  border-radius: 4px;
+  border: 1px solid #1a2742;
+}
+
+.roster-item.sunk {
+  opacity: 0.4;
+  text-decoration: line-through;
+  border-color: var(--accent-red);
+}
+
+.roster-blocks {
+  display: flex;
+  gap: 3px;
+}
+
+.roster-block {
+  width: 8px;
+  height: 8px;
+  border-radius: 1px;
+  background: var(--accent-green);
+}
+
+.roster-block.hit {
+  background: var(--accent-red);
+}
+
+/* Bitácora de Combate */
+.combat-log {
+  height: 220px;
+  overflow-y: auto;
+  background: #0b1120;
+  border: 1px solid #18233c;
+  border-radius: 6px;
+  padding: 8px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.combat-log::-webkit-scrollbar {
+  width: 5px;
+}
+
+.combat-log::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+.log-entry {
+  padding: 4px 6px;
+  border-radius: 3px;
+  line-height: 1.3;
+}
+
+.log-entry.player-shot {
+  border-left: 2px solid var(--accent-cyan);
+  background: rgba(0, 240, 255, 0.05);
+}
+
+.log-entry.cpu-shot {
+  border-left: 2px solid var(--accent-red);
+  background: rgba(255, 51, 102, 0.05);
+}
+
+.log-entry.sunk-event {
+  border-left: 2px solid var(--accent-yellow);
+  background: rgba(255, 183, 3, 0.1);
+  font-weight: 700;
+  color: var(--accent-yellow);
+}
+
+.log-turn {
+  color: var(--text-muted);
+  margin-right: 4px;
+}
+
+/* Modales */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(5, 8, 16, 0.85);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.modal-container {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  width: 100%;
+  max-width: 820px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+  animation: modal-enter 0.25s ease-out;
+}
+
+@keyframes modal-enter {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h3 {
+  font-size: 1.15rem;
+  color: var(--text-bright);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.modal-close:hover {
+  color: var(--text-bright);
+}
+
+.modal-body {
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-tabs {
+  display: flex;
+  gap: 8px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 8px;
+}
+
+.tab-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tab-btn.active {
+  background: var(--bg-card);
+  color: var(--accent-cyan);
+  border: 1px solid var(--border-color);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Auditoría de Reglas Lista */
+.rules-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rule-item {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 10px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.rule-item.passed {
+  border-left: 3px solid var(--accent-green);
+}
+
+.rule-item.failed {
+  border-left: 3px solid var(--accent-red);
+}
+
+.rule-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.rule-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-bright);
+}
+
+.rule-id {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}
+
+.rule-status {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.rule-status.green {
+  background: rgba(0, 245, 155, 0.15);
+  color: var(--accent-green);
+}
+
+.rule-status.red {
+  background: rgba(255, 51, 102, 0.15);
+  color: var(--accent-red);
+}
+
+.rule-desc {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.json-viewer {
+  background: #080d19;
+  border: 1px solid #16223b;
+  border-radius: 6px;
+  padding: 14px;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: #a5d6a7;
+  max-height: 380px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.cli-instruction {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 12px;
+  font-size: 0.82rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cli-code {
+  background: #080d19;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+  font-size: 0.82rem;
+  user-select: all;
+}
+
+.modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Modal de Fin de Juego */
+.gameover-modal-content {
+  text-align: center;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.gameover-title {
+  font-size: 2rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.gameover-title.win {
+  color: var(--accent-green);
+  text-shadow: var(--glow-green);
+}
+
+.gameover-title.loss {
+  color: var(--accent-red);
+  text-shadow: var(--glow-red);
+}
+
+.gameover-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 440px;
+  margin: 10px 0;
+}
+
+.gameover-stat-box {
+  background: var(--bg-card);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.gameover-stat-val {
+  font-size: 1.3rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  color: var(--accent-cyan);
+}
+
+.gameover-stat-lbl {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+}</code></pre>
+</details>
+<p>Abrí <code>index.html</code> en el navegador (doble clic, o arrastralo a una pestaña). Vas a ver la cabecera y los paneles, <strong>sin tableros todavía</strong>: los tableros los dibuja el JavaScript.</p>
+<h2 id="paso-3--el-juego">Paso 3 · El juego<a class="ancla" href="#paso-3--el-juego" aria-label="Enlace a esta sección">#</a></h2>
+<p>Estos cuatro archivos son el juego: el sonido, el registro de lo que pasa, el motor con las reglas y la interfaz que dibuja los tableros.</p>
+<details>
+<summary>Ver los cuatro archivos de JavaScript</summary>
+<pre class="archivo" data-lenguaje="js/audio.js"><code>/**
+ * audio.js - Sintetizador de efectos de sonido con Web Audio API
+ * Genera efectos militares/navales proceduralmente sin depender de archivos de audio externos.
+ */
+
+class SoundEffects {
+  constructor() {
+    this.ctx = null;
+    this.enabled = true;
+  }
+
+  _initContext() {
+    if (!this.ctx) {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        this.ctx = new AudioCtx();
+      }
+    }
+    if (this.ctx &amp;&amp; this.ctx.state === &#x27;suspended&#x27;) {
+      this.ctx.resume();
+    }
+  }
+
+  toggleSound() {
+    this.enabled = !this.enabled;
+    return this.enabled;
+  }
+
+  playSonarPing() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = &#x27;sine&#x27;;
+    osc.frequency.setValueAtTime(800, t);
+    osc.frequency.exponentialRampToValueAtTime(840, t + 0.08);
+    osc.frequency.exponentialRampToValueAtTime(800, t + 0.6);
+
+    gain.gain.setValueAtTime(0.25, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 1.2);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 1.2);
+  }
+
+  playShot() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // Cañonazo: oscilador descendente + golpe
+    const osc = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc.type = &#x27;triangle&#x27;;
+    osc.frequency.setValueAtTime(180, t);
+    osc.frequency.exponentialRampToValueAtTime(30, t + 0.35);
+
+    gain.gain.setValueAtTime(0.35, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+
+    osc.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc.start(t);
+    osc.stop(t + 0.35);
+  }
+
+  playMiss() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // Chapuzón de agua (ruido blanco filtrado paso bajo)
+    const bufferSize = this.ctx.sampleRate * 0.4;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i &lt; bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+    }
+
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = &#x27;lowpass&#x27;;
+    filter.frequency.setValueAtTime(450, t);
+    filter.frequency.linearRampToValueAtTime(150, t + 0.4);
+
+    const gain = this.ctx.createGain();
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.exponentialRampToValueAtTime(0.01, t + 0.4);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    noise.start(t);
+  }
+
+  playHit() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // Explosión: ruido distorsionado + oscilador subgrave
+    const osc = this.ctx.createOscillator();
+    const oscGain = this.ctx.createGain();
+    osc.type = &#x27;sawtooth&#x27;;
+    osc.frequency.setValueAtTime(120, t);
+    osc.frequency.exponentialRampToValueAtTime(25, t + 0.5);
+    oscGain.gain.setValueAtTime(0.4, t);
+    oscGain.gain.exponentialRampToValueAtTime(0.01, t + 0.5);
+
+    osc.connect(oscGain);
+    oscGain.connect(this.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.5);
+
+    // Ruido metálico/explosivo
+    const bufferSize = this.ctx.sampleRate * 0.45;
+    const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i &lt; bufferSize; i++) {
+      data[i] = Math.random() * 2 - 1;
+    }
+    const noise = this.ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = this.ctx.createBiquadFilter();
+    filter.type = &#x27;bandpass&#x27;;
+    filter.frequency.setValueAtTime(500, t);
+    filter.Q.value = 1.2;
+
+    const noiseGain = this.ctx.createGain();
+    noiseGain.gain.setValueAtTime(0.5, t);
+    noiseGain.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+
+    noise.connect(filter);
+    filter.connect(noiseGain);
+    noiseGain.connect(this.ctx.destination);
+
+    noise.start(t);
+  }
+
+  playSunk() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const t = this.ctx.currentTime;
+    // Alarma / bocina naval grave
+    const osc1 = this.ctx.createOscillator();
+    const osc2 = this.ctx.createOscillator();
+    const gain = this.ctx.createGain();
+
+    osc1.type = &#x27;sawtooth&#x27;;
+    osc2.type = &#x27;square&#x27;;
+    osc1.frequency.setValueAtTime(95, t);
+    osc2.frequency.setValueAtTime(98, t);
+
+    gain.gain.setValueAtTime(0.3, t);
+    gain.gain.linearRampToValueAtTime(0.35, t + 0.4);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + 0.9);
+
+    osc1.connect(gain);
+    osc2.connect(gain);
+    gain.connect(this.ctx.destination);
+
+    osc1.start(t);
+    osc2.start(t);
+    osc1.stop(t + 0.9);
+    osc2.stop(t + 0.9);
+  }
+
+  playVictory() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const notes = [261.63, 329.63, 392.00, 523.25]; // Do, Mi, Sol, Do agudo
+    notes.forEach((freq, idx) =&gt; {
+      const t = this.ctx.currentTime + idx * 0.14;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = &#x27;triangle&#x27;;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.25, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.4);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.4);
+    });
+  }
+
+  playDefeat() {
+    if (!this.enabled) return;
+    this._initContext();
+    if (!this.ctx) return;
+
+    const notes = [392.00, 369.99, 329.63, 277.18]; // Descenso menor
+    notes.forEach((freq, idx) =&gt; {
+      const t = this.ctx.currentTime + idx * 0.18;
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = &#x27;sawtooth&#x27;;
+      osc.frequency.setValueAtTime(freq, t);
+      gain.gain.setValueAtTime(0.2, t);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.45);
+      osc.connect(gain);
+      gain.connect(this.ctx.destination);
+      osc.start(t);
+      osc.stop(t + 0.45);
+    });
+  }
+}
+
+// Instancia global compartida
+window.soundFX = new SoundEffects();</code></pre>
+<pre class="archivo" data-lenguaje="js/trace.js"><code>/**
+ * trace.js - Recolector de evidencia relacional formal y auditor de reglas
+ * Emite la traza de la partida en formato de hechos (JSON) compatible con oracle-metalenguaje.
+ */
+
+class TraceRecorder {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.celdaBarco = [];
+    this.tiros = [];
+    this.partida = [];
+    this._nextSegmentId = 0;
+  }
+
+  recordFleet(jugador, ships) {
+    for (const ship of ships) {
+      ship.coordinates.forEach((coord, idx) =&gt; {
+        this.celdaBarco.push({
+          id: this._nextSegmentId++,
+          jugador: jugador,
+          barco_id: ship.id,
+          segmento_idx: idx,
+          fila: coord.row,
+          columna: coord.col
+        });
+      });
+    }
+  }
+
+  recordShot(turno, tirador, receptor, fila, columna, esImpacto, hundioBarco, barcoHundido) {
+    this.tiros.push({
+      turno: turno,
+      tirador: tirador,
+      receptor: receptor,
+      fila: fila,
+      columna: columna,
+      es_impacto: Boolean(esImpacto),
+      hundio_barco: Boolean(hundioBarco),
+      barco_hundido: barcoHundido || &#x27;ninguno&#x27;
+    });
+  }
+
+  recordGameOver(ganador, perdedor, impactosGanador, impactosPerdedor) {
+    const finalTurn = this.tiros.length &gt; 0 ? this.tiros[this.tiros.length - 1].turno : 0;
+    this.partida = [{
+      estado: &#x27;terminada&#x27;,
+      ganador: ganador,
+      perdedor: perdedor,
+      turno_final: finalTurn,
+      total_tiros: this.tiros.length,
+      impactos_ganador: impactosGanador,
+      impactos_perdedor: impactosPerdedor
+    }];
+  }
+
+  toFactsObject() {
+    return {
+      celda_barco: this.celdaBarco,
+      tiro: this.tiros,
+      partida: this.partida.length &gt; 0 ? this.partida : [{
+        estado: &#x27;en_curso&#x27;,
+        ganador: &#x27;ninguno&#x27;,
+        perdedor: &#x27;ninguno&#x27;,
+        turno_final: this.tiros.length &gt; 0 ? this.tiros[this.tiros.length - 1].turno : 0,
+        total_tiros: this.tiros.length,
+        impactos_ganador: 0,
+        impactos_perdedor: 0
+      }]
+    };
+  }
+
+  toJSON(indent = 2) {
+    return JSON.stringify(this.toFactsObject(), null, indent);
+  }
+
+  downloadJSON(filename = &#x27;hechos_partida.json&#x27;) {
+    const jsonStr = this.toJSON(2);
+    const blob = new Blob([jsonStr], { type: &#x27;application/json&#x27; });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement(&#x27;a&#x27;);
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  /**
+   * Auditoría espejo de las 11 medidas de Oracle evaluadas directamente en JavaScript.
+   * Permite al usuario ver el veredicto formal dentro de la interfaz web además del CLI.
+   */
+  evaluateRules() {
+    const facts = this.toFactsObject();
+    const celdas = facts.celda_barco;
+    const tiros = facts.tiro;
+    const partida = facts.partida[0] || {};
+
+    const results = [];
+
+    // 1. naval.tiros_dentro_del_tablero
+    const invalidShots = tiros.filter(t =&gt; t.fila &lt; 0 || t.fila &gt; 9 || t.columna &lt; 0 || t.columna &gt; 9);
+    results.push({
+      id: &#x27;naval.tiros_dentro_del_tablero&#x27;,
+      name: &#x27;Tiros dentro del tablero [0..9]&#x27;,
+      passed: invalidShots.length === 0,
+      value: invalidShots.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;El tablero reglamentario es de 10x10; cualquier disparo fuera de [0, 9] es inválido.&#x27;,
+      witnesses: invalidShots
+    });
+
+    // 2. naval.tiros_sin_repeticion
+    const dupShots = [];
+    for (let i = 0; i &lt; tiros.length; i++) {
+      for (let j = i + 1; j &lt; tiros.length; j++) {
+        if (tiros[i].tirador === tiros[j].tirador &amp;&amp;
+            tiros[i].fila === tiros[j].fila &amp;&amp;
+            tiros[i].columna === tiros[j].columna) {
+          dupShots.push({ original: tiros[i], duplicado: tiros[j] });
+        }
+      }
+    }
+    results.push({
+      id: &#x27;naval.tiros_sin_repeticion&#x27;,
+      name: &#x27;Sin disparos duplicados a la misma casilla&#x27;,
+      passed: dupShots.length === 0,
+      value: dupShots.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Ningún jugador puede disparar dos veces a la misma casilla en una partida.&#x27;,
+      witnesses: dupShots
+    });
+
+    // 3. naval.alternancia_turnos
+    const nonAlternating = [];
+    for (let i = 0; i &lt; tiros.length - 1; i++) {
+      if (tiros[i + 1].turno === tiros[i].turno + 1 &amp;&amp; tiros[i + 1].tirador === tiros[i].tirador) {
+        nonAlternating.push({ turno1: tiros[i], turno2: tiros[i + 1] });
+      }
+    }
+    results.push({
+      id: &#x27;naval.alternancia_turnos&#x27;,
+      name: &#x27;Alternancia estricta de turnos&#x27;,
+      passed: nonAlternating.length === 0,
+      value: nonAlternating.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos.&#x27;,
+      witnesses: nonAlternating
+    });
+
+    // 4. naval.turnos_sin_huecos
+    let turnGaps = 0;
+    if (tiros.length &gt; 0) {
+      const maxTurn = Math.max(...tiros.map(t =&gt; t.turno));
+      if (tiros.length !== maxTurn + 1) {
+        turnGaps = Math.abs(tiros.length - (maxTurn + 1));
+      }
+    }
+    results.push({
+      id: &#x27;naval.turnos_sin_huecos&#x27;,
+      name: &#x27;Turnos continuos sin huecos ni saltos&#x27;,
+      passed: turnGaps === 0,
+      value: turnGaps,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;La secuencia de turnos debe ser continua, arrancando en 0 y avanzando de a 1.&#x27;,
+      witnesses: turnGaps &gt; 0 ? [{ tirosRegistrados: tiros.length }] : []
+    });
+
+    // 5. naval.barcos_dentro_del_tablero
+    const invalidCells = celdas.filter(c =&gt; c.fila &lt; 0 || c.fila &gt; 9 || c.columna &lt; 0 || c.columna &gt; 9);
+    results.push({
+      id: &#x27;naval.barcos_dentro_del_tablero&#x27;,
+      name: &#x27;Barcos dentro de la cuadrícula [0..9]&#x27;,
+      passed: invalidCells.length === 0,
+      value: invalidCells.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Todas las celdas ocupadas por barcos deben ubicarse dentro de 10x10.&#x27;,
+      witnesses: invalidCells
+    });
+
+    // 6. naval.barcos_sin_solapamiento
+    const overlapping = [];
+    for (let i = 0; i &lt; celdas.length; i++) {
+      for (let j = i + 1; j &lt; celdas.length; j++) {
+        if (celdas[i].jugador === celdas[j].jugador &amp;&amp;
+            celdas[i].fila === celdas[j].fila &amp;&amp;
+            celdas[i].columna === celdas[j].columna) {
+          overlapping.push({ c1: celdas[i], c2: celdas[j] });
+        }
+      }
+    }
+    results.push({
+      id: &#x27;naval.barcos_sin_solapamiento&#x27;,
+      name: &#x27;Barcos sin solapamiento entre sí&#x27;,
+      passed: overlapping.length === 0,
+      value: overlapping.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Dos casillas de barco del mismo jugador no pueden coincidir en la misma celda.&#x27;,
+      witnesses: overlapping
+    });
+
+    // 7. naval.flota_reglamentaria
+    const jugadorCeldas = celdas.filter(c =&gt; c.jugador === &#x27;jugador&#x27;).length;
+    const cpuCeldas = celdas.filter(c =&gt; c.jugador === &#x27;cpu&#x27;).length;
+    const flotaFlaws = [];
+    if (jugadorCeldas !== 17) flotaFlaws.push({ jugador: &#x27;jugador&#x27;, celdas: jugadorCeldas, esperado: 17 });
+    if (cpuCeldas !== 17) flotaFlaws.push({ jugador: &#x27;cpu&#x27;, celdas: cpuCeldas, esperado: 17 });
+    results.push({
+      id: &#x27;naval.flota_reglamentaria&#x27;,
+      name: &#x27;Flota reglamentaria de 17 casillas por bando&#x27;,
+      passed: flotaFlaws.length === 0,
+      value: flotaFlaws.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Cada bando debe tener exactamente 17 casillas (5+4+3+3+2).&#x27;,
+      witnesses: flotaFlaws
+    });
+
+    // 8. naval.veracidad_impacto_positivo (Falso impacto / fantasma)
+    const ghostHits = [];
+    for (const t of tiros) {
+      if (t.es_impacto) {
+        const match = celdas.find(c =&gt; c.jugador === t.receptor &amp;&amp; c.fila === t.fila &amp;&amp; c.columna === t.columna);
+        if (!match) {
+          ghostHits.push(t);
+        }
+      }
+    }
+    results.push({
+      id: &#x27;naval.veracidad_impacto_positivo&#x27;,
+      name: &#x27;Veracidad de impacto: ningún impacto fantasma&#x27;,
+      passed: ghostHits.length === 0,
+      value: ghostHits.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Un disparo no puede declararse impacto si no había un segmento de barco rival.&#x27;,
+      witnesses: ghostHits
+    });
+
+    // 9. naval.veracidad_impacto_negativo (Agua falsa / impacto omitido)
+    const falseMisses = [];
+    for (const t of tiros) {
+      if (!t.es_impacto) {
+        const match = celdas.find(c =&gt; c.jugador === t.receptor &amp;&amp; c.fila === t.fila &amp;&amp; c.columna === t.columna);
+        if (match) {
+          falseMisses.push({ tiro: t, celdaReal: match });
+        }
+      }
+    }
+    results.push({
+      id: &#x27;naval.veracidad_impacto_negativo&#x27;,
+      name: &#x27;Veracidad de agua: ningún impacto omitido&#x27;,
+      passed: falseMisses.length === 0,
+      value: falseMisses.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Un disparo en una casilla con barco no puede ser reportado como agua.&#x27;,
+      witnesses: falseMisses
+    });
+
+    // 10. naval.fin_de_juego_sin_tiros_posteriores
+    const postGameShots = [];
+    if (partida.estado === &#x27;terminada&#x27;) {
+      const finalTurn = partida.turno_final;
+      for (const t of tiros) {
+        if (t.turno &gt; finalTurn) {
+          postGameShots.push(t);
+        }
+      }
+    }
+    results.push({
+      id: &#x27;naval.fin_de_juego_sin_tiros_posteriores&#x27;,
+      name: &#x27;Fin de partida: sin disparos posteriores&#x27;,
+      passed: postGameShots.length === 0,
+      value: postGameShots.length,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;Una vez finalizada la partida no se permiten más disparos.&#x27;,
+      witnesses: postGameShots
+    });
+
+    // 11. naval.ganador_legitimo
+    let winnerValid = true;
+    const winnerWitnesses = [];
+    if (partida.estado === &#x27;terminada&#x27;) {
+      if (partida.impactos_ganador !== 17) {
+        winnerValid = false;
+        winnerWitnesses.push(partida);
+      }
+    }
+    results.push({
+      id: &#x27;naval.ganador_legitimo&#x27;,
+      name: &#x27;Ganador legítimo: exactamente 17 impactos&#x27;,
+      passed: winnerValid,
+      value: winnerValid ? 0 : 1,
+      threshold: &#x27;&lt;= 0&#x27;,
+      reason: &#x27;El ganador debe haber destruido la totalidad de las 17 casillas enemigas.&#x27;,
+      witnesses: winnerWitnesses
+    });
+
+    return results;
+  }
+}
+
+// Exportable para browser y Node
+if (typeof module !== &#x27;undefined&#x27; &amp;&amp; module.exports) {
+  module.exports = { TraceRecorder };
+} else {
+  window.TraceRecorder = TraceRecorder;
+}</code></pre>
+<pre class="archivo" data-lenguaje="js/engine.js"><code>/**
+ * engine.js - Lógica pura del juego de Batalla Naval
+ * Diseñado para ejecutarse tanto en el navegador como en Node.js para testing y auditoría formal.
+ */
+
+const GRID_SIZE = 10;
+
+const SHIPS_CONFIG = [
+  { id: &#x27;portaaviones&#x27;, name: &#x27;Portaaviones&#x27;, length: 5 },
+  { id: &#x27;acorazado&#x27;, name: &#x27;Acorazado&#x27;, length: 4 },
+  { id: &#x27;crucero&#x27;, name: &#x27;Crucero&#x27;, length: 3 },
+  { id: &#x27;submarino&#x27;, name: &#x27;Submarino&#x27;, length: 3 },
+  { id: &#x27;destructor&#x27;, name: &#x27;Destructor&#x27;, length: 2 }
+];
+
+const TOTAL_FLEET_CELLS = SHIPS_CONFIG.reduce((acc, s) =&gt; acc + s.length, 0); // 17
+
+class Ship {
+  constructor(config) {
+    this.id = config.id;
+    this.name = config.name;
+    this.length = config.length;
+    this.row = null;
+    this.col = null;
+    this.orientation = &#x27;horizontal&#x27;; // &#x27;horizontal&#x27; | &#x27;vertical&#x27;
+    this.coordinates = [];
+    this.hits = 0;
+  }
+
+  place(row, col, orientation) {
+    this.row = row;
+    this.col = col;
+    this.orientation = orientation;
+    this.coordinates = [];
+    for (let i = 0; i &lt; this.length; i++) {
+      if (orientation === &#x27;horizontal&#x27;) {
+        this.coordinates.push({ row: row, col: col + i });
+      } else {
+        this.coordinates.push({ row: row + i, col: col });
+      }
+    }
+  }
+
+  isSunk() {
+    return this.hits &gt;= this.length;
+  }
+}
+
+class Board {
+  constructor(owner) {
+    this.owner = owner; // &#x27;jugador&#x27; | &#x27;cpu&#x27;
+    this.grid = Array.from({ length: GRID_SIZE }, () =&gt;
+      Array.from({ length: GRID_SIZE }, () =&gt; ({
+        ship: null,
+        shot: false,
+        hit: false
+      }))
+    );
+    this.ships = [];
+  }
+
+  reset() {
+    for (let r = 0; r &lt; GRID_SIZE; r++) {
+      for (let c = 0; c &lt; GRID_SIZE; c++) {
+        this.grid[r][c] = { ship: null, shot: false, hit: false };
+      }
+    }
+    this.ships = [];
+  }
+
+  canPlaceShip(shipId, length, row, col, orientation) {
+    for (let i = 0; i &lt; length; i++) {
+      const r = orientation === &#x27;horizontal&#x27; ? row : row + i;
+      const c = orientation === &#x27;horizontal&#x27; ? col + i : col;
+
+      // Fuera de límites
+      if (r &lt; 0 || r &gt;= GRID_SIZE || c &lt; 0 || c &gt;= GRID_SIZE) {
+        return false;
+      }
+      // Solapamiento
+      if (this.grid[r][c].ship !== null) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  placeShip(ship) {
+    if (!this.canPlaceShip(ship.id, ship.length, ship.row, ship.col, ship.orientation)) {
+      throw new Error(`Posición inválida para ${ship.name} en (${ship.row}, ${ship.col})`);
+    }
+
+    for (const coord of ship.coordinates) {
+      this.grid[coord.row][coord.col].ship = ship;
+    }
+    this.ships.push(ship);
+    return true;
+  }
+
+  receiveShot(row, col) {
+    if (row &lt; 0 || row &gt;= GRID_SIZE || col &lt; 0 || col &gt;= GRID_SIZE) {
+      throw new Error(`Coordenadas de disparo (${row}, ${col}) fuera de rango`);
+    }
+
+    const cell = this.grid[row][col];
+    if (cell.shot) {
+      return { alreadyShot: true, hit: false, sunk: false, ship: null };
+    }
+
+    cell.shot = true;
+    if (cell.ship !== null) {
+      cell.hit = true;
+      cell.ship.hits += 1;
+      const sunk = cell.ship.isSunk();
+      return {
+        alreadyShot: false,
+        hit: true,
+        sunk: sunk,
+        ship: cell.ship
+      };
+    } else {
+      return {
+        alreadyShot: false,
+        hit: false,
+        sunk: false,
+        ship: null
+      };
+    }
+  }
+
+  isAllSunk() {
+    return this.ships.length === SHIPS_CONFIG.length &amp;&amp; this.ships.every(s =&gt; s.isSunk());
+  }
+
+  totalHitsReceived() {
+    return this.ships.reduce((acc, s) =&gt; acc + s.hits, 0);
+  }
+
+  autoPlaceFleet() {
+    this.reset();
+    for (const cfg of SHIPS_CONFIG) {
+      const ship = new Ship(cfg);
+      let placed = false;
+      let attempts = 0;
+      while (!placed &amp;&amp; attempts &lt; 500) {
+        attempts++;
+        const orientation = Math.random() &lt; 0.5 ? &#x27;horizontal&#x27; : &#x27;vertical&#x27;;
+        const maxR = orientation === &#x27;horizontal&#x27; ? GRID_SIZE : GRID_SIZE - ship.length;
+        const maxC = orientation === &#x27;horizontal&#x27; ? GRID_SIZE - ship.length : GRID_SIZE;
+        const r = Math.floor(Math.random() * maxR);
+        const c = Math.floor(Math.random() * maxC);
+
+        if (this.canPlaceShip(ship.id, ship.length, r, c, orientation)) {
+          ship.place(r, c, orientation);
+          this.placeShip(ship);
+          placed = true;
+        }
+      }
+      if (!placed) {
+        throw new Error(`No se pudo colocar automáticamente el barco ${ship.name}`);
+      }
+    }
+  }
+}
+
+/**
+ * Inteligencia Artificial para el CPU
+ * Estrategia de Caza y Blanco (Hunt and Target) con paridad matemática.
+ */
+class NavalAI {
+  constructor() {
+    this.reset();
+  }
+
+  reset() {
+    this.targetQueue = []; // Cola de celdas adyacentes a impactos no hundidos
+    this.currentShipHits = []; // Coordenadas de impactos del barco actual bajo ataque
+  }
+
+  getNextShot(opponentBoard) {
+    // 1. Modo Blanco: si tenemos celdas candidatas prioritarias en la cola
+    while (this.targetQueue.length &gt; 0) {
+      const candidate = this.targetQueue.shift();
+      if (!opponentBoard.grid[candidate.row][candidate.col].shot) {
+        return candidate;
+      }
+    }
+
+    // 2. Modo Caza: búsqueda probabilística con paridad (celdas de tablero de ajedrez)
+    // Ya que el barco más chico mide 2 casillas, alcanza con disparar a (r + c) % 2 === 0
+    const parityCandidates = [];
+    const otherCandidates = [];
+
+    for (let r = 0; r &lt; GRID_SIZE; r++) {
+      for (let c = 0; c &lt; GRID_SIZE; c++) {
+        if (!opponentBoard.grid[r][c].shot) {
+          if ((r + c) % 2 === 0) {
+            parityCandidates.push({ row: r, col: c });
+          } else {
+            otherCandidates.push({ row: r, col: c });
+          }
+        }
+      }
+    }
+
+    const pool = parityCandidates.length &gt; 0 ? parityCandidates : otherCandidates;
+    const chosenIndex = Math.floor(Math.random() * pool.length);
+    return pool[chosenIndex];
+  }
+
+  recordShotResult(row, col, hit, sunk) {
+    if (hit) {
+      this.currentShipHits.push({ row, col });
+
+      if (sunk) {
+        // Barco destruido: limpiar objetivos del barco y volver a cazar
+        this.currentShipHits = [];
+        this.targetQueue = [];
+      } else {
+        // Agregar vecinos ortogonales válidos
+        const neighbors = [
+          { row: row - 1, col: col },
+          { row: row + 1, col: col },
+          { row: row, col: col - 1 },
+          { row: row, col: col + 1 }
+        ].filter(p =&gt; p.row &gt;= 0 &amp;&amp; p.row &lt; GRID_SIZE &amp;&amp; p.col &gt;= 0 &amp;&amp; p.col &lt; GRID_SIZE);
+
+        if (this.currentShipHits.length &gt;= 2) {
+          // Ya sabemos si el barco es horizontal o vertical
+          const isHorizontal = this.currentShipHits[0].row === this.currentShipHits[1].row;
+          const alignedNeighbors = neighbors.filter(n =&gt;
+            isHorizontal ? n.row === this.currentShipHits[0].row : n.col === this.currentShipHits[0].col
+          );
+          // Poner los alineados al frente de la cola
+          this.targetQueue.unshift(...alignedNeighbors);
+        } else {
+          this.targetQueue.push(...neighbors);
+        }
+      }
+    }
+  }
+}
+
+/**
+ * Gestor de la partida (GameManager)
+ */
+class NavalGame {
+  constructor(traceRecorder) {
+    this.trace = traceRecorder;
+    this.playerBoard = new Board(&#x27;jugador&#x27;);
+    this.cpuBoard = new Board(&#x27;cpu&#x27;);
+    this.ai = new NavalAI();
+    this.phase = &#x27;placement&#x27;; // &#x27;placement&#x27; | &#x27;battle&#x27; | &#x27;game_over&#x27;
+    this.currentTurn = &#x27;jugador&#x27;;
+    this.turnNumber = 0;
+    this.winner = null;
+    this.stats = {
+      playerShots: 0,
+      playerHits: 0,
+      cpuShots: 0,
+      cpuHits: 0
+    };
+  }
+
+  newGame() {
+    this.trace.reset();
+    this.playerBoard.reset();
+    this.cpuBoard.reset();
+    this.ai.reset();
+    this.phase = &#x27;placement&#x27;;
+    this.currentTurn = &#x27;jugador&#x27;;
+    this.turnNumber = 0;
+    this.winner = null;
+    this.stats = {
+      playerShots: 0,
+      playerHits: 0,
+      cpuShots: 0,
+      cpuHits: 0
+    };
+
+    // La CPU siempre coloca su flota automáticamente
+    this.cpuBoard.autoPlaceFleet();
+    this.trace.recordFleet(&#x27;cpu&#x27;, this.cpuBoard.ships);
+  }
+
+  startBattle() {
+    if (this.playerBoard.ships.length !== SHIPS_CONFIG.length) {
+      throw new Error(&#x27;Debés colocar los 5 barcos antes de iniciar la batalla.&#x27;);
+    }
+    this.trace.recordFleet(&#x27;jugador&#x27;, this.playerBoard.ships);
+    this.phase = &#x27;battle&#x27;;
+    this.currentTurn = &#x27;jugador&#x27;;
+    this.turnNumber = 0;
+  }
+
+  firePlayerShot(row, col) {
+    if (this.phase !== &#x27;battle&#x27;) {
+      throw new Error(&#x27;La partida no está en fase de batalla.&#x27;);
+    }
+    if (this.currentTurn !== &#x27;jugador&#x27;) {
+      throw new Error(&#x27;No es el turno del jugador.&#x27;);
+    }
+
+    const shotResult = this.cpuBoard.receiveShot(row, col);
+    if (shotResult.alreadyShot) {
+      return { valid: false, message: &#x27;Casilla ya atacada previamente.&#x27; };
+    }
+
+    this.stats.playerShots++;
+    if (shotResult.hit) this.stats.playerHits++;
+
+    this.trace.recordShot(
+      this.turnNumber,
+      &#x27;jugador&#x27;,
+      &#x27;cpu&#x27;,
+      row,
+      col,
+      shotResult.hit,
+      shotResult.sunk,
+      shotResult.sunk ? shotResult.ship.id : &#x27;ninguno&#x27;
+    );
+
+    this.turnNumber++;
+
+    if (this.cpuBoard.isAllSunk()) {
+      this.endGame(&#x27;jugador&#x27;);
+      return {
+        valid: true,
+        hit: shotResult.hit,
+        sunk: shotResult.sunk,
+        ship: shotResult.ship,
+        gameOver: true,
+        winner: &#x27;jugador&#x27;
+      };
+    }
+
+    // Pasa turno a la CPU
+    this.currentTurn = &#x27;cpu&#x27;;
+    return {
+      valid: true,
+      hit: shotResult.hit,
+      sunk: shotResult.sunk,
+      ship: shotResult.ship,
+      gameOver: false
+    };
+  }
+
+  executeCpuTurn() {
+    if (this.phase !== &#x27;battle&#x27; || this.currentTurn !== &#x27;cpu&#x27;) {
+      return null;
+    }
+
+    const shotCoords = this.ai.getNextShot(this.playerBoard);
+    const shotResult = this.playerBoard.receiveShot(shotCoords.row, shotCoords.col);
+
+    this.stats.cpuShots++;
+    if (shotResult.hit) this.stats.cpuHits++;
+
+    this.ai.recordShotResult(shotCoords.row, shotCoords.col, shotResult.hit, shotResult.sunk);
+
+    this.trace.recordShot(
+      this.turnNumber,
+      &#x27;cpu&#x27;,
+      &#x27;jugador&#x27;,
+      shotCoords.row,
+      shotCoords.col,
+      shotResult.hit,
+      shotResult.sunk,
+      shotResult.sunk ? shotResult.ship.id : &#x27;ninguno&#x27;
+    );
+
+    this.turnNumber++;
+
+    if (this.playerBoard.isAllSunk()) {
+      this.endGame(&#x27;cpu&#x27;);
+      return {
+        coords: shotCoords,
+        hit: shotResult.hit,
+        sunk: shotResult.sunk,
+        ship: shotResult.ship,
+        gameOver: true,
+        winner: &#x27;cpu&#x27;
+      };
+    }
+
+    this.currentTurn = &#x27;jugador&#x27;;
+    return {
+      coords: shotCoords,
+      hit: shotResult.hit,
+      sunk: shotResult.sunk,
+      ship: shotResult.ship,
+      gameOver: false
+    };
+  }
+
+  endGame(winner) {
+    this.phase = &#x27;game_over&#x27;;
+    this.winner = winner;
+    const loser = winner === &#x27;jugador&#x27; ? &#x27;cpu&#x27; : &#x27;jugador&#x27;;
+    const hitsWinner = winner === &#x27;jugador&#x27; ? this.stats.playerHits : this.stats.cpuHits;
+    const hitsLoser = winner === &#x27;jugador&#x27; ? this.stats.cpuHits : this.stats.playerHits;
+
+    this.trace.recordGameOver(winner, loser, hitsWinner, hitsLoser);
+  }
+}
+
+// Exportable para Node y Browser
+if (typeof module !== &#x27;undefined&#x27; &amp;&amp; module.exports) {
+  module.exports = {
+    GRID_SIZE,
+    SHIPS_CONFIG,
+    TOTAL_FLEET_CELLS,
+    Ship,
+    Board,
+    NavalAI,
+    NavalGame
+  };
+} else {
+  window.GRID_SIZE = GRID_SIZE;
+  window.SHIPS_CONFIG = SHIPS_CONFIG;
+  window.TOTAL_FLEET_CELLS = TOTAL_FLEET_CELLS;
+  window.Ship = Ship;
+  window.Board = Board;
+  window.NavalAI = NavalAI;
+  window.NavalGame = NavalGame;
+}</code></pre>
+<pre class="archivo" data-lenguaje="js/ui.js"><code>/**
+ * ui.js - Interfaz de Usuario y Controlador de Eventos de Batalla Naval
+ */
+
+document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
+  const trace = new TraceRecorder();
+  const game = new NavalGame(trace);
+
+  // Elementos DOM
+  const playerGridEl = document.getElementById(&#x27;playerGrid&#x27;);
+  const enemyGridEl = document.getElementById(&#x27;enemyGrid&#x27;);
+  const statusIndicator = document.getElementById(&#x27;statusIndicator&#x27;);
+  const statusTitle = document.getElementById(&#x27;statusTitle&#x27;);
+  const statusSubtitle = document.getElementById(&#x27;statusSubtitle&#x27;);
+  const metricTurns = document.getElementById(&#x27;metricTurns&#x27;);
+  const metricHits = document.getElementById(&#x27;metricHits&#x27;);
+  const metricAccuracy = document.getElementById(&#x27;metricAccuracy&#x27;);
+  const combatLog = document.getElementById(&#x27;combatLog&#x27;);
+
+  // Herramientas de colocación
+  const placementTools = document.getElementById(&#x27;placementTools&#x27;);
+  const shipsDock = document.getElementById(&#x27;shipsDock&#x27;);
+  const btnRotate = document.getElementById(&#x27;btnRotate&#x27;);
+  const btnAutoPlace = document.getElementById(&#x27;btnAutoPlace&#x27;);
+  const btnClearPlacement = document.getElementById(&#x27;btnClearPlacement&#x27;);
+  const btnStartBattle = document.getElementById(&#x27;btnStartBattle&#x27;);
+  const orientationBadge = document.getElementById(&#x27;orientationBadge&#x27;);
+
+  // Rastreador de barcos
+  const playerRoster = document.getElementById(&#x27;playerRoster&#x27;);
+  const cpuRoster = document.getElementById(&#x27;cpuRoster&#x27;);
+
+  // Modales
+  const auditModal = document.getElementById(&#x27;auditModal&#x27;);
+  const gameOverModal = document.getElementById(&#x27;gameOverModal&#x27;);
+  const btnOpenAudit = document.getElementById(&#x27;btnOpenAudit&#x27;);
+  const btnCloseAudit = document.getElementById(&#x27;btnCloseAudit&#x27;);
+  const btnCloseGameOver = document.getElementById(&#x27;btnCloseGameOver&#x27;);
+  const btnDownloadJson = document.getElementById(&#x27;btnDownloadJson&#x27;);
+  const btnCopyJson = document.getElementById(&#x27;btnCopyJson&#x27;);
+  const btnNewGame = document.getElementById(&#x27;btnNewGame&#x27;);
+  const btnRestart = document.getElementById(&#x27;btnRestart&#x27;);
+  const btnToggleSound = document.getElementById(&#x27;btnToggleSound&#x27;);
+  const btnVerifyFromGameOver = document.getElementById(&#x27;btnVerifyFromGameOver&#x27;);
+
+  // Tabs del modal de auditoría
+  const tabBtns = document.querySelectorAll(&#x27;.tab-btn&#x27;);
+  const tabContents = document.querySelectorAll(&#x27;.tab-content&#x27;);
+  const rulesListEl = document.getElementById(&#x27;rulesList&#x27;);
+  const jsonViewerEl = document.getElementById(&#x27;jsonViewer&#x27;);
+
+  // Estado local de UI para fase de colocación
+  let currentPlacementOrientation = &#x27;horizontal&#x27;; // &#x27;horizontal&#x27; | &#x27;vertical&#x27;
+  let selectedShipConfig = null;
+  let playerPlacedShips = [];
+
+  const ROW_LABELS = [&#x27;A&#x27;, &#x27;B&#x27;, &#x27;C&#x27;, &#x27;D&#x27;, &#x27;E&#x27;, &#x27;F&#x27;, &#x27;G&#x27;, &#x27;H&#x27;, &#x27;I&#x27;, &#x27;J&#x27;];
+
+  // Inicializar
+  initGame();
+
+  function initGame() {
+    game.newGame();
+    playerPlacedShips = [];
+    selectedShipConfig = SHIPS_CONFIG[0];
+    currentPlacementOrientation = &#x27;horizontal&#x27;;
+
+    renderEmptyGrid(playerGridEl, &#x27;player&#x27;);
+    renderEmptyGrid(enemyGridEl, &#x27;enemy&#x27;);
+    renderDock();
+    renderRosters();
+    updateHUD();
+    updateStatus(&#x27;Fase de Despliegue&#x27;, &#x27;Ubicá tus 5 buques en el tablero o pulsá &quot;Auto-Desplegar&quot;&#x27;, &#x27;waiting&#x27;);
+    clearCombatLog();
+    addLogEntry(&#x27;Sistema listo. Desplegá tu flota de combate para iniciar las operaciones.&#x27;, &#x27;sunk-event&#x27;);
+
+    placementTools.style.display = &#x27;flex&#x27;;
+    btnStartBattle.disabled = true;
+  }
+
+  // Renderizar Grilla con etiquetas A-J y 1-10
+  function renderEmptyGrid(tableEl, type) {
+    tableEl.innerHTML = &#x27;&#x27;;
+
+    // Fila de encabezado numérico (1-10)
+    const headerRow = document.createElement(&#x27;tr&#x27;);
+    const cornerCell = document.createElement(&#x27;th&#x27;);
+    cornerCell.className = &#x27;grid-label&#x27;;
+    headerRow.appendChild(cornerCell);
+
+    for (let c = 1; c &lt;= GRID_SIZE; c++) {
+      const th = document.createElement(&#x27;th&#x27;);
+      th.className = &#x27;grid-label&#x27;;
+      th.textContent = c;
+      headerRow.appendChild(th);
+    }
+    tableEl.appendChild(headerRow);
+
+    // Filas A-J con casillas
+    for (let r = 0; r &lt; GRID_SIZE; r++) {
+      const tr = document.createElement(&#x27;tr&#x27;);
+      const rowLabel = document.createElement(&#x27;th&#x27;);
+      rowLabel.className = &#x27;grid-label-row&#x27;;
+      rowLabel.textContent = ROW_LABELS[r];
+      tr.appendChild(rowLabel);
+
+      for (let c = 0; c &lt; GRID_SIZE; c++) {
+        const td = document.createElement(&#x27;td&#x27;);
+        td.className = &#x27;grid-cell&#x27;;
+        td.dataset.row = r;
+        td.dataset.col = c;
+        td.dataset.grid = type;
+
+        if (type === &#x27;player&#x27;) {
+          td.addEventListener(&#x27;mouseenter&#x27;, handlePlayerCellHover);
+          td.addEventListener(&#x27;mouseleave&#x27;, handlePlayerCellLeave);
+          td.addEventListener(&#x27;click&#x27;, handlePlayerCellClick);
+        } else {
+          td.addEventListener(&#x27;click&#x27;, handleEnemyCellClick);
+        }
+
+        tr.appendChild(td);
+      }
+      tableEl.appendChild(tr);
+    }
+  }
+
+  // Renderizar el Dock de selección de barcos para colocar
+  function renderDock() {
+    shipsDock.innerHTML = &#x27;&#x27;;
+    const placedIds = playerPlacedShips.map(s =&gt; s.id);
+
+    SHIPS_CONFIG.forEach(cfg =&gt; {
+      const isPlaced = placedIds.includes(cfg.id);
+      const isSelected = selectedShipConfig &amp;&amp; selectedShipConfig.id === cfg.id;
+
+      const item = document.createElement(&#x27;div&#x27;);
+      item.className = `ship-dock-item ${isPlaced ? &#x27;placed&#x27; : &#x27;&#x27;} ${isSelected ? &#x27;selected&#x27; : &#x27;&#x27;}`;
+      item.dataset.shipId = cfg.id;
+
+      const nameRow = document.createElement(&#x27;div&#x27;);
+      nameRow.className = &#x27;ship-dock-name&#x27;;
+      nameRow.innerHTML = `${cfg.name} &lt;span&gt;${cfg.length}&lt;/span&gt;`;
+      item.appendChild(nameRow);
+
+      const blocks = document.createElement(&#x27;div&#x27;);
+      blocks.className = &#x27;ship-preview-blocks&#x27;;
+      for (let i = 0; i &lt; cfg.length; i++) {
+        const b = document.createElement(&#x27;div&#x27;);
+        b.className = &#x27;preview-block&#x27;;
+        blocks.appendChild(b);
+      }
+      item.appendChild(blocks);
+
+      if (!isPlaced) {
+        item.addEventListener(&#x27;click&#x27;, () =&gt; {
+          selectedShipConfig = cfg;
+          renderDock();
+        });
+      }
+
+      shipsDock.appendChild(item);
+    });
+
+    orientationBadge.textContent = currentPlacementOrientation === &#x27;horizontal&#x27; ? &#x27;HORIZONTAL&#x27; : &#x27;VERTICAL&#x27;;
+  }
+
+  // Manejo de eventos de colocación en el tablero propio
+  function handlePlayerCellHover(e) {
+    if (game.phase !== &#x27;placement&#x27; || !selectedShipConfig) return;
+    const row = parseInt(e.target.dataset.row, 10);
+    const col = parseInt(e.target.dataset.col, 10);
+
+    clearPlacementHover();
+    const canPlace = game.playerBoard.canPlaceShip(
+      selectedShipConfig.id,
+      selectedShipConfig.length,
+      row,
+      col,
+      currentPlacementOrientation
+    );
+
+    for (let i = 0; i &lt; selectedShipConfig.length; i++) {
+      const r = currentPlacementOrientation === &#x27;horizontal&#x27; ? row : row + i;
+      const c = currentPlacementOrientation === &#x27;horizontal&#x27; ? col + i : col;
+      if (r &lt; GRID_SIZE &amp;&amp; c &lt; GRID_SIZE) {
+        const cell = playerGridEl.querySelector(`[data-row=&quot;${r}&quot;][data-col=&quot;${c}&quot;]`);
+        if (cell) {
+          cell.classList.add(canPlace ? &#x27;placement-valid&#x27; : &#x27;placement-invalid&#x27;);
+        }
+      }
+    }
+  }
+
+  function handlePlayerCellLeave() {
+    clearPlacementHover();
+  }
+
+  function clearPlacementHover() {
+    playerGridEl.querySelectorAll(&#x27;.placement-valid, .placement-invalid&#x27;).forEach(el =&gt; {
+      el.classList.remove(&#x27;placement-valid&#x27;, &#x27;placement-invalid&#x27;);
+    });
+  }
+
+  function handlePlayerCellClick(e) {
+    if (game.phase !== &#x27;placement&#x27; || !selectedShipConfig) return;
+    const row = parseInt(e.target.dataset.row, 10);
+    const col = parseInt(e.target.dataset.col, 10);
+
+    if (game.playerBoard.canPlaceShip(selectedShipConfig.id, selectedShipConfig.length, row, col, currentPlacementOrientation)) {
+      const ship = new Ship(selectedShipConfig);
+      ship.place(row, col, currentPlacementOrientation);
+      game.playerBoard.placeShip(ship);
+      playerPlacedShips.push(ship);
+
+      window.soundFX.playSonarPing();
+      renderPlayerShips();
+
+      // Seleccionar siguiente barco no colocado
+      const placedIds = playerPlacedShips.map(s =&gt; s.id);
+      selectedShipConfig = SHIPS_CONFIG.find(c =&gt; !placedIds.includes(c.id)) || null;
+      renderDock();
+
+      if (playerPlacedShips.length === SHIPS_CONFIG.length) {
+        btnStartBattle.disabled = false;
+        updateStatus(&#x27;Flota Completa&#x27;, &#x27;Pulsá &quot;Iniciar Batalla&quot; para trabar combate.&#x27;, &#x27;waiting&#x27;);
+      }
+    } else {
+      window.soundFX.playMiss();
+    }
+  }
+
+  function renderPlayerShips() {
+    // Limpiar celdas previas de barco
+    playerGridEl.querySelectorAll(&#x27;.grid-cell&#x27;).forEach(c =&gt; c.classList.remove(&#x27;ship-present&#x27;));
+    for (const ship of game.playerBoard.ships) {
+      for (const coord of ship.coordinates) {
+        const cell = playerGridEl.querySelector(`[data-row=&quot;${coord.row}&quot;][data-col=&quot;${coord.col}&quot;]`);
+        if (cell) cell.classList.add(&#x27;ship-present&#x27;);
+      }
+    }
+  }
+
+  // Rotar orientación
+  btnRotate.addEventListener(&#x27;click&#x27;, toggleOrientation);
+  window.addEventListener(&#x27;keydown&#x27;, (e) =&gt; {
+    if (e.key === &#x27;r&#x27; || e.key === &#x27;R&#x27;) {
+      toggleOrientation();
+    }
+  });
+
+  function toggleOrientation() {
+    currentPlacementOrientation = currentPlacementOrientation === &#x27;horizontal&#x27; ? &#x27;vertical&#x27; : &#x27;horizontal&#x27;;
+    orientationBadge.textContent = currentPlacementOrientation === &#x27;horizontal&#x27; ? &#x27;HORIZONTAL&#x27; : &#x27;VERTICAL&#x27;;
+    window.soundFX.playSonarPing();
+  }
+
+  // Auto-despliegue
+  btnAutoPlace.addEventListener(&#x27;click&#x27;, () =&gt; {
+    game.playerBoard.autoPlaceFleet();
+    playerPlacedShips = [...game.playerBoard.ships];
+    selectedShipConfig = null;
+    renderPlayerShips();
+    renderDock();
+    btnStartBattle.disabled = false;
+    window.soundFX.playSonarPing();
+    updateStatus(&#x27;Flota Desplegada Automáticamente&#x27;, &#x27;Todos los buques en posición. Pulsá &quot;Iniciar Batalla&quot;&#x27;, &#x27;waiting&#x27;);
+  });
+
+  // Limpiar colocación
+  btnClearPlacement.addEventListener(&#x27;click&#x27;, () =&gt; {
+    game.playerBoard.reset();
+    playerPlacedShips = [];
+    selectedShipConfig = SHIPS_CONFIG[0];
+    renderPlayerShips();
+    renderDock();
+    btnStartBattle.disabled = true;
+    updateStatus(&#x27;Tablero Limpio&#x27;, &#x27;Seleccioná un barco y colocalo en la cuadrícula.&#x27;, &#x27;waiting&#x27;);
+  });
+
+  // Iniciar Batalla
+  btnStartBattle.addEventListener(&#x27;click&#x27;, () =&gt; {
+    try {
+      game.startBattle();
+      placementTools.style.display = &#x27;none&#x27;;
+      document.querySelector(&#x27;.enemy-card&#x27;).classList.add(&#x27;active-target&#x27;);
+      window.soundFX.playSonarPing();
+      updateStatus(&#x27;¡Combate Iniciado!&#x27;, &#x27;Tu turno: hacé clic en las coordenadas del radar enemigo.&#x27;, &#x27;player&#x27;);
+      addLogEntry(&#x27;¡Bafles abiertos! Batalla iniciada. Fuego a discreción.&#x27;, &#x27;sunk-event&#x27;);
+      updateHUD();
+      renderRosters();
+    } catch (err) {
+      alert(err.message);
+    }
+  });
+
+  // Disparo del Jugador
+  function handleEnemyCellClick(e) {
+    if (game.phase !== &#x27;battle&#x27;) return;
+    if (game.currentTurn !== &#x27;jugador&#x27;) return;
+
+    const row = parseInt(e.target.dataset.row, 10);
+    const col = parseInt(e.target.dataset.col, 10);
+    const cellEl = e.target;
+
+    if (cellEl.classList.contains(&#x27;shot&#x27;)) return;
+
+    window.soundFX.playShot();
+    const result = game.firePlayerShot(row, col);
+    if (!result.valid) return;
+
+    // Pintar celda
+    cellEl.classList.add(&#x27;shot&#x27;);
+    const coordName = `${ROW_LABELS[row]}${col + 1}`;
+
+    if (result.hit) {
+      cellEl.classList.add(&#x27;hit&#x27;);
+      if (result.sunk) {
+        window.soundFX.playSunk();
+        markShipAsSunkOnGrid(enemyGridEl, result.ship);
+        addLogEntry(`[T-${game.turnNumber - 1}] ¡HUNDIDO! Has destruido el ${result.ship.name} enemigo en ${coordName}!`, &#x27;sunk-event&#x27;);
+      } else {
+        window.soundFX.playHit();
+        addLogEntry(`[T-${game.turnNumber - 1}] Jugador disparó a ${coordName}: ¡IMPACTO!`, &#x27;player-shot&#x27;);
+      }
+    } else {
+      cellEl.classList.add(&#x27;miss&#x27;);
+      window.soundFX.playMiss();
+      addLogEntry(`[T-${game.turnNumber - 1}] Jugador disparó a ${coordName}: Agua.`, &#x27;player-shot&#x27;);
+    }
+
+    updateHUD();
+    renderRosters();
+
+    if (result.gameOver) {
+      handleGameOver(result.winner);
+      return;
+    }
+
+    // Turno de la CPU
+    updateStatus(&#x27;Turno Enemigo&#x27;, &#x27;El comandante enemigo está calculando vector de ataque...&#x27;, &#x27;cpu&#x27;);
+    setTimeout(() =&gt; {
+      runCpuTurn();
+    }, 650);
+  }
+
+  // Turno de la CPU
+  function runCpuTurn() {
+    if (game.phase !== &#x27;battle&#x27; || game.currentTurn !== &#x27;cpu&#x27;) return;
+
+    window.soundFX.playShot();
+    const cpuResult = game.executeCpuTurn();
+    if (!cpuResult) return;
+
+    const { row, col } = cpuResult.coords;
+    const playerCell = playerGridEl.querySelector(`[data-row=&quot;${row}&quot;][data-col=&quot;${col}&quot;]`);
+    const coordName = `${ROW_LABELS[row]}${col + 1}`;
+
+    playerCell.classList.add(&#x27;shot&#x27;);
+
+    if (cpuResult.hit) {
+      playerCell.classList.add(&#x27;hit&#x27;);
+      if (cpuResult.sunk) {
+        window.soundFX.playSunk();
+        markShipAsSunkOnGrid(playerGridEl, cpuResult.ship);
+        addLogEntry(`[T-${game.turnNumber - 1}] ¡ALERTA! El enemigo hundió nuestro ${cpuResult.ship.name}!`, &#x27;sunk-event&#x27;);
+      } else {
+        window.soundFX.playHit();
+        addLogEntry(`[T-${game.turnNumber - 1}] CPU disparó a ${coordName}: ¡Impacto en nuestro casco!`, &#x27;cpu-shot&#x27;);
+      }
+    } else {
+      playerCell.classList.add(&#x27;miss&#x27;);
+      window.soundFX.playMiss();
+      addLogEntry(`[T-${game.turnNumber - 1}] CPU disparó a ${coordName}: Agua.`, &#x27;cpu-shot&#x27;);
+    }
+
+    updateHUD();
+    renderRosters();
+
+    if (cpuResult.gameOver) {
+      handleGameOver(cpuResult.winner);
+      return;
+    }
+
+    updateStatus(&#x27;Tu Turno&#x27;, &#x27;Elegí una coordenada en el radar enemigo para abrir fuego.&#x27;, &#x27;player&#x27;);
+  }
+
+  function markShipAsSunkOnGrid(gridEl, ship) {
+    for (const coord of ship.coordinates) {
+      const cell = gridEl.querySelector(`[data-row=&quot;${coord.row}&quot;][data-col=&quot;${coord.col}&quot;]`);
+      if (cell) cell.classList.add(&#x27;sunk&#x27;);
+    }
+  }
+
+  // Fin de Juego
+  function handleGameOver(winner) {
+    const isPlayerWin = winner === &#x27;jugador&#x27;;
+    if (isPlayerWin) {
+      window.soundFX.playVictory();
+      updateStatus(&#x27;¡VICTORIA NAVAL!&#x27;, &#x27;Toda la flota enemiga ha sido destruida.&#x27;, &#x27;player&#x27;);
+      addLogEntry(&#x27;¡VICTORIA TOTAL! Todos los barcos hostiles han sido enviados al fondo del mar.&#x27;, &#x27;sunk-event&#x27;);
+    } else {
+      window.soundFX.playDefeat();
+      updateStatus(&#x27;DERROTA NAVAL&#x27;, &#x27;Nuestra flota ha sido completamente aniquilada.&#x27;, &#x27;cpu&#x27;);
+      addLogEntry(&#x27;DERROTA: Hemos perdido todos nuestros navíos. Fin de las operaciones.&#x27;, &#x27;sunk-event&#x27;);
+    }
+
+    document.getElementById(&#x27;gameOverTitle&#x27;).textContent = isPlayerWin ? &#x27;¡VICTORIA NAVAL!&#x27; : &#x27;FLOTA HUNDIDA&#x27;;
+    document.getElementById(&#x27;gameOverTitle&#x27;).className = `gameover-title ${isPlayerWin ? &#x27;win&#x27; : &#x27;loss&#x27;}`;
+    document.getElementById(&#x27;goTurns&#x27;).textContent = game.turnNumber;
+    document.getElementById(&#x27;goAccuracy&#x27;).textContent = `${calcAccuracy(game.stats.playerHits, game.stats.playerShots)}%`;
+    document.getElementById(&#x27;goWinner&#x27;).textContent = isPlayerWin ? &#x27;JUGADOR&#x27; : &#x27;CPU&#x27;;
+
+    gameOverModal.classList.add(&#x27;open&#x27;);
+  }
+
+  // HUD y Métricas
+  function updateHUD() {
+    metricTurns.textContent = game.turnNumber;
+    metricHits.textContent = `${game.stats.playerHits} / 17`;
+    metricAccuracy.textContent = `${calcAccuracy(game.stats.playerHits, game.stats.playerShots)}%`;
+  }
+
+  function calcAccuracy(hits, shots) {
+    if (!shots || shots === 0) return 0;
+    return Math.round((hits / shots) * 100);
+  }
+
+  function updateStatus(title, sub, type) {
+    statusTitle.textContent = title;
+    statusSubtitle.textContent = sub;
+    statusIndicator.className = &#x27;status-indicator&#x27;;
+    if (type === &#x27;waiting&#x27;) statusIndicator.classList.add(&#x27;waiting&#x27;);
+    else if (type === &#x27;cpu&#x27;) statusIndicator.classList.add(&#x27;cpu&#x27;);
+  }
+
+  // Rosters de buques
+  function renderRosters() {
+    renderRosterList(playerRoster, game.playerBoard.ships, &#x27;jugador&#x27;);
+    renderRosterList(cpuRoster, game.cpuBoard.ships, &#x27;cpu&#x27;);
+  }
+
+  function renderRosterList(container, ships, owner) {
+    container.innerHTML = &#x27;&#x27;;
+    const configToDisplay = SHIPS_CONFIG;
+
+    configToDisplay.forEach(cfg =&gt; {
+      const ship = ships.find(s =&gt; s.id === cfg.id);
+      const isSunk = ship ? ship.isSunk() : false;
+      const hits = ship ? ship.hits : 0;
+
+      const item = document.createElement(&#x27;div&#x27;);
+      item.className = `roster-item ${isSunk ? &#x27;sunk&#x27; : &#x27;&#x27;}`;
+
+      const nameSpan = document.createElement(&#x27;span&#x27;);
+      nameSpan.textContent = cfg.name;
+      item.appendChild(nameSpan);
+
+      const blocks = document.createElement(&#x27;div&#x27;);
+      blocks.className = &#x27;roster-blocks&#x27;;
+      for (let i = 0; i &lt; cfg.length; i++) {
+        const b = document.createElement(&#x27;div&#x27;);
+        b.className = `roster-block ${i &lt; hits ? &#x27;hit&#x27; : &#x27;&#x27;}`;
+        blocks.appendChild(b);
+      }
+      item.appendChild(blocks);
+      container.appendChild(item);
+    });
+  }
+
+  // Bitácora de combate
+  function clearCombatLog() {
+    combatLog.innerHTML = &#x27;&#x27;;
+  }
+
+  function addLogEntry(msg, type = &#x27;&#x27;) {
+    const entry = document.createElement(&#x27;div&#x27;);
+    entry.className = `log-entry ${type}`;
+    entry.textContent = msg;
+    combatLog.appendChild(entry);
+    combatLog.scrollTop = combatLog.scrollHeight;
+  }
+
+  // Modal de Auditoría y Verificación
+  btnOpenAudit.addEventListener(&#x27;click&#x27;, openAuditModal);
+  btnCloseAudit.addEventListener(&#x27;click&#x27;, () =&gt; auditModal.classList.remove(&#x27;open&#x27;));
+  btnVerifyFromGameOver.addEventListener(&#x27;click&#x27;, () =&gt; {
+    gameOverModal.classList.remove(&#x27;open&#x27;);
+    openAuditModal();
+  });
+
+  function openAuditModal() {
+    renderAuditData();
+    auditModal.classList.add(&#x27;open&#x27;);
+  }
+
+  function renderAuditData() {
+    // 1. Evaluar las 11 medidas formalmente
+    const rules = trace.evaluateRules();
+    rulesListEl.innerHTML = &#x27;&#x27;;
+
+    rules.forEach(r =&gt; {
+      const item = document.createElement(&#x27;div&#x27;);
+      item.className = `rule-item ${r.passed ? &#x27;passed&#x27; : &#x27;failed&#x27;}`;
+
+      const header = document.createElement(&#x27;div&#x27;);
+      header.className = &#x27;rule-header&#x27;;
+
+      const left = document.createElement(&#x27;div&#x27;);
+      left.innerHTML = `&lt;div class=&quot;rule-title&quot;&gt;${r.name}&lt;/div&gt;&lt;div class=&quot;rule-id&quot;&gt;${r.id}&lt;/div&gt;`;
+
+      const badge = document.createElement(&#x27;div&#x27;);
+      badge.className = `rule-status ${r.passed ? &#x27;green&#x27; : &#x27;red&#x27;}`;
+      badge.textContent = r.passed ? &#x27;VERDE ✓&#x27; : `ROJO ✗ (${r.value})`;
+
+      header.appendChild(left);
+      header.appendChild(badge);
+      item.appendChild(header);
+
+      const desc = document.createElement(&#x27;div&#x27;);
+      desc.className = &#x27;rule-desc&#x27;;
+      desc.textContent = r.reason;
+      item.appendChild(desc);
+
+      if (!r.passed &amp;&amp; r.witnesses.length &gt; 0) {
+        const witnessEl = document.createElement(&#x27;div&#x27;);
+        witnessEl.style.fontSize = &#x27;0.72rem&#x27;;
+        witnessEl.style.color = &#x27;#ff6b8b&#x27;;
+        witnessEl.style.fontFamily = &#x27;monospace&#x27;;
+        witnessEl.textContent = `Testigo del defecto: ${JSON.stringify(r.witnesses[0])}`;
+        item.appendChild(witnessEl);
+      }
+
+      rulesListEl.appendChild(item);
+    });
+
+    // 2. Traza JSON
+    jsonViewerEl.textContent = trace.toJSON(2);
+  }
+
+  // Tabs
+  tabBtns.forEach(btn =&gt; {
+    btn.addEventListener(&#x27;click&#x27;, () =&gt; {
+      tabBtns.forEach(b =&gt; b.classList.remove(&#x27;active&#x27;));
+      tabContents.forEach(c =&gt; c.classList.remove(&#x27;active&#x27;));
+      btn.classList.add(&#x27;active&#x27;);
+      const target = document.getElementById(btn.dataset.tab);
+      if (target) target.classList.add(&#x27;active&#x27;);
+    });
+  });
+
+  // Descarga y Copia de JSON
+  btnDownloadJson.addEventListener(&#x27;click&#x27;, () =&gt; {
+    trace.downloadJSON(&#x27;hechos_partida.json&#x27;);
+  });
+
+  btnCopyJson.addEventListener(&#x27;click&#x27;, () =&gt; {
+    navigator.clipboard.writeText(trace.toJSON(2)).then(() =&gt; {
+      btnCopyJson.textContent = &#x27;¡Copiado!&#x27;;
+      setTimeout(() =&gt; { btnCopyJson.textContent = &#x27;Copiar JSON&#x27;; }, 2000);
+    });
+  });
+
+  // Reiniciar / Nueva Partida
+  btnNewGame.addEventListener(&#x27;click&#x27;, () =&gt; {
+    if (confirm(&#x27;¿Reiniciar y comenzar una nueva partida?&#x27;)) {
+      initGame();
+    }
+  });
+
+  btnRestart.addEventListener(&#x27;click&#x27;, () =&gt; {
+    gameOverModal.classList.remove(&#x27;open&#x27;);
+    initGame();
+  });
+
+  btnCloseGameOver.addEventListener(&#x27;click&#x27;, () =&gt; {
+    gameOverModal.classList.remove(&#x27;open&#x27;);
+  });
+
+  // Mute Sonido
+  btnToggleSound.addEventListener(&#x27;click&#x27;, () =&gt; {
+    const isEnabled = window.soundFX.toggleSound();
+    btnToggleSound.textContent = isEnabled ? &#x27;🔊 Sonido&#x27; : &#x27;🔇 Mute&#x27;;
+  });
+});</code></pre>
+</details>
+<p>Recargá la página. Ahora se juega: colocá tus barcos (o usá el despliegue automático) y disparale a la computadora.</p>
+<p><strong>Si ves otra cosa.</strong> Si la página queda en blanco, abrí la consola del navegador (F12, pestaña Consola). Casi siempre es un archivo guardado con otro nombre o en otra carpeta: tienen que quedar <code>js/audio.js</code>, <code>js/trace.js</code>, <code>js/engine.js</code> y <code>js/ui.js</code>.</p>
+<p class="pregunta"><strong>Pensalo.</strong> El juego anda. ¿Eso quiere decir que cumple las reglas?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>No. Quiere decir que anda. Jugando una vez no sabés si un barco puede quedar fuera del tablero, si dos barcos se pueden pisar, si los turnos alternan siempre o si un «¡impacto!» tenía un barco abajo. Y si le pedís al mismo modelo que escribió el juego que también escriba los tests, los tests van a confirmar lo que el modelo ya creía.</p>
+</details>
+<h2 id="paso-4--que-el-juego-cuente-lo-que-pasó">Paso 4 · Que el juego cuente lo que pasó<a class="ancla" href="#paso-4--que-el-juego-cuente-lo-que-pasó" aria-label="Enlace a esta sección">#</a></h2>
+<p class="pregunta"><strong>Pensalo.</strong> Para juzgar un disparo después de la partida, ¿qué tendría que haber anotado el juego?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>El turno, quién tiró, a quién, en qué casilla, y si el juego lo dio por impacto. Para juzgar si ese impacto era verdad, también dónde estaba cada barco. Y para juzgar el final, quién ganó y con cuántos impactos.</p>
+</details>
+<p>Esa es la idea central de Oracle: <strong>el juego no se juzga a sí mismo, cuenta lo que pasó.</strong> El archivo <code>js/trace.js</code>, que ya pegaste, anota tres cosas en filas planas, sin opinar:</p>
+<div class="tabla"><table><thead><tr><th>Relación</th><th>Una fila por…</th><th>Campos</th></tr></thead><tbody><tr><td><code>celda_barco</code></td><td>cada casilla ocupada por un barco</td><td><code>id</code>, <code>jugador</code>, <code>barco_id</code>, <code>segmento_idx</code>, <code>fila</code>, <code>columna</code></td></tr><tr><td><code>tiro</code></td><td>cada disparo</td><td><code>turno</code>, <code>tirador</code>, <code>receptor</code>, <code>fila</code>, <code>columna</code>, <code>es_impacto</code>, <code>hundio_barco</code>, <code>barco_hundido</code></td></tr><tr><td><code>partida</code></td><td>el final</td><td><code>estado</code>, <code>ganador</code>, <code>perdedor</code>, <code>turno_final</code>, <code>total_tiros</code>, <code>impactos_ganador</code>, <code>impactos_perdedor</code></td></tr></tbody></table></div>
+<p>Al terminar una partida, el panel de auditoría del juego descarga esas filas como <code>hechos_partida.json</code>. Así se ve el primer tiro de una partida real:</p>
+<pre data-lenguaje="json"><code>{&quot;turno&quot;: 0, &quot;tirador&quot;: &quot;jugador&quot;, &quot;receptor&quot;: &quot;cpu&quot;, &quot;fila&quot;: 2, &quot;columna&quot;: 3, &quot;es_impacto&quot;: false, &quot;hundio_barco&quot;: false, &quot;barco_hundido&quot;: &quot;ninguno&quot;}</code></pre>
+<p><strong>Si trabajás con un modelo</strong>, pedíselo así: «agregá un registro que anote cada casilla de barco, cada tiro y el resultado final en filas planas, y que lo descargue como JSON». Y <strong>desconfiá</strong> si en vez de anotar lo que pasó, el registro anota conclusiones («partida válida: sí»): eso ya es opinión.</p>
+<h2 id="paso-5--la-primera-regla-empezando-por-el-caso-rojo">Paso 5 · La primera regla, empezando por el caso rojo<a class="ancla" href="#paso-5--la-primera-regla-empezando-por-el-caso-rojo" aria-label="Enlace a esta sección">#</a></h2>
+<p>La regla más simple: <strong>ningún barco fuera del tablero de 10 por 10.</strong></p>
+<p class="pregunta"><strong>Pensalo.</strong> Antes de escribir la regla: ¿qué partida tendría que ponerla roja?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Una con un barco en una casilla que no existe: por ejemplo, en la fila 10 (las filas van de 0 a 9). Escribir primero ese ejemplo te obliga a decir qué es un defecto antes de escribir cómo buscarlo.</p>
+</details>
+<p>En Oracle ese ejemplo se llama <strong>caso</strong>. Guardalo en <code>corpus/naval/</code>:</p>
+<pre class="archivo" data-lenguaje="corpus/naval/005-barco-fila-desbordada.caso"><code><span class="c-kw">caso</span> 005-barco-fila-desbordada:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barco fila desbordada&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Una celda <span class="c-kw">de</span> barco cae en fila 10.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 10, 4
+
+    leccion:
+        Una celda <span class="c-kw">de</span> barco cae en fila 10.</code></pre>
+<pre data-lenguaje="bash"><code>oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p>Rojo, y está bien: el caso reclama una regla que todavía no existe. Ahora sí, la regla. En Oracle se llama <strong>medida</strong>:</p>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno</span> naval.barcos_dentro_del_tablero:
     <span class="c-kw">de</span> celda_barco c
     <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;todas las celdas ocupadas por barcos deben ubicarse dentro de la cuadrícula de 10x10&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.&quot;</span></code></pre>
-<p>Línea por línea:</p>
-<ul><li><code>ninguno</code> dice qué clase de regla es: <strong>no tiene que haber ninguna</strong> fila que ofenda.</li><li><code>de celda_barco c</code> elige las filas a mirar: las casillas de barco, y a cada una la llama <code>c</code>.</li><li><code>donde …</code> dice cuáles ofenden: las que tienen una fila o columna fuera de 0 a 9.</li><li><code>umbral &lt;= 0</code> es cuántas se toleran: cero. <code>segun contrato</code> dice de dónde sale ese cero: de las reglas del juego, no de una intuición. <code>porque</code> lo defiende en palabras.</li><li><code>ambito universal</code> dice que la regla vale para cualquier partida.</li><li><code>alcance</code> dice <strong>lo que la regla no mira</strong>. Es obligatorio. Un verde que no dice qué dejó sin mirar se lee como «está todo bien», y eso es justo lo que queremos evitar.</li></ul>
-<h2 id="probar-la-regla-antes-de-confiar-en-ella">Probar la regla antes de confiar en ella<a class="ancla" href="#probar-la-regla-antes-de-confiar-en-ella" aria-label="Enlace a esta sección">#</a></h2>
-<p>Una regla nueva puede estar mal escrita y dar verde siempre. Por eso, <strong>antes</strong> de usarla, se prueba con dos ejemplos que vos armás: uno donde tiene que ponerse <strong>roja</strong> (un barco en la fila 10) y otro donde tiene que quedar <strong>verde</strong> (todos dentro). Esos ejemplos se llaman <strong>casos</strong> y viven en el <strong>corpus</strong>.</p>
-<p><em>Salida pendiente: el caso rojo y el caso verde del ejemplo, y lo que dice <code>oracle test</code> sobre ellos.</em></p>
-<h2 id="por-qué-dos-casos-no-alcanzan-la-mutación">Por qué dos casos no alcanzan: la mutación<a class="ancla" href="#por-qué-dos-casos-no-alcanzan-la-mutación" aria-label="Enlace a esta sección">#</a></h2>
-<p>Oracle no se conforma con que tus casos pasen. Debilita cada regla a propósito: afloja el umbral de 0 a 1, invierte una comparación, le quita el filtro. A cada versión debilitada la llama <strong>mutante</strong>. Si algún caso nota la diferencia, el mutante muere. Si ninguno la nota, esa parte de la regla no la está cuidando nadie.</p>
-<p>Esto no es teoría. El juego del ejemplo llegó con <strong>11 reglas y 2 casos</strong>. Medido el 2026-09-25, su <code>oracle test</code> salió <strong>rojo por mutación</strong>: la mayoría de los mutantes sobrevivían, porque dos casos no alcanzan para fijar once reglas. Un verde con dos casos habría sido otra vez el verde que no mide nada.</p>
-<p>La cuenta es simple: cada regla necesita al menos un caso que la ponga roja cerca del borde y uno verde, para que aflojarla o dejarla sin filtro se note.</p>
-<p><em>Salida pendiente: el <code>oracle test</code> del ejemplo con sus casos completos, en verde.</em></p>
-<h2 id="más-reglas-cada-una-con-su-idea">Más reglas, cada una con su idea<a class="ancla" href="#más-reglas-cada-una-con-su-idea" aria-label="Enlace a esta sección">#</a></h2>
-<p>Con la primera entendida, el resto son variaciones. Cada una enseña una pieza del lenguaje.</p>
-<p><strong>Turnos que alternan.</strong> Compara cada tiro con el siguiente. Se lee como lo pensarías:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> naval.alternancia_turnos:
+<p>Línea por línea: <code>ninguno</code> dice que <strong>no tiene que haber ninguna</strong> fila que ofenda; <code>de celda_barco c</code> elige qué mirar; <code>donde</code> dice cuáles ofenden; <code>umbral &lt;= 0</code> cuántas se toleran, <code>segun contrato</code> de dónde sale ese cero y <code>porque</code> lo defiende; <code>alcance</code> dice <strong>qué no mira</strong>.</p>
+<p class="pregunta"><strong>Pensalo.</strong> ¿Qué no está mirando esta regla?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Lo dice su <code>alcance</code>: no mira si dos barcos se pisan ni si un barco es una línea continua. Un verde de esta regla no promete eso. Por eso el <code>alcance</code> es obligatorio: un verde que no dice qué dejó sin mirar se lee como «está todo bien».</p>
+</details>
+<pre data-lenguaje="bash"><code>oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<h2 id="paso-6--un-caso-rojo-no-alcanza-la-mutación">Paso 6 · Un caso rojo no alcanza: la mutación<a class="ancla" href="#paso-6--un-caso-rojo-no-alcanza-la-mutación" aria-label="Enlace a esta sección">#</a></h2>
+<p>Todavía rojo, pero por otra razón: <strong>sobreviven mutantes</strong>. Oracle debilita tu regla a propósito (afloja el umbral, invierte una comparación, le quita el filtro) y se fija si tus casos lo notan. A cada versión debilitada la llama <strong>mutante</strong>.</p>
+<p class="pregunta"><strong>Pensalo.</strong> Si Oracle le quita el <code>donde</code> a la regla, pasa a contar todas las casillas. Tu único caso sigue saliendo rojo. ¿Qué caso haría falta para que se note?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Uno <strong>verde</strong>: una partida con todos los barcos dentro, que la regla sin filtro pondría roja. Y conviene que esté en el borde (fila 9), para que también se note si alguien corre el límite.</p>
+</details>
+<pre class="archivo" data-lenguaje="corpus/naval/006-barco-en-borde.caso"><code><span class="c-kw">caso</span> 006-barco-en-borde:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barco en borde&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        La celda <span class="c-kw">de</span> barco está en el borde válido.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
+
+    leccion:
+        La celda <span class="c-kw">de</span> barco está en el borde válido.</code></pre>
+<pre data-lenguaje="bash"><code>oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p>Quedan mutantes vivos. La regla tiene cuatro formas de ofender (fila menor que 0, fila mayor que 9, columna menor que 0, columna mayor que 9) y tu caso rojo sólo prueba una. Los otros tres casos rojos:</p>
+<pre class="archivo" data-lenguaje="corpus/naval/026-barco-columna-desbordada.caso"><code><span class="c-kw">caso</span> 026-barco-columna-desbordada:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barco columna desbordada&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Una celda <span class="c-kw">de</span> barco cae en columna 10.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 5, 10
+
+    leccion:
+        Una celda <span class="c-kw">de</span> barco cae en columna 10.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/027-barco-fila-negativa.caso"><code><span class="c-kw">caso</span> 027-barco-fila-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barco fila negativa&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Una celda <span class="c-kw">de</span> barco cae en fila negativa.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, -1, 5
+
+    leccion:
+        Una celda <span class="c-kw">de</span> barco cae en fila negativa.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/028-barco-columna-negativa.caso"><code><span class="c-kw">caso</span> 028-barco-columna-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barco columna negativa&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Una celda <span class="c-kw">de</span> barco cae en columna negativa.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 5, -1
+
+    leccion:
+        Una celda <span class="c-kw">de</span> barco cae en columna negativa.</code></pre>
+<pre data-lenguaje="bash"><code>oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p><strong>Verde, y ahora el verde significa algo</strong>: cada forma de debilitar la regla la nota algún caso.</p>
+<h2 id="paso-7--diez-reglas-más-y-la-trampa-de-los-pocos-casos">Paso 7 · Diez reglas más, y la trampa de los pocos casos<a class="ancla" href="#paso-7--diez-reglas-más-y-la-trampa-de-los-pocos-casos" aria-label="Enlace a esta sección">#</a></h2>
+<p>El juego tiene más reglas. Pegá las diez que faltan de una vez, cada una con su idea:</p>
+<details>
+<summary>Ver las diez medidas</summary>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno</span> naval.tiros_dentro_del_tablero:
+    <span class="c-kw">de</span> tiro t
+    <span class="c-kw">donde</span> t.fila &lt; 0 <span class="c-kw">o</span> t.fila &gt; 9 <span class="c-kw">o</span> t.columna &lt; 0 <span class="c-kw">o</span> t.columna &gt; 9
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el tablero reglamentario es de 10x10; cualquier coordenada con fila o columna fuera de [0, 9] es un tiro inválido&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;comprueba que las coordenadas de cada disparo estén en el rango [0, 9]. No comprueba si el casillero ya fue disparado previamente ni la validez del turno.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_sin_solapamiento.oracle"><code><span class="c-kw">medida</span> naval.barcos_sin_solapamiento:
+    <span class="c-kw">de</span> celda_barco c1
+    <span class="c-kw">unir</span> celda_barco c2
+    <span class="c-kw">donde</span> c1.jugador == c2.jugador <span class="c-kw">y</span> c1.id &lt; c2.id <span class="c-kw">y</span> c1.fila == c2.fila <span class="c-kw">y</span> c1.columna == c2.columna
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;dos casillas de barco del mismo jugador no pueden coincidir en la misma fila y columna&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta pares de celdas distintas del mismo jugador con id1 &lt; id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.flota_reglamentaria.oracle"><code><span class="c-kw">medida</span> naval.flota_reglamentaria:
+    <span class="c-kw">de</span> celda_barco c
+    <span class="c-kw">agrupar</span>:
+        clave jugador = c.jugador
+        agregado celdas = contar(1)
+    <span class="c-kw">donde</span> celdas != 17
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;la flota reglamentaria de cada jugador debe sumar exactamente 17 casillas (portaaviones 5 + acorazado 4 + crucero 3 + submarino 3 + destructor 2)&quot;</span>
+    <span class="c-kw">requiere</span> celda_barco
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.alternancia_turnos.oracle"><code><span class="c-kw">medida</span> naval.alternancia_turnos:
     <span class="c-kw">de</span> tiro t1
     <span class="c-kw">unir</span> tiro t2
     <span class="c-kw">donde</span> t2.turno == t1.turno + 1 <span class="c-kw">y</span> t1.tirador == t2.tirador
@@ -96,11 +3058,26 @@ oracle test</code></pre>
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo.&quot;</span></code></pre>
-<p><code>unir</code> junta cada tiro con cada otro tiro, y el <code>donde</code> se queda con los pares donde el mismo jugador tiró en dos turnos seguidos. <code>t1.turno + 1</code> se escribe así, como en cualquier lenguaje.</p>
-<p><strong>Barcos que no se pisan.</strong> Mismo recurso, sobre las casillas de barco: dos casillas distintas del mismo jugador en la misma coordenada son una ofensa. Está en <code>naval.barcos_sin_solapamiento</code>.</p>
-<p><strong>La flota completa.</strong> <code>naval.flota_reglamentaria</code> usa <code>agrupar</code> para contar las casillas de cada jugador y exige exactamente 17. Además dice <code>requiere celda_barco</code>: si el juego no mandó ninguna casilla, la regla no sale verde, sale <strong>sin evidencia</strong>. Cero barcos no es una flota correcta, es un registro roto.</p>
-<p><strong>Un impacto que era verdad.</strong> <code>naval.veracidad_impacto_positivo</code> usa <code>sin</code>: busca los tiros marcados como impacto <strong>sin</strong> ninguna casilla de barco del rival en ese lugar.</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> naval.veracidad_impacto_positivo:
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.turnos_sin_huecos.oracle"><code><span class="c-kw">medida</span> naval.turnos_sin_huecos:
+    <span class="c-kw">de</span> tiro t
+    <span class="c-kw">agrupar</span>:
+        agregado registrados = contar(1)
+        agregado ultimo = max(t.turno)
+    <span class="c-kw">donde</span> registrados != ultimo + 1
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;la secuencia de turnos debe ser continua, arrancando en 0 y avanzando de a 1 sin huecos ni saltos&quot;</span>
+    <span class="c-kw">requiere</span> tiro
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_sin_repeticion.oracle"><code><span class="c-kw">medida</span> naval.tiros_sin_repeticion:
+    <span class="c-kw">de</span> tiro t1
+    <span class="c-kw">unir</span> tiro t2
+    <span class="c-kw">donde</span> t1.tirador == t2.tirador <span class="c-kw">y</span> t1.turno &lt; t2.turno <span class="c-kw">y</span> t1.fila == t2.fila <span class="c-kw">y</span> t1.columna == t2.columna
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un jugador no puede disparar dos veces a la misma casilla en una partida&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.veracidad_impacto_positivo.oracle"><code><span class="c-kw">medida</span> naval.veracidad_impacto_positivo:
     <span class="c-kw">de</span> tiro t
     <span class="c-kw">sin</span> celda_barco c <span class="c-kw">donde</span> c.jugador == t.receptor <span class="c-kw">y</span> c.fila == t.fila <span class="c-kw">y</span> c.columna == t.columna
     <span class="c-kw">donde</span> t.es_impacto == true
@@ -108,27 +3085,649 @@ oracle test</code></pre>
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un disparo no puede declararse impacto si en esa casilla no había un segmento de barco rival&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido.&quot;</span></code></pre>
-<p>El ejemplo completo tiene once reglas: límites, solapamiento, flota, tiros dentro del tablero, tiros sin repetir, turnos que alternan, turnos sin huecos, impactos verdaderos (a favor y en contra), ganador legítimo y que nadie dispare después del final.</p>
-<h2 id="juzgar-una-partida-de-verdad">Juzgar una partida de verdad<a class="ancla" href="#juzgar-una-partida-de-verdad" aria-label="Enlace a esta sección">#</a></h2>
-<p>Las reglas ya están probadas. Ahora se juzga una partida real: jugás, el juego descarga el JSON y se lo pasás a Oracle.</p>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.veracidad_impacto_negativo.oracle"><code><span class="c-kw">medida</span> naval.veracidad_impacto_negativo:
+    <span class="c-kw">de</span> tiro t
+    <span class="c-kw">unir</span> celda_barco c
+    <span class="c-kw">donde</span> c.jugador == t.receptor <span class="c-kw">y</span> c.fila == t.fila <span class="c-kw">y</span> c.columna == t.columna <span class="c-kw">y</span> t.es_impacto == false
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un disparo en una casilla que contiene un barco no puede ser reportado como agua&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;cruza cada disparo contra las celdas de la flota rival y detecta impactos omitidos registrados falsamente como agua. No verifica la secuencia de turnos.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.ganador_legitimo.oracle"><code><span class="c-kw">ninguno</span> naval.ganador_legitimo:
+    <span class="c-kw">de</span> partida p
+    <span class="c-kw">donde</span> p.impactos_ganador != 17
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el ganador de la partida debe haber destruido la totalidad de las 17 casillas de la flota enemiga&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.fin_de_juego_sin_tiros_posteriores.oracle"><code><span class="c-kw">medida</span> naval.fin_de_juego_sin_tiros_posteriores:
+    <span class="c-kw">de</span> tiro t
+    <span class="c-kw">unir</span> partida p
+    <span class="c-kw">donde</span> t.turno &gt; p.turno_final
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;una vez finalizada la partida no se permiten más disparos&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara el turno de cada tiro contra el turno final registrado en el estado de la partida. No valida si la partida debió terminar antes.&quot;</span></code></pre>
+</details>
+<p>Tres para mirar con calma, porque cada una enseña algo del lenguaje:</p>
+<ul><li><code>naval.alternancia_turnos</code> compara cada tiro con el siguiente usando <code>unir</code>, y se escribe como lo pensás: <code>t2.turno == t1.turno + 1</code>.</li><li><code>naval.flota_reglamentaria</code> usa <code>agrupar</code> para contar las casillas de cada jugador y dice <code>requiere celda_barco</code>: si el juego no mandó ningún barco, la regla no sale verde, sale <strong>sin evidencia</strong>. Cero barcos no es una flota correcta, es un registro roto.</li><li><code>naval.veracidad_impacto_positivo</code> usa <code>sin</code>: busca los tiros marcados como impacto <strong>sin</strong> ningún barco del rival en esa casilla.</li></ul>
+<p>Con el juego original venían sólo dos casos, los dos de la regla de tiros:</p>
+<pre class="archivo" data-lenguaje="corpus/naval/001-tiro-fuera-de-tablero.caso"><code><span class="c-kw">caso</span> 001-tiro-fuera-de-tablero:
+    fecha: <span class="c-txt">&quot;2026-09-22&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Disparo con coordenada fuera del tablero de 10x10&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Un disparo reporta fila 10, fuera del tablero reglamentario.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, fila, columna
+            0, <span class="c-txt">&quot;jugador&quot;</span>, 10, 4
+    leccion:
+        Todo disparo debe acotarse estrictamente entre las filas 0 a 9 <span class="c-kw">y</span> columnas 0 a 9.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/002-tiro-valido.caso"><code><span class="c-kw">caso</span> 002-tiro-valido:
+    fecha: <span class="c-txt">&quot;2026-09-22&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Disparo válido dentro del tablero de 10x10&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Un disparo dentro del rango válido <span class="c-kw">no</span> debe generar alertas.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, fila, columna
+            0, <span class="c-txt">&quot;jugador&quot;</span>, 5, 5
+    leccion:
+        Las coordenadas entre 0 <span class="c-kw">y</span> 9 son aceptadas <span class="c-kw">sin</span> faltas.</code></pre>
+<p class="pregunta"><strong>Pensalo.</strong> Once reglas y siete casos, casi todos de dos reglas. ¿Qué tendría que decir <code>oracle test</code>?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Que la mayoría de las reglas no las prueba nadie. Una regla sin casos que puedan romperla es decoración: puede estar mal escrita y dar verde siempre, y nunca te vas a enterar.</p>
+</details>
+<pre data-lenguaje="bash"><code>oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p>Los casos que faltan: para cada regla, al menos uno que la ponga roja cerca del borde y uno verde.</p>
+<details>
+<summary>Ver los casos que faltan</summary>
+<pre class="archivo" data-lenguaje="corpus/naval/023-columna-desbordada.caso"><code><span class="c-kw">caso</span> 023-columna-desbordada:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;columna desbordada&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La columna 10 está fuera del tablero.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 5, 10, false
+
+    leccion:
+        La columna 10 está fuera del tablero.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/024-fila-negativa.caso"><code><span class="c-kw">caso</span> 024-fila-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;fila negativa&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La fila negativa está fuera del tablero.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, -1, 5, false
+
+    leccion:
+        La fila negativa está fuera del tablero.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/025-columna-negativa.caso"><code><span class="c-kw">caso</span> 025-columna-negativa:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;columna negativa&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La columna negativa está fuera del tablero.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 5, -1, false
+
+    leccion:
+        La columna negativa está fuera del tablero.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/007-barcos-superpuestos.caso"><code><span class="c-kw">caso</span> 007-barcos-superpuestos:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barcos superpuestos&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Dos barcos del mismo jugador comparten una casilla.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_sin_solapamiento
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
+            <span class="c-txt">&quot;b&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
+
+    leccion:
+        Dos barcos del mismo jugador comparten una casilla.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/008-barcos-separados.caso"><code><span class="c-kw">caso</span> 008-barcos-separados:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barcos separados&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Dos barcos del mismo jugador ocupan casillas distintas.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.barcos_sin_solapamiento
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
+            <span class="c-txt">&quot;b&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 5
+
+    leccion:
+        Dos barcos del mismo jugador ocupan casillas distintas.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/011-flota-de-dieciseis.caso"><code><span class="c-kw">caso</span> 011-flota-de-dieciseis:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;flota de dieciseis&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La flota registra 16 casillas <span class="c-kw">y</span> necesita 17.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.flota_reglamentaria
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b0&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 0
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 1
+            <span class="c-txt">&quot;b2&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 2
+            <span class="c-txt">&quot;b3&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 3
+            <span class="c-txt">&quot;b4&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 4
+            <span class="c-txt">&quot;b5&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 5
+            <span class="c-txt">&quot;b6&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 6
+            <span class="c-txt">&quot;b7&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 7
+            <span class="c-txt">&quot;b8&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 8
+            <span class="c-txt">&quot;b9&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
+            <span class="c-txt">&quot;b10&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 0
+            <span class="c-txt">&quot;b11&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 1
+            <span class="c-txt">&quot;b12&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 2
+            <span class="c-txt">&quot;b13&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 3
+            <span class="c-txt">&quot;b14&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 4
+            <span class="c-txt">&quot;b15&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 5
+
+    leccion:
+        La flota registra 16 casillas <span class="c-kw">y</span> necesita 17.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/012-flota-de-diecisiete.caso"><code><span class="c-kw">caso</span> 012-flota-de-diecisiete:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;flota de diecisiete&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        La flota registra exactamente 17 casillas.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.flota_reglamentaria
+    <span class="c-kw">evidencia</span>:
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;b0&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 0
+            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 1
+            <span class="c-txt">&quot;b2&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 2
+            <span class="c-txt">&quot;b3&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 3
+            <span class="c-txt">&quot;b4&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 4
+            <span class="c-txt">&quot;b5&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 5
+            <span class="c-txt">&quot;b6&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 6
+            <span class="c-txt">&quot;b7&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 7
+            <span class="c-txt">&quot;b8&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 8
+            <span class="c-txt">&quot;b9&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
+            <span class="c-txt">&quot;b10&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 0
+            <span class="c-txt">&quot;b11&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 1
+            <span class="c-txt">&quot;b12&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 2
+            <span class="c-txt">&quot;b13&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 3
+            <span class="c-txt">&quot;b14&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 4
+            <span class="c-txt">&quot;b15&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 5
+            <span class="c-txt">&quot;b16&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 6
+
+    leccion:
+        La flota registra exactamente 17 casillas.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/029-flota-sin-celdas.caso"><code><span class="c-kw">caso</span> 029-flota-sin-celdas:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;flota sin celdas&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Sin ninguna celda <span class="c-kw">de</span> barco <span class="c-kw">no</span> se puede declarar reglamentaria la flota.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.flota_reglamentaria
+    <span class="c-kw">evidencia</span>:
+        celda_barco:
+
+    leccion:
+        Sin ninguna celda <span class="c-kw">de</span> barco <span class="c-kw">no</span> se puede declarar reglamentaria la flota.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/003-mismo-tirador-seguido.caso"><code><span class="c-kw">caso</span> 003-mismo-tirador-seguido:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;mismo tirador seguido&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Dos turnos consecutivos pertenecen al mismo tirador.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.alternancia_turnos
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+            1, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 2, false
+
+    leccion:
+        Dos turnos consecutivos pertenecen al mismo tirador.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/004-tiradores-alternos.caso"><code><span class="c-kw">caso</span> 004-tiradores-alternos:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;tiradores alternos&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Los turnos consecutivos cambian <span class="c-kw">de</span> tirador.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.alternancia_turnos
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+            1, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
+
+    leccion:
+        Los turnos consecutivos cambian <span class="c-kw">de</span> tirador.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/017-turno-saltado.caso"><code><span class="c-kw">caso</span> 017-turno-saltado:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;turno saltado&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        La secuencia salta el turno 1.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.turnos_sin_huecos
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+            2, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
+
+    leccion:
+        La secuencia salta el turno 1.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/018-turnos-contiguos.caso"><code><span class="c-kw">caso</span> 018-turnos-contiguos:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;turnos contiguos&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        La secuencia comienza en 0 <span class="c-kw">y</span> <span class="c-kw">no</span> tiene huecos.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.turnos_sin_huecos
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+            1, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
+
+    leccion:
+        La secuencia comienza en 0 <span class="c-kw">y</span> <span class="c-kw">no</span> tiene huecos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/030-sin-tiros-registrados.caso"><code><span class="c-kw">caso</span> 030-sin-tiros-registrados:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;sin tiros registrados&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Sin tiros registrados <span class="c-kw">no</span> se puede afirmar continuidad <span class="c-kw">de</span> turnos.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.turnos_sin_huecos
+    <span class="c-kw">evidencia</span>:
+        tiro:
+
+    leccion:
+        Sin tiros registrados <span class="c-kw">no</span> se puede afirmar continuidad <span class="c-kw">de</span> turnos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/015-tiro-repetido.caso"><code><span class="c-kw">caso</span> 015-tiro-repetido:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;tiro repetido&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El mismo tirador repite la misma casilla.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+
+    leccion:
+        El mismo tirador repite la misma casilla.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/016-tiros-distintos.caso"><code><span class="c-kw">caso</span> 016-tiros-distintos:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;tiros distintos&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        El mismo tirador elige dos casillas distintas.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4, false
+
+    leccion:
+        El mismo tirador elige dos casillas distintas.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/031-distinta-fila-igual-turno-ajeno.caso"><code><span class="c-kw">caso</span> 031-distinta-fila-igual-turno-ajeno:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;distinta fila igual turno ajeno&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        La fila cambia aunque coincida con el número <span class="c-kw">de</span> turno previo.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 3, false
+            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 0, 3, false
+
+    leccion:
+        La fila cambia aunque coincida con el número <span class="c-kw">de</span> turno previo.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/033-fila-confundida-con-turno.caso"><code><span class="c-kw">caso</span> 033-fila-confundida-con-turno:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;fila confundida con turno&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        La fila del primer tiro coincide con el turno del segundo, pero las casillas son distintas.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 3, 3, false
+
+    leccion:
+        La fila del primer tiro coincide con el turno del segundo, pero las casillas son distintas.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/021-impacto-fantasma.caso"><code><span class="c-kw">caso</span> 021-impacto-fantasma:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;impacto fantasma&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El disparo se declara impacto <span class="c-kw">sin</span> barco rival en la casilla.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.veracidad_impacto_positivo
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, true
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
+
+    leccion:
+        El disparo se declara impacto <span class="c-kw">sin</span> barco rival en la casilla.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/022-impacto-real.caso"><code><span class="c-kw">caso</span> 022-impacto-real:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;impacto real&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        El impacto declarado coincide con un barco rival.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.veracidad_impacto_positivo
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, true
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3
+
+    leccion:
+        El impacto declarado coincide con un barco rival.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/032-agua-declarada-agua.caso"><code><span class="c-kw">caso</span> 032-agua-declarada-agua:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;agua declarada agua&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Una casilla <span class="c-kw">de</span> agua declarada agua <span class="c-kw">no</span> es impacto fantasma.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.veracidad_impacto_positivo
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
+
+    leccion:
+        Una casilla <span class="c-kw">de</span> agua declarada agua <span class="c-kw">no</span> es impacto fantasma.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/019-barco-reportado-como-agua.caso"><code><span class="c-kw">caso</span> 019-barco-reportado-como-agua:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;barco reportado como agua&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El disparo toca un barco rival <span class="c-kw">y</span> se registra como agua.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.veracidad_impacto_negativo
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3
+
+    leccion:
+        El disparo toca un barco rival <span class="c-kw">y</span> se registra como agua.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/020-agua-reportada-como-agua.caso"><code><span class="c-kw">caso</span> 020-agua-reportada-como-agua:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;agua reportada como agua&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        El disparo cae en agua <span class="c-kw">y</span> se registra como agua.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.veracidad_impacto_negativo
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+        celda_barco: id, jugador, fila, columna
+            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
+
+    leccion:
+        El disparo cae en agua <span class="c-kw">y</span> se registra como agua.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/013-ganador-con-dieciseis-impactos.caso"><code><span class="c-kw">caso</span> 013-ganador-con-dieciseis-impactos:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;ganador con dieciseis impactos&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El ganador sólo acumuló 16 impactos.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.ganador_legitimo
+    <span class="c-kw">evidencia</span>:
+        partida: turno_final, impactos_ganador
+            30, 16
+
+    leccion:
+        El ganador sólo acumuló 16 impactos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/014-ganador-con-diecisiete-impactos.caso"><code><span class="c-kw">caso</span> 014-ganador-con-diecisiete-impactos:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;ganador con diecisiete impactos&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        El ganador acumuló los 17 impactos exigidos.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.ganador_legitimo
+    <span class="c-kw">evidencia</span>:
+        partida: turno_final, impactos_ganador
+            30, 17
+
+    leccion:
+        El ganador acumuló los 17 impactos exigidos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/009-tiro-despues-del-final.caso"><code><span class="c-kw">caso</span> 009-tiro-despues-del-final:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;tiro despues del final&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El turno del tiro supera el turno final.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.fin_de_juego_sin_tiros_posteriores
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            5, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+        partida: turno_final, impactos_ganador
+            4, 17
+
+    leccion:
+        El turno del tiro supera el turno final.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/010-tiro-en-turno-final.caso"><code><span class="c-kw">caso</span> 010-tiro-en-turno-final:
+    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;tiro en turno final&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        El tiro ocurre en el turno final permitido.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: naval.fin_de_juego_sin_tiros_posteriores
+    <span class="c-kw">evidencia</span>:
+        tiro: turno, tirador, receptor, fila, columna, es_impacto
+            4, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+        partida: turno_final, impactos_ganador
+            4, 17
+
+    leccion:
+        El tiro ocurre en el turno final permitido.</code></pre>
+</details>
+<pre data-lenguaje="bash"><code>oracle test</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p>Once reglas, cada una con casos que la pueden romper, y ningún mutante vivo.</p>
+<h2 id="paso-8--juzgar-una-partida-de-verdad">Paso 8 · Juzgar una partida de verdad<a class="ancla" href="#paso-8--juzgar-una-partida-de-verdad" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel de auditoría y descargá <code>hechos_partida.json</code> en la carpeta del proyecto. (Si todavía no jugaste, podés <a href="https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json" rel="noopener">bajar la partida del ejemplo</a> y guardarla con ese nombre.)</p>
 <pre data-lenguaje="bash"><code>oracle juzgar --con hechos_partida.json</code></pre>
-<p><em>Salida pendiente: <code>oracle juzgar</code> sobre <code>partida_real.json</code> del ejemplo.</em></p>
-<p>Dos cosas del resultado son las que más importan:</p>
-<ul><li><strong><code>SIN MIRAR</code></strong> junta los <code>alcance</code> de las reglas que se aplicaron: lo que el verde no garantiza.</li><li><strong><code>NO SE APLICARON</code></strong> lista las reglas cuya relación no vino en el archivo. Si el juego se olvidó de anotar los tiros, las reglas de tiros no te dan un verde de regalo: aparecen acá.</li></ul>
-<p>Si una regla sale roja, el veredicto trae <strong>testigos</strong>: las filas exactas que ofendieron. Con eso le volvés a hablar al modelo: «el tiro del turno 14 se marcó como impacto y no había barco en esa casilla; corregilo».</p>
-<h2 id="qué-le-falta-a-este-juego">Qué le falta a este juego<a class="ancla" href="#qué-le-falta-a-este-juego" aria-label="Enlace a esta sección">#</a></h2>
-<p>El juego del ejemplo anda y sus reglas miran lo principal, pero no todo. Lo que ninguna de sus reglas mira hoy, y serían buenas siguientes reglas:</p>
-<ul><li>que cada barco sea una línea recta y continua (hoy se cuentan casillas, no la forma);</li><li>que un barco hundido tenga todas sus casillas impactadas;</li><li>que la computadora no sepa dónde están tus barcos antes de dispararles.</li></ul>
-<p>Cada una empieza igual: ¿qué hecho necesita que el juego anote?, ¿qué fila ofendería?, ¿qué caso rojo y qué caso verde la fijan?</p>
-<h2 id="si-trabajás-con-un-modelo-cinco-consejos">Si trabajás con un modelo, cinco consejos<a class="ancla" href="#si-trabajás-con-un-modelo-cinco-consejos" aria-label="Enlace a esta sección">#</a></h2>
-<ol><li><strong>Pedile que el juego cuente lo que pasa</strong>, en filas planas. Sin eso no hay nada que juzgar.</li><li><strong>No le pidas las reglas y el código en la misma pasada.</strong> Escribí o revisá vos las reglas.</li><li><strong>Probá cada regla con un caso rojo y uno verde</strong> antes de creerle.</li><li><strong>Leé el <code>alcance</code></strong> de cada regla: es lo que el verde no te promete.</li><li><strong>Cuando algo sale rojo, pasale al modelo los testigos</strong>, no una descripción vaga.</li></ol>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p class="pregunta"><strong>Pensalo.</strong> Todo verde. ¿Quiere decir que el juego está bien?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Quiere decir que esas once reglas se cumplieron en esta partida. La lista <code>SIN MIRAR</code> dice lo que ninguna regla garantiza, por ejemplo que cada barco sea una línea recta. Esa lista no es letra chica: es la mitad de la respuesta.</p>
+</details>
+<p class="pregunta"><strong>Pensalo.</strong> ¿Y si el juego se olvidara de anotar los tiros?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las lista aparte, en <code>NO SE APLICARON</code>, para que no confundas «no se miró» con «está bien». Probalo:</p>
+</details>
+<pre data-lenguaje="bash"><code>python3 -c &quot;import json; d = json.load(open(&#x27;hechos_partida.json&#x27;)); json.dump({&#x27;celda_barco&#x27;: d[&#x27;celda_barco&#x27;], &#x27;partida&#x27;: d[&#x27;partida&#x27;]}, open(&#x27;sin-tiros.json&#x27;, &#x27;w&#x27;))&quot;
+oracle juzgar --con sin-tiros.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>(se completa con la corrida real)</code></pre>
+<p>Si una regla sale roja, el veredicto trae <strong>testigos</strong>: las filas exactas que ofendieron. Con eso le volvés a hablar al modelo con precisión: «el tiro del turno 14 se marcó como impacto y no había barco en esa casilla; corregilo».</p>
+<h2 id="paso-9--qué-le-falta-a-este-juego">Paso 9 · Qué le falta a este juego<a class="ancla" href="#paso-9--qué-le-falta-a-este-juego" aria-label="Enlace a esta sección">#</a></h2>
+<p>Once reglas miran lo principal, no todo. Ninguna mira hoy:</p>
+<ul><li>que cada barco sea una línea recta y continua (se cuentan casillas, no la forma);</li><li>que un barco hundido tenga todas sus casillas impactadas;</li><li>que la computadora no sepa dónde están tus barcos antes de dispararles.</li></ul>
+<p class="pregunta"><strong>Pensalo.</strong> Elegí una. ¿Qué hecho tendría que anotar el juego, qué fila ofendería y qué caso rojo la fijaría?</p>
+<details>
+<summary>Ver una respuesta, para la de la línea recta</summary>
+<p>Con <code>celda_barco</code> alcanza: las casillas de un mismo <code>barco_id</code> tienen que compartir la fila (y tener columnas consecutivas) o compartir la columna (y tener filas consecutivas). Una fila ofende si su barco tiene casillas en dos filas y dos columnas distintas a la vez. El caso rojo: un destructor con una casilla en (2,3) y otra en (3,4), en diagonal.</p>
+</details>
+<p>Y el catálogo base que apagaste en el paso 1: encendelo (<code>&quot;catalogo_base&quot;: true</code>) y corré <code>oracle test</code>. Te va a pedir lo que falta para que estas reglas valgan fuera de esta guía: declarar las unidades de los campos y sostener cada regla con partidas <strong>observadas</strong>, no sólo con casos construidos.</p>
+<h2 id="si-trabajás-con-un-modelo">Si trabajás con un modelo<a class="ancla" href="#si-trabajás-con-un-modelo" aria-label="Enlace a esta sección">#</a></h2>
+<ol><li><strong>Pedile que el juego cuente lo que pasa</strong>, en filas planas, sin conclusiones.</li><li><strong>No le pidas las reglas y el código en la misma pasada.</strong> Escribí o revisá vos las reglas.</li><li><strong>Pedile primero el caso rojo</strong>, después la regla. Si te da la regla sin caso, desconfiá.</li><li><strong>Leé el <code>alcance</code></strong> de cada regla: es lo que el verde no te promete.</li><li><strong>Cuando algo sale rojo, pasale los testigos</strong>, no una descripción vaga.</li><li><strong>Si te dice «ya está todo verificado», preguntale qué mutantes sobrevivieron</strong> y qué dice <code>SIN MIRAR</code>.</li></ol>
 <p>Después de esto, <a href="https://github.com/Segtem/oracle/blob/main/docs/13-primer-valor.html" rel="noopener">La primera medida real</a> muestra el mismo recorrido con menos explicación, y <a href="https://github.com/Segtem/oracle/blob/main/docs/03-escribir-una-medida.html" rel="noopener">Escribir una medida</a> es la referencia del lenguaje.</p>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/de-cero.md" rel="noopener">docs/de-cero.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
-    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#lo-que-vas-a-construir">Lo que vas a construir</a></li><li class="n2"><a href="#html-css-y-javascript-lo-justo">HTML, CSS y JavaScript, lo justo</a></li><li class="n2"><a href="#pedirle-el-juego-a-un-modelo">Pedirle el juego a un modelo</a></li><li class="n2"><a href="#el-problema-un-juego-que-anda-no-es-un-juego-correcto">El problema: un juego que anda no es un juego correcto</a></li><li class="n2"><a href="#que-el-juego-cuente-lo-que-pasó">Que el juego cuente lo que pasó</a></li><li class="n2"><a href="#instalar-oracle-y-crear-el-proyecto">Instalar Oracle y crear el proyecto</a></li><li class="n2"><a href="#la-primera-regla-ningún-barco-fuera-del-tablero">La primera regla: ningún barco fuera del tablero</a></li><li class="n2"><a href="#probar-la-regla-antes-de-confiar-en-ella">Probar la regla antes de confiar en ella</a></li><li class="n2"><a href="#por-qué-dos-casos-no-alcanzan-la-mutación">Por qué dos casos no alcanzan: la mutación</a></li><li class="n2"><a href="#más-reglas-cada-una-con-su-idea">Más reglas, cada una con su idea</a></li><li class="n2"><a href="#juzgar-una-partida-de-verdad">Juzgar una partida de verdad</a></li><li class="n2"><a href="#qué-le-falta-a-este-juego">Qué le falta a este juego</a></li><li class="n2"><a href="#si-trabajás-con-un-modelo-cinco-consejos">Si trabajás con un modelo, cinco consejos</a></li></ul>
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#paso-1--preparar-la-carpeta">Paso 1 · Preparar la carpeta</a></li><li class="n2"><a href="#paso-2--el-tablero">Paso 2 · El tablero</a></li><li class="n2"><a href="#paso-3--el-juego">Paso 3 · El juego</a></li><li class="n2"><a href="#paso-4--que-el-juego-cuente-lo-que-pasó">Paso 4 · Que el juego cuente lo que pasó</a></li><li class="n2"><a href="#paso-5--la-primera-regla-empezando-por-el-caso-rojo">Paso 5 · La primera regla, empezando por el caso rojo</a></li><li class="n2"><a href="#paso-6--un-caso-rojo-no-alcanza-la-mutación">Paso 6 · Un caso rojo no alcanza: la mutación</a></li><li class="n2"><a href="#paso-7--diez-reglas-más-y-la-trampa-de-los-pocos-casos">Paso 7 · Diez reglas más, y la trampa de los pocos casos</a></li><li class="n2"><a href="#paso-8--juzgar-una-partida-de-verdad">Paso 8 · Juzgar una partida de verdad</a></li><li class="n2"><a href="#paso-9--qué-le-falta-a-este-juego">Paso 9 · Qué le falta a este juego</a></li><li class="n2"><a href="#si-trabajás-con-un-modelo">Si trabajás con un modelo</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

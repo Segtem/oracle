@@ -62,6 +62,18 @@ tanteo       se probó hasta que anduvo</code></pre>
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#por-qué">Por qué</a></li><li class="n2"><a href="#por-qué-la-prosa-no-se-borra">Por qué la prosa NO se borra</a></li><li class="n2"><a href="#por-qué-agrega-en-vez-de-reemplazar">Por qué agrega en vez de reemplazar</a></li><li class="n2"><a href="#lo-que-reemplaza-a-metaningun_umbral_sin_defensa">Lo que reemplaza a meta.ningun_umbral_sin_defensa</a></li><li class="n2"><a href="#lo-que-no-se-hace">Lo que NO se hace</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

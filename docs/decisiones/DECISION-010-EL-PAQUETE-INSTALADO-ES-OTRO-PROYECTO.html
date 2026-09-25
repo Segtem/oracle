@@ -65,6 +65,18 @@
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho">El hecho</a></li><li class="n2"><a href="#por-qué-no-lo-vio-nadie-durante-dos-releases">Por qué no lo vio nadie durante dos releases</a></li><li class="n2"><a href="#la-decisión">La decisión</a></li><li class="n2"><a href="#lo-que-se-descartó-y-por-qué">Lo que se descartó, y por qué</a></li><li class="n2"><a href="#cómo-sabemos-que-el-arreglo-mide-algo">Cómo sabemos que el arreglo mide algo</a></li><li class="n2"><a href="#el-segundo-defecto-de-la-misma-clase-la-fachada-ocupaba-nombres-del-consumidor">El segundo defecto de la misma clase: la fachada ocupaba nombres del consumidor</a></li><li class="n3"><a href="#lo-que-se-decidió">Lo que se decidió</a></li><li class="n3"><a href="#el-riesgo-que-queda-dicho">El riesgo que queda, dicho</a></li><li class="n2"><a href="#lo-que-esto-no-arregla">Lo que esto NO arregla</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>

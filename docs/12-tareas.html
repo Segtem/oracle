@@ -279,6 +279,18 @@ Esta nota permanece abierta para referencia continua del equipo.</code></pre>
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#1-el-modelo">1. El modelo</a></li><li class="n2"><a href="#2-descubrimiento-de-la-raíz-del-tracker">2. Descubrimiento de la raíz del tracker</a></li><li class="n2"><a href="#3-identidad-de-tareas-y-resolución-de-colisiones">3. Identidad de tareas y resolución de colisiones</a></li><li class="n3"><a href="#seguridad-y-confinamiento-de-rutas">Seguridad y confinamiento de rutas</a></li><li class="n2"><a href="#4-anatomía-y-especificación-de-tareamd">4. Anatomía y especificación de TAREA.md</a></li><li class="n3"><a href="#preservación-en-escrituras">Preservación en escrituras</a></li><li class="n2"><a href="#5-comandos-del-cli-oracle-tarea">5. Comandos del CLI (oracle tarea)</a></li><li class="n3"><a href="#reglas-de-captura-y-contexto-p2">Reglas de captura y contexto (P2)</a></li><li class="n3"><a href="#evidencia-relacional-del-tracker-p3">Evidencia relacional del tracker (P3)</a></li><li class="n3"><a href="#juzgar-los-hechos-del-tracker-con-oracle-juzgar">Juzgar los hechos del tracker con oracle juzgar</a></li><li class="n3"><a href="#lenguaje-de-consultas-de-tareas-tql">Lenguaje de consultas de tareas (TQL)</a></li><li class="n3"><a href="#alineación-dinámica-en-listados">Alineación dinámica en listados</a></li><li class="n3"><a href="#catálogo-de-etiquetas-tareasetiquetas">Catálogo de etiquetas (tareas/etiquetas)</a></li><li class="n3"><a href="#operaciones-de-etiquetado-etiquetar-y-desetiquetar">Operaciones de etiquetado (etiquetar y desetiquetar)</a></li><li class="n3"><a href="#grafo-de-referencias-entre-tareas-grafo">Grafo de referencias entre tareas (grafo)</a></li><li class="n3"><a href="#tutorial-del-ciclo-completo-p1--p2--p3">Tutorial del ciclo completo (P1 + P2 + P3)</a></li><li class="n3"><a href="#orden-en-los-listados">Orden en los listados</a></li><li class="n3"><a href="#reglas-de-diagnóstico-y-códigos-de-salida">Reglas de diagnóstico y códigos de salida</a></li><li class="n2"><a href="#6-ejemplos-construidos-de-referencia">6. Ejemplos construidos de referencia</a></li><li class="n3"><a href="#ejemplo-1-tarea-mínima">Ejemplo 1: Tarea mínima</a></li><li class="n3"><a href="#ejemplo-2-investigación-técnica-con-referencias">Ejemplo 2: Investigación técnica con referencias</a></li><li class="n3"><a href="#ejemplo-3-nota-de-base-de-conocimiento-kb">Ejemplo 3: Nota de base de conocimiento (KB)</a></li><li class="n2"><a href="#7-diferencias-con-tatr">7. Diferencias con tatr</a></li></ul>
   </aside>
 </div>
-<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
 </body>
 </html>
