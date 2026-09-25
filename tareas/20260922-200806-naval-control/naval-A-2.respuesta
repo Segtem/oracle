@@ -1,0 +1,162 @@
+El juego de **Batalla Naval en HTML5** está listo y completamente jugable, acompañado por un sistema de **auditoría formal e independiente** sobre las partidas.
+
+---
+
+### 1. El Juego: Estructura e Interfaz
+
+La aplicación no requiere compilación ni dependencias externas. Se puede abrir directamente en cualquier navegador o servir localmente:
+
+* **Página principal:** [`index.html`](file:///work/index.html)
+* **Estilos tácticos y radar:** [`css/style.css`](file:///work/css/style.css)
+* **Motor de reglas y generador de evidencia:** [`js/engine.js`](file:///work/js/engine.js)
+* **Auditor en cliente y exportador:** [`js/auditor.js`](file:///work/js/auditor.js)
+* **Controlador interactivo de la UI:** [`js/app.js`](file:///work/js/app.js)
+* **Efectos de sonido sintetizados (Web Audio API):** [`js/audio.js`](file:///work/js/audio.js)
+
+Para abrirlo en tu navegador:
+```bash
+cd /work && python3 -m http.server 8000
+# Abrir en el navegador: http://localhost:8000
+```
+
+#### Características del juego:
+1. **Flota reglamentaria completa (17 casillas):**
+   * Portaaviones (5)
+   * Acorazado (4)
+   * Crucero (3)
+   * Submarino (3)
+   * Destructor (2)
+2. **Fase de Despliegue:** Posicionamiento manual con vista previa (válida/inválida) y rotación horizontal/vertical con botón o tecla `R`, o **Posición Aleatoria** automática.
+3. **Fase de Combate:** Sistema de turnos alternados, radar táctico de tiro, registro en vivo y un oponente con IA táctica (*Hunt & Target*: búsqueda en damero y concentración ortogonal tras impacto).
+4. **Panel de Auditoría en Vivo:** Monitorea en tiempo real el cumplimiento de las 12 reglas, permite exportar la bitácora (`partida_hechos.json`), simular partidas instantáneas y probar mutantes/trampas interactivamente.
+
+---
+
+### 2. Por qué usé `oracle-metalenguaje` y qué aporta
+
+Para "creerle al resultado", **los tests tradicionales dentro del mismo código no alcanzan**: suelen compartir asunciones, sesgos de implementación y estructuras auxiliares que pueden dar falsos verdes por construcción.
+
+Decidí usar **`oracle-metalenguaje`** por tres motivos fundamentales:
+1. **Separación total entre ejecución y juicio:** El motor del juego no decide si cumplió las reglas. Su único trabajo es emitir un registro inmutable de **evidencia relacional** (`hechos.json`: coordenadas de barcos, celdas ocupadas, disparos cronológicos con sus banderas objetivas y resumen de partida).
+2. **Especificación declarativa fuera del código:** Las reglas del juego se definieron formalmente en un catálogo de medidas relacionales (`catalogos/batalla_naval/*.oracle`), evaluadas por un motor algebraico independiente.
+3. **Falsabilidad demostrada (sensibilidad a mutantes):** Un oráculo que siempre da verde es un placebo. Demostramos que cuando una regla se rompe deliberadamente (un disparo duplicado, un falso tocado, un barco hundido antes de tiempo o una victoria prematura), el oráculo se pone en **ROJO** y expone la fila testigo infractora.
+
+---
+
+### 3. Las 12 Reglas Formalizadas en Oracle
+
+En el catálogo [`catalogos/batalla_naval/`](file:///work/catalogos/batalla_naval/) quedaron formalizadas las siguientes medidas:
+
+| Medida en Oracle | Regla que garantiza |
+| :--- | :--- |
+| [`batalla_naval.sin_disparos_duplicados.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.sin_disparos_duplicados.oracle) | Ningún jugador puede disparar dos veces a la misma coordenada `(x, y)`. |
+| [`batalla_naval.sin_disparos_fuera_de_tablero.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.sin_disparos_fuera_de_tablero.oracle) | Todo disparo debe estar dentro de `[0..9, 0..9]`. |
+| [`batalla_naval.celdas_dentro_de_tablero.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.celdas_dentro_de_tablero.oracle) | Ningún barco puede desbordar los límites del tablero de 10×10. |
+| [`batalla_naval.sin_superposicion_barcos.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.sin_superposicion_barcos.oracle) | Dos barcos del mismo jugador no pueden compartir casillas (cero colisiones). |
+| [`batalla_naval.tamano_barcos_valido.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.tamano_barcos_valido.oracle) | Solo se admiten barcos reglamentarios de longitud 5, 4, 3 o 2. |
+| [`batalla_naval.conteo_celdas_por_barco.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.conteo_celdas_por_barco.oracle) | La cantidad de celdas físicas registradas coincide exactamente con el tamaño declarado. |
+| [`batalla_naval.falso_tocado.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.falso_tocado.oracle) | Todo disparo reportado como "tocado" tenía obligatoriamente un barco enemigo en esa casilla (cero falsos positivos). |
+| [`batalla_naval.falso_agua.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.falso_agua.oracle) | Ningún disparo reportado como "agua" impactó en una casilla ocupada por un barco (cero falsos negativos). |
+| [`batalla_naval.hundimiento_prematuro.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.hundimiento_prematuro.oracle) | Ningún barco se marca como hundido si conserva casillas intactas. |
+| [`batalla_naval.hundimiento_omitido.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.hundimiento_omitido.oracle) | Si un barco recibió tantos impactos como su longitud, debe figurar inmediatamente como hundido. |
+| [`batalla_naval.victoria_legitima.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.victoria_legitima.oracle) | El ganador declarado debe haber destruido el 100% de la flota enemiga (17 casillas). |
+| [`batalla_naval.sin_disparos_post_fin.oracle`](file:///work/catalogos/batalla_naval/batalla_naval.sin_disparos_post_fin.oracle) | No se registran disparos una vez declarada la victoria. |
+
+---
+
+### 4. Demostración sobre una Partida Real
+
+Podés correr el verificador automatizado [`verificar_partida.py`](file:///work/verificar_partida.py):
+
+```bash
+python3 /work/verificar_partida.py
+```
+
+#### Resultado de la verificación:
+
+```text
+======================================================================
+DEMOSTRACIÓN DE VERIFICACIÓN: BATALLA NAVAL
+======================================================================
+
+[1] Simulando una partida real completa...
+    → Ganador: CPU en 94 turnos.
+    → Impactos Humano: 17/17
+    → Impactos CPU: 15/17
+
+[2] Auditando la partida real contra las 12 reglas con Oracle Metalenguaje...
+✓ batalla_naval.celdas_dentro_de_tablero              0 (<= 0)
+✓ batalla_naval.conteo_celdas_por_barco               0 (<= 0)
+✓ batalla_naval.falso_agua                            0 (<= 0)
+✓ batalla_naval.falso_tocado                          0 (<= 0)
+✓ batalla_naval.hundimiento_omitido                   0 (<= 0)
+✓ batalla_naval.hundimiento_prematuro                 0 (<= 0)
+✓ batalla_naval.sin_disparos_duplicados               0 (<= 0)
+✓ batalla_naval.sin_disparos_fuera_de_tablero         0 (<= 0)
+✓ batalla_naval.sin_disparos_post_fin                 0 (<= 0)
+✓ batalla_naval.sin_superposicion_barcos              0 (<= 0)
+✓ batalla_naval.tamano_barcos_valido                  0 (<= 0)
+✓ batalla_naval.victoria_legitima                     0 (<= 0)
+
+VEREDICTO: verde en 12 medidas.
+✔ La partida real cumplió el 100% de las reglas formalizadas.
+```
+
+---
+
+### 5. Prueba de Sensibilidad (Falsabilidad con Mutantes)
+
+Para demostrar que el oráculo no es complaciente, el script inyecta 6 violaciones deliberadas sobre la misma partida:
+
+```text
+======================================================================
+PRUEBA DE SENSIBILIDAD DEL ORÁCULO (MUTANTES)
+======================================================================
+
+→ Mutante 1: Disparo duplicado
+  Regla violada esperada: batalla_naval.sin_disparos_duplicados
+  Resultado de la auditoría: PASÓ (Detectado en ROJO ✓)
+    ✗ batalla_naval.sin_disparos_duplicados               1 (<= 0)
+    VEREDICTO: 1 de 12 medidas en rojo
+
+→ Mutante 2: Falso tocado (fantasma)
+  Regla violada esperada: batalla_naval.falso_tocado
+  Resultado de la auditoría: PASÓ (Detectado en ROJO ✓)
+    ✗ batalla_naval.falso_tocado                          1 (<= 0)
+    VEREDICTO: 1 de 12 medidas en rojo
+
+→ Mutante 3: Falso agua (impacto no cobrado)
+  Regla violada esperada: batalla_naval.falso_agua
+  Resultado de la auditoría: PASÓ (Detectado en ROJO ✓)
+    ✗ batalla_naval.falso_agua                            1 (<= 0)
+    VEREDICTO: 1 de 12 medidas en rojo
+
+→ Mutante 4: Hundimiento prematuro
+  Regla violada esperada: batalla_naval.hundimiento_prematuro
+  Resultado de la auditoría: PASÓ (Detectado en ROJO ✓)
+    ✗ batalla_naval.hundimiento_prematuro                 1 (<= 0)
+    VEREDICTO: 1 de 12 medidas en rojo
+
+→ Mutante 5: Victoria ilegítima
+  Regla violada esperada: batalla_naval.victoria_legitima
+  Resultado de la auditoría: PASÓ (Detectado en ROJO ✓)
+    ✗ batalla_naval.victoria_legitima                     1 (<= 0)
+    VEREDICTO: 1 de 12 medidas en rojo
+
+→ Mutante 6: Superposición de barcos
+  Regla violada esperada: batalla_naval.sin_superposicion_barcos
+  Resultado de la auditoría: PASÓ (Detectado en ROJO ✓)
+    ✗ batalla_naval.sin_superposicion_barcos              1 (<= 0)
+    VEREDICTO: 2 de 12 medidas en rojo
+```
+
+También podés verificar el corpus completo de 24 casos (12 rojos y 12 verdes) con:
+```bash
+oracle test --rapido
+```
+y auditar directamente cualquier archivo `.json` de partida exportado desde el navegador con:
+```bash
+oracle juzgar --con /work/partida_hechos.json
+```
+
+Toda la documentación técnica se encuentra detallada en el [`README.md`](file:///work/README.md).

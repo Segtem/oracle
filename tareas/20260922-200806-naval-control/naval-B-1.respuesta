@@ -1,0 +1,103 @@
+Desarrollé una **Batalla Naval completa y jugable en HTML5**, desacoplando el motor de reglas de la interfaz gráfica y de audio. De este modo, la misma lógica que corre en el navegador puede ejecutarse y auditarse formalmente tanto mediante pruebas unitarias como a través de una **simulación paso a paso sobre una partida real**.
+
+---
+
+### 📁 Arquitectura del Proyecto
+
+El código está estructurado en [`/work`](file:///work):
+
+* [**`src/engine/`**](file:///work/src/engine) **(Motor Náutico Isomórfico - Pure JS / ES Modules)**:
+  * [`Ship.js`](file:///work/src/engine/Ship.js): Controla la integridad física de los barcos, orientación y registro de impactos por segmento.
+  * [`Board.js`](file:///work/src/engine/Board.js): Administra la cuadrícula de 10x10, validación estricta de límites, colisiones y exportación ASCII.
+  * [`BattleshipGame.js`](file:///work/src/engine/BattleshipGame.js): Máquina de estados (`SETUP`, `PLAYING`, `FINISHED`), arbitraje de turnos, validación de disparos y detección de victoria.
+  * [`AIPlayer.js`](file:///work/src/engine/AIPlayer.js): Inteligencia artificial basada en el algoritmo *Hunt & Target* con búsqueda por paridad (tablero de ajedrez).
+* [**`src/ui/`**](file:///work/src/ui) **&** [**`src/index.html`**](file:///work/src/index.html) **(Interfaz Web Táctica)**:
+  * [`UIController.js`](file:///work/src/ui/UIController.js): Controlador DOM, colocación manual/aleatoria, gestión de turnos e inspector interactivo de auditoría.
+  * [`AudioManager.js`](file:///work/src/ui/AudioManager.js): Efectos acústicos navales sintetizados en tiempo real mediante la Web Audio API (sonar, artillería, agua, impactos y alarmas, sin dependencias de red).
+  * [`styles.css`](file:///work/src/ui/styles.css): Estética de radar naval en modo oscuro con acentos neón y retículas tácticas.
+* [**`test/rules.test.js`**](file:///work/test/rules.test.js): Batería de 9 pruebas unitarias con el test runner nativo de Node.js (`node:test` y `node:assert/strict`).
+* [**`run-verification.js`**](file:///work/run-verification.js): Script de **auditoría sobre una partida real** con comprobación de invariantes en cada turno.
+
+---
+
+### 🛡️ Cómo se comprueba que las reglas se cumplen sobre una partida
+
+Para no quedarnos en el simple *"funciona"*, el verificador formal [`run-verification.js`](file:///work/run-verification.js) somete a una partida completa entre dos jugadores a las siguientes comprobaciones de invariantes:
+
+```
+======================================================================
+   AUDITORÍA DE REGLAS: PARTIDA VERIFICADA DE BATALLA NAVAL
+======================================================================
+
+Fase 1: Configuración de Flotas y Despliegue Reglamentario
+  ✔ [REGLA VERIFICADA] Dotación oficial de 5 buques (Portaaviones: 5, Acorazado: 4, Crucero: 3, Submarino: 3, Destructor: 2)
+  ✔ [REGLA VERIFICADA] Total de casillas de impacto = 17 
+  ✔ [REGLA VERIFICADA] Límites e integridad del despliegue J1 
+  ✔ [REGLA VERIFICADA] Regla: Prohibido iniciar con flotas incompletas 
+  ✔ [REGLA VERIFICADA] Límites e integridad del despliegue J2 
+  ✔ [REGLA VERIFICADA] Transición de estado a PLAYING tras colocación válida 
+  ✔ [REGLA VERIFICADA] Turno inicial asignado al Jugador 1 
+  ✔ [REGLA VERIFICADA] Regla: Rechazo estricto de ataque fuera de turno 
+```
+
+#### Comprobación de invariantes ronda por ronda:
+1. **Invariante de Salud Náutica**: Cada vez que un disparo da en el blanco (`HIT` o `SUNK`), la salud total restante de la flota enemiga se reduce exactamente en 1 (`17 - impactos`). Si el tiro cae al agua (`MISS`), la salud permanece matemáticamente idéntica.
+2. **Invariante de Inmutabilidad de Celda**: Toda casilla atacada queda sellada. Un segundo disparo a la misma celda es **rechazado** automáticamente (`CASILLA_YA_DISPARADA`) y **no penaliza al jugador ni saltea su turno**.
+3. **Invariante de Alternancia de Turnos**: El turno `player1` pasa a `player2` únicamente tras un disparo legal y validado.
+4. **Invariante de Hundimiento (`SUNK`)**: Un barco se mantiene activo con daños parciales y **solo** se declara hundido cuando el 100% de sus segmentos han sido impactados.
+5. **Invariante de Victoria Instantánea y Congelamiento**: En el milisegundo exacto en que se conecta el impacto número 17:
+   - Se declara la victoria inmediata.
+   - El estado de la partida pasa irreversiblemente a `FINISHED`.
+   - Cualquier intento de disparo posterior (sea del ganador o del perdedor) es categóricamente rechazado (`PARTIDA_YA_FINALIZADA`).
+
+```
+--- RONDA DE DISPAROS 19 ---
+  ✔ [REGLA VERIFICADA] T19a: J1 ataca A5 Resultado: SUNK
+  ✔ [REGLA VERIFICADA] T19a: Clasificación correcta del impacto 
+  ✔ [REGLA VERIFICADA] T19a: Barco impactado es Portaaviones 
+  ✔ [REGLA VERIFICADA] T19a: Invariante de Salud (17 - impactos = salud) 
+  ✔ [REGLA VERIFICADA] T19a: Barco Portaaviones completamente hundido 
+  ✔ [REGLA VERIFICADA] VICTORIA INMEDIATA: La partida concluye con el 17º impacto 
+  ✔ [REGLA VERIFICADA] Consagración de Jugador 1 como Ganador 
+  ✔ [REGLA VERIFICADA] Toda la flota enemiga está hundida 
+
+Fase 3: Verificación de Estado Posterior a la Victoria
+  ✔ [REGLA VERIFICADA] Regla: Prohibido cualquier ataque tras finalizar la partida 
+  ✔ [REGLA VERIFICADA] Regla: Rival tampoco puede atacar tras finalizar 
+
+Estado Final del Tablero Rival (J2) - Todos los buques destruidos (#):
+   A B C D E F G H I J
+ 1 # ~ ~ ~ ~ ~ ~ ~ ~ ~
+ 2 # ~ ~ # # # # ~ ~ ~
+ 3 # ~ ~ ~ ~ ~ ~ ~ ~ ~
+ 4 # ~ ~ ~ ~ ~ ~ ~ # ~
+ 5 # ~ ~ ~ ~ # # # # ~
+ 6 ~ ~ ~ ~ ~ O ~ ~ # ~
+ 7 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+ 8 ~ # # ~ ~ ~ ~ ~ ~ ~
+ 9 ~ ~ ~ ~ ~ ~ ~ ~ ~ ~
+10 ~ ~ ~ ~ ~ ~ ~ ~ ~ O
+
+Historial total de jugadas registradas: 37 movimientos.
+```
+
+---
+
+### 🚀 Cómo Ejecutar la Verificación y Jugar
+
+#### 1. Correr la auditoría formal sobre la partida real (Terminal):
+```bash
+npm run verify
+```
+*(O directamente `node run-verification.js`)*
+
+#### 2. Correr la suite de pruebas unitarias:
+```bash
+npm test
+```
+
+#### 3. Jugar en el navegador y verificar las reglas en vivo:
+El servidor local ya se encuentra activo en segundo plano:
+* Abre tu navegador en **`http://localhost:8080`**.
+* Puedes posicionar tus barcos manualmente (tecla **R** para rotar) o usar **Despliegue Aleatorio**, y luego presionar **Iniciar Batalla**.
+* Para ver la auditoría dentro de la propia interfaz web, haz clic en el botón superior **🛡️ Auditoría de Reglas** y presiona **▶ Ejecutar Verificación en Vivo**. El motor isomórfico ejecutará las pruebas directamente en el navegador y reportará los resultados en pantalla.

@@ -62,8 +62,9 @@ resiste, la diferencia está medida y no argumentada.
 
 ## Próximo paso
 
-Brian corre B dos veces y A una más (ya hay una de A). Después, Claude o Codex aplican las tres
-mentiras a las cuatro y escriben `vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md` con la tabla.
+Revisar `vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md` y decidir si conviene una réplica con
+las cuatro corridas bajo el mismo método, conservando también las trazas de B para juzgarlas
+independientemente. Esta tarea sigue ABIERTA; no hay commit del análisis.
 
 ### Nota (2026-09-25 21:43:31 UTC)
 
@@ -76,3 +77,7 @@ mentiras a las cuatro y escriben `vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md` c
 ### Nota (2026-09-25 22:00:17 UTC)
 
 2026-09-25, ENCARGO del análisis (Codex, con shell), cuando termine A-2: las cuatro corridas están en ~/Proyectos/batalla-naval/batalla-naval-lab/naval-0280 (A-1), ~/Dev/lab/naval-A-2, ~/Dev/lab/naval-B-1 y ~/Dev/lab/naval-B-2; las respuestas finales de B-1, B-2 y A-2 en el scratchpad (naval-*.respuesta) y se copian a esta carpeta. NO modificar las carpetas originales: trabajar sobre copias (cp -a a un temporal). Para cada corrida: (1) qué produce como evidencia o estado verificable; (2) aplicarle las tres mentiras —un impacto registrado como agua, un agua registrada como impacto, un tiro fuera del tablero— en lo que su propio mecanismo de comprobación mire (partida registrada, traza, estado), EJECUTANDO su verificación (tests, scripts, oracle) antes y después; si el mecanismo no mira ninguna partida registrada (sólo prueba el motor), decirlo y mostrar que la mentira no es representable o no se detecta; (3) reglas cubiertas una por una y cuáles no; (4) cuánto juego hay, sin puntaje inventado; (5) costo si hay registro; (6) qué dijo el agente sobre su elección. Escribir vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md con la tabla y lo que el experimento NO puede decir (sección de la tarea), y declarar las diferencias de método (A-1 en el host a mano; las otras en contenedor, no interactivas, agy 1.2.11).
+
+### Nota (2026-09-25 22:08:51 UTC)
+
+2026-09-25: análisis completo en vault-kb/estudios/NAVAL-CON-Y-SIN-ORACLE.md. Copias en /tmp/naval-control-analisis.37aGY9; originales intactos. Ejecuté baseline y tres mutaciones por corrida: A-1 y A-2 rechazan las tres en JSON con Oracle (salida 1); B-1 deja pasar las tres mentiras en moveHistory; B-2 las rechaza en board.attacks (salida 1) pero deja pasar las mismas mentiras en game.history. A-2 terminó salida 0 y verifiqué sus dos partidas JSON, corpus rápido y script adaptado sólo en la copia. Tabla de reglas, producto, costo, explicación de agentes y límites en el estudio. Sin commit; tarea abierta.

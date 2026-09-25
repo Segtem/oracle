@@ -1,0 +1,148 @@
+Construí la **Batalla Naval en HTML5** con una arquitectura desacoplada y un **Auditor Formal de Reglas e Invariantes** (`GameAuditor`). 
+
+---
+
+### 1. Estructura de la Aplicación
+
+El juego separa la lógica de combate de la interfaz visual para permitir su auditoría tanto en el navegador como de forma automatizada:
+
+* [**`src/engine.js`**](file:///work/src/engine.js): Motor de juego puro (sin dependencias de DOM). Modela [`Ship`](file:///work/src/engine.js#L17), [`Board`](file:///work/src/engine.js#L54), [`BattleshipGame`](file:///work/src/engine.js#L210), una IA táctica con algoritmo de búsqueda por paridad y objetivo ([`SmartAI`](file:///work/src/engine.js#L280)), y el auditor formal de invariantes ([`GameAuditor`](file:///work/src/engine.js#L368)).
+* [**`index.html`**](file:///work/index.html): Cuadrículas tácticas estilo radar (10x10 con coordenadas A–J y 1–10), dársena de despliegue de flota, HUD de salud de buques y telemetría de tiro.
+* [**`src/app.js`**](file:///work/src/app.js): Controlador del juego en el navegador; maneja la interacción, el registro de operaciones y la consola visual de auditoría.
+* [**`src/audio.js`**](file:///work/src/audio.js): Efectos de sonido procedurales mediante Web Audio API (sonar, salpicadura en agua, impacto metálico, detonación de hundimiento y fanfarria de victoria), sin archivos externos.
+* [**`src/style.css`**](file:///work/src/style.css): Interfaz oscura táctica con animaciones de radar, impactos y estados de buques.
+* [**`test/test-rules.js`**](file:///work/test/test-rules.js): Suite de 14 pruebas formales de reglas de combate.
+* [**`test/simulate-match.js`**](file:///work/test/simulate-match.js): Simulación de una partida completa auditada paso a paso.
+
+---
+
+### 2. Cómo se Comprueban las Reglas de Verdad sobre una Partida
+
+Para dar certeza matemática del cumplimiento de las reglas, el motor evalúa **invariantes de estado** tras cada tiro:
+
+1. **Flota reglamentaria intacta**: Exactamente 5 barcos (Portaviones: 5, Acorazado: 4, Crucero: 3, Submarino: 3, Destructor: 2) que suman **17 casillas**.
+2. **Prohibición de desbordes y colisiones**: Rechaza cualquier barco fuera de `[0..9, 0..9]` o que comparta casillas con otro.
+3. **Mecánica de disparo y unicidad**: No permite disparar fuera de rango ni repetir una casilla ya atacada.
+4. **Lógica de hundimiento estricta**: Un buque de tamaño $N$ no se hunde con $N-1$ impactos; se declara hundido **únicamente cuando sus $N$ segmentos han sido alcanzados**.
+5. **Alternancia estricta de turnos**: Cada bando ejecuta exactamente 1 disparo por turno; no se permiten disparos sucesivos.
+6. **Condición irrefutable de victoria**: La partida finaliza en `GAME_OVER` si y solo si se alcanzan los **17 impactos** sobre la flota enemiga.
+
+---
+
+### 3. Evidencia 1: Demostración en una Partida Real Completa
+
+El script [`test/simulate-match.js`](file:///work/test/simulate-match.js) reproduce una partida completa entre dos inteligencias navales y audita las reglas **en cada uno de los disparos**:
+
+Ejecución en terminal:
+```bash
+npm run verify-match
+```
+
+#### Extracto del registro de combate y auditoría tiro a tiro:
+```text
+================================================================
+🚢 SIMULACIÓN DE PARTIDA COMPLETA CON AUDITORÍA DE REGLAS PASO A PASO
+================================================================
+✅ Fase SETUP comprobada:
+   - Flota Almirante Alfa (IA 1): 5 barcos colocados (17 casillas), 0 solapamientos.
+   - Flota Almirante Bravo (IA 2): 5 barcos colocados (17 casillas), 0 solapamientos.
+
+--- COMIENZO DEL COMBATE Y AUDITORÍA POR TIRO ---
+[T# 1] Almirante Alfa (IA 1) dispara a G7 -> 🌊 AGUA
+[T# 2] Almirante Bravo (IA 2) dispara a D8 -> 💥 IMPACTO en Destructor!
+[T# 3] Almirante Alfa (IA 1) dispara a A7 -> 🌊 AGUA
+[T# 4] Almirante Bravo (IA 2) dispara a D7 -> 💥 IMPACTO en Destructor! 💀 ¡¡Destructor HUNDIDO!!
+...
+[T#49] Almirante Alfa (IA 1) dispara a A9 -> 💥 IMPACTO en Portaviones! 💀 ¡¡Portaviones HUNDIDO!!
+...
+[T#73] Almirante Alfa (IA 1) dispara a A5 -> 💥 IMPACTO en Acorazado! 💀 ¡¡Acorazado HUNDIDO!!
+...
+[T#99] Almirante Alfa (IA 1) dispara a I6 -> 💥 IMPACTO en Destructor! 💀 ¡¡Destructor HUNDIDO!!
+...
+[T#102] Almirante Bravo (IA 2) dispara a H10 -> 💥 IMPACTO en Submarino! 💀 ¡¡Submarino HUNDIDO!!
+
+================================================================
+🏆 VICTORIA DECLARADA: Almirante Bravo (IA 2) GANA LA PARTIDA
+================================================================
+Total de disparos realizados: 102
+Estado final de la flota perdedora (Almirante Alfa (IA 1)):
+  - 🚢 Portaviones (5 casillas): HUNDIDO 💀
+  - 🛳️ Acorazado (4 casillas): HUNDIDO 💀
+  - 🚤 Crucero (3 casillas): HUNDIDO 💀
+  - 🤿 Submarino (3 casillas): HUNDIDO 💀
+  - ⛵ Destructor (2 casillas): HUNDIDO 💀
+
+Tablero final del perdedor (17 impactos exactos recibidos):
+  A B C D E F G H I J
+ 1 ~ ~ ⚪ ~ ⚪ ~ ⚪ ~ ~ 💀
+ 2 ~ ⚪ ~ ⚪ ~ ⚪ ~ ~ ~ 💀
+ 3 ~ ~ ⚪ ~ ⚪ ~ ~ ~ ⚪ 💀
+ 4 ~ ⚪ ~ ⚪ ~ ⚪ ~ ⚪ ~ 💀
+ 5 ⚪ ~ ⚪ ~ ~ ~ ⚪ ~ ⚪ ~
+ 6 💀 💀 💀 💀 💀 ⚪ ~ ⚪ ~ ⚪
+ 7 ⚪ ~ ~ 💀 💀 ~ ~ ~ ⚪ ~
+ 8 ~ ⚪ ~ ⚪ ~ ⚪ ~ ⚪ ~ ~
+ 9 ⚪ ~ ⚪ ⚪ ⚪ ~ ⚪ ~ ⚪ ~
+10 ~ ⚪ ⚪ 💀 💀 💀 ~ 💀 💀 💀
+
+--- VERIFICACIÓN FINAL FORMAL DE REGLAS ---
+1. ¿Flota perdedora 100% destruida? SÍ (17/17 impactos verificados)
+2. ¿Flota ganadora conserva al menos un barco? SÍ
+3. ¿Se registraron disparos duplicados o fuera de rango? NO (comprobado por auditor)
+4. ¿Se respetó la estricta alternancia de turnos? SÍ (102 turnos alternados)
+5. ¿La auditoría global del juego reportó 100% de invariantes válidas? SÍ
+```
+
+---
+
+### 4. Evidencia 2: Batería de 14 Pruebas Unitarias de Reglas
+
+Ejecutable con `npm test`:
+```text
+====================================================
+🧪 SUITE DE PRUEBAS DE REGLAS DE LA BATALLA NAVAL
+====================================================
+
+📌 GRUPO 1: Reglas de Posicionamiento y Tablero
+  ✅ [PASÓ] R1.1: El tablero tiene tamaño estándar de 10x10 y la flota suma 17 casillas
+  ✅ [PASÓ] R1.2: Rechaza barcos que desbordan los límites horizontales
+  ✅ [PASÓ] R1.3: Rechaza barcos que desbordan los límites verticales
+  ✅ [PASÓ] R1.4: Rechaza barcos en coordenadas negativas
+  ✅ [PASÓ] R1.5: Impide superposición / colisión entre dos barcos
+  ✅ [PASÓ] R1.6: Permite colocación válida de la flota completa sin errores
+
+📌 GRUPO 2: Mecánica de Disparo (Agua, Tocado y Validación)
+  ✅ [PASÓ] R2.1: Disparo en agua devuelve "miss" y registra la casilla
+  ✅ [PASÓ] R2.2: Disparo a un barco devuelve "hit" y suma daño al barco
+  ✅ [PASÓ] R2.3: Rechaza disparos repetidos sobre la misma casilla
+  ✅ [PASÓ] R2.4: Rechaza disparos fuera de los límites del tablero
+
+📌 GRUPO 3: Lógica Estricta de Hundimiento
+  ✅ [PASÓ] R3.1: Un barco sólo se hunde cuando TODOS sus segmentos reciben impacto
+
+📌 GRUPO 4: Turnos, Fases y Control de Partida
+  ✅ [PASÓ] R4.1: No se puede disparar en fase SETUP
+  ✅ [PASÓ] R4.2: Alternancia estricta de turnos (un disparo por turno)
+
+📌 GRUPO 5: Condición de Victoria y Cierre del Juego
+  ✅ [PASÓ] R5.1: La partida concluye con victoria si y solo si se hunden los 17 segmentos
+
+====================================================
+📊 RESULTADO DE SUITE: 14 pasaron, 0 fallaron.
+====================================================
+```
+
+---
+
+### 5. Evidencia 3: Auditoría en Vivo en la Interfaz Gráfica (HTML5)
+
+Dentro de la propia aplicación web, el botón **`🔍 Auditoría de Reglas`** en el encabezado abre un inspector integrado que permite al usuario:
+1. **Ejecutar los 14 tests de reglas** directamente en el motor del navegador con validación visual.
+2. **Lanzar una partida simulada completa en vivo** y observar la traza de disparos con verificación paso a paso.
+3. **Auditar la partida en curso**: examina el tablero que estás jugando en ese instante, verificando la consistencia entre barcos, impactos y turnos.
+
+Para jugar, simplemente levantá el servidor local:
+```bash
+python3 -m http.server 8080
+```
+Y abrí `http://localhost:8080` en tu navegador.
