@@ -1,6 +1,6 @@
 # La especificación puede tener más preguntas sin contestar que las tres que encontró el tercer autor
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 78
 - ETIQUETAS: oracle, especificacion, flaqueza
 
@@ -40,3 +40,7 @@ Se incorporaron en ESPECIFICACION.md los 8 acuerdos de HUECOS §1, contrastados 
 ## Próximo paso
 
 Brian debe decidir la semántica de los puntos 2.4, 2.5, 2.6 y 2.9 de HUECOS.md. Después, armonizar especificación, núcleo y referencia según esas decisiones y verificar el diferencial.
+
+### Nota (2026-09-25 21:42:01 UTC)
+
+2026-09-25: los cuatro puntos que esperaban decisión (2.4 testigos, 2.5 bool estricto, 2.6 claves en toda la evidencia, 2.9 null) son las cuatro decisiones del álgebra 1.0: implementadas en núcleo, especificación y referencia (algebra-10) y publicadas en 0.31.0, con el diferencial en verde en la verificación del corte. Los puntos 1.x quedaron escritos en la especificación en 2465eba.

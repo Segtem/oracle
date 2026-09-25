@@ -1,6 +1,6 @@
 # Un predicado que no es booleano pasa por verdadero en el núcleo y es error en la referencia
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, metalenguaje, diferencial
 
@@ -40,3 +40,7 @@ Brian revisa `MEDICION.md` y decide si exigir `bool` al resultado completo de `d
 ### Nota (2026-09-25 02:17:57 UTC)
 
 2026-09-24, Brian: se exige bool en donde, sin, requiere y en los operandos de y/o/no; álgebra 1.0. Se implementa en la tarea algebra-10, junto con otras tres decisiones de huecos-spec.
+
+### Nota (2026-09-25 21:42:01 UTC)
+
+2026-09-25: implementado en algebra-10 y publicado en 0.31.0 (álgebra 1.0): donde, sin, requiere condicional y cada operando de y/o/no exigen bool; tests/test_algebra_10.py::test_predicados_exigen_bool lo fija. Lo que queda es de LyraGASP (sensor que emita presente como bool), en su tarea algebra-10-null.
