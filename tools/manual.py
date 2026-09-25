@@ -451,7 +451,7 @@ def pagina() -> str:
   <div><strong>oracle</strong> · manual</div>
   <nav>
     <a href="./">inicio</a>
-    <a href="https://github.com/Segtem/oracle/blob/main/docs/README.md">documentación</a>
+    <a href="documentacion.html">documentación</a>
     <a href="https://github.com/Segtem/oracle">github</a>
   </nav>
 </header>

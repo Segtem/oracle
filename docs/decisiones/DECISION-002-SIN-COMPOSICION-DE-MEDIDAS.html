@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 002 — las medidas no componen — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-002--las-medidas-no-componen">Decisión 002 — las medidas no componen<a class="ancla" href="#decisión-002--las-medidas-no-componen" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Estado:</strong> rechazada la composición el 2026-08-03.</p>
+<h2 id="contexto">Contexto<a class="ancla" href="#contexto" aria-label="Enlace a esta sección">#</a></h2>
+<p>El álgebra cierra sobre <strong>filas</strong>: <code>de</code>, <code>donde</code>, <code>unir</code> y <code>agrupar</code> toman filas y devuelven filas, y <code>resumen</code> las colapsa en un escalar. Esa clausura es lo que permite escribir tres dominios que no se parecen en nada con los mismos operadores y sin un solo adaptador.</p>
+<p>Pero <strong>no cierra sobre medidas</strong>. Una medida termina en un escalar y un umbral, y ahí se acaba: no hay forma de que una medida consuma los testigos o el veredicto de otra. Eso deja preguntas naturales sin escribir —«¿qué medidas comparten testigos?», «¿qué medida se pone roja siempre que esta otra se pone roja?»— y obliga a que el nivel L2 se apoye en hechos que produce Python (<code>nucleo/marco.py</code>) en vez de en el álgebra.</p>
+<p>Una auditoría del 2026-08-03 lo señaló como el hueco de diseño más visible del proyecto: el álgebra tiene clausura sobre la evidencia pero no sobre lo que enuncia sobre ella.</p>
+<h2 id="decisión">Decisión<a class="ancla" href="#decisión" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>La composición de medidas no entra al lenguaje.</strong> Una medida no puede tomar como fuente el resultado, los testigos ni el veredicto de otra medida.</p>
+<h2 id="por-qué-se-rechaza-y-no-es-por-costo">Por qué se rechaza, y no es por costo<a class="ancla" href="#por-qué-se-rechaza-y-no-es-por-costo" aria-label="Enlace a esta sección">#</a></h2>
+<p>No es una decisión de implementación diferida: el mecanismo sería barato. Se rechaza porque <strong>es el modo de falla que Oracle existe para evitar</strong>.</p>
+<p>Componer medidas permite que las medidas <strong>se cubran entre sí</strong>. Una medida que consume los testigos de otra hereda su punto ciego sin declararlo, y el <code>alcance</code> —que es obligatorio justamente para que un verde no se pueda leer como «todo bien»— deja de ser comprobable a mano: habría que recorrer la cadena entera para saber qué no se miró. El README lo dice de la única forma que importa:</p>
+<blockquote><p>Un conjunto de medidas puede ser internamente impecable y colectivamente ciego, y ninguna cantidad de reflexión lo detecta desde adentro.</p></blockquote>
+<p>La composición hace ese estado <strong>más fácil de alcanzar y más difícil de ver</strong>. Un conjunto de medidas que se apoyan unas en otras produce mucho verde con poca evidencia independiente, que es exactamente la forma que toma Goodhart cuando el que escribe la herramienta escribe también su verificador.</p>
+<p>Hay además una razón de procedimiento, y en este repositorio pesa: <strong>nada entra al lenguaje hasta que una medida real lo necesite</strong>. Hoy ninguna de las 18 medidas universales lo necesita. <code>con</code> y la unión izquierda se retiraron por no alcanzar ese disparador, y la composición no está ni cerca de alcanzarlo.</p>
+<h2 id="consecuencias">Consecuencias<a class="ancla" href="#consecuencias" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li>El álgebra sigue cerrando sobre filas y no sobre medidas. Es una limitación <strong>declarada</strong>, no una ausencia por olvido — que es la única diferencia que importa entre las dos cosas.</li><li>El nivel L2 sigue necesitando que alguien reifique el catálogo como hechos. Hoy eso lo hace <code>nucleo/marco.py</code> en Python, y ese acoplamiento es el problema que ataca el ítem (b) del <a href="https://github.com/Segtem/oracle/blob/main/vault-kb/planes/PLAN-LENGUAJE.md" rel="noopener">plan</a> — <strong>reificación mecánica, no composición</strong>. Son dos caminos distintos para el mismo síntoma, y se elige el que no permite que las medidas se cubran entre sí.</li><li>Una pregunta que hoy sólo se contestaría componiendo se contesta produciendo un <strong>hecho nuevo</strong> con un sensor, y midiéndolo con el álgebra que ya existe. Es más trabajo y deja la evidencia a la vista, que es el intercambio buscado.</li></ul>
+<h2 id="qué-evidencia-revierte-esta-decisión">Qué evidencia revierte esta decisión<a class="ancla" href="#qué-evidencia-revierte-esta-decisión" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Dos medidas reales, en un proyecto consumidor, que no se puedan expresar sin composición</strong>, y cuya ausencia quede registrada como hueco declarado en el corpus de ese proyecto.</p>
+<p>Dos, no una: es el mismo disparador que aplicaron <code>con</code> y la unión izquierda, y que no alcanzaron. Jam es el primer candidato con derecho a producir ese caso, porque es el primer consumidor que no se diseñó junto con Oracle.</p>
+<p>Si alguna vez entra, tiene que entrar con una regla que hoy no existe: <strong>una medida compuesta debe declarar el alcance acumulado de su cadena</strong>, no sólo el propio. Sin eso, el <code>alcance</code> deja de significar lo que significa hoy.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md" rel="noopener">docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#contexto">Contexto</a></li><li class="n2"><a href="#decisión">Decisión</a></li><li class="n2"><a href="#por-qué-se-rechaza-y-no-es-por-costo">Por qué se rechaza, y no es por costo</a></li><li class="n2"><a href="#consecuencias">Consecuencias</a></li><li class="n2"><a href="#qué-evidencia-revierte-esta-decisión">Qué evidencia revierte esta decisión</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

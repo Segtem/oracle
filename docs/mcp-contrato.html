@@ -1,0 +1,1170 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Contrato MCP de Oracle: consultar, evaluar y falsar sin escribir — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html" aria-current=page>El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="contrato-mcp-de-oracle-consultar-evaluar-y-falsar-sin-escribir">Contrato MCP de Oracle: consultar, evaluar y falsar sin escribir<a class="ancla" href="#contrato-mcp-de-oracle-consultar-evaluar-y-falsar-sin-escribir" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-09-04 <strong>Estado:</strong> diseño; no especifica una implementación ya existente</p>
+<h2 id="decisión">Decisión<a class="ancla" href="#decisión" aria-label="Enlace a esta sección">#</a></h2>
+<p>El servidor expone <strong>cinco herramientas</strong> y es de sólo lectura respecto del proyecto: <code>oracle_catalogo_efectivo</code>, <code>oracle_evaluar</code>, <code>oracle_desafiar</code>, <code>oracle_juzgar</code> y <code>oracle_tareas</code>. Las cinco reciben un proyecto fijado al arrancar el proceso; ninguna acepta una ruta de proyecto por llamada y ninguna crea, modifica ni borra archivos.</p>
+<p>Cinco herramientas responden a cinco preguntas distintas del agente sin mezclar costos ni autoridades:</p>
+<ol><li><strong>¿Qué me obliga y por qué?</strong> (<code>oracle_catalogo_efectivo</code>) Es una consulta sobre el proyecto y su jurisdicción.</li><li><strong>¿Qué hace esta medida con esta evidencia?</strong> (<code>oracle_evaluar</code>) Es una ejecución puntual que conserva valor, umbral, testigos, ausencia de evidencia y estado de sombra (con cota y perdón).</li><li><strong>¿Qué parte del candidato todavía no está fijada?</strong> (<code>oracle_desafiar</code>) Es un experimento de falsación sobre varias evidencias y los mutantes de la medida.</li><li><strong>¿Esta evidencia cumple el catálogo efectivo entero?</strong> (<code>oracle_juzgar</code>) Es un juicio completo contra el proyecto, que respeta sombras, cotas y medidas no aplicadas.</li><li><strong>¿Cuál es el estado del tracker local?</strong> (<code>oracle_tareas</code>) Es una lectura del seguimiento de tareas (<code>tareas/</code>) para agentes sin acceso a shell, sin permitir escrituras que romperían la correspondencia con Git.</li></ol>
+<p>Esta decisión contradice la inclinación de <code>vault-kb/planes/PLAN-0.6.0-MCP.md</code> hacia <code>oracle_proponer</code>. La compuerta «trae un rojo y un verde» es valiosa como experimento, pero no autoriza a llamar buena a la medida: las dos evidencias pueden haber sido fabricadas para repetir exactamente su error. Guardar después de esa compuerta agrega una escritura riesgosa, duplica una capacidad que el agente ya tiene mediante su editor y convierte evidencia insuficiente en una apariencia de aprobación. <code>oracle_desafiar</code> conserva la parte nueva —evaluar ambas polaridades y mutar sin persistir— sin hacer esa promesa.</p>
+<p>El plan también describe <code>oracle_contexto</code> como respuesta correcta a «qué medidas aplican a este proyecto». Hoy no lo es. <code>tools/contexto.py::_medidas</code> llama a <code>catalogos_a_cargar</code>, mientras <code>nucleo/proyecto.py::catalogo_efectivo</code> agrega el filtro de <code>ambito</code> introducido en 0.5.0. La herramienta nueva tiene que llamar a esta última función; no debe copiar su criterio ni arreglar la respuesta después de cargar.</p>
+<h2 id="autoridad-y-modelo-de-ejecución">Autoridad y modelo de ejecución<a class="ancla" href="#autoridad-y-modelo-de-ejecución" aria-label="Enlace a esta sección">#</a></h2>
+<p>La configuración del anfitrión arranca el proceso como <code>oracle-mcp --proyecto &lt;ruta&gt;</code>. La resolución es la de <code>nucleo.proyecto</code>, pero ocurre una sola vez, antes de aceptar mensajes. La raíz física queda fijada durante toda la vida del proceso y se muestra en cada respuesta. No existe un parámetro <code>proyecto</code>, <code>ruta</code>, <code>archivo</code> ni URI en las herramientas. Así, una instrucción dentro de un archivo medido no puede convencer al agente de ampliar la autoridad del servidor a otro árbol.</p>
+<p>Las escalares externas merecen el mismo corte. Por omisión no se ejecuta <code>escalares.py</code>. El usuario puede autorizarlo al configurar el servidor con <code>--confiar-escalares</code>; una llamada MCP no puede concederse esa confianza a sí misma. Cuando una operación necesita una escalar no autorizada, falla con <code>ESCALARES_NO_AUTORIZADAS</code>, no carga un catálogo parcial y no devuelve una lista vacía.</p>
+<p>Las cinco herramientas llevan las anotaciones <code>readOnlyHint: true</code>, <code>destructiveHint: false</code>, <code>idempotentHint: true</code> y <code>openWorldHint: false</code>. Son pistas para el anfitrión, no controles de seguridad; el control real es que el despachador no tenga ningún camino de escritura y que la raíz no sea parte de los argumentos.</p>
+<p>Cada respuesta exitosa incluye:</p>
+<ul><li><code>oracle_version</code>, para distinguir un binario instalado y viejo del checkout que el agente cree estar usando;</li><li><code>proyecto</code>, la raíz canónica que efectivamente se leyó;</li><li>una huella SHA-256 del conjunto ordenado de entradas leídas o de los argumentos normalizados.</li></ul>
+<p>En el catálogo, <code>huella_proyecto</code> cubre identidad y bytes de configuración, macros, fuentes de medidas, corpus y diferenciales que participaron del resultado. En evaluación y desafío, <code>entrada_sha256</code> cubre la forma canónica ya expandida de la medida y la evidencia normalizada; usar sólo el id sería insuficiente porque el mismo id puede cambiar de contenido entre dos llamadas.</p>
+<p>La huella no demuestra que la semántica sea correcta. Sirve para una afirmación más chica y comprobable: dos respuestas que dicen provenir del mismo estado deben traer la misma huella. El servidor calcula el conjunto de archivos y la huella antes y después de la operación; si cambiaron, rechaza con <code>PROYECTO_CAMBIO_DURANTE_LA_CONSULTA</code> y pide reintentar. Nunca mezcla silenciosamente dos estados del árbol.</p>
+<h2 id="superficie-normativa">Superficie normativa<a class="ancla" href="#superficie-normativa" aria-label="Enlace a esta sección">#</a></h2>
+<p>El siguiente arreglo es el contenido normativo de <code>tools/list</code>, sin el envoltorio JSON-RPC. Los esquemas cierran propiedades con <code>additionalProperties: false</code>: un error de nombre no se ignora. Los campos opcionales de una medida sólo aparecen en modo detalle; el servidor valida como poscondición que <code>detalle: true</code> implique que todos estén presentes.</p>
+<p>El bloque siguiente se genera desde <code>tools.mcp.HERRAMIENTAS</code> con <code>python3 -m tools.mcp_contrato</code> (verificar con <code>--check</code>).</p>
+<p>&lt;!-- herramientas-json:inicio --&gt;</p>
+<pre data-lenguaje="json"><code>[
+  {
+    &quot;name&quot;: &quot;oracle_catalogo_efectivo&quot;,
+    &quot;title&quot;: &quot;Catálogo efectivo de Oracle&quot;,
+    &quot;description&quot;: &quot;Consulta medidas efectivas del proyecto fijado. Sin ids: índice; con ids: detalle. No evalúa evidencia.&quot;,
+    &quot;annotations&quot;: {
+      &quot;readOnlyHint&quot;: true,
+      &quot;destructiveHint&quot;: false,
+      &quot;idempotentHint&quot;: true,
+      &quot;openWorldHint&quot;: false
+    },
+    &quot;inputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;properties&quot;: {
+        &quot;ids&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;minItems&quot;: 1,
+          &quot;uniqueItems&quot;: true,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;pattern&quot;: &quot;^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$&quot;
+          },
+          &quot;description&quot;: &quot;Ids efectivos cuyo detalle se pide. Omitir para listar todos.&quot;
+        }
+      }
+    },
+    &quot;outputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;esquema&quot;,
+        &quot;oracle_version&quot;,
+        &quot;proyecto&quot;,
+        &quot;huella_proyecto&quot;,
+        &quot;detalle&quot;,
+        &quot;total&quot;,
+        &quot;medidas&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;esquema&quot;: {
+          &quot;const&quot;: &quot;oracle.mcp/catalogo-efectivo/v1&quot;
+        },
+        &quot;oracle_version&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;proyecto&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;huella_proyecto&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;pattern&quot;: &quot;^[0-9a-f]{64}$&quot;
+        },
+        &quot;detalle&quot;: {
+          &quot;type&quot;: &quot;boolean&quot;
+        },
+        &quot;total&quot;: {
+          &quot;type&quot;: &quot;integer&quot;,
+          &quot;minimum&quot;: 0
+        },
+        &quot;medidas&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;additionalProperties&quot;: false,
+            &quot;required&quot;: [
+              &quot;id&quot;,
+              &quot;origen&quot;,
+              &quot;fijacion&quot;
+            ],
+            &quot;properties&quot;: {
+              &quot;id&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;origen&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;relaciones&quot;: {
+                &quot;type&quot;: &quot;array&quot;,
+                &quot;items&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                },
+                &quot;uniqueItems&quot;: true
+              },
+              &quot;fijacion&quot;: {
+                &quot;enum&quot;: [
+                  &quot;evidencia&quot;,
+                  &quot;arnes&quot;,
+                  &quot;heredada&quot;,
+                  &quot;sin_fijar&quot;
+                ]
+              },
+              &quot;ambito&quot;: {
+                &quot;enum&quot;: [
+                  &quot;universal&quot;,
+                  &quot;del_origen&quot;,
+                  &quot;sin_declarar&quot;
+                ]
+              },
+              &quot;requiere&quot;: {
+                &quot;type&quot;: &quot;array&quot;,
+                &quot;items&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                },
+                &quot;uniqueItems&quot;: true
+              },
+              &quot;umbral&quot;: {
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;additionalProperties&quot;: false,
+                &quot;required&quot;: [
+                  &quot;operador&quot;,
+                  &quot;valor&quot;,
+                  &quot;segun&quot;,
+                  &quot;porque&quot;
+                ],
+                &quot;properties&quot;: {
+                  &quot;operador&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  },
+                  &quot;valor&quot;: {
+                    &quot;type&quot;: [
+                      &quot;string&quot;,
+                      &quot;number&quot;,
+                      &quot;boolean&quot;
+                    ]
+                  },
+                  &quot;segun&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  },
+                  &quot;porque&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  }
+                }
+              },
+              &quot;alcance&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;fuente&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;fuente_sha256&quot;: {
+                &quot;type&quot;: &quot;string&quot;,
+                &quot;pattern&quot;: &quot;^[0-9a-f]{64}$&quot;
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  {
+    &quot;name&quot;: &quot;oracle_evaluar&quot;,
+    &quot;title&quot;: &quot;Evaluar una medida en memoria&quot;,
+    &quot;description&quot;: &quot;Evalúa una medida efectiva por id o texto sin guardar contra evidencia JSON. Distingue verde, rojo y sin_evidencia; incluye umbral, testigos y alcance. No demuestra corrección de la medida.&quot;,
+    &quot;annotations&quot;: {
+      &quot;readOnlyHint&quot;: true,
+      &quot;destructiveHint&quot;: false,
+      &quot;idempotentHint&quot;: true,
+      &quot;openWorldHint&quot;: false
+    },
+    &quot;inputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;medida&quot;,
+        &quot;evidencia&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;medida&quot;: {
+          &quot;oneOf&quot;: [
+            {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: false,
+              &quot;required&quot;: [
+                &quot;id&quot;
+              ],
+              &quot;properties&quot;: {
+                &quot;id&quot;: {
+                  &quot;type&quot;: &quot;string&quot;,
+                  &quot;pattern&quot;: &quot;^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$&quot;
+                }
+              }
+            },
+            {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: false,
+              &quot;required&quot;: [
+                &quot;texto&quot;,
+                &quot;formato&quot;
+              ],
+              &quot;properties&quot;: {
+                &quot;texto&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                },
+                &quot;formato&quot;: {
+                  &quot;enum&quot;: [
+                    &quot;oracle&quot;,
+                    &quot;json&quot;
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        &quot;evidencia&quot;: {
+          &quot;$ref&quot;: &quot;#/$defs/evidencia&quot;
+        }
+      },
+      &quot;$defs&quot;: {
+        &quot;evidencia&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;additionalProperties&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;type&quot;: &quot;object&quot;
+            }
+          }
+        }
+      }
+    },
+    &quot;outputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;esquema&quot;,
+        &quot;oracle_version&quot;,
+        &quot;proyecto&quot;,
+        &quot;entrada_sha256&quot;,
+        &quot;medida&quot;,
+        &quot;estado&quot;,
+        &quot;valor&quot;,
+        &quot;umbral&quot;,
+        &quot;sombra&quot;,
+        &quot;testigos&quot;,
+        &quot;testigos_omitidos&quot;,
+        &quot;alcance&quot;,
+        &quot;alcance_derivado&quot;,
+        &quot;advertencias&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;esquema&quot;: {
+          &quot;const&quot;: &quot;oracle.mcp/evaluacion/v2&quot;
+        },
+        &quot;oracle_version&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;proyecto&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;entrada_sha256&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;pattern&quot;: &quot;^[0-9a-f]{64}$&quot;
+        },
+        &quot;medida&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;estado&quot;: {
+          &quot;enum&quot;: [
+            &quot;verde&quot;,
+            &quot;rojo&quot;,
+            &quot;sin_evidencia&quot;
+          ]
+        },
+        &quot;valor&quot;: {
+          &quot;type&quot;: &quot;number&quot;
+        },
+        &quot;umbral&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;additionalProperties&quot;: false,
+          &quot;required&quot;: [
+            &quot;operador&quot;,
+            &quot;valor&quot;,
+            &quot;segun&quot;,
+            &quot;porque&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;operador&quot;: {
+              &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;valor&quot;: {
+              &quot;type&quot;: [
+                &quot;string&quot;,
+                &quot;number&quot;,
+                &quot;boolean&quot;
+              ]
+            },
+            &quot;segun&quot;: {
+              &quot;type&quot;: &quot;string&quot;
+            },
+            &quot;porque&quot;: {
+              &quot;type&quot;: &quot;string&quot;
+            }
+          }
+        },
+        &quot;sombra&quot;: {
+          &quot;oneOf&quot;: [
+            {
+              &quot;type&quot;: &quot;null&quot;
+            },
+            {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: false,
+              &quot;required&quot;: [
+                &quot;desde&quot;,
+                &quot;porque&quot;,
+                &quot;cota&quot;,
+                &quot;perdona&quot;
+              ],
+              &quot;properties&quot;: {
+                &quot;desde&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                },
+                &quot;porque&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                },
+                &quot;cota&quot;: {
+                  &quot;type&quot;: [
+                    &quot;integer&quot;,
+                    &quot;null&quot;
+                  ]
+                },
+                &quot;perdona&quot;: {
+                  &quot;type&quot;: &quot;boolean&quot;
+                }
+              }
+            }
+          ]
+        },
+        &quot;testigos&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;
+          },
+          &quot;maxItems&quot;: 5
+        },
+        &quot;testigos_omitidos&quot;: {
+          &quot;type&quot;: &quot;integer&quot;,
+          &quot;minimum&quot;: 0
+        },
+        &quot;alcance&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;alcance_derivado&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        },
+        &quot;advertencias&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        }
+      }
+    }
+  },
+  {
+    &quot;name&quot;: &quot;oracle_desafiar&quot;,
+    &quot;title&quot;: &quot;Desafiar una medida con corpus y mutación&quot;,
+    &quot;description&quot;: &quot;Desafía por id o texto con corpus y diferenciales opcionales y casos efímeros. Exige ambas polaridades y muta; informa discordancias, sobrevivientes y rechazos. No demuestra corrección semántica.&quot;,
+    &quot;annotations&quot;: {
+      &quot;readOnlyHint&quot;: true,
+      &quot;destructiveHint&quot;: false,
+      &quot;idempotentHint&quot;: true,
+      &quot;openWorldHint&quot;: false
+    },
+    &quot;inputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;medida&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;medida&quot;: {
+          &quot;oneOf&quot;: [
+            {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: false,
+              &quot;required&quot;: [
+                &quot;id&quot;
+              ],
+              &quot;properties&quot;: {
+                &quot;id&quot;: {
+                  &quot;type&quot;: &quot;string&quot;,
+                  &quot;pattern&quot;: &quot;^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$&quot;
+                }
+              }
+            },
+            {
+              &quot;type&quot;: &quot;object&quot;,
+              &quot;additionalProperties&quot;: false,
+              &quot;required&quot;: [
+                &quot;texto&quot;,
+                &quot;formato&quot;
+              ],
+              &quot;properties&quot;: {
+                &quot;texto&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                },
+                &quot;formato&quot;: {
+                  &quot;enum&quot;: [
+                    &quot;oracle&quot;,
+                    &quot;json&quot;
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        &quot;usar_evidencia_del_proyecto&quot;: {
+          &quot;type&quot;: &quot;boolean&quot;,
+          &quot;default&quot;: true,
+          &quot;description&quot;: &quot;Incluye corpus y diferenciales que nombran el id de la medida.&quot;
+        },
+        &quot;casos&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;default&quot;: [],
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;additionalProperties&quot;: false,
+            &quot;required&quot;: [
+              &quot;id&quot;,
+              &quot;espera&quot;,
+              &quot;evidencia&quot;
+            ],
+            &quot;properties&quot;: {
+              &quot;id&quot;: {
+                &quot;type&quot;: &quot;string&quot;,
+                &quot;minLength&quot;: 1
+              },
+              &quot;espera&quot;: {
+                &quot;enum&quot;: [
+                  &quot;verde&quot;,
+                  &quot;rojo&quot;
+                ]
+              },
+              &quot;evidencia&quot;: {
+                &quot;$ref&quot;: &quot;#/$defs/evidencia&quot;
+              }
+            }
+          }
+        }
+      },
+      &quot;$defs&quot;: {
+        &quot;evidencia&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;additionalProperties&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;type&quot;: &quot;object&quot;
+            }
+          }
+        }
+      }
+    },
+    &quot;outputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;esquema&quot;,
+        &quot;oracle_version&quot;,
+        &quot;proyecto&quot;,
+        &quot;entrada_sha256&quot;,
+        &quot;medida&quot;,
+        &quot;conclusion&quot;,
+        &quot;casos&quot;,
+        &quot;discordancias&quot;,
+        &quot;mutacion&quot;,
+        &quot;advertencias&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;esquema&quot;: {
+          &quot;const&quot;: &quot;oracle.mcp/desafio/v1&quot;
+        },
+        &quot;oracle_version&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;proyecto&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;entrada_sha256&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;pattern&quot;: &quot;^[0-9a-f]{64}$&quot;
+        },
+        &quot;medida&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;conclusion&quot;: {
+          &quot;enum&quot;: [
+            &quot;original_no_reproduce&quot;,
+            &quot;faltan_polaridades&quot;,
+            &quot;sin_mutantes&quot;,
+            &quot;sobrevivientes&quot;,
+            &quot;sin_sobrevivientes_con_rechazos&quot;,
+            &quot;todos_detectados_por_conducta&quot;
+          ]
+        },
+        &quot;casos&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;additionalProperties&quot;: false,
+          &quot;required&quot;: [
+            &quot;total&quot;,
+            &quot;del_proyecto&quot;,
+            &quot;efimeros&quot;,
+            &quot;esperan_verde&quot;,
+            &quot;esperan_rojo&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;total&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;del_proyecto&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;efimeros&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;esperan_verde&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;esperan_rojo&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            }
+          }
+        },
+        &quot;discordancias&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;additionalProperties&quot;: false,
+            &quot;required&quot;: [
+              &quot;caso&quot;,
+              &quot;esperado&quot;,
+              &quot;obtenido&quot;
+            ],
+            &quot;properties&quot;: {
+              &quot;caso&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;esperado&quot;: {
+                &quot;enum&quot;: [
+                  &quot;verde&quot;,
+                  &quot;rojo&quot;
+                ]
+              },
+              &quot;obtenido&quot;: {
+                &quot;enum&quot;: [
+                  &quot;verde&quot;,
+                  &quot;rojo&quot;,
+                  &quot;sin_evidencia&quot;,
+                  &quot;error&quot;
+                ]
+              }
+            }
+          }
+        },
+        &quot;mutacion&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;additionalProperties&quot;: false,
+          &quot;required&quot;: [
+            &quot;generados&quot;,
+            &quot;detectados_por_conducta&quot;,
+            &quot;rechazados_por_el_algebra&quot;,
+            &quot;no_detectados&quot;
+          ],
+          &quot;properties&quot;: {
+            &quot;generados&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;detectados_por_conducta&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;rechazados_por_el_algebra&quot;: {
+              &quot;type&quot;: &quot;integer&quot;,
+              &quot;minimum&quot;: 0
+            },
+            &quot;no_detectados&quot;: {
+              &quot;type&quot;: &quot;array&quot;,
+              &quot;items&quot;: {
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;additionalProperties&quot;: false,
+                &quot;required&quot;: [
+                  &quot;id&quot;,
+                  &quot;cambio&quot;,
+                  &quot;estado&quot;
+                ],
+                &quot;properties&quot;: {
+                  &quot;id&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  },
+                  &quot;cambio&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  },
+                  &quot;estado&quot;: {
+                    &quot;enum&quot;: [
+                      &quot;sobrevivio&quot;,
+                      &quot;rechazado_por_el_algebra&quot;
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        },
+        &quot;advertencias&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        }
+      }
+    }
+  },
+  {
+    &quot;name&quot;: &quot;oracle_juzgar&quot;,
+    &quot;title&quot;: &quot;Juzgar evidencia contra el catálogo efectivo&quot;,
+    &quot;description&quot;: &quot;Juzga evidencia contra el catálogo efectivo (ids selecciona un subconjunto). Informa no aplicadas, sombras y cotas. ok exige medidas satisfechas y sombras dentro de cota; no ejecuta escalares no autorizadas.&quot;,
+    &quot;annotations&quot;: {
+      &quot;readOnlyHint&quot;: true,
+      &quot;destructiveHint&quot;: false,
+      &quot;idempotentHint&quot;: true,
+      &quot;openWorldHint&quot;: false
+    },
+    &quot;inputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;evidencia&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;evidencia&quot;: {
+          &quot;$ref&quot;: &quot;#/$defs/evidencia&quot;
+        },
+        &quot;ids&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;minItems&quot;: 1,
+          &quot;uniqueItems&quot;: true,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;string&quot;,
+            &quot;pattern&quot;: &quot;^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)+$&quot;
+          },
+          &quot;description&quot;: &quot;Ids efectivos a evaluar. Omitir para evaluar todas las aplicables del catálogo.&quot;
+        }
+      },
+      &quot;$defs&quot;: {
+        &quot;evidencia&quot;: {
+          &quot;type&quot;: &quot;object&quot;,
+          &quot;additionalProperties&quot;: {
+            &quot;type&quot;: &quot;array&quot;,
+            &quot;items&quot;: {
+              &quot;type&quot;: &quot;object&quot;
+            }
+          }
+        }
+      }
+    },
+    &quot;outputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;esquema&quot;,
+        &quot;oracle_version&quot;,
+        &quot;proyecto&quot;,
+        &quot;entrada_sha256&quot;,
+        &quot;ok&quot;,
+        &quot;medidas&quot;,
+        &quot;no_aplicadas&quot;,
+        &quot;no_juzgaron&quot;,
+        &quot;advertencias&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;esquema&quot;: {
+          &quot;const&quot;: &quot;oracle.mcp/juzgar/v1&quot;
+        },
+        &quot;oracle_version&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;proyecto&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;entrada_sha256&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;pattern&quot;: &quot;^[0-9a-f]{64}$&quot;
+        },
+        &quot;ok&quot;: {
+          &quot;type&quot;: &quot;boolean&quot;
+        },
+        &quot;medidas&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;additionalProperties&quot;: false,
+            &quot;required&quot;: [
+              &quot;id&quot;,
+              &quot;estado&quot;,
+              &quot;valor&quot;,
+              &quot;umbral&quot;,
+              &quot;sombra&quot;,
+              &quot;testigos&quot;,
+              &quot;testigos_omitidos&quot;,
+              &quot;alcance&quot;
+            ],
+            &quot;properties&quot;: {
+              &quot;id&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;estado&quot;: {
+                &quot;enum&quot;: [
+                  &quot;verde&quot;,
+                  &quot;rojo&quot;,
+                  &quot;sin_evidencia&quot;
+                ]
+              },
+              &quot;valor&quot;: {
+                &quot;type&quot;: &quot;number&quot;
+              },
+              &quot;umbral&quot;: {
+                &quot;type&quot;: &quot;object&quot;,
+                &quot;additionalProperties&quot;: false,
+                &quot;required&quot;: [
+                  &quot;operador&quot;,
+                  &quot;valor&quot;,
+                  &quot;segun&quot;,
+                  &quot;porque&quot;
+                ],
+                &quot;properties&quot;: {
+                  &quot;operador&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  },
+                  &quot;valor&quot;: {
+                    &quot;type&quot;: [
+                      &quot;string&quot;,
+                      &quot;number&quot;,
+                      &quot;boolean&quot;
+                    ]
+                  },
+                  &quot;segun&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  },
+                  &quot;porque&quot;: {
+                    &quot;type&quot;: &quot;string&quot;
+                  }
+                }
+              },
+              &quot;sombra&quot;: {
+                &quot;oneOf&quot;: [
+                  {
+                    &quot;type&quot;: &quot;null&quot;
+                  },
+                  {
+                    &quot;type&quot;: &quot;object&quot;,
+                    &quot;additionalProperties&quot;: false,
+                    &quot;required&quot;: [
+                      &quot;desde&quot;,
+                      &quot;porque&quot;,
+                      &quot;cota&quot;,
+                      &quot;perdona&quot;
+                    ],
+                    &quot;properties&quot;: {
+                      &quot;desde&quot;: {
+                        &quot;type&quot;: &quot;string&quot;
+                      },
+                      &quot;porque&quot;: {
+                        &quot;type&quot;: &quot;string&quot;
+                      },
+                      &quot;cota&quot;: {
+                        &quot;type&quot;: [
+                          &quot;integer&quot;,
+                          &quot;null&quot;
+                        ]
+                      },
+                      &quot;perdona&quot;: {
+                        &quot;type&quot;: &quot;boolean&quot;
+                      }
+                    }
+                  }
+                ]
+              },
+              &quot;testigos&quot;: {
+                &quot;type&quot;: &quot;array&quot;,
+                &quot;items&quot;: {
+                  &quot;type&quot;: &quot;object&quot;
+                },
+                &quot;maxItems&quot;: 5
+              },
+              &quot;testigos_omitidos&quot;: {
+                &quot;type&quot;: &quot;integer&quot;,
+                &quot;minimum&quot;: 0
+              },
+              &quot;alcance&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              }
+            }
+          }
+        },
+        &quot;no_aplicadas&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;additionalProperties&quot;: false,
+            &quot;required&quot;: [
+              &quot;id&quot;,
+              &quot;faltan&quot;
+            ],
+            &quot;properties&quot;: {
+              &quot;id&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;faltan&quot;: {
+                &quot;type&quot;: &quot;array&quot;,
+                &quot;items&quot;: {
+                  &quot;type&quot;: &quot;string&quot;
+                }
+              }
+            }
+          }
+        },
+        &quot;no_juzgaron&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;additionalProperties&quot;: false,
+            &quot;required&quot;: [
+              &quot;id&quot;,
+              &quot;motivo&quot;
+            ],
+            &quot;properties&quot;: {
+              &quot;id&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              },
+              &quot;motivo&quot;: {
+                &quot;type&quot;: &quot;string&quot;
+              }
+            }
+          }
+        },
+        &quot;advertencias&quot;: {
+          &quot;type&quot;: &quot;array&quot;,
+          &quot;items&quot;: {
+            &quot;type&quot;: &quot;string&quot;
+          }
+        }
+      }
+    }
+  },
+  {
+    &quot;name&quot;: &quot;oracle_tareas&quot;,
+    &quot;title&quot;: &quot;Consultar el tracker de tareas del proyecto&quot;,
+    &quot;description&quot;: &quot;Lee tareas/: listar sin cuerpos; ver por id o sufijo/prefijo con cuerpo completo; buscar texto o extraer hechos. Sin tracker: TRACKER_AUSENTE.&quot;,
+    &quot;annotations&quot;: {
+      &quot;readOnlyHint&quot;: true,
+      &quot;destructiveHint&quot;: false,
+      &quot;idempotentHint&quot;: true,
+      &quot;openWorldHint&quot;: false
+    },
+    &quot;inputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;accion&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;accion&quot;: {
+          &quot;enum&quot;: [
+            &quot;listar&quot;,
+            &quot;ver&quot;,
+            &quot;buscar&quot;,
+            &quot;hechos&quot;
+          ],
+          &quot;description&quot;: &quot;Acción de consulta a ejecutar en el tracker.&quot;
+        },
+        &quot;estado&quot;: {
+          &quot;enum&quot;: [
+            &quot;ABIERTA&quot;,
+            &quot;CERRADA&quot;
+          ],
+          &quot;description&quot;: &quot;Filtro de estado para la acción listar.&quot;
+        },
+        &quot;etiqueta&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;description&quot;: &quot;Filtro por etiqueta exacta para la acción listar.&quot;
+        },
+        &quot;id&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;description&quot;: &quot;Identificador canónico o prefijo inequívoco de la tarea para la acción ver.&quot;
+        },
+        &quot;texto&quot;: {
+          &quot;type&quot;: &quot;string&quot;,
+          &quot;description&quot;: &quot;Texto literal a buscar en tareas y notas para la acción buscar.&quot;
+        },
+        &quot;git&quot;: {
+          &quot;type&quot;: &quot;boolean&quot;,
+          &quot;default&quot;: false,
+          &quot;description&quot;: &quot;Si es true, incluye diagnóstico de Git al extraer hechos.&quot;
+        }
+      }
+    },
+    &quot;outputSchema&quot;: {
+      &quot;type&quot;: &quot;object&quot;,
+      &quot;additionalProperties&quot;: false,
+      &quot;required&quot;: [
+        &quot;esquema&quot;,
+        &quot;oracle_version&quot;,
+        &quot;proyecto&quot;,
+        &quot;accion&quot;,
+        &quot;resultado&quot;
+      ],
+      &quot;properties&quot;: {
+        &quot;esquema&quot;: {
+          &quot;const&quot;: &quot;oracle.mcp/tareas/v1&quot;
+        },
+        &quot;oracle_version&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;proyecto&quot;: {
+          &quot;type&quot;: &quot;string&quot;
+        },
+        &quot;accion&quot;: {
+          &quot;enum&quot;: [
+            &quot;listar&quot;,
+            &quot;ver&quot;,
+            &quot;buscar&quot;,
+            &quot;hechos&quot;
+          ]
+        },
+        &quot;resultado&quot;: {
+          &quot;type&quot;: [
+            &quot;array&quot;,
+            &quot;object&quot;
+          ],
+          &quot;description&quot;: &quot;Resultado de la acción: lista de tareas sin cuerpo para listar, objeto de tarea con cuerpo completo para ver, objeto con coincidencias y omitidos para buscar, u objeto de hechos relacionales para hechos.&quot;
+        }
+      }
+    }
+  }
+]</code></pre>
+<p>&lt;!-- herramientas-json:fin --&gt;</p>
+<h3 id="oracle_catalogo_efectivo"><code>oracle_catalogo_efectivo</code><a class="ancla" href="#oracle_catalogo_efectivo" aria-label="Enlace a esta sección">#</a></h3>
+<p>Sin <code>ids</code>, devuelve una fila compacta por cada medida del <code>Catalogo</code> producido por <code>catalogo_efectivo</code>: id, origen lógico y estado de fijación. <code>total</code> es el tamaño del catálogo efectivo entero, no el largo de la selección devuelta. Con <code>ids</code>, conserva ese <code>total</code>, pone <code>detalle: true</code> y agrega a cada fila <code>relaciones</code>, <code>ambito</code>, <code>requiere</code>, umbral completo, alcance, archivo fuente y huella del archivo. <code>origen</code> se codifica sin estructura repetida: <code>catalogo_base:oracle</code>, <code>perfil:&lt;id&gt;</code>, <code>biblioteca:&lt;id&gt;</code> o <code>proyecto</code>. Una lista <code>ids</code> vacía se rechaza en vez de crear un tercer modo implícito. Las medidas siempre se ordenan por id, incluso si el pedido llegó en otro orden. <code>fuente</code> usa <code>presentar_ruta</code>: relativa al proyecto cuando pertenece a él y absoluta cuando vive en una distribución instalada.</p>
+<p>Pedir detalle de un id que está instalado pero queda afuera por <code>ambito</code> no debe responder «no existe». Debe rechazarlo así:</p>
+<blockquote><p><code>MEDIDA_NO_EFECTIVA — «perfil.regla» existe en una fuente seleccionada pero su ambito «del_origen» no obliga a «/ruta/proyecto».</code></p></blockquote>
+<p>Si el id no aparece en ninguna fuente seleccionada, el mensaje cambia la afirmación:</p>
+<blockquote><p><code>MEDIDA_DESCONOCIDA — «perfil.regla» no aparece en las fuentes seleccionadas por este proyecto. Consultá oracle_catalogo_efectivo sin ids para ver los efectivos.</code></p></blockquote>
+<p>La distinción importa para un agente: «no existe» lo invita a crear un duplicado; «no tiene jurisdicción acá» le enseña que el archivo ya tiene dueño y alcance.</p>
+<p><code>fijacion</code> tampoco se infiere contando casos en el adaptador. Sale de <code>ejercicio_del_catalogo</code>, que deja juzgar a <code>meta.toda_medida_esta_ejercitada</code>. Sus cuatro valores significan:</p>
+<ul><li><code>evidencia</code>: el corpus o un diferencial la ejercita;</li><li><code>arnes</code>: la evalúa un arnés sobre relaciones del lenguaje;</li><li><code>heredada</code>: responde el corpus de quien publicó la política, no este consumidor;</li><li><code>sin_fijar</code>: la medida jueza la encontró sin ejercicio.</li></ul>
+<p>Si no aparece la medida jueza o no se puede reunir toda la evidencia que ella sabe mirar, la consulta falla con <code>EVIDENCIA_INCOMPLETA</code>; no inventa un quinto estado ni entrega una mezcla de fijaciones comprobadas y desconocidas.</p>
+<p>La capacidad nueva no es «listar medidas en JSON». Es exponer, con procedencia conservada, la selección de jurisdicción que hoy sólo existe como función de núcleo. <code>oracle medida listar</code> y <code>oracle contexto</code> cargan fuentes; no contestan esa selección.</p>
+<h3 id="oracle_evaluar"><code>oracle_evaluar</code><a class="ancla" href="#oracle_evaluar" aria-label="Enlace a esta sección">#</a></h3>
+<p><code>medida</code> es una unión cerrada. <code>{&quot;id&quot;: ...}</code> sólo admite una medida del catálogo efectivo; <code>{&quot;texto&quot;: ..., &quot;formato&quot;: &quot;oracle&quot;|&quot;json&quot;}</code> carga una medida enteramente en memoria. No se admite <code>archivo</code>: aceptar una ruta haría de esta herramienta otra ortografía de <code>oracle medida probar</code> y abriría lecturas fuera de la raíz.</p>
+<p><code>evidencia</code> usa la representación JSON ya consumida por <code>Medida.evaluar</code>: cada clave es una relación y cada valor, una lista de filas objeto. El servidor pasa el resultado de <code>Veredicto.a_dict</code> a una única función de presentación; no vuelve a decidir el umbral en el adaptador.</p>
+<p>La respuesta tiene tres estados, no un booleano:</p>
+<ul><li><code>verde</code> cuando <code>ok</code> es verdadero;</li><li><code>rojo</code> cuando <code>ok</code> es falso y <code>sin_evidencia</code> está vacío;</li><li><code>sin_evidencia</code> cuando falta una relación declarada en <code>requiere</code>.</li></ul>
+<p>Una traducción que trate <code>sin_evidencia</code> como rojo sería plausible y falsa: rojo afirma algo del mundo; sin evidencia afirma que no se pudo mirar. El esquema evita el booleano tentador y el corpus del servidor debe fijar las tres ramas.</p>
+<p>El resultado gana la clave obligatoria <code>sombra</code> (esquema <code>oracle.mcp/evaluacion/v2</code>): <code>null</code> si la medida no está en sombra en el <code>oracle.json</code> del proyecto o si fue evaluada en memoria (<code>formato</code>); si está en sombra, <code>{&quot;desde&quot;: str, &quot;porque&quot;: str, &quot;cota&quot;: int | null, &quot;perdona&quot;: bool}</code>. <code>perdona</code> es verdadero sólo si la medida dio rojo y la sombra lo perdona: sin cota, siempre; con cota, sólo si el valor es un número y no la supera (la misma regla que <code>Informe.supera_su_cota</code> en <code>nucleo/medida.py</code>). <code>estado</code> no cambia (<code>verde</code>, <code>rojo</code> o <code>sin_evidencia</code>): la sombra no altera la medición sino su consecuencia.</p>
+<p>Se devuelven a lo sumo cinco testigos, el mismo corte que ya usa <code>tools/medida.py::probar</code>, y <code>testigos_omitidos</code> dice cuántos quedaron afuera. Una respuesta sin testigos nunca se interpreta como ausencia de evidencia: esa afirmación vive exclusivamente en <code>estado</code>. Si falta una relación que la medida consume pero no declara en <code>requiere</code>, la evaluación conserva la semántica actual del álgebra y agrega una advertencia; no inventa una precondición.</p>
+<p><code>alcance_derivado</code> se calcula sólo después de cargar correctamente las relaciones declaradas. Si el proyecto no declara ninguna, vuelve vacío y <code>advertencias</code> lo dice. Si las declaraciones existen pero son inválidas, la herramienta falla; no hereda el <code>except Exception: return []</code> de la vista actual ni hace pasar «no pude derivar» por «no hay puntos ciegos derivados».</p>
+<p>La capacidad nueva es que tanto la medida como la evidencia pueden llegar por valor y que el resultado es estructurado. El CLI exige que la medida ya exista como archivo y devuelve texto. Esto permite explorar sin ensuciar el árbol y sin parsear una salida pensada para personas.</p>
+<h3 id="oracle_desafiar"><code>oracle_desafiar</code><a class="ancla" href="#oracle_desafiar" aria-label="Enlace a esta sección">#</a></h3>
+<p>Esta herramienta acepta la misma unión de medida. Si <code>usar_evidencia_del_proyecto</code> se omite, vale verdadero: reúne los casos del corpus y los diferenciales cuyo <code>medida</code> coincide con el id del candidato. Los <code>casos</code> de la llamada se agregan en memoria y se marcan como efímeros. No aceptan <code>procedencia</code>, porque una llamada no puede convertir evidencia fabricada en evidencia observada. Ids repetidos entre ambas fuentes se rechazan con <code>CASO_REPETIDO</code>; nunca gana el último en silencio.</p>
+<p>El orden es parte del contrato:</p>
+<ol><li>carga y normaliza la medida;</li><li>reúne casos y conserva su origen;</li><li>evalúa el original contra cada expectativa;</li><li>si alguna no se reproduce, devuelve <code>original_no_reproduce</code> y no muta;</li><li>si no hay al menos un caso que espere verde y otro que espere rojo, devuelve <code>faltan_polaridades</code> y no muta;</li><li>genera los mutantes de la forma canónica y los ejecuta contra todos los casos;</li><li>separa cambio conductual, rechazo del álgebra y supervivencia.</li></ol>
+<p><code>discordancias</code> es vacío cuando el original reproduce todo. Una excepción durante un caso se registra como <code>obtenido: &quot;error&quot;</code>; no se transforma en rojo. <code>mutacion.generados</code> es el denominador antes de correr casos. <code>detectados_por_conducta</code> cuenta mutantes para los que algún caso invirtió el veredicto, cambió el valor o cambió testigos. Un mutante que sólo levantó una excepción va en <code>rechazado_por_el_algebra</code>: no se publica como capacidad conductual del corpus.</p>
+<p>La conclusión más fuerte se llama <code>todos_detectados_por_conducta</code>, no <code>correcta</code>, <code>aprobada</code> ni <code>lista_para_guardar</code>. Incluso esa conclusión significa solamente «estos mutadores, escritos por estos autores, fueron discriminados por estas evidencias». Si no sobrevivió ninguno pero hubo rechazos, la conclusión separada <code>sin_sobrevivientes_con_rechazos</code> impide inflar el resultado.</p>
+<p>La capacidad nueva es ejecutar el lazo candidato efímero → dos polaridades → mutación sin que la medida ni los casos existan en disco. Ni <code>oracle medida revisar</code>, ni <code>oracle medida probar</code>, ni <code>oracle caso generar</code> hacen esa composición en memoria.</p>
+<h3 id="oracle_juzgar"><code>oracle_juzgar</code><a class="ancla" href="#oracle_juzgar" aria-label="Enlace a esta sección">#</a></h3>
+<p>Lo mismo que <code>oracle juzgar --con</code>, sobre una evidencia JSON pasada por valor.</p>
+<p>Acepta <code>{&quot;evidencia&quot;: {...}, &quot;ids&quot;: [...]}</code> donde <code>ids</code> es opcional y no admite duplicados. Falla con <code>ARGUMENTOS_INVALIDOS</code> si faltan argumentos obligatorios o si <code>ids</code> contiene nombres malformados o repetidos.</p>
+<p>Aplica el catálogo <strong>efectivo</strong> del proyecto fijado al arranque, respetando el ámbito de cada medida y las sombras y cotas declaradas en <code>oracle.json</code>. Cuando <code>ids</code> se omite, evalúa todas las medidas aplicables y adjunta <code>no_aplicadas</code> con las medidas del catálogo propio cuyas relaciones faltaron en la evidencia. Si ninguna medida aplica, devuelve <code>ok: false</code> con una advertencia explicativa; nunca devuelve un verde vacío.</p>
+<p>Si se indica <code>ids</code> y alguna de las medidas pedidas no existe en el catálogo o no aplica a la evidencia provista, la herramienta falla cerrado con error de dominio (<code>MEDIDA_DESCONOCIDA</code>, <code>MEDIDA_NO_EFECTIVA</code> o <code>MEDIDA_NO_APLICABLE</code>), de modo análogo a <code>oracle_evaluar</code>.</p>
+<p>La salida (esquema <code>oracle.mcp/juzgar/v1</code>) incluye: <code>esquema</code>, <code>oracle_version</code>, <code>proyecto</code>, <code>entrada_sha256</code>, <code>ok</code>, <code>medidas</code> (con <code>estado</code>, <code>valor</code>, <code>umbral</code>, <code>sombra</code>, <code>testigos</code>, <code>testigos_omitidos</code> y <code>alcance</code>), <code>no_aplicadas</code>, <code>no_juzgaron</code> y <code>advertencias</code>. Conserva la misma protección de concurrencia que <code>oracle_evaluar</code> (<code>_evaluacion_estable</code>): si el proyecto cambia durante el juicio, rechaza con <code>PROYECTO_CAMBIO_DURANTE_LA_CONSULTA</code>.</p>
+<h3 id="oracle_tareas"><code>oracle_tareas</code><a class="ancla" href="#oracle_tareas" aria-label="Enlace a esta sección">#</a></h3>
+<p>Permite que un agente sin acceso a shell consulte el tracker de tareas (<code>tareas/</code>) del proyecto.</p>
+<p>Es estrictamente de <strong>sólo lectura</strong> (<code>readOnlyHint: true</code>, <code>destructiveHint: false</code>, <code>idempotentHint: true</code>, <code>openWorldHint: false</code>). No expone acciones de escritura (<code>nueva</code>, <code>anotar</code>, <code>cerrar</code>, <code>etiquetar</code>): una tarea creada o cerrada sin su commit correspondiente deja el tracker en rojo, y el commit no se realiza por MCP.</p>
+<p>Acepta cuatro acciones mediante el parámetro obligatorio <code>accion</code>:</p>
+<ul><li><code>listar</code>: enumera tareas sin <code>cuerpo</code>, conservando todos sus metadatos. Admite filtro opcional por <code>estado</code> (<code>&quot;ABIERTA&quot;</code> o <code>&quot;CERRADA&quot;</code>, por omisión abiertas) y por <code>etiqueta</code>.</li><li><code>ver</code>: requiere <code>id</code> (identificador canónico o prefijo inequívoco). Devuelve el detalle de la tarea con su <code>cuerpo</code> completo (incluidas las notas) o falla con <code>TAREA_NO_ENCONTRADA</code> o <code>ID_AMBIGUO</code>.</li><li><code>buscar</code>: requiere <code>texto</code>. Busca de forma literal e insensible a mayúsculas en tareas y notas del tracker, devolviendo <code>coincidencias</code> y <code>omitidos</code>.</li><li><code>hechos</code>: extrae los hechos relacionales del tracker (esquema de evidencia relacional para <code>oracle juzgar</code>), con soporte opcional de inspección de Git (<code>git: true</code>).</li></ul>
+<p>Si el proyecto no tiene directorio <code>tareas/</code>, la herramienta falla con <code>TRACKER_AUSENTE</code>, nunca con una lista o resultado vacío. Si el tracker contiene registros inválidos o symlinks no permitidos, falla con <code>TRACKER_INVALIDO</code>.</p>
+<p>La salida (esquema <code>oracle.mcp/tareas/v1</code>) incluye <code>esquema</code>, <code>oracle_version</code>, <code>proyecto</code>, <code>accion</code> y <code>resultado</code> (con la información del <code>--json</code> del verbo CLI equivalente, salvo <code>listar</code>, que omite <code>cuerpo</code>; <code>ver</code> conserva el contenido completo).</p>
+<h2 id="rechazos-y-forma-de-los-errores">Rechazos y forma de los errores<a class="ancla" href="#rechazos-y-forma-de-los-errores" aria-label="Enlace a esta sección">#</a></h2>
+<p>Hay que separar errores del protocolo y errores de ejecución de una herramienta. JSON ilegible usa <code>-32700</code>; un pedido que no es JSON-RPC válido usa <code>-32600</code>; un método MCP desconocido usa <code>-32601</code>; una herramienta desconocida o un sobre <code>tools/call</code> mal formado usa <code>-32602</code>. Son respuestas JSON-RPC con <code>error</code>, porque el despachador no pudo iniciar una herramienta. Los mensajes son, respectivamente, <code>JSON inválido: &lt;detalle&gt;</code>, <code>pedido JSON-RPC inválido: &lt;detalle&gt;</code>, <code>método no soportado: &lt;metodo&gt;</code> y <code>tools/call inválido: &lt;detalle&gt;</code>; para un nombre desconocido, el último detalle es <code>herramienta desconocida: &lt;nombre&gt;</code>.</p>
+<p>Todo error que el agente puede corregir dentro de una herramienta vuelve como resultado MCP con <code>isError: true</code> y un único bloque de texto. Su primera línea tiene forma estable <code>CODIGO — mensaje</code>; las siguientes dicen el campo y la corrección. No lleva <code>structuredContent</code>, porque los esquemas publicados describen respuestas exitosas y una respuesta de error no debe fingir que los cumple.</p>
+<p>Los códigos de dominio cerrados son:</p>
+<div class="tabla"><table><thead><tr><th>Código</th><th>Qué rechaza</th><th>Plantilla exacta del mensaje</th></tr></thead><tbody><tr><td><code>ARGUMENTOS_INVALIDOS</code></td><td>propiedades de más, unión con dos fuentes de medida, tipos o ids inválidos</td><td><code>ARGUMENTOS_INVALIDOS — &lt;ruta JSON&gt;: &lt;valor recibido&gt;; se esperaba &lt;forma&gt;.</code></td></tr><tr><td><code>PROYECTO_INVALIDO</code></td><td>estructura, configuración, confinamiento o symlink inválido</td><td><code>PROYECTO_INVALIDO — &lt;raíz&gt;: &lt;motivo de nucleo.proyecto&gt;.</code></td></tr><tr><td><code>CATALOGO_INVALIDO</code></td><td>una fuente seleccionada no carga, hay ids duplicados o versiones incompatibles</td><td><code>CATALOGO_INVALIDO — &lt;fuente&gt;: &lt;motivo de carga&gt;. No se devolvió un catálogo parcial.</code></td></tr><tr><td><code>MEDIDA_DESCONOCIDA</code></td><td>el id no aparece en fuentes seleccionadas</td><td><code>MEDIDA_DESCONOCIDA — «&lt;id&gt;» no aparece en las fuentes seleccionadas; consultá oracle_catalogo_efectivo sin ids.</code></td></tr><tr><td><code>MEDIDA_NO_EFECTIVA</code></td><td>el id existe pero su ámbito no obliga aquí</td><td><code>MEDIDA_NO_EFECTIVA — «&lt;id&gt;» existe en &lt;origen&gt;, pero su ambito «&lt;ambito&gt;» no obliga a «&lt;proyecto&gt;».</code></td></tr><tr><td><code>MEDIDA_NO_APLICABLE</code></td><td>el id pedido en <code>oracle_juzgar</code> no aplica a las relaciones de la evidencia</td><td><code>MEDIDA_NO_APLICABLE — «&lt;id&gt;» requiere las relaciones &lt;relaciones&gt;, no presentes en la evidencia.</code></td></tr><tr><td><code>MEDIDA_INVALIDA</code></td><td>el texto no parsea o no satisface <code>Medida.de_datos</code></td><td><code>MEDIDA_INVALIDA — &lt;id o texto&gt;: &lt;motivo&gt; en &lt;línea y columna o ruta canónica&gt;.</code></td></tr><tr><td><code>EVIDENCIA_INVALIDA</code></td><td>una relación no es una lista de objetos o una fila no es evaluable</td><td><code>EVIDENCIA_INVALIDA — $.evidencia.&lt;relación&gt;[&lt;índice&gt;]: &lt;motivo&gt;.</code></td></tr><tr><td><code>EVIDENCIA_INCOMPLETA</code></td><td>falta la medida jueza, un fixture está vencido o no se pudo reunir todo lo que exige un juicio de fijación</td><td><code>EVIDENCIA_INCOMPLETA — no se pudo juzgar la fijación: &lt;motivo&gt;. No se devolvieron fijaciones parciales.</code></td></tr><tr><td><code>CASO_REPETIDO</code></td><td>dos casos tienen el mismo id</td><td><code>CASO_REPETIDO — «&lt;id&gt;» aparece en &lt;origen 1&gt; y &lt;origen 2&gt;; ninguno tiene precedencia.</code></td></tr><tr><td><code>ESCALARES_NO_AUTORIZADAS</code></td><td>haría falta ejecutar <code>escalares.py</code> no confiado</td><td><code>ESCALARES_NO_AUTORIZADAS — &lt;archivo&gt; es código externo; autorizalo en la configuración de arranque del servidor, no en esta llamada.</code></td></tr><tr><td><code>TRACKER_AUSENTE</code></td><td>el proyecto no tiene directorio <code>tareas/</code></td><td><code>TRACKER_AUSENTE — el proyecto no tiene tracker de tareas: falta &lt;ruta tareas&gt;.</code></td></tr><tr><td><code>TRACKER_INVALIDO</code></td><td>el directorio <code>tareas/</code> contiene registros inválidos, documentos centrales corruptos o enlaces simbólicos</td><td><code>TRACKER_INVALIDO — se detectaron &lt;N&gt; registro(s) inválido(s) en &lt;ruta tareas&gt;:</code></td></tr><tr><td><code>TAREA_NO_ENCONTRADA</code></td><td>el id o prefijo pedido en <code>oracle_tareas ver</code> no existe</td><td><code>TAREA_NO_ENCONTRADA — no se encontró ninguna tarea con prefijo «&lt;id&gt;».</code></td></tr><tr><td><code>ID_AMBIGUO</code></td><td>el prefijo pedido en <code>oracle_tareas ver</code> coincide con más de una tarea</td><td><code>ID_AMBIGUO — el prefijo «&lt;prefijo&gt;» coincide con &lt;N&gt; tareas: &lt;ids&gt;.</code></td></tr><tr><td><code>LIMITE_DE_ALGEBRA</code></td><td>se excede un presupuesto de <code>LimitesAlgebra</code></td><td><code>LIMITE_DE_ALGEBRA — &lt;nombre&gt;: se observó &lt;valor&gt; y el límite activo es &lt;límite&gt;.</code></td></tr><tr><td><code>PROYECTO_CAMBIO_DURANTE_LA_CONSULTA</code></td><td>el conjunto o contenido de entradas cambió durante la operación</td><td><code>PROYECTO_CAMBIO_DURANTE_LA_CONSULTA — huella inicial &lt;sha&gt; y final &lt;sha&gt;; reintentá sobre un estado estable.</code></td></tr><tr><td><code>EVALUACION_FALLO</code></td><td>excepción no clasificable de una medida o escalar</td><td><code>EVALUACION_FALLO — &lt;tipo de excepción&gt;: &lt;mensaje&gt;. No se produjo un veredicto.</code></td></tr></tbody></table></div>
+<p>Una consulta vacía no es un error si el proyecto es válido: un catálogo efectivo de cero medidas responde <code>total: 0</code>. En cambio, una excepción al cargar nunca se convierte en cero. Esta regla elimina el patrón <code>except Exception: return []</code> de <code>tools/contexto.py</code>: para una interfaz que alimenta a un agente, «no pude mirar» y «miré y no hay» deben viajar por canales distintos.</p>
+<p>Los presupuestos de evaluación no se inventan en MCP. Son los ya definidos por <code>LimitesAlgebra</code>: filas por relación, producto cartesiano, profundidad de expresión y expansiones de macros. El adaptador no ofrece argumentos para aumentarlos. El límite de presentación de cinco testigos también precede a MCP. Para cancelación, el lector de stdio sigue atendiendo mensajes mientras el trabajo corre en un trabajador; al recibir <code>notifications/cancelled</code> marca el trabajo, deja de emitir su respuesta y corta entre casos o mutantes. Nunca imprime una respuesta tardía para un id cancelado.</p>
+<h2 id="por-qué-no-se-exponen-los-verbos-del-cli">Por qué no se exponen los verbos del CLI<a class="ancla" href="#por-qué-no-se-exponen-los-verbos-del-cli" aria-label="Enlace a esta sección">#</a></h2>
+<p>El comentario de la propuesta previa habla de 22 verbos, pero la fuente actual no contiene ese número. <code>VERBOS</code> declara 17 verbos canónicos de dominio y ocho temas bajo <code>manual</code>, 25 entradas si se cuentan esos temas como verbos. Los alias <code>--verbo</code> y <code>caso nueva</code> tampoco son capacidades. Esta es la medición reproducible:</p>
+<pre data-lenguaje="text"><code>$ python - &lt;&lt;&#x27;PY&#x27;
+from tools.cli import VERBOS
+for k, v in VERBOS.items(): print(k, len(v), &#x27;, &#x27;.join(v))
+print(&#x27;total_canónicos=&#x27;, sum(map(len, VERBOS.values())))
+print(&#x27;sin_temas_manual=&#x27;, sum(len(v) for k,v in VERBOS.items() if k != &#x27;manual&#x27;))
+PY
+medida 5 nueva, revisar, probar, listar, expandir
+caso 3 nuevo, listar, generar
+proyecto 5 init, test, relaciones, escalares, contexto
+biblioteca 4 nueva, instaladas, verificar, listar
+manual 8 operadores, segun, etiqueta, procedencia, como_se_detecto, relaciones, verbos, medidas
+total_canónicos= 25
+sin_temas_manual= 17</code></pre>
+<p>La exclusión se decide por capacidad, no por cantidad:</p>
+<div class="tabla"><table><thead><tr><th>Superficie del CLI</th><th>Por qué no es una herramienta MCP</th></tr></thead><tbody><tr><td><code>medida nueva</code>, <code>caso nuevo</code>, <code>proyecto init</code>, <code>biblioteca nueva</code></td><td>Crean plantillas o árboles. El agente ya sabe editar archivos y el MCP no sabe más que él al hacerlo.</td></tr><tr><td><code>medida revisar</code>, <code>medida probar</code></td><td>Sus partes nuevas quedan subsumidas por entrada enteramente en memoria y salida estructurada de <code>oracle_evaluar</code> y <code>oracle_desafiar</code>; envolver el archivo y el texto de consola no alcanza.</td></tr><tr><td><code>medida listar</code></td><td>Lista fuentes cargadas, no el catálogo efectivo por ámbito. La herramienta se justifica sólo por corregir esa pregunta mediante <code>catalogo_efectivo</code>.</td></tr><tr><td><code>medida expandir</code>, <code>convertir</code></td><td>Son transformaciones de representación que el CLI ya hace de modo determinista. No agregan observación ni falsación.</td></tr><tr><td><code>caso listar</code></td><td>Es un listado de archivos ya accesibles. El desafío usa esos casos sin obligar al agente a parsear la vista.</td></tr><tr><td><code>caso generar</code></td><td>Propone evidencia a partir de sobrevivientes y puede escribirla; <code>oracle_desafiar</code> devuelve el sobreviviente crudo. Inventar el caso sigue requiriendo juicio, no otra envoltura.</td></tr><tr><td><code>proyecto test</code></td><td>Es una orquestación larga disponible por consola. Ocultarla detrás de una llamada síncrona empeora progreso, cancelación y alcance sin crear una comprobación nueva.</td></tr><tr><td><code>proyecto relaciones</code>, <code>proyecto escalares</code>, <code>proyecto contexto</code></td><td>Ya son vistas compactas y el agente puede pedirlas por CLI. MCP no las vuelve nuevas por serializarlas. Las relaciones consumidas que hacen falta para entender jurisdicción sí viajan en el índice efectivo.</td></tr><tr><td><code>biblioteca instaladas</code>, <code>biblioteca verificar</code>, <code>biblioteca listar</code></td><td>Son administración e inspección del entorno de paquetes, no una pregunta sobre la medición actual. Además aceptar una ruta de biblioteca ampliaría la autoridad fijada al arrancar.</td></tr><tr><td><code>manual</code> y sus ocho temas</td><td>Son referencia derivada y estable. Meterla como herramienta cobraría descripciones en cada turno para devolver texto que ya se puede leer sin ejecución.</td></tr><tr><td><code>diagnostico</code>, ayuda y versión</td><td>Son soporte de la instalación. La versión necesaria ya acompaña cada resultado; el resto no participa de decidir ni medir.</td></tr><tr><td><code>tarea nueva</code>, <code>tarea anotar</code>, <code>tarea cerrar</code>, <code>tarea etiquetar</code>, <code>tarea adjuntar</code></td><td>Son operaciones de escritura del tracker. Modificar o cerrar una tarea sin su commit correspondiente deja el tracker en rojo, y el commit pertenece al control de versiones fuera de MCP. La consulta de sólo lectura se expone en <code>oracle_tareas</code>.</td></tr></tbody></table></div>
+<p>No se expone <code>oracle_proponer</code>. Su ausencia es deliberada, no una fase pendiente de esta superficie. Si en otra versión se quisiera escritura, tendría que responder una capacidad nueva propia —por ejemplo, una transacción revisable que no pueda sobrescribir— y no entrar por simetría con el CLI.</p>
+<h2 id="transporte">Transporte<a class="ancla" href="#transporte" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>tools/lsp.py</code> es el precedente correcto en cuatro decisiones: JSON-RPC escrito con la biblioteca estándar, un despachador explícito, respuestas compactas y stdout reservado al protocolo. No se debe copiar su enmarcado. LSP usa cabeceras <code>Content-Length</code>; el transporte stdio de MCP 2026-07-28 usa un objeto JSON-RPC UTF-8 por línea, sin saltos de línea literales. <code>json.dumps</code> escapa los saltos dentro de cadenas y cada escritura termina con un solo <code>\n</code>. Logs, trazas y excepciones van a stderr; una sola línea humana en stdout corrompe el canal.</p>
+<p>El servidor no necesita un SDK MCP ni un validador JSON Schema en producción. <code>json</code>, <code>sys</code>, <code>hashlib</code> y los mecanismos de concurrencia de la biblioteca estándar alcanzan para el transporte; los argumentos se validan con funciones explícitas contra estos tres esquemas cerrados. Un validador independiente sí conviene en los tests para comprobar que esas funciones y los esquemas publicados no divergieron. El <code>jsonschema</code> del comando de medición de este documento se instala en un entorno aislado y no se propone como dependencia del paquete.</p>
+<p>El servidor debe ser de dos eras porque en la fecha de este diseño conviven clientes anteriores y posteriores al cambio de ciclo de vida:</p>
+<ul><li>para MCP 2026-07-28 implementa <code>server/discover</code>, valida en cada pedido los metadatos de versión y capacidades, y no conserva una sesión implícita;</li><li>para MCP 2025-11-25 implementa <code>initialize</code>, <code>notifications/initialized</code>, <code>ping</code>, <code>shutdown</code> y <code>exit</code> con el estado de sesión correspondiente;</li><li>en ambas eras implementa <code>tools/list</code>, <code>tools/call</code> y <code>notifications/cancelled</code>, con la misma superficie y semántica de Oracle.</li></ul>
+<p>No anuncia recursos, prompts, muestreo, raíces ni cambios dinámicos de herramientas. El resultado de <code>tools/list</code> es siempre el arreglo anterior, en ese orden, por lo que se puede cachear y favorece la caché del prompt. En respuestas exitosas, <code>structuredContent</code> contiene el objeto que satisface <code>outputSchema</code> y <code>content</code> contiene su serialización JSON compacta para clientes que no consumen contenido estructurado. <code>isError</code> es falso. Esta duplicación en el cable se mide abajo: el anfitrión debería entregar al modelo una sola de las dos representaciones, no ambas.</p>
+<p>En la era moderna, todo resultado completo —incluidos los errores de ejecución— agrega <code>resultType: &quot;complete&quot;</code>; <code>tools/list</code> también lo agrega. En la era heredada se usa la forma de 2025-11-25, que no tiene ese campo. El objeto de dominio dentro de <code>structuredContent</code> es idéntico: la compatibilidad del transporte no crea dos contratos de Oracle.</p>
+<p>El servidor atiende llamadas concurrentes sin estado semántico compartido: cada una reconstruye su lectura desde la raíz fijada. Los registros temporales de macros y escalares viven dentro del trabajo y se restauran aun ante error o cancelación. No hay handles, caché cuya invalidez cambie una respuesta ni una llamada que dependa de haber invocado otra antes.</p>
+<p>Fuentes normativas del transporte consultadas para este diseño:</p>
+<ul><li><a href="https://modelcontextprotocol.io/specification/2026-07-28/basic/transports/stdio" rel="noopener">MCP 2026-07-28: stdio</a>, que fija la delimitación por nueva línea y el uso exclusivo de stdout;</li><li><a href="https://modelcontextprotocol.io/specification/2026-07-28/server/tools" rel="noopener">MCP 2026-07-28: herramientas</a>, que fija esquemas de entrada/salida, contenido estructurado y anotaciones;</li><li><a href="https://modelcontextprotocol.io/specification/2026-07-28/basic/versioning" rel="noopener">MCP 2026-07-28: versiones y compatibilidad</a>, que distingue pedidos modernos con metadatos de la inicialización heredada.</li></ul>
+<h2 id="costo-de-contexto">Costo de contexto<a class="ancla" href="#costo-de-contexto" aria-label="Enlace a esta sección">#</a></h2>
+<p>Hay dos costos diferentes. <code>tools/list</code> se paga al exponer la superficie, aunque no se llame nada; una respuesta se paga sólo cuando el agente usa una herramienta. Para no confundir palabras con tokens, todas las cifras siguientes usan <code>o200k_base</code> y el contenido UTF-8 exacto. No se afirma que todo anfitrión use ese tokenizador.</p>
+<p>La vista existente da una referencia medida del problema que se quiere mejorar:</p>
+<pre data-lenguaje="text"><code>$ uv run --isolated --with tiktoken python - &lt;&lt;&#x27;PY&#x27;
+import tiktoken
+from pathlib import Path
+from nucleo.proyecto import Proyecto
+from tools.contexto import texto
+enc=tiktoken.get_encoding(&#x27;o200k_base&#x27;)
+p=Proyecto(Path.cwd())
+for compacto in (False, True):
+    s=texto(p, compacto=compacto)
+    print((&#x27;normal&#x27; if not compacto else &#x27;compacto&#x27;), len(enc.encode(s)), &#x27;tokens o200k_base&#x27;)
+PY
+normal 5605 tokens o200k_base
+compacto 2104 tokens o200k_base</code></pre>
+<p>La superficie normativa cuesta 200 tokens en sus tres descripciones solas y 1.940 con nombres, anotaciones y esquemas completos. Esto último es el costo relevante si el anfitrión inyecta la definición entera, y explica por qué agregar herramientas «por comodidad» no es gratis.</p>
+<p>Para las respuestas se usó el proyecto Oracle de esta fecha, no objetos inventados: el índice de sus 57 medidas efectivas; el detalle de <code>meta.agrupar_no_agranda_la_relacion</code>; su caso rojo <code>051-agrupar-invento-un-grupo</code>; y su desafío con ese caso y el verde <code>052-agrupar-colapsa-como-debe</code>. El script arma los objetos según los esquemas anteriores, los valida con JSON Schema 2020-12 y mide tanto el objeto de dominio como el resultado moderno que lo duplica en <code>content</code> y <code>structuredContent</code>:</p>
+<pre data-lenguaje="text"><code>$ uv run --isolated --with tiktoken --with jsonschema python - &lt;&lt;&#x27;PY&#x27;
+import hashlib,json,re,tiktoken
+from pathlib import Path
+import catalogos
+from jsonschema import Draft202012Validator
+from nucleo.caso import cargar_casos
+from nucleo.medida import relaciones_de_medida
+from nucleo.mutacion import correr
+from nucleo.proyecto import Proyecto,catalogo_efectivo,macros_del_proyecto
+from nucleo.version import VERSION_DISTRIBUCION
+from tools.medida import alcance_derivado,ejercicio_del_catalogo
+H=lambda x:hashlib.sha256(json.dumps(x,ensure_ascii=False,sort_keys=True,separators=(&#x27;,&#x27;,&#x27;:&#x27;)).encode()).hexdigest()
+E=lambda v:&#x27;sin_evidencia&#x27; if v.sin_evidencia else (&#x27;verde&#x27; if v.ok else &#x27;rojo&#x27;)
+doc=Path(&#x27;docs/mcp-contrato.md&#x27;).read_text(); defs=json.loads(re.search(r&#x27;&lt;!-- herramientas-json:inicio --&gt;\n```json\n(.*?)\n```\n&lt;!-- herramientas-json:fin --&gt;&#x27;,doc,re.S).group(1))
+p=Proyecto(Path.cwd()); cat=catalogo_efectivo(p); ej=ejercicio_del_catalogo(p,cat,macros_del_proyecto(p)); assert ej.hubo_jueza and ej.completa; hp=hashlib.sha256()
+archivos={x.ruta.resolve() for x in cat.entradas.values()}|{x.resolve() for d in (&#x27;corpus&#x27;,&#x27;diferencial&#x27;,&#x27;macros&#x27;) for x in (p.raiz/d).rglob(&#x27;*&#x27;) if x.is_file()}|({(p.raiz/&#x27;oracle.json&#x27;).resolve()} if (p.raiz/&#x27;oracle.json&#x27;).is_file() else set())
+for ruta in sorted(archivos): hp.update(str(ruta).encode()+b&#x27;\0&#x27;+ruta.read_bytes()+b&#x27;\0&#x27;)
+ms=[]
+for mid in sorted(cat):
+ x=cat.entradas[mid]; o=&#x27;proyecto&#x27; if x.origen.clase==&#x27;proyecto&#x27; else f&#x27;{x.origen.clase}:{x.origen.identificador}&#x27;
+ f=(&#x27;heredada&#x27; if mid in ej.heredadas else &#x27;evidencia&#x27; if ej.casos_por_medida.get(mid,0) else &#x27;arnes&#x27; if mid in ej.aparte else &#x27;sin_fijar&#x27;)
+ assert f!=&#x27;sin_fijar&#x27; or mid in ej.sin_ejercitar
+ ms.append({&#x27;id&#x27;:mid,&#x27;origen&#x27;:o,&#x27;fijacion&#x27;:f})
+base={&#x27;esquema&#x27;:&#x27;oracle.mcp/catalogo-efectivo/v1&#x27;,&#x27;oracle_version&#x27;:VERSION_DISTRIBUCION,&#x27;proyecto&#x27;:str(p.raiz.resolve()),&#x27;huella_proyecto&#x27;:hp.hexdigest(),&#x27;total&#x27;:len(cat)}
+rc={**base,&#x27;detalle&#x27;:False,&#x27;medidas&#x27;:ms}; elegido=&#x27;meta.agrupar_no_agranda_la_relacion&#x27;; m=cat[elegido]; ent=cat.entradas[elegido]; mi=next(x for x in ms if x[&#x27;id&#x27;]==elegido)
+rmd={**base,&#x27;detalle&#x27;:True,&#x27;medidas&#x27;:[{**mi,&#x27;relaciones&#x27;:list(relaciones_de_medida(m)),&#x27;ambito&#x27;:m.ambito,&#x27;requiere&#x27;:list(m.requiere),&#x27;umbral&#x27;:{&#x27;operador&#x27;:m.op,&#x27;valor&#x27;:m.limite,&#x27;segun&#x27;:m.segun,&#x27;porque&#x27;:m.porque},&#x27;alcance&#x27;:m.alcance,&#x27;fuente&#x27;:ent.ruta.relative_to(p.raiz).as_posix(),&#x27;fuente_sha256&#x27;:hashlib.sha256(ent.ruta.read_bytes()).hexdigest()}]}
+cs=[x for x in cargar_casos(p.corpus) if x[&#x27;id&#x27;] in {&#x27;051-agrupar-invento-un-grupo&#x27;,&#x27;052-agrupar-colapsa-como-debe&#x27;}]; cr=next(x for x in cs if x[&#x27;id&#x27;]==&#x27;051-agrupar-invento-un-grupo&#x27;); v=m.evaluar(cr[&#x27;evidencia&#x27;])
+reval={&#x27;esquema&#x27;:&#x27;oracle.mcp/evaluacion/v1&#x27;,&#x27;oracle_version&#x27;:VERSION_DISTRIBUCION,&#x27;proyecto&#x27;:str(p.raiz.resolve()),&#x27;entrada_sha256&#x27;:H({&#x27;medida&#x27;:m.a_datos(),&#x27;evidencia&#x27;:cr[&#x27;evidencia&#x27;]}),&#x27;medida&#x27;:m.id,&#x27;estado&#x27;:E(v),&#x27;valor&#x27;:v.valor,&#x27;umbral&#x27;:{&#x27;operador&#x27;:m.op,&#x27;valor&#x27;:m.limite,&#x27;segun&#x27;:m.segun,&#x27;porque&#x27;:m.porque},&#x27;testigos&#x27;:[dict(x) for x in v.testigos[:5]],&#x27;testigos_omitidos&#x27;:max(0,len(v.testigos)-5),&#x27;alcance&#x27;:m.alcance,&#x27;alcance_derivado&#x27;:alcance_derivado(p,m),&#x27;advertencias&#x27;:[]}
+facts=correr({m.id:m},cs)[&#x27;mutante&#x27;]; no=[]; det=rej=0
+for f in facts:
+ if f[&#x27;detecciones_conductuales&#x27;]: det+=1
+ elif f[&#x27;rechazos_del_algebra&#x27;]: rej+=1; no.append({&#x27;id&#x27;:f[&#x27;id&#x27;],&#x27;cambio&#x27;:f[&#x27;cambio&#x27;],&#x27;estado&#x27;:&#x27;rechazado_por_el_algebra&#x27;})
+ else: no.append({&#x27;id&#x27;:f[&#x27;id&#x27;],&#x27;cambio&#x27;:f[&#x27;cambio&#x27;],&#x27;estado&#x27;:&#x27;sobrevivio&#x27;})
+disc=[]
+for c in cs:
+ esp=&#x27;verde&#x27; if c[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; else &#x27;rojo&#x27;; obt=E(m.evaluar(c[&#x27;evidencia&#x27;]))
+ if esp!=obt: disc.append({&#x27;caso&#x27;:c[&#x27;id&#x27;],&#x27;esperado&#x27;:esp,&#x27;obtenido&#x27;:obt})
+con=(&#x27;original_no_reproduce&#x27; if disc else &#x27;faltan_polaridades&#x27; if len({x[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; for x in cs})&lt;2 else &#x27;sin_mutantes&#x27; if not facts else &#x27;sobrevivientes&#x27; if any(x[&#x27;estado&#x27;]==&#x27;sobrevivio&#x27; for x in no) else &#x27;sin_sobrevivientes_con_rechazos&#x27; if rej else &#x27;todos_detectados_por_conducta&#x27;)
+rd={&#x27;esquema&#x27;:&#x27;oracle.mcp/desafio/v1&#x27;,&#x27;oracle_version&#x27;:VERSION_DISTRIBUCION,&#x27;proyecto&#x27;:str(p.raiz.resolve()),&#x27;entrada_sha256&#x27;:H({&#x27;medida&#x27;:m.a_datos(),&#x27;casos&#x27;:cs}),&#x27;medida&#x27;:m.id,&#x27;conclusion&#x27;:con,&#x27;casos&#x27;:{&#x27;total&#x27;:len(cs),&#x27;del_proyecto&#x27;:len(cs),&#x27;efimeros&#x27;:0,&#x27;esperan_verde&#x27;:sum(x[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; for x in cs),&#x27;esperan_rojo&#x27;:sum(x[&#x27;etiqueta&#x27;]!=&#x27;verde_correcto&#x27; for x in cs)},&#x27;discordancias&#x27;:disc,&#x27;mutacion&#x27;:{&#x27;generados&#x27;:len(facts),&#x27;detectados_por_conducta&#x27;:det,&#x27;rechazados_por_el_algebra&#x27;:rej,&#x27;no_detectados&#x27;:no},&#x27;advertencias&#x27;:[&#x27;La mutación no demuestra corrección semántica.&#x27;]}
+enc=tiktoken.get_encoding(&#x27;o200k_base&#x27;); dumps=lambda x:json.dumps(x,ensure_ascii=False,separators=(&#x27;,&#x27;,&#x27;:&#x27;)); tok=lambda x:len(enc.encode(dumps(x)))
+print(&#x27;descripciones=&#x27;,len(enc.encode(&#x27;\n&#x27;.join(x[&#x27;description&#x27;] for x in defs))),&#x27;tokens o200k_base&#x27;); print(&#x27;definiciones_tools_list=&#x27;,tok(defs),&#x27;tokens o200k_base&#x27;)
+for name,payload,schema in [(&#x27;catalogo_indice&#x27;,rc,defs[0][&#x27;outputSchema&#x27;]),(&#x27;catalogo_detalle_un_id&#x27;,rmd,defs[0][&#x27;outputSchema&#x27;]),(&#x27;evaluacion_roja&#x27;,reval,defs[1][&#x27;outputSchema&#x27;]),(&#x27;desafio_dos_polaridades&#x27;,rd,defs[2][&#x27;outputSchema&#x27;])]:
+ Draft202012Validator(schema).validate(payload); result={&#x27;resultType&#x27;:&#x27;complete&#x27;,&#x27;content&#x27;:[{&#x27;type&#x27;:&#x27;text&#x27;,&#x27;text&#x27;:dumps(payload)}],&#x27;structuredContent&#x27;:payload,&#x27;isError&#x27;:False}
+ print(name,&#x27;campos_validos=si&#x27;,&#x27;payload=&#x27;,tok(payload),&#x27;tokens&#x27;,&#x27;resultado_moderno_duplicado=&#x27;,tok(result),&#x27;tokens&#x27;,&#x27;bytes=&#x27;,len(dumps(payload).encode()))
+print(&#x27;catalogo_total=&#x27;,rc[&#x27;total&#x27;],&#x27;detalle_id=&#x27;,elegido,&#x27;caso_evaluado=&#x27;,cr[&#x27;id&#x27;],&#x27;estado=&#x27;,reval[&#x27;estado&#x27;],&#x27;desafio_conclusion=&#x27;,rd[&#x27;conclusion&#x27;],&#x27;mutantes=&#x27;,len(facts))
+PY
+Installed 1 package in 2ms
+descripciones= 200 tokens o200k_base
+definiciones_tools_list= 1940 tokens o200k_base
+catalogo_indice campos_validos=si payload= 1897 tokens resultado_moderno_duplicado= 3933 tokens bytes= 6062
+catalogo_detalle_un_id campos_validos=si payload= 369 tokens resultado_moderno_duplicado= 769 tokens bytes= 1237
+evaluacion_roja campos_validos=si payload= 331 tokens resultado_moderno_duplicado= 692 tokens bytes= 1151
+desafio_dos_polaridades campos_validos=si payload= 481 tokens resultado_moderno_duplicado= 998 tokens bytes= 1266
+catalogo_total= 57 detalle_id= meta.agrupar_no_agranda_la_relacion caso_evaluado= 051-agrupar-invento-un-grupo estado= rojo desafio_conclusion= sin_sobrevivientes_con_rechazos mutantes= 16</code></pre>
+<p>La respuesta típica barata queda entre 331 y 481 tokens de contenido estructurado en estos casos. El índice completo cuesta 1.897 porque enumera las 57 medidas; el detalle selectivo de una vuelve a</p>
+<ol><li>El peor costo observado no lo causa Oracle sino la compatibilidad que duplica el mismo JSON: si el anfitrión entrega ambas copias al modelo, casi duplica todos esos valores. Por eso el contrato mantiene el índice compacto y exige que el anfitrión prefiera <code>structuredContent</code> cuando lo soporte. Estas son mediciones de los casos nombrados, no cotas universales: más medidas, prosa más larga o más sobrevivientes producen respuestas mayores.</li></ol>
+<h2 id="una-respuesta-plausible-y-equivocada">Una respuesta plausible y equivocada<a class="ancla" href="#una-respuesta-plausible-y-equivocada" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un <code>outputSchema</code> sólo detecta una mentira de forma: falta un campo, sobra otro o cambia un tipo. No detecta una lista bien formada del catálogo equivocado. Tampoco lo hace una huella calculada por el mismo servidor que produjo la respuesta. Por eso el contrato usa cuatro defensas distintas y no presenta ninguna como suficiente:</p>
+<ol><li><strong>Una sola autoridad semántica por afirmación.</strong> La jurisdicción sale de <code>catalogo_efectivo</code>; el estado puntual sale de <code>Veredicto</code>; el ejercicio sale de la medida meta; la mutación sale de <code>nucleo.mutacion.correr</code>. El adaptador proyecta datos, no reescribe reglas.</li><li><strong>Fallo cerrado.</strong> Catálogo, corpus o diferenciales ilegibles producen <code>isError</code>; nunca una lista vacía, un verde o una ronda sin sobrevivientes.</li><li><strong>Datos que permiten reconciliar.</strong> Se devuelve valor junto con umbral, testigos junto con su truncamiento, denominador de mutantes junto con sus tres destinos, origen junto con id y huellas junto con versión. Un consumidor mecánico puede rechazar cuentas que no cierran antes de que las lea el agente.</li><li><strong>Un oráculo externo al camino productivo.</strong> Un corpus de conversaciones JSON-RPC completas fija los bytes y la semántica observada; la mutación del módulo demuestra que esos casos fallan cuando el adaptador altera una afirmación.</li></ol>
+<p>La cuarta es la que descubre una respuesta coherente pero incorrecta. Repetir la llamada sólo detecta no determinismo; no detecta un error determinista. El agente en producción no puede adivinarlo. Si una mutación que reemplaza <code>catalogo_efectivo</code> por <code>catalogos_a_cargar</code>, cambia <code>sin_evidencia</code> por <code>rojo</code>, cuenta un rechazo del álgebra como detección conductual o traga una excepción sigue dejando verde el corpus MCP, el servidor no está verificado.</p>
+<p>Las respuestas tampoco deben usar lenguaje que exceda sus datos. <code>oracle_evaluar</code> dice lo que ocurrió con una evidencia; <code>oracle_desafiar</code>, qué mutaciones discriminó un conjunto. Ninguna dice que el mundo está bien, que la procedencia es observada o que el candidato debe guardarse. Reducir la fuerza de la afirmación no arregla un cálculo equivocado, pero evita que un cálculo correcto se vuelva una conclusión falsa al cruzar el transporte.</p>
+<h2 id="verificación-del-servidor">Verificación del servidor<a class="ancla" href="#verificación-del-servidor" aria-label="Enlace a esta sección">#</a></h2>
+<p>La prueba debe entrar por stdin y observar stdout, stderr, código de salida y sistema de archivos. Llamar directamente a las funciones del adaptador no fija el contrato de transporte. El corpus mínimo contiene conversaciones completas para:</p>
+<ul><li>descubrimiento moderno y negociación de una versión no soportada;</li><li>inicialización heredada, orden válido, apagado y salida;</li><li><code>tools/list</code> exacto, estable y conforme a sus propios esquemas;</li><li>JSON truncado, mensaje no objeto, método desconocido, herramienta desconocida y argumentos con propiedad extra;</li><li>proyecto efectivo construido con catálogo base, perfil, biblioteca y catálogo propio, incluyendo una medida <code>universal</code>, una <code>del_origen</code> ajena excluida y una <code>del_origen</code> propia incluida;</li><li>detalle de id desconocido frente a id existente pero no efectivo;</li><li>evaluación verde, roja y sin evidencia, con testigos por debajo y por encima del corte de presentación;</li><li>candidato en texto que no toca disco y forma canónica equivalente que devuelve la misma evaluación;</li><li>original que no reproduce un caso, corpus de una sola polaridad, mutante sobreviviente, mutante detectado por conducta y mutante rechazado por el álgebra;</li><li>catálogo roto, diferencial vencido, escalar no autorizada y cambio concurrente de una entrada;</li><li>cancelación durante una ronda y ausencia posterior de respuesta para ese id;</li><li>stdout compuesto exclusivamente por objetos JSON-RPC de una línea y proyecto byte a byte idéntico antes y después de cada herramienta.</li></ul>
+<p>No basta cobertura de ramas. La ronda de mutación del módulo MCP tiene que matar, al menos, cambios de despacho, nombre de campo, esquema, estado, origen, selector de catálogo, clasificación de mutantes, canal stdout/stderr y supresión de errores. Los tests específicos del protocolo deben ir primero al mutar ese objetivo: son los que pueden matar barato y con un diagnóstico que nombre el contrato roto.</p>
+<h3 id="la-afirmación-que-custodia-y-nadie-más-comprueba">La afirmación que custodia y nadie más comprueba<a class="ancla" href="#la-afirmación-que-custodia-y-nadie-más-comprueba" aria-label="Enlace a esta sección">#</a></h3>
+<p>El futuro módulo MCP sólo merece entrar en <code>HERRAMIENTAS_CUSTODIAS</code> si custodia esta afirmación:</p>
+<blockquote><p><strong>Todo <code>tools/call</code> aceptado proyecta por stdout, sin ampliar la raíz ni escribirla, exactamente la distinción semántica que devolvió el núcleo: catálogo cargado frente a efectivo, verde frente a rojo frente a sin evidencia, y mutante detectado frente a rechazado frente a sobreviviente.</strong></p></blockquote>
+<p><code>nucleo/proyecto.py</code>, <code>nucleo/medida.py</code> y <code>nucleo/mutacion.py</code> comprueban cada distinción antes del transporte. <code>tools/lsp.py</code> comprueba otro protocolo. Ninguno comprueba que el adaptador MCP preserve esas distinciones en los bytes que recibe un agente ni que una llamada declarada de lectura deje el árbol intacto. Ésa es la custodia propia. Si los tests del servidor sólo vuelven a probar el núcleo, el archivo no entra en la lista aunque tenga cobertura alta.</p>
+<h2 id="condiciones-de-aceptación-del-diseño">Condiciones de aceptación del diseño<a class="ancla" href="#condiciones-de-aceptación-del-diseño" aria-label="Enlace a esta sección">#</a></h2>
+<p>El servidor está listo para implementarse cuando pueda demostrarse, con el corpus anterior, que:</p>
+<ul><li>publica exactamente tres herramientas y las tres justifican una capacidad que el CLI no tiene;</li><li>una llamada no puede elegir otra raíz, autorizar código externo ni persistir un borrador;</li><li>el índice usa <code>catalogo_efectivo</code> y conserva el origen lógico de cada entrada;</li><li>ninguna falla de carga se disfraza de vacío, verde o mutación concluyente;</li><li>la evaluación conserva los tres estados y el desafío conserva las tres clases de mutante;</li><li>cada respuesta exitosa satisface su <code>outputSchema</code> y cada error corregible llega al agente como <code>isError: true</code> con un mensaje accionable;</li><li>el mismo contrato funciona en las dos eras declaradas, con una línea JSON-RPC por mensaje;</li><li>el proyecto queda idéntico antes y después de todas las conversaciones;</li><li>la mutación del módulo no deja sobrevivir cambios a la afirmación que custodia.</li></ul>
+<p>Hasta que esas condiciones tengan corpus y resultado de mutación, «MCP» describe un transporte posible, no una herramienta confiable para un agente.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/mcp-contrato.md" rel="noopener">docs/mcp-contrato.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#decisión">Decisión</a></li><li class="n2"><a href="#autoridad-y-modelo-de-ejecución">Autoridad y modelo de ejecución</a></li><li class="n2"><a href="#superficie-normativa">Superficie normativa</a></li><li class="n3"><a href="#oracle_catalogo_efectivo">oracle_catalogo_efectivo</a></li><li class="n3"><a href="#oracle_evaluar">oracle_evaluar</a></li><li class="n3"><a href="#oracle_desafiar">oracle_desafiar</a></li><li class="n3"><a href="#oracle_juzgar">oracle_juzgar</a></li><li class="n3"><a href="#oracle_tareas">oracle_tareas</a></li><li class="n2"><a href="#rechazos-y-forma-de-los-errores">Rechazos y forma de los errores</a></li><li class="n2"><a href="#por-qué-no-se-exponen-los-verbos-del-cli">Por qué no se exponen los verbos del CLI</a></li><li class="n2"><a href="#transporte">Transporte</a></li><li class="n2"><a href="#costo-de-contexto">Costo de contexto</a></li><li class="n2"><a href="#una-respuesta-plausible-y-equivocada">Una respuesta plausible y equivocada</a></li><li class="n2"><a href="#verificación-del-servidor">Verificación del servidor</a></li><li class="n3"><a href="#la-afirmación-que-custodia-y-nadie-más-comprueba">La afirmación que custodia y nadie más comprueba</a></li><li class="n2"><a href="#condiciones-de-aceptación-del-diseño">Condiciones de aceptación del diseño</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

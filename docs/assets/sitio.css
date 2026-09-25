@@ -1,0 +1,149 @@
+/* Oracle — el sistema visual del sitio. Una sola hoja para la portada y las páginas generadas. */
+
+:root {
+  --papel: #F2F4F1;
+  --papel-2: #E7EBE6;
+  --tinta: #141A1F;
+  --tinta-2: #3B454D;
+  --gris: #5A6670;
+  --linea: #CDD4CE;
+  --acento: #4338CA;
+  --acento-suave: #E4E2FB;
+  --sobre-acento: #FFFFFF;
+  --rojo: #C2362B;
+  --rojo-suave: #F7DEDA;
+  --verde: #1E7F55;
+  --verde-suave: #D8EFE3;
+  --ambar: #A86A00;
+  --ambar-suave: #F6E8C8;
+  --codigo-fondo: #1B2229;
+  --codigo-tinta: #E3E9E5;
+  --codigo-clave: #B3AEFF;
+  --codigo-texto: #8FD6AE;
+  --sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  --pixel: "Silkscreen", "JetBrains Mono", ui-monospace, monospace;
+  --ancho-prosa: 68ch;
+  --gutter: clamp(16px, 4vw, 40px);
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --papel: #0E1215; --papel-2: #161C21; --tinta: #E4EAE6; --tinta-2: #B9C3BD; --gris: #8E9AA2;
+    --linea: #2A3339; --acento: #A5A0FF; --acento-suave: #25234A; --sobre-acento: #0E1215; --rojo: #FF6F61; --rojo-suave: #3A1C19;
+    --verde: #4FD192; --verde-suave: #14301F; --ambar: #F0B340; --ambar-suave: #33280F;
+    --codigo-fondo: #151B20; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --papel: #0E1215; --papel-2: #161C21; --tinta: #E4EAE6; --tinta-2: #B9C3BD; --gris: #8E9AA2;
+  --linea: #2A3339; --acento: #A5A0FF; --acento-suave: #25234A; --sobre-acento: #0E1215; --rojo: #FF6F61; --rojo-suave: #3A1C19;
+  --verde: #4FD192; --verde-suave: #14301F; --ambar: #F0B340; --ambar-suave: #33280F;
+  --codigo-fondo: #151B20; color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: 80px; }
+body {
+  margin: 0; background: var(--papel); color: var(--tinta);
+  font-family: var(--sans); font-size: 17px; line-height: 1.6;
+}
+img, svg, canvas { max-width: 100%; }
+a { color: var(--acento); text-underline-offset: 3px; text-decoration-thickness: 1px; }
+a:hover { text-decoration-thickness: 2px; }
+:focus-visible { outline: 3px solid var(--acento); outline-offset: 2px; border-radius: 2px; }
+code, pre { font-family: var(--mono); }
+h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em; }
+
+.saltar { position: absolute; left: -999px; top: 8px; background: var(--tinta); color: var(--papel);
+          padding: 8px 14px; z-index: 10; }
+.saltar:focus { left: 8px; }
+
+/* ---------------------------------------------------------------- barra */
+.barra {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding-block: 12px; padding-inline: var(--gutter);
+  background: color-mix(in srgb, var(--papel) 92%, transparent);
+  backdrop-filter: blur(8px); border-bottom: 1px solid var(--linea);
+}
+.marca { display: inline-flex; align-items: center; gap: 10px; font-weight: 800; font-size: 19px;
+         color: var(--tinta); text-decoration: none; letter-spacing: -0.02em; }
+.marca img { image-rendering: pixelated; }
+.barra nav { display: flex; gap: clamp(14px, 3vw, 28px); flex-wrap: wrap; font-size: 15px; font-weight: 500; }
+.barra nav a { color: var(--tinta-2); text-decoration: none; }
+.barra nav a:hover, .barra nav a[aria-current] { color: var(--acento); }
+
+/* ---------------------------------------------------------------- etiquetas pixel */
+.pixel { font-family: var(--pixel); font-size: 12px; letter-spacing: 0.06em; text-transform: uppercase; }
+.lampara { display: inline-flex; align-items: center; gap: 6px; font-family: var(--pixel); font-size: 12px;
+           padding: 3px 8px; border-radius: 2px; }
+.lampara.rojo { background: var(--rojo-suave); color: var(--rojo); }
+.lampara.verde { background: var(--verde-suave); color: var(--verde); }
+.lampara.ambar { background: var(--ambar-suave); color: var(--ambar); }
+
+/* ---------------------------------------------------------------- documentación */
+.doc-rejilla {
+  display: grid; grid-template-columns: 230px minmax(0, 1fr) 210px; gap: clamp(24px, 4vw, 56px);
+  padding-inline: var(--gutter); padding-block: 32px 80px; max-width: 1400px; margin: 0 auto;
+}
+.menu { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 96px); overflow: auto; }
+.menu summary { display: none; }
+.menu ul, .en-esta-pagina ul { list-style: none; margin: 0 0 20px; padding: 0; }
+.menu li a, .en-esta-pagina li a { display: block; padding: 5px 10px; border-radius: 4px; color: var(--tinta-2);
+                                    text-decoration: none; font-size: 15px; line-height: 1.35; }
+.menu li a:hover, .en-esta-pagina li a:hover { background: var(--papel-2); color: var(--tinta); }
+.menu li a[aria-current] { background: var(--acento-suave); color: var(--acento); font-weight: 600; }
+.menu-grupo { font-family: var(--pixel); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+              color: var(--gris); margin: 0 0 6px 10px; }
+.en-esta-pagina { position: sticky; top: 76px; align-self: start; max-height: calc(100vh - 96px); overflow: auto; }
+.en-esta-pagina li.n3 a { padding-left: 22px; font-size: 14px; }
+
+.prosa { font-family: var(--serif); font-size: 18px; line-height: 1.7; max-width: var(--ancho-prosa); min-width: 0; }
+.prosa h1, .prosa h2, .prosa h3, .prosa h4 { font-family: var(--sans); position: relative; }
+.prosa h1 { font-size: clamp(32px, 4.4vw, 46px); font-weight: 800; margin: 0 0 24px; letter-spacing: -0.025em; }
+.prosa h2 { font-size: 28px; font-weight: 700; margin: 56px 0 14px; padding-top: 22px; border-top: 1px solid var(--linea); }
+.prosa h3 { font-size: 21px; font-weight: 700; margin: 36px 0 10px; }
+.prosa h4 { font-size: 17px; font-weight: 700; margin: 28px 0 8px; }
+.prosa .ancla { margin-left: 10px; color: var(--linea); text-decoration: none; font-weight: 400; opacity: 0; }
+.prosa :is(h1, h2, h3, h4):hover .ancla, .prosa .ancla:focus { opacity: 1; color: var(--gris); }
+.prosa p { margin: 0 0 18px; }
+.prosa ul, .prosa ol { margin: 0 0 18px; padding-left: 26px; }
+.prosa li { margin: 4px 0; }
+.prosa li > ul, .prosa li > ol { margin: 6px 0; }
+.prosa code { font-size: 0.84em; background: var(--papel-2); padding: 1px 5px; border-radius: 3px; }
+.prosa pre { background: var(--codigo-fondo); color: var(--codigo-tinta); padding: 18px 20px; border-radius: 6px;
+             overflow-x: auto; font-size: 14px; line-height: 1.6; margin: 0 0 22px; }
+.prosa pre code { background: none; padding: 0; font-size: inherit; }
+.prosa pre[data-lenguaje]::before { content: attr(data-lenguaje); display: block; font-family: var(--pixel);
+             font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8B97A0; margin-bottom: 8px; }
+.c-kw { color: var(--codigo-clave); font-weight: 600; }
+.c-txt { color: var(--codigo-texto); }
+.prosa blockquote { margin: 0 0 20px; padding: 4px 0 4px 20px; border-left: 3px solid var(--acento); color: var(--tinta-2); }
+.prosa blockquote p:last-child { margin-bottom: 0; }
+.prosa hr { border: 0; border-top: 1px solid var(--linea); margin: 40px 0; }
+.tabla { overflow-x: auto; margin: 0 0 24px; border: 1px solid var(--linea); border-radius: 6px; }
+.prosa table { border-collapse: collapse; width: 100%; font-family: var(--sans); font-size: 15px; line-height: 1.45; }
+.prosa th, .prosa td { text-align: left; vertical-align: top; padding: 9px 12px; border-bottom: 1px solid var(--linea); }
+.prosa th { background: var(--papel-2); font-weight: 600; }
+.prosa tr:last-child td { border-bottom: 0; }
+.prosa .fuente { font-family: var(--sans); font-size: 14px; color: var(--gris); margin-top: 56px;
+                 padding-top: 16px; border-top: 1px solid var(--linea); }
+.imagen-faltante { color: var(--gris); font-style: italic; }
+
+@media (max-width: 1100px) {
+  .doc-rejilla { grid-template-columns: 210px minmax(0, 1fr); }
+  .en-esta-pagina { display: none; }
+}
+@media (max-width: 760px) {
+  .doc-rejilla { grid-template-columns: minmax(0, 1fr); padding-block: 16px 60px; }
+  .menu { position: static; max-height: none; border: 1px solid var(--linea); border-radius: 6px; padding: 4px 8px; }
+  .menu summary { display: block; cursor: pointer; font-weight: 600; padding: 8px 4px; }
+  .menu:not([open]) nav { display: none; }
+  .prosa { font-size: 17px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

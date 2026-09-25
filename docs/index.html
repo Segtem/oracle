@@ -2,253 +2,233 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Oracle — metalenguaje de medidas</title>
-<meta name="description" content="Un lenguaje para escribir reglas que fallan —con un número, un umbral y las filas que ofendieron— en vez de documentos que aconsejan. Python, sin dependencias, MIT.">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oracle</title>
+<meta name="description" content="Oracle es un lenguaje para escribir las reglas de un proyecto de forma que puedan fallar: con un número, un umbral que dice de dónde sale y las filas exactas que ofendieron.">
 <link rel="canonical" href="https://segtem.github.io/oracle/">
-<meta property="og:title" content="Oracle — metalenguaje de medidas">
-<meta property="og:description" content="Reglas que fallan, no documentos que aconsejan. Toda medida declara su umbral, de dónde salió el número, y qué NO mira.">
-<meta property="og:type" content="website">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<style>
-  :root {
-    --tinta: oklch(0.16 0 0);
-    --papel: oklch(0.96 0.004 95);
-    --acento: oklch(0.58 0.20 45);
-    --acento-claro: oklch(0.78 0.19 60);
-    --rojo: oklch(0.66 0.22 27);
-    --regla: 3px;
-    --mg: 44px;
-    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-    --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0; background: var(--papel); color: var(--tinta);
-    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-    font-size: 17px; line-height: 1.5;
-  }
-  a { color: inherit; text-decoration: underline; text-underline-offset: 3px;
-      text-decoration-thickness: 1px; }
-  a:hover { color: var(--acento); }
-  code, pre { font-family: var(--mono); }
-
-  .fila { border-top: var(--regla) solid var(--tinta); }
-  .pad { padding: 34px var(--mg); }
-  .mono-eti { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em;
-              text-transform: uppercase; margin: 0 0 18px; color: oklch(0.45 0.01 95); }
-
-  /* ---- barra ---- */
-  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
-           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
-           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
-           text-transform: uppercase; flex-wrap: wrap; }
-  .barra a { text-decoration: none; }
-  .barra a:hover { color: var(--acento-claro); }
-  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
-  .ver { color: oklch(0.70 0.02 95); }
-
-  /* ---- hero ---- */
-  .hero { padding: 58px var(--mg) 44px; }
-  .hero h1 { font-family: var(--negra); font-size: clamp(52px, 11vw, 112px);
-             line-height: 0.88; letter-spacing: -0.038em; margin: 0 0 26px;
-             text-transform: uppercase; }
-  .hero h1 .no { color: var(--acento); }
-  .bajada { font-size: clamp(19px, 2.4vw, 25px); line-height: 1.38; font-weight: 500;
-            margin: 0 0 30px; max-width: 33ch; text-wrap: pretty; }
-  .acciones { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .btn { display: inline-block; background: var(--tinta); color: var(--papel);
-         padding: 15px 30px; font-family: var(--negra); font-size: 16px;
-         text-transform: uppercase; letter-spacing: 0.02em; text-decoration: none; }
-  .btn:hover { background: var(--acento); color: var(--papel); }
-  .btn-claro { background: var(--papel); color: var(--tinta);
-               box-shadow: inset 0 0 0 var(--regla) var(--tinta); }
-  .btn-claro:hover { background: var(--tinta); color: var(--papel); box-shadow: none; }
-  .susurro { font-family: var(--mono); font-size: 13px; }
-
-  /* ---- rejillas ---- */
-  .g12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .g3  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .g5  { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .g4  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .c7 { grid-column: span 7; border-right: var(--regla) solid var(--tinta); }
-  .c5 { grid-column: span 5; }
-  .g3 > * + *, .g5 > * + *, .g4 > * + * { border-left: var(--regla) solid var(--tinta); }
-  .inverso { background: var(--acento); color: oklch(0.98 0.004 95); }
-  .oscuro  { background: var(--tinta); color: var(--papel); }
-
-  h2.grande { font-family: var(--negra); font-size: clamp(28px, 4vw, 38px);
-              line-height: 1.04; margin: 0 0 14px; text-transform: uppercase; }
-  h3.chica  { font-family: var(--negra); font-size: 24px; margin: 0 0 12px;
-              text-transform: uppercase; }
-  p.cuerpo { margin: 0 0 14px; }
-  p.cuerpo:last-child { margin-bottom: 0; }
-
-  /* ---- la medida anotada ---- */
-  .codigo { margin: 0; font-family: var(--mono); font-size: clamp(13px, 1.5vw, 16px);
-            line-height: 1.95; white-space: pre; overflow-x: auto; }
-  .kw { color: var(--acento-claro); font-weight: 700; }
-  .txt { color: oklch(0.80 0.11 150); }
-  .num { color: oklch(0.84 0.14 90); }
-
-  /* ---- el editor ---- */
-  .editor { border: 1px solid oklch(0.96 0.004 95 / 0.22); background: oklch(0.135 0 0);
-            width: fit-content; max-width: 100%; }
-  .pestana { display: flex; align-items: center; gap: 9px; padding: 9px 14px;
-             background: oklch(0.20 0 0);
-             border-bottom: 1px solid oklch(0.96 0.004 95 / 0.16);
-             font-family: var(--mono); font-size: 12px; color: oklch(0.80 0.01 95); }
-  .pestana .punto { width: 8px; height: 8px; border-radius: 50%;
-                    background: var(--acento-claro); flex: 0 0 auto; }
-  .lens { padding: 7px 14px 0 calc(14px + 3.2ch);
-          font-family: var(--mono); font-size: 12.5px; font-style: italic;
-          color: oklch(0.60 0.02 95); }
-  /* El bloque entero scrollea, no cada línea por su cuenta: con `overflow` en cada fila
-     la línea larga del `porque` se cortaba sola y el resto quedaba quieto. */
-  .lineas { display: grid; grid-template-columns: 3.2ch max-content;
-            padding: 2px 14px 14px; overflow-x: auto;
-            scrollbar-width: thin;
-            scrollbar-color: oklch(0.40 0.01 95) transparent; }
-  .lineas::-webkit-scrollbar { height: 8px; }
-  .lineas::-webkit-scrollbar-track { background: transparent; }
-  .lineas::-webkit-scrollbar-thumb { background: oklch(0.40 0.01 95); border-radius: 4px; }
-  .lineas > .ln { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
-                  line-height: 1.85; color: oklch(0.44 0.01 95);
-                  text-align: right; padding-right: 1.4ch; user-select: none; }
-  .lineas > .cod { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
-                   line-height: 1.85; white-space: pre; color: oklch(0.92 0.008 95); }
-
-  .leyenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-             gap: 14px 34px; margin: 26px 0 0; padding: 0; list-style: none; max-width: 96ch; }
-  .leyenda li { display: flex; gap: 12px; font-size: 15px; line-height: 1.45;
-                color: oklch(0.80 0.01 95); }
-  .leyenda .ancla { font-family: var(--mono); font-size: 12px; color: var(--acento-claro);
-                    flex: 0 0 auto; padding-top: 2px; min-width: 8.5ch; }
-  .leyenda strong { color: var(--papel); }
-  @media (max-width: 860px) { .leyenda { grid-template-columns: 1fr; } }
-
-  .veredicto { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 15px);
-               line-height: 1.9; white-space: pre; overflow-x: auto; margin: 0; }
-  .veredicto .rojo { color: var(--rojo); font-weight: 700; }
-
-  .cifra { font-family: var(--negra); font-size: 40px; margin: 0 0 4px;
-           color: var(--acento-claro); }
-  .nivel { font-family: var(--negra); font-size: 30px; margin: 0 0 10px; }
-
-  .aviso { display: flex; gap: 22px; align-items: flex-start; }
-  .aviso svg { flex: 0 0 auto; margin-top: 3px; }
-
-  .pie { background: var(--tinta); color: oklch(0.82 0.01 95); font-family: var(--mono);
-         font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
-         padding: 24px var(--mg); display: flex; gap: 34px; flex-wrap: wrap; }
-  .pie a:hover { color: var(--acento-claro); }
-
-  .cierre { display: flex; align-items: center; justify-content: space-between;
-            gap: 26px; flex-wrap: wrap; }
-
-  /* ---- teléfono: las rejillas se apilan y los bordes cambian de lado ---- */
-  @media (max-width: 860px) {
-    :root { --mg: 22px; --regla: 2px; }
-    body { font-size: 16px; }
-    .g12, .g3, .g5, .g4 { grid-template-columns: 1fr; }
-    .c7, .c5 { grid-column: auto; }
-    .c7 { border-right: 0; border-bottom: var(--regla) solid var(--tinta); }
-    .g3 > * + *, .g5 > * + *, .g4 > * + * {
-      border-left: 0; border-top: var(--regla) solid var(--tinta);
-    }
-    .g4.oscuro > * + * { border-top-color: oklch(0.96 0.004 95 / 0.28); }
-    .barra nav { gap: 16px; font-size: 11px; }
-    .btn { padding: 14px 22px; font-size: 15px; }
-  }
-  @media (max-width: 860px) { [style*="grid-column: span 7"] { grid-column: auto !important; } .pad { min-width: 0; } .codigo, .veredicto { max-width: 100%; font-size: 12px; } .barra nav { gap: 10px 15px; } }
-  @media (prefers-reduced-motion: no-preference) {
-    a, .btn { transition: color .12s ease, background-color .12s ease; }
-  }
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/sitio.css">
+<link rel="stylesheet" href="assets/portada.css">
+<link rel="icon" href="assets/emblema.svg" type="image/svg+xml">
 </head>
 <body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="barra">
-  <div style="display:flex;align-items:center;gap:14px"><strong>oracle</strong><span class="ver"><!-- sitio_version:inicio -->
+  <a class="marca" href="./"><img src="assets/emblema.svg" alt="" width="28" height="28"> oracle <span class="version pixel"><!-- sitio_version:inicio -->
 0.30.0
-<!-- sitio_version:fin --></span></div>
-  <nav aria-label="Secciones">
-    <a href="#medida">lenguaje</a><a href="#juzgar">juzgar</a><a href="#primer-valor">primer valor</a>
-    <a href="#jev">Jev</a><a href="#tracker">tracker</a><a href="#mcp">MCP</a>
-    <a href="manual.html">manual</a><a href="https://github.com/Segtem/oracle">GitHub</a>
+<!-- sitio_version:fin --></span></a>
+  <nav aria-label="Principal">
+    <a href="por-que.html">Por qué</a>
+    <a href="documentacion.html">Documentación</a>
+    <a href="manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
   </nav>
 </header>
-<main>
-<section class="hero">
-  <p class="mono-eti" style="color:var(--acento)">metalenguaje de medidas · experimental</p>
-  <h1>Medir<br><span class="no">no</span> opinar</h1>
-  <p class="bajada">Reglas que fallan con un número, un umbral, las filas que ofendieron y una declaración de lo que no miran.</p>
-  <div class="acciones"><a class="btn" href="#primer-valor">Primer valor</a><a class="btn btn-claro" href="https://github.com/Segtem/oracle">Ver el código</a><span class="susurro">Python ≥ 3.11 · sin dependencias · MIT</span></div>
+
+<main id="contenido">
+
+<section class="hero envoltura">
+  <div class="hero-texto">
+    <p class="ceja pixel">metalenguaje de medidas</p>
+    <h1>Reglas que fallan, y dicen por qué.</h1>
+    <p class="bajada">Oracle es un lenguaje para escribir las reglas de un proyecto de forma que se puedan
+    poner rojas: con un número, un umbral que dice de dónde sale y las filas exactas que ofendieron.
+    Un documento de buenas prácticas aconseja. Una medida de Oracle falla.</p>
+    <div class="acciones">
+      <a class="boton" href="02-de-cero-a-un-rojo.html">Empezar en cinco minutos</a>
+      <a class="boton secundario" href="por-que.html">Por qué hace falta</a>
+    </div>
+    <p class="instalar"><code>uv tool install oracle-metalenguaje</code> <span>Python 3.11 o posterior · cero dependencias · MIT</span></p>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="testigos" role="img" aria-label="Una medida recorre seis celdas de un tablero de batalla naval. Cinco están dentro del tablero. La del destructor en la fila 10 se pone roja y queda como testigo. El veredicto es ROJO: valor 1 contra un umbral de cero."></canvas>
+    <figcaption>La medida recorre las celdas y señala la que ofende: el destructor en la fila 10. El veredicto trae su testigo.</figcaption>
+  </figure>
 </section>
-<section class="fila g12">
-  <div class="pad c7"><p class="mono-eti">el problema tiene nombre: Goodhart</p><h2 class="grande">Una medida que nada puede romper es decoración</h2><p class="cuerpo">Cuando un agente escribe el producto y su verificador en la misma pasada, puede hacerlos coincidir sin detectar el defecto. El corpus guarda casos rojos y verdes; la mutación debilita la regla a propósito y comprueba si los casos lo notan.</p></div>
-  <div class="pad c5 inverso"><p class="mono-eti" style="color:inherit">catálogo vivo</p><p class="cuerpo">El criterio deja de ser consejo: una medida debe poder negarse y mostrar testigos. <a href="https://github.com/Segtem/oracle/blob/main/docs/05-por-que-la-mutacion.md">Por qué mutar las medidas</a>.</p></div>
+
+<section class="capitulo envoltura" aria-labelledby="t-problema">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">el problema</p>
+    <h2 id="t-problema">Quien escribe el código no puede ser el único que decide si está bien.</h2>
+  </div>
+  <div class="dos-columnas lectura">
+    <p>Cuando la misma persona, o el mismo modelo de lenguaje, escribe el código y en la misma pasada
+    escribe los tests, los tests confirman lo que ya se quería ver. Es la ley de Goodhart aplicada a la
+    programación: cuando una medida se vuelve el objetivo, deja de medir.</p>
+    <p>Oracle separa las dos cosas. Las reglas viven en un catálogo aparte, escritas en un lenguaje chico
+    que al cargarse no ejecuta código. Cada regla dice qué no ve. Y el catálogo mismo se pone a
+    prueba: se lo debilita a propósito para ver si sus casos lo notan.</p>
+  </div>
 </section>
-<section id="medida" class="fila pad oscuro">
-  <p class="mono-eti" style="color:var(--acento-claro)">el lenguaje · álgebra 0.8 · sintaxis 0.7</p>
-  <h2 class="grande">La regla nombra el defecto</h2>
-  <p class="cuerpo">Esta medida es el archivo real <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/catalogos/colocacion/colocacion.dentro_del_tablero.oracle">colocacion.dentro_del_tablero.oracle</a>:</p>
-  <div class="editor"><div class="pestana"><span class="punto" aria-hidden="true"></span>colocacion.dentro_del_tablero.oracle</div><pre class="codigo" style="padding:16px">medida colocacion.dentro_del_tablero:
-    de celda_ocupada c
-    donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9
-    resumen contar(1)
-    umbral &lt;= 0 segun contrato porque "el tablero es de 10x10 (coordenadas 0 a 9); cualquier casilla fuera de ese rango corrompe el estado del juego"
-    requiere celda_ocupada
-    ambito universal
-    alcance "valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí"</pre></div>
-  <ul class="leyenda"><li><span class="ancla">de / donde</span><span>Entran hechos y quedan las filas que ofenden.</span></li><li><span class="ancla">umbral</span><span><code>segun</code> declara de dónde sale el número.</span></li><li><span class="ancla">requiere</span><span>La ausencia de la relación no se disfraza de verde.</span></li><li><span class="ancla">alcance</span><span>La medida declara su punto ciego.</span></li></ul>
+
+<section class="capitulo envoltura" aria-labelledby="t-como">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">cómo funciona</p>
+    <h2 id="t-como">Tu producto cuenta hechos. Las medidas los juzgan.</h2>
+  </div>
+  <div class="diagrama" role="img" aria-label="Diagrama: el producto pasa por un sensor, que emite hechos en filas; las medidas del catálogo juzgan esos hechos y devuelven un veredicto con valor, umbral, testigos y alcance.">
+    <ol class="flujo">
+      <li><span class="paso pixel">1</span><strong>Tu producto</strong><span>un juego, un servicio, un repositorio</span></li>
+      <li><span class="paso pixel">2</span><strong>Un sensor</strong><span>un programa tuyo que lo observa</span></li>
+      <li><span class="paso pixel">3</span><strong>Hechos</strong><span>filas planas en JSON, sin opinión</span></li>
+      <li><span class="paso pixel">4</span><strong>Medidas</strong><span>reglas escritas en Oracle</span></li>
+      <li class="final"><span class="paso pixel">5</span><strong>Veredicto</strong><span>valor, umbral, testigos y lo que no vio</span></li>
+    </ol>
+  </div>
+  <p class="nota lectura">Oracle nunca mira tu código ni corre tu producto: juzga lo que el sensor le cuenta.
+  Por eso el veredicto trae siempre su <em>alcance</em>, la frase que dice qué quedó sin mirar.</p>
 </section>
-<section class="fila g12">
- <div class="pad c5"><h2 class="grande">La anti-junta dice «ninguna»</h2><p class="cuerpo">Desde 0.26, <code>sin … donde …</code> deja pasar una tarea cerrada sólo si no existe un commit de cierre que corresponda a ella. Ese conteo entra al álgebra, al diferencial y a la mutación.</p></div>
- <div class="pad c7 oscuro"><p class="mono-eti" style="color:var(--acento-claro)">recorte: seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre.oracle, líneas 1–5</p><pre class="codigo">medida seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre:
-    de tarea_seguimiento t
-    donde t.estado_declarado == "CERRADA"
-    sin commit_seguimiento c donde c.tarea_nombrada == t.id y c.es_cierre == true
-    resumen contar(1)</pre><p class="cuerpo" style="margin-top:16px">El <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/seguimiento-tareas/catalogos/seguimiento.toda_tarea_cerrada_tiene_su_commit_de_cierre.oracle">archivo completo</a> también declara <code>umbral</code>, <code>ambito del_origen</code> y <code>alcance</code>.</p></div>
-</section>
-<section class="fila pad"><h2 class="grande">Escribí la aritmética como la pensás</h2><p class="cuerpo">La sintaxis 0.7 acepta <code>a + 1</code>, <code>a - 1</code> y <code>a * 2</code>, con precedencia y paréntesis habituales. Incluso <code>t1.turno-1</code> se lee como resta, sin exigir espacios. Se traducen a las escalares existentes <code>mas</code>, <code>menos</code> y <code>por</code>; la forma canónica y el álgebra 0.8 no cambian. Así un LLM puede escribir <code>t2.turno == t1.turno + 1</code> sin reformular la expresión.</p><p class="cuerpo"><a href="manual.html#manual-aritmetica">Aritmética en el manual</a>.</p></section>
-<section id="test" class="fila g12">
- <div class="pad c5"><h2 class="grande">Un verde con alcance</h2><p class="cuerpo"><code>oracle test</code> contrasta medidas con casos guardados. La salida declara <code>ALCANCE</code> y <code>PRODUCTO: sin nueva medición</code>: no certifica el estado actual de la aplicación. En un proyecto nuevo sin medidas propias, casos ni fixtures, dice <code>VEREDICTO: SIN MEDICIÓN</code> y sale con código 0.</p></div>
- <div class="pad c7 oscuro"><p class="mono-eti" style="color:var(--acento-claro)">recorte de corrida real · <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/primer-test-completo.txt">comando y salida completa</a></p><pre class="veredicto">$ python3 tools/cli.py test --proyecto ejemplo/primer-valor
-ALCANCE: verificación de medidas contra casos guardados del corpus.
-PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
-VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</pre><p class="cuerpo" style="margin-top:18px">La <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/test-vacio.txt">corrida del proyecto vacío</a> muestra el otro veredicto.</p></div>
-</section>
-<section id="juzgar" class="fila pad"><p class="mono-eti">juzgar el producto · 0.27</p><h2 class="grande">La sombra tiene cota</h2><p class="cuerpo">El producto exporta relaciones JSON; <code>oracle juzgar</code> evalúa esas filas. Una medida en sombra puede perdonar sólo hasta su cota. Si la supera, vuelve el rojo. Cuando otra medida necesita una relación que no vino, aparece bajo <code>NO SE APLICARON</code>.</p><div class="g12" style="gap:18px"><div class="c5"><p class="mono-eti">recorte de corrida real · <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/sombra-cota.txt">salida completa</a></p><pre class="veredicto">✗ colocacion.dentro_del_tablero  1 (&lt;= 0)   [EN SOMBRA] (SUPERA SU COTA 0: la sombra no la perdona; desde 2026-09-24; porque: piloto de cota)
-      → c={'barco': 'destructor', 'fila': 10, 'columna': 5}</pre></div><div class="c7"><p class="mono-eti">recorte de corrida real · <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/no-aplicadas.txt">salida completa</a></p><pre class="veredicto">NO SE APLICARON (1) — su relación no vino en la evidencia:
-  · prosa.alcance_sin_afirmacion_adversa: falta afirmacion_prosa</pre></div></div></section>
-<section id="primer-valor" class="fila g12"><div class="pad c5 inverso"><h2 class="grande">Primer valor: una regla del juego</h2><p class="cuerpo">En el ejemplo de Batalla Naval, <code>colocador.py</code> emite <code>celda_ocupada</code>. Una medida exige coordenadas de 0 a 9; seis casos fijan ambas polaridades y matan 20/20 mutantes de la medida. Tras verificar el catálogo, una corrida defectuosa produce un testigo con <code>fila: 10</code>; la <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/primer-juzgar-corregido.txt">corrida corregida</a> da verde y enumera lo que no miró.</p><p class="cuerpo"><a href="13-primer-valor.md">Guía completa de primer valor</a>.</p></div><div class="pad c7 oscuro"><p class="mono-eti" style="color:var(--acento-claro)">corrida real · <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/primer-juzgar.txt">comando y salida</a></p><pre class="veredicto">$ python3 tools/cli.py juzgar --proyecto ejemplo/primer-valor --con tareas/20260923-113951-web-028/corridas/hechos-defecto.json
-✗ colocacion.dentro_del_tablero                       1 (&lt;= 0)
+
+<section class="capitulo envoltura" aria-labelledby="t-medida">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">una medida real</p>
+    <h2 id="t-medida">Un barco fuera del tablero, atrapado.</h2>
+  </div>
+  <div class="par">
+    <div>
+      <p class="etiqueta-archivo">colocacion.dentro_del_tablero.oracle</p>
+<pre class="codigo"><code><span class="c-kw">medida</span> colocacion.dentro_del_tablero:
+    <span class="c-kw">de</span> celda_ocupada c
+    <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">"el tablero es de 10x10 …"</span>
+    <span class="c-kw">requiere</span> celda_ocupada
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">"valida que las celdas estén en el rango 0..9.
+            NO ve si los buques tienen la longitud declarada
+            ni si se solapan entre sí"</span></code></pre>
+      <p class="pie-codigo">Recorte del archivo real de <a href="13-primer-valor.html">la primera medida real</a>. Los <code>…</code> acortan el texto del <code>porque</code>.</p>
+    </div>
+    <div class="anatomia">
+      <dl>
+        <div><dt>de, donde</dt><dd>qué filas mirar y cuáles ofenden</dd></div>
+        <div><dt>umbral</dt><dd>cuántas ofensas se toleran: cero</dd></div>
+        <div><dt>segun</dt><dd>de dónde sale ese número: un contrato, una medición, una convención o un tanteo</dd></div>
+        <div><dt>porque</dt><dd>la defensa del número, en prosa</dd></div>
+        <div><dt>requiere</dt><dd>sin celdas no hay veredicto: sale <span class="lampara ambar">sin evidencia</span>, no verde</dd></div>
+        <div><dt>alcance</dt><dd>lo que la medida admite no ver</dd></div>
+      </dl>
+    </div>
+  </div>
+  <div class="terminal" aria-label="Salida real de oracle juzgar">
+    <p class="terminal-barra pixel">salida real · oracle juzgar</p>
+<pre><code>$ oracle juzgar --con hechos-defecto.json
+<span class="t-rojo">✗ colocacion.dentro_del_tablero                       1 (&lt;= 0)</span>
       → c={'barco': 'destructor', 'fila': 10, 'columna': 5}
 
-VEREDICTO: 1 de 1 medidas en rojo</pre><p class="cuerpo" style="margin-top:18px">Generá esos hechos con <code>python3 ejemplo/primer-valor/colocador.py --defecto --exportar tareas/20260923-113951-web-028/corridas/hechos-defecto.json</code>. La <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/corridas/exportar-defecto.txt">exportación también quedó registrada</a>.</p></div></section>
-<section id="jev" class="fila pad"><p class="mono-eti">Jev · sensor de prosa</p><h2 class="grande">El modelo produce hechos; la medida juzga</h2><p class="cuerpo">El sensor opcional convierte respuestas probabilísticas en filas <code>afirmacion_prosa</code>. Oracle juzga esas filas sin llamar al modelo ni a la red. Un verde no certifica la verdad de la prosa.</p><div class="g3"><div class="pad"><h3 class="chica">Señal</h3><p class="cuerpo">En la primera prueba: 10/10 controles de prosa vacía, 15/15 en cada pregunta de <code>alcance</code> frente a un juez ciego; la pregunta original sobre <code>porque</code> cayó a 1/15. Las seis llamadas costaron US$ 0,000877044.</p></div><div class="pad"><h3 class="chica">Corrección</h3><p class="cuerpo">Con pregunta y tubería revisadas, <code>porque</code> coincidió 15/15 en reales y 10/10 controles. Costó US$ 0,001443666. Los sí quedaron entre 0,50 y 0,68; dos tocaron exactamente 0,50. El piloto de síntoma en LyraGASP bajó a 9/15, con Jev indulgente en los nueve desacuerdos. Los pilotos de Jam y LyraGASP no sostienen una precisión universal.</p></div><div class="pad"><h3 class="chica">Revisión humana</h3><p class="cuerpo">Probabilidades de 0,4 a 0,6 van a <code>revision-humana.json</code> y el sensor termina con código 2. Desde PyPI, <code>oracle plantilla sensor-prosa &lt;destino&gt;</code> copia el proyecto opcional; el usuario ejecuta el sensor por separado.</p></div></div><p class="cuerpo"><a href="14-sensor-prosa.md">Cómo preparar el sensor</a> · <a href="https://github.com/Segtem/oracle/blob/main/vault-kb/estudios/JEV-COMO-SENSOR.md">Estudio y límites</a>.</p></section>
-<section id="tracker" class="fila g12"><div class="pad c5"><h2 class="grande">El tracker es el relevo</h2><p class="cuerpo">Cada tarea vive en Git, en <code>tareas/&lt;id&gt;/TAREA.md</code>. Su única sección final <code>## Próximo paso</code> dice qué hacer al retomar. <code>oracle tarea ver web-028</code> resuelve el sufijo; no hace falta reconstruir la fecha. <code>CIERRA CON</code> puede exigir medidas verdes para cerrar.</p><p class="cuerpo"><a href="12-tareas.md">Guía del tracker</a>.</p></div><div class="pad c7" style="background:oklch(0.925 0.006 95)"><p class="mono-eti">flujo de trabajo</p><pre class="codigo">python3 tools/cli.py tarea listar
-python3 tools/cli.py tarea ver web-028
-python3 tools/cli.py tarea anotar web-028 "avance y evidencia"</pre><p class="cuerpo" style="margin-top:16px">Los comandos son el flujo copiable; <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-113951-web-028/TAREA.md">esta tarea</a> muestra el relevo real.</p></div></section>
-<section id="mcp" class="fila pad oscuro"><p class="mono-eti" style="color:var(--acento-claro)">MCP para agentes · 0.27</p><h2 class="grande">Cinco consultas, sólo lectura</h2><div class="g5"><div class="pad"><h3 class="chica" style="font-size:16px">Catálogo</h3><p class="cuerpo"><code>oracle_catalogo_efectivo</code>: qué medidas obligan.</p></div><div class="pad"><h3 class="chica" style="font-size:16px">Evaluar</h3><p class="cuerpo"><code>oracle_evaluar</code>: una medida y sus testigos.</p></div><div class="pad"><h3 class="chica" style="font-size:16px">Desafiar</h3><p class="cuerpo"><code>oracle_desafiar</code>: corpus y mutaciones en memoria.</p></div><div class="pad"><h3 class="chica" style="font-size:16px">Juzgar</h3><p class="cuerpo"><code>oracle_juzgar</code>: catálogo efectivo completo.</p></div><div class="pad"><h3 class="chica" style="font-size:16px">Tareas</h3><p class="cuerpo"><code>oracle_tareas</code>: listar, ver, buscar y hechos.</p></div></div><p class="cuerpo">El servidor fija el proyecto al arrancar y no crea ni modifica archivos. Evita que una consulta de evidencia o una prueba de falsación parezca una aprobación para guardar una medida. El <a href="mcp-contrato.md">contrato MCP</a> se genera desde <code>tools/mcp.py</code> mediante <code>tools/mcp_contrato.py</code>.</p><p class="cuerpo">La <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260923-120207-mcp-tokens/TAREA.md">sonda de clientes</a> observó: Claude Code ve descripciones y <code>structuredContent</code>; Codex ve también el texto; agy ve descripciones y texto, pero no <code>structuredContent</code>. Ninguno expuso <code>outputSchema</code> al modelo. Por eso el servidor conserva las dos formas de respuesta.</p></section>
-<section class="fila pad"><p class="mono-eti">cinco niveles</p><h2 class="grande">De la frescura al juicio del catálogo</h2></section><section class="fila g5"><div class="pad inverso"><p class="nivel">L−2</p><p class="cuerpo">Identidad y frescura del referente.</p></div><div class="pad inverso"><p class="nivel">L−1</p><p class="cuerpo">Sensor, unidades y límites.</p></div><div class="pad"><p class="nivel">L0</p><p class="cuerpo">Filas observadas.</p></div><div class="pad"><p class="nivel">L1</p><p class="cuerpo">Medidas sobre esas filas.</p></div><div class="pad"><p class="nivel">L2</p><p class="cuerpo">El catálogo se juzga a sí mismo.</p></div></section>
-<section class="fila g4 oscuro"><div class="pad"><p class="cifra"><!-- sitio_medidas:inicio -->
+VEREDICTO: 1 de 1 medidas en rojo</code></pre>
+  </div>
+</section>
+
+<section class="capitulo envoltura dos-escenas" aria-labelledby="t-mutante">
+  <div>
+    <p class="ceja pixel">la medida se pone a prueba</p>
+    <h2 id="t-mutante">Una medida que nada puede romper es decoración.</h2>
+    <div class="lectura">
+      <p>Oracle debilita cada medida a propósito: afloja el umbral de <code>0</code> a <code>1</code>,
+      invierte un comparador, le quita el filtro o el <code>requiere</code>. A cada versión debilitada
+      la llama mutante. Si algún caso del corpus nota la diferencia, el mutante muere. Si ninguno la nota, esa
+      parte de la medida no la está fijando nadie, y Oracle lo dice.</p>
+      <p><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="mutante" role="img" aria-label="Un mutante afloja el umbral de la medida de menor o igual a cero a menor o igual a uno. El caso del corpus con un destructor en la fila 10 esperaba rojo y ahora da verde: no coincide. El mutante muere."></canvas>
+    <figcaption>El mutante afloja el umbral a 1. El caso del destructor en la fila 10 esperaba rojo y ahora da verde: el corpus lo nota y el mutante muere.</figcaption>
+  </figure>
+</section>
+
+<section class="capitulo envoltura dos-escenas invertido" aria-labelledby="t-sombra">
+  <div>
+    <p class="ceja pixel">deuda con límite</p>
+    <h2 id="t-sombra">La sombra perdona, pero sólo hasta su cota.</h2>
+    <div class="lectura">
+      <p>Un proyecto real tiene deuda. Una medida en sombra se evalúa y se informa, pero no pone rojo
+      el veredicto. Tiene una cota: el máximo que se tolera. Si la deuda la supera, la sombra deja de
+      perdonar y el rojo vuelve. Así la deuda no crece sin que nadie se entere.</p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="sombra" role="img" aria-label="Un medidor de deuda con cota 4. Mientras vale 3 está en sombra y se perdona. Cuando llega a 6 supera la cota y vuelve el rojo."></canvas>
+    <figcaption>Hasta 4, la sombra perdona. En 6, supera su cota y vuelve el rojo.</figcaption>
+  </figure>
+</section>
+
+<section class="capitulo envoltura dos-escenas" aria-labelledby="t-agentes">
+  <div>
+    <p class="ceja pixel">agentes</p>
+    <h2 id="t-agentes">El agente escribe. Oracle juzga desde afuera.</h2>
+    <div class="lectura">
+      <p>Un agente de programación puede consultar a Oracle por <a href="mcp-contrato.html">MCP</a>: qué
+      reglas aplican, qué dice una medida sobre estos hechos, cuál es el veredicto del catálogo entero.
+      El servidor es de sólo lectura: por ahí el agente no puede cambiar las reglas para darse la
+      razón.</p>
+      <p>El lenguaje se amolda a cómo escriben los modelos: <code>t2.turno == t1.turno + 1</code> se lee
+      tal cual. Y un modelo puede servir de sensor de la prosa de un catálogo, nunca de juez:
+      <a href="14-sensor-prosa.html">un modelo como sensor</a>.</p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="agente" role="img" aria-label="Un agente escribe cuatro líneas de código. Oracle juzga: rojo, con un testigo en la línea 3. El agente corrige la línea 3 y el veredicto pasa a verde, con su alcance."></canvas>
+    <figcaption>El rojo trae el testigo: la línea 3. El agente corrige eso y nada más.</figcaption>
+  </figure>
+</section>
+
+<section class="cifras envoltura" aria-label="Oracle en números">
+  <div><p class="cifra"><!-- sitio_medidas:inicio -->
 62
-<!-- sitio_medidas:fin --></p><p>medidas en el catálogo</p></div><div class="pad"><p class="cifra"><!-- sitio_casos:inicio -->
+<!-- sitio_medidas:fin --></p><p>medidas universales en el catálogo</p></div>
+  <div><p class="cifra"><!-- sitio_casos:inicio -->
 212
-<!-- sitio_casos:fin --></p><p>casos que las ponen a prueba</p></div><div class="pad"><p class="cifra">0</p><p>mutantes vivos en el núcleo</p></div><div class="pad"><p class="cifra">0</p><p>dependencias</p></div></section>
-<section id="empezar" class="fila g12"><div class="pad c5"><h2 class="grande">Empezar</h2><p class="cuerpo">Instalá Oracle con <code>uv tool install oracle-metalenguaje</code> o pip en un entorno virtual. El LSP comparte diagnósticos entre Emacs y VS Code. Para conectar una aplicación, empezá por una regla y hechos observables: <a href="13-primer-valor.md">primer valor</a>.</p></div><div class="pad c7" style="background:oklch(0.925 0.006 95)"><pre class="codigo">uv tool install oracle-metalenguaje
-oracle init mi-proyecto
-oracle nueva dominio.regla
-oracle test</pre><p class="cuerpo" style="margin-top:18px">Secuencia para usar, sin salida simulada. <a href="02-de-cero-a-un-rojo.md">De cero a un rojo</a> explica cada paso.</p></div></section>
-<section class="fila pad aviso"><div><h2 class="grande">Experimental, con límites explícitos</h2><p class="cuerpo">L2 conserva mecanismos en Python. El estado de un producto requiere hechos nuevos; un corpus verde no reemplaza esa observación. Las <a href="decisiones/README.md">doce decisiones de diseño</a> documentan lo aceptado y lo descartado.</p></div></section>
-<section class="fila pad inverso cierre"><h2 class="grande" style="margin:0">Escribí la regla<br>que atrapa tu defecto</h2><a class="btn" href="#primer-valor">Primer valor</a></section>
+<!-- sitio_casos:fin --></p><p>casos que las ponen a prueba</p></div>
+  <div><p class="cifra">0</p><p>mutantes vivos en el núcleo</p></div>
+  <div><p class="cifra">0</p><p>dependencias</p></div>
+</section>
+
+<section class="capitulo envoltura" aria-labelledby="t-recorridos">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">por dónde seguir</p>
+    <h2 id="t-recorridos">Elegí según lo que necesitás hoy.</h2>
+  </div>
+  <div class="recorridos">
+    <a class="recorrido" href="02-de-cero-a-un-rojo.html"><span class="pixel">5 minutos</span><strong>De cero a un rojo</strong><span>Instalar, escribir una medida y verla fallar con sus testigos.</span></a>
+    <a class="recorrido" href="13-primer-valor.html"><span class="pixel">tu producto</span><strong>La primera medida real</strong><span>De un producto nuevo a un hecho exportado, una medida y un veredicto.</span></a>
+    <a class="recorrido" href="03-escribir-una-medida.html"><span class="pixel">el lenguaje</span><strong>Escribir una medida</strong><span>Anatomía, macros, la forma canónica y los errores que te dice.</span></a>
+    <a class="recorrido" href="07-conectar-a-un-proyecto-propio.html"><span class="pixel">integrar</span><strong>Conectar un proyecto</strong><span>Sensor puro, adaptador, escalares propias y la sombra.</span></a>
+    <a class="recorrido" href="12-tareas.html"><span class="pixel">trabajo</span><strong>El tracker de tareas</strong><span>Tareas en carpetas y Markdown, con el próximo paso como relevo.</span></a>
+    <a class="recorrido" href="especificacion.html"><span class="pixel">referencia</span><strong>Especificación</strong><span>El álgebra entera, para implementarla sin ver el núcleo.</span></a>
+  </div>
+</section>
+
+<section class="empezar envoltura" aria-labelledby="t-empezar">
+  <div>
+    <p class="ceja pixel">empezar</p>
+    <h2 id="t-empezar">Tres comandos.</h2>
+  </div>
+<pre class="codigo"><code>uv tool install oracle-metalenguaje
+oracle init mi-proyecto &amp;&amp; cd mi-proyecto
+oracle test</code></pre>
+  <p class="lectura">Un proyecto recién creado sale <span class="lampara ambar">sin medición</span>: todavía no midió
+  nada, y Oracle no lo disfraza de verde. El paso siguiente está en
+  <a href="02-de-cero-a-un-rojo.html">de cero a un rojo</a>.</p>
+</section>
+
 </main>
-<footer class="pie"><span>MIT</span><span>Python ≥ 3.11</span><span>cero dependencias</span><a href="manual.html">manual</a><a href="donde-entra.html">dónde entra</a><a href="reportar.html">reportar</a><a href="https://pypi.org/project/oracle-metalenguaje/">PyPI</a><span><!-- sitio_version:inicio -->
+
+<footer class="pie envoltura">
+  <img src="assets/emblema.svg" alt="" width="32" height="32">
+  <span>Oracle <!-- sitio_version:inicio -->
 0.30.0
-<!-- sitio_version:fin --></span></footer>
+<!-- sitio_version:fin --></span>
+  <span>MIT · Python 3.11 o posterior · cero dependencias</span>
+  <a href="https://pypi.org/project/oracle-metalenguaje/" rel="noopener">PyPI</a>
+  <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  <a href="notas.html">Notas de release</a>
+  <a href="decisiones/index.html">Decisiones</a>
+</footer>
+
+<script src="assets/pixel.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 003 — defmacro no tiene parámetros opcionales — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-003--defmacro-no-tiene-parámetros-opcionales">Decisión 003 — <code>defmacro</code> no tiene parámetros opcionales<a class="ancla" href="#decisión-003--defmacro-no-tiene-parámetros-opcionales" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Estado:</strong> revertida la capacidad el 2026-08-24 (commit <code>d2532fa</code>, que revierte <code>eb9ad40</code>).</p>
+<h2 id="contexto">Contexto<a class="ancla" href="#contexto" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>requiere</code> entró al lenguaje el 2026-08-24 para cerrar el falso verde de la ausencia: una medida declara qué relaciones <strong>necesita</strong> para concluir, y el evaluador falla cerrado —<code>SIN EVIDENCIA</code>— antes de medir si alguna falta. Es el espejo de <code>alcance</code>.</p>
+<p>De las 30 medidas universales, <strong>25 pasan por la macro <code>ninguno</code></strong> y <strong>5 declaran <code>requiere</code></strong>. Esas cinco están escritas a mano con <code>desde</code> en vez de con la macro, y el motivo parecía obvio: la plantilla de <code>ninguno</code> no emite un nodo <code>requiere</code>, y agregárselo obligaría a las 25 a declarar uno.</p>
+<p>De ahí salió el pedido: que <code>defmacro</code> acepte <strong>parámetros opcionales con valor por defecto</strong>, para que <code>ninguno</code> pudiera emitir <code>requiere</code> sólo cuando el uso lo pasara. Se delegó, se implementó (+23 líneas de núcleo en <code>nucleo/macro.py</code>, con sus tests) y se integró.</p>
+<h2 id="decisión">Decisión<a class="ancla" href="#decisión" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Se revierte.</strong> <code>defmacro</code> sigue teniendo aridad fija y sin valores por defecto.</p>
+<h2 id="por-qué">Por qué<a class="ancla" href="#por-qué" aria-label="Enlace a esta sección">#</a></h2>
+<h3 id="1--la-cadena-completa-costaba-mucho-más-que-el-primer-eslabón">1 · La cadena completa costaba mucho más que el primer eslabón<a class="ancla" href="#1--la-cadena-completa-costaba-mucho-más-que-el-primer-eslabón" aria-label="Enlace a esta sección">#</a></h3>
+<p>Los parámetros opcionales son el primero de tres eslabones. Para que <code>ninguno</code> emitiera <code>requiere</code> de verdad hacían falta además:</p>
+<ul><li><strong>splice</strong> — <code>requiere</code> es variádico (<code>[&quot;requiere&quot;, &quot;a&quot;, &quot;b&quot;]</code>, no <code>[&quot;requiere&quot;, [&quot;a&quot;,&quot;b&quot;]]</code>), así que una lista de relaciones tiene que <strong>abrirse</strong> dentro del nodo. <code>defmacro</code> sustituye <code>$</code> posición por posición y no sabe abrir nada.</li><li><strong>omisión condicional</strong> — un parámetro con valor por defecto emite igual el nodo. Para que una medida sin precondición no publique un <code>[&quot;requiere&quot;]</code> vacío, la plantilla tiene que poder <strong>no emitir</strong> una rama.</li></ul>
+<p>Estimado en unas 50 a 70 líneas de núcleo para las dos, sobre las 23 ya gastadas. El <a href="https://github.com/Segtem/oracle/blob/main/vault-kb/planes/PLAN-LENGUAJE.md" rel="noopener">plan</a> publica la proporción de falsación —líneas de lenguaje contra líneas de medida— como el costo declarado del proyecto, y esto la empeoraba sin agregar una sola medida.</p>
+<h3 id="2--el-caso-real-no-necesita-nada-de-eso--y-se-comprobó">2 · El caso real no necesita nada de eso — y se comprobó<a class="ancla" href="#2--el-caso-real-no-necesita-nada-de-eso--y-se-comprobó" aria-label="Enlace a esta sección">#</a></h3>
+<p>Las cinco medidas que declaran <code>requiere</code> lo declaran <strong>con una sola relación</strong>, y en las cinco esa relación es la misma que la medida ya recorre con <code>de</code>. Una macro puede emitir eso hoy, con <strong>cero líneas de núcleo</strong>, reusando el parámetro <code>relacion</code> que ya recibe:</p>
+<pre data-lenguaje="json"><code>[&quot;defmacro&quot;, &quot;ninguno-si-hay&quot;,
+  [&quot;id&quot;, &quot;relacion&quot;, &quot;alias&quot;, &quot;predicado&quot;, &quot;porque&quot;, &quot;alcance&quot;],
+  [],
+  [&quot;medida&quot;, [&quot;$&quot;, &quot;id&quot;],
+    [&quot;desde&quot;, [&quot;de&quot;, [&quot;$&quot;, &quot;relacion&quot;], [&quot;$&quot;, &quot;alias&quot;]], [&quot;donde&quot;, [&quot;$&quot;, &quot;predicado&quot;]]],
+    [&quot;resumen&quot;, &quot;contar&quot;, 1],
+    [&quot;umbral&quot;, &quot;&lt;=&quot;, 0, [&quot;$&quot;, &quot;porque&quot;]],
+    [&quot;requiere&quot;, [&quot;$&quot;, &quot;relacion&quot;]],
+    [&quot;alcance&quot;, [&quot;$&quot;, &quot;alcance&quot;]]]]</code></pre>
+<p>Verificado: expande y carga como <code>Medida</code> con <code>requiere == (&quot;corrida&quot;,)</code>. Una macro <strong>hermana</strong> de <code>ninguno</code>, declarada como datos en <code>nucleo/macros/</code>, cubre el caso entero sin tocar el expansor.</p>
+<p>Que la solución barata existiera desde el principio y no se hubiera buscado es el error de procedimiento acá, y no el de quien implementó lo que se le pidió.</p>
+<h3 id="3--la-regla-propia-del-repositorio">3 · La regla propia del repositorio<a class="ancla" href="#3--la-regla-propia-del-repositorio" aria-label="Enlace a esta sección">#</a></h3>
+<p><strong>Nada entra al lenguaje hasta que una medida real lo necesite.</strong> Ninguna de las 30 medidas universales necesita un parámetro opcional; las cinco que motivaron el pedido se cubren con una macro de aridad fija. Es el mismo disparador que retiró <code>con</code> y la unión izquierda, y el mismo que mantiene afuera la composición de medidas (<a href="DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.html"><code>DECISION-002</code></a>).</p>
+<h2 id="consecuencias">Consecuencias<a class="ancla" href="#consecuencias" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><code>defmacro</code> sigue siendo lo más chico que sirve: aridad fija, sustitución posicional, sin defaults. Una macro que necesita dos formas se escribe como <strong>dos macros</strong>, que es más líneas de datos y menos líneas de núcleo — el intercambio que el proyecto declara buscar.</li><li>Las cinco medidas con <code>requiere</code> siguen escritas a mano. No es deuda: son cinco, y ninguna repite a otra. La macro hermana se escribe cuando haya un patrón, no antes.</li><li>Queda anotado que <strong>el primer eslabón de una cadena se mide por la cadena entera</strong>. Integrar los parámetros opcionales solos habría dejado núcleo muerto: una capacidad en el expansor que ninguna macro usa y que ningún test de medida ejercita.</li></ul>
+<h2 id="qué-evidencia-revierte-esta-decisión">Qué evidencia revierte esta decisión<a class="ancla" href="#qué-evidencia-revierte-esta-decisión" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Dos macros reales</strong> —en el núcleo o en un proyecto consumidor— que sólo se puedan escribir duplicando la plantilla entera por una sola rama variable, y donde la duplicación ya haya producido una divergencia entre las dos copias.</p>
+<p>Dos, no una: una macro duplicada es barata de mantener; dos que divergieron son la prueba de que la duplicación no se sostiene. Y si entra, tiene que entrar <strong>con splice y omisión condicional en el mismo movimiento</strong>: por separado, el primer eslabón no expresa ningún caso.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md" rel="noopener">docs/decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#contexto">Contexto</a></li><li class="n2"><a href="#decisión">Decisión</a></li><li class="n2"><a href="#por-qué">Por qué</a></li><li class="n3"><a href="#1--la-cadena-completa-costaba-mucho-más-que-el-primer-eslabón">1 · La cadena completa costaba mucho más que el primer eslabón</a></li><li class="n3"><a href="#2--el-caso-real-no-necesita-nada-de-eso--y-se-comprobó">2 · El caso real no necesita nada de eso — y se comprobó</a></li><li class="n3"><a href="#3--la-regla-propia-del-repositorio">3 · La regla propia del repositorio</a></li><li class="n2"><a href="#consecuencias">Consecuencias</a></li><li class="n2"><a href="#qué-evidencia-revierte-esta-decisión">Qué evidencia revierte esta decisión</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

@@ -1,0 +1,225 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>13 · De un producto nuevo a su primera medida observable — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html" aria-current=page>La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="13--de-un-producto-nuevo-a-su-primera-medida-observable">13 · De un producto nuevo a su primera medida observable<a class="ancla" href="#13--de-un-producto-nuevo-a-su-primera-medida-observable" aria-label="Enlace a esta sección">#</a></h1>
+<p>Un recorrido breve, ejecutable y reproducible para conectar un producto con Oracle y juzgarlo con una medida pertinente de sus reglas, sin rituales innecesarios.</p>
+<h2 id="entorno-y-preparación-verificados">Entorno y preparación verificados<a class="ancla" href="#entorno-y-preparación-verificados" aria-label="Enlace a esta sección">#</a></h2>
+<p>Ejecutado el 2026-09-21 con Python 3.14.7 y Oracle 0.27.0 (álgebra 0.8, sintaxis 0.6), desde una copia sin <code>.git</code> del checkout base <code>3d27050a50cc949dc3fc6bf6dc9df168bf5f9ab5</code> más los cambios de esta tarea. Se construyó un wheel local y se instaló sin red en un venv nuevo; los comandos de abajo se ejecutaron desde la raíz de esa copia, sin <code>PYTHONPATH</code> ni <code>ORACLE_PROYECTO</code> heredados.</p>
+<p>Para preparar otra copia del repositorio con este ejemplo, desde su raíz (el Python de construcción necesita <code>pip</code> y <code>setuptools&gt;=68</code>):</p>
+<pre data-lenguaje="bash"><code>python3 -m pip wheel --no-deps --no-build-isolation --wheel-dir /tmp/oracle-primer-valor-ruedas .
+python3 -m venv /tmp/oracle-primer-valor-venv
+/tmp/oracle-primer-valor-venv/bin/python -m pip install --no-index /tmp/oracle-primer-valor-ruedas/oracle_metalenguaje-0.27.0-py3-none-any.whl
+source /tmp/oracle-primer-valor-venv/bin/activate
+unset PYTHONPATH ORACLE_PROYECTO</code></pre>
+<p>Las salidas siguientes son capturas reales. Cada exportación termina con exit 0 e imprime <code>Hechos exportados a /tmp/hechos-defecto.json</code> o <code>Hechos exportados a /tmp/hechos-corregido.json</code>, respectivamente. El test del catálogo termina con exit 0.</p>
+<hr>
+<h2 id="1-el-objetivo-de-este-recorrido">1. El objetivo de este recorrido<a class="ancla" href="#1-el-objetivo-de-este-recorrido" aria-label="Enlace a esta sección">#</a></h2>
+<p>Cuando alguien se acerca a Oracle para medir un desarrollo —especialmente en iteraciones guiadas por agentes o LLMs— surgen con frecuencia dos confusiones habituales:</p>
+<ol><li><strong>Confundir la verificación de medidas con la certificación del producto.</strong> Correr <code>oracle test</code> y ver una pantalla verde significa únicamente que el catálogo y el corpus son consistentes entre sí; no significa que el código fuente de la aplicación haya sido ejecutado ni que sus reglas de negocio funcionen.</li><li><strong>Confundir el tracker con el motor de medición.</strong> El subsistema <code>oracle tarea</code> es un gestor documental local en Git. Es completamente optativo: no hace falta inicializar tareas ni escribir bitácoras para formular medidas sobre un producto.</li></ol>
+<p>Este documento presenta la <strong>ruta mínima de primer valor</strong>:</p>
+<ol><li>Elegir una regla concreta del producto.</li><li>Extraer hechos observables estructurados (nivel L0).</li><li>Escribir una medida y casos de ambas polaridades en el catálogo propio.</li><li>Validar el catálogo con <code>oracle test</code>.</li><li>Juzgar una corrida real del producto con <code>oracle juzgar</code>.</li></ol>
+<p>El ejemplo completo y reproducible se encuentra en el repositorio bajo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/README.md" rel="noopener"><code>ejemplo/primer-valor/</code></a>.</p>
+<hr>
+<h2 id="2-paso-1-elegir-una-regla-y-extraer-hechos">2. Paso 1: Elegir una regla y extraer hechos<a class="ancla" href="#2-paso-1-elegir-una-regla-y-extraer-hechos" aria-label="Enlace a esta sección">#</a></h2>
+<p>En el juego de Batalla Naval, una regla elemental de colocación establece:</p>
+<blockquote><p><strong>Regla de colocación:</strong> Toda celda ocupada por un barco debe ubicarse dentro de la cuadrícula de 10×10 (coordenadas de fila y columna entre 0 y 9).</p></blockquote>
+<h3 id="el-sensor-del-producto">El sensor del producto<a class="ancla" href="#el-sensor-del-producto" aria-label="Enlace a esta sección">#</a></h3>
+<p>Oracle no inspecciona el DOM ni adivina el estado interno del juego: el producto debe emitir hechos observables estructurados en formato JSON (una tabla o relación de filas).</p>
+<p>En nuestro ejemplo, el producto <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/colocador.py" rel="noopener"><code>ejemplo/primer-valor/colocador.py</code></a> expone la opción <code>--exportar &lt;archivo&gt;</code> para volcar las celdas ocupadas por la flota:</p>
+<pre data-lenguaje="json"><code>{
+  &quot;celda_ocupada&quot;: [
+    {&quot;barco&quot;: &quot;fragata&quot;, &quot;fila&quot;: 1, &quot;columna&quot;: 2},
+    {&quot;barco&quot;: &quot;fragata&quot;, &quot;fila&quot;: 1, &quot;columna&quot;: 3},
+    {&quot;barco&quot;: &quot;fragata&quot;, &quot;fila&quot;: 1, &quot;columna&quot;: 4},
+    {&quot;barco&quot;: &quot;destructor&quot;, &quot;fila&quot;: 8, &quot;columna&quot;: 5},
+    {&quot;barco&quot;: &quot;destructor&quot;, &quot;fila&quot;: 9, &quot;columna&quot;: 5}
+  ]
+}</code></pre>
+<p>Cada hecho es un dato puro: no hay juicios de valor en el JSON, sólo hechos del mundo (nivel L0).</p>
+<hr>
+<h2 id="3-paso-2-crear-el-proyecto-y-enunciar-la-regla-en-una-medida">3. Paso 2: Crear el proyecto y enunciar la regla en una medida<a class="ancla" href="#3-paso-2-crear-el-proyecto-y-enunciar-la-regla-en-una-medida" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un proyecto Oracle se inicializa con <code>oracle init &lt;directorio&gt;</code> o creando <code>catalogos/</code>, <code>corpus/</code>, <code>diferencial/</code> y un archivo <code>oracle.json</code>:</p>
+<pre data-lenguaje="json"><code>{
+  &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
+  &quot;catalogo_base&quot;: false,
+  &quot;perfiles&quot;: []
+}</code></pre>
+<blockquote><p>[!TIP] Si tu proyecto recién comienza y busca verificar reglas de negocio propias, podés fijar <code>&quot;catalogo_base&quot;: false</code> para concentrarte exclusivamente en tus medidas de dominio sin evaluar políticas de proceso universales heredadas.</p></blockquote>
+<h3 id="la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle">La medida: <code>catalogos/colocacion/colocacion.dentro_del_tablero.oracle</code><a class="ancla" href="#la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle" aria-label="Enlace a esta sección">#</a></h3>
+<p>En Oracle, las medidas se enuncian buscando <strong>lo que ofende</strong> (el defecto), no lo que está bien:</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> colocacion.dentro_del_tablero:
+    <span class="c-kw">de</span> celda_ocupada c
+    <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el tablero es de 10x10 (coordenadas 0 a 9); cualquier casilla fuera de ese rango corrompe el estado del juego&quot;</span>
+    <span class="c-kw">requiere</span> celda_ocupada
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí&quot;</span></code></pre>
+<p>Los cuatro componentes esenciales:</p>
+<ul><li><strong><code>donde</code> (filtro)</strong>: Selecciona únicamente las filas que violan la regla (<code>fila &lt; 0 o fila &gt; 9 ...</code>).</li><li><strong><code>umbral</code> con <code>segun</code></strong>: Exige <code>&lt;= 0</code> violaciones y declara su origen (<code>contrato</code>) con la defensa que lo justifica.</li><li><strong><code>requiere</code></strong>: Exige la presencia de la relación <code>celda_ocupada</code> para evitar falsos verdes si el sensor devolviera una estructura vacía o errónea.</li><li><strong><code>alcance</code></strong>: Declara obligatoriamente el punto ciego de la medida (lo que <strong>no</strong> mira).</li></ul>
+<hr>
+<h2 id="4-paso-3-fijar-la-medida-con-casos-de-ambas-polaridades-en-el-corpus">4. Paso 3: Fijar la medida con casos de ambas polaridades en el corpus<a class="ancla" href="#4-paso-3-fijar-la-medida-con-casos-de-ambas-polaridades-en-el-corpus" aria-label="Enlace a esta sección">#</a></h2>
+<p>Una medida sin casos es una intención sin comprobar: podría estar invertida y pasar sin ser detectada. El corpus en <code>corpus/</code> necesita al menos dos casos:</p>
+<h3 id="caso-1-polaridad-negativa-falso_verde-esperado-rojo">Caso 1: Polaridad negativa (<code>falso_verde</code> esperado ROJO)<a class="ancla" href="#caso-1-polaridad-negativa-falso_verde-esperado-rojo" aria-label="Enlace a esta sección">#</a></h3>
+<p>Archivo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/corpus/colocacion/001-desborde-tablero.caso" rel="noopener"><code>corpus/colocacion/001-desborde-tablero.caso</code></a>:</p>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 001-desborde-tablero:
+    fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Buque colocado parcialmente fuera del tablero (fila 10)&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        Un buque destructor colocado verticalmente en fila 9 desborda hacia la fila 10, fuera <span class="c-kw">de</span> la cuadrícula 10x10.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: colocacion.dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_ocupada: barco, fila, columna
+            <span class="c-txt">&quot;destructor&quot;</span>, 9, 5
+            <span class="c-txt">&quot;destructor&quot;</span>, 10, 5
+    leccion:
+        La <span class="c-kw">medida</span> debe detectar la celda fuera <span class="c-kw">de</span> rango (10, 5) <span class="c-kw">y</span> ponerse en rojo para evitar desbordes <span class="c-kw">de</span> memoria <span class="c-kw">o</span> estado inválido.</code></pre>
+<ul><li>Este caso contiene exactamente 1 celda ofensiva (<code>fila: 10</code>).</li><li>Falla la condición del umbral (<code>1 &lt;= 0</code> es falso), por lo que la medida se pone en <strong>ROJO</strong>.</li><li>Como declara <code>etiqueta: falso_verde</code>, la suite de aceptación confirma que la medida atrapó el defecto.</li><li>Mata el mutante <code>aflojar_umbral</code> (que probaría relajar el umbral a <code>&lt;= 1</code>).</li></ul>
+<h3 id="caso-2-polaridad-positiva-verde_correcto-esperado-verde">Caso 2: Polaridad positiva (<code>verde_correcto</code> esperado VERDE)<a class="ancla" href="#caso-2-polaridad-positiva-verde_correcto-esperado-verde" aria-label="Enlace a esta sección">#</a></h3>
+<p>Archivo <a href="https://github.com/Segtem/oracle/blob/main/ejemplo/primer-valor/corpus/colocacion/002-colocacion-valida.caso" rel="noopener"><code>corpus/colocacion/002-colocacion-valida.caso</code></a>:</p>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 002-colocacion-valida:
+    fecha: <span class="c-txt">&quot;2026-09-21&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Segtem/oracle/ejemplo/primer-valor&quot;</span>
+        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Flota colocada enteramente dentro de la cuadrícula 10x10&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Despliegue reglamentario <span class="c-kw">de</span> buques con todas sus celdas dentro del rango válido <span class="c-kw">de</span> 0 a 9.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: colocacion.dentro_del_tablero
+    <span class="c-kw">evidencia</span>:
+        celda_ocupada: barco, fila, columna
+            <span class="c-txt">&quot;fragata&quot;</span>, 1, 2
+            <span class="c-txt">&quot;fragata&quot;</span>, 1, 3
+            <span class="c-txt">&quot;fragata&quot;</span>, 1, 4
+            <span class="c-txt">&quot;destructor&quot;</span>, 8, 5
+            <span class="c-txt">&quot;destructor&quot;</span>, 9, 5
+    leccion:
+        Una colocación reglamentaria debe dar 0 testigos ofensivos <span class="c-kw">y</span> resultar verde; fija la <span class="c-kw">medida</span> contra mutaciones que eliminen el filtro.</code></pre>
+<ul><li>Este caso contiene 5 celdas legítimas.</li><li>La medida obtiene valor 0, resultando en <strong>VERDE</strong>.</li><li>Mata el mutante <code>quitar_filtro</code> (que al suprimir el filtro contaría las 5 celdas y daría 5 &gt; 0, disparando un falso rojo).</li></ul>
+<hr>
+<h3 id="casos-adicionales-necesarios">Casos adicionales necesarios<a class="ancla" href="#casos-adicionales-necesarios" aria-label="Enlace a esta sección">#</a></h3>
+<p>Los dos casos anteriores no alcanzan: dejaban seis mutantes vivos. El corpus incluye también fila -1, columna -1, columna 10 y una relación vacía (<code>celda_ocupada:</code> sin filas). Este último queda ROJO aunque el valor sea 0 porque incumple <code>requiere</code>. Los seis casos son construidos; <code>sin-commit</code> evita atribuirles un commit ficticio.</p>
+<p>El directorio obligatorio <code>diferencial/</code> se conserva con <code>.gitkeep</code>. No contiene fixtures: esta ruta mínima no aporta una comparación con un evaluador independiente y <code>oracle test</code> lo informa como salteado.</p>
+<h2 id="5-paso-4-validar-el-catálogo-con-oracle-test">5. Paso 4: Validar el catálogo con <code>oracle test</code><a class="ancla" href="#5-paso-4-validar-el-catálogo-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
+<p>Corremos <code>oracle test</code> para verificar que las medidas del catálogo compilen, satisfagan los contratos sintácticos y queden fijadas contra mutación:</p>
+<pre data-lenguaje="bash"><code>oracle test --proyecto ejemplo/primer-valor</code></pre>
+<h3 id="salida-real-registrada-de-oracle-test">Salida real registrada de <code>oracle test</code>:<a class="ancla" href="#salida-real-registrada-de-oracle-test" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="text"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
+
+CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
+
+SINTAXIS OK · 1 medidas · 0 macros · 6 casos
+
+catálogo: 1 medidas · corpus: 6 casos
+
+  ROJO  001-desborde-tablero                   colocacion.dentro_del_tablero  (valor 1)
+  verde 002-colocacion-valida                  colocacion.dentro_del_tablero  (valor 0)
+  ROJO  003-fila-negativa                      colocacion.dentro_del_tablero  (valor 1)
+  ROJO  004-columna-negativa                   colocacion.dentro_del_tablero  (valor 1)
+  ROJO  005-columna-desbordada                 colocacion.dentro_del_tablero  (valor 1)
+  ROJO  006-sin-celdas                         colocacion.dentro_del_tablero  (valor 0)
+
+defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+
+nivel meta — el marco medido con sus propias medidas:
+
+ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+
+DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
+
+mutantes de medida (medida × mutador): 20 · murieron 20 · sobrevivieron 0
+  con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver DECISION-011)
+  de los muertos: 20 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 120
+
+sin políticas meta activas — se informa sólo el resultado operativo
+
+MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
+
+ALCANCE: verificación de medidas contra casos guardados del corpus.
+PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
+VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
+<blockquote><p>[!IMPORTANT] Este veredicto verde indica que <strong>el catálogo satisface las verificaciones aplicables y los casos presentes</strong>. No certifica en absoluto el estado del código del juego en este momento.</p></blockquote>
+<hr>
+<h2 id="6-paso-5-juzgar-una-corrida-real-con-oracle-juzgar">6. Paso 5: Juzgar una corrida real con <code>oracle juzgar</code><a class="ancla" href="#6-paso-5-juzgar-una-corrida-real-con-oracle-juzgar" aria-label="Enlace a esta sección">#</a></h2>
+<p>Ahora sí conectamos el producto vivo con Oracle.</p>
+<h3 id="escenario-a-corrida-con-defecto">Escenario A: Corrida con defecto<a class="ancla" href="#escenario-a-corrida-con-defecto" aria-label="Enlace a esta sección">#</a></h3>
+<p>El colocador tiene un bug y posiciona un destructor en la fila 9 vertical, desbordando hacia la fila 10:</p>
+<pre data-lenguaje="bash"><code># 1. Ejecutar el producto y extraer hechos reales
+python3 ejemplo/primer-valor/colocador.py --defecto --exportar /tmp/hechos-defecto.json
+
+# 2. Juzgar los hechos contra el catálogo
+oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-defecto.json</code></pre>
+<p><strong>Salida real registrada (exit code 1):</strong></p>
+<pre data-lenguaje="text"><code>✗ colocacion.dentro_del_tablero                       1 (&lt;= 0)
+      → c={&#x27;barco&#x27;: &#x27;destructor&#x27;, &#x27;fila&#x27;: 10, &#x27;columna&#x27;: 5}
+
+VEREDICTO: 1 de 1 medidas en rojo</code></pre>
+<p>Oracle rechaza la corrida y señala exactamente el testigo infractor: <code>fila: 10</code>.</p>
+<h3 id="escenario-b-corrida-corregida">Escenario B: Corrida corregida<a class="ancla" href="#escenario-b-corrida-corregida" aria-label="Enlace a esta sección">#</a></h3>
+<p>Arreglamos el defecto en el producto (el destructor se ubica en la fila 8 vertical, ocupando filas 8 y 9):</p>
+<pre data-lenguaje="bash"><code># 1. Regenerar los hechos tras la corrección
+python3 ejemplo/primer-valor/colocador.py --exportar /tmp/hechos-corregido.json
+
+# 2. Juzgar los nuevos hechos
+oracle juzgar --proyecto ejemplo/primer-valor --con /tmp/hechos-corregido.json</code></pre>
+<p><strong>Salida real registrada (exit code 0):</strong></p>
+<pre data-lenguaje="text"><code>✓ colocacion.dentro_del_tablero                       0 (&lt;= 0)
+
+VEREDICTO: verde en 1 medidas. SIN MIRAR:
+  · colocacion.dentro_del_tablero: valida que las celdas reportadas estén en el rango 0..9. NO ve si los buques tienen la longitud declarada ni si se solapan entre sí</code></pre>
+<p>La corrida pasa limpiamente y el reporte final imprime de forma transparente el alcance declarado: qué fue lo que <strong>no se miró</strong>.</p>
+<hr>
+<h2 id="7-clarificaciones-fundamentales">7. Clarificaciones fundamentales<a class="ancla" href="#7-clarificaciones-fundamentales" aria-label="Enlace a esta sección">#</a></h2>
+<h3 id="evidencia-guardada-vs-evidencia-regenerada">Evidencia guardada vs. Evidencia regenerada<a class="ancla" href="#evidencia-guardada-vs-evidencia-regenerada" aria-label="Enlace a esta sección">#</a></h3>
+<ul><li>Los archivos en <code>corpus/</code> (<code>001-desborde-tablero.caso</code>, etc.) son <strong>evidencia histórica guardada</strong> para comprobar las medidas. Si editás el producto, estos archivos no cambian ni deben cambiar automáticamente.</li><li>Los archivos generados por el sensor (<code>/tmp/hechos-*.json</code>) son <strong>evidencia viva de una corrida particular</strong>. Si modificás el producto, debés volver a ejecutar el sensor para generar un nuevo archivo de hechos antes de invocar <code>oracle juzgar</code>.</li></ul>
+<h3 id="cuándo-basta-un-assert-y-cuándo-aporta-oracle">¿Cuándo basta un <code>assert</code> y cuándo aporta Oracle?<a class="ancla" href="#cuándo-basta-un-assert-y-cuándo-aporta-oracle" aria-label="Enlace a esta sección">#</a></h3>
+<ul><li><strong>Basta un <code>assert</code></strong> cuando estás programando una comprobación interna rápida en una función (<code>assert 0 &lt;= fila &lt; 10</code>), o en una prueba unitaria clásica donde el mismo desarrollador escribe el código y el test.</li><li><strong>Aporta Oracle</strong> cuando:
+<ol><li><strong>Hay riesgo de Goodhart:</strong> Quien escribe el código (por ejemplo, un LLM o agente) tiende a adaptar el test para que dé verde; en Oracle las medidas están desacopladas y custodiadas por mutación obligatoria.</li><li><strong>Se necesita explicitar el punto ciego:</strong> Un <code>assert</code> que pasa produce silencio; una medida de Oracle que pasa concluye enumerando su <code>alcance</code> (lo que no puede garantizar).</li><li><strong>Auditoría de artefactos en caja negra:</strong> Querés evaluar la validez de los datos producidos por un proceso sin acoplarte a cómo está implementado el generador por dentro.</li></ol></li></ul>
+<h3 id="el-tracker-es-una-herramienta-independiente">El tracker es una herramienta independiente<a class="ancla" href="#el-tracker-es-una-herramienta-independiente" aria-label="Enlace a esta sección">#</a></h3>
+<p>La gestión de tareas (<code>oracle tarea init</code>, <code>oracle tarea nueva</code>, etc.) no es un requisito previo para usar medidas ni para juzgar hechos. Podés medir cualquier producto sin inicializar <code>tareas/</code>.</p>
+<p>El tutorial completo es una opción para profundizar; el tracker y ese tutorial son independientes de este recorrido.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/13-primer-valor.md" rel="noopener">docs/13-primer-valor.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#entorno-y-preparación-verificados">Entorno y preparación verificados</a></li><li class="n2"><a href="#1-el-objetivo-de-este-recorrido">1. El objetivo de este recorrido</a></li><li class="n2"><a href="#2-paso-1-elegir-una-regla-y-extraer-hechos">2. Paso 1: Elegir una regla y extraer hechos</a></li><li class="n3"><a href="#el-sensor-del-producto">El sensor del producto</a></li><li class="n2"><a href="#3-paso-2-crear-el-proyecto-y-enunciar-la-regla-en-una-medida">3. Paso 2: Crear el proyecto y enunciar la regla en una medida</a></li><li class="n3"><a href="#la-medida-catalogoscolocacioncolocaciondentro_del_tablerooracle">La medida: catalogos/colocacion/colocacion.dentro_del_tablero.oracle</a></li><li class="n2"><a href="#4-paso-3-fijar-la-medida-con-casos-de-ambas-polaridades-en-el-corpus">4. Paso 3: Fijar la medida con casos de ambas polaridades en el corpus</a></li><li class="n3"><a href="#caso-1-polaridad-negativa-falso_verde-esperado-rojo">Caso 1: Polaridad negativa (falso_verde esperado ROJO)</a></li><li class="n3"><a href="#caso-2-polaridad-positiva-verde_correcto-esperado-verde">Caso 2: Polaridad positiva (verde_correcto esperado VERDE)</a></li><li class="n3"><a href="#casos-adicionales-necesarios">Casos adicionales necesarios</a></li><li class="n2"><a href="#5-paso-4-validar-el-catálogo-con-oracle-test">5. Paso 4: Validar el catálogo con oracle test</a></li><li class="n3"><a href="#salida-real-registrada-de-oracle-test">Salida real registrada de oracle test:</a></li><li class="n2"><a href="#6-paso-5-juzgar-una-corrida-real-con-oracle-juzgar">6. Paso 5: Juzgar una corrida real con oracle juzgar</a></li><li class="n3"><a href="#escenario-a-corrida-con-defecto">Escenario A: Corrida con defecto</a></li><li class="n3"><a href="#escenario-b-corrida-corregida">Escenario B: Corrida corregida</a></li><li class="n2"><a href="#7-clarificaciones-fundamentales">7. Clarificaciones fundamentales</a></li><li class="n3"><a href="#evidencia-guardada-vs-evidencia-regenerada">Evidencia guardada vs. Evidencia regenerada</a></li><li class="n3"><a href="#cuándo-basta-un-assert-y-cuándo-aporta-oracle">¿Cuándo basta un assert y cuándo aporta Oracle?</a></li><li class="n3"><a href="#el-tracker-es-una-herramienta-independiente">El tracker es una herramienta independiente</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

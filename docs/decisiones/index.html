@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisiones de diseño — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html" aria-current=page>Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisiones-de-diseño">Decisiones de diseño<a class="ancla" href="#decisiones-de-diseño" aria-label="Enlace a esta sección">#</a></h1>
+<p>Registro normativo de las decisiones citadas por el código y la documentación.</p>
+<div class="tabla"><table><thead><tr><th>ID</th><th>Título</th><th>Fecha</th><th>Estado</th></tr></thead><tbody><tr><td><a href="DECISION-001-RELACIONES-COMO-BOLSAS.html">001</a></td><td>Decisión 001 — las relaciones son bolsas</td><td>2026-07-30</td><td>aceptada el 2026-07-30</td></tr><tr><td><a href="DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.html">002</a></td><td>Decisión 002 — las medidas no componen</td><td>2026-08-03</td><td>rechazada la composición el 2026-08-03</td></tr><tr><td><a href="DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.html">003</a></td><td>Decisión 003 — <code>defmacro</code> no tiene parámetros opcionales</td><td>2026-08-24</td><td>revertida la capacidad el 2026-08-24 (commit <code>d2532fa</code>, que revierte <code>eb9ad40</code>)</td></tr><tr><td><a href="DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.html">004</a></td><td>Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho</td><td>2026-08-26</td><td>CUMPLIDA</td></tr><tr><td><a href="DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.html">005</a></td><td>Decisión 005 — la numeración va de L−2 a L2, y se cierra en los dos extremos</td><td>2026-08-26</td><td>vigente, comprobada por L−1 y L−2 el 2026-08-28</td></tr><tr><td><a href="DECISION-006-DE-DONDE-SALE-EL-NUMERO.html">006</a></td><td>Decisión 006 — el umbral declara de dónde sale su número, y la prosa deja de ser obligatoria</td><td>2026-08-27</td><td>aprobado, en construcción</td></tr><tr><td><a href="DECISION-007-BIBLIOTECAS-DE-POLITICAS.html">007</a></td><td>Decisión 007 — bibliotecas de políticas: se adopta, con seis correcciones</td><td>2026-08-31</td><td>aceptada la dirección, la primera versión sin construir</td></tr><tr><td><a href="DECISION-008-EL-REPOSITORIO-SE-ABRE.html">008</a></td><td>DECISIÓN 008 — El repositorio se abre</td><td>2026-08-31</td><td>tomada</td></tr><tr><td><a href="DECISION-009-DE-QUIEN-ES-EL-CASO.html">009</a></td><td>DECISIÓN 009 — de quién es el caso</td><td>2026-09-01</td><td>tomada</td></tr><tr><td><a href="DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.html">010</a></td><td>Decisión 010 — el paquete instalado es otro proyecto, y hay que medirlo como tal</td><td>2026-09-02</td><td>vigente</td></tr><tr><td><a href="DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.html">011</a></td><td>Decisión 011 — los mutadores tienen autor, y hasta hoy era uno solo</td><td>2026-09-02</td><td>vigente</td></tr><tr><td><a href="DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.html">012</a></td><td>Decisión 012 — cada medida declara dónde obliga, y «empaquetada» deja de significar «universal»</td><td>2026-09-03</td><td>vigente</td></tr></tbody></table></div>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/README.md" rel="noopener">docs/decisiones/README.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

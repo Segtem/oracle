@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 010 — el paquete instalado es otro proyecto, y hay que medirlo como tal — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-010--el-paquete-instalado-es-otro-proyecto-y-hay-que-medirlo-como-tal">Decisión 010 — el paquete instalado es otro proyecto, y hay que medirlo como tal<a class="ancla" href="#decisión-010--el-paquete-instalado-es-otro-proyecto-y-hay-que-medirlo-como-tal" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-09-02 · <strong>Ampliada:</strong> 2026-09-02 (segundo defecto) · <strong>Estado:</strong> vigente <strong>Origen:</strong> un consumidor migrando de subtree a PyPI, bloqueado por un defecto de 0.3.1.</p>
+<h2 id="el-hecho">El hecho<a class="ancla" href="#el-hecho" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>nucleo/aislamiento/escalares.py</code> lanza el subproceso que ejecuta las UDF de un proyecto con el entorno <strong>reemplazado</strong>, y le pasaba <code>PYTHONPATH = RAIZ_ORACLE</code>. En el repo eso es la raíz, que contiene <code>oracle_metalenguaje/</code>, así que la fachada importa. En el wheel, <code>RAIZ_ORACLE</code> <strong>es el directorio del propio paquete</strong>, y quien lo hace importable es su padre.</p>
+<p>Consecuencia: el <code>escalares.py</code> de un consumidor que hace <code>from oracle_metalenguaje import escalar</code> —que es lo que la documentación le pide hacer— moría con <code>ModuleNotFoundError</code>.</p>
+<h2 id="por-qué-no-lo-vio-nadie-durante-dos-releases">Por qué no lo vio nadie durante dos releases<a class="ancla" href="#por-qué-no-lo-vio-nadie-durante-dos-releases" aria-label="Enlace a esta sección">#</a></h2>
+<p>Porque <strong>sólo se rompe cuando el paquete no está en <code>site-packages</code></strong>. En un venv, <code>site.py</code> agrega ese directorio por su cuenta y tapa la falta. <code>tools/verificar_instalacion.py</code> probaba exactamente ese caso: construía el wheel, lo instalaba en un venv, corría un proyecto con <code>escalares.py</code> que importa la fachada, y salía <code>WHEEL OK</code>.</p>
+<p>Era un verde que no significaba nada, en la herramienta que existe para decir que el paquete está bien. Es el defecto que este repositorio cataloga 90 veces, cometido en su propio arnés.</p>
+<h2 id="la-decisión">La decisión<a class="ancla" href="#la-decisión" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>El paquete instalado no es «el repo, movido». Es un layout distinto, y hay que ejercerlo como un proyecto aparte.</strong> Concretamente:</p>
+<ol><li><code>tools/verificar_instalacion.py</code> prueba <strong>dos</strong> layouts, no uno: el venv y el vendorizado con <code>pip install --target</code>. El segundo es el que usa un consumidor cuyo intérprete es de otro —uno embebido dentro de una aplicación anfitriona—, que no puede crear un venv.</li><li>Cualquier ruta que se derive de <code>__file__</code> para encontrar <strong>la fachada</strong> se le pregunta al importador (<code>importlib.util.find_spec</code>), no se calcula. Las que buscan <code>catalogos/</code> o <code>nucleo/</code> sí pueden derivarse: en los dos layouts cuelgan del mismo lugar.</li><li>Se auditaron los demás usos y <strong>el del aislamiento es el único</strong> que necesitaba la fachada desde un subproceso con el entorno reemplazado. La otra llamada a <code>subprocess</code> con <code>env</code> explícito —la del arnés de mutación— copia <code>os.environ</code> en vez de reemplazarlo.</li></ol>
+<h2 id="lo-que-se-descartó-y-por-qué">Lo que se descartó, y por qué<a class="ancla" href="#lo-que-se-descartó-y-por-qué" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><strong><code>RAIZ_ORACLE.parent</code></strong>, que era lo obvio y lo que propuso quien encontró el defecto. En el repo eso es el directorio que CONTIENE a Oracle —<code>~/Dev</code> en la máquina donde apareció— y meterlo en el camino de un subproceso que existe para <strong>confinar</strong> una UDF ajena es exactamente lo contrario de lo que ese módulo hace. Con <code>find_spec</code>, en el repo no se agrega ninguna entrada.</li><li><strong>Derivarlo de <code>__package__</code>.</strong> Parecía preciso y está mal por una razón que no se ve leyendo el archivo: <code>oracle_metalenguaje/__init__.py</code> aliasa <code>nucleo</code> como paquete de nivel superior, así que ese mismo archivo termina importado <strong>dos veces bajo dos nombres, como dos objetos distintos</strong>. El que usa <code>nucleo/proyecto.py</code> se llama <code>nucleo.aislamiento.escalares</code>, y desde ese nombre el layout del wheel es invisible. El cálculo daba el valor correcto en la copia equivocada.</li></ul>
+<h2 id="cómo-sabemos-que-el-arreglo-mide-algo">Cómo sabemos que el arreglo mide algo<a class="ancla" href="#cómo-sabemos-que-el-arreglo-mide-algo" aria-label="Enlace a esta sección">#</a></h2>
+<p>Se puso el defecto <strong>de vuelta a propósito</strong> y se corrió el verificador: sale 1, con el <code>ModuleNotFoundError</code> exacto. Un chequeo que pasa con y sin el defecto no comprueba nada.</p>
+<h2 id="el-segundo-defecto-de-la-misma-clase-la-fachada-ocupaba-nombres-del-consumidor">El segundo defecto de la misma clase: la fachada ocupaba nombres del consumidor<a class="ancla" href="#el-segundo-defecto-de-la-misma-clase-la-fachada-ocupaba-nombres-del-consumidor" aria-label="Enlace a esta sección">#</a></h2>
+<p>Lo encontró el mismo camino, un día después. Importar <code>oracle_metalenguaje</code> registraba en <code>sys.modules</code> cuatro nombres de NIVEL SUPERIOR —<code>nucleo</code>, <code>catalogos</code>, <code>perfiles</code> y <code>tools</code>— para que los imports absolutos del propio núcleo funcionen en los dos layouts.</p>
+<p><code>tools</code> es el nombre de paquete más común que hay en un repositorio. Un consumidor con su propio <code>tools/</code> lo perdía <strong>por importar la biblioteca</strong>: murió con <code>ModuleNotFoundError: No module named &#x27;tools.referencias&#x27;</code> sobre un paquete suyo que existía y no se había movido.</p>
+<p>Y el verificador afirmaba lo contrario:</p>
+<pre data-lenguaje="python"><code>for nombre in (&quot;nucleo&quot;, &quot;catalogos&quot;, &quot;perfiles&quot;, &quot;tools&quot;):
+    assert importlib.util.find_spec(nombre) is None, nombre</code></pre>
+<p>Eso mira el DISCO y corre <strong>antes</strong> de importar nada. Era verdad y decía una mentira: el wheel no ocupa esos nombres como archivos, los ocupa al importarse. Segundo verificador que pasa mientras la cosa está rota, en dos días.</p>
+<h3 id="lo-que-se-decidió">Lo que se decidió<a class="ancla" href="#lo-que-se-decidió" aria-label="Enlace a esta sección">#</a></h3>
+<p>El alias de <code>tools</code> <strong>se mudó de la fachada al propio paquete <code>tools/</code></strong>. Los módulos de <code>tools/</code> se importan entre sí por nombre absoluto, y eso ocurre cuando corre un entry point de Oracle —su propio proceso, donde ocupar el nombre no le saca nada a nadie—. Un consumidor que sólo usa <code>Motor</code> o <code>escalar</code> ya no lo ve.</p>
+<p>El verificador ahora comprueba lo que hay que comprobar: crea un consumidor con su propio <code>tools/</code>, importa la biblioteca, y exige que el paquete siga siendo el suyo. Se probó poniendo el defecto de vuelta: falla con el <code>ModuleNotFoundError</code> exacto.</p>
+<h3 id="el-riesgo-que-queda-dicho">El riesgo que queda, dicho<a class="ancla" href="#el-riesgo-que-queda-dicho" aria-label="Enlace a esta sección">#</a></h3>
+<p><code>nucleo</code>, <code>catalogos</code> y <code>perfiles</code> <strong>se siguen ocupando</strong>, porque el núcleo se importa a sí mismo por nombre absoluto y sacarlos es reescribir todos sus imports. Son palabras en español y la colisión es menos probable, pero no imposible. Es <code>setdefault</code>, así que un consumidor que ya cargó el suyo lo conserva —y entonces se rompe Oracle, no él—. La salida de fondo es que el núcleo deje de importarse por nombre absoluto; no está hecha y este documento no dice que lo esté.</p>
+<p>Lo que sí queda fijado: <strong>ningún módulo de <code>nucleo/</code> importa <code>tools</code></strong>, que es la condición que hace seguro haberlo sacado. Hay un test que se rompe si mañana alguno lo hace.</p>
+<h2 id="lo-que-esto-no-arregla">Lo que esto NO arregla<a class="ancla" href="#lo-que-esto-no-arregla" aria-label="Enlace a esta sección">#</a></h2>
+<p>El verificador prueba dos layouts porque son los dos que hoy se sabe que alguien usa. Un tercero —un zip importable, un intérprete con <code>sys.path</code> armado a mano de otra forma— seguiría sin estar cubierto, y este documento no promete lo contrario.</p>
+<p>Y hay una cosa más, que salió al arreglar el segundo defecto: <strong><code>objetivos_disponibles()</code> excluye todo <code>__init__.py</code></strong>, así que la fachada —<code>oracle_metalenguaje/__init__.py</code>, que es exactamente donde estaba el defecto— <strong>no la muta nadie</strong>. Lo mismo <code>tools/__init__.py</code>, donde vive ahora el alias.</p>
+<p>La exclusión existe por una razón buena: casi todos los <code>__init__.py</code> del proyecto están vacíos y mutarlos sería denominador sin señal. Pero esos dos no están vacíos, y la consecuencia es que su comportamiento lo fijan tests que leen el CÓDIGO FUENTE como texto, no mutantes. Es más débil y hay que saberlo. Levantarlo entero es una decisión aparte: hoy sumaría decenas de archivos vacíos al denominador.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md" rel="noopener">docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho">El hecho</a></li><li class="n2"><a href="#por-qué-no-lo-vio-nadie-durante-dos-releases">Por qué no lo vio nadie durante dos releases</a></li><li class="n2"><a href="#la-decisión">La decisión</a></li><li class="n2"><a href="#lo-que-se-descartó-y-por-qué">Lo que se descartó, y por qué</a></li><li class="n2"><a href="#cómo-sabemos-que-el-arreglo-mide-algo">Cómo sabemos que el arreglo mide algo</a></li><li class="n2"><a href="#el-segundo-defecto-de-la-misma-clase-la-fachada-ocupaba-nombres-del-consumidor">El segundo defecto de la misma clase: la fachada ocupaba nombres del consumidor</a></li><li class="n3"><a href="#lo-que-se-decidió">Lo que se decidió</a></li><li class="n3"><a href="#el-riesgo-que-queda-dicho">El riesgo que queda, dicho</a></li><li class="n2"><a href="#lo-que-esto-no-arregla">Lo que esto NO arregla</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

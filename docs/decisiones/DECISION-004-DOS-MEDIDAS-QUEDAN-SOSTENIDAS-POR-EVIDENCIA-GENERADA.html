@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-004--dos-medidas-quedan-sostenidas-por-evidencia-fabricada-y-se-deja-dicho">Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho<a class="ancla" href="#decisión-004--dos-medidas-quedan-sostenidas-por-evidencia-fabricada-y-se-deja-dicho" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-08-26 · <strong>Revisada:</strong> 2026-08-31 (de 2 a 3), 2026-09-01 (de 3 a 2) y 2026-09-08 (de 2 a <strong>1</strong>) y 2026-09-09 (de 1 a <strong>CERO</strong>) · <strong>Estado:</strong> CUMPLIDA <strong>Consecuencia:</strong> <code>tools/aceptacion.py</code> salía con código 1 mientras esto siguiera así. <strong>Dejó de salir 1 el 2026-09-09</strong>, después de veintitrés días.</p>
+<h2 id="el-hecho">El hecho<a class="ancla" href="#el-hecho" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>meta.la_medida_no_se_fija_solo_con_evidencia_fabricada</code> señala las medidas cuyos casos son <strong>todos</strong> no observados. Al escribirla salió roja en 12. Diez se cerraron transcribiendo evidencia que ya existía —un catálogo real que no tenía filtro, corridas reales del marco sobre sí mismo—. Dos no:</p>
+<ul><li><code>meta.sintaxis_cubre_algebra</code></li><li><code>meta.sintaxis_casos_cubre_casos</code></li></ul>
+<p><strong>Se sumó una tercera el 2026-08-31, y por un motivo distinto:</strong></p>
+<ul><li><code>meta.ninguna_evidencia_declara_un_referente_sin_huella</code></li></ul>
+<p>Ésa no aparecía porque su caso verde decía <code>procedencia: observada</code> sobre filas que salían de <code>tests/test_referente.py</code> —<code>sha256:abc</code> no es una huella, es un marcador de ocho caracteres—. Al corregir la procedencia a <code>construida</code>, la medida quedó al descubierto. <strong>El rojo nuevo no es una regresión: es lo que siempre había, visible por primera vez.</strong></p>
+<p>Y su motivo era más provisorio que el de las otras dos: <strong>ningún sensor de este repo producía un <code>referente_declarado</code>.</strong> L−2 existía en el lenguaje y todavía no en el mundo, igual que le pasaba a L−1 hasta que se declararon las primeras relaciones de un consumidor.</p>
+<h3 id="esa-tercera-se-cerró-el-2026-09-01-y-por-el-camino-que-decía-la-última-sección">Esa tercera se cerró el 2026-09-01, y por el camino que decía la última sección<a class="ancla" href="#esa-tercera-se-cerró-el-2026-09-01-y-por-el-camino-que-decía-la-última-sección" aria-label="Enlace a esta sección">#</a></h3>
+<p>No transcribiendo evidencia: cambiando el mundo, que es lo poco que esta decisión admitía. Resultó que los referentes <strong>ya se calculaban</strong> —<code>revisar_frescura</code> arma un <code>Referente</code> por cada huella del bloque <code>frescura</code> de un fixture para compararla contra el estado de hoy— y morían adentro de esa función. <code>referentes_de_fixture</code> los expone, y con eso <code>diferencial/simulacion.json</code> declara cuatro referentes reales con sha256 reales: el catálogo, la configuración del dominio, <code>tools/generar_diferencial.py</code> y <code>diferencial/referencia/evaluador.py</code>.</p>
+<p>El caso <code>459-referentes-reales-del-fixture-diferencial</code> transcribe esa corrida. No se agregó una medida ni se aflojó nada: se hizo observable algo que ya ocurría. <strong>El rojo bajó de 3 a 2.</strong></p>
+<h3 id="la-segunda-se-cerró-el-2026-09-08-y-por-el-mismo-camino-que-la-tercera">La segunda se cerró el 2026-09-08, y por el mismo camino que la tercera<a class="ancla" href="#la-segunda-se-cerró-el-2026-09-08-y-por-el-mismo-camino-que-la-tercera" aria-label="Enlace a esta sección">#</a></h3>
+<p>No transcribiendo evidencia: <strong>cambiando el mundo</strong>. <code>meta.sintaxis_cubre_algebra</code> sale de esta lista porque un consumidor pisó un hueco que la sonda declaraba en su propio <code>alcance</code> —«NO cubre agrupar con 0 agregados»— y que resultó ser un defecto real: el impresor escribía un <code>agrupar:</code> sin agregados que el lector después rechazaba, y el álgebra lo aceptaba desde siempre.</p>
+<p>Cerrar el hueco en el generador —no en el <code>alcance</code>— produjo una corrida real con tres rojos, uno por cada esquina que faltaba, con el mismo error que había pisado el consumidor. Los casos <code>488</code> y <code>489</code> transcriben esa corrida y la de después del arreglo, los dos con <code>procedencia: observada</code> y su <code>origen</code>. No se aflojó nada ni se agregó una medida: se hizo observable algo que ya ocurría, y que sólo ocurría porque el hueco estaba abierto.</p>
+<p><strong>El rojo bajó de 2 a 1.</strong> Queda <code>meta.sintaxis_casos_cubre_casos</code>.</p>
+<h3 id="la-última-se-cerró-el-2026-09-09-y-por-el-mismo-camino-que-las-otras-dos">La última se cerró el 2026-09-09, y por el mismo camino que las otras dos<a class="ancla" href="#la-última-se-cerró-el-2026-09-09-y-por-el-mismo-camino-que-las-otras-dos" aria-label="Enlace a esta sección">#</a></h3>
+<p>No transcribiendo evidencia: <strong>cambiando el mundo</strong>. Un segundo autor buscó el defecto en la superficie de casos, midió 97 esquinas más 25 casos de generador, y entregó un <strong>resultado negativo riguroso</strong> — no inventó uno para cerrar el rojo, que es lo que esta decisión prohíbe. Pero en el camino encontró dos asimetrías y las descartó con un argumento que no se sostenía: que un nombre de campo con espacios «no puede existir en el álgebra relacional».</p>
+<p><strong>Los nombres de campo de la evidencia de un caso no los pone el álgebra: los pone el JSON que emite el sensor de un consumidor</strong>, y nada los valida contra el patrón de nombres. La demostración era correcta bajo una premisa que el sistema no garantiza.</p>
+<p>El defecto era real y de la misma forma que el de <code>agrupar</code>: <code>corpus.py</code> aceptaba el caso, <code>caso.imprimir</code> lo escribía como cabecera de tabla y <code>caso.leer</code> lo rechazaba. Y el arreglo también: <strong>el impresor ya sabía escribirlo</strong> —en la forma de escape que usa para filas heterogéneas— y su guarda elegía mal. Detectaba la coma y el espacio del borde, no el de adentro.</p>
+<p>Los casos <code>500</code> y <code>501</code> transcriben la corrida contra el impresor viejo y la de después, los dos con <code>procedencia: observada</code> y su <code>origen</code>.</p>
+<p><strong>El rojo bajó de 1 a CERO.</strong> <code>tools/aceptacion.py</code> sale 0.</p>
+<hr>
+<h2 id="lo-que-esta-decisión-dejó-demostrado">Lo que esta decisión dejó demostrado<a class="ancla" href="#lo-que-esta-decisión-dejó-demostrado" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las tres se cerraron igual, y ninguna por transcribir: <strong>haciendo observable algo que ya ocurría</strong>. La primera exponiendo referentes que se calculaban y morían adentro de una función; la segunda y la tercera encontrando un defecto real en la superficie que la sonda no generaba.</p>
+<p>Las tres veces el defecto estaba donde el <code>alcance</code> decía que no se miraba.</p>
+<h2 id="por-qué-éstas-no-se-pueden-cerrar">Por qué éstas no se pueden cerrar<a class="ancla" href="#por-qué-éstas-no-se-pueden-cerrar" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las dos existen <strong>para ir más allá del catálogo</strong>. Su hermana <code>meta.sintaxis_ida_y_vuelta</code> comprueba que las medidas escritas sobrevivan la ida y vuelta por la superficie, y se fija con 38 filas del catálogo real: ésa está observada y no aparece en el rojo. Estas dos comprueban lo que la escrita a mano <strong>no</strong> alcanza: que la superficie cubra formas del álgebra que nadie escribió todavía —<code>unir</code> encadenado, <code>agrupar</code> multiclave, predicados anidados—, generadas desde la gramática.</p>
+<p>Su sujeto es la medida generada. Una evidencia observada para ellas sería una contradicción: si la forma estuviera en el catálogo, la cubriría <code>meta.sintaxis_ida_y_vuelta</code> y estas dos no harían falta.</p>
+<h2 id="lo-que-no-se-hizo-y-por-qué">Lo que NO se hizo, y por qué<a class="ancla" href="#lo-que-no-se-hizo-y-por-qué" aria-label="Enlace a esta sección">#</a></h2>
+<p>Se consideró y se descartó agregarle a la medida una condición que las excluyera —un campo de excepción, una lista de medidas eximidas, un <code>donde</code> que las nombre—. Cualquiera de las tres es la misma cosa: una puerta para que una medida deje de señalar sin que el hecho señalado cambie. El proyecto existe para no tener esa puerta. Un rojo verdadero es el producto.</p>
+<p>También se consideró aflojar el umbral a <code>&lt;= 2</code>. Es peor: convierte una afirmación falsable en un presupuesto, y el día que aparezca una tercera medida sostenida sólo por evidencia fabricada —una que sí sea un descuido— entraría bajo el techo sin que nadie se entere.</p>
+<h2 id="cómo-se-cierra-si-alguna-vez-se-cierra">Cómo se cierra, si alguna vez se cierra<a class="ancla" href="#cómo-se-cierra-si-alguna-vez-se-cierra" aria-label="Enlace a esta sección">#</a></h2>
+<p>No transcribiendo nada: cambiando el mundo. Si algún día la generación por gramática deja de ser la única forma de llegar a esas formas del álgebra —porque alguien escribe medidas reales que las usen, en este catálogo o en el de un consumidor—, esas medidas pasan a tener evidencia observada y la señal se apaga sola. Hasta entonces el 2 se lee, no se tapa.</p>
+<p>El precedente de la tercera vale: antes de dar un rojo por incerrable, conviene preguntarse si el mundo ya produce la evidencia y nadie la está mirando. En ese caso estuvo escondida a cinco líneas, adentro de una función que la usaba para otra cosa.</p>
+<h2 id="el-costo-asumido">El costo asumido<a class="ancla" href="#el-costo-asumido" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>oracle test</code> y <code>tools/aceptacion.py</code> salen en rojo. Alguien que llegue nuevo al repo lo ve y tiene que leer esto para saber que no es una regresión. Es un costo real y se paga a propósito: la alternativa era un verde que no significa nada, que es el defecto que este repo cataloga 66 veces.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md" rel="noopener">docs/decisiones/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho">El hecho</a></li><li class="n3"><a href="#esa-tercera-se-cerró-el-2026-09-01-y-por-el-camino-que-decía-la-última-sección">Esa tercera se cerró el 2026-09-01, y por el camino que decía la última sección</a></li><li class="n3"><a href="#la-segunda-se-cerró-el-2026-09-08-y-por-el-mismo-camino-que-la-tercera">La segunda se cerró el 2026-09-08, y por el mismo camino que la tercera</a></li><li class="n3"><a href="#la-última-se-cerró-el-2026-09-09-y-por-el-mismo-camino-que-las-otras-dos">La última se cerró el 2026-09-09, y por el mismo camino que las otras dos</a></li><li class="n2"><a href="#lo-que-esta-decisión-dejó-demostrado">Lo que esta decisión dejó demostrado</a></li><li class="n2"><a href="#por-qué-éstas-no-se-pueden-cerrar">Por qué éstas no se pueden cerrar</a></li><li class="n2"><a href="#lo-que-no-se-hizo-y-por-qué">Lo que NO se hizo, y por qué</a></li><li class="n2"><a href="#cómo-se-cierra-si-alguna-vez-se-cierra">Cómo se cierra, si alguna vez se cierra</a></li><li class="n2"><a href="#el-costo-asumido">El costo asumido</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

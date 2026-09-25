@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Memoria y rondas de mutación en paralelo — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html" aria-current=page>Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="memoria-y-rondas-de-mutación-en-paralelo">Memoria y rondas de mutación en paralelo<a class="ancla" href="#memoria-y-rondas-de-mutación-en-paralelo" aria-label="Enlace a esta sección">#</a></h1>
+<p><code>--limite-memoria-mb</code> limita el espacio de direcciones virtuales <strong>por proceso</strong> mediante <code>RLIMIT_AS</code> (MiB, aunque la opción diga <code>mb</code>). Los hijos heredan el límite, pero cada uno dispone de su propio cupo. <code>0</code> lo desactiva. El arnés no administra cgroups ni decide cuántas raíces lanzar: esa política vive en esta receta.</p>
+<h2 id="calcular-antes-de-lanzar">Calcular antes de lanzar<a class="ancla" href="#calcular-antes-de-lanzar" aria-label="Enlace a esta sección">#</a></h2>
+<p>Usar <code>MemAvailable</code> de <code>/proc/meminfo</code>, no <code>MemFree</code>. Reservar la mitad para el resto de la máquina. El presupuesto común es <code>B = floor(disponible_MiB / 2)</code> y el costo presupuestado por ronda es <code>C = 2 * limite_MiB + 512</code>: dos procesos al tope más 512 MiB para el arnés, copias y caché. La concurrencia es <code>N = min(cantidad_de_raices, floor(B / C))</code>. Si da cero, no lanzar.</p>
+<p>Este costo es una reserva operativa, no una cota del árbol de procesos: un test puede crear más hijos. El techo común es el que contiene ese caso. Si el proyecto necesita más hijos simultáneos o copias más grandes, aumentar <code>C</code>. Recalcular en cada lote; no lanzar varios lotes independientes con el mismo presupuesto.</p>
+<h2 id="un-scope-para-todo-el-lote">Un scope para todo el lote<a class="ancla" href="#un-scope-para-todo-el-lote" aria-label="Enlace a esta sección">#</a></h2>
+<p>Ejecutar desde Oracle, con raíces distintas y previamente preparadas con los mismos cambios. Pasar cada raíz una sola vez. El bloqueo del arnés impide dos rondas sobre una misma raíz. Guardar el siguiente bloque como <code>/tmp/oracle-rondas.sh</code> y pasar las rutas como argumentos. Requiere Bash, Linux con cgroup v2 y systemd de usuario con controlador de memoria disponible. La receta hace una comprobación <strong>parcial</strong> de una línea; los parámetros <code>OBJETIVO</code> y <code>LINEAS</code> permiten elegir otra zona.</p>
+<pre data-lenguaje="bash"><code>#!/usr/bin/env bash
+set -euo pipefail
+if (( $# == 0 )); then
+    echo &#x27;Uso: bash /tmp/oracle-rondas.sh /ruta/raiz-a /ruta/raiz-b&#x27; &gt;&amp;2
+    exit 1
+fi
+# Se lee el valor vigente del código y se pasa explícitamente a todas las raíces.
+export LIMITE_MIB
+LIMITE_MIB=$(python3 -c &#x27;from tools.mutar_codigo import LIMITE_MEMORIA_MB_PREDETERMINADO; print(LIMITE_MEMORIA_MB_PREDETERMINADO)&#x27;)
+export OBJETIVO=${OBJETIVO:-nucleo/algebra.py}
+export LINEAS=${LINEAS:-54}
+# DISPONIBLE_MIB permite reducir la lectura del host en contenedores o slices
+# con límites propios: usar el menor margen entre memory.max y memory.current
+# de todos los ancestros del scope, además de MemAvailable.
+# En ese entorno, establecer DISPONIBLE_MIB antes de ejecutar esta receta.
+disponible=$(awk &#x27;/^MemAvailable:/ {print int($2 / 1024)}&#x27; /proc/meminfo)
+if [[ -n ${DISPONIBLE_MIB:-} ]]; then
+    [[ $DISPONIBLE_MIB =~ ^[0-9]+$ ]] || exit 1
+    (( DISPONIBLE_MIB &gt;= disponible )) || disponible=$DISPONIBLE_MIB
+fi
+presupuesto=$((disponible / 2))
+costo=$((2 * LIMITE_MIB + 512))
+rondas=$((presupuesto / costo))
+(( rondas &lt;= $# )) || rondas=$#
+if (( rondas &lt; 1 )); then
+    echo &quot;No alcanza: presupuesto ${presupuesto} MiB; ronda ${costo} MiB&quot; &gt;&amp;2
+    exit 1
+fi
+printf &#x27;Tope por proceso: %s MiB; techo común: %s MiB; concurrencia: %s\n&#x27; \
+    &quot;$LIMITE_MIB&quot; &quot;$presupuesto&quot; &quot;$rondas&quot;
+# xargs y todos sus descendientes viven dentro del MISMO scope.
+systemd-run --user --scope \
+    -p MemoryAccounting=yes -p &quot;MemoryMax=${presupuesto}M&quot; -p MemorySwapMax=0 \
+    bash -c &#x27;
+        paralelas=$1; shift
+        printf &quot;%s\0&quot; &quot;$@&quot; | xargs -0 -r -n 1 -P &quot;$paralelas&quot; bash -c &#x27;\&#x27;&#x27;
+            cd -- &quot;$1&quot; || exit 2
+            exec python3 tools/mutar_codigo.py --objetivo &quot;$OBJETIVO&quot; \
+                --lineas &quot;$LINEAS&quot; --timeout 300 \
+                --limite-memoria-mb &quot;$LIMITE_MIB&quot;
+        &#x27;\&#x27;&#x27; _
+    &#x27; _ &quot;$rondas&quot; &quot;$@&quot;</code></pre>
+<p><code>MemoryMax</code> limita el uso conjunto del cgroup; <code>MemorySwapMax=0</code> impide que el lote use swap. Ver la documentación de <a href="https://raw.githubusercontent.com/systemd/systemd/main/man/systemd.resource-control.xml" rel="noopener">control de recursos de systemd</a> y de <a href="https://raw.githubusercontent.com/systemd/systemd/main/man/systemd-run.xml" rel="noopener">systemd-run</a>. Si systemd rechaza el scope, resolver la configuración antes de lanzar el lote; no sustituirlo por varios scopes con el techo entero cada uno.</p>
+<p>Una ronda parcial sale con código 2 aunque mate todos los mutantes; <code>xargs</code> convierte códigos 1–125 de sus comandos en 123. Leer los informes individuales: un timeout, una muerte por OOM o un error del arnés no demuestran que los tests mataron un mutante. Esta receta no produce evidencia de release.</p>
+<h2 id="medición-que-justifica-el-predeterminado">Medición que justifica el predeterminado<a class="ancla" href="#medición-que-justifica-el-predeterminado" aria-label="Enlace a esta sección">#</a></h2>
+<p>El 2026-09-21, en Linux 7.2.6 x86_64 y Python 3.14.7, la línea base completa (<code>python3 tools/ejecutar_suite_mutacion.py</code>, 2386 tests, verde) tardó 152,04 s. Se muestreó <code>/proc/&lt;pid&gt;/status</code> del proceso de la suite cada 10 ms (15011 lecturas):</p>
+<div class="tabla"><table><thead><tr><th>Campo</th><th>KiB</th><th>MiB</th></tr></thead><tbody><tr><td><code>VmPeak</code> (máximo virtual registrado por el kernel)</td><td>760328</td><td>742,51</td></tr><tr><td><code>VmHWM</code> (máximo residente registrado por el kernel)</td><td>105276</td><td>102,81</td></tr></tbody></table></div>
+<p>El predeterminado baja de 4000 a <strong>1024 MiB</strong>: 281,49 MiB de margen sobre el pico virtual observado (37,9 %). La decisión usa <code>VmPeak</code>, porque <code>RLIMIT_AS</code> limita espacio virtual. No extrapola el RSS histórico de otra versión de la suite.</p>
+<p>Se usaron <code>PYTHONDONTWRITEBYTECODE=1</code> y un <code>PYTHONPYCACHEPREFIX</code> temporal vacío, igual que en las ejecuciones frías del arnés. El muestreo lee un máximo acumulado del kernel, pero podría perder asignaciones entre la última lectura y la salida. La medición corresponde al proceso de la suite, no a la suma de sus descendientes ni al consumo total del cgroup. Repetirla al cambiar Python, plataforma o suite.</p>
+<p>Desde la raíz se puede reproducir con:</p>
+<pre data-lenguaje="bash"><code>python3 tareas/20260917-011705-memoria/verificacion/medir_baseline.py</code></pre>
+<p>El script vuelve a escribir <code>baseline.log</code> y <code>baseline-memoria.json</code> en esa carpeta. Los tests de <code>LimiteMemoriaTests</code> fijan 1024 MiB tanto para el perfil como para el CLI y comprueban su propagación en bytes, además de mantener la cobertura del valor explícito, la desactivación con cero y <code>RLIMIT_AS</code> real.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/mutacion-memoria.md" rel="noopener">docs/mutacion-memoria.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#calcular-antes-de-lanzar">Calcular antes de lanzar</a></li><li class="n2"><a href="#un-scope-para-todo-el-lote">Un scope para todo el lote</a></li><li class="n2"><a href="#medición-que-justifica-el-predeterminado">Medición que justifica el predeterminado</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

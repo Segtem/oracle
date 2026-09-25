@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DECISIÓN 008 — El repositorio se abre — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-008--el-repositorio-se-abre">DECISIÓN 008 — El repositorio se abre<a class="ancla" href="#decisión-008--el-repositorio-se-abre" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-08-31 <strong>Estado:</strong> tomada</p>
+<h2 id="qué-se-decide">Qué se decide<a class="ancla" href="#qué-se-decide" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>Segtem/oracle</code> pasa de privado a <strong>público</strong>, con su historia completa —269 commits desde el 2026-07-29— y sin reescribirla.</p>
+<h2 id="por-qué">Por qué<a class="ancla" href="#por-qué" aria-label="Enlace a esta sección">#</a></h2>
+<p>El repositorio era privado a propósito y la decisión de publicar estaba <strong>diferida</strong>. El <code>CLAUDE.md</code> del entorno afirmaba que esa postergación estaba «registrada con fecha en <code>COMPROMISOS.json</code>». <strong>Ese archivo no existe</strong> —se buscó en <code>oracle</code> y en <code>jam</code>—. O sea que durante meses hubo una afirmación sobre un registro, y ninguna forma de leer el registro.</p>
+<p>Este documento existe para que eso no se repita: la decisión queda donde se la puede leer, en el mismo formato que las siete anteriores, y no en la memoria de nadie.</p>
+<h2 id="qué-se-publica-que-antes-no">Qué se publica que antes no<a class="ancla" href="#qué-se-publica-que-antes-no" aria-label="Enlace a esta sección">#</a></h2>
+<p>Se auditó la historia entera antes de abrir. <strong>No hay credenciales, claves, <code>.env</code> ni tokens en ningún commit.</strong> Lo que sí queda expuesto:</p>
+<ul><li><strong><code>diferencial/vault.json</code></strong> (8 MB, borrado del árbol en <code>dab72cb</code>, vivo en la historia): <strong>49 títulos de documentos</strong> del vault privado de Jam, con carpeta y fecha. Sólo metadatos, sin el texto de los documentos. Los títulos revelan qué features tiene Jam y cuándo se rompieron.</li><li><strong><code>diferencial/geometria.json</code></strong>: coordenadas de <code>oracle_placement</code> y <code>oracle_snap</code>. Números, sin nombres.</li><li><strong><code>vault-kb/estudios/*-jam/</code></strong>: esquemas de relaciones de Jam —campos y unidades—, en el árbol actual.</li><li>Menciones a <strong>LyraGASP</strong> y <strong>BotOO</strong>, los dos privados.</li></ul>
+<p>Se decide que ese costo es aceptable. Es el modelo de datos de un plugin y una lista de títulos, no material que dé ventaja a nadie.</p>
+<h2 id="por-qué-no-se-reescribió-la-historia">Por qué NO se reescribió la historia<a class="ancla" href="#por-qué-no-se-reescribió-la-historia" aria-label="Enlace a esta sección">#</a></h2>
+<p>Sacar <code>vault.json</code> con <code>git filter-repo</code> era posible y se descartó por su costo real: reescribir cambia <strong>todos los SHA</strong>, exige force-push, y <strong>rompe la trazabilidad de los dos subtrees</strong> —Jam y LyraGASP registran el SHA de upstream en su commit de squash, y ese SHA dejaría de existir—. Pagar la rotura de los dos consumidores para ocultar 49 nombres de archivo no cierra.</p>
+<h2 id="por-qué-no-se-creó-un-repositorio-limpio">Por qué NO se creó un repositorio limpio<a class="ancla" href="#por-qué-no-se-creó-un-repositorio-limpio" aria-label="Enlace a esta sección">#</a></h2>
+<p>En este proyecto <strong>la historia es el artefacto</strong>. Los 269 commits documentan qué se midió, qué dio y por qué se decidió así; los siete <code>DECISION-*.md</code> son la parte visible de eso. Un repositorio limpio publicaría el código y tiraría la evidencia de que cada afirmación se midió —que es justamente lo que Oracle sostiene que hay que conservar—.</p>
+<h2 id="consecuencias">Consecuencias<a class="ancla" href="#consecuencias" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li>Cualquiera puede leer, clonar y auditar el proyecto, incluidas las rondas de mutación que dieron rojo y las decisiones que se revirtieron.</li><li>El estado sigue siendo <strong><code>EXPERIMENTAL</code></strong>, y el README lo dice de frente. Abrir no es declarar que está terminado.</li><li>La licencia ya era MIT y no cambia.</li></ul>
+<h2 id="pypi-se-publicó-el-mismo-día">PyPI: se publicó el mismo día<a class="ancla" href="#pypi-se-publicó-el-mismo-día" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Hecho el 2026-08-31</strong>: <code>0.2.0</code> está en PyPI como <strong><code>oracle-metalenguaje</code></strong>, el mismo día que se abrió el repositorio. <code>pip install oracle-metalenguaje</code> funciona.</p>
+<p>Se ensayó antes en <code>test.pypi.org</code> y se instaló desde ahí en entornos limpios —wheel y sdist— para comprobar que el paquete sirve y no sólo que la subida anda. Ahí apareció que el sdist no compila contra TestPyPI solo, porque <code>pip</code> busca <code>setuptools</code> en ese índice y no está; con <code>--extra-index-url https://pypi.org/simple/</code> funciona, y en PyPI real no ocurre.</p>
+<p>Se evaluó <code>segtem-oracle</code> (también libre, igual que <code>segtem</code> y <code>oracle-segtem</code>) y se descartó: cambiar el nombre obliga a tocar <code>pyproject.toml</code> sin ganar nada. <code>oracle</code> a secas está ocupado.</p>
+<p><strong>Por qué el mismo día y no más adelante.</strong> El plan anterior era esperar a que alguien externo lo usara. Ese criterio tiene un costo que conviene nombrar: <strong>en PyPI no se reserva un nombre</strong>, se toma subiendo una release (PEP 541 prohíbe el squatting), y tener cuenta creada no aparta nada. Esperar deja el nombre disponible para cualquiera. Subir una release real el primer día lo toma por uso, que es como PyPI quiere que se tome — no es apartar un nombre con un paquete vacío, es publicar algo instalable y funcional.</p>
+<p><strong>Lo que hay que saber antes de apretar.</strong> Una versión publicada <strong>no se puede reemplazar</strong>: si <code>0.2.0</code> sale con un error, la única salida es <code>0.2.1</code>. Por eso el ensayo va en <code>test.pypi.org</code> primero, y <code>tools/verificar_instalacion.py</code> —que construye el wheel y prueba la API en un venv y un cwd aislados— corre antes de subir, no después.</p>
+<p>Queda escrito acá y no en la cabeza de nadie, que es el motivo por el que este documento existe.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-008-EL-REPOSITORIO-SE-ABRE.md" rel="noopener">docs/decisiones/DECISION-008-EL-REPOSITORIO-SE-ABRE.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#qué-se-decide">Qué se decide</a></li><li class="n2"><a href="#por-qué">Por qué</a></li><li class="n2"><a href="#qué-se-publica-que-antes-no">Qué se publica que antes no</a></li><li class="n2"><a href="#por-qué-no-se-reescribió-la-historia">Por qué NO se reescribió la historia</a></li><li class="n2"><a href="#por-qué-no-se-creó-un-repositorio-limpio">Por qué NO se creó un repositorio limpio</a></li><li class="n2"><a href="#consecuencias">Consecuencias</a></li><li class="n2"><a href="#pypi-se-publicó-el-mismo-día">PyPI: se publicó el mismo día</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>
