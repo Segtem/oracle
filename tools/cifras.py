@@ -14,7 +14,7 @@ que se empezó a generar: una cifra publicada a mano es una afirmación que nadi
 
 from __future__ import annotations
 
-import sys
+import re, sys
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -237,6 +237,25 @@ BLOQUES = {"cifras": cifras, "escala": escala, "corpus": corpus, "negativas": ne
            "deteccion": deteccion, "sitio_version": sitio_version,
            "sitio_medidas": sitio_medidas, "sitio_casos": sitio_casos}
 
+REPO = "https://github.com/Segtem/oracle"
+ENLACE = re.compile(r"(?<!!)\]\(([^\s)]+)\)")
+URL_REPO = re.compile(r"https://github\.com/Segtem/oracle/(blob|tree)/(?:main|v\d+\.\d+\.\d+)/")
+
+
+def enlaces_del_tag(texto: str, version: str) -> str:
+    """Fija los enlaces del README a los archivos de esta distribución."""
+    texto = URL_REPO.sub(lambda m: f"{REPO}/{m.group(1)}/v{version}/", texto)
+
+    def reemplazar(coincidencia: re.Match[str]) -> str:
+        destino = coincidencia.group(1)
+        if destino.startswith(("#", "/", "//")) or ":" in destino.split("/", 1)[0]:
+            return coincidencia.group(0)
+        ruta = destino.removeprefix("./")
+        tipo = "tree" if ruta.endswith("/") else "blob"
+        return f"]({REPO}/{tipo}/v{version}/{ruta})"
+
+    return ENLACE.sub(reemplazar, texto)
+
 
 def actualizar(contenido: str, nombre: str, bloque: str, ruta: str = "README.md") -> str:
     """Reescribe TODAS las apariciones del bloque, no la primera.
@@ -271,10 +290,19 @@ def render(contenido: str, ruta: str = "README.md") -> str:
         if f"<!-- {nombre}:inicio -->" not in contenido:
             continue
         contenido = actualizar(contenido, nombre, generar(), ruta=ruta)
+    if ruta == "README.md":
+        from nucleo.version import VERSION_DISTRIBUCION
+
+        contenido = enlaces_del_tag(contenido, VERSION_DISTRIBUCION)
+    elif ruta == "pyproject.toml":
+        from nucleo.version import VERSION_DISTRIBUCION
+
+        contenido = URL_REPO.sub(
+            lambda m: f"{REPO}/{m.group(1)}/v{VERSION_DISTRIBUCION}/", contenido)
     return contenido
 
 
-# Todo documento VERSIONADO que publique cifras se custodia acá. Sólo versionado, y el test
+# Todo documento VERSIONADO que publique cifras o enlaces de distribución se custodia acá. Sólo versionado, y el test
 # `test_solo_se_custodian_documentos_versionados` lo hace cumplir: `estudio/` estuvo un rato en esta
 # lista y era un error que las siete verificaciones locales no podían ver, porque la carpeta existe
 # en el disco de quien la generó y está en `.gitignore`. En un checkout limpio —el CI— reventaba.
@@ -282,7 +310,7 @@ def render(contenido: str, ruta: str = "README.md") -> str:
 # Custodiar un artefacto generado además no sirve: `estudio/` y `ORACLE-PARA-NOTEBOOKLM.md` salen de
 # `tools/estudio.py`, así que una cifra vencida ahí es un síntoma de que la fuente venció, y la
 # fuente es el README, que sí está acá. Se arregla regenerando, no vigilando la copia.
-DOCUMENTOS = ("README.md", "docs/index.html")
+DOCUMENTOS = ("README.md", "docs/index.html", "pyproject.toml")
 
 
 def custodiados_sin_versionar(raiz: Path | None = None, documentos=None) -> list[str]:

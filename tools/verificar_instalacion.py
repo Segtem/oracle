@@ -10,12 +10,26 @@ import shlex
 import subprocess
 import sys
 import tempfile
+import tarfile
 import venv
 import zipfile
 from pathlib import Path
 
-
 RAIZ = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(RAIZ))
+
+
+def _comprobar_enlaces(metadata: str, formato: str) -> None:
+    from nucleo.version import VERSION_DISTRIBUCION
+
+    version = next((line.removeprefix("Version: ") for line in metadata.splitlines()
+                    if line.startswith("Version: ")), None)
+    tag = f"https://github.com/Segtem/oracle/blob/v{VERSION_DISTRIBUCION}/"
+    if (version != VERSION_DISTRIBUCION
+            or "github.com/Segtem/oracle/blob/main/" in metadata
+            or "github.com/Segtem/oracle/tree/main/" in metadata
+            or tag + "NOTAS-DE-RELEASE.md" not in metadata):
+        raise RuntimeError(f"{formato} no enlaza al tag de la distribución")
 
 
 def _entorno_limpio() -> dict[str, str]:
@@ -289,6 +303,9 @@ def main() -> int:
             raise RuntimeError(f"se esperaba un wheel de Oracle, no {encontradas}")
         with zipfile.ZipFile(encontradas[0]) as wheel:
             nombres = set(wheel.namelist())
+            ruta_metadata, = (n for n in nombres if n.endswith(".dist-info/METADATA"))
+            metadata = wheel.read(ruta_metadata).decode("utf-8")
+            _comprobar_enlaces(metadata, "METADATA del wheel")
             prefijo = "oracle_metalenguaje/plantilla_sensor_prosa/"
             recursos = {n[len(prefijo):]: wheel.read(n) for n in nombres
                         if n.startswith(prefijo) and not n.endswith("/")
@@ -319,6 +336,22 @@ def main() -> int:
         faltantes = sorted(esperados - nombres)
         if faltantes:
             raise RuntimeError("el wheel no contiene datos requeridos: " + ", ".join(faltantes))
+
+        distribuciones = fuente / "distribuciones"
+        distribuciones.mkdir()
+        _correr([sys.executable, "-c",
+                 "from setuptools import build_meta; build_meta.build_sdist('distribuciones')"],
+                cwd=fuente, env=env)
+        paquetes = tuple(distribuciones.glob("oracle_metalenguaje-*.tar.gz"))
+        if len(paquetes) != 1:
+            raise RuntimeError(f"se esperaba un sdist de Oracle, no {paquetes}")
+        with tarfile.open(paquetes[0], "r:gz") as sdist:
+            info, = (archivo for archivo in sdist.getmembers()
+                     if archivo.name.endswith("/PKG-INFO") and archivo.name.count("/") == 1)
+            extraido = sdist.extractfile(info)
+            if extraido is None:
+                raise RuntimeError("PKG-INFO del sdist no se puede leer")
+            _comprobar_enlaces(extraido.read().decode("utf-8"), "PKG-INFO del sdist")
 
         entorno = temporal / "entorno"
         venv.EnvBuilder(with_pip=True).create(entorno)
