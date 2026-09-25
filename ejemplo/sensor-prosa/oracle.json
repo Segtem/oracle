@@ -1,5 +1,5 @@
 {
   "esquema": "oracle.proyecto/v1",
-  "algebra": "0.8",
+  "algebra": "1.0",
   "catalogo_base": false
 }

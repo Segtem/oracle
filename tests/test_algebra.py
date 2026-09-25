@@ -42,7 +42,7 @@ class ContratoAlgebraTests(unittest.TestCase):
                             expresion[:] = ["desconocida"]
                         else:
                             registro["alterar"] = doble
-                        return valor
+                        return valor > 0 if operacion == "donde" else valor
 
                     evidencia = {"item": [{"id": 1}, {"id": 2}]}
                     tuberia = ["desde", ["de", "item", "i"]]

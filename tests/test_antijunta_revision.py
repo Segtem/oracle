@@ -221,7 +221,7 @@ class SuperficieTests(unittest.TestCase):
 
 class VersionTests(unittest.TestCase):
     def test_el_algebra_es_08_y_la_sintaxis_06(self) -> None:
-        self.assertEqual(VERSION_ALGEBRA, "0.8")
+        self.assertEqual(VERSION_ALGEBRA, "1.0")
         self.assertEqual(VERSION_SINTAXIS, "0.7")
 
     def test_el_vocabulario_explica_sin(self) -> None:

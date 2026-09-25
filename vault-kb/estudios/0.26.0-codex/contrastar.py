@@ -20,7 +20,7 @@ import sys
 from collections import Counter
 from pathlib import Path
 
-RAIZ = Path(__file__).resolve().parents[2]
+RAIZ = Path(__file__).resolve().parents[3]
 sys.path = [str(RAIZ), *sys.path]
 
 import catalogos.escalares  # noqa: F401,E402  registra las UDF declaradas

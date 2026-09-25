@@ -6,7 +6,7 @@ Estas decisiones cubren puntos donde `ESPECIFICACION.md` y las decisiones locale
 
 Seccion ambigua: "Los testigos no se declaran".
 
-Decision: `testigos` devuelve copias de las filas internas que sobrevivieron al ultimo `donde`.
+Decision 1.0: `testigos` devuelve copias de las filas finales de la tuberia `desde`.
 Antes de `agrupar`, una fila tiene la forma `{"alias": {campo: valor}}`. Despues de `agrupar`,
 una fila tiene columnas derivadas, por ejemplo `{"modulo": "b", "reales": 0}`.
 
@@ -104,11 +104,11 @@ Seccion ambigua: los agregados `suma` y `promedio` aceptan booleanos como indica
 Decision: los booleanos no se consideran ordenables para `min`/`max`. Si una medida necesita medir
 booleanos como indicadores, debe usar `suma` o `promedio`.
 
-## Version del algebra vigente (0.8)
+## Version del algebra vigente (1.0)
 
 Seccion ambigua: §0 ("La version del lenguaje").
 
-Decision: la primera linea de §0 fija explicitamente las versiones vigentes: "Versiones vigentes: algebra 0.8, sintaxis 0.6, distribucion 0.25.2". En §3 y §8 se documenta la incorporacion de la anti-junta `sin` como nuevo operador de tuberia en 0.8. Por lo tanto, la version vigente del algebra es `"0.8"`, y `VERSION_ALGEBRA` se define en `"0.8"`.
+Decision: la primera linea de §0 fija explicitamente las versiones vigentes. El parrafo de algebra 1.0 cambia los testigos, los predicados y la validacion de evidencia; por eso `VERSION_ALGEBRA` se define en `"1.0"`.
 
 ## Evaluacion de condiciones en `requiere` sin cortocircuito entre filas
 

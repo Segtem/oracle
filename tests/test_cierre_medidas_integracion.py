@@ -106,7 +106,7 @@ class CierreIntegracionTests(unittest.TestCase):
                 if caso == "no_evaluada":
                     datos = {"lectura_seguimiento": [{"completa": True}]}
                 self.evidencia.write_text(json.dumps(datos))
-                config = {"esquema": "oracle.proyecto/v1", "algebra": "0.6", "catalogo_base": False, "perfiles": []}
+                config = {"esquema": "oracle.proyecto/v1", "algebra": "1.0", "catalogo_base": False, "perfiles": []}
                 if caso == "sombra":
                     config["sombra"] = {DOMINIO: {"desde": "2026-09-22", "porque": "deuda construida"}}
                 (self.proyecto / "oracle.json").write_text(json.dumps(config))

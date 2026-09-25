@@ -22,7 +22,7 @@ _SIN_EVIDENCIA = "SIN EVIDENCIA"
 # Contra que version de la especificacion se escribio esta implementacion. El arnes del diferencial
 # la compara con la que declara el nucleo (nucleo/version.py) y falla cerrado si no coinciden: una
 # extension del lenguaje que este evaluador no conoce no debe publicar "0 desacuerdos".
-VERSION_ALGEBRA = "0.8"
+VERSION_ALGEBRA = "1.0"
 
 
 @dataclass(frozen=True)
@@ -305,7 +305,6 @@ def _evaluar_desde(
     limites: LimitesAlgebra,
 ) -> tuple[list[Row], list[Row]]:
     filas = _evaluar_relacion(desde[1], evidencia, escalares, limites)
-    ultimos_testigos: list[Row] | None = None
 
     for paso in desde[2:]:
         if not isinstance(paso, list) or not paso:
@@ -313,7 +312,6 @@ def _evaluar_desde(
         operador = paso[0]
         if operador == "donde":
             filas = _aplicar_donde(filas, paso, escalares, limites)
-            ultimos_testigos = _copiar_filas(filas)
         elif operador == "agrupar":
             filas = _aplicar_agrupar(filas, paso, escalares, limites)
         elif operador == "sin":
@@ -323,9 +321,7 @@ def _evaluar_desde(
         else:
             raise ErrorDeAlgebra(f"operador desconocido: {operador}")
 
-    if ultimos_testigos is None:
-        ultimos_testigos = _copiar_filas(filas)
-    return filas, ultimos_testigos
+    return filas, _copiar_filas(filas)
 
 
 def _evaluar_relacion(

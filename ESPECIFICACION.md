@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `0.8`, sintaxis `0.7`, distribución `0.30.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.30.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,15 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Álgebra 1.0 (2026-09-25): `VERSION_ALGEBRA` sube de `0.8` a `1.0`.** Cambia el
+significado de medidas existentes: los testigos son las filas finales de `desde`; `donde`,
+`sin`, `requiere` condicional y cada operando de `y`, `o`, `no` exigen un booleano; antes de medir
+se validan las claves de toda la evidencia recibida y se rechaza cualquier campo `null` explícito.
+Una relación con cabecera `clave` y cero hechos es vacía para `requiere`. La unión indexada
+aplica el mismo error de tipos incompatibles que la comparación ordinaria. Sube la **mayor**
+porque estas entradas antes podían dar un resultado diferente, incluso verde. Distribución y
+sintaxis conservan sus versiones.
 
 **Corte 0.30.0 (2026-09-24): `VERSION_DISTRIBUCION` sube de `0.29.0` a `0.30.0`.** Sale la sintaxis
 0.7 (párrafo siguiente): un LLM escribe `a + 1` o `t1.turno-1` y Oracle lo lee como `mas`/`menos`, sin
@@ -524,7 +533,8 @@ mismo tipo. La evidencia es un mapa de relaciones:
 }
 ```
 
-Nada más. Sin objetos, sin punteros, sin nulos implícitos. El **sensor** que produce la evidencia es
+Nada más. Sin objetos, sin punteros, sin nulos implícitos ni explícitos: un campo `null` en cualquier
+hecho de la evidencia recibida se rechaza al cargar, aun si la medida no usa esa relación. El **sensor** que produce la evidencia es
 específico de cada dominio y vive con el productor, no acá.
 
 La multiplicidad cuenta y el orden de almacenamiento no. Dos apariciones idénticas son dos hechos:
@@ -541,7 +551,7 @@ poniendo a la cabeza de su lista de hechos un nodo `["clave", [<campo>, …]]`:
 }
 ```
 
-La clave es **opcional** y se valida **antes de medir**, fail-closed: si dos hechos repiten la clave
+La clave es **opcional** y se valida en **todas las relaciones de la evidencia recibida antes de medir**, incluso las que la medida no consulta, fail-closed: si dos hechos repiten la clave
 declarada, la evaluación levanta un error que nombra la clave responsable y la fila que la viola — no
 un veredicto verde, no un error genérico. Un campo de la clave ausente en un hecho también es error:
 una identidad a medias no se puede comprobar, y un nulo implícito la dejaría sin comprobar en
@@ -692,7 +702,7 @@ Si `umbral` incluye `segun`, sus valores admitidos son `"medicion"`, `"contrato"
 `"convencion"`, `"tanteo"` y `"sin_declarar"`.
 
 Es el espejo de `alcance`: uno declara qué NO ve la medida, el otro **qué NECESITA ver para
-concluir**. Si alguna de las relaciones listadas viene vacía, la evaluación no mide: devuelve
+concluir**. Si alguna de las relaciones listadas viene vacía (también cuando sólo trae la cabecera `clave` y ningún hecho), la evaluación no mide: devuelve
 `SIN EVIDENCIA`, que no es verde y tampoco es un rojo del mundo. Existe porque el álgebra no puede
 expresarlo —un agregado sobre cero filas da `0` y un umbral `<= 0` lo lee como éxito— y la ausencia
 total salía verde justo cuando el mundo estaba peor; el caso completo está en §8.
@@ -772,7 +782,7 @@ alias o espacio derivado. Los ids incluyen la ruta JSON del sitio. No muta nombr
 defensas ni alcances: las dos primeras fallan al cargar, y las dos últimas fallan al cargar **y**
 además quedan reificadas como medidas de L2 (§4).
 
-**Los testigos no se declaran.** Son las filas que sobrevivieron al último `donde`. Declararlos
+**Los testigos no se declaran.** Son las filas finales de la tubería `desde` completa, después de `donde`, `sin` y `agrupar` si los hay; son las filas que aportan al resumen. Declararlos
 aparte obliga a recorrer los datos dos veces y a mantener dos definiciones de lo mismo sincronizadas
 a mano — el error concreto que motivó esta especificación (ver
 [`004-testigos-duplicados`](corpus/proceso/)).
@@ -793,7 +803,7 @@ afuera —«¿qué medidas comparten testigos?»— se responden en L2, midiendo
 | Operador | Forma | Qué hace |
 |---|---|---|
 | `de` | `["de", relación, alias]` | fuente |
-| `donde` | `["donde", pred]` | filtra — **define los testigos** |
+| `donde` | `["donde", pred]` | filtra filas según un predicado booleano |
 | `unir` | `["unir", fuente_izq, fuente_der]` | producto cartesiano de fuentes `de` o `unir` anidadas |
 | `sin` | `["sin", ["de", relación, alias], cond]` | anti-junta: deja las filas que **ninguna** fila de la relación cumple |
 | `agrupar` | `["agrupar", [[nombre, expr], …], [[nombre, agg, expr], …]]` | agrupa y agrega |
@@ -803,6 +813,12 @@ Agregados: `max`, `min`, `suma`, `promedio`, `contar`. `contar` **no evalúa la 
 filas. Los agregados sobre cero filas dan `0`. `suma` y `promedio` aceptan números finitos y
 booleanos como indicadores 0/1; `min` y `max` exigen escalares homogéneos y comparables, incluidos booleanos homogéneos con `false < true`. Un valor no
 finito o una mezcla incompatible es error de álgebra, no un veredicto.
+
+Los predicados de `donde`, `sin` y `requiere` condicional deben evaluar a `bool`.
+También cada operando de `y`, `o` y `no` debe ser `bool`; un número, texto o `null`
+produce `ErrorDeAlgebra`, nunca una conversión por veracidad. `y` y `o` evalúan todos
+sus operandos. En una igualdad de `unir … donde`, el camino indexado conserva los mismos
+errores de tipos incompatibles que el producto con `donde` ordinario.
 
 `desde` no es un operador: es la tubería que los encadena (`["desde", fuente, paso, paso, …]`).
 Su fuente inicial sólo puede ser `de` o `unir`; cada lado de `unir` también debe ser una fuente

@@ -29,7 +29,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 
 from .algebra import (COMPARADORES, ErrorDeAlgebra, LimitesAlgebra, LOGICOS, comparar, desde,
-                      evaluar_expr, resumir, separar_clave, validar_expr, validar_finito,
+                      evaluar_expr, resumir, separar_clave, validar_evidencia, validar_expr, validar_finito,
                       validar_resumen, validar_tuberia)
 from .macro import es_macro, expandir
 from .proyecto import FuenteCatalogo, ID_MEDIDA_RE, ORIGEN_PROYECTO, OrigenCatalogo
@@ -469,6 +469,7 @@ class Medida:
     def evaluar(self, evidencia: dict, limites: LimitesAlgebra | None = None, *,
                 registro=None) -> Veredicto:
         evidencia = evidencia_con_derivadas(evidencia)
+        validar_evidencia(evidencia, limites)
         # ANTES de medir: si falta con qué, no hay veredicto que dar. Medir igual produciría el
         # agregado sobre cero filas —que es 0— y un umbral `<= 0` lo leería como verde.
         #
@@ -479,7 +480,8 @@ class Medida:
         faltante = ""
         for entrada in self.requiere:
             if isinstance(entrada, str):
-                if not faltante and not evidencia.get(entrada):
+                _clave, filas = separar_clave(evidencia.get(entrada, []))
+                if not faltante and not filas:
                     faltante = entrada
                 continue
             _, relacion, alias, condicion = entrada

@@ -1,5 +1,25 @@
 # Clasificación del contraste independiente, álgebra 0.8
 
+## Efecto del álgebra 1.0 (2026-09-25)
+
+La entrega del tercer autor sigue declarando `VERSION_ALGEBRA = "0.8"`. El contraste
+formal ahora se detiene por versiones distintas, como debe hacer: no se puede publicar
+un resultado de 0.8 como verificación independiente de 1.0. Ejecutando sólo el bucle
+de comparación, sin esa puerta de versión, los 10 mundos y 205 casos aplicables dan
+**285 comparaciones y 63 desacuerdos**, la misma cifra anterior. Este conteo diagnostica
+el corpus heredado; no certifica compatibilidad 1.0. Los 63 siguen correspondiendo
+a la aridad variádica de `y`/`o` y a la relación requerida ausente, defectos ya
+clasificados del candidato.
+
+En la implementación entregada, los testigos ya salen de la tubería final; los
+predicados ya se comprueban como booleanos; la carga ya revisa todas las claves y
+rechaza `None`; y la cabecera `clave` se separa de los hechos antes de `requiere`.
+El candidato evalúa `unir … donde` mediante producto, sin plan indexado, por lo
+que el nuevo caso de tipos incompatibles no tiene un segundo camino que contrastar.
+Las sondas específicas de 1.0 están en `tests/test_algebra_10.py` y no forman parte
+de las 285 comparaciones históricas. Hace falta una nueva entrega independiente
+que declare 1.0 antes de atribuirle acuerdo al tercer autor.
+
 Comando reproducido el 2026-09-24:
 
 ```bash

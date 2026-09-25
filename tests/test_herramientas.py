@@ -1460,7 +1460,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_ALGEBRA, del_nucleo
 
         self.assertEqual(str(del_nucleo()), VERSION_ALGEBRA)
-        self.assertEqual(str(del_nucleo()), "0.8")
+        self.assertEqual(str(del_nucleo()), "1.0")
 
     def test_la_cronica_va_del_corte_mas_nuevo_al_mas_viejo(self) -> None:
         """Tuvo tres órdenes a la vez —los seis primeros ascendentes, el resto descendente y los dos
@@ -1554,7 +1554,7 @@ class VersionDelProyecto(unittest.TestCase):
             self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_compatible_carga_sin_queja(self) -> None:
-        for declarada in ("0.2", "0.3", "0.4", "0.5", "0.6", "0.7", "0.8"):
+        for declarada in ("1.0",):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1562,7 +1562,7 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_version_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        for declarada in ("0.9", "1.0", "9.9"):
+        for declarada in ("0.8", "0.9", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1638,7 +1638,7 @@ class VersionDeLaReferencia(unittest.TestCase):
 
         from nucleo.diferencial import comprobar_version_referencia
 
-        for declarada in (None, "0.2", "1.0", "no-version"):
+        for declarada in (None, "0.2", "1.1", "no-version"):
             with self.subTest(declarada=declarada):
                 problemas = comprobar_version_referencia(
                     SimpleNamespace(VERSION_ALGEBRA=declarada))

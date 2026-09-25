@@ -31,7 +31,14 @@ Cambia el significado de cosas que existían, así que por §0 sube la **mayor**
   consumidor antes de subir.
 - La referencia del diferencial se alinea en los cuatro puntos, con la ida y vuelta del contraste.
 
+### Nota (2026-09-25 04:47:56 UTC)
+
+Álgebra 1.0 implementada en núcleo, especificación y referencia; regresiones de testigos, bool (incluido requiere), claves globales, null, cabecera sola e igualdad indexada. Migrados oracle.json y ejemplos activos; fixture diferencial regenerado; equivalentes: 13 intactos. Verificación: unittest discover -s tests 2513 OK; referencia 48 OK; test --rapido VERDE; cifras actualizadas; tools/sitio.py no existe. Tercer autor 0.8: el contraste formal rechaza versiones distintas; comparación diagnóstica sobre 285 entradas conserva 63 desacuerdos históricos. Consumidores: Jam 31 casos OK pero diferencial ROJO en 10 entradas de physics por null explícito; commander sin medidas ni casos; LyraGASP no disponible como proyecto Oracle local. Sin commit por .git sólo lectura.
+
 ## Próximo paso
 
-Esperar a que Codex termine la parte de `huecos-spec` que no necesitaba decisión; después,
-implementar esto en una rama y medir los consumidores.
+Corregir en Jam los `null` explícitos de los mundos `sin_suelo` (10 desacuerdos del diferencial), localizar el proyecto medible de LyraGASP y corregir `personaje.ancla_requerida_ausente` para que `presente` sea booleano; repetir las mediciones de ambos consumidores con el núcleo 1.0. Commander sólo ofreció un proyecto vacío. Dejar la entrega 0.8 del tercer autor como contraste histórico y cerrar esta tarea sólo cuando los consumidores estén verificados.
+
+### Nota (2026-09-25 04:53:54 UTC)
+
+2026-09-25, Claude: medido con el núcleo de esta rama. LyraGASP (medidas/): ROJO — 8 casos del corpus ya no se ponen como deben porque usan null a propósito para decir «no decidible» (ancla_personaje.presente, montage_recarga.has_root_motion, entre otros), y 9 mutantes de medida sobreviven. Jam: ROJO — 10 desacuerdos del diferencial por null explícitos en sus fixtures de física, y la mutación falla. Es lo esperado del punto 4 (sin null) y del 2 (bool estricto): los consumidores tienen que modelar el «no decidible» explícito antes de subir a 1.0. Tareas en sus trackers: LyraGASP y Jam, «algebra-10-null». El núcleo se une a main SIN publicar.

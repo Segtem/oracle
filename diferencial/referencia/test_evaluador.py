@@ -217,7 +217,7 @@ class EvaluadorTests(unittest.TestCase):
                 self.assertTrue(resultado["ok"])
 
     def test_version_algebra_es_0_8(self):
-        self.assertEqual(VERSION_ALGEBRA, "0.8")
+        self.assertEqual(VERSION_ALGEBRA, "1.0")
 
     def test_requiere_con_condicion_filas_satisfecho(self):
         medida = [
@@ -960,7 +960,7 @@ class EvaluadorTests(unittest.TestCase):
         self.assertEqual(resultado["valor"], 1)
         self.assertEqual(
             resultado["testigos"],
-            [{"p": {"id": "p1", "x": 10}}, {"p": {"id": "p2", "x": 20}}],
+            [{"p": {"id": "p2", "x": 20}}],
         )
 
     def test_sin_testigos_con_donde_posterior(self):
