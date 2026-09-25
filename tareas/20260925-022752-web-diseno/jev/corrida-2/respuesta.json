@@ -1,0 +1,156 @@
+{
+  "model": "typesafe/jev-1.13-20260917",
+  "answers": {
+    "index-0__explica_porque": {
+      "type": "noul",
+      "noul": 0.81
+    },
+    "index-0__sin_jerga": {
+      "type": "noul",
+      "noul": 0.58
+    },
+    "index-1__explica_porque": {
+      "type": "noul",
+      "noul": 0.93
+    },
+    "index-1__sin_jerga": {
+      "type": "noul",
+      "noul": 0.66
+    },
+    "index-2__explica_porque": {
+      "type": "noul",
+      "noul": 0.51
+    },
+    "index-2__sin_jerga": {
+      "type": "noul",
+      "noul": 0.48
+    },
+    "index-3__explica_porque": {
+      "type": "noul",
+      "noul": 0.79
+    },
+    "index-3__sin_jerga": {
+      "type": "noul",
+      "noul": 0.47
+    },
+    "index-4__explica_porque": {
+      "type": "noul",
+      "noul": 0.73
+    },
+    "index-4__sin_jerga": {
+      "type": "noul",
+      "noul": 0.53
+    },
+    "index-5__explica_porque": {
+      "type": "noul",
+      "noul": 0.72
+    },
+    "index-5__sin_jerga": {
+      "type": "noul",
+      "noul": 0.69
+    },
+    "index-6__explica_porque": {
+      "type": "noul",
+      "noul": 0.64
+    },
+    "index-6__sin_jerga": {
+      "type": "noul",
+      "noul": 0.39
+    },
+    "index-8__explica_porque": {
+      "type": "noul",
+      "noul": 0.18
+    },
+    "index-8__sin_jerga": {
+      "type": "noul",
+      "noul": 0.64
+    },
+    "index-9__explica_porque": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "index-9__sin_jerga": {
+      "type": "noul",
+      "noul": 0.72
+    },
+    "por-que-0__explica_porque": {
+      "type": "noul",
+      "noul": 0.89
+    },
+    "por-que-0__sin_jerga": {
+      "type": "noul",
+      "noul": 0.71
+    },
+    "por-que-1__explica_porque": {
+      "type": "noul",
+      "noul": 0.78
+    },
+    "por-que-1__sin_jerga": {
+      "type": "noul",
+      "noul": 0.53
+    },
+    "por-que-2__explica_porque": {
+      "type": "noul",
+      "noul": 0.72
+    },
+    "por-que-2__sin_jerga": {
+      "type": "noul",
+      "noul": 0.46
+    },
+    "por-que-3__explica_porque": {
+      "type": "noul",
+      "noul": 0.53
+    },
+    "por-que-3__sin_jerga": {
+      "type": "noul",
+      "noul": 0.34
+    },
+    "por-que-4__explica_porque": {
+      "type": "noul",
+      "noul": 0.88
+    },
+    "por-que-4__sin_jerga": {
+      "type": "noul",
+      "noul": 0.46
+    },
+    "por-que-5__explica_porque": {
+      "type": "noul",
+      "noul": 0.23
+    },
+    "por-que-5__sin_jerga": {
+      "type": "noul",
+      "noul": 0.69
+    },
+    "por-que-6__explica_porque": {
+      "type": "noul",
+      "noul": 0.13
+    },
+    "por-que-6__sin_jerga": {
+      "type": "noul",
+      "noul": 0.67
+    },
+    "control-sin-porque__explica_porque": {
+      "type": "noul",
+      "noul": 0.04
+    },
+    "control-sin-porque__sin_jerga": {
+      "type": "noul",
+      "noul": 0.6
+    },
+    "control-jerga__explica_porque": {
+      "type": "noul",
+      "noul": 0.11
+    },
+    "control-jerga__sin_jerga": {
+      "type": "noul",
+      "noul": 0.13
+    }
+  },
+  "usage": {
+    "input_tokens": 5205,
+    "output_tokens": 868,
+    "cost": 0.00021861
+  },
+  "id": "gen-dec-1790304715-ZSHct7efX6TgAzy0wK2g",
+  "provider": "TypeSafe"
+}
