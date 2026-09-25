@@ -29,14 +29,14 @@
   <main id="contenido" class="prosa">
 <h1 id="de-cero-a-un-rojo-con-testigos">De cero a un rojo con testigos<a class="ancla" href="#de-cero-a-un-rojo-con-testigos" aria-label="Enlace a esta sección">#</a></h1>
 <p>Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que <strong>falla</strong> sobre un defecto de verdad y te dice <strong>qué filas</strong> lo causaron.</p>
-<p>Todo lo que sigue está copiado de una corrida real con Oracle 0.6.0. Si algo no te da igual, es un defecto de esta página: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
+<p>Todo lo que sigue está copiado de una corrida real con Oracle 0.30.0. Si algo no te da igual, es un defecto de esta página: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
 <hr>
 <h2 id="1-instalar">1. Instalar<a class="ancla" href="#1-instalar" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>uv tool install oracle-metalenguaje</code></pre>
 <pre><code>$ oracle --version
-oracle 0.6.0
-  álgebra:  0.6   (qué SIGNIFICA una medida)
-  sintaxis: 0.2   (cómo se ESCRIBE)
+oracle 0.30.0
+  álgebra:  1.0   (qué SIGNIFICA una medida)
+  sintaxis: 0.7   (cómo se ESCRIBE)
   corriendo desde: …/oracle-metalenguaje/lib/python3.12/site-packages/oracle_metalenguaje</code></pre>
 <p>Tres versiones porque son tres contratos distintos, y envejecen por separado. La del paquete sube cuando se arregla una herramienta; la del <strong>álgebra</strong> cuando cambia qué significa una medida; la de la <strong>sintaxis</strong> cuando cambia cómo se escribe.</p>
 <blockquote><p><strong>Por qué <code>uv</code> y no <code>pip</code>.</strong> En Arch, Debian 12+, Ubuntu 23.04+ y Fedora, <code>pip install</code> al Python del sistema falla con <code>externally-managed-environment</code> (PEP 668). Con <code>pip</code> andá a un entorno propio: <code>python3 -m venv venv &amp;&amp; source venv/bin/activate</code>. Pero para el editor eso <strong>no alcanza</strong>: los clientes de Emacs y VS Code buscan <code>oracle-lsp</code> en el <code>PATH</code>, y dentro de un venv sólo se ve con el venv activado.</p></blockquote>
@@ -46,36 +46,45 @@ Proyecto Oracle inicializado en …/biblioteca:
   · catalogos/
   · corpus/
   · diferencial/
+  · relaciones/
   · oracle.json
 
 Próximos pasos:
-  1. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
-  2. Creá un caso:     oracle caso &lt;grupo/id&gt;
+  1. Creá un caso:     oracle caso &lt;grupo/id&gt;
+  2. Creá una medida:  oracle nueva &lt;dominio.nombre&gt;
   3. Verificá todo:    oracle test</code></pre>
-<p>Tres carpetas y un archivo. <code>oracle.json</code> viene con <code>&quot;catalogo_base&quot;: true</code>: tu proyecto hereda las medidas universales de Oracle, que van a juzgar <strong>tus</strong> medidas.</p>
+<p>Cuatro carpetas y un archivo. <code>oracle.json</code> viene con <code>&quot;catalogo_base&quot;: true</code>: tu proyecto hereda las medidas universales de Oracle, que van a juzgar <strong>tus</strong> medidas.</p>
 <p>Un proyecto vacío conserva código de salida <code>0</code> para CI, con una advertencia: todavía no hay casos para verificar ni una medición del producto. No equivale a un corpus validado:</p>
 <pre><code>$ oracle test
 VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)</code></pre>
 <h2 id="3-una-medida">3. Una medida<a class="ancla" href="#3-una-medida" aria-label="Enlace a esta sección">#</a></h2>
 <pre><code>$ oracle nueva documento.nombre_sigue_la_convencion
-creada: catalogos/documento/documento.nombre_sigue_la_convencion.oracle</code></pre>
+creada: catalogos/documento/documento.nombre_sigue_la_convencion.oracle
+
+Reemplazá RELACION, CAMPO, SEGUN, AMBITO y los dos textos en MAYÚSCULAS. Después:
+  oracle revisar catalogos/documento/documento.nombre_sigue_la_convencion.oracle</code></pre>
 <p>La plantilla viene con los huecos en mayúsculas:</p>
 <pre><code>ninguno documento.nombre_sigue_la_convencion:
     de RELACION x
     donde x.CAMPO == false
+    # Si medís una magnitud (días, cm, segundos), consultá `oracle manual peor`:
+    # su tolerancia es la cota del dominio; `ninguno` cuenta defectos y exige cero.
     # segun: medicion · contrato · convencion · tanteo
     umbral &lt;= 0 segun SEGUN porque &quot;POR QUE ese numero y no otro…&quot;
+    # ambito: universal · del_origen
+    ambito AMBITO
     alcance &quot;QUE NO VE esta medida…&quot;</code></pre>
 <p>Si la revisás sin tocarla, el error te dice dónde y con qué opciones:</p>
 <pre><code>$ oracle revisar catalogos/documento/documento.nombre_sigue_la_convencion.oracle
-✗ línea 5, columna 23: se esperaba segun en [&#x27;contrato&#x27;, &#x27;convencion&#x27;, &#x27;medicion&#x27;, &#x27;tanteo&#x27;]; llegó &#x27;SEGUN&#x27;
-   5 |     umbral &lt;= 0 segun SEGUN porque &quot;POR QUE ese numero…&quot;
+✗ …/documento.nombre_sigue_la_convencion.oracle: línea 7, columna 23: se esperaba segun en [&#x27;contrato&#x27;, &#x27;convencion&#x27;, &#x27;medicion&#x27;, &#x27;tanteo&#x27;]; llegó &#x27;SEGUN&#x27;
+   7 |     umbral &lt;= 0 segun SEGUN porque &quot;POR QUE ese numero…&quot;
      |                       ^</code></pre>
 <p>Completala así:</p>
 <pre><code>ninguno documento.nombre_sigue_la_convencion:
     de documento d
     donde d.sigue_convencion == false
     umbral &lt;= 0 segun contrato porque &quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;
+    ambito universal
     alcance &quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</code></pre>
 <p><strong><code>segun</code> no es decoración.</strong> Dice de dónde salió el número, de un conjunto cerrado. Acá es <code>contrato</code> porque el cero no se midió: es una regla que alguien decidió. Si fuera un umbral puesto a ojo sería <code>tanteo</code>, y entonces la explicación pasa a ser obligatoria.</p>
 <p><strong><code>alcance</code> tampoco.</strong> Es qué NO mira. Sin eso, un verde se lee como «está todo bien» cuando en realidad significa «está bien lo poco que miré».</p>
@@ -83,8 +92,8 @@ creada: catalogos/documento/documento.nombre_sigue_la_convencion.oracle</code></
 ✓ bien declarada: documento.nombre_sigue_la_convencion   (forma: ninguno)
     umbral   &lt;= 0
     segun    contrato
-    porque   la convención de nombres es lo que hace que el índice se pueda generar solo…
-    alcance  no ve el contenido del documento, sólo su nombre…
+    porque   la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe
+    alcance  no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena
 
 contra la evidencia que hay: 0 verde · 0 rojo · 0 error
 
@@ -117,19 +126,41 @@ Reemplazá los marcadores en MAYÚSCULAS. Tres campos tienen valores cerrados:
   como_se_detecto:  accidente · herramienta_ajena · mutacion · observacion · persona</code></pre>
 <p>Escribí <strong>dos</strong>, uno de cada polaridad:</p>
 <pre><code>caso 001-un-nombre-fuera-de-convencion:
-    …
+    fecha: &quot;2026-09-25&quot;
+    origen:
+        repo: &quot;aula/biblioteca&quot;
+        commit: &quot;sin-commit&quot;
+    procedencia: construida
+    titulo: &quot;Un nombre fuera de convención&quot;
     etiqueta: falso_verde
+    sintoma:
+        Un documento tiene nombre fuera de convención.
+    como_se_detecto: persona
     medida: documento.nombre_sigue_la_convencion
     evidencia:
         documento: nombre, sigue_convencion
-            &quot;notas finales.md&quot;, false</code></pre>
+            &quot;notas finales.md&quot;, false
+    leccion:
+        El nombre fuera de convención debe ponerse rojo.</code></pre>
+<p>Creá el segundo andamio con <code>oracle caso documento/002-un-lote-en-convencion</code> y completalo así:</p>
 <pre><code>caso 002-un-lote-en-convencion:
-    …
+    fecha: &quot;2026-09-25&quot;
+    origen:
+        repo: &quot;aula/biblioteca&quot;
+        commit: &quot;sin-commit&quot;
+    procedencia: construida
+    titulo: &quot;Dos nombres en convención&quot;
     etiqueta: verde_correcto
+    sintoma:
+        Ambos nombres respetan la convención.
+    como_se_detecto: persona
+    medida: documento.nombre_sigue_la_convencion
     evidencia:
         documento: nombre, sigue_convencion
             &quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;, true
-            &quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;, true</code></pre>
+            &quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;, true
+    leccion:
+        Ninguno de estos nombres debe ponerse rojo.</code></pre>
 <p><strong>Los dos hacen falta, y no por simetría.</strong> Sin el rojo, la medida nunca falla. Sin el verde, el mutador que le <em>quita el filtro</em> sobrevive: una medida sin <code>donde</code> marca todo, y si nunca viste un caso donde no debía marcar nada, no lo notás.</p>
 <h2 id="6-el-ciclo-completo">6. El ciclo completo<a class="ancla" href="#6-el-ciclo-completo" aria-label="Enlace a esta sección">#</a></h2>
 <pre><code>$ oracle test
@@ -138,14 +169,14 @@ CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
   ROJO  001-un-nombre-fuera-de-convencion  documento.nombre_sigue_la_convencion  (valor 1)
   verde 002-un-lote-en-convencion          documento.nombre_sigue_la_convencion  (valor 0)
 
-mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
-detecciones evaluadas (mutante × caso): 14
+mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
+detecciones evaluadas (mutante × caso): 18
 
 juzgado por las medidas del catálogo:
   ✓ meta.toda_medida_esta_ejercitada        0 (&lt;= 0)
   ✓ meta.toda_medida_esta_fijada            0 (&lt;= 0)
   ✓ proceso.test_con_mutante_que_lo_mata    0 (&lt;= 0)</code></pre>
-<p><strong>Los siete mutantes son el punto.</strong> Oracle rompió tu medida de siete maneras distintas —le sacó el filtro, le aflojó el umbral, le dio vuelta un comparador— y comprobó que tus dos casos lo notaran. Los siete murieron: tus casos la fijan.</p>
+<p><strong>Los nueve mutantes son el punto.</strong> Oracle rompió tu medida de nueve maneras distintas —le sacó el filtro, le aflojó el umbral, le dio vuelta un comparador— y comprobó que tus dos casos lo notaran. Los nueve murieron: tus casos la fijan.</p>
 <p>Pero la aceptación queda en rojo, y hay que leerlo:</p>
 <pre><code>  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada   1 (&lt;= 0)
   ✗ meta.toda_cantidad_comparada_tiene_unidad_derivable      1 (&lt;= 0)</code></pre>
@@ -173,7 +204,7 @@ RELACIONES que se pueden medir hoy:
 <p>Para cerrarlo hace falta evidencia <code>observada</code>: correr un sensor sobre documentos reales y guardar lo que devolvió. Hasta entonces el rojo es honesto y conviene dejarlo a la vista.</p>
 <hr>
 <h2 id="qué-sigue">Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
-<ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 28 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar Oracle a un proyecto propio</a> — de dónde sale la evidencia <code>observada</code>, migración a PyPI y la sombra.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía de autoría con <code>oracle contexto</code>.</li><li><code>oracle manual</code> — la referencia del lenguaje en la terminal (con <code>oracle manual medidas</code> para las 54 universales y sus puntos ciegos).</li><li><a href="https://github.com/Segtem/oracle/blob/main/editores/README.md" rel="noopener">El editor</a> — diagnósticos, completado con unidades y CodeLens en Emacs y VS Code.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
+<ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 30 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar Oracle a un proyecto propio</a> — de dónde sale la evidencia <code>observada</code>, migración a PyPI y la sombra.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía de autoría con <code>oracle contexto</code>.</li><li><code>oracle manual</code> — la referencia del lenguaje en la terminal (con <code>oracle manual medidas</code> para las 54 universales y sus puntos ciegos).</li><li><a href="https://github.com/Segtem/oracle/blob/main/editores/README.md" rel="noopener">El editor</a> — diagnósticos, completado con unidades y CodeLens en Emacs y VS Code.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/02-de-cero-a-un-rojo.md" rel="noopener">docs/02-de-cero-a-un-rojo.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">

@@ -43,7 +43,7 @@
 <pre data-lenguaje="bash"><code>python3 ejemplo/sensor-prosa/sensor_prosa.py preparar \
   --catalogo ejemplo/sensor-prosa/catalogos \
   --salida /tmp/prosa-preparada
-python3 tools/cli.py test --proyecto ejemplo/sensor-prosa</code></pre>
+oracle test --proyecto ejemplo/sensor-prosa</code></pre>
 <p>El catálogo puede ser otro directorio de medidas <code>.oracle</code> o canónicas JSON; <code>--catalogo</code> se puede repetir. Se cargan medidas con macros estándar; los catálogos que requieren macros privadas necesitan adaptar este ejemplo. No se importan escalares externas ni se ejecuta el producto. Cada registro contiene alcance, porque, umbral, origen del umbral, tubería y resumen, reutilizando el armado de <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260922-220029-jev-porque-v2/preparar.py" rel="noopener"><code>preparar.py</code></a>.</p>
 <p>Sólo <code>correr</code> consume API y envía esa prosa al proveedor. Primero revisá el lote y el costo previsto; el siguiente comando hace una corrida nueva:</p>
 <pre data-lenguaje="bash"><code># OPENROUTER_API_KEY debe estar definida en el entorno, nunca en un archivo del repo.
@@ -54,7 +54,7 @@ python3 ejemplo/sensor-prosa/sensor_prosa.py correr \
   --clave-entorno OPENROUTER_API_KEY \
   --revision 0.4 0.6 --corte-si 0.5 \
   --salida /tmp/prosa-corrida
-python3 tools/cli.py juzgar --proyecto ejemplo/sensor-prosa \
+oracle juzgar --proyecto ejemplo/sensor-prosa \
   --con /tmp/prosa-corrida/hechos.json</code></pre>
 <p>El proveedor es una URL HTTPS parametrizable con el contrato <code>decisions/noul</code> usado por <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260922-220029-jev-porque-v2/correr.py" rel="noopener"><code>correr.py</code></a>: <code>model</code>, <code>state</code>, <code>questions</code> en la solicitud; <code>model</code> y <code>answers</code> con probabilidades <code>noul</code> en la respuesta. No es un adaptador genérico de chat: otro protocolo requiere adaptar <code>enviar</code>/<code>solicitud</code>/<code>convertir</code>. Se usa sólo la biblioteca estándar de Python, sin añadir dependencias a Oracle. El modelo efectivo y la fecha UTC de cada lote quedan en las filas. Las respuestas guardadas conservan también el consumo que informe el proveedor. No hay límite monetario automático; el lote usa 12 medidas por solicitud y el catálogo elegido determina cuántas solicitudes se hacen.</p>
 <p>El directorio de salida debe ser nuevo. Se guardan configuración, lote, solicitudes y respuestas; la clave sólo va en el encabezado HTTP. No hay redirecciones ni reintentos automáticos. Si falla el transporte, el formato, la cobertura de preguntas o una probabilidad, termina con código 1 sin publicar <code>hechos.json</code> de una corrida parcial. Revisá los artefactos y el consumo del proveedor antes de repetir una corrida. Código 0 indica preparación completa o corrida sin filas en la zona media; código 2 indica corrida completa con revisión pendiente, no un veredicto semántico.</p>

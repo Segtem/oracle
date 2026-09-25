@@ -57,10 +57,11 @@ L2   medidas     enunciados SOBRE L1: &quot;toda medida tiene al menos un mutant
         clave &lt;nombre&gt; = &lt;expresion&gt;
         agregado &lt;nombre&gt; = &lt;agregado&gt;(&lt;expresion&gt;)]
     resumen &lt;agregado&gt;(&lt;expresion&gt;)
-    umbral &lt;comparador&gt; &lt;valor&gt; porque &quot;&lt;por qué ese número&gt;&quot;
+    umbral &lt;comparador&gt; &lt;valor&gt; segun &lt;origen&gt; porque &quot;&lt;por qué ese número&gt;&quot;
     [requiere &lt;relaciones&gt;]
+    ambito &lt;ámbito&gt;
     alcance &quot;&lt;qué NO ve esta medida&gt;&quot;</code></pre>
-<div class="tabla"><table><thead><tr><th>Pieza</th><th>Qué es</th><th>Obligatorio</th></tr></thead><tbody><tr><td><code>id</code></td><td><code>dominio.nombre</code>, minúsculas ASCII, dígitos y <code>_</code></td><td>sí</td></tr><tr><td><code>de …</code></td><td>la fuente: de dónde salen los datos y qué alias reciben</td><td>sí</td></tr><tr><td><code>unir …</code></td><td>producto cartesiano con otra fuente</td><td>opcional</td></tr><tr><td><code>donde …</code></td><td>el filtro de lo que ofende — <strong>acá se definen los testigos</strong></td><td>opcional</td></tr><tr><td><code>agrupar:</code></td><td>agrupa filas por claves y calcula agregados intermedios</td><td>opcional</td></tr><tr><td><code>resumen</code></td><td>cómo se colapsa la tubería a UN escalar — la medición en sí</td><td>sí</td></tr><tr><td><code>umbral</code></td><td>comparador + valor + <strong>defensa en texto</strong> (<code>porque</code>) de por qué ese valor</td><td>sí, con defensa no vacía</td></tr><tr><td><code>requiere</code></td><td>declara qué relaciones de evidencia son indispensables</td><td>opcional (obligatorio en medidas de ausencia)</td></tr><tr><td><code>alcance</code></td><td>qué NO mira esta medida, en texto</td><td>sí, no puede estar vacío</td></tr></tbody></table></div>
+<div class="tabla"><table><thead><tr><th>Pieza</th><th>Qué es</th><th>Obligatorio</th></tr></thead><tbody><tr><td><code>id</code></td><td><code>dominio.nombre</code>, minúsculas ASCII, dígitos y <code>_</code></td><td>sí</td></tr><tr><td><code>de …</code></td><td>la fuente: de dónde salen los datos y qué alias reciben</td><td>sí</td></tr><tr><td><code>unir …</code></td><td>producto cartesiano con otra fuente</td><td>opcional</td></tr><tr><td><code>donde …</code></td><td>el filtro de lo que ofende — <strong>acá se definen los testigos</strong></td><td>opcional</td></tr><tr><td><code>agrupar:</code></td><td>agrupa filas por claves y calcula agregados intermedios</td><td>opcional</td></tr><tr><td><code>resumen</code></td><td>cómo se colapsa la tubería a UN escalar — la medición en sí</td><td>sí</td></tr><tr><td><code>umbral</code></td><td>comparador + valor + origen (<code>segun</code>) + <strong>defensa en texto</strong> (<code>porque</code>) de por qué ese valor</td><td>sí, con origen y defensa no vacía</td></tr><tr><td><code>requiere</code></td><td>declara qué relaciones de evidencia son indispensables</td><td>opcional (obligatorio en medidas de ausencia)</td></tr><tr><td><code>ambito</code></td><td>jurisdicción de la medida</td><td>sí</td></tr><tr><td><code>alcance</code></td><td>qué NO mira esta medida, en texto</td><td>sí, no puede estar vacío</td></tr></tbody></table></div>
 <p>Tres reglas no son estilo, son validación dura:</p>
 <ol><li><strong>Una medida sin defensa del umbral no carga, y una medida sin <code>alcance</code> no carga.</strong> Fallan al leerse, no al usarse — antes de evaluar un solo hecho.</li><li><strong>Un umbral de igualdad (<code>==</code>) está prohibido.</strong> La regla universal <code>meta.ningun_umbral_de_igualdad</code> exige umbrales de orden (<code>&lt;=</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&gt;</code>).</li><li><strong>Si una medida declara <code>requiere &lt;relacion&gt;</code>, la relación no puede faltar ni venir vacía.</strong> Si no hay evidencia requerida, la evaluación devuelve <code>SIN EVIDENCIA</code> y no un verde espurio.</li></ol>
 <h3 id="el-almacenamiento-por-qué-json">El almacenamiento: por qué JSON<a class="ancla" href="#el-almacenamiento-por-qué-json" aria-label="Enlace a esta sección">#</a></h3>
@@ -69,13 +70,14 @@ L2   medidas     enunciados SOBRE L1: &quot;toda medida tiene al menos un mutant
   [&quot;desde&quot;, [&quot;de&quot;, &quot;&lt;relacion&gt;&quot;, &quot;&lt;alias&gt;&quot;],
             [&quot;donde&quot;, &lt;predicado&gt;]],
   [&quot;resumen&quot;, &quot;&lt;agregado&gt;&quot;, &lt;expresion&gt;],
-  [&quot;umbral&quot;, &quot;&lt;comparador&gt;&quot;, &lt;valor&gt;, &quot;&lt;por qué ese número&gt;&quot;],
+  [&quot;umbral&quot;, &quot;&lt;comparador&gt;&quot;, &lt;valor&gt;, &quot;&lt;por qué ese número&gt;&quot;, &quot;&lt;origen&gt;&quot;],
   [&quot;requiere&quot;, &quot;&lt;relacion&gt;&quot;],
+  [&quot;ambito&quot;, &quot;&lt;ámbito&gt;&quot;],
   [&quot;alcance&quot;, &quot;&lt;qué NO ve esta medida&gt;&quot;]]</code></pre>
-<p>Para traducir entre la superficie infija y el archivo JSON tenés la herramienta <code>tools/sintaxis.py</code>:</p>
-<pre data-lenguaje="bash"><code>python tools/sintaxis.py --imprimir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -&gt; superficie
+<p>Para traducir entre la superficie infija y el archivo JSON usá <code>oracle convertir</code>:</p>
+<pre data-lenguaje="bash"><code>oracle convertir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -&gt; superficie
 oracle nueva dominio.regla        # crea el andamio ya en superficie infija
-python tools/sintaxis.py --leer medida.oracle       # superficie -&gt; JSON, si lo necesitás</code></pre>
+oracle convertir medida.oracle    # superficie -&gt; JSON, si lo necesitás</code></pre>
 <p>El ejemplo más simple posible del propio catálogo de Oracle:</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> proceso.test_con_mutante_que_lo_mata:
     <span class="c-kw">de</span> mutante m

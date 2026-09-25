@@ -198,10 +198,9 @@ oracle tarea hechos --git --proyecto . &gt; hechos-tareas.json
 oracle tarea cerrar &quot;$id_tarea&quot; --proyecto .
 oracle tarea listar --cerradas --proyecto .
 printf &#x27;Proyecto de práctica: %s\n&#x27; &quot;$proyecto_prueba&quot;
+oracle juzgar --proyecto /ruta/al/checkout/ejemplo/seguimiento-tareas --con &quot;$proyecto_prueba/hechos-tareas.json&quot;
 )</code></pre>
-<p>Para usar una captura real, reemplazá <code>registro-ejemplo.txt</code> por un archivo existente. El archivo JSON queda dentro del directorio temporal del proyecto de práctica (<code>$proyecto_prueba/hechos-tareas.json</code>); juzgalo con:</p>
-<pre data-lenguaje="bash"><code>oracle juzgar --proyecto ejemplo/seguimiento-tareas --con &quot;$proyecto_prueba/hechos-tareas.json&quot;</code></pre>
-<p>La política de archivos confirmados fallará hasta que haya un repositorio con esos archivos confirmados en HEAD y sin cambios pendientes. El tutorial no hace commits.</p>
+<p>Para usar una captura real, reemplazá <code>registro-ejemplo.txt</code> por un archivo existente. El archivo JSON queda dentro del directorio temporal del proyecto de práctica. En el último comando, reemplazá <code>/ruta/al/checkout</code> por la ruta absoluta al checkout de Oracle. La política de archivos confirmados fallará hasta que haya un repositorio con esos archivos confirmados en HEAD y sin cambios pendientes. El tutorial no hace commits.</p>
 <p>Las opciones <code>--cerradas</code> y <code>--todas</code> de <code>listar</code> son incompatibles, al igual que <code>--ruta</code> y <code>--json</code> de <code>ver</code>; combinarlas devuelve código 1.</p>
 <p>La auditoría admite <code>README.md</code>, <code>README</code>, <code>.gitignore</code> y <code>etiquetas</code> como archivos auxiliares directamente en <code>tareas/</code>. Otros archivos sueltos en esa raíz se diagnostican como anomalías. Guardá las capturas, notas y demás adjuntos dentro de la carpeta de su tarea.</p>
 <h3 id="orden-en-los-listados">Orden en los listados<a class="ancla" href="#orden-en-los-listados" aria-label="Enlace a esta sección">#</a></h3>
