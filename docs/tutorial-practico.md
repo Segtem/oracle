@@ -68,8 +68,9 @@ medida <id>:
         clave <nombre> = <expresion>
         agregado <nombre> = <agregado>(<expresion>)]
     resumen <agregado>(<expresion>)
-    umbral <comparador> <valor> porque "<por qué ese número>"
+    umbral <comparador> <valor> segun <origen> porque "<por qué ese número>"
     [requiere <relaciones>]
+    ambito <ámbito>
     alcance "<qué NO ve esta medida>"
 ```
 
@@ -81,8 +82,9 @@ medida <id>:
 | `donde …` | el filtro de lo que ofende — **acá se definen los testigos** | opcional |
 | `agrupar:` | agrupa filas por claves y calcula agregados intermedios | opcional |
 | `resumen` | cómo se colapsa la tubería a UN escalar — la medición en sí | sí |
-| `umbral` | comparador + valor + **defensa en texto** (`porque`) de por qué ese valor | sí, con defensa no vacía |
+| `umbral` | comparador + valor + origen (`segun`) + **defensa en texto** (`porque`) de por qué ese valor | sí, con origen y defensa no vacía |
 | `requiere` | declara qué relaciones de evidencia son indispensables | opcional (obligatorio en medidas de ausencia) |
+| `ambito` | jurisdicción de la medida | sí |
 | `alcance` | qué NO mira esta medida, en texto | sí, no puede estar vacío |
 
 Tres reglas no son estilo, son validación dura:
@@ -99,17 +101,18 @@ La superficie infija es la forma legible para escribir y revisar. En el disco (d
   ["desde", ["de", "<relacion>", "<alias>"],
             ["donde", <predicado>]],
   ["resumen", "<agregado>", <expresion>],
-  ["umbral", "<comparador>", <valor>, "<por qué ese número>"],
+  ["umbral", "<comparador>", <valor>, "<por qué ese número>", "<origen>"],
   ["requiere", "<relacion>"],
+  ["ambito", "<ámbito>"],
   ["alcance", "<qué NO ve esta medida>"]]
 ```
 
-Para traducir entre la superficie infija y el archivo JSON tenés la herramienta `tools/sintaxis.py`:
+Para traducir entre la superficie infija y el archivo JSON usá `oracle convertir`:
 
 ```bash
-python tools/sintaxis.py --imprimir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -> superficie
+oracle convertir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -> superficie
 oracle nueva dominio.regla        # crea el andamio ya en superficie infija
-python tools/sintaxis.py --leer medida.oracle       # superficie -> JSON, si lo necesitás
+oracle convertir medida.oracle    # superficie -> JSON, si lo necesitás
 ```
 
 El ejemplo más simple posible del propio catálogo de Oracle:

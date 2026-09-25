@@ -106,6 +106,7 @@ caso 003-la-biblioteca-real:
     origen:
         repo: "aula/biblioteca"
         commit: "sin-commit"
+        comando: "python3 mide_nombres.py docs-de-prueba"
     procedencia: observada
     titulo: "Dos archivos de la carpeta real están fuera de convención"
     etiqueta: falso_verde
@@ -141,7 +142,7 @@ CORPUS OK · 3 casos · esquema, evidencia L0 y trazabilidad en regla
   ROJO  003-la-biblioteca-real             documento.nombre_sigue_la_convencion  (valor 2)
 
 ACEPTACIÓN ✓ — 2 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
-mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
+mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
 
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
@@ -272,7 +273,7 @@ Reúne en una sola salida:
 
 ## Qué sigue
 
-- [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 28 mutadores en aislamiento y qué
+- [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 30 mutadores en aislamiento y qué
   hacer cuando uno sobrevive.
 - [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) — la guía completa de autoría.
 - [`docs/migracion/de-subtree-a-pypi.md`](migracion/de-subtree-a-pypi.md) — guía paso a paso de migración

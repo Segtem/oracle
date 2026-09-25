@@ -61,7 +61,7 @@ Desde la raíz del checkout, preparar un lote no usa red ni lee una clave:
 python3 ejemplo/sensor-prosa/sensor_prosa.py preparar \
   --catalogo ejemplo/sensor-prosa/catalogos \
   --salida /tmp/prosa-preparada
-python3 tools/cli.py test --proyecto ejemplo/sensor-prosa
+oracle test --proyecto ejemplo/sensor-prosa
 ```
 
 El catálogo puede ser otro directorio de medidas `.oracle` o canónicas JSON;
@@ -83,7 +83,7 @@ python3 ejemplo/sensor-prosa/sensor_prosa.py correr \
   --clave-entorno OPENROUTER_API_KEY \
   --revision 0.4 0.6 --corte-si 0.5 \
   --salida /tmp/prosa-corrida
-python3 tools/cli.py juzgar --proyecto ejemplo/sensor-prosa \
+oracle juzgar --proyecto ejemplo/sensor-prosa \
   --con /tmp/prosa-corrida/hechos.json
 ```
 

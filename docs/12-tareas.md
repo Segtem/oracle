@@ -509,14 +509,12 @@ oracle tarea hechos --git --proyecto . > hechos-tareas.json
 oracle tarea cerrar "$id_tarea" --proyecto .
 oracle tarea listar --cerradas --proyecto .
 printf 'Proyecto de práctica: %s\n' "$proyecto_prueba"
+oracle juzgar --proyecto /ruta/al/checkout/ejemplo/seguimiento-tareas --con "$proyecto_prueba/hechos-tareas.json"
 )
 ```
 
 Para usar una captura real, reemplazá `registro-ejemplo.txt` por un archivo existente.
-El archivo JSON queda dentro del directorio temporal del proyecto de práctica (`$proyecto_prueba/hechos-tareas.json`); juzgalo con:
-```bash
-oracle juzgar --proyecto ejemplo/seguimiento-tareas --con "$proyecto_prueba/hechos-tareas.json"
-```
+El archivo JSON queda dentro del directorio temporal del proyecto de práctica. En el último comando, reemplazá `/ruta/al/checkout` por la ruta absoluta al checkout de Oracle.
 La política de archivos confirmados fallará hasta que haya un repositorio con esos archivos
 confirmados en HEAD y sin cambios pendientes. El tutorial no hace commits.
 

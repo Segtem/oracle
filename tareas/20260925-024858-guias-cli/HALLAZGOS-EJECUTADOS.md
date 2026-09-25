@@ -1,0 +1,16 @@
+# Hallazgos ejecutados
+
+Comandos corridos con `python3 tools/cli.py` del checkout en proyectos temporales bajo `/tmp/oracle-audit-guias/`. Las referencias apuntan a las líneas corregidas de las guías. Sólo figuran fallas o diferencias comprobadas.
+
+- `docs/02-de-cero-a-un-rojo.md:18-22`: `--version` devuelve `0.30.0`, álgebra `1.0` y sintaxis `0.7`; la captura decía `0.6.0`, `0.6` y `0.2`.
+- `docs/02-de-cero-a-un-rojo.md:38-49`: `init biblioteca` crea también `relaciones/` y propone crear el caso antes de la medida; la salida publicada omitía esa carpeta e invertía el orden.
+- `docs/02-de-cero-a-un-rojo.md:69-120`: `nueva` imprime instrucciones adicionales y su plantilla incluye `ambito`. Al ejecutar `revisar` sobre la medida completada como estaba publicada, salió código 1: «a la macro ninguno le falta `ambito`». La plantilla sin completar señala `SEGUN` en línea 7, no en línea 5. Agregado `ambito universal`, `medida probar --con` devolvió el rojo y el testigo publicados.
+- `docs/02-de-cero-a-un-rojo.md:169-231`: los casos con `…` no eran archivos `.caso` ejecutables. Completados los campos del andamio, `test` informó 9 mutantes muertos y 18 detecciones, frente a 7 y 14 en la guía. La corrida termina en rojo por la procedencia construida y, antes de declarar `relaciones/documento.json`, por unidad sin declarar.
+- `docs/03-escribir-una-medida.md:60`: `caso proceso/0NN-lo-que-paso` devolvió código 1 (`id inválido`); `001-lo-que-paso` crea el caso.
+- `docs/05-por-que-la-mutacion.md:62-88`: con la medida y los dos casos de `docs/02`, `test` informó 9/9 mutantes muertos y 18 detecciones. Quitado el verde, informó 8 muertos, 1 sobreviviente y 9 detecciones; las cifras de la guía eran 7/7/14 y 6/1/7.
+- `docs/07-conectar-a-un-proyecto-propio.md:106-109,145`: el tercer caso `observada` con sólo `repo` y `commit` hizo fallar `meta.todo_caso_observado_declara_de_donde_salio`; al agregar `origen.comando`, `test` dio verde. También informó 9 mutantes muertos, frente a 7 en la captura.
+- `docs/12-tareas.md:473-512`: el ciclo del tracker corrió y el juzgado dio rojo por archivos sin repositorio, como explica la guía. El comando de juzgado estaba después del subshell, donde `$proyecto_prueba` ya no existía; se movió dentro y se indicó la ruta absoluta del catálogo.
+- `docs/13-primer-valor.md:215-216`: `test` dio verde con los mismos recuentos, pero emitió la URL completa de `DECISION-011`, no el texto abreviado de la captura.
+- `docs/14-sensor-prosa.md:64,86`: `python3 tools/cli.py` falló con código 2 al ejecutar la guía desde una copia del ejemplo sin el checkout. `oracle test` con el CLI del checkout dio verde. Se reemplazaron ambas invocaciones por el comando instalado.
+- `docs/migracion/de-subtree-a-pypi.md:60`: `--version` desde el checkout devuelve `0.30.0`; la instrucción esperaba `0.6.0` después de instalar sin fijar versión. Se dejó la comprobación sin un número fijo; los comandos que fijan `0.6.0` en la migración histórica no se alteraron.
+- `docs/tutorial-practico.md:71-115`: la plantilla omitía `segun` y `ambito`; `revisar` sobre un umbral sin `segun` lo informó como `sin_declarar`. El bloque `python tools/sintaxis.py` depende del checkout; `oracle convertir` ejecutó la conversión desde el proyecto temporal.

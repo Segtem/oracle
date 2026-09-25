@@ -3,7 +3,7 @@
 Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que **falla** sobre un
 defecto de verdad y te dice **qué filas** lo causaron.
 
-Todo lo que sigue está copiado de una corrida real con Oracle 0.6.0. Si algo no te da igual,
+Todo lo que sigue está copiado de una corrida real con Oracle 0.30.0. Si algo no te da igual,
 es un defecto de esta página: [abrí un issue](https://github.com/Segtem/oracle/issues).
 
 ---
@@ -16,9 +16,9 @@ uv tool install oracle-metalenguaje
 
 ```
 $ oracle --version
-oracle 0.6.0
-  álgebra:  0.6   (qué SIGNIFICA una medida)
-  sintaxis: 0.2   (cómo se ESCRIBE)
+oracle 0.30.0
+  álgebra:  1.0   (qué SIGNIFICA una medida)
+  sintaxis: 0.7   (cómo se ESCRIBE)
   corriendo desde: …/oracle-metalenguaje/lib/python3.12/site-packages/oracle_metalenguaje
 ```
 
@@ -40,15 +40,16 @@ Proyecto Oracle inicializado en …/biblioteca:
   · catalogos/
   · corpus/
   · diferencial/
+  · relaciones/
   · oracle.json
 
 Próximos pasos:
-  1. Creá una medida:  oracle nueva <dominio.nombre>
-  2. Creá un caso:     oracle caso <grupo/id>
+  1. Creá un caso:     oracle caso <grupo/id>
+  2. Creá una medida:  oracle nueva <dominio.nombre>
   3. Verificá todo:    oracle test
 ```
 
-Tres carpetas y un archivo. `oracle.json` viene con `"catalogo_base": true`: tu proyecto hereda las
+Cuatro carpetas y un archivo. `oracle.json` viene con `"catalogo_base": true`: tu proyecto hereda las
 medidas universales de Oracle, que van a juzgar **tus** medidas.
 
 Un proyecto vacío conserva código de salida `0` para CI, con una advertencia: todavía no hay
@@ -64,6 +65,9 @@ VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 cas
 ```
 $ oracle nueva documento.nombre_sigue_la_convencion
 creada: catalogos/documento/documento.nombre_sigue_la_convencion.oracle
+
+Reemplazá RELACION, CAMPO, SEGUN, AMBITO y los dos textos en MAYÚSCULAS. Después:
+  oracle revisar catalogos/documento/documento.nombre_sigue_la_convencion.oracle
 ```
 
 La plantilla viene con los huecos en mayúsculas:
@@ -72,8 +76,12 @@ La plantilla viene con los huecos en mayúsculas:
 ninguno documento.nombre_sigue_la_convencion:
     de RELACION x
     donde x.CAMPO == false
+    # Si medís una magnitud (días, cm, segundos), consultá `oracle manual peor`:
+    # su tolerancia es la cota del dominio; `ninguno` cuenta defectos y exige cero.
     # segun: medicion · contrato · convencion · tanteo
     umbral <= 0 segun SEGUN porque "POR QUE ese numero y no otro…"
+    # ambito: universal · del_origen
+    ambito AMBITO
     alcance "QUE NO VE esta medida…"
 ```
 
@@ -81,8 +89,8 @@ Si la revisás sin tocarla, el error te dice dónde y con qué opciones:
 
 ```
 $ oracle revisar catalogos/documento/documento.nombre_sigue_la_convencion.oracle
-✗ línea 5, columna 23: se esperaba segun en ['contrato', 'convencion', 'medicion', 'tanteo']; llegó 'SEGUN'
-   5 |     umbral <= 0 segun SEGUN porque "POR QUE ese numero…"
+✗ …/documento.nombre_sigue_la_convencion.oracle: línea 7, columna 23: se esperaba segun en ['contrato', 'convencion', 'medicion', 'tanteo']; llegó 'SEGUN'
+   7 |     umbral <= 0 segun SEGUN porque "POR QUE ese numero…"
      |                       ^
 ```
 
@@ -93,6 +101,7 @@ ninguno documento.nombre_sigue_la_convencion:
     de documento d
     donde d.sigue_convencion == false
     umbral <= 0 segun contrato porque "la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe"
+    ambito universal
     alcance "no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena"
 ```
 
@@ -108,8 +117,8 @@ $ oracle revisar catalogos/documento/documento.nombre_sigue_la_convencion.oracle
 ✓ bien declarada: documento.nombre_sigue_la_convencion   (forma: ninguno)
     umbral   <= 0
     segun    contrato
-    porque   la convención de nombres es lo que hace que el índice se pueda generar solo…
-    alcance  no ve el contenido del documento, sólo su nombre…
+    porque   la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe
+    alcance  no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena
 
 contra la evidencia que hay: 0 verde · 0 rojo · 0 error
 
@@ -161,22 +170,45 @@ Escribí **dos**, uno de cada polaridad:
 
 ```
 caso 001-un-nombre-fuera-de-convencion:
-    …
+    fecha: "2026-09-25"
+    origen:
+        repo: "aula/biblioteca"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un nombre fuera de convención"
     etiqueta: falso_verde
+    sintoma:
+        Un documento tiene nombre fuera de convención.
+    como_se_detecto: persona
     medida: documento.nombre_sigue_la_convencion
     evidencia:
         documento: nombre, sigue_convencion
             "notas finales.md", false
+    leccion:
+        El nombre fuera de convención debe ponerse rojo.
 ```
+
+Creá el segundo andamio con `oracle caso documento/002-un-lote-en-convencion` y completalo así:
 
 ```
 caso 002-un-lote-en-convencion:
-    …
+    fecha: "2026-09-25"
+    origen:
+        repo: "aula/biblioteca"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Dos nombres en convención"
     etiqueta: verde_correcto
+    sintoma:
+        Ambos nombres respetan la convención.
+    como_se_detecto: persona
+    medida: documento.nombre_sigue_la_convencion
     evidencia:
         documento: nombre, sigue_convencion
             "2026-08-31-GUIA-Convencion-v1.0.md", true
             "2026-09-01-INFORME-Primera-Medida-v1.0.md", true
+    leccion:
+        Ninguno de estos nombres debe ponerse rojo.
 ```
 
 **Los dos hacen falta, y no por simetría.** Sin el rojo, la medida nunca falla. Sin el verde, el
@@ -192,8 +224,8 @@ CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
   ROJO  001-un-nombre-fuera-de-convencion  documento.nombre_sigue_la_convencion  (valor 1)
   verde 002-un-lote-en-convencion          documento.nombre_sigue_la_convencion  (valor 0)
 
-mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
-detecciones evaluadas (mutante × caso): 14
+mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
+detecciones evaluadas (mutante × caso): 18
 
 juzgado por las medidas del catálogo:
   ✓ meta.toda_medida_esta_ejercitada        0 (<= 0)
@@ -201,9 +233,9 @@ juzgado por las medidas del catálogo:
   ✓ proceso.test_con_mutante_que_lo_mata    0 (<= 0)
 ```
 
-**Los siete mutantes son el punto.** Oracle rompió tu medida de siete maneras distintas —le sacó el
+**Los nueve mutantes son el punto.** Oracle rompió tu medida de nueve maneras distintas —le sacó el
 filtro, le aflojó el umbral, le dio vuelta un comparador— y comprobó que tus dos casos lo notaran.
-Los siete murieron: tus casos la fijan.
+Los nueve murieron: tus casos la fijan.
 
 Pero la aceptación queda en rojo, y hay que leerlo:
 
@@ -264,7 +296,7 @@ lo que devolvió. Hasta entonces el rojo es honesto y conviene dejarlo a la vist
 
 ## Qué sigue
 
-- [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 28 mutadores en aislamiento y qué hacer
+- [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 30 mutadores en aislamiento y qué hacer
   cuando uno sobrevive.
 - [Conectar Oracle a un proyecto propio](07-conectar-a-un-proyecto-propio.md) — de dónde sale la
   evidencia `observada`, migración a PyPI y la sombra.

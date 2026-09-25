@@ -57,7 +57,7 @@ grep -rln "vendor/oracle" . --exclude-dir=vendor --exclude-dir=.git
 
 ```bash
 uv tool install oracle-metalenguaje
-oracle --version          # tiene que decir 0.6.0
+oracle --version          # comprobá la versión instalada
 ```
 
 **(b) Un entorno del proyecto** — para scripts propios que hacen `import oracle_metalenguaje` y se

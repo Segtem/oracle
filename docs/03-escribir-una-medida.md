@@ -57,7 +57,7 @@ oracle test --proyecto <tu-proyecto> --confiar-escalares
 ```bash
 # 1. el caso: la evidencia del defecto, y que se espera ROJO
 #    (el andamio ya nace en superficie .caso, o copiá uno que exista)
-oracle caso proceso/0NN-lo-que-paso   # crea corpus/proceso/0NN-lo-que-paso.caso
+oracle caso proceso/001-lo-que-paso   # crea corpus/proceso/001-lo-que-paso.caso
 
 # 2. mirá con qué contás: el contexto de tu proyecto en un solo comando
 oracle contexto           # relaciones, campos, escalares, operadores y medidas existentes

@@ -54,23 +54,23 @@ Sobre el catálogo real de 54 medidas universales:
 - **Diecisiete no aplicaron a ninguna medida**, porque el catálogo universal usa monótonamente
   `umbral <= 0`.
 
-Hoy el motor tiene **28 mutadores activos** (5 propios + 23 del segundo autor).
+Hoy el motor informa **30 mutadores activos** (6 propios + 24 del segundo autor).
 
 ## La mutación en tu medida
 
 En el proyecto de juguete, tu medida tiene una estructura simple: una sola fuente, un filtro
-booleano, conteo y umbral `<= 0`. De los 28 mutadores del motor, **siete** aplican a esa sintaxis
+booleano, conteo y umbral `<= 0`. De los 30 mutadores del motor, **nueve** aplican a esa sintaxis
 (los otros mutan uniones, agrupamientos, cotas o agregados que esa medida no usa):
 
 ```
 $ oracle test
-mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
-  de los muertos: 7 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
-detecciones evaluadas (mutante × caso): 14
+mutantes de medida (medida × mutador): 9 · murieron 9 · sobrevivieron 0
+  de los muertos: 9 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 18
 ```
 
-Oracle rompió tu medida de siete maneras —le sacó el filtro, le aflojó el umbral, le dio vuelta un
-comparador— y evaluó cada versión rota contra cada caso: 14 comprobaciones. Los siete murieron:
+Oracle rompió tu medida de nueve maneras —le sacó el filtro, le aflojó el umbral, le dio vuelta un
+comparador— y evaluó cada versión rota contra cada caso: 18 comprobaciones. Los nueve murieron:
 **algún caso tuyo notó cada rotura**.
 
 «Murieron por conducta» significa que el mutante cambió algo observable: el veredicto, los testigos
@@ -83,9 +83,9 @@ Borrá el caso verde y dejá sólo el rojo:
 
 ```
 $ oracle test
-mutantes de medida (medida × mutador): 7 · murieron 6 · sobrevivieron 1
-  de los muertos: 6 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
-detecciones evaluadas (mutante × caso): 7
+mutantes de medida (medida × mutador): 9 · murieron 8 · sobrevivieron 1
+  de los muertos: 8 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 9
 
 juzgado por las medidas del catálogo:
   ✓ meta.toda_medida_esta_ejercitada                    0 (<= 0)
