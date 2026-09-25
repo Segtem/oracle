@@ -70,3 +70,7 @@ Verificación final: python3 -m unittest discover -s tests: 2515 tests, OK; cd d
 ## Próximo paso
 
 Ninguno: publicada.
+
+### Nota (2026-09-25 12:11:28 UTC)
+
+2026-09-25: la guía se publica con la web nueva. Hecho: el juego en ejemplo/batalla-naval (VERDE, 209/209), la guía de-cero con pregunta, respuesta plegada, bloque y salida real por paso, y tools/guia.py + tests/test_guia.py, que arman el juego desde una carpeta vacía con los bloques de la guía.

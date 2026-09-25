@@ -44,3 +44,7 @@ diagramas que ayuden a entender por qué usar Oracle.»
 ## Próximo paso
 
 Ninguno: publicada.
+
+### Nota (2026-09-25 12:11:28 UTC)
+
+2026-09-25, Brian: «sube la nueva web». Publicada al unir t-web-diseno a main.
