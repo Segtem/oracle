@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Por qué Oracle</title>
+<meta name="description" content="Por qué hace falta un lenguaje de medidas: un verde que no mide nada es peor que un rojo, y el que escribe el código no puede ser el único que decide si está bien.">
+<link rel="canonical" href="https://segtem.github.io/oracle/por-que.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="assets/sitio.css">
+<link rel="stylesheet" href="assets/portada.css">
+<link rel="icon" href="assets/emblema.svg" type="image/svg+xml">
+</head>
+<body>
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="por-que.html" aria-current="page">Por qué</a>
+    <a href="documentacion.html">Documentación</a>
+    <a href="manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+
+<main id="contenido">
+
+<section class="hero-corto envoltura">
+  <p class="ceja pixel">por qué oracle</p>
+  <h1>Un verde que no mide nada es peor que un rojo.</h1>
+  <p class="bajada">Un rojo te dice que algo está mal. Un verde vacío te dice que está todo bien cuando nadie
+  miró. Oracle existe para que cada verde diga qué midió, con qué número y qué quedó sin mirar.</p>
+</section>
+
+<section class="capitulo envoltura" aria-labelledby="t-historia">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">una historia real</p>
+    <h2 id="t-historia">Un agente construyó una batalla naval «con Oracle». El test dio verde.</h2>
+  </div>
+  <div class="relato lectura">
+    <p>En septiembre de 2026 le pedimos a un agente de programación el mismo juego dos veces: una batalla
+    naval con Oracle y otra sin Oracle. Las dos versiones funcionaban. La versión con Oracle tenía su
+    catálogo de medidas, su corpus y un <code>oracle test</code> en verde.</p>
+    <p>Al revisarla encontramos que <strong>el catálogo estaba vacío</strong>. El único caso del corpus
+    validaba la sintaxis de un archivo, no una regla del juego. Ninguna medida sabía qué era un barco,
+    una casilla o un turno. El verde era cierto y no decía nada: se podía borrar la lógica del juego y
+    seguía verde.</p>
+    <p>El defecto era de Oracle, y lo arreglamos en Oracle:</p>
+    <ul>
+      <li><code>oracle test</code> ahora termina diciendo su <strong>alcance</strong> (qué verificó) y que
+      no volvió a medir el producto.</li>
+      <li>Un proyecto sin medidas propias sale <span class="lampara ambar">sin medición</span>, no verde.</li>
+      <li>Hay un camino corto a la primera regla real del producto:
+      <a href="13-primer-valor.html">del juego a un hecho exportado, a una medida y a un veredicto</a>.
+      Es el ejemplo del barco en la fila 10 de la portada.</li>
+    </ul>
+    <p>El postmortem completo, con las cifras de cada versión y lo que no se pudo sostener, está en
+    <a href="https://github.com/Segtem/oracle/blob/main/vault-kb/postmortems/POSTMORTEM-BATALLA-NAVAL-AGY.md" rel="noopener">el repositorio</a>.</p>
+  </div>
+</section>
+
+<section class="capitulo envoltura" aria-labelledby="t-comparar">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">qué cambia</p>
+    <h2 id="t-comparar">Un test verifica una función. Una medida vigila una regla del proyecto.</h2>
+  </div>
+  <div class="tabla-comparar" role="region" aria-label="Comparación entre un test unitario y una medida de Oracle" tabindex="0">
+    <table>
+      <thead><tr><th scope="col"></th><th scope="col">Un test unitario</th><th scope="col">Una medida de Oracle</th></tr></thead>
+      <tbody>
+        <tr><th scope="row">Qué mira</th><td>el código, llamándolo</td><td>hechos que un sensor exporta del producto</td></tr>
+        <tr><th scope="row">Dónde vive</th><td>junto al código que prueba</td><td>en un catálogo aparte, con su propio historial</td></tr>
+        <tr><th scope="row">El umbral</th><td>implícito en el <code>assert</code></td><td>explícito, con <code>segun</code>: contrato, medición, convención o tanteo</td></tr>
+        <tr><th scope="row">Lo que no ve</th><td>no lo dice</td><td>lo declara en <code>alcance</code>, obligatorio</td></tr>
+        <tr><th scope="row">Al fallar</th><td>una excepción</td><td>el valor, el umbral y las filas que ofendieron</td></tr>
+        <tr><th scope="row">Si falta el dato</th><td>depende de cómo se escribió</td><td><code>requiere</code>: sale sin evidencia, nunca verde</td></tr>
+        <tr><th scope="row">Quién la vigila</th><td>nadie, salvo mutación de código aparte</td><td>la mutación de medidas, siempre: si un caso no la nota, se sabe</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="nota lectura">No compiten. Los tests siguen verificando funciones; las medidas vigilan lo
+  que el proyecto promete de sí mismo, con la evidencia a la vista.</p>
+</section>
+
+<section class="capitulo envoltura" aria-labelledby="t-niveles">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">cinco niveles</p>
+    <h2 id="t-niveles">De dónde sale cada dato, hasta el catálogo que se juzga a sí mismo.</h2>
+  </div>
+  <ol class="niveles" aria-label="Los cinco niveles de representación, de abajo hacia arriba">
+    <li><span class="nivel pixel">L2</span><strong>El catálogo se juzga a sí mismo</strong><span>medidas sobre las medidas: toda medida declara su alcance, ninguna sombra supera su cota</span></li>
+    <li><span class="nivel pixel">L1</span><strong>Medidas</strong><span>reglas escritas en Oracle, con umbral, defensa y alcance</span></li>
+    <li><span class="nivel pixel">L0</span><strong>Hechos</strong><span>filas planas, sin opinión: lo que el sensor vio</span></li>
+    <li><span class="nivel pixel">L−1</span><strong>El sensor</strong><span>unidades, límites y de qué programa salió cada fila</span></li>
+    <li><span class="nivel pixel">L−2</span><strong>El referente</strong><span>qué archivo o corrida se observó, con su huella, para saber si sigue vigente</span></li>
+  </ol>
+  <p class="nota lectura">Cada nivel se apoya en el de abajo y lo puede poner en duda. La decisión completa
+  está en <a href="decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.html">la decisión 005</a>.</p>
+</section>
+
+<section class="capitulo envoltura dos-escenas" aria-labelledby="t-agentes">
+  <div>
+    <p class="ceja pixel">programar con agentes</p>
+    <h2 id="t-agentes">Cuanto menos mira un humano, más hace falta un juez que no sea el autor.</h2>
+    <div class="lectura">
+      <p>Un agente que escribe código y sus tests en la misma pasada se da la razón a sí mismo. Oracle
+      pone las reglas afuera, de sólo lectura para el agente, y le devuelve un rojo con el testigo
+      exacto que tiene que corregir.</p>
+      <p>Cuando el agente trabaja solo, Oracle hace de andamiaje: cada paso se juzga con medidas
+      deterministas, y el humano entra cuando quiere, no porque el agente necesite que alguien le diga si
+      está bien.</p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="agente" role="img" aria-label="Un agente escribe cuatro líneas de código. Oracle juzga: rojo, con un testigo en la línea 3. El agente corrige la línea 3 y el veredicto pasa a verde."></canvas>
+    <figcaption>El agente escribe, Oracle juzga, el agente corrige con el testigo.</figcaption>
+  </figure>
+</section>
+
+<section class="capitulo envoltura" aria-labelledby="t-cuando-no">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">cuándo no</p>
+    <h2 id="t-cuando-no">Cuándo Oracle no es lo que necesitás.</h2>
+  </div>
+  <ul class="cuando-no lectura">
+    <li><strong>Si querés probar una función.</strong> Para eso está un test unitario, y es más corto.</li>
+    <li><strong>Si no podés exportar hechos.</strong> Oracle juzga lo que un sensor le cuenta. Sin sensor
+    no hay veredicto, y el proyecto sale sin medición.</li>
+    <li><strong>Si esperás una prueba de corrección.</strong> Una medida verde dice que su regla se cumple
+    sobre esos hechos, dentro de su alcance. No demuestra que el producto esté bien en todo lo demás.</li>
+  </ul>
+</section>
+
+<section class="empezar envoltura" aria-labelledby="t-empezar">
+  <div>
+    <p class="ceja pixel">empezar</p>
+    <h2 id="t-empezar">Tu primer rojo, en cinco minutos.</h2>
+  </div>
+  <div>
+    <p class="lectura">Instalar, escribir una medida y verla fallar con sus testigos.</p>
+    <a class="boton" href="02-de-cero-a-un-rojo.html">De cero a un rojo</a>
+  </div>
+</section>
+
+</main>
+
+<footer class="pie envoltura">
+  <img src="assets/emblema.svg" alt="" width="32" height="32">
+  <span>Oracle</span>
+  <span>MIT · Python 3.11 o posterior · cero dependencias</span>
+  <a href="https://pypi.org/project/oracle-metalenguaje/" rel="noopener">PyPI</a>
+  <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  <a href="documentacion.html">Documentación</a>
+</footer>
+
+<script src="assets/pixel.js" defer></script>
+</body>
+</html>

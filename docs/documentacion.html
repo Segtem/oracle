@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El camino — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html" aria-current=page>El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="el-camino">El camino<a class="ancla" href="#el-camino" aria-label="Enlace a esta sección">#</a></h1>
+<p>Ordenado por la pregunta que contesta, no por el tema.</p>
+<div class="tabla"><table><tbody><tr><td><strong>1 · Qué problema resuelve</strong></td><td><a href="https://github.com/Segtem/oracle/blob/main/README.md" rel="noopener">Goodhart, y por qué una regla tiene que negarse</a></td></tr><tr><td><strong>2 · <a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></strong></td><td>instalar, escribir una medida, ver testigos. Cinco minutos</td></tr><tr><td><strong>3 · Anatomía de una medida</strong></td><td><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a></td></tr><tr><td><strong>4 · El primer caso</strong></td><td>polaridad, <code>etiqueta</code>, <code>procedencia</code> — dentro del paso 2</td></tr><tr><td><strong>5 · <a href="05-por-que-la-mutacion.html">Por qué la mutación</a></strong></td><td>dos autores, 28 mutadores en aislamiento, y qué hacer con un sobreviviente</td></tr><tr><td><strong>Operación · <a href="mutacion-memoria.html">Memoria y paralelismo</a></strong></td><td>medir memoria virtual, calcular concurrencia y limitar todas las rondas con systemd</td></tr><tr><td><strong>6 · Los cinco niveles</strong></td><td><a href="decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.html">DECISION-005</a></td></tr><tr><td><strong>7 · <a href="07-conectar-a-un-proyecto-propio.html">Conectar a un proyecto propio</a></strong></td><td>sensor puro, adaptador, escalares, migración a PyPI y la sombra</td></tr><tr><td><strong>8 · El editor</strong></td><td><a href="https://github.com/Segtem/oracle/blob/main/editores/README.md" rel="noopener">editores/README.md</a></td></tr><tr><td><strong>9 · Referencia</strong></td><td><a href="especificacion.html">ESPECIFICACION.md</a></td></tr><tr><td><strong>10 · Contexto</strong></td><td><code>oracle contexto [--compacto]</code> — lo que hace falta para escribir una medida en TU proyecto, derivado de él</td></tr><tr><td><strong>11 · Manual</strong></td><td><code>oracle manual</code> en la terminal —incluidas las 54 medidas universales con qué NO ve cada una—, <code>man oracle-segun</code> tras <code>oracle manual --instalar-man &lt;dir&gt;</code>, o <a href="https://segtem.github.io/oracle/manual.html" rel="noopener">la misma vista en el sitio</a></td></tr><tr><td><strong>12 · <a href="12-tareas.html">Tareas y contexto</a></strong></td><td><code>oracle tarea</code> — tracker local de tareas y pendientes en carpetas y Markdown</td></tr><tr><td><strong>14 · <a href="14-sensor-prosa.html">Sensor probabilístico de prosa</a></strong></td><td>patrón optativo, proveedor externo, calibración y revisión humana</td></tr></tbody></table></div>
+<p>Los pasos 2, 5 y 7 se escribieron corriendo cada comando contra el paquete publicado, y las salidas están copiadas de esas corridas. Si alguna no te da igual, es un defecto de la documentación: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
+<p>Los demás enlazan a documentos que ya existen. <strong>Una sola fuente por documento</strong>: duplicarlos acá para que se vean prolijos sería garantizar que se desincronicen.</p>
+<p>Los pasos 10 y 11 no son documentos: <code>oracle contexto</code> junta lo que tu proyecto declara hoy (relaciones, campos, operadores, escalares y medidas) y <code>--compacto</code> lo entrega en ~1.600 tokens; <code>oracle manual</code> arma la referencia leyendo las declaraciones del propio lenguaje —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los verbos del comando y las 54 medidas universales con qué NO ve cada una—, así que no hay dónde quede vieja. Dos medidas vigilan lo único que sí podría envejecer: que una opción quede sin explicar, y que un vocabulario nuevo quede fuera del registro.</p>
+<blockquote><p>El sitio con la portada está en <a href="https://segtem.github.io/oracle/" rel="noopener">segtem.github.io/oracle</a>.</p></blockquote>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/README.md" rel="noopener">docs/README.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

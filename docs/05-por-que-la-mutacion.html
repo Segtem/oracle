@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Por qué la mutación — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html" aria-current=page>Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="por-qué-la-mutación">Por qué la mutación<a class="ancla" href="#por-qué-la-mutación" aria-label="Enlace a esta sección">#</a></h1>
+<p>Una medida que nada puede romper es decoración. La mutación es cómo se comprueba eso, en vez de suponerlo.</p>
+<p>Todo lo que sigue está copiado de corridas reales. El proyecto de juguete es el de <a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a>.</p>
+<hr>
+<h2 id="el-problema-que-resuelve">El problema que resuelve<a class="ancla" href="#el-problema-que-resuelve" aria-label="Enlace a esta sección">#</a></h2>
+<p>Escribís una regla. Pasa. ¿Y ahora?</p>
+<p>Un test que pasa demuestra que el código hace <strong>algo</strong> compatible con lo que el test mira. No demuestra que el test mire lo que importa. Con una regla es peor todavía: una medida sin filtro marca todas las filas y <strong>igual se pone roja</strong> sobre un defecto — parece que funciona.</p>
+<p>La pregunta que hay que poder contestar no es «¿pasa?», sino <strong>«¿qué tendría que romperse para que esto falle?»</strong>. La mutación la contesta rompiendo la medida a propósito y exigiendo que tu corpus lo note.</p>
+<h2 id="los-mutadores-tienen-autor-decision-011">Los mutadores tienen autor (<code>DECISION-011</code>)<a class="ancla" href="#los-mutadores-tienen-autor-decision-011" aria-label="Enlace a esta sección">#</a></h2>
+<p>Hasta esta versión, <code>tools/mutar.py</code> decía <strong>715/715 mutantes muertos</strong>. Ese 100% medía cobertura sobre cinco mutadores propios (<code>aflojar_umbral</code>, <code>invertir_comparador</code>, <code>quitar_filtro</code>, <code>quitar_requiere</code>, <code>negar_filtro</code>), más los estructurales, todos escritos por la misma persona que escribió las medidas y el corpus.</p>
+<p>El problema no se ve desde adentro: <strong>un mutador que nadie escribió no puede producir un sobreviviente.</strong> El 100% era un indicador sobre un conjunto cerrado y complaciente.</p>
+<p>La corrección fue metodológica: <strong>otro autor, en aislamiento verificable.</strong></p>
+<ul><li>En un directorio con dos archivos (<code>ESPECIFICACION.md</code> y <code>CONTRATO.md</code>), con el párrafo que enumeraba los sitios de mutación existentes tachado para no inducir las mismas respuestas.</li><li>El segundo autor no vio <code>nucleo/mutacion.py</code>, ni el catálogo, ni un solo caso del corpus, ni los tests. Se auditó su registro de comandos (<code>mutadores/PROCEDENCIA.md</code>): tres comandos dentro de ese directorio y ninguna lectura hacia afuera.</li><li>Escribió <strong>24 mutadores</strong> (<code>mutadores/segundo_autor.py</code>).</li></ul>
+<p>Sobre el catálogo real de 54 medidas universales:</p>
+<ul><li>Generaron <strong>179 mutantes aplicables</strong>.</li><li>El corpus mató <strong>142 en la primera corrida (79%)</strong>.</li><li>De los 37 sobrevivientes, 6 los rechazó el álgebra y quedaron <strong>31 reales</strong>.</li><li><strong>Tres eran huecos de verdad</strong> en medidas escritas ese mismo día: <code>alejar_limite_de_defecto</code> y <code>hacer_estricta_comparacion_interna</code> sobrevivieron sobre <code>meta.toda_opcion_del_vocabulario_declara_su_sentido</code> y <code>meta.ninguna_sombra_envejece_sin_revisarse</code>. Los casos tenían anomalías grandes (4 palabras contra 22; 244 días contra 90) y ningún testigo en el borde exacto. Se cerraron con dos casos en el límite: uno de 5 palabras y uno de 91 días.</li><li><strong>Veintiocho eran un mutante equivalente</strong>: <code>convertir_conteo_en_existencia</code> cambia <code>contar</code> por <code>max(1)</code>. Con <code>umbral &lt;= 0</code> —el umbral de las 54 medidas del catálogo— «contar al menos una» y «existe alguna» son la misma afirmación. Queda excluido del arnés con su razón declarada en código.</li><li><strong>Diecisiete no aplicaron a ninguna medida</strong>, porque el catálogo universal usa monótonamente <code>umbral &lt;= 0</code>.</li></ul>
+<p>Hoy el motor tiene <strong>28 mutadores activos</strong> (5 propios + 23 del segundo autor).</p>
+<h2 id="la-mutación-en-tu-medida">La mutación en tu medida<a class="ancla" href="#la-mutación-en-tu-medida" aria-label="Enlace a esta sección">#</a></h2>
+<p>En el proyecto de juguete, tu medida tiene una estructura simple: una sola fuente, un filtro booleano, conteo y umbral <code>&lt;= 0</code>. De los 28 mutadores del motor, <strong>siete</strong> aplican a esa sintaxis (los otros mutan uniones, agrupamientos, cotas o agregados que esa medida no usa):</p>
+<pre><code>$ oracle test
+mutantes de medida (medida × mutador): 7 · murieron 7 · sobrevivieron 0
+  de los muertos: 7 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 14</code></pre>
+<p>Oracle rompió tu medida de siete maneras —le sacó el filtro, le aflojó el umbral, le dio vuelta un comparador— y evaluó cada versión rota contra cada caso: 14 comprobaciones. Los siete murieron: <strong>algún caso tuyo notó cada rotura</strong>.</p>
+<p>«Murieron por conducta» significa que el mutante cambió algo observable: el veredicto, los testigos o el valor. No alcanza con que reviente — un mutante que hace explotar el álgebra no demuestra que tu corpus lo hubiera atrapado.</p>
+<h2 id="un-sobreviviente-provocado-a-propósito">Un sobreviviente, provocado a propósito<a class="ancla" href="#un-sobreviviente-provocado-a-propósito" aria-label="Enlace a esta sección">#</a></h2>
+<p>Borrá el caso verde y dejá sólo el rojo:</p>
+<pre><code>$ oracle test
+mutantes de medida (medida × mutador): 7 · murieron 6 · sobrevivieron 1
+  de los muertos: 6 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+detecciones evaluadas (mutante × caso): 7
+
+juzgado por las medidas del catálogo:
+  ✓ meta.toda_medida_esta_ejercitada                    0 (&lt;= 0)
+  ✗ meta.toda_medida_esta_fijada                        1 (&lt;= 0)
+      → m=documento.nombre_sigue_la_convencion
+  ✗ proceso.test_con_mutante_que_lo_mata                1 (&lt;= 0)
+      → m=documento.nombre_sigue_la_convencion·quitar_filtro
+
+lo que el corpus NO fija — ningún caso detecta estas mutaciones:
+  · mutar «quitar_filtro» en documento.nombre_sigue_la_convencion pasa inadvertido
+
+Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual
+demostrable; nunca debilitando el mutador. La polaridad y el borde también importan:
+`quitar_filtro` suele pedir un verde; `aflojar_umbral`, un rojo junto al límite.</code></pre>
+<p><strong>Por qué sobrevive.</strong> <code>quitar_filtro</code> borra el <code>donde</code>, así que la medida cuenta <strong>todos</strong> los documentos en vez de los que violan la convención. Con un solo caso —donde el defecto existe— la medida se pone roja de las dos formas: con filtro por la fila mala, sin filtro por todas. El caso no distingue.</p>
+<p>El caso verde es el que la distingue: con todos los nombres en convención, la medida <strong>con</strong> filtro da cero y la rota da dos. Por eso hacen falta las dos polaridades, y no por simetría.</p>
+<p>Fijate que la herramienta te dice cuál es el mutador y qué polaridad suele pedir. No dice sólo que falta algo: dice qué.</p>
+<h2 id="lo-que-no-hay-que-hacer">Lo que NO hay que hacer<a class="ancla" href="#lo-que-no-hay-que-hacer" aria-label="Enlace a esta sección">#</a></h2>
+<blockquote><p><em>Se tapa agregando un caso que SÍ lo note o declarando una equivalencia individual demostrable; <strong>nunca debilitando el mutador</strong>.</em></p></blockquote>
+<p>Debilitar el mutador —sacarlo de la lista, ponerle una excepción— hace que el número suba y que la medición valga menos. Es Goodhart otra vez, un nivel más arriba: el «100% de mutantes muertos» pasa a ser el objetivo en vez del indicador.</p>
+<p>La consecuencia real ya ocurrió: al pasar de 5 a 28 mutadores (<code>DECISION-011</code>), la biblioteca de ejemplo dejó de certificar porque publicaba 12 mutantes y el arnés nuevo medía 16. Agregar mutadores <strong>invalida la certificación</strong> de bibliotecas existentes, y es correcto: una biblioteca certificada contra 5 mutadores no está certificada contra 28. No se aflojó el chequeo; se re-midió y se re-certificó.</p>
+<h2 id="aflojar-el-umbral-no-siempre-se-puede">Aflojar el umbral no siempre se puede<a class="ancla" href="#aflojar-el-umbral-no-siempre-se-puede" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un ataque obvio a una medida molesta es correrle el umbral. Probalo:</p>
+<pre><code>umbral &lt;= 1 segun contrato porque &quot;…&quot;</code></pre>
+<pre><code>$ oracle test
+CATÁLOGO INVÁLIDO — …/documento.nombre_sigue_la_convencion.oracle: línea 4, columna 5:
+la macro ninguno no coincide con su plantilla declarada: se esperaba 0; llegó 1</code></pre>
+<p><strong><code>ninguno</code> significa cero.</strong> No es un nombre bonito para <code>&lt;= 0</code>: es una macro con una plantilla, y el lenguaje se niega a llamar «ninguno» a algo que tolera uno. Para aflojar hay que salir de la macro y escribir la forma canónica — que es visible en cualquier revisión, y es el punto.</p>
+<h2 id="la-pregunta-ante-un-sobreviviente">La pregunta ante un sobreviviente<a class="ancla" href="#la-pregunta-ante-un-sobreviviente" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>«¿Por qué este cálculo no se observa?»</strong></p>
+<p>A veces la respuesta es que falta un test. A veces —más seguido de lo que uno espera— es que el cálculo no debería existir. Tres ejemplos de este repositorio, todos verificables en el historial:</p>
+<p><strong>Código que sobraba</strong> (<code>8f16903</code>). Una rama <code>if macros is not None else …</code> sobrevivió a su mutante en <code>tools/medida.py</code>. Los cuatro llamadores pasaban <code>macros</code> siempre: la rama no la usaba nadie. Se borró, en vez de escribirle un test que la mantuviera viva.</p>
+<p><strong>Una equivalencia que no lo era</strong> (<code>0f340f1</code>). El mutante de <code>sys.path.insert(0, RAIZ)</code> → <code>insert(1, …)</code> parecía inobservable, y estuvo a punto de declararse equivalente. Buscar la razón escrita —que el arnés exige— hizo aparecer el contraejemplo: <strong>todo proyecto que consume Oracle tiene su propia carpeta <code>catalogos/</code></strong>, así que corriendo la herramienta desde adentro de uno, con <code>insert(1)</code> se importaría el catálogo del consumidor en vez del propio. Hay un test que lo reproduce.</p>
+<p><strong>Un defecto real, no un test faltante</strong> (<code>7591e88</code>). Un mutante <code>In → NotIn</code> sobrevivió en la línea que marca <code>[EN SOMBRA]</code>. Al escribir el test para matarlo, el test falló contra el código: la marca salía al final del bloque de testigos, a cinco renglones del id que ensombrece. Estaba mal puesta, y lo mismo que no ponerla.</p>
+<h2 id="los-dos-niveles">Los dos niveles<a class="ancla" href="#los-dos-niveles" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th></th><th>qué muta</th><th>quién lo corre</th></tr></thead><tbody><tr><td><strong>medidas</strong></td><td>el catálogo: quita filtros, afloja umbrales, invierte comparadores</td><td><code>oracle test</code>, en tu proyecto</td></tr><tr><td><strong>código</strong></td><td>el Python de Oracle</td><td>sólo dentro de Oracle (<code>tools/mutar_codigo.py</code>)</td></tr></tbody></table></div>
+<p>En tu proyecto ves el primero. El segundo es cómo Oracle se mide a sí mismo, y su regla es la misma: un mutante de código que sobrevive es código que nada observa.</p>
+<p>El costo está medido: confirmar un sobreviviente cuesta una corrida completa de la suite (~50 s), porque el arnés corre los módulos prioritarios primero y el resto si sobrevive. Mutar <code>nucleo/mutacion.py</code> pide <code>--timeout 180</code>: la línea base tarda 50,5 s contra el plazo por omisión de 60 s.</p>
+<hr>
+<h2 id="qué-sigue">Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a> — si todavía no armaste el proyecto de juguete.</li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar Oracle a un proyecto propio</a> — de dónde sale la evidencia observada.</li><li><a href="decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.html">DECISION-011</a> — el protocolo del segundo autor y los 24 mutadores en aislamiento.</li><li><code>mutadores/</code> — el contrato, la procedencia y el código del segundo autor.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la lista completa de mutadores del lenguaje.</li></ul>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/05-por-que-la-mutacion.md" rel="noopener">docs/05-por-que-la-mutacion.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-problema-que-resuelve">El problema que resuelve</a></li><li class="n2"><a href="#los-mutadores-tienen-autor-decision-011">Los mutadores tienen autor (DECISION-011)</a></li><li class="n2"><a href="#la-mutación-en-tu-medida">La mutación en tu medida</a></li><li class="n2"><a href="#un-sobreviviente-provocado-a-propósito">Un sobreviviente, provocado a propósito</a></li><li class="n2"><a href="#lo-que-no-hay-que-hacer">Lo que NO hay que hacer</a></li><li class="n2"><a href="#aflojar-el-umbral-no-siempre-se-puede">Aflojar el umbral no siempre se puede</a></li><li class="n2"><a href="#la-pregunta-ante-un-sobreviviente">La pregunta ante un sobreviviente</a></li><li class="n2"><a href="#los-dos-niveles">Los dos niveles</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

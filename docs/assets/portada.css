@@ -1,0 +1,134 @@
+/* La portada y las páginas de relato. Usa los tokens de sitio.css. */
+
+.envoltura { max-width: 1180px; margin: 0 auto; padding-inline: var(--gutter); }
+.version { font-size: 10px; color: var(--gris); font-weight: 400; margin-left: 2px; }
+.ceja { color: var(--acento); margin: 0 0 12px; }
+.lectura { max-width: var(--ancho-prosa); font-family: var(--serif); font-size: 18px; line-height: 1.7; }
+.lectura p { margin: 0 0 16px; }
+
+/* ---------------------------------------------------------------- hero */
+.hero { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 72px);
+        align-items: center; padding-block: clamp(40px, 8vw, 96px) clamp(40px, 6vw, 72px); }
+.hero h1 { font-size: clamp(40px, 6.2vw, 72px); font-weight: 800; letter-spacing: -0.035em; line-height: 1.02; margin: 0 0 22px; }
+.bajada { font-family: var(--serif); font-size: clamp(18px, 2vw, 21px); line-height: 1.6; color: var(--tinta-2);
+          margin: 0 0 28px; max-width: 34em; }
+.acciones { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 22px; }
+.boton { display: inline-flex; align-items: center; padding: 13px 22px; border-radius: 6px; font-weight: 700;
+         background: var(--acento); color: var(--sobre-acento); text-decoration: none; }
+.boton:hover { filter: brightness(1.08); }
+.boton.secundario { background: transparent; color: var(--tinta); box-shadow: inset 0 0 0 1.5px var(--linea); }
+.boton.secundario:hover { box-shadow: inset 0 0 0 1.5px var(--tinta); }
+.instalar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; margin: 0; font-size: 14px; color: var(--gris); }
+.instalar code { background: var(--papel-2); color: var(--tinta); padding: 6px 10px; border-radius: 4px; font-size: 14px; }
+
+/* ---------------------------------------------------------------- escenas pixel */
+.escena { margin: 0; }
+.escena canvas { display: block; width: 100%; aspect-ratio: 192 / 108; image-rendering: pixelated;
+                 border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); }
+.escena figcaption { font-size: 14px; color: var(--gris); margin-top: 10px; line-height: 1.5; }
+
+/* ---------------------------------------------------------------- capítulos */
+.capitulo { padding-block: clamp(48px, 8vw, 96px); border-top: 1px solid var(--linea); }
+.capitulo-cabeza { max-width: 44rem; margin-bottom: 28px; }
+.capitulo h2, .empezar h2 { font-size: clamp(28px, 3.6vw, 40px); font-weight: 800; letter-spacing: -0.025em; margin: 0; }
+.dos-columnas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px 48px; max-width: none; }
+.nota { color: var(--tinta-2); margin-top: 28px; }
+
+.dos-escenas { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(28px, 5vw, 64px); align-items: center; }
+.dos-escenas h2 { margin-bottom: 18px; }
+.dos-escenas.invertido > :first-child { order: 2; }
+
+/* ---------------------------------------------------------------- diagrama */
+.flujo { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; counter-reset: paso; }
+.flujo li { position: relative; display: grid; gap: 4px; align-content: start; padding: 18px 16px 18px;
+            border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); }
+.flujo li strong { font-size: 17px; }
+.flujo li span:last-child { font-size: 14px; color: var(--gris); line-height: 1.4; }
+.flujo li:not(:last-child)::after { content: ""; position: absolute; right: -12px; top: 50%; width: 10px; height: 10px;
+            border-top: 2px solid var(--acento); border-right: 2px solid var(--acento); transform: translateY(-50%) rotate(45deg);
+            animation: fluir 2.4s ease-in-out infinite; }
+.flujo li.final { border-color: var(--acento); background: var(--acento-suave); }
+.paso { color: var(--acento); font-size: 11px; }
+@keyframes fluir { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+
+/* ---------------------------------------------------------------- medida anotada */
+.par { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); align-items: start; }
+.etiqueta-archivo { font-family: var(--mono); font-size: 13px; color: var(--gris); margin: 0 0 8px; }
+.codigo { background: var(--codigo-fondo); color: var(--codigo-tinta); padding: 20px 22px; border-radius: 8px; margin: 0;
+          overflow-x: auto; font-size: 14px; line-height: 1.65; }
+.pie-codigo { font-size: 14px; color: var(--gris); margin: 10px 0 0; }
+.anatomia dl { margin: 0; display: grid; gap: 14px; }
+.anatomia dl > div { display: grid; grid-template-columns: 7.5em minmax(0, 1fr); gap: 12px; align-items: baseline;
+                     padding-bottom: 14px; border-bottom: 1px solid var(--linea); }
+.anatomia dt { font-family: var(--mono); font-size: 14px; font-weight: 600; color: var(--acento); }
+.anatomia dd { margin: 0; font-size: 16px; line-height: 1.5; }
+.terminal { margin-top: 28px; border-radius: 8px; overflow: hidden; border: 1px solid var(--linea); }
+.terminal-barra { margin: 0; padding: 8px 14px; background: var(--papel-2); color: var(--gris); font-size: 11px; }
+.terminal pre { margin: 0; padding: 18px 22px; background: var(--codigo-fondo); color: var(--codigo-tinta); overflow-x: auto; font-size: 14px; line-height: 1.6; }
+.t-rojo { color: #FF8A7E; }
+
+/* ---------------------------------------------------------------- cifras */
+.cifras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; padding-block: 44px; border-top: 1px solid var(--linea); }
+.cifras div { padding: 8px 0; }
+.cifra { font-size: clamp(40px, 5vw, 60px); font-weight: 800; letter-spacing: -0.03em; margin: 0; line-height: 1; font-variant-numeric: tabular-nums; }
+.cifras p:last-child { color: var(--gris); margin: 8px 0 0; font-size: 15px; }
+
+/* ---------------------------------------------------------------- recorridos */
+.recorridos { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.recorrido { display: grid; gap: 6px; align-content: start; padding: 20px; border: 1px solid var(--linea); border-radius: 8px;
+             color: var(--tinta); text-decoration: none; background: var(--papel); transition: border-color 0.15s, transform 0.15s; }
+.recorrido:hover { border-color: var(--acento); transform: translateY(-2px); }
+.recorrido .pixel { color: var(--acento); font-size: 11px; }
+.recorrido strong { font-size: 19px; }
+.recorrido span:last-child { color: var(--tinta-2); font-size: 15px; line-height: 1.5; }
+
+/* ---------------------------------------------------------------- empezar y pie */
+.empezar { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr); gap: 16px 48px; align-items: center;
+           padding-block: clamp(48px, 8vw, 96px); border-top: 1px solid var(--linea); }
+.empezar .lectura { grid-column: 2; margin: 0; }
+.pie { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; padding-block: 32px 48px;
+       border-top: 1px solid var(--linea); color: var(--gris); font-size: 14px; }
+.pie img { image-rendering: pixelated; }
+.pie a { color: var(--tinta-2); }
+
+/* ---------------------------------------------------------------- estrecho */
+@media (max-width: 900px) {
+  .hero, .dos-escenas, .par, .empezar { grid-template-columns: minmax(0, 1fr); }
+  .dos-escenas.invertido > :first-child { order: 0; }
+  .empezar .lectura { grid-column: auto; }
+  .flujo { grid-template-columns: minmax(0, 1fr); }
+  .flujo li:not(:last-child)::after { right: auto; left: 22px; top: auto; bottom: -12px; transform: rotate(135deg); }
+  .recorridos { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .cifras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .dos-columnas { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px) {
+  .recorridos { grid-template-columns: minmax(0, 1fr); }
+  .anatomia dl > div { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+}
+
+/* ---------------------------------------------------------------- por qué */
+.hero-corto { padding-block: clamp(40px, 8vw, 88px) clamp(24px, 4vw, 40px); max-width: 1180px; }
+.hero-corto h1 { font-size: clamp(36px, 5.4vw, 60px); font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; margin: 0 0 20px; max-width: 18ch; }
+.relato ul, .cuando-no { padding-left: 22px; margin: 0 0 16px; }
+.relato li, .cuando-no li { margin: 0 0 10px; }
+.tabla-comparar { overflow-x: auto; border: 1px solid var(--linea); border-radius: 8px; }
+.tabla-comparar table { border-collapse: collapse; width: 100%; min-width: 620px; font-size: 16px; line-height: 1.45; }
+.tabla-comparar th, .tabla-comparar td { text-align: left; vertical-align: top; padding: 14px 18px; border-bottom: 1px solid var(--linea); }
+.tabla-comparar thead th { background: var(--papel-2); font-size: 15px; }
+.tabla-comparar thead th:last-child { color: var(--acento); }
+.tabla-comparar tbody th { font-weight: 600; color: var(--gris); width: 22%; }
+.tabla-comparar td:last-child { background: color-mix(in srgb, var(--acento-suave) 45%, transparent); }
+.tabla-comparar tr:last-child > * { border-bottom: 0; }
+.niveles { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; max-width: 860px; }
+.niveles li { display: grid; grid-template-columns: 4.5em minmax(0, 14em) minmax(0, 1fr); gap: 16px; align-items: baseline;
+              padding: 14px 18px; border: 1px solid var(--linea); border-radius: 8px; background: var(--papel); }
+.niveles li:nth-child(1) { margin-left: 0; border-color: var(--acento); background: var(--acento-suave); }
+.niveles li:nth-child(2) { margin-left: 18px; } .niveles li:nth-child(3) { margin-left: 36px; }
+.niveles li:nth-child(4) { margin-left: 54px; } .niveles li:nth-child(5) { margin-left: 72px; }
+.nivel { color: var(--acento); font-size: 13px; }
+.niveles li span:last-child { color: var(--tinta-2); font-size: 15px; line-height: 1.45; }
+@media (max-width: 700px) {
+  .niveles li { grid-template-columns: 3.5em minmax(0, 1fr); margin-left: 0 !important; }
+  .niveles li span:last-child { grid-column: 2; }
+}

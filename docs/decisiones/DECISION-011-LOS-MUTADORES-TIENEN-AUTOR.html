@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 011 — los mutadores tienen autor, y hasta hoy era uno solo — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-011--los-mutadores-tienen-autor-y-hasta-hoy-era-uno-solo">Decisión 011 — los mutadores tienen autor, y hasta hoy era uno solo<a class="ancla" href="#decisión-011--los-mutadores-tienen-autor-y-hasta-hoy-era-uno-solo" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-09-02 · <strong>Estado:</strong> vigente</p>
+<h2 id="el-hecho">El hecho<a class="ancla" href="#el-hecho" aria-label="Enlace a esta sección">#</a></h2>
+<p><code>tools/mutar.py</code> decía <strong>715/715 mutantes muertos</strong>. Ese número medía cobertura sobre <strong>cinco mutadores escritos por la misma persona que escribió las medidas y el corpus</strong>, más los estructurales, también suyos.</p>
+<p>El problema no se ve desde adentro y no lo arregla escribir más casos: <strong>un mutador que nadie escribió no puede producir un sobreviviente.</strong> El 100% acotaba menos de lo que parecía, y el <code>README</code> lo declaraba como límite conocido sin hacer nada al respecto.</p>
+<h2 id="lo-que-se-hizo">Lo que se hizo<a class="ancla" href="#lo-que-se-hizo" aria-label="Enlace a esta sección">#</a></h2>
+<p>El mismo protocolo que ya había funcionado una vez, para el evaluador de referencia del diferencial (<code>vault-kb/planes/PLAN-LENGUAJE.md</code>, e.2): <strong>otro autor, en aislamiento verificable.</strong></p>
+<ul><li>Un directorio con <strong>exactamente dos archivos</strong>: <code>ESPECIFICACION.md</code> y un <code>CONTRATO.md</code> que define qué es un mutador y nada más.</li><li>A esa copia de la especificación se le quitó <strong>un párrafo</strong>, el que enumera qué sitios muta la implementación existente. Leerlo lo habría llevado a proponer lo mismo. La redacción está declarada, y el lugar del párrafo lleva una nota diciendo qué se sacó y por qué.</li><li><strong>No vio</strong> <code>nucleo/mutacion.py</code>, ni el catálogo, ni un solo caso del corpus, ni los tests.</li></ul>
+<p><strong>No se le creyó la declaración: se auditó el registro.</strong> Corrió tres comandos, los tres con ese directorio como raíz, y no aparece ninguna ruta hacia afuera. Su declaración coincide con lo que hizo. Está en <code>mutadores/PROCEDENCIA.md</code>, junto al contrato que leyó.</p>
+<h2 id="el-resultado-y-por-qué-el-del-medio-era-el-bueno">El resultado, y por qué el del medio era el bueno<a class="ancla" href="#el-resultado-y-por-qué-el-del-medio-era-el-bueno" aria-label="Enlace a esta sección">#</a></h2>
+<p>Se había escrito de antemano qué significaría cada resultado, para no interpretarlo después:</p>
+<div class="tabla"><table><thead><tr><th>si pasaba</th><th>qué habría querido decir</th></tr></thead><tbody><tr><td>el corpus los mata a todos</td><td>miró algo, o propuso variantes de los cinco que ya estaban</td></tr><tr><td>ninguno aplica a ninguna medida</td><td>el contrato estaba mal escrito y midió comprensión del formato</td></tr><tr><td>algunos sobreviven</td><td>lo útil</td></tr></tbody></table></div>
+<p>Escribió <strong>24 mutadores</strong>. Sobre el catálogo real: <strong>179 mutantes aplicables, 142 muertos (79%)</strong>, 37 sobrevivientes. De esos, 6 los rechazó el álgebra —no prueban nada sobre el corpus— y quedaron <strong>31 reales</strong>.</p>
+<h3 id="tres-eran-huecos-de-verdad-y-en-medidas-escritas-ese-mismo-día">Tres eran huecos de verdad, y en medidas escritas ese mismo día<a class="ancla" href="#tres-eran-huecos-de-verdad-y-en-medidas-escritas-ese-mismo-día" aria-label="Enlace a esta sección">#</a></h3>
+<p><code>alejar_limite_de_defecto</code> (mueve el límite interno de un predicado) y <code>hacer_estricta_comparacion_interna</code> (<code>&lt;=</code> → <code>&lt;</code>) sobrevivían sobre <code>meta.toda_opcion_del_vocabulario_declara_su_sentido</code> y <code>meta.ninguna_sombra_envejece_sin_revisarse</code>. Sus docstrings lo habían <strong>predicho</strong> sin ver nada: «omite casos cercanos al límite si el corpus sólo contiene anomalías grandes».</p>
+<p>Era cierto: los casos tenían 4 palabras contra 22, y 244 días contra 90 — anomalías grandes y ningún testigo <strong>en</strong> el límite. Se cerraron con dos casos al borde exacto: uno de 5 palabras y uno de 91 días.</p>
+<h3 id="veintiocho-eran-un-mutante-equivalente-y-se-declara-como-tal">Veintiocho eran un mutante equivalente, y se declara como tal<a class="ancla" href="#veintiocho-eran-un-mutante-equivalente-y-se-declara-como-tal" aria-label="Enlace a esta sección">#</a></h3>
+<p><code>convertir_conteo_en_existencia</code> cambia <code>contar</code> por <code>max(1)</code>: pierde la multiplicidad. Con <code>umbral &lt;= 0</code> —que es el umbral de <strong>las 54 medidas</strong> del catálogo— «contar al menos una» y «existe alguna» son la misma afirmación, así que no debilita nada y no hay evidencia que pueda distinguirlo.</p>
+<p>Queda <strong>excluido</strong> del arnés, con la razón escrita en el código y no en un comentario suelto. Sobre un catálogo con otro umbral sí debilitaría, y ahí habría que volver a incluirlo.</p>
+<h3 id="diecisiete-no-aplicaron-a-ninguna-medida-y-eso-también-es-un-dato">Diecisiete no aplicaron a ninguna medida, y eso también es un dato<a class="ancla" href="#diecisiete-no-aplicaron-a-ninguna-medida-y-eso-también-es-un-dato" aria-label="Enlace a esta sección">#</a></h3>
+<p>Cotas inferiores, agregados <code>max</code>/<code>min</code>/<code>promedio</code>, agrupamientos, productos. <strong>Las 54 medidas del catálogo tienen la misma forma: <code>umbral &lt;= 0</code>.</strong> El arnés de mutación tiene menos poder sobre este catálogo del que el número sugiere, y no por un defecto del arnés: porque el catálogo es monótonamente de una sola forma. Eso no se sabía antes de que alguien de afuera propusiera mutar lo que acá nadie usa.</p>
+<h2 id="la-consecuencia-que-rompió-algo-y-estuvo-bien-que-lo-rompiera">La consecuencia que rompió algo, y estuvo bien que lo rompiera<a class="ancla" href="#la-consecuencia-que-rompió-algo-y-estuvo-bien-que-lo-rompiera" aria-label="Enlace a esta sección">#</a></h2>
+<p>Una biblioteca de políticas publica su número de mutantes y la certificación exige que coincida. Al pasar de 5 mutadores a 28, la biblioteca de ejemplo dejó de certificar: publicaba 12 y el arnés medía 16.</p>
+<p><strong>Agregar mutadores invalida la certificación de toda biblioteca publicada</strong>, y es correcto: una biblioteca certificada contra 5 mutadores no está certificada contra 28. Se volvió a medir y se republicó el número. Lo que no se hizo —y era la tentación— fue aflojar el chequeo.</p>
+<h2 id="lo-que-no-se-hizo">Lo que NO se hizo<a class="ancla" href="#lo-que-no-se-hizo" aria-label="Enlace a esta sección">#</a></h2>
+<p>No se descartó ningún mutador «que no valiera». La única exclusión es la equivalencia demostrada de arriba. Descartar mutadores hasta volver al 100% habría sido exactamente el sastreo que este proyecto persigue en otros lados: elegir el denominador después de ver el resultado.</p>
+<h2 id="el-costo-medido">El costo, medido<a class="ancla" href="#el-costo-medido" aria-label="Enlace a esta sección">#</a></h2>
+<p>Confirmar un sobreviviente cuesta una corrida COMPLETA de la suite: el arnés discrimina primero con los módulos prioritarios y, si el mutante sobrevive a ésos, corre el resto para estar seguro. Con 1.033 tests eso son ~50 s por mutante sobreviviente, contra ~0,1 s por mutante que muere temprano.</p>
+<p>Agregar 23 mutadores no cambió ese costo por mutante, pero sí multiplicó los mutantes: de 715 a 846 en la ronda de medidas. Y en la de código apareció un efecto de borde que conviene dejar dicho: la línea base —la suite <strong>sin mutar</strong>— tarda 50,5 s contra un plazo por omisión de 60. Entra, pero bajo carga se pasa, y un arnés que falla de a ratos es peor que uno lento: enseña a re-correr en vez de a leer. Para <code>nucleo/mutacion.py</code> se corre con <code>--timeout 180</code>.</p>
+<p>Eso NO se usó para tapar nada. Hubo dos timeouts en esta ronda y se arreglaron distinto, porque son cosas distintas:</p>
+<ul><li>uno era un mutante <strong>indistinguible por conducta</strong> —cambiaba <code>return {}</code> por <code>return None</code> en una rama cuyo llamador hace <code>or {}</code>—, así que el arnés caía a la suite entera para confirmarlo. Ahí aflojar el plazo habría tapado que faltaba un test. Se mató fijando el tipo de retorno en los tests prioritarios, que es donde tenía que morir;</li><li>el otro era la línea base, que no dice nada sobre el corpus. Ése sí es presupuesto.</li></ul>
+<h2 id="lo-que-queda-abierto">Lo que queda abierto<a class="ancla" href="#lo-que-queda-abierto" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><strong>Sigue habiendo dos autores, no muchos.</strong> Un tercero encontraría cosas que estos dos no. El protocolo ahora está escrito y cuesta poco repetirlo.</li><li><strong>El aislamiento se verifica leyendo un registro de comandos</strong>, que es más de lo que hace casi nadie y menos que una garantía. Un autor que quisiera hacer trampa podría.</li><li><strong><code>convertir_conteo_en_existencia</code> está excluido por una equivalencia que hoy es cierta.</strong> Si alguna vez entra al catálogo una medida con umbral distinto de <code>&lt;= 0</code>, esa exclusión pasa a tapar un mutante real. No hay nada que lo avise.</li></ul>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md" rel="noopener">docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho">El hecho</a></li><li class="n2"><a href="#lo-que-se-hizo">Lo que se hizo</a></li><li class="n2"><a href="#el-resultado-y-por-qué-el-del-medio-era-el-bueno">El resultado, y por qué el del medio era el bueno</a></li><li class="n3"><a href="#tres-eran-huecos-de-verdad-y-en-medidas-escritas-ese-mismo-día">Tres eran huecos de verdad, y en medidas escritas ese mismo día</a></li><li class="n3"><a href="#veintiocho-eran-un-mutante-equivalente-y-se-declara-como-tal">Veintiocho eran un mutante equivalente, y se declara como tal</a></li><li class="n3"><a href="#diecisiete-no-aplicaron-a-ninguna-medida-y-eso-también-es-un-dato">Diecisiete no aplicaron a ninguna medida, y eso también es un dato</a></li><li class="n2"><a href="#la-consecuencia-que-rompió-algo-y-estuvo-bien-que-lo-rompiera">La consecuencia que rompió algo, y estuvo bien que lo rompiera</a></li><li class="n2"><a href="#lo-que-no-se-hizo">Lo que NO se hizo</a></li><li class="n2"><a href="#el-costo-medido">El costo, medido</a></li><li class="n2"><a href="#lo-que-queda-abierto">Lo que queda abierto</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

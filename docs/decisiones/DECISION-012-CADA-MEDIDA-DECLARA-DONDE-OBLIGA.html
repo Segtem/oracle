@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 012 — cada medida declara dónde obliga, y «empaquetada» deja de significar «universal» — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-012--cada-medida-declara-dónde-obliga-y-empaquetada-deja-de-significar-universal">Decisión 012 — cada medida declara dónde obliga, y «empaquetada» deja de significar «universal»<a class="ancla" href="#decisión-012--cada-medida-declara-dónde-obliga-y-empaquetada-deja-de-significar-universal" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-09-03 · <strong>Estado:</strong> vigente</p>
+<h2 id="el-hecho-y-el-hueco">El hecho y el hueco<a class="ancla" href="#el-hecho-y-el-hueco" aria-label="Enlace a esta sección">#</a></h2>
+<p>Hasta hoy, «universal» significaba una sola cosa: residir físicamente en el directorio empaquetado de Oracle. Eso describe <strong>procedencia</strong>, no <strong>ámbito</strong>. Ambas nociones coincidieron de hecho mientras todas las políticas publicadas por Oracle en su catálogo base obligaban por igual a cualquier proyecto que las incorporase.</p>
+<p>Esa coincidencia se rompió el 2026-09-03. Una medida sobre <code>EXCLUSIONES_DE_MUTADORES</code> (<code>meta.ninguna_exclusion_de_mutador_se_aplica_globalmente</code>) puso a <strong>Jam en rojo</strong>, y era el único rojo duro que Jam tenía en todo su catálogo. Jam no tenía ningún remedio disponible en su propio repositorio: la lista de exclusiones vive en <code>nucleo/mutacion.py</code>, dentro del árbol de código de Oracle. Para apagar ese rojo, Jam no podía hacer nada por sí mismo: su única alternativa era pedir un cambio aguas arriba o acostumbrarse a convivir con una alerta encendida.</p>
+<p>El principio ya estaba formulado en <a href="DECISION-009-DE-QUIEN-ES-EL-CASO.html"><code>DECISION-009</code></a>: <strong>un rojo sobre el que el receptor no puede actuar enseña a ignorar la herramienta.</strong> Un veredicto sin remedio destruye la autoridad del sistema entero y acostumbra al usuario a desoír las alarmas legítimas.</p>
+<p>El hueco era conceptual: Oracle creía contestar tres preguntas y en realidad sólo contestaba dos. Sabía de dónde vino una medida (el catálogo base, los perfiles, las bibliotecas o el proyecto local) y sabía si había hechos suficientes para calcularla (<code>medidas_aplicables</code>). Pero <strong>nadie contestaba para qué proyecto obliga</strong>. Poder calcular un veredicto no vuelve pertinente ese veredicto. Ése es el hueco que esta decisión cierra.</p>
+<h2 id="lo-que-se-decide">Lo que se decide<a class="ancla" href="#lo-que-se-decide" aria-label="Enlace a esta sección">#</a></h2>
+<p>Cada medida declara explícitamente su ámbito mediante un vocabulario cerrado de dos valores, relativo al <strong>origen</strong> y no a Oracle:</p>
+<pre data-lenguaje="text"><code>ambito universal     obliga a todo proyecto que seleccione el catálogo y aporte la evidencia
+ambito del_origen    obliga sólo cuando el proyecto evaluado es el dueño de la medida</code></pre>
+<p>La relatividad al origen evita cualquier asimetría nominal en el lenguaje:</p>
+<ul><li>En una medida del catálogo base, <code>del_origen</code> significa que obliga únicamente a Oracle.</li><li>En una medida escrita dentro de Jam, <code>del_origen</code> significa que obliga a Jam, y la condición se satisface sola por identidad directa.</li><li>En una biblioteca de políticas publicada, <code>del_origen</code> significa que obliga a su publicador al auditarse o certificarse, y no a los consumidores que la incorporen en sus proyectos.</li></ul>
+<p>Oracle no gana un privilegio nominal en el lenguaje: no hay un valor <code>de_oracle</code> ni una excepción cableada en Python. La procedencia identifica quién emitió la medida; el ámbito declara la relación admitida entre ese emisor y el proyecto evaluado para que la política entre en vigor.</p>
+<h2 id="el-orden-de-las-preguntas">El orden de las preguntas<a class="ancla" href="#el-orden-de-las-preguntas" aria-label="Enlace a esta sección">#</a></h2>
+<p>El proceso de carga respeta ahora la jerarquía lógica de las decisiones:</p>
+<pre data-lenguaje="text"><code>selección del catálogo  →  ámbito  →  aplicabilidad por relaciones  →  evaluación
+     qué acepté             dónde obliga          si puede calcularse            qué dio</code></pre>
+<ol><li><strong>Selección del catálogo:</strong> el proyecto evaluado decide qué colecciones de políticas incorpora (<code>catalogo_base</code>, perfiles, bibliotecas o medidas locales).</li><li><strong>Ámbito:</strong> el cargador descarta aquellas medidas seleccionadas cuyo ámbito no abarca al proyecto evaluado. Una medida <code>del_origen</code> entra al catálogo efectivo sólo si origen y destino coinciden lógicamente.</li><li><strong>Aplicabilidad por relaciones:</strong> sobre las medidas que sobrevivieron al filtro de ámbito, <code>medidas_aplicables</code> determina si el proyecto aportó las relaciones requeridas para su cálculo.</li><li><strong>Evaluación:</strong> el motor relacional evalúa la expresión, compara contra el umbral y emite el veredicto.</li></ol>
+<p>La identidad de origen entre emisor y evaluado es <strong>lógica</strong> —el identificador de proyecto, de biblioteca, de perfil o del catálogo base— y no una igualdad accidental de rutas en el disco. Como se comprobó en <a href="DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.html"><code>DECISION-010</code></a>, el repositorio y el paquete instalado tienen layouts distintos; atar la jurisdicción a la forma de las rutas quebraría la identidad en wheels y entornos vendorizados. La ruta sirve para diagnosticar colisiones de archivos, no para definir jurisdicción.</p>
+<h2 id="por-qué-no-es-un-nivel-nuevo">Por qué NO es un nivel nuevo<a class="ancla" href="#por-qué-no-es-un-nivel-nuevo" aria-label="Enlace a esta sección">#</a></h2>
+<p>La tentación inmediata era interpretar esta distinción como la apertura de un nivel nuevo en la torre de representación. No lo es.</p>
+<p>Verificado el 2026-09-03: el catálogo tiene 55 medidas, la relación <code>medida</code> reifica exactamente 55 filas, y la meta-medida <code>meta.ninguna_medida_sin_alcance</code> está entre las filas que juzga, <strong>ella incluida</strong>. L2 es un punto fijo. Como ya resolvió <a href="DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.html"><code>DECISION-005</code></a> al descartar L3: «colapsa, no falta». Una afirmación sobre el ámbito de una medida se formula con la misma álgebra sobre la misma relación <code>medida</code> que ya existe.</p>
+<p>Un nivel nuevo aparece únicamente cuando surge una representación nueva en el mundo (evidencia en L0, declaración del sensor en L−1, identidad del referente en L−2). El ámbito no trae ninguna representación nueva: entra como un <strong>campo</strong> de la representación de medidas que ya teníamos, junto a <code>alcance</code>, <code>segun</code> y <code>umbral_op</code>.</p>
+<p>Nivel y ámbito son dos ejes ortogonales, sin función de uno al otro:</p>
+<ul><li>El nivel responde <strong>sobre qué representación habla el enunciado</strong> (evidencia empírica, metadatos de sensores o forma de las medidas).</li><li>El ámbito responde <strong>a qué proyecto alcanza la obligación</strong>.</li></ul>
+<p>Las dos especies conviven en L2. Una regla que exige que toda medida declare su alcance habla de L1 y es universal: cualquier proyecto que escriba medidas debe hacerlo con rigor. Una regla que juzga las exclusiones de mutadores del arnés de Oracle también es reflexiva sobre el marco, pero es <code>del_origen</code>. A la inversa, una medida L1 de un dominio específico puede ser estrictamente local. Pretender que L2 equivalga a «interno» apagaría las guardas de calidad que deben viajar; pretender que L2 equivalga a «universal» reproduciría el rojo de Jam.</p>
+<h2 id="por-qué-no-es-visibilidad-ni-ocultamiento">Por qué NO es visibilidad ni ocultamiento<a class="ancla" href="#por-qué-no-es-visibilidad-ni-ocultamiento" aria-label="Enlace a esta sección">#</a></h2>
+<p>El vocabulario tradicional de los lenguajes de programación (<code>public</code>, <code>private</code>, <code>protected</code>) resulta engañoso aquí.</p>
+<p>En un lenguaje de programación, la visibilidad gobierna <strong>quién puede nombrar o llamar a una pieza</strong>. En Oracle, la composición de medidas fue expresamente rechazada en <a href="DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.html"><code>DECISION-002</code></a>: ninguna medida puede llamar a otra, consumir sus testigos o heredar su veredicto. No hay llamadas que prohibir, ni jerarquía de clases que justifique un modificador <code>protected</code>.</p>
+<p>La analogía correcta es la <strong>jurisdicción de una regla</strong>: todos pueden leerla, pero sólo dicta veredicto donde existe responsabilidad para responderla.</p>
+<p>Y <code>del_origen</code> <strong>no es ocultamiento</strong>:</p>
+<ul><li>Una medida <code>del_origen</code> sigue publicada e indexada en el manual.</li><li>Sigue reificada como fila en la relación <code>medida</code> cuando Oracle se evalúa a sí mismo.</li><li>Sigue sujeta a la ronda de mutación de catálogo.</li><li>Sigue teniendo casos que fijan su comportamiento en el corpus.</li></ul>
+<p>Lo único que no hace es dictar veredicto sobre un proyecto tercero.</p>
+<h2 id="el-resultado-medido">El resultado medido<a class="ancla" href="#el-resultado-medido" aria-label="Enlace a esta sección">#</a></h2>
+<p>La clasificación de las 55 medidas del catálogo base arrojó una partición precisa:</p>
+<ul><li><strong>37 universales</strong> (67.3 %)</li><li><strong>18 del origen</strong> (32.7 %)</li></ul>
+<p>Al aplicar este filtro sobre Jam, el resultado fue exacto: de las 25 medidas que concluían antes sobre su repositorio, ahora concluyen <strong>exactamente 20</strong>. El ámbito le retiró a Jam <strong>exactamente cinco medidas</strong>, y ninguna otra:</p>
+<ol><li><code>meta.el_diagnostico_no_publica_el_dominio</code></li><li><code>meta.ninguna_exclusion_de_mutador_se_aplica_globalmente</code></li><li><code>meta.toda_opcion_del_vocabulario_declara_su_sentido</code></li><li><code>meta.todo_verbo_del_cli_esta_en_la_ayuda</code></li><li><code>meta.todo_vocabulario_cerrado_esta_en_el_manual</code></li></ol>
+<p>El contraste muestra qué estaba midiendo el sistema: Jam venía evaluando si el manual de Oracle estaba completo, si las opciones del compilador declaraban su sentido o si los verbos de la CLI coincidían con la ayuda.</p>
+<p>Las otras 13 medidas clasificadas como <code>del_origen</code> nunca habían llegado a concluir sobre Jam: operan sobre relaciones producidas por sondas sintéticas (como conmutatividad de <code>unir</code>, reversibilidad del serializador o equivalencia de macros) que un consumidor no emite en su evidencia. En esas 13 medidas, declarar el ámbito sólo hizo explícito lo que <code>medidas_aplicables</code> ya hacía por omisión de relaciones.</p>
+<h2 id="el-costo-la-migración-y-la-falta-de-omisión-creíble">El costo, la migración y la falta de omisión creíble<a class="ancla" href="#el-costo-la-migración-y-la-falta-de-omisión-creíble" aria-label="Enlace a esta sección">#</a></h2>
+<p>Esta decisión tuvo un costo contractual directo: <code>ambito</code> pasó a ser un <strong>parámetro obligatorio</strong> en las cuatro macros del lenguaje (<code>peor</code>, <code>ninguno</code>, <code>ninguno-requiere</code> y <code>ninguno-par</code>).</p>
+<p>No existe un valor por omisión creíble:</p>
+<ul><li>Suponer <code>universal</code> reproduciría exactamente la fuga que abrió este trabajo, dejando que nuevas medidas internas vuelvan a obligar silenciosamente a terceros.</li><li>Suponer <code>del_origen</code> apagaría en silencio las guardas de calidad que sí deben viajar y proteger el catálogo del consumidor.</li></ul>
+<p>El costo real fue la migración de los catálogos existentes. Para no invalidar la carga del catálogo completo de un consumidor al actualizar la versión, el cargador y las macros conservan la ausencia como el estado transitorio <code>sin_declarar</code>. Es el mismo camino que se abrió al agregar <code>segun</code>, y por el mismo motivo: no se inventa un valor arbitrario, sino que se registra honestamente que el autor no eligió.</p>
+<p>A partir de allí, la medida de presencia <code>meta.toda_medida_declara_su_ambito</code> se lo reclama en rojo. Sin este escalón de migración, introducir el parámetro obligatorio rompía la carga de cualquier proyecto consumidor antes de permitirle clasificar sus propias medidas. Hay que contarlo con claridad: es la parte incómoda de cambiar un contrato base, y es la que más fácilmente se olvida una vez que el árbol vuelve a estar verde.</p>
+<h2 id="la-asimetría-aceptada">La asimetría aceptada<a class="ancla" href="#la-asimetría-aceptada" aria-label="Enlace a esta sección">#</a></h2>
+<p>El sistema asume una asimetría deliberada frente al error de declaración:</p>
+<ul><li><strong>Mentir hacia lo amplio</strong> perjudica al consumidor al imponerle un veredicto ajeno sin remedio. Por eso debe fallar ante toda contradicción derivable mecánicamente.</li><li><strong>Declarar un ámbito demasiado estrecho</strong> retiene una política en su autor original. Pierde cobertura compartida, pero no impone un rojo sin remedio a ningún tercero.</li></ul>
+<p>La contradicción hacia lo amplio se combate con verificación automática; la estrechez se discute editorialemente con revisión humana y evidencia externa. Oracle vuelve falsable la declaración; no la convierte mágicamente en verdad.</p>
+<h2 id="lo-que-la-decisión-no-puede-prometer">Lo que la decisión NO puede prometer<a class="ancla" href="#lo-que-la-decisión-no-puede-prometer" aria-label="Enlace a esta sección">#</a></h2>
+<p>Que una medida se declare <code>universal</code> en su archivo no demuestra que realmente lo sea.</p>
+<p>La cota mecánica que se incorpora —la meta-medida <code>meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias</code>— detecta una contradicción derivable y nada más: verifica que una medida no sea más amplia que sus dependencias directas.</p>
+<p>La herramienta no puede prometer nada más allá de esa cota. No puede descubrir una suposición escondida en un literal, ni una convención explicada sólo en prosa, ni —sobre todo— si el receptor tiene de verdad un remedio disponible. La declaración sigue siendo una afirmación humana sobre jurisdicción; el marco comprueba su consistencia relacional, pero no sustituye el juicio de pertinencia ni garantiza que el rojo sea accionable.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.md" rel="noopener">docs/decisiones/DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-hecho-y-el-hueco">El hecho y el hueco</a></li><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#el-orden-de-las-preguntas">El orden de las preguntas</a></li><li class="n2"><a href="#por-qué-no-es-un-nivel-nuevo">Por qué NO es un nivel nuevo</a></li><li class="n2"><a href="#por-qué-no-es-visibilidad-ni-ocultamiento">Por qué NO es visibilidad ni ocultamiento</a></li><li class="n2"><a href="#el-resultado-medido">El resultado medido</a></li><li class="n2"><a href="#el-costo-la-migración-y-la-falta-de-omisión-creíble">El costo, la migración y la falta de omisión creíble</a></li><li class="n2"><a href="#la-asimetría-aceptada">La asimetría aceptada</a></li><li class="n2"><a href="#lo-que-la-decisión-no-puede-prometer">Lo que la decisión NO puede prometer</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

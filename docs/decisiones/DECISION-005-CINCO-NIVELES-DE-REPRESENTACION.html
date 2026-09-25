@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 005 — la numeración va de L−2 a L2, y se cierra en los dos extremos — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-005--la-numeración-va-de-l2-a-l2-y-se-cierra-en-los-dos-extremos">Decisión 005 — la numeración va de L−2 a L2, y se cierra en los dos extremos<a class="ancla" href="#decisión-005--la-numeración-va-de-l2-a-l2-y-se-cierra-en-los-dos-extremos" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-08-26 · <strong>Estado:</strong> vigente, comprobada por L−1 y L−2 el 2026-08-28 · <strong>Alcance:</strong> nomenclatura y límites de la torre.</p>
+<h2 id="lo-que-se-decide">Lo que se decide<a class="ancla" href="#lo-que-se-decide" aria-label="Enlace a esta sección">#</a></h2>
+<p>Los niveles de representación de Oracle se numeran <strong>L−2, L−1, L0, L1, L2</strong>. El cero está donde estaba —la evidencia—, los positivos suben hacia los enunciados y los negativos bajan hacia el mundo. No hay L3 y no hay L−3, y las dos ausencias tienen motivos distintos.</p>
+<pre><code>L2   medidas sobre medidas   enunciados sobre L1
+L1   medidas                 enunciados sobre L0
+L0   evidencia               filas
+L−1  qué lee el sensor       su alcance y las unidades de cada campo
+L−2  qué leyó, y en qué      identidad y frescura del referente
+     el terreno              no es un nivel</code></pre>
+<h2 id="la-regla-que-sostiene-la-numeración">La regla que sostiene la numeración<a class="ancla" href="#la-regla-que-sostiene-la-numeración" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Un nivel es una representación, nunca una cosa.</strong> L0 no es la escena: son filas. Bajando vale igual y es lo que más se presta a confusión: L−1 <strong>no es el sensor</strong>, es lo que el sensor declara de sí mismo. El sensor es a L−1 lo que la escena es a L0 — la cosa, no el nivel. Un nivel que no se puede escribir no es un nivel de este proyecto; es un componente.</p>
+<h2 id="por-qué-no-hay-l3">Por qué no hay L3<a class="ancla" href="#por-qué-no-hay-l3" aria-label="Enlace a esta sección">#</a></h2>
+<p>Colapsa, no falta. Con el catálogo reificado como una relación más, una medida sobre medidas sobre medidas se escribe <strong>idéntica</strong> a una medida sobre medidas: mismas cinco operaciones, misma álgebra, la misma relación <code>medida</code>. Medido el 2026-08-26: el catálogo tiene 38 medidas y <code>meta.ninguna_medida_sin_alcance</code> juzga las 38, <strong>ella incluida</strong>. Ya es L2 y L3 a la vez.</p>
+<p>Tampoco hay paradoja de autorreferencia, y conviene dejar escrito por qué antes de que alguien la busque: la medida no es un predicado de verdad sobre sí misma. No pregunta «¿soy verdadera?», pregunta «¿cuántas filas de esta relación tienen el <code>alcance</code> vacío?», y ella es una de las filas. Es un cómputo finito sobre una bolsa finita. Tarski no se entera.</p>
+<h2 id="por-qué-no-hay-l3-1">Por qué no hay L−3<a class="ancla" href="#por-qué-no-hay-l3-1" aria-label="Enlace a esta sección">#</a></h2>
+<p>Se acabó lo representable. L−1 pregunta cómo se hizo el mapa; L−2 pregunta si el territorio mapeado es el territorio del que habla el veredicto. Debajo está el terreno, y lo único honesto que Oracle puede hacer con él es declarar qué no miró — que es el trabajo de <code>alcance</code>, el único campo obligatorio del lenguaje. Un «L−3» sería el terreno con nombre de nivel, y eso es precisamente la confusión que la regla de arriba existe para evitar.</p>
+<h2 id="por-qué-l1-y-l2-son-dos-y-no-uno">Por qué L−1 y L−2 son dos y no uno<a class="ancla" href="#por-qué-l1-y-l2-son-dos-y-no-uno" aria-label="Enlace a esta sección">#</a></h2>
+<p>Fallan distinto y se arreglan distinto.</p>
+<ul><li><strong>L−1 falla con el sensor funcionando bien.</strong> Emite el AABB en centímetros y la medida lo espera en metros. Todo lo que reporta es fiel a lo que leyó, y el verde miente. Se arregla declarando unidad y alcance por campo.</li><li><strong>L−2 falla con el sensor perfecto y bien declarado.</strong> Leyó el asset del disco; el juego embarca la variante cocinada. Todo cierto, sobre una cosa que no es la del veredicto. Se arregla con identidad y frescura del referente — un hash, una versión.</li></ul>
+<h2 id="lo-que-la-construcción-resolvió">Lo que la construcción resolvió<a class="ancla" href="#lo-que-la-construcción-resolvió" aria-label="Enlace a esta sección">#</a></h2>
+<p>La lectura alternativa era que L−2 no fuese un nivel <strong>debajo</strong> de L−1 sino un <strong>parámetro</strong> suyo. La implementación mostró que no colapsan: <code>cantidad_comparada</code> deriva unidades mientras <code>referente_declarado</code> y <code>referente_comparado</code> presentan identidad y frescura por separado. Los dos modos de falla son independientes y se pueden medir sin acoplar sus declaraciones.</p>
+<h2 id="lo-que-existe-en-los-dos-niveles-de-abajo">Lo que existe en los dos niveles de abajo<a class="ancla" href="#lo-que-existe-en-los-dos-niveles-de-abajo" aria-label="Enlace a esta sección">#</a></h2>
+<p>Los dos niveles quedaron expresados en el lenguaje:</p>
+<div class="tabla"><table><thead><tr><th></th><th>ya se contesta acá</th></tr></thead><tbody><tr><td><strong>L−1</strong></td><td>relaciones con unidad y alcance, más <code>cantidad_comparada</code> para derivar la unidad que una medida compara</td></tr><tr><td><strong>L−2</strong></td><td><code>referente_declarado</code>, <code>referente_comparado</code> y medidas que exigen huella y comparan frescura</td></tr></tbody></table></div>
+<p>Los límites siguen a la vista. L−1 no convierte unidades ni inventa equivalencias para escalares variádicas. L−2 no verifica que un referente exista ni que una huella corresponda a su contenido: compara dos declaraciones; recalcular la huella le corresponde al sensor.</p>
+<h2 id="cómo-se-sabe-que-un-nivel-está-terminado">Cómo se sabe que un nivel está terminado<a class="ancla" href="#cómo-se-sabe-que-un-nivel-está-terminado" aria-label="Enlace a esta sección">#</a></h2>
+<p>No por haber movido plomería, sino por poder escribir en el lenguaje —<strong>sin tocar Python</strong>— una medida que hoy no se puede:</p>
+<ul><li><strong>L2:</strong> «ninguna medida compara un flotante con <code>==</code> DENTRO de un filtro» (la actual sólo mira el operador final del umbral, y su <code>alcance</code> lo declara) y «qué medidas usan <code>unir</code>».</li><li><strong>L−1:</strong> «ningún sensor entrega un campo cuya unidad no declara» y «ninguna medida lee un campo en una unidad distinta de la que el sensor emite».</li><li><strong>L−2:</strong> «ninguna evidencia se juzga contra un referente que cambió después de leerla».</li></ul>
+<p>Las medidas de L−1 y L−2 ya se escriben con esas relaciones sin agregar un comparador Python propio; ésa es la comprobación de cierre. Extender sensores o declarar nuevas relaciones amplía cobertura, pero no abre otro nivel ni cambia el mecanismo.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md" rel="noopener">docs/decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#la-regla-que-sostiene-la-numeración">La regla que sostiene la numeración</a></li><li class="n2"><a href="#por-qué-no-hay-l3">Por qué no hay L3</a></li><li class="n2"><a href="#por-qué-no-hay-l3-1">Por qué no hay L−3</a></li><li class="n2"><a href="#por-qué-l1-y-l2-son-dos-y-no-uno">Por qué L−1 y L−2 son dos y no uno</a></li><li class="n2"><a href="#lo-que-la-construcción-resolvió">Lo que la construcción resolvió</a></li><li class="n2"><a href="#lo-que-existe-en-los-dos-niveles-de-abajo">Lo que existe en los dos niveles de abajo</a></li><li class="n2"><a href="#cómo-se-sabe-que-un-nivel-está-terminado">Cómo se sabe que un nivel está terminado</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

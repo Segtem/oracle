@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Un modelo como sensor de prosa — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html" aria-current=page>Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="un-modelo-como-sensor-de-prosa">Un modelo como sensor de prosa<a class="ancla" href="#un-modelo-como-sensor-de-prosa" aria-label="Enlace a esta sección">#</a></h1>
+<p>Un sensor probabilístico no es un juez. El patrón de <a href="https://github.com/Segtem/oracle/tree/main/ejemplo/sensor-prosa" rel="noopener"><code>ejemplo/sensor-prosa/</code></a> convierte respuestas de un modelo en filas de <code>afirmacion_prosa</code>; Oracle juzga esas filas de manera reproducible y sin red. Ni las filas ni un verde de Oracle certifican la verdad del texto.</p>
+<p>El ejemplo es un proyecto separado: <code>catalogo_base: false</code>, relación local y medida con <code>ambito del_origen</code>. No incorpora políticas al catálogo obligatorio, no requiere claves para probarlo y no obliga a quienes lo hereden. Adoptarlo requiere una decisión del proyecto consumidor.</p>
+<h2 id="qué-mide-y-qué-queda-afuera">Qué mide y qué queda afuera<a class="ancla" href="#qué-mide-y-qué-queda-afuera" aria-label="Enlace a esta sección">#</a></h2>
+<p>La medida cuenta señales adversas sobre <code>alcance</code>: <code>alcance_vacio</code> con respuesta verdadera y P(sí) ≥ 0,8, o <code>alcance_concreto</code> con respuesta falsa y P(sí) ≤ 0,2. Una sola señal basta para rojo. <code>probabilidad</code> siempre significa P(sí), incluso cuando <code>respuesta</code> es falsa; no significa confianza en la respuesta elegida.</p>
+<p><strong>El umbral de probabilidad es una decisión del proyecto, no un hecho.</strong> Los valores 0,2 y 0,8 ilustran una política de señales fuertes; el experimento no los validó como cortes universales. Son diferentes del <code>--corte-si</code> usado para codificar el booleano (default 0,5) y de la zona de revisión (default 0,4–0,6, inclusive). El proyecto debe revisar juntos estos parámetros y su medida. Cambiar el corte del sensor no cambia los umbrales escritos en la medida.</p>
+<p>Un verde sólo significa que no se encontró una señal adversa fuerte en las filas entregadas. Una relación vacía o ausente no aporta la evidencia requerida y queda como SIN EVIDENCIA. La medida no detecta omisiones parciales, respuestas inventadas, prosa falsa o contradicciones entre el booleano y la probabilidad. El corpus incluye algunas combinaciones incoherentes deliberadas para fijar ambos filtros; el sensor normal deriva el booleano de P(sí). No se evalúa <code>porque</code> en este ejemplo.</p>
+<h2 id="calibración-y-revisión-humana">Calibración y revisión humana<a class="ancla" href="#calibración-y-revisión-humana" aria-label="Enlace a esta sección">#</a></h2>
+<p>La <a href="https://github.com/Segtem/oracle/blob/main/vault-kb/estudios/JEV-COMO-SENSOR.md" rel="noopener">segunda corrida del estudio</a> cambió la pregunta sobre <code>porque</code> e incluyó la tubería completa: obtuvo acuerdo 15/15 en las medidas reales y 10/10 en controles con la referencia ciega. Los <strong>sí quedaron entre 0,50 y 0,68; los no, entre 0,09 y 0,33; dos sí quedaron exactamente en 0,50</strong>. Esa separación angosta no da margen para automatizar un umbral fijo. La pregunta sobre valores vecinos no se pudo evaluar en la muestra: todos sus umbrales eran cero.</p>
+<p>Estas cifras pertenecen a <code>porque_origen</code>, no son una calibración de los cortes de <code>alcance</code> del ejemplo. Muestran por qué tampoco corresponde convertir una buena coincidencia en autoridad para juzgar prosa. La primera corrida sobre alcance fue pequeña (15 reales); ninguna de las dos prueba generalización a otros proyectos.</p>
+<p><strong>La zona del medio va a revisión humana.</strong> El sensor guarda las filas entre 0,4 y 0,6 inclusive en <code>revision-humana.json</code> y termina con código 2 si hay alguna. También conserva esas filas en <code>hechos.json</code>: quitarlas escondería evidencia. Aunque Oracle dé verde con esos hechos, la revisión sigue pendiente. La persona revisa la prosa, la medida completa y la respuesta; registra su decisión en la tarea del proyecto. Un rojo fuerte también exige revisar la señal; no autoriza al modelo a corregir ni rechazar la prosa por sí solo. Fuera de la zona media tampoco hay garantía de verdad.</p>
+<h2 id="preparar-y-ejecutar-por-separado">Preparar y ejecutar por separado<a class="ancla" href="#preparar-y-ejecutar-por-separado" aria-label="Enlace a esta sección">#</a></h2>
+<p>Desde la raíz del checkout, preparar un lote no usa red ni lee una clave:</p>
+<pre data-lenguaje="bash"><code>python3 ejemplo/sensor-prosa/sensor_prosa.py preparar \
+  --catalogo ejemplo/sensor-prosa/catalogos \
+  --salida /tmp/prosa-preparada
+python3 tools/cli.py test --proyecto ejemplo/sensor-prosa</code></pre>
+<p>El catálogo puede ser otro directorio de medidas <code>.oracle</code> o canónicas JSON; <code>--catalogo</code> se puede repetir. Se cargan medidas con macros estándar; los catálogos que requieren macros privadas necesitan adaptar este ejemplo. No se importan escalares externas ni se ejecuta el producto. Cada registro contiene alcance, porque, umbral, origen del umbral, tubería y resumen, reutilizando el armado de <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260922-220029-jev-porque-v2/preparar.py" rel="noopener"><code>preparar.py</code></a>.</p>
+<p>Sólo <code>correr</code> consume API y envía esa prosa al proveedor. Primero revisá el lote y el costo previsto; el siguiente comando hace una corrida nueva:</p>
+<pre data-lenguaje="bash"><code># OPENROUTER_API_KEY debe estar definida en el entorno, nunca en un archivo del repo.
+python3 ejemplo/sensor-prosa/sensor_prosa.py correr \
+  --catalogo ejemplo/sensor-prosa/catalogos \
+  --proveedor https://openrouter.ai/api/alpha/decisions \
+  --modelo typesafe/jev-1.13 \
+  --clave-entorno OPENROUTER_API_KEY \
+  --revision 0.4 0.6 --corte-si 0.5 \
+  --salida /tmp/prosa-corrida
+python3 tools/cli.py juzgar --proyecto ejemplo/sensor-prosa \
+  --con /tmp/prosa-corrida/hechos.json</code></pre>
+<p>El proveedor es una URL HTTPS parametrizable con el contrato <code>decisions/noul</code> usado por <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260922-220029-jev-porque-v2/correr.py" rel="noopener"><code>correr.py</code></a>: <code>model</code>, <code>state</code>, <code>questions</code> en la solicitud; <code>model</code> y <code>answers</code> con probabilidades <code>noul</code> en la respuesta. No es un adaptador genérico de chat: otro protocolo requiere adaptar <code>enviar</code>/<code>solicitud</code>/<code>convertir</code>. Se usa sólo la biblioteca estándar de Python, sin añadir dependencias a Oracle. El modelo efectivo y la fecha UTC de cada lote quedan en las filas. Las respuestas guardadas conservan también el consumo que informe el proveedor. No hay límite monetario automático; el lote usa 12 medidas por solicitud y el catálogo elegido determina cuántas solicitudes se hacen.</p>
+<p>El directorio de salida debe ser nuevo. Se guardan configuración, lote, solicitudes y respuestas; la clave sólo va en el encabezado HTTP. No hay redirecciones ni reintentos automáticos. Si falla el transporte, el formato, la cobertura de preguntas o una probabilidad, termina con código 1 sin publicar <code>hechos.json</code> de una corrida parcial. Revisá los artefactos y el consumo del proveedor antes de repetir una corrida. Código 0 indica preparación completa o corrida sin filas en la zona media; código 2 indica corrida completa con revisión pendiente, no un veredicto semántico.</p>
+<h2 id="qué-prueba-el-ejemplo">Qué prueba el ejemplo<a class="ancla" href="#qué-prueba-el-ejemplo" aria-label="Enlace a esta sección">#</a></h2>
+<p>El corpus es construido, no son respuestas observadas de un modelo: cubre ambas polaridades, bordes, filtros, falta de relación y relación vacía. La mutación verifica la sensibilidad de la política sobre esas filas. Las pruebas del adaptador simulan HTTP y comprueban validación, revisión humana y fallas parciales sin llamadas reales.</p>
+<p>No se añade un diferencial semántico: no hay una referencia independiente para certificar estos textos. Copiar el juicio del mismo modelo como «referencia» sería circular. El estudio conserva la comparación ciega limitada que sí se midió; no se la presenta como un fixture universal del sensor de alcance. Una adopción necesita su propio corpus observado y referencias humanas independientes.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/14-sensor-prosa.md" rel="noopener">docs/14-sensor-prosa.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#qué-mide-y-qué-queda-afuera">Qué mide y qué queda afuera</a></li><li class="n2"><a href="#calibración-y-revisión-humana">Calibración y revisión humana</a></li><li class="n2"><a href="#preparar-y-ejecutar-por-separado">Preparar y ejecutar por separado</a></li><li class="n2"><a href="#qué-prueba-el-ejemplo">Qué prueba el ejemplo</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

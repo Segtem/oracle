@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Decisión 006 — el umbral declara de dónde sale su número, y la prosa deja de ser obligatoria — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-006--el-umbral-declara-de-dónde-sale-su-número-y-la-prosa-deja-de-ser-obligatoria">Decisión 006 — el umbral declara de dónde sale su número, y la prosa deja de ser obligatoria<a class="ancla" href="#decisión-006--el-umbral-declara-de-dónde-sale-su-número-y-la-prosa-deja-de-ser-obligatoria" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-08-27 · <strong>Estado:</strong> aprobado, en construcción <strong>Sube:</strong> <code>VERSION_ALGEBRA</code> 0.3 → 0.4 (agrega, no cambia significado)</p>
+<h2 id="lo-que-se-decide">Lo que se decide<a class="ancla" href="#lo-que-se-decide" aria-label="Enlace a esta sección">#</a></h2>
+<p>El umbral gana una ranura de conjunto cerrado:</p>
+<pre><code>umbral &lt;= 1.0 segun convencion                 ← la defensa en prosa ya NO es obligatoria
+umbral &lt;= 0   segun contrato porque &quot;…&quot;        ← quien tiene algo que decir lo sigue diciendo</code></pre>
+<pre><code>medicion     el número salió de medir algo
+contrato     lo fija un acuerdo: una especificación, un contrato operativo, una norma
+convencion   es una costumbre del dominio, y se podría discutir
+tanteo       se probó hasta que anduvo</code></pre>
+<p>Forma canónica: <code>[&quot;umbral&quot;, op, valor, porque, segun]</code>. <code>porque</code> conserva su posición y puede ser <code>&quot;&quot;</code>; <code>segun</code> es nuevo y al final.</p>
+<h2 id="por-qué">Por qué<a class="ancla" href="#por-qué" aria-label="Enlace a esta sección">#</a></h2>
+<p>Hoy <code>porque</code> es obligatorio y lo único que la máquina comprueba es <strong>que no esté vacío</strong>. La medida que lo vigila lo confiesa: <em>«ve si la defensa del umbral está VACÍA. NO ve si la defensa es mala, circular o mentirosa»</em>. Es una obligación cara —87 defensas y 17.369 caracteres en los tres catálogos— que compra una comprobación de casi cero.</p>
+<p>Y obligar a escribir un párrafo produce, previsiblemente, párrafos escritos por obligación.</p>
+<p><code>segun</code> invierte eso: lo obligatorio pasa a ser lo evaluable. Con la etiqueta puesta, Oracle puede contestar una pregunta que hoy no puede ni formular — <strong>«¿cuántos umbrales de este catálogo son puro tanteo?»</strong>—. Un catálogo con quince tanteos y ninguna medición dice algo cierto y grave sobre sí mismo.</p>
+<p>Es el mismo movimiento que <code>procedencia</code> sobre la evidencia, doce días antes: sacar de la prosa lo que es un conjunto cerrado, dejar la prosa para lo que no lo es.</p>
+<h2 id="por-qué-la-prosa-no-se-borra">Por qué la prosa NO se borra<a class="ancla" href="#por-qué-la-prosa-no-se-borra" aria-label="Enlace a esta sección">#</a></h2>
+<p>Se midió antes de decidir. La etiqueta contesta <strong>de dónde salió el número</strong>; la prosa contesta <strong>por qué ése y no otro</strong>. Son dos preguntas y la etiqueta responde una. Tres defensas reales, con lo que la etiqueta deja afuera:</p>
+<div class="tabla"><table><thead><tr><th>medida</th><th>etiqueta</th><th>lo que se perdería</th></tr></thead><tbody><tr><td><code>snap.al_ras</code></td><td><code>convencion</code></td><td>«evita rechazar ruido de bounds sin aceptar una junta visible» — el canje entre dos formas de fallar</td></tr><tr><td><code>scatter.cobertura</code></td><td><code>contrato</code></td><td>por qué 0 y no un margen: el 0,6 ya está en el filtro y dos copias no se mantienen iguales — más el puntero al caso <code>012</code></td></tr><tr><td><code>ml_deformer.malla_objetivo_fragmentada</code></td><td>ninguna encaja</td><td>la derivación entera: una superficie partida no propaga la deformación a través de la junta</td></tr></tbody></table></div>
+<p>La tercera no entra en las cuatro categorías: no es medición, ni contrato, ni convención, ni tanteo. Es una derivación de cómo funciona el método. Si la prosa desapareciera, esa medida se quedaría sin su única explicación.</p>
+<p>Hay además un argumento incómodo: si el objetivo es que un humano audite lo que escribió un LLM, el <code>porque</code> es literalmente <strong>lo único que el humano puede juzgar y la máquina no</strong>. Sacarlo del lenguaje es sacarle al humano su parte.</p>
+<h2 id="por-qué-agrega-en-vez-de-reemplazar">Por qué agrega en vez de reemplazar<a class="ancla" href="#por-qué-agrega-en-vez-de-reemplazar" aria-label="Enlace a esta sección">#</a></h2>
+<p>La forma obvia era <code>[&quot;umbral&quot;, op, valor, segun, porque]</code>, cambiando el significado de la posición 3. Eso sube la MAYOR, y ahí está el problema: <strong>ninguno de los dos consumidores declara <code>algebra</code> en su <code>oracle.json</code></strong>. La maquinaria de versiones existe, funciona y es opt-in, y nadie optó. Un cambio mayor no les fallaría cerrado con «tu proyecto pide 0.3 y este núcleo implementa 1.0»: les daría un error de parseo sin causa.</p>
+<p>Agregando al final, ninguna medida existente se rompe. La presión para migrar no viene de un error, viene de una medida en rojo — igual que con <code>procedencia</code>, que salió roja en 12 el primer día y se cerró transcribiendo, no rompiendo.</p>
+<h2 id="lo-que-reemplaza-a-metaningun_umbral_sin_defensa">Lo que reemplaza a <code>meta.ningun_umbral_sin_defensa</code><a class="ancla" href="#lo-que-reemplaza-a-metaningun_umbral_sin_defensa" aria-label="Enlace a esta sección">#</a></h2>
+<p>Esa medida exige prosa no vacía y deja de tener sentido. En su lugar, dos:</p>
+<ul><li><strong><code>meta.todo_umbral_declara_de_donde_sale</code></strong> — un umbral cuyo <code>segun</code> quedó <code>sin_declarar</code>. <code>sin_declarar</code> es una ausencia visible, no un default creíble.</li><li><strong><code>meta.todo_tanteo_explica_por_que</code></strong> — un <code>tanteo</code> sin prosa. La etiqueta ya dice todo lo que hay que decir de una <code>medicion</code>; de un <code>tanteo</code> no dice nada, y ahí la explicación sigue haciendo falta.</li></ul>
+<h2 id="lo-que-no-se-hace">Lo que NO se hace<a class="ancla" href="#lo-que-no-se-hace" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><strong>No</strong> se borra la prosa. Se vuelve opcional, que es distinto.</li><li><strong>No</strong> se pone un default en <code>segun</code>. Un default creíble se queda sin pensar; ya se aprendió.</li><li><strong>No</strong> se deja que una herramienta rellene <code>segun</code> sola. La etiqueta es un juicio sobre de dónde vino un número, y sólo lo sabe quien lo puso.</li></ul>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md" rel="noopener">docs/decisiones/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#por-qué">Por qué</a></li><li class="n2"><a href="#por-qué-la-prosa-no-se-borra">Por qué la prosa NO se borra</a></li><li class="n2"><a href="#por-qué-agrega-en-vez-de-reemplazar">Por qué agrega en vez de reemplazar</a></li><li class="n2"><a href="#lo-que-reemplaza-a-metaningun_umbral_sin_defensa">Lo que reemplaza a meta.ningun_umbral_sin_defensa</a></li><li class="n2"><a href="#lo-que-no-se-hace">Lo que NO se hace</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oracle — tutorial práctico: cómo se programa con Oracle — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html" aria-current=page>Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="oracle--tutorial-práctico-cómo-se-programa-con-oracle">Oracle — tutorial práctico: cómo se programa con Oracle<a class="ancla" href="#oracle--tutorial-práctico-cómo-se-programa-con-oracle" aria-label="Enlace a esta sección">#</a></h1>
+<p>Guía complementaria al estudio integral que genera <code>oracle-estudio --archivo ORACLE-PARA-NOTEBOOKLM.md</code> (filosofía, especificación completa, auditoría, historia). <strong>Este es distinto a propósito</strong>: es un tutorial — aprender haciendo, de lo más simple a lo más compuesto, con ejemplos reales tomados del propio repositorio y de un proyecto que ya lo usa en producción (Jam, un plugin de Unreal Engine). Si el estudio generado responde «¿por qué existe Oracle?», este documento responde «¿cómo escribo la primera medida, y la segunda, y la que necesita algo más complicado?».</p>
+<ul><li>Generado: <code>2026-08-24</code></li><li>Todos los ejemplos de sintaxis fueron verificados contra el código fuente vigente de <code>Segtem/oracle</code> (rama <code>main</code>) y contra medidas reales en producción del proyecto Jam.</li></ul>
+<hr>
+<h2 id="0-oracle-en-una-frase">0. Oracle en una frase<a class="ancla" href="#0-oracle-en-una-frase" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>La superficie es cómo se escribe; el JSON es cómo se guarda.</strong></p>
+<p>Oracle es un <strong>lenguaje de datos</strong> (no una biblioteca de funciones) para escribir <em>medidas</em>: reglas que toman hechos sobre lo que se construyó, calculan un número, lo comparan contra un umbral, y si el umbral se viola, señalan exactamente qué filas lo violaron. Las medidas y los casos se escriben en una superficie legible y se guardan como JSON —son datos, no código— y por eso se pueden inspeccionar, mutar, contar y medir con las mismas herramientas que mide cualquier otra cosa.</p>
+<p>Si nunca escribiste una medida, la meta de este documento es que después de leerlo puedas escribir la tuya sin haber leído el evaluador.</p>
+<hr>
+<h2 id="1-el-modelo-mental-tres-niveles-una-sola-representación">1. El modelo mental: tres niveles, una sola representación<a class="ancla" href="#1-el-modelo-mental-tres-niveles-una-sola-representación" aria-label="Enlace a esta sección">#</a></h2>
+<pre><code>L0   evidencia   los HECHOS crudos: pieza(id, x, y, ex, ey) · mutante(id, apunta_a, murio)
+L1   medidas     enunciados SOBRE L0: &quot;ninguna pieza se clava en otra&quot;
+L2   medidas     enunciados SOBRE L1: &quot;toda medida tiene al menos un mutante que la fija&quot;</code></pre>
+<p>Lo importante: <strong>L2 no necesita mecanismos nuevos</strong>. Una medida (L1) es un dato, así que el catálogo de medidas es una relación más (<code>medida(id, umbral_op, umbral_valor, porque, alcance, …)</code>), y se puede medir con el mismo álgebra que mide piezas o eventos. Ese es el sentido de «metalenguaje»: no hay una capa especial para «medir la medición».</p>
+<pre><code>                    ┌──────────────┐
+   hechos  ───────► │   MEDIDA     │ ───────► veredicto (ok / no-ok, valor, testigos, alcance)
+ (evidencia)         └──────────────┘
+                    tubería → resumen → umbral</code></pre>
+<p>Una medida no produce "verdad": produce un <strong>veredicto acotado</strong> — un número, si pasó o no, las filas que lo explican (testigos), y una declaración explícita de qué NO mira (alcance). Ningún veredicto se presenta sin su alcance: por diseño, Oracle no permite escribir una medida que diga «todo bien» sin decir también qué no miró.</p>
+<hr>
+<h2 id="2-anatomía-de-una-medida">2. Anatomía de una medida<a class="ancla" href="#2-anatomía-de-una-medida" aria-label="Enlace a esta sección">#</a></h2>
+<p>Toda medida, en su forma completa (<strong>canónica</strong>), se escribe así en la superficie infija:</p>
+<pre data-lenguaje="oracle-gramatica"><code>medida &lt;id&gt;:
+    de &lt;relacion&gt; &lt;alias&gt;
+    [unir &lt;relacion2&gt; &lt;alias2&gt;]
+    [donde &lt;predicado&gt;]
+    [agrupar:
+        clave &lt;nombre&gt; = &lt;expresion&gt;
+        agregado &lt;nombre&gt; = &lt;agregado&gt;(&lt;expresion&gt;)]
+    resumen &lt;agregado&gt;(&lt;expresion&gt;)
+    umbral &lt;comparador&gt; &lt;valor&gt; porque &quot;&lt;por qué ese número&gt;&quot;
+    [requiere &lt;relaciones&gt;]
+    alcance &quot;&lt;qué NO ve esta medida&gt;&quot;</code></pre>
+<div class="tabla"><table><thead><tr><th>Pieza</th><th>Qué es</th><th>Obligatorio</th></tr></thead><tbody><tr><td><code>id</code></td><td><code>dominio.nombre</code>, minúsculas ASCII, dígitos y <code>_</code></td><td>sí</td></tr><tr><td><code>de …</code></td><td>la fuente: de dónde salen los datos y qué alias reciben</td><td>sí</td></tr><tr><td><code>unir …</code></td><td>producto cartesiano con otra fuente</td><td>opcional</td></tr><tr><td><code>donde …</code></td><td>el filtro de lo que ofende — <strong>acá se definen los testigos</strong></td><td>opcional</td></tr><tr><td><code>agrupar:</code></td><td>agrupa filas por claves y calcula agregados intermedios</td><td>opcional</td></tr><tr><td><code>resumen</code></td><td>cómo se colapsa la tubería a UN escalar — la medición en sí</td><td>sí</td></tr><tr><td><code>umbral</code></td><td>comparador + valor + <strong>defensa en texto</strong> (<code>porque</code>) de por qué ese valor</td><td>sí, con defensa no vacía</td></tr><tr><td><code>requiere</code></td><td>declara qué relaciones de evidencia son indispensables</td><td>opcional (obligatorio en medidas de ausencia)</td></tr><tr><td><code>alcance</code></td><td>qué NO mira esta medida, en texto</td><td>sí, no puede estar vacío</td></tr></tbody></table></div>
+<p>Tres reglas no son estilo, son validación dura:</p>
+<ol><li><strong>Una medida sin defensa del umbral no carga, y una medida sin <code>alcance</code> no carga.</strong> Fallan al leerse, no al usarse — antes de evaluar un solo hecho.</li><li><strong>Un umbral de igualdad (<code>==</code>) está prohibido.</strong> La regla universal <code>meta.ningun_umbral_de_igualdad</code> exige umbrales de orden (<code>&lt;=</code>, <code>&gt;=</code>, <code>&lt;</code>, <code>&gt;</code>).</li><li><strong>Si una medida declara <code>requiere &lt;relacion&gt;</code>, la relación no puede faltar ni venir vacía.</strong> Si no hay evidencia requerida, la evaluación devuelve <code>SIN EVIDENCIA</code> y no un verde espurio.</li></ol>
+<h3 id="el-almacenamiento-por-qué-json">El almacenamiento: por qué JSON<a class="ancla" href="#el-almacenamiento-por-qué-json" aria-label="Enlace a esta sección">#</a></h3>
+<p>La superficie infija es la forma legible para escribir y revisar. En el disco (dentro de <code>catalogos/</code>), la medida se guarda como una lista JSON homoicónica que representa su AST directamente:</p>
+<pre data-lenguaje="json"><code>[&quot;medida&quot;, &quot;&lt;id&gt;&quot;,
+  [&quot;desde&quot;, [&quot;de&quot;, &quot;&lt;relacion&gt;&quot;, &quot;&lt;alias&gt;&quot;],
+            [&quot;donde&quot;, &lt;predicado&gt;]],
+  [&quot;resumen&quot;, &quot;&lt;agregado&gt;&quot;, &lt;expresion&gt;],
+  [&quot;umbral&quot;, &quot;&lt;comparador&gt;&quot;, &lt;valor&gt;, &quot;&lt;por qué ese número&gt;&quot;],
+  [&quot;requiere&quot;, &quot;&lt;relacion&gt;&quot;],
+  [&quot;alcance&quot;, &quot;&lt;qué NO ve esta medida&gt;&quot;]]</code></pre>
+<p>Para traducir entre la superficie infija y el archivo JSON tenés la herramienta <code>tools/sintaxis.py</code>:</p>
+<pre data-lenguaje="bash"><code>python tools/sintaxis.py --imprimir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -&gt; superficie
+oracle nueva dominio.regla        # crea el andamio ya en superficie infija
+python tools/sintaxis.py --leer medida.oracle       # superficie -&gt; JSON, si lo necesitás</code></pre>
+<p>El ejemplo más simple posible del propio catálogo de Oracle:</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> proceso.test_con_mutante_que_lo_mata:
+    <span class="c-kw">de</span> mutante m
+    <span class="c-kw">donde</span> m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto&quot;</span>
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutadores que nadie escribió&quot;</span></code></pre>
+<p>Léelo en voz alta y ya sabés leer el 90% de las medidas que vas a encontrar: <strong>«de la relación <code>mutante</code>, alias <code>m</code>, quedate con los que sobrevivieron (<code>detecciones == 0</code> y <code>rechazos == 0</code>); contá cuántos quedaron; si son más de 0, rojo — porque un mutante vivo es un test que no discrimina; y esto no ve los mutantes que nadie llegó a escribir».</strong></p>
+<p>Un detalle que sorprende la primera vez: <strong>los testigos no se declaran aparte.</strong> Los testigos —las filas que se muestran cuando la medida da rojo, para que alguien pueda mirar el defecto— son exactamente las filas que sobrevivieron al último <code>donde</code>. No hay una segunda función que las calcule, porque escribir la misma condición dos veces es exactamente cómo se desincroniza (fue un defecto real del proyecto — ver §7).</p>
+<p>Tampoco hay composición de medidas (<code>DECISION-002</code>): una medida no puede invocar el resultado de otra medida. Cada medida juzga hechos directos del dominio.</p>
+<hr>
+<h2 id="3-el-álgebra-cinco-operadores-y-nada-más">3. El álgebra: cinco operadores, y nada más<a class="ancla" href="#3-el-álgebra-cinco-operadores-y-nada-más" aria-label="Enlace a esta sección">#</a></h2>
+<p>Toda la sintaxis sale de combinar <strong>cinco operadores</strong>. Cada uno toma filas (o hace de fuente) y devuelve filas: esa clausura es lo que permite encadenarlos sin casos especiales.</p>
+<div class="tabla"><table><thead><tr><th>Operador</th><th>Superficie</th><th>Qué hace</th></tr></thead><tbody><tr><td><code>de</code></td><td><code>de &lt;relacion&gt; &lt;alias&gt;</code></td><td>fuente: trae una relación y la etiqueta con un alias</td></tr><tr><td><code>donde</code></td><td><code>donde &lt;predicado&gt;</code></td><td>filtra — <strong>acá se definen los testigos</strong></td></tr><tr><td><code>unir</code></td><td><code>unir &lt;relacion&gt; &lt;alias&gt;</code></td><td>producto cartesiano con otra fuente</td></tr><tr><td><code>agrupar</code></td><td><code>agrupar:\n    clave ...\n    agregado ...</code></td><td>agrupa filas y las resume a una fila por grupo</td></tr><tr><td><code>resumen</code></td><td><code>resumen &lt;agregado&gt;(&lt;expresion&gt;)</code></td><td>colapsa TODA la tubería a un único escalar</td></tr></tbody></table></div>
+<p><code>resumen</code> no es un paso de la tubería: es lo último que se aplica para obtener el escalar de juicio.</p>
+<h3 id="31-de--la-fuente">3.1 <code>de</code> — la fuente<a class="ancla" href="#31-de--la-fuente" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle-fragmento"><code>de pieza a</code></pre>
+<p>Trae todos los hechos de la relación <code>pieza</code> y los etiqueta con el alias <code>a</code>. A partir de acá, cada fila de la tubería tiene acceso a los campos del hecho <code>a</code>.</p>
+<h3 id="32-donde--el-filtro-y-los-testigos">3.2 <code>donde</code> — el filtro (y los testigos)<a class="ancla" href="#32-donde--el-filtro-y-los-testigos" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle-fragmento"><code>donde a.volumen &gt; 0</code></pre>
+<p>Se queda sólo con las filas donde el predicado da <code>true</code>. <strong>Es el único lugar donde se definen los testigos</strong>: lo que sobrevive acá es lo que se le muestra a un humano cuando la medida da rojo.</p>
+<h3 id="33-acceso-a-los-datos-siempre-explícito">3.3 Acceso a los datos: siempre explícito<a class="ancla" href="#33-acceso-a-los-datos-siempre-explícito" aria-label="Enlace a esta sección">#</a></h3>
+<p>Tres accesores leen datos de una fila:</p>
+<div class="tabla"><table><thead><tr><th>Accesor</th><th>Superficie</th><th>En AST (JSON)</th><th>Devuelve</th></tr></thead><tbody><tr><td>Campo</td><td><code>a.volumen</code></td><td><code>[&quot;campo&quot;, &quot;a&quot;, &quot;volumen&quot;]</code></td><td>un campo de un hecho con alias <code>a</code></td></tr><tr><td>Hecho</td><td><code>hecho(a)</code></td><td><code>[&quot;hecho&quot;, &quot;a&quot;]</code></td><td>el hecho ENTERO (para pasarlo a una escalar)</td></tr><tr><td>Columna</td><td><code>col(reales)</code> o <code>reales</code></td><td><code>[&quot;col&quot;, &quot;reales&quot;]</code></td><td>una columna o agregado derivado por <code>agrupar</code></td></tr></tbody></table></div>
+<p><code>a.volumen</code> — "en la fila actual, tomá el hecho con alias <code>a</code> y devolvé su campo <code>volumen</code>". Comparar contra un campo que no existe <strong>es un error</strong>, no da <code>false</code>: así un nombre de campo mal escrito no se disfraza de verde silencioso.</p>
+<h3 id="34-comparadores-y-lógicos">3.4 Comparadores y lógicos<a class="ancla" href="#34-comparadores-y-lógicos" aria-label="Enlace a esta sección">#</a></h3>
+<pre><code>==  !=  &lt;  &lt;=  &gt;  &gt;=       y   o   no</code></pre>
+<p>Reglas del álgebra que sorprenden si vienen de Python:</p>
+<ul><li><strong><code>bool</code> no es número.</strong> <code>true == 1</code> da error acá, aunque en Python valga. Sólo <code>suma</code> y <code>promedio</code> tratan un booleano como indicador 0/1, y de forma explícita.</li><li><strong>Igualdad exacta sobre flotantes está PROHIBIDA</strong>, tanto en una expresión como en el umbral final. <code>x == 3.0</code> no carga. La razón: <code>0.1 + 0.2 != 0.3</code> en punto flotante, y una medida que compare así puede decir verde sin que nadie se entere. Usá una comparación de orden con tolerancia: <code>distancia(hecho(a), hecho(b)) &lt;= 0.5</code>.</li><li><strong>Los dos lados de una comparación tienen que ser del mismo tipo.</strong> Comparar un número contra texto es error de álgebra, no <code>false</code>.</li><li><code>y</code> / <code>o</code> se encadenan de forma infija: <code>a.x == 1 y a.y == 2 y a.z == 3</code>.</li></ul>
+<h3 id="35-resumen-y-los-agregados">3.5 <code>resumen</code> y los agregados<a class="ancla" href="#35-resumen-y-los-agregados" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle-fragmento"><code>resumen contar(1)
+resumen max(a.volumen)</code></pre>
+<p>Cinco agregados: <code>contar</code>, <code>max</code>, <code>min</code>, <code>suma</code>, <code>promedio</code>. <code>contar</code> es especial: <strong>no evalúa la expresión</strong>, sólo cuenta filas — por eso la convención es escribir <code>resumen contar(1)</code> (el <code>1</code> es un relleno que nunca se mira). Sobre cero filas, cualquier agregado da <code>0</code>. <code>suma</code> y <code>promedio</code> aceptan números o booleanos (0/1); <code>min</code> y <code>max</code> exigen valores del mismo tipo y comparables.</p>
+<h3 id="36-unir--comparar-filas-entre-sí">3.6 <code>unir</code> — comparar filas entre sí<a class="ancla" href="#36-unir--comparar-filas-entre-sí" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle-fragmento"><code>de documento a
+unir documento b
+donde a.nombre == b.nombre y a.carpeta != b.carpeta</code></pre>
+<p><code>unir</code> hace el producto cartesiano: cada fila resultante tiene AMBOS alias (<code>a</code> y <code>b</code>) disponibles. Es así como se comparan hechos entre sí — piezas que se tocan, documentos homónimos, las dos puntas de un relevo. Acá: «dos documentos con el mismo nombre en carpetas distintas» — el defecto real que motiva <code>vault.nombre_unico_en_el_vault</code> (un wikilink resuelve por nombre, y dos homónimos lo dejan ambiguo).</p>
+<p>Un <code>unir</code> sobre la misma relación cuenta cada par dos veces (<code>(a,b)</code> y <code>(b,a)</code>) y también empareja cada fila consigo misma (<code>a == b</code>); normalmente hay que filtrar eso en el <code>donde</code> (por ejemplo exigiendo <code>a.carpeta != b.carpeta</code> o <code>a.id != b.id</code>).</p>
+<h3 id="37-agrupar--cómo-se-expresa-la-ausencia-sin-usar-null">3.7 <code>agrupar</code> — cómo se expresa la AUSENCIA sin usar <code>null</code><a class="ancla" href="#37-agrupar--cómo-se-expresa-la-ausencia-sin-usar-null" aria-label="Enlace a esta sección">#</a></h3>
+<p>Este es el operador que más cuesta la primera vez, porque resuelve algo que en SQL pide un <code>LEFT JOIN</code> con nulos — y acá <strong>no hay nulos</strong>. La pregunta es «¿qué módulos no tienen NINGÚN importador real?» — una ausencia, no una presencia.</p>
+<pre data-lenguaje="oracle-fragmento"><code>de modulo m
+unir importa i
+agrupar:
+    clave modulo = m.nombre
+    agregado reales = suma(i.b == m.nombre y i.es_test == false)
+donde reales == 0</code></pre>
+<p>El truco: se agrupa sobre el PRODUCTO sin filtrar primero, y se agrega con <code>suma</code> sobre un predicado booleano. Como un booleano suma 0 o 1, un módulo sin ningún importador real da <code>reales = 0</code> — y el grupo <strong>sigue existiendo</strong>, porque nunca se filtró antes de agrupar. Sin necesitar un concepto de nulo.</p>
+<p>Forma general:</p>
+<pre data-lenguaje="oracle-gramatica"><code>agrupar:
+    clave &lt;nombre_clave&gt; = &lt;expresion&gt;
+    agregado &lt;nombre_agregado&gt; = &lt;agregado&gt;(&lt;expresion&gt;)</code></pre>
+<p>Después de <code>agrupar</code>, las filas ya NO tienen los alias originales (<code>m</code>, <code>i</code> desaparecen: se consumieron en el resumen). Las claves y agregados derivados se leen directamente por su nombre o con <code>col(nombre)</code>.</p>
+<hr>
+<h2 id="4-las-macros-la-forma-corta">4. Las macros: la forma corta<a class="ancla" href="#4-las-macros-la-forma-corta" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>La mayoría de las medidas del catálogo de Oracle están escritas con una macro.</strong> Una macro es azúcar sintáctica que se expande a la forma canónica ANTES de construir la medida — el evaluador, la mutación y el inventario nunca se enteran de que hubo una macro. <code>oracle expandir &lt;archivo&gt;</code> te muestra la expansión.</p>
+<div class="tabla"><table><thead><tr><th>Macro</th><th>Superficie</th><th>Para qué</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td><code>ninguno &lt;id&gt;:\n    relacion &lt;rel&gt;\n    alias &lt;alias&gt;\n    predicado &lt;pred&gt;\n    porque &quot;...&quot;\n    segun &lt;origen&gt;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>ninguna fila debe cumplir el predicado — el 80% de los casos</td></tr><tr><td><code>ninguno-par</code></td><td><code>ninguno-par &lt;id&gt;:\n    relacion &lt;rel&gt;\n    aliasA &lt;a1&gt;\n    aliasB &lt;a2&gt;\n    predicado &lt;pred&gt;\n    porque &quot;...&quot;\n    segun &lt;origen&gt;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>lo mismo, sobre PARES de la misma relación</td></tr><tr><td><code>peor</code></td><td><code>peor &lt;id&gt;:\n    relacion &lt;rel&gt;\n    alias &lt;alias&gt;\n    expresion &lt;expr&gt;\n    tolerancia &lt;tol&gt;\n    porque &quot;...&quot;\n    segun &lt;origen&gt;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>el peor caso de una magnitud no puede pasar de una tolerancia</td></tr></tbody></table></div>
+<h3 id="ninguno--el-caso-común"><code>ninguno</code> — el caso común<a class="ancla" href="#ninguno--el-caso-común" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> proceso.test_con_mutante_que_lo_mata:
+    relacion mutante
+    alias m
+    predicado m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
+    <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
+    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta mutantes DECLARADOS. NO ve los que nadie escribió&quot;</span></code></pre>
+<p>Expande EXACTO a la forma canónica de §2. <code>ninguno</code> cubre todo lo que se reduce a «filtrás lo que ofende, contás, cero es el único número aceptable».</p>
+<h3 id="peor--cuando-el-número-importa-no-la-cuenta"><code>peor</code> — cuando el número importa, no la cuenta<a class="ancla" href="#peor--cuando-el-número-importa-no-la-cuenta" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code>peor snap.grilla:
+    relacion pieza
+    alias a
+    expresion desvio_de_grilla(hecho(a), 100.0)
+    tolerancia 1.0
+    <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m&quot;</span>
+    <span class="c-kw">segun</span> convencion
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla&quot;</span></code></pre>
+<p>Ejemplo real, en producción, del catálogo de geometría de Jam. Fijate el problema que resuelve <code>peor</code>: escrita a mano, la tolerancia (<code>1.0</code>) aparecería DOS veces — una en el <code>donde</code> que filtra («¿superó 1 cm?») y otra en el <code>umbral</code> («¿el peor caso está por debajo de 1 cm?») — y nada garantiza que sigan sincronizadas si alguien cambia una y no la otra. Ese fue un defecto real del proyecto (caso <code>012</code> del corpus). <code>peor</code> recibe la tolerancia <strong>una sola vez</strong> y genera las dos apariciones desde ahí.</p>
+<p>Expande a:</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> snap.grilla:
+    <span class="c-kw">de</span> pieza a
+    <span class="c-kw">donde</span> desvio_de_grilla(hecho(a), 100.0) &gt; 1.0
+    <span class="c-kw">resumen</span> max(desvio_de_grilla(hecho(a), 100.0))
+    <span class="c-kw">umbral</span> &lt;= 1.0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla&quot;</span></code></pre>
+<h3 id="ninguno-par"><code>ninguno-par</code><a class="ancla" href="#ninguno-par" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code>ninguno-par tareas.misma_persona_sobrecargada_el_mismo_dia:
+    relacion tarea
+    aliasA a
+    aliasB b
+    predicado a.dueno == b.dueno <span class="c-kw">y</span> a.vence == b.vence <span class="c-kw">y</span> a.id != b.id
+    <span class="c-kw">porque</span> <span class="c-txt">&quot;dos tareas del mismo día para la misma persona compiten por las mismas horas&quot;</span>
+    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual&quot;</span></code></pre>
+<p>(Ejemplo ilustrativo, con la misma forma que <code>vault.nombre_unico_en_el_vault</code> del catálogo real de Jam.) El patrón general de <code>ninguno-par</code>: <strong>igualar el campo que define el conflicto</strong> (<code>dueno</code> + <code>vence</code>) <strong>y exigir que difieran en la identidad</strong> (<code>id</code>) — si no, cada tarea se empareja consigo misma y el predicado da siempre verdadero.</p>
+<h3 id="las-macros-no-son-un-embudo">Las macros no son un embudo<a class="ancla" href="#las-macros-no-son-un-embudo" aria-label="Enlace a esta sección">#</a></h3>
+<p>Si tu caso no encaja en ninguna macro, la forma canónica sigue siendo 100% válida. El ejemplo de <code>colocacion.interpenetracion</code> en §5.3 usa <code>unir</code> sobre DOS relaciones distintas (<code>pieza</code> y <code>vecina</code>) y no tiene macro que lo cubra — se escribe canónico y listo.</p>
+<hr>
+<h2 id="5-seis-ejemplos-reales-de-menor-a-mayor-complejidad">5. Seis ejemplos reales, de menor a mayor complejidad<a class="ancla" href="#5-seis-ejemplos-reales-de-menor-a-mayor-complejidad" aria-label="Enlace a esta sección">#</a></h2>
+<p>Todos están en producción hoy: los tres primeros en el propio catálogo de Oracle, los otros tres en el catálogo de geometría de Jam (un consumidor real e independiente).</p>
+<h3 id="51-contar-lo-que-ofende-el-patrón-más-común">5.1 Contar lo que ofende (el patrón más común)<a class="ancla" href="#51-contar-lo-que-ofende-el-patrón-más-común" aria-label="Enlace a esta sección">#</a></h3>
+<p>Ya lo viste en §2 (<code>proceso.test_con_mutante_que_lo_mata</code>). Receta: filtrás lo malo con <code>donde</code>, contás con <code>resumen contar(1)</code>, umbral <code>&lt;= 0</code>.</p>
+<h3 id="52-medir-una-magnitud-con-una-función-de-dominio-peor--escalar">5.2 Medir una magnitud con una función de dominio (<code>peor</code> + escalar)<a class="ancla" href="#52-medir-una-magnitud-con-una-función-de-dominio-peor--escalar" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code>peor snap.yaw:
+    relacion pieza
+    alias a
+    expresion desvio_de_paso(a.yaw, 90.0)
+    tolerancia 0.5
+    <span class="c-kw">porque</span> <span class="c-txt">&quot;medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista&quot;</span>
+    <span class="c-kw">segun</span> convencion
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto&quot;</span></code></pre>
+<p><code>desvio_de_paso</code> no es parte del álgebra: es una <strong>función escalar</strong> (UDF) que el proyecto Jam declaró — ver §6. El álgebra no sabe nada de grados ni de grillas; sólo sabe llamar funciones declaradas y comparar sus resultados.</p>
+<h3 id="53-comparar-filas-entre-sí-con-unir-forma-canónica-sin-macro">5.3 Comparar filas entre sí con <code>unir</code> (forma canónica, sin macro)<a class="ancla" href="#53-comparar-filas-entre-sí-con-unir-forma-canónica-sin-macro" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> colocacion.interpenetracion:
+    <span class="c-kw">de</span> pieza a
+    <span class="c-kw">unir</span> vecina b
+    <span class="c-kw">donde</span> <span class="c-kw">no</span> es_fondo(hecho(b)) <span class="c-kw">y</span> penetracion(hecho(a), hecho(b)) &gt; 0
+    <span class="c-kw">resumen</span> max(penetracion(hecho(a), hecho(b)))
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da &gt;0&quot;</span>
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;solape de AABB entre piezas de escala comparable. NO ve la malla real, oclusión visual, ni si la pieza quedó flotando&quot;</span></code></pre>
+<p>Por qué NO es una macro: <code>unir</code> combina DOS relaciones distintas (<code>pieza</code> y <code>vecina</code>), no la misma consigo misma. <code>ninguno-par</code> no encaja, así que se escribe la forma canónica.</p>
+<p>Fijate también <code>es_fondo</code>: sin ese filtro, cualquier pieza chica "interpenetraría" el fondo de escenografía (un SkySphere gigante) y la medida daría rojo siempre — un caso real de por qué el <code>alcance</code> y el filtro tienen que decir la verdad completa sobre qué se está comparando.</p>
+<h3 id="54-unir-sin-donde-resumiendo-con-min">5.4 <code>unir</code> sin <code>donde</code>, resumiendo con <code>min</code><a class="ancla" href="#54-unir-sin-donde-resumiendo-con-min" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> snap.comparte_cara:
+    <span class="c-kw">de</span> pieza a
+    <span class="c-kw">unir</span> objetivo b
+    <span class="c-kw">resumen</span> min(solape_lateral_minimo(hecho(a), hecho(b)))
+    <span class="c-kw">umbral</span> &gt; 1.0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta&quot;</span>
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;solape de AABB en los dos ejes laterales. NO ve cuánto de la cara real de la malla coincide&quot;</span></code></pre>
+<p>No todos los <code>desde</code> tienen <code>donde</code>: acá no hace falta filtrar, sólo unir y resumir directo con <code>min</code>. Fijate también el umbral <code>&gt;</code> en vez de <code>&lt;=</code> — el comparador lo elige la medida, no está fijo a <code>&lt;= 0</code>.</p>
+<h3 id="55-agrupar-en-un-caso-real-que-la-traza-de-una-simulación-no-tenga-huecos">5.5 <code>agrupar</code> en un caso real: que la traza de una simulación no tenga huecos<a class="ancla" href="#55-agrupar-en-un-caso-real-que-la-traza-de-una-simulación-no-tenga-huecos" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> simulacion.la_traza_no_tiene_huecos:
+    <span class="c-kw">de</span> evento e
+    <span class="c-kw">agrupar</span>:
+        clave corrida = e.corrida
+        agregado registrados = contar(1)
+        agregado ultimo = max(e.t)
+    <span class="c-kw">donde</span> registrados != mas(ultimo, 1)
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó&quot;</span>
+    <span class="c-kw">requiere</span> evento
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—.&quot;</span></code></pre>
+<p><code>mas</code> es una escalar del núcleo (<code>+1</code>) — así se expresa aritmética sobre un campo ordinal (<code>t</code>), porque una relación es una bolsa sin orden: «consecutivo» se vuelve aritmética sobre el campo, no una propiedad implícita del almacenamiento.</p>
+<h3 id="56-l2-una-medida-sobre-medidas">5.6 L2: una medida sobre medidas<a class="ancla" href="#56-l2-una-medida-sobre-medidas" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> meta.toda_medida_esta_fijada:
+    relacion medida_en_uso
+    alias m
+    predicado m.debe_tener_mutantes == true <span class="c-kw">y</span> (m.mutantes == 0 <span class="c-kw">o</span> m.mutantes_vivos != 0)
+    <span class="c-kw">porque</span> <span class="c-txt">&quot;una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada&quot;</span>
+    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción&quot;</span></code></pre>
+<p>Ninguna sintaxis nueva: <code>medida_en_uso</code> es una relación como cualquier otra (la produce <code>nucleo/marco.py</code> a partir del catálogo real), y esta medida la mide con el mismo <code>ninguno</code> de siempre. Así es como el marco se verifica con sus propias herramientas.</p>
+<hr>
+<h2 id="6-funciones-escalares-udf-cuando-el-álgebra-no-alcanza">6. Funciones escalares (UDF): cuando el álgebra no alcanza<a class="ancla" href="#6-funciones-escalares-udf-cuando-el-álgebra-no-alcanza" aria-label="Enlace a esta sección">#</a></h2>
+<p>El álgebra no sabe geometría, ni de grillas, ni de nada de un dominio particular — a propósito. Lo que sí sabe hacer es llamar funciones <strong>declaradas</strong>, con nombre, aridad y unidad, para que aparezcan en el inventario y se puedan discutir igual que un umbral.</p>
+<pre data-lenguaje="python"><code>from oracle_metalenguaje import escalar
+
+@escalar(&quot;volumen&quot;, &quot;cm3&quot;, unidades_argumentos=(&quot;sin_unidad&quot;,))
+def volumen(p: dict) -&gt; float:
+    return p[&quot;ex&quot;] * p[&quot;ey&quot;] * p[&quot;ez&quot;]
+
+@escalar(&quot;desvio_de_grilla&quot;, &quot;cm&quot;, unidades_argumentos=(&quot;sin_unidad&quot;, &quot;cm&quot;))
+def desvio_de_grilla(p: dict, grilla: float) -&gt; float:
+    &quot;&quot;&quot;El peor desvío del PIVOTE respecto de la grilla, sobre los tres ejes.&quot;&quot;&quot;
+    return max(abs(v - round(v / grilla) * grilla) for v in (p[&quot;lx&quot;], p[&quot;ly&quot;], p[&quot;lz&quot;]))
+
+@escalar(&quot;penetracion&quot;, &quot;cm&quot;, unidades_argumentos=(&quot;sin_unidad&quot;, &quot;sin_unidad&quot;, &quot;cm&quot;))
+def penetracion(a: dict, b: dict, tol: float = 1.0) -&gt; float:
+    &quot;&quot;&quot;Profundidad efectiva en cm después de descontar la tolerancia de contacto.&quot;&quot;&quot;
+    solapes = []
+    for (ca, ea), (cb, eb) in zip(_ejes(a), _ejes(b)):
+        solape = (ea + eb) - abs(ca - cb)
+        if solape &lt;= tol:
+            return 0.0
+        solapes.append(solape)
+    return min(solapes) - tol</code></pre>
+<p>(Estos tres son reales, del <code>escalares.py</code> del dominio de geometría de Jam.)</p>
+<p>Reglas:</p>
+<ul><li>El decorador <strong>registra</strong> la función — no basta con importarla. Así aparece en <code>oracle escalares</code>, y se puede contar cuántas escalares tiene un proyecto.</li><li>El nombre usa minúsculas ASCII, dígitos y <code>_</code>, <strong>sin puntos</strong> (para no confundirse con un id de medida).</li><li>En la superficie infija, una escalar recibe hechos completos con <code>hecho(alias)</code> (como <code>penetracion(hecho(a), hecho(b))</code> arriba) o campos sueltos con <code>alias.nombre</code> (como <code>desvio_de_paso(a.yaw, 90.0)</code>).</li><li>Es <strong>código Python con los mismos permisos que el proceso</strong>. Por eso ninguna herramienta la ejecuta salvo que se pase explícitamente <code>--confiar-escalares</code>. Sin esa bandera, <code>--relaciones</code>, <code>--escalares</code> (sólo el inventario base) y <code>--nueva</code> siguen siendo seguros — nunca importan el archivo del proyecto.</li></ul>
+<hr>
+<h2 id="7-el-corpus-cómo-se-escribe-un-caso">7. El corpus: cómo se escribe un caso<a class="ancla" href="#7-el-corpus-cómo-se-escribe-un-caso" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>La primera regla del repositorio: el caso del corpus se escribe ANTES que la medida.</strong> Dos motivos, no es prolijidad:</p>
+<ol><li>una medida escrita primero se escribe <em>para pasar</em>, no para atrapar el defecto real;</li><li>la herramienta puede decirte si tu medida está bien <strong>formada</strong>, pero no puede saber qué quisiste decir. Una condición invertida —que selecciona lo que está BIEN en vez de lo que ofende— pasa todas las comprobaciones automáticas igual. El caso del corpus es lo único que la detecta.</li></ol>
+<p>Toda la regla de las medidas aplica acá: <strong>la superficie (<code>.caso</code>) es cómo se escribe; el JSON es cómo se guarda</strong> — y el corpus carga ambos formatos por igual, sin paso de traducción.</p>
+<p>Un caso en superficie tiene esta forma (ejemplo real, un <code>falso_verde</code>):</p>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 001-verde-acumulativo:
+    fecha: <span class="c-txt">&quot;2026-07-29&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Brianholl/jam&quot;</span>
+        commit: <span class="c-txt">&quot;todos&quot;</span>
+    procedencia: observada
+    titulo: <span class="c-txt">&quot;«489 tests OK» reportado cada turno: un número que sube y nunca significa más&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El agente cerró cada entrega con un conteo <span class="c-kw">de</span> tests en verde. El conteo crece monótonamente <span class="c-kw">y</span> <span class="c-kw">no</span> distingue haber cubierto algo nuevo <span class="c-kw">de</span> haber agregado tests a lo ya cubierto. Se lee como «está bien» <span class="c-kw">y</span> sólo dice «<span class="c-kw">no</span> se rompió lo <span class="c-kw">de</span> antes».
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: proceso.afirmacion_declara_alcance
+    <span class="c-kw">evidencia</span>:
+        afirmacion: id, texto, comando, <span class="c-kw">alcance</span>
+            <span class="c-txt">&quot;a1&quot;</span>, <span class="c-txt">&quot;459 tests OK&quot;</span>, <span class="c-txt">&quot;unittest discover&quot;</span>, <span class="c-txt">&quot;&quot;</span>
+            <span class="c-txt">&quot;a2&quot;</span>, <span class="c-txt">&quot;477 tests OK&quot;</span>, <span class="c-txt">&quot;unittest discover&quot;</span>, <span class="c-txt">&quot;&quot;</span>
+            <span class="c-txt">&quot;a3&quot;</span>, <span class="c-txt">&quot;489 tests OK&quot;</span>, <span class="c-txt">&quot;unittest discover&quot;</span>, <span class="c-txt">&quot;&quot;</span>
+    leccion:
+        Una afirmación <span class="c-kw">de</span> verde <span class="c-kw">sin</span> <span class="c-kw">alcance</span> declarado <span class="c-kw">no</span> es una afirmación verificable: es una cifra. El <span class="c-kw">alcance</span> es lo que la vuelve discutible.</code></pre>
+<p>Y uno <strong><code>verde_correcto</code></strong> — la otra polaridad, igual de necesaria:</p>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 102-verificacion-vigente:
+    fecha: <span class="c-txt">&quot;2026-07-29&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Brianholl/jam&quot;</span>
+        commit: <span class="c-txt">&quot;sesión 2026-07-29&quot;</span>
+    procedencia: observada
+    titulo: <span class="c-txt">&quot;Después de recorrer el motor, los commits siguientes fueron sólo de documentación&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Se volvió a correr la verificación con motor <span class="c-kw">y</span> a partir <span class="c-kw">de</span> ahí sólo cambiaron documentos. `relevo.py` declaró la verificación vigente, <span class="c-kw">y</span> era cierto.
+    como_se_detecto: observacion
+    <span class="c-kw">medida</span>: proceso.verificacion_vigente
+    <span class="c-kw">evidencia</span>:
+        verificacion: que, commit, camino
+            <span class="c-txt">&quot;motor&quot;</span>, <span class="c-txt">&quot;80373ea&quot;</span>, <span class="c-txt">&quot;editor headless&quot;</span>
+        cambio: archivo, commiteado, es_codigo_vivo
+            <span class="c-txt">&quot;RELEVO.md&quot;</span>, true, false
+            <span class="c-txt">&quot;Vault-kb/README.md&quot;</span>, true, false
+    leccion:
+        La regla mira QUÉ cambió <span class="c-kw">y</span> <span class="c-kw">no</span> CUÁNTO: por eso los commits <span class="c-kw">de</span> documentación <span class="c-kw">no</span> invalidan una verificación, <span class="c-kw">y</span> eso es lo que la hace usable en vez <span class="c-kw">de</span> molesta.</code></pre>
+<h3 id="las-etiquetas">Las etiquetas<a class="ancla" href="#las-etiquetas" aria-label="Enlace a esta sección">#</a></h3>
+<div class="tabla"><table><thead><tr><th><code>etiqueta</code></th><th>Significa</th></tr></thead><tbody><tr><td><code>falso_verde</code></td><td>algo estaba mal y la medición dijo bien</td></tr><tr><td><code>falso_rojo</code></td><td>algo estaba bien y la medición dijo mal (pesa igual de grave: enseña a ignorar el verificador)</td></tr><tr><td><code>verde_correcto</code></td><td>algo estaba bien y la medición dijo bien — <strong>la otra polaridad</strong>, sin ella <code>quitar_filtro</code> sobrevive siempre</td></tr><tr><td><code>deuda_de_diseño</code></td><td>un defecto del propio lenguaje, no de una medida de dominio</td></tr><tr><td><code>medida_correcta_conclusion_errada</code></td><td>la medida dio el veredicto correcto pero alguien sacó la conclusión causal equivocada de ella</td></tr></tbody></table></div>
+<h3 id="por-qué-necesito-la-otra-polaridad-verde_correcto">¿Por qué necesito la otra polaridad (<code>verde_correcto</code>)?<a class="ancla" href="#por-qué-necesito-la-otra-polaridad-verde_correcto" aria-label="Enlace a esta sección">#</a></h3>
+<p>Es el error más común al empezar. Con <code>contar</code> y umbral <code>&lt;= 0</code>, una medida sin la evidencia positiva <strong>siempre puede pasar vaciando la relación</strong> — quitarle el filtro a una medida sólo se nota si hay filas que NO ofenden y que deberían seguir dando verde. Sin <code>verde_correcto</code>, el corpus tiene "sólo defectos" y varias mutaciones (sobre todo <code>quitar_filtro</code>) sobreviven siempre. Es lo mismo que evaluar un clasificador únicamente con ejemplos positivos.</p>
+<h3 id="casos-sin-medida-abierto-resuelto-limite_humano">Casos sin medida: <code>abierto</code>, <code>resuelto</code>, <code>limite_humano</code><a class="ancla" href="#casos-sin-medida-abierto-resuelto-limite_humano" aria-label="Enlace a esta sección">#</a></h3>
+<p>Un caso puede no tener una medida todavía (<code>&quot;medida&quot;: null</code> o <code>medida: null</code>). Entonces declara <code>estado_sin_medida</code>:</p>
+<ul><li><strong><code>abierto</code></strong> — es deuda real: el marco todavía no puede atrapar ese defecto. Es la lista de lo que falta, y ese número tiene que bajar.</li><li><strong><code>resuelto</code></strong> — el defecto se resolvió, pero no con una medida puntual sino cambiando el lenguaje (ver el ejemplo de <code>004-testigos-duplicados</code> más abajo: se resolvió eliminando la posibilidad misma de declarar testigos aparte).</li><li><strong><code>limite_humano</code></strong> — no es automatizable: requiere juicio (por ejemplo, una atribución causal). Se documenta para no perderlo, y no cuenta como deuda pendiente.</li></ul>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 004-testigos-duplicados:
+    fecha: <span class="c-txt">&quot;2026-07-29&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;Brianholl/jam&quot;</span>
+        commit: <span class="c-txt">&quot;535d476&quot;</span>
+    procedencia: observada
+    titulo: <span class="c-txt">&quot;La medición y sus testigos recorrían los datos dos veces, con dos definiciones&quot;</span>
+    <span class="c-kw">etiqueta</span>: deuda_de_diseño
+    sintoma:
+        `INTERPENETRACION` declaraba `mide=penetracion_maxima` <span class="c-kw">y</span> `testigos=piezas_clavadas`: dos funciones que recorren lo mismo con la misma condición escrita dos veces. Nada garantiza que <span class="c-kw">no</span> se separen.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: null
+    estado_sin_medida: resuelto
+    resuelto:
+        2026-07-29, por construcción: los testigos son las filas que sobrevivieron a la única tubería <span class="c-kw">de</span> la <span class="c-kw">medida</span>; ya <span class="c-kw">no</span> existe una segunda función <span class="c-kw">donde</span> repetir la condición.
+    <span class="c-kw">evidencia</span>:
+        declaracion: <span class="c-kw">medida</span>, mide, testigos, condicion_repetida
+            <span class="c-txt">&quot;colocacion.interpenetracion&quot;</span>, <span class="c-txt">&quot;penetracion_maxima&quot;</span>, <span class="c-txt">&quot;piezas_clavadas&quot;</span>, true
+    leccion:
+        Si el lenguaje obliga a escribir dos veces la misma condición, el lenguaje está mal. Los testigos <span class="c-kw">no</span> son un cálculo aparte: son el filtro.</code></pre>
+<hr>
+<h2 id="8-un-proyecto-de-punta-a-punta">8. Un proyecto de punta a punta<a class="ancla" href="#8-un-proyecto-de-punta-a-punta" aria-label="Enlace a esta sección">#</a></h2>
+<p>Armemos un proyecto mínimo desde cero: <strong>un gestor de tareas donde ninguna tarea vencida puede quedar sin persona asignada.</strong></p>
+<h3 id="81-la-carpeta">8.1 La carpeta<a class="ancla" href="#81-la-carpeta" aria-label="Enlace a esta sección">#</a></h3>
+<pre><code>mi-proyecto/
+  oracle.json
+  escalares.py
+  catalogos/
+    tareas/
+      tareas.vencida_sin_dueno.oracle
+  corpus/
+    tareas/
+      001-vencida-sin-nadie.caso
+      002-vencida-con-dueno.caso</code></pre>
+<h3 id="82-oraclejson">8.2 <code>oracle.json</code><a class="ancla" href="#82-oraclejson" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="json"><code>{
+  &quot;esquema&quot;: &quot;oracle.proyecto/v1&quot;,
+  &quot;perfiles&quot;: []
+}</code></pre>
+<p>(Sin <code>catalogo_base: true</code> no se cargan las medidas universales de <code>proceso</code>/<code>meta</code>/<code>simulacion</code> — sólo tu catálogo. Las activás si además vas a medir TU PROCESO de construcción con un LLM.)</p>
+<h3 id="83-la-escalar-opcional-en-este-ejemplo-para-mostrar-el-patrón">8.3 La escalar (opcional en este ejemplo, para mostrar el patrón)<a class="ancla" href="#83-la-escalar-opcional-en-este-ejemplo-para-mostrar-el-patrón" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="python"><code># escalares.py
+from oracle_metalenguaje import escalar
+
+@escalar(&quot;dias_de_atraso&quot;, &quot;dias&quot;, unidades_argumentos=(&quot;sin_unidad&quot;,))
+def dias_de_atraso(tarea: dict) -&gt; int:
+    return max(0, tarea[&quot;dias_vencida&quot;])</code></pre>
+<h3 id="84-la-medida">8.4 La medida<a class="ancla" href="#84-la-medida" aria-label="Enlace a esta sección">#</a></h3>
+<p>La escribís en la superficie infija (con la macro <code>ninguno</code> — el caso más común):</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> tareas.vencida_sin_dueno:
+    relacion tarea
+    alias t
+    predicado t.vencida == true <span class="c-kw">y</span> t.asignada == false
+    <span class="c-kw">porque</span> <span class="c-txt">&quot;una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano&quot;</span>
+    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está&quot;</span></code></pre>
+<p>Y la guardás tal cual: el catálogo carga <code>.oracle</code> igual que <code>.json</code>, así que no hay paso de traducción.</p>
+<pre data-lenguaje="bash"><code>mv tareas.vencida_sin_dueno.oracle catalogos/tareas/</code></pre>
+<h3 id="85-el-corpus--las-dos-polaridades">8.5 El corpus — las dos polaridades<a class="ancla" href="#85-el-corpus--las-dos-polaridades" aria-label="Enlace a esta sección">#</a></h3>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 001-vencida-sin-nadie:
+    fecha: <span class="c-txt">&quot;2026-07-31&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;mi-proyecto&quot;</span>
+        commit: <span class="c-txt">&quot;ejemplo&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Una tarea vencida hace tres días y sin asignar&quot;</span>
+    <span class="c-kw">etiqueta</span>: falso_verde
+    sintoma:
+        El tablero mostraba todo en orden <span class="c-kw">porque</span> nadie miraba las tareas <span class="c-kw">sin</span> dueño.
+    como_se_detecto: persona
+    <span class="c-kw">medida</span>: tareas.vencida_sin_dueno
+    <span class="c-kw">evidencia</span>:
+        tarea: id, vencida, asignada, dias_vencida
+            <span class="c-txt">&quot;t1&quot;</span>, true, false, 3
+    leccion:
+        Una tarea vencida <span class="c-kw">sin</span> dueño <span class="c-kw">no</span> aparece en ningún filtro habitual del tablero.</code></pre>
+<pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 002-vencida-con-dueno:
+    fecha: <span class="c-txt">&quot;2026-07-31&quot;</span>
+    origen:
+        repo: <span class="c-txt">&quot;mi-proyecto&quot;</span>
+        commit: <span class="c-txt">&quot;ejemplo&quot;</span>
+    procedencia: construida
+    titulo: <span class="c-txt">&quot;Vencida pero con alguien encima — no debe dar rojo&quot;</span>
+    <span class="c-kw">etiqueta</span>: verde_correcto
+    sintoma:
+        Una tarea vencida CON dueño asignado <span class="c-kw">no</span> es el defecto que esta <span class="c-kw">medida</span> busca.
+    como_se_detecto: observacion
+    <span class="c-kw">medida</span>: tareas.vencida_sin_dueno
+    <span class="c-kw">evidencia</span>:
+        tarea: id, vencida, asignada, dias_vencida
+            <span class="c-txt">&quot;t2&quot;</span>, true, true, 1
+    leccion:
+        Sin este <span class="c-kw">caso</span>, quitarle el filtro `asignada` a la <span class="c-kw">medida</span> <span class="c-kw">no</span> lo notaría nadie.</code></pre>
+<p><em>(El id del caso y del archivo usan <code>dueno</code> en ASCII: los identificadores son nombres de archivo y por diseño rechazan caracteres no ASCII para evitar divergencias entre normalizaciones NFC/NFD).</em></p>
+<h3 id="86-el-contexto-del-proyecto-y-correr-todo">8.6 El contexto del proyecto y correr todo<a class="ancla" href="#86-el-contexto-del-proyecto-y-correr-todo" aria-label="Enlace a esta sección">#</a></h3>
+<p>Antes de verificar, podés ver todo lo que tu proyecto expone con un solo comando:</p>
+<pre data-lenguaje="bash"><code>cd mi-proyecto
+oracle contexto           # relaciones, campos, escalares, operadores y medidas disponibles
+oracle contexto --compacto # la misma información en ~1.600 tokens (ideal para editores y LLMs)
+oracle test               # secuencia completa: corpus, sintaxis, aceptación y mutación</code></pre>
+<p><strong>Por qué <code>oracle contexto</code> complementa este tutorial en vez de acortarlo:</strong> este tutorial enseña a pensar una medida —los tres niveles, la clausura del álgebra, las macros, el rol de los testigos y las polaridades del corpus—. <code>oracle contexto</code> no explica nada de eso: da la fotografía viva y concreta del proyecto en el que estás trabajando. En vez de alternar entre <code>oracle relaciones</code>, <code>oracle escalares</code> y listados de catálogo, tenés el inventario activo en una sola salida.</p>
+<p><code>oracle test</code> tiene que confirmar: el caso <code>001</code> se pone ROJO con <code>tareas.vencida_sin_dueno</code>, y el <code>002</code> se pone VERDE. Si la mutación encuentra un mutante que sobrevive (por ejemplo, sacarle el <code>y</code> y dejar sólo <code>vencida == true</code>), es que falta un tercer caso que discrimine esa mutación específica — una tarea vencida CON dueño, que ya tenemos, o una NO vencida sin dueño, que faltaría agregar.</p>
+<p>O, desde Python, como biblioteca:</p>
+<pre data-lenguaje="python"><code>from oracle_metalenguaje import Motor
+
+motor = Motor.desde_proyecto(&quot;mi-proyecto&quot;)
+informe = motor.evaluar({&quot;tarea&quot;: [{&quot;id&quot;: &quot;t1&quot;, &quot;vencida&quot;: True, &quot;asignada&quot;: False}]})
+print(informe.ok)     # False
+print(informe.texto())</code></pre>
+<hr>
+<h2 id="9-los-comandos-cuál-usar-y-cuándo">9. Los comandos: cuál usar y cuándo<a class="ancla" href="#9-los-comandos-cuál-usar-y-cuándo" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th>Comando</th><th>Para qué</th></tr></thead><tbody><tr><td><code>oracle init [ruta]</code></td><td>inicializa un proyecto con <code>catalogos/</code>, <code>corpus/</code>, <code>diferencial/</code> y <code>oracle.json</code></td></tr><tr><td><code>oracle caso nuevo &lt;grupo/id&gt;</code></td><td>crea el andamio de un caso nuevo, ya en superficie (<code>.caso</code>)</td></tr><tr><td><code>oracle caso listar</code></td><td>lista los casos del corpus, su etiqueta y qué medida reclaman</td></tr><tr><td><code>oracle caso generar &lt;medida&gt;</code></td><td>fabrica evidencia discriminante para fijar mutaciones a partir de sobrevivientes</td></tr><tr><td><code>oracle nueva &lt;dominio.nombre&gt;</code></td><td>crea el andamio de una medida, ya en superficie infija (<code>.oracle</code>)</td></tr><tr><td><code>oracle revisar &lt;archivo&gt;</code></td><td>valida una medida suelta contra la evidencia</td></tr><tr><td><code>oracle medida probar &lt;arch&gt; --con &lt;filas&gt;</code></td><td>corre una medida contra filas escritas a mano (<code>--vigilar</code> para re-probar al guardar)</td></tr><tr><td><code>oracle expandir &lt;archivo&gt;</code></td><td>muestra la forma canónica a la que expande una macro</td></tr><tr><td><code>oracle contexto [--compacto]</code></td><td>reúne relaciones, campos, escalares, operadores y medidas de TU proyecto (~1.600 tokens con <code>--compacto</code>)</td></tr><tr><td><code>oracle test [--rapido\|--todo]</code></td><td>secuencia completa: corpus, sintaxis, aceptación, diferencial y mutación</td></tr><tr><td><code>oracle relaciones</code></td><td>ver qué hechos y campos existen HOY (derivados de evidencia real)</td></tr><tr><td><code>oracle escalares</code></td><td>ver las funciones de dominio, operadores y agregados disponibles</td></tr><tr><td><code>oracle manual [tema]</code></td><td>la referencia del lenguaje armada de sus fuentes (<code>--html</code> para el sitio, <code>--man</code> para páginas de manual; tema <code>medidas</code> para las 54 universales y sus alcances)</td></tr><tr><td><code>oracle biblioteca instaladas</code></td><td>qué bibliotecas de políticas hay instaladas y cuáles usa este proyecto</td></tr><tr><td><code>oracle biblioteca verificar &lt;ruta&gt;</code></td><td>certifica una biblioteca antes de confiar en ella</td></tr><tr><td><code>oracle biblioteca listar &lt;ruta&gt;</code></td><td>muestra umbrales, orígenes (<code>segun</code>) y alcances de una biblioteca</td></tr><tr><td><code>oracle diagnostico</code></td><td>qué versión de Oracle corre y desde dónde, sin publicar nada del dominio</td></tr><tr><td><code>tools/sintaxis.py --verificar</code></td><td>comprueba ida y vuelta entre JSON y superficie en todo el catálogo, macros, corpus y bloques de documentación</td></tr><tr><td><code>python -m unittest discover -s tests -t . -q</code></td><td>la suite de tests, sin dependencias externas</td></tr></tbody></table></div>
+<p>Todos aceptan <code>--proyecto &lt;ruta&gt;</code> (o <code>$ORACLE_PROYECTO</code>) y, si el proyecto declara <code>escalares.py</code>, exigen <code>--confiar-escalares</code> para ejecutarlo. Sin esa bandera, las inspecciones (<code>--help</code>, <code>--relaciones</code>, <code>--nueva</code>, <code>--escalares</code> sin UDF externas, <code>contexto</code>) son siempre seguras.</p>
+<h3 id="heredar-un-catálogo-sin-quedar-en-rojo-el-primer-día">Heredar un catálogo sin quedar en rojo el primer día<a class="ancla" href="#heredar-un-catálogo-sin-quedar-en-rojo-el-primer-día" aria-label="Enlace a esta sección">#</a></h3>
+<p>Cuando un proyecto adopta un catálogo que no escribió —el catálogo base de Oracle, o una biblioteca de políticas— suele salir rojo en cosas reales que nadie va a arreglar hoy. Apagar la medida sería volver al verde que no significa nada, así que hay una tercera opción: <strong>la sombra</strong>. Se declara en <code>oracle.json</code> y la medida se evalúa, se informa con la marca <code>[EN SOMBRA]</code>, y <strong>no tumba la corrida</strong>:</p>
+<pre data-lenguaje="json"><code>{
+  &quot;sombra&quot;: {
+    &quot;meta.toda_medida_filtra_o_agrupa&quot;: {
+      &quot;desde&quot;: &quot;2026-09-01&quot;,
+      &quot;porque&quot;: &quot;tres medidas heredadas sin filtro; se arreglan de a una&quot;
+    }
+  }
+}</code></pre>
+<p>Los dos campos son obligatorios y hay medidas que los vigilan: una sombra sin fecha no se puede envejecer, una sin motivo no se puede discutir, y una sobre una medida que ya da verde no tiene nada que perdonar. La sombra además <strong>envejece</strong>:</p>
+<ul><li><code>meta.ninguna_sombra_envejece_sin_revisarse</code>: si la sombra supera los <strong>90 días</strong>, la medida se pone roja.</li><li><code>meta.toda_sombra_declara_una_fecha_real</code>: si la fecha no se puede parsear o está en el futuro, falla.</li><li><code>meta.ninguna_sombra_ya_en_verde</code>: prohíbe mantener en sombra medidas que ya dan verde.</li><li><code>meta.ninguna_sombra_sobre_una_medida_que_no_existe</code>: prohíbe sombras huérfanas.</li></ul>
+<p><strong>Ninguna de esas medidas se puede poner en sombra a sí misma</strong>, que es lo que impide que la sombra se coma su propio control.</p>
+<hr>
+<h2 id="10-errores-frecuentes-al-escribir-tu-primera-medida">10. Errores frecuentes al escribir tu primera medida<a class="ancla" href="#10-errores-frecuentes-al-escribir-tu-primera-medida" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th>Lo que ves</th><th>Qué significa</th><th>Cómo se arregla</th></tr></thead><tbody><tr><td><code>el umbral &lt;= 0 no trae defensa</code></td><td>falta el texto de <code>porque</code> en <code>umbral</code></td><td>agregá por qué ese número y no otro</td></tr><tr><td><code>hay que declarar qué NO ve</code></td><td>falta <code>alcance</code>, o está vacío</td><td>escribí honestamente el punto ciego</td></tr><tr><td><code>«&gt;» sobre un valor ausente</code></td><td>un <code>campo</code> mal escrito o que no existe en la evidencia</td><td><code>--relaciones</code> para ver los campos reales</td></tr><tr><td><code>«==» sobre un flotante…</code></td><td>comparaste igualdad exacta de dos flotantes</td><td>usá <code>&lt;=</code>/<code>&gt;=</code> con una tolerancia</td></tr><tr><td>medida que nunca se pone roja</td><td>la condición del <code>donde</code> probablemente está invertida</td><td>escribí el caso del corpus primero; si no se pone rojo, la medida mide al revés</td></tr><tr><td>medida que nunca se pone verde</td><td>falta un caso <code>verde_correcto</code>, o el filtro es demasiado amplio</td><td>agregá evidencia donde la medida DEBE dar verde</td></tr><tr><td><code>el id «x» está dos veces</code></td><td>dos archivos del catálogo declaran el mismo id</td><td>cambiale el nombre a uno de los dos</td></tr><tr><td><code>la relación «x» no existe en la evidencia</code></td><td>tu tubería pide una relación que la evidencia no trae</td><td>una relación vacía se declara <code>[]</code> explícitamente, nunca se omite</td></tr></tbody></table></div>
+<p>Lo que la herramienta <strong>no puede decirte</strong>: si la condición dice lo que quisiste decir. Una medida que selecciona lo que está BIEN en vez de lo que ofende pasa todas las validaciones automáticas — está bien formada, discrimina, y mide exactamente al revés de lo que pensabas. Por eso el caso del corpus va primero: es lo único que lee la intención.</p>
+<hr>
+<h2 id="11-glosario-rápido">11. Glosario rápido<a class="ancla" href="#11-glosario-rápido" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th>Término</th><th>Definición corta</th></tr></thead><tbody><tr><td><strong>superficie infija</strong></td><td>la forma humana y legible en que se escriben las medidas (<code>.oracle</code>) y los casos (<code>.caso</code>)</td></tr><tr><td><strong>hecho</strong></td><td>un registro de campos escalares (sin objetos anidados)</td></tr><tr><td><strong>relación</strong></td><td>una bolsa nombrada de hechos del mismo tipo — el equivalente a una tabla</td></tr><tr><td><strong>evidencia</strong></td><td>el mapa completo <code>relación → lista de hechos</code> que se le pasa a una medida</td></tr><tr><td><strong>medida</strong></td><td>un dato que describe cómo medir algo: tubería + resumen + umbral + alcance</td></tr><tr><td><strong>testigos</strong></td><td>las filas que sobrevivieron al último <code>donde</code> — se muestran cuando la medida da rojo</td></tr><tr><td><strong>umbral</strong></td><td>el límite contra el que se compara el valor medido, con su defensa en texto (<code>porque</code>)</td></tr><tr><td><strong>requiere</strong></td><td>declaración explícita de relaciones necesarias para no emitir veredictos vacíos</td></tr><tr><td><strong>alcance</strong></td><td>lo que la medida explícitamente NO mira — obligatorio, no puede estar vacío</td></tr><tr><td><strong>escalar (UDF)</strong></td><td>una función de dominio declarada con <code>@escalar</code>, para lo que el álgebra no sabe hacer sola</td></tr><tr><td><strong>macro</strong></td><td>azúcar sintáctica (<code>ninguno</code>, <code>ninguno-requiere</code>, <code>ninguno-par</code>, <code>peor</code>) que expande a la forma canónica</td></tr><tr><td><strong>corpus</strong></td><td>la colección de casos reales (defectos y aciertos) que fija que las medidas midan lo que dicen medir</td></tr><tr><td><strong>dominio</strong></td><td>el conjunto de medidas + escenario + implementación de referencia que verifica un proyecto externo (geometría, vault, etc.)</td></tr><tr><td><strong>fixture diferencial</strong></td><td>evidencia versionada + veredicto de una implementación independiente, para comparar contra Oracle</td></tr><tr><td><strong>L0 / L1 / L2</strong></td><td>evidencia / medidas sobre evidencia / medidas sobre medidas — la misma representación en los tres niveles</td></tr></tbody></table></div>
+<hr>
+<h2 id="para-seguir">Para seguir<a class="ancla" href="#para-seguir" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li>El estudio integral completo (filosofía, especificación formal, auditoría, historia de decisiones) se genera con <code>oracle-estudio --archivo ORACLE-PARA-NOTEBOOKLM.md</code> desde el árbol.</li><li>La guía de referencia oficial para escribir una medida: <code>docs/03-escribir-una-medida.md</code>.</li><li>La especificación formal del álgebra, con las preguntas abiertas y cómo se cerraron: <code>ESPECIFICACION.md</code>.</li><li>Dos consumidores reales en producción consumiendo desde PyPI: el catálogo de Jam (plugin de Unreal Engine: geometría, colocación de piezas, snapping) en <code>~/Dev/jam/medidas/catalogos/</code> y el de LyraGASP (juego en Unreal Engine: deformers, recarga, assets) en <code>~/Dev/games/unreal/LyraGASP/medidas/catalogos/</code>.</li><li>Las lecciones de migración desde subtree al paquete de PyPI: <code>docs/migracion/de-subtree-a-pypi.md</code>.</li></ul>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/tutorial-practico.md" rel="noopener">docs/tutorial-practico.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#0-oracle-en-una-frase">0. Oracle en una frase</a></li><li class="n2"><a href="#1-el-modelo-mental-tres-niveles-una-sola-representación">1. El modelo mental: tres niveles, una sola representación</a></li><li class="n2"><a href="#2-anatomía-de-una-medida">2. Anatomía de una medida</a></li><li class="n3"><a href="#el-almacenamiento-por-qué-json">El almacenamiento: por qué JSON</a></li><li class="n2"><a href="#3-el-álgebra-cinco-operadores-y-nada-más">3. El álgebra: cinco operadores, y nada más</a></li><li class="n3"><a href="#31-de--la-fuente">3.1 de — la fuente</a></li><li class="n3"><a href="#32-donde--el-filtro-y-los-testigos">3.2 donde — el filtro (y los testigos)</a></li><li class="n3"><a href="#33-acceso-a-los-datos-siempre-explícito">3.3 Acceso a los datos: siempre explícito</a></li><li class="n3"><a href="#34-comparadores-y-lógicos">3.4 Comparadores y lógicos</a></li><li class="n3"><a href="#35-resumen-y-los-agregados">3.5 resumen y los agregados</a></li><li class="n3"><a href="#36-unir--comparar-filas-entre-sí">3.6 unir — comparar filas entre sí</a></li><li class="n3"><a href="#37-agrupar--cómo-se-expresa-la-ausencia-sin-usar-null">3.7 agrupar — cómo se expresa la AUSENCIA sin usar null</a></li><li class="n2"><a href="#4-las-macros-la-forma-corta">4. Las macros: la forma corta</a></li><li class="n3"><a href="#ninguno--el-caso-común">ninguno — el caso común</a></li><li class="n3"><a href="#peor--cuando-el-número-importa-no-la-cuenta">peor — cuando el número importa, no la cuenta</a></li><li class="n3"><a href="#ninguno-par">ninguno-par</a></li><li class="n3"><a href="#las-macros-no-son-un-embudo">Las macros no son un embudo</a></li><li class="n2"><a href="#5-seis-ejemplos-reales-de-menor-a-mayor-complejidad">5. Seis ejemplos reales, de menor a mayor complejidad</a></li><li class="n3"><a href="#51-contar-lo-que-ofende-el-patrón-más-común">5.1 Contar lo que ofende (el patrón más común)</a></li><li class="n3"><a href="#52-medir-una-magnitud-con-una-función-de-dominio-peor--escalar">5.2 Medir una magnitud con una función de dominio (peor + escalar)</a></li><li class="n3"><a href="#53-comparar-filas-entre-sí-con-unir-forma-canónica-sin-macro">5.3 Comparar filas entre sí con unir (forma canónica, sin macro)</a></li><li class="n3"><a href="#54-unir-sin-donde-resumiendo-con-min">5.4 unir sin donde, resumiendo con min</a></li><li class="n3"><a href="#55-agrupar-en-un-caso-real-que-la-traza-de-una-simulación-no-tenga-huecos">5.5 agrupar en un caso real: que la traza de una simulación no tenga huecos</a></li><li class="n3"><a href="#56-l2-una-medida-sobre-medidas">5.6 L2: una medida sobre medidas</a></li><li class="n2"><a href="#6-funciones-escalares-udf-cuando-el-álgebra-no-alcanza">6. Funciones escalares (UDF): cuando el álgebra no alcanza</a></li><li class="n2"><a href="#7-el-corpus-cómo-se-escribe-un-caso">7. El corpus: cómo se escribe un caso</a></li><li class="n3"><a href="#las-etiquetas">Las etiquetas</a></li><li class="n3"><a href="#por-qué-necesito-la-otra-polaridad-verde_correcto">¿Por qué necesito la otra polaridad (verde_correcto)?</a></li><li class="n3"><a href="#casos-sin-medida-abierto-resuelto-limite_humano">Casos sin medida: abierto, resuelto, limite_humano</a></li><li class="n2"><a href="#8-un-proyecto-de-punta-a-punta">8. Un proyecto de punta a punta</a></li><li class="n3"><a href="#81-la-carpeta">8.1 La carpeta</a></li><li class="n3"><a href="#82-oraclejson">8.2 oracle.json</a></li><li class="n3"><a href="#83-la-escalar-opcional-en-este-ejemplo-para-mostrar-el-patrón">8.3 La escalar (opcional en este ejemplo, para mostrar el patrón)</a></li><li class="n3"><a href="#84-la-medida">8.4 La medida</a></li><li class="n3"><a href="#85-el-corpus--las-dos-polaridades">8.5 El corpus — las dos polaridades</a></li><li class="n3"><a href="#86-el-contexto-del-proyecto-y-correr-todo">8.6 El contexto del proyecto y correr todo</a></li><li class="n2"><a href="#9-los-comandos-cuál-usar-y-cuándo">9. Los comandos: cuál usar y cuándo</a></li><li class="n3"><a href="#heredar-un-catálogo-sin-quedar-en-rojo-el-primer-día">Heredar un catálogo sin quedar en rojo el primer día</a></li><li class="n2"><a href="#10-errores-frecuentes-al-escribir-tu-primera-medida">10. Errores frecuentes al escribir tu primera medida</a></li><li class="n2"><a href="#11-glosario-rápido">11. Glosario rápido</a></li><li class="n2"><a href="#para-seguir">Para seguir</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>

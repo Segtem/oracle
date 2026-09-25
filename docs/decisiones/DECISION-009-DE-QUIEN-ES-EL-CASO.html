@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DECISIÓN 009 — de quién es el caso — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="../assets/sitio.css">
+<link rel="icon" href="../assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="../"><img src="../assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="../por-que.html">Por qué</a>
+    <a href="../documentacion.html">Documentación</a>
+    <a href="../manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="../documentacion.html">El camino</a></li><li><a href="../02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="../03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="../13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="../05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="../07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="../tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="../12-tareas.html">El tracker de tareas</a></li><li><a href="../14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="../mcp-contrato.html">El servidor MCP</a></li><li><a href="../mutacion-memoria.html">Memoria de la mutación</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="../especificacion.html">Especificación</a></li><li><a href="index.html">Decisiones</a></li><li><a href="../notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="decisión-009--de-quién-es-el-caso">DECISIÓN 009 — de quién es el caso<a class="ancla" href="#decisión-009--de-quién-es-el-caso" aria-label="Enlace a esta sección">#</a></h1>
+<p><strong>Fecha:</strong> 2026-09-01 <strong>Estado:</strong> tomada · <strong>el código llega con el descubrimiento de bibliotecas, no antes</strong> <strong>Resuelve:</strong> la corrección 2 de <a href="DECISION-007-BIBLIOTECAS-DE-POLITICAS.html"><code>DECISION-007</code></a></p>
+<h2 id="la-pregunta">La pregunta<a class="ancla" href="#la-pregunta" aria-label="Enlace a esta sección">#</a></h2>
+<p>Una biblioteca de políticas trae su propio corpus. Sus casos declaran <code>procedencia: observada</code> con <code>origen: {repo, commit}</code> de <strong>otro repositorio</strong>. Cuando mi proyecto la carga, las medidas meta que evalúan el corpus, ¿qué casos miran?</p>
+<p><code>DECISION-007</code> la dejó abierta con una frase exacta: <em>«hoy la pregunta ni se puede formular»</em>.</p>
+<h2 id="lo-que-se-decide">Lo que se decide<a class="ancla" href="#lo-que-se-decide" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Cada medida lo declara explícitamente en su <code>donde</code>.</strong> No hay una política global, y el arnés no filtra nada: produce los hechos de todos los casos con su origen reificado, y el juicio queda en <code>catalogos/meta/</code> como todo lo demás.</p>
+<p>Es el mismo movimiento que ya se hizo con <code>medida_en_uso.es_heredada</code>, y por el mismo motivo: esconder el filtro en Python pondría el veredicto en código imperativo mientras el resto del proyecto exige que los veredictos sean datos.</p>
+<h2 id="y-no-es-uniforme-dos-miran-lo-propio-dos-miran-todo">Y no es uniforme: dos miran lo propio, dos miran todo<a class="ancla" href="#y-no-es-uniforme-dos-miran-lo-propio-dos-miran-todo" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th>medida</th><th>mira</th><th>por qué</th></tr></thead><tbody><tr><td><code>meta.la_medida_no_se_fija_solo_con_evidencia_fabricada</code></td><td><strong>sólo lo propio</strong></td><td>si la evidencia de un tercero es fabricada, el rojo es suyo y yo no lo puedo arreglar</td></tr><tr><td><code>meta.el_hueco_declarado_explica_por_que</code></td><td><strong>sólo lo propio</strong></td><td>un hueco sin explicar en una biblioteca ajena es responsabilidad de su certificación</td></tr><tr><td><code>meta.el_caso_reclama_una_medida_que_existe</code></td><td>todo</td><td>un caso colgado es peligroso venga de donde venga, y <strong>acá sí puedo actuar</strong>: puede ser que seleccioné políticas a medias</td></tr><tr><td><code>meta.el_caso_se_pone_como_debe</code></td><td>todo</td><td>que un caso ajeno NO se comporte como declara <strong>en mi entorno</strong> es información valiosa sobre mi entorno, no sobre el suyo</td></tr></tbody></table></div>
+<p><strong>El criterio que separa las dos columnas:</strong> <em>un rojo sobre el que no puedo actuar enseña a ignorar la herramienta.</em> Es el mismo argumento que sostiene el modo sombra, un nivel más abajo.</p>
+<h2 id="el-campo">El campo<a class="ancla" href="#el-campo" aria-label="Enlace a esta sección">#</a></h2>
+<p>La relación <code>caso</code> gana <strong>dos</strong>, no uno:</p>
+<pre><code>caso(… , es_heredado, biblioteca)</code></pre>
+<p><code>es_heredado</code> es el booleano que los <code>donde</code> van a leer. <code>biblioteca</code> es de qué paquete vino —vacío si es propio— y existe porque el precedente <strong>no es un calco</strong>: <code>es_heredada</code> era binario, proyecto contra catálogo base de Oracle. Con bibliotecas, un caso puede venir del proyecto, del catálogo base o de un paquete cualquiera, y «¿cuál de las tres bibliotecas trajo este caso roto?» es una pregunta que se va a hacer el primer día.</p>
+<h2 id="por-qué-el-código-no-se-escribe-hoy">Por qué el código NO se escribe hoy<a class="ancla" href="#por-qué-el-código-no-se-escribe-hoy" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>Hoy no existe ningún caso ajeno.</strong> Se verificó: <code>catalogos/</code> trae 43 medidas y <strong>cero</strong> casos, y <code>tools/aceptacion.py</code> lee únicamente <code>proy.corpus</code>. No hay forma de que un caso llegue de afuera porque el descubrimiento de bibliotecas no está construido.</p>
+<p>Un campo <code>es_heredado</code> agregado hoy sería <strong>constante <code>false</code></strong>: ninguna evidencia podría ponerlo en <code>true</code>, ningún test podría distinguir su presencia de su ausencia, y su mutante sobreviviría. Sería código que nada observa — exactamente lo que este proyecto borra cuando lo encuentra.</p>
+<p>Así que la decisión se toma ahora, que es lo que <code>DECISION-007</code> pedía, y el código llega junto con el descubrimiento, que es lo único que puede ejercerlo. <strong>Esta decisión desbloquea ese trabajo:</strong> codex se negó a construir descubrimiento y selección mientras la corrección 2 estuviera abierta, y tenía razón.</p>
+<h2 id="lo-que-se-descartó">Lo que se descartó<a class="ancla" href="#lo-que-se-descartó" aria-label="Enlace a esta sección">#</a></h2>
+<p><strong>(a) sólo lo propio, para todas.</strong> Perdería <code>el_caso_se_pone_como_debe</code> sobre casos ajenos, que es la señal más útil de todas: un caso de biblioteca que falla en mi entorno dice algo sobre <strong>mi</strong> configuración.</p>
+<p><strong>(b) sólo lo ajeno.</strong> No corresponde a ninguna pregunta que alguien se haga.</p>
+<p><strong>(c) todo, sin distinguir.</strong> Es lo que hay hoy, y produce rojos sobre los que el consumidor no puede actuar. Es el escenario que <code>DECISION-007</code> describe: <em>«si la primera experiencia de instalar una biblioteca es que el proyecto deja de compilar, no se instala una segunda vez»</em>.</p>
+<h2 id="cómo-se-llegó">Cómo se llegó<a class="ancla" href="#cómo-se-llegó" aria-label="Enlace a esta sección">#</a></h2>
+<p>El análisis se hizo dos veces en paralelo y por separado —acá y por agy— y las dos llegaron a <strong>(d)</strong>. Las siete citas de código del análisis externo se verificaron una por una contra el repositorio.</p>
+<p>Difirieron en una fila de la tabla: <code>meta.el_hueco_declarado_explica_por_que</code>. Acá se había puesto «todo» por inofensivo; el análisis externo argumentó que un hueco sin explicar en una biblioteca ajena es responsabilidad de su certificación. <strong>Ese argumento ganó</strong>, y es el que está en la tabla.</p>
+<p>Y aportó la distinción que faltaba: el precedente de <code>es_heredada</code> era <strong>binario</strong>, y esto no lo es. De ahí el segundo campo.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-009-DE-QUIEN-ES-EL-CASO.md" rel="noopener">docs/decisiones/DECISION-009-DE-QUIEN-ES-EL-CASO.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#la-pregunta">La pregunta</a></li><li class="n2"><a href="#lo-que-se-decide">Lo que se decide</a></li><li class="n2"><a href="#y-no-es-uniforme-dos-miran-lo-propio-dos-miran-todo">Y no es uniforme: dos miran lo propio, dos miran todo</a></li><li class="n2"><a href="#el-campo">El campo</a></li><li class="n2"><a href="#por-qué-el-código-no-se-escribe-hoy">Por qué el código NO se escribe hoy</a></li><li class="n2"><a href="#lo-que-se-descartó">Lo que se descartó</a></li><li class="n2"><a href="#cómo-se-llegó">Cómo se llegó</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
+</body>
+</html>
