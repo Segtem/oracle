@@ -36,6 +36,7 @@ class Pagina:
 
 
 PAGINAS = (
+    Pagina("docs/de-cero.md", "de-cero.html", "Empezar", "Tu primer juego con un LLM"),
     Pagina("docs/README.md", "documentacion.html", "Empezar", "El camino"),
     Pagina("docs/02-de-cero-a-un-rojo.md", "02-de-cero-a-un-rojo.html", "Empezar", "De cero a un rojo"),
     Pagina("docs/03-escribir-una-medida.md", "03-escribir-una-medida.html", "Empezar", "Escribir una medida"),
