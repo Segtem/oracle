@@ -116,6 +116,7 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
 .prosa pre { background: var(--codigo-fondo); color: var(--codigo-tinta); padding: 18px 20px; border-radius: 6px;
              overflow-x: auto; font-size: 14px; line-height: 1.6; margin: 0 0 22px; }
 .prosa pre code { background: none; padding: 0; font-size: inherit; }
+.prosa pre[data-lenguaje="text"] { white-space: pre-wrap; }
 .prosa pre[data-lenguaje]::before { content: attr(data-lenguaje); display: block; font-family: var(--pixel);
              font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8B97A0; margin-bottom: 8px; }
 .c-kw { color: var(--codigo-clave); font-weight: 600; }

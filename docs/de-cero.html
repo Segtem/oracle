@@ -2,439 +2,133 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Una medida, de cero</title>
-<meta name="description" content="Un proyecto Oracle completo en 60 líneas: el caso antes que la medida, qué avisa la herramienta cuando falta algo, y por qué el catálogo base te pone en rojo el primer día.">
-<link rel="canonical" href="https://segtem.github.io/oracle/de-cero.html">
-<meta property="og:title" content="Una medida, de cero">
-<meta property="og:description" content="Nueve pasos con la salida real: init, el caso, la medida, y las dos medidas meta que te ponen en rojo antes de que termines.">
-<meta property="og:type" content="website">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tu primer juego con un LLM, y cómo saber si está bien — Oracle</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap">
-<style>
-  :root {
-    --tinta: oklch(0.16 0 0);
-    --papel: oklch(0.96 0.004 95);
-    --acento: oklch(0.58 0.20 45);
-    --acento-claro: oklch(0.78 0.19 60);
-    --rojo: oklch(0.66 0.22 27);
-    --regla: 3px;
-    --mg: 44px;
-    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
-    --negra: 'Archivo Black', 'Archivo', system-ui, sans-serif;
-  }
-  * { box-sizing: border-box; }
-  html { -webkit-text-size-adjust: 100%; }
-  body {
-    margin: 0; background: var(--papel); color: var(--tinta);
-    font-family: 'Archivo', system-ui, -apple-system, sans-serif;
-    font-size: 17px; line-height: 1.5;
-  }
-  a { color: inherit; text-decoration: underline; text-underline-offset: 3px;
-      text-decoration-thickness: 1px; }
-  a:hover { color: var(--acento); }
-  code, pre { font-family: var(--mono); }
-
-  .fila { border-top: var(--regla) solid var(--tinta); }
-  .pad { padding: 34px var(--mg); }
-  .mono-eti { font-family: var(--mono); font-size: 12px; letter-spacing: 0.09em;
-              text-transform: uppercase; margin: 0 0 18px; color: oklch(0.45 0.01 95); }
-
-  /* ---- barra ---- */
-  .barra { display: flex; align-items: center; justify-content: space-between; gap: 16px;
-           padding: 16px var(--mg); background: var(--tinta); color: var(--papel);
-           font-family: var(--mono); font-size: 12px; letter-spacing: 0.06em;
-           text-transform: uppercase; flex-wrap: wrap; }
-  .barra a { text-decoration: none; }
-  .barra a:hover { color: var(--acento-claro); }
-  .barra nav { display: flex; gap: 26px; flex-wrap: wrap; }
-  .ver { color: oklch(0.70 0.02 95); }
-
-  /* ---- hero ---- */
-  .hero { padding: 58px var(--mg) 44px; }
-  .hero h1 { font-family: var(--negra); font-size: clamp(52px, 11vw, 112px);
-             line-height: 0.88; letter-spacing: -0.038em; margin: 0 0 26px;
-             text-transform: uppercase; }
-  .hero h1 .no { color: var(--acento); }
-  .bajada { font-size: clamp(19px, 2.4vw, 25px); line-height: 1.38; font-weight: 500;
-            margin: 0 0 30px; max-width: 33ch; text-wrap: pretty; }
-  .acciones { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-  .btn { display: inline-block; background: var(--tinta); color: var(--papel);
-         padding: 15px 30px; font-family: var(--negra); font-size: 16px;
-         text-transform: uppercase; letter-spacing: 0.02em; text-decoration: none; }
-  .btn:hover { background: var(--acento); color: var(--papel); }
-  .btn-claro { background: var(--papel); color: var(--tinta);
-               box-shadow: inset 0 0 0 var(--regla) var(--tinta); }
-  .btn-claro:hover { background: var(--tinta); color: var(--papel); box-shadow: none; }
-  .susurro { font-family: var(--mono); font-size: 13px; }
-
-  /* ---- rejillas ---- */
-  .g12 { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); }
-  .g3  { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
-  .g5  { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); }
-  .g4  { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
-  .c7 { grid-column: span 7; border-right: var(--regla) solid var(--tinta); }
-  .c5 { grid-column: span 5; }
-  .g3 > * + *, .g5 > * + *, .g4 > * + * { border-left: var(--regla) solid var(--tinta); }
-  .inverso { background: var(--acento); color: oklch(0.98 0.004 95); }
-  .oscuro  { background: var(--tinta); color: var(--papel); }
-
-  h2.grande { font-family: var(--negra); font-size: clamp(28px, 4vw, 38px);
-              line-height: 1.04; margin: 0 0 14px; text-transform: uppercase; }
-  h3.chica  { font-family: var(--negra); font-size: 24px; margin: 0 0 12px;
-              text-transform: uppercase; }
-  p.cuerpo { margin: 0 0 14px; }
-  p.cuerpo:last-child { margin-bottom: 0; }
-
-  /* ---- la medida anotada ---- */
-  .codigo { margin: 0; font-family: var(--mono); font-size: clamp(13px, 1.5vw, 16px);
-            line-height: 1.95; white-space: pre; overflow-x: auto; }
-  .kw { color: var(--acento-claro); font-weight: 700; }
-  .txt { color: oklch(0.80 0.11 150); }
-  .num { color: oklch(0.84 0.14 90); }
-
-  /* ---- el editor ---- */
-  .editor { border: 1px solid oklch(0.96 0.004 95 / 0.22); background: oklch(0.135 0 0);
-            width: fit-content; max-width: 100%; }
-  .pestana { display: flex; align-items: center; gap: 9px; padding: 9px 14px;
-             background: oklch(0.20 0 0);
-             border-bottom: 1px solid oklch(0.96 0.004 95 / 0.16);
-             font-family: var(--mono); font-size: 12px; color: oklch(0.80 0.01 95); }
-  .pestana .punto { width: 8px; height: 8px; border-radius: 50%;
-                    background: var(--acento-claro); flex: 0 0 auto; }
-  .lens { padding: 7px 14px 0 calc(14px + 3.2ch);
-          font-family: var(--mono); font-size: 12.5px; font-style: italic;
-          color: oklch(0.60 0.02 95); }
-  /* El bloque entero scrollea, no cada línea por su cuenta: con `overflow` en cada fila
-     la línea larga del `porque` se cortaba sola y el resto quedaba quieto. */
-  .lineas { display: grid; grid-template-columns: 3.2ch max-content;
-            padding: 2px 14px 14px; overflow-x: auto;
-            scrollbar-width: thin;
-            scrollbar-color: oklch(0.40 0.01 95) transparent; }
-  .lineas::-webkit-scrollbar { height: 8px; }
-  .lineas::-webkit-scrollbar-track { background: transparent; }
-  .lineas::-webkit-scrollbar-thumb { background: oklch(0.40 0.01 95); border-radius: 4px; }
-  .lineas > .ln { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
-                  line-height: 1.85; color: oklch(0.44 0.01 95);
-                  text-align: right; padding-right: 1.4ch; user-select: none; }
-  .lineas > .cod { font-family: var(--mono); font-size: clamp(12px, 1.4vw, 15px);
-                   line-height: 1.85; white-space: pre; color: oklch(0.92 0.008 95); }
-
-  .leyenda { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr));
-             gap: 14px 34px; margin: 26px 0 0; padding: 0; list-style: none; max-width: 96ch; }
-  .leyenda li { display: flex; gap: 12px; font-size: 15px; line-height: 1.45;
-                color: oklch(0.80 0.01 95); }
-  .leyenda .ancla { font-family: var(--mono); font-size: 12px; color: var(--acento-claro);
-                    flex: 0 0 auto; padding-top: 2px; min-width: 8.5ch; }
-  .leyenda strong { color: var(--papel); }
-  @media (max-width: 860px) { .leyenda { grid-template-columns: 1fr; } }
-
-  .veredicto { font-family: var(--mono); font-size: clamp(13px, 1.5vw, 15px);
-               line-height: 1.9; white-space: pre; overflow-x: auto; margin: 0; }
-  .veredicto .rojo { color: var(--rojo); font-weight: 700; }
-
-  .cifra { font-family: var(--negra); font-size: 40px; margin: 0 0 4px;
-           color: var(--acento-claro); }
-  .nivel { font-family: var(--negra); font-size: 30px; margin: 0 0 10px; }
-
-  .aviso { display: flex; gap: 22px; align-items: flex-start; }
-  .aviso svg { flex: 0 0 auto; margin-top: 3px; }
-
-  .pie { background: var(--tinta); color: oklch(0.82 0.01 95); font-family: var(--mono);
-         font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase;
-         padding: 24px var(--mg); display: flex; gap: 34px; flex-wrap: wrap; }
-  .pie a:hover { color: var(--acento-claro); }
-
-  .cierre { display: flex; align-items: center; justify-content: space-between;
-            gap: 26px; flex-wrap: wrap; }
-
-  /* ---- teléfono: las rejillas se apilan y los bordes cambian de lado ---- */
-  @media (max-width: 860px) {
-    :root { --mg: 22px; --regla: 2px; }
-    body { font-size: 16px; }
-    .g12, .g3, .g5, .g4 { grid-template-columns: 1fr; }
-    .c7, .c5 { grid-column: auto; }
-    .c7 { border-right: 0; border-bottom: var(--regla) solid var(--tinta); }
-    .g3 > * + *, .g5 > * + *, .g4 > * + * {
-      border-left: 0; border-top: var(--regla) solid var(--tinta);
-    }
-    .g4.oscuro > * + * { border-top-color: oklch(0.96 0.004 95 / 0.28); }
-    .barra nav { gap: 16px; font-size: 11px; }
-    .btn { padding: 14px 22px; font-size: 15px; }
-  }
-  @media (prefers-reduced-motion: no-preference) {
-    a, .btn { transition: color .12s ease, background-color .12s ease; }
-  }
-</style>
-<style>
-  .lectura { max-width: 66ch; }
-  .lectura p + p { margin-top: 14px; }
-  /* El número del paso encoded como lo que es: una secuencia real, cada uno depende del anterior. */
-  .paso { display: grid; grid-template-columns: 88px minmax(0,1fr); }
-  .paso > .num { border-right: var(--regla) solid var(--tinta);
-                 padding: 34px 0 34px var(--mg);
-                 font-family: var(--negra); font-size: 34px; line-height: 1;
-                 font-variant-numeric: tabular-nums; }
-  .oscuro.paso > .num { border-right-color: var(--papel); }
-  .paso > .cont { padding: 34px var(--mg); min-width: 0; }
-  .term { margin: 18px 0 0; font-family: var(--mono);
-          font-size: clamp(12.5px, 1.35vw, 14.5px); line-height: 1.7;
-          white-space: pre; overflow-x: auto;
-          background: oklch(0.135 0 0); color: oklch(0.90 0.01 95);
-          border: 1px solid oklch(0.96 0.004 95 / 0.22); padding: 16px 18px; }
-  .term .p { color: var(--acento-claro); }
-  .term .ok { color: oklch(0.80 0.11 150); }
-  .term .no { color: oklch(0.72 0.17 30); }
-  .term .c  { color: oklch(0.58 0.02 95); }
-  .nota { margin: 16px 0 0; padding: 14px 0 0 20px; border-top: 1px solid oklch(0.16 0 0 / 0.22);
-          font-size: 15.5px; line-height: 1.5; position: relative; max-width: 64ch; }
-  .oscuro .nota { border-top-color: oklch(0.96 0.004 95 / 0.28); }
-  .nota::before { content: "→"; position: absolute; left: 0; font-family: var(--mono);
-                  color: var(--acento); }
-  .oscuro .nota::before { color: var(--acento-claro); }
-  .arbol { font-family: var(--mono); font-size: 14px; line-height: 1.85; margin: 18px 0 0;
-           white-space: pre; overflow-x: auto; }
-  @media (max-width: 760px) {
-    .paso { grid-template-columns: 1fr; }
-    .paso > .num { border-right: 0; padding: 24px var(--mg) 0; }
-    .paso > .cont { padding-top: 12px; }
-  }
-</style>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
 </head>
-<body>
-
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
 <header class="barra">
-  <div style="display:flex; align-items:center; gap:14px;">
-    <strong><a href="./">oracle</a></strong><span class="ver">0.7.0</span>
-  </div>
-  <nav>
-    <a href="./">inicio</a>
-    <a href="donde-entra.html">dónde entra</a>
-    <a href="manual.html">manual</a>
-    <a href="https://github.com/Segtem/oracle">github</a>
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
   </nav>
 </header>
-
-<section class="hero">
-  <p class="mono-eti">paso a paso · con la salida real</p>
-  <h1>Una medida,<br><span class="no">de cero</span></h1>
-  <p class="bajada">Nueve pasos hasta un proyecto verde. Al final son 60 líneas, y dos de las
-  cosas que vas a ver son la herramienta corrigiéndote.</p>
-  <p class="susurro">Todo lo que sigue es la salida textual de correr esto con 0.6.0.</p>
-</section>
-
-<section class="fila paso">
-  <div class="num">1</div>
-  <div class="cont">
-    <h2 class="grande">Instalar</h2>
-    <div class="term">$ uv tool install oracle-metalenguaje
-$ oracle --version
-<span class="c">oracle 0.6.0
-  álgebra:  0.6   (qué SIGNIFICA una medida)
-  sintaxis: 0.2   (cómo se ESCRIBE)</span></div>
-    <p class="nota">Cero dependencias. Son dos versiones distintas a propósito: lo que una medida
-    significa no envejece igual que cómo se escribe.</p>
-  </div>
-</section>
-
-<section class="fila paso">
-  <div class="num">2</div>
-  <div class="cont">
-    <h2 class="grande">Crear el proyecto</h2>
-    <div class="term">$ oracle proyecto init
-<span class="c">Proyecto Oracle inicializado:
-  · catalogos/   · corpus/   · diferencial/   · oracle.json</span></div>
-    <p class="nota">Desde este momento <strong>34 medidas ya te obligan</strong>. Vienen del
-    catálogo base y juzgan cómo escribís las tuyas: que declaren su umbral, de dónde salió el
-    número, y qué no miran. No son 57 —ése es el catálogo entero— porque 20 sólo obligan a Oracle
-    y no viajan a tu proyecto.</p>
-  </div>
-</section>
-
-<section class="fila paso oscuro">
-  <div class="num">3</div>
-  <div class="cont">
-    <h2 class="grande">El caso, antes<br>que la medida</h2>
-    <div class="lectura">
-      <p class="cuerpo">Es el orden que importa y el que cuesta respetar. Si la medida se escribe
-      primero, el caso termina diciendo lo que la medida ya hace: no la prueba, la describe.</p>
-      <p class="cuerpo">El defecto de este ejemplo es el problema del lazo cerrado en miniatura:
-      <strong>una prueba que pasó sin afirmar nada.</strong> Pasa igual con la función borrada.</p>
-    </div>
-    <div class="term">$ oracle caso nuevo pruebas/001-paso-sin-afirmar
-
-<span class="p">caso</span> 001-paso-sin-afirmar:
-    procedencia: construida
-    etiqueta: <span class="no">falso_verde</span>
-    sintoma:
-        La suite reportó 3 de 3 en verde. Una no tenía ninguna aserción:
-        se llamó a la función y nadie comparó el resultado.
-    como_se_detecto: persona
-    medida: pruebas.ninguna_pasa_sin_afirmar
-    evidencia:
-        prueba: nombre, aserciones, paso
-            "suma_dos_positivos", 2, true
-            "suma_con_cero",      1, true
-            "suma_negativos",     0, true</div>
-    <p class="nota">La medida que el caso reclama <em>todavía no existe</em>, y está bien: el caso
-    describe el defecto, no la regla.</p>
-  </div>
-</section>
-
-<section class="fila paso">
-  <div class="num">4</div>
-  <div class="cont">
-    <h2 class="grande">Ahora sí, la medida</h2>
-    <div class="term">$ oracle nueva pruebas.ninguna_pasa_sin_afirmar
-
-<span class="p">ninguno</span> pruebas.ninguna_pasa_sin_afirmar:
-    <span class="p">de</span> prueba p
-    <span class="p">donde</span> p.paso == true <span class="p">y</span> p.aserciones == 0
-    <span class="p">umbral</span> &lt;= 0 <span class="p">segun</span> contrato <span class="p">porque</span> "una prueba sin aserciones pasa
-        con la funcion borrada: no distingue el codigo que mide del
-        que no existe, asi que su verde no es evidencia de nada"
-    <span class="p">ambito</span> universal
-    <span class="p">alcance</span> "cuenta pruebas que pasaron con cero aserciones. NO ve si
-        las aserciones que hay comprueban lo correcto, ni si la prueba
-        cubre el caso que importa, ni una asercion siempre verdadera"</div>
-    <p class="nota">El <code>donde</code> selecciona lo que <strong>ofende</strong>, no lo que está
-    bien. Y el <code>alcance</code> es obligatorio: sin él, un verde se lee como «está todo bien»,
-    y ninguna medida ve todo.</p>
-  </div>
-</section>
-
-<section class="fila paso oscuro">
-  <div class="num">5</div>
-  <div class="cont">
-    <h2 class="grande">La herramienta<br>te corrige</h2>
-    <div class="term">$ oracle revisar catalogos/pruebas/pruebas.ninguna_pasa_sin_afirmar.oracle
-
-<span class="ok">✓ bien declarada</span>   (forma: ninguno)
-
-contra la evidencia que hay: 0 verde · 1 rojo · 0 error
-
-  se pone roja con «001-paso-sin-afirmar»:
-    <span class="no">✗ pruebas.ninguna_pasa_sin_afirmar        1 (&lt;= 0)</span>
-      → p=suma_negativos
-
-<span class="no">⚠ nunca se pone verde.</span> Probablemente la condición esté invertida: el
-  `donde` tiene que seleccionar lo que OFENDE, no lo que está bien.</div>
-    <p class="nota">La medida está bien: lo que falta es un caso verde. Sin él nadie comprobó que
-    la medida sepa <em>no</em> dispararse — y una regla que siempre da rojo tampoco mide.</p>
-  </div>
-</section>
-
-<section class="fila paso">
-  <div class="num">6</div>
-  <div class="cont">
-    <h2 class="grande">El caso verde,<br>que no sobra</h2>
-    <div class="term"><span class="p">caso</span> 002-todas-afirman:
-    procedencia: observada
-    etiqueta: <span class="ok">verde_correcto</span>
-    sintoma:
-        Ninguno. Es la salida real de `pytest -q` sobre el repo de
-        ejemplo, con el conteo de aserciones de cada prueba.
-    como_se_detecto: observacion
-    evidencia:
-        prueba: nombre, aserciones, paso
-            "suma_dos_positivos",   2, true
-            "suma_con_cero",        1, true
-            "resta_sin_implementar", 0, false</div>
-    <p class="nota">La tercera fila tiene cero aserciones y <strong>no ofende</strong>: falló, y eso
-    ya se ve. Lo que la medida persigue es el par «pasó <em>y</em> no afirmó».</p>
-  </div>
-</section>
-
-<section class="fila paso oscuro">
-  <div class="num">7</div>
-  <div class="cont">
-    <h2 class="grande">El catálogo base<br>te pone en rojo</h2>
-    <div class="term">$ oracle test
-
-<span class="no">ACEPTACIÓN ✗ — 2 problema(s)</span>
-  · meta.la_medida_no_se_fija_solo_con_evidencia_fabricada
-      → casos: 2, no_observados: 2
-  · meta.toda_cantidad_comparada_tiene_unidad_derivable
-      → unidad: 'sin_declarar', es_derivable: False
-
-mutantes de medida: 11 · murieron 11 · <span class="ok">sobrevivieron 0</span>
-
-<span class="no">VEREDICTO: ROJO (falló: aceptación)</span></div>
-    <p class="nota">La mutación ya está en cero: los dos casos fijan la medida. Lo que falta es lo
-    que el catálogo base exige de cualquiera — que al menos un caso venga de una corrida real, y
-    que la cantidad que comparás tenga unidad declarada.</p>
-  </div>
-</section>
-
-<section class="fila paso">
-  <div class="num">8</div>
-  <div class="cont">
-    <h2 class="grande">Declarar de qué<br>están hechos los hechos</h2>
-    <div class="term">$ cat relaciones/prueba.json
-
-["relacion", "prueba",
-  ["campos",
-    ["campo", "nombre",     "texto",    "sin_unidad"],
-    ["campo", "aserciones", "entero",   "aserciones"],
-    ["campo", "paso",       "booleano", "sin_unidad"]],
-  ["alcance", "lee lo que el runner reportó de cada prueba. NO ve qué
-    comprueba cada aserción, ni si la prueba cubre el caso que importa"]]</div>
-    <p class="nota">Comparar <code>p.aserciones == 0</code> sin decir que se miden aserciones es
-    comparar un número con otro número. La relación también declara su punto ciego: el sensor
-    tampoco ve todo.</p>
-  </div>
-</section>
-
-<section class="fila paso inverso">
-  <div class="num">9</div>
-  <div class="cont">
-    <h2 class="grande">Verde</h2>
-    <div class="term">$ oracle test
-
-<span class="ok">ACEPTACIÓN ✓</span> — 1 defectos en rojo, 1 verdes correctos,
-             0 huecos declarados sin tapar
-
-mutantes de medida: 11 · murieron 11 · <span class="ok">sobrevivieron 0</span>
-detecciones evaluadas (mutante × caso): 22
-
-  ✓ meta.toda_medida_esta_ejercitada        0 (&lt;= 0)
-  ✓ meta.toda_medida_esta_fijada            0 (&lt;= 0)
-
-<span class="ok">VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</span></div>
-    <div class="arbol">catalogos/pruebas/pruebas.ninguna_pasa_sin_afirmar.oracle
-corpus/pruebas/001-paso-sin-afirmar.caso
-corpus/pruebas/002-todas-afirman.caso
-relaciones/prueba.json
-oracle.json                                    <span style="opacity:.7">60 líneas en total</span></div>
-  </div>
-</section>
-
-<section class="fila pad">
-  <p class="mono-eti">lo que este verde sí dice</p>
-  <h2 class="grande">Y lo que no</h2>
-  <div class="lectura">
-    <p class="cuerpo"><strong>Dice</strong> que hay una regla escrita, que un defecto real la pone
-    en rojo, que un caso sano la deja en verde, y que los once mutantes de esa regla mueren contra
-    esos dos casos: no se puede reescribir la medida de otra forma sin que el corpus lo note.</p>
-    <p class="cuerpo"><strong>No dice</strong> que tus pruebas estén bien. La medida cuenta
-    aserciones; una aserción que siempre es verdadera cuenta igual que una que discrimina. Eso está
-    escrito en su <code>alcance</code>, y es lo primero que hay que leer de una medida que no
-    escribiste.</p>
-    <p class="cuerpo">El siguiente paso real no es escribir más medidas: es conectar el sensor.
-    Mientras la evidencia se escriba a mano, esto prueba que el catálogo es coherente — no que tu
-    proyecto esté bien.</p>
-  </div>
-</section>
-
-<footer class="fila pad" style="display:flex; gap:24px; flex-wrap:wrap;
-        font-family:var(--mono); font-size:13px;">
-  <a href="./">inicio</a>
-  <a href="donde-entra.html">dónde entra</a>
-  <a href="manual.html">manual</a>
-  <a href="https://github.com/Segtem/oracle">Segtem/oracle</a>
-  <span>0.7.0</span>
-</footer>
-
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html" aria-current=page>Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="12-tareas.html">El tracker de tareas</a></li><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp-contrato.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="tu-primer-juego-con-un-llm-y-cómo-saber-si-está-bien">Tu primer juego con un LLM, y cómo saber si está bien<a class="ancla" href="#tu-primer-juego-con-un-llm-y-cómo-saber-si-está-bien" aria-label="Enlace a esta sección">#</a></h1>
+<p>Esta guía es para alguien que recién empieza a programar y programa con un modelo de lenguaje: le pedís el código, lo probás y seguís. Vamos a hacer una batalla naval que corre en el navegador y, sobre todo, vamos a responder una pregunta que el juego solo no puede contestar: <strong>¿cumple las reglas?</strong></p>
+<p>No hace falta saber programar. Hace falta paciencia para leer lo que el modelo te devuelve y ganas de preguntar «¿cómo sé que esto está bien?».</p>
+<blockquote><p><strong>Estado de esta guía.</strong> El recorrido y las explicaciones están escritos. Las salidas de terminal marcadas como <em>pendiente</em> se completan con corridas reales cuando el ejemplo <code>ejemplo/batalla-naval/</code> quede verde en el repositorio (tarea <code>de-cero-naval</code>). Ninguna salida de esta guía se escribe a mano.</p></blockquote>
+<h2 id="lo-que-vas-a-construir">Lo que vas a construir<a class="ancla" href="#lo-que-vas-a-construir" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un juego de batalla naval en un tablero de 10 por 10. Cada jugador tiene cinco barcos: un portaaviones de 5 casillas, un acorazado de 4, un crucero de 3, un submarino de 3 y un destructor de 2. En total, 17 casillas por flota. Se dispara por turnos y gana quien hunde toda la flota del otro.</p>
+<p>Y al lado del juego, un <strong>catálogo de reglas</strong> escritas en Oracle que miran cada partida y dicen si se respetaron, con la prueba en la mano cuando no.</p>
+<h2 id="html-css-y-javascript-lo-justo">HTML, CSS y JavaScript, lo justo<a class="ancla" href="#html-css-y-javascript-lo-justo" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un juego en el navegador son tres archivos que se reparten el trabajo:</p>
+<div class="tabla"><table><thead><tr><th>Archivo</th><th>Qué hace</th><th>En la batalla naval</th></tr></thead><tbody><tr><td><code>index.html</code></td><td>la estructura: qué hay en la pantalla</td><td>los dos tableros, los botones, el panel de la partida</td></tr><tr><td><code>css/…</code></td><td>el aspecto: colores, tamaños, posiciones</td><td>el agua, los barcos, las explosiones</td></tr><tr><td><code>js/…</code></td><td>el comportamiento: qué pasa cuando hacés algo</td><td>colocar barcos, disparar, decidir quién gana</td></tr></tbody></table></div>
+<p>Para esta guía no hace falta leer el CSS. Del JavaScript nos importa un archivo: el que <strong>cuenta lo que pasó</strong> en la partida. Lo vemos más abajo.</p>
+<h2 id="pedirle-el-juego-a-un-modelo">Pedirle el juego a un modelo<a class="ancla" href="#pedirle-el-juego-a-un-modelo" aria-label="Enlace a esta sección">#</a></h2>
+<p>Un pedido que funciona bien es concreto sobre las reglas y sobre la forma:</p>
+<pre data-lenguaje="text"><code>Haceme una batalla naval en HTML5, CSS y JavaScript, sin librerías.
+Tablero de 10x10. Flota: portaaviones 5, acorazado 4, crucero 3, submarino 3, destructor 2.
+Contra la computadora, por turnos alternados. Gana quien hunde las 17 casillas del otro.
+Separá el código en index.html, css/estilos.css y js/ (motor, interfaz).</code></pre>
+<p>Cuando te devuelva el código, abrí <code>index.html</code> en el navegador y jugá una partida. Si anda, <strong>todavía no sabés si está bien</strong>. Sabés que anda. Son cosas distintas, y el resto de la guía es sobre esa diferencia.</p>
+<h2 id="el-problema-un-juego-que-anda-no-es-un-juego-correcto">El problema: un juego que anda no es un juego correcto<a class="ancla" href="#el-problema-un-juego-que-anda-no-es-un-juego-correcto" aria-label="Enlace a esta sección">#</a></h2>
+<p>Mirá estas preguntas. Ninguna se contesta jugando una vez:</p>
+<ul><li>¿Puede quedar un barco con una casilla fuera del tablero?</li><li>¿Pueden dos barcos del mismo jugador ocupar la misma casilla?</li><li>¿Alternan de verdad los turnos, o a veces tira dos veces el mismo?</li><li>Cuando el juego dice «¡impacto!», ¿había un barco en esa casilla?</li><li>¿El ganador hundió las 17 casillas, o el juego terminó antes?</li></ul>
+<p>Si le pedís al mismo modelo que escriba el juego y también los tests, los tests van a confirmar lo que el modelo ya creía. Por eso las reglas van <strong>aparte</strong>, en un lenguaje hecho para eso, y miran lo que el juego hizo, no lo que el juego cree que hizo.</p>
+<blockquote><p>Esto pasó de verdad. Un agente construyó una batalla naval «con Oracle» y <code>oracle test</code> dio verde. El catálogo estaba vacío: el verde validaba la sintaxis de un archivo, no el juego. Está contado en <a href="https://github.com/Segtem/oracle/blob/main/docs/por-que.html" rel="noopener">Por qué Oracle</a>. Desde entonces, un proyecto sin medidas sale <em>sin medición</em>, no verde.</p></blockquote>
+<h2 id="que-el-juego-cuente-lo-que-pasó">Que el juego cuente lo que pasó<a class="ancla" href="#que-el-juego-cuente-lo-que-pasó" aria-label="Enlace a esta sección">#</a></h2>
+<p>La idea central: <strong>el juego no se juzga a sí mismo, cuenta lo que pasó.</strong> Mientras se juega, un archivo anota cada hecho en filas planas, sin opinar. En el ejemplo ese archivo es <code>js/trace.js</code>, y anota tres cosas:</p>
+<div class="tabla"><table><thead><tr><th>Relación</th><th>Una fila por…</th><th>Campos</th></tr></thead><tbody><tr><td><code>celda_barco</code></td><td>cada casilla ocupada por un barco</td><td><code>id</code>, <code>jugador</code>, <code>barco_id</code>, <code>segmento_idx</code>, <code>fila</code>, <code>columna</code></td></tr><tr><td><code>tiro</code></td><td>cada disparo</td><td><code>turno</code>, <code>tirador</code>, <code>receptor</code>, <code>fila</code>, <code>columna</code>, <code>es_impacto</code>, <code>hundio_barco</code>, <code>barco_hundido</code></td></tr><tr><td><code>partida</code></td><td>el final de la partida</td><td><code>estado</code>, <code>ganador</code>, <code>perdedor</code>, <code>turno_final</code>, <code>total_tiros</code>, <code>impactos_ganador</code>, <code>impactos_perdedor</code></td></tr></tbody></table></div>
+<p>Al terminar, el juego descarga esas filas como un archivo JSON. Así se ve el primer tiro de una partida real (<code>partida_real.json</code> del ejemplo):</p>
+<pre data-lenguaje="json"><code>{
+  &quot;tiro&quot;: [
+    {&quot;turno&quot;: 0, &quot;tirador&quot;: &quot;jugador&quot;, &quot;receptor&quot;: &quot;cpu&quot;, &quot;fila&quot;: 2, &quot;columna&quot;: 3, &quot;es_impacto&quot;: false, &quot;hundio_barco&quot;: false, &quot;barco_hundido&quot;: &quot;ninguno&quot;}
+  ]
+}</code></pre>
+<p>Si trabajás con un modelo, <strong>pedile esto explícitamente</strong>: «agregá un registro que anote cada casilla de barco, cada tiro y el resultado final, y que lo descargue como JSON». Es lo que después vas a juzgar.</p>
+<h2 id="instalar-oracle-y-crear-el-proyecto">Instalar Oracle y crear el proyecto<a class="ancla" href="#instalar-oracle-y-crear-el-proyecto" aria-label="Enlace a esta sección">#</a></h2>
+<p>Oracle se instala con <code>uv</code> (o <code>pip</code> dentro de un entorno virtual). Necesita Python 3.11 o posterior.</p>
+<pre data-lenguaje="bash"><code>uv tool install oracle-metalenguaje
+oracle init reglas-naval
+cd reglas-naval
+oracle test</code></pre>
+<p>Un proyecto recién creado sale <strong>sin medición</strong>: todavía no hay ninguna regla, y Oracle no lo disfraza de verde.</p>
+<h2 id="la-primera-regla-ningún-barco-fuera-del-tablero">La primera regla: ningún barco fuera del tablero<a class="ancla" href="#la-primera-regla-ningún-barco-fuera-del-tablero" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las reglas de Oracle se llaman <strong>medidas</strong>. Esta es la primera, tal como está en el ejemplo:</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> naval.barcos_dentro_del_tablero:
+    <span class="c-kw">de</span> celda_barco c
+    <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;todas las celdas ocupadas por barcos deben ubicarse dentro de la cuadrícula de 10x10&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.&quot;</span></code></pre>
+<p>Línea por línea:</p>
+<ul><li><code>ninguno</code> dice qué clase de regla es: <strong>no tiene que haber ninguna</strong> fila que ofenda.</li><li><code>de celda_barco c</code> elige las filas a mirar: las casillas de barco, y a cada una la llama <code>c</code>.</li><li><code>donde …</code> dice cuáles ofenden: las que tienen una fila o columna fuera de 0 a 9.</li><li><code>umbral &lt;= 0</code> es cuántas se toleran: cero. <code>segun contrato</code> dice de dónde sale ese cero: de las reglas del juego, no de una intuición. <code>porque</code> lo defiende en palabras.</li><li><code>ambito universal</code> dice que la regla vale para cualquier partida.</li><li><code>alcance</code> dice <strong>lo que la regla no mira</strong>. Es obligatorio. Un verde que no dice qué dejó sin mirar se lee como «está todo bien», y eso es justo lo que queremos evitar.</li></ul>
+<h2 id="probar-la-regla-antes-de-confiar-en-ella">Probar la regla antes de confiar en ella<a class="ancla" href="#probar-la-regla-antes-de-confiar-en-ella" aria-label="Enlace a esta sección">#</a></h2>
+<p>Una regla nueva puede estar mal escrita y dar verde siempre. Por eso, <strong>antes</strong> de usarla, se prueba con dos ejemplos que vos armás: uno donde tiene que ponerse <strong>roja</strong> (un barco en la fila 10) y otro donde tiene que quedar <strong>verde</strong> (todos dentro). Esos ejemplos se llaman <strong>casos</strong> y viven en el <strong>corpus</strong>.</p>
+<p><em>Salida pendiente: el caso rojo y el caso verde del ejemplo, y lo que dice <code>oracle test</code> sobre ellos.</em></p>
+<h2 id="por-qué-dos-casos-no-alcanzan-la-mutación">Por qué dos casos no alcanzan: la mutación<a class="ancla" href="#por-qué-dos-casos-no-alcanzan-la-mutación" aria-label="Enlace a esta sección">#</a></h2>
+<p>Oracle no se conforma con que tus casos pasen. Debilita cada regla a propósito: afloja el umbral de 0 a 1, invierte una comparación, le quita el filtro. A cada versión debilitada la llama <strong>mutante</strong>. Si algún caso nota la diferencia, el mutante muere. Si ninguno la nota, esa parte de la regla no la está cuidando nadie.</p>
+<p>Esto no es teoría. El juego del ejemplo llegó con <strong>11 reglas y 2 casos</strong>. Medido el 2026-09-25, su <code>oracle test</code> salió <strong>rojo por mutación</strong>: la mayoría de los mutantes sobrevivían, porque dos casos no alcanzan para fijar once reglas. Un verde con dos casos habría sido otra vez el verde que no mide nada.</p>
+<p>La cuenta es simple: cada regla necesita al menos un caso que la ponga roja cerca del borde y uno verde, para que aflojarla o dejarla sin filtro se note.</p>
+<p><em>Salida pendiente: el <code>oracle test</code> del ejemplo con sus casos completos, en verde.</em></p>
+<h2 id="más-reglas-cada-una-con-su-idea">Más reglas, cada una con su idea<a class="ancla" href="#más-reglas-cada-una-con-su-idea" aria-label="Enlace a esta sección">#</a></h2>
+<p>Con la primera entendida, el resto son variaciones. Cada una enseña una pieza del lenguaje.</p>
+<p><strong>Turnos que alternan.</strong> Compara cada tiro con el siguiente. Se lee como lo pensarías:</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> naval.alternancia_turnos:
+    <span class="c-kw">de</span> tiro t1
+    <span class="c-kw">unir</span> tiro t2
+    <span class="c-kw">donde</span> t2.turno == t1.turno + 1 <span class="c-kw">y</span> t1.tirador == t2.tirador
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo.&quot;</span></code></pre>
+<p><code>unir</code> junta cada tiro con cada otro tiro, y el <code>donde</code> se queda con los pares donde el mismo jugador tiró en dos turnos seguidos. <code>t1.turno + 1</code> se escribe así, como en cualquier lenguaje.</p>
+<p><strong>Barcos que no se pisan.</strong> Mismo recurso, sobre las casillas de barco: dos casillas distintas del mismo jugador en la misma coordenada son una ofensa. Está en <code>naval.barcos_sin_solapamiento</code>.</p>
+<p><strong>La flota completa.</strong> <code>naval.flota_reglamentaria</code> usa <code>agrupar</code> para contar las casillas de cada jugador y exige exactamente 17. Además dice <code>requiere celda_barco</code>: si el juego no mandó ninguna casilla, la regla no sale verde, sale <strong>sin evidencia</strong>. Cero barcos no es una flota correcta, es un registro roto.</p>
+<p><strong>Un impacto que era verdad.</strong> <code>naval.veracidad_impacto_positivo</code> usa <code>sin</code>: busca los tiros marcados como impacto <strong>sin</strong> ninguna casilla de barco del rival en ese lugar.</p>
+<pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> naval.veracidad_impacto_positivo:
+    <span class="c-kw">de</span> tiro t
+    <span class="c-kw">sin</span> celda_barco c <span class="c-kw">donde</span> c.jugador == t.receptor <span class="c-kw">y</span> c.fila == t.fila <span class="c-kw">y</span> c.columna == t.columna
+    <span class="c-kw">donde</span> t.es_impacto == true
+    <span class="c-kw">resumen</span> contar(1)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un disparo no puede declararse impacto si en esa casilla no había un segmento de barco rival&quot;</span>
+    <span class="c-kw">ambito</span> universal
+    <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido.&quot;</span></code></pre>
+<p>El ejemplo completo tiene once reglas: límites, solapamiento, flota, tiros dentro del tablero, tiros sin repetir, turnos que alternan, turnos sin huecos, impactos verdaderos (a favor y en contra), ganador legítimo y que nadie dispare después del final.</p>
+<h2 id="juzgar-una-partida-de-verdad">Juzgar una partida de verdad<a class="ancla" href="#juzgar-una-partida-de-verdad" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las reglas ya están probadas. Ahora se juzga una partida real: jugás, el juego descarga el JSON y se lo pasás a Oracle.</p>
+<pre data-lenguaje="bash"><code>oracle juzgar --con hechos_partida.json</code></pre>
+<p><em>Salida pendiente: <code>oracle juzgar</code> sobre <code>partida_real.json</code> del ejemplo.</em></p>
+<p>Dos cosas del resultado son las que más importan:</p>
+<ul><li><strong><code>SIN MIRAR</code></strong> junta los <code>alcance</code> de las reglas que se aplicaron: lo que el verde no garantiza.</li><li><strong><code>NO SE APLICARON</code></strong> lista las reglas cuya relación no vino en el archivo. Si el juego se olvidó de anotar los tiros, las reglas de tiros no te dan un verde de regalo: aparecen acá.</li></ul>
+<p>Si una regla sale roja, el veredicto trae <strong>testigos</strong>: las filas exactas que ofendieron. Con eso le volvés a hablar al modelo: «el tiro del turno 14 se marcó como impacto y no había barco en esa casilla; corregilo».</p>
+<h2 id="qué-le-falta-a-este-juego">Qué le falta a este juego<a class="ancla" href="#qué-le-falta-a-este-juego" aria-label="Enlace a esta sección">#</a></h2>
+<p>El juego del ejemplo anda y sus reglas miran lo principal, pero no todo. Lo que ninguna de sus reglas mira hoy, y serían buenas siguientes reglas:</p>
+<ul><li>que cada barco sea una línea recta y continua (hoy se cuentan casillas, no la forma);</li><li>que un barco hundido tenga todas sus casillas impactadas;</li><li>que la computadora no sepa dónde están tus barcos antes de dispararles.</li></ul>
+<p>Cada una empieza igual: ¿qué hecho necesita que el juego anote?, ¿qué fila ofendería?, ¿qué caso rojo y qué caso verde la fijan?</p>
+<h2 id="si-trabajás-con-un-modelo-cinco-consejos">Si trabajás con un modelo, cinco consejos<a class="ancla" href="#si-trabajás-con-un-modelo-cinco-consejos" aria-label="Enlace a esta sección">#</a></h2>
+<ol><li><strong>Pedile que el juego cuente lo que pasa</strong>, en filas planas. Sin eso no hay nada que juzgar.</li><li><strong>No le pidas las reglas y el código en la misma pasada.</strong> Escribí o revisá vos las reglas.</li><li><strong>Probá cada regla con un caso rojo y uno verde</strong> antes de creerle.</li><li><strong>Leé el <code>alcance</code></strong> de cada regla: es lo que el verde no te promete.</li><li><strong>Cuando algo sale rojo, pasale al modelo los testigos</strong>, no una descripción vaga.</li></ol>
+<p>Después de esto, <a href="https://github.com/Segtem/oracle/blob/main/docs/13-primer-valor.html" rel="noopener">La primera medida real</a> muestra el mismo recorrido con menos explicación, y <a href="https://github.com/Segtem/oracle/blob/main/docs/03-escribir-una-medida.html" rel="noopener">Escribir una medida</a> es la referencia del lenguaje.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/de-cero.md" rel="noopener">docs/de-cero.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#lo-que-vas-a-construir">Lo que vas a construir</a></li><li class="n2"><a href="#html-css-y-javascript-lo-justo">HTML, CSS y JavaScript, lo justo</a></li><li class="n2"><a href="#pedirle-el-juego-a-un-modelo">Pedirle el juego a un modelo</a></li><li class="n2"><a href="#el-problema-un-juego-que-anda-no-es-un-juego-correcto">El problema: un juego que anda no es un juego correcto</a></li><li class="n2"><a href="#que-el-juego-cuente-lo-que-pasó">Que el juego cuente lo que pasó</a></li><li class="n2"><a href="#instalar-oracle-y-crear-el-proyecto">Instalar Oracle y crear el proyecto</a></li><li class="n2"><a href="#la-primera-regla-ningún-barco-fuera-del-tablero">La primera regla: ningún barco fuera del tablero</a></li><li class="n2"><a href="#probar-la-regla-antes-de-confiar-en-ella">Probar la regla antes de confiar en ella</a></li><li class="n2"><a href="#por-qué-dos-casos-no-alcanzan-la-mutación">Por qué dos casos no alcanzan: la mutación</a></li><li class="n2"><a href="#más-reglas-cada-una-con-su-idea">Más reglas, cada una con su idea</a></li><li class="n2"><a href="#juzgar-una-partida-de-verdad">Juzgar una partida de verdad</a></li><li class="n2"><a href="#qué-le-falta-a-este-juego">Qué le falta a este juego</a></li><li class="n2"><a href="#si-trabajás-con-un-modelo-cinco-consejos">Si trabajás con un modelo, cinco consejos</a></li></ul>
+  </aside>
+</div>
+<script>if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");</script>
 </body>
 </html>
