@@ -688,7 +688,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2453 tests · 1010/1010 mutantes de medida · **8165 sitios de mutación de código** (7931 + 234 del motor Python).
+2506 tests · 1010/1010 mutantes de medida · **8377 sitios de mutación de código** (8142 + 235 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

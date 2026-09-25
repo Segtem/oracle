@@ -869,7 +869,10 @@ def _comando_en_copia(comando: list[str], raiz: Path, copia: Path) -> list[str]:
             ruta = Path(argumento)
             if ruta.is_absolute():
                 relativa = ruta.resolve(strict=False).relative_to(raiz_fisica)
-                reemplazo = str(copia / relativa)
+                # El testigo que juzga la ronda debe seguir siendo el de la raíz.
+                # Sus tests importan desde la copia gracias al cwd del subproceso.
+                if relativa != Path("tools/ejecutar_suite_mutacion.py"):
+                    reemplazo = str(copia / relativa)
         except (OSError, ValueError):
             pass
         salida.append(reemplazo)

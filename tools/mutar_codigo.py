@@ -86,6 +86,12 @@ PRIORIDADES = {
                              "tests.test_fixtures"),
     "tools/generar_diferencial.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
                                       "tests.test_fixtures"),
+    "tools/ejecutar_suite_mutacion.py": ("tests.test_ejecutar_suite_mutacion",),
+    "tools/mutar_codigo.py": (
+        "tests.test_mutar_codigo_custodia",
+        "tests.test_mutacion_codigo.NingunModuloDelNucleoQuedaFueraDelArnesTests",
+        "tests.test_mutacion_codigo.LimiteMemoriaTests",
+        "tests.test_mutacion_codigo.FiltroSitiosTests"),
     "tools/mutar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
                        "tests.test_mutacion"),
     "tools/trazar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
@@ -312,8 +318,9 @@ CUSTODIAS_SIN_MEDIR = {}
 # P4 conserva las rondas y sus límites en vault-kb/estudios/0.16.0-tareas/verificacion-p4/.
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "diferencial.py", "generar_diferencial.py",
+                          "ejecutar_suite_mutacion.py",
                           "corpus.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
-                          "mutar.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
+                          "mutar.py", "mutar_codigo.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
                           "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
                           "trazar.py")
@@ -364,6 +371,11 @@ def resolver_objetivos(declarados: list[str] | None) -> list[Path]:
 def comando_de_tests(objetivos: list[Path], *, priorizar: bool) -> list[str]:
     comando = list(TESTS)
     if priorizar:
+        # Los dos arneses se prueban con suites testigo aisladas. Descubrir toda la suite
+        # para cada mutante volvería a ejecutar rondas ajenas y puede recursar.
+        relativos = {ruta.relative_to(RAIZ).as_posix() for ruta in objetivos}
+        if relativos <= {"tools/ejecutar_suite_mutacion.py", "tools/mutar_codigo.py"}:
+            comando.append("--solo-prioridad")
         modulos = dict.fromkeys(
             modulo for ruta in objetivos
             for modulo in PRIORIDADES[ruta.relative_to(RAIZ).as_posix()])

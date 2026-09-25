@@ -19,6 +19,8 @@ def argumentos(argv: list[str] | None = None):
     p.add_argument("--tope", default=".", help="directorio superior importable")
     p.add_argument("--prioridad", action="append", default=[], metavar="MODULO",
                    help="módulo unittest que discrimina primero; repetible")
+    p.add_argument("--solo-prioridad", action="store_true",
+                   help="ejecutar únicamente los módulos prioritarios declarados")
     return p.parse_args(argv)
 
 
@@ -61,6 +63,11 @@ def main(argv: list[str] | None = None) -> int:
             if (resultado_prioritario.failures or resultado_prioritario.errors
                     or resultado_prioritario.unexpectedSuccesses):
                 return 1
+        if args.solo_prioridad:
+            if tests_prioritarios == 0:
+                print("error del arnés: se descubrieron cero tests", file=sys.stderr)
+                return 2
+            return 0
         suite = _sin_modulos(cargador.discover(
             start_dir=args.inicio, top_level_dir=args.tope), args.prioridad)
         if cargador.errors:

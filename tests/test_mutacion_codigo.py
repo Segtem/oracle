@@ -597,6 +597,17 @@ class CorrerTests(unittest.TestCase):
                 mc._comando_en_copia(comando, raiz, copia),
                 ["python", str(copia / "sub" / "a.py"), "relativo.py", str(externo)])
 
+    def test_comando_en_copia_conserva_el_runner_testigo(self) -> None:
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d).resolve()
+            copia = raiz.parent / "copia-aislada"
+            runner = raiz / "tools" / "ejecutar_suite_mutacion.py"
+            comando = ["python", str(runner), "--tope", str(raiz),
+                       "--inicio", str(raiz / "tests")]
+            self.assertEqual(mc._comando_en_copia(comando, raiz, copia),
+                             ["python", str(runner), "--tope", str(copia),
+                              "--inicio", str(copia / "tests")])
+
     def test_validar_objetivos_rechaza_raiz_y_objetivos_no_fisicos(self) -> None:
         with tempfile.TemporaryDirectory() as d, tempfile.TemporaryDirectory() as e:
             raiz = Path(d)
@@ -1782,5 +1793,4 @@ class FiltroSitiosTests(unittest.TestCase):
             self.assertIn("*** RONDA PARCIAL DE MUTACIÓN", lineas[0])
             self.assertIn("*** RESUMEN: RONDA PARCIAL (1 de 50 sitios", salida)
             self.assertIn("Esto NO demuestra que los tests fijen el módulo completo.", salida)
-
 

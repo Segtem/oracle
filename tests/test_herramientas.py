@@ -2486,7 +2486,8 @@ class LasCustodiasQueNadieMide(unittest.TestCase):
         custodias, en_matriz = self._custodias_y_matriz()
         for herramienta in ("cli.py", "metamorficas.py", "tareas.py", "tareas_contexto.py",
                             "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
-                            "mutar.py", "generar_diferencial.py", "trazar.py"):
+                            "mutar.py", "generar_diferencial.py", "trazar.py",
+                            "ejecutar_suite_mutacion.py", "mutar_codigo.py"):
             with self.subTest(herramienta=herramienta):
                 self.assertIn(herramienta, custodias)
                 self.assertIn(herramienta, en_matriz)

@@ -164,7 +164,9 @@ jobs:
           # Los tres arneses directos de la Fase 1 custodian la mutación de medidas, el fixture
           # diferencial y la traza del álgebra, respectivamente.
           - tools/generar_diferencial.py
+          - tools/ejecutar_suite_mutacion.py
           - tools/mutar.py
+          - tools/mutar_codigo.py
           - tools/trazar.py
           - tools/cli.py
           # Entra el 2026-09-03, y entra porque se lo midió. Tenía 114 sobrevivientes y tardaba ~90

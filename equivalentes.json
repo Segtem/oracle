@@ -70,5 +70,11 @@
   "linea_texto": "sys.path.insert(0, str(RAIZ))",
   "ordinal": 1,
   "razon": "En tools/trazar.py, `sys.path.insert(0, str(RAIZ))` → `insert(1, str(RAIZ))` sólo cambia la precedencia entre la raíz del proyecto y `sys.path[0]`, que al ejecutar el script es `tools/`. Los imports del arnés son calificados (`catalogos`, `nucleo`, `perfiles`, `tools` o `diferencial`) y no existen paquetes homónimos en `tools/`. En las invocaciones del proyecto ambos índices resuelven exactamente los mismos módulos y producen el mismo resultado. Fijar el índice con un test no protegería una conducta de la que dependa el proyecto."
+ },
+ {
+  "id": "tools/mutar_codigo.py:663:31:constante",
+  "linea_texto": "if mid.rsplit(\":\", 3)[0] in del_alcance}",
+  "ordinal": 1,
+  "razon": "Los identificadores vigentes tienen exactamente tres separadores ':' (archivo:línea:columna:operador). `rsplit(':', 3)[0]` y `rsplit(':', 4)[0]` extraen el mismo archivo para todo identificador válido; la validación global de vigencia descarta los demás antes de este filtro."
  }
 ]
