@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.31.1`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.32.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,11 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.32.0 (2026-09-26): `VERSION_DISTRIBUCION` sube de `0.31.1` a `0.32.0`.** Publica la
+sintaxis 1.0 del párrafo siguiente. La mutación del corte cubrió los 22 módulos del perfil que
+cambiaron desde 0.31.1 (4801 mutantes) sin sobrevivientes; los 74 que hubo en el camino se mataron
+con tests o se borró el código redundante que los dejaba vivir. El álgebra sigue en `1.0`: ningún árbol canónico cambia.
 
 **Sintaxis 1.0 (2026-09-26): `VERSION_SINTAXIS` sube de `0.7` a `1.0`: una sola sintaxis de
 escritura** (tareas `una-sintaxis` y sus subtareas, dieciséis auditorías adversariales). Se escribe sólo
