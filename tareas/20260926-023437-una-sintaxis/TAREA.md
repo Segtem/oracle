@@ -131,3 +131,11 @@ Revisar AUDITORIA-11.md (veredicto: «una sola sintaxis de escritura: sí») y p
 ### Nota (2026-09-26 16:37:27 UTC)
 
 2026-09-26, ENCARGO de la DECIMOCUARTA auditoría (Codex, con shell, adversarial): igual que la decimotercera (mismo criterio público, mismos cuatro frentes, todo punto de AUDITORIA-2 a -13 repetido en contra, y cada afirmación de la definición pública contrastada superficie por superficie). La regla de comentarios es ahora explícitamente léxica en las cuatro superficies (.oracle, macros, .caso, .relacion): probá, por INSERCIÓN EXHAUSTIVA en cada posición de un archivo real de cada superficie, que una línea # completa no cambia el árbol, carga, formatear la conserva y el LSP no diagnostica. Escribí tareas/<esta>/AUDITORIA-14.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
+
+### Nota (2026-09-26 16:48:02 UTC)
+
+2026-09-26, Claude: AUDITORIA-14 (Codex) dio no por un solo punto, y dijo no haber encontrado ninguna segunda grafía de superficie cargable: tools/sondear_procedencia.py escribía sus casos temporales como .json. Ahora los escribe en .caso con el impresor, y cargar_casos los lee con la forma única incluida. Barrí tools/ y nucleo/ buscando otros productores de medidas, casos o relaciones en JSON: sólo quedan oracle.json (configuración), informes y un chequeo de medida.py que no pisa un borrador .json existente.
+
+### Nota (2026-09-26 16:48:02 UTC)
+
+2026-09-26, ENCARGO de la DECIMOQUINTA auditoría (Codex, con shell, adversarial): igual que la decimocuarta (mismo criterio público, los cuatro frentes, inserción exhaustiva de comentarios en las cuatro superficies, todo punto de AUDITORIA-2 a -14 repetido en contra). Incluí además, como productor, cualquier script de tools/, ejemplo/ o perfiles/ que escriba una medida, un caso, una relación o una macro, aunque sea en un temporal. Escribí tareas/<esta>/AUDITORIA-15.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
