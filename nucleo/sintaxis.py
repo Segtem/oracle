@@ -1553,7 +1553,10 @@ def _expr(expr, padre: int = 0) -> str:
         texto = f"{_expr(expr[1], prec)} {operador} {_expr(expr[2], prec + 1)}"
     elif cabeza in ("y", "o"):
         prec = LOGICOS[cabeza]
-        texto = f" {cabeza} ".join(_expr(e, prec) for e in expr[1:])
+        # Un «y» dentro de un «o» conserva el árbol sin paréntesis, pero se lee mejor explícito.
+        texto = f" {cabeza} ".join(
+            f"({_expr(e)})" if cabeza == "o" and isinstance(e, list) and e and e[0] == "y"
+            else _expr(e, prec) for e in expr[1:])
     elif cabeza == "no":
         prec = 4
         texto = f"no {_expr(expr[1], prec)}"

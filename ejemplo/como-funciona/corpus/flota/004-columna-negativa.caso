@@ -13,6 +13,5 @@ caso 004-columna-negativa:
     evidencia:
         casilla: barco, fila, columna
             "b1", 4, -1
-
     leccion:
         Cada una de las cuatro condiciones necesita su propio caso rojo.

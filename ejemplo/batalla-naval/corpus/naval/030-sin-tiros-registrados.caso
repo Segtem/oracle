@@ -13,6 +13,5 @@ caso 030-sin-tiros-registrados:
     medida: naval.turnos_sin_huecos
     evidencia:
         tiro:
-
     leccion:
         Sin tiros registrados no se puede afirmar continuidad de turnos.

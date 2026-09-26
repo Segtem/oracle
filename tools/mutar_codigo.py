@@ -172,7 +172,7 @@ PRIORIDADES = {
     # 0.17.0: grafo de menciones entre tareas.
     "tools/tareas_grafo.py": ("tests.test_tareas_tatr", "tests.test_tareas_tatr_revision"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
-                        "tests.test_lsp"),
+                        "tests.test_lsp"), "tools/formato.py": ("tests.test_forma_unica_texto",),
 }
 
 
@@ -321,7 +321,7 @@ CUSTODIAS_SIN_MEDIR = {}
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "diferencial.py", "generar_diferencial.py",
                           "ejecutar_suite_mutacion.py",
-                          "corpus.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
+                          "corpus.py", "formato.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "mutar.py", "mutar_codigo.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
                           "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",

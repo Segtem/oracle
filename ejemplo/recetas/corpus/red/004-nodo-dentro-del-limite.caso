@@ -16,6 +16,5 @@ caso 004-nodo-dentro-del-limite:
             "n1", "web"
             "n1", "api"
             "n2", "db"
-
     leccion:
         Las replicas duplicadas no inflan la cuenta de distintos.

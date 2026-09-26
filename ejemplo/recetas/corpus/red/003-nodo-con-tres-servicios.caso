@@ -16,6 +16,5 @@ caso 003-nodo-con-tres-servicios:
             "n1", "web"
             "n1", "api"
             "n1", "db"
-
     leccion:
         Doble agrupar deduplica web y cuenta 3 servicios distintos, superando el limite.

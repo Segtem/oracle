@@ -13,6 +13,5 @@ caso 029-flota-sin-celdas:
     medida: naval.flota_reglamentaria
     evidencia:
         celda_barco:
-
     leccion:
         Sin ninguna celda de barco no se puede declarar reglamentaria la flota.

@@ -13,6 +13,5 @@ caso 014-ganador-con-diecisiete-impactos:
     evidencia:
         partida: turno_final, impactos_ganador
             30, 17
-
     leccion:
         El ganador acumuló los 17 impactos exigidos.

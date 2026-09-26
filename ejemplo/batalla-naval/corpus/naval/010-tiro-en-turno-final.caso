@@ -15,6 +15,5 @@ caso 010-tiro-en-turno-final:
             4, "jugador", "cpu", 1, 1, false
         partida: turno_final, impactos_ganador
             4, 17
-
     leccion:
         El tiro ocurre en el turno final permitido.

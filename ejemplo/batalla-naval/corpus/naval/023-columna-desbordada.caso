@@ -13,6 +13,5 @@ caso 023-columna-desbordada:
     evidencia:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, "jugador", "cpu", 5, 10, false
-
     leccion:
         La columna 10 está fuera del tablero.

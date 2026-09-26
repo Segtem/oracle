@@ -13,6 +13,5 @@ caso 026-barco-columna-desbordada:
     evidencia:
         celda_barco: id, jugador, fila, columna
             "b1", "jugador", 5, 10
-
     leccion:
         Una celda de barco cae en columna 10.

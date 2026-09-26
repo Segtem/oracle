@@ -12,6 +12,5 @@ caso 007-sin-requiere-sin-casillas:
     medida: flota.casillas_dentro_sin_requiere
     evidencia:
         casilla:
-
     leccion:
         Con ninguno a secas, cero casillas cuenta cero infracciones y sale verde.

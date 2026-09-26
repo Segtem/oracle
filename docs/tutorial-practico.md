@@ -681,8 +681,8 @@ ninguno tareas.vencida_sin_dueno:
     alcance "ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está"
 ```
 
-Y la guardás tal cual: el catálogo carga `.oracle` igual que `.json`, así que no hay paso de
-traducción.
+Guardá la medida en `.oracle`, con la forma que produce `oracle formatear`. JSON queda para
+intercambio y migración de fuentes anteriores.
 
 ```bash
 mv tareas.vencida_sin_dueno.oracle catalogos/tareas/

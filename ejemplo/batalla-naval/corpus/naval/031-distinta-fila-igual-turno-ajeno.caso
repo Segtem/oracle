@@ -14,6 +14,5 @@ caso 031-distinta-fila-igual-turno-ajeno:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, "jugador", "cpu", 1, 3, false
             2, "jugador", "cpu", 0, 3, false
-
     leccion:
         La fila cambia aunque coincida con el número de turno previo.

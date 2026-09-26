@@ -92,7 +92,6 @@ Próximos pasos:
         servicio: nombre, puerto
             <span class="c-txt">&quot;api&quot;</span>, 8080
             <span class="c-txt">&quot;web&quot;</span>, 8080
-
     leccion:
         Un solo par en colision genera exactamente un testigo gracias a &lt;.</code></pre>
 <p>Y un caso verde donde cada servicio tiene su propio puerto:</p>
@@ -112,7 +111,6 @@ Próximos pasos:
         servicio: nombre, puerto
             <span class="c-txt">&quot;api&quot;</span>, 8080
             <span class="c-txt">&quot;web&quot;</span>, 9090
-
     leccion:
         Servicios bien configurados <span class="c-kw">no</span> disparan la infraccion.</code></pre>
 <hr>
@@ -158,7 +156,6 @@ Próximos pasos:
             <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;web&quot;</span>
             <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;api&quot;</span>
             <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;db&quot;</span>
-
     leccion:
         Doble <span class="c-kw">agrupar</span> deduplica web <span class="c-kw">y</span> cuenta 3 servicios distintos, superando el limite.</code></pre>
 <p>Y un caso verde con réplicas duplicadas que confirman que las repeticiones no inflan la cuenta de distintos:</p>
@@ -180,7 +177,6 @@ Próximos pasos:
             <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;web&quot;</span>
             <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;api&quot;</span>
             <span class="c-txt">&quot;n2&quot;</span>, <span class="c-txt">&quot;db&quot;</span>
-
     leccion:
         Las replicas duplicadas <span class="c-kw">no</span> inflan la cuenta <span class="c-kw">de</span> distintos.</code></pre>
 <hr>

@@ -16,6 +16,5 @@ caso 005-las-cuatro-esquinas:
             "b2", 0, 9
             "b3", 9, 0
             "b4", 9, 9
-
     leccion:
         Sin un verde en el borde, cambiar > 9 por >= 9 no se nota.

@@ -29,6 +29,7 @@ from nucleo.sintaxis import (  # noqa: E402,F401
 from nucleo import caso as sintaxis_caso  # noqa: E402
 from nucleo.medida import cargar_fuente_medida, rutas_de_catalogo  # noqa: E402
 from nucleo import relacion as sintaxis_relacion  # noqa: E402
+from tools import formato  # noqa: E402
 
 
 def _rutas_catalogo(raiz: Path = RAIZ) -> list[Path]:
@@ -97,6 +98,7 @@ def _fila_ilegible(ruta: Path, raiz: Path, e: Exception) -> dict:
         "error": f"{type(e).__name__}: {e}",
         "json_igual": False,
         "texto_igual": False,
+        "forma_unica": False, "diff_forma": [],
         "caracteres_json": 0,
         "caracteres_superficie": 0,
         "puntuacion_json": 0,
@@ -118,12 +120,15 @@ def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
         # fila con su tipo y su mensaje; ninguna se convierte en verde.
         return _fila_ilegible(ruta, raiz, e)
     json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
+    forma_unica = ruta.suffix not in formato.LECTORES or formato.sin_comentarios(texto) == superficie
     return {
         "ruta": str(ruta.relative_to(raiz)),
         "imprimio": True,
         "error": "",
         "json_igual": releida == datos,
         "texto_igual": reimpresa == superficie,
+        "forma_unica": forma_unica,
+        "diff_forma": formato.diferencia(texto, superficie) if not forma_unica else [],
         "caracteres_json": len(json_compacto),
         "caracteres_superficie": len(superficie),
         "puntuacion_json": _puntuacion(json_compacto),
@@ -133,6 +138,7 @@ def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
 
 def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
     try:
+        texto = ruta.read_text(encoding="utf-8")
         datos = sintaxis_caso.cargar_fuente_caso(ruta)
         superficie = sintaxis_caso.imprimir(datos)
         releida = sintaxis_caso.leer(superficie)
@@ -140,12 +146,15 @@ def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
     except Exception as e:                 # noqa: BLE001
         return _fila_ilegible(ruta, raiz, e)
     json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
+    forma_unica = ruta.suffix not in formato.LECTORES or formato.sin_comentarios(texto) == superficie
     return {
         "ruta": str(ruta.relative_to(raiz)),
         "imprimio": True,
         "error": "",
         "json_igual": releida == datos,
         "texto_igual": reimpresa == superficie,
+        "forma_unica": forma_unica,
+        "diff_forma": formato.diferencia(texto, superficie) if not forma_unica else [],
         "caracteres_json": len(json_compacto),
         "caracteres_superficie": len(superficie),
         "puntuacion_json": _puntuacion(json_compacto),
@@ -155,6 +164,7 @@ def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
 
 def _fila_verificacion_relacion(ruta: Path, raiz: Path) -> dict:
     try:
+        texto = ruta.read_text(encoding="utf-8")
         datos = sintaxis_relacion.cargar_fuente_relacion(ruta)
         superficie = sintaxis_relacion.imprimir(datos)
         releida = sintaxis_relacion.leer(superficie)
@@ -162,9 +172,12 @@ def _fila_verificacion_relacion(ruta: Path, raiz: Path) -> dict:
     except Exception as e:                 # noqa: BLE001
         return _fila_ilegible(ruta, raiz, e)
     json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
+    forma_unica = ruta.suffix not in formato.LECTORES or formato.sin_comentarios(texto) == superficie
     return {
         "ruta": str(ruta.relative_to(raiz)), "imprimio": True, "error": "",
         "json_igual": releida == datos, "texto_igual": reimpresa == superficie,
+        "forma_unica": forma_unica,
+        "diff_forma": formato.diferencia(texto, superficie) if not forma_unica else [],
         "caracteres_json": len(json_compacto), "caracteres_superficie": len(superficie),
         "puntuacion_json": _puntuacion(json_compacto),
         "puntuacion_superficie": _puntuacion(superficie),
@@ -178,6 +191,7 @@ def verificar_catalogo(raiz: Path = RAIZ) -> dict:
     filas_relaciones = [_fila_verificacion_relacion(r, raiz) for r in _rutas_relaciones(raiz)]
     filas = filas_medidas + filas_macros + filas_casos + filas_relaciones
     ilegibles = [f for f in filas if f["error"]]
+    desformateados = [f for f in filas if f["imprimio"] and not f["forma_unica"]]
     total = {
         "medidas": len(filas_medidas),
         "macros": len(filas_macros),
@@ -188,6 +202,7 @@ def verificar_catalogo(raiz: Path = RAIZ) -> dict:
         # vez de decir cuántos archivos no pudo imprimir. Medido contra un consumidor real, eran 33
         # de 41 medidas, y ninguna de las otras 8 llegaba a informarse.
         "ilegibles": ilegibles,
+        "desformateados": desformateados,
         "json_igual": all(f["json_igual"] for f in filas),
         "texto_igual": all(f["texto_igual"] for f in filas),
         "caracteres_json": sum(f["caracteres_json"] for f in filas),
@@ -296,7 +311,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         informe = verificar_catalogo()
         docs = verificar_documentos()
-        ok = (informe["json_igual"] and informe["texto_igual"] and informe["medidas"] > 0
+        ok = (informe["json_igual"] and informe["texto_igual"] and not informe["desformateados"] and informe["medidas"] > 0
               and informe["macros"] > 0 and informe["casos"] > 0 and not docs["fallas"]
               and docs["ejecutables"] > 0)
         print(f"medidas convertidas: {informe['medidas']}")
@@ -305,6 +320,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"relaciones convertidas: {informe.get('relaciones', 0)}")
         print(f"ida JSON: {'OK' if informe['json_igual'] else 'FALLA'}")
         print(f"vuelta texto: {'OK' if informe['texto_igual'] else 'FALLA'}")
+        print(f"forma única: {'OK' if not informe['desformateados'] else 'FALLA'}")
         print(f"caracteres: JSON {informe['caracteres_json']} · superficie "
               f"{informe['caracteres_superficie']}")
         print(f"puntuación: JSON {informe['puntuacion_json']} "

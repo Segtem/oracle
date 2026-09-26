@@ -29,6 +29,5 @@ caso 012-flota-de-diecisiete:
             "b14", "jugador", 1, 4
             "b15", "jugador", 1, 5
             "b16", "jugador", 1, 6
-
     leccion:
         La flota registra exactamente 17 casillas.

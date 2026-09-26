@@ -13,6 +13,5 @@ caso 003-columna-desbordada:
     evidencia:
         casilla: barco, fila, columna
             "b1", 4, 10
-
     leccion:
         Cada una de las cuatro condiciones necesita su propio caso rojo.

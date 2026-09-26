@@ -186,6 +186,7 @@ jobs:
           # `tools/medida.py`. Y de paso la ronda encontró que `--verificar` ignoraba los argumentos
           # de más y salía 0.
           - tools/sintaxis.py
+          - tools/formato.py
           - tools/sondear_generador.py
           - tools/sondear_procedencia.py
           # Integridad, captura y evidencia de seguimiento del tracker (P4 de 0.16.0).

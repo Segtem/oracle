@@ -361,7 +361,7 @@ def dias_de_atraso(tarea: dict) -&gt; int:
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está&quot;</span></code></pre>
-<p>Y la guardás tal cual: el catálogo carga <code>.oracle</code> igual que <code>.json</code>, así que no hay paso de traducción.</p>
+<p>Guardá la medida en <code>.oracle</code>, con la forma que produce <code>oracle formatear</code>. JSON queda para intercambio y migración de fuentes anteriores.</p>
 <pre data-lenguaje="bash"><code>mv tareas.vencida_sin_dueno.oracle catalogos/tareas/</code></pre>
 <h3 id="85-el-corpus--las-dos-polaridades">8.5 El corpus — las dos polaridades<a class="ancla" href="#85-el-corpus--las-dos-polaridades" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="caso"><code><span class="c-kw">caso</span> 001-vencida-sin-nadie:

@@ -14,6 +14,5 @@ caso 033-fila-confundida-con-turno:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, "jugador", "cpu", 2, 3, false
             2, "jugador", "cpu", 3, 3, false
-
     leccion:
         La fila del primer tiro coincide con el turno del segundo, pero las casillas son distintas.

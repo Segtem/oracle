@@ -63,6 +63,7 @@
     oracle reportar                         prepara un reporte local; no publica ni usa la red
     oracle censar --proyecto <ruta>…       censa varios proyectos y conserva el estado con su fecha
     oracle convertir <archivo>              convierte medidas JSON a superficie
+    oracle formatear <ruta> [--escribir]     normaliza .oracle, .caso y .relacion
     oracle convertir <directorio> --a-superficie [--escribir]  migra fuentes JSON verificadas
     oracle juzgar --con <archivo>          juzga evidencia JSON contra el catálogo del proyecto
 """
@@ -116,6 +117,7 @@ from nucleo.proyecto import (  # noqa: E402
     sin_banderas_comunes,
 )
 from tools import aceptacion, corpus, diferencial, medida, mutar, sintaxis  # noqa: E402
+from tools import formato  # noqa: E402
 
 
 def ayuda() -> None:
@@ -129,6 +131,7 @@ Uso:
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
   oracle convertir <archivo>              Convierte medidas JSON a superficie
+  oracle formatear <ruta> [--escribir]     Normaliza la superficie y conserva comentarios
   oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas y casos JSON con ida y vuelta exacta
   oracle manual [tema]                    Manual integrado y vocabularios cerrados
   oracle contexto                        Inventario de relaciones y medidas activas
@@ -866,6 +869,57 @@ def cmd_convertir(proy: Proyecto, ruta_str: str, *, a_superficie: bool = False,
     return 0
 
 
+def cmd_formatear(proy: Proyecto, ruta_str: str, *, escribir: bool = False) -> int:
+    ruta = Path(ruta_str)
+    if not ruta.exists():
+        ruta = proy.raiz / ruta_str
+    if ruta.is_dir():
+        # La raíz de un proyecto se formatea sólo en sus carpetas de autoría: el resto (tareas,
+        # estudios, otros proyectos anidados) es historia o ajeno y no se reescribe. Cualquier otro
+        # directorio se recorre entero, sin lo oculto ni los fixtures de diferencial/.
+        bases = ([ruta / d for d in ("catalogos", "corpus", "relaciones", "macros")
+                  if (ruta / d).is_dir()] if (ruta / "oracle.json").is_file() else [ruta])
+        archivos = sorted(
+            a for base in bases for a in base.rglob("*")
+            if a.is_file() and a.suffix in formato.LECTORES
+            and not any(p.startswith(".") or p == "diferencial" for p in a.relative_to(ruta).parts))
+        if not archivos:
+            print(f"✗ {ruta_str}: no hay archivos .oracle, .caso ni .relacion")
+            return 1
+        codigos = [_formatear_uno(proy, a, escribir=escribir, ruta_str=str(a)) for a in archivos]
+        return max(codigos)
+    return _formatear_uno(proy, ruta, escribir=escribir, ruta_str=ruta_str)
+
+
+def _formatear_uno(proy: Proyecto, ruta: Path, *, escribir: bool, ruta_str: str) -> int:
+    if not ruta.is_file() or ruta.suffix not in formato.LECTORES:
+        print(f"✗ {ruta_str}: se espera un archivo .oracle, .caso o .relacion, o un directorio")
+        return 1
+    try:
+        original = ruta.read_text(encoding="utf-8")
+        macros = macros_del_proyecto(proy) if ruta.suffix == ".oracle" else None
+        normalizado = formato.canonico(ruta, original, macros=macros)
+        if formato.sin_comentarios(original) == normalizado:
+            print(f"{ruta}: ya tiene forma única")
+            return 0
+        print(f"{ruta}: requiere formato")
+        for linea in formato.diferencia(original, normalizado):
+            print(f"  {linea}")
+        print(f"  oracle formatear {ruta} --escribir")
+        if escribir:
+            nuevo = formato.con_comentarios(original, normalizado)
+            if formato.sin_comentarios(nuevo) != normalizado:
+                raise ValueError("no se pudieron conservar los comentarios")
+            if formato.canonico(ruta, nuevo, macros=macros) != normalizado:
+                raise ValueError("el texto formateado cambió el árbol")
+            ruta.write_text(nuevo, encoding="utf-8")
+            print(f"{ruta}: escrito")
+    except (OSError, UnicodeError, ValueError) as e:
+        print(f"✗ {ruta}: {e}")
+        return 1
+    return 0
+
+
 COMANDO_UNITARIOS = [sys.executable, "-m", "unittest", "discover", "-s", "tests", "-t", ".", "-q"]
 
 
@@ -986,7 +1040,9 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     # Esto identifica sólo el arranque vacío; no mide cobertura del producto.
     # Con casos, las medidas heredadas son tan legítimas como las propias.
     propias = rutas_de_catalogo(proy.catalogos)
-    if len(propias) == 0 and len(casos_archivos) == 0 and len(rutas_diferencial) == 0:
+    if (len(propias) == 0 and len(casos_archivos) == 0 and len(rutas_diferencial) == 0
+            and (proy.es_el_propio_oracle or not sintaxis._rutas_macros(proy.raiz))
+            and (proy.es_el_propio_oracle or not sintaxis._rutas_relaciones(proy.raiz))):
         print("CORPUS: sin casos guardados para verificar")
         print("SINTAXIS: salteado (sin medidas ni casos todavía)")
         print("ACEPTACIÓN: salteado (sin medidas ni casos todavía)")
@@ -1035,7 +1091,9 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         pass
 
     # 2. Sintaxis
-    if not any((catalogo, casos_archivos)):
+    if not any((catalogo, casos_archivos,
+                not proy.es_el_propio_oracle and sintaxis._rutas_macros(proy.raiz),
+                not proy.es_el_propio_oracle and sintaxis._rutas_relaciones(proy.raiz))):
         print("SINTAXIS: salteado (sin medidas ni casos todavía)")
     else:
         informe_sintaxis = sintaxis.verificar_catalogo(proy.raiz)
@@ -1058,6 +1116,15 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         elif not sintaxis_ok:
             print("SINTAXIS ✗ — la conversión de ida y vuelta falló")
             fallas_suite.append("sintaxis")
+        elif informe_sintaxis.get("desformateados"):
+            desformateados = informe_sintaxis["desformateados"]
+            print(f"SINTAXIS ✗ — {len(desformateados)} archivo(s) fuera de la forma única")
+            for fila in desformateados:
+                print(f"  · {fila['ruta']}")
+                for linea in fila["diff_forma"]:
+                    print(f"    {linea}")
+                print(f"    oracle formatear {fila['ruta']} --escribir")
+            fallas_suite.append("sintaxis (forma única)")
         elif proy.es_el_propio_oracle:
             docs = sintaxis.verificar_documentos(proy.raiz)
             if docs["fallas"]:
@@ -1276,7 +1343,7 @@ def main(argv: list[str] | None = None) -> int:
         if subcomando in ("caso", "--caso", "--nuevo"):
             ayuda_caso()
             return 0
-        if subcomando in ("revisar", "expandir", "convertir"):
+        if subcomando in ("revisar", "expandir", "convertir", "formatear"):
             ayuda()
             return 0
 
@@ -1500,6 +1567,17 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         return cmd_convertir(proy, rutas[0], a_superficie="--a-superficie" in args,
                              escribir="--escribir" in args)
+
+    if subcomando == "formatear":
+        args = [a for a in resto if a != "--rapido"]
+        if len(args) not in (1, 2) or any(a.startswith("--") and a != "--escribir" for a in args) or args.count("--escribir") > 1:
+            print("uso: oracle formatear <ruta> [--escribir]")
+            return 1
+        rutas = [a for a in args if a != "--escribir"]
+        if len(rutas) != 1:
+            print("uso: oracle formatear <ruta> [--escribir]")
+            return 1
+        return cmd_formatear(proy, rutas[0], escribir="--escribir" in args)
 
     if subcomando in ("expandir", "--expandir"):
         args = [a for a in resto if a != "--rapido"]

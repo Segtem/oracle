@@ -14,6 +14,5 @@ caso 002-puertos-distintos:
         servicio: nombre, puerto
             "api", 8080
             "web", 9090
-
     leccion:
         Servicios bien configurados no disparan la infraccion.

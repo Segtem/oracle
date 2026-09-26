@@ -15,6 +15,5 @@ caso 022-impacto-real:
             0, "jugador", "cpu", 2, 3, true
         celda_barco: id, jugador, fila, columna
             "a", "cpu", 2, 3
-
     leccion:
         El impacto declarado coincide con un barco rival.

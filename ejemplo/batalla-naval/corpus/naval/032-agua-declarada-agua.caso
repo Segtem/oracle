@@ -15,6 +15,5 @@ caso 032-agua-declarada-agua:
             0, "jugador", "cpu", 2, 3, false
         celda_barco: id, jugador, fila, columna
             "a", "cpu", 2, 4
-
     leccion:
         Una casilla de agua declarada agua no es impacto fantasma.

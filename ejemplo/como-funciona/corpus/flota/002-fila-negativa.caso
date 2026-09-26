@@ -13,6 +13,5 @@ caso 002-fila-negativa:
     evidencia:
         casilla: barco, fila, columna
             "b1", -1, 4
-
     leccion:
         Sin este caso, borrar la condición c.fila < 0 no se nota.

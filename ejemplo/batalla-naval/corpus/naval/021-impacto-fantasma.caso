@@ -15,6 +15,5 @@ caso 021-impacto-fantasma:
             0, "jugador", "cpu", 2, 3, true
         celda_barco: id, jugador, fila, columna
             "a", "cpu", 2, 4
-
     leccion:
         El disparo se declara impacto sin barco rival en la casilla.

@@ -13,6 +13,5 @@ caso 006-partida-sin-casillas:
     medida: flota.casillas_dentro_del_tablero
     evidencia:
         casilla:
-
     leccion:
         Cero casillas no es un tablero en regla: es un sensor que no miró.

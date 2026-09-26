@@ -13,6 +13,5 @@ caso 013-ganador-con-dieciseis-impactos:
     evidencia:
         partida: turno_final, impactos_ganador
             30, 16
-
     leccion:
         El ganador sólo acumuló 16 impactos.

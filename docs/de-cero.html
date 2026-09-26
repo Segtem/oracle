@@ -2946,7 +2946,6 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
     <span class="c-kw">evidencia</span>:
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 10, 4
-
     leccion:
         Una celda <span class="c-kw">de</span> barco cae en fila 10.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
@@ -3060,7 +3059,6 @@ VEREDICTO: ROJO (falló: mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
-
     leccion:
         La celda <span class="c-kw">de</span> barco está en el borde válido.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
@@ -3122,7 +3120,6 @@ VEREDICTO: ROJO (falló: mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 5, 10
-
     leccion:
         Una celda <span class="c-kw">de</span> barco cae en columna 10.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/027-barco-fila-negativa.caso"><code><span class="c-kw">caso</span> 027-barco-fila-negativa:
@@ -3140,7 +3137,6 @@ VEREDICTO: ROJO (falló: mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, -1, 5
-
     leccion:
         Una celda <span class="c-kw">de</span> barco cae en fila negativa.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/028-barco-columna-negativa.caso"><code><span class="c-kw">caso</span> 028-barco-columna-negativa:
@@ -3158,7 +3154,6 @@ VEREDICTO: ROJO (falló: mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 5, -1
-
     leccion:
         Una celda <span class="c-kw">de</span> barco cae en columna negativa.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
@@ -3415,7 +3410,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 5, 10, false
-
     leccion:
         La columna 10 está fuera del tablero.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/024-fila-negativa.caso"><code><span class="c-kw">caso</span> 024-fila-negativa:
@@ -3433,7 +3427,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, -1, 5, false
-
     leccion:
         La fila negativa está fuera del tablero.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/025-columna-negativa.caso"><code><span class="c-kw">caso</span> 025-columna-negativa:
@@ -3451,7 +3444,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 5, -1, false
-
     leccion:
         La columna negativa está fuera del tablero.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/007-barcos-superpuestos.caso"><code><span class="c-kw">caso</span> 007-barcos-superpuestos:
@@ -3470,7 +3462,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
             <span class="c-txt">&quot;b&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
-
     leccion:
         Dos barcos del mismo jugador comparten una casilla.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/008-barcos-separados.caso"><code><span class="c-kw">caso</span> 008-barcos-separados:
@@ -3489,7 +3480,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
             <span class="c-txt">&quot;b&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 5
-
     leccion:
         Dos barcos del mismo jugador ocupan casillas distintas.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/011-flota-de-dieciseis.caso"><code><span class="c-kw">caso</span> 011-flota-de-dieciseis:
@@ -3522,7 +3512,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             <span class="c-txt">&quot;b13&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 3
             <span class="c-txt">&quot;b14&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 4
             <span class="c-txt">&quot;b15&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 5
-
     leccion:
         La flota registra 16 casillas <span class="c-kw">y</span> necesita 17.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/012-flota-de-diecisiete.caso"><code><span class="c-kw">caso</span> 012-flota-de-diecisiete:
@@ -3556,7 +3545,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             <span class="c-txt">&quot;b14&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 4
             <span class="c-txt">&quot;b15&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 5
             <span class="c-txt">&quot;b16&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 6
-
     leccion:
         La flota registra exactamente 17 casillas.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/029-flota-sin-celdas.caso"><code><span class="c-kw">caso</span> 029-flota-sin-celdas:
@@ -3574,7 +3562,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">medida</span>: naval.flota_reglamentaria
     <span class="c-kw">evidencia</span>:
         celda_barco:
-
     leccion:
         Sin ninguna celda <span class="c-kw">de</span> barco <span class="c-kw">no</span> se puede declarar reglamentaria la flota.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/003-mismo-tirador-seguido.caso"><code><span class="c-kw">caso</span> 003-mismo-tirador-seguido:
@@ -3593,7 +3580,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
             1, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 2, false
-
     leccion:
         Dos turnos consecutivos pertenecen al mismo tirador.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/004-tiradores-alternos.caso"><code><span class="c-kw">caso</span> 004-tiradores-alternos:
@@ -3612,7 +3598,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
             1, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
-
     leccion:
         Los turnos consecutivos cambian <span class="c-kw">de</span> tirador.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/017-turno-saltado.caso"><code><span class="c-kw">caso</span> 017-turno-saltado:
@@ -3631,7 +3616,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
             2, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
-
     leccion:
         La secuencia salta el turno 1.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/018-turnos-contiguos.caso"><code><span class="c-kw">caso</span> 018-turnos-contiguos:
@@ -3650,7 +3634,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
             1, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
-
     leccion:
         La secuencia comienza en 0 <span class="c-kw">y</span> <span class="c-kw">no</span> tiene huecos.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/030-sin-tiros-registrados.caso"><code><span class="c-kw">caso</span> 030-sin-tiros-registrados:
@@ -3668,7 +3651,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">medida</span>: naval.turnos_sin_huecos
     <span class="c-kw">evidencia</span>:
         tiro:
-
     leccion:
         Sin tiros registrados <span class="c-kw">no</span> se puede afirmar continuidad <span class="c-kw">de</span> turnos.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/015-tiro-repetido.caso"><code><span class="c-kw">caso</span> 015-tiro-repetido:
@@ -3687,7 +3669,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
             2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
-
     leccion:
         El mismo tirador repite la misma casilla.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/016-tiros-distintos.caso"><code><span class="c-kw">caso</span> 016-tiros-distintos:
@@ -3706,7 +3687,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
             2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4, false
-
     leccion:
         El mismo tirador elige dos casillas distintas.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/031-distinta-fila-igual-turno-ajeno.caso"><code><span class="c-kw">caso</span> 031-distinta-fila-igual-turno-ajeno:
@@ -3725,7 +3705,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 3, false
             2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 0, 3, false
-
     leccion:
         La fila cambia aunque coincida con el número <span class="c-kw">de</span> turno previo.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/033-fila-confundida-con-turno.caso"><code><span class="c-kw">caso</span> 033-fila-confundida-con-turno:
@@ -3744,7 +3723,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
             2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 3, 3, false
-
     leccion:
         La fila del primer tiro coincide con el turno del segundo, pero las casillas son distintas.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/021-impacto-fantasma.caso"><code><span class="c-kw">caso</span> 021-impacto-fantasma:
@@ -3764,7 +3742,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, true
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
-
     leccion:
         El disparo se declara impacto <span class="c-kw">sin</span> barco rival en la casilla.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/022-impacto-real.caso"><code><span class="c-kw">caso</span> 022-impacto-real:
@@ -3784,7 +3761,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, true
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3
-
     leccion:
         El impacto declarado coincide con un barco rival.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/032-agua-declarada-agua.caso"><code><span class="c-kw">caso</span> 032-agua-declarada-agua:
@@ -3804,7 +3780,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
-
     leccion:
         Una casilla <span class="c-kw">de</span> agua declarada agua <span class="c-kw">no</span> es impacto fantasma.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/019-barco-reportado-como-agua.caso"><code><span class="c-kw">caso</span> 019-barco-reportado-como-agua:
@@ -3824,7 +3799,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3
-
     leccion:
         El disparo toca un barco rival <span class="c-kw">y</span> se registra como agua.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/020-agua-reportada-como-agua.caso"><code><span class="c-kw">caso</span> 020-agua-reportada-como-agua:
@@ -3844,7 +3818,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
         celda_barco: id, jugador, fila, columna
             <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
-
     leccion:
         El disparo cae en agua <span class="c-kw">y</span> se registra como agua.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/013-ganador-con-dieciseis-impactos.caso"><code><span class="c-kw">caso</span> 013-ganador-con-dieciseis-impactos:
@@ -3862,7 +3835,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         partida: turno_final, impactos_ganador
             30, 16
-
     leccion:
         El ganador sólo acumuló 16 impactos.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/014-ganador-con-diecisiete-impactos.caso"><code><span class="c-kw">caso</span> 014-ganador-con-diecisiete-impactos:
@@ -3880,7 +3852,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
     <span class="c-kw">evidencia</span>:
         partida: turno_final, impactos_ganador
             30, 17
-
     leccion:
         El ganador acumuló los 17 impactos exigidos.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/009-tiro-despues-del-final.caso"><code><span class="c-kw">caso</span> 009-tiro-despues-del-final:
@@ -3900,7 +3871,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             5, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
         partida: turno_final, impactos_ganador
             4, 17
-
     leccion:
         El turno del tiro supera el turno final.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/naval/010-tiro-en-turno-final.caso"><code><span class="c-kw">caso</span> 010-tiro-en-turno-final:
@@ -3920,7 +3890,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
             4, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
         partida: turno_final, impactos_ganador
             4, 17
-
     leccion:
         El tiro ocurre en el turno final permitido.</code></pre>
 </details>

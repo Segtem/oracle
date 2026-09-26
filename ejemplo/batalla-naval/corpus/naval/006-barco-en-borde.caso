@@ -13,6 +13,5 @@ caso 006-barco-en-borde:
     evidencia:
         celda_barco: id, jugador, fila, columna
             "b1", "jugador", 0, 9
-
     leccion:
         La celda de barco está en el borde válido.

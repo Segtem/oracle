@@ -278,7 +278,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
         casilla: barco, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, 9, 4
             <span class="c-txt">&quot;b1&quot;</span>, 10, 4
-
     leccion:
         El borde <span class="c-kw">de</span> abajo se prueba con la primera fila que ya <span class="c-kw">no</span> existe.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/flota/002-fila-negativa.caso"><code><span class="c-kw">caso</span> 002-fila-negativa:
@@ -296,7 +295,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
     <span class="c-kw">evidencia</span>:
         casilla: barco, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, -1, 4
-
     leccion:
         Sin este <span class="c-kw">caso</span>, borrar la condición c.fila &lt; 0 <span class="c-kw">no</span> se nota.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/flota/003-columna-desbordada.caso"><code><span class="c-kw">caso</span> 003-columna-desbordada:
@@ -314,7 +312,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
     <span class="c-kw">evidencia</span>:
         casilla: barco, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, 4, 10
-
     leccion:
         Cada una <span class="c-kw">de</span> las cuatro condiciones necesita su propio <span class="c-kw">caso</span> rojo.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/flota/004-columna-negativa.caso"><code><span class="c-kw">caso</span> 004-columna-negativa:
@@ -332,7 +329,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
     <span class="c-kw">evidencia</span>:
         casilla: barco, fila, columna
             <span class="c-txt">&quot;b1&quot;</span>, 4, -1
-
     leccion:
         Cada una <span class="c-kw">de</span> las cuatro condiciones necesita su propio <span class="c-kw">caso</span> rojo.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/flota/005-las-cuatro-esquinas.caso"><code><span class="c-kw">caso</span> 005-las-cuatro-esquinas:
@@ -353,7 +349,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
             <span class="c-txt">&quot;b2&quot;</span>, 0, 9
             <span class="c-txt">&quot;b3&quot;</span>, 9, 0
             <span class="c-txt">&quot;b4&quot;</span>, 9, 9
-
     leccion:
         Sin un verde en el borde, cambiar &gt; 9 por &gt;= 9 <span class="c-kw">no</span> se nota.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/flota/006-partida-sin-casillas.caso"><code><span class="c-kw">caso</span> 006-partida-sin-casillas:
@@ -371,7 +366,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
     <span class="c-kw">medida</span>: flota.casillas_dentro_del_tablero
     <span class="c-kw">evidencia</span>:
         casilla:
-
     leccion:
         Cero casillas <span class="c-kw">no</span> es un tablero en regla: es un sensor que <span class="c-kw">no</span> miró.</code></pre>
 <pre class="archivo" data-lenguaje="corpus/flota/007-sin-requiere-sin-casillas.caso"><code><span class="c-kw">caso</span> 007-sin-requiere-sin-casillas:
@@ -388,7 +382,6 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
     <span class="c-kw">medida</span>: flota.casillas_dentro_sin_requiere
     <span class="c-kw">evidencia</span>:
         casilla:
-
     leccion:
         Con <span class="c-kw">ninguno</span> a secas, cero casillas cuenta cero infracciones <span class="c-kw">y</span> sale verde.</code></pre>
 </details>

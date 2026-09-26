@@ -109,7 +109,7 @@ class CliSintaxisTests(unittest.TestCase):
 
     def _verificar(self, cambios_informe=None, cambios_docs=None):
         informe = {
-            "json_igual": True, "texto_igual": True,
+            "json_igual": True, "texto_igual": True, "desformateados": [],
             "medidas": 1, "macros": 1, "casos": 1,
             "caracteres_json": 8, "caracteres_superficie": 10,
             "puntuacion_json": 3, "puntuacion_superficie": 2,
@@ -133,6 +133,7 @@ class CliSintaxisTests(unittest.TestCase):
             "relaciones convertidas: 0\n"
             "ida JSON: OK\n"
             "vuelta texto: OK\n"
+            "forma única: OK\n"
             "caracteres: JSON 8 · superficie 10\n"
             "puntuación: JSON 3 (37,5%) · superficie 2 (20,0%)\n"
             "bloques de documentación: 1 verificados · 4 declarados como gramática o fragmento\n"))
@@ -197,6 +198,7 @@ class InventarioYConteosSintaxisTests(unittest.TestCase):
                     self.assertEqual(funcion(ruta, raiz), {
                         "ruta": "fuente.json", "imprimio": True, "error": "",
                         "json_igual": True, "texto_igual": True,
+                        "forma_unica": True, "diff_forma": [],
                         "caracteres_json": 17, "caracteres_superficie": 5,
                         "puntuacion_json": 16, "puntuacion_superficie": 3,
                     })
@@ -1084,7 +1086,7 @@ class MutacionDeSintaxisTests(unittest.TestCase):
         )
         self.assertEqual(
             sintaxis_nucleo._expr(["o", ["y", True, False], True]),
-            "true y false o true",
+            "(true y false) o true",
         )
         self.assertEqual(
             sintaxis_nucleo._expr(["no", ["contar", 1]]),

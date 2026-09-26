@@ -14,6 +14,5 @@ caso 004-tiradores-alternos:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, "jugador", "cpu", 1, 1, false
             1, "cpu", "jugador", 2, 2, false
-
     leccion:
         Los turnos consecutivos cambian de tirador.

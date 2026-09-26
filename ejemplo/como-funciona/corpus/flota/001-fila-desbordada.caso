@@ -14,6 +14,5 @@ caso 001-fila-desbordada:
         casilla: barco, fila, columna
             "b1", 9, 4
             "b1", 10, 4
-
     leccion:
         El borde de abajo se prueba con la primera fila que ya no existe.

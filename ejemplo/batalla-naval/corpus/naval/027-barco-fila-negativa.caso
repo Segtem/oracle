@@ -13,6 +13,5 @@ caso 027-barco-fila-negativa:
     evidencia:
         celda_barco: id, jugador, fila, columna
             "b1", "jugador", -1, 5
-
     leccion:
         Una celda de barco cae en fila negativa.

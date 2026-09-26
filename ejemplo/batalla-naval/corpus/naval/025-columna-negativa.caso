@@ -13,6 +13,5 @@ caso 025-columna-negativa:
     evidencia:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
             0, "jugador", "cpu", 5, -1, false
-
     leccion:
         La columna negativa está fuera del tablero.

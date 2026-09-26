@@ -15,6 +15,5 @@ caso 019-barco-reportado-como-agua:
             0, "jugador", "cpu", 2, 3, false
         celda_barco: id, jugador, fila, columna
             "a", "cpu", 2, 3
-
     leccion:
         El disparo toca un barco rival y se registra como agua.
