@@ -2,7 +2,7 @@
 
 - ESTADO: ABIERTA
 - PRIORIDAD: 75
-- ETIQUETAS: oracle, metalenguaje, sintaxis, ergonomia
+- ETIQUETAS: oracle, metalenguaje, sintaxis, ergonomia, una-sintaxis
 
 ### Nota (2026-09-26 02:24:26 UTC)
 
