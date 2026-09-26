@@ -306,3 +306,20 @@ class ComentariosEnRelacion(unittest.TestCase):
             self.assertEqual(cargar_fuente_relacion(ruta), relacion.leer(limpio))
             self.assertEqual(formato.con_comentarios(comentado, formato.canonico(ruta, comentado)), comentado)
             self.assertEqual(lsp.diagnosticar(Proyecto(Path(td)), ruta, comentado), [])
+
+
+class DiferenciaDeForma(unittest.TestCase):
+    # Mutación 0.32.0: seis sobrevivientes en nucleo/forma.diferencia, que nadie probaba de frente.
+    def test_los_casos_sin_diff_de_lineas_se_nombran(self):
+        from nucleo.forma import diferencia
+        self.assertEqual(diferencia("a\n", "a\n"), [])
+        self.assertEqual(diferencia("a\r\n", "a\n"), ["@@ fines de línea @@", "- CRLF (\\r\\n)", "+ LF (\\n)"])
+        self.assertEqual(diferencia("a", "a\n"),
+                         ["@@ salto de línea final @@", "- sin salto final", "+ con salto final"])
+
+    def test_se_recorta_a_ocho_lineas_y_lo_dice(self):
+        from nucleo.forma import diferencia
+        largo = diferencia("a\nb\nc\n", "x\ny\nz\n")      # 3 de encabezado + 6 cambios = 9
+        self.assertEqual((len(largo), largo[-1]), (9, "…"))
+        justo = diferencia("a\n", "b\n", max_lineas=5)    # 3 + 2 = 5: cabe entero
+        self.assertEqual((len(justo), justo[-1]), (5, "+b"))
