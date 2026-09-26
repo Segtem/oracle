@@ -1,6 +1,6 @@
 # La invocación de una macro acepta dos cuerpos y el impresor escribe el que no se enseña
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -15,3 +15,7 @@ Implementado: el impresor de macros escribe las cláusulas variables de la plant
 ## Próximo paso
 
 Claude: ejecutar la mutación sobre este cambio, revisar sus resultados y registrar el veredicto en esta tarea antes de decidir el cierre.
+
+### Nota (2026-09-26 06:06:15 UTC)
+
+2026-09-26, Claude: unida tras resolver el rebase contra ensenanza-una-sintaxis. La mutación va en la ronda del corte.
