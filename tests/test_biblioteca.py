@@ -7,6 +7,7 @@ import sys
 import shutil
 import tempfile
 import unittest
+from nucleo.version import VERSION_SINTAXIS
 from contextlib import redirect_stderr, redirect_stdout
 from importlib import metadata
 from pathlib import Path
@@ -425,7 +426,7 @@ class AndamioDeBiblioteca(unittest.TestCase):
 
     def _crear(self, bid="aula.calidad", destino=None):
         from nucleo.biblioteca import andamio
-        return andamio(Path(destino), bid, algebra="1.0", sintaxis="0.2")
+        return andamio(Path(destino), bid, algebra="1.0", sintaxis=VERSION_SINTAXIS)
 
     def test_el_manifiesto_queda_donde_el_descubrimiento_lo_busca(self) -> None:
         from nucleo.biblioteca import ruta_instalada_del_manifiesto

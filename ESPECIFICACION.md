@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `0.8`, distribución `0.31.1`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.31.1`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -51,14 +51,22 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
 
-**Sintaxis 0.8 (2026-09-26): `VERSION_SINTAXIS` sube de `0.7` a `0.8`.** Un caso de defecto
-puede declarar `espera: sin_evidencia` después de `etiqueta` en `.caso`, o
-`"espera": "sin_evidencia"` en JSON. Es el único valor admitido y no vale con
-`verde_correcto`. La aceptación exige ese resultado exacto; un caso de defecto sin el campo
-exige un rojo medido. El impresor conserva el campo. La declaración de relaciones gana la
-superficie `.relacion`: campos tipados en líneas, unidad obligatoria para números, variantes y
-alcance explícito; el JSON canónico sigue cargando. Sube la menor por estas escrituras nuevas;
-el álgebra queda en `1.0` y la distribución en `0.31.1` hasta el próximo corte.
+**Sintaxis 1.0 (2026-09-26): `VERSION_SINTAXIS` sube de `0.7` a `1.0`: una sola sintaxis de
+escritura** (tareas `una-sintaxis` y sus subtareas, cuatro auditorías adversariales). Se escribe sólo
+en superficie —medidas y macros en `.oracle`, casos en `.caso`, relaciones en `.relacion`— y el texto
+válido es **exactamente el que escribe el impresor**, sin contar las líneas de comentario: `oracle
+test`, `juzgar`, el MCP y los cargadores rechazan cualquier otra grafía con el diff y `oracle
+formatear <ruta> --escribir`, que la corrige; el LSP la diagnostica. Dejan de leerse: `mas(a, b)`,
+`menos(a, b)` y `por(a, b)` (se escribe `a + b`, `a - b`, `a * b`), `col(p)` (se escribe `p`), la
+invocación de una macro por argumentos (se escribe con las cláusulas de su plantilla, como una
+medida), una relación en un `.oracle`, los fines de línea CRLF y la línea `sintaxis MAYOR.MENOR` al
+principio de un archivo. Se agregan `espera: sin_evidencia` en un caso de defecto (la aceptación
+exige ese resultado exacto, y un caso de defecto sin el campo exige un rojo medido) y la superficie
+`.relacion`. Oracle sigue leyendo archivos `.json` como formato canónico de intercambio y migración
+(`oracle convertir <directorio> --a-superficie`), pero no los enseña ni los produce, y
+`meta.se_escribe_en_superficie` no admite medidas, casos ni relaciones de un proyecto en `.json`. Sube
+la **mayor** porque formas que se aceptaban pasan a ser error (caso 3 de la regla de abajo); el
+álgebra queda en `1.0` y cambia la menor de la distribución en el próximo corte.
 
 **Corte 0.31.1 (2026-09-26): `VERSION_DISTRIBUCION` sube de `0.31.0` a `0.31.1`.** Cierra dos
 caminos que daban verde sin haber mirado y dos imprecisiones de `juzgar`. Un caso que no sale como declara su etiqueta tumba la
@@ -519,17 +527,19 @@ no conoce el nodo nuevo.
 ### La superficie tiene su propia versión
 
 La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
-misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La regla aplica a las medidas
-(`.oracle`), a los casos del corpus (`.caso`) y a las relaciones (`.relacion`): la superficie es cómo se escribe y el JSON es cómo
-se guarda, cargándose ambos por igual. La distinción que importa es entre el **lector** y el
-**impresor**, y no envejecen igual: un archivo `.oracle` o `.caso` viejo se **lee**; el
-impresor no lo toca. Por eso **una sola versión alcanza**, y alcanza porque la comparación es
-asimétrica —el archivo declara contra qué se escribió y el núcleo declara qué implementa—:
+misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La regla aplica a las medidas y
+macros (`.oracle`), a los casos del corpus (`.caso`) y a las relaciones (`.relacion`). Desde la
+`1.0` hay **una sola forma de escribir**: la superficie, y dentro de ella el texto exacto que
+escribe el impresor. Un archivo en otra grafía no carga; `oracle formatear` lo lleva a la forma
+única sin cambiar su árbol. El JSON es la forma canónica —lo que Oracle guarda y compara por
+dentro— y se sigue leyendo desde archivos `.json` como formato de intercambio, pero no es una forma
+de escribir. Un archivo no declara contra qué versión se escribió: la pide el proyecto, en
+`oracle.json`, y la compara el núcleo:
 
-- un archivo viejo leído por un núcleo nuevo es compatible si la mayor coincide y la menor del
-  núcleo es al menos la declarada;
-- un archivo nuevo —que usa una palabra nueva— leído por un núcleo viejo falla cerrado, porque el
-  núcleo declara una menor anterior a la que el archivo pide.
+- un proyecto que pide una versión es compatible si la mayor coincide y la menor del núcleo es al
+  menos la pedida;
+- un proyecto que pide una versión que el núcleo no implementa falla cerrado, con las dos versiones
+  en el mensaje.
 
 No hacen falta dos números: la ida y vuelta lector↔impresor es un invariante interno que
 `sintaxis.py --verificar` comprueba, y el impresor sólo cambia en dos casos —o el lector aprende una
@@ -556,11 +566,9 @@ Casos concretos:
 3. **Que una forma que hoy se acepta pase a ser un error** → **MAYOR**. Un archivo que la use deja
    de cargar.
 
-Un `.oracle` puede declarar contra qué versión se escribió, con una primera línea
-`sintaxis MAYOR.MENOR`. Es opcional —los archivos de hoy no la declaran y siguen cargando— y es
-parte de la superficie, no un comentario pegado arriba. Declarar una versión incompatible falla
-cerrado al cargar, con un mensaje que dice las dos versiones. `oracle.json` puede pedir una versión
-de sintaxis (`"sintaxis": "0.2"`) con la misma regla que pide la del álgebra.
+Hasta la `0.7` un `.oracle` podía declarar su versión en una primera línea `sintaxis MAYOR.MENOR`.
+Desde la `1.0` esa línea no es parte de la forma única y no carga: la versión la pide `oracle.json`
+(`"sintaxis": "1.0"`), con la misma regla que pide la del álgebra.
 
 ---
 

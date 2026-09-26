@@ -36,7 +36,7 @@
 oracle --version</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.31.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
-  sintaxis: 0.8   (cómo se ESCRIBE)
+  sintaxis: 1.0   (cómo se ESCRIBE)
   corriendo desde: …/oracle</code></pre>
 <p>Tres versiones porque son tres contratos distintos, y envejecen por separado. La del paquete sube cuando se arregla una herramienta; la del <strong>álgebra</strong> cuando cambia qué significa una medida; la de la <strong>sintaxis</strong> cuando cambia cómo se escribe.</p>
 <blockquote><p><strong>Por qué <code>uv</code> y no <code>pip</code>.</strong> En Arch, Debian 12+, Ubuntu 23.04+ y Fedora, <code>pip install</code> al Python del sistema falla con <code>externally-managed-environment</code> (PEP 668). Con <code>pip</code> andá a un entorno propio: <code>python3 -m venv venv &amp;&amp; source venv/bin/activate</code>. Pero para el editor eso <strong>no alcanza</strong>: los clientes de Emacs y VS Code buscan <code>oracle-lsp</code> en el <code>PATH</code>, y dentro de un venv sólo se ve con el venv activado.</p></blockquote>
