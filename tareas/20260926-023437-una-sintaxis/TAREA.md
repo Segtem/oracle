@@ -20,10 +20,14 @@ Auditoría adversarial ejecutada y documentada en AUDITORIA.md. Hallazgos reprod
 
 Segunda auditoría adversarial completada y documentada en AUDITORIA-2.md. Verificado el cierre de las segundas formas previas (MCP, convertir, contexto, README, macros, mas/menos/por, col, .oracle con relación). Identificadas segundas formas nuevas (agrupar, donde encadenado, variantes .relacion, sintaxis version) y remanente editorial en docs/tutorial-practico.md:684.
 
-## Próximo paso
-
-Revisar el informe AUDITORIA-2.md y corregir el remanente editorial en docs/tutorial-practico.md:684 antes de evaluar decisiones de diseño sobre las segundas formas sintácticas nuevas (agrupar, donde encadenado, variantes .relacion).
-
 ### Nota (2026-09-26 11:34:12 UTC)
 
 2026-09-26, ENCARGO de la TERCERA auditoría (Codex, con shell, adversarial): después de AUDITORIA.md (Codex) y AUDITORIA-2.md (agy) se cerraron macro-invocacion-unica, lectores-heredados, ensenanza-una-sintaxis y forma-unica-texto (el texto válido es exactamente el del impresor; oracle formatear). Repetí en contra, EJECUTANDO, cada prueba de las dos auditorías anteriores (cada fila de sus tablas y cada forma nueva de AUDITORIA-2) y decí si sigue abierta o cerrada. Después buscá formas NUEVAS: la pregunta es si existe CUALQUIER texto distinto del que escribe el impresor que Oracle acepte como medida, caso, relación o macro de un proyecto (por oracle test, juzgar, MCP, LSP, formatear, convertir), o cualquier lugar del paquete que enseñe o produzca otra forma. Probá especialmente los bordes del invariante: comentarios, líneas en blanco, espacios al final, tabs, CRLF, BOM, archivos sin salto final, y si el invariante corre también en juzgar/MCP/LSP o sólo en oracle test. Escribí tareas/<esta>/AUDITORIA-3.md con los comandos, las salidas recortadas y una tabla final (forma, estado, evidencia) y un veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
+
+### Nota (2026-09-26 11:40:17 UTC)
+
+Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reproduje las variantes de AUDITORIA.md y AUDITORIA-2.md, hallé aceptación de texto no impreso fuera de oracle test, bypass CRLF de forma única y remanente editorial en README:604-608. Sin cambios de código ni commits.
+
+## Próximo paso
+
+Revisar AUDITORIA-3.md y corregir la aceptación de texto no impreso en juzgar/MCP/LSP/cargadores, el bypass CRLF de `oracle test` y `oracle formatear`, y las líneas README:604-608 que presentan JSON como formato par de autoría.
