@@ -40,10 +40,14 @@ Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reprod
 
 2026-09-26, Codex: actualizado el manifiesto de biblioteca de ejemplo a sintaxis 1.0; las pruebas de compatibilidad usan VERSION_SINTAXIS y versiones relativas para distinguir compatible, menor futura y otra mayor; la prueba de forma única usa la versión vigente para que llegue a ese diagnóstico; test_requiere_orden deriva la versión del núcleo. Verificación: 190 tests focalizados OK; python3 -m unittest discover -s tests -t .: 2635 tests OK; python3 tools/guia.py --escribir: 0 salidas actualizadas; python3 tools/sitio.py --escribir: OK; python3 tools/cli.py test --rapido: VERDE; python3 tools/cifras.py --actualizar: OK. Sin commits.
 
-## Próximo paso
-
-Revisar los cambios de sintaxis 1.0 y estas pruebas corregidas; continuar el cierre de la tarea principal y de los consumidores Jam y LyraGASP según sus tareas correspondientes.
-
 ### Nota (2026-09-26 12:20:22 UTC)
 
 2026-09-26, ENCARGO de la QUINTA auditoría (Codex, con shell, adversarial): después de AUDITORIA-4 la sintaxis pasó a 1.0 y la especificación dejó de enseñar el encabezado de versión y la carga de grafías viejas. Repetí EN CONTRA, ejecutando, todo punto abierto de AUDITORIA-2, -3 y -4 y buscá cualquier texto de superficie distinto del impresor que alguna entrada acepte como medida, caso, relación o macro de un proyecto, y cualquier lugar del paquete (docs, especificación, manual, contexto, MCP, LSP, plantillas, ejemplos, mensajes de error, notas de release de esta versión) que enseñe o produzca otra forma de escribir. JSON en archivos .json: admitido como intercambio por decisión; no es hallazgo salvo que algo lo enseñe como forma de escribir. Escribí tareas/<esta>/AUDITORIA-5.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
+
+### Nota (2026-09-26 12:25:24 UTC)
+
+2026-09-26, quinta auditoría adversarial ejecutada en AUDITORIA-5.md. Hallazgos reproducidos: tools/sintaxis.py --leer acepta .oracle no canónico; ejemplo/caso-observado enseña y produce un caso JSON en corpus. Entradas principales ensayadas rechazan variantes. AUDITORIA-4.md no está en este checkout. Sin cambios de código ni commits.
+
+## Próximo paso
+
+Revisar AUDITORIA-5.md y corregir las dos segundas vías reproducidas: la entrada `tools/sintaxis.py --leer` para grafías no canónicas y la receta `ejemplo/caso-observado` que genera casos JSON; completar las notas de sintaxis 1.0 y volver a auditar.
