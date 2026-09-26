@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.31.1`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `0.8`, distribución `0.31.1`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,13 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Sintaxis 0.8 (2026-09-26): `VERSION_SINTAXIS` sube de `0.7` a `0.8`.** Un caso de defecto
+puede declarar `espera: sin_evidencia` después de `etiqueta` en `.caso`, o
+`"espera": "sin_evidencia"` en JSON. Es el único valor admitido y no vale con
+`verde_correcto`. La aceptación exige ese resultado exacto; un caso de defecto sin el campo
+exige un rojo medido. El impresor conserva el campo. Sube la menor por la escritura nueva;
+el álgebra queda en `1.0` y la distribución en `0.31.1` hasta el próximo corte.
 
 **Corte 0.31.1 (2026-09-26): `VERSION_DISTRIBUCION` sube de `0.31.0` a `0.31.1`.** Cierra dos
 caminos que daban verde sin haber mirado y dos imprecisiones de `juzgar`. Un caso que no sale como declara su etiqueta tumba la

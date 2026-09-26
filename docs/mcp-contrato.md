@@ -519,7 +519,8 @@ El bloque siguiente se genera desde `tools.mcp.HERRAMIENTAS` con
               "espera": {
                 "enum": [
                   "verde",
-                  "rojo"
+                  "rojo",
+                  "sin_evidencia"
                 ]
               },
               "evidencia": {
@@ -1133,7 +1134,8 @@ El orden es parte del contrato:
 2. reúne casos y conserva su origen;
 3. evalúa el original contra cada expectativa;
 4. si alguna no se reproduce, devuelve `original_no_reproduce` y no muta;
-5. si no hay al menos un caso que espere verde y otro que espere rojo, devuelve
+5. si no hay al menos un caso que espere verde y otro que espere rojo medido o
+   `sin_evidencia`, devuelve
    `faltan_polaridades` y no muta;
 6. genera los mutantes de la forma canónica y los ejecuta contra todos los casos;
 7. separa cambio conductual, rechazo del álgebra y supervivencia.
@@ -1425,7 +1427,7 @@ for f in facts:
  else: no.append({'id':f['id'],'cambio':f['cambio'],'estado':'sobrevivio'})
 disc=[]
 for c in cs:
- esp='verde' if c['etiqueta']=='verde_correcto' else 'rojo'; obt=E(m.evaluar(c['evidencia']))
+ esp=c.get('espera') or ('verde' if c['etiqueta']=='verde_correcto' else 'rojo'); obt=E(m.evaluar(c['evidencia']))
  if esp!=obt: disc.append({'caso':c['id'],'esperado':esp,'obtenido':obt})
 con=('original_no_reproduce' if disc else 'faltan_polaridades' if len({x['etiqueta']=='verde_correcto' for x in cs})<2 else 'sin_mutantes' if not facts else 'sobrevivientes' if any(x['estado']=='sobrevivio' for x in no) else 'sin_sobrevivientes_con_rechazos' if rej else 'todos_detectados_por_conducta')
 rd={'esquema':'oracle.mcp/desafio/v1','oracle_version':VERSION_DISTRIBUCION,'proyecto':str(p.raiz.resolve()),'entrada_sha256':H({'medida':m.a_datos(),'casos':cs}),'medida':m.id,'conclusion':con,'casos':{'total':len(cs),'del_proyecto':len(cs),'efimeros':0,'esperan_verde':sum(x['etiqueta']=='verde_correcto' for x in cs),'esperan_rojo':sum(x['etiqueta']!='verde_correcto' for x in cs)},'discordancias':disc,'mutacion':{'generados':len(facts),'detectados_por_conducta':det,'rechazados_por_el_algebra':rej,'no_detectados':no},'advertencias':['La mutación no demuestra corrección semántica.']}

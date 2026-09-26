@@ -6,6 +6,7 @@ caso 439-sin-verbos-del-cli-no-concluye:
     procedencia: construida
     titulo: "Sin la relación de verbos, la ayuda no se juzga"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Un consumidor de Oracle no tiene un CLI que documentar, así que la relación no se emite. Sin `requiere`, cero filas se leería como «todos los verbos están en la ayuda» y el proyecto se pondría verde por no tener nada que mirar.
     como_se_detecto: mutacion

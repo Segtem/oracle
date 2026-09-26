@@ -6,6 +6,7 @@ caso 423-sin-cantidad-comparada-no-concluye:
     procedencia: construida
     titulo: "Sin relación `cantidad_comparada`, la medida no puede concluir"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         El sensor de unidades no entregó la relación `cantidad_comparada`. Sin esa relación, la medida no puede saber si las cantidades comparadas tienen unidades derivables y no debe concluir en verde.
     como_se_detecto: mutacion

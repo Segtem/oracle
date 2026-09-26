@@ -219,7 +219,7 @@ SINTAXIS OK · 0 medidas · 0 macros · 1 casos
 catálogo: 0 medidas · corpus: 1 casos
 
 
-defectos que se pusieron rojos: 0 · verdes correctos: 0 · huecos declarados: 0
+defectos que se pusieron rojos: 0 · verdes correctos: 0 · sin evidencia esperada: 0 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
@@ -277,11 +277,11 @@ catálogo: 1 medidas · corpus: 1 casos
 
   ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
 
-defectos que se pusieron rojos: 1 · verdes correctos: 0 · huecos declarados: 0
+defectos que se pusieron rojos: 1 · verdes correctos: 0 · sin evidencia esperada: 0 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 1 defectos en rojo, 0 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 1 defectos en rojo, 0 sin evidencia esperada, 0 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
@@ -354,11 +354,11 @@ catálogo: 1 medidas · corpus: 2 casos
   ROJO  005-barco-fila-desbordada              naval.barcos_dentro_del_tablero  (valor 1)
   verde 006-barco-en-borde                     naval.barcos_dentro_del_tablero  (valor 0)
 
-defectos que se pusieron rojos: 1 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 1 · verdes correctos: 1 · sin evidencia esperada: 0 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 1 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 1 defectos en rojo, 0 sin evidencia esperada, 1 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
@@ -419,11 +419,11 @@ catálogo: 1 medidas · corpus: 5 casos
   ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
   ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
 
-defectos que se pusieron rojos: 4 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · sin evidencia esperada: 0 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 4 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 4 defectos en rojo, 0 sin evidencia esperada, 1 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
@@ -546,11 +546,11 @@ catálogo: 11 medidas · corpus: 7 casos
   ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
   ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
 
-defectos que se pusieron rojos: 5 · verdes correctos: 2 · huecos declarados: 0
+defectos que se pusieron rojos: 5 · verdes correctos: 2 · sin evidencia esperada: 0 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 5 defectos en rojo, 2 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 5 defectos en rojo, 0 sin evidencia esperada, 2 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
@@ -716,17 +716,17 @@ catálogo: 11 medidas · corpus: 33 casos
   ROJO  026-barco-columna-desbordada           naval.barcos_dentro_del_tablero  (valor 1)
   ROJO  027-barco-fila-negativa                naval.barcos_dentro_del_tablero  (valor 1)
   ROJO  028-barco-columna-negativa             naval.barcos_dentro_del_tablero  (valor 1)
-  ROJO  029-flota-sin-celdas                   naval.flota_reglamentaria  (SIN EVIDENCIA: «celda_barco» vacía)
-  ROJO  030-sin-tiros-registrados              naval.turnos_sin_huecos  (SIN EVIDENCIA: «tiro» vacía)
+  SIN EVIDENCIA 029-flota-sin-celdas          naval.flota_reglamentaria  («celda_barco» vacía)
+  SIN EVIDENCIA 030-sin-tiros-registrados     naval.turnos_sin_huecos  («tiro» vacía)
   verde 031-distinta-fila-igual-turno-ajeno    naval.tiros_sin_repeticion  (valor 0)
   verde 032-agua-declarada-agua                naval.veracidad_impacto_positivo  (valor 0)
   verde 033-fila-confundida-con-turno          naval.tiros_sin_repeticion  (valor 0)
 
-defectos que se pusieron rojos: 19 · verdes correctos: 14 · huecos declarados: 0
+defectos que se pusieron rojos: 17 · verdes correctos: 14 · sin evidencia esperada: 2 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 19 defectos en rojo, 14 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 17 defectos en rojo, 2 sin evidencia esperada, 14 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 

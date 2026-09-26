@@ -130,7 +130,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 10954 líneas de lenguaje y **452 negativas explícitas** (`raise`).
+En este corte hay 10979 líneas de lenguaje y **455 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -163,7 +163,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**10954 líneas de lenguaje** (`nucleo/`, código y macros) y **452 negativas explícitas** (`raise`). Contra las 62 medidas del catálogo escritas en él (443 líneas): **24,7 a 1**. 53 de las 62 pasan por una macro.
+**10979 líneas de lenguaje** (`nucleo/`, código y macros) y **455 negativas explícitas** (`raise`). Contra las 62 medidas del catálogo escritas en él (443 líneas): **24,8 a 1**. 53 de las 62 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -690,11 +690,11 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 ```
 
 <!-- corpus:inicio -->
-**212 casos**: 126 defectos y 86 verdes correctos. De los defectos, 119 deben ponerse en rojo · 0 huecos abiertos · 5 resueltos conservados · 2 límite humano. Por etiqueta: 120 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 3 deudas de diseño. Por procedencia: 114 observada, 92 construida, 6 generada y 0 sin declarar.
+**212 casos**: 126 defectos y 86 verdes correctos. De los defectos, 102 deben ponerse en rojo medido · 18 esperan SIN EVIDENCIA · 0 huecos abiertos · 5 resueltos conservados · 2 límite humano. Por etiqueta: 120 falsos verdes, 2 falsos rojos, 1 conclusión causal incorrecta pese a una medida correcta y 3 deudas de diseño. Por procedencia: 114 observada, 92 construida, 6 generada y 0 sin declarar.
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2576 tests · 1010/1010 mutantes de medida · **8624 sitios de mutación de código** (8386 + 238 del motor Python).
+2580 tests · 1010/1010 mutantes de medida · **8649 sitios de mutación de código** (8411 + 238 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

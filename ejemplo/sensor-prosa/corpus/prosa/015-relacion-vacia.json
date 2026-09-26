@@ -13,5 +13,6 @@
   "evidencia": {
     "afirmacion_prosa": []
   },
-  "leccion": "requiere exige filas: una relación vacía es SIN EVIDENCIA, no aprobación de prosa."
+  "leccion": "requiere exige filas: una relación vacía es SIN EVIDENCIA, no aprobación de prosa.",
+  "espera": "sin_evidencia"
 }

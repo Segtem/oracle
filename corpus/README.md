@@ -43,6 +43,7 @@ mutación es el único detector que ya se pagó solo, y tres casos la reclaman.
 | `id` | igual al nombre del archivo |
 | `fecha`, `origen` | cuándo se capturó y repo/commit o sesión de origen |
 | `procedencia` | `observada` · `construida` · `generada`; si falta, las herramientas la muestran como `sin_declarar` |
+| `espera` | opcional: `sin_evidencia` para un caso de defecto que debe quedar sin juicio; sin el campo, un defecto exige ROJO medido. No vale con `verde_correcto` |
 | `titulo` | una línea |
 | `etiqueta` | `falso_verde` · `falso_rojo` · `deuda_de_diseño` · `medida_correcta_conclusion_errada` · `verde_correcto` |
 | `sintoma` | qué dijo la medición y qué era verdad |

@@ -6,6 +6,7 @@ caso 066-filtro-sin-terminos-no-concluye:
     procedencia: construida
     titulo: "La regla de filtro o agrupamiento no concluye sin `termino`"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         La evidencia trae medidas, pero la relación que describe su forma viene vacía. Una medida sobre estructura no puede tomar ese vacío como prueba de que todo está en orden.
     como_se_detecto: mutacion

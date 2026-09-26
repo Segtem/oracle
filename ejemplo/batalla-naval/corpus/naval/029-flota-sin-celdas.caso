@@ -6,6 +6,7 @@ caso 029-flota-sin-celdas:
     procedencia: construida
     titulo: "flota sin celdas"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Sin ninguna celda de barco no se puede declarar reglamentaria la flota.
     como_se_detecto: persona

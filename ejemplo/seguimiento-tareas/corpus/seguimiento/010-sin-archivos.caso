@@ -5,6 +5,7 @@ caso 010-sin-archivos:
     procedencia: construida
     titulo: "sin archivos"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Ejemplo construido; se espera rechazo del defecto declarado en estas filas.
     como_se_detecto: persona

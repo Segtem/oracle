@@ -6,6 +6,7 @@ caso 063-ausencia-sin-terminos-no-concluye:
     procedencia: construida
     titulo: "Sin relación `termino`, la regla de ausencia no puede concluir"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         El sensor estructural no entregó ningún término. Una regla que mide la forma del catálogo no debe ponerse verde cuando no recibió la forma que necesita mirar.
     como_se_detecto: mutacion

@@ -175,13 +175,13 @@ catálogo: 1 medidas · corpus: 6 casos
   ROJO  003-fila-negativa                      colocacion.dentro_del_tablero  (valor 1)
   ROJO  004-columna-negativa                   colocacion.dentro_del_tablero  (valor 1)
   ROJO  005-columna-desbordada                 colocacion.dentro_del_tablero  (valor 1)
-  ROJO  006-sin-celdas                         colocacion.dentro_del_tablero  (SIN EVIDENCIA: «celda_ocupada» vacía)
+  SIN EVIDENCIA 006-sin-celdas                colocacion.dentro_del_tablero  («celda_ocupada» vacía)
 
-defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · sin evidencia esperada: 1 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 4 defectos en rojo, 1 sin evidencia esperada, 1 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 

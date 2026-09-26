@@ -6,6 +6,7 @@ caso 027-ronda-de-codigo-sin-mutantes-no-concluye:
     procedencia: construida
     titulo: "Una ronda de mutación de código sin mutantes no concluye"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Cero mutantes en la relación. Sin la precondición `requiere`, la medida agregaría sobre cero filas y devolvería verde vacilante sobre la nada.
     como_se_detecto: mutacion

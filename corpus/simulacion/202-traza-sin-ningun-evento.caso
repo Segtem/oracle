@@ -6,6 +6,7 @@ caso 202-traza-sin-ningun-evento:
     procedencia: observada
     titulo: "Traza sin ningun evento"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Cero eventos. Sin `requiere`, la medida reporta «la traza no tiene huecos» sobre una traza que no existe. Es el caso más claro de los tres: una traza vacía no es una traza completa, es la ausencia de traza.
     como_se_detecto: mutacion

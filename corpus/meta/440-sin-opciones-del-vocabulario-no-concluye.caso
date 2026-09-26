@@ -6,6 +6,7 @@ caso 440-sin-opciones-del-vocabulario-no-concluye:
     procedencia: construida
     titulo: "Sin la relación de vocabulario, la explicación no se juzga"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Si el manual no se puede importar, la relación no se emite. Sin `requiere`, cero filas diría que ninguna opción está mal explicada — cuando en realidad no se miró ninguna.
     como_se_detecto: mutacion

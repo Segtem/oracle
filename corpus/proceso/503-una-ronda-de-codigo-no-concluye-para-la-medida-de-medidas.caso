@@ -6,6 +6,7 @@ caso 503-una-ronda-de-codigo-no-concluye-para-la-medida-de-medidas:
     procedencia: construida
     titulo: "Una ronda sólo de mutación de código no concluye para la medida de mutación de medidas"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         El espejo de 502. Una ronda de `tools/mutar_codigo.py` trae sólo filas de tipo «codigo». Si `proceso.test_con_mutante_que_lo_mata` no pidiera filas de su tipo, filtraría por tipo, contaría cero y saldría verde sobre una ronda de medidas que nunca ocurrió.
     como_se_detecto: observacion

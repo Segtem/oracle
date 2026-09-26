@@ -6,6 +6,7 @@ caso 043-ausencia-total-sale-verde:
     procedencia: observada
     titulo: "La medida de ausencia se ponía más verde cuanto peor estaba el mundo"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Con tres módulos y UN importador real, `proceso.modulo_con_consumidor` salía roja y señalaba los dos módulos muertos. Con los mismos tres módulos y NINGÚN importador —el mundo estrictamente peor— salía verde. `unir` con un lado vacío no produce pares, sin pares no hay grupos, el agregado sobre cero filas da 0 y el umbral `<= 0` lo lee como éxito. La medida no era monótona: empeorar el mundo la mejoraba.
     como_se_detecto: herramienta_ajena

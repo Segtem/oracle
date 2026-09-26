@@ -481,7 +481,8 @@
               &quot;espera&quot;: {
                 &quot;enum&quot;: [
                   &quot;verde&quot;,
-                  &quot;rojo&quot;
+                  &quot;rojo&quot;,
+                  &quot;sin_evidencia&quot;
                 ]
               },
               &quot;evidencia&quot;: {
@@ -1016,7 +1017,7 @@
 <h3 id="oracle_desafiar"><code>oracle_desafiar</code><a class="ancla" href="#oracle_desafiar" aria-label="Enlace a esta sección">#</a></h3>
 <p>Esta herramienta acepta la misma unión de medida. Si <code>usar_evidencia_del_proyecto</code> se omite, vale verdadero: reúne los casos del corpus y los diferenciales cuyo <code>medida</code> coincide con el id del candidato. Los <code>casos</code> de la llamada se agregan en memoria y se marcan como efímeros. No aceptan <code>procedencia</code>, porque una llamada no puede convertir evidencia fabricada en evidencia observada. Ids repetidos entre ambas fuentes se rechazan con <code>CASO_REPETIDO</code>; nunca gana el último en silencio.</p>
 <p>El orden es parte del contrato:</p>
-<ol><li>carga y normaliza la medida;</li><li>reúne casos y conserva su origen;</li><li>evalúa el original contra cada expectativa;</li><li>si alguna no se reproduce, devuelve <code>original_no_reproduce</code> y no muta;</li><li>si no hay al menos un caso que espere verde y otro que espere rojo, devuelve <code>faltan_polaridades</code> y no muta;</li><li>genera los mutantes de la forma canónica y los ejecuta contra todos los casos;</li><li>separa cambio conductual, rechazo del álgebra y supervivencia.</li></ol>
+<ol><li>carga y normaliza la medida;</li><li>reúne casos y conserva su origen;</li><li>evalúa el original contra cada expectativa;</li><li>si alguna no se reproduce, devuelve <code>original_no_reproduce</code> y no muta;</li><li>si no hay al menos un caso que espere verde y otro que espere rojo medido o <code>sin_evidencia</code>, devuelve <code>faltan_polaridades</code> y no muta;</li><li>genera los mutantes de la forma canónica y los ejecuta contra todos los casos;</li><li>separa cambio conductual, rechazo del álgebra y supervivencia.</li></ol>
 <p><code>discordancias</code> es vacío cuando el original reproduce todo. Una excepción durante un caso se registra como <code>obtenido: &quot;error&quot;</code>; no se transforma en rojo. <code>mutacion.generados</code> es el denominador antes de correr casos. <code>detectados_por_conducta</code> cuenta mutantes para los que algún caso invirtió el veredicto, cambió el valor o cambió testigos. Un mutante que sólo levantó una excepción va en <code>rechazado_por_el_algebra</code>: no se publica como capacidad conductual del corpus.</p>
 <p>La conclusión más fuerte se llama <code>todos_detectados_por_conducta</code>, no <code>correcta</code>, <code>aprobada</code> ni <code>lista_para_guardar</code>. Incluso esa conclusión significa solamente «estos mutadores, escritos por estos autores, fueron discriminados por estas evidencias». Si no sobrevivió ninguno pero hubo rechazos, la conclusión separada <code>sin_sobrevivientes_con_rechazos</code> impide inflar el resultado.</p>
 <p>La capacidad nueva es ejecutar el lazo candidato efímero → dos polaridades → mutación sin que la medida ni los casos existan en disco. Ni <code>oracle medida revisar</code>, ni <code>oracle medida probar</code>, ni <code>oracle caso generar</code> hacen esa composición en memoria.</p>
@@ -1121,7 +1122,7 @@ for f in facts:
  else: no.append({&#x27;id&#x27;:f[&#x27;id&#x27;],&#x27;cambio&#x27;:f[&#x27;cambio&#x27;],&#x27;estado&#x27;:&#x27;sobrevivio&#x27;})
 disc=[]
 for c in cs:
- esp=&#x27;verde&#x27; if c[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; else &#x27;rojo&#x27;; obt=E(m.evaluar(c[&#x27;evidencia&#x27;]))
+ esp=c.get(&#x27;espera&#x27;) or (&#x27;verde&#x27; if c[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; else &#x27;rojo&#x27;); obt=E(m.evaluar(c[&#x27;evidencia&#x27;]))
  if esp!=obt: disc.append({&#x27;caso&#x27;:c[&#x27;id&#x27;],&#x27;esperado&#x27;:esp,&#x27;obtenido&#x27;:obt})
 con=(&#x27;original_no_reproduce&#x27; if disc else &#x27;faltan_polaridades&#x27; if len({x[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; for x in cs})&lt;2 else &#x27;sin_mutantes&#x27; if not facts else &#x27;sobrevivientes&#x27; if any(x[&#x27;estado&#x27;]==&#x27;sobrevivio&#x27; for x in no) else &#x27;sin_sobrevivientes_con_rechazos&#x27; if rej else &#x27;todos_detectados_por_conducta&#x27;)
 rd={&#x27;esquema&#x27;:&#x27;oracle.mcp/desafio/v1&#x27;,&#x27;oracle_version&#x27;:VERSION_DISTRIBUCION,&#x27;proyecto&#x27;:str(p.raiz.resolve()),&#x27;entrada_sha256&#x27;:H({&#x27;medida&#x27;:m.a_datos(),&#x27;casos&#x27;:cs}),&#x27;medida&#x27;:m.id,&#x27;conclusion&#x27;:con,&#x27;casos&#x27;:{&#x27;total&#x27;:len(cs),&#x27;del_proyecto&#x27;:len(cs),&#x27;efimeros&#x27;:0,&#x27;esperan_verde&#x27;:sum(x[&#x27;etiqueta&#x27;]==&#x27;verde_correcto&#x27; for x in cs),&#x27;esperan_rojo&#x27;:sum(x[&#x27;etiqueta&#x27;]!=&#x27;verde_correcto&#x27; for x in cs)},&#x27;discordancias&#x27;:disc,&#x27;mutacion&#x27;:{&#x27;generados&#x27;:len(facts),&#x27;detectados_por_conducta&#x27;:det,&#x27;rechazados_por_el_algebra&#x27;:rej,&#x27;no_detectados&#x27;:no},&#x27;advertencias&#x27;:[&#x27;La mutación no demuestra corrección semántica.&#x27;]}

@@ -31,7 +31,7 @@ VERSION_ALGEBRA = "1.0"
 # La superficie infija declara su versión por separado: no envejece igual que el álgebra, porque un
 # archivo `.oracle` se LEE y el impresor no lo toca. La regla de qué sube cada parte está en
 # `ESPECIFICACION.md` §0; acá sólo vive el dato y la misma maquinaria que el álgebra.
-VERSION_SINTAXIS = "0.7"
+VERSION_SINTAXIS = "0.8"
 
 _VERSION_RE = re.compile(r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$")
 

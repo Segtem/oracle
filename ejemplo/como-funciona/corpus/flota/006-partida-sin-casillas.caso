@@ -6,6 +6,7 @@ caso 006-partida-sin-casillas:
     procedencia: construida
     titulo: "el juego no anotó ninguna casilla"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         La partida terminó sin una sola casilla de barco anotada.
     como_se_detecto: persona

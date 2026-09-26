@@ -2176,7 +2176,7 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
     def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
         import tempfile
         from nucleo.medida import MedidaMalDeclarada, cargar
-        for declarada in ("0.8", "1.0"):
+        for declarada in ("0.9", "1.0"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
                 ruta = Path(d) / "d.prueba.oracle"
                 ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")

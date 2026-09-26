@@ -16,7 +16,7 @@ oracle --version
 ```text salida
 oracle 0.31.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
-  sintaxis: 0.7   (cómo se ESCRIBE)
+  sintaxis: 0.8   (cómo se ESCRIBE)
   corriendo desde: …/oracle
 ```
 
@@ -413,15 +413,15 @@ catálogo: 2 medidas · corpus: 7 casos
   ROJO  003-columna-desbordada                 flota.casillas_dentro_del_tablero  (valor 1)
   ROJO  004-columna-negativa                   flota.casillas_dentro_del_tablero  (valor 1)
   verde 005-las-cuatro-esquinas                flota.casillas_dentro_del_tablero  (valor 0)
-  ROJO  006-partida-sin-casillas               flota.casillas_dentro_del_tablero  (SIN EVIDENCIA: «casilla» vacía)
-  FALLA 007-sin-requiere-sin-casillas          flota.casillas_dentro_sin_requiere  (valor 0; salió verde, se esperaba ROJO)
+  SIN EVIDENCIA 006-partida-sin-casillas      flota.casillas_dentro_del_tablero  («casilla» vacía)
+  FALLA 007-sin-requiere-sin-casillas          flota.casillas_dentro_sin_requiere  (valor 0; salió verde, se esperaba ROJO medido)
 
-defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · sin evidencia esperada: 1 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
 ACEPTACIÓN ✗ — 1 problema(s)
-  · 007-sin-requiere-sin-casillas: salió verde con flota.casillas_dentro_sin_requiere y su etiqueta «falso_verde» pide ROJO
+  · 007-sin-requiere-sin-casillas: se esperaba ROJO medido con flota.casillas_dentro_sin_requiere
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
@@ -459,13 +459,13 @@ catálogo: 1 medidas · corpus: 6 casos
   ROJO  003-columna-desbordada                 flota.casillas_dentro_del_tablero  (valor 1)
   ROJO  004-columna-negativa                   flota.casillas_dentro_del_tablero  (valor 1)
   verde 005-las-cuatro-esquinas                flota.casillas_dentro_del_tablero  (valor 0)
-  ROJO  006-partida-sin-casillas               flota.casillas_dentro_del_tablero  (SIN EVIDENCIA: «casilla» vacía)
+  SIN EVIDENCIA 006-partida-sin-casillas      flota.casillas_dentro_del_tablero  («casilla» vacía)
 
-defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · sin evidencia esperada: 1 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 4 defectos en rojo, 1 sin evidencia esperada, 1 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 

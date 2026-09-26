@@ -6,6 +6,7 @@ caso 030-sin-tiros-registrados:
     procedencia: construida
     titulo: "sin tiros registrados"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Sin tiros registrados no se puede afirmar continuidad de turnos.
     como_se_detecto: persona

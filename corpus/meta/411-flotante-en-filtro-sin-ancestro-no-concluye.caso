@@ -6,6 +6,7 @@ caso 411-flotante-en-filtro-sin-ancestro-no-concluye:
     procedencia: construida
     titulo: "Sin relación `ancestro`, la medida no puede concluir"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         El sensor estructural entregó el término flotante pero no la clausura de ancestría. Sin esa relación, la medida no puede saber si el comparador está dentro de un `donde`.
     como_se_detecto: mutacion

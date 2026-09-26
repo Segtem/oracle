@@ -6,6 +6,7 @@ caso 044-sin-grafo-de-alcance-sale-verde:
     procedencia: observada
     titulo: "Sin grafo de alcance, «todo módulo es alcanzable»"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         El sensor que produce la relación `alcanzable` falló y devolvió cero filas —no declaró entradas, o el análisis de imports se rompió—. `proceso.modulo_alcanzable` salía verde con tres módulos que nadie puede ejecutar: sin pares no hay grupos, el conteo da 0 y el umbral `<= 0` lo aprueba. El mismo defecto que `043`, en la otra medida que usa el patrón de ausencia, y lo encontró el mutador `quitar_requiere` como sobreviviente: la medida tenía la precondición pero ningún caso la fijaba.
     como_se_detecto: mutacion

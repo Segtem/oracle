@@ -33,7 +33,7 @@
 <pre data-lenguaje="bash"><code>oracle --version</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.31.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
-  sintaxis: 0.7   (cómo se ESCRIBE)
+  sintaxis: 0.8   (cómo se ESCRIBE)
   corriendo desde: …/oracle</code></pre>
 <p>Tres versiones, y son tres cosas distintas. El <strong>álgebra</strong> versiona lo que una medida significa: si sube la mayor, una medida que ya tenías puede dar otro resultado. La <strong>sintaxis</strong> versiona cómo se escribe un <code>.oracle</code> o un <code>.caso</code>. La <strong>distribución</strong> es el paquete que instalás, y cambia también cuando se arregla una herramienta sin tocar el lenguaje.</p>
 <h2 id="las-tres-piezas">Las tres piezas<a class="ancla" href="#las-tres-piezas" aria-label="Enlace a esta sección">#</a></h2>
@@ -364,6 +364,7 @@ VEREDICTO: ROJO (falló: medidas sin casos, aceptación)</code></pre>
     procedencia: construida
     titulo: <span class="c-txt">&quot;el juego no anotó ninguna casilla&quot;</span>
     <span class="c-kw">etiqueta</span>: falso_verde
+    espera: sin_evidencia
     sintoma:
         La partida terminó <span class="c-kw">sin</span> una sola casilla <span class="c-kw">de</span> barco anotada.
     como_se_detecto: persona
@@ -405,15 +406,15 @@ catálogo: 2 medidas · corpus: 7 casos
   ROJO  003-columna-desbordada                 flota.casillas_dentro_del_tablero  (valor 1)
   ROJO  004-columna-negativa                   flota.casillas_dentro_del_tablero  (valor 1)
   verde 005-las-cuatro-esquinas                flota.casillas_dentro_del_tablero  (valor 0)
-  ROJO  006-partida-sin-casillas               flota.casillas_dentro_del_tablero  (SIN EVIDENCIA: «casilla» vacía)
-  FALLA 007-sin-requiere-sin-casillas          flota.casillas_dentro_sin_requiere  (valor 0; salió verde, se esperaba ROJO)
+  SIN EVIDENCIA 006-partida-sin-casillas      flota.casillas_dentro_del_tablero  («casilla» vacía)
+  FALLA 007-sin-requiere-sin-casillas          flota.casillas_dentro_sin_requiere  (valor 0; salió verde, se esperaba ROJO medido)
 
-defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · sin evidencia esperada: 1 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
 ACEPTACIÓN ✗ — 1 problema(s)
-  · 007-sin-requiere-sin-casillas: salió verde con flota.casillas_dentro_sin_requiere y su etiqueta «falso_verde» pide ROJO
+  · 007-sin-requiere-sin-casillas: se esperaba ROJO medido con flota.casillas_dentro_sin_requiere
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 
@@ -442,13 +443,13 @@ catálogo: 1 medidas · corpus: 6 casos
   ROJO  003-columna-desbordada                 flota.casillas_dentro_del_tablero  (valor 1)
   ROJO  004-columna-negativa                   flota.casillas_dentro_del_tablero  (valor 1)
   verde 005-las-cuatro-esquinas                flota.casillas_dentro_del_tablero  (valor 0)
-  ROJO  006-partida-sin-casillas               flota.casillas_dentro_del_tablero  (SIN EVIDENCIA: «casilla» vacía)
+  SIN EVIDENCIA 006-partida-sin-casillas      flota.casillas_dentro_del_tablero  («casilla» vacía)
 
-defectos que se pusieron rojos: 5 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 4 · verdes correctos: 1 · sin evidencia esperada: 1 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
 
-ACEPTACIÓN ✓ — 5 defectos en rojo, 1 verdes correctos, 0 huecos declarados sin tapar
+ACEPTACIÓN ✓ — 4 defectos en rojo, 1 sin evidencia esperada, 1 verdes correctos, 0 huecos declarados sin tapar
 
 DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 

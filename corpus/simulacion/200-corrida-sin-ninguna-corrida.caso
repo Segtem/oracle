@@ -6,6 +6,7 @@ caso 200-corrida-sin-ninguna-corrida:
     procedencia: observada
     titulo: "Corrida sin ninguna corrida"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Cero corridas registradas. Sin `requiere`, la medida agrega sobre cero filas, da 0 y el umbral `<= 0` lo lee como «todas las corridas son reproducibles» — cuando no hubo ninguna. El determinismo de un conjunto vacío no es una propiedad que valga la pena afirmar.
     como_se_detecto: mutacion

@@ -6,6 +6,7 @@ caso 452-sin-relaciones-documentadas-no-concluye:
     procedencia: construida
     titulo: "Sin la referencia, la documentación no se juzga"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Un proyecto consumidor no tiene —ni tiene por qué tener— la especificación de Oracle: el paquete instalado ni siquiera la incluye. Sin `requiere`, cero filas se leería como «todo documentado» y pondría en verde a quien no documentó nada.
     como_se_detecto: mutacion

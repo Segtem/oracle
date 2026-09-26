@@ -50,6 +50,7 @@
     oracle manual ambito                    dónde obliga una medida
     oracle manual segun                     de dónde sale el número de un umbral
     oracle manual etiqueta                  qué enseña un caso del corpus
+    oracle manual espera                    cuándo un caso de defecto exige SIN EVIDENCIA
     oracle manual procedencia               de dónde salió la evidencia de un caso
     oracle manual como_se_detecto           quién encontró el defecto
     oracle manual relaciones                las relaciones que el lenguaje emite sobre sí mismo

@@ -6,6 +6,7 @@ caso 201-presupuesto-sin-ninguna-corrida:
     procedencia: observada
     titulo: "Presupuesto sin ninguna corrida"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Cero corridas. Sin `requiere`, «ninguna corrida agotó su presupuesto» sale verde sobre la nada, y esa afirmación es la que después justifica confiar en lo que la simulación mostró.
     como_se_detecto: mutacion

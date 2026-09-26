@@ -6,6 +6,7 @@ caso 006-sin-celdas:
     procedencia: construida
     titulo: "Sensor sin celdas observadas"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Sensor sin celdas observadas; la medida debe rechazar esta evidencia.
     como_se_detecto: mutacion

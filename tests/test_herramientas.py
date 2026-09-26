@@ -1494,7 +1494,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
 
         self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
-        self.assertEqual(str(del_nucleo_sintaxis()), "0.7")
+        self.assertEqual(str(del_nucleo_sintaxis()), "0.8")
 
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear
@@ -1595,7 +1595,7 @@ class VersionDelProyecto(unittest.TestCase):
     def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
         from nucleo.version import VERSION_SINTAXIS
 
-        for declarada in ("0.8", "1.0", "9.9"):
+        for declarada in ("0.9", "1.0", "9.9"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",

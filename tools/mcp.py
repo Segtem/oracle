@@ -279,7 +279,8 @@ HERRAMIENTA_DESAFIAR = {
                         "espera": {
                             "enum": [
                                 "verde",
-                                "rojo"
+                                "rojo",
+                                "sin_evidencia"
                             ]
                         },
                         "evidencia": {
@@ -1266,7 +1267,8 @@ def _casos_del_desafio(argumentos, mid: str, corpus) -> list[dict]:
                 continue
             casos.append({
                 "id": caso.get("id", ""),
-                "espera": "verde" if caso.get("etiqueta") == "verde_correcto" else "rojo",
+                "espera": (caso.get("espera") or
+                           ("verde" if caso.get("etiqueta") == "verde_correcto" else "rojo")),
                 "evidencia": caso.get("evidencia", {}),
                 "origen": "corpus",
             })
@@ -1320,7 +1322,7 @@ def _desafiar(medida: Medida, casos: list[dict]) -> dict:
                 "casos": len(casos), "mutacion": None}
 
     polaridades = {caso["espera"] for caso in casos}
-    if polaridades != {"verde", "rojo"}:
+    if "verde" not in polaridades or not polaridades.intersection({"rojo", "sin_evidencia"}):
         return {"conclusion": "faltan_polaridades", "discordancias": [],
                 "casos": len(casos), "mutacion": None}
 
@@ -1391,8 +1393,8 @@ def desafiar_para_mcp(proy: Proyecto, argumentos, *, confiar_escalares: bool = F
                 "PROCEDENCIA_NO_ADMITIDA",
                 "un caso de la llamada no declara procedencia: una llamada no puede convertir "
                 "evidencia fabricada en evidencia observada.")
-        if caso["espera"] not in ("verde", "rojo"):
-            raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", "`espera` es «verde» o «rojo».")
+        if caso["espera"] not in ("verde", "rojo", "sin_evidencia"):
+            raise ErrorHerramienta("ARGUMENTOS_INVALIDOS", "`espera` es «verde», «rojo» o «sin_evidencia».")
     try:
         with escalares_del_proyecto(proy, confiar=confiar_escalares):
             macros = macros_del_proyecto(proy)

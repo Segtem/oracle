@@ -80,9 +80,23 @@ PROCEDENCIAS = {
         "la produjo un generador a partir de una especificación, no una corrida del mundo",
 }
 
+ESPERAS = {
+    "sin_evidencia": "la medida debe declarar que no puede juzgar por falta de evidencia; "
+                     "sólo vale para un caso de defecto y se escribe después de `etiqueta`",
+}
+
 
 class CasoMalDeclarado(ValueError):
     pass
+
+
+def validar_espera(datos: dict) -> None:
+    if "espera" not in datos:
+        return
+    if datos["espera"] != "sin_evidencia":
+        raise CasoMalDeclarado("`espera` sólo admite `sin_evidencia`")
+    if datos.get("etiqueta") == "verde_correcto":
+        raise CasoMalDeclarado("`espera: sin_evidencia` no vale con `etiqueta: verde_correcto`")
 
 
 def _json_valor(texto: str, linea: int, columna: int):
@@ -401,6 +415,10 @@ class _Parser:
             _fallar(n_etiqueta, col_etiqueta,
                     f"una etiqueta declarada\n{opciones(ETIQUETAS)}", etiqueta)
         datos["etiqueta"] = etiqueta
+        espera = self._tomar_campo("espera")
+        if espera is not None:
+            datos["espera"] = espera[0]
+            validar_espera(datos)
         datos["sintoma"] = self._leer_bloque("sintoma")
         como_se_detecto, n_det, col_det = self._exigir_campo("como_se_detecto")
         if como_se_detecto not in DETECCIONES:
@@ -435,7 +453,7 @@ def leer(texto: str) -> dict:
 # Todo lo que la superficie `.caso` sabe escribir. Un caso con algo que no está acá no se puede
 # imprimir sin perderlo, y perderlo en silencio es lo que esta lista existe para impedir.
 CAMPOS_DEL_CASO = frozenset({
-    "id", "fecha", "origen", "procedencia", "titulo", "etiqueta", "sintoma", "como_se_detecto",
+    "id", "fecha", "origen", "procedencia", "titulo", "etiqueta", "espera", "sintoma", "como_se_detecto",
     "medida", "estado_sin_medida", "resuelto", "limite_humano", "sin_medida_todavia",
     "evidencia", "leccion",
 })
@@ -444,6 +462,7 @@ CAMPOS_DEL_CASO = frozenset({
 def imprimir(datos: dict) -> str:
     if not isinstance(datos, dict):
         raise ValueError("un caso tiene que ser un objeto JSON")
+    validar_espera(datos)
     # FAIL-CLOSED al imprimir, desde el 2026-09-09. Antes esta función escribía los campos que
     # conocía y DESCARTABA el resto sin decir nada: un consumidor tenía 91 casos con un campo
     # propio, y la ida y vuelta los perdía enteros. Nadie perdió datos todavía porque no hay
@@ -477,6 +496,8 @@ def imprimir(datos: dict) -> str:
         lineas.append(f"{IND}procedencia: {datos['procedencia']}")
     lineas.append(f"{IND}titulo: {_escalar(datos['titulo'])}")
     lineas.append(f"{IND}etiqueta: {datos['etiqueta']}")
+    if "espera" in datos:
+        lineas.append(f"{IND}espera: {datos['espera']}")
     lineas.extend(_campo_bloque("sintoma", datos["sintoma"]))
     lineas.append(f"{IND}como_se_detecto: {datos['como_se_detecto']}")
     lineas.append(f"{IND}medida: {datos['medida'] if datos['medida'] is not None else 'null'}")
@@ -550,6 +571,10 @@ def cargar_fuente_caso(ruta: Path) -> dict:
             f"formato de caso no soportado: {ruta} (esperaba .json o .caso)")
     if not isinstance(datos, dict):
         raise CasoMalDeclarado(f"{ruta}: la raíz del caso debe ser un objeto")
+    try:
+        validar_espera(datos)
+    except CasoMalDeclarado as e:
+        raise CasoMalDeclarado(f"{ruta}: {e}") from e
     cid = datos.get("id")
     if not isinstance(cid, str) or ID_CASO_RE.fullmatch(cid) is None:
         raise CasoMalDeclarado(

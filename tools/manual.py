@@ -28,7 +28,7 @@ RAIZ = str(Path(__file__).resolve().parent.parent)
 RAIZ_PAQUETE = Path(RAIZ)
 sys.path = [RAIZ, *sys.path]
 
-from nucleo.caso import DETECCIONES, ETIQUETAS, PROCEDENCIAS          # noqa: E402
+from nucleo.caso import DETECCIONES, ESPERAS, ETIQUETAS, PROCEDENCIAS  # noqa: E402
 from nucleo.vocabulario import (AMBITOS, OPERADORES, ORIGENES_DE_UMBRAL, # noqa: E402
                                 RELACIONES_EXPLICADAS)
 
@@ -43,6 +43,7 @@ VOCABULARIOS: dict[str, tuple[str, dict[str, str]]] = {
     "operadores": ("los seis operadores de una tubería, y `desde`, que la encabeza", OPERADORES),
     "segun": ("de dónde salió el número de un umbral (campo `segun`)", ORIGENES_DE_UMBRAL),
     "etiqueta": ("qué enseña un caso del corpus (campo `etiqueta`)", ETIQUETAS),
+    "espera": ("resultado específico de un caso de defecto (campo opcional `espera`)", ESPERAS),
     "procedencia": ("de dónde salió la evidencia de un caso (campo `procedencia`)", PROCEDENCIAS),
     "como_se_detecto": ("quién encontró el defecto (campo `como_se_detecto`)", DETECCIONES),
     "relaciones": ("las relaciones que el lenguaje emite sobre sí mismo", RELACIONES_EXPLICADAS),

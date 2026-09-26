@@ -5,6 +5,7 @@ caso 020-sin-lectura:
     procedencia: construida
     titulo: "sin lectura"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Ejemplo construido; se espera rechazo del defecto declarado en estas filas.
     como_se_detecto: persona

@@ -6,6 +6,7 @@ caso 429-sin-comparacion-de-referente-no-concluye:
     procedencia: construida
     titulo: "Sin comparación de referente la frescura no concluye"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         Si el sensor no presenta las declaraciones de lectura y actualidad, cero filas no prueba que el referente siga vigente.
     como_se_detecto: mutacion

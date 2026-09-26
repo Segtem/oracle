@@ -18,7 +18,7 @@ oracle --version
 ```text salida
 oracle 0.31.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
-  sintaxis: 0.7   (cómo se ESCRIBE)
+  sintaxis: 0.8   (cómo se ESCRIBE)
   corriendo desde: …/oracle
 ```
 
@@ -232,7 +232,7 @@ catálogo: 40 medidas · corpus: 2 casos
   ROJO  001-un-nombre-fuera-de-convencion      documento.nombre_sigue_la_convencion  (valor 1)
   verde 002-un-lote-en-convencion              documento.nombre_sigue_la_convencion  (valor 0)
 
-defectos que se pusieron rojos: 1 · verdes correctos: 1 · huecos declarados: 0
+defectos que se pusieron rojos: 1 · verdes correctos: 1 · sin evidencia esperada: 0 · huecos declarados: 0
 
 nivel meta — el marco medido con sus propias medidas:
   ✓ meta.el_caso_reclama_una_medida_que_existe          0 (<= 0)

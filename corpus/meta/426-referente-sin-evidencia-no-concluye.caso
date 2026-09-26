@@ -6,6 +6,7 @@ caso 426-referente-sin-evidencia-no-concluye:
     procedencia: construida
     titulo: "Sin declaraciones de referente la medida no concluye"
     etiqueta: falso_verde
+    espera: sin_evidencia
     sintoma:
         El sensor no entregó la relación que la medida necesita. Si la medida agrega sobre esa ausencia, el cero puede parecer prueba de que ninguna evidencia quedó sin huella.
     como_se_detecto: mutacion

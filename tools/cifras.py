@@ -141,11 +141,15 @@ def corpus() -> str:
     resueltos = archivados["resuelto"]
     limites = archivados["limite_humano"]
     abiertos = archivados["abierto"]
-    en_rojo = defectos - resueltos - limites - abiertos
+    sin_evidencia = sum(bool(c.get("medida")) and c.get("espera") == "sin_evidencia"
+                        for c in casos)
+    en_rojo = sum(bool(c.get("medida")) and c.get("etiqueta") != "verde_correcto"
+                  and c.get("espera") != "sin_evidencia" for c in casos)
 
     return (
         f"**{len(casos)} casos**: {defectos} defectos y {verdes} verdes correctos. "
-        f"De los defectos, {en_rojo} deben ponerse en rojo · {abiertos} huecos abiertos · "
+        f"De los defectos, {en_rojo} deben ponerse en rojo medido · "
+        f"{sin_evidencia} esperan SIN EVIDENCIA · {abiertos} huecos abiertos · "
         f"{resueltos} resueltos conservados · {limites} límite humano. "
         f"Por etiqueta: {etiquetas['falso_verde']} falsos verdes, "
         f"{etiquetas['falso_rojo']} falsos rojos, "
