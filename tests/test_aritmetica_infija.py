@@ -62,6 +62,13 @@ class AritmeticaInfijaTests(unittest.TestCase):
                 leer(prefijo + llamada + " == 1" + sufijo)
             self.assertIn(f"escribí {alternativa}", str(error.exception))
 
+    def test_col_no_es_una_segunda_escritura_de_una_columna(self):
+        # una-sintaxis: una columna agrupada se nombra sola; col(k) es la forma canónica, no se escribe.
+        with self.assertRaises(ErrorSintaxis) as error:
+            _leer_expr("col(k) == 1", 1, 1)
+        self.assertIn("escribí p en vez de col(p)", str(error.exception))
+        self.assertEqual(_leer_expr("k == 1", 1, 1), ["==", ["col", "k"], 1])
+
     def test_escalares_de_dominio_siguen_siendo_llamadas(self):
         self.assertEqual(_leer_expr("distancia(hecho(a), b)", 1, 1),
                          ["distancia", ["hecho", "a"], ["col", "b"]])
