@@ -1,0 +1,6 @@
+relacion lectura_seguimiento:
+    esquema: texto
+    git: texto
+    head: texto
+    completa: booleano
+    alcance "Describe el alcance declarado de una lectura del tracker. No verifica que el extractor sea correcto; no incluye reloj ni disponibilidad remota."

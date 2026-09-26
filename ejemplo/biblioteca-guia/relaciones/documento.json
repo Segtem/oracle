@@ -1,5 +1,0 @@
-["relacion", "documento",
- ["campos",
-  ["campo", "nombre", "texto", "sin_unidad"],
-  ["campo", "sigue_convencion", "booleano", "sin_unidad"]],
- ["alcance", "el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación"]]

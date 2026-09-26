@@ -298,10 +298,10 @@ Pero la aceptación queda en rojo, y hay que leerlo:
 La segunda dice que comparaste un campo cuya **unidad** nadie declaró. Falta decir qué produce el
 sensor:
 
-```json archivo=relaciones/documento.json incluir=ejemplo/biblioteca-guia/relaciones/documento.json
+```relacion archivo=relaciones/documento.relacion incluir=ejemplo/biblioteca-guia/relaciones/documento.relacion
 ```
 
-En `relaciones/documento.json`. Fijate que **la relación también declara su alcance**: la medida
+En `relaciones/documento.relacion`. Fijate que **la relación también declara su alcance**: la medida
 dice qué no mira, el sensor dice hasta dónde llega.
  
 ```bash paso

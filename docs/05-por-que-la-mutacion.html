@@ -100,11 +100,10 @@ Próximos pasos:
             <span class="c-txt">&quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;</span>, true
     leccion:
         Ninguno <span class="c-kw">de</span> estos nombres debe ponerse rojo.</code></pre>
-<pre class="archivo" data-lenguaje="relaciones/documento.json"><code>[&quot;relacion&quot;, &quot;documento&quot;,
- [&quot;campos&quot;,
-  [&quot;campo&quot;, &quot;nombre&quot;, &quot;texto&quot;, &quot;sin_unidad&quot;],
-  [&quot;campo&quot;, &quot;sigue_convencion&quot;, &quot;booleano&quot;, &quot;sin_unidad&quot;]],
- [&quot;alcance&quot;, &quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;]]</code></pre>
+<pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code>relacion documento:
+    nombre: texto
+    sigue_convencion: booleano
+    alcance &quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</code></pre>
 <p>En el proyecto de juguete, tu medida tiene una estructura simple: una sola fuente, un filtro booleano, conteo y umbral <code>&lt;= 0</code>. De los 30 mutadores del motor, <strong>nueve</strong> aplican a esa sintaxis (los otros mutan uniones, agrupamientos, cotas o agregados que esa medida no usa):</p>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)

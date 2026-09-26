@@ -1,0 +1,8 @@
+relacion afirmacion_prosa:
+    medida: texto
+    pregunta: texto
+    respuesta: booleano
+    probabilidad: flotante sin_unidad
+    modelo: texto
+    fecha: texto
+    alcance "observa respuestas probabilísticas emitidas por un modelo a preguntas sobre la prosa de una medida; probabilidad representa P(sí). NO observa si la prosa dice la verdad ni valida el razonamiento que llevó a la respuesta: la respuesta la produjo un modelo y no una persona"

@@ -91,7 +91,7 @@ Próximos pasos:
 ```caso archivo=corpus/documento/002-un-lote-en-convencion.caso incluir=ejemplo/biblioteca-guia/corpus/documento/002-un-lote-en-convencion.caso
 ```
 
-```json archivo=relaciones/documento.json incluir=ejemplo/biblioteca-guia/relaciones/documento.json
+```relacion archivo=relaciones/documento.relacion incluir=ejemplo/biblioteca-guia/relaciones/documento.relacion
 ```
 
 

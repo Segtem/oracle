@@ -412,7 +412,7 @@ class AntijuntaSeguimientoTareasTests(unittest.TestCase):
         self.assertEqual(pasos[1][0], "sin")
 
     def test_relacion_tarea_seguimiento_no_declara_conteos_de_commits(self) -> None:
-        ruta = RAIZ / "ejemplo" / "seguimiento-tareas" / "relaciones" / "tarea_seguimiento.json"
+        ruta = RAIZ / "ejemplo" / "seguimiento-tareas" / "relaciones" / "tarea_seguimiento.relacion"
         datos = cargar_fuente_relacion(ruta)
         campos = [c[1] for c in datos[2] if isinstance(c, list) and len(c) >= 2 and c[0] == "campo"]
         self.assertNotIn("commits_que_la_nombran", campos)

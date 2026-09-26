@@ -1,0 +1,9 @@
+relacion commit_seguimiento:
+    sha: texto
+    asunto: texto
+    nombra_tarea: booleano
+    tarea_nombrada: texto
+    tarea_existe: booleano
+    estado_de_la_tarea: texto
+    es_cierre: booleano
+    alcance "un commit alcanzable desde HEAD, con lo que su ASUNTO declara: si nombra una tarea con la forma `<ID>: resumen`, cuál, si esa tarea existe hoy en el tracker, en qué estado está y si el resumen es exactamente `done`. NO ve el cuerpo del mensaje, ni el autor, ni la fecha, ni qué archivos tocó; NO comprueba que el trabajo del commit tenga que ver con la tarea que nombra —eso no lo puede saber ninguna medida—; y sin repositorio Git la relación viene VACÍA, así que una política escrita sobre ella no puede ponerse verde por ausencia de evidencia sin declararlo con `requiere`"

@@ -1,0 +1,14 @@
+relacion archivo_seguimiento:
+    tarea_id: texto
+    ruta: texto
+    clase: texto
+    tipo: texto
+    indice: texto
+    trabajo: texto
+    tamano_bytes: entero bytes
+    existe: booleano
+    git_comprobado: booleano
+    en_indice: booleano
+    en_head: booleano
+    ignorado: booleano
+    alcance "Inventario local y Git opcional. No lee contenido de binarios ni verifica backups, sincronización remota o autenticidad. Con git_comprobado=false los campos Git no afirman ausencia real."

@@ -1,0 +1,13 @@
+medida proceso.modulo_alcanzable:
+    de modulo m
+    unir alcanzable r
+    agrupar:
+        clave modulo = m.nombre
+        agregado veces_alcanzado = suma(r.hasta == m.nombre)
+        agregado es_paquete_vacio = max(m.es_paquete_vacio)
+    donde veces_alcanzado == 0 y es_paquete_vacio == false
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un módulo que no se alcanza desde ninguna entrada no lo va a ejecutar nadie, aunque tenga importadores: un racimo entero puede importarse entre sí y estar muerto"
+    requiere alcanzable
+    ambito universal
+    alcance "sigue los imports estáticos desde las entradas declaradas, y descuenta los `__init__.py` vacíos, que son marcadores de paquete. NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— así que un módulo vivo por esa vía sale marcado, y si `alcanzable` viene vacía la medida NO concluye: lo declara en `requiere` y sale SIN EVIDENCIA en vez de verde"

@@ -1,0 +1,8 @@
+relacion tarea_seguimiento:
+    id: texto
+    titulo: texto
+    estado_declarado: texto
+    ruta: texto
+    sha256_documento: texto
+    prioridad_declarada: entero sin_unidad
+    alcance "Metadatos declarados y huella del TAREA.md leído. No comprueba que el trabajo se haya realizado ni autentica autores."

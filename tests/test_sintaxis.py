@@ -1432,11 +1432,17 @@ class SintaxisDeCasosTests(unittest.TestCase):
             "'inventada'\n" + opciones(PROCEDENCIAS),
         )
 
-    def test_el_corpus_real_ejercita_los_dos_lectores(self) -> None:
+    def test_el_corpus_real_esta_en_superficie_y_el_lector_json_sigue_andando(self) -> None:
+        import json
+        import tempfile
         rutas = sintaxis_caso.rutas_de_corpus(RAIZ / "corpus")
-        self.assertEqual({r.suffix for r in rutas}, {".caso", ".json"})
-        self.assertEqual(sum(1 for r in rutas if r.suffix == ".json"), 2)
-        self.assertEqual(sum(1 for r in rutas if r.suffix == ".caso"), len(rutas) - 2)
+        self.assertEqual({r.suffix for r in rutas}, {".caso"})
+        fuente = sorted(rutas)[0]
+        arbol = sintaxis_caso.cargar_fuente_caso(fuente)
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / f"{fuente.stem}.json"
+            ruta.write_text(json.dumps(arbol, ensure_ascii=False), encoding="utf-8")
+            self.assertEqual(sintaxis_caso.cargar_fuente_caso(ruta), arbol)
 
     def test_la_metamorfica_de_casos_juzga_todo_el_corpus(self) -> None:
         from nucleo.medida import Medida
@@ -2094,9 +2100,9 @@ class ElCatalogoRealEjercitaLosDosLectoresTests(unittest.TestCase):
         return rutas_de_catalogo(RAIZ / "catalogos",
                                  *sorted((RAIZ / "perfiles").glob("*/catalogos")))
 
-    def test_el_catalogo_publica_medidas_en_los_dos_formatos(self) -> None:
-        sufijos = {r.suffix for r in self._rutas()}
-        self.assertEqual(sufijos, {".oracle", ".json"})
+    def test_el_catalogo_esta_escrito_en_superficie(self) -> None:
+        """Una sola sintaxis para escribir (una-sintaxis): el JSON es la forma canónica, no autoría."""
+        self.assertEqual({r.suffix for r in self._rutas()}, {".oracle"})
 
     def test_la_superficie_es_la_forma_dominante_y_no_una_excepcion(self) -> None:
         """Si quedara una sola en superficie, la afirmación «el catálogo está escrito en el
@@ -2105,11 +2111,18 @@ class ElCatalogoRealEjercitaLosDosLectoresTests(unittest.TestCase):
         en_superficie = [r for r in rutas if r.suffix == ".oracle"]
         self.assertGreater(len(en_superficie), len(rutas) // 2)
 
-    def test_las_dos_que_quedan_en_json_cargan_por_el_mismo_camino(self) -> None:
+    def test_el_lector_json_sigue_cargando_por_el_mismo_camino(self) -> None:
+        # Oracle sigue LEYENDO JSON (formato canónico y de intercambio): una medida real volcada a
+        # JSON carga al mismo árbol que su superficie.
+        import json
+        import tempfile
         from nucleo.medida import cargar_fuente_medida
-        for ruta in (r for r in self._rutas() if r.suffix == ".json"):
-            with self.subTest(medida=ruta.stem):
-                self.assertEqual(cargar_fuente_medida(ruta)[1], ruta.stem)
+        for fuente in self._rutas()[:5]:
+            with self.subTest(medida=fuente.stem), tempfile.TemporaryDirectory() as d:
+                arbol = cargar_fuente_medida(fuente)
+                ruta = Path(d) / f"{fuente.stem}.json"
+                ruta.write_text(json.dumps(arbol), encoding="utf-8")
+                self.assertEqual(cargar_fuente_medida(ruta), arbol)
 
 
 class VersionDeLaSuperficieTests(unittest.TestCase):
@@ -2639,12 +2652,18 @@ class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
         self.assertEqual(_json.loads(salida)[1], "meta.donde_compone")
 
     def test_una_medida_en_json_sale_como_superficie(self) -> None:
+        # El catálogo real ya no tiene JSON (una-sintaxis): el JSON se arma desde una medida real.
+        import json
+        import tempfile
         from nucleo.medida import rutas_de_catalogo
-        jsons = [r for r in rutas_de_catalogo(RAIZ / "catalogos") if r.suffix == ".json"]
-        self.assertTrue(jsons, "el catálogo dejó de tener medidas en JSON")
-        codigo, salida = self._correr(jsons[0])
+        fuente = sorted(rutas_de_catalogo(RAIZ / "catalogos"))[0]
+        with tempfile.TemporaryDirectory() as d:
+            ruta = Path(d) / f"{fuente.stem}.json"
+            ruta.write_text(json.dumps(sintaxis.leer(fuente.read_text(encoding="utf-8"))),
+                            encoding="utf-8")
+            codigo, salida = self._correr(ruta)
         self.assertEqual(codigo, 0)
-        self.assertEqual(sintaxis.leer(salida)[1], jsons[0].stem)
+        self.assertEqual(sintaxis.leer(salida)[1], fuente.stem)
 
     def test_una_extension_desconocida_no_adivina(self) -> None:
         codigo, salida = self._correr(RAIZ / "README.md")

@@ -1,0 +1,4 @@
+relacion tarea_cierre_medida:
+    tarea_id: texto
+    medida: texto
+    alcance "Declaración CIERRA CON del tracker; no evalúa ni consulta el catálogo."

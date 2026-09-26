@@ -1,0 +1,16 @@
+caso 010-concreto-respuesta-si:
+    fecha: "2026-09-23"
+    origen:
+        tipo: "ejemplo construido, sin llamada a modelos"
+    procedencia: construida
+    titulo: "concreto-respuesta-si"
+    etiqueta: verde_correcto
+    sintoma:
+        Fija la política de señales adversas, no la verdad semántica.
+    como_se_detecto: persona
+    medida: prosa.alcance_sin_afirmacion_adversa
+    evidencia:
+        afirmacion_prosa: medida, pregunta, respuesta, probabilidad, modelo, fecha
+            "ejemplo.medida", "alcance_concreto", true, 0.1, "sintetico/sin-api", "2026-09-23"
+    leccion:
+        El verde sólo indica ausencia de señal adversa fuerte; la zona media requiere revisión. Las combinaciones incoherentes son controles del filtro, no salidas del sensor.

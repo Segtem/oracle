@@ -1,0 +1,4 @@
+relacion documento:
+    nombre: texto
+    sigue_convencion: booleano
+    alcance "el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación"

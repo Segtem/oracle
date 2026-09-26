@@ -1,0 +1,4 @@
+relacion aceptacion_medida:
+    medida: texto
+    ok: booleano
+    alcance "Veredictos individuales de la aceptación actual del dominio con oracle juzgar --json; no prueba vigencia por sí sola."

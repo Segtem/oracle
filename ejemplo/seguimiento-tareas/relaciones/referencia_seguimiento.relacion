@@ -1,0 +1,8 @@
+relacion referencia_seguimiento:
+    tarea_id: texto
+    origen: texto
+    destino_declarado: texto
+    clase: texto
+    estado: texto
+    linea: entero sin_unidad
+    alcance "Destinos declarados en Markdown soportado y observación local acotada. No comprueba URLs remotas, anclas, contenidos, autenticidad ni dependencias. Estado no_comprobado expresa ausencia de comprobación."
