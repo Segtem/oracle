@@ -109,6 +109,14 @@ def correr(comando: str, cwd: Path, temporal: Path, falla: bool = False) -> tupl
     return salida, cwd
 
 
+def reemplazar_salidas(lineas: list[str], cambios: list[tuple[int, int, str]]) -> list[str]:
+    """Devuelve una copia con los cuerpos de salida nuevos, conservando el resto del documento."""
+    resultado = lineas.copy()
+    for inicio, fin, salida in reversed(cambios):
+        resultado[inicio:fin] = salida.splitlines(keepends=True)
+    return resultado
+
+
 def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
     lineas = guia.read_text(encoding="utf-8").splitlines(keepends=True)
     encontrados = list(bloques(lineas))
@@ -153,9 +161,7 @@ def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
                                          "python3 tools/guia.py --escribir")
                 cambios.append((si + 1, sf, salida))
     if escribir:
-        for inicio, fin, salida in reversed(cambios):
-            lineas[inicio:fin] = salida.splitlines(keepends=True)
-        guia.write_text("".join(lineas), encoding="utf-8")
+        guia.write_text("".join(reemplazar_salidas(lineas, cambios)), encoding="utf-8")
     print(f"{guia.relative_to(RAIZ)}: {sum(b[2][:2] == ['bash', 'paso'] for b in encontrados)} pasos, "
           f"{len(cambios)} salidas actualizadas")
 

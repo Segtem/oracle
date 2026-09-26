@@ -87,6 +87,8 @@ PRIORIDADES = {
                              "tests.test_fixtures"),
     "tools/generar_diferencial.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
                                       "tests.test_fixtures"),
+    "tools/guia.py": ("tests.test_guia_rapida", "tests.test_guia"),
+    "tools/sitio.py": ("tests.test_sitio_rapido", "tests.test_sitio"),
     "tools/ejecutar_suite_mutacion.py": ("tests.test_ejecutar_suite_mutacion",),
     "tools/mutar_codigo.py": (
         "tests.test_mutar_codigo_custodia",
@@ -321,26 +323,23 @@ CUSTODIAS_SIN_MEDIR = {}
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "diferencial.py", "generar_diferencial.py",
                           "ejecutar_suite_mutacion.py",
-                          "corpus.py", "formato.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
+                          "corpus.py", "formato.py", "guia.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
                           "mutar.py", "mutar_codigo.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
                           "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
-                          "trazar.py", "verificar_instalacion.py")
+                          "sitio.py", "trazar.py", "verificar_instalacion.py")
 
 # Alcance de la matriz: cada Python de tools/ que no custodia una afirmación propia debe
 # quedar nombrado. Las seis primeras razones provienen de custodia/ANALISIS.md (§2).
-# guia.py y sitio.py sólo generan y verifican vistas de documentación; sus salidas se
-# comprueban por separado. __init__.py registra un alias de importación, no un veredicto.
+# __init__.py registra un alias de importación, no un veredicto.
 FUERA_TOOLS = {
     "tools/__init__.py": "registra el alias de importación tools; no emite un veredicto propio",
     "tools/estudio.py": "genera documentación para uso externo; no lo ejecuta CI ni juzga hechos",
-    "tools/guia.py": "reconstruye la guía de documentación; su salida se comprueba por separado",
     "tools/lsp.py": "adapta el editor; no lo ejecuta CI y los cálculos viven en nucleo/",
     "tools/mcp_contrato.py": "sincroniza documentación; el protocolo operativo lo custodia mcp.py",
     "tools/oracle.py": "es un alias sin lógica propia de cli.py, que sí está en la matriz",
     "tools/plantilla.py": "copia recursos iniciales; verificar_instalacion.py comprueba su uso",
     "tools/sesion.py": "es un helper de errores; proyecto.py custodia la validación sustantiva",
-    "tools/sitio.py": "genera el sitio desde Markdown; su salida se comprueba por separado",
 }
 FUERA_NUCLEO = {
     "nucleo/__init__.py": "archivo vacío de inicialización, sin código que mutar",
