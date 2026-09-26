@@ -104,6 +104,9 @@ una divergencia esperando.
 - `oracle nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
 - `oracle convertir <archivo.json>`: pasa una medida vieja a la superficie.
 - `oracle convertir <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
+- `oracle convertir <directorio> --a-superficie`: muestra qué medidas y casos JSON se pueden migrar;
+  con `--escribir`, reemplaza cada origen sólo si la ida y vuelta conserva el árbol canónico.
+  Informa las relaciones pendientes mientras no esté disponible la superficie `.relacion`.
 
 El id tiene gramática cerrada y **ASCII**: `dominio.nombre` para medidas y `NNN-descripcion` para
 casos (minúsculas, dígitos y `_`/`-`). No es que el proyecto no sea en español —la prosa de

@@ -78,6 +78,7 @@ L2   medidas     enunciados SOBRE L1: &quot;toda medida tiene al menos un mutant
 <pre data-lenguaje="bash"><code>oracle convertir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -&gt; superficie
 oracle nueva dominio.regla        # crea el andamio ya en superficie infija
 oracle convertir medida.oracle    # superficie -&gt; JSON, si lo necesitás</code></pre>
+<p>Para migrar un proyecto completo, <code>oracle convertir &lt;directorio&gt; --a-superficie</code> muestra primero qué medidas y casos JSON se pueden convertir. Agregá <code>--escribir</code> para crear cada <code>.oracle</code> o <code>.caso</code> y retirar su JSON sólo después de comprobar que releerlo devuelve exactamente el mismo árbol canónico. El resumen indica los archivos no convertibles y sus motivos. Las relaciones JSON quedan señaladas como pendientes hasta que exista el conversor de <code>.relacion</code>.</p>
 <p>El ejemplo más simple posible del propio catálogo de Oracle:</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> proceso.test_con_mutante_que_lo_mata:
     <span class="c-kw">de</span> mutante m

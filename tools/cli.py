@@ -62,12 +62,15 @@
     oracle reportar                         prepara un reporte local; no publica ni usa la red
     oracle censar --proyecto <ruta>…       censa varios proyectos y conserva el estado con su fecha
     oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
+    oracle convertir <directorio> --a-superficie [--escribir]  migra fuentes JSON verificadas
     oracle juzgar --con <archivo>          juzga evidencia JSON contra el catálogo del proyecto
 """
 
 from __future__ import annotations
 
 import json
+import os
+import tempfile
 import subprocess
 import sys
 from pathlib import Path
@@ -125,6 +128,7 @@ Uso:
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
   oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
+  oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas y casos JSON con ida y vuelta exacta
   oracle manual [tema]                    Manual integrado y vocabularios cerrados
   oracle contexto                        Inventario de relaciones y medidas activas
   oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
@@ -703,7 +707,118 @@ def cmd_expandir(proy: Proyecto, ruta_str: str) -> int:
     return medida.expandir_archivo(ruta, macros_del_proyecto(proy))
 
 
-def cmd_convertir(proy: Proyecto, ruta_str: str) -> int:
+EXTENSIONES = {"catalogos": ".oracle", "corpus": ".caso", "relaciones": ".relacion"}
+
+
+def _mismo_arbol(izquierda, derecha) -> bool:
+    """Igualdad JSON sin confundir true con 1 ni 1 con 1.0."""
+    if type(izquierda) is not type(derecha):
+        return False
+    if isinstance(izquierda, dict):
+        return (izquierda.keys() == derecha.keys()
+                and all(_mismo_arbol(izquierda[clave], derecha[clave]) for clave in izquierda))
+    if isinstance(izquierda, list):
+        return (len(izquierda) == len(derecha)
+                and all(_mismo_arbol(a, b) for a, b in zip(izquierda, derecha)))
+    return izquierda == derecha
+
+
+def _tipo(ruta: Path, directorio: Path) -> str | None:
+    partes = (directorio.name, *ruta.relative_to(directorio).parts[:-1])
+    return next((parte for parte in reversed(partes) if parte in EXTENSIONES), None)
+
+
+def _fuentes(directorio: Path):
+    # No se siguen enlaces de directorio. Los JSON ajenos al catálogo, corpus y relaciones
+    # (configuración, fixtures diferenciales, etc.) no son fuentes de autoría.
+    for base, subdirectorios, archivos in os.walk(directorio, followlinks=False):
+        subdirectorios[:] = sorted(nombre for nombre in subdirectorios
+                                  if not (Path(base) / nombre).is_symlink())
+        for nombre in sorted(archivos):
+            ruta = Path(base) / nombre
+            if ruta.suffix == ".json":
+                tipo = _tipo(ruta, directorio)
+                if tipo is not None:
+                    yield ruta, tipo
+
+
+def _superficie(tipo: str, datos, macros) -> tuple[str, object]:
+    if tipo == "catalogos":
+        from nucleo import sintaxis
+        texto = sintaxis.imprimir(datos, macros=macros)
+        return texto, sintaxis.leer(texto, macros=macros)
+    if tipo == "corpus":
+        from nucleo import caso
+        texto = caso.imprimir(datos)
+        return texto, caso.leer(texto)
+    # Punto de extensión: conectar aquí imprimir/leer de nucleo.relacion cuando exista
+    # la gramática .relacion. No se presupone que .relacion contenga JSON.
+    raise ValueError("la superficie .relacion todavía no tiene conversor")
+
+
+def _reemplazar(origen: Path, destino: Path, texto: str, original: bytes) -> None:
+    """Publica el destino completo sin pisar otro archivo y luego retira el origen."""
+    temporal = None
+    if destino.exists() or destino.is_symlink():
+        raise FileExistsError(f"ya existe el destino {destino}")
+    if origen.read_bytes() != original:
+        raise ValueError("el origen cambió durante la conversión")
+    try:
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n",
+                                         dir=destino.parent, prefix=f".{destino.name}.",
+                                         delete=False) as archivo:
+            temporal = Path(archivo.name)
+            archivo.write(texto)
+        os.chmod(temporal, origen.stat().st_mode & 0o777)
+        if origen.read_bytes() != original:
+            raise ValueError("el origen cambió durante la conversión")
+        os.link(temporal, destino)  # falla si alguien creó el destino entretanto
+        origen.unlink()
+    finally:
+        if temporal is not None:
+            temporal.unlink(missing_ok=True)
+
+
+def _convertir_lote(directorio: Path, proy, *, escribir: bool = False) -> int:
+    if directorio.is_symlink() or not directorio.is_dir():
+        print(f"✗ {directorio}: se esperaba un directorio físico")
+        return 1
+    if escribir:
+        print("Conversión con --escribir")
+    else:
+        print("Vista previa; no se escriben archivos")
+
+    macros = None
+    convertidos = 0
+    no_convertibles = 0
+    for origen, tipo in _fuentes(directorio):
+        destino = origen.with_suffix(EXTENSIONES[tipo])
+        try:
+            if origen.is_symlink() or not origen.is_file():
+                raise ValueError("el origen debe ser un archivo físico")
+            if destino.exists() or destino.is_symlink():
+                raise FileExistsError(f"ya existe el destino {destino}")
+            original = origen.read_bytes()
+            datos = json.loads(original.decode("utf-8"))
+            if tipo == "catalogos" and macros is None:
+                macros = macros_del_proyecto(proy)
+            texto, releido = _superficie(tipo, datos, macros)
+            if not _mismo_arbol(releido, datos):
+                raise ValueError("la ida y vuelta cambió el árbol JSON canónico")
+            if escribir:
+                _reemplazar(origen, destino, texto, original)
+            print(f"✓ {origen} → {destino}" + ("" if escribir else " (convertible)"))
+            convertidos += 1
+        except (OSError, UnicodeError, ValueError, TypeError, KeyError) as e:
+            print(f"✗ {origen}: {e}")
+            no_convertibles += 1
+    verbo = "convertidos" if escribir else "convertibles"
+    print(f"Resumen: {convertidos} {verbo}; {no_convertibles} no convertibles")
+    return 1 if no_convertibles else 0
+
+
+def cmd_convertir(proy: Proyecto, ruta_str: str, *, a_superficie: bool = False,
+                 escribir: bool = False) -> int:
     """Traduce entre los dos formatos, mirando la extensión.
 
     Existía sólo como `python tools/sintaxis.py --imprimir|--leer`, que exige tener el checkout de
@@ -722,6 +837,12 @@ def cmd_convertir(proy: Proyecto, ruta_str: str) -> int:
         ruta = proy.raiz / ruta_str
     if not ruta.exists():
         print(f"no existe: {ruta_str}")
+        return 1
+
+    if a_superficie:
+        return _convertir_lote(ruta, proy, escribir=escribir)
+    if ruta.is_dir():
+        print(f"✗ {ruta}: para convertir un directorio usá --a-superficie")
         return 1
 
     try:
@@ -1365,10 +1486,23 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando == "convertir":
         args = [a for a in resto if a != "--rapido"]
-        if not args:
-            print("falta el archivo: oracle convertir <archivo.oracle|.caso|.json>")
+        opciones = {"--a-superficie", "--escribir"}
+        desconocidas = [a for a in args if a.startswith("--") and a not in opciones]
+        if desconocidas:
+            print(f"opción desconocida: {desconocidas[0]}")
             return 1
-        return cmd_convertir(proy, args[0])
+        rutas = [a for a in args if a not in opciones]
+        if not rutas:
+            print("falta el archivo: oracle convertir <archivo.oracle|.caso|.json> o <directorio> --a-superficie")
+            return 1
+        if len(rutas) != 1:
+            print("oracle convertir acepta una sola ruta")
+            return 1
+        if "--escribir" in args and "--a-superficie" not in args:
+            print("--escribir requiere --a-superficie")
+            return 1
+        return cmd_convertir(proy, rutas[0], a_superficie="--a-superficie" in args,
+                             escribir="--escribir" in args)
 
     if subcomando in ("expandir", "--expandir"):
         args = [a for a in resto if a != "--rapido"]

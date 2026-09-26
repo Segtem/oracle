@@ -115,6 +115,12 @@ oracle nueva dominio.regla        # crea el andamio ya en superficie infija
 oracle convertir medida.oracle    # superficie -> JSON, si lo necesitás
 ```
 
+Para migrar un proyecto completo, `oracle convertir <directorio> --a-superficie` muestra primero
+qué medidas y casos JSON se pueden convertir. Agregá `--escribir` para crear cada `.oracle` o
+`.caso` y retirar su JSON sólo después de comprobar que releerlo devuelve exactamente el mismo
+árbol canónico. El resumen indica los archivos no convertibles y sus motivos. Las relaciones JSON
+quedan señaladas como pendientes hasta que exista el conversor de `.relacion`.
+
 El ejemplo más simple posible del propio catálogo de Oracle:
 
 ```oracle
