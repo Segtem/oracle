@@ -735,7 +735,7 @@ def _tipo(ruta: Path, directorio: Path) -> str | None:
 def _fuentes(directorio: Path):
     # No se siguen enlaces de directorio. Los JSON ajenos al catálogo, corpus y relaciones
     # (configuración, fixtures diferenciales, etc.) no son fuentes de autoría.
-    for base, subdirectorios, archivos in os.walk(directorio, followlinks=False):
+    for base, subdirectorios, archivos in os.walk(directorio):
         subdirectorios[:] = sorted(nombre for nombre in subdirectorios
                                   if not (Path(base) / nombre).is_symlink())
         for nombre in sorted(archivos):
@@ -900,7 +900,7 @@ def _formatear_uno(proy: Proyecto, ruta: Path, *, escribir: bool, ruta_str: str)
         original = leer_texto(ruta)
         es_macro = ruta.suffix == ".oracle" and any(
             linea.lstrip().startswith("defmacro ")
-            for linea in original.splitlines() if linea.strip() and not linea.lstrip().startswith("#"))
+            for linea in original.splitlines())
         macros = macros_del_proyecto(proy) if ruta.suffix == ".oracle" and not es_macro else None
         normalizado = formato.canonico(ruta, original, macros=macros)
         if formato.sin_comentarios(original) == normalizado:
@@ -1153,11 +1153,11 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
             else:
                 print(f"SINTAXIS OK · {informe_sintaxis['medidas']} medidas · "
                       f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos · "
-                      f"{informe_sintaxis.get('relaciones', 0)} relaciones")
+                      f"{informe_sintaxis['relaciones']} relaciones")
         else:
             print(f"SINTAXIS OK · {informe_sintaxis['medidas']} medidas · "
                   f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos · "
-                  f"{informe_sintaxis.get('relaciones', 0)} relaciones")
+                  f"{informe_sintaxis['relaciones']} relaciones")
     print()
 
     # 3. Aceptación
@@ -1588,7 +1588,7 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando == "formatear":
         args = [a for a in resto if a != "--rapido"]
-        if len(args) not in (1, 2) or any(a.startswith("--") and a != "--escribir" for a in args) or args.count("--escribir") > 1:
+        if len(args) not in (1, 2) or any(a.startswith("--") and a != "--escribir" for a in args):
             print("uso: oracle formatear <ruta> [--escribir]")
             return 1
         rutas = [a for a in args if a != "--escribir"]

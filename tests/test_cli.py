@@ -128,7 +128,7 @@ class OracleCliTests(CliTestCase):
                                 return_value={"json_igual": json_igual,
                                               "texto_igual": texto_igual,
                                               "ilegibles": list(ilegibles),
-                                              "medidas": 1, "macros": 0, "casos": 1}),
+                                              "medidas": 1, "macros": 0, "casos": 1, "relaciones": 0}),
               mock.patch.object(cli.sintaxis, "verificar_documentos",
                                 return_value={"fallas": list(fallas_docs)}),
               mock.patch.object(cli.aceptacion, "_ejecutar", return_value=0),
