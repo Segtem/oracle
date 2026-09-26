@@ -44,7 +44,7 @@ class SondaDeProcedencia(unittest.TestCase):
         raiz = sonda.escribir_corpus(sonda.SONDAS["un_caso_observado_no_dice_de_donde_salio"][0])
         archivos = sorted(p.name for p in (raiz / "dominio").iterdir())
         self.assertEqual(len(archivos), 3)
-        self.assertTrue(all(n.endswith(".json") for n in archivos), archivos)
+        self.assertTrue(all(n.endswith(".caso") for n in archivos), archivos)
         # Cada sonda escribe en una carpeta nueva: no se pisan ni dependen del orden.
         otra = sonda.escribir_corpus(sonda.SONDAS["un_caso_observado_no_dice_de_donde_salio"][0])
         self.assertNotEqual(raiz, otra)

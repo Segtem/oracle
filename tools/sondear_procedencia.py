@@ -24,7 +24,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path = [str(RAIZ), *sys.path]
 
-from nucleo.caso import cargar_casos  # noqa: E402
+from nucleo.caso import cargar_casos, imprimir as imprimir_caso  # noqa: E402
 from nucleo.marco import hechos_de_casos  # noqa: E402
 from nucleo.medida import cargar  # noqa: E402
 
@@ -64,11 +64,10 @@ def escribir_corpus(entradas: list[tuple]) -> Path:
     raiz = Path(tempfile.mkdtemp(prefix="oracle-sonda-procedencia-")) / "corpus" / "dominio"
     raiz.mkdir(parents=True)
     for cid, procedencia, origen in entradas:
-        # Sin `indent` ni `ensure_ascii`: este archivo vive milisegundos en un temporal y lo lee
-        # `cargar_casos`, para el que sangría y escapes son indistinguibles. Estaban puestos por
-        # costumbre y la mutación los encontró vivos, que es lo que son: decoración.
-        (raiz / f"{cid}.json").write_text(
-            json.dumps({**BASE, "id": cid, "procedencia": procedencia, "origen": origen}),
+        # Un caso se escribe en superficie, también en un temporal: lo lee `cargar_casos` como
+        # cualquier corpus, con la forma única incluida.
+        (raiz / f"{cid}.caso").write_text(
+            imprimir_caso({**BASE, "id": cid, "procedencia": procedencia, "origen": origen}),
             encoding="utf-8")
     return raiz.parent
 
