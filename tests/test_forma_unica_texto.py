@@ -257,3 +257,17 @@ class OrigenEnUnSoloOrden(unittest.TestCase):
         invertido = "".join(lineas)
         self.assertEqual(caso.imprimir(caso.leer(invertido)), texto)
         self.assertNotEqual(caso.imprimir(caso.leer(invertido)), invertido)
+
+
+class RelacionImpresaLiteral(unittest.TestCase):
+    def test_una_variante_entre_comillas_conserva_sus_letras(self):
+        # Mutación 0.32.0: con ensure_ascii la variante salía «s\u00ed \u00f1».
+        datos = ["relacion", "e", ["campos", ["campo", "tipo", "texto", "sin_unidad"]],
+                 ["variantes", "tipo", ["variante", "sí ñ", ["campo", "x", "entero", "cm"]]],
+                 ["alcance", "a"]]
+        self.assertIn('        "sí ñ":\n', relacion.imprimir(datos))
+
+    def test_el_error_nombra_la_linea_del_archivo(self):
+        # Mutación 0.32.0: numerar desde 2 corría cada mensaje una línea.
+        with self.assertRaisesRegex(RelacionMalDeclarada, r"^línea 4: `alcance` debe estar al final"):
+            relacion.leer('relacion e:\n    tipo: texto\n    alcance "a"\n    x: entero cm\n')
