@@ -290,3 +290,19 @@ class VerificarRelaciones(unittest.TestCase):
         buena, = (f for f in informe["filas"] if f["ruta"] == "relaciones/e.relacion")
         self.assertEqual(buena["caracteres_json"],
                          len(json.dumps(datos, ensure_ascii=False, separators=(",", ":"))))
+
+
+class ComentariosEnRelacion(unittest.TestCase):
+    def test_una_relacion_admite_lineas_de_comentario_como_las_otras_superficies(self):
+        # AUDITORIA-12: la especificación las permitía en las tres superficies; .relacion las rechazaba.
+        with tempfile.TemporaryDirectory() as td:
+            ruta = Path(td) / "relaciones" / "e.relacion"
+            ruta.parent.mkdir()
+            limpio = relacion.imprimir(["relacion", "e", ["campos", ["campo", "x", "entero", "cm"]],
+                                        ["alcance", "a"]])
+            lineas = limpio.splitlines(keepends=True)
+            comentado = "# arriba\n" + lineas[0] + "    # en el medio\n" + "".join(lineas[1:]) + "# al final\n"
+            ruta.write_text(comentado, encoding="utf-8")
+            self.assertEqual(cargar_fuente_relacion(ruta), relacion.leer(limpio))
+            self.assertEqual(formato.con_comentarios(comentado, formato.canonico(ruta, comentado)), comentado)
+            self.assertEqual(lsp.diagnosticar(Proyecto(Path(td)), ruta, comentado), [])

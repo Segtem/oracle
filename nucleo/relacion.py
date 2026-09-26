@@ -335,7 +335,9 @@ def imprimir(datos: list) -> str:
 
 def leer(texto: str) -> list:
     """Lee .relacion al mismo árbol que una declaración JSON."""
-    lineas = [(n, linea) for n, linea in enumerate(texto.splitlines(), 1) if linea.strip()]
+    # Las líneas `#` completas no son parte del árbol, igual que en `.oracle` y `.caso`.
+    lineas = [(n, linea) for n, linea in enumerate(texto.splitlines(), 1)
+              if linea.strip() and not linea.lstrip().startswith("#")]
     if not lineas or not re.fullmatch(r"relacion ([a-z][a-z0-9_]*):", lineas[0][1]):
         raise RelacionMalDeclarada("se esperaba `relacion <nombre>:`")
     nombre = lineas[0][1][9:-1]
