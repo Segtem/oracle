@@ -82,25 +82,21 @@ oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y m
 <h2 id="la-forma-corta-las-macros">La forma corta: las macros<a class="ancla" href="#la-forma-corta-las-macros" aria-label="Enlace a esta sección">#</a></h2>
 <p><strong>La mayoría de las medidas del catálogo están escritas como macro.</strong> Son azúcar que expande a la forma canónica —<code>oracle expandir &lt;archivo&gt;</code> te muestra en qué—, así que el evaluador, la mutación y el inventario no se enteran de que existen.</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> proceso.test_con_mutante_que_lo_mata:
-    relacion mutante
-    alias m
-    predicado m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
-    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">de</span> mutante m
+    <span class="c-kw">donde</span> m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta mutantes DECLARADOS. NO ve los que nadie escribió&quot;</span></code></pre>
 <div class="tabla"><table><thead><tr><th>Macro</th><th>Para qué</th><th>Cuántas la usan</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td>ninguna fila debe cumplir el predicado</td><td>29</td></tr><tr><td><code>ninguno-requiere</code></td><td>lo mismo, declarando evidencia indispensable</td><td>4</td></tr><tr><td><code>ninguno-par</code></td><td>lo mismo sobre PARES de la misma relación</td><td>0</td></tr><tr><td><code>peor</code></td><td>el peor caso de una expresión no pasa de una tolerancia</td><td>0</td></tr></tbody></table></div>
-<p><strong><code>peor</code> recibe la tolerancia una sola vez</strong> y genera con ella el filtro y el umbral:</p>
+<p><strong><code>peor</code> exige la misma tolerancia en el filtro y en el umbral</strong>; la plantilla valida que coincidan:</p>
 <pre data-lenguaje="oracle"><code>peor snap.grilla:
-    relacion pieza
-    alias a
-    expresion desvio_de_grilla(hecho(a), 100.0)
-    tolerancia 1.0
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve&quot;</span>
-    <span class="c-kw">segun</span> convencion
+    <span class="c-kw">de</span> pieza a
+    <span class="c-kw">donde</span> desvio_de_grilla(hecho(a), 100.0) &gt; 1.0
+    <span class="c-kw">resumen</span> max(desvio_de_grilla(hecho(a), 100.0))
+    <span class="c-kw">umbral</span> &lt;= 1.0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla&quot;</span></code></pre>
-<p>Antes había que escribir la tolerancia dos veces y nada las mantenía juntas — era el caso <code>012</code> del corpus, cerrado por construcción.</p>
+<p>La invocación repite la tolerancia, y el lector rechaza valores distintos. Ese desajuste era el caso <code>012</code> del corpus.</p>
 <p>Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue siendo válida. <code>colocacion.interpenetracion</code> está escrita así porque une dos relaciones DISTINTAS.</p>
 <h2 id="la-forma-canónica">La forma canónica<a class="ancla" href="#la-forma-canónica" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="oracle-gramatica"><code>medida dominio.nombre:
@@ -141,7 +137,7 @@ oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y m
     <span class="c-kw">resumen</span> max(desvio_de_grilla(hecho(a), 100.0))
     <span class="c-kw">umbral</span> &lt;= 1.0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve&quot;</span>
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla&quot;</span></code></pre>
-<p>Acá el valor es centímetros y no una cuenta, y eso dice más en el informe. <strong>Escrita a mano en forma canónica, la tolerancia aparece dos veces</strong> —en el <code>donde</code> y en el <code>umbral</code>— y nada las mantiene juntas: era el caso <code>012</code> del corpus. Por eso esta forma se escribe habitualmente con la macro <code>peor</code>, que la recibe una sola vez.</p>
+<p>Acá el valor es centímetros y no una cuenta, y eso dice más en el informe. <strong>Escrita a mano en forma canónica, la tolerancia aparece dos veces</strong> —en el <code>donde</code> y en el <code>umbral</code>— y nada las mantiene juntas: era el caso <code>012</code> del corpus. La macro <code>peor</code> exige que ambas apariciones coincidan.</p>
 <h3 id="3-comparar-filas-entre-sí">3. Comparar filas entre sí<a class="ancla" href="#3-comparar-filas-entre-sí" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> vault.nombre_unico_en_el_vault:
     <span class="c-kw">de</span> documento a

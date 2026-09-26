@@ -27,7 +27,7 @@ class AritmeticaInfijaTests(unittest.TestCase):
             ("-1", -1), ("-1.5e-2", -0.015),
             ("a - -1", ["menos", ["col", "a"], -1]),
             ("a + -1", ["mas", ["col", "a"], -1]),
-            ("por(-2, 3)", ["por", -2, 3]),
+            ("-2 * 3", ["por", -2, 3]),
         ):
             with self.subTest(texto=texto):
                 self.assertEqual(_leer_expr(texto, 1, 1), esperado)
@@ -46,18 +46,25 @@ class AritmeticaInfijaTests(unittest.TestCase):
         self.assertIn("guion", str(error.exception))
         self.assertIn("resta", str(error.exception))
 
-    def test_ambas_formas_de_superficie_vuelven_al_mismo_arbol(self):
+    def test_solo_la_forma_infija_vuelve_al_mismo_arbol(self):
         prefijo = "medida demo.aritmetica:\n    de turno t\n    donde "
         sufijo = ('\n    resumen contar(1)\n'
                   '    umbral <= 0 segun convencion porque "regla"\n'
                   '    alcance "NO ve turnos ausentes"\n')
         infija = leer(prefijo + "t.turno + 1 == 2 * 3" + sufijo)
-        funcional = leer(prefijo + "mas(t.turno, 1) == por(2, 3)" + sufijo)
-        self.assertEqual(infija, funcional)
         impresa = imprimir(infija)
         self.assertEqual(leer(impresa), infija)
         self.assertIn("t.turno + 1 == 2 * 3", impresa)
-        self.assertEqual(imprimir(funcional), impresa)
+        for llamada, alternativa in (("mas(a, b)", "a + b"),
+                                      ("menos(a, b)", "a - b"),
+                                      ("por(a, b)", "a * b")):
+            with self.subTest(llamada=llamada), self.assertRaises(ErrorSintaxis) as error:
+                leer(prefijo + llamada + " == 1" + sufijo)
+            self.assertIn(f"escribí {alternativa}", str(error.exception))
+
+    def test_escalares_de_dominio_siguen_siendo_llamadas(self):
+        self.assertEqual(_leer_expr("distancia(hecho(a), b)", 1, 1),
+                         ["distancia", ["hecho", "a"], ["col", "b"]])
 
     def test_impresion_aritmetica_con_parentesis_minimos_y_arbol_exacto(self):
         c = lambda nombre: ["col", nombre]

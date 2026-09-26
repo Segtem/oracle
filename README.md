@@ -130,7 +130,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 11116 líneas de lenguaje y **468 negativas explícitas** (`raise`).
+En este corte hay 11103 líneas de lenguaje y **469 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -163,7 +163,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**11116 líneas de lenguaje** (`nucleo/`, código y macros) y **468 negativas explícitas** (`raise`). Contra las 63 medidas del catálogo escritas en él (449 líneas): **24,8 a 1**. 54 de las 63 pasan por una macro.
+**11103 líneas de lenguaje** (`nucleo/`, código y macros) y **469 negativas explícitas** (`raise`). Contra las 63 medidas del catálogo escritas en él (437 líneas): **25,4 a 1**. 54 de las 63 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -697,7 +697,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2594 tests · 1018/1018 mutantes de medida · **8783 sitios de mutación de código** (8545 + 238 del motor Python).
+2591 tests · 1018/1018 mutantes de medida · **8789 sitios de mutación de código** (8551 + 238 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

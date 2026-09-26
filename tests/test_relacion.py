@@ -208,6 +208,12 @@ class RelacionTests(unittest.TestCase):
             self.assertEqual(cargado.nombre, "pieza")
             self.assertEqual(cargar_fuente_relacion(p_json), datos)
 
+            p_oracle = raiz / "pieza.oracle"
+            p_oracle.write_text(json.dumps(datos), encoding="utf-8")
+            with self.assertRaisesRegex(RelacionMalDeclarada,
+                                        "una relación se escribe en .relacion"):
+                cargar_fuente_relacion(p_oracle)
+
             p_invalido = raiz / "invalido.json"
             p_invalido.write_text("{no es json}", encoding="utf-8")
             with self.assertRaises(RelacionMalDeclarada):

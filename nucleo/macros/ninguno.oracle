@@ -1,6 +1,4 @@
-# `segun` y `ambito` van después de `porque` para no cambiar el significado posicional de las
-# invocaciones existentes; no hay default. La prosa puede ser "", pero la etiqueta del origen y el
-# ámbito siempre se deciden.
+# La invocación repite las cláusulas variables de esta plantilla.
 defmacro ninguno(id, relacion, alias, predicado, porque, segun, ambito, alcance):
     medida $id:
         de $relacion $alias

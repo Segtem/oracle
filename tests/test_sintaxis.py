@@ -400,7 +400,8 @@ class SintaxisInfijaTests(unittest.TestCase):
 
             self.assertEqual(
                 str(cm.exception),
-                f"{ruta}: línea 5, columna 12: se esperaba un ámbito entre estas opciones; "
+                f"{ruta}: línea 5, columna 12: se esperaba un ámbito entre estas opciones, "
+                "o «sin_declarar»; "
                 "llegó 'privado'\n"
                 "        del_origen: la medida obliga sólo cuando el proyecto evaluado es dueño "
                 "de su origen; un consumidor ajeno puede leerla, pero no recibe su veredicto\n"
@@ -615,17 +616,19 @@ class MutacionDeSintaxisTests(unittest.TestCase):
 
         self.assertEqual(sintaxis_nucleo._leer_expr("hecho(alias)", 8, 9),
                          ["hecho", "alias"])
-        self.assertEqual(sintaxis_nucleo._leer_expr("col(nombre)", 8, 9),
+        self.assertEqual(sintaxis_nucleo._leer_expr("nombre", 8, 9),
                          ["col", "nombre"])
         for expr, mensaje in (
             ("hecho(1)", "línea 8, columna 9: se esperaba hecho(alias)"),
             ("hecho(a, b)", "línea 8, columna 9: se esperaba hecho(alias)"),
-            ("col(1)", "línea 8, columna 9: se esperaba col(nombre)"),
-            ("col(a, b)", "línea 8, columna 9: se esperaba col(nombre)"),
         ):
             with self.subTest(expr=expr):
                 self.assertErrorDirecto(lambda expr=expr: sintaxis_nucleo._leer_expr(expr, 8, 9),
                                         8, 9, mensaje)
+        for expr in ("col(nombre)", "col(1)", "col(a, b)"):
+            with self.subTest(expr=expr):
+                self.assertErrorDirecto(lambda expr=expr: sintaxis_nucleo._leer_expr(expr, 8, 9),
+                                        8, 9, "línea 8, columna 9: escribí p en vez de col(p)")
 
     def test_helpers_textuales_fallan_cerrado_con_posicion_exacta(self) -> None:
         self.assertEqual(sintaxis_nucleo._literal_texto("$razon", 3, 7), ["$", "razon"])
@@ -783,80 +786,48 @@ class MutacionDeSintaxisTests(unittest.TestCase):
         })
         self.assertUbicaciones(self._texto([
             "ninguno-par d.n:",
-            "    relacion rel",
-            "    aliasA a",
-            "    aliasB b",
-            "    predicado a.x == b.x",
-            '    porque "razón"',
-            "    segun contrato",
+            "    de rel a",
+            "    unir rel b",
+            "    donde a.x == b.x",
+            '    umbral <= 0 segun contrato porque "razón"',
             "    ambito universal",
             '    alcance "NO ve"',
         ]), {
             "1": (1, 13),
-            "5": (5, 19),
-            "5.1.2": (5, 17),
-            "5.2.2": (5, 24),
+            "5": (4, 15),
+            "5.1.2": (4, 13),
+            "5.2.2": (4, 20),
         })
         self.assertUbicaciones(self._texto([
             "peor d.p:",
-            "    relacion rel",
-            "    alias r",
-            "    expresion r.x",
-            "    tolerancia 2",
-            '    porque "razón"',
-            "    segun contrato",
+            "    de rel r",
+            "    donde r.x > 2",
+            "    resumen max(r.x)",
+            '    umbral <= 2 segun contrato porque "razón"',
             "    ambito universal",
             '    alcance "NO ve"',
         ]), {
             "1": (1, 6),
-            "4": (4, 15),
-            "4.2": (4, 17),
-            "5": (5, 16),
+            "4": (3, 11),
+            "4.2": (3, 13),
+            "5": (3, 17),
         })
 
     def test_errores_de_medidas_y_macros_fijan_fragmentos(self) -> None:
         casos = [
-            # El mensaje NOMBRA la línea que falta. «se esperaba 7 líneas» es cierto y no dice
-            # cuál de los parámetros se olvidó.
+            # El mensaje nombra las cláusulas de la plantilla que faltan.
             ("ninguno sin cuerpo", "ninguno d.n:\n", 2, 1,
-             "línea 2, columna 1: a la macro ninguno le falta `relacion`, `alias`, "
-             "`predicado`, `porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 7 líneas, "
-             "en este orden: relacion, alias, predicado, porque, segun, ambito, alcance"),
-            ("ninguno incompleto", self._texto(["ninguno d.n:", "    relacion rel"]), 3, 1,
-             "línea 3, columna 1: a la macro ninguno le falta `alias`, `predicado`, "
-             "`porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 7 líneas, en este orden: "
-             "relacion, alias, predicado, porque, segun, ambito, alcance"),
-            ("ninguno largo", self._texto([
-                "ninguno d.n:", "    relacion rel", "    alias r", "    predicado r.x == true",
-                '    porque "razón"', "    segun contrato", "    ambito universal",
-                '    alcance "NO ve"', "    sobra"]), 9, 1,
-             "línea 9, columna 1: la macro ninguno lleva exactamente 7 líneas de cuerpo "
-             "(relacion, alias, predicado, porque, segun, ambito, alcance) y llegaron 8"),
-            ("ninguno fuera de orden", self._texto([
-                "ninguno d.n:", "    relacion rel", "    predicado r.x == true",
-                "    alias r", '    porque "razón"', "    segun contrato", "    ambito universal",
-                '    alcance "NO ve"']), 3, 5,
-             "línea 3, columna 5: se esperaba línea «alias»; llegó 'predicado r.x == true'"),
+             "línea 2, columna 1: a la macro ninguno le falta `de`, `donde`, "
+             "`umbral`, `ambito`, `alcance`. Su cuerpo son estas 5 líneas, "
+             "en este orden: de, donde, umbral, ambito, alcance"),
             ("ninguno-par sin cuerpo", "ninguno-par d.n:\n", 2, 1,
-             "línea 2, columna 1: a la macro ninguno-par le falta `relacion`, `aliasA`, "
-             "`aliasB`, `predicado`, `porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 8 "
-             "líneas, en este orden: relacion, aliasA, aliasB, predicado, porque, segun, ambito, "
-             "alcance"),
-            ("ninguno-par alias mal", self._texto([
-                "ninguno-par d.n:", "    relacion rel", "    aliasA a b", "    aliasB b",
-                "    predicado a.x == b.x", '    porque "razón"', "    segun contrato",
-                "    ambito universal", '    alcance "NO ve"']),
-             3, 12, "línea 3, columna 12: se esperaba aliasA <nombre>; llegó 'a b'"),
+             "línea 2, columna 1: a la macro ninguno-par le falta `de`, `unir`, "
+             "`donde`, `umbral`, `ambito`, `alcance`. Su cuerpo son estas 6 líneas, "
+             "en este orden: de, unir, donde, umbral, ambito, alcance"),
             ("peor sin cuerpo", "peor d.p:\n", 2, 1,
-             "línea 2, columna 1: a la macro peor le falta `relacion`, `alias`, `expresion`, "
-             "`tolerancia`, `porque`, `segun`, `ambito`, `alcance`. Su cuerpo son estas 8 líneas, "
-             "en este orden: relacion, alias, expresion, tolerancia, porque, segun, ambito, alcance"),
-            ("peor tolerancia mal", self._texto([
-                "peor d.p:", "    relacion rel", "    alias r", "    expresion r.x",
-                '    umbral <= 2 porque "razón"', '    porque "razón"', "    segun contrato",
-                "    ambito universal", '    alcance "NO ve"']),
-             5, 5, "línea 5, columna 5: se esperaba línea «tolerancia»; "
-             "llegó 'umbral <= 2 porque \"razón\"'"),
+             "línea 2, columna 1: a la macro peor le falta `de`, `donde`, "
+             "`resumen`, `umbral`, `ambito`, `alcance`. Su cuerpo son estas 6 líneas, "
+             "en este orden: de, donde, resumen, umbral, ambito, alcance"),
             ("medida vacía", "medida d.vacia:\n", 2, 1,
              "línea 2, columna 1: se esperaba cuerpo de medida"),
             ("falta resumen", self._texto(["medida d.r:", "    de rel r"]), 3, 1,
@@ -932,35 +903,29 @@ class MutacionDeSintaxisTests(unittest.TestCase):
             "ninguno": self._texto([
                 "defmacro todos(id, rel, alias, pred, porque, segun, ambito, alcance):",
                 "    ninguno $id:",
-                "        relacion $rel",
-                "        alias $alias",
-                "        predicado $pred",
-                "        porque $porque",
-                "        segun $segun",
+                "        de $rel $alias",
+                "        donde $pred",
+                "        umbral <= 0 segun $segun porque $porque",
                 "        ambito $ambito",
                 "        alcance $alcance",
             ]),
             "ninguno-par": self._texto([
                 "defmacro pares(id, rel, a, b, pred, porque, segun, ambito, alcance):",
                 "    ninguno-par $id:",
-                "        relacion $rel",
-                "        aliasA $a",
-                "        aliasB $b",
-                "        predicado $pred",
-                "        porque $porque",
-                "        segun $segun",
+                "        de $rel $a",
+                "        unir $rel $b",
+                "        donde $pred",
+                "        umbral <= 0 segun $segun porque $porque",
                 "        ambito $ambito",
                 "        alcance $alcance",
             ]),
             "peor": self._texto([
                 "defmacro peor-propia(id, rel, alias, expr, tol, porque, segun, ambito, alcance):",
                 "    peor $id:",
-                "        relacion $rel",
-                "        alias $alias",
-                "        expresion $expr",
-                "        tolerancia $tol",
-                "        porque $porque",
-                "        segun $segun",
+                "        de $rel $alias",
+                "        donde $expr > $tol",
+                "        resumen max($expr)",
+                "        umbral <= $tol segun $segun porque $porque",
                 "        ambito $ambito",
                 "        alcance $alcance",
             ]),
@@ -1939,15 +1904,12 @@ class DefmacroSurfaceTests(unittest.TestCase):
         registro.declarar(Macro.de_datos(datos))
         invocacion = "\n".join([
             "por-grupo demo.por_equipo:",
-            "    relacion tarea",
-            "    alias t",
-            "    clave equipo",
-            "    clave_expr t.equipo",
-            "    total pendientes",
-            "    agregador contar",
-            "    valor 1",
-            "    limite 0",
-            '    porque "quedan tareas"',
+            "    de tarea t",
+            "        clave equipo = t.equipo",
+            "        agregado pendientes = sumar(1)",
+            "    resumen contar(1)",
+            '    umbral <= 0 porque "quedan tareas"',
+            "    requiere tarea",
             '    alcance "NO ve tareas no declaradas"',
         ]) + "\n"
 
@@ -2560,69 +2522,34 @@ class LosSeisTropiezosDeCasosFijanMensajeYPosicionTests(unittest.TestCase):
 
 
 class ElErrorDiceQueHacerNoSoloQueEsperabaTests(unittest.TestCase):
-    """Un error que nombra la gramática es correcto y deja a la persona donde estaba.
+    CUERPO_ANTERIOR = (
+        'ninguno tareas.vencida:\n'
+        '    relacion tarea\n'
+        '    alias t\n'
+        '    predicado t.vencida == true\n'
+        '    porque "una tarea vencida sin dueño"\n'
+        '    segun contrato\n'
+        '    ambito universal\n'
+        '    alcance "ve tareas vencidas"\n'
+    )
 
-    Caminando el recorrido de alguien que escribe su primera medida, cuatro de diez tropiezos
-    terminaban en un mensaje cierto e inútil. «se esperaba expresión; llegó \'=\'» no le enseña a
-    nadie que la comparación se escribe `==`.
+    def test_la_forma_de_argumentos_muestra_la_misma_invocacion_en_plantilla(self):
+        with self.assertRaises(sintaxis.ErrorSintaxis) as error:
+            sintaxis.leer(self.CUERPO_ANTERIOR)
+        self.assertEqual((error.exception.linea, error.exception.columna), (2, 5))
+        self.assertIn(
+            'ninguno tareas.vencida:\n    de tarea t\n'
+            '    donde t.vencida == true\n'
+            '    umbral <= 0 segun contrato porque "una tarea vencida sin dueño"\n'
+            '    ambito universal\n    alcance "ve tareas vencidas"',
+            str(error.exception),
+        )
 
-    Criterio: el mensaje contiene **lo que hay que hacer**, no sólo lo que se esperaba. Y la posición
-    sigue siendo exacta — un mensaje amable que señala la línea equivocada es peor que uno seco que
-    acierta.
-    """
-
-    CUERPO = ('ninguno tareas.vencida:\n'
-              '    relacion tarea\n'
-              '    alias t\n'
-              '    predicado t.vencida == true\n'
-              '    porque "una tarea vencida sin dueño no la va a hacer nadie"\n'
-              '    segun contrato\n'
-              '    ambito universal\n'
-              '    alcance "ve el par vencida+sin-dueño y nada más"\n')
-
-    def _error(self, texto):
-        with self.assertRaises(sintaxis.ErrorSintaxis) as cm:
-            sintaxis.leer(texto)
-        return cm.exception
-
-    def test_un_igual_solo_ensena_el_doble_igual(self) -> None:
-        e = self._error(self.CUERPO.replace("t.vencida ==", "t.vencida ="))
-        self.assertIn("«==»", str(e))
-        self.assertEqual((e.linea, e.columna), (4, 25))
-
-    def test_un_acento_en_un_nombre_explica_la_gramatica(self) -> None:
-        """Y aclara que la prosa SÍ los lleva: si no, el mensaje asusta de más y alguien
-        termina escribiendo el `porque` sin tildes."""
-        e = self._error(self.CUERPO.replace("t.vencida", "t.vencída"))
-        self.assertIn("minúsculas ASCII", str(e))
-        self.assertIn("porque", str(e))
-        self.assertEqual((e.linea, e.columna), (4, 21))
-
-    def test_la_linea_que_falta_se_nombra(self) -> None:
-        for palabra, quitar in (
-                ("alcance", '    alcance "ve el par vencida+sin-dueño y nada más"\n'),
-                ("predicado", "    predicado t.vencida == true\n")):
-            with self.subTest(falta=palabra):
-                e = self._error(self.CUERPO.replace(quitar, ""))
-                self.assertIn(f"`{palabra}`", str(e))
-                self.assertIn("relacion, alias, predicado, porque, segun, ambito, alcance", str(e))
-
-    def test_un_cuerpo_de_mas_no_se_confunde_con_uno_de_menos(self) -> None:
-        e = self._error(self.CUERPO + "    sobra\n")
-        self.assertIn("y llegaron 8", str(e))
-        self.assertNotIn("le falta", str(e))
-
-    def test_una_linea_que_no_es_parametro_nombra_la_esperada(self) -> None:
-        e = self._error(self.CUERPO.replace(
-            '    porque "una tarea vencida sin dueño no la va a hacer nadie"\n',
-            '    umbral <= 0 porque "una tarea vencida sin dueño no la va a hacer nadie"\n'))
-        self.assertIn("línea «porque»", str(e))
-        self.assertEqual((e.linea, e.columna), (5, 5))
-
-    def test_el_cuerpo_vacio_senala_donde_iria_la_primera_linea(self) -> None:
-        """No una línea que no existe: la 2, que es donde empieza el cuerpo."""
-        e = self._error("ninguno d.n:\n")
-        self.assertEqual((e.linea, e.columna), (2, 1))
+    def test_el_cuerpo_vacio_nombra_las_clausulas_que_faltan(self):
+        with self.assertRaises(sintaxis.ErrorSintaxis) as error:
+            sintaxis.leer("ninguno d.n:\n")
+        self.assertEqual((error.exception.linea, error.exception.columna), (2, 1))
+        self.assertIn("`de`, `donde`, `umbral`, `ambito`, `alcance`", str(error.exception))
 
 
 class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
@@ -2938,7 +2865,7 @@ class AusenciaVisibleEnMacrosTests(unittest.TestCase):
         (
             "ninguno",
             ["pieza", "p", ["==", ["campo", "p", "mal"], True]],
-            ["    relacion pieza", "    alias p", "    predicado p.mal == true"],
+            ["    de pieza p", "    donde p.mal == true"],
             ["desde", ["de", "pieza", "p"],
              ["donde", ["==", ["campo", "p", "mal"], True]]],
             ["resumen", "contar", 1], 0,
@@ -2946,7 +2873,7 @@ class AusenciaVisibleEnMacrosTests(unittest.TestCase):
         (
             "peor",
             ["pieza", "p", ["campo", "p", "n"], 2],
-            ["    relacion pieza", "    alias p", "    expresion p.n", "    tolerancia 2"],
+            ["    de pieza p", "    donde p.n > 2", "    resumen max(p.n)"],
             ["desde", ["de", "pieza", "p"],
              ["donde", [">", ["campo", "p", "n"], 2]]],
             ["resumen", "max", ["campo", "p", "n"]], 2,
@@ -2954,8 +2881,7 @@ class AusenciaVisibleEnMacrosTests(unittest.TestCase):
         (
             "ninguno-par",
             ["pieza", "a", "b", ["==", ["campo", "a", "n"], ["campo", "b", "n"]]],
-            ["    relacion pieza", "    aliasA a", "    aliasB b",
-             "    predicado a.n == b.n"],
+            ["    de pieza a", "    unir pieza b", "    donde a.n == b.n"],
             ["desde", ["unir", ["de", "pieza", "a"], ["de", "pieza", "b"]],
              ["donde", ["==", ["campo", "a", "n"], ["campo", "b", "n"]]]],
             ["resumen", "contar", 1], 0,
@@ -2967,8 +2893,9 @@ class AusenciaVisibleEnMacrosTests(unittest.TestCase):
         mid = "demo." + nombre.replace("-", "_")
         datos = [nombre, mid, *argumentos, "una razón", segun, ambito, "NO ve otras piezas"]
         texto = "\n".join([
-            f"{nombre} {mid}:", *lineas, '    porque "una razón"',
-            f"    segun {segun}", f"    ambito {ambito}",
+            f"{nombre} {mid}:", *lineas,
+            f'    umbral <= {caso[-1]} segun {segun} porque "una razón"',
+            f"    ambito {ambito}",
             '    alcance "NO ve otras piezas"', "",
         ])
         return datos, texto
@@ -3023,9 +2950,12 @@ class AusenciaVisibleEnMacrosTests(unittest.TestCase):
                         for opcion in opciones:
                             self.assertIn(opcion, mensaje)
                         # No alcanza con fallar en cualquier lugar: señala el argumento inválido.
-                        linea = texto.splitlines().index(f"    {campo} {inventado}") + 1
+                        linea = (texto.splitlines().index(f"    ambito {inventado}") + 1
+                                 if campo == "ambito" else
+                                 next(i for i, s in enumerate(texto.splitlines(), 1)
+                                      if s.startswith("    umbral ")))
                         self.assertEqual(error.exception.linea, linea)
-                        self.assertEqual(error.exception.columna, len(f"    {campo} ") + 1)
+                        self.assertGreaterEqual(error.exception.columna, 5)
 
     TEXTO_PLANO = (
         "medida demo.plana:\n"

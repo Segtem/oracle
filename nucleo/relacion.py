@@ -418,13 +418,15 @@ def leer(texto: str) -> list:
 
 def cargar_fuente_relacion(ruta: Path) -> list:
     ruta = Path(ruta)
+    if ruta.suffix == ".oracle":
+        raise RelacionMalDeclarada(f"{ruta}: una relación se escribe en .relacion")
     try:
         texto = ruta.read_text(encoding="utf-8")
     except OSError as e:
         raise RelacionMalDeclarada(f"no se pudo leer la relación {ruta}: {e}") from e
     if ruta.suffix == ".relacion":
         return leer(texto)
-    if ruta.suffix in (".json", ".oracle"):
+    if ruta.suffix == ".json":
         try:
             return json.loads(texto)
         except json.JSONDecodeError as e:

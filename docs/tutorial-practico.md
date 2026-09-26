@@ -187,7 +187,7 @@ Tres accesores leen datos de una fila:
 |---|---|---|---|
 | Campo | `a.volumen` | `["campo", "a", "volumen"]` | un campo de un hecho con alias `a` |
 | Hecho | `hecho(a)` | `["hecho", "a"]` | el hecho ENTERO (para pasarlo a una escalar) |
-| Columna | `col(reales)` o `reales` | `["col", "reales"]` | una columna o agregado derivado por `agrupar` |
+| Columna | `reales` | `["col", "reales"]` | una columna o agregado derivado por `agrupar` |
 
 `a.volumen` — "en la fila actual, tomá el hecho con alias `a` y devolvé su campo `volumen`". Comparar
 contra un campo que no existe **es un error**, no da `false`: así un nombre de campo mal escrito no se
@@ -269,7 +269,7 @@ agrupar:
 
 Después de `agrupar`, las filas ya NO tienen los alias originales (`m`, `i` desaparecen: se
 consumieron en el resumen). Las claves y agregados derivados se leen directamente por su nombre o con
-`col(nombre)`.
+`nombre`.
 
 ---
 
@@ -282,9 +282,9 @@ la expansión.
 
 | Macro | Superficie | Para qué |
 |---|---|---|
-| `ninguno` | `ninguno <id>:\n    relacion <rel>\n    alias <alias>\n    predicado <pred>\n    porque "..."\n    segun <origen>\n    ambito <ámbito>\n    alcance "..."` | ninguna fila debe cumplir el predicado — el 80% de los casos |
-| `ninguno-par` | `ninguno-par <id>:\n    relacion <rel>\n    aliasA <a1>\n    aliasB <a2>\n    predicado <pred>\n    porque "..."\n    segun <origen>\n    ambito <ámbito>\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
-| `peor` | `peor <id>:\n    relacion <rel>\n    alias <alias>\n    expresion <expr>\n    tolerancia <tol>\n    porque "..."\n    segun <origen>\n    ambito <ámbito>\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
+| `ninguno` | `ninguno <id>:\n    de <rel> <alias>\n    donde <pred>\n    umbral <= 0 segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | ninguna fila debe cumplir el predicado — el 80% de los casos |
+| `ninguno-par` | `ninguno-par <id>:\n    de <rel> <a1>\n    unir <rel> <a2>\n    donde <pred>\n    umbral <= 0 segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
+| `peor` | `peor <id>:\n    de <rel> <alias>\n    donde <expr> > <tol>\n    resumen max(<expr>)\n    umbral <= <tol> segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
 
 Las tres macros de la tabla admiten una relación vacía: sirve cuando la relación sólo registra
 infracciones y `[]` significa que no hubo ninguna. Si la relación es el **universo de sujetos**
@@ -302,11 +302,9 @@ usá `--parcial` o seleccioná medidas con `--medida <id>`. Una sombra no perdon
 
 ```oracle
 ninguno proceso.test_con_mutante_que_lo_mata:
-    relacion mutante
-    alias m
-    predicado m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
-    porque "un mutante que sobrevive es un test que no discrimina"
-    segun contrato
+    de mutante m
+    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina"
     ambito universal
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
@@ -318,21 +316,17 @@ ofende, contás, cero es el único número aceptable».
 
 ```oracle
 peor snap.grilla:
-    relacion pieza
-    alias a
-    expresion desvio_de_grilla(hecho(a), 100.0)
-    tolerancia 1.0
-    porque "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m"
-    segun convencion
+    de pieza a
+    donde desvio_de_grilla(hecho(a), 100.0) > 1.0
+    resumen max(desvio_de_grilla(hecho(a), 100.0))
+    umbral <= 1.0 segun convencion porque "por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m"
     ambito universal
     alcance "desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla"
 ```
 
-Ejemplo real, en producción, del catálogo de geometría de Jam. Fijate el problema que resuelve
-`peor`: escrita a mano, la tolerancia (`1.0`) aparecería DOS veces — una en el `donde` que filtra
-(«¿superó 1 cm?») y otra en el `umbral` («¿el peor caso está por debajo de 1 cm?») — y nada garantiza
-que sigan sincronizadas si alguien cambia una y no la otra. Ese fue un defecto real del proyecto (caso
-`012` del corpus). `peor` recibe la tolerancia **una sola vez** y genera las dos apariciones desde ahí.
+Ejemplo del catálogo de geometría de Jam. La tolerancia (`1.0`) aparece en `donde` y en
+`umbral`. La macro exige que ambos valores coincidan; si alguien cambia uno solo, la invocación
+falla. El desajuste fue un defecto real del proyecto (caso `012` del corpus).
 
 Expande a:
 
@@ -350,12 +344,10 @@ medida snap.grilla:
 
 ```oracle
 ninguno-par tareas.misma_persona_sobrecargada_el_mismo_dia:
-    relacion tarea
-    aliasA a
-    aliasB b
-    predicado a.dueno == b.dueno y a.vence == b.vence y a.id != b.id
-    porque "dos tareas del mismo día para la misma persona compiten por las mismas horas"
-    segun contrato
+    de tarea a
+    unir tarea b
+    donde a.dueno == b.dueno y a.vence == b.vence y a.id != b.id
+    umbral <= 0 segun contrato porque "dos tareas del mismo día para la misma persona compiten por las mismas horas"
     ambito universal
     alcance "ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual"
 ```
@@ -387,12 +379,10 @@ contás con `resumen contar(1)`, umbral `<= 0`.
 
 ```oracle
 peor snap.yaw:
-    relacion pieza
-    alias a
-    expresion desvio_de_paso(a.yaw, 90.0)
-    tolerancia 0.5
-    porque "medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista"
-    segun convencion
+    de pieza a
+    donde desvio_de_paso(a.yaw, 90.0) > 0.5
+    resumen max(desvio_de_paso(a.yaw, 90.0))
+    umbral <= 0.5 segun convencion porque "medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista"
     ambito universal
     alcance "sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto"
 ```
@@ -458,11 +448,9 @@ no una propiedad implícita del almacenamiento.
 
 ```oracle
 ninguno meta.toda_medida_esta_fijada:
-    relacion medida_en_uso
-    alias m
-    predicado m.debe_tener_mutantes == true y (m.mutantes == 0 o m.mutantes_vivos != 0)
-    porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
-    segun contrato
+    de medida_en_uso m
+    donde m.debe_tener_mutantes == true y (m.mutantes == 0 o m.mutantes_vivos != 0)
+    umbral <= 0 segun contrato porque "una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada"
     ambito universal
     alcance "exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción"
 ```
@@ -686,11 +674,9 @@ La escribís en la superficie infija (con la macro `ninguno` — el caso más co
 
 ```oracle
 ninguno tareas.vencida_sin_dueno:
-    relacion tarea
-    alias t
-    predicado t.vencida == true y t.asignada == false
-    porque "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano"
-    segun contrato
+    de tarea t
+    donde t.vencida == true y t.asignada == false
+    umbral <= 0 segun contrato porque "una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano"
     ambito universal
     alcance "ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está"
 ```

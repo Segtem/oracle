@@ -1519,11 +1519,9 @@ class NounVerbCliTests(CliTestCase):
                 "\n".join([
                     "defmacro sin-fallas(id, relacion, alias, predicado, porque, segun, ambito, alcance):",
                     "    ninguno $id:",
-                    "        relacion $relacion",
-                    "        alias $alias",
-                    "        predicado $predicado",
-                    "        porque $porque",
-                    "        segun $segun",
+                    "        de $relacion $alias",
+                    "        donde $predicado",
+                    "        umbral <= 0 segun $segun porque $porque",
                     "        ambito $ambito",
                     "        alcance $alcance",
                     "",
@@ -1535,11 +1533,9 @@ class NounVerbCliTests(CliTestCase):
             fuente.write_text(
                 "\n".join([
                     "sin-fallas demo.todo_ok:",
-                    "    relacion item",
-                    "    alias i",
-                    "    predicado i.ok == false",
-                    "    porque \"un item falso invalida la entrega entera\"",
-                    "    segun contrato",
+                    "    de item i",
+                    "    donde i.ok == false",
+                    "    umbral <= 0 segun contrato porque \"un item falso invalida la entrega entera\"",
                     "    ambito universal",
                     "    alcance \"NO ve items que nadie declaró\"",
                     "",
@@ -1561,7 +1557,7 @@ class NounVerbCliTests(CliTestCase):
                 cli.main, ["convertir", str(canonica), "--proyecto", str(raiz)])
             self.assertEqual(rc_json, 0)
             self.assertTrue(salida_json.startswith("sin-fallas demo.todo_ok:\n"))
-            self.assertIn("    relacion item\n", salida_json)
+            self.assertIn("    de item i\n", salida_json)
 
     def test_faltan_argumentos_en_verbos_devuelve_uno(self) -> None:
         with tempfile.TemporaryDirectory() as td:

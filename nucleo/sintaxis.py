@@ -391,6 +391,12 @@ class _Expr:
                      _Nodo(nombre, t.linea, t.columna),
                      _Nodo(campo.valor, campo.linea, campo.columna)))
             if self._tomar("(", "("):
+                if nombre in ("mas", "menos", "por"):
+                    operador = {"mas": "+", "menos": "-", "por": "*"}[nombre]
+                    _fallar(t.linea, t.columna, f"escribí a {operador} b", literal=True)
+                if nombre == "col":
+                    _fallar(t.linea, t.columna, "escribí p en vez de col(p)",
+                            literal=True)
                 args = []
                 if not self._tomar(")", ")"):
                     while True:
@@ -405,13 +411,6 @@ class _Expr:
                     return _Nodo(
                         ["hecho", args[0].valor[1]], t.linea, t.columna,
                         (_Nodo("hecho", t.linea, t.columna), args[0].hijos[1]))
-                if nombre == "col":
-                    if (len(args) != 1 or not isinstance(args[0].valor, list)
-                            or args[0].valor[0] != "col"):
-                        _fallar(t.linea, t.columna, "col(nombre)")
-                    return _Nodo(
-                        ["col", args[0].valor[1]], t.linea, t.columna,
-                        (_Nodo("col", t.linea, t.columna), args[0].hijos[1]))
                 return _lista(str(nombre), t, args)
             return _Nodo(["col", nombre], t.linea, t.columna,
                          (_Nodo("col", t.linea, t.columna),
@@ -471,9 +470,9 @@ def _leer_segun(p: _Expr) -> tuple[object, int]:
         _fallar(t.linea, t.columna,
                 f"segun en {sorted(ORIGENES_DE_UMBRAL)}", t.valor)
     segun = str(t.valor)
-    if segun not in ORIGENES_DE_UMBRAL:
+    if segun not in ORIGENES_DE_UMBRAL and segun != SEGUN_SIN_DECLARAR:
         _fallar(t.linea, t.columna,
-                f"segun en {sorted(ORIGENES_DE_UMBRAL)}", segun)
+                f"segun en {sorted(ORIGENES_DE_UMBRAL)} o «{SEGUN_SIN_DECLARAR}»", segun)
     p.i += 1
     return segun, t.columna
 
@@ -609,12 +608,12 @@ def _leer_ambito(item: tuple[int, str]) -> list:
     primero = tokens[0]
     if primero.tipo == "HUECO":
         valor = ["$", primero.valor]
-    elif primero.tipo == "IDENT" and primero.valor in AMBITOS:
+    elif primero.tipo == "IDENT" and primero.valor in (*AMBITOS, AMBITO_SIN_DECLARAR):
         valor = primero.valor
     else:
         _fallar(
             item[0], primero.columna,
-            "un ámbito entre estas opciones\n" + opciones(AMBITOS), primero.valor)
+            "un ámbito entre estas opciones, o «sin_declarar»\n" + opciones(AMBITOS), primero.valor)
     if tokens[1].tipo != "EOF":
         _fallar(item[0], tokens[1].columna, "fin de línea", tokens[1].valor)
     return ["ambito", valor]
@@ -659,7 +658,7 @@ def _linea_tiene_hueco_de(linea: str, parametros: set[str]) -> bool:
 
 
 def _palabra_de_linea(linea: str) -> str:
-    return _indentada(linea, 1, 1).split(" ", 1)[0].rstrip(":")
+    return linea.strip().split(" ", 1)[0].rstrip(":")
 
 
 def _sustituir_huecos(nodo, valores: dict):
@@ -896,20 +895,7 @@ def _leer_argumento_macro(item: tuple[int, str], parametro: str, tipo: str, *,
         valor = resto.strip()
         if valor != resto or len(valor.split()) != 1:
             _fallar(item[0], col, f"{parametro} <nombre>", resto)
-        # La AUSENCIA VISIBLE se acepta acá y sólo acá. En la forma `medida` la ausencia se expresa
-        # OMITIENDO la cláusula, y por eso da la vuelta sin problema: el impresor no la escribe. En
-        # una invocación de macro los argumentos son posicionales y no se pueden omitir, así que el
-        # impresor escribe `sin_declarar` literal — y hasta el 2026-09-07 el lector lo rechazaba.
-        #
-        # O sea que Oracle IMPRIMÍA ALGO QUE NO PODÍA VOLVER A LEER, y ninguna medida lo veía porque
-        # su propio catálogo no tiene ninguna medida con `segun` o `ambito` sin declarar. Lo destapó
-        # un consumidor con 33 medidas escritas contra la aridad anterior de las macros: migrarlas a
-        # la aridad vigente era un no-op del árbol canónico, y aun así quedaban ilegibles.
-        #
-        # No afloja nada: `sin_declarar` es exactamente lo que el cargador ya produce, y las dos
-        # medidas que lo persiguen —`meta.todo_umbral_declara_de_donde_sale` y
-        # `meta.toda_medida_declara_su_ambito`— lo siguen contando igual. Lo que cambia es que ahora
-        # se puede ESCRIBIR la ausencia donde no había forma de omitirla.
+        # Esta ruta sólo reconoce argumentos antiguos para mostrar su reemplazo en plantilla.
         if (parametro == "segun" and not valor.startswith("$")
                 and valor not in ORIGENES_DE_UMBRAL and valor != SEGUN_SIN_DECLARAR):
             _fallar(item[0], col,
@@ -1037,10 +1023,14 @@ def _leer_macro_por_plantilla(macro, mid, cuerpo: list[tuple[int, str]], *,
 def _leer_macro_declarada(macro, mid, cuerpo: list[tuple[int, str]], *,
                           macros, ubicaciones: dict[str, Ubicacion] | None = None,
                           linea_encabezado: int = 1) -> list:
-    if _usa_forma_de_argumentos(cuerpo, macro.parametros):
-        return _leer_macro_por_argumentos(
-            macro, mid, cuerpo, macros=macros, ubicaciones=ubicaciones,
+    if cuerpo and _usa_forma_de_argumentos(cuerpo, macro.parametros):
+        datos = _leer_macro_por_argumentos(
+            macro, mid, cuerpo, macros=macros, ubicaciones=None,
             linea_encabezado=linea_encabezado)
+        ejemplo = imprimir(datos, macros=macros).rstrip()
+        _fallar(cuerpo[0][0], len(IND) + 1,
+                "la invocación de macro se escribe con las cláusulas de su plantilla:\n"
+                + ejemplo, literal=True)
     return _leer_macro_por_plantilla(
         macro, mid, cuerpo, macros=macros, ubicaciones=ubicaciones,
         linea_encabezado=linea_encabezado)
@@ -1606,7 +1596,7 @@ def _imprimir_pasos(tuberia: list) -> list[str]:
     return salida
 
 
-def _linea_umbral(umbral: list) -> str:
+def _linea_umbral(umbral: list, *, con_ausencias: bool = False) -> str:
     if not isinstance(umbral, list) or len(umbral) not in (4, 5):
         raise ValueError("un umbral imprimible tiene 4 o 5 elementos")
     linea = f"{IND}umbral {umbral[1]} {_expr(umbral[2])}"
@@ -1614,7 +1604,7 @@ def _linea_umbral(umbral: list) -> str:
         segun = umbral[4]
         if _es_hueco(segun):
             linea += f" segun {_nombre(segun)}"
-        elif segun in ORIGENES_DE_UMBRAL:
+        elif segun in ORIGENES_DE_UMBRAL or (con_ausencias and segun == SEGUN_SIN_DECLARAR):
             linea += f" segun {segun}"
         elif segun != SEGUN_SIN_DECLARAR:
             raise ValueError(f"`segun` no imprimible: {segun!r}")
@@ -1627,7 +1617,7 @@ def _linea_umbral(umbral: list) -> str:
     return linea
 
 
-def _lineas_medida(datos: list) -> list[str]:
+def _lineas_medida(datos: list, *, con_ausencias: bool = False) -> list[str]:
     if len(datos) not in (6, 7, 8):
         raise ValueError("una medida canónica tiene 6, 7 u 8 elementos")
     _c, mid, tuberia, resumen, umbral, *opcionales, alcance = datos
@@ -1643,7 +1633,7 @@ def _lineas_medida(datos: list) -> list[str]:
         raise ValueError("después del umbral sólo se imprimen `requiere`, `ambito` y `alcance`")
     lineas = [f"medida {_nombre(mid)}:", *_lineas_fuente(tuberia[1]), *_imprimir_pasos(tuberia)]
     lineas.append(f"{IND}resumen {_nombre(resumen[1])}({_expr(resumen[2])})")
-    lineas.append(_linea_umbral(umbral))
+    lineas.append(_linea_umbral(umbral, con_ausencias=con_ausencias))
     if requiere is not None:
         nombres = [r for r in requiere[1:] if not (isinstance(r, list) and len(r) == 4 and r[0] == "filas")]
         condicionales = [r for r in requiere[1:] if isinstance(r, list) and len(r) == 4 and r[0] == "filas"]
@@ -1656,6 +1646,8 @@ def _lineas_medida(datos: list) -> list[str]:
         valor_ambito = ambito[1]
         if _es_hueco(valor_ambito) or valor_ambito in AMBITOS:
             lineas.append(f"{IND}ambito {_nombre(valor_ambito)}")
+        elif con_ausencias and valor_ambito == AMBITO_SIN_DECLARAR:
+            lineas.append(f"{IND}ambito {AMBITO_SIN_DECLARAR}")
         elif valor_ambito != AMBITO_SIN_DECLARAR:
             raise ValueError(
                 f"`ambito` no imprimible: {valor_ambito!r}; las opciones son:\n"
@@ -1692,25 +1684,26 @@ def _lineas_macro_declarada(datos: list, macros, visitadas: frozenset[str]) -> l
         raise ValueError(
             f"la macro {clase} lleva {esperados} argumento(s) y recibió {len(datos) - 1}")
 
-    try:
-        tipos = _tipos_de_parametros(macro, registro, visitadas | frozenset({clase}))
-    except ValueError as e:
-        raise ValueError(str(e)) from e
+    valores = dict(zip(parametros, datos[1:]))
+    if parametros != macro.parametros:
+        # La aridad anterior omitía `segun`; su árbol sigue siendo legible.
+        valores["segun"] = SEGUN_SIN_DECLARAR
+    plantilla = _sustituir_huecos(macro.plantilla, valores)
+    patron = _lineas_de_datos(macro.plantilla, registro, visitadas | {clase})
+    instancia = _lineas_de_datos(plantilla, registro, visitadas | {clase},
+                                con_ausencias=True)
+    if len(patron) != len(instancia):
+        raise ValueError(f"la macro {clase} no conserva las líneas de su plantilla")
+    variables = set(macro.parametros[1:])
     lineas = [f"{clase} {_nombre(datos[1])}:"]
-    for parametro, valor in zip(parametros[1:], datos[2:]):
-        tipo = tipos[parametro]
-        if tipo == "nombre":
-            superficie = _nombre(valor)
-        elif tipo == "texto":
-            superficie = _texto_o_hueco(valor)
-        else:
-            superficie = _expr(valor)
-        lineas.append(f"{IND}{parametro} {superficie}")
+    lineas.extend(linea for original, linea in zip(patron[1:], instancia[1:])
+                  if _linea_tiene_hueco_de(original, variables))
     return lineas
 
 
 def _lineas_de_datos(datos: list, macros=None,
-                     visitadas: frozenset[str] = frozenset()) -> list[str]:
+                     visitadas: frozenset[str] = frozenset(), *,
+                     con_ausencias: bool = False) -> list[str]:
     """Devuelve líneas de superficie sin salto final."""
     if not isinstance(datos, list) or not datos:
         raise ValueError("una medida tiene que ser una lista JSON")
@@ -1718,7 +1711,7 @@ def _lineas_de_datos(datos: list, macros=None,
     if clase == "defmacro":
         return _lineas_defmacro(datos, macros, visitadas)
     if clase == "medida":
-        return _lineas_medida(datos)
+        return _lineas_medida(datos, con_ausencias=con_ausencias)
     return _lineas_macro_declarada(datos, macros, visitadas)
 
 

@@ -134,30 +134,26 @@ donde reales == 0</code></pre>
 <hr>
 <h2 id="4-las-macros-la-forma-corta">4. Las macros: la forma corta<a class="ancla" href="#4-las-macros-la-forma-corta" aria-label="Enlace a esta sección">#</a></h2>
 <p><strong>La mayoría de las medidas del catálogo de Oracle están escritas con una macro.</strong> Una macro es azúcar sintáctica que se expande a la forma canónica ANTES de construir la medida — el evaluador, la mutación y el inventario nunca se enteran de que hubo una macro. <code>oracle expandir &lt;archivo&gt;</code> te muestra la expansión.</p>
-<div class="tabla"><table><thead><tr><th>Macro</th><th>Superficie</th><th>Para qué</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td><code>ninguno &lt;id&gt;:\n    relacion &lt;rel&gt;\n    alias &lt;alias&gt;\n    predicado &lt;pred&gt;\n    porque &quot;...&quot;\n    segun &lt;origen&gt;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>ninguna fila debe cumplir el predicado — el 80% de los casos</td></tr><tr><td><code>ninguno-par</code></td><td><code>ninguno-par &lt;id&gt;:\n    relacion &lt;rel&gt;\n    aliasA &lt;a1&gt;\n    aliasB &lt;a2&gt;\n    predicado &lt;pred&gt;\n    porque &quot;...&quot;\n    segun &lt;origen&gt;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>lo mismo, sobre PARES de la misma relación</td></tr><tr><td><code>peor</code></td><td><code>peor &lt;id&gt;:\n    relacion &lt;rel&gt;\n    alias &lt;alias&gt;\n    expresion &lt;expr&gt;\n    tolerancia &lt;tol&gt;\n    porque &quot;...&quot;\n    segun &lt;origen&gt;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>el peor caso de una magnitud no puede pasar de una tolerancia</td></tr></tbody></table></div>
+<div class="tabla"><table><thead><tr><th>Macro</th><th>Superficie</th><th>Para qué</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td><code>ninguno &lt;id&gt;:\n    de &lt;rel&gt; &lt;alias&gt;\n    donde &lt;pred&gt;\n    umbral &lt;= 0 segun &lt;origen&gt; porque &quot;...&quot;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>ninguna fila debe cumplir el predicado — el 80% de los casos</td></tr><tr><td><code>ninguno-par</code></td><td><code>ninguno-par &lt;id&gt;:\n    de &lt;rel&gt; &lt;a1&gt;\n    unir &lt;rel&gt; &lt;a2&gt;\n    donde &lt;pred&gt;\n    umbral &lt;= 0 segun &lt;origen&gt; porque &quot;...&quot;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>lo mismo, sobre PARES de la misma relación</td></tr><tr><td><code>peor</code></td><td><code>peor &lt;id&gt;:\n    de &lt;rel&gt; &lt;alias&gt;\n    donde &lt;expr&gt; &gt; &lt;tol&gt;\n    resumen max(&lt;expr&gt;)\n    umbral &lt;= &lt;tol&gt; segun &lt;origen&gt; porque &quot;...&quot;\n    ambito &lt;ámbito&gt;\n    alcance &quot;...&quot;</code></td><td>el peor caso de una magnitud no puede pasar de una tolerancia</td></tr></tbody></table></div>
 <p>Las tres macros de la tabla admiten una relación vacía: sirve cuando la relación sólo registra infracciones y <code>[]</code> significa que no hubo ninguna. Si la relación es el <strong>universo de sujetos</strong> que debe examinarse, usá <code>ninguno-requiere</code>, <code>ninguno-par-requiere</code> o <code>peor-requiere</code>. Tienen los mismos parámetros y agregan <code>requiere &lt;relación&gt;</code> antes de evaluar: una relación ausente o vacía produce <code>SIN EVIDENCIA</code>. Un <code>resumen</code> sobre cero filas sigue dando <code>0</code>; <code>requiere</code> es la guarda ante la ausencia de sujetos.</p>
 <p>En <code>oracle juzgar --con hechos.json</code>, las medidas propias sin relación en la evidencia se informan y hacen fallar la corrida. Para evaluar deliberadamente sólo parte del catálogo, usá <code>--parcial</code> o seleccioná medidas con <code>--medida &lt;id&gt;</code>. Una sombra no perdona <code>SIN EVIDENCIA</code>, aunque su cota admita el valor numérico del veredicto.</p>
 <h3 id="ninguno--el-caso-común"><code>ninguno</code> — el caso común<a class="ancla" href="#ninguno--el-caso-común" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> proceso.test_con_mutante_que_lo_mata:
-    relacion mutante
-    alias m
-    predicado m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
-    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">de</span> mutante m
+    <span class="c-kw">donde</span> m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta mutantes DECLARADOS. NO ve los que nadie escribió&quot;</span></code></pre>
 <p>Expande EXACTO a la forma canónica de §2. <code>ninguno</code> cubre todo lo que se reduce a «filtrás lo que ofende, contás, cero es el único número aceptable».</p>
 <h3 id="peor--cuando-el-número-importa-no-la-cuenta"><code>peor</code> — cuando el número importa, no la cuenta<a class="ancla" href="#peor--cuando-el-número-importa-no-la-cuenta" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code>peor snap.grilla:
-    relacion pieza
-    alias a
-    expresion desvio_de_grilla(hecho(a), 100.0)
-    tolerancia 1.0
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m&quot;</span>
-    <span class="c-kw">segun</span> convencion
+    <span class="c-kw">de</span> pieza a
+    <span class="c-kw">donde</span> desvio_de_grilla(hecho(a), 100.0) &gt; 1.0
+    <span class="c-kw">resumen</span> max(desvio_de_grilla(hecho(a), 100.0))
+    <span class="c-kw">umbral</span> &lt;= 1.0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve y no produce juntas visibles en una pieza de 4 m&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla&quot;</span></code></pre>
-<p>Ejemplo real, en producción, del catálogo de geometría de Jam. Fijate el problema que resuelve <code>peor</code>: escrita a mano, la tolerancia (<code>1.0</code>) aparecería DOS veces — una en el <code>donde</code> que filtra («¿superó 1 cm?») y otra en el <code>umbral</code> («¿el peor caso está por debajo de 1 cm?») — y nada garantiza que sigan sincronizadas si alguien cambia una y no la otra. Ese fue un defecto real del proyecto (caso <code>012</code> del corpus). <code>peor</code> recibe la tolerancia <strong>una sola vez</strong> y genera las dos apariciones desde ahí.</p>
+<p>Ejemplo del catálogo de geometría de Jam. La tolerancia (<code>1.0</code>) aparece en <code>donde</code> y en <code>umbral</code>. La macro exige que ambos valores coincidan; si alguien cambia uno solo, la invocación falla. El desajuste fue un defecto real del proyecto (caso <code>012</code> del corpus).</p>
 <p>Expande a:</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> snap.grilla:
     <span class="c-kw">de</span> pieza a
@@ -168,12 +164,10 @@ donde reales == 0</code></pre>
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE respecto de la grilla. NO ve si el pivote está donde debería dentro de la malla&quot;</span></code></pre>
 <h3 id="ninguno-par"><code>ninguno-par</code><a class="ancla" href="#ninguno-par" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code>ninguno-par tareas.misma_persona_sobrecargada_el_mismo_dia:
-    relacion tarea
-    aliasA a
-    aliasB b
-    predicado a.dueno == b.dueno <span class="c-kw">y</span> a.vence == b.vence <span class="c-kw">y</span> a.id != b.id
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;dos tareas del mismo día para la misma persona compiten por las mismas horas&quot;</span>
-    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">de</span> tarea a
+    <span class="c-kw">unir</span> tarea b
+    <span class="c-kw">donde</span> a.dueno == b.dueno <span class="c-kw">y</span> a.vence == b.vence <span class="c-kw">y</span> a.id != b.id
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;dos tareas del mismo día para la misma persona compiten por las mismas horas&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;ve coincidencia de fecha y dueño. NO ve cuánto dura cada tarea ni si el día alcanza igual&quot;</span></code></pre>
 <p>(Ejemplo ilustrativo, con la misma forma que <code>vault.nombre_unico_en_el_vault</code> del catálogo real de Jam.) El patrón general de <code>ninguno-par</code>: <strong>igualar el campo que define el conflicto</strong> (<code>dueno</code> + <code>vence</code>) <strong>y exigir que difieran en la identidad</strong> (<code>id</code>) — si no, cada tarea se empareja consigo misma y el predicado da siempre verdadero.</p>
@@ -186,12 +180,10 @@ donde reales == 0</code></pre>
 <p>Ya lo viste en §2 (<code>proceso.test_con_mutante_que_lo_mata</code>). Receta: filtrás lo malo con <code>donde</code>, contás con <code>resumen contar(1)</code>, umbral <code>&lt;= 0</code>.</p>
 <h3 id="52-medir-una-magnitud-con-una-función-de-dominio-peor--escalar">5.2 Medir una magnitud con una función de dominio (<code>peor</code> + escalar)<a class="ancla" href="#52-medir-una-magnitud-con-una-función-de-dominio-peor--escalar" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code>peor snap.yaw:
-    relacion pieza
-    alias a
-    expresion desvio_de_paso(a.yaw, 90.0)
-    tolerancia 0.5
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista&quot;</span>
-    <span class="c-kw">segun</span> convencion
+    <span class="c-kw">de</span> pieza a
+    <span class="c-kw">donde</span> desvio_de_paso(a.yaw, 90.0) &gt; 0.5
+    <span class="c-kw">resumen</span> max(desvio_de_paso(a.yaw, 90.0))
+    <span class="c-kw">umbral</span> &lt;= 0.5 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;medio grado en una pieza de 4 m da ~3 cm en la punta: el límite donde una junta se abre a la vista&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;sólo el YAW contra su paso. NO ve pitch ni roll, ni si la pieza mira al lado correcto&quot;</span></code></pre>
 <p><code>desvio_de_paso</code> no es parte del álgebra: es una <strong>función escalar</strong> (UDF) que el proyecto Jam declaró — ver §6. El álgebra no sabe nada de grados ni de grillas; sólo sabe llamar funciones declaradas y comparar sus resultados.</p>
@@ -228,11 +220,9 @@ donde reales == 0</code></pre>
 <p><code>mas</code> es una escalar del núcleo (<code>+1</code>) — así se expresa aritmética sobre un campo ordinal (<code>t</code>), porque una relación es una bolsa sin orden: «consecutivo» se vuelve aritmética sobre el campo, no una propiedad implícita del almacenamiento.</p>
 <h3 id="56-l2-una-medida-sobre-medidas">5.6 L2: una medida sobre medidas<a class="ancla" href="#56-l2-una-medida-sobre-medidas" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> meta.toda_medida_esta_fijada:
-    relacion medida_en_uso
-    alias m
-    predicado m.debe_tener_mutantes == true <span class="c-kw">y</span> (m.mutantes == 0 <span class="c-kw">o</span> m.mutantes_vivos != 0)
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada&quot;</span>
-    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">de</span> medida_en_uso m
+    <span class="c-kw">donde</span> m.debe_tener_mutantes == true <span class="c-kw">y</span> (m.mutantes == 0 <span class="c-kw">o</span> m.mutantes_vivos != 0)
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;una medida propia con cero mutantes pasa vacuamente igual que una cuyos mutantes sobreviven: en ambos casos el catálogo la contiene pero la mutación no demuestra que esté fijada&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción&quot;</span></code></pre>
 <p>Ninguna sintaxis nueva: <code>medida_en_uso</code> es una relación como cualquier otra (la produce <code>nucleo/marco.py</code> a partir del catálogo real), y esta medida la mide con el mismo <code>ninguno</code> de siempre. Así es como el marco se verifica con sus propias herramientas.</p>
@@ -366,11 +356,9 @@ def dias_de_atraso(tarea: dict) -&gt; int:
 <h3 id="84-la-medida">8.4 La medida<a class="ancla" href="#84-la-medida" aria-label="Enlace a esta sección">#</a></h3>
 <p>La escribís en la superficie infija (con la macro <code>ninguno</code> — el caso más común):</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> tareas.vencida_sin_dueno:
-    relacion tarea
-    alias t
-    predicado t.vencida == true <span class="c-kw">y</span> t.asignada == false
-    <span class="c-kw">porque</span> <span class="c-txt">&quot;una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano&quot;</span>
-    <span class="c-kw">segun</span> contrato
+    <span class="c-kw">de</span> tarea t
+    <span class="c-kw">donde</span> t.vencida == true <span class="c-kw">y</span> t.asignada == false
+    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;una tarea vencida sin dueño no la va a hacer nadie: el atraso queda invisible hasta que alguien la busca a mano&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;ve sólo el par vencida+sin-dueño. NO ve si la persona asignada realmente puede resolverla, ni cuán vencida está&quot;</span></code></pre>
 <p>Y la guardás tal cual: el catálogo carga <code>.oracle</code> igual que <code>.json</code>, así que no hay paso de traducción.</p>

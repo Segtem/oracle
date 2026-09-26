@@ -116,7 +116,7 @@ oracle revisar catalogos/documento/documento.nombre_sigue_la_convencion.oracle
 ```
 
 ```text salida
-✗ catalogos/documento/documento.nombre_sigue_la_convencion.oracle: línea 7, columna 23: se esperaba segun en ['contrato', 'convencion', 'medicion', 'tanteo']; llegó 'SEGUN'
+✗ catalogos/documento/documento.nombre_sigue_la_convencion.oracle: línea 7, columna 23: se esperaba segun en ['contrato', 'convencion', 'medicion', 'tanteo'] o «sin_declarar»; llegó 'SEGUN'
    7 |     umbral <= 0 segun SEGUN porque "POR QUE ese numero y no otro. Si SEGUN es tanteo, esta explicacion es obligatoria."
      |                       ^
 ```
