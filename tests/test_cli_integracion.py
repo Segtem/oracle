@@ -66,12 +66,10 @@ class AceptacionCliTests(_cli_tests.CliTestCase):
 
             # Creamos relación, medida y caso válidos
             (raiz / "relaciones").mkdir(exist_ok=True)
-            (raiz / "relaciones" / "item.json").write_text(
-                json.dumps([
-                    "relacion", "item",
-                    ["campos", ["campo", "mal", "booleano", "sin_unidad"]],
-                    ["alcance", "sensor de items"]
-                ]),
+            (raiz / "relaciones" / "item.relacion").write_text(
+                "relacion item:\n"
+                "    mal: booleano\n"
+                "    alcance \"sensor de items\"\n",
                 encoding="utf-8",
             )
             proy = Proyecto(raiz)
@@ -245,14 +243,11 @@ class EmpaquetadoCliTests(unittest.TestCase):
 
             rels = proyecto / "relaciones"
             rels.mkdir(exist_ok=True)
-            (rels / "item.json").write_text(
-                json.dumps([
-                    "relacion", "item",
-                    ["campos",
-                     ["campo", "id", "texto", "sin_unidad"],
-                     ["campo", "mal", "booleano", "sin_unidad"]],
-                    ["alcance", "sensor de items"]
-                ]),
+            (rels / "item.relacion").write_text(
+                "relacion item:\n"
+                "    id: texto\n"
+                "    mal: booleano\n"
+                "    alcance \"sensor de items\"\n",
                 encoding="utf-8",
             )
             dominio = proyecto / "catalogos" / "demo"

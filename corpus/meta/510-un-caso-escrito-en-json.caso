@@ -1,0 +1,17 @@
+caso 510-un-caso-escrito-en-json:
+    fecha: "2026-09-26"
+    origen:
+        repo: "Segtem/oracle"
+        comando: "python3 tools/cli.py test --rapido"
+    procedencia: construida
+    titulo: "Un caso propio escrito en JSON rompe la sintaxis única"
+    etiqueta: falso_verde
+    sintoma:
+        El corpus conserva la lectura de JSON canónico, pero un caso propio persistido en `.json` suma una deuda de autoría.
+    como_se_detecto: observacion
+    medida: meta.se_escribe_en_superficie
+    evidencia:
+        archivo_de_autoria: tipo, ruta, formato
+            "caso", "corpus/dominio/001-caso.json", "json"
+    leccion:
+        La regla incluye el corpus, no sólo el catálogo de medidas.

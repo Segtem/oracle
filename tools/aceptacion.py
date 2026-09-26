@@ -27,6 +27,7 @@ sys.path.insert(0, str(RAIZ))
 
 import catalogos.escalares  # noqa: F401,E402  registra las escalares declaradas
 from nucleo.campo_leido import hechos_de_campos_leidos  # noqa: E402
+from nucleo.autoria import hechos_de_autoria  # noqa: E402
 from nucleo.caso import cargar_casos  # noqa: E402
 from nucleo.medida import relaciones_de_medida  # noqa: E402
 from nucleo.diagnostico import hechos_de_diagnostico, reunir  # noqa: E402
@@ -196,6 +197,7 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
     referencia = proy.raiz / "ESPECIFICACION.md"
     texto_referencia = referencia.read_text(encoding="utf-8") if referencia.is_file() else ""
     evidencia_meta = {"medida": como_hechos(catalogo.values()),
+                      **hechos_de_autoria(proy),
                       **hechos_de_diagnostico(reunir(proy), secretos),
                       **hechos_de_documentacion(
                           relaciones_del_lenguaje_declaradas(), texto_referencia),

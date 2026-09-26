@@ -1,0 +1,17 @@
+caso 511-una-relacion-escrita-en-json:
+    fecha: "2026-09-26"
+    origen:
+        repo: "Segtem/oracle"
+        comando: "python3 tools/cli.py test --rapido"
+    procedencia: construida
+    titulo: "Una relación propia escrita en JSON rompe la sintaxis única"
+    etiqueta: falso_verde
+    sintoma:
+        Una declaración de relación escrita en `.json` agrega otra sintaxis de autoría aunque el cargador todavía la entienda.
+    como_se_detecto: observacion
+    medida: meta.se_escribe_en_superficie
+    evidencia:
+        archivo_de_autoria: tipo, ruta, formato
+            "relacion", "relaciones/pieza.json", "json"
+    leccion:
+        Las tres clases de declaración tienen la misma política de escritura.

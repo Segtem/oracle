@@ -227,7 +227,7 @@ CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
 
 SINTAXIS OK · 1 medidas · 0 macros · 2 casos · 0 relaciones
 
-catálogo: 40 medidas · corpus: 2 casos
+catálogo: 41 medidas · corpus: 2 casos
 
   ROJO  001-un-nombre-fuera-de-convencion      documento.nombre_sigue_la_convencion  (valor 1)
   verde 002-un-lote-en-convencion              documento.nombre_sigue_la_convencion  (valor 0)
@@ -246,6 +246,7 @@ nivel meta — el marco medido con sus propias medidas:
   ✓ meta.ningun_umbral_de_igualdad                      0 (<= 0)
   ✓ meta.ningun_umbral_flotante_de_igualdad             0 (<= 0)
   ✓ meta.ninguna_medida_sin_alcance                     0 (<= 0)
+  ✓ meta.se_escribe_en_superficie                       0 (<= 0)
   ✗ meta.toda_cantidad_comparada_tiene_unidad_derivable        1 (<= 0)
       → c={'medida': 'documento.nombre_sigue_la_convencion', 'unidad': 'sin_declarar', 'es_derivable': False}
   ✓ meta.toda_medida_de_ausencia_declara_requiere        0 (<= 0)

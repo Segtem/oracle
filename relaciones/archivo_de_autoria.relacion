@@ -1,0 +1,5 @@
+relacion archivo_de_autoria:
+    tipo: texto
+    ruta: texto
+    formato: texto
+    alcance "observa el formato y la ruta de medidas, casos y relaciones propios del proyecto; no ve archivos de bibliotecas ni otros directorios"

@@ -1,0 +1,17 @@
+caso 509-una-medida-escrita-en-json:
+    fecha: "2026-09-26"
+    origen:
+        repo: "Segtem/oracle"
+        comando: "python3 tools/cli.py test --rapido"
+    procedencia: construida
+    titulo: "Una medida propia escrita en JSON rompe la sintaxis única"
+    etiqueta: falso_verde
+    sintoma:
+        Un catálogo puede cargar una medida canónica escrita a mano en `.json`. La compatibilidad del lector no debe dar permiso de autoría; esta fila propia hace roja la política.
+    como_se_detecto: observacion
+    medida: meta.se_escribe_en_superficie
+    evidencia:
+        archivo_de_autoria: tipo, ruta, formato
+            "medida", "catalogos/dominio/regla.json", "json"
+    leccion:
+        La deuda de autoría se cuenta por archivo fuente, aunque su árbol canónico sea válido.

@@ -51,6 +51,7 @@ PRIORIDADES = {
     # Dejarlas al descubrimiento general hacía pagar la suite a los mutantes de rutas de `unir`.
     "nucleo/algebra.py": ("tests.test_algebra", "tests.test_nucleo", "tests.test_motor",
                           "tests.test_sintaxis"),
+    "nucleo/autoria.py": ("tests.test_autoria",),
     "nucleo/biblioteca.py": ("tests.test_biblioteca",),
     "nucleo/aislamiento/escalares.py": ("tests.test_aislamiento_escalares",
                                         "tests.test_proyecto", "tests.test_motor"),

@@ -1,0 +1,19 @@
+caso 512-archivos-propios-en-superficie:
+    fecha: "2026-09-26"
+    origen:
+        repo: "Segtem/oracle"
+        comando: "python3 tools/cli.py test --rapido"
+    procedencia: construida
+    titulo: "Medida, caso y relación propios escritos en superficie"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. Los tres archivos propios usan la superficie; la regla debe dejar verde un proyecto que ya migró.
+    como_se_detecto: observacion
+    medida: meta.se_escribe_en_superficie
+    evidencia:
+        archivo_de_autoria: tipo, ruta, formato
+            "medida", "catalogos/dominio/regla.oracle", "oracle"
+            "caso", "corpus/dominio/001-caso.caso", "caso"
+            "relacion", "relaciones/pieza.relacion", "relacion"
+    leccion:
+        La deuda queda en cero cuando cada archivo propio está escrito en superficie.

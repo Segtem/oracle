@@ -1,0 +1,19 @@
+caso 513-oracle-escribe-sus-declaraciones-en-superficie:
+    fecha: "2026-09-26"
+    origen:
+        repo: "Segtem/oracle"
+        comando: "python3 -c 'from pathlib import Path; from nucleo.autoria import hechos_de_autoria; from nucleo.proyecto import Proyecto; print(*[fila for fila in hechos_de_autoria(Proyecto(Path(\".\")))[\"archivo_de_autoria\"] if fila[\"ruta\"] in (\"catalogos/meta/meta.se_escribe_en_superficie.oracle\", \"corpus/meta/509-una-medida-escrita-en-json.caso\", \"relaciones/archivo_de_autoria.relacion\")], sep=\"\\n\")'"
+    procedencia: observada
+    titulo: "El emisor ve los tres tipos de archivo de Oracle en superficie"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno. `hechos_de_autoria` emitió las filas de la nueva medida, un caso y la declaración de relación, cada una con su extensión de superficie. El censo completo dio cero JSON.
+    como_se_detecto: observacion
+    medida: meta.se_escribe_en_superficie
+    evidencia:
+        archivo_de_autoria: tipo, ruta, formato
+            "medida", "catalogos/meta/meta.se_escribe_en_superficie.oracle", "oracle"
+            "caso", "corpus/meta/509-una-medida-escrita-en-json.caso", "caso"
+            "relacion", "relaciones/archivo_de_autoria.relacion", "relacion"
+    leccion:
+        La medida también queda fijada por hechos emitidos sobre un proyecto real.

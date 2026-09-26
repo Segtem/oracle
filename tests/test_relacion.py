@@ -336,10 +336,10 @@ class RelacionTests(unittest.TestCase):
         ambitos = ambitos_de_relaciones_declarados()
         hechos = hechos_de_relaciones([], ambitos=ambitos)
 
-        self.assertEqual(len(ambitos), 26)
+        self.assertEqual(len(ambitos), 27)
         self.assertEqual(ambitos["medida"], "universal")
         self.assertEqual(ambitos["mutador_excluido"], "del_origen")
-        self.assertEqual(len(hechos["ambito_de_relacion"]), 26)
+        self.assertEqual(len(hechos["ambito_de_relacion"]), 27)
         self.assertEqual(
             next(f for f in hechos["ambito_de_relacion"]
                  if f["relacion"] == "mutador_excluido"),

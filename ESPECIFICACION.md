@@ -634,8 +634,16 @@ acá. Esta sección no puede envejecer en silencio.
 | `equivalencia` | dos formas que deberían dar lo mismo, para las propiedades metamórficas | `tools/metamorficas.py` |
 | `paso` · `producto` · `ancestro` | lo que una evaluación trazada produjo: cada paso, el tamaño del producto de un `unir`, y la ascendencia de un nodo | `nucleo/algebra.py` |
 | `campo_diagnostico` | cada valor de texto del diagnóstico local y si contiene algo del dominio | `nucleo/diagnostico.py` |
+| `archivo_de_autoria` | cada archivo propio de medida, caso o relación, con su ruta y formato fuente | `nucleo/autoria.py` |
 
-**Ninguna de estas relaciones se declara en `relaciones/`.** Un proyecto que definiera una con el
+`archivo_de_autoria` también tiene una declaración en `relaciones/archivo_de_autoria.relacion`;
+`nucleo/autoria.py` la emite durante la aceptación. Tiene una fila por medida, caso o relación
+**propia** bajo `catalogos/`, `corpus/` o `relaciones/`, con `tipo`, `ruta` relativa al proyecto y
+`formato` (la extensión sin punto). `meta.se_escribe_en_superficie` cuenta las filas con
+`formato == "json"`; un proyecto en migración puede ponerla en sombra con una cota igual a esa
+deuda, que no puede crecer. No incluye el catálogo base ni las bibliotecas del consumidor.
+
+**Salvo `archivo_de_autoria`, estas relaciones no se declaran en `relaciones/`.** Un proyecto que definiera una con el
 mismo nombre estaría pisando una del lenguaje, y por eso los nombres se reservan.
 
 Sus **campos** los declara cada emisor al lado de la relación, en un mapa literal

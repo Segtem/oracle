@@ -36,12 +36,12 @@ ninguno demo.siempre_roja:
         (raiz / "catalogos" / "demo").mkdir(parents=True)
         (raiz / "corpus" / "demo").mkdir(parents=True)
         (raiz / "relaciones").mkdir()
-        (raiz / "relaciones" / "item.json").write_text(json.dumps([
-            "relacion", "item",
-            ["campos", ["campo", "id", "texto", "sin_unidad"],
-             ["campo", "mal", "booleano", "sin_unidad"]],
-            ["alcance", "NO dice por qué un item está mal"],
-        ]), encoding="utf-8")
+        (raiz / "relaciones" / "item.relacion").write_text(
+            "relacion item:\n"
+            "    id: texto\n"
+            "    mal: booleano\n"
+            "    alcance \"NO dice por qué un item está mal\"\n",
+            encoding="utf-8")
         (raiz / "catalogos" / "demo" / "demo.siempre_roja.oracle").write_text(
             self.MEDIDA_ROJA, encoding="utf-8")
         # La aceptación no juzga sin corpus: un corpus vacío no puede poner a prueba nada.

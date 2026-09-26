@@ -1,0 +1,6 @@
+ninguno meta.se_escribe_en_superficie:
+    de archivo_de_autoria a
+    donde a.formato == "json"
+    umbral <= 0 segun contrato porque "una medida, un caso o una relación escrita a mano en JSON agrega una segunda sintaxis de autoría; la superficie es la única sintaxis de escritura"
+    ambito universal
+    alcance "cuenta archivos JSON de medidas, casos y relaciones propios del proyecto en catalogos/, corpus/ y relaciones/. NO juzga archivos de bibliotecas, perfiles, historia ni el JSON canónico de intercambio"

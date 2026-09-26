@@ -38,12 +38,12 @@
 <li><a href="#manual-aritmetica">aritmetica <span class="cuenta">6</span></a></li>
 <li><a href="#manual-macros">macros <span class="cuenta">6</span></a></li>
 <li><a href="#manual-verbos">verbos <span class="cuenta">8</span></a></li>
-<li><a href="#manual-medidas">medidas <span class="cuenta">42</span></a></li>
+<li><a href="#manual-medidas">medidas <span class="cuenta">43</span></a></li>
     </ul></nav>
   </details>
   <main id="contenido">
     <header class="manual-cabeza">
-      <p class="pixel ceja">referencia · 12 temas · 97 entradas</p>
+      <p class="pixel ceja">referencia · 12 temas · 98 entradas</p>
       <h1>Manual</h1>
       <p>Esta página no se escribió: se generó. Cada entrada sale de la declaración que el
       lenguaje ya tiene —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los
@@ -181,6 +181,7 @@
 <dt>meta.<wbr>ninguna_<wbr>sombra_<wbr>sobre_<wbr>una_<wbr>medida_<wbr>que_<wbr>no_<wbr>existe</dt><dd>compara contra el catálogo cargado. NO ve si el id está bien escrito ni sugiere a cuál se parecía</dd>
 <dt>meta.<wbr>ninguna_<wbr>sombra_<wbr>supera_<wbr>su_<wbr>cota</dt><dd>compara el valor que dio la medida ensombrecida contra la cota que su sombra declara, en esta corrida, y exige que ese valor exista. Sólo mira las sombras que declaran cota: una sin cota queda verde acá y se comporta como antes. NO verifica que la cota sea la deuda real de hoy —de eso se ocupa meta.ninguna_cota_mas_alta_que_su_deuda— ni que la medida ensombrecida siga existiendo en el catálogo —de eso se ocupa meta.ninguna_sombra_sobre_una_medida_que_no_existe—, así que una sombra con cota sobre una medida borrada dispara las dos y está bien que así sea</dd>
 <dt>meta.<wbr>ninguna_<wbr>sombra_<wbr>ya_<wbr>en_<wbr>verde</dt><dd>ve el veredicto de esta corrida. NO ve si el verde es estable ni si vino de evidencia flaca, y NO puede saber si mañana vuelve a ponerse roja</dd>
+<dt>meta.<wbr>se_<wbr>escribe_<wbr>en_<wbr>superficie</dt><dd>cuenta archivos JSON de medidas, casos y relaciones propios del proyecto en catalogos/, corpus/ y relaciones/. NO juzga archivos de bibliotecas, perfiles, historia ni el JSON canónico de intercambio</dd>
 <dt>meta.<wbr>toda_<wbr>cantidad_<wbr>comparada_<wbr>tiene_<wbr>unidad_<wbr>derivable</dt><dd>cree lo que la declaración dice y NO verifica que el sensor emita en esa unidad</dd>
 <dt>meta.<wbr>toda_<wbr>medida_<wbr>de_<wbr>ausencia_<wbr>declara_<wbr>requiere</dt><dd>detecta medidas cuya forma canónica contiene `unir` y `agrupar` pero ningún nodo `requiere`. NO demuestra que toda medida con ese patrón sea realmente de ausencia, ni que la relación requerida elegida sea la correcta</dd>
 <dt>meta.<wbr>toda_<wbr>medida_<wbr>declara_<wbr>su_<wbr>ambito</dt><dd>ve que el campo `ambito` esté declarado y no en `sin_declarar`. NO juzga si el ámbito declarado es el correcto: esa segunda pregunta no la contesta ninguna medida</dd>
