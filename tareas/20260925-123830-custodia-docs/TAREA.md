@@ -1,6 +1,6 @@
 # guia.py y sitio.py quedaron fuera de la mutación, pero custodian que la documentación publicada sea real
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle, mutacion
 
@@ -58,3 +58,7 @@ Se procesaron los 67 mutantes sobrevivientes listados en `SOBREVIVIENTES.txt`:
 ## Próximo paso
 
 Claude repite la ronda de mutación completa (`python3 tools/mutar_codigo.py --objetivo tools/guia.py` y `--objetivo tools/sitio.py`) bajo `systemd-run --user --scope -p MemoryMax=12G` y con `TMPDIR` propio en su entorno para verificar que no queden mutantes vivos.
+
+### Nota (2026-09-26 11:37:44 UTC)
+
+2026-09-26, Claude: segunda ronda de mutación sobre el trabajo de agy: sitio.py 220 mutantes, 0 vivos (8 equivalentes con su razón); guia.py 124, 1 vivo (el mensaje de un cd a un directorio inexistente, ahora fijado por un test) y un error de arnés en cada módulo, por el «if __name__ == "__main__"» que el mutante Eq→NotEq ejecuta al importar: los dos usan ahora el modismo de cli.py (_entrada_directa), con el que ese mutante no existe. Revisado también lo que agy tocó fuera del encargo: un bucle infinito real del conversor de sitio.py, arreglado, y el test de procesos de mutacion_codigo, que ahora trata un proceso zombie como terminado (en un contenedor sin init un hijo muerto queda zombie; no ablanda el test). La ronda final va con el corte.
