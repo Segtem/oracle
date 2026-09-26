@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.32.0](#0320--una-sola-forma-de-escribir-oracle) | una sola forma de escribir Oracle |
 | [0.31.1](#0311--dos-verdes-que-no-habían-mirado-y-una-huella-que-dependía-del-checkout) | dos verdes que no habían mirado, y una huella que dependía del checkout |
 | [0.31.0](#0310--un-verde-que-no-midió-nada-ya-no-sale-verde) | un verde que no midió nada ya no sale verde |
 | [0.30.0](#0300--escribí-la-aritmética-como-la-pensás) | escribí la aritmética como la pensás |
@@ -24,6 +25,75 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.32.0 — una sola forma de escribir Oracle
+
+```
+VERSION_DISTRIBUCION   0.31.1 → 0.32.0   sintaxis 1.0: una sola forma de escribir
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       0.7    → 1.0
+```
+
+Oracle se escribe de una sola manera: en superficie, y dentro de ella con el texto exacto que
+escribe el impresor. Sube la **mayor** de la sintaxis porque formas que se aceptaban pasan a ser
+error (caso 3 de la regla de versiones). **Ningún árbol canónico cambia**, así que ninguna medida
+cambia de significado y el álgebra sigue en 1.0.
+
+## Qué se escribe dónde
+
+- **Medidas y macros** en `.oracle`, **casos** en `.caso`, y ahora también **relaciones** en
+  `.relacion`: `relacion n:`, una línea por campo (`ox: flotante cm`, `nombre: texto`), bloques
+  `variantes por X:` y el `alcance` al final.
+- **La forma única, como `gofmt`.** Un texto válido es exactamente `imprimir(leer(texto))`, sin
+  contar las líneas de comentario. `oracle test`, `juzgar`, el MCP y los cargadores rechazan otra
+  grafía con el diff y la orden que la arregla; el LSP la diagnostica.
+  `oracle formatear <ruta> [--escribir]` normaliza y conserva los comentarios; en la raíz de un
+  proyecto recorre sólo `catalogos/`, `corpus/`, `relaciones/` y `macros/`.
+- **Un comentario es una línea que empieza con `#`**, en cualquier lugar del archivo, también dentro
+  de un bloque. No hay comentario al final de una línea con código, y una línea de prosa no puede
+  empezar con `#`.
+- **El orden lo elige quien escribe** —relaciones de la evidencia, columnas, claves—, salvo el
+  `origen` de un caso, que el impresor escribe siempre en el mismo orden.
+- **JSON sigue leyéndose** en archivos `.json`, como formato canónico de intercambio y migración,
+  pero Oracle no lo enseña ni lo produce. `meta.se_escribe_en_superficie` cuenta los archivos de
+  autoría que siguen en JSON.
+
+## Lo que deja de leerse
+
+`mas(a, b)`, `menos(a, b)` y `por(a, b)` (se escribe `a + b`, `a - b`, `a * b`, con un espacio a
+cada lado); `col(p)` (se escribe `p`); la invocación de una macro por argumentos (se escribe con las
+cláusulas de su plantilla, como una medida); una relación dentro de un `.oracle`; los fines de línea
+CRLF, un archivo sin salto final y la línea `sintaxis MAYOR.MENOR` al principio. Cada uno falla con
+un error que dice cómo se escribe ahora.
+
+## Lo que se agrega
+
+- **`espera: sin_evidencia`** en un caso de defecto: la aceptación exige ese resultado exacto, y un
+  caso de defecto sin el campo tiene que dar un rojo medido, no un SIN EVIDENCIA.
+- **`oracle convertir <directorio> --a-superficie [--escribir]`** migra medidas, casos y relaciones,
+  y sólo reemplaza un archivo si la forma canónica queda idéntica.
+
+## Para migrar un proyecto
+
+```bash
+oracle convertir medidas --a-superficie --escribir   # lo que siga en JSON
+oracle formatear medidas --escribir                  # lo escrito a mano, a la forma única
+oracle test --proyecto medidas --confiar-escalares
+```
+
+Un caso de defecto que hoy sale SIN EVIDENCIA a propósito necesita `espera: sin_evidencia`.
+
+## También
+
+- El wheel lleva los casos y la relación de la plantilla `sensor-prosa`, que la migración había
+  dejado afuera, y su README importa desde el paquete instalado.
+- El `codeLens` del editor no se dibuja sobre una medida fuera de la forma única.
+- Dieciséis auditorías adversariales (Codex, agy y agy2) buscaron segundas formas de escribir;
+  las dos últimas, independientes, no encontraron ninguna.
+
+Codex (gpt-6-sol) implementó la mayor parte de la migración y auditó doce veces; agy y agy2
+auditaron en contenedor y mataron sobrevivientes. Claude diseñó la superficie `.relacion` y la
+forma única, arregló los hallazgos de cada auditoría, decidió qué cuenta como segunda forma y cortó.
 
 # 0.31.1 — dos verdes que no habían mirado, y una huella que dependía del checkout
 

@@ -52,7 +52,7 @@ comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerl
 arriba.
 
 **Sintaxis 1.0 (2026-09-26): `VERSION_SINTAXIS` sube de `0.7` a `1.0`: una sola sintaxis de
-escritura** (tareas `una-sintaxis` y sus subtareas, cuatro auditorías adversariales). Se escribe sólo
+escritura** (tareas `una-sintaxis` y sus subtareas, dieciséis auditorías adversariales). Se escribe sólo
 en superficie —medidas y macros en `.oracle`, casos en `.caso`, relaciones en `.relacion`— y el texto
 válido es **exactamente el que escribe el impresor**, sin contar las líneas de comentario: `oracle
 test`, `juzgar`, el MCP y los cargadores rechazan cualquier otra grafía con el diff y `oracle
