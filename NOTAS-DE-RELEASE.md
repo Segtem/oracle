@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.31.1](#0311--dos-verdes-que-no-habían-mirado-y-una-huella-que-dependía-del-checkout) | dos verdes que no habían mirado, y una huella que dependía del checkout |
 | [0.31.0](#0310--un-verde-que-no-midió-nada-ya-no-sale-verde) | un verde que no midió nada ya no sale verde |
 | [0.30.0](#0300--escribí-la-aritmética-como-la-pensás) | escribí la aritmética como la pensás |
 | [0.29.0](#0290--un-modelo-como-sensor-de-la-prosa-y-un-lenguaje-que-avisa-mejor) | un modelo como sensor de la prosa, y un lenguaje que avisa mejor |
@@ -23,6 +24,46 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.31.1 — dos verdes que no habían mirado, y una huella que dependía del checkout
+
+```
+VERSION_DISTRIBUCION   0.31.0 → 0.31.1   correcciones: verdes sin mirar, la huella de un directorio
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       0.7    → 0.7
+```
+
+## Dos verdes que no habían mirado, y dos imprecisiones de `juzgar`
+
+- **Un caso que no sale como declara su etiqueta tumba la aceptación, siempre.** Con
+  `"catalogo_base": false` —como arranca la guía de la batalla naval— el juicio de cada caso quedaba en
+  manos de una medida meta que no estaba cargada, y el caso se descartaba sin aviso: invertir la
+  etiqueta de un caso dejaba `oracle test` en VERDE. Ahora sale `FALLA <caso>` con lo que se esperaba.
+- **El `oracle_juzgar` del MCP no aprueba con una medida propia sin aplicar.** Juzga con el mismo
+  criterio que `oracle juzgar` sin `--parcial`. Para una corrida deliberadamente parcial, pasá `ids`.
+- **`oracle juzgar` acepta la cabecera `["clave", […]]`** que la especificación define para declarar
+  la unicidad de una relación; antes la rechazaba como fila inválida.
+- **Un SIN EVIDENCIA no se cuenta entre «las medidas en rojo».** El resumen lo nombra aparte
+  (`1 de 2 sin evidencia (no se midieron)`), y la aceptación imprime `SIN EVIDENCIA` en vez de
+  `valor 0`.
+
+## La huella de un directorio
+
+Un fixture diferencial cuya referencia es un directorio contaba también los archivos ocultos y
+`__pycache__`: el mismo commit daba el fixture al día en un checkout y vencido en otro (lo destapó
+`.obsidian/workspace.json`, que Obsidian reescribe al abrir un vault). Ahora se ignoran al recorrer
+un directorio. **Si tu fixture tiene como fuente un directorio con archivos ocultos versionados, su
+huella cambia una vez: regeneralo.**
+
+## Documentación
+
+- **«Cómo funciona Oracle»**, una página nueva con cada salida ejecutada en la suite, y la guía de la
+  batalla naval que se juega: misiones, predicciones atadas al veredicto real, un tablero que evalúa
+  la medida real y la cacería de sus mutantes.
+- **El manual** con la estética del sitio. **Una sola puerta de entrada** a la documentación.
+- **Estas notas** arrancan con un índice que genera `cifras.py`; lo anterior a 0.20 está en
+  [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md).
+- Ocho defensas de umbral del catálogo enuncian la regla de la que sale el cero.
 
 # 0.31.0 — un verde que no midió nada ya no sale verde
 

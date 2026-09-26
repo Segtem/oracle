@@ -1,6 +1,6 @@
 # oracle
 
-[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [notas de release](https://github.com/Segtem/oracle/blob/v0.31.0/NOTAS-DE-RELEASE.md)
+[**segtem.github.io/oracle**](https://segtem.github.io/oracle/) · [PyPI](https://pypi.org/project/oracle-metalenguaje/) · [notas de release](https://github.com/Segtem/oracle/blob/v0.31.1/NOTAS-DE-RELEASE.md)
 
 ```bash
 uv tool install oracle-metalenguaje
@@ -37,7 +37,7 @@ aconsejan.
 > salen `medida`, `fuente`, `termino`, `requiere` y `paso_de_medida`, y tres medidas meta nuevas se
 > escribieron sin tocar Python. El límite siguiente sigue abierto: ningún consumidor escribió todavía
 > una medida meta que exija una relación que sus sensores no emitan. Ese disparador, no una fecha, está
-> en [`vault-kb/planes/PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/v0.31.0/vault-kb/planes/PLAN-LENGUAJE.md).
+> en [`vault-kb/planes/PLAN-LENGUAJE.md`](https://github.com/Segtem/oracle/blob/v0.31.1/vault-kb/planes/PLAN-LENGUAJE.md).
 >
 > **No hay fecha de corte, ni condición de cierre, ni tope de tamaño.** Las hubo por un rato, en
 > respuesta a dos auditorías externas que midieron a Oracle con la vara de un producto adoptable —
@@ -83,7 +83,7 @@ oracle nueva <dominio.nombre>
 oracle test
 ```
 
-Para llegar a una regla del producto medida sobre una corrida real, seguí [De un producto nuevo a su primera medida observable](https://github.com/Segtem/oracle/blob/v0.31.0/docs/13-primer-valor.md): incluye un defecto, su corrección y las salidas verificadas. El tracker de tareas es optativo.
+Para llegar a una regla del producto medida sobre una corrida real, seguí [De un producto nuevo a su primera medida observable](https://github.com/Segtem/oracle/blob/v0.31.1/docs/13-primer-valor.md): incluye un defecto, su corrección y las salidas verificadas. El tracker de tareas es optativo.
 
 `--confiar-escalares` hace falta al cargar el catálogo si tu proyecto tiene un `escalares.py`,
 aunque esté vacío o ninguna medida use sus funciones. Sin esa bandera, Oracle no ejecuta ese archivo externo.
@@ -130,7 +130,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 10941 líneas de lenguaje y **452 negativas explícitas** (`raise`).
+En este corte hay 10954 líneas de lenguaje y **452 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -163,7 +163,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**10941 líneas de lenguaje** (`nucleo/`, código y macros) y **452 negativas explícitas** (`raise`). Contra las 62 medidas del catálogo escritas en él (443 líneas): **24,7 a 1**. 53 de las 62 pasan por una macro.
+**10954 líneas de lenguaje** (`nucleo/`, código y macros) y **452 negativas explícitas** (`raise`). Contra las 62 medidas del catálogo escritas en él (443 líneas): **24,7 a 1**. 53 de las 62 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -350,7 +350,7 @@ El paquete incluye una plantilla editable: `oracle plantilla sensor-prosa prosa`
 Oracle entrega el sensor; el usuario lo ejecuta explícitamente y Oracle juzga las filas sin red.
 El primer estudio costó US$ 0.000877044 en seis solicitudes; es consumo observado, no una tarifa futura.
 Un sensor probabilístico no es un juez: un verde no certifica verdad y la zona media requiere revisión humana.
-[README con el recorrido sin red y los pasos de API](https://github.com/Segtem/oracle/blob/v0.31.0/ejemplo/sensor-prosa/README.md).
+[README con el recorrido sin red y los pasos de API](https://github.com/Segtem/oracle/blob/v0.31.1/ejemplo/sensor-prosa/README.md).
 
 ## La herramienta y el proyecto
 
@@ -462,7 +462,7 @@ oracle tarea cerrar <id>
 `oracle tarea hechos` exporta el tracker como relaciones JSON para medirlo con políticas propias:
 referencias locales que existen, archivos confirmados en Git, lecturas sin omisiones. Las políticas
 son optativas, y un enlace que existe no prueba que la tarea esté bien resuelta. Contrato, tutorial y
-diferencias con tatr en [docs/12-tareas.md](https://github.com/Segtem/oracle/blob/v0.31.0/docs/12-tareas.md).
+diferencias con tatr en [docs/12-tareas.md](https://github.com/Segtem/oracle/blob/v0.31.1/docs/12-tareas.md).
 
 ## Juzgar evidencia real
 
@@ -506,7 +506,7 @@ aplicaron no cuentan en el veredicto, pero se nombran —`NO SE APLICARON`, y `n
 listan, porque juzgan el catálogo y no la evidencia. `Motor.evaluar` hace lo mismo.
 
 Oracle se juzga así a sí mismo en CI: `oracle tarea hechos --git` sobre su propio `tareas/`, con las
-políticas de [`ejemplo/seguimiento-tareas`](https://github.com/Segtem/oracle/tree/v0.31.0/ejemplo/seguimiento-tareas).
+políticas de [`ejemplo/seguimiento-tareas`](https://github.com/Segtem/oracle/tree/v0.31.1/ejemplo/seguimiento-tareas).
 
 ## Heredar un catálogo sin quedar en rojo el primer día
 
@@ -563,28 +563,28 @@ Las cinco son **de sólo lectura**, y no por prudencia genérica: los falsos ver
 comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente fabricó
 parece una aprobación sin serlo. En el tracker, además, crear o cerrar una tarea sólo vale junto con
 su commit, y el commit no se hace por MCP. El contrato, con el porqué de cada decisión, está en
-[`docs/mcp-contrato.md`](https://github.com/Segtem/oracle/blob/v0.31.0/docs/mcp-contrato.md).
+[`docs/mcp-contrato.md`](https://github.com/Segtem/oracle/blob/v0.31.1/docs/mcp-contrato.md).
 
 ## Las decisiones, y por qué
 
 Cada una registra una elección que costó discutir, con lo que se descartó y el motivo. Están en
-[docs/decisiones/](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/README.md): cuando algo del diseño parece arbitrario, la
+[docs/decisiones/](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/README.md): cuando algo del diseño parece arbitrario, la
 respuesta suele estar ahí.
 
 | | |
 |---|---|
-| [001](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
-| [002](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
-| [003](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
-| [004](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
-| [005](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
-| [006](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
-| [007](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
-| [008](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
-| [009](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
-| [010](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | El paquete instalado es otro proyecto, y hay que medirlo como tal |
-| [011](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) | Los mutadores tienen autor, y hasta hoy era uno solo |
-| [012](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.md) | Cada medida declara dónde obliga |
+| [001](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-001-RELACIONES-COMO-BOLSAS.md) | Las relaciones son bolsas, no conjuntos |
+| [002](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-002-SIN-COMPOSICION-DE-MEDIDAS.md) | Una medida no compone con otra |
+| [003](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Las macros no toman parámetros opcionales |
+| [004](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Dos medidas quedan sostenidas por evidencia generada |
+| [005](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Cinco niveles de representación: L−2 a L2 |
+| [006](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | De dónde sale el número: `segun` |
+| [007](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Bibliotecas de políticas, con seis correcciones |
+| [008](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | El repositorio se abre |
+| [009](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-009-DE-QUIEN-ES-EL-CASO.md) | De quién es el caso: cada medida declara si mira lo propio o todo |
+| [010](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | El paquete instalado es otro proyecto, y hay que medirlo como tal |
+| [011](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md) | Los mutadores tienen autor, y hasta hoy era uno solo |
+| [012](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-012-CADA-MEDIDA-DECLARA-DONDE-OBLIGA.md) | Cada medida declara dónde obliga |
 
 ## Estado
 
@@ -592,15 +592,15 @@ respuesta suele estar ahí.
 > equivalentes y verdes vacuos tienen regresiones fail-closed; timeout y error del arnés son estados
 > distintos de una muerte. P2.1 ya aísla la mutación de código en una copia, con bloqueo,
 > subprocesos acotados y reanudación verificable. El detalle está en
-> [`vault-kb/planes/PLAN-CORRECCION.md`](https://github.com/Segtem/oracle/blob/v0.31.0/vault-kb/planes/PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
+> [`vault-kb/planes/PLAN-CORRECCION.md`](https://github.com/Segtem/oracle/blob/v0.31.1/vault-kb/planes/PLAN-CORRECCION.md); las dos auditorías externas (Codex gpt-5.5 y
 > DeepSeek, agosto 2026) se respondieron en el commit `c81a87c`, y su informe se retiró del
 > árbol cuando dejó de tener puntos abiertos.
 
-**El checkout reúne los componentes del experimento.** El [corpus](https://github.com/Segtem/oracle/tree/v0.31.0/corpus/) (en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](https://github.com/Segtem/oracle/blob/v0.31.0/ESPECIFICACION.md) del álgebra,
-el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](https://github.com/Segtem/oracle/tree/v0.31.0/catalogos/) —como
+**El checkout reúne los componentes del experimento.** El [corpus](https://github.com/Segtem/oracle/tree/v0.31.1/corpus/) (en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](https://github.com/Segtem/oracle/blob/v0.31.1/ESPECIFICACION.md) del álgebra,
+el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](https://github.com/Segtem/oracle/tree/v0.31.1/catalogos/) —como
 archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
 
-**¿Querés escribir una medida?** → [`docs/03-escribir-una-medida.md`](https://github.com/Segtem/oracle/blob/v0.31.0/docs/03-escribir-una-medida.md).
+**¿Querés escribir una medida?** → [`docs/03-escribir-una-medida.md`](https://github.com/Segtem/oracle/blob/v0.31.1/docs/03-escribir-una-medida.md).
 `oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
 `oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
 
@@ -630,7 +630,7 @@ El wheel distribuye sus archivos bajo `oracle_metalenguaje.*`, pero la fachada t
 `nucleo`, `catalogos` y `perfiles` como nombres de nivel superior para sostener imports absolutos del
 núcleo. Ya no registra `tools` al importar la biblioteca: hacerlo le borraba al consumidor su propio
 paquete. La colisión con los otros tres nombres sigue siendo posible y está declarada en
-[`DECISION-010`](https://github.com/Segtem/oracle/blob/v0.31.0/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
+[`DECISION-010`](https://github.com/Segtem/oracle/blob/v0.31.1/docs/decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md).
 
 El wheel tampoco distribuye el corpus ni los fixtures de autocertificación del checkout. Por eso un
 comando instalado fuera de un proyecto requiere `--proyecto` (o `ORACLE_PROYECTO`) y falla si no lo
@@ -694,7 +694,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2574 tests · 1010/1010 mutantes de medida · **8619 sitios de mutación de código** (8381 + 238 del motor Python).
+2576 tests · 1010/1010 mutantes de medida · **8624 sitios de mutación de código** (8386 + 238 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una
@@ -811,7 +811,7 @@ las que trae Oracle y para las que escribe cualquiera:
 ```
 
 `ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` viven en
-[`nucleo/macros/`](https://github.com/Segtem/oracle/tree/v0.31.0/nucleo/macros/) y se cargan por el mismo camino: son la biblioteca estándar del
+[`nucleo/macros/`](https://github.com/Segtem/oracle/tree/v0.31.1/nucleo/macros/) y se cargan por el mismo camino: son la biblioteca estándar del
 lenguaje, no un privilegio del núcleo. Un proyecto suma las suyas en `<proyecto>/macros/` y no
 necesita tocar nada de Oracle.
 

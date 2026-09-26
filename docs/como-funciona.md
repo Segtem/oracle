@@ -14,7 +14,7 @@ oracle --version
 ```
 
 ```text salida
-oracle 0.31.0
+oracle 0.31.1
   álgebra:  1.0   (qué SIGNIFICA una medida)
   sintaxis: 0.7   (cómo se ESCRIBE)
   corriendo desde: …/oracle

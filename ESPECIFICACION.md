@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.31.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `0.7`, distribución `0.31.1`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,17 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.31.1 (2026-09-26): `VERSION_DISTRIBUCION` sube de `0.31.0` a `0.31.1`.** Cierra dos
+caminos que daban verde sin haber mirado y dos imprecisiones de `juzgar`. Un caso que no sale como declara su etiqueta tumba la
+aceptación también sin catálogo base: antes el juicio lo daba sólo una medida meta del catálogo
+base, y con `catalogo_base: false` el caso se descartaba en silencio. El `oracle_juzgar` del MCP ya no
+aprueba con una medida propia sin aplicar: juzga con el mismo criterio que la CLI. `oracle juzgar`
+acepta la cabecera `["clave", …]` de §1 y no cuenta un SIN EVIDENCIA entre las medidas en rojo. La
+huella de un directorio de procedencia ignora las entradas ocultas y `__pycache__` (§6): dos checkouts
+del mismo commit daban huellas distintas. Sube el **parche**: son correcciones; el álgebra y la
+sintaxis no cambian. Cierra `caso-silencioso`, `auditoria-verde`, `huella-estado-local`,
+`prosa-deuda`, `entrada-unica` y `notas-indice`.
 
 **Corte 0.31.0 (2026-09-25): `VERSION_DISTRIBUCION` sube de `0.30.0` a `0.31.0`.** Sale el
 álgebra 1.0 (párrafo siguiente) y se cierran los caminos a un verde que no midió nada: una medida
