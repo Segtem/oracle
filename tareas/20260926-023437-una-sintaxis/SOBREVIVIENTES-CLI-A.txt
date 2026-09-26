@@ -14,3 +14,12 @@ tools/cli.py:807:15:comparador comparador: Eq → NotEq
 tools/cli.py:807:39:comparador comparador: Is → IsNot  
 tools/cli.py:818:31:constante constante: 1 → 2  
 tools/cli.py:825:34:constante constante: False → True  
+tools/cli.py:864:8:retorno retorno: return <algo> → return None
+tools/cli.py:864:15:constante constante: 1 → 2  
+tools/cli.py:874:7:negacion negacion: se borra el `not` 
+tools/cli.py:885:24:booleano booleano: and ↔ or  
+tools/cli.py:888:12:retorno retorno: return <algo> → return None
+tools/cli.py:888:19:constante constante: 1 → 2  
+tools/cli.py:895:7:booleano booleano: and ↔ or  
+tools/cli.py:897:8:retorno retorno: return <algo> → return None
+tools/cli.py:897:15:constante constante: 1 → 2  
