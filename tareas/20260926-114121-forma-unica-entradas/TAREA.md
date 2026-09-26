@@ -1,6 +1,6 @@
 # La forma única del texto sólo se exige en oracle test: juzgar, el MCP, el LSP y los cargadores aceptan otra, y CRLF la elude
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -15,3 +15,7 @@ Implementado: comparación compartida con el impresor en cargadores .oracle (med
 ## Próximo paso
 
 Revisar el diff de esta implementación y decidir el cierre de la tarea; permanece ABIERTA y sin commit.
+
+### Nota (2026-09-26 11:59:26 UTC)
+
+2026-09-26, Claude: verificado en un proyecto temporal: juzgar rechaza una medida fuera de forma y una con CRLF (con diff), test también, formatear corrige ambas y juzgar queda verde. Unida. La mutación va en la ronda del corte.
