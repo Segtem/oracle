@@ -48,10 +48,6 @@ Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reprod
 
 2026-09-26, quinta auditoría adversarial ejecutada en AUDITORIA-5.md. Hallazgos reproducidos: tools/sintaxis.py --leer acepta .oracle no canónico; ejemplo/caso-observado enseña y produce un caso JSON en corpus. Entradas principales ensayadas rechazan variantes. AUDITORIA-4.md no está en este checkout. Sin cambios de código ni commits.
 
-## Próximo paso
-
-Revisar AUDITORIA-5.md y corregir las dos segundas vías reproducidas: la entrada `tools/sintaxis.py --leer` para grafías no canónicas y la receta `ejemplo/caso-observado` que genera casos JSON; completar las notas de sintaxis 1.0 y volver a auditar.
-
 ### Nota (2026-09-26 12:35:06 UTC)
 
 2026-09-26, Claude: AUDITORIA-5 (Codex) dio no por dos puntos, arreglados: tools/sintaxis.py --leer exige la forma única (lee sin convertir fines de línea y compara con el impresor, como los cargadores); la receta ejemplo/caso-observado escribe el caso en .caso con el impresor (antes lo escribía en JSON dentro de corpus/). Tests nuevos para los dos. AUDITORIA-4.md y -5.md, unidas a main.
@@ -59,3 +55,19 @@ Revisar AUDITORIA-5.md y corregir las dos segundas vías reproducidas: la entrad
 ### Nota (2026-09-26 12:35:18 UTC)
 
 2026-09-26, ENCARGO de la SEXTA auditoría (Codex, con shell, adversarial): después de AUDITORIA-5 se arreglaron sintaxis.py --leer y la receta caso-observado. Repetí EN CONTRA, ejecutando, todo punto abierto de AUDITORIA-2 a -5 y buscá cualquier entrada que acepte, como medida, caso, relación o macro de un proyecto, un texto de superficie distinto del impresor, y cualquier lugar del paquete que enseñe o produzca otra forma de escribir (recetas, ejemplos y scripts de ejemplo/, herramientas de tools/, plantillas, docs, especificación, manual, contexto, MCP, LSP, mensajes de error). JSON en archivos .json: admitido como intercambio; no es hallazgo salvo que algo lo enseñe o produzca como forma de escribir una medida, un caso o una relación. Escribí tareas/<esta>/AUDITORIA-6.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
+
+### Nota (2026-09-26 12:39:48 UTC)
+
+2026-09-26, sexta auditoría adversarial documentada en AUDITORIA-6.md. Confirmé corregidas las dos vías de AUDITORIA-5 con ejecución. Hallazgos: LSP codeLens interpreta medidas fuera de forma única; caso-observado/README aún indica destino .json; docs/14-sensor-prosa enseña catálogos JSON; ayuda de tools/medida.py aún usa archivo.json. Sin cambios de código ni commits.
+
+## Próximo paso
+
+Revisar AUDITORIA-6.md: hacer que LSP `codeLens` no procese medidas fuera de la forma única; corregir las instrucciones JSON de `ejemplo/caso-observado/README.md`, `docs/14-sensor-prosa.md` y la ayuda de `tools/medida.py`; regenerar el sitio y repetir la auditoría adversarial.
+
+### Nota (2026-09-26 12:54:05 UTC)
+
+2026-09-26, Claude: AUDITORIA-6 (Codex) dio no por cuatro puntos, arreglados: codeLens del LSP devuelve [] si el texto está fuera de la forma única (test que falla sin el arreglo); README de caso-observado dice <id>.caso; docs/14-sensor-prosa ya no ofrece catálogos JSON; la ayuda y el comentario de tools/medida.py dicen .oracle. Un test viejo del LSP le pasaba una línea en blanco tras un comentario (fuera de forma) y se ajustó. AUDITORIA-6.md, unida a main.
+
+### Nota (2026-09-26 12:54:05 UTC)
+
+2026-09-26, ENCARGO de la SÉPTIMA auditoría (Codex, con shell, adversarial): después de AUDITORIA-6 se arreglaron codeLens, caso-observado/README, docs/14-sensor-prosa y la ayuda de tools/medida.py. Repetí EN CONTRA, ejecutando, todo punto abierto de AUDITORIA-2 a -6 y buscá cualquier entrada que acepte, como medida, caso, relación o macro de un proyecto, un texto de superficie distinto del impresor (incluidas vistas del editor: diagnósticos, lentes, completado, hover), y cualquier lugar del paquete que enseñe o produzca otra forma de escribir (recetas, ejemplos y scripts de ejemplo/, herramientas de tools/, plantillas, docs, sitio generado, especificación, manual, contexto, MCP, LSP, mensajes de error y --help). JSON en archivos .json: admitido como intercambio; no es hallazgo salvo que algo lo enseñe o produzca como forma de escribir una medida, un caso o una relación. Escribí tareas/<esta>/AUDITORIA-7.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
