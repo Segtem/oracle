@@ -1,6 +1,6 @@
 # Qué le falta al lenguaje para que escribir medidas sea cómodo
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, metalenguaje, ergonomia
 
@@ -75,3 +75,7 @@ Auditoría ejecutada contra main a891cf41a25688faf51d623913c477af41673c45 (v0.28
 ## Próximo paso
 
 Revisar las recetas y su documentación generada (`docs/recetas.md`, `docs/recetas.html`, `ejemplo/recetas/`); si la auditoría del worktree es satisfactoria, realizar el commit correspondiente según el protocolo (`<ID>: resumen`) y continuar con los grupos pendientes restantes (grupo 5: esquemas y unidades, o grupo 6: umbrales históricos).
+
+### Nota (2026-09-26 02:50:55 UTC)
+
+2026-09-26, Claude: grupo 4 hecho (docs/recetas.md, ejecutada por guia.py; agy en contenedor). Verificado aparte: con != en vez de < sobreviven 2 mutantes, como dice la receta. Estado final de los ocho grupos: 1, 2, 3, 4 y 7 resueltos; 5 sigue en relaciones-superficie (parte de una-sintaxis); 6 es trabajo de cada consumidor, vigilado por la sombra con cota de meta.todo_umbral_declara_de_donde_sale; 8 no pide nada. Se cierra.
