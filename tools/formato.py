@@ -30,9 +30,9 @@ def con_comentarios(original: str, normalizado: str) -> str:
     """
     comentarios: dict[int, list[str]] = {}
     posicion = 0
-    for linea in original.splitlines(keepends=True):
+    for linea in original.splitlines():
         if linea.lstrip().startswith("#"):
-            comentarios.setdefault(posicion, []).append(linea.rstrip("\r\n") + "\n")
+            comentarios.setdefault(posicion, []).append(linea + "\n")
         elif linea.strip():
             posicion += 1
     salida = []
