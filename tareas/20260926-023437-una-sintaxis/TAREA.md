@@ -1,6 +1,6 @@
 # Una sola sintaxis para escribir Oracle: la superficie; el JSON canónico queda como formato interno
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -159,3 +159,7 @@ Revisar AUDITORIA-11.md (veredicto: «una sola sintaxis de escritura: sí») y p
 ### Nota (2026-09-26 21:08:57 UTC)
 
 2026-09-26, Claude: los 58 sobrevivientes de tools/cli.py, resueltos. agy (lista A) mató 23 y agy2 (lista B) 29 con tests nuevos (tests/test_cli_convertir_mutacion.py y tests/test_cli_formatear_mutacion.py, 52 tests). De sus 6 equivalentes, 5 venían de código redundante y en vez de declararlos se borró el código: followlinks=False (el valor por omisión de os.walk), el filtro de # antes de buscar defmacro, dos .get('relaciones', 0) sobre una clave que verificar_catalogo siempre da, y el conteo de --escribir que la guarda siguiente ya cubre. Se declaró sólo missing_ok=True en _reemplazar, que es red de seguridad. Un mock de test_cli le faltaba la clave relaciones al contrato real y se completó. tools/cli.py se vuelve a mutar entero.
+
+### Nota (2026-09-26 23:42:31 UTC)
+
+2026-09-26, Claude: cerrada. Oracle 0.32.0 (sintaxis 1.0) publicado en PyPI (sha256 verificados). Los consumidores migrados y medidos antes de subir el pin: Jam (79 archivos a superficie, cuatro casos con espera: sin_evidencia; VERDE 28/4/3, diferencial 1099, mutación 448/448, suite 1241), LyraGASP (223 archivos; VERDE 78/116, diferencial 580, mutación 487/487, suite 151; dos tests pasaron a leer .caso) y commander (sin medidas propias; pin a 0.32.0). En los tres meta.se_escribe_en_superficie da 0 sin sombra. Queda para cuando Codex vuelva (2026-09-30) una auditoría más de Codex.
