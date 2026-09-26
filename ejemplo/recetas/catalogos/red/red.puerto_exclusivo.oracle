@@ -1,0 +1,8 @@
+medida red.puerto_exclusivo:
+    de servicio a
+    unir servicio b
+    donde a.nombre < b.nombre y a.puerto == b.puerto
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "dos servicios no pueden compartir el mismo puerto de escucha"
+    ambito universal
+    alcance "compara servicios de a pares por puerto. NO ve si el puerto está fuera de rango"

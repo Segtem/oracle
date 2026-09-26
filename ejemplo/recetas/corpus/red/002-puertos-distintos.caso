@@ -1,0 +1,19 @@
+caso 002-puertos-distintos:
+    fecha: "2026-09-26"
+    origen:
+        repo: "ejemplo/recetas"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "servicios con puertos independientes"
+    etiqueta: verde_correcto
+    sintoma:
+        Cada servicio escucha en su propio puerto sin conflicto.
+    como_se_detecto: persona
+    medida: red.puerto_exclusivo
+    evidencia:
+        servicio: nombre, puerto
+            "api", 8080
+            "web", 9090
+
+    leccion:
+        Servicios bien configurados no disparan la infraccion.

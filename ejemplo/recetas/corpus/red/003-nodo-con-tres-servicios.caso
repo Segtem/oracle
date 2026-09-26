@@ -1,0 +1,21 @@
+caso 003-nodo-con-tres-servicios:
+    fecha: "2026-09-26"
+    origen:
+        repo: "ejemplo/recetas"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "un nodo supera el maximo de servicios distintos"
+    etiqueta: falso_verde
+    sintoma:
+        El nodo n1 aloja tres servicios distintos a pesar de tener filas duplicadas.
+    como_se_detecto: persona
+    medida: red.servicios_por_nodo
+    evidencia:
+        despliegue: nodo, servicio
+            "n1", "web"
+            "n1", "web"
+            "n1", "api"
+            "n1", "db"
+
+    leccion:
+        Doble agrupar deduplica web y cuenta 3 servicios distintos, superando el limite.

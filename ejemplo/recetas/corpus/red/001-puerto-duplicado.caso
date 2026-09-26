@@ -1,0 +1,19 @@
+caso 001-puerto-duplicado:
+    fecha: "2026-09-26"
+    origen:
+        repo: "ejemplo/recetas"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "dos servicios escuchan en el mismo puerto"
+    etiqueta: falso_verde
+    sintoma:
+        Tanto web como api intentan enlazar el puerto 8080.
+    como_se_detecto: persona
+    medida: red.puerto_exclusivo
+    evidencia:
+        servicio: nombre, puerto
+            "api", 8080
+            "web", 8080
+
+    leccion:
+        Un solo par en colision genera exactamente un testigo gracias a <.

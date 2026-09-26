@@ -45,6 +45,7 @@ PAGINAS = (
     Pagina("docs/05-por-que-la-mutacion.md", "05-por-que-la-mutacion.html", "Entender", "Por qué la mutación"),
     Pagina("docs/07-conectar-a-un-proyecto-propio.md", "07-conectar-a-un-proyecto-propio.html", "Entender", "Conectar un proyecto"),
     Pagina("docs/tutorial-practico.md", "tutorial-practico.html", "Entender", "Tutorial práctico"),
+    Pagina("docs/recetas.md", "recetas.html", "Entender", "Recetas de medidas"),
     Pagina("docs/12-tareas.md", "12-tareas.html", "Herramientas", "El tracker de tareas"),
     Pagina("docs/14-sensor-prosa.md", "14-sensor-prosa.html", "Herramientas", "Un modelo como sensor"),
     Pagina("docs/mcp-contrato.md", "mcp-contrato.html", "Herramientas", "El servidor MCP"),

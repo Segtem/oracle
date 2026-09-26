@@ -1,0 +1,13 @@
+medida red.servicios_por_nodo:
+    de despliegue d
+    agrupar:
+        clave nodo = d.nodo
+        clave servicio = d.servicio
+    agrupar:
+        clave nodo = nodo
+        agregado distintos = contar(1)
+    donde distintos > 2
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "ningún nodo puede alojar más de dos servicios distintos"
+    ambito universal
+    alcance "cuenta servicios distintos por nodo. NO ve el consumo de memoria ni CPU"

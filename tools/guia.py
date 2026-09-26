@@ -19,7 +19,7 @@ import shutil
 RAIZ = Path(__file__).resolve().parents[1]
 GUIAS = tuple(RAIZ / "docs" / nombre for nombre in (
     "de-cero.md", "como-funciona.md", "02-de-cero-a-un-rojo.md", "05-por-que-la-mutacion.md",
-    "07-conectar-a-un-proyecto-propio.md", "13-primer-valor.md"))
+    "07-conectar-a-un-proyecto-propio.md", "13-primer-valor.md", "recetas.md"))
 GUIA = GUIAS[0]
 CLI = RAIZ / "tools/cli.py"
 FENCE = re.compile(r"^```([^\n]*)$")

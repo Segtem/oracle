@@ -1,0 +1,21 @@
+caso 004-nodo-dentro-del-limite:
+    fecha: "2026-09-26"
+    origen:
+        repo: "ejemplo/recetas"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "nodo con dos servicios distintos y replicas repetidas"
+    etiqueta: verde_correcto
+    sintoma:
+        El nodo n1 aloja dos servicios con varias instancias cada uno.
+    como_se_detecto: persona
+    medida: red.servicios_por_nodo
+    evidencia:
+        despliegue: nodo, servicio
+            "n1", "web"
+            "n1", "web"
+            "n1", "api"
+            "n2", "db"
+
+    leccion:
+        Las replicas duplicadas no inflan la cuenta de distintos.

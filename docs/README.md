@@ -20,6 +20,7 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
 | medir tu propio producto | [La primera medida real](13-primer-valor.md) | Oracle contra un `assert`, y cuándo apagar el catálogo base |
 | conectar un proyecto que ya existe | [Conectar un proyecto](07-conectar-a-un-proyecto-propio.md) | el sensor partido en puro y adaptador, las escalares propias y la sombra |
 | escribir medidas con soltura | [Escribir una medida](03-escribir-una-medida.md) | cómo se aíslan las escalares, por qué los ids son ASCII, cuánto se usa cada macro |
+| patrones para pares sin duplicar y contar distintos | [Recetas de medidas](recetas.md) | pares no orientados con `<`, y recuento de distintos con doble `agrupar` |
 | ver un dominio completo con geometría | [Tutorial práctico](tutorial-practico.md) | un `LEFT JOIN` sin nulos, escalares de volumen y penetración, la API `Motor` desde Python |
 | saber por qué hace falta mutar | [Por qué la mutación](05-por-que-la-mutacion.md) | los dos autores de los mutadores y qué hacer con un sobreviviente |
 | correr la mutación sin quedarte sin memoria | [Memoria de la mutación](mutacion-memoria.md) | cómo medir la memoria y limitar las rondas con systemd |
@@ -40,6 +41,6 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
   escalares y medidas), para pasárselo a un modelo en unos 1.600 tokens.
 
 Las guías con comandos —la de la batalla naval, *Cómo funciona*, *De cero a un rojo*, *Por qué la
-mutación*, *Conectar un proyecto* y *La primera medida real*— se ejecutan en la suite del
+mutación*, *Conectar un proyecto*, *La primera medida real* y *Recetas de medidas*— se ejecutan en la suite del
 repositorio desde una carpeta vacía, y cada salida que muestran es la de esa corrida. Si alguna no
 te da igual, es un defecto de la documentación: [abrí un issue](https://github.com/Segtem/oracle/issues).

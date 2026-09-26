@@ -51,10 +51,27 @@ No se responde con gustos: se responde con evidencia de uso real. Hay mucha:
 
 Auditoría ejecutada contra main a891cf41a25688faf51d623913c477af41673c45 (v0.28.0+31; álgebra 0.8, sintaxis 0.6). VERIFICACION.md cubre las 15 entradas de FRICCIONES.md: 10 ciertas con alcance corregido, 3 falsas (2.2, 3.2, 5.1) y 2 vencidas (6.2, 6.3; causalidad de atención no acreditada). Se reejecutaron las tres revisadas previamente. Reproducciones en verificar.py y SALIDAS.txt, 23 tests focalizados OK en TESTS.txt. Deudas actuales confirmadas: unidades Jam/Lyra 51/61, segun 41/27, evidencia observada 16/17 y procedencia Oracle 94. Agrupación sólo de ciertas con soluciones mínimas e impacto de versiones. Propuestas registradas: 20260923-173938-ergo-confianza, 20260923-173938-ergo-observados y 20260923-173938-ergo-orden. No se modificó el lenguaje, los proyectos externos ni FRICCIONES.md; sin commits. Sin bloqueos para esta auditoría; el costo humano/60% no puede acreditarse con la evidencia disponible.
 
-## Próximo paso
-
-Revisar [VERIFICACION.md](VERIFICACION.md), sus salidas y las tres tareas propuestas (ergo-confianza, ergo-observados, ergo-orden); decidir cuál iniciar. Las 15 fricciones ya se verificaron y agruparon: no repetir el inventario ni implementar operadores a partir de las entradas descartadas. Los grupos 4–8 quedan aquí como alternativas pendientes de priorización. La auditoría está completa, sin bloqueos técnicos; mantener el lenguaje sin cambios y no hacer commits dentro de este encargo.
-
 ### Nota (2026-09-26 02:23:18 UTC)
 
 2026-09-26, estado: los grupos 1, 2, 3 (ergo-confianza, ergo-observados, ergo-orden, cerradas) y 7 (aritmética infija, 0.30.0) están resueltos; el 8 no pide nada; el 6 es trabajo de cada consumidor. ENCARGO grupo 4 (agy, en contenedor, sobre un worktree): una guía nueva docs/recetas.md con dos recetas copiables y EJECUTABLES por tools/guia.py —(a) pares no orientados sin contarlos dos veces, con la clave ordenable < ; (b) contar distintos por grupo con doble agrupar—, cada una con un caso rojo y uno verde, en un proyecto de ejemplo ejemplo/recetas/ (catalogo_base false) que se incluye con bloques «archivo=… incluir=…» y se corre con bloques «bash paso» seguidos de «text salida» (mirá cómo lo hace docs/como-funciona.md y tools/guia.py). Agregarla a GUIAS en tools/guia.py y a PAGINAS en tools/sitio.py (grupo Entender), y enlazarla desde docs/README.md. python3 tools/guia.py --escribir llena las salidas; python3 -m unittest tests.test_guia tests.test_sitio y python3 tools/sitio.py --escribir tienen que quedar en verde. Sin commits.
+
+- 2026-09-26 (Resolución Grupo 4: recetas ejecutables de pares y distintos):
+  - Se completó el encargo del grupo 4:
+    - Se armó el proyecto de ejemplo en `ejemplo/recetas/` (`catalogo_base: false` en `oracle.json`) con dos medidas y cuatro casos (uno rojo y uno verde por medida):
+      - Receta (a): `catalogos/red/red.puerto_exclusivo.oracle` con `corpus/red/001-puerto-duplicado.caso` (`falso_verde`) y `corpus/red/002-puertos-distintos.caso` (`verde_correcto`), mostrando la auto-unión con `<` en lugar de `!=` para evitar duplicar testigos y permitir que la mutación de `aflojar_umbral` muera en el caso rojo.
+      - Receta (b): `catalogos/red/red.servicios_por_nodo.oracle` con `corpus/red/003-nodo-con-tres-servicios.caso` (`falso_verde`) y `corpus/red/004-nodo-dentro-del-limite.caso` (`verde_correcto`), demostrando el encadenamiento de dos pasos `agrupar:` (el primero sin agregados para deduplicar combinaciones de claves; el segundo agrupando por la clave contenedora con `contar(1)` para obtener el recuento de distintos).
+    - Se redactó la guía `docs/recetas.md` con bloques `«archivo=… incluir=…»`, `«bash paso»` y `«text salida»`.
+    - Se registró `recetas.md` en `GUIAS` dentro de `tools/guia.py` y en `PAGINAS` dentro de `tools/sitio.py` (grupo `Entender`), y se agregó su enlace en `docs/README.md`.
+    - Se actualizaron las salidas con `python3 tools/guia.py --escribir` y se regeneraron las páginas con `python3 tools/sitio.py --escribir`.
+  - Comandos ejecutados y resultados:
+    - `python3 tools/cli.py test --proyecto ejemplo/recetas`: exit 0. Veredicto VERDE (4 casos, 2 medidas, 30/30 mutantes muertos, 0 sobrevivientes).
+    - `python3 tools/guia.py --escribir docs/recetas.md`: exit 0. `docs/recetas.md: 2 pasos, 2 salidas actualizadas`.
+    - `python3 tools/sitio.py --escribir`: exit 0. Generó `docs/recetas.html` y actualizó las páginas del sitio.
+    - `python3 -m unittest tests.test_sitio`: exit 0 (7 tests OK).
+    - `python3 -m unittest tests.test_guia`: exit 0 (3 tests OK, 7 guías verificadas con 0 salidas desactualizadas).
+    - `python3 -m unittest tests.test_guia tests.test_sitio`: exit 0 (10 tests OK en 12.9s).
+  - Sin commits, tal como se requirió.
+
+## Próximo paso
+
+Revisar las recetas y su documentación generada (`docs/recetas.md`, `docs/recetas.html`, `ejemplo/recetas/`); si la auditoría del worktree es satisfactoria, realizar el commit correspondiente según el protocolo (`<ID>: resumen`) y continuar con los grupos pendientes restantes (grupo 5: esquemas y unidades, o grupo 6: umbrales históricos).
