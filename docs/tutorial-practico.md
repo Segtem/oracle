@@ -92,9 +92,11 @@ Tres reglas no son estilo, son validación dura:
 2. **Un umbral de igualdad (`==`) está prohibido.** La regla universal `meta.ningun_umbral_de_igualdad` exige umbrales de orden (`<=`, `>=`, `<`, `>`).
 3. **Si una medida declara `requiere <relacion>`, la relación no puede faltar ni venir vacía.** Si no hay evidencia requerida, la evaluación devuelve `SIN EVIDENCIA` y no un verde espurio.
 
-### El almacenamiento: por qué JSON
+### La forma canónica
 
-La superficie infija es la forma legible para escribir y revisar. En el disco (dentro de `catalogos/`), la medida se guarda como una lista JSON homoicónica que representa su AST directamente:
+Una medida se escribe sólo en superficie (`.oracle`). Al leerla, Oracle la convierte en un árbol JSON
+homoicónico —la forma canónica, que es su AST— y trabaja sobre él; `oracle medida expandir <archivo>`
+lo muestra:
 
 ```json
 ["medida", "<id>",
@@ -107,19 +109,16 @@ La superficie infija es la forma legible para escribir y revisar. En el disco (d
   ["alcance", "<qué NO ve esta medida>"]]
 ```
 
-Para traducir entre la superficie infija y el archivo JSON usá `oracle convertir`:
+No se escribe a mano. Oracle lo sigue leyendo como formato de intercambio, y para migrar un proyecto
+que todavía tenga medidas, casos o relaciones en JSON:
 
 ```bash
-oracle convertir catalogos/proceso/proceso.verificacion_vigente.json  # JSON -> superficie
-oracle nueva dominio.regla        # crea el andamio ya en superficie infija
-oracle convertir medida.oracle    # superficie -> JSON, si lo necesitás
+oracle convertir <directorio> --a-superficie             # muestra qué se puede convertir
+oracle convertir <directorio> --a-superficie --escribir  # convierte y retira cada JSON
 ```
 
-Para migrar un proyecto completo, `oracle convertir <directorio> --a-superficie` muestra primero
-qué medidas y casos JSON se pueden convertir. Agregá `--escribir` para crear cada `.oracle` o
-`.caso` y retirar su JSON sólo después de comprobar que releerlo devuelve exactamente el mismo
-árbol canónico. El resumen indica los archivos no convertibles y sus motivos. Las relaciones JSON
-quedan señaladas como pendientes hasta que exista el conversor de `.relacion`.
+Cada archivo se reemplaza sólo si releer la superficie nueva devuelve exactamente el mismo árbol
+canónico; los que no se pueden convertir quedan intactos y el resumen dice por qué.
 
 El ejemplo más simple posible del propio catálogo de Oracle:
 

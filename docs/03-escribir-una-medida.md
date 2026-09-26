@@ -208,10 +208,11 @@ calculás aparte — si lo hicieras, tendrías la misma condición escrita dos v
 mantenga sincronizadas. Tampoco se permite componer medidas entre sí (`DECISION-002`): cada medida
 es una unidad de juicio aislada sobre evidencia directa.
 
-## El formato de almacenamiento: por qué JSON
+## La forma canónica: lo que Oracle guarda por dentro
 
-La superficie infija es cómo un humano la escribe, pero el archivo en `catalogos/` se guarda como una
-lista JSON. Por ejemplo, la forma canónica anterior se almacena así:
+Una medida se escribe **sólo** en superficie, en un archivo `.oracle`. Al leerla, Oracle la convierte
+en un árbol JSON —la **forma canónica**— y trabaja sobre ese árbol. `oracle medida expandir` lo
+muestra; la medida de arriba queda así:
 
 ```json
 ["medida", "dominio.nombre",
@@ -223,9 +224,19 @@ lista JSON. Por ejemplo, la forma canónica anterior se almacena así:
   ["alcance", "qué NO ve esta medida"]]
 ```
 
-¿Por qué almacenar una medida como JSON y no como texto plano? Porque **es homoicónico: el JSON es directamente el árbol de sintaxis abstracta (AST)**. Al ser una estructura de datos estándar y pura:
-- Las medidas pueden inspeccionarse, mutarse y validarse mecánicamente sin requerir un parser complejo en cada etapa.
-- **Las medidas pueden hablar de medidas**: es el nivel **L2** del proyecto. El propio catálogo de medidas se convierte en una relación (`medida_en_uso`), y se puede juzgar con el mismo álgebra de siempre (por ejemplo, verificando que ninguna medida use umbrales de igualdad flotante o que todas declaren su defensa y alcance).
+No hace falta escribirlo nunca: es la representación interna, como el bytecode de un lenguaje. Existe
+porque **es homoicónica: el árbol es directamente la medida**, y eso habilita lo que Oracle hace con
+ella:
+- La mutación la debilita transformando el árbol, sin un parser en cada etapa.
+- **Las medidas pueden hablar de medidas**: es el nivel **L2**. El catálogo se vuelve una relación
+  (`medida_en_uso`) y se juzga con la misma álgebra (por ejemplo, que ninguna use un umbral de
+  igualdad o que todas declaren su defensa y alcance).
+- El diferencial guarda su huella, así que dos escrituras distintas de la misma medida son la misma
+  medida.
+
+Oracle sigue **leyendo** JSON —es el formato de intercambio—, pero una medida, un caso o una relación
+se escriben en superficie. Para migrar un proyecto viejo: `oracle convertir <directorio>
+--a-superficie`.
 
 ## Tres ejemplos, de menor a mayor
 

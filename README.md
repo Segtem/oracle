@@ -798,16 +798,15 @@ proyecto que quería una forma propia tenía que editar el núcleo de Oracle. El
 quien podía editar ese archivo — o sea, el LLM. Ahora una macro es un archivo con la misma forma para
 las que trae Oracle y para las que escribe cualquiera:
 
-```json
-["defmacro", "todos-cumplen",
-  ["id", "relacion", "alias", "predicado", "porque", "alcance"],
-  [],
-  ["medida", ["$", "id"],
-    ["desde", ["de", ["$", "relacion"], ["$", "alias"]],
-     ["donde", ["no", ["$", "predicado"]]]],
-    ["resumen", "contar", 1],
-    ["umbral", "<=", 0, ["$", "porque"]],
-    ["alcance", ["$", "alcance"]]]]
+```oracle
+defmacro todos-cumplen(id, relacion, alias, predicado, porque, segun, ambito, alcance):
+    medida $id:
+        de $relacion $alias
+        donde no $predicado
+        resumen contar(1)
+        umbral <= 0 segun $segun porque $porque
+        ambito $ambito
+        alcance $alcance
 ```
 
 `ninguno`, `ninguno-requiere`, `ninguno-par` y `peor` viven en
