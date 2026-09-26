@@ -1,6 +1,6 @@
 # oracle convertir traduce un archivo por vez: tiene que migrar un directorio entero y sólo reemplazar si la ida y vuelta es idéntica
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -19,3 +19,7 @@ Cuando la sesión de relaciones entregue el lector y el impresor de `.relacion`,
 ### Nota (2026-09-26 03:01:14 UTC)
 
 2026-09-26, Claude: probado contra copias de las medidas de los consumidores. Jam: 76 convertidos (41 medidas, 35 casos), 3 relaciones pendientes de .relacion, los fixtures no se tocan. LyraGASP: 223 convertidos (29 medidas, 194 casos). Con el mismo núcleo, original y convertido dan exactamente la misma corrida de oracle test (mismos casos, sintaxis, aceptación, diferencial y mutación), también la huella del catálogo, porque la forma canónica es idéntica.
+
+### Nota (2026-09-26 03:13:05 UTC)
+
+2026-09-26, Claude: unida a main; la mutación de los módulos tocados va en la ronda del próximo corte (la de una-sintaxis).

@@ -1,6 +1,6 @@
 # Declarar una relación exige escribir JSON anidado campo por campo: una superficie .relacion, como la de las medidas
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 75
 - ETIQUETAS: oracle, metalenguaje, sintaxis, ergonomia, una-sintaxis
 
@@ -19,3 +19,7 @@ Corrección de Claude: en «nombre: tipo [unidad]» los corchetes marcaban opcio
 ## Próximo paso
 
 Claude: correr la mutación completa fuera de este sandbox, revisar sus resultados y resolver cualquier mutante sobreviviente antes de cerrar la tarea. Mantenerla ABIERTA hasta entonces; no hay commit de este trabajo.
+
+### Nota (2026-09-26 03:13:05 UTC)
+
+2026-09-26, Claude: unida a main; la mutación de los módulos tocados va en la ronda del próximo corte (la de una-sintaxis).
