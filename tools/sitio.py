@@ -357,7 +357,7 @@ class Convertidor:
                 parrafo.append(lineas[j].strip())
                 j += 1
             salida.append(f"<p>{self.linea(' '.join(parrafo))}</p>")
-            i = j
+            i = max(j, i + 1)
         return "\n".join(salida)
 
     def _lista(self, lineas: list[str], i: int, salida: list[str]) -> int:
@@ -509,5 +509,8 @@ def main(argv: list[str]) -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main(sys.argv[1:]))
+# El modismo de cli.py: con `if __name__ == "__main__"`, el mutante `Eq → NotEq` ejecuta el módulo al
+# importarlo y rompe el arnés en vez de morir. Con la verdad del valor, ese mutante no existe.
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    raise SystemExit(_entrada_directa(sys.argv[1:]))

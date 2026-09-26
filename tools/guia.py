@@ -180,5 +180,8 @@ def main() -> int:
     return 0
 
 
-if __name__ == "__main__":
-    raise SystemExit(main())
+# El modismo de cli.py: con `if __name__ == "__main__"`, el mutante `Eq → NotEq` ejecuta el módulo al
+# importarlo y rompe el arnés en vez de morir. Con la verdad del valor, ese mutante no existe.
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    raise SystemExit(_entrada_directa())

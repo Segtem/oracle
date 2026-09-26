@@ -88,5 +88,53 @@
   "linea_texto": "comandos = readme.split(\"```bash\\n\", 1)[1].split(\"```\", 1)[0].splitlines()",
   "ordinal": 1,
   "razon": "split(\"```\", 1)[0] y split(\"```\", 2)[0] producen exactamente la subcadena anterior al primer cierre para cualquier texto. El máximo de separaciones sólo afecta partes posteriores que el índice [0] descarta."
+ },
+ {
+  "id": "tools/sitio.py:59:56:constante",
+  "linea_texto": "p.stem.replace(\"DECISION-\", \"\").split(\"-\", 1)[0])",
+  "ordinal": 1,
+  "razon": "`split(\"-\", 1)[0]` → `split(\"-\", 2)[0]`. Ambos producen exactamente el prefijo anterior al primer guion para cualquier cadena. El límite de particiones sólo influye a partir de la segunda división, que el índice `[0]` descarta. Es el mismo caso documentado en `tools/verificar_instalacion.py:224:60:constante`."
+ },
+ {
+  "id": "tools/sitio.py:197:20:constante",
+  "linea_texto": "sys.path.insert(0, str(RAIZ))",
+  "ordinal": 1,
+  "razon": "En `tools/sitio.py`, `sys.path.insert(0, str(RAIZ))` → `insert(1, str(RAIZ))` en `_medida`. Al invocar herramientas del proyecto, `sys.path[0]` es `tools/`, que no contiene paquetes homónimos de los imports calificados (`nucleo`, `catalogos`, `tools`). Ambas posiciones resuelven los mismos módulos sin alterar comportamiento observable. Mismo caso ya documentado en `cifras.py`, `mutar.py`, `generar_diferencial.py`, `trazar.py` y `verificar_instalacion.py`."
+ },
+ {
+  "id": "tools/sitio.py:217:20:constante",
+  "linea_texto": "sys.path.insert(0, str(RAIZ))",
+  "ordinal": 2,
+  "razon": "En `tools/sitio.py`, `sys.path.insert(0, str(RAIZ))` → `insert(1, str(RAIZ))` en `_cazamutantes`. Mismo sitio y justificación que la entrada anterior: la precedencia entre `tools/` y `RAIZ` no modifica la resolución de módulos importados."
+ },
+ {
+  "id": "tools/sitio.py:241:53:constante",
+  "linea_texto": "mata.setdefault(d[\"mutante\"].split(\"·\", 1)[1], []).append(d[\"caso\"])",
+  "ordinal": 1,
+  "razon": "En `tools/sitio.py`, `split(\"·\", 1)[1]` → `split(\"·\", 2)[1]`. El identificador `d[\"mutante\"]` tiene la forma `{medida}·{mutante}` producida por `nucleo/mutacion.py`, con un único separador `·`. Para toda cadena con un solo separador, `split(..., 1)` y `split(..., 2)` devuelven listas idénticas de dos elementos; el índice `[1]` extrae exactamente el identificador del mutante."
+ },
+ {
+  "id": "tools/sitio.py:355:28:comparador",
+  "linea_texto": "and not (j > i and _ITEM.match(lineas[j]))",
+  "ordinal": 1,
+  "razon": "En `tools/sitio.py`, `j > i` → `j >= i` en la guarda de fin de párrafo. La línea en la posición `i` ya fue evaluada contra `_ITEM.match` en la bifurcación previa (línea 347); si hubiera coincidido, se habría procesado como lista mediante `continue`. Por lo tanto, en `j == i` la expresión `_ITEM.match(lineas[j])` es invariablemente `None` (falso), haciendo que `(j >= i and _ITEM.match)` y `(j > i and _ITEM.match)` evalúen a `False` para `j == i`, y a valores idénticos para todo `j > i`. Ninguna entrada puede distinguir ambos comparadores."
+ },
+ {
+  "id": "tools/sitio.py:381:36:comparador",
+  "linea_texto": "suelta = suelta or (indent > base and not otro)",
+  "ordinal": 1,
+  "razon": "En `tools/sitio.py`, `indent > base` → `indent >= base` en el cálculo de lista suelta. La guarda inmediata anterior corta con `break` si `indent <= base and not (otro and len(otro.group(1)) == base)`. Cuando `indent == base` y `not otro` se cumple, dicha guarda siempre interrumpe el bucle antes de alcanzar esta línea. En las iteraciones que superan la guarda, o bien `indent > base` o bien `otro` es verdadero (en cuyo caso `not otro` es falso y anula la conjunción). Ambos comparadores producen idéntico valor booleano en todas las ejecuciones alcanzables."
+ },
+ {
+  "id": "tools/sitio.py:395:51:constante",
+  "linea_texto": "cuerpo = cuerpo.replace(\"<p>\", \"\", 1).replace(\"</p>\", \"\", 1)",
+  "ordinal": 1,
+  "razon": "En `tools/sitio.py`, `replace(\"<p>\", \"\", 1)` → `replace(\"<p>\", \"\", 2)`. La condición inmediata anterior exige `cuerpo.count(\"<p>\") == 1`. Dado que la subcadena `\"<p>\"` aparece exactamente una sola vez en el texto, reemplazar a lo sumo una o a lo sumo dos ocurrencias genera la misma cadena resultante para toda entrada."
+ },
+ {
+  "id": "tools/sitio.py:395:74:constante",
+  "linea_texto": "cuerpo = cuerpo.replace(\"<p>\", \"\", 1).replace(\"</p>\", \"\", 1)",
+  "ordinal": 1,
+  "razon": "En `tools/sitio.py`, `replace(\"</p>\", \"\", 1)` → `replace(\"</p>\", \"\", 2)`. El cuerpo HTML generado para un elemento de lista no suelta con un único párrafo contiene exactamente una etiqueta de cierre `</p>`. Al haber una única ocurrencia, reemplazar como máximo una o dos instancias produce exactamente la misma cadena."
  }
 ]

@@ -1157,6 +1157,9 @@ class CorrerTests(unittest.TestCase):
             while time.monotonic() < limite:
                 try:
                     os.kill(nieto, 0)
+                    proc_stat = Path(f"/proc/{nieto}/stat")
+                    if proc_stat.exists() and proc_stat.read_text().split()[2] in ("Z", "X"):
+                        break
                 except ProcessLookupError:
                     break
                 time.sleep(0.02)
