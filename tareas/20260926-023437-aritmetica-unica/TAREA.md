@@ -1,6 +1,6 @@
 # a + 1 y mas(a, 1) son dos maneras de escribir lo mismo: el impresor tiene que usar sólo la infija
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -15,3 +15,7 @@ Impresor aritmético: mas/menos/por binarios salen como +, - y * con paréntesis
 ## Próximo paso
 
 Claude: correr la mutación fuera de este sandbox sobre los cambios de aritmetica-unica, revisar los sobrevivientes y registrar el resultado en esta tarea. Mantenerla abierta y sin commits hasta esa revisión.
+
+### Nota (2026-09-26 03:24:40 UTC)
+
+2026-09-26, Claude: unida; no queda ninguna llamada mas/menos/por en catálogos, ejemplos ni docs de Oracle; los consumidores las tienen como ["mas", …] en JSON y el impresor nuevo las va a escribir con + al convertir. La mutación va en la ronda del corte.
