@@ -1,6 +1,6 @@
 # Nada vigila que una medida o un caso se escriba en JSON a mano: una medida meta que lo diga
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -15,3 +15,7 @@ Implementé meta.se_escribe_en_superficie y la relación archivo_de_autoria (dec
 ## Próximo paso
 
 Claude: correr la mutación completa, revisar los sobrevivientes de `meta.se_escribe_en_superficie` y `nucleo/autoria.py`, y registrar el resultado en esta tarea antes del cierre.
+
+### Nota (2026-09-26 03:49:58 UTC)
+
+2026-09-26, Claude: unida. Probada contra copias de los consumidores: Jam original 79 (41 medidas + 35 casos + 3 relaciones en JSON) y 0 después de oracle convertir; LyraGASP 223 y 0. Al subir a esta versión, cada consumidor la pone en sombra con cota = sus archivos JSON, convierte, y la cota baja a 0. La mutación va en la ronda del corte.
