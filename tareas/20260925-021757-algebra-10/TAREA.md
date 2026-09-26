@@ -1,6 +1,6 @@
 # El álgebra 1.0: cuatro decisiones que cierran falsos verdes y cambian el significado
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 92
 - ETIQUETAS: oracle, metalenguaje, algebra, flaqueza
 
@@ -42,3 +42,7 @@ Corregir en Jam los `null` explícitos de los mundos `sin_suelo` (10 desacuerdos
 ### Nota (2026-09-25 04:53:54 UTC)
 
 2026-09-25, Claude: medido con el núcleo de esta rama. LyraGASP (medidas/): ROJO — 8 casos del corpus ya no se ponen como deben porque usan null a propósito para decir «no decidible» (ancla_personaje.presente, montage_recarga.has_root_motion, entre otros), y 9 mutantes de medida sobreviven. Jam: ROJO — 10 desacuerdos del diferencial por null explícitos en sus fixtures de física, y la mutación falla. Es lo esperado del punto 4 (sin null) y del 2 (bool estricto): los consumidores tienen que modelar el «no decidible» explícito antes de subir a 1.0. Tareas en sus trackers: LyraGASP y Jam, «algebra-10-null». El núcleo se une a main SIN publicar.
+
+### Nota (2026-09-26 02:22:18 UTC)
+
+2026-09-26, Claude: cerrada. Los consumidores quedaron verificados con el álgebra 1.0: Jam y LyraGASP migraron sus null (bool más _medible / _decidible; tareas algebra-10-null en sus trackers, cerradas) y los tres consumidores miden VERDE con 0.31.1 (LyraGASP 487/487 mutantes y 580 diferenciales; Jam 448/448 y 1099; commander sin medidas). El álgebra 1.0 salió en 0.31.0 y 0.31.1.
