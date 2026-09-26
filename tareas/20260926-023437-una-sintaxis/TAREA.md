@@ -31,3 +31,7 @@ Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reprod
 ## Próximo paso
 
 Revisar AUDITORIA-3.md y corregir la aceptación de texto no impreso en juzgar/MCP/LSP/cargadores, el bypass CRLF de `oracle test` y `oracle formatear`, y las líneas README:604-608 que presentan JSON como formato par de autoría.
+
+### Nota (2026-09-26 11:59:39 UTC)
+
+2026-09-26, ENCARGO de la CUARTA auditoría (Codex, con shell, adversarial): después de AUDITORIA-3.md se cerró forma-unica-entradas (la forma única se exige al cargar en test, juzgar, MCP y cargadores; el LSP la diagnostica; CRLF y el salto final faltante son error; README corregido). Repetí EN CONTRA, ejecutando, cada fila abierta de las tablas de AUDITORIA-2 y AUDITORIA-3 y decí si sigue abierta. Después buscá cualquier entrada que todavía acepte, como medida, caso, relación o macro de un proyecto, un texto de superficie distinto del que escribe el impresor (probá también oracle medida probar/revisar/expandir, caso generar, contexto, mutar, censar, biblioteca, estudio y los ejemplos empaquetados) y cualquier lugar del paquete que enseñe o produzca otra forma de escribir. El JSON de archivos .json se acepta por decisión como formato de intercambio: no lo cuentes como hallazgo salvo que algo lo enseñe como forma de escribir. Escribí tareas/<esta>/AUDITORIA-4.md con comandos, salidas recortadas, tabla final y un veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
