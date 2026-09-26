@@ -152,11 +152,9 @@ enteran de que existen.
 
 ```oracle
 ninguno proceso.test_con_mutante_que_lo_mata:
-    relacion mutante
-    alias m
-    predicado m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
-    porque "un mutante que sobrevive es un test que no discrimina"
-    segun contrato
+    de mutante m
+    donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
+    umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina"
     ambito universal
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
@@ -168,22 +166,19 @@ ninguno proceso.test_con_mutante_que_lo_mata:
 | `ninguno-par` | lo mismo sobre PARES de la misma relación | 0 |
 | `peor` | el peor caso de una expresión no pasa de una tolerancia | 0 |
 
-**`peor` recibe la tolerancia una sola vez** y genera con ella el filtro y el umbral:
+**`peor` exige la misma tolerancia en el filtro y en el umbral**; la plantilla valida que coincidan:
 
 ```oracle
 peor snap.grilla:
-    relacion pieza
-    alias a
-    expresion desvio_de_grilla(hecho(a), 100.0)
-    tolerancia 1.0
-    porque "por debajo de 1 cm el desvío no se ve"
-    segun convencion
+    de pieza a
+    donde desvio_de_grilla(hecho(a), 100.0) > 1.0
+    resumen max(desvio_de_grilla(hecho(a), 100.0))
+    umbral <= 1.0 segun convencion porque "por debajo de 1 cm el desvío no se ve"
     ambito universal
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 
-Antes había que escribir la tolerancia dos veces y nada las mantenía juntas — era el caso `012` del corpus, cerrado por
-construcción.
+La invocación repite la tolerancia, y el lector rechaza valores distintos. Ese desajuste era el caso `012` del corpus.
 
 Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue siendo válida.
 `colocacion.interpenetracion` está escrita así porque une dos relaciones DISTINTAS.
@@ -270,7 +265,7 @@ medida snap.grilla:
 
 Acá el valor es centímetros y no una cuenta, y eso dice más en el informe. **Escrita a mano en forma canónica, la
 tolerancia aparece dos veces** —en el `donde` y en el `umbral`— y nada las mantiene juntas: era el
-caso `012` del corpus. Por eso esta forma se escribe habitualmente con la macro `peor`, que la recibe una sola vez.
+caso `012` del corpus. La macro `peor` exige que ambas apariciones coincidan.
 
 ### 3. Comparar filas entre sí
 
