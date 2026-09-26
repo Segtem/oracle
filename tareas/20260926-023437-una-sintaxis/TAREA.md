@@ -11,3 +11,11 @@
 ### Nota (2026-09-26 04:03:53 UTC)
 
 2026-09-26, ENCARGO de auditoría (Codex, con shell, adversarial): ¿Oracle tiene hoy UNA sola sintaxis para escribir? Buscar en contra, EJECUTANDO. Para cada cosa que un autor escribe —medida, caso, relación, macro (defmacro), expresión, umbral, requiere, evidencia dentro de un caso, configuración del proyecto— listar TODAS las formas que Oracle acepta hoy (lector de superficie, lector JSON, formas funcionales como mas(), escapes como «fila {…}» en .caso, sinónimos de palabras clave, órdenes alternativos, mayúsculas) y, por cada una: si se enseña (docs, manual, plantillas, mensajes de error, oracle nueva/caso/relaciones --escribir, MCP, LSP, contexto), si se imprime (el impresor la produce) y si sólo se acepta por compatibilidad. Recorrer todos los puntos de entrada del paquete: CLI, MCP (tools/mcp.py), LSP (tools/lsp.py), oracle contexto, oracle manual, plantilla sensor-prosa, biblioteca nueva, perfiles empaquetados, ejemplos, docs y README. Distinguir tres categorías con evidencia: (a) sintaxis de ESCRITURA única, (b) formas que se aceptan al leer pero nadie produce ni enseña, (c) segundas formas que todavía se enseñan o se producen = hallazgo. Para (b) recomendar si conviene retirarlas (con el costo de compatibilidad) o dejarlas. Escribir el informe en tareas/<esta>/AUDITORIA.md con cada comando ejecutado y su salida recortada, y una tabla final. Sin cambiar código. Sin commits.
+
+### Nota (2026-09-26 04:08:40 UTC)
+
+Auditoría adversarial ejecutada y documentada en AUDITORIA.md. Hallazgos reproducidos: MCP acepta y enseña medida JSON; convertir imprime JSON; contexto muestra accesores AST; README presenta formatos dobles; macro admite dos cuerpos; caso acepta tabla y escape; relación acepta JSON incluso en .oracle. Sin cambios de código ni commits.
+
+## Próximo paso
+
+Revisar los hallazgos reproducidos en AUDITORIA.md y decidir qué entradas públicas de JSON y qué variante de invocación de macro conservar como sintaxis de autoría antes de cambiar código o documentación.
