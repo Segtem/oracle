@@ -4,7 +4,7 @@ medida simulacion.la_traza_no_tiene_huecos:
         clave corrida = e.corrida
         agregado registrados = contar(1)
         agregado ultimo = max(e.t)
-    donde registrados != mas(ultimo, 1)
+    donde registrados != ultimo + 1
     resumen contar(1)
     umbral <= 0 segun convencion porque "por convención el tiempo simulado arranca en 0 y avanza de a uno, así que una corrida completa registra exactamente max(t) + 1 eventos: ninguna corrida puede registrar otra cantidad"
     requiere evento

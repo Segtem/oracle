@@ -31,9 +31,10 @@ class TemasTests(unittest.TestCase):
 
     def test_la_aritmetica_de_superficie_aparece_en_el_manual(self) -> None:
         entradas = dict(manual.entradas("aritmetica"))
-        self.assertIn("mas(a, b)", entradas["a + b"])
-        self.assertIn("menos(a, b)", entradas["a - b"])
-        self.assertIn("por(a, b)", entradas["a * b"])
+        self.assertEqual("suma", entradas["a + b"])
+        self.assertIn("resta", entradas["a - b"])
+        self.assertIn("producto", entradas["a * b"])
+        self.assertNotIn("mas(", str(entradas))
         self.assertIn("guion", entradas["a - b"])
 
     def test_los_vocabularios_van_antes_que_los_temas_derivados(self) -> None:

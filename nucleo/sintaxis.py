@@ -259,7 +259,7 @@ def _tokenizar(texto: str, linea: int, columna_base: int) -> list[Token]:
         if c in "/%^":
             _fallar(linea, col,
                     f"«{c}» no es un operador del lenguaje; declarà una función escalar "
-                    "y llamala por su nombre, como mas(a, b)", literal=True)
+                    "y llamala por su nombre", literal=True)
         if unicodedata.category(c).startswith("L"):
             _fallar(linea, col,
                     f"«{c}» no puede ir en un nombre: relaciones, alias y campos usan minúsculas "
@@ -1555,6 +1555,12 @@ def _expr(expr, padre: int = 0) -> str:
     if cabeza in COMPARADORES:
         prec = 3
         texto = f"{_expr(expr[1], prec)} {cabeza} {_expr(expr[2], prec)}"
+    elif cabeza in ("mas", "menos", "por") and len(expr) == 3:
+        # La aritmética asocia a izquierda. A la derecha, incluso un operador del
+        # mismo nivel necesita paréntesis para conservar exactamente el árbol.
+        prec = 6 if cabeza == "por" else 5
+        operador = {"mas": "+", "menos": "-", "por": "*"}[cabeza]
+        texto = f"{_expr(expr[1], prec)} {operador} {_expr(expr[2], prec + 1)}"
     elif cabeza in ("y", "o"):
         prec = LOGICOS[cabeza]
         texto = f" {cabeza} ".join(_expr(e, prec) for e in expr[1:])

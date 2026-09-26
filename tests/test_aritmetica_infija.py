@@ -2,7 +2,7 @@
 
 import unittest
 
-from nucleo.sintaxis import ErrorSintaxis, _leer_expr, imprimir, leer
+from nucleo.sintaxis import ErrorSintaxis, _expr, _leer_expr, imprimir, leer
 
 
 class AritmeticaInfijaTests(unittest.TestCase):
@@ -56,7 +56,27 @@ class AritmeticaInfijaTests(unittest.TestCase):
         self.assertEqual(infija, funcional)
         impresa = imprimir(infija)
         self.assertEqual(leer(impresa), infija)
-        self.assertIn("mas(t.turno, 1) == por(2, 3)", impresa)
+        self.assertIn("t.turno + 1 == 2 * 3", impresa)
+        self.assertEqual(imprimir(funcional), impresa)
+
+    def test_impresion_aritmetica_con_parentesis_minimos_y_arbol_exacto(self):
+        c = lambda nombre: ["col", nombre]
+        a, b, d = c("a"), c("b"), c("c")
+        casos = (
+            (["mas", a, ["por", b, d]], "a + b * c"),
+            (["por", ["mas", a, b], d], "(a + b) * c"),
+            (["menos", ["mas", a, b], d], "a + b - c"),
+            (["mas", a, ["menos", b, d]], "a + (b - c)"),
+            (["menos", a, ["mas", b, d]], "a - (b + c)"),
+            (["por", a, ["por", b, d]], "a * (b * c)"),
+            (["por", ["por", a, b], d], "a * b * c"),
+            (["mas", ["por", a, b], -1], "a * b + -1"),
+            (["==", ["mas", a, b], ["por", b, d]], "a + b == b * c"),
+        )
+        for arbol, texto in casos:
+            with self.subTest(texto=texto):
+                self.assertEqual(_expr(arbol), texto)
+                self.assertEqual(_leer_expr(texto, 1, 1), arbol)
 
     def test_operador_no_admitido_indica_la_alternativa(self):
         for operador in ("/", "%", "^"):

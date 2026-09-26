@@ -444,7 +444,7 @@ medida simulacion.la_traza_no_tiene_huecos:
         clave corrida = e.corrida
         agregado registrados = contar(1)
         agregado ultimo = max(e.t)
-    donde registrados != mas(ultimo, 1)
+    donde registrados != ultimo + 1
     resumen contar(1)
     umbral <= 0 segun convencion porque "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
     requiere evento
