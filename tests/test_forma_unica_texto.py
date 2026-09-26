@@ -243,3 +243,17 @@ class LenteFueraDeForma(unittest.TestCase):
         proy = Proyecto(raiz)
         self.assertTrue(lsp.lentes(proy, canonica, texto))
         self.assertEqual(lsp.lentes(proy, canonica, texto.replace("umbral <=", "umbral  <=", 1)), [])
+
+
+class OrigenEnUnSoloOrden(unittest.TestCase):
+    def test_el_orden_de_origen_lo_pone_el_impresor(self):
+        # AUDITORIA-7: con el orden de inserción, repo/commit y commit/repo eran los dos canónicos.
+        ruta = Path(__file__).resolve().parents[1] / "corpus" / "meta" / (
+            "494-la-cota-de-la-sombra-observada-por-el-recorrido.caso")
+        texto = ruta.read_text(encoding="utf-8")
+        lineas = texto.splitlines(keepends=True)
+        i = next(n for n, l in enumerate(lineas) if l.strip().startswith("repo:"))
+        lineas[i], lineas[i + 1] = lineas[i + 1], lineas[i]
+        invertido = "".join(lineas)
+        self.assertEqual(caso.imprimir(caso.leer(invertido)), texto)
+        self.assertNotEqual(caso.imprimir(caso.leer(invertido)), invertido)

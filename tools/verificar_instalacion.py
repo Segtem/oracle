@@ -17,6 +17,8 @@ from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(RAIZ))
+from nucleo.relacion import imprimir as imprimir_relacion
+from nucleo.sintaxis import imprimir as imprimir_medida
 
 
 def _comprobar_enlaces(metadata: str, formato: str) -> None:
@@ -401,8 +403,8 @@ def main() -> int:
             ["umbral", "<=", 10, "el smoke test fija un resultado observable"],
             ["alcance", "NO comprueba dominios externos"],
         ]
-        (catalogo / "demo.instalado.json").write_text(
-            json.dumps(medida), encoding="utf-8")
+        (catalogo / "demo.instalado.oracle").write_text(
+            imprimir_medida(medida), encoding="utf-8")
         (proyecto / "oracle.json").write_text(json.dumps({
             "esquema": "oracle.proyecto/v1",
             "perfiles": ["smoke_externo"],
@@ -538,7 +540,7 @@ def main() -> int:
         # pasar su propia vara, no sólo arrancar.
         relaciones_cli = proyecto_cli / "relaciones"
         relaciones_cli.mkdir(exist_ok=True)
-        (relaciones_cli / "item.json").write_text(json.dumps([
+        (relaciones_cli / "item.relacion").write_text(imprimir_relacion([
             "relacion", "item",
             ["campos",
              ["campo", "id", "texto", "sin_unidad"],

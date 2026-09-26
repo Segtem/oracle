@@ -176,7 +176,7 @@ class RondaSinConstruccion(unittest.TestCase):
                 "OPERADORES — SEGUN — VERBOS — oracle medida")
         if "motor_a" in " ".join(args):
             fuente = Path(cwd).parent
-            self.assertEqual(json.loads((fuente / "perfiles-host" / "smoke_externo" / "catalogos" / "demo.instalado.json").read_text())[4][2], 10)
+            self.assertIn("    umbral <= 10 ", (fuente / "perfiles-host" / "smoke_externo" / "catalogos" / "demo.instalado.oracle").read_text())
             self.assertTrue(json.loads((fuente / "proyecto-empaquetado" / "oracle.json").read_text())["catalogo_base"])
         return SimpleNamespace(returncode=0, stdout=salida, stderr="")
 

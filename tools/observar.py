@@ -40,7 +40,7 @@ Acá una discrepancia detiene la captura y no escribe nada; una corrida distinta
   "referentes": ["tools/mide_lo_que_sea.py", "docs/inventario.json"],
   "presencia": [{"relacion": "clip", "campos": ["fbx"]}],
   "exige_filas": ["clip"],
-  "medida": "medidas/catalogos/dominio/dominio.lo_que_falta.json",
+  "medida": "medidas/catalogos/dominio/dominio.lo_que_falta.oracle",
   "espera": {"valor": 12},
   "caso": {
     "id": "017-lo-que-falto-en-la-corrida",

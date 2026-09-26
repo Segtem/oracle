@@ -459,6 +459,16 @@ CAMPOS_DEL_CASO = frozenset({
 })
 
 
+# El orden en que ya estaba escrito todo el corpus; un campo nuevo va después, alfabético.
+ORDEN_ORIGEN = ("tipo", "repo", "commit", "plan", "cuando_utc", "comando", "registro",
+                "evidencia_sha256", "estado")
+
+
+def _orden_origen(item):
+    clave = item[0]
+    return (ORDEN_ORIGEN.index(clave), "") if clave in ORDEN_ORIGEN else (len(ORDEN_ORIGEN), clave)
+
+
 def imprimir(datos: dict) -> str:
     if not isinstance(datos, dict):
         raise ValueError("un caso tiene que ser un objeto JSON")
@@ -490,7 +500,8 @@ def imprimir(datos: dict) -> str:
     lineas = [f"caso {datos['id']}:"]
     lineas.append(f"{IND}fecha: {_escalar(datos['fecha'])}")
     lineas.append(f"{IND}origen:")
-    for clave, valor in datos["origen"].items():
+    # Un orden por el impresor, no por quien escribió: si no, dos textos del mismo origen son canónicos.
+    for clave, valor in sorted(datos["origen"].items(), key=_orden_origen):
         lineas.append(f"{IND2}{clave}: {_escalar(valor)}")
     if "procedencia" in datos:
         lineas.append(f"{IND}procedencia: {datos['procedencia']}")
