@@ -62,7 +62,7 @@ Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reprod
 
 ## Próximo paso
 
-Revisar AUDITORIA-6.md: hacer que LSP `codeLens` no procese medidas fuera de la forma única; corregir las instrucciones JSON de `ejemplo/caso-observado/README.md`, `docs/14-sensor-prosa.md` y la ayuda de `tools/medida.py`; regenerar el sitio y repetir la auditoría adversarial.
+Revisar AUDITORIA-11.md (veredicto: «una sola sintaxis de escritura: sí») y proceder al cierre de la tarea `una-sintaxis`.
 
 ### Nota (2026-09-26 12:54:05 UTC)
 
@@ -103,3 +103,11 @@ Revisar AUDITORIA-6.md: hacer que LSP `codeLens` no procese medidas fuera de la 
 ### Nota (2026-09-26 13:41:54 UTC)
 
 2026-09-26, ENCARGO de la UNDÉCIMA auditoría (Codex, con shell, adversarial): mismo criterio que la décima (definición pública en ESPECIFICACION.md: un texto por árbol sin contar líneas de comentario completas; el orden de relaciones, columnas y claves salvo origen es parte del árbol). Texto histórico (crónica de la especificación, notas de release de versiones publicadas) es hallazgo SÓLO si presenta como vigente una forma que hoy se rechaza sin decir que cambió. Repetí EN CONTRA, ejecutando, todo punto abierto de AUDITORIA-2 a -10, y buscá: (a) dos textos distintos, fuera de líneas de comentario completas, con el mismo árbol, que el cargador acepte; (b) cualquier entrada que acepte, como medida, caso, relación o macro de un proyecto, un texto distinto del impresor fuera de esas líneas; (c) cualquier lugar del paquete —wheel construido con uv build, oracle plantilla, manual, contexto, ayuda de cada comando, sitio en docs/, mensajes de error— que enseñe o produzca una forma que el cargador rechace o que no sea la superficie; (d) contradicciones entre la definición pública y el código. JSON en .json: intercambio admitido. Escribí tareas/<esta>/AUDITORIA-11.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
+
+### Nota (2026-09-26 13:57:50 UTC)
+
+2026-09-26, Undécima auditoría adversarial finalizada y documentada en AUDITORIA-11.md. Se reejecutaron todas las variantes de AUDITORIA-2 a -10, se comprobó la aclaración de t1.turno-1 en NOTAS-DE-RELEASE.md y docs/notas.html, empaquetado de wheel con uv build e instalación en venv limpio de /tmp, plantilla sensor-prosa con oracle test VERDE, y validación estricta en cargadores, CLI, MCP y LSP. Veredicto: una sola sintaxis de escritura: sí.
+
+### Nota (2026-09-26 13:58:50 UTC)
+
+2026-09-26, Claude: la undécima auditoría la hizo agy (Docker) porque Codex llegó a su límite de uso a mitad de la corrida. Veredicto: «una sola sintaxis de escritura: sí». Verifiqué a mano tres de sus afirmaciones (sin LF final, resta sin espacios y JSON dentro de un .oracle: los tres rechazados por cargar_fuente_medida). Pendiente antes del corte: una confirmación independiente de Codex cuando vuelva a tener cupo, porque el «sí» es de un solo auditor.
