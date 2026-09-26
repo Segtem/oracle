@@ -1,6 +1,6 @@
 # La web cuenta la sintaxis única: portada, guía de escribir, cómo funciona y la batalla naval
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 1
 - ETIQUETAS: 
 
