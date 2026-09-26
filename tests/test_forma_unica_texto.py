@@ -323,3 +323,38 @@ class DiferenciaDeForma(unittest.TestCase):
         self.assertEqual((len(largo), largo[-1]), (9, "…"))
         justo = diferencia("a\n", "b\n", max_lineas=5)    # 3 + 2 = 5: cabe entero
         self.assertEqual((len(justo), justo[-1]), (5, "+b"))
+
+
+class ComentariosEnCaso(unittest.TestCase):
+    # AUDITORIA-13: en .caso una línea # dentro de la prosa entraba como texto, y en origen y
+    # evidencia cortaba el bloque. La regla pública es léxica: una línea # es comentario donde sea.
+    RUTA = Path(__file__).resolve().parents[1] / "corpus" / "meta" / (
+        "494-la-cota-de-la-sombra-observada-por-el-recorrido.caso")
+
+    def test_una_linea_de_comentario_en_cualquier_posicion_no_cambia_el_caso(self):
+        limpio = self.RUTA.read_text(encoding="utf-8")
+        arbol = caso.leer(limpio)
+        lineas = limpio.splitlines(keepends=True)
+        with tempfile.TemporaryDirectory() as td:
+            ruta = Path(td) / "corpus" / "d" / self.RUTA.name
+            ruta.parent.mkdir(parents=True)
+            for i in range(len(lineas) + 1):
+                sangria = "        " if 0 < i < len(lineas) else ""
+                comentado = "".join(lineas[:i]) + f"{sangria}# nota {i}\n" + "".join(lineas[i:])
+                with self.subTest(posicion=i):
+                    self.assertEqual(caso.leer(comentado), arbol)
+                    ruta.write_text(comentado, encoding="utf-8")
+                    self.assertEqual(cargar_fuente_caso(ruta), arbol)
+                    self.assertEqual(
+                        formato.con_comentarios(comentado, formato.canonico(ruta, comentado)), comentado)
+
+    def test_el_error_sigue_nombrando_la_linea_del_archivo(self):
+        texto = "# arriba\n# otra\n" + self.RUTA.read_text(encoding="utf-8").replace("    fecha:", "    fechaa:", 1)
+        with self.assertRaisesRegex(Exception, r"línea 4\b"):
+            caso.leer(texto)
+
+    def test_el_impresor_no_escribe_prosa_que_empiece_con_numeral(self):
+        datos = caso.leer(self.RUTA.read_text(encoding="utf-8"))
+        datos["sintoma"] = "primera\n# segunda"
+        with self.assertRaisesRegex(ValueError, "no puede empezar con `#`"):
+            caso.imprimir(datos)

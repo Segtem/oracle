@@ -538,8 +538,11 @@ de escribir.
 «Una sola forma» quiere decir **un texto por árbol, sin contar las líneas de comentario**, no un
 texto por conjunto de datos. Una línea que empieza con `#` (después de la sangría) no es parte del
 árbol ni de la forma única: se puede agregar o sacar sin cambiar nada de lo que Oracle carga, y
-`oracle formatear` la conserva, como `gofmt` conserva los comentarios. Es la única excepción; un
-comentario al final de una línea con código no existe. El
+`oracle formatear` la conserva, como `gofmt` conserva los comentarios. La regla es léxica y vale
+en cualquier lugar del archivo, también dentro de un bloque (el `origen` y la `evidencia` de un caso,
+las variantes de una relación, la prosa): por eso una línea de prosa no puede empezar con `#`, y el
+impresor se niega a escribirla. Es la única excepción; un comentario al final de una línea con
+código no existe. El
 orden de las relaciones de una evidencia, el de las columnas de una tabla y el de las claves de un
 objeto son parte del árbol: los elige quien escribe, porque son orden de lectura (`evento: corrida,
 t, actor, que` se lee en el orden en que pasa), y el impresor los conserva, como `gofmt` conserva

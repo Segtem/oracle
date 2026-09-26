@@ -149,6 +149,12 @@ def _escalar(valor) -> str:
 
 def _campo_bloque(nombre: str, valor: str) -> list[str]:
     lineas = str(valor).split("\n")
+    # Una línea que empieza con `#` es comentario en todo el archivo, también dentro de la prosa:
+    # escribirla la haría desaparecer al releer.
+    for linea in lineas:
+        if linea.lstrip().startswith("#"):
+            raise ValueError(f"«{nombre}»: una línea de prosa no puede empezar con `#` "
+                             f"(sería un comentario): «{linea.strip()}»")
     return [f"{IND}{nombre}:", *(f"{IND2}{linea}" for linea in lineas)]
 
 
@@ -207,21 +213,25 @@ def _lineas_relacion(nombre: str, filas: list) -> list[str]:
 class _Parser:
     def __init__(self, texto: str) -> None:
         self.texto = texto
-        self.lineas = texto.splitlines()
+        # Las líneas `#` completas se van antes de parsear, estén donde estén (entre campos, en la
+        # prosa, en el origen o en la evidencia); cada línea que queda conserva su número real.
+        todas = texto.splitlines()
+        self.numeros = [n for n, linea in enumerate(todas, 1) if not linea.lstrip().startswith("#")]
+        self.lineas = [todas[n - 1] for n in self.numeros]
+        self.fin = len(todas) + 1
         self.i = 0
 
     def _saltar_vacios(self) -> None:
         while self.i < len(self.lineas):
             linea = self.lineas[self.i]
-            if linea.strip() and not linea.lstrip().startswith("#"):
+            if linea.strip():
                 break
             self.i += 1
 
     def _actual(self) -> tuple[int, str]:
         if self.i >= len(self.lineas):
-            linea = len(self.lineas) + 1
-            return linea, ""
-        return self.i + 1, self.lineas[self.i]
+            return self.fin, ""
+        return self.numeros[self.i], self.lineas[self.i]
 
     def _tomar_campo(self, nombre: str, nivel: int = 1) -> tuple[str, int, int] | None:
         self._saltar_vacios()
