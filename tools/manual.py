@@ -117,9 +117,9 @@ def entradas(tema: str) -> list[tuple[str, str]]:
     if tema == "aritmetica":
         return [
             ("a + b", "suma"),
-            ("a - b", "resta, también sin espacios (a-b). "
-                      "En expresiones el guion siempre es resta; los nombres de macro "
-                      "con guion siguen válidos en encabezados"),
+            ("a - b", "resta, con un espacio a cada lado: el impresor la escribe así y "
+                      "`a-b` queda fuera de la forma única. Los nombres de macro con guion "
+                      "siguen válidos en encabezados"),
             ("a * b", "producto; se agrupa antes que + y -"),
             ("(a + b) * c", "los paréntesis cambian la precedencia; operadores del mismo nivel "
                               "se agrupan de izquierda a derecha"),

@@ -533,8 +533,20 @@ macros (`.oracle`), a los casos del corpus (`.caso`) y a las relaciones (`.relac
 escribe el impresor. Un archivo en otra grafía no carga; `oracle formatear` lo lleva a la forma
 única sin cambiar su árbol. El JSON es la forma canónica —lo que Oracle guarda y compara por
 dentro— y se sigue leyendo desde archivos `.json` como formato de intercambio, pero no es una forma
-de escribir. Un archivo no declara contra qué versión se escribió: la pide el proyecto, en
-`oracle.json`, y la compara el núcleo:
+de escribir.
+
+«Una sola forma» quiere decir **un texto por árbol**, no un texto por conjunto de datos. El
+orden de las relaciones de una evidencia, el de las columnas de una tabla y el de las claves de un
+objeto son parte del árbol: los elige quien escribe, porque son orden de lectura (`evento: corrida,
+t, actor, que` se lee en el orden en que pasa), y el impresor los conserva, como `gofmt` conserva
+el orden de los campos de un literal. Dos casos que sólo difieren en ese orden son dos árboles
+distintos con los mismos datos, no dos grafías del mismo árbol. La excepción es el `origen` de un
+caso, que es metadato y no se lee en orden: el impresor lo escribe siempre en el mismo (`tipo`,
+`repo`, `commit`, `plan`, `cuando_utc`, `comando`, `registro`, `evidencia_sha256`, `estado`, y
+cualquier otro campo después, en orden alfabético).
+
+Un archivo no declara contra qué versión se escribió: la pide el proyecto, en `oracle.json`, y la
+compara el núcleo:
 
 - un proyecto que pide una versión es compatible si la mayor coincide y la menor del núcleo es al
   menos la pedida;
