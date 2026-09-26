@@ -2,7 +2,7 @@ esquema = "oracle.biblioteca/v1"
 id = "segtem.meta.calidad"
 version = "0.1.0"
 algebra = "1.0"
-sintaxis = "0.2"
+sintaxis = "1.0"
 datos_solamente = true
 
 [contenido]

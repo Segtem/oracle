@@ -8,7 +8,7 @@ from pathlib import Path
 
 from nucleo.medida import Medida
 from nucleo.sintaxis import ErrorSintaxis, fragmento_de_error, leer
-from nucleo.version import VERSION_ALGEBRA, VERSION_SINTAXIS
+from nucleo.version import VERSION_ALGEBRA, VERSION_SINTAXIS, del_nucleo_sintaxis
 from tools import sintaxis
 
 
@@ -76,7 +76,8 @@ class RequiereOrdenTests(unittest.TestCase):
                 resultado = medida.evaluar(hechos)
                 self.assertEqual((resultado.valor, resultado.ok, resultado.sin_evidencia),
                                  (valor, ok, sin_evidencia))
-        self.assertEqual((VERSION_ALGEBRA, VERSION_SINTAXIS), ('1.0', '0.8'))
+        self.assertEqual(VERSION_ALGEBRA, '1.0')
+        self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
 
     def test_otro_prefijo_incorrecto_conserva_el_diagnostico(self):
         texto = self._texto(3).replace('requiere dato', 'requierex dato')

@@ -2148,17 +2148,19 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
     def test_solo_la_forma_impresa_carga_aunque_el_lector_entienda_versiones(self) -> None:
         from nucleo.medida import MedidaMalDeclarada
         self.assertEqual(self._cargar(None).id, "d.prueba")
-        for version, cuerpo in (("0.2", self.CUERPO),
-                                ("0.1", self.CUERPO_ANTERIOR),
-                                ("0.0", self.CUERPO_ANTERIOR)):
-            with self.subTest(version=version), self.assertRaises(MedidaMalDeclarada) as ctx:
-                self._cargar(version, cuerpo)
+        for cuerpo in (self.CUERPO, self.CUERPO_ANTERIOR):
+            with self.subTest(cuerpo=cuerpo), self.assertRaises(MedidaMalDeclarada) as ctx:
+                self._cargar(VERSION_SINTAXIS, cuerpo)
             self.assertIn("fuera de la forma única", str(ctx.exception))
 
     def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
         import tempfile
         from nucleo.medida import MedidaMalDeclarada, cargar
-        for declarada in ("0.9", "1.0"):
+        from nucleo.version import parsear
+
+        vigente = parsear(VERSION_SINTAXIS)
+        for declarada in (f"{vigente.mayor}.{vigente.menor + 1}",
+                          f"{vigente.mayor + 1}.0"):
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as d:
                 ruta = Path(d) / "d.prueba.oracle"
                 ruta.write_text(f"sintaxis {declarada}\n" + self.CUERPO, encoding="utf-8")

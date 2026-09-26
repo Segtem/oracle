@@ -1585,7 +1585,13 @@ class VersionDelProyecto(unittest.TestCase):
         self.assertEqual(configuracion(Proyecto(RAIZ)).catalogo_base, True)
 
     def test_una_sintaxis_compatible_carga_sin_queja(self) -> None:
-        for declarada in ("0.0", "0.1", "0.2"):
+        from nucleo.version import VERSION_SINTAXIS, parsear
+
+        vigente = parsear(VERSION_SINTAXIS)
+        compatibles = [VERSION_SINTAXIS]
+        if vigente.menor:
+            compatibles.append(f"{vigente.mayor}.{vigente.menor - 1}")
+        for declarada in compatibles:
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",
@@ -1593,9 +1599,13 @@ class VersionDelProyecto(unittest.TestCase):
                 self.assertEqual(configuracion(Proyecto(raiz)).perfiles, ())
 
     def test_una_sintaxis_incompatible_falla_diciendo_cual_hay_y_cual_se_pidio(self) -> None:
-        from nucleo.version import VERSION_SINTAXIS
+        from nucleo.version import VERSION_SINTAXIS, parsear
 
-        for declarada in ("0.9", "1.0", "9.9"):
+        vigente = parsear(VERSION_SINTAXIS)
+        incompatibles = (f"{vigente.mayor}.{vigente.menor + 1}",
+                         f"{vigente.mayor + 1}.0",
+                         f"{vigente.mayor - 1}.0" if vigente.mayor else f"{vigente.mayor + 2}.0")
+        for declarada in incompatibles:
             with self.subTest(declarada=declarada), tempfile.TemporaryDirectory() as td:
                 raiz = self._raiz(td)
                 self._configurar(raiz, {"esquema": "oracle.proyecto/v1",

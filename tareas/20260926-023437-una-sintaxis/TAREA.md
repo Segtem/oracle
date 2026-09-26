@@ -28,10 +28,6 @@ Segunda auditoría adversarial completada y documentada en AUDITORIA-2.md. Verif
 
 Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reproduje las variantes de AUDITORIA.md y AUDITORIA-2.md, hallé aceptación de texto no impreso fuera de oracle test, bypass CRLF de forma única y remanente editorial en README:604-608. Sin cambios de código ni commits.
 
-## Próximo paso
-
-Revisar AUDITORIA-3.md y corregir la aceptación de texto no impreso en juzgar/MCP/LSP/cargadores, el bypass CRLF de `oracle test` y `oracle formatear`, y las líneas README:604-608 que presentan JSON como formato par de autoría.
-
 ### Nota (2026-09-26 11:59:39 UTC)
 
 2026-09-26, ENCARGO de la CUARTA auditoría (Codex, con shell, adversarial): después de AUDITORIA-3.md se cerró forma-unica-entradas (la forma única se exige al cargar en test, juzgar, MCP y cargadores; el LSP la diagnostica; CRLF y el salto final faltante son error; README corregido). Repetí EN CONTRA, ejecutando, cada fila abierta de las tablas de AUDITORIA-2 y AUDITORIA-3 y decí si sigue abierta. Después buscá cualquier entrada que todavía acepte, como medida, caso, relación o macro de un proyecto, un texto de superficie distinto del que escribe el impresor (probá también oracle medida probar/revisar/expandir, caso generar, contexto, mutar, censar, biblioteca, estudio y los ejemplos empaquetados) y cualquier lugar del paquete que enseñe o produzca otra forma de escribir. El JSON de archivos .json se acepta por decisión como formato de intercambio: no lo cuentes como hallazgo salvo que algo lo enseñe como forma de escribir. Escribí tareas/<esta>/AUDITORIA-4.md con comandos, salidas recortadas, tabla final y un veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
@@ -39,3 +35,11 @@ Revisar AUDITORIA-3.md y corregir la aceptación de texto no impreso en juzgar/M
 ### Nota (2026-09-26 12:11:35 UTC)
 
 2026-09-26, Claude: AUDITORIA-4 (Codex) dio no por un solo punto: ESPECIFICACION enseñaba la línea «sintaxis MAYOR.MENOR» y que un .oracle viejo carga sin tocarlo. Al corregirlo apareció algo más grande: por la regla de la propia especificación (caso 3), que formas aceptadas pasen a ser error es MAYOR, así que esto no es la sintaxis 0.8 sino la 1.0; como 0.8 no se publicó, VERSION_SINTAXIS pasa a 1.0 y la crónica cuenta todo lo que entró. En la rama tsx1: la especificación reescrita (la versión la pide oracle.json, no el archivo; el texto válido es el del impresor). ENCARGO a Codex: los tests que fijan versiones 0.x a mano (fixtures de biblioteca con sintaxis 0.2, pruebas de compatibilidad que usan 1.0 como incompatible, la del encabezado de versión, test_requiere_orden) pasan a derivarse de VERSION_SINTAXIS o a usar versiones relativas (misma mayor y menor menor = compatible; otra mayor o menor mayor = incompatible), sin debilitar lo que prueban. Suite completa en verde, guía, sitio, test --rapido, cifras. Sin commits.
+
+### Nota (2026-09-26 12:16:56 UTC)
+
+2026-09-26, Codex: actualizado el manifiesto de biblioteca de ejemplo a sintaxis 1.0; las pruebas de compatibilidad usan VERSION_SINTAXIS y versiones relativas para distinguir compatible, menor futura y otra mayor; la prueba de forma única usa la versión vigente para que llegue a ese diagnóstico; test_requiere_orden deriva la versión del núcleo. Verificación: 190 tests focalizados OK; python3 -m unittest discover -s tests -t .: 2635 tests OK; python3 tools/guia.py --escribir: 0 salidas actualizadas; python3 tools/sitio.py --escribir: OK; python3 tools/cli.py test --rapido: VERDE; python3 tools/cifras.py --actualizar: OK. Sin commits.
+
+## Próximo paso
+
+Revisar los cambios de sintaxis 1.0 y estas pruebas corregidas; continuar el cierre de la tarea principal y de los consumidores Jam y LyraGASP según sus tareas correspondientes.
