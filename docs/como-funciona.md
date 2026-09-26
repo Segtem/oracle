@@ -342,7 +342,7 @@ MEDIDAS SIN CASOS ✗ — 2 medida(s) propias sin ejercitar:
   · flota.casillas_dentro_del_tablero: escribí un caso rojo y uno verde que ejerzan esta medida
   · flota.casillas_dentro_sin_requiere: escribí un caso rojo y uno verde que ejerzan esta medida
 
-SINTAXIS OK · 2 medidas · 0 macros · 0 casos
+SINTAXIS OK · 2 medidas · 0 macros · 0 casos · 0 relaciones
 
 ACEPTACIÓN ✗ — sin casos en el corpus: un catálogo con medidas no puede verificarse sin casos
 
@@ -404,7 +404,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 7 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 2 medidas · 0 macros · 7 casos
+SINTAXIS OK · 2 medidas · 0 macros · 7 casos · 0 relaciones
 
 catálogo: 2 medidas · corpus: 7 casos
 
@@ -450,7 +450,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 6 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 6 casos
+SINTAXIS OK · 1 medidas · 0 macros · 6 casos · 0 relaciones
 
 catálogo: 1 medidas · corpus: 6 casos
 

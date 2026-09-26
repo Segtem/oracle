@@ -1,0 +1,5 @@
+relacion alcanzable:
+    desde: texto
+    hasta: texto
+    saltos: entero saltos
+    alcance "observa el cierre transitivo de alcanzabilidad entre módulos desde las entradas. NO observa la carga dinámica de módulos por importlib o plugins"

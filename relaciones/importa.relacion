@@ -1,0 +1,5 @@
+relacion importa:
+    a: texto
+    b: texto
+    es_test: booleano
+    alcance "cada import estático de un módulo del árbol hacia otro módulo conocido, y si el que importa es un test (`perfiles/python/marco.py`). NO ve la carga dinámica —importlib, un plugin, un punto de entrada por configuración— ni si el módulo importado se llega a usar"

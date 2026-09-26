@@ -1,0 +1,6 @@
+relacion afirmacion:
+    id: texto
+    texto: texto
+    comando: texto
+    alcance: texto
+    alcance "observa afirmaciones de verificación y su alcance declarado. NO observa si el alcance escrito es honesto o pertinente, ya que ningún emisor propio de Oracle produce esta relación"

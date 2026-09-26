@@ -130,6 +130,7 @@ class CliSintaxisTests(unittest.TestCase):
             "medidas convertidas: 1\n"
             "macros convertidas: 1\n"
             "casos convertidos: 1\n"
+            "relaciones convertidas: 0\n"
             "ida JSON: OK\n"
             "vuelta texto: OK\n"
             "caracteres: JSON 8 · superficie 10\n"

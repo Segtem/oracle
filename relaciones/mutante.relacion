@@ -1,0 +1,19 @@
+relacion mutante:
+    id: texto
+    apunta_a: texto
+    cambio: texto
+    tipo: texto
+    variantes por tipo:
+        medida:
+            detecciones_conductuales: entero sin_unidad
+            rechazos_del_algebra: entero sin_unidad
+        codigo:
+            murio: booleano
+            estado: texto
+            tests_fallaron: booleano
+            error_arnes: booleano
+            timeout: booleano
+            codigo_salida: entero sin_unidad
+            equivalente_declarado: booleano
+            razon_equivalente: texto
+    alcance "observa la identificación y el resultado de la mutación (de medida o de código). NO observa el árbol de sintaxis completo, la traza de ejecución detallada de los tests, los tiempos individuales por test ni el entorno del sistema operativo"

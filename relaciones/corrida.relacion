@@ -1,0 +1,9 @@
+relacion corrida:
+    id: texto
+    escenario: texto
+    semilla: entero sin_unidad
+    pasos: entero pasos
+    razon: texto
+    presupuesto_agotado: booleano
+    determinista: booleano
+    alcance "lee los campos certificados de la corrida y el veredicto de determinismo. NO ve la ejecución interna paso a paso ni estados no resumidos"

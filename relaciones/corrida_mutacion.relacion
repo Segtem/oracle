@@ -1,0 +1,27 @@
+relacion corrida_mutacion:
+    id: texto
+    mutantes: entero sin_unidad
+    baseline_verde: booleano
+    baseline_estado: texto
+    bytecode_frio: booleano
+    tests_fallaron: entero sin_unidad
+    errores_arnes: entero sin_unidad
+    timeouts: entero sin_unidad
+    rondas_ejecutadas: entero sin_unidad
+    rondas_cache_verificadas: entero sin_unidad
+    mutantes_reutilizados: entero sin_unidad
+    primer_fallo_id: texto
+    primer_fallo_estado: texto
+    primer_fallo_codigo_salida: entero sin_unidad
+    primer_fallo_salida: texto
+    primer_fallo_salida_truncada: booleano
+    primer_inconcluso_id: texto
+    primer_inconcluso_estado: texto
+    primer_inconcluso_codigo_salida: entero sin_unidad
+    primer_inconcluso_salida: texto
+    primer_inconcluso_salida_truncada: booleano
+    aislada: booleano
+    fuentes_originales_intactas: booleano
+    parcial: booleano
+    total_sitios: entero sin_unidad
+    alcance "observa el resultado estructurado y estado de una corrida de mutación de código. NO observa los detalles por test, líneas mutadas ni el AST completo"

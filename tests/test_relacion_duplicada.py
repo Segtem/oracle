@@ -21,13 +21,13 @@ class RelacionDuplicadaTests(unittest.TestCase):
         (self.raiz / 'oracle.json').write_text('{"esquema": "oracle.proyecto/v1", "catalogo_base": true}', encoding='utf-8')
         for nombre in ('corpus', 'diferencial', 'relaciones'):
             (self.raiz / nombre).mkdir()
-        shutil.copy(RAIZ / 'relaciones/pieza.json', self.raiz / 'relaciones/pieza.json')
+        shutil.copy(RAIZ / 'relaciones/pieza.relacion', self.raiz / 'relaciones/pieza.relacion')
         (self.raiz / 'hechos.json').write_text('{"item": []}', encoding='utf-8')
 
     def comprobar_diagnostico(self, texto):
         self.assertIn('pieza', texto)
-        self.assertIn(str(RAIZ / 'relaciones/pieza.json'), texto)
-        self.assertIn(str(self.raiz / 'relaciones/pieza.json'), texto)
+        self.assertIn(str(RAIZ / 'relaciones/pieza.relacion'), texto)
+        self.assertIn(str(self.raiz / 'relaciones/pieza.relacion'), texto)
         self.assertIn('ya existe en Oracle', texto)
         self.assertIn('renombr', texto)
         self.assertNotIn('Traceback', texto)
@@ -63,7 +63,7 @@ class RelacionDuplicadaTests(unittest.TestCase):
 
     def test_duplicado_local_no_se_atribuye_a_oracle(self):
         (self.raiz / 'oracle.json').unlink()
-        shutil.copy(self.raiz / 'relaciones/pieza.json', self.raiz / 'relaciones/otra.json')
+        shutil.copy(self.raiz / 'relaciones/pieza.relacion', self.raiz / 'relaciones/otra.relacion')
         with self.assertRaisesRegex(mcp.ProyectoInvalido, 'está dos veces') as error:
             mcp.relaciones_del_proyecto(mcp.Proyecto(self.raiz))
         self.assertNotIn('ya existe en Oracle', str(error.exception))
@@ -74,6 +74,6 @@ class RelacionDuplicadaTests(unittest.TestCase):
         self.assertEqual(set(declaradas), {'pieza'})
 
     def test_declaracion_malformada_se_informa_como_proyecto_invalido(self):
-        (self.raiz / 'relaciones/pieza.json').write_text('{', encoding='utf-8')
-        with self.assertRaisesRegex(mcp.ProyectoInvalido, 'JSON inválido'):
+        (self.raiz / 'relaciones/pieza.relacion').write_text('{', encoding='utf-8')
+        with self.assertRaisesRegex(mcp.ProyectoInvalido, 'relacion <nombre>'):
             mcp.relaciones_del_proyecto(mcp.Proyecto(self.raiz))

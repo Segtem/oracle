@@ -55,7 +55,9 @@ arriba.
 puede declarar `espera: sin_evidencia` después de `etiqueta` en `.caso`, o
 `"espera": "sin_evidencia"` en JSON. Es el único valor admitido y no vale con
 `verde_correcto`. La aceptación exige ese resultado exacto; un caso de defecto sin el campo
-exige un rojo medido. El impresor conserva el campo. Sube la menor por la escritura nueva;
+exige un rojo medido. El impresor conserva el campo. La declaración de relaciones gana la
+superficie `.relacion`: campos tipados en líneas, unidad obligatoria para números, variantes y
+alcance explícito; el JSON canónico sigue cargando. Sube la menor por estas escrituras nuevas;
 el álgebra queda en `1.0` y la distribución en `0.31.1` hasta el próximo corte.
 
 **Corte 0.31.1 (2026-09-26): `VERSION_DISTRIBUCION` sube de `0.31.0` a `0.31.1`.** Cierra dos
@@ -518,7 +520,7 @@ no conoce el nodo nuevo.
 
 La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
 misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La regla aplica a las medidas
-(`.oracle`) y a los casos del corpus (`.caso`): la superficie es cómo se escribe y el JSON es cómo
+(`.oracle`), a los casos del corpus (`.caso`) y a las relaciones (`.relacion`): la superficie es cómo se escribe y el JSON es cómo
 se guarda, cargándose ambos por igual. La distinción que importa es entre el **lector** y el
 **impresor**, y no envejecen igual: un archivo `.oracle` o `.caso` viejo se **lee**; el
 impresor no lo toca. Por eso **una sola versión alcanza**, y alcanza porque la comparación es
@@ -667,19 +669,51 @@ Una relación que produce un sensor **se puede declarar** en `relaciones/`: su n
 tipo y unidad, y qué no lee el sensor. La declaración no filtra evidencia; es de lo que salen
 `relacion_declarada` y `campo_declarado`, la derivación de unidades y los puntos ciegos de una medida.
 
+La forma de autoría es un archivo `.relacion`:
+
+```relacion
+relacion corrida:
+    id: texto
+    pasos: entero pasos
+    alcance "no ve el estado interno del simulador"
+```
+
+Cada campo ocupa una línea `nombre: tipo unidad` para `entero` y `flotante`, que exigen una
+unidad sin corchetes, incluso `sin_unidad` cuando el número no expresa una magnitud. Para `texto`
+y `booleano` se escribe sólo `nombre: tipo`: se cargan con `sin_unidad` y cualquier unidad escrita
+es un error. Los corchetes en una declaración de campo son un error de sintaxis.
+`alcance "…"` es obligatorio al final. La forma canónica equivalente, que sigue siendo válida
+como entrada JSON, es:
+
 ```json
 ["relacion", "corrida",
   ["campos", ["campo", "id", "texto", "sin_unidad"], ["campo", "pasos", "entero", "pasos"]],
   ["alcance", "no ve el estado interno del simulador"]]
 ```
 
-Un campo es `["campo", <nombre>, <tipo>, <unidad>]`, con `tipo` en `texto`, `entero`, `flotante` o
-`booleano`, y una unidad siempre declarada —una magnitud o `sin_unidad`—: no hay valores por omisión.
+En el árbol canónico, un campo es `["campo", <nombre>, <tipo>, <unidad>]`, con `tipo` en `texto`,
+`entero`, `flotante` o `booleano`.
 
 **Variantes** (álgebra `0.7`). Una misma relación puede traer filas de clases distintas con campos
 distintos: `mutante` la producen la mutación de medidas y la de código. Un nodo opcional
 `variantes`, entre `campos` y `alcance`, declara qué campos trae cada clase según el valor de un campo
 **discriminante**:
+
+```relacion
+relacion mutante:
+    id: texto
+    tipo: texto
+    variantes por tipo:
+        medida:
+            detecciones_conductuales: entero sin_unidad
+        codigo:
+            murio: booleano
+    alcance "observa resultados de mutación; no ve la traza completa"
+```
+
+Los valores simples de variante se escriben como nombres; valores con otros caracteres se
+escriben como textos entre comillas. El árbol canónico correspondiente tiene un nodo opcional
+`variantes` entre `campos` y `alcance`:
 
 ```json
 ["relacion", "mutante",

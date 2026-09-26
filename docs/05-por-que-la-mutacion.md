@@ -108,7 +108,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 2 casos
+SINTAXIS OK · 1 medidas · 0 macros · 2 casos · 1 relaciones
 
 catálogo: 40 medidas · corpus: 2 casos
 
@@ -183,7 +183,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 1 casos
+SINTAXIS OK · 1 medidas · 0 macros · 1 casos · 1 relaciones
 
 catálogo: 40 medidas · corpus: 1 casos
 

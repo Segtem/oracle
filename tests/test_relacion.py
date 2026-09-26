@@ -19,6 +19,8 @@ from nucleo.relacion import (
     cargar_relaciones,
     como_hechos,
     hechos_de_relaciones,
+    imprimir,
+    leer,
     rutas_de_relaciones,
 )
 
@@ -35,6 +37,45 @@ class RelacionTests(unittest.TestCase):
             ],
             ["alcance", "no ve la malla real"],
         ]
+
+    def test_superficie_ida_y_vuelta_y_unidades(self) -> None:
+        datos = self._datos_base()
+        superficie = imprimir(datos)
+        self.assertIn("id: texto\n", superficie)
+        self.assertIn("ox: flotante cm\n", superficie)
+        self.assertEqual(leer(superficie), datos)
+        self.assertEqual(imprimir(leer(superficie)), superficie)
+        for erronea in (superficie.replace("ox: flotante cm", "ox: flotante"),
+                         superficie.replace("id: texto", "id: texto cm"),
+                         superficie.replace('    alcance "no ve la malla real"\n', "")):
+            with self.subTest(erronea=erronea), self.assertRaises(RelacionMalDeclarada):
+                leer(erronea)
+
+    def test_corchetes_son_error_y_el_mensaje_muestra_la_forma_correcta(self) -> None:
+        superficie = imprimir(self._datos_base())
+        for original, incorrecto, esperado in (
+            ("ox: flotante cm", "ox: flotante [cm]", "ox: flotante cm"),
+            ("ox: flotante cm", "ox: flotante []", "ox: flotante sin_unidad"),
+            ("id: texto", "id: texto [cm]", "id: texto"),
+        ):
+            with self.subTest(incorrecto=incorrecto), self.assertRaises(RelacionMalDeclarada) as cm:
+                leer(superficie.replace(original, incorrecto))
+            self.assertIn("corchetes", str(cm.exception))
+            self.assertIn(f"`{esperado}`", str(cm.exception))
+
+    def test_superficie_variantes_y_carga_de_ambas_extensiones(self) -> None:
+        datos = ["relacion", "mutante", ["campos", ["campo", "tipo", "texto", "sin_unidad"]],
+                 ["variantes", "tipo", ["variante", "codigo",
+                                       ["campo", "salida", "entero", "sin_unidad"]]],
+                 ["alcance", "no ve la traza"]]
+        superficie = imprimir(datos)
+        self.assertIn("variantes por tipo:\n        codigo:\n", superficie)
+        self.assertEqual(leer(superficie), datos)
+        with tempfile.TemporaryDirectory() as tmp:
+            raiz = Path(tmp)
+            (raiz / "mutante.relacion").write_text(superficie, encoding="utf-8")
+            (raiz / "pieza.json").write_text(json.dumps(self._datos_base()), encoding="utf-8")
+            self.assertEqual(set(cargar_relaciones(raiz)), {"mutante", "pieza"})
 
     def test_inmutabilidad_dataclasses(self) -> None:
         c = Campo("id", "texto", "sin_unidad")

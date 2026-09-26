@@ -1,0 +1,3 @@
+relacion cambio:
+    es_codigo_vivo: booleano
+    alcance "un cambio del repositorio posterior a una verificación, y si toca código vivo. Ningún productor de este repositorio la emite: los campos son los que lee `proceso.verificacion_vigente`. NO trae fecha ni commit, así que no dice cuál verificación quedó vieja"

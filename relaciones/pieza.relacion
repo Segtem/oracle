@@ -1,0 +1,13 @@
+relacion pieza:
+    id: texto
+    ox: flotante cm
+    oy: flotante cm
+    oz: flotante cm
+    ex: flotante cm
+    ey: flotante cm
+    ez: flotante cm
+    lx: flotante cm
+    ly: flotante cm
+    lz: flotante cm
+    yaw: flotante grados
+    alcance "lee el AABB (origen y semi-extensión) y la transformación (pivote y orientación yaw) del actor en Unreal/Jam. NO lee la malla poligonal real, vértices, caras, normales, colisión compleja ni geometría interna"

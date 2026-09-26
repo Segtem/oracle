@@ -1,0 +1,5 @@
+relacion hallazgo:
+    verificador: texto
+    objetivo: texto
+    era_real: booleano
+    alcance "observa hallazgos reportados por verificadores externos y su calificación de falsos rojos. NO evalúa directamente la veracidad del hallazgo sin juicio previo, ya que ningún emisor propio de Oracle produce esta relación"

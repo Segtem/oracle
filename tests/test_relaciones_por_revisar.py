@@ -106,29 +106,29 @@ class EscribirBorradoresTests(unittest.TestCase):
     def test_escribe_el_borrador_fuera_de_lo_que_el_proyecto_carga(self) -> None:
         rc, salida = self._escribir()
         self.assertEqual(rc, 0, salida)
-        borrador = self.raiz / CARPETA_POR_REVISAR / "tornillo.json"
+        borrador = self.raiz / CARPETA_POR_REVISAR / "tornillo.relacion"
         self.assertTrue(borrador.is_file(), salida)
         self.assertIn("falta 1 unidad(es) y el alcance", salida)
-        self.assertFalse((self.raiz / "relaciones" / "tornillo.json").exists())
+        self.assertFalse((self.raiz / "relaciones" / "tornillo.relacion").exists())
         self.assertNotIn("tornillo", relaciones_del_proyecto(Proyecto(self.raiz)))
 
     def test_un_borrador_movido_sin_completar_no_carga_y_dice_que_falta(self) -> None:
         self._escribir()
         destino = self.raiz / "relaciones"
         destino.mkdir(exist_ok=True)
-        (self.raiz / CARPETA_POR_REVISAR / "tornillo.json").rename(destino / "tornillo.json")
+        (self.raiz / CARPETA_POR_REVISAR / "tornillo.relacion").rename(destino / "tornillo.relacion")
         with self.assertRaisesRegex(ProyectoInvalido, "tornillo.alto: falta unidad"):
             relaciones_del_proyecto(Proyecto(self.raiz))
 
     def test_completado_y_movido_carga_con_lo_que_decidio_el_autor(self) -> None:
         self._escribir()
-        origen = self.raiz / CARPETA_POR_REVISAR / "tornillo.json"
-        datos = json.loads(origen.read_text(encoding="utf-8"))
-        datos[2][1][3] = "cm"
-        datos[3][1] = "la altura y la visibilidad de cada tornillo; NO ve su posición"
+        origen = self.raiz / CARPETA_POR_REVISAR / "tornillo.relacion"
+        texto = origen.read_text(encoding="utf-8")
+        texto = texto.replace("alto: entero", "alto: entero cm")
+        texto = texto.replace('alcance ""', 'alcance "la altura y la visibilidad de cada tornillo; NO ve su posición"')
         destino = self.raiz / "relaciones"
         destino.mkdir(exist_ok=True)
-        (destino / "tornillo.json").write_text(json.dumps(datos), encoding="utf-8")
+        (destino / "tornillo.relacion").write_text(texto, encoding="utf-8")
         origen.unlink()
         tornillo = relaciones_del_proyecto(Proyecto(self.raiz))["tornillo"]
         self.assertEqual({c.nombre: c.unidad for c in tornillo.todos_los_campos},
@@ -137,7 +137,7 @@ class EscribirBorradoresTests(unittest.TestCase):
     def test_no_pisa_un_borrador_que_ya_existe(self) -> None:
         """Puede tener trabajo de alguien a medio hacer."""
         self._escribir()
-        borrador = self.raiz / CARPETA_POR_REVISAR / "tornillo.json"
+        borrador = self.raiz / CARPETA_POR_REVISAR / "tornillo.relacion"
         borrador.write_text("a medio completar", encoding="utf-8")
         rc, salida = self._escribir()
         self.assertEqual(rc, 0)
@@ -152,14 +152,16 @@ class EscribirBorradoresTests(unittest.TestCase):
                         .replace("tornillo: nombre", "tuerca: nombre"), encoding="utf-8")
         rc, salida = self._escribir()
         self.assertEqual(rc, 0, salida)
-        self.assertTrue((self.raiz / CARPETA_POR_REVISAR / "tuerca.json").is_file(), salida)
+        self.assertTrue((self.raiz / CARPETA_POR_REVISAR / "tuerca.relacion").is_file(), salida)
 
     def test_el_borrador_tiene_la_misma_forma_que_relaciones(self) -> None:
         """Lo va a editar una persona y lo va a mover a una carpeta donde todo está escrito así."""
         self._escribir()
-        borrador = self.raiz / CARPETA_POR_REVISAR / "tornillo.json"
+        borrador = self.raiz / CARPETA_POR_REVISAR / "tornillo.relacion"
         texto = borrador.read_text(encoding="utf-8")
-        self.assertEqual(texto, json.dumps(json.loads(texto), indent=2) + "\n")
+        self.assertIn("relacion tornillo:\n", texto)
+        self.assertIn("alto: entero", texto)
+        self.assertTrue(texto.endswith('    alcance ""\n'))
 
     def test_no_toca_una_relacion_ya_declarada(self) -> None:
         declarada = self.raiz / "relaciones" / "tornillo.json"
@@ -185,7 +187,7 @@ class EscribirBorradoresTests(unittest.TestCase):
 
     def test_el_mensaje_cuenta_las_unidades_que_faltan_en_cada_borrador(self) -> None:
         _rc, salida = self._escribir()
-        self.assertIn("tornillo.json — falta 1 unidad(es) y el alcance", salida)
+        self.assertIn("tornillo.relacion — falta 1 unidad(es) y el alcance", salida)
 
     def test_sin_la_bandera_el_verbo_sigue_siendo_de_lectura(self) -> None:
         salida = io.StringIO()

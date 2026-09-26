@@ -356,7 +356,7 @@ class MutanteTests(unittest.TestCase):
                        catalogo["proceso.codigo_con_mutante_que_lo_mata"])
 
     def test_la_relacion_declarada_trae_los_campos_de_los_dos_productores(self):
-        relacion = cargar(RAIZ / "relaciones" / "mutante.json")
+        relacion = cargar(RAIZ / "relaciones" / "mutante.relacion")
         hechos = hechos_de_relaciones([relacion])["campo_declarado"]
         por_variante = {}
         for fila in hechos:

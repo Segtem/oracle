@@ -28,6 +28,7 @@ from nucleo.sintaxis import (  # noqa: E402,F401
 )
 from nucleo import caso as sintaxis_caso  # noqa: E402
 from nucleo.medida import cargar_fuente_medida, rutas_de_catalogo  # noqa: E402
+from nucleo import relacion as sintaxis_relacion  # noqa: E402
 
 
 def _rutas_catalogo(raiz: Path = RAIZ) -> list[Path]:
@@ -51,6 +52,10 @@ def _rutas_macros(raiz: Path = RAIZ) -> list[Path]:
 
 def _rutas_corpus(raiz: Path = RAIZ) -> list[Path]:
     return sintaxis_caso.rutas_de_corpus(raiz / "corpus")
+
+
+def _rutas_relaciones(raiz: Path = RAIZ) -> list[Path]:
+    return sintaxis_relacion.rutas_de_relaciones(raiz / "relaciones")
 
 
 def _puntuacion(texto: str) -> int:
@@ -148,16 +153,36 @@ def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
     }
 
 
+def _fila_verificacion_relacion(ruta: Path, raiz: Path) -> dict:
+    try:
+        datos = sintaxis_relacion.cargar_fuente_relacion(ruta)
+        superficie = sintaxis_relacion.imprimir(datos)
+        releida = sintaxis_relacion.leer(superficie)
+        reimpresa = sintaxis_relacion.imprimir(releida)
+    except Exception as e:                 # noqa: BLE001
+        return _fila_ilegible(ruta, raiz, e)
+    json_compacto = json.dumps(datos, ensure_ascii=False, separators=(",", ":"))
+    return {
+        "ruta": str(ruta.relative_to(raiz)), "imprimio": True, "error": "",
+        "json_igual": releida == datos, "texto_igual": reimpresa == superficie,
+        "caracteres_json": len(json_compacto), "caracteres_superficie": len(superficie),
+        "puntuacion_json": _puntuacion(json_compacto),
+        "puntuacion_superficie": _puntuacion(superficie),
+    }
+
+
 def verificar_catalogo(raiz: Path = RAIZ) -> dict:
     filas_medidas = [_fila_verificacion(r, raiz) for r in _rutas_catalogo(raiz)]
     filas_macros = [_fila_verificacion(r, raiz) for r in _rutas_macros(raiz)]
     filas_casos = [_fila_verificacion_caso(r, raiz) for r in _rutas_corpus(raiz)]
-    filas = filas_medidas + filas_macros + filas_casos
+    filas_relaciones = [_fila_verificacion_relacion(r, raiz) for r in _rutas_relaciones(raiz)]
+    filas = filas_medidas + filas_macros + filas_casos + filas_relaciones
     ilegibles = [f for f in filas if f["error"]]
     total = {
         "medidas": len(filas_medidas),
         "macros": len(filas_macros),
         "casos": len(filas_casos),
+        "relaciones": len(filas_relaciones),
         # Lo que NO se pudo recorrer, aparte y con su nombre. Antes esto no existía porque la
         # primera excepción se llevaba puesta la corrida: `oracle test` moría con un traceback en
         # vez de decir cuántos archivos no pudo imprimir. Medido contra un consumidor real, eran 33
@@ -187,7 +212,7 @@ DOCUMENTOS_CON_SUPERFICIE = ("docs/03-escribir-una-medida.md", "docs/tutorial-pr
 # Dos superficies, dos lectores. `oracle` es una medida y `caso` es un caso del corpus; las
 # etiquetas con sufijo declaran por qué un bloque NO se ejecuta, y esa declaración es el punto.
 BLOQUE_RE = re.compile(
-    r"```(oracle|caso)(-gramatica|-fragmento)?\n(.*?)```", re.S)
+    r"```(oracle|caso|relacion)(-gramatica|-fragmento)?\n(.*?)```", re.S)
 
 
 def verificar_documentos(raiz: Path = RAIZ) -> dict:
@@ -208,11 +233,13 @@ def verificar_documentos(raiz: Path = RAIZ) -> dict:
                 declarados += 1
                 continue
             ejecutables += 1
-            leer_, imprimir_ = ((leer, imprimir) if superficie == "oracle"
-                                else (sintaxis_caso.leer, sintaxis_caso.imprimir))
+            leer_, imprimir_ = ({"oracle": (leer, imprimir),
+                                 "caso": (sintaxis_caso.leer, sintaxis_caso.imprimir),
+                                 "relacion": (sintaxis_relacion.leer, sintaxis_relacion.imprimir)}[superficie])
             try:
                 datos = leer_(bloque)
-            except (ErrorSintaxis, sintaxis_caso.CasoMalDeclarado) as e:
+            except (ErrorSintaxis, sintaxis_caso.CasoMalDeclarado,
+                    sintaxis_relacion.RelacionMalDeclarada) as e:
                 fallas.append(f"{nombre}:{linea}: no lee — {e}")
                 continue
             if imprimir_(datos) != bloque:
@@ -275,6 +302,7 @@ def main(argv: list[str] | None = None) -> int:
         print(f"medidas convertidas: {informe['medidas']}")
         print(f"macros convertidas: {informe['macros']}")
         print(f"casos convertidos: {informe['casos']}")
+        print(f"relaciones convertidas: {informe.get('relaciones', 0)}")
         print(f"ida JSON: {'OK' if informe['json_igual'] else 'FALLA'}")
         print(f"vuelta texto: {'OK' if informe['texto_igual'] else 'FALLA'}")
         print(f"caracteres: JSON {informe['caracteres_json']} · superficie "

@@ -1053,7 +1053,7 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
         # miraba. Medido contra un consumidor real: 33 de 41 medidas ilegibles y ninguna informada.
         if ilegibles:
             print(f"SINTAXIS ✗ — {len(ilegibles)} de "
-                  f"{informe_sintaxis['medidas'] + informe_sintaxis['macros'] + informe_sintaxis['casos']}"
+                  f"{informe_sintaxis['medidas'] + informe_sintaxis['macros'] + informe_sintaxis['casos'] + informe_sintaxis.get('relaciones', 0)}"
                   f" archivo(s) no se pudieron imprimir")
             for fila in ilegibles[:LIMITE_ILEGIBLES]:
                 print(f"  · {fila['ruta']} — {fila['error']}")
@@ -1072,10 +1072,12 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
                 fallas_suite.append("sintaxis (documentos)")
             else:
                 print(f"SINTAXIS OK · {informe_sintaxis['medidas']} medidas · "
-                      f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos")
+                      f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos · "
+                      f"{informe_sintaxis.get('relaciones', 0)} relaciones")
         else:
             print(f"SINTAXIS OK · {informe_sintaxis['medidas']} medidas · "
-                  f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos")
+                  f"{informe_sintaxis['macros']} macros · {informe_sintaxis['casos']} casos · "
+                  f"{informe_sintaxis.get('relaciones', 0)} relaciones")
     print()
 
     # 3. Aceptación

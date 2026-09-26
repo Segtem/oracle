@@ -1,0 +1,6 @@
+relacion evento:
+    corrida: texto
+    t: entero pasos
+    que: texto
+    actor: texto
+    alcance "lee los eventos registrados de la traza de simulación. NO ve el estado interno ni eventos no emitidos"

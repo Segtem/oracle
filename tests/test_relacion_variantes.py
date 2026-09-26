@@ -15,7 +15,7 @@ Verifica:
 - Mismo nombre de campo en dos variantes con idéntico tipo y unidad se acepta.
 - Derivación de unidad de un campo de variante en `nucleo/unidad.py`.
 - Puntos ciegos en `tools/medida.py` considerando `todos_los_campos`.
-- Carga válida de `relaciones/mutante.json`.
+- Carga válida de `relaciones/mutante.relacion`.
 - Evaluación de las medidas de `catalogos/proceso/` sobre evidencia de `mutante`:
   * Evidencia mezclada (medida y código) mide su fila sin levantar.
   * Evidencia sólo del otro tipo concluye SIN EVIDENCIA.
@@ -218,7 +218,7 @@ class RelacionVariantesUnidadesYPuntosCiegosTests(unittest.TestCase):
 
 class MutanteCatalogoProcesoTests(unittest.TestCase):
     def test_archivo_mutante_json_es_valido(self):
-        ruta = RAIZ / "relaciones" / "mutante.json"
+        ruta = RAIZ / "relaciones" / "mutante.relacion"
         self.assertTrue(ruta.exists(), f"no existe {ruta}")
         relacion = cargar(ruta)
         self.assertEqual(relacion.nombre, "mutante")

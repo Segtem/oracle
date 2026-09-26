@@ -1,0 +1,4 @@
+relacion archivo:
+    ruta: texto
+    sintaxis_valida: booleano
+    alcance "observa si un archivo parsea sintácticamente tras una edición. NO observa semántica, cambios en el comportamiento en tiempo de ejecución ni el contenido completo del archivo"

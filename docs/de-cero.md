@@ -214,7 +214,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 0 medidas · 0 macros · 1 casos
+SINTAXIS OK · 0 medidas · 0 macros · 1 casos · 0 relaciones
 
 catálogo: 0 medidas · corpus: 1 casos
 
@@ -271,7 +271,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 1 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 1 casos
+SINTAXIS OK · 1 medidas · 0 macros · 1 casos · 0 relaciones
 
 catálogo: 1 medidas · corpus: 1 casos
 
@@ -347,7 +347,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 2 casos
+SINTAXIS OK · 1 medidas · 0 macros · 2 casos · 0 relaciones
 
 catálogo: 1 medidas · corpus: 2 casos
 
@@ -409,7 +409,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 5 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 1 medidas · 0 macros · 5 casos
+SINTAXIS OK · 1 medidas · 0 macros · 5 casos · 0 relaciones
 
 catálogo: 1 medidas · corpus: 5 casos
 
@@ -534,7 +534,7 @@ MEDIDAS SIN CASOS ✗ — 9 medida(s) propias sin ejercitar:
   · naval.veracidad_impacto_negativo: escribí un caso rojo y uno verde que ejerzan esta medida
   · naval.veracidad_impacto_positivo: escribí un caso rojo y uno verde que ejerzan esta medida
 
-SINTAXIS OK · 11 medidas · 0 macros · 7 casos
+SINTAXIS OK · 11 medidas · 0 macros · 7 casos · 0 relaciones
 
 catálogo: 11 medidas · corpus: 7 casos
 
@@ -684,7 +684,7 @@ UNITARIOS: salteados (sólo aplican al propio Oracle)
 
 CORPUS OK · 33 casos · esquema, evidencia L0 y trazabilidad en regla
 
-SINTAXIS OK · 11 medidas · 0 macros · 33 casos
+SINTAXIS OK · 11 medidas · 0 macros · 33 casos · 0 relaciones
 
 catálogo: 11 medidas · corpus: 33 casos
 

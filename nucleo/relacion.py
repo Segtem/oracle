@@ -1,6 +1,6 @@
 """La declaración de una relación (L−1): qué lee el sensor, en qué unidad, y qué NO miró.
 
-Forma canónica, tal como se guarda en `relaciones/`:
+Forma canónica interna:
 
 ```json
 ["relacion", "<nombre>",
@@ -310,19 +310,127 @@ def rutas_de_relaciones(*directorios) -> list[Path]:
     )
 
 
+def imprimir(datos: list) -> str:
+    """Imprime una declaración válida con la superficie de autoría."""
+    relacion = Relacion.de_datos(datos)
+    lineas = [f"relacion {relacion.nombre}:"]
+
+    def campo(c: Campo, sangria: str) -> str:
+        unidad = f" {c.unidad}" if c.tipo in ("entero", "flotante") else ""
+        if c.tipo in ("texto", "booleano") and c.unidad != "sin_unidad":
+            raise RelacionMalDeclarada(f"{relacion.nombre}.{c.nombre}: {c.tipo} sólo admite sin_unidad")
+        return f"{sangria}{c.nombre}: {c.tipo}{unidad}"
+
+    lineas.extend(campo(c, "    ") for c in relacion.campos)
+    if relacion.variantes:
+        lineas.append(f"    variantes por {relacion.discriminante}:")
+        for variante in relacion.variantes:
+            valor = (variante.valor if NOMBRE_CAMPO_RE.fullmatch(variante.valor)
+                     else json.dumps(variante.valor, ensure_ascii=False))
+            lineas.append(f"        {valor}:")
+            lineas.extend(campo(c, "            ") for c in variante.campos)
+    lineas.append(f"    alcance {json.dumps(relacion.alcance, ensure_ascii=False)}")
+    return "\n".join(lineas) + "\n"
+
+
+def leer(texto: str) -> list:
+    """Lee .relacion al mismo árbol que una declaración JSON."""
+    lineas = [(n, linea) for n, linea in enumerate(texto.splitlines(), 1) if linea.strip()]
+    if not lineas or not re.fullmatch(r"relacion ([a-z][a-z0-9_]*):", lineas[0][1]):
+        raise RelacionMalDeclarada("se esperaba `relacion <nombre>:`")
+    nombre = lineas[0][1][9:-1]
+    campos: list = ["campos"]
+    variantes: list | None = None
+    actual: list | None = None
+    alcance: list | None = None
+    for numero, linea in lineas[1:]:
+        if alcance is not None:
+            raise RelacionMalDeclarada(f"línea {numero}: `alcance` debe estar al final")
+        if linea.startswith("    alcance "):
+            try:
+                valor = json.loads(linea[len("    alcance "):])
+            except json.JSONDecodeError as e:
+                raise RelacionMalDeclarada(f"línea {numero}: alcance debe ser texto entre comillas") from e
+            alcance = ["alcance", valor]
+            continue
+        m = re.fullmatch(r"    variantes por ([a-z][a-z0-9_]*):", linea)
+        if m:
+            if variantes is not None:
+                raise RelacionMalDeclarada(f"línea {numero}: variantes repetidas")
+            variantes = ["variantes", m[1]]
+            continue
+        if linea.startswith("        ") and not linea.startswith("            ") and linea.endswith(":"):
+            if variantes is None:
+                raise RelacionMalDeclarada(f"línea {numero}: variante sin bloque `variantes por`")
+            valor_fuente = linea[8:-1]
+            if NOMBRE_CAMPO_RE.fullmatch(valor_fuente):
+                valor = valor_fuente
+            else:
+                try:
+                    valor = json.loads(valor_fuente)
+                except json.JSONDecodeError as e:
+                    raise RelacionMalDeclarada(f"línea {numero}: valor de variante inválido") from e
+            actual = ["variante", valor]
+            variantes.append(actual)
+            continue
+        con_corchetes = re.fullmatch(
+            r"(    |            )([a-z][a-z0-9_]*): (texto|booleano|entero|flotante) \[([^\]]*)\]",
+            linea,
+        )
+        if con_corchetes:
+            _, campo_nombre, tipo, unidad = con_corchetes.groups()
+            forma = f"{campo_nombre}: {tipo}" + (
+                f" {unidad or 'sin_unidad'}" if tipo in ("entero", "flotante") else ""
+            )
+            raise RelacionMalDeclarada(
+                f"línea {numero}: los corchetes no son sintaxis de .relacion; escribí `{forma}`"
+            )
+        m = re.fullmatch(
+            r"(    |            )([a-z][a-z0-9_]*): (texto|booleano|entero|flotante)(?: ([^\s\[\]]+))?",
+            linea,
+        )
+        if not m:
+            raise RelacionMalDeclarada(f"línea {numero}: campo o cláusula de relación inválida: {linea.strip()}")
+        sangria, campo_nombre, tipo, unidad = m.groups()
+        if tipo in ("texto", "booleano"):
+            if unidad is not None:
+                raise RelacionMalDeclarada(f"línea {numero}: {tipo} no lleva unidad")
+            unidad = "sin_unidad"
+        elif unidad is None:
+            raise RelacionMalDeclarada(
+                f"{nombre}.{campo_nombre}: falta unidad — escribí `{campo_nombre}: {tipo} cm` "
+                f"o `{campo_nombre}: {tipo} sin_unidad`"
+            )
+        if sangria == "    ":
+            if variantes is not None:
+                raise RelacionMalDeclarada(f"línea {numero}: campo común después de variantes")
+            campos.append(["campo", campo_nombre, tipo, unidad])
+        elif actual is not None:
+            actual.append(["campo", campo_nombre, tipo, unidad])
+        else:
+            raise RelacionMalDeclarada(f"línea {numero}: campo de variante sin variante")
+    datos = ["relacion", nombre, campos]
+    if variantes is not None:
+        datos.append(variantes)
+    datos.append(alcance)
+    return Relacion.de_datos(datos).a_datos()
+
+
 def cargar_fuente_relacion(ruta: Path) -> list:
     ruta = Path(ruta)
     try:
         texto = ruta.read_text(encoding="utf-8")
     except OSError as e:
         raise RelacionMalDeclarada(f"no se pudo leer la relación {ruta}: {e}") from e
-    if ruta.suffix in (".json", ".oracle", ".relacion"):
+    if ruta.suffix == ".relacion":
+        return leer(texto)
+    if ruta.suffix in (".json", ".oracle"):
         try:
             return json.loads(texto)
         except json.JSONDecodeError as e:
             raise RelacionMalDeclarada(f"{ruta}: JSON inválido — {e}") from e
     raise RelacionMalDeclarada(
-        f"formato de relación no soportado: {ruta} (esperaba .json)")
+        f"formato de relación no soportado: {ruta} (esperaba .relacion o .json)")
 
 
 def cargar(ruta: Path) -> Relacion:
