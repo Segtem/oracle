@@ -1,6 +1,7 @@
 """La forma del impresor es la única superficie guardable."""
 
 import io
+import json
 import subprocess
 import sys
 import tempfile
@@ -271,3 +272,21 @@ class RelacionImpresaLiteral(unittest.TestCase):
         # Mutación 0.32.0: numerar desde 2 corría cada mensaje una línea.
         with self.assertRaisesRegex(RelacionMalDeclarada, r"^línea 4: `alcance` debe estar al final"):
             relacion.leer('relacion e:\n    tipo: texto\n    alcance "a"\n    x: entero cm\n')
+
+
+class VerificarRelaciones(unittest.TestCase):
+    def test_una_relacion_ilegible_se_informa_y_la_legible_se_cuenta_sin_escapes(self):
+        # Mutación 0.32.0: la ilegible devolvía None (y la corrida moría), su fila decía
+        # forma_unica True, y con ensure_ascii el recuento de caracteres JSON crecía con cada tilde.
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "relaciones").mkdir()
+            (raiz / "relaciones" / "rota.relacion").write_text("no es una relación\n", encoding="utf-8")
+            datos = ["relacion", "e", ["campos", ["campo", "x", "texto", "sin_unidad"]], ["alcance", "ñandú"]]
+            (raiz / "relaciones" / "e.relacion").write_text(relacion.imprimir(datos), encoding="utf-8")
+            informe = sintaxis.verificar_catalogo(raiz)
+        rota, = informe["ilegibles"]
+        self.assertEqual((rota["ruta"], rota["forma_unica"]), ("relaciones/rota.relacion", False))
+        buena, = (f for f in informe["filas"] if f["ruta"] == "relaciones/e.relacion")
+        self.assertEqual(buena["caracteres_json"],
+                         len(json.dumps(datos, ensure_ascii=False, separators=(",", ":"))))
