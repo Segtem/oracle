@@ -1,6 +1,6 @@
 # Un caso de defecto se da por cumplido con SIN EVIDENCIA: que pueda declarar que espera sin_evidencia, distinto de un rojo medido
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 70
 - ETIQUETAS: oracle, metalenguaje, sintaxis
 
@@ -19,3 +19,7 @@ Implementado espera: sin_evidencia en .caso y JSON, validación CasoMalDeclarado
 ## Próximo paso
 
 Revisar el diff de Oracle y, en el corte correspondiente, subir la distribución y coordinar la migración de los cuatro casos identificados de Jam; mantener esta tarea abierta hasta esa revisión.
+
+### Nota (2026-09-26 02:40:57 UTC)
+
+2026-09-26, Claude: revisado y unido a main (sintaxis 0.8; la distribución sube en el próximo corte). Los cuatro casos de Jam que van a necesitar «espera: sin_evidencia» quedan anotados en la tarea una-sintaxis de Jam, que es cuando Jam sube a la versión con esto. Se cierra.
