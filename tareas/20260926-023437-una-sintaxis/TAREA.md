@@ -43,3 +43,7 @@ Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reprod
 ## Próximo paso
 
 Revisar los cambios de sintaxis 1.0 y estas pruebas corregidas; continuar el cierre de la tarea principal y de los consumidores Jam y LyraGASP según sus tareas correspondientes.
+
+### Nota (2026-09-26 12:20:22 UTC)
+
+2026-09-26, ENCARGO de la QUINTA auditoría (Codex, con shell, adversarial): después de AUDITORIA-4 la sintaxis pasó a 1.0 y la especificación dejó de enseñar el encabezado de versión y la carga de grafías viejas. Repetí EN CONTRA, ejecutando, todo punto abierto de AUDITORIA-2, -3 y -4 y buscá cualquier texto de superficie distinto del impresor que alguna entrada acepte como medida, caso, relación o macro de un proyecto, y cualquier lugar del paquete (docs, especificación, manual, contexto, MCP, LSP, plantillas, ejemplos, mensajes de error, notas de release de esta versión) que enseñe o produzca otra forma de escribir. JSON en archivos .json: admitido como intercambio por decisión; no es hallazgo salvo que algo lo enseñe como forma de escribir. Escribí tareas/<esta>/AUDITORIA-5.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
