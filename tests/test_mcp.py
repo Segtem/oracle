@@ -15,6 +15,7 @@ from types import SimpleNamespace
 from unittest import mock
 
 from nucleo.version import VERSION_DISTRIBUCION
+from nucleo.sintaxis import imprimir
 from tools import mcp
 
 
@@ -299,7 +300,7 @@ class EvaluarTests(unittest.TestCase):
         self.assertEqual(resultado.returncode, 0, resultado.stderr.decode())
         self.assertEqual(_desenmarcar(resultado.stdout)[1:4], esperadas)
 
-    def test_texto_json_se_evalua_en_memoria_y_deriva_el_alcance_declarado(self) -> None:
+    def test_texto_oracle_se_evalua_en_memoria_y_deriva_el_alcance_declarado(self) -> None:
         """El modo por valor debe funcionar sin crear un archivo y sin ocultar campos no leídos."""
         medida = _medida("demo.efimera")
         evidencia = {"item": [{"id": "a", "nombre": "A"}]}
@@ -314,7 +315,7 @@ class EvaluarTests(unittest.TestCase):
                 ["alcance", "NO ve el origen del item"],
             ]), encoding="utf-8")
             pedido = _pedido_evaluar(2, {
-                "medida": {"texto": json.dumps(medida), "formato": "json"},
+                "medida": {"texto": imprimir(medida), "formato": "oracle"},
                 "evidencia": evidencia,
             })
             resultado = _ejecutar(raiz, _conversacion(pedido))
@@ -393,7 +394,7 @@ ninguno demo.oracle:
             'ARGUMENTOS_INVALIDOS — $.medida: {"formato":"json","id":"demo.uno",'
             '"texto":"[]"}; se esperaba exactamente {id} o {texto, formato}; archivo no está '
             'admitido.',
-            'ARGUMENTOS_INVALIDOS — $.medida.formato: "yaml"; se esperaba oracle o json.',
+            'ARGUMENTOS_INVALIDOS — $.medida.formato: "yaml"; se esperaba oracle.',
             'ARGUMENTOS_INVALIDOS — $.medida.texto: 7; se esperaba texto.',
             'ARGUMENTOS_INVALIDOS — $.medida.id: "sin_dominio"; se esperaba un id '
             'dominio.nombre portable.',
@@ -464,7 +465,7 @@ ninguno demo.oracle:
             raiz = _proyecto(Path(td), _medida("demo.uno"))
             pedidos = (
                 _pedido_evaluar(2, {"medida": {"id": "demo.ausente"}, "evidencia": {}}),
-                _pedido_evaluar(3, {"medida": {"texto": "{", "formato": "json"},
+                _pedido_evaluar(3, {"medida": {"texto": "{", "formato": "oracle"},
                                     "evidencia": {}}),
                 _pedido_evaluar(4, {"medida": {"texto": "", "formato": "oracle"},
                                     "evidencia": {}}),
@@ -473,8 +474,8 @@ ninguno demo.oracle:
         textos = (
             "MEDIDA_DESCONOCIDA — «demo.ausente» no aparece en las fuentes seleccionadas; "
             "consultá oracle_catalogo_efectivo sin ids.",
-            "MEDIDA_INVALIDA — el texto JSON de la medida no se entiende: Expecting property "
-            "name enclosed in double quotes: line 1 column 2 (char 1).",
+            "MEDIDA_INVALIDA — el texto Oracle de la medida no se entiende: línea 1, columna 1: "
+            "se esperaba encabezado «medida|macro declarada <id>:»; llegó '{'\n   1 | {\n     | ^.",
             "MEDIDA_INVALIDA — el texto Oracle de la medida no se entiende: línea 1, columna 1: "
             "se esperaba encabezado de medida\n   1 | \n     | ^.",
         )
@@ -499,7 +500,7 @@ ninguno demo.oracle:
         with tempfile.TemporaryDirectory() as td:
             raiz = _proyecto(Path(td))
             resultado = _ejecutar(raiz, _conversacion(_pedido_evaluar(2, {
-                "medida": {"texto": json.dumps(medida), "formato": "json"},
+                "medida": {"texto": imprimir(medida), "formato": "oracle"},
                 "evidencia": {"item": [{"id": "a"}]},
             })))
 
@@ -516,7 +517,7 @@ ninguno demo.oracle:
         """Un argumento de herramienta nunca puede concederse permiso para ejecutar Python ajeno."""
         medida = _medida("demo.efimera")
         argumentos = {
-            "medida": {"texto": json.dumps(medida), "formato": "json"},
+            "medida": {"texto": imprimir(medida), "formato": "oracle"},
             "evidencia": {"item": []},
         }
         with tempfile.TemporaryDirectory() as td:

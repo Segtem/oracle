@@ -361,16 +361,19 @@ oracle/                        LA HERRAMIENTA
   nucleo/                      el álgebra, la medida, las macros, el dominio, la simulación
   perfiles/python/             AST, imports, mutación de `.py` y garantías de `.pyc`
   tools/                       los instrumentos
-  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion (.oracle y .json)
-  corpus/                      los casos donde la medición dijo bien y no estaba bien (.caso y .json)
+  catalogos/                   sólo medidas UNIVERSALES: proceso · meta · simulacion (.oracle)
+  corpus/                      los casos donde la medición dijo bien y no estaba bien (.caso)
   ejemplo/                     un banco de pruebas abstracto, no un dominio
 
 <tu-proyecto>/                 TU PROYECTO
   oracle.json                  perfiles optativos activados de forma explícita
-  catalogos/<dominio>/         tus medidas (.oracle y .json)
+  catalogos/<dominio>/         tus medidas (.oracle)
   escalares.py                 tus funciones de dominio
-  corpus/  diferencial/        tus casos (.caso y .json) y tus fixtures
+  corpus/  diferencial/        tus casos (.caso) y tus fixtures
 ```
+
+Las medidas, los casos y las relaciones se escriben en superficie (`.oracle`, `.caso`,
+`.relacion`). Oracle lee JSON como formato de intercambio y para migrar fuentes anteriores.
 
 Y el comando instalado se apunta:
 
@@ -694,7 +697,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2591 tests · 1018/1018 mutantes de medida · **8787 sitios de mutación de código** (8549 + 238 del motor Python).
+2594 tests · 1018/1018 mutantes de medida · **8783 sitios de mutación de código** (8545 + 238 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

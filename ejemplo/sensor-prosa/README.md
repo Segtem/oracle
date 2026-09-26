@@ -15,7 +15,7 @@ oracle plantilla sensor-prosa prosa
 cd prosa
 oracle test --proyecto .
 python sensor_prosa.py preparar --catalogo catalogos --salida preparada
-python -c "import json; from pathlib import Path; c=json.loads(Path('corpus/prosa/013-vacio-favorable.json').read_text()); Path('hechos-construidos.json').write_text(json.dumps(c['evidencia']))"
+python -c "import json; from pathlib import Path; from nucleo.caso import leer; c=leer(Path('corpus/prosa/013-vacio-favorable.caso').read_text()); Path('hechos-construidos.json').write_text(json.dumps(c['evidencia']))"
 oracle juzgar --proyecto . --con hechos-construidos.json
 ```
 

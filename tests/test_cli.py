@@ -351,9 +351,8 @@ class OracleCliTests(CliTestCase):
 
             rc, salida = self._callado(cli.cmd_convertir, Proyecto(raiz), str(relativa))
 
-        self.assertEqual(rc, 0)
-        self.assertIn("ningún ítem", salida)
-        self.assertNotIn("\\u00", salida)
+        self.assertEqual(rc, 1)
+        self.assertIn("medida .json", salida)
 
     def test_convertir_caso_es_json_legible_y_extension_ausente_nombra_archivo(self) -> None:
         with tempfile.TemporaryDirectory() as td:
@@ -388,10 +387,8 @@ class OracleCliTests(CliTestCase):
             rc_desconocido, salida_desconocida = self._callado(
                 cli.cmd_convertir, Proyecto(raiz), str(desconocido))
 
-        self.assertEqual(rc_caso, 0)
-        self.assertTrue(salida_caso.startswith("{\n  \"id\""), salida_caso)
-        self.assertIn("Ítem inválido", salida_caso)
-        self.assertNotIn("\\u00", salida_caso)
+        self.assertEqual(rc_caso, 1)
+        self.assertIn("medida .json", salida_caso)
         self.assertEqual(rc_desconocido, 1)
         self.assertIn("misterioso", salida_desconocida)
 
@@ -1550,18 +1547,16 @@ class NounVerbCliTests(CliTestCase):
 
             rc_oracle, salida_oracle = self._callado(
                 cli.main, ["convertir", str(fuente), "--proyecto", str(raiz)])
-            self.assertEqual(rc_oracle, 0)
-            self.assertEqual(json.loads(salida_oracle), [
+            self.assertEqual(rc_oracle, 1)
+            self.assertIn("medida .json", salida_oracle)
+
+            canonica = catalogo / "demo.todo_ok.json"
+            canonica.write_text(json.dumps([
                 "sin-fallas", "demo.todo_ok", "item", "i",
                 ["==", ["campo", "i", "ok"], False],
                 "un item falso invalida la entrega entera",
-                "contrato",
-                "universal",
-                "NO ve items que nadie declaró",
-            ])
-
-            canonica = catalogo / "demo.todo_ok.json"
-            canonica.write_text(json.dumps(json.loads(salida_oracle)), encoding="utf-8")
+                "contrato", "universal", "NO ve items que nadie declaró",
+            ]), encoding="utf-8")
             rc_json, salida_json = self._callado(
                 cli.main, ["convertir", str(canonica), "--proyecto", str(raiz)])
             self.assertEqual(rc_json, 0)

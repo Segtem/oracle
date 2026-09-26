@@ -64,7 +64,7 @@ _ESQUEMA_MEDIDA = {
             "required": ["texto", "formato"],
             "properties": {
                 "texto": {"type": "string"},
-                "formato": {"enum": ["oracle", "json"]},
+                "formato": {"const": "oracle"},
             },
         },
     ],
@@ -845,10 +845,10 @@ def _validar_evaluacion(argumentos) -> tuple[dict, dict]:
                 "ARGUMENTOS_INVALIDOS",
                 f"$.medida.texto: {_json_compacto(texto)}; se esperaba texto.",
             )
-        if formato not in ("oracle", "json") or not isinstance(formato, str):
+        if formato != "oracle":
             raise ErrorHerramienta(
                 "ARGUMENTOS_INVALIDOS",
-                f"$.medida.formato: {_json_compacto(formato)}; se esperaba oracle o json.",
+                f"$.medida.formato: {_json_compacto(formato)}; se esperaba oracle.",
             )
     else:
         raise ErrorHerramienta(
@@ -881,20 +881,14 @@ def _validar_evaluacion(argumentos) -> tuple[dict, dict]:
 
 
 def _medida_en_memoria(especificacion: dict, macros) -> Medida:
-    """Carga sólo bytes recibidos; ni el modo JSON ni el modo Oracle aceptan una ruta lateral."""
+    """Carga sólo texto Oracle recibido en memoria, sin aceptar rutas laterales."""
     texto = especificacion["texto"]
     formato = especificacion["formato"]
     try:
-        if formato == "json":
-            datos = json.loads(texto)
-        else:
-            lectura = leer_con_mapa(texto, macros=macros)
-            exigir_sintaxis_compatible(lectura.version)
-            datos = lectura.datos
+        lectura = leer_con_mapa(texto, macros=macros)
+        exigir_sintaxis_compatible(lectura.version)
+        datos = lectura.datos
         return Medida.de_datos(datos, macros=macros)
-    except json.JSONDecodeError as e:
-        raise ErrorHerramienta(
-            "MEDIDA_INVALIDA", f"el texto JSON de la medida no se entiende: {e}.") from e
     except ErrorSintaxis as e:
         raise ErrorHerramienta(
             "MEDIDA_INVALIDA",

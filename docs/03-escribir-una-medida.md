@@ -93,20 +93,24 @@ flotante) y las reglas de diseño. `oracle contexto` no reemplaza esas explicaci
 inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras
 escribís.
 
-### Los dos formatos del catálogo y del corpus
+### Superficie de autoría e intercambio
 
-El catálogo y el corpus cargan **superficie (`.oracle`, `.caso`) y `.json` por igual**: los
-archivos en superficie no necesitan traducirse a nada para funcionar. El mismo id en los dos
-formatos es un error que nombra los dos archivos — no gana ninguno, porque un ganador silencioso es
-una divergencia esperando.
+Escribí medidas en `.oracle`, casos en `.caso` y relaciones en `.relacion`. Oracle también
+lee JSON como formato de intercambio y para migrar proyectos anteriores. Si un mismo id aparece
+en superficie y en JSON, la carga señala ambos archivos: no elige uno en silencio.
 
-- `oracle caso <grupo/NNN-descripcion>`: crea el andamio del caso, ya en superficie `.caso`.
-- `oracle nueva <dominio.nombre>`: crea el andamio de la medida, ya en superficie `.oracle`.
-- `oracle convertir <archivo.json>`: pasa una medida vieja a la superficie.
-- `oracle convertir <archivo.oracle>`: el camino inverso para medidas, si alguna vez lo necesitás.
+- `oracle caso <grupo/NNN-descripcion>`: crea el andamio `.caso`.
+- `oracle nueva <dominio.nombre>`: crea el andamio `.oracle`.
+- `oracle convertir <medida.json>`: convierte una medida anterior a la superficie.
+- `oracle medida expandir <medida.oracle>`: muestra el árbol canónico para inspección.
 - `oracle convertir <directorio> --a-superficie`: muestra qué medidas y casos JSON se pueden migrar;
   con `--escribir`, reemplaza cada origen sólo si la ida y vuelta conserva el árbol canónico.
-  Informa las relaciones pendientes mientras no esté disponible la superficie `.relacion`.
+  Informa las relaciones pendientes mientras no esté disponible la conversión por lote a `.relacion`.
+
+En la evidencia de un `.caso`, usá tabla cuando todas las filas compartan campos cuyos nombres
+se puedan imprimir como cabecera. Usá `fila {…}` cuando las filas tengan campos distintos o un
+nombre no se pueda imprimir como cabecera; cada línea contiene un objeto con esa fila. Es el
+escape de la misma sintaxis `.caso` para conservar la evidencia sin pérdida.
 
 El id tiene gramática cerrada y **ASCII**: `dominio.nombre` para medidas y `NNN-descripcion` para
 casos (minúsculas, dígitos y `_`/`-`). No es que el proyecto no sea en español —la prosa de

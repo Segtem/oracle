@@ -2642,14 +2642,17 @@ class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
             codigo = cli.main(["convertir", str(ruta), "--proyecto", str(RAIZ)])
         return codigo, salida.getvalue()
 
-    def test_una_medida_en_superficie_sale_como_json(self) -> None:
-        import json as _json
-        from nucleo.medida import ruta_de_medida
-        ruta = ruta_de_medida("meta.donde_compone", RAIZ / "catalogos",
-                              *sorted((RAIZ / "perfiles").glob("*/catalogos")))
-        codigo, salida = self._correr(ruta)
+    def test_una_medida_en_superficie_se_expande_con_medida_expandir(self) -> None:
+        import io
+        import json
+        from contextlib import redirect_stdout
+        from tools import cli
+        ruta = RAIZ / "catalogos/meta/meta.donde_compone.oracle"
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = cli.main(["medida", "expandir", str(ruta), "--proyecto", str(RAIZ)])
         self.assertEqual(codigo, 0)
-        self.assertEqual(_json.loads(salida)[1], "meta.donde_compone")
+        self.assertEqual(json.loads(salida.getvalue())[1], "meta.donde_compone")
 
     def test_una_medida_en_json_sale_como_superficie(self) -> None:
         # El catálogo real ya no tiene JSON (una-sintaxis): el JSON se arma desde una medida real.
@@ -2668,7 +2671,7 @@ class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
     def test_una_extension_desconocida_no_adivina(self) -> None:
         codigo, salida = self._correr(RAIZ / "README.md")
         self.assertEqual(codigo, 1)
-        self.assertIn(".oracle", salida)
+        self.assertIn(".json", salida)
 
     def test_un_archivo_roto_señala_donde(self) -> None:
         import tempfile
@@ -2677,7 +2680,7 @@ class ConvertirTraduceEnLasTresDireccionesTests(unittest.TestCase):
             ruta.write_text("ninguno d.m:\n    de a\n", encoding="utf-8")
             codigo, salida = self._correr(ruta)
             self.assertEqual(codigo, 1)
-            self.assertIn("^", salida)
+            self.assertIn("esperaba una medida .json", salida)
 
 
 

@@ -95,7 +95,7 @@ def _lista(vocabulario: dict[str, str]) -> list[tuple[str, str]]:
 
 def temas() -> tuple[str, ...]:
     """Los temas que el manual sabe mostrar, en el orden en que conviene leerlos."""
-    return tuple(VOCABULARIOS) + ("aritmetica", "macros", "verbos", "medidas")
+    return tuple(VOCABULARIOS) + ("aritmetica", "casos", "macros", "verbos", "medidas")
 
 
 def _verbos() -> dict[str, tuple[str, ...]]:
@@ -127,6 +127,11 @@ def entradas(tema: str) -> list[tuple[str, str]]:
             ("/", "no hay división infija ni escalar de división incorporada; declarà una "
                    "escalar y llamala por su nombre"),
         ]
+    if tema == "casos":
+        return [
+            ("tabla", "escribí una cabecera y filas cuando todas comparten campos con nombres imprimibles"),
+            ("fila {…}", "usá una línea por fila si los campos difieren o no caben en una cabecera; conserva la evidencia completa"),
+        ]
     if tema == "macros":
         from nucleo.macro import macros_base
         explicaciones = {
@@ -151,6 +156,8 @@ def titulo(tema: str) -> str:
         return VOCABULARIOS[tema][0]
     if tema == "aritmetica":
         return "aritmética infija de expresiones"
+    if tema == "casos":
+        return "evidencia en la superficie .caso"
     if tema == "macros":
         return "si la relación es el universo a evaluar, usá la variante -requiere"
     if tema == "verbos":

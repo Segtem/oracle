@@ -19,9 +19,10 @@ class SensorProsa(unittest.TestCase):
 
     def test_polaridades_del_corpus_sin_politicas_meta(self):
         from nucleo.medida import cargar_catalogo, evaluar_conjunto
+        from nucleo.caso import cargar_fuente_caso
         catalogo = cargar_catalogo(RUTA / 'catalogos')
-        for archivo in sorted((RUTA / 'corpus/prosa').glob('*.json')):
-            caso = json.loads(archivo.read_text())
+        for archivo in sorted((RUTA / 'corpus/prosa').glob('*.caso')):
+            caso = cargar_fuente_caso(archivo)
             with self.subTest(caso=caso['id']):
                 informe = evaluar_conjunto([catalogo[caso['medida']]], caso['evidencia'])
                 self.assertEqual(informe.veredictos[0].ok, caso['etiqueta'] == 'verde_correcto')

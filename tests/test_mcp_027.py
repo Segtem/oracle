@@ -17,6 +17,7 @@ import unittest
 from pathlib import Path
 
 from nucleo.version import VERSION_DISTRIBUCION
+from nucleo.sintaxis import imprimir
 from tools import mcp
 
 
@@ -157,7 +158,7 @@ class EvaluarSombrasTests(unittest.TestCase):
             res = mcp.evaluar_para_mcp(
                 proy,
                 {
-                    "medida": {"texto": json.dumps(m_datos), "formato": "json"},
+                    "medida": {"texto": imprimir(m_datos), "formato": "oracle"},
                     "evidencia": {"item": [{"a": 1}]},
                 },
             )

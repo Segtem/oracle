@@ -123,11 +123,14 @@ def texto(proy, *, compacto: bool = False, confiar_escalares: bool = False) -> s
     partes.append(f"  comparadores: {' '.join(COMPARADORES)}")
     partes.append(f"  lógicos:      y  o  no")
     partes.append(f"  agregados:    {' '.join(sorted(AGREGADOS))}")
-    partes.append('  accesores:    ["campo", alias, nombre] · ["hecho", alias] · ["col", nombre]')
+    partes.append("  accesores:    p.x (campo) · p (fila del alias) · x (columna agrupada)")
+    partes.append("  aritmética:   a + b · a - b · a * b · (a + b) * c")
     partes.append("")
     if ESCALARES:
         partes.append("  escalares:")
         for nombre in sorted(ESCALARES):
+            if nombre in {"mas", "menos", "por"}:
+                continue
             fn = ESCALARES[nombre]
             maximo = getattr(fn, "aridad_max", "?")
             aridad = (f"{fn.aridad_min}+" if maximo is None else

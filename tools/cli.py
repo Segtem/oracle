@@ -45,6 +45,7 @@
     oracle tarea grafo [--json]             emite el grafo de referencias entre tareas en DOT o JSON
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería y `desde`
+    oracle manual casos                     cuándo una evidencia usa tabla o fila {…}
     oracle manual aritmetica                suma, resta y producto infijos en expresiones
     oracle manual macros                    macros abiertas y variantes que requieren evidencia
     oracle manual ambito                    dónde obliga una medida
@@ -61,7 +62,7 @@
 
     oracle reportar                         prepara un reporte local; no publica ni usa la red
     oracle censar --proyecto <ruta>…       censa varios proyectos y conserva el estado con su fecha
-    oracle convertir <archivo>              traduce entre superficie y JSON (por la extensión)
+    oracle convertir <archivo>              convierte medidas JSON a superficie
     oracle convertir <directorio> --a-superficie [--escribir]  migra fuentes JSON verificadas
     oracle juzgar --con <archivo>          juzga evidencia JSON contra el catálogo del proyecto
 """
@@ -127,7 +128,7 @@ Uso:
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
-  oracle convertir <archivo>              Traduce entre superficie y JSON (por la extensión)
+  oracle convertir <archivo>              Convierte medidas JSON a superficie
   oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas y casos JSON con ida y vuelta exacta
   oracle manual [tema]                    Manual integrado y vocabularios cerrados
   oracle contexto                        Inventario de relaciones y medidas activas
@@ -819,18 +820,16 @@ def _convertir_lote(directorio: Path, proy, *, escribir: bool = False) -> int:
 
 def cmd_convertir(proy: Proyecto, ruta_str: str, *, a_superficie: bool = False,
                  escribir: bool = False) -> int:
-    """Traduce entre los dos formatos, mirando la extensión.
+    """Convierte una medida JSON de intercambio a la superficie.
 
     Existía sólo como `python tools/sintaxis.py --imprimir|--leer`, que exige tener el checkout de
     Oracle y saber dónde está. Era el último paso del recorrido de autoría que seguía obligando a
     eso, y la documentación tenía que dejarlo escrito así por no inventar un comando que no existía.
 
-    Un solo verbo en vez de dos —`--imprimir` y `--leer`— porque la dirección la dice la extensión
-    del archivo y pedirle a la persona que además la nombre es hacerle repetir lo que ya escribió.
+    La forma canónica de una medida se consulta con `oracle medida expandir`.
     """
-    from nucleo import caso as caso_superficie
     from nucleo.medida import cargar_fuente_medida
-    from nucleo.sintaxis import ErrorSintaxis, fragmento_de_error, imprimir, leer
+    from nucleo.sintaxis import ErrorSintaxis, fragmento_de_error, imprimir
 
     ruta = Path(ruta_str)
     if not ruta.exists():
@@ -854,14 +853,10 @@ def cmd_convertir(proy: Proyecto, ruta_str: str, *, a_superficie: bool = False,
         macros = macros_del_proyecto(proy)
         if ruta.suffix == ".json":
             print(imprimir(cargar_fuente_medida(ruta, macros=macros), macros=macros), end="")
-        elif ruta.suffix == ".oracle":
-            print(json.dumps(leer(texto, macros=macros), ensure_ascii=False, separators=(",", ":")))
-        elif ruta.suffix == ".caso":
-            print(json.dumps(caso_superficie.leer(texto), ensure_ascii=False, indent=2))
         else:
-            print(f"no sé convertir «{ruta.suffix or ruta.name}»: esperaba .oracle, .caso o .json")
+            print(f"✗ {ruta}: esperaba una medida .json para convertir a superficie")
             return 1
-    except (ErrorSintaxis, caso_superficie.CasoMalDeclarado) as e:
+    except ErrorSintaxis as e:
         print(f"✗ {ruta}: {fragmento_de_error(e, texto)}")
         return 1
     except ValueError as e:
@@ -1495,7 +1490,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
         rutas = [a for a in args if a not in opciones]
         if not rutas:
-            print("falta el archivo: oracle convertir <archivo.oracle|.caso|.json> o <directorio> --a-superficie")
+            print("falta el archivo: oracle convertir <medida.json> o <directorio> --a-superficie")
             return 1
         if len(rutas) != 1:
             print("oracle convertir acepta una sola ruta")

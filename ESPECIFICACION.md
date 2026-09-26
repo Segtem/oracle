@@ -691,7 +691,7 @@ unidad sin corchetes, incluso `sin_unidad` cuando el número no expresa una magn
 y `booleano` se escribe sólo `nombre: tipo`: se cargan con `sin_unidad` y cualquier unidad escrita
 es un error. Los corchetes en una declaración de campo son un error de sintaxis.
 `alcance "…"` es obligatorio al final. La forma canónica equivalente, que sigue siendo válida
-como entrada JSON, es:
+como representación JSON de intercambio, es:
 
 ```json
 ["relacion", "corrida",
@@ -756,6 +756,14 @@ Las variantes **no relajan** la regla del campo ausente: una medida sobre una va
 por el discriminante —un `donde` propio, antes del de las violaciones— y pide filas de su variante en
 `requiere` (§2). Si comparara un campo de otra variante, levantaría error, como con cualquier campo que
 la fila no trae.
+
+### Evidencia en archivos `.caso`
+
+La evidencia se escribe como tabla cuando todas las filas tienen los mismos campos y sus nombres
+se pueden imprimir en una cabecera. Si las filas tienen conjuntos de campos distintos o un campo
+no puede imprimirse como cabecera, se escribe cada fila como `fila {…}` con un objeto de esa fila.
+Es un escape de la sintaxis `.caso` para conservar la evidencia completa, no otro formato de
+archivo. El JSON canónico sigue leyéndose como intercambio y para migración.
 
 ## 2. Una medida es un dato
 

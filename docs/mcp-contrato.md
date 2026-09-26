@@ -280,10 +280,7 @@ El bloque siguiente se genera desde `tools.mcp.HERRAMIENTAS` con
                   "type": "string"
                 },
                 "formato": {
-                  "enum": [
-                    "oracle",
-                    "json"
-                  ]
+                  "const": "oracle"
                 }
               }
             }
@@ -486,10 +483,7 @@ El bloque siguiente se genera desde `tools.mcp.HERRAMIENTAS` con
                   "type": "string"
                 },
                 "formato": {
-                  "enum": [
-                    "oracle",
-                    "json"
-                  ]
+                  "const": "oracle"
                 }
               }
             }
@@ -1079,7 +1073,7 @@ selección de jurisdicción que hoy sólo existe como función de núcleo. `orac
 ### `oracle_evaluar`
 
 `medida` es una unión cerrada. `{"id": ...}` sólo admite una medida del catálogo efectivo;
-`{"texto": ..., "formato": "oracle"|"json"}` carga una medida enteramente en memoria. No se
+`{"texto": ..., "formato": "oracle"}` carga una medida enteramente en memoria. No se
 admite `archivo`: aceptar una ruta haría de esta herramienta otra ortografía de `oracle medida
 probar` y abriría lecturas fuera de la raíz.
 

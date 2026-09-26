@@ -242,10 +242,7 @@
                   &quot;type&quot;: &quot;string&quot;
                 },
                 &quot;formato&quot;: {
-                  &quot;enum&quot;: [
-                    &quot;oracle&quot;,
-                    &quot;json&quot;
-                  ]
+                  &quot;const&quot;: &quot;oracle&quot;
                 }
               }
             }
@@ -448,10 +445,7 @@
                   &quot;type&quot;: &quot;string&quot;
                 },
                 &quot;formato&quot;: {
-                  &quot;enum&quot;: [
-                    &quot;oracle&quot;,
-                    &quot;json&quot;
-                  ]
+                  &quot;const&quot;: &quot;oracle&quot;
                 }
               }
             }
@@ -1005,7 +999,7 @@
 <p>Si no aparece la medida jueza o no se puede reunir toda la evidencia que ella sabe mirar, la consulta falla con <code>EVIDENCIA_INCOMPLETA</code>; no inventa un quinto estado ni entrega una mezcla de fijaciones comprobadas y desconocidas.</p>
 <p>La capacidad nueva no es «listar medidas en JSON». Es exponer, con procedencia conservada, la selección de jurisdicción que hoy sólo existe como función de núcleo. <code>oracle medida listar</code> y <code>oracle contexto</code> cargan fuentes; no contestan esa selección.</p>
 <h3 id="oracle_evaluar"><code>oracle_evaluar</code><a class="ancla" href="#oracle_evaluar" aria-label="Enlace a esta sección">#</a></h3>
-<p><code>medida</code> es una unión cerrada. <code>{&quot;id&quot;: ...}</code> sólo admite una medida del catálogo efectivo; <code>{&quot;texto&quot;: ..., &quot;formato&quot;: &quot;oracle&quot;|&quot;json&quot;}</code> carga una medida enteramente en memoria. No se admite <code>archivo</code>: aceptar una ruta haría de esta herramienta otra ortografía de <code>oracle medida probar</code> y abriría lecturas fuera de la raíz.</p>
+<p><code>medida</code> es una unión cerrada. <code>{&quot;id&quot;: ...}</code> sólo admite una medida del catálogo efectivo; <code>{&quot;texto&quot;: ..., &quot;formato&quot;: &quot;oracle&quot;}</code> carga una medida enteramente en memoria. No se admite <code>archivo</code>: aceptar una ruta haría de esta herramienta otra ortografía de <code>oracle medida probar</code> y abriría lecturas fuera de la raíz.</p>
 <p><code>evidencia</code> usa la representación JSON ya consumida por <code>Medida.evaluar</code>: cada clave es una relación y cada valor, una lista de filas objeto. El servidor pasa el resultado de <code>Veredicto.a_dict</code> a una única función de presentación; no vuelve a decidir el umbral en el adaptador.</p>
 <p>La respuesta tiene tres estados, no un booleano:</p>
 <ul><li><code>verde</code> cuando <code>ok</code> es verdadero;</li><li><code>rojo</code> cuando <code>ok</code> es falso y <code>sin_evidencia</code> está vacío;</li><li><code>sin_evidencia</code> cuando falta una relación declarada en <code>requiere</code>.</li></ul>

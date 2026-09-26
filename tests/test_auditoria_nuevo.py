@@ -71,7 +71,7 @@ class RecorridoNuevo(unittest.TestCase):
 
     def test_guia_usa_convertir(self):
         guia = (RAIZ / "docs/03-escribir-una-medida.md").read_text(encoding="utf-8")
-        self.assertIn("oracle convertir <archivo", guia)
+        self.assertIn("oracle convertir <medida.json>", guia)
         self.assertNotIn("python tools/sintaxis.py", guia)
 
     def test_caso_pide_procedencia_y_explica_etiqueta(self):
