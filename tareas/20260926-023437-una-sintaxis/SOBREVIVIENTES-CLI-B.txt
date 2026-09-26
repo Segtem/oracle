@@ -1,0 +1,42 @@
+tools/cli.py:864:8:retorno retorno: return <algo> → return None
+tools/cli.py:864:15:constante constante: 1 → 2  
+tools/cli.py:874:7:negacion negacion: se borra el `not` 
+tools/cli.py:885:24:booleano booleano: and ↔ or  
+tools/cli.py:888:12:retorno retorno: return <algo> → return None
+tools/cli.py:888:19:constante constante: 1 → 2  
+tools/cli.py:895:7:booleano booleano: and ↔ or  
+tools/cli.py:897:8:retorno retorno: return <algo> → return None
+tools/cli.py:897:15:constante constante: 1 → 2  
+tools/cli.py:901:19:booleano booleano: and ↔ or  
+tools/cli.py:901:19:comparador comparador: Eq → NotEq  
+tools/cli.py:903:50:booleano booleano: and ↔ or  
+tools/cli.py:903:68:negacion negacion: se borra el `not` 
+tools/cli.py:904:46:booleano booleano: and ↔ or  
+tools/cli.py:904:46:comparador comparador: Eq → NotEq  
+tools/cli.py:904:75:negacion negacion: se borra el `not` 
+tools/cli.py:908:12:retorno retorno: return <algo> → return None
+tools/cli.py:908:19:constante constante: 0 → 1  
+tools/cli.py:923:8:retorno retorno: return <algo> → return None
+tools/cli.py:923:15:constante constante: 1 → 2  
+tools/cli.py:995:15:constante constante: 1 → 2  
+tools/cli.py:1156:60:constante constante: 0 → 1  
+tools/cli.py:1160:56:constante constante: 0 → 1  
+tools/cli.py:1590:36:comparador comparador: NotEq → Eq  
+tools/cli.py:1591:11:booleano booleano: and ↔ or  
+tools/cli.py:1591:11:comparador comparador: NotIn → In  
+tools/cli.py:1591:29:constante constante: 1 → 2  
+tools/cli.py:1591:32:constante constante: 2 → 3  
+tools/cli.py:1591:42:booleano booleano: and ↔ or  
+tools/cli.py:1591:65:comparador comparador: NotEq → Eq  
+tools/cli.py:1591:101:comparador comparador: Gt → GtE  
+tools/cli.py:1591:128:constante constante: 1 → 2  
+tools/cli.py:1593:12:retorno retorno: return <algo> → return None
+tools/cli.py:1593:19:constante constante: 1 → 2  
+tools/cli.py:1594:36:comparador comparador: NotEq → Eq  
+tools/cli.py:1595:11:comparador comparador: NotEq → Eq  
+tools/cli.py:1595:25:constante constante: 1 → 2  
+tools/cli.py:1597:12:retorno retorno: return <algo> → return None
+tools/cli.py:1597:19:constante constante: 1 → 2  
+tools/cli.py:1598:8:retorno retorno: return <algo> → return None
+tools/cli.py:1598:41:constante constante: 0 → 1  
+tools/cli.py:1598:54:comparador comparador: In → NotIn  

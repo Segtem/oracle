@@ -151,3 +151,7 @@ Revisar AUDITORIA-11.md (veredicto: «una sola sintaxis de escritura: sí») y p
 ### Nota (2026-09-26 17:17:01 UTC)
 
 2026-09-26, Claude: AUDITORIA-16 (agy2, confirmación independiente) también dio «una sola sintaxis de escritura: sí»: 870/870 inserciones de comentario en archivos y posiciones que la decimoquinta no había probado (guarda, sin, unir, resuelto, limite_humano, espera), 120 comentarios con caracteres especiales, ningún productor JSON, 26 variantes no canónicas rechazadas en las cuatro superficies, wheel y plantilla verdes. Dos «sí» seguidos después de cinco rondas de arreglos. Cuando Codex vuelva (2026-09-30) conviene una auditoría más de Codex, que fue el que encontró los últimos defectos; no bloquea el corte.
+
+### Nota (2026-09-26 20:46:09 UTC)
+
+2026-09-26, mutación del corte 0.32.0: nucleo/medida 347/347, tools/medida 321/321; tools/cli.py 676/734 con 58 SOBREVIVIENTES, todos en el código nuevo de la sintaxis única: convertir por lote (líneas 717-829), formatear (864-923), dos sueltos (995, 1156, 1160) y el parseo de argumentos de formatear en main (1590-1598). ENCARGO (agy y agy2, en contenedor, cada uno en su worktree): por cada mutante vivo de su lista (SOBREVIVIENTES-CLI-A.txt o -B.txt en esta carpeta), un test que lo mate o, sólo si ningún test puede distinguirlo, un equivalente en equivalentes.json con su razón. agy: lista A en tests/test_cli_convertir_mutacion.py; agy2: lista B en tests/test_cli_formatear_mutacion.py. Nada de tocar tools/cli.py.

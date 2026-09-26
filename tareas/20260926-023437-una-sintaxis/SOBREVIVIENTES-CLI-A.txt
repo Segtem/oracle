@@ -1,0 +1,16 @@
+tools/cli.py:720:8:retorno retorno: return <algo> → return None
+tools/cli.py:738:74:constante constante: False → True  
+tools/cli.py:766:7:booleano booleano: and ↔ or  
+tools/cli.py:782:11:comparador comparador: IsNot → Is  
+tools/cli.py:783:39:constante constante: True → False  
+tools/cli.py:786:64:constante constante: False → True  
+tools/cli.py:787:7:booleano booleano: and ↔ or  
+tools/cli.py:789:8:retorno retorno: return <algo> → return None
+tools/cli.py:789:15:constante constante: 1 → 2  
+tools/cli.py:801:15:booleano booleano: and ↔ or  
+tools/cli.py:803:15:booleano booleano: and ↔ or  
+tools/cli.py:807:15:booleano booleano: and ↔ or  
+tools/cli.py:807:15:comparador comparador: Eq → NotEq  
+tools/cli.py:807:39:comparador comparador: Is → IsNot  
+tools/cli.py:818:31:constante constante: 1 → 2  
+tools/cli.py:825:34:constante constante: False → True  
