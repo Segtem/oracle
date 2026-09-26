@@ -16,6 +16,10 @@
 
 Auditoría adversarial ejecutada y documentada en AUDITORIA.md. Hallazgos reproducidos: MCP acepta y enseña medida JSON; convertir imprime JSON; contexto muestra accesores AST; README presenta formatos dobles; macro admite dos cuerpos; caso acepta tabla y escape; relación acepta JSON incluso en .oracle. Sin cambios de código ni commits.
 
+### Nota (2026-09-26 06:28:21 UTC)
+
+Segunda auditoría adversarial completada y documentada en AUDITORIA-2.md. Verificado el cierre de las segundas formas previas (MCP, convertir, contexto, README, macros, mas/menos/por, col, .oracle con relación). Identificadas segundas formas nuevas (agrupar, donde encadenado, variantes .relacion, sintaxis version) y remanente editorial en docs/tutorial-practico.md:684.
+
 ## Próximo paso
 
-Revisar los hallazgos reproducidos en AUDITORIA.md y decidir qué entradas públicas de JSON y qué variante de invocación de macro conservar como sintaxis de autoría antes de cambiar código o documentación.
+Revisar el informe AUDITORIA-2.md y corregir el remanente editorial en docs/tutorial-practico.md:684 antes de evaluar decisiones de diseño sobre las segundas formas sintácticas nuevas (agrupar, donde encadenado, variantes .relacion).
