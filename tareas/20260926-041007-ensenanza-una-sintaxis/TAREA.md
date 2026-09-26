@@ -1,6 +1,6 @@
 # El paquete todavía enseña u ofrece la segunda forma: MCP, oracle contexto, oracle convertir, README, docs/03 y la plantilla sensor-prosa
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -15,3 +15,7 @@ Implementado: MCP acepta solo formato oracle para medidas en memoria; contexto m
 ## Próximo paso
 
 Claude: correr la mutación pendiente y revisar sus resultados; después decidir el cierre de la tarea.
+
+### Nota (2026-09-26 04:24:33 UTC)
+
+2026-09-26, Claude: revisada y unida. La mutación de los módulos tocados va en la ronda del corte.
