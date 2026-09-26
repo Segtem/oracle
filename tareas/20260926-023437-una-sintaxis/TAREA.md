@@ -55,3 +55,7 @@ Revisar AUDITORIA-5.md y corregir las dos segundas vías reproducidas: la entrad
 ### Nota (2026-09-26 12:35:06 UTC)
 
 2026-09-26, Claude: AUDITORIA-5 (Codex) dio no por dos puntos, arreglados: tools/sintaxis.py --leer exige la forma única (lee sin convertir fines de línea y compara con el impresor, como los cargadores); la receta ejemplo/caso-observado escribe el caso en .caso con el impresor (antes lo escribía en JSON dentro de corpus/). Tests nuevos para los dos. AUDITORIA-4.md y -5.md, unidas a main.
+
+### Nota (2026-09-26 12:35:18 UTC)
+
+2026-09-26, ENCARGO de la SEXTA auditoría (Codex, con shell, adversarial): después de AUDITORIA-5 se arreglaron sintaxis.py --leer y la receta caso-observado. Repetí EN CONTRA, ejecutando, todo punto abierto de AUDITORIA-2 a -5 y buscá cualquier entrada que acepte, como medida, caso, relación o macro de un proyecto, un texto de superficie distinto del impresor, y cualquier lugar del paquete que enseñe o produzca otra forma de escribir (recetas, ejemplos y scripts de ejemplo/, herramientas de tools/, plantillas, docs, especificación, manual, contexto, MCP, LSP, mensajes de error). JSON en archivos .json: admitido como intercambio; no es hallazgo salvo que algo lo enseñe o produzca como forma de escribir una medida, un caso o una relación. Escribí tareas/<esta>/AUDITORIA-6.md con comandos, salidas recortadas, tabla final y veredicto de una línea: «una sola sintaxis de escritura: sí» o «no, porque …». Sin cambiar código. Sin commits.
