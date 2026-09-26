@@ -1,0 +1,98 @@
+objetivos: tools/manual.py
+
+     ·  tools/manual.py:76:8:retorno                         retorno: return <algo> → return None
+     ·  tools/manual.py:76:47:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:78:8:retorno                         retorno: return <algo> → return None
+     ·  tools/manual.py:87:4:retorno                         retorno: return <algo> → return None
+     ·  tools/manual.py:87:19:booleano                       booleano: and ↔ or
+     ·  tools/manual.py:92:4:retorno                         retorno: return <algo> → return None
+     ·  tools/manual.py:97:4:retorno                         retorno: return <algo> → return None
+     ·  tools/manual.py:104:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:109:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:109:23:comparador                    comparador: Eq → NotEq
+     ·  tools/manual.py:114:7:comparador                     comparador: In → NotIn
+     ·  tools/manual.py:115:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:115:41:constante                     constante: 1 → 2
+     ·  tools/manual.py:116:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:117:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:129:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:139:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:140:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:141:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:143:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:144:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:149:7:comparador                     comparador: In → NotIn
+     ·  tools/manual.py:150:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:150:34:constante                     constante: 0 → 1
+     ·  tools/manual.py:151:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:152:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:153:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:154:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:155:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:156:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:157:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:158:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:165:11:booleano                      booleano: and ↔ or
+     ·  tools/manual.py:165:22:comparador                    comparador: Gt → GtE
+     ·  tools/manual.py:165:36:constante                     constante: 1 → 2
+     ·  tools/manual.py:172:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:172:19:constante                     constante: 0 → 1
+     ·  tools/manual.py:172:54:constante                     constante: 1 → 2
+     ·  tools/manual.py:175:36:constante                     constante: 96 → 97
+     ·  tools/manual.py:179:7:negacion                       negacion: se borra el `not`
+     ·  tools/manual.py:181:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:182:58:constante                     constante: 2 → 3
+     ·  tools/manual.py:187:7:comparador                     comparador: Gt → GtE
+     ·  tools/manual.py:187:26:constante                     constante: 3 → 4
+     ·  tools/manual.py:188:24:constante                     constante: 6 → 7
+     ·  tools/manual.py:191:50:comparador                    comparador: Eq → NotEq
+     ·  tools/manual.py:191:55:constante                     constante: 0 → 1
+     ·  tools/manual.py:192:75:constante                     constante: 6 → 7
+     ·  tools/manual.py:194:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:196:35:constante                     constante: 2 → 3
+     ·  tools/manual.py:197:56:constante                     constante: 2 → 3
+     ·  tools/manual.py:198:59:constante                     constante: 0 → 1
+     ·  tools/manual.py:199:31:constante                     constante: 1 → 2
+     ·  tools/manual.py:200:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:203:48:constante                     constante: 96 → 97
+     ·  tools/manual.py:205:7:comparador                     comparador: IsNot → Is
+     ·  tools/manual.py:206:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:208:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:241:7:comparador                     comparador: Eq → NotEq
+     ·  tools/manual.py:241:21:constante                     constante: 2 → 3
+     ·  tools/manual.py:241:26:constante                     constante: 1 → 2
+     ·  tools/manual.py:242:24:constante                     constante: 0 → 1
+     ·  tools/manual.py:243:71:constante                     constante: 1 → 2
+     ·  tools/manual.py:243:74:constante                     constante: 2 → 3
+     ·  tools/manual.py:243:85:constante                     constante: 2 → 3
+     ·  tools/manual.py:243:88:constante                     constante: 2 → 3
+     ·  tools/manual.py:244:7:comparador                     comparador: In → NotIn
+     ·  tools/manual.py:244:15:constante                     constante: 1 → 2
+     ·  tools/manual.py:246:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:256:32:comparador                    comparador: Is → IsNot
+     ·  tools/manual.py:259:51:comparador                    comparador: Is → IsNot
+     ·  tools/manual.py:269:25:comparador                    comparador: Is → IsNot
+     ·  tools/manual.py:279:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:310:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:323:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:336:34:constante                     constante: True → False
+     ·  tools/manual.py:336:49:constante                     constante: True → False
+     ·  tools/manual.py:339:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:356:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:380:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:395:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:458:7:booleano                       booleano: and ↔ or
+     ·  tools/manual.py:458:7:comparador                     comparador: IsNot → Is
+     ·  tools/manual.py:458:33:comparador                    comparador: NotIn → In
+     ·  tools/manual.py:461:8:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:461:15:constante                     constante: 2 → 3
+     ·  tools/manual.py:469:4:retorno                        retorno: return <algo> → return None
+     ·  tools/manual.py:469:11:constante                     constante: 0 → 1
+
+mutantes: 88 · murieron 88 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.

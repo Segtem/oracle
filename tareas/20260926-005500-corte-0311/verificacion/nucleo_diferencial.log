@@ -1,0 +1,54 @@
+objetivos: nucleo/diferencial.py
+
+     ·  nucleo/diferencial.py:39:15:booleano                 booleano: and ↔ or
+     ·  nucleo/diferencial.py:39:15:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:39:47:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:41:19:booleano                 booleano: and ↔ or
+     ·  nucleo/diferencial.py:41:19:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:41:45:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:43:12:booleano                 booleano: and ↔ or
+     ·  nucleo/diferencial.py:43:12:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:44:19:comparador               comparador: NotIn → In
+     ·  nucleo/diferencial.py:27:18:constante                constante: True → False
+     ·  nucleo/diferencial.py:51:8:retorno                   retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:52:32:constante                constante: False → True
+     ·  nucleo/diferencial.py:52:49:constante                constante: True → False
+     ·  nucleo/diferencial.py:53:22:constante                constante: False → True
+     ·  nucleo/diferencial.py:59:4:retorno                   retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:64:7:booleano                  booleano: and ↔ or
+     ·  nucleo/diferencial.py:64:33:comparador               comparador: In → NotIn
+     ·  nucleo/diferencial.py:64:59:comparador               comparador: Eq → NotEq
+     ·  nucleo/diferencial.py:67:42:constante                constante: True → False
+     ·  nucleo/diferencial.py:72:42:constante                constante: True → False
+     ·  nucleo/diferencial.py:78:4:retorno                   retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:90:4:retorno                   retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:90:15:booleano                 booleano: and ↔ or
+     ·  nucleo/diferencial.py:90:40:comparador               comparador: Eq → NotEq
+     ·  nucleo/diferencial.py:96:42:constante                constante: True → False
+     ·  nucleo/diferencial.py:102:44:booleano                booleano: and ↔ or
+     ·  nucleo/diferencial.py:102:60:negacion                negacion: se borra el `not`
+     ·  nucleo/diferencial.py:103:11:negacion                negacion: se borra el `not`
+     ·  nucleo/diferencial.py:110:46:constante               constante: True → False
+     ·  nucleo/diferencial.py:114:4:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:122:4:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:127:7:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:129:4:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:133:7:negacion                 negacion: se borra el `not`
+     ·  nucleo/diferencial.py:135:4:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:153:7:comparador               comparador: In → NotIn
+     ·  nucleo/diferencial.py:154:8:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:155:4:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:169:7:comparador               comparador: Is → IsNot
+     ·  nucleo/diferencial.py:170:8:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:174:8:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:176:7:comparador               comparador: NotEq → Eq
+     ·  nucleo/diferencial.py:177:8:retorno                  retorno: return <algo> → return None
+     ·  nucleo/diferencial.py:179:4:retorno                  retorno: return <algo> → return None
+
+mutantes: 44 · murieron 44 · sobrevivieron 0 · timeout 0 · errores de arnés 0 · equivalentes declarados: 0
+  ✓ proceso.codigo_con_mutante_que_lo_mata       valor 0 (<= 0)
+  ✓ proceso.ronda_mutacion_concluyente           valor 0 (<= 0)
+  ✗ proceso.test_con_mutante_que_lo_mata         valor 0 (<= 0)
+  ✓ proceso.arnes_con_bytecode_frio              valor 0 (<= 0)
+
+Todos los mutantes murieron: los tests fijan el código del núcleo.
