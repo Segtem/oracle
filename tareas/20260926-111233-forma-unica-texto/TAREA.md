@@ -1,6 +1,6 @@
 # El lector acepta varias escrituras que dan el mismo árbol: que el texto válido sea exactamente el que escribe el impresor
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 88
 - ETIQUETAS: oracle, sintaxis, una-sintaxis
 
@@ -15,3 +15,7 @@ Implementado invariante de forma única para .oracle/.caso/.relacion, diff y com
 ## Próximo paso
 
 Revisar el diff de esta implementación y decidir la integración; mantener la tarea ABIERTA hasta esa revisión.
+
+### Nota (2026-09-26 11:33:55 UTC)
+
+2026-09-26, Claude: revisada y unida. Verificado sobre un proyecto temporal: una medida con agregado antes de clave y 1e-3 sale SINTAXIS ✗ con diff; formatear la arregla conservando el comentario y el test pasa a OK. Agregado por Claude: formatear acepta un directorio, y en la raíz de un proyecto sólo recorre catalogos/, corpus/, relaciones/ y macros/ (antes habría reescrito 54 archivos de tareas/ y vault-kb/); las sugerencias dicen oracle formatear. La mutación va en la ronda del corte.
