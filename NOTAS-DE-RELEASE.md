@@ -154,7 +154,9 @@ medida cambia de significado y el álgebra sigue en 0.8.
 
 - **Dentro de una expresión el guion es siempre resta**, también sin espacios: `t1.turno-1` es
   `menos(t1.turno, 1)` y no un campo llamado `turno-1`, que es como lo escribe un modelo. Los nombres
-  de macro con guion (`ninguno-requiere`) siguen valiendo en los encabezados.
+  de macro con guion (`ninguno-requiere`) siguen valiendo en los encabezados. *Desde sintaxis 1.0
+  (Oracle 0.32.0) el guion se lee igual, pero se escribe `t1.turno - 1`: el cargador sólo acepta el
+  texto del impresor.*
 - Los literales negativos siguen siendo números: `a.x > -1`, `a.x - -1`.
 - `/`, `%` y `^` no existen, y el error lo dice con la alternativa: declarar una escalar y llamarla
   por su nombre.
