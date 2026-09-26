@@ -80,13 +80,16 @@ class CliSintaxisTests(unittest.TestCase):
     def test_leer_valida_la_version_y_emite_json_compacto_con_acentos(self):
         """Los consumidores necesitan JSON completo, sin escapes de acentos ni una versión sin juzgar."""
         lectura = sintaxis.Lectura(datos=["á", {"válido": False}], ubicaciones={}, version="0.4")
-        with (mock.patch.object(Path, "read_text", autospec=True,
-                                return_value="fuente solicitada") as leer_archivo,
+        # El texto se lee sin convertir fines de línea (nucleo.forma.leer_texto) y tiene que ser
+        # el que imprime el impresor: acá los dos coinciden para aislar la traducción a JSON.
+        with (mock.patch("nucleo.forma.leer_texto",
+                         return_value="fuente solicitada") as leer_archivo,
+              mock.patch.object(sintaxis, "imprimir", return_value="fuente solicitada"),
               mock.patch.object(sintaxis, "leer_con_mapa", return_value=lectura) as leer,
               mock.patch("nucleo.version.exigir_sintaxis_compatible") as exigir):
             self.assertEqual(self._ejecutar(["--leer", "carpeta/á.oracle"]),
                              (0, '["á",{"válido":false}]\n'))
-        leer_archivo.assert_called_once_with(Path("carpeta/á.oracle"), encoding="utf-8")
+        leer_archivo.assert_called_once_with(Path("carpeta/á.oracle"))
         leer.assert_called_once_with("fuente solicitada")
         exigir.assert_called_once_with("0.4")
 

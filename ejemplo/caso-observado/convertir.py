@@ -1,11 +1,11 @@
-"""Receta: captura JSON + metadatos explícitos → caso JSON, sin ejecutar sensores."""
+"""Receta: captura JSON + metadatos explícitos → caso .caso en la forma única, sin ejecutar sensores."""
 import argparse
 import json
 from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-from nucleo.caso import DETECCIONES, ETIQUETAS
+from nucleo.caso import DETECCIONES, ETIQUETAS, imprimir
 from nucleo.proyecto import ID_CASO_RE
 from tools.corpus import OBLIGATORIOS, revisar_evidencia
 
@@ -35,13 +35,14 @@ def main():
                 raise ValueError(f'{campo} debe ser uno de {sorted(opciones)}')
         if not isinstance(datos['id'], str) or not ID_CASO_RE.fullmatch(datos['id']):
             raise ValueError('id inválido: se espera NNN-descripcion')
-        if args.destino.name != datos['id'] + '.json':
-            raise ValueError('destino debe llamarse <id>.json')
+        if args.destino.name != datos['id'] + '.caso':
+            raise ValueError('destino debe llamarse <id>.caso')
         fallas = revisar_evidencia(str(args.captura), evidencia)
         if fallas:
             raise ValueError('; '.join(fallas))
         datos['evidencia'] = evidencia
-        texto = json.dumps(datos, ensure_ascii=False, indent=2, allow_nan=False) + '\n'
+        # Una sola sintaxis: el caso se escribe en superficie, exactamente como lo imprime Oracle.
+        texto = imprimir(datos)
         with args.destino.open('x', encoding='utf-8') as salida:
             salida.write(texto)
     except (OSError, ValueError) as error:

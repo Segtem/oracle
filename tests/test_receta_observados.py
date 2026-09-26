@@ -24,7 +24,7 @@ class RecetaObservadosTests(unittest.TestCase):
             CAPTURA / '494-la-cota-de-la-sombra-observada-por-el-recorrido.caso')
         self.meta.pop('evidencia')
         self.evidencia = json.loads((CAPTURA / 'evidencia.json').read_text())
-        self.destino = self.directorio / (self.meta['id'] + '.json')
+        self.destino = self.directorio / (self.meta['id'] + '.caso')
 
     def ejecutar(self):
         captura = self.directorio / 'captura.json'

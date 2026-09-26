@@ -19,7 +19,7 @@ mkdir "$salida_observado/corpus"
 python3 ejemplo/caso-observado/convertir.py \
   observaciones/2026-09-09-aceptacion/evidencia.json \
   ejemplo/caso-observado/metadatos.json \
-  "$salida_observado/corpus/494-la-cota-de-la-sombra-observada-por-el-recorrido.json"
+  "$salida_observado/corpus/494-la-cota-de-la-sombra-observada-por-el-recorrido.caso"
 python3 - "$salida_observado/corpus" <<'PY'
 import json
 import sys
@@ -32,7 +32,7 @@ corpus = Path(sys.argv[1])
 fallas, casos = verificar(corpus)
 assert not fallas, fallas
 assert len(casos) == 1
-caso = cargar_fuente_caso(corpus / (casos[0]['id'] + '.json'))
+caso = cargar_fuente_caso(corpus / (casos[0]['id'] + '.caso'))
 captura = json.loads(Path('observaciones/2026-09-09-aceptacion/evidencia.json').read_text())
 assert caso['evidencia'] == captura
 medida = cargar(Path('catalogos/meta/meta.ninguna_sombra_supera_su_cota.oracle'))

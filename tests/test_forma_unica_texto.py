@@ -186,6 +186,22 @@ class FormaUnicaTests(unittest.TestCase):
                 self.assertLess(texto.index("agregado n"), texto.index("clave k"), relativa)
             self.assertIn("oracle formatear", salida.getvalue())
 
+    def test_sintaxis_leer_exige_la_forma_unica(self):
+        # AUDITORIA-5: la herramienta interna también carga, así que exige lo mismo.
+        base = ("medida d.m:\n    de a p\n    resumen contar(1)\n"
+                "    umbral <= 0 segun contrato porque \"r\"\n    ambito universal\n"
+                "    alcance \"z\"\n")
+        with tempfile.TemporaryDirectory() as td:
+            for nombre, texto in (("canonica", base), ("espacios", base.replace("de a p", "de a   p")),
+                                  ("crlf", base.replace("\n", "\r\n"))):
+                ruta = Path(td) / f"{nombre}.oracle"
+                ruta.write_bytes(texto.encode("utf-8"))
+                salida = io.StringIO()
+                with redirect_stdout(salida):
+                    codigo = sintaxis.main(["--leer", str(ruta)])
+                with self.subTest(nombre=nombre):
+                    self.assertEqual(codigo, 0 if nombre == "canonica" else 1, salida.getvalue())
+
     def test_o_muestra_y_entre_parentesis_sin_cambiar_arbol(self):
         arbol = ['o', ['y', True, False], True]
         self.assertEqual(lector_medida._expr(arbol), '(true y false) o true')

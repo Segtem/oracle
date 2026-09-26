@@ -290,7 +290,9 @@ def main(argv: list[str] | None = None) -> int:
         # fail-open al lado de dos fail-closed es peor que no tener ninguna: enseña a confiar.
         from nucleo.version import VersionInvalida, exigir_sintaxis_compatible
 
-        texto = Path(argv[1]).read_text(encoding="utf-8")
+        from nucleo.forma import error_forma, leer_texto
+
+        texto = leer_texto(Path(argv[1]))
         try:
             lectura = leer_con_mapa(texto)
             exigir_sintaxis_compatible(lectura.version)
@@ -298,6 +300,12 @@ def main(argv: list[str] | None = None) -> int:
             print(f"✗ {fragmento_de_error(e, texto)}")
             return 1
         datos = lectura.datos
+        # Una sola sintaxis: esta rama también carga, así que exige la forma del impresor como
+        # los cargadores del proyecto (antes aceptaba CRLF, espacios de más o la línea de versión).
+        fuera = error_forma(argv[1], texto, imprimir(datos))
+        if fuera:
+            print(f"✗ {fuera}")
+            return 1
         print(json.dumps(datos, ensure_ascii=False, separators=(",", ":")))
         return 0
     if argv[0] == "--verificar":

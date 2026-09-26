@@ -51,3 +51,7 @@ Tercera auditoría adversarial ejecutada y documentada en AUDITORIA-3.md. Reprod
 ## Próximo paso
 
 Revisar AUDITORIA-5.md y corregir las dos segundas vías reproducidas: la entrada `tools/sintaxis.py --leer` para grafías no canónicas y la receta `ejemplo/caso-observado` que genera casos JSON; completar las notas de sintaxis 1.0 y volver a auditar.
+
+### Nota (2026-09-26 12:35:06 UTC)
+
+2026-09-26, Claude: AUDITORIA-5 (Codex) dio no por dos puntos, arreglados: tools/sintaxis.py --leer exige la forma única (lee sin convertir fines de línea y compara con el impresor, como los cargadores); la receta ejemplo/caso-observado escribe el caso en .caso con el impresor (antes lo escribía en JSON dentro de corpus/). Tests nuevos para los dos. AUDITORIA-4.md y -5.md, unidas a main.
