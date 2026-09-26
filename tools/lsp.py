@@ -158,6 +158,12 @@ def lentes(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
         lectura = leer_con_mapa(texto, macros=macros)
         exigir_sintaxis_compatible(lectura.version)
         medida = Medida.de_datos(lectura.datos, macros=macros)
+        # Una sola sintaxis: si el texto no es el del impresor, el proyecto no lo carga y el
+        # diagnóstico ya lo dice. Una lente sobre esa medida sería una segunda puerta de entrada.
+        from nucleo.forma import error_forma
+        from nucleo.sintaxis import imprimir as imprimir_medida
+        if error_forma(ruta, texto, imprimir_medida(lectura.datos, macros=macros)):
+            return []
     except (ErrorSintaxis, MedidaMalDeclarada, ValueError):
         # Una medida que no se puede leer ya tiene su diagnóstico. Un lens con datos a medias
         # sobre un archivo roto sería ruido encima del error que hay que arreglar primero.

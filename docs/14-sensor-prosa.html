@@ -44,7 +44,7 @@
   --catalogo ejemplo/sensor-prosa/catalogos \
   --salida /tmp/prosa-preparada
 oracle test --proyecto ejemplo/sensor-prosa</code></pre>
-<p>El catálogo puede ser otro directorio de medidas <code>.oracle</code> o canónicas JSON; <code>--catalogo</code> se puede repetir. Se cargan medidas con macros estándar; los catálogos que requieren macros privadas necesitan adaptar este ejemplo. No se importan escalares externas ni se ejecuta el producto. Cada registro contiene alcance, porque, umbral, origen del umbral, tubería y resumen, reutilizando el armado de <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260922-220029-jev-porque-v2/preparar.py" rel="noopener"><code>preparar.py</code></a>.</p>
+<p>El catálogo puede ser otro directorio de medidas <code>.oracle</code>; <code>--catalogo</code> se puede repetir. Se cargan medidas con macros estándar; los catálogos que requieren macros privadas necesitan adaptar este ejemplo. No se importan escalares externas ni se ejecuta el producto. Cada registro contiene alcance, porque, umbral, origen del umbral, tubería y resumen, reutilizando el armado de <a href="https://github.com/Segtem/oracle/blob/main/tareas/20260922-220029-jev-porque-v2/preparar.py" rel="noopener"><code>preparar.py</code></a>.</p>
 <p>Sólo <code>correr</code> consume API y envía esa prosa al proveedor. Primero revisá el lote y el costo previsto; el siguiente comando hace una corrida nueva:</p>
 <pre data-lenguaje="bash"><code># OPENROUTER_API_KEY debe estar definida en el entorno, nunca en un archivo del repo.
 python3 ejemplo/sensor-prosa/sensor_prosa.py correr \

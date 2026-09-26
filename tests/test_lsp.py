@@ -651,7 +651,7 @@ class LenteSobreLaMedida(unittest.TestCase):
         """
         with tempfile.TemporaryDirectory() as td:
             proy, ruta = _proyecto(Path(td))
-            lente, = lsp.lentes(proy, ruta, "# un comentario\n\n" + MEDIDA)
+            lente, = lsp.lentes(proy, ruta, "# un comentario\n# otro\n" + MEDIDA)
             self.assertEqual(lente["range"], {"start": {"line": 2, "character": 0},
                                               "end": {"line": 2, "character": 0}})
 

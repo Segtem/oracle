@@ -4,7 +4,7 @@
     python tools/medida.py --escalares             qué funciones de dominio se pueden usar
     python tools/medida.py --nueva dominio.nombre  crea el archivo con la forma puesta
     python tools/medida.py --listar                lista las medidas con umbral, alcance y fijación
-    python tools/medida.py <archivo.json>          la revisa y la corre contra el corpus
+    python tools/medida.py <archivo.oracle>        la revisa y la corre contra el corpus
     python tools/medida.py --expandir <archivo>     ve en qué forma canónica se convierte la macro
 
 Para ejecutar `escalares.py` de otro proyecto hace falta `--confiar-escalares`. Ayuda,
@@ -56,8 +56,8 @@ from tools.sesion import resolver_cli  # noqa: E402
 # La plantilla usa la macro `ninguno`, que es la forma del 80% de las medidas. `--expandir` muestra
 # en qué se convierte; y si el caso no encaja, la forma canónica sigue siendo válida.
 # En superficie infija, no en JSON. La plantilla es lo primero que ve alguien que escribe su primera
-# medida, y hasta hoy le decía «tu trabajo es anidar corchetes». Se guarda como `.oracle`, que el
-# catálogo carga igual que un `.json`.
+# medida, y hasta hoy le decía «tu trabajo es anidar corchetes». Se guarda como `.oracle`: es la única
+# forma de escribir una medida (una-sintaxis).
 PLANTILLA = """\
 ninguno {mid}:
     de RELACION x
@@ -939,7 +939,7 @@ def main(argv: list[str] | None = None) -> int:
             return 1
     if args[0] == "--expandir":
         if len(args) < 2:
-            print("falta el archivo: --expandir <archivo.json>")
+            print("falta el archivo: --expandir <archivo.oracle>")
             return 1
         entrada = Path(args[1])
         accion = lambda: expandir_archivo(

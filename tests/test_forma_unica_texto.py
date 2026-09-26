@@ -230,3 +230,16 @@ class FormaUnicaTests(unittest.TestCase):
                           resultado.stdout)
             self.assertIn('formatear relaciones/demo_unica.relacion --escribir',
                           resultado.stdout)
+
+
+class LenteFueraDeForma(unittest.TestCase):
+    def test_codelens_no_interpreta_una_medida_fuera_de_la_forma_unica(self):
+        # AUDITORIA-6: el diagnóstico la rechaza; una lente sobre ella sería otra puerta de entrada.
+        from nucleo.proyecto import Proyecto
+        from tools import lsp
+        raiz = Path(__file__).resolve().parents[1]
+        canonica = raiz / "catalogos" / "meta" / "meta.ningun_umbral_de_igualdad.oracle"
+        texto = canonica.read_text(encoding="utf-8")
+        proy = Proyecto(raiz)
+        self.assertTrue(lsp.lentes(proy, canonica, texto))
+        self.assertEqual(lsp.lentes(proy, canonica, texto.replace("umbral <=", "umbral  <=", 1)), [])

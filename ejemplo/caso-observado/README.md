@@ -61,7 +61,7 @@ Elegí `medida` y `etiqueta` por lo que el caso debe mostrar: `verde_correcto` e
 
 La captura debe ser el mapa JSON de relaciones a filas del sensor, no el registro envolvente.
 Se conserva toda la evidencia, incluidas relaciones vacías, claves, duplicados y tipos JSON;
-no se filtran filas ni se completan campos. Se guarda como `<id>.json`, sin sobrescribir.
+no se filtran filas ni se completan campos. Se guarda como `<id>.caso`, en la forma del impresor, sin sobrescribir.
 Luego verificá el esquema con `tools.corpus.verificar` y evaluá la medida del proyecto con
 las herramientas existentes, contrastando el resultado con la etiqueta elegida como en el
 recorrido anterior. Recién después incorporá el caso al corpus correspondiente.

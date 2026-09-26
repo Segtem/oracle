@@ -64,7 +64,7 @@ python3 ejemplo/sensor-prosa/sensor_prosa.py preparar \
 oracle test --proyecto ejemplo/sensor-prosa
 ```
 
-El catálogo puede ser otro directorio de medidas `.oracle` o canónicas JSON;
+El catálogo puede ser otro directorio de medidas `.oracle`;
 `--catalogo` se puede repetir. Se cargan medidas con macros estándar; los catálogos
 que requieren macros privadas necesitan adaptar este ejemplo. No se importan
 escalares externas ni se ejecuta el producto. Cada registro contiene alcance,
