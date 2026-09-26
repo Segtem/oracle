@@ -6,8 +6,8 @@ hecho el evaluador, el único que puede escribir reglas es quien lo escribió �
 problema que veníamos a resolver.
 
 **La superficie es cómo se escribe; el JSON es cómo se guarda.** Este documento enseña a
-escribir medidas y casos directamente en su superficie de autoría (`.oracle` y `.caso`), que el
-sistema carga por igual sin paso de traducción.
+escribir medidas, casos y relaciones directamente en su superficie de autoría (`.oracle`, `.caso` y
+`.relacion`), que el sistema carga sin paso de traducción.
 
 ## Instalación
 
@@ -93,19 +93,72 @@ flotante) y las reglas de diseño. `oracle contexto` no reemplaza esas explicaci
 inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras
 escribís.
 
-### Superficie de autoría e intercambio
+### Una sola forma de escribir
 
-Escribí medidas en `.oracle`, casos en `.caso` y relaciones en `.relacion`. Oracle también
-lee JSON como formato de intercambio y para migrar proyectos anteriores. Si un mismo id aparece
-en superficie y en JSON, la carga señala ambos archivos: no elige uno en silencio.
+Desde Oracle 0.32.0 (sintaxis 1.0) hay una sola manera de escribir cada cosa: **medidas y macros en
+`.oracle`, casos en `.caso`, relaciones en `.relacion`**, y dentro de cada archivo el texto exacto
+que escribe el impresor, como pasa con `gofmt`. Un espacio de más no es un estilo: es otro texto, y
+no carga.
+
+```text
+$ oracle formatear catalogos/naval/naval.dentro.oracle
+catalogos/naval/naval.dentro.oracle: requiere formato
+  --- actual
+  +++ impresor
+  @@ -1,6 +1,6 @@
+   medida naval.dentro:
+       de barco b
+  -    donde b.fila < 0  o b.fila > 9
+  +    donde b.fila < 0 o b.fila > 9
+       resumen contar(b.id)
+  …
+  oracle formatear catalogos/naval/naval.dentro.oracle --escribir
+```
+
+`oracle formatear <ruta> --escribir` lo deja en la forma única sin cambiar lo que la medida
+significa. En la raíz de un proyecto recorre sólo `catalogos/`, `corpus/`, `relaciones/` y
+`macros/`. `oracle test`, `oracle juzgar`, el MCP y el editor rechazan un archivo fuera de forma con
+ese mismo diff.
+
+- **Comentarios.** Una línea que empieza con `#` es un comentario en cualquier lugar del archivo,
+  también dentro de un bloque, y `formatear` la conserva donde está. No hay comentario al final de
+  una línea con código, y por eso una línea de prosa no puede empezar con `#`.
+- **Aritmética.** `a + b`, `a - b`, `a * b`, con un espacio a cada lado. Las formas viejas ya no se
+  leen, y el error dice cómo se escribe ahora:
+
+  ```text
+  ✗ catalogos/naval/naval.cuenta.oracle: línea 3, columna 20: escribí a + b
+  ```
+
+  Lo mismo con `col(p)` (se escribe `p`) y con una macro invocada por argumentos (se escribe con
+  las cláusulas de su plantilla, como una medida).
+- **Relaciones.** Una línea por campo, con su tipo y, si es número, su unidad; `texto` y `booleano`
+  no llevan unidad. Los campos que dependen de un discriminante van en `variantes por`, y el
+  `alcance` cierra el archivo:
+
+  ```text
+  relacion barco:
+      id: texto
+      fila: entero sin_unidad
+      columna: entero sin_unidad
+      alcance "una casilla ocupada por un barco; NO dice si el barco está hundido"
+  ```
+
+- **El orden lo elegís vos** —relaciones de la evidencia, columnas, claves—, porque es orden de
+  lectura. La excepción es el `origen` de un caso, que el impresor escribe siempre igual.
+
+Oracle sigue leyendo archivos `.json`: es la forma canónica, lo que guarda y compara por dentro, y
+sirve para intercambio y para migrar. Pero no es una forma de escribir, y
+`meta.se_escribe_en_superficie` cuenta los archivos de autoría que sigan en JSON. Si un mismo id
+aparece en superficie y en JSON, la carga señala los dos: no elige uno en silencio.
 
 - `oracle caso <grupo/NNN-descripcion>`: crea el andamio `.caso`.
 - `oracle nueva <dominio.nombre>`: crea el andamio `.oracle`.
-- `oracle convertir <medida.json>`: convierte una medida anterior a la superficie.
-- `oracle medida expandir <medida.oracle>`: muestra el árbol canónico para inspección.
-- `oracle convertir <directorio> --a-superficie`: muestra qué medidas y casos JSON se pueden migrar;
-  con `--escribir`, reemplaza cada origen sólo si la ida y vuelta conserva el árbol canónico.
-  Informa las relaciones pendientes mientras no esté disponible la conversión por lote a `.relacion`.
+- `oracle medida expandir <medida.oracle>`: muestra el árbol canónico, para inspeccionarlo.
+- `oracle convertir <medida.json>`: convierte una medida suelta en JSON a la superficie.
+- `oracle convertir <directorio> --a-superficie`: muestra qué medidas, casos y relaciones en JSON
+  se pueden migrar; con `--escribir`, reemplaza cada archivo sólo si el árbol canónico queda
+  idéntico.
 
 En la evidencia de un `.caso`, usá tabla cuando todas las filas compartan campos cuyos nombres
 se puedan imprimir como cabecera. Usá `fila {…}` cuando las filas tengan campos distintos o un

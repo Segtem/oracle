@@ -19,7 +19,7 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
 | tu primer rojo en cinco minutos, si ya programás | [De cero a un rojo](02-de-cero-a-un-rojo.md) | `oracle medida probar` con evidencia en la línea de comandos |
 | medir tu propio producto | [La primera medida real](13-primer-valor.md) | Oracle contra un `assert`, y cuándo apagar el catálogo base |
 | conectar un proyecto que ya existe | [Conectar un proyecto](07-conectar-a-un-proyecto-propio.md) | el sensor partido en puro y adaptador, las escalares propias y la sombra |
-| escribir medidas con soltura | [Escribir una medida](03-escribir-una-medida.md) | cómo se aíslan las escalares, por qué los ids son ASCII, cuánto se usa cada macro |
+| escribir medidas con soltura | [Escribir una medida](03-escribir-una-medida.md) | las reglas de la forma única (comentarios, aritmética, `.relacion`), cómo se aíslan las escalares, por qué los ids son ASCII |
 | patrones para pares sin duplicar y contar distintos | [Recetas de medidas](recetas.md) | pares no orientados con `<`, y recuento de distintos con doble `agrupar` |
 | ver un dominio completo con geometría | [Tutorial práctico](tutorial-practico.md) | un `LEFT JOIN` sin nulos, escalares de volumen y penetración, la API `Motor` desde Python |
 | saber por qué hace falta mutar | [Por qué la mutación](05-por-que-la-mutacion.md) | los dos autores de los mutadores y qué hacer con un sobreviviente |

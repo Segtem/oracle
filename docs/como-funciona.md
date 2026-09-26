@@ -483,6 +483,56 @@ PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de orige
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
 
+### Una sola forma de escribir
+
+Cada archivo se escribe de una sola manera: el texto exacto que escribe el impresor, como pasa con
+`gofmt`. Un espacio de más en la medida ya no es la misma medida escrita distinto, es un archivo que
+no carga:
+
+```bash paso
+python3 -c "from pathlib import Path; p = Path('catalogos/flota/flota.casillas_dentro_del_tablero.oracle'); p.write_text(p.read_text().replace('de casilla c', 'de casilla   c'))"
+oracle test --rapido
+```
+
+```text salida
+SINTAXIS ✗ — 1 archivo(s) fuera de la forma única
+  · catalogos/flota/flota.casillas_dentro_del_tablero.oracle
+    --- actual
+    +++ impresor
+    @@ -1,5 +1,5 @@
+     ninguno-requiere flota.casillas_dentro_del_tablero:
+    -    de casilla   c
+    +    de casilla c
+         donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
+         umbral <= 0 segun contrato porque "el tablero es de 10x10: filas y columnas van de 0 a 9"
+    …
+    oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle --escribir
+
+VEREDICTO: ROJO (sintaxis: forma única)
+```
+
+`oracle formatear` lo devuelve a la forma única sin tocar lo que la medida significa, y conserva
+las líneas de comentario:
+
+```bash paso
+oracle formatear catalogos --escribir
+```
+
+```text salida
+catalogos/flota/flota.casillas_dentro_del_tablero.oracle: requiere formato
+  --- actual
+  +++ impresor
+  @@ -1,5 +1,5 @@
+   ninguno-requiere flota.casillas_dentro_del_tablero:
+  -    de casilla   c
+  +    de casilla c
+       donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
+       umbral <= 0 segun contrato porque "el tablero es de 10x10: filas y columnas van de 0 a 9"
+  …
+  oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle --escribir
+catalogos/flota/flota.casillas_dentro_del_tablero.oracle: escrito
+```
+
 ### Las capas, en orden
 
 `oracle test` corre estas capas una detrás de otra. Con `--rapido` saltea la mutación; con `--todo`
@@ -495,7 +545,7 @@ agrega la mutación de código, que sólo existe dentro del propio Oracle.
 | **catálogo** | que cada medida se pueda leer | una medida está mal escrita |
 | **corpus** | el esquema de cada caso y su evidencia | un caso está mal formado |
 | **medidas sin casos** | que cada medida propia tenga al menos un caso, también con `--rapido` | una medida no tiene ninguno |
-| **sintaxis** | que cada medida y cada caso se impriman y se vuelvan a leer iguales | la ida y vuelta cambia algo |
+| **sintaxis** | que cada medida, caso y relación esté escrito exactamente como lo imprime el impresor (la forma única) | un archivo está fuera de forma: muestra el diff y el `oracle formatear` que lo arregla |
 | **aceptación** | que cada caso salga como pide su etiqueta; y, con el catálogo base, las políticas que vigilan tu catálogo | un caso sale al revés |
 | **diferencial** | los fixtures de `diferencial/`: veredictos guardados contra una implementación independiente | un veredicto cambió |
 | **mutación de medidas** | ataca cada medida con cada mutador (afloja el umbral, quita un filtro, invierte una comparación…) y exige que algún caso lo note | sobrevive un mutante |

@@ -247,6 +247,20 @@ Línea por línea: `ninguno` dice que **no tiene que haber ninguna** fila que of
 elige qué mirar; `donde` dice cuáles ofenden; `umbral <= 0` cuántas se toleran, `segun contrato` de
 dónde sale ese cero y `porque` lo defiende; `alcance` dice **qué no mira**.
 
+Oracle no acepta variantes de estilo: cada regla se escribe de **una sola manera**, la que escribe
+su impresor. Si la escribe un modelo, `oracle formatear` la pone en esa forma antes de medir nada:
+
+```bash paso
+oracle formatear . --escribir
+```
+
+```text salida
+catalogos/naval/naval.barcos_dentro_del_tablero.oracle: ya tiene forma única
+corpus/naval/005-barco-fila-desbordada.caso: ya tiene forma única
+```
+
+<!-- juego {"tipo": "elegir", "id": "forma", "titulo": "Una sola forma de escribir", "xp": 30, "pregunta": "El modelo te devuelve la regla con la línea del `donde` escrita de tres maneras. ¿Cuál carga Oracle?", "opciones": [{"texto": "donde c.fila<0 o c.fila>9 o c.columna<0 o c.columna>9", "codigo": true, "ok": false, "porque": "Se lee igual, pero no es el texto que escribe el impresor: sin espacios alrededor del `<` queda fuera de la forma única y no carga. `oracle formatear` lo arregla."}, {"texto": "donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9", "codigo": true, "ok": true, "porque": "Es exactamente lo que escribe el impresor. En Oracle cada regla se escribe de una sola manera, como el código Go con gofmt."}, {"texto": "donde c.fila < 0  o c.fila > 9 o c.columna < 0 o c.columna > 9", "codigo": true, "ok": false, "porque": "Hay dos espacios antes de la primera `o`. Un espacio de más no es estilo: es otro texto, y Oracle lo rechaza con el diff y el comando que lo corrige."}]} -->
+
 <p class="pregunta">**Pensalo.** ¿Qué no está mirando esta regla?</p>
 
 <details>

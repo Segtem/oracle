@@ -100,10 +100,8 @@
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">"el tablero es de 10x10 …"</span>
     <span class="c-kw">requiere</span> celda_ocupada
     <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">"valida que las celdas estén en el rango 0..9.
-            NO ve si los buques tienen la longitud declarada
-            ni si se solapan entre sí"</span></code></pre>
-      <p class="pie-codigo">Recorte del archivo real de <a href="13-primer-valor.html">la primera medida real</a>. Los <code>…</code> acortan el texto del <code>porque</code>.</p>
+    <span class="c-kw">alcance</span> <span class="c-txt">"valida que las celdas reportadas estén en el rango 0..9. NO ve …"</span></code></pre>
+      <p class="pie-codigo">Recorte del archivo real de <a href="13-primer-valor.html">la primera medida real</a>. Los <code>…</code> acortan el texto del <code>porque</code> y del <code>alcance</code>.</p>
     </div>
     <div class="anatomia">
       <dl>
@@ -124,6 +122,38 @@
 
 VEREDICTO: 1 de 1 medidas en rojo</code></pre>
   </div>
+</section>
+
+<section class="capitulo envoltura" aria-labelledby="t-forma">
+  <div class="capitulo-cabeza">
+    <p class="ceja pixel">una sola forma de escribir</p>
+    <h2 id="t-forma">Cada regla se escribe de una sola manera.</h2>
+  </div>
+  <p class="lectura">Como el código Go con <code>gofmt</code>: el texto válido es exactamente el que
+  escribe el impresor de Oracle. Un espacio de más no es un estilo, es otro texto, y no carga. Da
+  igual si la regla la escribió una persona o un modelo: <code>oracle formatear</code> la deja en la
+  forma única sin cambiar lo que significa, y una forma que Oracle ya no acepta falla diciendo cómo
+  se escribe ahora. Medidas en <code>.oracle</code>, casos en <code>.caso</code>, relaciones en
+  <code>.relacion</code>; los comentarios son líneas que empiezan con <code>#</code>.</p>
+  <div class="terminal" aria-label="Salida real de oracle formatear">
+    <p class="terminal-barra pixel">salida real · oracle formatear</p>
+<pre><code>$ oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle
+catalogos/flota/flota.casillas_dentro_del_tablero.oracle: requiere formato
+  --- actual
+  +++ impresor
+  @@ -1,5 +1,5 @@
+   ninguno-requiere flota.casillas_dentro_del_tablero:
+<span class="t-rojo">  -    de casilla   c</span>
+  +    de casilla c
+       donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9
+  …
+  oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle --escribir
+
+$ oracle formatear catalogos/naval/naval.cuenta.oracle
+<span class="t-rojo">✗ catalogos/naval/naval.cuenta.oracle: línea 3, columna 20: escribí a + b</span></code></pre>
+  </div>
+  <p class="lectura"><a href="como-funciona.html">Cómo funciona</a> lo muestra paso a paso, y
+  <a href="03-escribir-una-medida.html">Escribir una medida</a> tiene las reglas completas.</p>
 </section>
 
 <section class="capitulo envoltura dos-escenas" aria-labelledby="t-mutante">

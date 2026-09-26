@@ -458,9 +458,41 @@ MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 ALCANCE: verificación de medidas contra casos guardados del corpus.
 PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
+<h3 id="una-sola-forma-de-escribir">Una sola forma de escribir<a class="ancla" href="#una-sola-forma-de-escribir" aria-label="Enlace a esta sección">#</a></h3>
+<p>Cada archivo se escribe de una sola manera: el texto exacto que escribe el impresor, como pasa con <code>gofmt</code>. Un espacio de más en la medida ya no es la misma medida escrita distinto, es un archivo que no carga:</p>
+<pre data-lenguaje="bash"><code>python3 -c &quot;from pathlib import Path; p = Path(&#x27;catalogos/flota/flota.casillas_dentro_del_tablero.oracle&#x27;); p.write_text(p.read_text().replace(&#x27;de casilla c&#x27;, &#x27;de casilla   c&#x27;))&quot;
+oracle test --rapido</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>SINTAXIS ✗ — 1 archivo(s) fuera de la forma única
+  · catalogos/flota/flota.casillas_dentro_del_tablero.oracle
+    --- actual
+    +++ impresor
+    @@ -1,5 +1,5 @@
+     ninguno-requiere flota.casillas_dentro_del_tablero:
+    -    de casilla   c
+    +    de casilla c
+         donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9
+         umbral &lt;= 0 segun contrato porque &quot;el tablero es de 10x10: filas y columnas van de 0 a 9&quot;
+    …
+    oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle --escribir
+
+VEREDICTO: ROJO (sintaxis: forma única)</code></pre>
+<p><code>oracle formatear</code> lo devuelve a la forma única sin tocar lo que la medida significa, y conserva las líneas de comentario:</p>
+<pre data-lenguaje="bash"><code>oracle formatear catalogos --escribir</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>catalogos/flota/flota.casillas_dentro_del_tablero.oracle: requiere formato
+  --- actual
+  +++ impresor
+  @@ -1,5 +1,5 @@
+   ninguno-requiere flota.casillas_dentro_del_tablero:
+  -    de casilla   c
+  +    de casilla c
+       donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9
+       umbral &lt;= 0 segun contrato porque &quot;el tablero es de 10x10: filas y columnas van de 0 a 9&quot;
+  …
+  oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle --escribir
+catalogos/flota/flota.casillas_dentro_del_tablero.oracle: escrito</code></pre>
 <h3 id="las-capas-en-orden">Las capas, en orden<a class="ancla" href="#las-capas-en-orden" aria-label="Enlace a esta sección">#</a></h3>
 <p><code>oracle test</code> corre estas capas una detrás de otra. Con <code>--rapido</code> saltea la mutación; con <code>--todo</code> agrega la mutación de código, que sólo existe dentro del propio Oracle.</p>
-<div class="tabla"><table><thead><tr><th>capa</th><th>qué comprueba</th><th>se pone roja si…</th></tr></thead><tbody><tr><td><strong>estructura</strong></td><td>que existan <code>catalogos/</code>, <code>corpus/</code> y <code>diferencial/</code></td><td>falta alguna</td></tr><tr><td><strong>andamio</strong></td><td>los casos que creó <code>oracle nueva</code></td><td>alguno sigue sin evidencia real</td></tr><tr><td><strong>catálogo</strong></td><td>que cada medida se pueda leer</td><td>una medida está mal escrita</td></tr><tr><td><strong>corpus</strong></td><td>el esquema de cada caso y su evidencia</td><td>un caso está mal formado</td></tr><tr><td><strong>medidas sin casos</strong></td><td>que cada medida propia tenga al menos un caso, también con <code>--rapido</code></td><td>una medida no tiene ninguno</td></tr><tr><td><strong>sintaxis</strong></td><td>que cada medida y cada caso se impriman y se vuelvan a leer iguales</td><td>la ida y vuelta cambia algo</td></tr><tr><td><strong>aceptación</strong></td><td>que cada caso salga como pide su etiqueta; y, con el catálogo base, las políticas que vigilan tu catálogo</td><td>un caso sale al revés</td></tr><tr><td><strong>diferencial</strong></td><td>los fixtures de <code>diferencial/</code>: veredictos guardados contra una implementación independiente</td><td>un veredicto cambió</td></tr><tr><td><strong>mutación de medidas</strong></td><td>ataca cada medida con cada mutador (afloja el umbral, quita un filtro, invierte una comparación…) y exige que algún caso lo note</td><td>sobrevive un mutante</td></tr></tbody></table></div>
+<div class="tabla"><table><thead><tr><th>capa</th><th>qué comprueba</th><th>se pone roja si…</th></tr></thead><tbody><tr><td><strong>estructura</strong></td><td>que existan <code>catalogos/</code>, <code>corpus/</code> y <code>diferencial/</code></td><td>falta alguna</td></tr><tr><td><strong>andamio</strong></td><td>los casos que creó <code>oracle nueva</code></td><td>alguno sigue sin evidencia real</td></tr><tr><td><strong>catálogo</strong></td><td>que cada medida se pueda leer</td><td>una medida está mal escrita</td></tr><tr><td><strong>corpus</strong></td><td>el esquema de cada caso y su evidencia</td><td>un caso está mal formado</td></tr><tr><td><strong>medidas sin casos</strong></td><td>que cada medida propia tenga al menos un caso, también con <code>--rapido</code></td><td>una medida no tiene ninguno</td></tr><tr><td><strong>sintaxis</strong></td><td>que cada medida, caso y relación esté escrito exactamente como lo imprime el impresor (la forma única)</td><td>un archivo está fuera de forma: muestra el diff y el <code>oracle formatear</code> que lo arregla</td></tr><tr><td><strong>aceptación</strong></td><td>que cada caso salga como pide su etiqueta; y, con el catálogo base, las políticas que vigilan tu catálogo</td><td>un caso sale al revés</td></tr><tr><td><strong>diferencial</strong></td><td>los fixtures de <code>diferencial/</code>: veredictos guardados contra una implementación independiente</td><td>un veredicto cambió</td></tr><tr><td><strong>mutación de medidas</strong></td><td>ataca cada medida con cada mutador (afloja el umbral, quita un filtro, invierte una comparación…) y exige que algún caso lo note</td><td>sobrevive un mutante</td></tr></tbody></table></div>
 <p>El veredicto final es uno de tres: <strong>VERDE</strong>, <strong>ROJO</strong> (y qué capas fallaron) o <strong>SIN MEDICIÓN</strong> (no hay medidas ni casos: no hay nada que decir, y no es verde). Un VERDE con capas salteadas lo dice en el mismo renglón: <code>VERDE (se salteó: mutación de medidas (--rapido))</code>.</p>
 <h3 id="por-qué-la-mutación">Por qué la mutación<a class="ancla" href="#por-qué-la-mutación" aria-label="Enlace a esta sección">#</a></h3>
 <p>Un caso rojo no alcanza. El mutador <code>alejar_limite_de_defecto</code> cambia <code>c.fila &lt; 0</code> por <code>c.fila &lt; -1</code>: la regla sigue pareciendo razonable, pero ya no ve la fila -1. De los siete casos, <strong>sólo el 002</strong> lo nota, porque es el único con una casilla en la fila -1; sin él, ese mutante sobreviviría y <code>oracle test</code> se pondría rojo. La mutación prueba que tus casos <strong>sostienen</strong> cada parte de tu regla, no sólo que la ejercitan. Lo cuenta en detalle <a href="05-por-que-la-mutacion.html">Por qué la mutación</a>.</p>
@@ -470,7 +502,7 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/como-funciona.md" rel="noopener">docs/como-funciona.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
-    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#las-tres-piezas">Las tres piezas</a></li><li class="n2"><a href="#el-proyecto">El proyecto</a></li><li class="n2"><a href="#una-medida-línea-por-línea">Una medida, línea por línea</a></li><li class="n2"><a href="#qué-pasa-cuando-juzgás">Qué pasa cuando juzgás</a></li><li class="n3"><a href="#verde-y-lo-que-no-miró">Verde: y lo que no miró</a></li><li class="n3"><a href="#rojo-con-el-testigo-exacto">Rojo: con el testigo exacto</a></li><li class="n3"><a href="#sin-evidencia-no-es-verde-ni-rojo">Sin evidencia: no es verde ni rojo</a></li><li class="n3"><a href="#evidencia-inválida-no-se-juzga">Evidencia inválida: no se juzga</a></li><li class="n2"><a href="#qué-comprueba-oracle-test">Qué comprueba oracle test</a></li><li class="n3"><a href="#las-capas-en-orden">Las capas, en orden</a></li><li class="n3"><a href="#por-qué-la-mutación">Por qué la mutación</a></li><li class="n2"><a href="#lo-que-oracle-no-hace">Lo que Oracle no hace</a></li></ul>
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#las-tres-piezas">Las tres piezas</a></li><li class="n2"><a href="#el-proyecto">El proyecto</a></li><li class="n2"><a href="#una-medida-línea-por-línea">Una medida, línea por línea</a></li><li class="n2"><a href="#qué-pasa-cuando-juzgás">Qué pasa cuando juzgás</a></li><li class="n3"><a href="#verde-y-lo-que-no-miró">Verde: y lo que no miró</a></li><li class="n3"><a href="#rojo-con-el-testigo-exacto">Rojo: con el testigo exacto</a></li><li class="n3"><a href="#sin-evidencia-no-es-verde-ni-rojo">Sin evidencia: no es verde ni rojo</a></li><li class="n3"><a href="#evidencia-inválida-no-se-juzga">Evidencia inválida: no se juzga</a></li><li class="n2"><a href="#qué-comprueba-oracle-test">Qué comprueba oracle test</a></li><li class="n3"><a href="#una-sola-forma-de-escribir">Una sola forma de escribir</a></li><li class="n3"><a href="#las-capas-en-orden">Las capas, en orden</a></li><li class="n3"><a href="#por-qué-la-mutación">Por qué la mutación</a></li><li class="n2"><a href="#lo-que-oracle-no-hace">Lo que Oracle no hace</a></li></ul>
   </aside>
 </div>
 <script>
