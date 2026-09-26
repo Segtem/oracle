@@ -10,7 +10,7 @@ from contextlib import redirect_stdout
 from pathlib import Path
 from unittest import mock
 
-from nucleo import caso, sintaxis
+from nucleo import caso, relacion, sintaxis
 from tools import cli
 
 
@@ -31,7 +31,10 @@ class ConvertirLoteTests(unittest.TestCase):
             "relacion": raiz / "relaciones/item.json",
         }
         for nombre, datos in (("medida", medida), ("caso", caso_datos),
-                              ("relacion", ["relacion", "item", []])):
+                              ("relacion", ["relacion", "item",
+                                            ["campos", ["campo", "id", "texto", "sin_unidad"],
+                                             ["campo", "largo", "flotante", "cm"]],
+                                            ["alcance", "prueba"]])):
             fuentes[nombre].write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
         (raiz / "catalogos/demo/ya.oracle").write_text("existente\n", encoding="utf-8")
         (raiz / "diferencial/fixture.json").write_text("{}", encoding="utf-8")
@@ -51,22 +54,23 @@ class ConvertirLoteTests(unittest.TestCase):
             originales = {nombre: json.loads(ruta.read_text(encoding="utf-8"))
                          for nombre, ruta in fuentes.items()}
             codigo, salida = self._correr(raiz)
-            self.assertEqual(codigo, 1)
-            self.assertIn("2 convertibles; 1 no convertibles", salida)
-            self.assertIn(".relacion todavía no tiene conversor", salida)
+            self.assertEqual(codigo, 0)
+            self.assertIn("3 convertibles; 0 no convertibles", salida)
             self.assertTrue(all(ruta.exists() for ruta in fuentes.values()))
             self.assertFalse(fuentes["medida"].with_suffix(".oracle").exists())
 
             codigo, salida = self._correr(raiz, "--escribir")
-            self.assertEqual(codigo, 1)
-            self.assertIn("2 convertidos; 1 no convertibles", salida)
+            self.assertEqual(codigo, 0)
+            self.assertIn("3 convertidos; 0 no convertibles", salida)
             self.assertEqual(sintaxis.leer(fuentes["medida"].with_suffix(".oracle").read_text()),
                              originales["medida"])
             self.assertEqual(caso.leer(fuentes["caso"].with_suffix(".caso").read_text()),
                              originales["caso"])
             self.assertFalse(fuentes["medida"].exists())
             self.assertFalse(fuentes["caso"].exists())
-            self.assertTrue(fuentes["relacion"].exists())
+            self.assertFalse(fuentes["relacion"].exists())
+            self.assertEqual(relacion.leer(fuentes["relacion"].with_suffix(".relacion").read_text()),
+                             originales["relacion"])
             self.assertTrue((raiz / "diferencial/fixture.json").exists())
 
     def test_falla_individual_no_pisa_origen_ni_destino(self):
@@ -82,8 +86,10 @@ class ConvertirLoteTests(unittest.TestCase):
             self.assertIn("ya existe el destino", salida)
             self.assertIn("no sabe escribir", salida)
             self.assertEqual(destino.read_text(encoding="utf-8"), "conservar\n")
-            for nombre, ruta in fuentes.items():
-                self.assertEqual(ruta.read_bytes(), originales[nombre])
+            # Las dos que fallan quedan intactas; la relación, válida, se convierte igual.
+            for nombre in ("medida", "caso"):
+                self.assertEqual(fuentes[nombre].read_bytes(), originales[nombre])
+            self.assertTrue(fuentes["relacion"].with_suffix(".relacion").exists())
 
     def test_igualdad_exacta_es_obligatoria(self):
         with tempfile.TemporaryDirectory() as temporal:

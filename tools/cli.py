@@ -751,9 +751,9 @@ def _superficie(tipo: str, datos, macros) -> tuple[str, object]:
         from nucleo import caso
         texto = caso.imprimir(datos)
         return texto, caso.leer(texto)
-    # Punto de extensión: conectar aquí imprimir/leer de nucleo.relacion cuando exista
-    # la gramática .relacion. No se presupone que .relacion contenga JSON.
-    raise ValueError("la superficie .relacion todavía no tiene conversor")
+    from nucleo import relacion
+    texto = relacion.imprimir(datos)
+    return texto, relacion.leer(texto)
 
 
 def _reemplazar(origen: Path, destino: Path, texto: str, original: bytes) -> None:
