@@ -131,7 +131,7 @@ Uso:
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
   oracle convertir <archivo>              Convierte medidas JSON a superficie
-  oracle formatear <ruta> [--escribir]     Normaliza la superficie y conserva comentarios
+  oracle formatear <ruta> [--escribir]     Lleva a la forma única; las líneas # no cuentan y se conservan
   oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas y casos JSON con ida y vuelta exacta
   oracle manual [tema]                    Manual integrado y vocabularios cerrados
   oracle contexto                        Inventario de relaciones y medidas activas

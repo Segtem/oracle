@@ -535,7 +535,11 @@ escribe el impresor. Un archivo en otra grafía no carga; `oracle formatear` lo 
 dentro— y se sigue leyendo desde archivos `.json` como formato de intercambio, pero no es una forma
 de escribir.
 
-«Una sola forma» quiere decir **un texto por árbol**, no un texto por conjunto de datos. El
+«Una sola forma» quiere decir **un texto por árbol, sin contar las líneas de comentario**, no un
+texto por conjunto de datos. Una línea que empieza con `#` (después de la sangría) no es parte del
+árbol ni de la forma única: se puede agregar o sacar sin cambiar nada de lo que Oracle carga, y
+`oracle formatear` la conserva, como `gofmt` conserva los comentarios. Es la única excepción; un
+comentario al final de una línea con código no existe. El
 orden de las relaciones de una evidencia, el de las columnas de una tabla y el de las claves de un
 objeto son parte del árbol: los elige quien escribe, porque son orden de lectura (`evento: corrida,
 t, actor, que` se lee en el orden en que pasa), y el impresor los conserva, como `gofmt` conserva
