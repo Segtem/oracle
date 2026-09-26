@@ -553,7 +553,8 @@ def es_andamio(ruta: Path) -> bool:
 def cargar_fuente_caso(ruta: Path) -> dict:
     ruta = Path(ruta)
     try:
-        texto = ruta.read_text(encoding="utf-8")
+        from .forma import leer_texto
+        texto = leer_texto(ruta) if ruta.suffix == ".caso" else ruta.read_text(encoding="utf-8")
     except OSError as e:
         raise CasoMalDeclarado(f"no se pudo leer el caso {ruta}: {e}") from e
     if ruta.suffix == ".json":
@@ -566,6 +567,10 @@ def cargar_fuente_caso(ruta: Path) -> dict:
             datos = leer(texto)
         except ErrorSintaxis as e:
             raise CasoMalDeclarado(f"{ruta}: {fragmento_de_error(e, texto)}") from e
+        from .forma import error_forma
+        error = error_forma(ruta, texto, imprimir(datos))
+        if error:
+            raise CasoMalDeclarado(error)
     else:
         raise CasoMalDeclarado(
             f"formato de caso no soportado: {ruta} (esperaba .json o .caso)")

@@ -130,7 +130,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 11106 líneas de lenguaje y **469 negativas explícitas** (`raise`).
+En este corte hay 11164 líneas de lenguaje y **473 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -163,7 +163,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**11106 líneas de lenguaje** (`nucleo/`, código y macros) y **469 negativas explícitas** (`raise`). Contra las 63 medidas del catálogo escritas en él (437 líneas): **25,4 a 1**. 54 de las 63 pasan por una macro.
+**11164 líneas de lenguaje** (`nucleo/`, código y macros) y **473 negativas explícitas** (`raise`). Contra las 63 medidas del catálogo escritas en él (437 líneas): **25,5 a 1**. 54 de las 63 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -599,13 +599,13 @@ respuesta suele estar ahí.
 > DeepSeek, agosto 2026) se respondieron en el commit `c81a87c`, y su informe se retiró del
 > árbol cuando dejó de tener puntos abiertos.
 
-**El checkout reúne los componentes del experimento.** El [corpus](https://github.com/Segtem/oracle/tree/v0.31.1/corpus/) (en formato de autoría `.caso` o almacenamiento `.json`), la [especificación](https://github.com/Segtem/oracle/blob/v0.31.1/ESPECIFICACION.md) del álgebra,
+**El checkout reúne los componentes del experimento.** El [corpus](https://github.com/Segtem/oracle/tree/v0.31.1/corpus/) (en formato de autoría `.caso`), la [especificación](https://github.com/Segtem/oracle/blob/v0.31.1/ESPECIFICACION.md) del álgebra,
 el evaluador (`nucleo/`), **las medidas universales** dentro de [`catalogos/`](https://github.com/Segtem/oracle/tree/v0.31.1/catalogos/) —como
-archivos de datos (`.oracle` y `.json`), no como código—, el sensor de mutación y la prueba diferencial.
+archivos de datos (`.oracle`), no como código—, el sensor de mutación y la prueba diferencial.
 
 **¿Querés escribir una medida?** → [`docs/03-escribir-una-medida.md`](https://github.com/Segtem/oracle/blob/v0.31.1/docs/03-escribir-una-medida.md).
 `oracle relaciones` te dice qué hechos hay para medir; `oracle caso` crea el caso (`.caso`) y
-`oracle nueva` crea la medida (`.oracle`). Ambos cargan superficie y JSON por igual.
+`oracle nueva` crea la medida (`.oracle`). El JSON se conserva como formato de intercambio y migración.
 
 **¿Vas a escribir una medida acá?** → `oracle contexto` junta en un solo lugar lo que hace falta:
 las relaciones que hay con sus campos, con qué se escriben, qué declara toda medida sin excepción, y
@@ -697,7 +697,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2633 tests · 1018/1018 mutantes de medida · **9235 sitios de mutación de código** (8997 + 238 del motor Python).
+2635 tests · 1018/1018 mutantes de medida · **9252 sitios de mutación de código** (9014 + 238 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

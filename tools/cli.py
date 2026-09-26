@@ -896,8 +896,12 @@ def _formatear_uno(proy: Proyecto, ruta: Path, *, escribir: bool, ruta_str: str)
         print(f"✗ {ruta_str}: se espera un archivo .oracle, .caso o .relacion, o un directorio")
         return 1
     try:
-        original = ruta.read_text(encoding="utf-8")
-        macros = macros_del_proyecto(proy) if ruta.suffix == ".oracle" else None
+        from nucleo.forma import leer_texto
+        original = leer_texto(ruta)
+        es_macro = ruta.suffix == ".oracle" and any(
+            linea.lstrip().startswith("defmacro ")
+            for linea in original.splitlines() if linea.strip() and not linea.lstrip().startswith("#"))
+        macros = macros_del_proyecto(proy) if ruta.suffix == ".oracle" and not es_macro else None
         normalizado = formato.canonico(ruta, original, macros=macros)
         if formato.sin_comentarios(original) == normalizado:
             print(f"{ruta}: ya tiene forma única")
@@ -974,6 +978,20 @@ def cmd_test(proy: Proyecto, argv: list[str]) -> int:
     if estructura:
         print("PROYECTO INVÁLIDO — " + "; ".join(estructura))
         print("\nVEREDICTO: ROJO (estructura de proyecto inválida)")
+        return 1
+
+    # El catálogo se carga antes de la ronda de sintaxis. Informar acá las grafías
+    # rechazadas evita que el error del cargador oculte el diff de oracle test.
+    informe_forma = sintaxis.verificar_catalogo(proy.raiz)
+    if informe_forma.get("desformateados"):
+        filas = informe_forma["desformateados"]
+        print(f"SINTAXIS ✗ — {len(filas)} archivo(s) fuera de la forma única")
+        for fila in filas:
+            print(f"  · {fila['ruta']}")
+            for linea in fila["diff_forma"]:
+                print(f"    {linea}")
+            print(f"    oracle formatear {fila['ruta']} --escribir")
+        print("\nVEREDICTO: ROJO (sintaxis: forma única)")
         return 1
 
     if (proy.raiz / "escalares.py").exists() and not proy.es_el_propio_oracle and not confiar:

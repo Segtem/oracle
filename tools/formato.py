@@ -2,10 +2,10 @@
 
 from __future__ import annotations
 
-import difflib
 from pathlib import Path
 
 from nucleo import caso, relacion, sintaxis
+from nucleo.forma import diferencia, sin_comentarios
 
 
 LECTORES = {
@@ -13,12 +13,6 @@ LECTORES = {
     ".caso": (caso.leer, caso.imprimir),
     ".relacion": (relacion.leer, relacion.imprimir),
 }
-
-
-def sin_comentarios(texto: str) -> str:
-    """Sólo las líneas completas de comentario quedan fuera del invariante."""
-    return "".join(linea for linea in texto.splitlines(keepends=True)
-                   if not linea.lstrip().startswith("#"))
 
 
 def canonico(ruta: Path, texto: str, *, macros=None) -> str:
@@ -51,12 +45,3 @@ def con_comentarios(original: str, normalizado: str) -> str:
     for pendientes in comentarios.values():
         salida.extend(pendientes)
     return "".join(salida)
-
-
-def diferencia(original: str, normalizado: str, *, max_lineas: int = 8) -> list[str]:
-    lineas = list(difflib.unified_diff(
-        sin_comentarios(original).splitlines(), normalizado.splitlines(),
-        fromfile="actual", tofile="impresor", lineterm=""))
-    if not lineas and sin_comentarios(original) != normalizado:
-        return ["@@ salto de línea final @@", "- sin salto final", "+ con salto final"]
-    return lineas[:max_lineas] + (["…"] if len(lineas) > max_lineas else [])

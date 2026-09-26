@@ -877,5 +877,8 @@ def main(argv: list[str] | None = None) -> int:
         return 2
 
 
+PRIORIDADES["nucleo/forma.py"] = ("tests.test_forma_unica_texto",)
+
+
 if __name__ == "__main__":
     sys.exit(main())

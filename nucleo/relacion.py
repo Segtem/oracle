@@ -421,11 +421,17 @@ def cargar_fuente_relacion(ruta: Path) -> list:
     if ruta.suffix == ".oracle":
         raise RelacionMalDeclarada(f"{ruta}: una relación se escribe en .relacion")
     try:
-        texto = ruta.read_text(encoding="utf-8")
+        from .forma import leer_texto
+        texto = leer_texto(ruta) if ruta.suffix == ".relacion" else ruta.read_text(encoding="utf-8")
     except OSError as e:
         raise RelacionMalDeclarada(f"no se pudo leer la relación {ruta}: {e}") from e
     if ruta.suffix == ".relacion":
-        return leer(texto)
+        datos = leer(texto)
+        from .forma import error_forma
+        error = error_forma(ruta, texto, imprimir(datos))
+        if error:
+            raise RelacionMalDeclarada(error)
+        return datos
     if ruta.suffix == ".json":
         try:
             return json.loads(texto)

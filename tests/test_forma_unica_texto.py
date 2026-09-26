@@ -9,8 +9,12 @@ from contextlib import redirect_stdout
 from pathlib import Path
 
 from nucleo import caso, relacion, sintaxis as lector_medida
+from nucleo.caso import CasoMalDeclarado, cargar_fuente_caso
+from nucleo.medida import MedidaMalDeclarada, cargar_fuente_medida
+from nucleo.macro import MacroMalDeclarada, _datos_de_macro
+from nucleo.relacion import RelacionMalDeclarada, cargar_fuente_relacion
 from nucleo.proyecto import Proyecto
-from tools import cli, formato, sintaxis
+from tools import cli, formato, sintaxis, lsp, mcp
 
 
 MEDIDA = ('medida demo.prueba:\n'
@@ -33,6 +37,79 @@ RELACION = ('relacion evento:\n    tipo: texto\n    variantes por tipo:\n'
 
 
 class FormaUnicaTests(unittest.TestCase):
+    def test_cargadores_lsp_y_mcp_rechazan_variantes_y_crlf(self):
+        fuentes = [
+            ('.oracle', MEDIDA, MEDIDA.replace('medida demo', 'medida   demo'),
+             cargar_fuente_medida, MedidaMalDeclarada),
+            ('.caso', CASO, CASO.replace('paso: clave(t);', 'paso: clave(t)'),
+             cargar_fuente_caso, CasoMalDeclarado),
+            ('.relacion', RELACION, RELACION.replace('        inicio:', '        "inicio":'),
+             cargar_fuente_relacion, RelacionMalDeclarada),
+        ]
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            for extension, canon, variante, cargar, tipo_error in fuentes:
+                for texto in (variante, canon.replace('\n', '\r\n'), canon.rstrip('\n')):
+                    with self.subTest(extension=extension, crlf='\r\n' in texto):
+                        ruta = raiz / ('demo' + extension)
+                        ruta.write_bytes(texto.encode())
+                        with self.assertRaises(tipo_error) as ctx:
+                            cargar(ruta)
+                        self.assertIn('fuera de la forma única', str(ctx.exception))
+                        self.assertIn('oracle formatear', str(ctx.exception))
+                        diagnosticos = lsp.diagnosticar(Proyecto(raiz), ruta, texto)
+                        self.assertEqual(len(diagnosticos), 1)
+                        self.assertIn('Versión formateada:', diagnosticos[0]['message'])
+            for texto in (fuentes[0][2], MEDIDA.replace('\n', '\r\n'), MEDIDA.rstrip('\n')):
+                with self.assertRaises(mcp.ErrorHerramienta) as ctx:
+                    mcp._medida_en_memoria({'texto': texto, 'formato': 'oracle'}, None)
+                self.assertIn('fuera de la forma única', str(ctx.exception))
+
+            macro = Path(__file__).resolve().parents[1] / 'nucleo/macros/ninguno.oracle'
+            texto_macro = macro.read_text(encoding='utf-8')
+            for texto in (texto_macro.replace('\n', '\r\n'), texto_macro.rstrip('\n')):
+                ruta = raiz / 'macro.oracle'
+                ruta.write_bytes(texto.encode())
+                with self.assertRaises(MacroMalDeclarada) as ctx:
+                    _datos_de_macro(ruta)
+                self.assertIn('fuera de la forma única', str(ctx.exception))
+                diagnosticos = lsp.diagnosticar(Proyecto(raiz), ruta, texto)
+                self.assertEqual(len(diagnosticos), 1)
+                self.assertIn('Versión formateada:', diagnosticos[0]['message'])
+                with redirect_stdout(io.StringIO()):
+                    self.assertEqual(cli.cmd_formatear(Proyecto(raiz), str(ruta), escribir=True), 0)
+                self.assertEqual(ruta.read_bytes(), texto_macro.encode())
+                self.assertEqual(lsp.diagnosticar(Proyecto(raiz), ruta, texto_macro), [])
+
+    def test_crlf_en_test_juzgar_y_formatear(self):
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(cli.cmd_init(str(raiz), []), 0)
+            ruta = raiz / 'catalogos' / 'demo.prueba.oracle'
+            ruta.write_bytes(MEDIDA.replace('\n', '\r\n').encode())
+            prueba = subprocess.run([sys.executable, 'tools/cli.py', 'test', '--rapido',
+                                     '--proyecto', td], capture_output=True, text=True)
+            self.assertNotEqual(prueba.returncode, 0)
+            self.assertIn('fuera de la forma única', prueba.stdout)
+            hechos = raiz / 'hechos.json'
+            hechos.write_text('{}', encoding='utf-8')
+            juicio = subprocess.run([sys.executable, 'tools/cli.py', 'juzgar', '--proyecto', td,
+                                     '--con', str(hechos)], capture_output=True, text=True)
+            self.assertNotEqual(juicio.returncode, 0)
+            self.assertIn('fuera de la forma única', juicio.stdout + juicio.stderr)
+            ruta.write_text(MEDIDA.replace('medida demo', 'medida   demo'), encoding='utf-8')
+            juicio_variante = subprocess.run(
+                [sys.executable, 'tools/cli.py', 'juzgar', '--proyecto', td, '--con', str(hechos)],
+                capture_output=True, text=True)
+            self.assertNotEqual(juicio_variante.returncode, 0)
+            self.assertIn('fuera de la forma única',
+                          juicio_variante.stdout + juicio_variante.stderr)
+            ruta.write_bytes(MEDIDA.replace('\n', '\r\n').encode())
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(cli.cmd_formatear(Proyecto(raiz), str(ruta), escribir=True), 0)
+            self.assertEqual(ruta.read_bytes(), MEDIDA.encode())
+
     def test_cada_variante_legible_falla_el_invariante_del_proyecto(self):
         variantes = [
             ('.oracle', MEDIDA, 'sintaxis 0.8\n' + MEDIDA),

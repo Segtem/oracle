@@ -888,6 +888,11 @@ def _medida_en_memoria(especificacion: dict, macros) -> Medida:
         lectura = leer_con_mapa(texto, macros=macros)
         exigir_sintaxis_compatible(lectura.version)
         datos = lectura.datos
+        from nucleo.forma import error_forma
+        from nucleo.sintaxis import imprimir
+        error = error_forma("<texto de medida>", texto, imprimir(datos, macros=macros))
+        if error:
+            raise ErrorHerramienta("MEDIDA_INVALIDA", error)
         return Medida.de_datos(datos, macros=macros)
     except ErrorSintaxis as e:
         raise ErrorHerramienta(

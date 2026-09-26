@@ -30,6 +30,7 @@ from nucleo import caso as sintaxis_caso  # noqa: E402
 from nucleo.medida import cargar_fuente_medida, rutas_de_catalogo  # noqa: E402
 from nucleo import relacion as sintaxis_relacion  # noqa: E402
 from tools import formato  # noqa: E402
+from nucleo.forma import leer_texto  # noqa: E402
 
 
 def _rutas_catalogo(raiz: Path = RAIZ) -> list[Path]:
@@ -108,7 +109,7 @@ def _fila_ilegible(ruta: Path, raiz: Path, e: Exception) -> dict:
 
 def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
     try:
-        texto = ruta.read_text(encoding="utf-8")
+        texto = leer_texto(ruta)
         datos = leer(texto) if ruta.suffix == ".oracle" else json.loads(texto)
         superficie = imprimir(datos)
         releida = leer(superficie)
@@ -138,8 +139,8 @@ def _fila_verificacion(ruta: Path, raiz: Path) -> dict:
 
 def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
     try:
-        texto = ruta.read_text(encoding="utf-8")
-        datos = sintaxis_caso.cargar_fuente_caso(ruta)
+        texto = leer_texto(ruta)
+        datos = sintaxis_caso.leer(texto) if ruta.suffix == ".caso" else sintaxis_caso.cargar_fuente_caso(ruta)
         superficie = sintaxis_caso.imprimir(datos)
         releida = sintaxis_caso.leer(superficie)
         reimpresa = sintaxis_caso.imprimir(releida)
@@ -164,8 +165,8 @@ def _fila_verificacion_caso(ruta: Path, raiz: Path) -> dict:
 
 def _fila_verificacion_relacion(ruta: Path, raiz: Path) -> dict:
     try:
-        texto = ruta.read_text(encoding="utf-8")
-        datos = sintaxis_relacion.cargar_fuente_relacion(ruta)
+        texto = leer_texto(ruta)
+        datos = sintaxis_relacion.leer(texto) if ruta.suffix == ".relacion" else sintaxis_relacion.cargar_fuente_relacion(ruta)
         superficie = sintaxis_relacion.imprimir(datos)
         releida = sintaxis_relacion.leer(superficie)
         reimpresa = sintaxis_relacion.imprimir(releida)

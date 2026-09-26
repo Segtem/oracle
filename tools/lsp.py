@@ -15,6 +15,7 @@ from nucleo.caso import (DETECCIONES, ETIQUETAS, PROCEDENCIAS, CasoMalDeclarado,
                          cargar_casos, leer as leer_caso)
 from nucleo.medida import (ORIGENES_DE_UMBRAL, Medida, MedidaMalDeclarada,  # noqa: E402
                            cargar_catalogo)
+from nucleo.relacion import RelacionMalDeclarada  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar, macros_del_proyecto,  # noqa: E402
                              relaciones_del_proyecto)
 from nucleo.sintaxis import IDENT_RE, ErrorSintaxis, leer_con_mapa  # noqa: E402
@@ -78,16 +79,41 @@ def _diagnostico(texto: str, mensaje: str, severidad: int,
     }
 
 
+def _diagnostico_forma(texto: str, error: str, impreso: str) -> dict:
+    return _diagnostico(texto, f"{error}\nVersión formateada:\n{impreso}", ERROR)
+
+
 def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
     try:
         if ruta.suffix == ".caso":
-            leer_caso(texto)
+            datos = leer_caso(texto)
+            from nucleo.caso import imprimir
+            from nucleo.forma import error_forma
+            impreso = imprimir(datos)
+            error = error_forma(ruta, texto, impreso)
+            if error:
+                return [_diagnostico_forma(texto, error, impreso)]
             return []
+        if ruta.suffix == ".relacion":
+            from nucleo.relacion import leer, imprimir
+            from nucleo.forma import error_forma
+            datos = leer(texto)
+            impreso = imprimir(datos)
+            error = error_forma(ruta, texto, impreso)
+            return [_diagnostico_forma(texto, error, impreso)] if error else []
         if ruta.suffix != ".oracle":
             return []
         macros = macros_del_proyecto(proy)
         lectura = leer_con_mapa(texto, macros=macros)
         exigir_sintaxis_compatible(lectura.version)
+        from nucleo.forma import error_forma
+        from nucleo.sintaxis import imprimir
+        impreso = imprimir(lectura.datos, macros=macros)
+        error = error_forma(ruta, texto, impreso)
+        if error:
+            return [_diagnostico_forma(texto, error, impreso)]
+        if lectura.datos[0] == "defmacro":
+            return []
         medida = Medida.de_datos(lectura.datos, macros=macros)
         try:
             ruta.resolve().relative_to(proy.catalogos.resolve())
@@ -108,7 +134,7 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
         return []
     except ErrorSintaxis as e:
         return [_diagnostico(texto, str(e), ERROR, e.linea, e.columna)]
-    except (MedidaMalDeclarada, CasoMalDeclarado, ValueError) as e:
+    except (MedidaMalDeclarada, CasoMalDeclarado, RelacionMalDeclarada, ValueError) as e:
         return [_diagnostico(texto, str(e), ERROR)]
 
 

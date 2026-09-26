@@ -2145,11 +2145,15 @@ class VersionDeLaSuperficieTests(unittest.TestCase):
             ruta.write_text(prefijo + fuente, encoding="utf-8")
             return cargar(ruta)
 
-    def test_sin_declarar_la_misma_y_una_menor_vieja_cargan(self) -> None:
+    def test_solo_la_forma_impresa_carga_aunque_el_lector_entienda_versiones(self) -> None:
+        from nucleo.medida import MedidaMalDeclarada
         self.assertEqual(self._cargar(None).id, "d.prueba")
-        self.assertEqual(self._cargar("0.2").id, "d.prueba")
-        self.assertEqual(self._cargar("0.1", self.CUERPO_ANTERIOR).id, "d.prueba")
-        self.assertEqual(self._cargar("0.0", self.CUERPO_ANTERIOR).id, "d.prueba")
+        for version, cuerpo in (("0.2", self.CUERPO),
+                                ("0.1", self.CUERPO_ANTERIOR),
+                                ("0.0", self.CUERPO_ANTERIOR)):
+            with self.subTest(version=version), self.assertRaises(MedidaMalDeclarada) as ctx:
+                self._cargar(version, cuerpo)
+            self.assertIn("fuera de la forma única", str(ctx.exception))
 
     def test_una_menor_futura_y_una_mayor_no_cargan_diciendo_las_dos(self) -> None:
         import tempfile

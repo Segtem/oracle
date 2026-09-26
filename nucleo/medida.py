@@ -583,7 +583,8 @@ def cargar_fuente_medida(ruta: Path, *, macros=None) -> list:
     """Lee una medida de catálogo y devuelve su forma de datos."""
     ruta = Path(ruta)
     try:
-        texto = ruta.read_text(encoding="utf-8")
+        from .forma import leer_texto
+        texto = leer_texto(ruta) if ruta.suffix == ".oracle" else ruta.read_text(encoding="utf-8")
     except OSError as e:
         raise MedidaMalDeclarada(f"no se pudo leer la medida {ruta}: {e}") from e
     if ruta.suffix == ".json":
@@ -603,6 +604,11 @@ def cargar_fuente_medida(ruta: Path, *, macros=None) -> list:
             exigir_sintaxis_compatible(lectura.version)
         except VersionInvalida as e:
             raise MedidaMalDeclarada(f"{ruta}: {e}") from e
+        from .forma import error_forma
+        from .sintaxis import imprimir
+        error = error_forma(ruta, texto, imprimir(lectura.datos, macros=macros))
+        if error:
+            raise MedidaMalDeclarada(error)
         return lectura.datos
     raise MedidaMalDeclarada(
         f"formato de medida no soportado: {ruta} (esperaba .json u .oracle)")

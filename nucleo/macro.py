@@ -293,7 +293,8 @@ EXTENSIONES_DE_MACRO = (".json", ".oracle")
 
 def _datos_de_macro(ruta: Path, macros: RegistroMacros | None = None) -> list:
     try:
-        texto = ruta.read_text(encoding="utf-8")
+        from .forma import leer_texto
+        texto = leer_texto(ruta) if ruta.suffix == ".oracle" else ruta.read_text(encoding="utf-8")
     except OSError as e:
         raise MacroMalDeclarada(f"no se pudo leer la macro {ruta}: {e}") from e
     if ruta.suffix == ".oracle":
@@ -308,6 +309,11 @@ def _datos_de_macro(ruta: Path, macros: RegistroMacros | None = None) -> list:
             exigir_sintaxis_compatible(lectura.version)
         except VersionInvalida as e:
             raise MacroMalDeclarada(f"{ruta}: {e}") from e
+        from .forma import error_forma
+        from .sintaxis import imprimir
+        error = error_forma(ruta, texto, imprimir(lectura.datos, macros=macros))
+        if error:
+            raise MacroMalDeclarada(error)
         return lectura.datos
     try:
         return json.loads(texto)
