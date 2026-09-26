@@ -29,3 +29,7 @@ Implementé la entrada de tools/guia.py y tools/sitio.py en HERRAMIENTAS_CUSTODI
 ## Próximo paso
 
 En un entorno donde `systemd-run --user --scope` pueda conectar con el bus de usuario, actualizar la copia con estos cambios y ejecutar las dos rondas completas con `TMPDIR` propio y `MemoryMax=12G`. Por cada sobreviviente, agregar un test que lo mate o declarar su equivalencia razonada en `equivalentes.json`; repetir hasta obtener 0 vivos en ambos módulos y volver a correr la suite. El bloqueo actual es el rechazo del bus de usuario (`Operation not permitted`) antes de iniciar el arnés.
+
+### Nota (2026-09-26 05:47:34 UTC)
+
+2026-09-26, Claude: la ronda de mutación (corrida por Claude, TMPDIR propio y MemoryMax=12G) dio guia.py 124 mutantes, 28 vivos, 1 timeout, 1 error de arnés; sitio.py 227, 39 vivos, 2 timeouts, 1 error de arnés; mutar_codigo.py 172/172. La lista con cada sitio está en SOBREVIVIENTES.txt en esta carpeta. ENCARGO a Codex: por cada vivo, un test que lo mate (preferentemente en tests/test_guia_rapida.py y tests/test_sitio_rapido.py, que el arnés corre primero y son rápidos) o un equivalente declarado en equivalentes.json con su razón escrita, que demuestre por qué ningún test puede distinguirlo; revisar los timeouts (un bucle que un mutante vuelve infinito se acota, como se hizo en tools/medida.py) y los errores de arnés. No corras la mutación: Claude la repite después.

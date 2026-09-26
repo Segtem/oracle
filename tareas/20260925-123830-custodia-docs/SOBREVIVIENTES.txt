@@ -1,0 +1,67 @@
+  VIVO  tools/sitio.py:30:18:constante                       constante: True → False
+  VIVO  tools/sitio.py:58:56:constante                       constante: 1 → 2
+  VIVO  tools/sitio.py:58:59:constante                       constante: 0 → 1
+  VIVO  tools/sitio.py:92:8:retorno                          retorno: return <algo> → return None
+  VIVO  tools/sitio.py:93:21:booleano                        booleano: and ↔ or
+  VIVO  tools/sitio.py:99:12:constante                       constante: 0 → 1
+  VIVO  tools/sitio.py:120:12:retorno                        retorno: return <algo> → return None
+  VIVO  tools/sitio.py:139:84:constante                      constante: False → True
+  VIVO  tools/sitio.py:167:22:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:169:24:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:196:20:constante                      constante: 0 → 1
+  VIVO  tools/sitio.py:207:7:booleano                        booleano: and ↔ or
+  VIVO  tools/sitio.py:209:23:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:209:72:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:216:20:constante                      constante: 0 → 1
+  VIVO  tools/sitio.py:240:53:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:279:21:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:281:15:booleano                       booleano: and ↔ or
+  VIVO  tools/sitio.py:283:21:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:295:22:comparador                     comparador: Lt → LtE
+  VIVO  tools/sitio.py:321:21:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:323:32:comparador                     comparador: Lt → LtE
+  VIVO  tools/sitio.py:323:36:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:340:22:comparador                     comparador: Lt → LtE
+  VIVO  tools/sitio.py:354:28:comparador                     comparador: Gt → GtE
+  VIVO  tools/sitio.py:355:53:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:380:36:booleano                       booleano: and ↔ or
+  VIVO  tools/sitio.py:380:36:comparador                     comparador: Gt → GtE
+  VIVO  tools/sitio.py:394:51:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:394:74:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:490:15:comparador                     comparador: In → NotIn
+  VIVO  tools/sitio.py:496:11:comparador                     comparador: Eq → NotEq
+  VIVO  tools/sitio.py:499:41:constante                      constante: True → False
+  VIVO  tools/sitio.py:499:56:constante                      constante: True → False
+  VIVO  tools/sitio.py:507:8:retorno                         retorno: return <algo> → return None
+  VIVO  tools/sitio.py:507:15:constante                      constante: 1 → 2
+  VIVO  tools/sitio.py:508:4:retorno                         retorno: return <algo> → return None
+  VIVO  tools/sitio.py:508:11:constante                      constante: 0 → 1
+  VIVO  tools/sitio.py:512:35:constante                      constante: 1 → 2
+  VIVO  tools/guia.py:23:13:constante                        constante: 0 → 1
+  VIVO  tools/guia.py:42:64:constante                        constante: 1 → 2
+  VIVO  tools/guia.py:71:8:retorno                           retorno: return <algo> → return None
+  VIVO  tools/guia.py:82:53:constante                        constante: True → False
+  VIVO  tools/guia.py:88:11:booleano                         booleano: and ↔ or
+  VIVO  tools/guia.py:88:11:comparador                       comparador: Gt → GtE
+  VIVO  tools/guia.py:88:29:constante                        constante: 1 → 2
+  VIVO  tools/guia.py:88:35:negacion                         negacion: se borra el `not`
+  VIVO  tools/guia.py:96:68:constante                        constante: 180 → 181
+  VIVO  tools/guia.py:104:47:constante                       constante: 2 → 3
+  VIVO  tools/guia.py:107:34:comparador                      comparador: Gt → GtE
+  VIVO  tools/guia.py:107:52:constante                       constante: 2 → 3
+  VIVO  tools/guia.py:129:15:booleano                        booleano: and ↔ or
+  VIVO  tools/guia.py:131:76:constante                       constante: 1 → 2
+  VIVO  tools/guia.py:134:45:constante                       constante: True → False
+  VIVO  tools/guia.py:136:67:constante                       constante: True → False
+  VIVO  tools/guia.py:148:30:constante                       constante: 1 → 2
+  VIVO  tools/guia.py:152:19:booleano                        booleano: and ↔ or
+  VIVO  tools/guia.py:156:93:constante                       constante: 1 → 2
+  VIVO  tools/guia.py:160:72:constante                       constante: 1 → 2
+  VIVO  tools/guia.py:165:43:comparador                      comparador: Eq → NotEq
+  VIVO  tools/guia.py:165:45:constante                       constante: 2 → 3
+  VIVO  tools/guia.py:165:49:constante                       constante: 2 → 3
+  VIVO  tools/guia.py:175:21:booleano                        booleano: and ↔ or
+  VIVO  tools/guia.py:179:8:retorno                          retorno: return <algo> → return None
+  VIVO  tools/guia.py:179:15:constante                       constante: 1 → 2
+  VIVO  tools/guia.py:180:4:retorno                          retorno: return <algo> → return None
+  VIVO  tools/guia.py:180:11:constante                       constante: 0 → 1
