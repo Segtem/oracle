@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.34.0](#0340--el-tracker-y-el-mcp-paquetes-aparte) | el tracker y el MCP, paquetes aparte |
 | [0.33.0](#0330--la-api-de-python-también-escribe-en-superficie-y-la-mutación-en-paralelo) | la API de Python también escribe en superficie, y la mutación en paralelo |
 | [0.32.0](#0320--una-sola-forma-de-escribir-oracle) | una sola forma de escribir Oracle |
 | [0.31.1](#0311--dos-verdes-que-no-habían-mirado-y-una-huella-que-dependía-del-checkout) | dos verdes que no habían mirado, y una huella que dependía del checkout |
@@ -26,6 +27,56 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.34.0 — el tracker y el MCP, paquetes aparte
+
+```
+VERSION_DISTRIBUCION   0.33.0 → 0.34.0   el tracker y el MCP salen del paquete
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.0    → 1.0
+```
+
+Oracle es el metalenguaje: el álgebra, la superficie, `Motor`, `oracle test`, `juzgar`, el LSP y la
+mutación. Dos subsistemas que crecían más rápido que el lenguaje salen a paquetes propios, con la
+historia de cada archivo.
+
+## El tracker: `trackertast`
+
+[trackertast](https://github.com/Segtem/trackertast) (`uv tool install trackertast`) es el tracker
+de tareas que Oracle traía desde 0.16.0. El comando es `tasks`, con los verbos en inglés y los de
+siempre como alias (`tasks list` y `tasks listar` hacen lo mismo). No depende de Oracle; `tasks
+facts` emite los hechos que Oracle juzga. **`oracle tarea` sigue funcionando por una o dos
+versiones** como alias de `tasks` si trackertast está instalado, y si no, dice cómo instalarlo.
+La carpeta `tareas/` no cambia.
+
+## El servidor MCP: `oracle-mcp`
+
+[oracle-mcp](https://github.com/Segtem/oracle-mcp) (`uv tool install oracle-mcp`) es el servidor
+MCP de sólo lectura. El comando sigue siendo `oracle-mcp --proyecto <ruta>`, así que la
+configuración de los clientes no cambia; **las herramientas pasan a llamarse en inglés**
+(`oracle_effective_catalog`, `oracle_evaluate`, `oracle_challenge`, `oracle_judge`,
+`oracle_tasks`). Depende de esta versión de Oracle fijada con `==`, porque usa su API interna.
+Este paquete ya no instala el comando `oracle-mcp`.
+
+## Un módulo, un nombre
+
+En el paquete instalado, `oracle_metalenguaje.nucleo.X` y `nucleo.X` podían ser **dos módulos
+distintos** según el orden en que se importaran: un consumidor que importaba el nombre largo después
+de que Oracle arrancara recibía una segunda copia de cada clase, y un `isinstance` que fallaba sin
+explicación. Lo destapó oracle-mcp al salir del repositorio. Ahora los dos nombres son el mismo
+módulo en cualquier orden, también para `tools`.
+
+## Para actualizar
+
+- Si usás `oracle tarea`: `uv tool install trackertast` y pasá a `tasks <verbo>` cuando quieras.
+- Si usás `oracle-mcp`: `uv tool install oracle-mcp`, y actualizá en tus prompts o scripts los
+  nombres de las herramientas.
+- `ejemplo/seguimiento-tareas` sigue acá como ejemplo de un proyecto que juzga hechos de otra
+  herramienta; su versión completa, con el flujo de cierre, está en trackertast.
+
+agy armó trackertast y agy2 oracle-mcp, cada uno en su contenedor. Claude extrajo la historia,
+sacó el código de Oracle con el alias de `oracle tarea`, trajo los tests que quedaban, encontró y
+arregló la duplicación de módulos, verificó los tres repositorios y cortó.
 
 # 0.33.0 — la API de Python también escribe en superficie, y la mutación en paralelo
 

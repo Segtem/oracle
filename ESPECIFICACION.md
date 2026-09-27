@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.33.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.34.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,13 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.34.0 (2026-09-27): `VERSION_DISTRIBUCION` sube de `0.33.0` a `0.34.0`.** El tracker de
+tareas y el servidor MCP salen del paquete a los suyos, `trackertast` y `oracle-mcp`, con la
+historia de cada archivo; `oracle tarea` queda como alias de `tasks` por una o dos versiones. En el
+wheel, `oracle_metalenguaje.nucleo.X` y `nucleo.X` pasan a ser el mismo módulo en cualquier orden de
+importación (antes podían cargarse dos veces). No cambia el álgebra ni la superficie. La mutación
+del corte, con `--alto`: cinco módulos, 1290 mutantes, ningún sobreviviente.
 
 **Corte 0.33.0 (2026-09-27): `VERSION_DISTRIBUCION` sube de `0.32.0` a `0.33.0`.** Agrega
 `Motor.desde_texto`, que recibe medidas y macros en superficie y exige la forma única como los
