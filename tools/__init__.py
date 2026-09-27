@@ -20,3 +20,10 @@ usa `Motor` o `escalar` ya no lo ve.
 import sys
 
 sys.modules.setdefault("tools", sys.modules[__name__])
+
+# Instalado, los módulos de `tools/` se importan entre sí como `tools.X`; quien importe
+# `oracle_metalenguaje.tools.X` tiene que recibir ese mismo módulo, no una segunda copia.
+if __name__ != "tools" and sys.modules["tools"] is sys.modules[__name__]:
+    from .._compat import _MismoModulo
+    if not any(isinstance(b, _MismoModulo) and b.namespaced == __name__ for b in sys.meta_path):
+        sys.meta_path.insert(0, _MismoModulo(__name__.rpartition(".")[0], "tools"))
