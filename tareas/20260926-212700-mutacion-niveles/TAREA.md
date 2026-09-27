@@ -1,7 +1,7 @@
 # Mutación por niveles: --bajo, --medio, --alto, --muy-alto, con paralelismo y selección de tests
 
 - ESTADO: ABIERTA
-- PRIORIDAD: 1
+- PRIORIDAD: 90
 - ETIQUETAS: 
 
 ### Nota (2026-09-26 21:27:00 UTC)

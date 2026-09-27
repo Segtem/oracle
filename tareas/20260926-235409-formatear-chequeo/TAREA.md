@@ -1,7 +1,7 @@
 # oracle formatear como chequeo: código de salida y ayuda al día
 
 - ESTADO: ABIERTA
-- PRIORIDAD: 2
+- PRIORIDAD: 40
 - ETIQUETAS: 
 
 ### Nota (2026-09-26 23:54:09 UTC)
