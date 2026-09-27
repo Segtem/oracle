@@ -1,6 +1,6 @@
 # La web de Oracle documenta oracle-mcp
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: 
 
