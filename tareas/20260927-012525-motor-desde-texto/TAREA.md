@@ -1,6 +1,6 @@
 # La API de Python recibe medidas escritas en JSON: falta Motor.desde_texto con la forma única
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle
 
