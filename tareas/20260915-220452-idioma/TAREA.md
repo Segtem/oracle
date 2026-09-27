@@ -69,3 +69,6 @@ Siguen abiertas para el plan: qué nombres y textos se traducen además de las p
 medida de Oracle, relaciones del lenguaje y sus campos, `porque`/`alcance`), cómo declara su idioma un
 archivo o un proyecto, y el alcance de mensajes y documentación.
 
+### Nota (2026-09-27 13:18:40 UTC)
+
+2026-09-27, Claude: los paquetes nuevos separados de Oracle (trackertast, oracle-mcp) nacen con nombres en inglés (paquete, módulos, comando tasks, verbos canónicos, herramientas MCP) y los verbos viejos en español como alias. Quedan para esta tarea: los mensajes (siguen en español), los nombres internos de funciones y variables, y la carpeta de datos del tracker (tareas/), que al cambiar exige migrar Oracle, Jam, LyraGASP y commander.
