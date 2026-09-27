@@ -146,7 +146,7 @@ class FormaUnicaTests(unittest.TestCase):
             original = '# explicación\n' + MEDIDA.replace('medida demo', 'medida   demo')
             ruta.write_text(original, encoding='utf-8')
             with redirect_stdout(io.StringIO()):
-                self.assertEqual(cli.cmd_formatear(Proyecto(raiz), str(ruta)), 0)
+                self.assertEqual(cli.cmd_formatear(Proyecto(raiz), str(ruta)), 1)
             self.assertEqual(ruta.read_text(), original)
             with redirect_stdout(io.StringIO()):
                 self.assertEqual(cli.cmd_formatear(Proyecto(raiz), str(ruta), escribir=True), 0)
@@ -169,6 +169,13 @@ class FormaUnicaTests(unittest.TestCase):
                 destino.parent.mkdir(parents=True, exist_ok=True)
                 destino.write_text(desordenada.replace("d.m", "d." + destino.stem.split(".")[-1]),
                                    encoding="utf-8")
+            salida_check = io.StringIO()
+            with redirect_stdout(salida_check):
+                codigo_check = cli.cmd_formatear(Proyecto(raiz), str(raiz))
+            self.assertEqual(codigo_check, 1, salida_check.getvalue())
+            self.assertIn("oracle formatear", salida_check.getvalue())
+            self.assertNotIn("escrito", salida_check.getvalue())
+
             salida = io.StringIO()
             with redirect_stdout(salida):
                 codigo = cli.cmd_formatear(Proyecto(raiz), str(raiz), escribir=True)
@@ -180,7 +187,8 @@ class FormaUnicaTests(unittest.TestCase):
                              "tareas/t1/catalogos/historia.oracle"):
                 texto = (raiz / relativa).read_text(encoding="utf-8")
                 self.assertLess(texto.index("agregado n"), texto.index("clave k"), relativa)
-            self.assertIn("oracle formatear", salida.getvalue())
+            self.assertNotIn("oracle formatear", salida.getvalue())
+            self.assertIn("escrito", salida.getvalue())
 
     def test_sintaxis_leer_exige_la_forma_unica(self):
         # AUDITORIA-5: la herramienta interna también carga, así que exige lo mismo.

@@ -318,5 +318,69 @@ class CliFormatearMutacionTests(unittest.TestCase):
         ruta_medida.write_text(texto_desformateado, encoding="utf-8")
         with redirect_stdout(io.StringIO()):
             ret = cli.main(["formatear", str(ruta_medida)])
-        self.assertEqual(ret, 0)
+        self.assertEqual(ret, 1)
         self.assertEqual(ruta_medida.read_text(encoding="utf-8"), texto_desformateado)
+
+    def test_formatear_sin_escribir_sale_uno_si_requiere_formato(self) -> None:
+        ruta_medida = self.raiz / "catalogos" / "demo.oracle"
+        texto_desformateado = "# comentario\n" + MEDIDA_CANONICA.replace("medida demo.prueba", "medida   demo.prueba")
+        ruta_medida.write_text(texto_desformateado, encoding="utf-8")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            ret = cli.cmd_formatear(self.proy, str(ruta_medida))
+        self.assertEqual(ret, 1)
+        salida = buf.getvalue()
+        self.assertIn("requiere formato", salida)
+        self.assertIn(f"oracle formatear {ruta_medida} --escribir", salida)
+        self.assertNotIn("escrito", salida)
+
+    def test_formatear_sin_escribir_sale_cero_si_tiene_forma_unica(self) -> None:
+        ruta_caso = self._crear_caso()
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            ret = cli.cmd_formatear(self.proy, str(ruta_caso))
+        self.assertEqual(ret, 0)
+        self.assertIn("ya tiene forma única", buf.getvalue())
+
+    def test_formatear_con_escribir_sale_cero_y_no_imprime_sugerencia(self) -> None:
+        ruta_medida = self.raiz / "catalogos" / "demo.oracle"
+        texto_desformateado = "# comentario\n" + MEDIDA_CANONICA.replace("medida demo.prueba", "medida   demo.prueba")
+        ruta_medida.write_text(texto_desformateado, encoding="utf-8")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            ret = cli.cmd_formatear(self.proy, str(ruta_medida), escribir=True)
+        self.assertEqual(ret, 0)
+        salida = buf.getvalue()
+        self.assertIn("requiere formato", salida)
+        self.assertIn("escrito", salida)
+        self.assertNotIn(f"oracle formatear {ruta_medida} --escribir", salida)
+        self.assertEqual(ruta_medida.read_text(encoding="utf-8"), "# comentario\n" + MEDIDA_CANONICA)
+
+    def test_formatear_directorio_sin_escribir_sale_uno_si_alguno_requiere_formato(self) -> None:
+        self._crear_caso()
+        ruta_medida = self.raiz / "catalogos" / "demo.oracle"
+        ruta_medida.write_text(MEDIDA_CANONICA.replace("medida demo.prueba", "medida   demo.prueba"), encoding="utf-8")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            ret = cli.cmd_formatear(self.proy, str(self.raiz))
+        self.assertEqual(ret, 1)
+
+    def test_formatear_directorio_con_escribir_sale_cero_si_pudo_escribir(self) -> None:
+        self._crear_caso()
+        ruta_medida = self.raiz / "catalogos" / "demo.oracle"
+        ruta_medida.write_text(MEDIDA_CANONICA.replace("medida demo.prueba", "medida   demo.prueba"), encoding="utf-8")
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            ret = cli.cmd_formatear(self.proy, str(self.raiz), escribir=True)
+        self.assertEqual(ret, 0)
+        self.assertNotIn("oracle formatear", buf.getvalue())
+        self.assertIn("escrito", buf.getvalue())
+
+    def test_ayuda_convertir_incluye_relaciones(self) -> None:
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            cli.ayuda()
+        self.assertIn(
+            "oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas, casos y relaciones JSON con ida y vuelta exacta",
+            buf.getvalue(),
+        )

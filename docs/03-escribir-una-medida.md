@@ -115,10 +115,13 @@ catalogos/naval/naval.dentro.oracle: requiere formato
   oracle formatear catalogos/naval/naval.dentro.oracle --escribir
 ```
 
+`oracle formatear <ruta>` sin `--escribir` sirve como chequeo de CI (como `black --check` o `gofmt -l`):
+sale con código 1 si algún archivo requiere formato y 0 si todos ya tienen forma única.
+
 `oracle formatear <ruta> --escribir` lo deja en la forma única sin cambiar lo que la medida
-significa. En la raíz de un proyecto recorre sólo `catalogos/`, `corpus/`, `relaciones/` y
-`macros/`. `oracle test`, `oracle juzgar`, el MCP y el editor rechazan un archivo fuera de forma con
-ese mismo diff.
+significa (muestra el diff y «escrito», sin la sugerencia de volver a formatear). En la raíz de un
+proyecto recorre sólo `catalogos/`, `corpus/`, `relaciones/` y `macros/`. `oracle test`, `oracle
+juzgar`, el MCP y el editor rechazan un archivo fuera de forma con ese mismo diff.
 
 - **Comentarios.** Una línea que empieza con `#` es un comentario en cualquier lugar del archivo,
   también dentro de un bloque, y `formatear` la conserva donde está. No hay comentario al final de

@@ -529,7 +529,6 @@ catalogos/flota/flota.casillas_dentro_del_tablero.oracle: requiere formato
        donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9
        umbral <= 0 segun contrato porque "el tablero es de 10x10: filas y columnas van de 0 a 9"
   …
-  oracle formatear catalogos/flota/flota.casillas_dentro_del_tablero.oracle --escribir
 catalogos/flota/flota.casillas_dentro_del_tablero.oracle: escrito
 ```
 

@@ -323,3 +323,31 @@ class CorrerParaleloYSeleccionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class EntradaCerradaTests(unittest.TestCase):
+    """Un mutante que lleva a leer del teclado tiene que fallar en el acto, no esperar al plazo.
+
+    Pasó en el corte 0.35: cuatro mutantes de `cmd_reportar` llevaban a `input()`; con la ronda
+    lanzada desde una terminal, la suite esperaba al teclado y salían TIEMPO, que no mata. Con la
+    entrada cerrada, `input()` levanta EOFError y el test falla como tiene que fallar.
+    """
+
+    def test_un_comando_que_lee_la_entrada_no_se_cuelga(self):
+        import time
+        lector, escritor = os.pipe()  # una entrada abierta que nunca trae nada, como una terminal
+        original = os.dup(0)
+        try:
+            os.dup2(lector, 0)
+            inicio = time.monotonic()
+            with tempfile.TemporaryDirectory() as td:
+                resultado = mc._ejecutar_ronda(
+                    [sys.executable, "-c", "input(); raise SystemExit(0)"], Path(td),
+                    timeout=20, codigos_fallo_tests=(1,), etapa="prueba",
+                    permitir_cache_preexistente=True)
+            self.assertLess(time.monotonic() - inicio, 10)
+            self.assertNotEqual(resultado.estado, mc.EstadoTests.TIMEOUT)
+        finally:
+            os.dup2(original, 0)
+            for fd in (original, escritor, lector):
+                os.close(fd)

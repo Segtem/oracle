@@ -541,8 +541,10 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
     preexec = _aplicar_limites if topes is not None else None
     try:
         proceso = subprocess.Popen(
-            comando, cwd=str(raiz), stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-            env=entorno, start_new_session=True, preexec_fn=preexec)
+            # stdin cerrado: un mutante que lleva a un input() tiene que fallar en el acto, no
+            # esperar al teclado de quien lanzó la ronda hasta el plazo (y salir TIEMPO).
+            comando, cwd=str(raiz), stdin=subprocess.DEVNULL, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, env=entorno, start_new_session=True, preexec_fn=preexec)
     except (OSError, ValueError, subprocess.SubprocessError) as e:
         return ResultadoTests(EstadoTests.ERROR_ARNES, None, stderr=f"{type(e).__name__}: {e}")
 

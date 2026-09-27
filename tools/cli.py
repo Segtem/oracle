@@ -115,7 +115,7 @@ Uso:
   oracle tarea <verbo>                    (mudado) el tracker es el paquete trackertast: usá `tasks <verbo>`
   oracle convertir <archivo>              Convierte medidas JSON a superficie
   oracle formatear <ruta> [--escribir]     Lleva a la forma única; las líneas # no cuentan y se conservan
-  oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas y casos JSON con ida y vuelta exacta
+  oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas, casos y relaciones JSON con ida y vuelta exacta
   oracle manual [tema]                    Manual integrado y vocabularios cerrados
   oracle contexto                        Inventario de relaciones y medidas activas
   oracle reportar [opciones]              Prepara y muestra un reporte local; no lo publica
@@ -869,15 +869,16 @@ def _formatear_uno(proy: Proyecto, ruta: Path, *, escribir: bool, ruta_str: str)
         print(f"{ruta}: requiere formato")
         for linea in formato.diferencia(original, normalizado):
             print(f"  {linea}")
-        print(f"  oracle formatear {ruta} --escribir")
-        if escribir:
-            nuevo = formato.con_comentarios(original, normalizado)
-            if formato.sin_comentarios(nuevo) != normalizado:
-                raise ValueError("no se pudieron conservar los comentarios")
-            if formato.canonico(ruta, nuevo, macros=macros) != normalizado:
-                raise ValueError("el texto formateado cambió el árbol")
-            ruta.write_text(nuevo, encoding="utf-8")
-            print(f"{ruta}: escrito")
+        if not escribir:
+            print(f"  oracle formatear {ruta} --escribir")
+            return 1
+        nuevo = formato.con_comentarios(original, normalizado)
+        if formato.sin_comentarios(nuevo) != normalizado:
+            raise ValueError("no se pudieron conservar los comentarios")
+        if formato.canonico(ruta, nuevo, macros=macros) != normalizado:
+            raise ValueError("el texto formateado cambió el árbol")
+        ruta.write_text(nuevo, encoding="utf-8")
+        print(f"{ruta}: escrito")
     except (OSError, UnicodeError, ValueError) as e:
         print(f"✗ {ruta}: {e}")
         return 1
