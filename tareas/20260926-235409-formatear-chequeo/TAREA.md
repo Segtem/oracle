@@ -1,6 +1,6 @@
 # oracle formatear como chequeo: código de salida y ayuda al día
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 40
 - ETIQUETAS: 
 
