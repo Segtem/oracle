@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.32.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.33.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,14 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.33.0 (2026-09-27): `VERSION_DISTRIBUCION` sube de `0.32.0` a `0.33.0`.** Agrega
+`Motor.desde_texto`, que recibe medidas y macros en superficie y exige la forma única como los
+cargadores (hasta acá la API de Python sólo aceptaba el árbol canónico en JSON), y la mutación de
+código en paralelo y por niveles. No cambia el álgebra ni la superficie: siguen en `1.0`. La
+mutación del corte se hizo con `--alto`: los siete módulos del perfil que cambiaron desde 0.32.0,
+1124 mutantes, sin sobrevivientes después del último cambio de cada uno (un equivalente
+declarado, con su razón).
 
 **Corte 0.32.0 (2026-09-26): `VERSION_DISTRIBUCION` sube de `0.31.1` a `0.32.0`.** Publica la
 sintaxis 1.0 del párrafo siguiente. La mutación del corte cubrió los 22 módulos del perfil que

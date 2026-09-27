@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.33.0](#0330--la-api-de-python-también-escribe-en-superficie-y-la-mutación-en-paralelo) | la API de Python también escribe en superficie, y la mutación en paralelo |
 | [0.32.0](#0320--una-sola-forma-de-escribir-oracle) | una sola forma de escribir Oracle |
 | [0.31.1](#0311--dos-verdes-que-no-habían-mirado-y-una-huella-que-dependía-del-checkout) | dos verdes que no habían mirado, y una huella que dependía del checkout |
 | [0.31.0](#0310--un-verde-que-no-midió-nada-ya-no-sale-verde) | un verde que no midió nada ya no sale verde |
@@ -25,6 +26,60 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.33.0 — la API de Python también escribe en superficie, y la mutación en paralelo
+
+```
+VERSION_DISTRIBUCION   0.32.0 → 0.33.0   Motor.desde_texto; mutación con -j y por niveles
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.0    → 1.0
+```
+
+## `Motor.desde_texto`: la última entrada que aceptaba JSON escrito
+
+Un modelo que usaba Oracle desde Python tenía una sola forma de pasarle una medida suelta:
+`Motor.desde_datos`, con el árbol canónico en JSON. Era la única entrada que no pasaba por la
+superficie. Ahora:
+
+```python
+from oracle_metalenguaje import Motor
+
+motor = Motor.desde_texto([open("catalogos/naval/naval.dentro.oracle").read()])
+```
+
+`desde_texto` recibe medidas y macros en superficie `.oracle` y exige la forma única, igual que
+los cargadores: otra grafía levanta `ErrorDeMotor` con el diff. `desde_datos` sigue existiendo,
+documentado como lo que es: la API sobre el árbol canónico que ya guardó o generó un programa.
+Por dentro, «leer, comprobar la versión y exigir la forma única» pasó a ser una sola función
+(`nucleo.forma.datos_en_forma_unica`) que usan los cargadores de medidas y de macros y el `Motor`.
+
+## La mutación de código, en paralelo y por niveles
+
+`tools/mutar_codigo.py` corre varios mutantes a la vez (`-j N`, por omisión la mitad de los núcleos),
+cada uno en su copia, y a cada mutante le corre primero sólo los tests que pasan por la línea que
+cambió; todo sobreviviente se confirma con la suite entera, así que el veredicto es el mismo.
+Medido contra el arnés anterior: `tools/cli.py` en 10 minutos en vez de 57, mutante por mutante
+igual. Los niveles eligen el alcance:
+
+| nivel | muta | vale para un corte |
+|---|---|---|
+| `--bajo` | las líneas cambiadas contra `HEAD` | no (ronda parcial) |
+| `--medio` | las líneas cambiadas desde el último tag | no (ronda parcial) |
+| `--alto` | los módulos enteros cambiados desde el último tag | sí |
+| `--muy-alto` | todo el perfil | sí |
+
+Esta versión se mutó con `--alto`: siete módulos, 1124 mutantes, en 25 minutos.
+
+## También
+
+- La web cuenta la sintaxis única: la portada, *Escribir una medida*, *Cómo funciona* y una misión
+  nueva de la batalla naval, con salidas ejecutadas.
+- Se borraron tres piezas de código muerto del arnés que la mutación encontró, una con un
+  `NameError` que nunca se había ejecutado.
+
+agy implementó la mutación en paralelo y por niveles y agy2 `Motor.desde_texto`; los dos mataron los
+sobrevivientes. Claude arregló el rastreo de cobertura, que hacía la línea base impagable, unificó la
+lectura en forma única, verificó el arnés nuevo contra el viejo y cortó.
 
 # 0.32.0 — una sola forma de escribir Oracle
 
