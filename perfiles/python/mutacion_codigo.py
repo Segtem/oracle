@@ -1198,8 +1198,6 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
         pendientes = [s for s in todos_sitios if s.id not in completados]
 
         n_trabajadores = min(paralelo, len(pendientes)) if pendientes else 1
-        if n_trabajadores < 1:
-            n_trabajadores = 1
 
         with tempfile.TemporaryDirectory(prefix="oracle-mutacion-") as temporal_base:
             base_dir = Path(temporal_base)
@@ -1227,7 +1225,7 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                 comando_base, copia_0,
                 timeout=timeout_por_ejecucion if timeout_base is None else timeout_base,
                 codigos_fallo_tests=codigos_fallo_tests, etapa="la línea base",
-                permitir_cache_preexistente=True, limite_salida=limite_salida,
+                limite_salida=limite_salida,
                 limite_memoria=limite_memoria, entorno_extra={"TMPDIR": str(tmpdir_0)})
             baseline_verde = baseline.pasaron
             if not baseline_verde:
@@ -1428,14 +1426,3 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
     if alterados:
         raise AislamientoRoto(f"cambiaron objetivos de la raíz original: {alterados}")
     return evidencia
-
-
-def construir_mapa_cobertura(raiz: Path, objetivos: list[Path],
-                            comando: list[str] | None = None) -> dict[str, dict[str, list[str]]]:
-    from tools.ejecutar_suite_mutacion import _RastreadorCobertura, _correr_suite
-    tope = Path(raiz).resolve()
-    rastreador = _RastreadorCobertura([str(o) for o in objetivos], tope)
-    cargador = unittest.TestLoader()
-    suite = cargador.discover(start_dir=str(tope / "tests"), top_level_dir=str(tope))
-    _correr_suite(suite, rastreador)
-    return rastreador.serializar()
