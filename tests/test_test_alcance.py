@@ -25,7 +25,7 @@ class TestAlcanceTests(unittest.TestCase):
             for ruta, razon in fuera.items():
                 self.assertIn(ruta, texto)
                 self.assertIn(razon, texto)
-        self.assertIn("tools/mcp_contrato.py", texto)
+        self.assertIn("tools/lsp.py", texto)
         self.assertIn("tools/__init__.py", texto)
 
     def test_el_perfil_de_mutacion_solo_se_informa_con_todo_y_en_oracle(self):

@@ -1,6 +1,6 @@
 """Entry point único para Oracle.
 
-    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto, biblioteca, tarea)
+    oracle <sustantivo> <verbo>             forma canónica (medida, caso, proyecto, biblioteca)
     oracle <sustantivo>                     ayuda del sustantivo con sus verbos
 
     oracle plantilla sensor-prosa <destino> copia el sensor opcional sin ejecutarlo ni pisar archivos
@@ -26,23 +26,6 @@
     oracle biblioteca verificar <ruta>      certifica una biblioteca local de políticas
     oracle biblioteca listar <ruta>         muestra sus umbrales, orígenes y alcances completos
 
-    oracle tarea init [ruta]                inicializa el tracker de tareas en tareas/
-    oracle tarea nueva <titulo>             crea una nueva tarea con plantilla y adjuntos
-    oracle tarea listar                     lista las tareas abiertas por prioridad e id (alias ls)
-    oracle tarea ver <id>                   muestra una tarea por su id o prefijo inequívoco
-    oracle tarea cerrar <id>                marca la tarea como CERRADA de forma atómica
-    oracle tarea reabrir <id>               marca la tarea como ABIERTA de forma atómica
-    oracle tarea revisar                    audita la integridad del directorio tareas/
-    oracle tarea anotar <id> [texto]        agrega una nota, URL o marca a la tarea
-    oracle tarea adjuntar <id> <archivo>    copia un adjunto al directorio de la tarea
-    oracle tarea buscar <texto>             busca texto en documentos y notas del tracker
-    oracle tarea referencias [id]           busca menciones del ID en tareas y código
-    oracle tarea resumen                    muestra cantidades por estado y etiquetas
-    oracle tarea seguimiento                diagnóstico de seguimiento y cobertura en Git
-    oracle tarea hechos [--git]              exporta hechos observados del tracker como JSON
-    oracle tarea etiquetar <id>... --etiqueta <e>  agrega una o más etiquetas a tareas
-    oracle tarea desetiquetar [id]... --etiqueta <e> quita etiquetas de una o más tareas
-    oracle tarea grafo [--json]             emite el grafo de referencias entre tareas en DOT o JSON
     oracle manual                           la referencia del lenguaje, armada de sus fuentes
     oracle manual operadores                los seis operadores de una tubería y `desde`
     oracle manual casos                     cuándo una evidencia usa tabla o fila {…}
@@ -129,7 +112,7 @@ Uso:
   oracle plantilla sensor-prosa <destino> Copia el sensor opcional a un directorio nuevo
   oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
-  oracle tarea <verbo>                    Operaciones sobre tareas (init, nueva, listar, ver, cerrar, reabrir, revisar, anotar, adjuntar, buscar, referencias, resumen, seguimiento, hechos, etiquetar, desetiquetar, grafo)
+  oracle tarea <verbo>                    (mudado) el tracker es el paquete trackertast: usá `tasks <verbo>`
   oracle convertir <archivo>              Convierte medidas JSON a superficie
   oracle formatear <ruta> [--escribir]     Lleva a la forma única; las líneas # no cuentan y se conservan
   oracle convertir <directorio> --a-superficie [--escribir]  Migra medidas y casos JSON con ida y vuelta exacta
@@ -214,9 +197,6 @@ Uso:
   oracle biblioteca listar <ruta>         Lista cada umbral, segun y alcance completo""")
 
 
-def ayuda_tarea() -> None:
-    from tools import tareas
-    tareas.ayuda()
 
 
 def _informe_biblioteca(ruta_str: str):
@@ -397,25 +377,6 @@ VERBOS = {
     "caso": ("nuevo", "listar", "generar"),
     "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
-    "tarea": (
-        "init",
-        "nueva",
-        "listar",
-        "ver",
-        "cerrar",
-        "reabrir",
-        "revisar",
-        "anotar",
-        "adjuntar",
-        "buscar",
-        "referencias",
-        "resumen",
-        "seguimiento",
-        "hechos",
-        "etiquetar",
-        "desetiquetar",
-        "grafo",
-    ),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
     "manual": tuple(manual.temas()),
@@ -434,7 +395,6 @@ def verbos_documentados() -> dict[str, tuple[str, ...]]:
 # puede documentar.
 ALIAS = {
     ("caso", "nueva"): "nuevo",
-    ("tarea", "ls"): "listar",
 }
 
 
@@ -1280,6 +1240,20 @@ def version() -> None:
     print(f"  corriendo desde: {RAIZ_ORACLE}")
 
 
+def _tarea_mudada(argv: list[str]) -> int:
+    """`oracle tarea` se mudó al paquete trackertast (comando `tasks`). Queda como alias por una
+    o dos versiones para que los repos y los agentes que lo usan no se rompan de golpe."""
+    print("aviso: `oracle tarea` se mudó al paquete trackertast; usá `tasks <verbo>`.",
+          file=sys.stderr)
+    try:
+        from trackertast import cli as tareas_cli
+    except ImportError:
+        print("trackertast no está instalado. Instalalo con `uv tool install trackertast` "
+              "(o `pip install trackertast`) y usá `tasks <verbo>`.", file=sys.stderr)
+        return 1
+    return tareas_cli.main(argv)
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     posicionales = sin_banderas_comunes(argv)
@@ -1298,6 +1272,11 @@ def main(argv: list[str] | None = None) -> int:
             return _verbo_desconocido("plantilla", resto[0])
         from tools import plantilla
         return plantilla.main(argv[1:])
+
+    if subcomando == "tarea":
+        args = list(argv)
+        args.remove(subcomando)  # sólo el sustantivo: un título puede decir «tarea»
+        return _tarea_mudada(args)
 
     # ANTES de resolver el proyecto, y con el `argv` CRUDO. `censar` es el único verbo que toma
     # VARIOS `--proyecto`, y la resolución de más abajo consume esa bandera para quedarse con uno.
@@ -1329,9 +1308,6 @@ def main(argv: list[str] | None = None) -> int:
         return 0
     if subcomando == "biblioteca" and (not resto or resto[0] in ("-h", "--help", "help")):
         ayuda_biblioteca()
-        return 0
-    if subcomando == "tarea" and (not resto or resto[0] in ("-h", "--help", "help")):
-        ayuda_tarea()
         return 0
     if subcomando in ("reportar", "--reportar") and resto \
             and resto[0] in ("-h", "--help", "help"):
@@ -1407,8 +1383,6 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando == "proyecto" and resto and resto[0] not in verbos_aceptados("proyecto"):
         return _verbo_desconocido("proyecto", resto[0])
 
-    if subcomando == "tarea" and resto and resto[0] not in verbos_aceptados("tarea"):
-        return _verbo_desconocido("tarea", resto[0])
 
     if subcomando == "biblioteca":
         verbo = resto[0]
@@ -1439,12 +1413,6 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_biblioteca_verificar(resto[1])
         return cmd_biblioteca_listar(resto[1])
 
-    if subcomando == "tarea":
-        from tools import tareas as ttareas
-        verbo = resto[0]
-        canonico = ALIAS.get(("tarea", verbo.lstrip("-")), verbo.lstrip("-"))
-        args = resto[1:]
-        return ttareas.despachar(canonico, args, argv)
 
     # Para todos los demás comandos resolvemos el proyecto
     try:

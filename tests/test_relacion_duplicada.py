@@ -1,5 +1,6 @@
 """Regresiones de las fronteras públicas ante relaciones duplicadas."""
 import io
+import json
 import shutil
 import subprocess
 import sys
@@ -7,8 +8,23 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from tools import mcp
-from tests.test_mcp import _conversacion, _desenmarcar, _medida, _pedido_evaluar, _proyecto
+from nucleo.proyecto import Proyecto, ProyectoInvalido, relaciones_del_proyecto
+
+
+
+def _medida(mid: str) -> list:
+    """Una medida mínima (antes venía de tests/test_mcp.py, que se fue con oracle-mcp)."""
+    return ["medida", mid, ["desde", ["de", "item", "i"]], ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "ningún item ofensivo", "contrato"],
+            ["ambito", "universal"], ["alcance", "NO ve propiedades distintas de la presencia del item"]]
+
+
+def _proyecto(raiz: Path, *medidas: list) -> Path:
+    catalogos = raiz / "catalogos" / "demo"
+    catalogos.mkdir(parents=True)
+    for datos in medidas:
+        (catalogos / f"{datos[1]}.json").write_text(json.dumps(datos, ensure_ascii=False), encoding="utf-8")
+    return raiz
 
 RAIZ = Path(__file__).resolve().parents[1]
 
@@ -49,31 +65,19 @@ class RelacionDuplicadaTests(unittest.TestCase):
     def test_revisar(self):
         self.correr('medida', 'revisar', 'catalogos/demo/demo.uno.json')
 
-    def test_mcp(self):
-        entrada = _conversacion(_pedido_evaluar(2, {
-            'medida': {'id': 'demo.uno'}, 'evidencia': {'item': []}}))
-        salida = io.BytesIO()
-        codigo = mcp.servir(mcp.Proyecto(self.raiz), io.BytesIO(entrada), salida)
-        self.assertEqual(codigo, 0)  # El error pertenece a la llamada, no al transporte.
-        resultado = _desenmarcar(salida.getvalue())[1]['result']
-        self.assertTrue(resultado['isError'])
-        texto = resultado['content'][0]['text']
-        self.assertIn('PROYECTO_INVALIDO —', texto)
-        self.comprobar_diagnostico(texto)
-
     def test_duplicado_local_no_se_atribuye_a_oracle(self):
         (self.raiz / 'oracle.json').unlink()
         shutil.copy(self.raiz / 'relaciones/pieza.relacion', self.raiz / 'relaciones/otra.relacion')
-        with self.assertRaisesRegex(mcp.ProyectoInvalido, 'está dos veces') as error:
-            mcp.relaciones_del_proyecto(mcp.Proyecto(self.raiz))
+        with self.assertRaisesRegex(ProyectoInvalido, 'está dos veces') as error:
+            relaciones_del_proyecto(Proyecto(self.raiz))
         self.assertNotIn('ya existe en Oracle', str(error.exception))
 
     def test_base_no_seleccionada_permite_relacion_propia(self):
         (self.raiz / 'oracle.json').unlink()
-        declaradas = mcp.relaciones_del_proyecto(mcp.Proyecto(self.raiz))
+        declaradas = relaciones_del_proyecto(Proyecto(self.raiz))
         self.assertEqual(set(declaradas), {'pieza'})
 
     def test_declaracion_malformada_se_informa_como_proyecto_invalido(self):
         (self.raiz / 'relaciones/pieza.relacion').write_text('{', encoding='utf-8')
-        with self.assertRaisesRegex(mcp.ProyectoInvalido, 'relacion <nombre>'):
-            mcp.relaciones_del_proyecto(mcp.Proyecto(self.raiz))
+        with self.assertRaisesRegex(ProyectoInvalido, 'relacion <nombre>'):
+            relaciones_del_proyecto(Proyecto(self.raiz))

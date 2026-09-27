@@ -97,9 +97,11 @@ jobs:
       # 0.18.0 (tarea 20260915-010206-juzgar): el tracker deja de ser un vecino. Oracle juzga su propio
       # `tareas/` con las políticas de seguimiento: referencias locales presentes, archivos confirmados
       # sin cambios y lectura sin omisiones. Un TAREA.md con un enlace roto o sin commitear pone CI en rojo.
+      # Desde 0.34.0 el tracker es el paquete trackertast (comando `tasks`).
       - name: juzgar el tracker de Oracle
         run: |
-          python tools/cli.py tarea hechos --git > /tmp/hechos-tareas.json
+          python -m pip install "trackertast==0.1.0"
+          tasks facts --git > /tmp/hechos-tareas.json
           python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json --parcial
 
   # ⚠ La matriz está DESACTUALIZADA a propósito y hay que decirlo: faltan `nucleo/sintaxis.py`,
@@ -153,7 +155,6 @@ jobs:
           - tools/contexto.py
           - tools/corpus.py
           - tools/manual.py
-          - tools/mcp.py
           - tools/reportar.py
           - tools/aceptacion.py
           - tools/censar.py
@@ -191,17 +192,8 @@ jobs:
           - tools/formato.py
           - tools/sondear_generador.py
           - tools/sondear_procedencia.py
-          # Integridad, captura y evidencia de seguimiento del tracker (P4 de 0.16.0).
-          - tools/tareas.py
-          - tools/tareas_contexto.py
-          - tools/tareas_git.py
-          - tools/tareas_hechos.py
-          # Grafo de menciones entre tareas (0.17.0).
-          - tools/tareas_grafo.py
           # El veredicto sobre evidencia real (0.18.0).
           - tools/juzgar.py
-          # Las consultas de tareas (0.19.0).
-          - tools/tareas_consulta.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

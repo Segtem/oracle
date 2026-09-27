@@ -446,26 +446,12 @@ no abstraer.
 
 ## Tareas y contexto de trabajo
 
-Desde 0.16.0 el paquete trae `oracle tarea`, un tracker local inspirado en
-[tatr](https://github.com/tsoding/tatr): una carpeta por tarea dentro de `tareas/`, un `TAREA.md`
-que se edita a mano y el material de trabajo al lado. Git guarda la historia; no hay base de datos
-ni servicio, y no necesita catálogo de medidas.
-
-```bash
-oracle tarea init
-oracle tarea nueva "Investigar un defecto del sensor" --etiqueta bug --prioridad 70
-oracle tarea anotar <id> --url "https://www.youtube.com/watch?v=…" --marca 03:10
-oracle tarea adjuntar <id> captura.png
-oracle tarea ls :bug y no :ui              # consultas: y/o/no, prioridad menor 50, [ ]
-oracle tarea referencias <id>          # dónde se la menciona, en tareas y en código
-oracle tarea seguimiento               # qué está versionado y qué sigue sólo en el disco
-oracle tarea cerrar <id>
-```
-
-`oracle tarea hechos` exporta el tracker como relaciones JSON para medirlo con políticas propias:
-referencias locales que existen, archivos confirmados en Git, lecturas sin omisiones. Las políticas
-son optativas, y un enlace que existe no prueba que la tarea esté bien resuelta. Contrato, tutorial y
-diferencias con tatr en [docs/12-tareas.md](https://github.com/Segtem/oracle/blob/v0.33.0/docs/12-tareas.md).
+El tracker de tareas que Oracle traía desde 0.16.0 es desde 0.34.0 un paquete aparte:
+[**trackertast**](https://github.com/Segtem/trackertast), con el comando `tasks` (`tasks list`,
+`tasks show <id>`, `tasks new "…"`; los verbos en español siguen como alias). No depende de
+Oracle: una carpeta por tarea dentro de `tareas/`, un `TAREA.md` legible, y `tasks facts` exporta
+el tracker como hechos JSON que Oracle puede juzgar. `oracle tarea` sigue funcionando por una o dos
+versiones como alias de `tasks` si trackertast está instalado.
 
 ## Juzgar evidencia real
 
@@ -508,7 +494,7 @@ aplicaron no cuentan en el veredicto, pero se nombran —`NO SE APLICARON`, y `n
 `--json`— con la relación que les faltó: «no vino su relación» es un «no miré». Las heredadas no se
 listan, porque juzgan el catálogo y no la evidencia. `Motor.evaluar` hace lo mismo.
 
-Oracle se juzga así a sí mismo en CI: `oracle tarea hechos --git` sobre su propio `tareas/`, con las
+Oracle se juzga así a sí mismo en CI: `tasks facts --git` sobre su propio `tareas/`, con las
 políticas de [`ejemplo/seguimiento-tareas`](https://github.com/Segtem/oracle/tree/v0.33.0/ejemplo/seguimiento-tareas).
 
 ## Heredar un catálogo sin quedar en rojo el primer día
@@ -550,23 +536,12 @@ Certifica esos hechos, no que la política sea correcta para un proyecto.
 
 ## Servidor MCP (sólo lectura)
 
-`oracle-mcp --proyecto <ruta>` le da a un agente las mismas respuestas que el CLI, por
-[Model Context Protocol](https://modelcontextprotocol.io) sobre stdio. El proyecto se fija al arrancar
-y `--confiar-escalares` sólo se concede ahí: ninguna llamada puede ampliar esa autoridad.
-
-| herramienta | responde |
-|---|---|
-| `oracle_catalogo_efectivo` | qué medidas obligan a este proyecto, y por qué |
-| `oracle_evaluar` | qué hace una medida —por id o escrita en la llamada— con una evidencia: verde, rojo o sin evidencia, testigos y, si está en sombra, si la sombra la perdona |
-| `oracle_desafiar` | qué parte de una medida candidata todavía no está fijada: las dos polaridades y sus mutantes, sin guardar nada |
-| `oracle_juzgar` | lo mismo que `oracle juzgar`: una evidencia contra el catálogo efectivo, con sombras, cotas y las medidas que no se aplicaron |
-| `oracle_tareas` | el tracker: `listar`, `ver`, `buscar` y `hechos` |
-
-Las cinco son **de sólo lectura**, y no por prudencia genérica: los falsos verdes que un agente
-comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente fabricó
-parece una aprobación sin serlo. En el tracker, además, crear o cerrar una tarea sólo vale junto con
-su commit, y el commit no se hace por MCP. El contrato, con el porqué de cada decisión, está en
-[`docs/mcp-contrato.md`](https://github.com/Segtem/oracle/blob/v0.33.0/docs/mcp-contrato.md).
+El servidor MCP es desde 0.34.0 un paquete aparte: [**oracle-mcp**](https://github.com/Segtem/oracle-mcp).
+Le da a un agente, por [Model Context Protocol](https://modelcontextprotocol.io) y **sólo para
+leer**, las mismas respuestas que el CLI: el catálogo efectivo, qué hace una medida con una
+evidencia, qué parte de una medida candidata todavía no está fijada, el veredicto de `juzgar` y el
+tracker. El comando sigue siendo `oracle-mcp --proyecto <ruta>`; se instala con
+`uv tool install oracle-mcp`, que trae la versión de Oracle con la que se probó.
 
 ## Las decisiones, y por qué
 
@@ -713,7 +688,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2761 tests · 1018/1018 mutantes de medida · **9416 sitios de mutación de código** (9128 + 288 del motor Python).
+2114 tests · 1018/1018 mutantes de medida · **7935 sitios de mutación de código** (7647 + 288 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

@@ -15,7 +15,7 @@ from nucleo.medida import MedidaMalDeclarada, cargar_fuente_medida
 from nucleo.macro import MacroMalDeclarada, _datos_de_macro
 from nucleo.relacion import RelacionMalDeclarada, cargar_fuente_relacion
 from nucleo.proyecto import Proyecto
-from tools import cli, formato, sintaxis, lsp, mcp
+from tools import cli, formato, sintaxis, lsp
 
 
 MEDIDA = ('medida demo.prueba:\n'
@@ -38,7 +38,7 @@ RELACION = ('relacion evento:\n    tipo: texto\n    variantes por tipo:\n'
 
 
 class FormaUnicaTests(unittest.TestCase):
-    def test_cargadores_lsp_y_mcp_rechazan_variantes_y_crlf(self):
+    def test_cargadores_y_lsp_rechazan_variantes_y_crlf(self):
         fuentes = [
             ('.oracle', MEDIDA, MEDIDA.replace('medida demo', 'medida   demo'),
              cargar_fuente_medida, MedidaMalDeclarada),
@@ -61,11 +61,6 @@ class FormaUnicaTests(unittest.TestCase):
                         diagnosticos = lsp.diagnosticar(Proyecto(raiz), ruta, texto)
                         self.assertEqual(len(diagnosticos), 1)
                         self.assertIn('Versión formateada:', diagnosticos[0]['message'])
-            for texto in (fuentes[0][2], MEDIDA.replace('\n', '\r\n'), MEDIDA.rstrip('\n')):
-                with self.assertRaises(mcp.ErrorHerramienta) as ctx:
-                    mcp._medida_en_memoria({'texto': texto, 'formato': 'oracle'}, None)
-                self.assertIn('fuera de la forma única', str(ctx.exception))
-
             macro = Path(__file__).resolve().parents[1] / 'nucleo/macros/ninguno.oracle'
             texto_macro = macro.read_text(encoding='utf-8')
             for texto in (texto_macro.replace('\n', '\r\n'), texto_macro.rstrip('\n')):

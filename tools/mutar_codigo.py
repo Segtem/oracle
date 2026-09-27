@@ -116,7 +116,6 @@ PRIORIDADES = {
     # empaquetado van después de las pruebas directas. Se conservan todos los tests originales.
     # Reportar discrimina sus rutas antes de pagar todo el CLI: 21 tests en 0,003 s locales.
     "tools/cli.py": ("tests.test_reportar", "tests.test_vigilar", "tests.test_biblioteca",
-                     "tests.test_tareas",
                      "tests.test_cli", "tests.test_censar", "tests.test_manual",
                      "tests.test_herramientas", "tests.test_cli_integracion"),
     # `test_contexto` primero y solo: es chico y es suyo. La lección de costo de arriba —un mutante
@@ -136,9 +135,6 @@ PRIORIDADES = {
     # perfil de `cli.py`. Acá agregaba ~40 s de subprocesos por mutante —la ronda pasaba de
     # minutos a horas— sin matar un mutante que los otros dos módulos no maten.
     "tools/manual.py": ("tests.test_manual", "tests.test_vocabulario"),
-    # `test_mcp` primero y solo: es suyo y es chico. Misma palanca que en `contexto.py`, que pasó de
-    # 858 a 56 segundos.
-    "tools/mcp.py": ("tests.test_mcp", "tests.test_herramientas"),
     "tools/metamorficas.py": ("tests.test_metamorficas", "tests.test_sintaxis"),
     "tools/observar.py": ("tests.test_observar",),
     "tools/reportar.py": ("tests.test_reportar", "tests.test_cli"),
@@ -161,28 +157,8 @@ PRIORIDADES = {
     "tools/sintaxis.py": ("tests.test_sintaxis", "tests.test_cli"),
     "tools/sondear_generador.py": ("tests.test_sondear_generador",),
     "tools/sondear_procedencia.py": ("tests.test_sondear_procedencia",),
-    # El tracker fija su propia integridad y la evidencia entregada a políticas optativas.
-    "tools/tareas.py": ("tests.test_tareas_consulta_revision", "tests.test_tareas_consulta",
-                        "tests.test_tareas_tatr_revision", "tests.test_tareas_tatr",
-                        "tests.test_tareas_errores", "tests.test_tareas_limites",
-                        "tests.test_tareas_mutacion", "tests.test_tareas_atomicas",
-                        "tests.test_tareas", "tests.test_tareas_revision",
-                        "tests.test_tareas_contexto_mutacion", "tests.test_tareas_hechos_mutacion"),
-    "tools/tareas_contexto.py": ("tests.test_tareas_contexto_errores",
-                                "tests.test_tareas_contexto_mutacion", "tests.test_tareas_atomicas",
-                                "tests.test_tareas_consulta_revision", "tests.test_tareas_consulta",
-                                "tests.test_tareas_tatr_revision", "tests.test_tareas_tatr",
-                                "tests.test_tareas_contexto", "tests.test_tareas_p2_revision"),
-    # 0.19.0: el lenguaje de consultas; un filtro mal compilado lista o desetiqueta de más.
-    "tools/tareas_consulta.py": ("tests.test_tareas_consulta_revision", "tests.test_tareas_consulta"),
-    "tools/tareas_git.py": ("tests.test_tareas_p4_revision", "tests.test_tareas_git",
-                            "tests.test_tareas_p2_revision", "tests.test_tareas_p3_revision"),
-    "tools/tareas_hechos.py": ("tests.test_tareas_hechos_mutacion", "tests.test_tareas_hechos",
-                               "tests.test_tareas_p3_revision", "tests.test_tareas_p4_revision"),
     # 0.18.0: el veredicto sobre evidencia real; un verde que no respeta ámbito o sombra miente.
     "tools/juzgar.py": ("tests.test_juzgar_revision", "tests.test_juzgar"),
-    # 0.17.0: grafo de menciones entre tareas.
-    "tools/tareas_grafo.py": ("tests.test_tareas_tatr", "tests.test_tareas_tatr_revision"),
     "tools/medida.py": ("tests.test_vigilar", "tests.test_herramientas", "tests.test_cli",
                         "tests.test_lsp"), "tools/formato.py": ("tests.test_forma_unica_texto",),
 }
@@ -333,10 +309,9 @@ CUSTODIAS_SIN_MEDIR = {}
 HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
                           "diferencial.py", "generar_diferencial.py",
                           "ejecutar_suite_mutacion.py",
-                          "corpus.py", "formato.py", "guia.py", "juzgar.py", "manual.py", "mcp.py", "medida.py", "metamorficas.py",
+                          "corpus.py", "formato.py", "guia.py", "juzgar.py", "manual.py", "medida.py", "metamorficas.py",
                           "mutar.py", "mutar_codigo.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
-                          "sondear_procedencia.py", "tareas.py", "tareas_contexto.py",
-                          "tareas_consulta.py", "tareas_git.py", "tareas_grafo.py", "tareas_hechos.py",
+                          "sondear_procedencia.py",
                           "sitio.py", "trazar.py", "verificar_instalacion.py")
 
 # Alcance de la matriz: cada Python de tools/ que no custodia una afirmación propia debe
@@ -346,7 +321,6 @@ FUERA_TOOLS = {
     "tools/__init__.py": "registra el alias de importación tools; no emite un veredicto propio",
     "tools/estudio.py": "genera documentación para uso externo; no lo ejecuta CI ni juzga hechos",
     "tools/lsp.py": "adapta el editor; no lo ejecuta CI y los cálculos viven en nucleo/",
-    "tools/mcp_contrato.py": "sincroniza documentación; el protocolo operativo lo custodia mcp.py",
     "tools/oracle.py": "es un alias sin lógica propia de cli.py, que sí está en la matriz",
     "tools/plantilla.py": "copia recursos iniciales; verificar_instalacion.py comprueba su uso",
     "tools/sesion.py": "es un helper de errores; proyecto.py custodia la validación sustantiva",

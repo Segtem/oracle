@@ -168,41 +168,6 @@ class EntradaInvalidaTests(JuzgarTemporal):
         self.sin_traceback(p)
 
 
-class HechosDelTrackerTests(JuzgarTemporal):
-    @unittest.skipUnless(shutil.which("git"), "requiere Git")
-    def test_hechos_reales_del_tracker_verde_y_luego_rojo(self):
-        repo = self.temporal / "repo"
-        repo.mkdir()
-        env = {k: v for k, v in self.env.items() if not k.startswith("GIT_")}
-        corre = lambda *a: subprocess.run(a, cwd=repo, env=env, capture_output=True, text=True,
-                                          timeout=60)
-        self.assertEqual(corre(sys.executable, "-B", str(CLI), "tarea", "init",
-                               "--proyecto", str(repo)).returncode, 0)
-        creada = corre(sys.executable, "-B", str(CLI), "tarea", "nueva", "Con captura", "--json",
-                       "--proyecto", str(repo))
-        ident = json.loads(creada.stdout)["id"]
-        documento = repo / "tareas" / ident / "TAREA.md"
-        (documento.parent / "captura.png").write_bytes(b"png")
-        documento.write_text(documento.read_text(encoding="utf-8") + "[captura](captura.png)\n",
-                             encoding="utf-8")
-        medida = ("--medida", REFERENCIAS, "--medida", "seguimiento.lectura_sin_omisiones")
-
-        def juzgar_tracker():
-            hechos = corre(sys.executable, "-B", str(CLI), "tarea", "hechos",
-                           "--proyecto", str(repo))
-            self.assertEqual(hechos.returncode, 0, hechos.stderr)
-            con = self.evidencia(hechos.stdout, nombre="tracker.json")
-            return self.juzgar("--con", str(con), "--proyecto", str(self.proyecto), *medida)
-
-        verde = juzgar_tracker()
-        self.assertEqual(verde.returncode, 0, verde.stdout + verde.stderr)
-        documento.write_text(documento.read_text(encoding="utf-8") + "[rota](no-esta.png)\n",
-                             encoding="utf-8")
-        rojo = juzgar_tracker()
-        self.assertEqual(rojo.returncode, 1, rojo.stdout + rojo.stderr)
-        self.assertIn("no-esta.png", rojo.stdout)
-
-
 if __name__ == "__main__":
     unittest.main()
 

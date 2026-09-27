@@ -11,7 +11,7 @@ from pathlib import Path
 from unittest import mock
 
 from nucleo.proyecto import ProyectoInvalido, resolver
-from tools import cli, corpus, manual, tareas
+from tools import cli, corpus, manual
 
 RAIZ = Path(__file__).resolve().parents[1]
 
@@ -90,8 +90,3 @@ class RecorridoNuevo(unittest.TestCase):
             self.assertIn("Relaciones que espera el catálogo", error)
             self.assertIn("oracle contexto", error)
 
-    def test_tarea_argumentos_en_espanol(self):
-        error = io.StringIO()
-        with redirect_stderr(error), self.assertRaises(SystemExit):
-            tareas.main(["nueva"])
-        self.assertIn("se requieren", error.getvalue())

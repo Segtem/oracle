@@ -24,9 +24,9 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
 | ver un dominio completo con geometría | [Tutorial práctico](tutorial-practico.md) | un `LEFT JOIN` sin nulos, escalares de volumen y penetración, la API `Motor` desde Python |
 | saber por qué hace falta mutar | [Por qué la mutación](05-por-que-la-mutacion.md) | los dos autores de los mutadores y qué hacer con un sobreviviente |
 | correr la mutación sin quedarte sin memoria | [Memoria de la mutación](mutacion-memoria.md) | cómo medir la memoria y limitar las rondas con systemd |
-| llevar las tareas del proyecto | [El tracker de tareas](12-tareas.md) | `oracle tarea` y el próximo paso como relevo |
+| llevar las tareas del proyecto | [trackertast](https://github.com/Segtem/trackertast) (paquete aparte) | el comando `tasks` y el próximo paso como relevo |
 | usar un modelo como sensor de prosa | [Un modelo como sensor](14-sensor-prosa.md) | el patrón optativo, con calibración y revisión humana |
-| conectar un agente por MCP | [El servidor MCP](mcp-contrato.md) | el contrato de las herramientas, sólo de lectura |
+| conectar un agente por MCP | [oracle-mcp](https://github.com/Segtem/oracle-mcp) (paquete aparte) | el contrato de las herramientas, sólo de lectura |
 | implementar el álgebra sin ver el núcleo | [Especificación](../ESPECIFICACION.md) | el álgebra entera y la crónica de cada versión |
 | escribir medidas en tu editor, con diagnósticos | [Editores](../editores/README.md) | el servidor de lenguaje y la configuración de cada editor |
 | saber por qué algo es como es | [Decisiones](decisiones/README.md) | las decisiones de diseño, con lo que se descartó |

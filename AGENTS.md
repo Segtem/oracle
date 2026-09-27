@@ -4,12 +4,12 @@ Trabajá en español.
 
 ## Protocolo de tareas y relevo
 
-- Para retomar: `oracle tarea listar` muestra las abiertas por prioridad; `oracle tarea ver <id>` da el contexto.
+- Para retomar: `tasks list` muestra las abiertas por prioridad; `tasks show <id>` da el contexto (paquete trackertast).
 - Referite a una tarea por su id completo o por su sufijo; nunca reconstruyas un id a mano ni la busques con un glob.
 - Desde este repo también se puede usar `python3 tools/cli.py tarea …`.
 - La tarea es la fuente de verdad: qué se pidió, qué se hizo y cuál es el próximo paso.
-- Registrá avances, evidencia y bloqueos con `oracle tarea anotar <id> "…"`.
-- Todo pendiente nuevo va a una tarea: `oracle tarea nueva "<título>" --sufijo <corto>`.
+- Registrá avances, evidencia y bloqueos con `tasks note <id> "…"`.
+- Todo pendiente nuevo va a una tarea: `tasks new "<título>" --sufijo <corto>`.
 - Al dejar el trabajo, actualizá una única sección `## Próximo paso` al final del cuerpo de `TAREA.md`.
 - Escribí allí la acción concreta para continuar; reemplazá el paso anterior, no acumules secciones.
 - Si hay un bloqueo, anotá su causa y qué falta para destrabarlo en esa misma tarea.

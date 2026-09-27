@@ -189,7 +189,6 @@ class RondaSinConstruccion(unittest.TestCase):
              mock.patch.object(vi, "_comprobar_enlaces") as enlaces, \
              mock.patch.object(vi, "_entry_points_declarados", return_value=self.entries), \
              mock.patch.object(vi, "_recorrer_plantilla") as plantilla, \
-             mock.patch.object(vi, "_recorrer_tareas") as tareas, \
              mock.patch.object(vi, "_hablarle_al_lsp") as lsp, \
              mock.patch.object(vi.subprocess, "run", return_value=self.rechazo) as run, \
              redirect_stdout(io.StringIO()) as stdout:
@@ -199,7 +198,6 @@ class RondaSinConstruccion(unittest.TestCase):
         self.assertEqual(run.call_args.kwargs["capture_output"], True)
         self.assertEqual(run.call_args.kwargs["text"], True)
         plantilla.assert_called_once()
-        tareas.assert_called_once()
         lsp.assert_called_once()
         return resultado, stdout.getvalue()
 
@@ -256,25 +254,6 @@ class RondaSinConstruccion(unittest.TestCase):
     def test_dos_entry_points_son_suficientes(self):
         self.entries = ["oracle", "oracle-lsp"]
         self.ejecutar()
-
-
-class TrackerInstalado(unittest.TestCase):
-    def setUp(self):
-        global vi
-        vi = importlib.import_module("tools.verificar_instalacion")
-        self.assertEqual(Path(vi.__file__).resolve(), Path.cwd() / "tools" / "verificar_instalacion.py")
-        self.assertEqual(__import__("sys").path[0], str(Path.cwd()))
-
-    def test_recorrido_tracker_con_cli_real_y_proyecto_aislado(self):
-        import sys
-        with tempfile.TemporaryDirectory() as td:
-            temporal = Path(td)
-            oracle = temporal / "oracle"
-            oracle.write_text(f'#!/bin/sh\nexec {sys.executable} -B {vi.RAIZ / "tools" / "cli.py"} "$@"\n')
-            oracle.chmod(0o755)
-            env = vi._entorno_limpio()
-            env["GIT_INDEX_FILE"] = str(temporal / "índice-inexistente")
-            vi._recorrer_tareas(oracle, temporal=temporal, env=env)
 
 
 class PlantillaInstalada(unittest.TestCase):
@@ -346,180 +325,3 @@ class PlantillaInstalada(unittest.TestCase):
                                       env={}, recursos=self.recursos)
 
 
-class TrackerConRespuestasConstruidas(unittest.TestCase):
-    def setUp(self):
-        global vi
-        vi = importlib.import_module("tools.verificar_instalacion")
-        self.assertEqual(Path(vi.__file__).resolve(), Path.cwd() / "tools" / "verificar_instalacion.py")
-        self.assertEqual(__import__("sys").path[0], str(Path.cwd()))
-        self.tmp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.tmp.cleanup)
-        self.temporal = Path(self.tmp.name)
-        self.proyecto = self.temporal / "tareas consumidor á"
-        self.ruta = self.proyecto / "tareas" / "20260101-000000-prueba" / "TAREA.md"
-        self.original = None
-        self.seguimiento = 0
-        self.resumen = 0
-        self.listar = 0
-        self.nueva = 0
-        self.resultado_juzgar = SimpleNamespace(returncode=1, stdout="ausente-p3.txt", stderr="")
-        self.resultado_invalido = SimpleNamespace(returncode=2, stdout="", stderr="^ error")
-        self.alterar = None
-
-    def _respuesta(self, args, *, cwd, env):
-        args = list(map(str, args))
-        if args[0] == "git":
-            return SimpleNamespace(stdout="", stderr="")
-        accion = args[2] if len(args) > 2 and args[1] == "tarea" else args[1]
-        salida = ""
-        if accion == "init":
-            (self.proyecto / "tareas").mkdir()
-        elif accion == "nueva":
-            self.nueva += 1
-            identidad = "20260101-000000-prueba" if self.nueva == 1 else "20260101-000001-otra"
-            ruta = self.proyecto / "tareas" / identidad / "TAREA.md"
-            ruta.parent.mkdir()
-            ruta.write_text("Estado: ABIERTA\nCita: ABIERTA\n")
-            salida = json.dumps({"id": identidad})
-        elif accion == "ls":
-            salida = json.dumps([{"id": "20260101-000000-prueba"}])
-        elif accion == "ver":
-            salida = str(self.ruta)
-        elif accion == "cerrar":
-            self.original = self.ruta.read_bytes()
-            self.ruta.write_bytes(self.original.replace(b"ABIERTA", b"CERRADA", 1))
-        elif accion == "listar":
-            self.listar += 1
-            salida = json.dumps([] if self.listar == 1 else [{"id": "20260101-000000-prueba"}])
-        elif accion == "reabrir":
-            self.ruta.write_bytes(self.original)
-        elif accion == "anotar":
-            with self.ruta.open("a") as f:
-                f.write("Hallazgo del recorrido instalado " + args[args.index("--url") + 1])
-        elif accion == "adjuntar":
-            origen = Path(args[4])
-            destino = self.ruta.parent / origen.name
-            destino.write_bytes(origen.read_bytes())
-            salida = json.dumps({"ruta": str(destino)})
-        elif accion == "buscar":
-            salida = json.dumps({"coincidencias": [1]})
-        elif accion == "referencias":
-            salida = json.dumps({"coincidencias": [{"ruta": "src/detalle/solucion.py"}]})
-        elif accion == "resumen":
-            self.resumen += 1
-            salida = json.dumps({"total": 1, "descripcion": "Descripción instalada á"})
-        elif accion == "seguimiento":
-            self.seguimiento += 1
-            datos = [dict(en_indice=False, en_head=False, estado="local"),
-                     dict(en_indice=True, en_head=False, estado="en_indice"),
-                     dict(en_indice=True, en_head=True, estado="sin_cambios")]
-            salida = json.dumps({"archivos": [datos[self.seguimiento - 1]]})
-        elif accion == "hechos":
-            salida = json.dumps({"tarea_seguimiento": [1], "lectura_seguimiento": [{"completa": True}]})
-        elif accion == "etiquetar":
-            self.antes_etiqueta = self.ruta.read_bytes()
-            self.ruta.write_bytes(self.antes_etiqueta + b"instalado")
-        elif accion == "desetiquetar":
-            self.ruta.write_bytes(self.antes_etiqueta)
-        elif accion == "grafo":
-            salida = (json.dumps({"aristas": [{"origen": "20260101-000001-otra",
-                                                 "destino": "20260101-000000-prueba"}]})
-                      if "--json" in args else "digraph { a -> b }")
-        respuesta = SimpleNamespace(stdout=salida, stderr="", returncode=0)
-        if self.alterar is not None:
-            respuesta = self.alterar(accion, respuesta, args)
-        return respuesta
-
-    def ejecutar(self):
-        corridas = [self.resultado_juzgar, self.resultado_invalido]
-        def run(*_a, **_kw):
-            return corridas.pop(0)
-        with mock.patch.object(vi, "_correr", side_effect=self._respuesta), \
-             mock.patch.object(vi.subprocess, "run", side_effect=run), \
-             mock.patch.object(vi.shutil, "which", return_value="git"):
-            vi._recorrer_tareas(Path("oracle"), temporal=self.temporal, env={"GIT_INDEX_FILE": "sucio"})
-
-    def test_recorrido_con_respuestas_minimas(self):
-        self.ejecutar()
-        self.assertEqual(self.seguimiento, 3)
-
-    def test_rechaza_respuestas_parciales_aunque_la_otra_condicion_siga_verde(self):
-        casos = [
-            ("ls", lambda r: json.dumps([{"id": "otro"}]), "subcarpeta"),
-            ("reabrir", lambda r: r, "texto o adjuntos"),
-            ("anotar", lambda r: r, "contexto previo"),
-            ("adjuntar", lambda r: r, "archivo de origen"),
-            ("hechos", lambda r: json.dumps({"tarea_seguimiento": [1],
-                                              "lectura_seguimiento": [{"completa": False}]}), "P1/P2"),
-        ]
-        for accion_objetivo, cambiar, error in casos:
-            with self.subTest(accion=accion_objetivo):
-                self.setUp()
-                def alterar(accion, respuesta, args):
-                    if accion == accion_objetivo:
-                        if accion == "reabrir":
-                            (self.ruta.parent / "captura.png").write_bytes(b"roto")
-                        elif accion == "anotar":
-                            self.ruta.write_bytes(b"nota " + args[args.index("--url") + 1].encode())
-                        elif accion == "adjuntar":
-                            copia = Path(json.loads(respuesta.stdout)["ruta"])
-                            copia.write_bytes(b"roto")
-                        else:
-                            respuesta.stdout = cambiar(respuesta)
-                    return respuesta
-                self.alterar = alterar
-                with self.assertRaisesRegex(RuntimeError, error):
-                    self.ejecutar()
-
-    def test_seguimiento_rechaza_cada_estado_parcial(self):
-        casos = [
-            (1, dict(en_indice=True, en_head=False, estado="local"), "archivos locales"),
-            (2, dict(en_indice=False, en_head=False, estado="local"), "índice de HEAD"),
-            (3, dict(en_indice=True, en_head=False, estado="sin_cambios"), "contenido confirmado"),
-        ]
-        for numero, dato, error in casos:
-            with self.subTest(numero=numero, dato=dato):
-                self.setUp()
-                def alterar(accion, respuesta, _args):
-                    if accion == "seguimiento" and self.seguimiento == numero:
-                        respuesta.stdout = json.dumps({"archivos": [dato]})
-                    return respuesta
-                self.alterar = alterar
-                with self.assertRaisesRegex(RuntimeError, error):
-                    self.ejecutar()
-
-    def test_rechazo_exige_codigo_y_testigo_y_consulta_invalida_exige_posicion(self):
-        for respuesta in (SimpleNamespace(returncode=0, stdout="ausente-p3.txt", stderr=""),
-                          SimpleNamespace(returncode=1, stdout="sin testigo", stderr="")):
-            with self.subTest(respuesta=respuesta):
-                self.setUp()
-                self.resultado_juzgar = respuesta
-                with self.assertRaisesRegex(RuntimeError, "enlace roto"):
-                    self.ejecutar()
-        for respuesta in (SimpleNamespace(returncode=0, stdout="", stderr="^"),
-                          SimpleNamespace(returncode=2, stdout="", stderr="sin posición"),
-                          SimpleNamespace(returncode=2, stdout="", stderr="^ Traceback")):
-            with self.subTest(respuesta=respuesta):
-                self.setUp()
-                self.resultado_invalido = respuesta
-                with self.assertRaisesRegex(RuntimeError, "tipo inválido"):
-                    self.ejecutar()
-
-    def test_juzgar_con_git_no_restringe_medidas_y_timeout_es_acotado(self):
-        comandos = []
-        original = self._respuesta
-        def correr(args, *, cwd, env):
-            comandos.append(list(args))
-            return original(args, cwd=cwd, env=env)
-        respuestas = [self.resultado_juzgar, self.resultado_invalido]
-        tiempos = []
-        def run(*_args, **kwargs):
-            tiempos.append(kwargs["timeout"])
-            return respuestas.pop(0)
-        with mock.patch.object(vi, "_correr", side_effect=correr), \
-             mock.patch.object(vi.subprocess, "run", side_effect=run), \
-             mock.patch.object(vi.shutil, "which", return_value="git"):
-            vi._recorrer_tareas(Path("oracle"), temporal=self.temporal, env={})
-        juzgar = next(a for a in comandos if len(a) > 1 and a[1] == "juzgar")
-        self.assertNotIn("--medida", juzgar)
-        self.assertEqual(tiempos, [30, 30])

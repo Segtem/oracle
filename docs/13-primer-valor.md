@@ -35,7 +35,7 @@ Las salidas siguientes provienen de esa ejecución. Los hechos exportados se gua
 Cuando alguien se acerca a Oracle para medir un desarrollo —especialmente en iteraciones guiadas por agentes o LLMs— surgen con frecuencia dos confusiones habituales:
 
 1. **Confundir la verificación de medidas con la certificación del producto.** Correr `oracle test` y ver una pantalla verde significa únicamente que el catálogo y el corpus son consistentes entre sí; no significa que el código fuente de la aplicación haya sido ejecutado ni que sus reglas de negocio funcionen.
-2. **Confundir el tracker con el motor de medición.** El subsistema `oracle tarea` es un gestor documental local en Git. Es completamente optativo: no hace falta inicializar tareas ni escribir bitácoras para formular medidas sobre un producto.
+2. **Confundir el tracker con el motor de medición.** El tracker de tareas (el paquete aparte [trackertast](https://github.com/Segtem/trackertast), comando `tasks`) es un gestor documental local en Git. Es completamente optativo: no hace falta inicializar tareas ni escribir bitácoras para formular medidas sobre un producto.
 
 Este documento presenta la **ruta mínima de primer valor**:
 1. Elegir una regla concreta del producto.
@@ -267,8 +267,8 @@ La corrida pasa limpiamente y el reporte final imprime de forma transparente el 
   2. **Se necesita explicitar el punto ciego:** Un `assert` que pasa produce silencio; una medida de Oracle que pasa concluye enumerando su `alcance` (lo que no puede garantizar).
   3. **Auditoría de artefactos en caja negra:** Querés evaluar la validez de los datos producidos por un proceso sin acoplarte a cómo está implementado el generador por dentro.
 
-### El tracker es una herramienta independiente
+### El tracker es un paquete aparte
 
-La gestión de tareas (`oracle tarea init`, `oracle tarea nueva`, etc.) no es un requisito previo para usar medidas ni para juzgar hechos. Podés medir cualquier producto sin inicializar `tareas/`.
+La gestión de tareas (`tasks init`, `tasks new`, etc., del paquete aparte trackertast) no es un requisito previo para usar medidas ni para juzgar hechos. Podés medir cualquier producto sin inicializar `tareas/`.
 
 El tutorial completo es una opción para profundizar; el tracker y ese tutorial son independientes de este recorrido.

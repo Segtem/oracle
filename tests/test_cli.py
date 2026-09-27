@@ -7,6 +7,7 @@ import json
 import os
 import subprocess
 import sys
+import types
 import tempfile
 import unittest
 from contextlib import redirect_stderr, redirect_stdout
@@ -1126,13 +1127,32 @@ class BibliotecaInstaladas(CliTestCase):
         self.assertIn("DESCUBRIMIENTO INVÁLIDO", err.getvalue())
 
 
+class TareaMudadaTests(CliTestCase):
+    """`oracle tarea` se mudó a trackertast (comando `tasks`) y queda como alias por un tiempo."""
+
+    def test_sin_trackertast_dice_como_instalarlo(self) -> None:
+        with mock.patch.dict(sys.modules, {"trackertast": None}):
+            rc, _ = self._callado(cli.main, ["tarea", "listar"])
+        self.assertEqual(rc, 1)
+
+    def test_con_trackertast_delega_sin_perder_argumentos(self) -> None:
+        recibido = []
+        falso_cli = types.SimpleNamespace(main=lambda argv: recibido.append(argv) or 0)
+        paquete = types.ModuleType("trackertast")
+        paquete.cli = falso_cli
+        with mock.patch.dict(sys.modules, {"trackertast": paquete, "trackertast.cli": falso_cli}):
+            rc, _ = self._callado(cli.main, ["--proyecto", "p", "tarea", "nueva", "tarea"])
+        self.assertEqual(rc, 0)
+        # Sólo se quita el sustantivo: un título que dice «tarea» llega entero.
+        self.assertEqual(recibido, [["--proyecto", "p", "nueva", "tarea"]])
+
+
 class NounVerbCliTests(CliTestCase):
     def test_ayudas_de_sustantivos_devuelven_cero(self) -> None:
         for sust, verbos in (
             ("medida", ("nueva", "revisar", "listar", "expandir")),
             ("caso", ("nuevo", "listar")),
             ("proyecto", ("init", "test", "relaciones", "escalares")),
-            ("tarea", ("init", "nueva", "listar", "ver", "cerrar", "reabrir", "revisar")),
         ):
             rc, salida = self._callado(cli.main, [sust])
             self.assertEqual(rc, 0)
