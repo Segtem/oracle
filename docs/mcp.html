@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>El servidor MCP — Oracle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&family=JetBrains+Mono:wght@400;600&family=Silkscreen&display=swap">
+<link rel="stylesheet" href="./assets/sitio.css">
+<link rel="icon" href="./assets/emblema.svg" type="image/svg+xml">
+</head>
+<body class="doc">
+<a class="saltar" href="#contenido">Saltar al contenido</a>
+<header class="barra">
+  <a class="marca" href="./"><img src="./assets/emblema.svg" alt="" width="28" height="28"> oracle</a>
+  <nav aria-label="Principal">
+    <a href="./por-que.html">Por qué</a>
+    <a href="./documentacion.html">Documentación</a>
+    <a href="./manual.html">Manual</a>
+    <a href="https://github.com/Segtem/oracle" rel="noopener">GitHub</a>
+  </nav>
+</header>
+<div class="doc-rejilla">
+  <details class="menu" open>
+    <summary>Documentación</summary>
+    <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="mcp.html" aria-current=page>El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
+  </details>
+  <main id="contenido" class="prosa">
+<h1 id="el-servidor-mcp">El servidor MCP<a class="ancla" href="#el-servidor-mcp" aria-label="Enlace a esta sección">#</a></h1>
+<p>Un agente de programación puede consultar a Oracle por <a href="https://modelcontextprotocol.io" rel="noopener">Model Context Protocol</a>: qué reglas aplican, qué dice una medida sobre estos hechos, qué parte de una medida candidata todavía no está fijada y cuál es el veredicto del catálogo entero. El servidor es el paquete aparte <a href="https://github.com/Segtem/oracle-mcp" rel="noopener"><strong>oracle-mcp</strong></a>, que desde Oracle 0.34.0 ya no viene dentro de <code>oracle-metalenguaje</code>.</p>
+<h2 id="sólo-lectura-y-por-qué">Sólo lectura, y por qué<a class="ancla" href="#sólo-lectura-y-por-qué" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las cinco herramientas son de <strong>sólo lectura</strong>. No es prudencia genérica: los falsos verdes que un agente comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente fabricó parece una aprobación sin serlo. El proyecto se fija al arrancar el servidor, y <code>--confiar-escalares</code> sólo se concede ahí: ninguna llamada puede ampliar esa autoridad.</p>
+<h2 id="instalación">Instalación<a class="ancla" href="#instalación" aria-label="Enlace a esta sección">#</a></h2>
+<pre data-lenguaje="bash"><code>uv tool install oracle-mcp</code></pre>
+<p>Trae la versión de Oracle con la que se probó, fijada con <code>==</code>: el servidor usa API interna de Oracle, y una versión distinta podría romperlo sin avisar.</p>
+<h2 id="configurarlo-en-un-cliente">Configurarlo en un cliente<a class="ancla" href="#configurarlo-en-un-cliente" aria-label="Enlace a esta sección">#</a></h2>
+<p>El servidor habla por stdio. Se le dice qué proyecto mirar con <code>--proyecto &lt;ruta&gt;</code>.</p>
+<p><strong>Claude Code</strong>, desde la raíz del proyecto:</p>
+<pre data-lenguaje="bash"><code>claude mcp add oracle -- oracle-mcp --proyecto .</code></pre>
+<p><strong>Codex</strong>, en <code>~/.codex/config.toml</code>:</p>
+<pre data-lenguaje="toml"><code>[mcp_servers.oracle]
+command = &quot;oracle-mcp&quot;
+args = [&quot;--proyecto&quot;, &quot;/ruta/al/proyecto&quot;]</code></pre>
+<h2 id="las-herramientas">Las herramientas<a class="ancla" href="#las-herramientas" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th>herramienta</th><th>responde</th></tr></thead><tbody><tr><td><code>oracle_effective_catalog</code></td><td>qué medidas obligan a este proyecto, y por qué</td></tr><tr><td><code>oracle_evaluate</code></td><td>qué hace una medida —por id o escrita en la llamada, en superficie— con una evidencia: verde, rojo o sin evidencia, testigos y, si está en sombra, si la sombra la perdona</td></tr><tr><td><code>oracle_challenge</code></td><td>qué parte de una medida candidata todavía no está fijada: las dos polaridades y sus mutantes, sin guardar nada</td></tr><tr><td><code>oracle_judge</code></td><td>lo mismo que <code>oracle juzgar</code>: una evidencia contra el catálogo efectivo, con sombras, cotas y las medidas que no se aplicaron</td></tr><tr><td><code>oracle_tasks</code></td><td>el tracker de tareas del proyecto (<a href="https://github.com/Segtem/trackertast" rel="noopener">trackertast</a>): listar, ver, buscar y hechos</td></tr></tbody></table></div>
+<p>Una medida escrita en la llamada se recibe sólo en superficie <code>.oracle</code> y en la forma única, igual que en un archivo. Hasta Oracle 0.33.0 las herramientas se llamaban en español (<code>oracle_evaluar</code>, <code>oracle_juzgar</code>, …); desde oracle-mcp 0.1.0 se llaman en inglés.</p>
+<p>El contrato completo —esquemas de entrada y salida, errores tipados, huellas y garantías de transporte— está en <a href="https://github.com/Segtem/oracle-mcp/blob/main/docs/contract.md" rel="noopener">el repositorio de oracle-mcp</a>.</p>
+    <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/mcp.md" rel="noopener">docs/mcp.md</a>.</p>
+  </main>
+  <aside class="en-esta-pagina" aria-label="En esta página">
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#sólo-lectura-y-por-qué">Sólo lectura, y por qué</a></li><li class="n2"><a href="#instalación">Instalación</a></li><li class="n2"><a href="#configurarlo-en-un-cliente">Configurarlo en un cliente</a></li><li class="n2"><a href="#las-herramientas">Las herramientas</a></li></ul>
+  </aside>
+</div>
+<script>
+if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
+document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {
+  const b = document.createElement("button");
+  b.type = "button"; b.className = "copiar"; b.textContent = "Copiar";
+  b.addEventListener("click", () => {
+    navigator.clipboard.writeText(pre.querySelector("code").innerText)
+      .then(() => { b.textContent = "Copiado"; setTimeout(() => { b.textContent = "Copiar"; }, 1500); })
+      .catch(() => { const r = document.createRange(); r.selectNodeContents(pre); const s = getSelection(); s.removeAllRanges(); s.addRange(r); });
+  });
+  pre.append(b);
+});
+</script>
+</body>
+</html>
