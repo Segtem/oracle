@@ -1,6 +1,6 @@
 # Separar el tracker (Segtem/trackertast) y el MCP (Segtem/oracle-mcp) del paquete de Oracle
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle
 
@@ -15,3 +15,7 @@
 ### Nota (2026-09-27 16:49:49 UTC)
 
 2026-09-27, Claude: publicados trackertast 0.1.0, Oracle 0.34.0 y oracle-mcp 0.1.0 (sha256 verificados en PyPI; CI verde en los tres). Herramienta global oracle en 0.34.0 con trackertast al lado (el alias oracle tarea funciona). PENDIENTE: (1) subir Jam, LyraGASP y commander a 0.34.0 — medidos con 0.34.0 antes de tocar el pin: Jam VERDE 28/4/3, diferencial 1099, 448/448; LyraGASP VERDE 78/116, 580, 487/487; commander igual (sin medidas) — y cambiar oracle tarea por tasks en Jam CLAUDE.md y AGENTS.md, LyraGASP CLAUDE.md, commander README.md y vault-kb/README.md; (2) tarea para la web de trackertast (oracle-mcp se documenta en la web de Oracle); (3) cerrar esta tarea y alcance-paquete.
+
+### Nota (2026-09-27 18:30:58 UTC)
+
+2026-09-27, Claude: cerrada. Publicados trackertast 0.1.0, oracle-metalenguaje 0.34.0 y oracle-mcp 0.1.0 (sha256 verificados, CI verde en los tres). Consumidores en 0.34.0, medidos antes: Jam VERDE 28/4/3, diferencial 1099, 448/448, suite 1241 (f100628); LyraGASP VERDE 78/116, 580, 487/487, suite 151 (b5cb3eb); commander con oracle-metalenguaje 0.34.0 y trackertast 0.1.0 en su .venv (ab80bca). Sus docs dicen tasks en lugar de oracle tarea. La web de trackertast quedó como tarea en su propio tracker (~/Dev/trackertast/tareas, web); la de oracle-mcp se documenta en Oracle (docs/mcp.md, tarea web-mcp, cerrada). Repos locales: ~/Dev/trackertast y ~/Dev/oracle-mcp.
