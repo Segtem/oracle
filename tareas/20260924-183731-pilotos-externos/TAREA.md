@@ -38,3 +38,6 @@ afuera, la batalla naval hecha por agy, terminó en un verde que no medía nada.
 
 Brian: revisar el borrador en [PROTOCOLO.md](PROTOCOLO.md) y conseguir a las personas (o preparar los agentes/operadores externos) para llevar adelante los 2 o 3 pilotos en los dominios no lúdicos propuestos; luego coordinar la ejecución del primer piloto bajo el protocolo de observación no guiada.
 
+### Nota (2026-09-27 12:41:15 UTC)
+
+2026-09-27, Brian: hay un proyecto ajeno que usa Oracle: AJENO (Rocco Anzisi, MIT), juego de sigilo en Godot 4.7, copia en /home/workstation/Dev/tmp/ajeno-main. Medido: fija oracle-metalenguaje==0.25.2 en herramientas/requisitos.txt; medir.py arma .oracle-venv, corre el sensor (godot --headless -- --oracle) y juzga con Motor; medir.py --test corre oracle test. 22 medidas y 119 archivos de autoría en JSON (catalogo_base false). No usa tracker ni MCP. Es la primera evidencia de uso por alguien que no es el autor; falta saber cuánto le costó llegar al primer rojo (preguntarle) y probar su catálogo con 0.32.0 (JSON sigue cargando; convertir lo pasaría a superficie).
