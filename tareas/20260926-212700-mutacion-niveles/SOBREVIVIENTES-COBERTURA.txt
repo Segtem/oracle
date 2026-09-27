@@ -1,0 +1,29 @@
+VIVO tools/ejecutar_suite_mutacion.py:32:19:booleano booleano: and ↔ or
+VIVO tools/ejecutar_suite_mutacion.py:32:19:comparador comparador: NotIn → In
+VIVO tools/ejecutar_suite_mutacion.py:32:46:comparador comparador: NotIn → In
+VIVO tools/ejecutar_suite_mutacion.py:32:72:comparador comparador: NotIn → In
+VIVO tools/ejecutar_suite_mutacion.py:39:33:booleano booleano: and ↔ or
+VIVO tools/ejecutar_suite_mutacion.py:51:19:booleano booleano: and ↔ or
+VIVO tools/ejecutar_suite_mutacion.py:51:19:comparador comparador: IsNot → Is
+VIVO tools/ejecutar_suite_mutacion.py:51:39:comparador comparador: IsNot → Is
+VIVO tools/ejecutar_suite_mutacion.py:52:102:constante constante: 0 → 1
+TIEMPO tools/ejecutar_suite_mutacion.py:51:56:constante constante: 0 → 1
+TIEMPO tools/ejecutar_suite_mutacion.py:56:16:retorno retorno: return <algo> → return None
+TIEMPO tools/ejecutar_suite_mutacion.py:61:19:comparador comparador: Eq → NotEq
+VIVO tools/ejecutar_suite_mutacion.py:63:23:booleano booleano: and ↔ or
+VIVO tools/ejecutar_suite_mutacion.py:63:23:comparador comparador: In → NotIn
+VIVO tools/ejecutar_suite_mutacion.py:63:59:comparador comparador: IsNot → Is
+VIVO tools/ejecutar_suite_mutacion.py:65:109:constante constante: 0 → 1
+VIVO tools/ejecutar_suite_mutacion.py:63:76:constante constante: 0 → 1
+VIVO tools/ejecutar_suite_mutacion.py:66:16:retorno retorno: return <algo> → return None
+VIVO tools/ejecutar_suite_mutacion.py:73:56:constante constante: 0 → 1
+VIVO tools/ejecutar_suite_mutacion.py:86:8:retorno retorno: return <algo> → return None
+VIVO tools/ejecutar_suite_mutacion.py:81:25:constante constante: 0 → 1
+VIVO tools/ejecutar_suite_mutacion.py:92:34:constante constante: True → False
+VIVO tools/ejecutar_suite_mutacion.py:92:49:constante constante: True → False
+VIVO tools/ejecutar_suite_mutacion.py:93:61:constante constante: 1 → 2
+VIVO tools/ejecutar_suite_mutacion.py:93:77:constante constante: False → True
+VIVO tools/ejecutar_suite_mutacion.py:126:12:retorno retorno: return <algo> → return None
+VIVO tools/ejecutar_suite_mutacion.py:130:8:retorno retorno: return <algo> → return None
+VIVO tools/ejecutar_suite_mutacion.py:130:41:constante constante: 1 → 2
+VIVO tools/ejecutar_suite_mutacion.py:195:11:booleano booleano: and ↔ or

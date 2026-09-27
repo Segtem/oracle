@@ -136,6 +136,22 @@ class MotorDesdeTextoTests(unittest.TestCase):
         informe = motor.evaluar({"item": []})
         self.assertTrue(informe.ok)
 
+    def test_la_macro_se_declara_antes_aunque_venga_despues_y_con_un_comentario_arriba(self):
+        # Mutación: sin ordenar las macros primero, o sin saltear las líneas # al reconocer un
+        # defmacro, la medida se leía antes que su macro y no cargaba.
+        macro_texto = (
+            "# una macro propia\n"
+            "defmacro mi_ninguno(id, relacion, alias, alcance):\n"
+            "    medida $id:\n"
+            "        de $relacion $alias\n"
+            "        resumen contar(1)\n"
+            '        umbral <= 0 porque "ninguno"\n'
+            "        alcance $alcance\n"
+        )
+        medida_texto = "mi_ninguno demo.custom:\n    de item i\n    alcance \"solo item\"\n"
+        motor = Motor.desde_texto([medida_texto, macro_texto])
+        self.assertEqual([m.id for m in motor.medidas], ["demo.custom"])
+
     def test_validaciones_de_entrada(self):
         with self.assertRaisesRegex(ErrorDeMotor, "iterable de cadenas"):
             Motor.desde_texto(MEDIDA_CANONICA)

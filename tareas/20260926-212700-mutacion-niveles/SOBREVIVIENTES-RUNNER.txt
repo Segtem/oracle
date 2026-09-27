@@ -1,0 +1,30 @@
+VIVO perfiles/python/mutacion_codigo.py:611:11:comparador comparador: Lt → LtE
+VIVO perfiles/python/mutacion_codigo.py:611:17:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:603:11:comparador comparador: In → NotIn
+VIVO perfiles/python/mutacion_codigo.py:612:53:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:613:19:constante constante: 0 → 1
+VIVO perfiles/python/mutacion_codigo.py:941:28:negacion negacion: se borra el `not`
+VIVO perfiles/python/mutacion_codigo.py:956:76:comparador comparador: In → NotIn
+VIVO perfiles/python/mutacion_codigo.py:959:11:comparador comparador: Eq → NotEq
+VIVO perfiles/python/mutacion_codigo.py:959:60:constante constante: 0 → 1
+VIVO perfiles/python/mutacion_codigo.py:962:28:comparador comparador: In → NotIn
+VIVO perfiles/python/mutacion_codigo.py:975:23:constante constante: 0 → 1
+VIVO perfiles/python/mutacion_codigo.py:990:35:booleano booleano: and ↔ or
+VIVO perfiles/python/mutacion_codigo.py:1029:41:comparador comparador: In → NotIn
+VIVO perfiles/python/mutacion_codigo.py:1036:15:booleano booleano: and ↔ or
+VIVO perfiles/python/mutacion_codigo.py:1051:39:negacion negacion: se borra el `not`
+VIVO perfiles/python/mutacion_codigo.py:1066:26:constante constante: False → True
+VIVO perfiles/python/mutacion_codigo.py:1080:30:constante constante: False → True
+VIVO perfiles/python/mutacion_codigo.py:1095:40:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:1094:33:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:1202:29:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:1128:7:booleano booleano: and ↔ or
+VIVO perfiles/python/mutacion_codigo.py:1200:75:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:1201:11:comparador comparador: Lt → LtE
+VIVO perfiles/python/mutacion_codigo.py:1201:28:constante constante: 1 → 2
+VIVO perfiles/python/mutacion_codigo.py:1230:44:constante constante: True → False
+VIVO perfiles/python/mutacion_codigo.py:1221:15:comparador comparador: Is → IsNot
+TIEMPO perfiles/python/mutacion_codigo.py:1236:15:booleano booleano: and ↔ or
+TIEMPO perfiles/python/mutacion_codigo.py:1236:15:comparador comparador: Is → IsNot
+VIVO perfiles/python/mutacion_codigo.py:1272:47:booleano booleano: and ↔ or
+VIVO perfiles/python/mutacion_codigo.py:1441:4:retorno retorno: return <algo> → return None
