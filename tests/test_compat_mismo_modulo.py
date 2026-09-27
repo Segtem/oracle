@@ -54,6 +54,29 @@ class MismoModuloTests(unittest.TestCase):
     def test_el_nombre_largo_antes_del_corto_da_el_mismo_modulo(self):
         self.assertEqual(self.importar("externo", "interno"), ["True", "True"])
 
+    def test_dos_nombres_tienen_cada_uno_su_buscador_y_uno_solo(self):
+        # Mutación: con la guarda contra duplicados invertida, el segundo nombre se quedaba sin
+        # buscador; con `or`, volver a llamar a cargar_interno instalaba otro igual.
+        (self.raiz / "falso/otro").mkdir()
+        (self.raiz / "falso/otro/__init__.py").write_text("")
+        (self.raiz / "falso/otro/hijo.py").write_text("class Clase:\n    pass\n")
+        (self.raiz / "falso/__init__.py").write_text(
+            "from ._compat import cargar_interno\n"
+            "cargar_interno('nucleo', __name__)\ncargar_interno('otro', __name__)\n"
+            "cargar_interno('nucleo', __name__)  # dos veces el mismo: no suma otro buscador\n")
+        prueba = textwrap.dedent("""
+            import importlib, sys
+            import falso
+            from falso._compat import _MismoModulo
+            import otro.hijo as corto
+            import falso.otro.hijo as largo
+            cuenta = sorted(b.namespaced for b in sys.meta_path if isinstance(b, _MismoModulo))
+            print(corto is largo, cuenta)
+        """)
+        salida = subprocess.run([sys.executable, "-B", "-c", prueba], cwd=self.raiz,
+                                capture_output=True, text=True, timeout=60)
+        self.assertEqual(salida.stdout.strip(), "True ['falso.nucleo', 'falso.otro']", salida.stderr)
+
     def test_un_nombre_corto_ajeno_no_se_toca(self):
         # Si `nucleo` en sys.modules no es el de Oracle, el buscador se hace a un lado.
         from unittest import mock

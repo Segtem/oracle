@@ -148,5 +148,11 @@
   "linea_texto": "return CoberturaRunner(verbosity=1, failfast=True).run(suite)",
   "ordinal": 1,
   "razon": "En `tools/ejecutar_suite_mutacion.py`, `failfast=True` → `failfast=False` en el runner que recolecta cobertura. Ese runner sólo existe con `--guardar-cobertura`, que el arnés pasa únicamente en la línea base, y la línea base tiene que pasar entera. `failfast` sólo cambia algo cuando un test falla, y en ese caso la línea base no es verde lo mismo: la ronda se declara no confiable en los dos casos. La diferencia es sólo cuánto tarda en enterarse. Se conserva `failfast=True` porque una línea base rota se informa antes."
+ },
+ {
+  "id": "oracle_metalenguaje/_compat.py:56:29:constante",
+  "linea_texto": "sys.meta_path.insert(0, _MismoModulo(paquete, nombre))",
+  "ordinal": 1,
+  "razon": "En `oracle_metalenguaje/_compat.py`, `sys.meta_path.insert(0, …)` → `insert(1, …)`. Lo que importa es que el buscador `_MismoModulo` quede ANTES del `PathFinder`, que es el que cargaría la segunda copia del módulo. En CPython `sys.meta_path` arranca con BuiltinImporter, FrozenImporter y PathFinder, en ese orden: en la posición 0 o en la 1, el buscador queda antes del PathFinder, y ningún nombre `paquete.nucleo.X` lo resuelven los dos primeros (no son módulos incorporados ni congelados). No hay orden de importación observable que distinga las dos posiciones."
  }
 ]

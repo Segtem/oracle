@@ -211,7 +211,11 @@ class RondaSinConstruccion(unittest.TestCase):
         self.assertTrue(any("from tools.referencias import VALOR" in " ".join(a) for a in comandos))
         self.assertTrue(any("motor_b" in " ".join(a) and "motor_empaquetado" in " ".join(a) for a in comandos))
         self.assertTrue(any("--help" in a for a in comandos))
-        self.assertTrue(any(a[0].endswith("/bin/python") for a in comandos))
+        # El pip del entorno propio, no cualquier «…/bin/python»: en el runner de CI el intérprete
+        # del sistema también termina así, y la aserción pasaba con la plataforma invertida.
+        pip = [a for a in comandos if a[1:4] == ["-m", "pip", "install"] and "--target" not in a]
+        self.assertTrue(pip)
+        self.assertTrue(all(a[0].endswith("entorno/bin/python") for a in pip), pip)
         self.assertTrue(all(a[0].find("/bin/") >= 0 for a in comandos if "--help" in a))
         self.assertTrue(any("--rapido" in a for a in comandos))
         self.assertTrue(any(env.get("PYTHONPATH", "").endswith("vendorizado")

@@ -214,5 +214,6 @@ jobs:
       # la línea base de los 36 objetivos se cortó por timeout. 300 deja margen medido, no a ojo.
       # --timeout-base: desde 0.34.0 la línea base corre la suite entera CON rastreo de cobertura
       # (para elegir los tests de cada mutante), y en el runner de GitHub eso pasa de 300 s.
-      # El plazo por mutante sigue en 300.
-      - run: python tools/mutar_codigo.py --objetivo "${{ matrix.objetivo }}" --timeout 300 --timeout-base 1200
+      # El plazo por mutante es 600: el runner es cerca del doble de lento que una máquina local,
+      # y la confirmación de un sobreviviente corre la suite entera (aceptacion.py salía TIEMPO).
+      - run: python tools/mutar_codigo.py --objetivo "${{ matrix.objetivo }}" --timeout 600 --timeout-base 1200
