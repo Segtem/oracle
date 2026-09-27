@@ -1,6 +1,10 @@
 # Políticas optativas para el tracker
 
-Este proyecto de ejemplo consume `oracle tarea hechos`. Usa el álgebra y las macros existentes;
+> El tracker es desde Oracle 0.34.0 el paquete aparte [trackertast](https://github.com/Segtem/trackertast),
+> y este ejemplo vive completo allá, con el flujo de cierre (`cierre_medidas.py`). Acá queda como
+> ejemplo de un proyecto Oracle que juzga hechos de otra herramienta, y lo usan los tests de `juzgar`.
+
+Este proyecto de ejemplo consume `tasks facts` (los hechos que emite el tracker). Usa el álgebra y las macros existentes;
 no instala políticas universales ni cambia qué se exige para cerrar una tarea. Sus casos son
 construidos para fijar decisiones del ejemplo; no describen material personal observado.
 
@@ -14,10 +18,10 @@ alcance y defensa propios:
 - `lectura_sin_omisiones`: requiere una lectura que no declare omisiones del formato soportado.
   Conviene combinarla con la de referencias para no confundir un análisis parcial con uno completo.
 
-Con Oracle instalado, desde la raíz del checkout:
+Con trackertast y Oracle instalados, desde la raíz del checkout:
 
 ```bash
-oracle tarea hechos --proyecto /ruta/al/proyecto --git > /tmp/hechos-tareas.json
+tasks facts --proyecto /ruta/al/proyecto --git > /tmp/hechos-tareas.json
 oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json
 ```
 
@@ -33,8 +37,8 @@ oracle juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.jso
   --medida seguimiento.referencias_locales_presentes --medida seguimiento.lectura_sin_omisiones
 ```
 
-Sin instalar, desde el checkout, los mismos verbos corren con `python3 -B tools/cli.py`. Hasta 0.17.0
-esto lo hacía un script de este ejemplo, `evaluar.py`; `oracle juzgar` lo reemplaza desde 0.18.0.
+Sin instalar los comandos, los mismos verbos corren con `python3 -m trackertast.cli` y
+`python3 -m oracle_metalenguaje.tools.cli`.
 
 Para adoptar estas políticas, copiar sólo las medidas y declaraciones de relaciones deseadas a
 `catalogos/` y `relaciones/` del proyecto, revisando antes sus alcances. No se activan por importar
@@ -73,7 +77,8 @@ python3 -B ejemplo/seguimiento-tareas/cierre_medidas.py \
   --tracker /ruta/al/dominio
 ```
 
-Para usar una instalación, agregar `--oracle oracle` al final. Al copiar el flujo,
+El flujo llama a Oracle y al tracker por sus paquetes instalados; `--oracle` y `--tasks`
+cambian el comando de cada uno. Al copiar el flujo,
 copiar también la política y sus tres declaraciones de relaciones, o indicar
 `--politicas /ruta/al/catalogo-de-seguimiento`. `--git` agrega el diagnóstico Git.
 La evidencia del dominio debe corresponder al estado que se quiere aceptar: el
