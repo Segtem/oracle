@@ -1,6 +1,6 @@
 # Mutación por niveles: --bajo, --medio, --alto, --muy-alto, con paralelismo y selección de tests
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: 
 
