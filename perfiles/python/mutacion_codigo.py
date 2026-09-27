@@ -44,6 +44,7 @@ import io
 import json
 import math
 import os
+import queue
 import shutil
 import signal
 import subprocess
@@ -594,11 +595,33 @@ def correr_tests(comando: list[str], raiz: Path,
     return ejecutar_tests(comando, raiz, timeout=timeout).pasaron
 
 
+def _comando_para_tests_seleccionados(comando: list[str], copia: Path, tests_seleccionados: list[str]) -> list[str] | None:
+    if not tests_seleccionados:
+        return None
+    runner = None
+    for arg in comando:
+        if "ejecutar_suite_mutacion.py" in str(arg):
+            runner = str(arg)
+            break
+    if runner is None:
+        return None
+    inicio_args = []
+    if "--inicio" in comando:
+        idx = comando.index("--inicio")
+        if idx + 1 < len(comando):
+            inicio_args = ["--inicio", comando[idx + 1]]
+    cmd = [comando[0], runner, "--tope", str(copia), "--solo-prioridad"] + inicio_args
+    for t in tests_seleccionados:
+        cmd.extend(("--prioridad", str(t)))
+    return cmd
+
+
 def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
                     codigos_fallo_tests, etapa: str,
                     permitir_cache_preexistente: bool = False,
                     limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
-                    limite_memoria: int | None = None) -> ResultadoTests:
+                    limite_memoria: int | None = None,
+                    entorno_extra: dict[str, str] | None = None) -> ResultadoTests:
     """Ejecuta una ronda entre dos fronteras comprobadas de caché frío.
 
     `PYTHONPYCACHEPREFIX` apunta a un directorio temporal fresco para que CPython tampoco lea un pyc
@@ -623,6 +646,8 @@ def _ejecutar_ronda(comando: list[str], raiz: Path, *, timeout: float,
             entorno = os.environ.copy()
             entorno["PYTHONPYCACHEPREFIX"] = prefijo
             entorno["PYTHONDONTWRITEBYTECODE"] = "1"
+            if entorno_extra:
+                entorno.update(entorno_extra)
             resultado = ejecutar_tests(
                 comando, raiz, timeout=timeout,
                 codigos_fallo_tests=codigos_fallo_tests, entorno=entorno,
@@ -896,7 +921,9 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
                      limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
                      limite_memoria: int | None = LIMITE_MEMORIA_PREDETERMINADO,
                      filas_previas: list[dict] | None = None,
-                     filtro_sitios=None) -> dict:
+                     filtro_sitios=None,
+                     mapa_cobertura: dict | None = None,
+                     comando_seleccion=None) -> dict:
     """Genera y prueba todos los mutantes. Devuelve EVIDENCIA, no un informe.
 
     Restaura siempre el archivo original, incluso si el subproceso revienta: el `finally` es lo único
@@ -932,6 +959,8 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
         if sum(len(s) for s in sitios_por_ruta.values()) == 0:
             raise ValueError("el filtro de sitios no seleccionó ningún sitio")
 
+    es_suite_mutacion = any("ejecutar_suite_mutacion.py" in str(arg) for arg in comando)
+
     baseline = _ejecutar_ronda(
         comando, raiz, timeout=timeout_por_ejecucion if timeout_base is None else timeout_base,
         codigos_fallo_tests=codigos_fallo_tests, etapa="la línea base",
@@ -955,12 +984,33 @@ def _correr_en_raiz(raiz: Path, objetivos: list[Path], comando: list[str],
             mutado = mutar_fuente(original, sitio)
             if mutado is None:
                 continue
+            resultado = None
+            tests_del_sitio = None
+            if mapa_cobertura:
+                tests_del_sitio = (mapa_cobertura.get(sitio.archivo, {}).get(str(sitio.linea)) or
+                                   mapa_cobertura.get(sitio.archivo, {}).get(sitio.linea))
             try:
                 _escribir_atomico(ruta, mutado)
-                resultado = _ejecutar_ronda(
-                    comando, raiz, timeout=timeout_por_ejecucion,
-                    codigos_fallo_tests=codigos_fallo_tests, etapa=f"el mutante {sitio.id}",
-                    limite_salida=limite_salida, limite_memoria=limite_memoria)
+                if tests_del_sitio:
+                    if callable(comando_seleccion):
+                        cmd_sel = comando_seleccion(tests_del_sitio, raiz)
+                    elif es_suite_mutacion:
+                        cmd_sel = _comando_para_tests_seleccionados(comando, raiz, tests_del_sitio)
+                    else:
+                        cmd_sel = None
+                    if cmd_sel:
+                        res_sel = _ejecutar_ronda(
+                            cmd_sel, raiz, timeout=timeout_por_ejecucion,
+                            codigos_fallo_tests=codigos_fallo_tests,
+                            etapa=f"el mutante {sitio.id} (seleccion)",
+                            limite_salida=limite_salida, limite_memoria=limite_memoria)
+                        if res_sel.tests_fallaron:
+                            resultado = res_sel
+                if resultado is None:
+                    resultado = _ejecutar_ronda(
+                        comando, raiz, timeout=timeout_por_ejecucion,
+                        codigos_fallo_tests=codigos_fallo_tests, etapa=f"el mutante {sitio.id}",
+                        limite_salida=limite_salida, limite_memoria=limite_memoria)
             finally:
                 _escribir_atomico(ruta, original)
 
@@ -1070,8 +1120,13 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
            limite_memoria: int | None = LIMITE_MEMORIA_PREDETERMINADO,
            manifiesto: Path | None = None,
            reanudar: bool = False, dependencias: list[Path] | None = None,
-           filtro_sitios=None) -> dict:
+           filtro_sitios=None,
+           paralelo: int = 1,
+           mapa_cobertura: dict | None = None,
+           comando_seleccion=None) -> dict:
     """Muta exclusivamente una copia temporal y comprueba que los objetivos originales no cambien."""
+    if isinstance(paralelo, bool) or not isinstance(paralelo, int) or paralelo < 1:
+        raise ValueError("paralelo tiene que ser un entero positivo (>= 1)")
     limite_memoria = _normalizar_limite_memoria(limite_memoria)
     raiz = _resolver_existente(Path(raiz))
     objetivos = [Path(ruta) if Path(ruta).is_absolute() else raiz / ruta for ruta in objetivos]
@@ -1083,7 +1138,8 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                           - set(ruta.resolve() for ruta in objetivos))
     originales = {ruta.resolve(): ruta.read_bytes() for ruta in objetivos}
     equivalentes = equivalentes or {}
-    sitios = {sitio.id: sitio for ruta in objetivos for sitio in sitios_de(ruta, raiz)}
+    sitios_por_ruta_todos = {ruta: sitios_de(ruta, raiz) for ruta in objetivos}
+    sitios = {sitio.id: sitio for sitios_lista in sitios_por_ruta_todos.values() for sitio in sitios_lista}
     razones_invalidas = [mid for mid, razon in equivalentes.items()
                          if not isinstance(razon, str) or not razon.strip()]
     if razones_invalidas or not set(equivalentes) <= set(sitios):
@@ -1114,29 +1170,255 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
         if ruta_manifiesto:
             _escribir_manifiesto(ruta_manifiesto, datos_manifiesto)
 
-        def guardar(fila):
-            if ruta_manifiesto:
-                datos_manifiesto["completados"].append(fila)
-                datos_manifiesto["huella_completados"] = _huella_json(
-                    datos_manifiesto["completados"])
-                _escribir_manifiesto(ruta_manifiesto, datos_manifiesto)
-            if al_terminar_uno:
-                al_terminar_uno(fila)
+        candado_guardar = threading.Lock()
 
-        with tempfile.TemporaryDirectory(prefix="oracle-mutacion-") as temporal:
-            copia = Path(temporal) / "proyecto"
-            _copiar_proyecto(raiz, copia)
-            objetivos_copia = [copia / ruta.resolve().relative_to(raiz) for ruta in objetivos]
-            comando_copia = _comando_en_copia(comando, raiz, copia)
-            evidencia = _correr_en_raiz(
-                copia, objetivos_copia, comando_copia, equivalentes,
-                guardar if ruta_manifiesto or al_terminar_uno else None,
-                timeout_por_ejecucion=timeout_por_ejecucion, timeout_base=timeout_base,
-                codigos_fallo_tests=codigos_fallo_tests,
-                limite_diagnostico=limite_diagnostico, limite_salida=limite_salida,
-                limite_memoria=limite_memoria,
-                filas_previas=filas_previas,
-                filtro_sitios=filtro_sitios)
+        def guardar(fila):
+            with candado_guardar:
+                if ruta_manifiesto:
+                    datos_manifiesto["completados"].append(fila)
+                    datos_manifiesto["huella_completados"] = _huella_json(
+                        datos_manifiesto["completados"])
+                    _escribir_manifiesto(ruta_manifiesto, datos_manifiesto)
+                if al_terminar_uno:
+                    al_terminar_uno(fila)
+
+        completados = {fila["id"] for fila in filas_previas}
+        es_parcial = filtro_sitios is not None
+        total_sitios = sum(len(s) for s in sitios_por_ruta_todos.values())
+        if es_parcial:
+            criterio = filtro_sitios if callable(filtro_sitios) else (lambda s: s.id in filtro_sitios)
+            sitios_filtrados = {ruta: [s for s in s_lista if criterio(s)]
+                                for ruta, s_lista in sitios_por_ruta_todos.items()}
+            if sum(len(s) for s in sitios_filtrados.values()) == 0:
+                raise ValueError("el filtro de sitios no seleccionó ningún sitio")
+        else:
+            sitios_filtrados = sitios_por_ruta_todos
+
+        todos_sitios = [s for ruta in objetivos for s in sitios_filtrados[ruta]]
+        pendientes = [s for s in todos_sitios if s.id not in completados]
+
+        n_trabajadores = min(paralelo, len(pendientes)) if pendientes else 1
+        if n_trabajadores < 1:
+            n_trabajadores = 1
+
+        with tempfile.TemporaryDirectory(prefix="oracle-mutacion-") as temporal_base:
+            base_dir = Path(temporal_base)
+            slots = []
+            for k in range(n_trabajadores):
+                dir_k = base_dir / f"slot_{k}"
+                copia_k = dir_k / "proyecto"
+                tmpdir_k = dir_k / "tmp"
+                tmpdir_k.mkdir(parents=True)
+                _copiar_proyecto(raiz, copia_k)
+                objetivos_k = [copia_k / ruta.resolve().relative_to(raiz) for ruta in objetivos]
+                comando_k = _comando_en_copia(comando, raiz, copia_k)
+                slots.append((copia_k, tmpdir_k, objetivos_k, comando_k))
+
+            copia_0, tmpdir_0, objetivos_0, comando_0 = slots[0]
+            ruta_cobertura = base_dir / "cobertura.json"
+            es_suite_mutacion = any("ejecutar_suite_mutacion.py" in str(arg) for arg in comando_0)
+            comando_base = list(comando_0)
+            if mapa_cobertura is None and es_suite_mutacion:
+                comando_base.extend(["--guardar-cobertura", str(ruta_cobertura)])
+                for obj in objetivos_0:
+                    comando_base.extend(("--objetivo-cobertura", str(obj)))
+
+            baseline = _ejecutar_ronda(
+                comando_base, copia_0,
+                timeout=timeout_por_ejecucion if timeout_base is None else timeout_base,
+                codigos_fallo_tests=codigos_fallo_tests, etapa="la línea base",
+                permitir_cache_preexistente=True, limite_salida=limite_salida,
+                limite_memoria=limite_memoria, entorno_extra={"TMPDIR": str(tmpdir_0)})
+            baseline_verde = baseline.pasaron
+            if not baseline_verde:
+                raise LineaBaseFallida(baseline)
+
+            if mapa_cobertura is None and ruta_cobertura.exists():
+                try:
+                    mapa_cobertura = json.loads(ruta_cobertura.read_text(encoding="utf-8"))
+                except (OSError, json.JSONDecodeError):
+                    mapa_cobertura = None
+
+            cola: queue.Queue[Sitio] = queue.Queue()
+            for s in pendientes:
+                cola.put(s)
+
+            nuevas_filas: dict[str, tuple[dict, ResultadoTests]] = {}
+            guarda_resultados = threading.Lock()
+            error_hilo: list[Exception] = []
+
+            def trabajador(slot_idx: int):
+                copia_k, tmpdir_k, objetivos_k, comando_k = slots[slot_idx]
+                originales_k = {ruta: ruta.read_text(encoding="utf-8") for ruta in objetivos_k}
+                rutas_por_rel = {ruta.relative_to(copia_k).as_posix(): ruta for ruta in objetivos_k}
+                while True:
+                    try:
+                        sitio = cola.get_nowait()
+                    except queue.Empty:
+                        break
+                    if error_hilo:
+                        cola.task_done()
+                        break
+                    try:
+                        ruta_k = rutas_por_rel[sitio.archivo]
+                        original_k = originales_k[ruta_k]
+                        mutado = mutar_fuente(original_k, sitio)
+                        if mutado is None:
+                            cola.task_done()
+                            continue
+                        resultado = None
+                        tests_del_sitio = None
+                        if mapa_cobertura:
+                            tests_del_sitio = (mapa_cobertura.get(sitio.archivo, {}).get(str(sitio.linea)) or
+                                               mapa_cobertura.get(sitio.archivo, {}).get(sitio.linea))
+                        try:
+                            _escribir_atomico(ruta_k, mutado)
+                            if tests_del_sitio:
+                                if callable(comando_seleccion):
+                                    cmd_sel = comando_seleccion(tests_del_sitio, copia_k)
+                                elif es_suite_mutacion:
+                                    cmd_sel = _comando_para_tests_seleccionados(comando_k, copia_k, tests_del_sitio)
+                                else:
+                                    cmd_sel = None
+                                if cmd_sel:
+                                    res_sel = _ejecutar_ronda(
+                                        cmd_sel, copia_k, timeout=timeout_por_ejecucion,
+                                        codigos_fallo_tests=codigos_fallo_tests,
+                                        etapa=f"el mutante {sitio.id} (seleccion)",
+                                        limite_salida=limite_salida, limite_memoria=limite_memoria,
+                                        entorno_extra={"TMPDIR": str(tmpdir_k)})
+                                    if res_sel.tests_fallaron:
+                                        resultado = res_sel
+                            if resultado is None:
+                                resultado = _ejecutar_ronda(
+                                    comando_k, copia_k, timeout=timeout_por_ejecucion,
+                                    codigos_fallo_tests=codigos_fallo_tests,
+                                    etapa=f"el mutante {sitio.id}",
+                                    limite_salida=limite_salida, limite_memoria=limite_memoria,
+                                    entorno_extra={"TMPDIR": str(tmpdir_k)})
+                        finally:
+                            _escribir_atomico(ruta_k, original_k)
+
+                        murio = resultado.tests_fallaron
+                        fila = {
+                            "id": sitio.id,
+                            "apunta_a": sitio.archivo,
+                            "cambio": f"{sitio.operador}: {sitio.descripcion}",
+                            "tipo": "codigo",
+                            "murio": murio,
+                            "estado": resultado.estado.value,
+                            "tests_fallaron": resultado.tests_fallaron,
+                            "error_arnes": resultado.error_arnes,
+                            "timeout": resultado.timeout,
+                            "codigo_salida": resultado.codigo_salida,
+                            "equivalente_declarado": sitio.id in equivalentes,
+                            "razon_equivalente": equivalentes.get(sitio.id, ""),
+                        }
+                        with guarda_resultados:
+                            nuevas_filas[sitio.id] = (fila, resultado)
+                            guardar(fila)
+                            _comprobar_cierre_frio(copia_k)
+                    except Exception as e:
+                        with guarda_resultados:
+                            error_hilo.append(e)
+                    finally:
+                        cola.task_done()
+
+            hilos = [threading.Thread(target=trabajador, args=(k,)) for k in range(n_trabajadores)]
+            for h in hilos:
+                h.start()
+            for h in hilos:
+                h.join()
+
+            if error_hilo:
+                raise error_hilo[0]
+
+            ejecutados_ahora = len(nuevas_filas)
+            filas_por_id = {f["id"]: f for f in filas_previas}
+            for sid, (f, _) in nuevas_filas.items():
+                filas_por_id[sid] = f
+            filas = [filas_por_id[s.id] for s in todos_sitios if s.id in filas_por_id]
+
+            primer_fallo = None
+            primer_inconcluso = None
+            for s in todos_sitios:
+                if s.id in nuevas_filas:
+                    fila_s, res_s = nuevas_filas[s.id]
+                    if not res_s.pasaron and primer_fallo is None:
+                        primer_fallo = (s, res_s)
+                    if (res_s.error_arnes or res_s.timeout) and primer_inconcluso is None:
+                        primer_inconcluso = (s, res_s)
+
+            for copia_k, _, _, _ in slots:
+                _comprobar_cierre_frio(copia_k)
+                if not cache_esta_frio(copia_k):
+                    raise CacheNoLimpio("el árbol conserva bytecode después de la limpieza final")
+            bytecode_frio = True
+
+            publicadas = [{**f, "codigo_salida": _codigo(f["codigo_salida"])} for f in filas]
+            reales = [f for f in publicadas if not f["equivalente_declarado"]]
+            errores_arnes = sum(f["error_arnes"] for f in filas)
+            timeouts = sum(f["timeout"] for f in filas)
+            fallos_tests = sum(f["tests_fallaron"] for f in filas)
+
+            if primer_fallo:
+                sitio_fallo, resultado_fallo = primer_fallo
+                primer_fallo_salida, salida_truncada = _diagnostico(resultado_fallo, limite_diagnostico)
+                primer_fallo_id = sitio_fallo.id
+                primer_fallo_estado = resultado_fallo.estado.value
+                primer_fallo_codigo = _codigo(resultado_fallo.codigo_salida)
+            else:
+                primer_fallo_id = ""
+                primer_fallo_estado = ""
+                primer_fallo_codigo = SIN_CODIGO
+                primer_fallo_salida = ""
+                salida_truncada = False
+
+            if primer_inconcluso:
+                sitio_inconcluso, resultado_inconcluso = primer_inconcluso
+                inconcluso_salida, inconcluso_truncado = _diagnostico(
+                    resultado_inconcluso, limite_diagnostico)
+                primer_inconcluso_id = sitio_inconcluso.id
+                primer_inconcluso_estado = resultado_inconcluso.estado.value
+                primer_inconcluso_codigo = _codigo(resultado_inconcluso.codigo_salida)
+            else:
+                primer_inconcluso_id = ""
+                primer_inconcluso_estado = ""
+                primer_inconcluso_codigo = SIN_CODIGO
+                inconcluso_salida = ""
+                inconcluso_truncado = False
+
+            evidencia = {
+                "mutante": reales,
+                "mutante_equivalente": [f for f in publicadas if f["equivalente_declarado"]],
+                "corrida_mutacion": [{
+                    "id": "mutacion_de_codigo",
+                    "mutantes": len(reales),
+                    "baseline_verde": baseline_verde,
+                    "baseline_estado": baseline.estado.value,
+                    "bytecode_frio": bytecode_frio,
+                    "tests_fallaron": fallos_tests,
+                    "errores_arnes": errores_arnes,
+                    "timeouts": timeouts,
+                    "rondas_ejecutadas": 1 + ejecutados_ahora,
+                    "rondas_cache_verificadas": 1 + ejecutados_ahora,
+                    "mutantes_reutilizados": len(filas) - ejecutados_ahora,
+                    "primer_fallo_id": primer_fallo_id,
+                    "primer_fallo_estado": primer_fallo_estado,
+                    "primer_fallo_codigo_salida": primer_fallo_codigo,
+                    "primer_fallo_salida": primer_fallo_salida,
+                    "primer_fallo_salida_truncada": salida_truncada,
+                    "primer_inconcluso_id": primer_inconcluso_id,
+                    "primer_inconcluso_estado": primer_inconcluso_estado,
+                    "primer_inconcluso_codigo_salida": primer_inconcluso_codigo,
+                    "primer_inconcluso_salida": inconcluso_salida,
+                    "primer_inconcluso_salida_truncada": inconcluso_truncado,
+                    "parcial": es_parcial,
+                    "total_sitios": total_sitios,
+                    "aislada": True,
+                    "fuentes_originales_intactas": True,
+                }],
+            }
         if ruta_manifiesto:
             datos_manifiesto["estado"] = "completa"
             _escribir_manifiesto(ruta_manifiesto, datos_manifiesto)
@@ -1145,6 +1427,15 @@ def correr(raiz: Path, objetivos: list[Path], comando: list[str],
                  if not ruta.exists() or ruta.read_bytes() != contenido]
     if alterados:
         raise AislamientoRoto(f"cambiaron objetivos de la raíz original: {alterados}")
-    evidencia["corrida_mutacion"][0]["aislada"] = True
-    evidencia["corrida_mutacion"][0]["fuentes_originales_intactas"] = True
     return evidencia
+
+
+def construir_mapa_cobertura(raiz: Path, objetivos: list[Path],
+                            comando: list[str] | None = None) -> dict[str, dict[str, list[str]]]:
+    from tools.ejecutar_suite_mutacion import _RastreadorCobertura, _correr_suite
+    tope = Path(raiz).resolve()
+    rastreador = _RastreadorCobertura([str(o) for o in objetivos], tope)
+    cargador = unittest.TestLoader()
+    suite = cargador.discover(start_dir=str(tope / "tests"), top_level_dir=str(tope))
+    _correr_suite(suite, rastreador)
+    return rastreador.serializar()

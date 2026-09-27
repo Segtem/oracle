@@ -115,3 +115,19 @@ El script vuelve a escribir `baseline.log` y `baseline-memoria.json` en esa
 carpeta. Los tests de `LimiteMemoriaTests` fijan 1024 MiB tanto para el perfil
 como para el CLI y comprueban su propagación en bytes, además de mantener la
 cobertura del valor explícito, la desactivación con cero y `RLIMIT_AS` real.
+
+## Niveles de mutación y paralelismo (-j N)
+
+La mutación de código soporta dos ejes independientes:
+
+### Velocidad (paralelismo y selección de tests)
+- `-j N` / `--paralelo N`: ejecuta N mutantes simultáneamente, cada uno en una copia aislada del proyecto y con su propio `TMPDIR`. Por omisión usa `max(1, núcleos // 2)`. El tope `--limite-memoria-mb` aplica por proceso individual.
+- **Selección de tests**: durante la línea base se captura el mapa de cobertura línea→tests (`sys.monitoring` o `sys.settrace`). Para cada mutante se corren primero los tests que cubren su línea mutada; si alguno falla, el mutante muere sin ejecutar la suite completa. Si pasan o no hay tests mapeados, se corre la suite entera como confirmación. El resultado final por mutante es idéntico al secuencial.
+
+### Alcance (niveles)
+- `--bajo`: muta sitios en líneas modificadas contra `HEAD` (incluye cambios no commiteados; ronda parcial, sale con código 2).
+- `--medio`: muta sitios en líneas modificadas desde el último tag de Git (`git describe --tags --abbrev=0`; ronda parcial, sale con código 2).
+- `--alto`: muta los módulos completos del perfil que cambiaron desde el último tag (ronda completa, lo requerido para validar un release; sale con 0 si todos mueren).
+- `--muy-alto`: muta todo el perfil completo de código y herramientas custodias.
+
+Los cuatro niveles son mutuamente excluyentes entre sí y no admiten combinarse con `--lineas` ni `--sitio`. `--objetivo` sólo puede combinarse con `--bajo` o `--medio` para acotar los módulos a inspeccionar.

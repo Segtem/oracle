@@ -2,6 +2,11 @@
 
     python tools/mutar_codigo.py                 → informe
     python tools/mutar_codigo.py --hechos        → volcar la evidencia (JSON)
+    python tools/mutar_codigo.py -j 4            → paralelismo (por omisión núcleos // 2)
+    python tools/mutar_codigo.py --bajo          → líneas modificadas vs HEAD (parcial)
+    python tools/mutar_codigo.py --medio         → líneas modificadas vs último tag (parcial)
+    python tools/mutar_codigo.py --alto          → módulos enteros cambiados vs último tag
+    python tools/mutar_codigo.py --muy-alto      → todo el perfil completo
     python tools/mutar_codigo.py --timeout 90    → límite por ejecución de tests
     python tools/mutar_codigo.py --limite-memoria-mb 1024 → límite de memoria en MiB (0 desactiva)
     python tools/mutar_codigo.py --manifiesto progreso.json [--reanudar]
@@ -11,13 +16,13 @@
 Cada ronda copia el proyecto a un directorio temporal y sólo muta esa copia. Un bloqueo impide dos
 rondas sobre la misma raíz; timeout y señales terminan el grupo de procesos y limpian el aislamiento.
 
-Los modificadores `--lineas` y `--sitio` permiten enfocar la mutación en un rango de líneas o en
-sitios específicos para ciclos rápidos de desarrollo. Las rondas filtradas se marcan como parciales
-(`parcial: true`), no sustituyen a una corrida completa y las medidas de proceso concluyente las
-rechazan como evidencia de release.
+Los niveles `--bajo`, `--medio`, `--alto` y `--muy-alto` seleccionan el alcance de la mutación a partir
+del estado de Git. `--bajo` y `--medio` filtran sitios en líneas modificadas (ronda parcial, código 2).
+`--alto` muta módulos enteros que cambiaron desde el último tag (ronda completa). `--muy-alto` muta todo
+el perfil. Los niveles son mutuamente excluyentes entre sí y con `--lineas`/`--sitio`.
 
-Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Una ronda parcial —con `--lineas`
-o `--sitio`— es inconclusa aunque no sobreviva nadie: sale 2. Timeout, error del arnés y fallo de
+Sale 1 si algún mutante sobrevivió y 2 si la ronda fue inconclusa. Una ronda parcial —con `--lineas`,
+`--sitio`, `--bajo` o `--medio`— es inconclusa aunque no sobreviva nadie: sale 2. Timeout, error del arnés y fallo de
 tests son estados distintos; sólo el último demuestra que el mutante murió.
 """
 
@@ -25,6 +30,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
+import re
+import subprocess
 import sys
 from pathlib import Path
 
@@ -438,6 +446,79 @@ def dependencias_de_ronda() -> list[Path]:
 
 # El perfil define el tope en bytes; el CLI lo expresa en MiB.
 LIMITE_MEMORIA_MB_PREDETERMINADO = LIMITE_MEMORIA_PREDETERMINADO // (1024 * 1024)
+DEFAULT_PARALELO = max(1, (os.cpu_count() or 1) // 2)
+
+
+def _git(raiz: Path, *argumentos_git: str) -> subprocess.CompletedProcess:
+    entorno = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    entorno.update(LC_ALL="C", GIT_OPTIONAL_LOCKS="0", GIT_TERMINAL_PROMPT="0")
+    try:
+        return subprocess.run(
+            ["git", "--no-optional-locks", "-c", "core.fsmonitor=false",
+             "-c", "core.untrackedCache=false", "-C", str(raiz), *argumentos_git],
+            env=entorno, capture_output=True, timeout=30,
+        )
+    except FileNotFoundError as e:
+        raise ValueError("Git no está disponible en el sistema") from e
+    except subprocess.TimeoutExpired as e:
+        raise ValueError("el comando de Git excedió el tiempo límite de 30s") from e
+
+
+def ultimo_tag(raiz: Path = RAIZ) -> str:
+    res = _git(raiz, "describe", "--tags", "--abbrev=0")
+    if res.returncode != 0:
+        err = res.stderr.decode("utf-8", errors="replace").strip()
+        raise ValueError(f"no se pudo obtener el último tag de Git: {err or 'sin tags en el repositorio'}")
+    tag = res.stdout.decode("utf-8", errors="replace").strip()
+    if not tag:
+        raise ValueError("no se encontró ningún tag en el repositorio Git")
+    return tag
+
+
+def lineas_cambiadas_git(raiz: Path = RAIZ, ref: str | None = None) -> dict[str, set[int]]:
+    args = ["diff", "-U0"]
+    if ref:
+        args.append(ref)
+    else:
+        args.append("HEAD")
+    res = _git(raiz, *args)
+    if res.returncode != 0:
+        err = res.stderr.decode("utf-8", errors="replace").strip()
+        raise ValueError(f"falló git diff: {err}")
+
+    lineas_por_archivo: dict[str, set[int]] = {}
+    archivo_actual: str | None = None
+
+    for linea in res.stdout.decode("utf-8", errors="replace").splitlines():
+        if linea.startswith("+++ "):
+            ruta_str = linea[4:].strip()
+            if ruta_str == "/dev/null":
+                archivo_actual = None
+            elif ruta_str.startswith("b/"):
+                archivo_actual = ruta_str[2:]
+            else:
+                archivo_actual = ruta_str
+        elif linea.startswith("@@ ") and archivo_actual is not None:
+            m = re.match(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@", linea)
+            if m:
+                inicio = int(m.group(1))
+                conteo = int(m.group(2)) if m.group(2) is not None else 1
+                if conteo > 0:
+                    if archivo_actual not in lineas_por_archivo:
+                        lineas_por_archivo[archivo_actual] = set()
+                    lineas_por_archivo[archivo_actual].update(range(inicio, inicio + conteo))
+    return lineas_por_archivo
+
+
+def modulos_cambiados_git(raiz: Path = RAIZ, ref: str = "") -> list[str]:
+    if not ref:
+        ref = ultimo_tag(raiz)
+    res = _git(raiz, "diff", "--name-only", ref)
+    if res.returncode != 0:
+        err = res.stderr.decode("utf-8", errors="replace").strip()
+        raise ValueError(f"falló git diff al listar módulos cambiados: {err}")
+    rutas = [l.strip() for l in res.stdout.decode("utf-8", errors="replace").splitlines() if l.strip()]
+    return rutas
 
 
 def parsear_rango_lineas(rango_str: str) -> tuple[int, int]:
@@ -460,6 +541,16 @@ def parsear_rango_lineas(rango_str: str) -> tuple[int, int]:
 
 def argumentos(argv: list[str]):
     p = argparse.ArgumentParser(description=__doc__)
+    p.add_argument("-j", "--paralelo", type=int, default=DEFAULT_PARALELO,
+                   help=f"procesos en paralelo para mutantes ({DEFAULT_PARALELO} por omisión; mitad de núcleos)")
+    p.add_argument("--bajo", action="store_true",
+                   help="nivel bajo: muta sólo líneas cambiadas contra HEAD (ronda parcial)")
+    p.add_argument("--medio", action="store_true",
+                   help="nivel medio: muta sólo líneas cambiadas desde el último tag (ronda parcial)")
+    p.add_argument("--alto", action="store_true",
+                   help="nivel alto: muta módulos enteros del perfil cambiados desde el último tag (ronda completa)")
+    p.add_argument("--muy-alto", action="store_true",
+                   help="nivel muy alto: muta todo el perfil completo")
     p.add_argument("--hechos", action="store_true", help="emitir sólo evidencia JSON")
     p.add_argument("--timeout", type=float, default=60.0,
                    help="segundos máximos para la baseline y cada mutante (60 por defecto)")
@@ -705,6 +796,41 @@ def equivalentes_del_alcance(equivalentes: dict[str, str], objetivos: list[Path]
             if mid.rsplit(":", 3)[0] in del_alcance}
 
 
+def validar_argumentos(args):
+    paralelo = getattr(args, "paralelo", 1)
+    if paralelo < 1:
+        raise ValueError("--paralelo tiene que ser un entero mayor o igual a 1")
+
+    bajo = getattr(args, "bajo", False)
+    medio = getattr(args, "medio", False)
+    alto = getattr(args, "alto", False)
+    muy_alto = getattr(args, "muy_alto", False)
+
+    niveles_activos = [n for n, activo in [
+        ("--bajo", bajo),
+        ("--medio", medio),
+        ("--alto", alto),
+        ("--muy-alto", muy_alto),
+    ] if activo]
+
+    if len(niveles_activos) > 1:
+        raise ValueError(
+            f"los niveles son mutuamente excluyentes; se especificaron: {', '.join(niveles_activos)}")
+
+    nivel_activo = niveles_activos[0] if niveles_activos else None
+    lineas_arg = getattr(args, "lineas", None)
+    sitio_arg = getattr(args, "sitio", None)
+    objetivo_arg = getattr(args, "objetivo", None)
+
+    if nivel_activo and (lineas_arg or sitio_arg):
+        raise ValueError(
+            f"el nivel {nivel_activo} no se puede combinar con --lineas ni con --sitio")
+
+    if nivel_activo in ("--alto", "--muy-alto") and objetivo_arg:
+        raise ValueError(
+            f"el nivel {nivel_activo} define su propio alcance y no admite --objetivo")
+
+
 def _ejecutar(proy, args) -> int:
     silencioso = args.hechos
 
@@ -721,28 +847,96 @@ def _ejecutar(proy, args) -> int:
             print(f"  {marca:>4}  {fila['id']:<52} {fila['cambio']}", flush=True)
 
     try:
-        objetivos = resolver_objetivos(args.objetivo)
-        comando_tests = comando_de_tests(objetivos, priorizar=bool(args.objetivo))
-        rangos = [parsear_rango_lineas(r) for r in (args.lineas or [])]
-        sitios_fijos = set(args.sitio or [])
-        for sid in sitios_fijos:
-            if len(sid.split(":")) < 4:
-                raise ValueError(
-                    f"id de sitio inválido: {sid!r} (se esperaba formato archivo:linea:columna:operador)")
+        validar_argumentos(args)
+        paralelo = getattr(args, "paralelo", 1)
+        bajo = getattr(args, "bajo", False)
+        medio = getattr(args, "medio", False)
+        alto = getattr(args, "alto", False)
+        muy_alto = getattr(args, "muy_alto", False)
 
-        if rangos or sitios_fijos:
-            def filtro_sitios(s):
-                return (s.id in sitios_fijos) or any(ini <= s.linea <= fin for ini, fin in rangos)
-        else:
+        niveles_activos = [n for n, activo in [
+            ("--bajo", bajo),
+            ("--medio", medio),
+            ("--alto", alto),
+            ("--muy-alto", muy_alto),
+        ] if activo]
+        nivel_activo = niveles_activos[0] if niveles_activos else None
+        lineas_arg = getattr(args, "lineas", None)
+        sitio_arg = getattr(args, "sitio", None)
+        objetivo_arg = getattr(args, "objetivo", None)
+
+        if nivel_activo == "--muy-alto":
+            disponibles = objetivos_disponibles()
+            objetivos = list(disponibles.values())
             filtro_sitios = None
+        elif nivel_activo == "--alto":
+            tag = ultimo_tag(RAIZ)
+            cambiados = modulos_cambiados_git(RAIZ, tag)
+            disponibles = objetivos_disponibles()
+            objetivos = [disponibles[r] for r in cambiados if r in disponibles]
+            if not objetivos:
+                raise ValueError(f"ningún módulo del perfil cambió desde el tag {tag}")
+            objetivos = sorted(set(objetivos))
+            filtro_sitios = None
+        elif nivel_activo == "--medio":
+            tag = ultimo_tag(RAIZ)
+            lineas_cambiadas = lineas_cambiadas_git(RAIZ, ref=tag)
+            disponibles = objetivos_disponibles()
+            if objetivo_arg:
+                objetivos = resolver_objetivos(objetivo_arg)
+                if not any(lineas_cambiadas.get(r.relative_to(RAIZ).as_posix()) for r in objetivos):
+                    raise ValueError(f"no hay líneas cambiadas desde el tag {tag} en los objetivos especificados")
+            else:
+                objs = [disponibles[r] for r in lineas_cambiadas if r in disponibles and lineas_cambiadas[r]]
+                if not objs:
+                    raise ValueError(f"no hay líneas cambiadas en los módulos del perfil desde el tag {tag}")
+                objetivos = sorted(objs)
+
+            def filtro_sitios(s):
+                return s.linea in lineas_cambiadas.get(s.archivo, set())
+        elif nivel_activo == "--bajo":
+            lineas_cambiadas = lineas_cambiadas_git(RAIZ, ref=None)
+            disponibles = objetivos_disponibles()
+            if objetivo_arg:
+                objetivos = resolver_objetivos(objetivo_arg)
+                if not any(lineas_cambiadas.get(r.relative_to(RAIZ).as_posix()) for r in objetivos):
+                    raise ValueError("no hay líneas cambiadas contra HEAD en los objetivos especificados")
+            else:
+                objs = [disponibles[r] for r in lineas_cambiadas if r in disponibles and lineas_cambiadas[r]]
+                if not objs:
+                    raise ValueError("no hay líneas cambiadas contra HEAD en los módulos del perfil")
+                objetivos = sorted(objs)
+
+            def filtro_sitios(s):
+                return s.linea in lineas_cambiadas.get(s.archivo, set())
+        else:
+            objetivos = resolver_objetivos(objetivo_arg)
+            rangos = [parsear_rango_lineas(r) for r in (lineas_arg or [])]
+            sitios_fijos = set(sitio_arg or [])
+            for sid in sitios_fijos:
+                if len(sid.split(":")) < 4:
+                    raise ValueError(
+                        f"id de sitio inválido: {sid!r} (se esperaba formato archivo:linea:columna:operador)")
+
+            if rangos or sitios_fijos:
+                def filtro_sitios(s):
+                    return (s.id in sitios_fijos) or any(ini <= s.linea <= fin for ini, fin in rangos)
+            else:
+                filtro_sitios = None
+
+        comando_tests = comando_de_tests(
+            objetivos,
+            priorizar=bool(objetivo_arg or nivel_activo in ("--bajo", "--medio", "--alto")))
 
         if not silencioso:
             if filtro_sitios is not None:
                 detalles = []
-                if args.lineas:
-                    detalles.append(f"--lineas {', '.join(args.lineas)}")
-                if args.sitio:
-                    detalles.append(f"--sitio {', '.join(args.sitio)}")
+                if nivel_activo:
+                    detalles.append(f"{nivel_activo} (git)")
+                if lineas_arg:
+                    detalles.append(f"--lineas {', '.join(lineas_arg)}")
+                if sitio_arg:
+                    detalles.append(f"--sitio {', '.join(sitio_arg)}")
                 print(f"*** RONDA PARCIAL DE MUTACIÓN (filtro: {'; '.join(detalles)}) ***")
             print("objetivos: " + ", ".join(p.relative_to(RAIZ).as_posix() for p in objetivos) + "\n")
         equivalentes = equivalentes_del_alcance(
@@ -758,7 +952,8 @@ def _ejecutar(proy, args) -> int:
             limite_memoria=limite_memoria,
             manifiesto=args.manifiesto, reanudar=args.reanudar,
             dependencias=dependencias_de_ronda(),
-            filtro_sitios=filtro_sitios)
+            filtro_sitios=filtro_sitios,
+            paralelo=paralelo)
     except (LineaBaseFallida, CacheNoLimpio, EquivalenteInvalido, AislamientoRoto,
             ManifiestoInvalido, RondaEnCurso, OSError, ValueError) as e:
         error = {"tipo": type(e).__name__, "mensaje": str(e)}
