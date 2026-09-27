@@ -29,9 +29,11 @@ class CustodiaMutarCodigo(unittest.TestCase):
             mc.resolver_objetivos(["tools/mutar_codigo.py"] * 2)
         self.assertEqual(mc.comando_de_tests([disponibles["tools/mutar_codigo.py"]], priorizar=False), mc.TESTS)
         comando = mc.comando_de_tests([disponibles["tools/mutar_codigo.py"]], priorizar=True)
-        self.assertEqual(comando.count("--prioridad"), 4)
+        self.assertEqual(comando.count("--prioridad"), 5)
         self.assertIn("--solo-prioridad", comando)
         self.assertIn("tests.test_mutar_codigo_custodia", comando)
+        # Los niveles (--bajo … --muy-alto) viven en mutar_codigo.py: sus tests son testigos.
+        self.assertIn("tests.test_mutar_codigo_niveles", comando)
         instalacion = mc.comando_de_tests(
             [disponibles["tools/verificar_instalacion.py"]], priorizar=True)
         self.assertIn("--solo-prioridad", instalacion)

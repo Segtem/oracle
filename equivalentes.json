@@ -66,7 +66,7 @@
   "razon": "En tools/trazar.py, `sys.path.insert(0, str(RAIZ))` → `insert(1, str(RAIZ))` sólo cambia la precedencia entre la raíz del proyecto y `sys.path[0]`, que al ejecutar el script es `tools/`. Los imports del arnés son calificados (`catalogos`, `nucleo`, `perfiles`, `tools` o `diferencial`) y no existen paquetes homónimos en `tools/`. En las invocaciones del proyecto ambos índices resuelven exactamente los mismos módulos y producen el mismo resultado. Fijar el índice con un test no protegería una conducta de la que dependa el proyecto."
  },
  {
-  "id": "tools/mutar_codigo.py:796:31:constante",
+  "id": "tools/mutar_codigo.py:798:31:constante",
   "linea_texto": "if mid.rsplit(\":\", 3)[0] in del_alcance}",
   "ordinal": 1,
   "razon": "Los identificadores vigentes tienen exactamente tres separadores ':' (archivo:línea:columna:operador). `rsplit(':', 3)[0]` y `rsplit(':', 4)[0]` extraen el mismo archivo para todo identificador válido; la validación global de vigencia descarta los demás antes de este filtro."
@@ -142,5 +142,11 @@
   "linea_texto": "temporal.unlink(missing_ok=True)",
   "ordinal": 1,
   "razon": "En `tools/cli.py`, `temporal.unlink(missing_ok=True)` → `missing_ok=False` en el bloque `finally` de `_reemplazar`. La variable `temporal` sólo deja de ser `None` si la llamada previa a `NamedTemporaryFile(..., delete=False)` creó exitosamente el archivo en el sistema de archivos. Ninguna instrucción posterior dentro del bloque `try` elimina dicho archivo (la llamada `os.link(temporal, destino)` crea un enlace duro adicional al mismo inodo y `origen.unlink()` elimina el archivo fuente de entrada, no el temporal). Por lo tanto, al alcanzar `finally`, el archivo apuntado por `temporal` siempre existe en disco. En un archivo existente, `unlink(missing_ok=True)` y `unlink(missing_ok=False)` ejecutan la misma operación y ninguno genera `FileNotFoundError`. Ningún flujo de ejecución alcanzable distingue ambos valores booleanos."
+ },
+ {
+  "id": "tools/ejecutar_suite_mutacion.py:130:53:constante",
+  "linea_texto": "return CoberturaRunner(verbosity=1, failfast=True).run(suite)",
+  "ordinal": 1,
+  "razon": "En `tools/ejecutar_suite_mutacion.py`, `failfast=True` → `failfast=False` en el runner que recolecta cobertura. Ese runner sólo existe con `--guardar-cobertura`, que el arnés pasa únicamente en la línea base, y la línea base tiene que pasar entera. `failfast` sólo cambia algo cuando un test falla, y en ese caso la línea base no es verde lo mismo: la ronda se declara no confiable en los dos casos. La diferencia es sólo cuánto tarda en enterarse. Se conserva `failfast=True` porque una línea base rota se informa antes."
  }
 ]

@@ -85,9 +85,9 @@ PRIORIDADES = {
     "nucleo/campo_leido.py": ("tests.test_campos_de_relaciones", "tests.test_campos_revision"),
     "nucleo/version.py": ("tests.test_herramientas",),
     "oracle_metalenguaje/_compat.py": ("tests.test_motor",),
-    "oracle_metalenguaje/motor.py": ("tests.test_motor",),
+    "oracle_metalenguaje/motor.py": ("tests.test_motor", "tests.test_motor_desde_texto"),
     "perfiles/python/marco.py": ("tests.test_perfiles",),
-    "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo",),
+    "perfiles/python/mutacion_codigo.py": ("tests.test_mutacion_codigo", "tests.test_mutacion_runner_paralelo"),
     "tools/censar.py": ("tests.test_censar",),
     "tools/cifras.py": ("tests.test_herramientas",),
     # Sus tests directos son los de `comparar_dominio` y los del contrato del fixture.
@@ -97,8 +97,10 @@ PRIORIDADES = {
                                       "tests.test_fixtures"),
     "tools/guia.py": ("tests.test_guia_rapida", "tests.test_guia"),
     "tools/sitio.py": ("tests.test_sitio_rapido", "tests.test_sitio"),
-    "tools/ejecutar_suite_mutacion.py": ("tests.test_ejecutar_suite_mutacion",),
+    "tools/ejecutar_suite_mutacion.py": ("tests.test_ejecutar_suite_mutacion",
+                                         "tests.test_ejecutar_suite_cobertura"),
     "tools/mutar_codigo.py": (
+        "tests.test_mutar_codigo_niveles",
         "tests.test_mutar_codigo_custodia",
         "tests.test_mutacion_codigo.NingunModuloDelNucleoQuedaFueraDelArnesTests",
         "tests.test_mutacion_codigo.LimiteMemoriaTests",
@@ -1075,5 +1077,7 @@ def main(argv: list[str] | None = None) -> int:
 PRIORIDADES["nucleo/forma.py"] = ("tests.test_forma_unica_texto",)
 
 
-if __name__ == "__main__":
-    sys.exit(main())
+# Sin comparación que mutar: invertir `__name__ == "__main__"` corría main() al importar.
+_entrada_directa = {"__main__": main}.get(__name__)
+if _entrada_directa:
+    sys.exit(_entrada_directa())
