@@ -106,10 +106,10 @@ Dado que esta pasada se ejecuta bajo la restricción «Sin shell», los sitios d
 ### 5. `tools/mcp_contrato.py`
 - **Lectura:** Leído completo (líneas 1 a 40).
 - **Líneas:** 40 líneas.
-- **Función:** Regenera o comprueba el bloque JSON de herramientas dentro de `docs/mcp-contrato.md` a partir de `tools.mcp.HERRAMIENTAS` ([`tools/mcp_contrato.py:13-35`](../../tools/mcp_contrato.py#L13-L35)).
+- **Función:** Regenera o comprueba el bloque JSON de herramientas dentro de `docs/mcp-contrato.md` a partir de `tools.mcp.HERRAMIENTAS` ([`tools/mcp_contrato.py:13-35`](https://github.com/Segtem/oracle/blob/v0.33.0/tools/mcp_contrato.py#L13-L35)).
 - **¿Cumple el criterio de custodia? NO (en el estado actual del repositorio).**
   - No se ejecuta en el workflow de CI ([`.github/workflows/verificar.yml`](../../.github/workflows/verificar.yml)).
-  - La herramienta que ejecuta el servidor y custodia el protocolo MCP en runtime es [`tools/mcp.py`](../../tools/mcp.py), la cual **ya es custodia activa** en `HERRAMIENTAS_CUSTODIAS:305` y en CI ([`.github/workflows/verificar.yml:153`](../../.github/workflows/verificar.yml#L153)) con 1808 líneas de tests en [`tests/test_mcp.py`](../../tests/test_mcp.py).
+  - La herramienta que ejecuta el servidor y custodia el protocolo MCP en runtime es [`tools/mcp.py`](https://github.com/Segtem/oracle/blob/v0.33.0/tools/mcp.py), la cual **ya es custodia activa** en `HERRAMIENTAS_CUSTODIAS:305` y en CI ([`.github/workflows/verificar.yml:153`](../../.github/workflows/verificar.yml#L153)) con 1808 líneas de tests en [`tests/test_mcp.py`](https://github.com/Segtem/oracle/blob/v0.33.0/tests/test_mcp.py).
   - `mcp_contrato.py` sólo sincroniza un fragmento markdown de documentación. Si no se invoca en CI, no puede custodiar ninguna afirmación que alguien compruebe mecánicamente.
 - **Afirmación que dejaría sin verificar:** Ninguna afirmación operativa del sistema.
 - **Quién la consume:** Desarrolladores o lectores humanos de `docs/mcp-contrato.md`.

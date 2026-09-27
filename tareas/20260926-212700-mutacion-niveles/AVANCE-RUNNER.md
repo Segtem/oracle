@@ -10,11 +10,11 @@
 
 Se abordó la lista completa de 30 mutantes sobrevivientes de `tareas/20260926-212700-mutacion-niveles/SOBREVIVIENTES-RUNNER.txt` en `perfiles/python/mutacion_codigo.py` (28 `VIVO` y 2 `TIEMPO`).
 
-1. **Nueva suite de tests**: Se creó [tests/test_mutacion_runner_paralelo.py](file:///work/tests/test_mutacion_runner_paralelo.py) con 25 tests unitarios rápidos y deterministas que cubren y matan cada uno de los mutantes alcanzables.
-2. **Verificación manual rigurosa**: Cada uno de los 25 mutantes fue probado individualmente aplicando la mutación en [perfiles/python/mutacion_codigo.py](file:///work/perfiles/python/mutacion_codigo.py) (previa copia a `.bak`), purgando los directorios `__pycache__`, ejecutando el test correspondiente con `python3 -B -m unittest`, comprobando el fallo esperado (`FAIL` o `ERROR`), restaurando el código original y comprobando el paso a verde.
+1. **Nueva suite de tests**: Se creó [tests/test_mutacion_runner_paralelo.py](../../tests/test_mutacion_runner_paralelo.py) con 25 tests unitarios rápidos y deterministas que cubren y matan cada uno de los mutantes alcanzables.
+2. **Verificación manual rigurosa**: Cada uno de los 25 mutantes fue probado individualmente aplicando la mutación en [perfiles/python/mutacion_codigo.py](../../perfiles/python/mutacion_codigo.py) (previa copia a `.bak`), purgando los directorios `__pycache__`, ejecutando el test correspondiente con `python3 -B -m unittest`, comprobando el fallo esperado (`FAIL` o `ERROR`), restaurando el código original y comprobando el paso a verde.
 3. **Muerte de mutantes TIEMPO**: Los 2 mutantes con etiqueta `TIEMPO` en la línea 1236 (`and ↔ or` y `Is → IsNot`) colgaban o demoraban las corridas por fallback a ejecuciones completas o sobreescritura de cobertura. Se diseñaron tests rápidos (< 0.5s) que ejercitan los flujos exactos de carga y preservación del mapa de cobertura, logrando que el mutante falle de forma inmediata.
 4. **Identificación de código que sobra**: Se identificaron 5 mutantes que provienen de código redundante/muerto, los cuales —siguiendo la instrucción del encargo— **no se declararon en equivalentes.json**, sino que se documentan a continuación para que Claude proceda a eliminarlos.
-5. **No se modificó código de producción**: [perfiles/python/mutacion_codigo.py](file:///work/perfiles/python/mutacion_codigo.py) y demás archivos del perfil permanecen intactos.
+5. **No se modificó código de producción**: [perfiles/python/mutacion_codigo.py](../../perfiles/python/mutacion_codigo.py) y demás archivos del perfil permanecen intactos.
 6. **Suite completa en verde**: `python3 -B -m unittest discover -s tests` ejecutó los 2747 tests del repositorio (2722 previos + 25 nuevos) en 137.894s con resultado `OK`.
 
 ---

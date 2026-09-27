@@ -45,6 +45,7 @@ class RastreadorCoberturaInicializacionTests(unittest.TestCase):
             self.assertNotIn(".git/config.py", seguidos)
             self.assertNotIn("__pycache__/cache.py", seguidos)
 
+    @unittest.skipUnless(hasattr(sys, "monitoring"), "sys.monitoring existe desde Python 3.12")
     def test_deteccion_monitoring_requiere_coverage_id(self):
         fake_monitoring = SimpleNamespace(**{k: getattr(sys.monitoring, k) for k in dir(sys.monitoring) if k != "COVERAGE_ID"})
         with patch.object(sys, "monitoring", fake_monitoring):
@@ -53,6 +54,7 @@ class RastreadorCoberturaInicializacionTests(unittest.TestCase):
             self.assertIsNone(rastreador.tool_id)
 
 
+@unittest.skipUnless(hasattr(sys, "monitoring"), "sys.monitoring existe desde Python 3.12")
 class RastreadorCoberturaMonitoringTests(unittest.TestCase):
     def test_line_cb_monitoring_filtro_y_registro(self):
         cb = None

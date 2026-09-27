@@ -52,4 +52,4 @@
 - **Qué actualizar para que nada se rompa:**
   1. [`tools/estudio.py#L300`](../../../tools/estudio.py#L300): actualizar `PLAN-CORRECCION.md` a `vault-kb/planes/PLAN-CORRECCION.md`.
   2. [`README.md#L34,L560,L588`](../../../README.md): actualizar los enlaces a `PLAN-LENGUAJE.md`, `PLAN-CORRECCION.md` y cambiar `estudios/MCP-CONTRATO.md` por `docs/mcp-contrato.md`.
-  3. [`tools/mcp_contrato.py#L26`](../../../tools/mcp_contrato.py#L26) y [`tests/test_mcp.py#L208`](../../../tests/test_mcp.py#L208): cambiar la ruta fija `estudios/MCP-CONTRATO.md` a `docs/mcp-contrato.md`.
+  3. [`tools/mcp_contrato.py#L26`](https://github.com/Segtem/oracle/blob/v0.33.0/tools/mcp_contrato.py#L26) y [`tests/test_mcp.py#L208`](https://github.com/Segtem/oracle/blob/v0.33.0/tests/test_mcp.py#L208): cambiar la ruta fija `estudios/MCP-CONTRATO.md` a `docs/mcp-contrato.md`.

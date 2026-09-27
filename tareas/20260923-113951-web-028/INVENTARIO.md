@@ -61,7 +61,7 @@ La página publicada en GitHub Pages (`docs/index.html`, 466 líneas, leída ín
 9. **El tracker local de tareas ([`docs/index.html#L358-L393`](../../docs/index.html#L358-L393)):**
    - Explica el subsistema `oracle tarea` basado en tatr: carpetas en `tareas/`, archivo `TAREA.md`, ID fecha/hora, sin base de datos ni servidor, versionado en Git.
    - Menciona que el tracker emite hechos relacionales auditados por el propio catálogo y soporta consultas en lenguaje natural (`:metalenguaje y prioridad desde 70`).
-   - Comandos mostrados: `oracle tarea init`, `oracle tarea nueva ... --sufijo sensor`, `oracle tarea listar ...`, `oracle tarea cerrar 20260916-014153-sensor`. Enlaza a [`docs/12-tareas.md`](../../docs/12-tareas.md).
+   - Comandos mostrados: `oracle tarea init`, `oracle tarea nueva ... --sufijo sensor`, `oracle tarea listar ...`, `oracle tarea cerrar 20260916-014153-sensor`. Enlaza a [`docs/12-tareas.md`](https://github.com/Segtem/oracle/blob/v0.33.0/docs/12-tareas.md).
 
 10. **Empezar ([`docs/index.html#L395-L425`](../../docs/index.html#L395-L425)):**
     - Menciona requisitos (Python ≥ 3.11, entornos virtuales por PEP 668), instalación de 10 comandos, catálogo base empaquetado y LSP para Emacs y VS Code.
@@ -114,7 +114,7 @@ Contrastando la portada actual con las notas de versión ([`NOTAS-DE-RELEASE.md#
   ```
 
 ### Brecha 3: El servidor MCP con cinco herramientas de sólo lectura y su justificación (0.27)
-- **Sustento documental:** [`tools/mcp.py#L47-L731`](../../tools/mcp.py#L47-L731), [`docs/mcp-contrato.md#L8-L38`](../../docs/mcp-contrato.md#L8-L38), [`NOTAS-DE-RELEASE.md#L96-L110`](../../NOTAS-DE-RELEASE.md#L96-L110).
+- **Sustento documental:** [`tools/mcp.py#L47-L731`](https://github.com/Segtem/oracle/blob/v0.33.0/tools/mcp.py#L47-L731), [`docs/mcp-contrato.md#L8-L38`](https://github.com/Segtem/oracle/blob/v0.33.0/docs/mcp-contrato.md#L8-L38), [`NOTAS-DE-RELEASE.md#L96-L110`](../../NOTAS-DE-RELEASE.md#L96-L110).
 - **Situación actual:** Totalmente ausente en la web. No hay mención a la integración de Oracle con agentes mediante Model Context Protocol.
 - **Qué aporta:** Servidor JSON-RPC autónomo (`oracle-mcp`) sobre stdio con cinco herramientas especializadas:
   1. `oracle_catalogo_efectivo`: Consulta qué medidas obligan al proyecto y sus alcances.
@@ -122,10 +122,10 @@ Contrastando la portada actual con las notas de versión ([`NOTAS-DE-RELEASE.md#
   3. `oracle_desafiar`: Desafía una medida contra corpus y mutaciones sin persistir archivos.
   4. `oracle_juzgar`: Juzga evidencia contra el catálogo completo respetando sombras y cotas.
   5. `oracle_tareas`: Consulta el tracker (`listar`, `ver`, `buscar`, `hechos`).
-- **Por qué sólo lectura:** La especificación ([`docs/mcp-contrato.md#L8-L33`](../../docs/mcp-contrato.md#L8-L33)) fundamenta la decisión: los defectos habituales de los agentes de IA se producen al interpretar la realidad (falsos verdes por leer mal la evidencia); permitir escrituras mediante MCP crearía una falsa sensación de aprobación y rompería la correspondencia atómica que el tracker mantiene con cada commit de Git.
+- **Por qué sólo lectura:** La especificación ([`docs/mcp-contrato.md#L8-L33`](https://github.com/Segtem/oracle/blob/v0.33.0/docs/mcp-contrato.md#L8-L33)) fundamenta la decisión: los defectos habituales de los agentes de IA se producen al interpretar la realidad (falsos verdes por leer mal la evidencia); permitir escrituras mediante MCP crearía una falsa sensación de aprobación y rompería la correspondencia atómica que el tracker mantiene con cada commit de Git.
 
 ### Brecha 4: Retomar es leer una tarea: el tracker como relevo, sufijos y `CIERRA CON` (0.28)
-- **Sustento documental:** [`NOTAS-DE-RELEASE.md#L9-L25`](../../NOTAS-DE-RELEASE.md#L9-L25), [`docs/12-tareas.md#L44-L86`](../../docs/12-tareas.md#L44-L86), [`AGENTS.md#L1-L25`](../../AGENTS.md#L1-L25).
+- **Sustento documental:** [`NOTAS-DE-RELEASE.md#L9-L25`](../../NOTAS-DE-RELEASE.md#L9-L25), [`docs/12-tareas.md#L44-L86`](https://github.com/Segtem/oracle/blob/v0.33.0/docs/12-tareas.md#L44-L86), [`AGENTS.md#L1-L25`](../../AGENTS.md#L1-L25).
 - **Situación actual:** La sección `#tracker` de `docs/index.html` describe únicamente el formato básico de archivos y consultas en español. No aborda el cambio de paradigma de 0.28.
 - **Qué aporta:**
   1. *El tracker como protocolo de relevo:* Erradicación de notas sueltas (`RELEVO.md`, planes volátiles). La tarea es la única fuente de verdad; cada tarea culmina en una sección única `## Próximo paso` que indica la acción inmediata para continuar el trabajo entre distintos agentes o programadores humanos.
