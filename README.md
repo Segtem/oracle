@@ -130,7 +130,7 @@ No es un instrumento de medición: es un instrumento de **rechazo**. No calcula 
 dejar pasar** lo que no se puede sostener.
 
 <!-- negativas:inicio -->
-En este corte hay 11187 líneas de lenguaje y **474 negativas explícitas** (`raise`).
+En este corte hay 11179 líneas de lenguaje y **471 negativas explícitas** (`raise`).
 <!-- negativas:fin -->
 
 Un umbral sin defensa no se carga. Una medida sin `alcance` no se carga. Un campo ausente no da
@@ -163,7 +163,7 @@ una prótesis para alguien que escribe la herramienta y su test con la misma man
 ### El costo, dicho
 
 <!-- escala:inicio -->
-**11187 líneas de lenguaje** (`nucleo/`, código y macros) y **474 negativas explícitas** (`raise`). Contra las 63 medidas del catálogo escritas en él (437 líneas): **25,6 a 1**. 54 de las 63 pasan por una macro.
+**11179 líneas de lenguaje** (`nucleo/`, código y macros) y **471 negativas explícitas** (`raise`). Contra las 63 medidas del catálogo escritas en él (437 líneas): **25,6 a 1**. 54 de las 63 pasan por una macro.
 <!-- escala:fin -->
 
 Ésa es la apuesta y ésa es la métrica: que los catálogos de los proyectos crezcan sin hacer crecer el
@@ -651,15 +651,31 @@ Como biblioteca, la frontera pública es `oracle_metalenguaje`; el consumidor no
 ```python
 from oracle_metalenguaje import Motor
 
+# Cargar un proyecto completo con su catálogo y sombras:
 motor = Motor.desde_proyecto("/ruta/al/proyecto", confiar_escalares=True)
 informe = motor.evaluar({"item": [{"id": "a", "valor": 4}]})
 print(informe.ok, informe.texto())
+
+# O evaluar medidas escritas en superficie .oracle:
+medida = """medida demo.valor:
+    de item i
+    resumen max(i.valor)
+    umbral <= 10 porque "el límite es parte del ejemplo verificable"
+    alcance "NO comprueba propiedades ajenas a valor"
+"""
+motor_mem = Motor.desde_texto([medida])
 ```
+
+`Motor.desde_texto(...)` recibe medidas o macros escritas en superficie `.oracle` y exige la forma
+única del impresor (cualquier variación levanta `ErrorDeMotor` con el diff). Para un proyecto entero,
+`Motor.desde_proyecto(...)` carga su catálogo efectivo y respeta la configuración de sombras.
+`Motor.desde_datos(...)` es la API programática sobre el árbol canónico de datos (lo que ya se
+guardó o generó un programa), no una forma de escribir medidas; `Motor.desde_medidas(...)` cubre
+instancias de `Medida` ya construidas.
 
 `confiar_escalares=True` ejecuta el `escalares.py` del proyecto y por eso nunca es implícito. Cada
 motor conserva sus propios límites y UDF: dos proyectos pueden declarar el mismo nombre sin
-sobrescribirse. `Motor.desde_datos(...)` y `Motor.desde_medidas(...)` cubren catálogos mantenidos en
-memoria. Si ninguna medida puede consumir las relaciones entregadas, la API levanta
+sobrescribirse. Si ninguna medida puede consumir las relaciones entregadas, la API levanta
 `SinMedidasAplicables` en vez de fabricar un informe verde vacío.
 
 `desde_proyecto` juzga con el mismo catálogo y el mismo veredicto que `oracle test` y `oracle juzgar`
@@ -697,7 +713,7 @@ python tools/verificar_instalacion.py                   # wheel + CLI instalado 
 <!-- corpus:fin -->
 
 <!-- cifras:inicio -->
-2699 tests · 1018/1018 mutantes de medida · **9252 sitios de mutación de código** (9014 + 238 del motor Python).
+2709 tests · 1018/1018 mutantes de medida · **9263 sitios de mutación de código** (9025 + 238 del motor Python).
 <!-- cifras:fin -->
 
 Los sitios de mutación de código son un denominador, no un resultado. Este README no publica una

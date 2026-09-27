@@ -410,10 +410,22 @@ oracle test               # secuencia completa: corpus, sintaxis, aceptación y 
 <p>O, desde Python, como biblioteca:</p>
 <pre data-lenguaje="python"><code>from oracle_metalenguaje import Motor
 
+# Cargar un proyecto entero:
 motor = Motor.desde_proyecto(&quot;mi-proyecto&quot;)
 informe = motor.evaluar({&quot;tarea&quot;: [{&quot;id&quot;: &quot;t1&quot;, &quot;vencida&quot;: True, &quot;asignada&quot;: False}]})
 print(informe.ok)     # False
-print(informe.texto())</code></pre>
+print(informe.texto())
+
+# O evaluar medidas escritas en superficie .oracle:
+medida = &quot;&quot;&quot;medida tareas.vencida_sin_dueno:
+    de tarea t
+    donde t.vencida == true y t.asignada == false
+    resumen contar(1)
+    umbral &lt;= 0 porque &quot;toda tarea vencida debe tener responsable&quot;
+    alcance &quot;exige responsable a tareas vencidas&quot;
+&quot;&quot;&quot;
+motor_mem = Motor.desde_texto([medida])</code></pre>
+<p>Para un proyecto completo usá <code>Motor.desde_proyecto</code>. Para medidas escritas a mano o pasadas como texto usá <code>Motor.desde_texto</code>, que recibe la superficie infija <code>.oracle</code> (canónica o macros) y exige la forma única del impresor. <code>Motor.desde_datos</code> se reserva como API programática sobre el árbol canónico de datos (lo que ya se guardó o generó un programa), no como una forma de escribir medidas.</p>
 <hr>
 <h2 id="9-los-comandos-cuál-usar-y-cuándo">9. Los comandos: cuál usar y cuándo<a class="ancla" href="#9-los-comandos-cuál-usar-y-cuándo" aria-label="Enlace a esta sección">#</a></h2>
 <div class="tabla"><table><thead><tr><th>Comando</th><th>Para qué</th></tr></thead><tbody><tr><td><code>oracle init [ruta]</code></td><td>inicializa un proyecto con <code>catalogos/</code>, <code>corpus/</code>, <code>diferencial/</code> y <code>oracle.json</code></td></tr><tr><td><code>oracle caso nuevo &lt;grupo/id&gt;</code></td><td>crea el andamio de un caso nuevo, ya en superficie (<code>.caso</code>)</td></tr><tr><td><code>oracle caso listar</code></td><td>lista los casos del corpus, su etiqueta y qué medida reclaman</td></tr><tr><td><code>oracle caso generar &lt;medida&gt;</code></td><td>fabrica evidencia discriminante para fijar mutaciones a partir de sobrevivientes</td></tr><tr><td><code>oracle nueva &lt;dominio.nombre&gt;</code></td><td>crea el andamio de una medida, ya en superficie infija (<code>.oracle</code>)</td></tr><tr><td><code>oracle revisar &lt;archivo&gt;</code></td><td>valida una medida suelta contra la evidencia</td></tr><tr><td><code>oracle medida probar &lt;arch&gt; --con &lt;filas&gt;</code></td><td>corre una medida contra filas escritas a mano (<code>--vigilar</code> para re-probar al guardar)</td></tr><tr><td><code>oracle expandir &lt;archivo&gt;</code></td><td>muestra la forma canónica a la que expande una macro</td></tr><tr><td><code>oracle contexto [--compacto]</code></td><td>reúne relaciones, campos, escalares, operadores y medidas de TU proyecto (~1.600 tokens con <code>--compacto</code>)</td></tr><tr><td><code>oracle test [--rapido\|--todo]</code></td><td>secuencia completa: corpus, sintaxis, aceptación, diferencial y mutación</td></tr><tr><td><code>oracle relaciones</code></td><td>ver qué hechos y campos existen HOY (derivados de evidencia real)</td></tr><tr><td><code>oracle escalares</code></td><td>ver las funciones de dominio, operadores y agregados disponibles</td></tr><tr><td><code>oracle manual [tema]</code></td><td>la referencia del lenguaje armada de sus fuentes (<code>--html</code> para el sitio, <code>--man</code> para páginas de manual; tema <code>medidas</code> para las 54 universales y sus alcances)</td></tr><tr><td><code>oracle biblioteca instaladas</code></td><td>qué bibliotecas de políticas hay instaladas y cuáles usa este proyecto</td></tr><tr><td><code>oracle biblioteca verificar &lt;ruta&gt;</code></td><td>certifica una biblioteca antes de confiar en ella</td></tr><tr><td><code>oracle biblioteca listar &lt;ruta&gt;</code></td><td>muestra umbrales, orígenes (<code>segun</code>) y alcances de una biblioteca</td></tr><tr><td><code>oracle diagnostico</code></td><td>qué versión de Oracle corre y desde dónde, sin publicar nada del dominio</td></tr><tr><td><code>tools/sintaxis.py --verificar</code></td><td>comprueba ida y vuelta entre JSON y superficie en todo el catálogo, macros, corpus y bloques de documentación</td></tr><tr><td><code>python -m unittest discover -s tests -t . -q</code></td><td>la suite de tests, sin dependencias externas</td></tr></tbody></table></div>

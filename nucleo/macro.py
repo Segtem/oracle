@@ -298,23 +298,8 @@ def _datos_de_macro(ruta: Path, macros: RegistroMacros | None = None) -> list:
     except OSError as e:
         raise MacroMalDeclarada(f"no se pudo leer la macro {ruta}: {e}") from e
     if ruta.suffix == ".oracle":
-        from .sintaxis import ErrorSintaxis, fragmento_de_error, leer_con_mapa
-        from .version import VersionInvalida, exigir_sintaxis_compatible
-
-        try:
-            lectura = leer_con_mapa(texto, macros=macros)
-        except ErrorSintaxis as e:
-            raise MacroMalDeclarada(f"{ruta}: {fragmento_de_error(e, texto)}") from e
-        try:
-            exigir_sintaxis_compatible(lectura.version)
-        except VersionInvalida as e:
-            raise MacroMalDeclarada(f"{ruta}: {e}") from e
-        from .forma import error_forma
-        from .sintaxis import imprimir
-        error = error_forma(ruta, texto, imprimir(lectura.datos, macros=macros))
-        if error:
-            raise MacroMalDeclarada(error)
-        return lectura.datos
+        from .forma import datos_en_forma_unica
+        return datos_en_forma_unica(texto, ruta, macros=macros, error=MacroMalDeclarada)
     try:
         return json.loads(texto)
     except json.JSONDecodeError as e:

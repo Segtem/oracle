@@ -12,10 +12,14 @@ import importlib
 from nucleo.algebra import (ESCALARES, ErrorDeAlgebra, LimitesAlgebra,
                             RegistroEscalares, limites_predeterminados,
                             validar_resumen, validar_tuberia)
-from nucleo.medida import Informe, Medida, evaluar, medidas_aplicables, no_aplicadas
+from nucleo.forma import datos_en_forma_unica
+from nucleo.macro import Macro, MacroMalDeclarada, RegistroMacros, macros_base
+from nucleo.medida import (Informe, Medida, MedidaMalDeclarada, evaluar,
+                           medidas_aplicables, no_aplicadas)
 from nucleo.proyecto import (ORIGEN_PROYECTO, Proyecto, ProyectoInvalido, catalogo_efectivo,
                              configuracion, cotas_de_sombra, escalares_del_proyecto,
                              macros_del_proyecto, problemas_estructura)
+from nucleo.sintaxis import DEFMACRO_RE
 
 
 class ErrorDeMotor(ValueError):
@@ -69,6 +73,12 @@ def _registro_propio(registro: RegistroEscalares | None) -> RegistroEscalares:
     return registro.copiar()
 
 
+def _es_defmacro(texto: str) -> bool:
+    primera = next((l.strip() for l in texto.splitlines()
+                    if l.strip() and not l.lstrip().startswith("#")), "")
+    return DEFMACRO_RE.fullmatch(primera) is not None
+
+
 class Motor:
     """Evaluador reusable con catálogo, UDF y límites propiedad de una instancia."""
 
@@ -85,7 +95,7 @@ class Motor:
     proyecto: Path | None
 
     def __new__(cls, *args, **kwargs):
-        raise ErrorDeMotor("usá Motor.desde_datos, desde_medidas o desde_proyecto")
+        raise ErrorDeMotor("usá Motor.desde_texto, desde_datos, desde_medidas o desde_proyecto")
 
     def __setattr__(self, nombre, valor):
         raise AttributeError("Motor es inmutable; construí otra instancia")
@@ -119,6 +129,43 @@ class Motor:
         return motor
 
     @classmethod
+    def desde_texto(cls, textos: Iterable[str], *,
+                    macros: RegistroMacros | None = None,
+                    registro: RegistroEscalares | None = None,
+                    limites: LimitesAlgebra | None = None) -> "Motor":
+        """Construye desde medidas o macros escritas en superficie .oracle con la forma única."""
+        if isinstance(textos, str):
+            raise ErrorDeMotor("`textos` debe ser un iterable de cadenas, no una cadena directa")
+        recibidos = tuple(textos)
+        for i, t in enumerate(recibidos):
+            if not isinstance(t, str):
+                raise ErrorDeMotor(f"el elemento {i} de `textos` debe ser una cadena")
+
+        registro_propio = _registro_propio(registro)
+        limites_propios = _limites_propios(limites)
+        if macros is None:
+            registro_macros = macros_base()
+        elif isinstance(macros, RegistroMacros):
+            registro_macros = macros.copiar()
+        else:
+            raise ErrorDeMotor("`macros` debe ser una instancia de RegistroMacros")
+
+        # Las macros primero: una medida del mismo lote puede invocarlas.
+        declaradas = []
+        for texto in sorted(recibidos, key=lambda t: not _es_defmacro(t)):
+            datos = datos_en_forma_unica(texto, "<texto>", macros=registro_macros, error=ErrorDeMotor)
+            try:
+                if datos[0] == "defmacro":
+                    registro_macros.declarar(Macro.de_datos(datos))
+                else:
+                    declaradas.append(Medida.de_datos(datos, registro=registro_propio,
+                                                      limites=limites_propios, macros=registro_macros))
+            except (MacroMalDeclarada, MedidaMalDeclarada) as e:
+                raise ErrorDeMotor(f"<texto>: {e}") from e
+
+        return cls._crear(declaradas, registro_propio, limites_propios)
+
+    @classmethod
     def desde_medidas(cls, medidas: Iterable[Medida], *,
                       registro: RegistroEscalares | None = None,
                       limites: LimitesAlgebra | None = None) -> "Motor":
@@ -133,7 +180,7 @@ class Motor:
     def desde_datos(cls, medidas: Iterable[list], *,
                     registro: RegistroEscalares | None = None,
                     limites: LimitesAlgebra | None = None) -> "Motor":
-        """Construye desde las formas JSON del lenguaje mantenidas en memoria."""
+        """API programática sobre el árbol canónico (lo que ya se guardó o generó un programa), no una forma de escribir medidas."""
         registro_propio = _registro_propio(registro)
         limites_propios = _limites_propios(limites)
         declaradas = tuple(

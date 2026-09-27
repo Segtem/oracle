@@ -760,11 +760,24 @@ O, desde Python, como biblioteca:
 ```python
 from oracle_metalenguaje import Motor
 
+# Cargar un proyecto entero:
 motor = Motor.desde_proyecto("mi-proyecto")
 informe = motor.evaluar({"tarea": [{"id": "t1", "vencida": True, "asignada": False}]})
 print(informe.ok)     # False
 print(informe.texto())
+
+# O evaluar medidas escritas en superficie .oracle:
+medida = """medida tareas.vencida_sin_dueno:
+    de tarea t
+    donde t.vencida == true y t.asignada == false
+    resumen contar(1)
+    umbral <= 0 porque "toda tarea vencida debe tener responsable"
+    alcance "exige responsable a tareas vencidas"
+"""
+motor_mem = Motor.desde_texto([medida])
 ```
+
+Para un proyecto completo usá `Motor.desde_proyecto`. Para medidas escritas a mano o pasadas como texto usá `Motor.desde_texto`, que recibe la superficie infija `.oracle` (canónica o macros) y exige la forma única del impresor. `Motor.desde_datos` se reserva como API programática sobre el árbol canónico de datos (lo que ya se guardó o generó un programa), no como una forma de escribir medidas.
 
 ---
 

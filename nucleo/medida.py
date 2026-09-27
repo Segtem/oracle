@@ -593,23 +593,8 @@ def cargar_fuente_medida(ruta: Path, *, macros=None) -> list:
         except json.JSONDecodeError as e:
             raise MedidaMalDeclarada(f"{ruta}: JSON inválido — {e}") from e
     if ruta.suffix == ".oracle":
-        from .sintaxis import ErrorSintaxis, fragmento_de_error, leer_con_mapa
-        from .version import VersionInvalida, exigir_sintaxis_compatible
-
-        try:
-            lectura = leer_con_mapa(texto, macros=macros)
-        except ErrorSintaxis as e:
-            raise MedidaMalDeclarada(f"{ruta}: {fragmento_de_error(e, texto)}") from e
-        try:
-            exigir_sintaxis_compatible(lectura.version)
-        except VersionInvalida as e:
-            raise MedidaMalDeclarada(f"{ruta}: {e}") from e
-        from .forma import error_forma
-        from .sintaxis import imprimir
-        error = error_forma(ruta, texto, imprimir(lectura.datos, macros=macros))
-        if error:
-            raise MedidaMalDeclarada(error)
-        return lectura.datos
+        from .forma import datos_en_forma_unica
+        return datos_en_forma_unica(texto, ruta, macros=macros, error=MedidaMalDeclarada)
     raise MedidaMalDeclarada(
         f"formato de medida no soportado: {ruta} (esperaba .json u .oracle)")
 
