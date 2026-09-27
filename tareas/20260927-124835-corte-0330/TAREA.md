@@ -1,6 +1,6 @@
 # Corte 0.33.0 — Motor.desde_texto y mutación en paralelo por niveles
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 95
 - ETIQUETAS: 
 
