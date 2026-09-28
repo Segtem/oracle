@@ -1,6 +1,6 @@
 # requisitos con cobertura: una promesa en prosa, las medidas que la cubren y oracle cobertura
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle
 
