@@ -66,7 +66,7 @@
   "razon": "En tools/trazar.py, `sys.path.insert(0, str(RAIZ))` → `insert(1, str(RAIZ))` sólo cambia la precedencia entre la raíz del proyecto y `sys.path[0]`, que al ejecutar el script es `tools/`. Los imports del arnés son calificados (`catalogos`, `nucleo`, `perfiles`, `tools` o `diferencial`) y no existen paquetes homónimos en `tools/`. En las invocaciones del proyecto ambos índices resuelven exactamente los mismos módulos y producen el mismo resultado. Fijar el índice con un test no protegería una conducta de la que dependa el proyecto."
  },
  {
-  "id": "tools/mutar_codigo.py:774:31:constante",
+  "id": "tools/mutar_codigo.py:775:31:constante",
   "linea_texto": "if mid.rsplit(\":\", 3)[0] in del_alcance}",
   "ordinal": 1,
   "razon": "Los identificadores vigentes tienen exactamente tres separadores ':' (archivo:línea:columna:operador). `rsplit(':', 3)[0]` y `rsplit(':', 4)[0]` extraen el mismo archivo para todo identificador válido; la validación global de vigencia descarta los demás antes de este filtro."
@@ -138,7 +138,7 @@
   "razon": "En `tools/sitio.py`, `replace(\"</p>\", \"\", 1)` → `replace(\"</p>\", \"\", 2)`. El cuerpo HTML generado para un elemento de lista no suelta con un único párrafo contiene exactamente una etiqueta de cierre `</p>`. Al haber una única ocurrencia, reemplazar como máximo una o dos instancias produce exactamente la misma cadena."
  },
  {
-  "id": "tools/cli.py:747:39:constante",
+  "id": "tools/cli.py:759:39:constante",
   "linea_texto": "temporal.unlink(missing_ok=True)",
   "ordinal": 1,
   "razon": "En `tools/cli.py`, `temporal.unlink(missing_ok=True)` → `missing_ok=False` en el bloque `finally` de `_reemplazar`. La variable `temporal` sólo deja de ser `None` si la llamada previa a `NamedTemporaryFile(..., delete=False)` creó exitosamente el archivo en el sistema de archivos. Ninguna instrucción posterior dentro del bloque `try` elimina dicho archivo (la llamada `os.link(temporal, destino)` crea un enlace duro adicional al mismo inodo y `origen.unlink()` elimina el archivo fuente de entrada, no el temporal). Por lo tanto, al alcanzar `finally`, el archivo apuntado por `temporal` siempre existe en disco. En un archivo existente, `unlink(missing_ok=True)` y `unlink(missing_ok=False)` ejecutan la misma operación y ninguno genera `FileNotFoundError`. Ningún flujo de ejecución alcanzable distingue ambos valores booleanos."
@@ -154,5 +154,11 @@
   "linea_texto": "sys.meta_path.insert(0, _MismoModulo(paquete, nombre))",
   "ordinal": 1,
   "razon": "En `oracle_metalenguaje/_compat.py`, `sys.meta_path.insert(0, …)` → `insert(1, …)`. Lo que importa es que el buscador `_MismoModulo` quede ANTES del `PathFinder`, que es el que cargaría la segunda copia del módulo. En CPython `sys.meta_path` arranca con BuiltinImporter, FrozenImporter y PathFinder, en ese orden: en la posición 0 o en la 1, el buscador queda antes del PathFinder, y ningún nombre `paquete.nucleo.X` lo resuelven los dos primeros (no son módulos incorporados ni congelados). No hay orden de importación observable que distinga las dos posiciones."
+ },
+ {
+  "id": "tools/cambios.py:48:52:constante",
+  "linea_texto": "check=True, capture_output=True).stdout)",
+  "ordinal": 1,
+  "razon": "`check=True` → `check=False` en el `git show` de `_extraer`. El archivo que se muestra es uno que `git ls-tree` acaba de listar en el mismo ref, así que `git show` no falla y el valor de `check` no cambia nada. Se deja en `True` porque, si alguna vez fallara, escribir un archivo vacío compararía contra un catálogo inventado."
  }
 ]

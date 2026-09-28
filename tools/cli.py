@@ -21,6 +21,7 @@
     oracle proyecto escalares               funciones de dominio y operadores disponibles
     oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
     oracle proyecto cobertura               qué requisitos mide alguna medida y cuáles declaran que no
+    oracle proyecto cambios [--desde <ref>]  lo que el catálogo aflojó desde un commit (por omisión HEAD)
 
     oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
@@ -111,7 +112,7 @@ Uso:
   oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, probar, listar, expandir)
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle plantilla sensor-prosa <destino> Copia el sensor opcional a un directorio nuevo
-  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares, cobertura)
+  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares, cobertura, cambios)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    (mudado) el tracker es el paquete trackertast: usá `tasks <verbo>`
   oracle convertir <archivo>              Convierte medidas JSON a superficie
@@ -137,6 +138,7 @@ Atajos directos:
       --escribir                         Borradores en relaciones-por-revisar/ de las observadas sin declarar
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle cobertura                       Qué requisitos mide alguna medida y cuáles declaran que no
+  oracle cambios [--desde <ref>]         Lo que el catálogo aflojó desde un commit
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
 
@@ -187,6 +189,7 @@ Uso:
   oracle proyecto relaciones              Muestra las relaciones y campos observados
   oracle proyecto escalares               Muestra las funciones escalares y operadores
   oracle proyecto cobertura               Qué requisitos mide alguna medida y cuáles declaran que no
+  oracle proyecto cambios [--desde <ref>]  Lo que el catálogo aflojó desde un commit
   oracle contexto                        Inventario de relaciones y medidas activas""")
 
 
@@ -378,7 +381,7 @@ VERBOS = {
     "plantilla": ("sensor-prosa",),
     "medida": ("nueva", "revisar", "probar", "listar", "expandir"),
     "caso": ("nuevo", "listar", "generar"),
-    "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto", "cobertura"),
+    "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto", "cobertura", "cambios"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
@@ -644,6 +647,15 @@ def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
     print(contexto.texto(proy, compacto="--compacto" in argv,
                          confiar_escalares=confiar_escalares(argv)))
     return 0
+
+
+def cmd_cambios(proy: Proyecto, args: list[str]) -> int:
+    from tools import cambios
+    args = [a for a in args if a != "--rapido"]
+    if args and (args[0] != "--desde" or len(args) != 2):
+        print("uso: oracle cambios [--desde <ref>]")
+        return 1
+    return cambios.main(proy, args[1] if args else "HEAD")
 
 
 def cmd_relaciones(proy: Proyecto, argv: list[str] | None = None) -> int:
@@ -1499,6 +1511,8 @@ def main(argv: list[str] | None = None) -> int:
         if verbo in ("cobertura", "--cobertura"):
             from tools import cobertura
             return cobertura.main(proy)
+        if verbo in ("cambios", "--cambios"):
+            return cmd_cambios(proy, resto[1:])
 
     # Atajos directos históricos (planos)
     if subcomando == "test":
@@ -1534,6 +1548,9 @@ def main(argv: list[str] | None = None) -> int:
     if subcomando in ("cobertura", "--cobertura"):
         from tools import cobertura
         return cobertura.main(proy)
+
+    if subcomando in ("cambios", "--cambios"):
+        return cmd_cambios(proy, resto)
 
     if subcomando in ("escalares", "--escalares"):
         return cmd_escalares(proy, argv)

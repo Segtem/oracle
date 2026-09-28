@@ -58,6 +58,13 @@ jobs:
       - run: python tools/corpus.py --resumen
       - run: python tools/sondear_generador.py
       - run: python tools/sondear_procedencia.py
+      # Lo que el cambio aflojó del catálogo: un umbral subido o una cota de sombra subida con la
+      # misma defensa, o un `requiere` quitado, ponen esto en rojo (tarea avisar-cuando-un). En un
+      # push se compara contra el commit de antes del push, porque acá se integra directo a main.
+      - if: github.event_name == 'pull_request'
+        run: python tools/cli.py cambios --desde origin/${{ github.base_ref }}
+      - if: github.event_name == 'push' && github.event.before != '0000000000000000000000000000000000000000'
+        run: python tools/cli.py cambios --desde ${{ github.event.before }}
       # `aceptacion.py` sale 1 mientras haya un rojo declarado —hoy son 2, ver DECISION-004; pasó de
       # 2 a 3 el 2026-08-31 al corregir un caso que decía `observada` sobre filas de un test, y
       # volvió a 2 el 2026-09-01 al exponer los referentes que el fixture diferencial ya calculaba—
@@ -197,6 +204,9 @@ jobs:
           # Entra el 2026-09-28 con los requisitos: dice qué promesas mide alguna medida, y un
           # requisito que apunta a una medida inexistente se leería como cubierto.
           - tools/cobertura.py
+          # Entra el 2026-09-28: dice qué aflojó un cambio al catálogo. Si calla, un umbral subido
+          # con la misma defensa pasa como una línea más del diff.
+          - tools/cambios.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
