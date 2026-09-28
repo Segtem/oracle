@@ -1,0 +1,65 @@
+caso 322-sin-deltas-advierte-titulos-antes-de-operaciones-cumplido:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Los mismos hechos observados con el mensaje que la spec pide"
+    etiqueta: verde_correcto
+    sintoma:
+        Si la CLI emitiera el texto literal de la spec, la medida tiene que quedar verde.
+    como_se_detecto: mutacion
+    medida: openspec.sin_deltas_advierte_titulos_antes_de_operaciones
+    evidencia:
+        corrida: caso, fixture, modo, comando, entorno, codigo, alcance, es_json
+            "spec_valida#0", "spec_valida", "normal", "openspec validate cap --json", "", 0, "item", true
+            "cambio_valido#0", "cambio_valido", "normal", "openspec validate ch --json", "", 0, "item", true
+            "cambio_sin_deltas#0", "cambio_sin_deltas", "normal", "openspec validate ch --json", "", 1, "item", true
+            "cambio_sin_deltas#1", "cambio_sin_deltas", "humano", "openspec validate ch", "", 1, "item", false
+            "spec_sin_purpose#0", "spec_sin_purpose", "normal", "openspec validate cap --json", "", 1, "item", true
+            "requisito_sin_cuerpo#0", "requisito_sin_cuerpo", "normal", "openspec validate cap --json", "", 1, "item", true
+            "escenarios_en_vinetas#0", "escenarios_en_vinetas", "normal", "openspec validate cap --json", "", 1, "item", true
+            "spec_sin_palabra_clave#0", "spec_sin_palabra_clave", "normal", "openspec validate cap --json", "", 0, "item", true
+            "spec_sin_palabra_clave#1", "spec_sin_palabra_clave", "estricto", "openspec validate cap --json --strict", "", 1, "item", true
+            "delta_sin_palabra_clave#0", "delta_sin_palabra_clave", "normal", "openspec validate ch --json", "", 0, "item", true
+            "delta_sin_palabra_clave#1", "delta_sin_palabra_clave", "estricto", "openspec validate ch --json --strict", "", 1, "item", true
+            "modified_omite_escenario#0", "modified_omite_escenario", "normal", "openspec validate ch --json", "", 1, "item", true
+            "modified_omite_escenario#1", "modified_omite_escenario", "humano", "openspec validate ch", "", 1, "item", false
+            "modified_tras_rename#0", "modified_tras_rename", "normal", "openspec validate ch --json", "", 1, "item", true
+            "modified_sin_base#0", "modified_sin_base", "normal", "openspec validate ch --json", "", 0, "item", true
+            "sin_argumentos#0", "sin_argumentos", "no_interactivo", "openspec validate --no-interactive", "", 1, "item", false
+            "sin_argumentos#1", "sin_argumentos", "no_interactivo", "openspec validate", "OPEN_SPEC_INTERACTIVE=0", 1, "item", false
+            "sin_argumentos#2", "sin_argumentos", "no_interactivo", "openspec validate", "", 1, "item", false
+            "proyecto_mixto#0", "proyecto_mixto", "normal", "openspec validate --all --json", "", 1, "all", true
+            "proyecto_mixto#1", "proyecto_mixto", "normal", "openspec validate --changes --json", "", 0, "change", true
+            "proyecto_mixto#2", "proyecto_mixto", "normal", "openspec validate --specs --json", "", 1, "spec", true
+            "solo_avisos#0", "solo_avisos", "normal", "openspec validate --all --json", "", 0, "all", true
+            "solo_avisos#1", "solo_avisos", "estricto", "openspec validate --all --json --strict", "", 1, "all", true
+            "nombre_ambiguo#0", "nombre_ambiguo", "normal", "openspec validate dup --json", "", 1, "item", true
+            "nombre_ambiguo#1", "nombre_ambiguo", "humano", "openspec validate dup", "", 1, "item", false
+            "nombre_ambiguo#2", "nombre_ambiguo", "tipo_cambio", "openspec validate dup --type change --json", "", 0, "item", true
+            "nombre_ambiguo#3", "nombre_ambiguo", "tipo_spec", "openspec validate dup --type spec --json", "", 0, "item", true
+            "nombre_desconocido#0", "nombre_desconocido", "normal", "openspec validate cpa --json", "", 1, "item", true
+            "nombre_desconocido#1", "nombre_desconocido", "humano", "openspec validate cpa", "", 1, "item", false
+            "propuesta_crlf#0", "propuesta_crlf", "normal", "openspec validate ch --json", "", 0, "item", true
+        problema: caso, id, nivel, ruta, mensaje
+            "cambio_sin_deltas#0", "ch", "ERROR", "file", "Change must have at least one delta. No deltas found. Ensure your change has a specs/ directory with capability folders (e.g. specs/http-server/spec.md) containing .md files that use delta headers (## ADDED/MODIFIED/REMOVED/RENAMED Requirements) and that each requirement includes at least one \"#### Scenario:\" block. If this change intentionally modifies no specs (pure refactor, tooling, docs), set \"skip_specs: true\" in the change's .openspec.yaml instead. Tip: run \"openspec change show <change-id> --json --deltas-only\" to inspect parsed deltas."
+            "spec_sin_purpose#0", "cap", "ERROR", "file", "Spec must have a Purpose section. Missing required sections. Expected headers: \"## Purpose\" and \"## Requirements\". Example:\n## Purpose\n[brief purpose]\n\n## Requirements\n### Requirement: Clear requirement statement\nUsers SHALL ...\n\n#### Scenario: Descriptive name\n- **WHEN** ...\n- **THEN** ..."
+            "requisito_sin_cuerpo#0", "cap", "ERROR", "requirements[0]", "Requirement \"Foo\" must contain SHALL or MUST"
+            "escenarios_en_vinetas#0", "cap", "ERROR", "requirements.0.scenarios", "Requirement must have at least one scenario"
+            "escenarios_en_vinetas#0", "cap", "WARNING", "requirements[0].scenarios", "Requirement must have at least one scenario. Scenarios must use level-4 headers. Convert bullet lists into:\n#### Scenario: Short name\n- **WHEN** ...\n- **THEN** ...\n- **AND** ..."
+            "spec_sin_palabra_clave#0", "cap", "WARNING", "requirements[0]", "Requirement \"Foo\" should contain SHALL or MUST (RFC 2119 best practice for English specs)"
+            "spec_sin_palabra_clave#1", "cap", "WARNING", "requirements[0]", "Requirement \"Foo\" should contain SHALL or MUST (RFC 2119 best practice for English specs)"
+            "delta_sin_palabra_clave#0", "ch", "WARNING", "cap/spec.md", "ADDED \"Bar\" should contain SHALL or MUST (RFC 2119 best practice for English specs)"
+            "delta_sin_palabra_clave#1", "ch", "WARNING", "cap/spec.md", "ADDED \"Bar\" should contain SHALL or MUST (RFC 2119 best practice for English specs)"
+            "modified_omite_escenario#0", "ch", "ERROR", "cap/spec.md", "MODIFIED \"Foo\" omits scenario(s) the current spec still has: \"B\". The modified block has 1 scenario; the current spec has 2 scenarios. It adds none. Copy the omitted scenarios into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them)."
+            "modified_tras_rename#0", "ch", "ERROR", "cap/spec.md", "MODIFIED \"B\" omits scenario(s) the current spec still has: \"S2\". The modified block has 1 scenario; the current spec has 2 scenarios. It adds none. Copy the omitted scenarios into the MODIFIED block (a MODIFIED requirement replaces the whole block, so archive refuses to drop them)."
+            "modified_sin_base#0", "ch", "INFO", "cap/spec.md", "Archive would refuse this delta: cap MODIFIED failed for header \"### Requirement: Inexistente\" - not found"
+            "proyecto_mixto#0", "rota", "ERROR", "requirements[0]", "Requirement \"Foo\" must contain SHALL or MUST"
+            "proyecto_mixto#2", "rota", "ERROR", "requirements[0]", "Requirement \"Foo\" must contain SHALL or MUST"
+            "solo_avisos#0", "cap", "WARNING", "requirements[0]", "Requirement \"Foo\" should contain SHALL or MUST (RFC 2119 best practice for English specs)"
+            "solo_avisos#1", "cap", "WARNING", "requirements[0]", "Requirement \"Foo\" should contain SHALL or MUST (RFC 2119 best practice for English specs)"
+            "cambio_sin_deltas#0", "cap", "ERROR", "cap/spec.md", "Spec delta files cannot start with titles before the operation headers"
+            "cambio_sin_deltas#1", "cap", "ERROR", "cap/spec.md", "Spec delta files cannot start with titles before the operation headers"
+    leccion:
+        Deriva de la corrida real cambiando sólo lo que decide la cláusula.

@@ -1,0 +1,19 @@
+caso openspec-gen-001-todo-item-trae-duracion:
+    fecha: "2026-09-28"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en openspec.todo_item_trae_duracion"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en openspec.todo_item_trae_duracion (mutante: aflojar_cota_superior, aflojar_umbral, agregado:3.1:contar→suma(0), expresion:booleano@2.2.1.2, expresion:comparador@2.2.1:==→!=, invertir_comparador, negar_filtro, quitar_filtro, vaciar_tuberia_si_cero_aprueba).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: openspec.todo_item_trae_duracion
+    evidencia:
+        item: tiene_duracion
+            false
+            true
+    leccion:
+        Caso generado automáticamente para fijar openspec.todo_item_trae_duracion sin depender de evidencia escrita a mano.

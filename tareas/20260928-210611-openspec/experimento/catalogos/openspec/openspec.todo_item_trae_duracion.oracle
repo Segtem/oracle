@@ -1,0 +1,8 @@
+medida openspec.todo_item_trae_duracion:
+    de item i
+    donde i.tiene_duracion == false
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el esquema declara durationMs numérico en cada ítem. Escenarios de cli-validate: 23"
+    requiere item
+    ambito universal
+    alcance "mira que durationMs sea un número. NO juzga si la duración es verosímil"

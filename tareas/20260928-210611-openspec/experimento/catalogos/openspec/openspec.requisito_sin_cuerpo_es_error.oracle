@@ -1,0 +1,9 @@
+medida openspec.requisito_sin_cuerpo_es_error:
+    de corrida c
+    donde c.fixture == "requisito_sin_cuerpo" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "ERROR"
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un requisito sin cuerpo antes de sus escenarios SHALL seguir siendo error. Escenarios de cli-validate: 8"
+    requiere corrida
+    ambito universal
+    alcance "exige algún ERROR. NO juzga si el mensaje explica la causa"

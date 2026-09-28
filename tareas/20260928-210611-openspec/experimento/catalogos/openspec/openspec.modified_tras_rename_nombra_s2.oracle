@@ -1,0 +1,9 @@
+medida openspec.modified_tras_rename_nombra_s2:
+    de corrida c
+    donde c.fixture == "modified_tras_rename" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "ERROR" y contiene(p.mensaje, "\"S2\"")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un MODIFIED que nombra el encabezado nuevo de un rename se compara contra los escenarios del requisito renombrado. Escenarios de cli-validate: 12"
+    requiere corrida
+    ambito universal
+    alcance "mira un rename seguido de MODIFIED. NO ejerce el orden inverso ni renames encadenados"

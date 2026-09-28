@@ -1,0 +1,9 @@
+medida openspec.modified_nombra_el_escenario_omitido:
+    de corrida c
+    donde c.fixture == "modified_omite_escenario" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "ERROR" y contiene(p.mensaje, "\"B\"") y contiene(p.ruta, "spec.md")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario exige un error que nombre el archivo del delta y el escenario «B». Escenarios de cli-validate: 11"
+    requiere corrida
+    ambito universal
+    alcance "mira un MODIFIED con un escenario omitido. NO ejerce varios omitidos ni varios requisitos"

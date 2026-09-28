@@ -1,0 +1,9 @@
+medida openspec.error_de_estructura_remite_a_agents_md:
+    de corrida c
+    donde (c.fixture == "spec_sin_purpose" o c.fixture == "requisito_sin_cuerpo") y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y contiene(p.mensaje, "AGENTS.md")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "los escenarios «Missing required sections» y «Missing requirement descriptive text» piden remitir a openspec/AGENTS.md como plantilla. Escenarios de cli-validate: 2 3"
+    requiere corrida
+    ambito universal
+    alcance "busca el nombre del archivo en el mensaje. NO verifica que la sección citada exista en AGENTS.md"

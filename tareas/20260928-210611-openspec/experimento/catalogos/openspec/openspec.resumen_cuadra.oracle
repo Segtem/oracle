@@ -1,0 +1,8 @@
+medida openspec.resumen_cuadra:
+    de resumen r
+    donde r.items != r.aprobados + r.fallados o r.version == "None"
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el esquema pide totales con items, passed y failed, y una versión del esquema. Escenarios de cli-validate: 22 23"
+    requiere resumen
+    ambito universal
+    alcance "mira la aritmética de los totales y que haya versión. NO compara los totales con la lista de ítems"

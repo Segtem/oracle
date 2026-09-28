@@ -1,0 +1,8 @@
+medida openspec.sin_argumentos_no_interactivo_sale_con_1:
+    de corrida c
+    donde c.modo == "no_interactivo" y c.codigo != 1
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "sin TTY, con --no-interactive o con OPEN_SPEC_INTERACTIVE=0 el comando sin argumentos SHALL salir con 1. Escenarios de cli-validate: 15 30"
+    requiere corrida
+    ambito universal
+    alcance "corre con stdin cerrado, que no es TTY. NO ve si en una terminal de verdad aparecería un prompt"

@@ -1,0 +1,19 @@
+caso openspec-gen-001-sin-argumentos-no-interactivo-sale-con-1:
+    fecha: "2026-09-28"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en openspec.sin_argumentos_no_interactivo_sale_con_1"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en openspec.sin_argumentos_no_interactivo_sale_con_1 (mutante: aflojar_cota_superior, aflojar_umbral, agregado:3.1:contar→suma(0), campo:2.2.1.1.1.2:modo→codigo, campo:2.2.1.2.1.2:codigo→modo, expresion:comparador@2.2.1.1:==→!=, expresion:comparador@2.2.1.2:!=→==, expresion:logico@2.2.1:y→o, invertir_comparador, negar_filtro, quitar_filtro, vaciar_tuberia_si_cero_aprueba).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: openspec.sin_argumentos_no_interactivo_sale_con_1
+    evidencia:
+        corrida: modo, codigo
+            "no_interactivo", 0
+            "", 0
+    leccion:
+        Caso generado automáticamente para fijar openspec.sin_argumentos_no_interactivo_sale_con_1 sin depender de evidencia escrita a mano.

@@ -1,0 +1,9 @@
+medida openspec.nombre_ambiguo_no_valida:
+    de corrida c
+    unir item i
+    donde c.fixture == "nombre_ambiguo" y (c.modo == "normal" o c.modo == "humano") y i.caso == c.caso
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "ante la ambigüedad se sale sin validar: ningún ítem puede aparecer. Escenarios de cli-validate: 27"
+    requiere corrida
+    ambito universal
+    alcance "mira los ítems del JSON. NO ve una validación hecha y no informada"

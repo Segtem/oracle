@@ -1,0 +1,9 @@
+medida openspec.cambio_invalido_muestra_el_pie:
+    de corrida c
+    unir salida s
+    donde c.modo == "humano" y c.codigo == 1 y s.caso == c.caso y (c.fixture == "cambio_sin_deltas" o c.fixture == "modified_omite_escenario") y (no contiene(s.texto, "Next steps") o no contiene(s.texto, "--deltas-only"))
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un cambio inválido en salida humana SHALL terminar con el pie y sugerir el comando de depuración con --deltas-only. Escenarios de cli-validate: 10"
+    requiere corrida
+    ambito universal
+    alcance "busca el pie y la bandera en la salida humana. NO distingue si la sugerencia está en el pie o en el mensaje"

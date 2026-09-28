@@ -1,0 +1,8 @@
+medida openspec.crlf_se_parsea:
+    de corrida c
+    donde c.fixture == "propuesta_crlf" y c.codigo != 0
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "una propuesta con CRLF y sus secciones SHALL validar igual que con LF. Escenarios de cli-validate: 31"
+    requiere corrida
+    ambito universal
+    alcance "mira CRLF en la propuesta y en el delta. NO ejerce CR solo, que el requisito también nombra"

@@ -1,0 +1,19 @@
+caso openspec-gen-001-nombre-no-resuelto-sale-con-1-sin-validar:
+    fecha: "2026-09-28"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en openspec.nombre_no_resuelto_sale_con_1_sin_validar"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en openspec.nombre_no_resuelto_sale_con_1_sin_validar (mutante: aflojar_cota_superior, aflojar_umbral, agregado:3.1:contar→suma(0), campo:2.2.1.1.1.1.2:fixture→codigo, campo:2.2.1.1.1.1.2:fixture→modo, campo:2.2.1.1.2.1.1.2:fixture→codigo, campo:2.2.1.1.2.2.1.1.2:modo→codigo, campo:2.2.1.1.2.2.2.1.2:modo→codigo, campo:2.2.1.2.1.2:codigo→fixture, campo:2.2.1.2.1.2:codigo→modo, expresion:comparador@2.2.1.1.1:==→!=, expresion:comparador@2.2.1.1.2.1:==→!=, expresion:comparador@2.2.1.2:!=→==, expresion:logico@2.2.1.1.2:y→o, expresion:logico@2.2.1.1:o→y, expresion:logico@2.2.1:y→o, invertir_comparador, negar_filtro, quitar_filtro, vaciar_tuberia_si_cero_aprueba).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: openspec.nombre_no_resuelto_sale_con_1_sin_validar
+    evidencia:
+        corrida: fixture, modo, codigo
+            "nombre_desconocido", "normal", 0
+            "", "normal", 0
+    leccion:
+        Caso generado automáticamente para fijar openspec.nombre_no_resuelto_sale_con_1_sin_validar sin depender de evidencia escrita a mano.

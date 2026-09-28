@@ -1,0 +1,75 @@
+caso 328-todo-lo-vivo-se-valida-roto-1:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "La corrida observada con una sola violación en --all"
+    etiqueta: falso_verde
+    sintoma:
+        Una sola corrida deja de cumplir la cláusula y la medida tiene que ponerse roja con valor 1.
+    como_se_detecto: mutacion
+    medida: openspec.todo_lo_vivo_se_valida
+    evidencia:
+        corrida: caso, fixture, modo, comando, entorno, codigo, alcance, es_json
+            "spec_valida#0", "spec_valida", "normal", "openspec validate cap --json", "", 0, "item", true
+            "cambio_valido#0", "cambio_valido", "normal", "openspec validate ch --json", "", 0, "item", true
+            "cambio_sin_deltas#0", "cambio_sin_deltas", "normal", "openspec validate ch --json", "", 1, "item", true
+            "cambio_sin_deltas#1", "cambio_sin_deltas", "humano", "openspec validate ch", "", 1, "item", false
+            "spec_sin_purpose#0", "spec_sin_purpose", "normal", "openspec validate cap --json", "", 1, "item", true
+            "requisito_sin_cuerpo#0", "requisito_sin_cuerpo", "normal", "openspec validate cap --json", "", 1, "item", true
+            "escenarios_en_vinetas#0", "escenarios_en_vinetas", "normal", "openspec validate cap --json", "", 1, "item", true
+            "spec_sin_palabra_clave#0", "spec_sin_palabra_clave", "normal", "openspec validate cap --json", "", 0, "item", true
+            "spec_sin_palabra_clave#1", "spec_sin_palabra_clave", "estricto", "openspec validate cap --json --strict", "", 1, "item", true
+            "delta_sin_palabra_clave#0", "delta_sin_palabra_clave", "normal", "openspec validate ch --json", "", 0, "item", true
+            "delta_sin_palabra_clave#1", "delta_sin_palabra_clave", "estricto", "openspec validate ch --json --strict", "", 1, "item", true
+            "modified_omite_escenario#0", "modified_omite_escenario", "normal", "openspec validate ch --json", "", 1, "item", true
+            "modified_omite_escenario#1", "modified_omite_escenario", "humano", "openspec validate ch", "", 1, "item", false
+            "modified_tras_rename#0", "modified_tras_rename", "normal", "openspec validate ch --json", "", 1, "item", true
+            "modified_sin_base#0", "modified_sin_base", "normal", "openspec validate ch --json", "", 0, "item", true
+            "sin_argumentos#0", "sin_argumentos", "no_interactivo", "openspec validate --no-interactive", "", 1, "item", false
+            "sin_argumentos#1", "sin_argumentos", "no_interactivo", "openspec validate", "OPEN_SPEC_INTERACTIVE=0", 1, "item", false
+            "sin_argumentos#2", "sin_argumentos", "no_interactivo", "openspec validate", "", 1, "item", false
+            "proyecto_mixto#0", "proyecto_mixto", "normal", "openspec validate --all --json", "", 1, "all", true
+            "proyecto_mixto#1", "proyecto_mixto", "normal", "openspec validate --changes --json", "", 0, "change", true
+            "proyecto_mixto#2", "proyecto_mixto", "normal", "openspec validate --specs --json", "", 1, "spec", true
+            "solo_avisos#0", "solo_avisos", "normal", "openspec validate --all --json", "", 0, "all", true
+            "solo_avisos#1", "solo_avisos", "estricto", "openspec validate --all --json --strict", "", 1, "all", true
+            "nombre_ambiguo#0", "nombre_ambiguo", "normal", "openspec validate dup --json", "", 1, "item", true
+            "nombre_ambiguo#1", "nombre_ambiguo", "humano", "openspec validate dup", "", 1, "item", false
+            "nombre_ambiguo#2", "nombre_ambiguo", "tipo_cambio", "openspec validate dup --type change --json", "", 0, "item", true
+            "nombre_ambiguo#3", "nombre_ambiguo", "tipo_spec", "openspec validate dup --type spec --json", "", 0, "item", true
+            "nombre_desconocido#0", "nombre_desconocido", "normal", "openspec validate cpa --json", "", 1, "item", true
+            "nombre_desconocido#1", "nombre_desconocido", "humano", "openspec validate cpa", "", 1, "item", false
+            "propuesta_crlf#0", "propuesta_crlf", "normal", "openspec validate ch --json", "", 0, "item", true
+        en_disco: fixture, id, tipo, archivado
+            "proyecto_mixto", "cap", "spec", false
+            "proyecto_mixto", "rota", "spec", false
+            "proyecto_mixto", "ch", "change", false
+            "proyecto_mixto", "2026-01-01-viejo", "change", true
+        item: caso, id, tipo, valido, tiene_duracion
+            "spec_valida#0", "cap", "spec", true, true
+            "cambio_valido#0", "ch", "change", true, true
+            "cambio_sin_deltas#0", "ch", "change", false, true
+            "spec_sin_purpose#0", "cap", "spec", false, true
+            "requisito_sin_cuerpo#0", "cap", "spec", false, true
+            "escenarios_en_vinetas#0", "cap", "spec", false, true
+            "spec_sin_palabra_clave#0", "cap", "spec", true, true
+            "spec_sin_palabra_clave#1", "cap", "spec", false, true
+            "delta_sin_palabra_clave#0", "ch", "change", true, true
+            "delta_sin_palabra_clave#1", "ch", "change", false, true
+            "modified_omite_escenario#0", "ch", "change", false, true
+            "modified_tras_rename#0", "ch", "change", false, true
+            "modified_sin_base#0", "ch", "change", true, true
+            "proyecto_mixto#0", "cap", "spec", true, true
+            "proyecto_mixto#0", "ch", "change", true, true
+            "proyecto_mixto#1", "ch", "change", true, true
+            "proyecto_mixto#2", "cap", "spec", true, true
+            "proyecto_mixto#2", "rota", "spec", false, true
+            "solo_avisos#0", "cap", "spec", true, true
+            "solo_avisos#1", "cap", "spec", false, true
+            "nombre_ambiguo#2", "dup", "change", true, true
+            "nombre_ambiguo#3", "dup", "spec", true, true
+            "propuesta_crlf#0", "ch", "change", true, true
+    leccion:
+        Deriva de la corrida real cambiando sólo lo que decide la cláusula.

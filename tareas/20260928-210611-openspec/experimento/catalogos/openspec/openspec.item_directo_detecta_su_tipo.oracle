@@ -1,0 +1,9 @@
+medida openspec.item_directo_detecta_su_tipo:
+    de corrida c
+    unir item i
+    donde i.caso == c.caso y ((c.fixture == "spec_valida" y i.tipo != "spec") o (c.fixture == "cambio_valido" y i.tipo != "change"))
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "validar un nombre que existe una sola vez SHALL detectar si es cambio o spec. Escenarios de cli-validate: 16 26"
+    requiere corrida
+    ambito universal
+    alcance "mira un nombre único de cada tipo. NO ejerce nombres con barras ni capacidades anidadas"

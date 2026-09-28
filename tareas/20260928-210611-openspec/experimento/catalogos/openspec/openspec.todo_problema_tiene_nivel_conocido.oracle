@@ -1,0 +1,8 @@
+medida openspec.todo_problema_tiene_nivel_conocido:
+    de problema p
+    donde p.nivel != "ERROR" y p.nivel != "WARNING" y p.nivel != "INFO"
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "Issue.level es ERROR, WARNING o INFO y nada más. Escenarios de cli-validate: 23"
+    requiere problema
+    ambito universal
+    alcance "mira el nivel de cada problema. NO juzga si el nivel elegido es el adecuado"

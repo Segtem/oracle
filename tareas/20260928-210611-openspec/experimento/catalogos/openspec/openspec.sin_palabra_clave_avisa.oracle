@@ -1,0 +1,9 @@
+medida openspec.sin_palabra_clave_avisa:
+    de corrida c
+    donde (c.fixture == "spec_sin_palabra_clave" o c.fixture == "delta_sin_palabra_clave") y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "WARNING" y contiene(p.mensaje, "SHALL or MUST")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "los escenarios en otro idioma exigen el aviso RFC 2119 en el informe, tanto en una spec como en un delta. Escenarios de cli-validate: 5 6"
+    requiere corrida
+    ambito universal
+    alcance "exige un WARNING que nombre las palabras clave. NO juzga el tono ni el idioma del aviso"

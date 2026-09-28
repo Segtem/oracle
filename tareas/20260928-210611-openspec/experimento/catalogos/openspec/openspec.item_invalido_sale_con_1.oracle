@@ -1,0 +1,9 @@
+medida openspec.item_invalido_sale_con_1:
+    de corrida c
+    unir item i
+    donde i.caso == c.caso y i.valido == false y c.codigo == 0
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la spec pide salir con 1 si algún ítem es inválido, en validación suelta y masiva. Escenarios de cli-validate: 11 17 23"
+    requiere corrida
+    ambito universal
+    alcance "cruza cada ítem inválido con el código de su corrida. NO ve un ítem inválido que el JSON no lista"

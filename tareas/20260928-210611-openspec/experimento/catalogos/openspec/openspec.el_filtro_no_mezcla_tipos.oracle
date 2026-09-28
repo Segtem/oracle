@@ -1,0 +1,9 @@
+medida openspec.el_filtro_no_mezcla_tipos:
+    de corrida c
+    unir item i
+    donde i.caso == c.caso y (c.alcance == "change" o c.alcance == "spec") y i.tipo != c.alcance
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "--changes valida sólo cambios y --specs sólo specs. Escenarios de cli-validate: 19 20"
+    requiere corrida
+    ambito universal
+    alcance "mira el tipo de cada ítem contra el filtro. NO ve ítems que falten, eso lo mide todo_lo_vivo_se_valida"

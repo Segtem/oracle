@@ -1,0 +1,9 @@
+medida openspec.sin_deltas_advierte_titulos_antes_de_operaciones:
+    de corrida c
+    donde c.fixture == "cambio_sin_deltas" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y contiene(p.mensaje, "Spec delta files cannot start with titles before the operation headers")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario pide «an explicit note» con esa frase entre comillas; la spec la da literal, así que su ausencia es falsable. Escenarios de cli-validate: 1"
+    requiere corrida
+    ambito universal
+    alcance "busca la frase literal. NO acepta una paráfrasis que diga lo mismo con otras palabras"

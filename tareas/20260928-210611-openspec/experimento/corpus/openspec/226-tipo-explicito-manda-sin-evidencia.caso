@@ -1,0 +1,17 @@
+caso 226-tipo-explicito-manda-sin-evidencia:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "El sensor no emitió corrida"
+    etiqueta: falso_verde
+    espera: sin_evidencia
+    sintoma:
+        Sin filas de corrida la medida no midió nada y no puede dar verde.
+    como_se_detecto: mutacion
+    medida: openspec.tipo_explicito_manda
+    evidencia:
+        corrida:
+    leccion:
+        Un verde por relación vacía es el falso verde más barato; `requiere` lo cierra.

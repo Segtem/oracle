@@ -1,0 +1,10 @@
+medida openspec.nada_archivado_se_valida:
+    de corrida c
+    unir item i
+    unir en_disco e
+    donde i.caso == c.caso y e.fixture == c.fixture y e.id == i.id y e.archivado == true
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la validación masiva excluye openspec/changes/archive/. Escenarios de cli-validate: 17 18 19"
+    requiere corrida
+    ambito universal
+    alcance "compara contra lo que el sensor escribió en disco. NO ve un archivado con el mismo id que un cambio vivo"

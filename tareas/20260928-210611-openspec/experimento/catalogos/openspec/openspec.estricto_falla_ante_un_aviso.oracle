@@ -1,0 +1,9 @@
+medida openspec.estricto_falla_ante_un_aviso:
+    de corrida c
+    unir problema p
+    donde c.modo == "estricto" y p.caso == c.caso y p.nivel == "WARNING" y c.codigo == 0
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "strict trata los avisos como fallas: una corrida estricta que ve un aviso y termina en 0 contradice dos escenarios. Escenarios de cli-validate: 7 21"
+    requiere corrida
+    ambito universal
+    alcance "cruza corridas estrictas con sus avisos. NO ve un aviso que la CLI no llegó a emitir"

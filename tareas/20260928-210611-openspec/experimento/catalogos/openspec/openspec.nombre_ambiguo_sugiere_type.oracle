@@ -1,0 +1,9 @@
+medida openspec.nombre_ambiguo_sugiere_type:
+    de corrida c
+    unir salida s
+    donde c.fixture == "nombre_ambiguo" y c.modo == "humano" y s.caso == c.caso y no contiene(s.texto, "--type")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario pide sugerir --type change o --type spec. Escenarios de cli-validate: 27"
+    requiere corrida
+    ambito universal
+    alcance "busca la bandera. NO juzga si explica ambas coincidencias"

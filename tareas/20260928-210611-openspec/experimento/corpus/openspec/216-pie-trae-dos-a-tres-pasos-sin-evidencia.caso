@@ -1,0 +1,17 @@
+caso 216-pie-trae-dos-a-tres-pasos-sin-evidencia:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "El sensor no emitió pie"
+    etiqueta: falso_verde
+    espera: sin_evidencia
+    sintoma:
+        Sin filas de pie la medida no midió nada y no puede dar verde.
+    como_se_detecto: mutacion
+    medida: openspec.pie_trae_dos_a_tres_pasos
+    evidencia:
+        pie:
+    leccion:
+        Un verde por relación vacía es el falso verde más barato; `requiere` lo cierra.

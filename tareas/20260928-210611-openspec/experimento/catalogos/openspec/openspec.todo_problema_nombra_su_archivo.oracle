@@ -1,0 +1,8 @@
+medida openspec.todo_problema_nombra_su_archivo:
+    de problema p
+    donde no contiene(p.ruta, ".md")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el requisito «All issues SHALL include file paths» vale para todo error, aviso o info, sin excepción. Escenarios de cli-validate: 9"
+    requiere problema
+    ambito universal
+    alcance "mira el campo path de cada problema del JSON. NO acepta un archivo nombrado sólo dentro del mensaje, porque la spec lo pide como ubicación estructurada"

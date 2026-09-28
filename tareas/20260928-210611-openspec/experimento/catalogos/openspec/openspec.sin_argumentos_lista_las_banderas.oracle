@@ -1,0 +1,9 @@
+medida openspec.sin_argumentos_lista_las_banderas:
+    de corrida c
+    unir salida s
+    donde c.modo == "no_interactivo" y s.caso == c.caso y (no contiene(s.texto, "--all") o no contiene(s.texto, "--changes") o no contiene(s.texto, "--specs"))
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario pide una pista que liste los comandos y banderas disponibles. Escenarios de cli-validate: 15 30"
+    requiere corrida
+    ambito universal
+    alcance "busca las tres banderas de selección. NO juzga si la pista es útil"

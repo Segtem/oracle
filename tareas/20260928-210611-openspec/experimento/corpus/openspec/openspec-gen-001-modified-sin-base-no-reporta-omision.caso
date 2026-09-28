@@ -1,0 +1,21 @@
+caso openspec-gen-001-modified-sin-base-no-reporta-omision:
+    fecha: "2026-09-28"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en openspec.modified_sin_base_no_reporta_omision"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en openspec.modified_sin_base_no_reporta_omision (mutante: aflojar_cota_superior, aflojar_umbral, agregado:3.1:contar→suma(0), campo:2.2.1.1.1.2:fixture→caso, campo:2.2.1.2.1.2:caso→mensaje, campo:2.2.1.2.2.2:caso→fixture, campo:2.2.1.3.1.2:mensaje→caso, expresion:comparador@2.2.1.1:==→!=, expresion:comparador@2.2.1.2:==→!=, expresion:logico@2.2.1:y→o, fuente:2.1.1.1:corrida→problema, fuente:2.1.2.1:problema→corrida, invertir_comparador, negar_filtro, quitar_filtro, vaciar_tuberia_si_cero_aprueba).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: openspec.modified_sin_base_no_reporta_omision
+    evidencia:
+        corrida: fixture, caso
+            "modified_sin_base", "mismo_valor"
+            "", "mismo_valor"
+        problema: caso, mensaje
+            "mismo_valor", "NO ve omits scenario"
+    leccion:
+        Caso generado automáticamente para fijar openspec.modified_sin_base_no_reporta_omision sin depender de evidencia escrita a mano.

@@ -1,0 +1,19 @@
+caso openspec-gen-001-todo-problema-nombra-su-archivo:
+    fecha: "2026-09-28"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en openspec.todo_problema_nombra_su_archivo"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en openspec.todo_problema_nombra_su_archivo (mutante: aflojar_cota_superior, aflojar_umbral, agregado:3.1:contar→suma(0), expresion:quitar_no@2.2.1, invertir_comparador, negar_filtro, quitar_filtro, vaciar_tuberia_si_cero_aprueba).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: openspec.todo_problema_nombra_su_archivo
+    evidencia:
+        problema: ruta
+            "todo bien"
+            "NO ve .md"
+    leccion:
+        Caso generado automáticamente para fijar openspec.todo_problema_nombra_su_archivo sin depender de evidencia escrita a mano.

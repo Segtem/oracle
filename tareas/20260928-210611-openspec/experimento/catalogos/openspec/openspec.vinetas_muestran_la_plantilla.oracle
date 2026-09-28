@@ -1,0 +1,9 @@
+medida openspec.vinetas_muestran_la_plantilla:
+    de corrida c
+    donde c.fixture == "escenarios_en_vinetas" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "WARNING" y contiene(p.mensaje, "#### Scenario:") y contiene(p.mensaje, "- **WHEN**")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario exige mostrar una plantilla de conversión con el encabezado y las viñetas WHEN/THEN. Escenarios de cli-validate: 4"
+    requiere corrida
+    ambito universal
+    alcance "busca las dos marcas de la plantilla en un aviso. NO compara la plantilla entera"

@@ -1,0 +1,49 @@
+caso 115-nombre-no-resuelto-sale-con-1-sin-validar:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Fission-AI/OpenSpec"
+        commit: "79b6aa9"
+        cuando_utc: "2026-09-28T21:16:31+00:00"
+        comando: "python3 sensor.py --openspec <@fission-ai/openspec 1.13.2>"
+        evidencia_sha256: "sha256:65a0de3e0d0b97d87e16fb8335cf70577cbf7370cfc799db36ab3d2ac373c34a"
+    procedencia: observada
+    titulo: "openspec validate 1.13.2, corrido contra los fixtures que openspec.nombre_no_resuelto_sale_con_1_sin_validar nombra"
+    etiqueta: verde_correcto
+    sintoma:
+        Ninguno: la CLI real cumple la cláusula de cli-validate que esta medida vuelve falsable.
+    como_se_detecto: observacion
+    medida: openspec.nombre_no_resuelto_sale_con_1_sin_validar
+    evidencia:
+        corrida: caso, fixture, modo, comando, entorno, codigo, alcance, es_json
+            "spec_valida#0", "spec_valida", "normal", "openspec validate cap --json", "", 0, "item", true
+            "cambio_valido#0", "cambio_valido", "normal", "openspec validate ch --json", "", 0, "item", true
+            "cambio_sin_deltas#0", "cambio_sin_deltas", "normal", "openspec validate ch --json", "", 1, "item", true
+            "cambio_sin_deltas#1", "cambio_sin_deltas", "humano", "openspec validate ch", "", 1, "item", false
+            "spec_sin_purpose#0", "spec_sin_purpose", "normal", "openspec validate cap --json", "", 1, "item", true
+            "requisito_sin_cuerpo#0", "requisito_sin_cuerpo", "normal", "openspec validate cap --json", "", 1, "item", true
+            "escenarios_en_vinetas#0", "escenarios_en_vinetas", "normal", "openspec validate cap --json", "", 1, "item", true
+            "spec_sin_palabra_clave#0", "spec_sin_palabra_clave", "normal", "openspec validate cap --json", "", 0, "item", true
+            "spec_sin_palabra_clave#1", "spec_sin_palabra_clave", "estricto", "openspec validate cap --json --strict", "", 1, "item", true
+            "delta_sin_palabra_clave#0", "delta_sin_palabra_clave", "normal", "openspec validate ch --json", "", 0, "item", true
+            "delta_sin_palabra_clave#1", "delta_sin_palabra_clave", "estricto", "openspec validate ch --json --strict", "", 1, "item", true
+            "modified_omite_escenario#0", "modified_omite_escenario", "normal", "openspec validate ch --json", "", 1, "item", true
+            "modified_omite_escenario#1", "modified_omite_escenario", "humano", "openspec validate ch", "", 1, "item", false
+            "modified_tras_rename#0", "modified_tras_rename", "normal", "openspec validate ch --json", "", 1, "item", true
+            "modified_sin_base#0", "modified_sin_base", "normal", "openspec validate ch --json", "", 0, "item", true
+            "sin_argumentos#0", "sin_argumentos", "no_interactivo", "openspec validate --no-interactive", "", 1, "item", false
+            "sin_argumentos#1", "sin_argumentos", "no_interactivo", "openspec validate", "OPEN_SPEC_INTERACTIVE=0", 1, "item", false
+            "sin_argumentos#2", "sin_argumentos", "no_interactivo", "openspec validate", "", 1, "item", false
+            "proyecto_mixto#0", "proyecto_mixto", "normal", "openspec validate --all --json", "", 1, "all", true
+            "proyecto_mixto#1", "proyecto_mixto", "normal", "openspec validate --changes --json", "", 0, "change", true
+            "proyecto_mixto#2", "proyecto_mixto", "normal", "openspec validate --specs --json", "", 1, "spec", true
+            "solo_avisos#0", "solo_avisos", "normal", "openspec validate --all --json", "", 0, "all", true
+            "solo_avisos#1", "solo_avisos", "estricto", "openspec validate --all --json --strict", "", 1, "all", true
+            "nombre_ambiguo#0", "nombre_ambiguo", "normal", "openspec validate dup --json", "", 1, "item", true
+            "nombre_ambiguo#1", "nombre_ambiguo", "humano", "openspec validate dup", "", 1, "item", false
+            "nombre_ambiguo#2", "nombre_ambiguo", "tipo_cambio", "openspec validate dup --type change --json", "", 0, "item", true
+            "nombre_ambiguo#3", "nombre_ambiguo", "tipo_spec", "openspec validate dup --type spec --json", "", 0, "item", true
+            "nombre_desconocido#0", "nombre_desconocido", "normal", "openspec validate cpa --json", "", 1, "item", true
+            "nombre_desconocido#1", "nombre_desconocido", "humano", "openspec validate cpa", "", 1, "item", false
+            "propuesta_crlf#0", "propuesta_crlf", "normal", "openspec validate ch --json", "", 0, "item", true
+    leccion:
+        La medida queda fijada contra la salida real, no sólo contra evidencia fabricada.

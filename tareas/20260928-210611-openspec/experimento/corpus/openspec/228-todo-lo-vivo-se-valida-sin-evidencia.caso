@@ -1,0 +1,17 @@
+caso 228-todo-lo-vivo-se-valida-sin-evidencia:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "El sensor no emitió en_disco"
+    etiqueta: falso_verde
+    espera: sin_evidencia
+    sintoma:
+        Sin filas de en_disco la medida no midió nada y no puede dar verde.
+    como_se_detecto: mutacion
+    medida: openspec.todo_lo_vivo_se_valida
+    evidencia:
+        en_disco:
+    leccion:
+        Un verde por relación vacía es el falso verde más barato; `requiere` lo cierra.

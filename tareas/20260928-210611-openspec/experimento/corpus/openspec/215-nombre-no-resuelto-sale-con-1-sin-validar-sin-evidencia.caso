@@ -1,0 +1,17 @@
+caso 215-nombre-no-resuelto-sale-con-1-sin-validar-sin-evidencia:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "El sensor no emitió corrida"
+    etiqueta: falso_verde
+    espera: sin_evidencia
+    sintoma:
+        Sin filas de corrida la medida no midió nada y no puede dar verde.
+    como_se_detecto: mutacion
+    medida: openspec.nombre_no_resuelto_sale_con_1_sin_validar
+    evidencia:
+        corrida:
+    leccion:
+        Un verde por relación vacía es el falso verde más barato; `requiere` lo cierra.

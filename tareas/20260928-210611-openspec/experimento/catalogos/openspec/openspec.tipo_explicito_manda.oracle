@@ -1,0 +1,9 @@
+medida openspec.tipo_explicito_manda:
+    de corrida c
+    unir item i
+    donde i.caso == c.caso y ((c.modo == "tipo_cambio" y i.tipo != "change") o (c.modo == "tipo_spec" y i.tipo != "spec"))
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "--type change|spec trata el nombre como ese tipo, sin detección automática. Escenarios de cli-validate: 29"
+    requiere corrida
+    ambito universal
+    alcance "mira el tipo del ítem validado. NO ve si la detección corrió igual por dentro"

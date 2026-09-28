@@ -1,0 +1,8 @@
+medida openspec.nombre_no_resuelto_sale_con_1_sin_validar:
+    de corrida c
+    donde (c.fixture == "nombre_desconocido" o (c.fixture == "nombre_ambiguo" y (c.modo == "normal" o c.modo == "humano"))) y c.codigo != 1
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un nombre ambiguo o desconocido SHALL salir con 1. Escenarios de cli-validate: 27 28"
+    requiere corrida
+    ambito universal
+    alcance "mira el código de salida. La parte «sin realizar la validación» la mide nombre_ambiguo_no_valida"

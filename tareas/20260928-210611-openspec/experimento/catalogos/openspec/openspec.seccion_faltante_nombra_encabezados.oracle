@@ -1,0 +1,9 @@
+medida openspec.seccion_faltante_nombra_encabezados:
+    de corrida c
+    donde c.fixture == "spec_sin_purpose" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "ERROR" y contiene(p.mensaje, "## Purpose") y contiene(p.mensaje, "## Requirements")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario «Missing required sections» exige nombrar los encabezados esperados de una spec. Escenarios de cli-validate: 2"
+    requiere corrida
+    ambito universal
+    alcance "mira sólo la spec sin Purpose. NO ejerce el cambio sin «## Why», ni juzga si el esqueleto de ejemplo sirve para copiar"

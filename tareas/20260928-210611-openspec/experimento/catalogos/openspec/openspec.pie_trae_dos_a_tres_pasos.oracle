@@ -1,0 +1,8 @@
+medida openspec.pie_trae_dos_a_tres_pasos:
+    de pie f
+    donde f.vinetas < 2 o f.vinetas > 3
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario «Change invalid summary» pide «Next steps» con 2 o 3 viñetas. Escenarios de cli-validate: 10"
+    requiere pie
+    ambito universal
+    alcance "cuenta las viñetas que siguen a «Next steps:». NO juzga si están dirigidas al error que hubo"

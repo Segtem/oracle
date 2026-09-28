@@ -1,0 +1,10 @@
+medida openspec.todo_lo_vivo_se_valida:
+    de corrida c
+    unir en_disco e
+    donde e.fixture == c.fixture y e.archivado == false y (c.alcance == "all" o c.alcance == e.tipo)
+    sin item i donde i.caso == c.caso y i.id == e.id
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "con --all, --changes o --specs se valida todo lo que está en disco del tipo pedido, incluso lo que falla. Escenarios de cli-validate: 17 18 19 20"
+    requiere en_disco
+    ambito universal
+    alcance "compara ítems contra lo escrito en disco. NO ve capacidades anidadas en más de un nivel"

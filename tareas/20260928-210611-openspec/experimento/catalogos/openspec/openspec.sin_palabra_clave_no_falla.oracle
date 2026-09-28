@@ -1,0 +1,8 @@
+medida openspec.sin_palabra_clave_no_falla:
+    de corrida c
+    donde (c.fixture == "spec_sin_palabra_clave" o c.fixture == "delta_sin_palabra_clave") y c.modo == "normal" y c.codigo != 0
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "la spec dice que la validación normal SHALL seguir válida cuando el aviso de palabra clave es el único problema. Escenarios de cli-validate: 5 6"
+    requiere corrida
+    ambito universal
+    alcance "mira el código de salida del modo normal. NO ve una spec en otro idioma con otros problemas mezclados"

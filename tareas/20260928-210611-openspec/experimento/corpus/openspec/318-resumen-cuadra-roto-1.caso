@@ -1,0 +1,37 @@
+caso 318-resumen-cuadra-roto-1:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "La corrida observada con una sola violación en totales que no suman"
+    etiqueta: falso_verde
+    sintoma:
+        Una sola corrida deja de cumplir la cláusula y la medida tiene que ponerse roja con valor 1.
+    como_se_detecto: mutacion
+    medida: openspec.resumen_cuadra
+    evidencia:
+        resumen: caso, items, aprobados, fallados, version
+            "spec_valida#0", 2, 1, 0, "1.0"
+            "cambio_valido#0", 1, 1, 0, "1.0"
+            "cambio_sin_deltas#0", 1, 0, 1, "1.0"
+            "spec_sin_purpose#0", 1, 0, 1, "1.0"
+            "requisito_sin_cuerpo#0", 1, 0, 1, "1.0"
+            "escenarios_en_vinetas#0", 1, 0, 1, "1.0"
+            "spec_sin_palabra_clave#0", 1, 1, 0, "1.0"
+            "spec_sin_palabra_clave#1", 1, 0, 1, "1.0"
+            "delta_sin_palabra_clave#0", 1, 1, 0, "1.0"
+            "delta_sin_palabra_clave#1", 1, 0, 1, "1.0"
+            "modified_omite_escenario#0", 1, 0, 1, "1.0"
+            "modified_tras_rename#0", 1, 0, 1, "1.0"
+            "modified_sin_base#0", 1, 1, 0, "1.0"
+            "proyecto_mixto#0", 3, 2, 1, "1.0"
+            "proyecto_mixto#1", 1, 1, 0, "1.0"
+            "proyecto_mixto#2", 2, 1, 1, "1.0"
+            "solo_avisos#0", 1, 1, 0, "1.0"
+            "solo_avisos#1", 1, 0, 1, "1.0"
+            "nombre_ambiguo#2", 1, 1, 0, "1.0"
+            "nombre_ambiguo#3", 1, 1, 0, "1.0"
+            "propuesta_crlf#0", 1, 1, 0, "1.0"
+    leccion:
+        Deriva de la corrida real cambiando sólo lo que decide la cláusula.

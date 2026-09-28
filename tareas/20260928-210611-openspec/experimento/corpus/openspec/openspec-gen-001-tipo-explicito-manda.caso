@@ -1,0 +1,21 @@
+caso openspec-gen-001-tipo-explicito-manda:
+    fecha: "2026-09-28"
+    origen:
+        repo: "oracle"
+        commit: "generado-por-oracle"
+    procedencia: generada
+    titulo: "Evidencia fabricada para discriminar mutaciones en openspec.tipo_explicito_manda"
+    etiqueta: falso_verde
+    sintoma:
+        Evidencia fabricada por la herramienta para discriminar mutaciones en openspec.tipo_explicito_manda (mutante: aflojar_cota_superior, aflojar_umbral, agregado:3.1:contar→suma(0), campo:2.2.1.1.1.2:caso→tipo, campo:2.2.1.1.2.2:caso→modo, campo:2.2.1.2.1.1.1.2:modo→caso, expresion:comparador@2.2.1.1:==→!=, expresion:comparador@2.2.1.2.1.1:==→!=, expresion:comparador@2.2.1.2.1.2:!=→==, expresion:logico@2.2.1.2:o→y, expresion:logico@2.2.1:y→o, fuente:2.1.1.1:corrida→item, fuente:2.1.2.1:item→corrida, invertir_comparador, negar_filtro, quitar_filtro, vaciar_tuberia_si_cero_aprueba).
+        La forma de la evidencia se deriva mecánicamente del AST de la medida.
+    como_se_detecto: mutacion
+    medida: openspec.tipo_explicito_manda
+    evidencia:
+        corrida: caso, modo
+            "mismo_valor", "tipo_cambio"
+            "valor_b", "tipo_cambio"
+        item: caso, tipo
+            "mismo_valor", ""
+    leccion:
+        Caso generado automáticamente para fijar openspec.tipo_explicito_manda sin depender de evidencia escrita a mano.

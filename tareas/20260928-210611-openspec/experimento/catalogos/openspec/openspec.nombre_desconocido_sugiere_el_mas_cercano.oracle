@@ -1,0 +1,9 @@
+medida openspec.nombre_desconocido_sugiere_el_mas_cercano:
+    de corrida c
+    unir salida s
+    donde c.fixture == "nombre_desconocido" y c.modo == "humano" y s.caso == c.caso y no contiene(s.texto, "cap")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el fixture tiene una sola spec, «cap», a una transposición de «cpa»; es el caso en que una sugerencia está disponible. Escenarios de cli-validate: 28"
+    requiere corrida
+    ambito universal
+    alcance "mira un nombre a una transposición del real. NO define qué es «cercano» en general"

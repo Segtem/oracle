@@ -1,0 +1,9 @@
+medida openspec.sin_deltas_nombra_no_deltas_found:
+    de corrida c
+    donde c.fixture == "cambio_sin_deltas" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "ERROR" y contiene(p.mensaje, "No deltas found")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario «No deltas found in change» exige ese error con ese texto; ninguna corrida sobre un cambio sin deltas puede callarlo. Escenarios de cli-validate: 1"
+    requiere corrida
+    ambito universal
+    alcance "mira que el error lleve el texto literal. NO juzga si el resto de la guía explica bien la estructura"

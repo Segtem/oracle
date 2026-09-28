@@ -1,0 +1,9 @@
+medida openspec.vinetas_avisan_con_el_texto_de_la_spec:
+    de corrida c
+    donde c.fixture == "escenarios_en_vinetas" y c.modo == "normal"
+    sin problema p donde p.caso == c.caso y p.nivel == "WARNING" y contiene(p.mensaje, "Scenarios must use '#### Scenario:' headers")
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "el escenario da el texto del aviso entre comillas; es el único mensaje que la spec fija palabra por palabra. Escenarios de cli-validate: 4"
+    requiere corrida
+    ambito universal
+    alcance "busca el texto literal del aviso. NO juzga si la plantilla de conversión que lo acompaña es correcta"
