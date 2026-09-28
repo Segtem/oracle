@@ -216,6 +216,26 @@ class MutadoresTests(unittest.TestCase):
                 with self.subTest(medida=medida[1], mutador=nombre):
                     Medida.de_datos(datos)   # no debe levantar
 
+    def test_un_producto_con_requiere_no_rompe_al_segundo_autor(self) -> None:
+        # Un `unir` con dos pasos, `contar`, `<=` y `requiere` llevaba a `_alias_referidos` sobre la LISTA de
+        # pasos, cuyo primer elemento es otra lista: `lista in {…}` levantaba TypeError y tiraba
+        # la mutación entera. Lo encontró el experimento de OpenSpec (tarea 20260928-210611).
+        from nucleo.forma import datos_en_forma_unica
+        texto = (
+            "medida prueba.producto:\n"
+            "    de corrida c\n"
+            "    unir item i\n"
+            "    donde i.caso == c.caso y c.codigo == 0\n"
+            "    sin salida s donde s.caso == c.caso\n"
+            "    resumen contar(1)\n"
+            '    umbral <= 0 segun contrato porque "cero"\n'
+            "    requiere corrida\n"
+            "    ambito universal\n"
+            '    alcance "prueba"\n'
+        )
+        nombres = [nombre for nombre, _ in mutacion.mutantes(datos_en_forma_unica(texto, "prueba"))]
+        self.assertIn("quitar_filtro", nombres)
+
     def test_no_toca_la_medida_original(self) -> None:
         antes = str(BASE)
         mutacion.mutantes(BASE)

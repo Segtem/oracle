@@ -492,7 +492,7 @@ def _relaciones_de_fuente(fuente):
 def _alias_referidos(nodo):
     encontrados = set()
     if isinstance(nodo, list):
-        if len(nodo) >= 2 and nodo[0] in {"campo", "hecho"} and isinstance(nodo[1], str):
+        if len(nodo) >= 2 and isinstance(nodo[0], str) and nodo[0] in {"campo", "hecho"} and isinstance(nodo[1], str):
             encontrados.add(nodo[1])
         for hijo in nodo:
             encontrados |= _alias_referidos(hijo)
