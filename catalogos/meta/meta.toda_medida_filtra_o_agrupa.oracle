@@ -3,10 +3,10 @@ medida meta.toda_medida_filtra_o_agrupa:
     unir termino t
     agrupar:
         clave medida = m.id
-        agregado operadores_estructurales = suma(t.medida == m.id y (t.cabeza == "donde" o t.cabeza == "agrupar"))
+        agregado operadores_estructurales = suma(t.medida == m.id y (t.cabeza == "donde" o t.cabeza == "agrupar" o t.cabeza == "sin"))
     donde operadores_estructurales == 0
     resumen contar(1)
-    umbral <= 0 segun convencion porque "por convención de este catálogo, toda medida declara qué hecho ofende con al menos un `donde` o un `agrupar`: una medida que cuenta la relación entera no declaró nada, y no se admite ninguna así"
+    umbral <= 0 segun convencion porque "por convención de este catálogo, toda medida declara qué hecho ofende con al menos un `donde`, un `sin` o un `agrupar`: una medida que cuenta la relación entera no declaró nada, y no se admite ninguna así"
     requiere termino
     ambito universal
-    alcance "mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional"
+    alcance "mira la forma declarada y exige al menos un `donde`, un `sin` o un `agrupar` —`sin` deja pasar sólo las filas sin pareja, así que filtra—. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional"

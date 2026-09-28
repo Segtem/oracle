@@ -78,6 +78,7 @@ PRIORIDADES = {
                             "tests.test_perfiles", "tests.test_motor"),
     "nucleo/referente.py": ("tests.test_referente", "tests.test_medida"),
     "nucleo/relacion.py": ("tests.test_relacion", "tests.test_nucleo"),
+    "nucleo/requisito.py": ("tests.test_requisito",),
     "nucleo/sintaxis.py": ("tests.test_sintaxis", "tests.test_macro", "tests.test_nucleo"),
     "nucleo/vocabulario.py": ("tests.test_vocabulario", "tests.test_sintaxis"),
     "nucleo/simulacion.py": ("tests.test_simulacion",),
@@ -122,6 +123,7 @@ PRIORIDADES = {
     # cuesta lo que tarde el arnés en LLEGAR al test que lo mata— dice poner el módulo más
     # específico adelante, y acá se puede porque el archivo tiene su propio test.
     "tools/contexto.py": ("tests.test_contexto", "tests.test_cli"),
+    "tools/cobertura.py": ("tests.test_requisito",),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
     "tools/lsp.py": ("tests.test_lsp",),
     # Listo para cuando `aceptacion.py` entre a HERRAMIENTAS_CUSTODIAS; ver la nota de ahí.
@@ -306,7 +308,7 @@ CUSTODIAS_SIN_MEDIR = {}
 # y consultas con límites explícitos; pertenencia al índice/HEAD; hechos y omisiones para las
 # políticas. Una lectura incompleta o una referencia mal clasificada puede dar un verde falso.
 # P4 conserva las rondas y sus límites en vault-kb/estudios/0.16.0-tareas/verificacion-p4/.
-HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "contexto.py",
+HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cli.py", "cobertura.py", "contexto.py",
                           "diferencial.py", "generar_diferencial.py",
                           "ejecutar_suite_mutacion.py",
                           "corpus.py", "formato.py", "guia.py", "juzgar.py", "manual.py", "medida.py", "metamorficas.py",

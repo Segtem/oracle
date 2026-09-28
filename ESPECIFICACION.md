@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.0`, distribución `0.34.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.34.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,15 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Sintaxis 1.1 (2026-09-28): `VERSION_SINTAXIS` sube de `1.0` a `1.1`: los requisitos** (tarea
+`requisitos-con`). Se agrega la superficie `.requisito` (§1.4): una promesa en prosa, de dónde
+viene, qué medidas la miden y qué parte no mide ninguna, y por qué. Emite `requisito_declarado` y
+`requisito_medido_por`, que juzga `meta.el_requisito_nombra_medidas_que_existen`, y `oracle
+cobertura` los informa. La idea sale de OpenSpec, donde el requisito es la unidad y sus escenarios
+cuelgan de él; el experimento que midió su `cli-validate` con Oracle hizo a mano la tabla que esto
+vuelve un dato. Sube la **menor**: todo lo que se leía se sigue leyendo igual, y ningún árbol de
+medida cambia —el enlace va del requisito a la medida—, así que el álgebra queda en `1.0`.
 
 **Corte 0.34.0 (2026-09-27): `VERSION_DISTRIBUCION` sube de `0.33.0` a `0.34.0`.** El tracker de
 tareas y el servidor MCP salen del paquete a los suyos, `trackertast` y `oracle-mcp`, con la
@@ -548,7 +557,8 @@ no conoce el nodo nuevo.
 
 La superficie infija declara la suya, `VERSION_SINTAXIS`, con la misma forma `MAYOR.MENOR` y la
 misma maquinaria (`parsear`, `compatible`, `VersionInvalida`). La regla aplica a las medidas y
-macros (`.oracle`), a los casos del corpus (`.caso`) y a las relaciones (`.relacion`). Desde la
+macros (`.oracle`), a los casos del corpus (`.caso`), a las relaciones (`.relacion`) y a los
+requisitos (`.requisito`, desde la `1.1`). Desde la
 `1.0` hay **una sola forma de escribir**: la superficie, y dentro de ella el texto exacto que
 escribe el impresor. Un archivo en otra grafía no carga; `oracle formatear` lo lleva a la forma
 única sin cambiar su árbol. El JSON es la forma canónica —lo que Oracle guarda y compara por
@@ -675,6 +685,7 @@ acá. Esta sección no puede envejecer en silencio.
 | `opcion_del_vocabulario` | cada opción de un vocabulario cerrado, con cuántas palabras la explican y si el manual la muestra | `nucleo/marco.py` |
 | `mutador_excluido` | cada exclusión de mutador declarada, con su premisa, si algún autor ofrece el mutador y si el registro del arnés lo tiene | `nucleo/marco.py` |
 | `relacion_declarada` · `campo_declarado` · `ambito_de_relacion` | las relaciones que un proyecto declara, cuántas variantes tienen, sus campos con unidad y la variante a la que pertenece cada uno, y dónde obliga cada relación | `nucleo/relacion.py` |
+| `requisito_declarado` · `requisito_medido_por` | cada requisito del proyecto, su prosa, de dónde viene, su cobertura (total, parcial o ninguna) y lo que no mide; y cada medida que dice medirlo | `nucleo/requisito.py` |
 | `cantidad_comparada` | cada comparación de una medida y si su unidad se puede derivar (L−1) | `nucleo/unidad.py` |
 | `campo_leido` | cada campo que lee una medida: de qué relación, si esa relación es declarada, del lenguaje o sin declarar, y si el campo existe en ella | el emisor que declara `campo_leido` |
 | `referente_declarado` · `referente_comparado` | la identidad y la frescura de aquello que se midió (L−2) | `nucleo/referente.py` |
@@ -803,6 +814,34 @@ Las variantes **no relajan** la regla del campo ausente: una medida sobre una va
 por el discriminante —un `donde` propio, antes del de las violaciones— y pide filas de su variante en
 `requiere` (§2). Si comparara un campo de otra variante, levantaría error, como con cualquier campo que
 la fila no trae.
+
+### 1.4 Requisitos: la promesa y quién la mide
+
+Una medida dice qué ofende; no dice qué **promesa** del producto protege. Esa promesa vive en
+prosa —una spec, un ticket, un README— y nada une la prosa con las medidas: una promesa que nadie
+mide no aparece en ningún lado. Un requisito la escribe, en `requisitos/<id>.requisito`:
+
+```
+requisito cli_validate.rutas_de_archivo:
+    texto "Todo error, aviso o info SHALL incluir la ruta del archivo fuente"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.todo_problema_nombra_su_archivo
+```
+
+- `texto` es obligatorio; `fuente` es opcional y dice de dónde sale la promesa.
+- Después van `medido_por`, con una o más medidas separadas por `, `, y `sin_medir "…"`, que dice
+  qué parte de la promesa no mide ninguna medida y por qué. Cada una es opcional, pero **alguna**
+  tiene que estar: un requisito que no dice cómo se mide ni por qué no se mide es justo el hueco que
+  esto existe para escribir. Con las dos, la cobertura es `parcial`; con `medido_por` sola, `total`;
+  con `sin_medir` sola, `ninguna`. `requisito_declarado` la trae en el campo `cobertura`.
+- El archivo se llama como su id, y el id es ASCII como el de una medida.
+- El enlace va **del requisito a la medida**, no al revés: la medida no cambia de forma. Una medida
+  puede cubrir varios requisitos y ninguno.
+
+`oracle cobertura` lista cada requisito con su cobertura, sus medidas y lo que no mide, y las
+medidas propias que no cubren ninguno, y sale con 1 si un requisito nombra una medida que no
+existe. Esto último también lo juzga `meta.el_requisito_nombra_medidas_que_existen` sobre
+`requisito_medido_por`, para los proyectos que heredan el catálogo base.
 
 ### Evidencia en archivos `.caso`
 

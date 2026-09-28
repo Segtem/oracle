@@ -1,10 +1,10 @@
-"""Forma única de las tres superficies de autoría."""
+"""Forma única de las superficies de autoría."""
 
 from __future__ import annotations
 
 from pathlib import Path
 
-from nucleo import caso, relacion, sintaxis
+from nucleo import caso, relacion, requisito, sintaxis
 from nucleo.forma import diferencia, sin_comentarios
 
 
@@ -12,6 +12,7 @@ LECTORES = {
     ".oracle": (sintaxis.leer, sintaxis.imprimir),
     ".caso": (caso.leer, caso.imprimir),
     ".relacion": (relacion.leer, relacion.imprimir),
+    ".requisito": (requisito.leer, requisito.imprimir),
 }
 
 

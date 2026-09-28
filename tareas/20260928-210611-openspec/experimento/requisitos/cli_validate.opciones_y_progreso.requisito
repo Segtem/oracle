@@ -1,0 +1,5 @@
+requisito cli_validate.opciones_y_progreso:
+    texto "Validation options and progress indication"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.estricto_falla_ante_un_aviso, openspec.resumen_cuadra, openspec.todo_item_trae_duracion, openspec.todo_problema_tiene_nivel_conocido
+    sin_medir "el progreso sólo se dibuja en una terminal, y la concurrencia es interna y pide «responsive», un adjetivo"

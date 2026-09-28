@@ -1,0 +1,5 @@
+requisito cli_validate.comando_validate:
+    texto "Top-level validate command"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.sin_argumentos_no_interactivo_sale_con_1, openspec.sin_argumentos_lista_las_banderas, openspec.item_directo_detecta_su_tipo
+    sin_medir "la selección interactiva necesita una terminal de verdad (pty); el sensor corre con stdin cerrado"

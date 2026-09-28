@@ -271,7 +271,7 @@ class CliConvertirMutacionTests(unittest.TestCase):
             with redirect_stdout(salida):
                 codigo = cli.cmd_formatear(proy, str(directorio))
             self.assertEqual(codigo, 1)
-            self.assertIn("no hay archivos .oracle, .caso ni .relacion", salida.getvalue())
+            self.assertIn("no hay archivos .oracle, .caso, .relacion ni .requisito", salida.getvalue())
 
     # Mutante 21: tools/cli.py:888:12:retorno (return <algo> → return None)
     def test_cmd_formatear_directorio_sin_archivos_retorna_uno_no_none(self):
@@ -305,7 +305,7 @@ class CliConvertirMutacionTests(unittest.TestCase):
                 except ValueError:
                     codigo = -1
             self.assertEqual(codigo, 1)
-            self.assertIn("se espera un archivo .oracle, .caso o .relacion, o un directorio", salida.getvalue())
+            self.assertIn("se espera un archivo .oracle, .caso, .relacion o .requisito, o un directorio", salida.getvalue())
 
     # Mutante 24: tools/cli.py:897:8:retorno (return <algo> → return None)
     def test_cmd_formatear_archivo_extension_invalida_retorna_uno_no_none(self):

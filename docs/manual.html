@@ -39,12 +39,12 @@
 <li><a href="#manual-casos">casos <span class="cuenta">2</span></a></li>
 <li><a href="#manual-macros">macros <span class="cuenta">6</span></a></li>
 <li><a href="#manual-verbos">verbos <span class="cuenta">7</span></a></li>
-<li><a href="#manual-medidas">medidas <span class="cuenta">43</span></a></li>
+<li><a href="#manual-medidas">medidas <span class="cuenta">44</span></a></li>
     </ul></nav>
   </details>
   <main id="contenido">
     <header class="manual-cabeza">
-      <p class="pixel ceja">referencia · 13 temas · 99 entradas</p>
+      <p class="pixel ceja">referencia · 13 temas · 100 entradas</p>
       <h1>Manual</h1>
       <p>Esta página no se escribió: se generó. Cada entrada sale de la declaración que el
       lenguaje ya tiene —los vocabularios cerrados, las relaciones que emite sobre sí mismo, los
@@ -165,7 +165,7 @@
 <dt>oracle medida</dt><dd>expandir · listar · nueva · probar · revisar</dd>
 <dt>oracle</dt><dd>censar · juzgar · reportar</dd>
 <dt>oracle plantilla</dt><dd>sensor-prosa</dd>
-<dt>oracle proyecto</dt><dd>contexto · escalares · init · juzgar · relaciones · test</dd>
+<dt>oracle proyecto</dt><dd>cobertura · contexto · escalares · init · juzgar · relaciones · test</dd>
 </dl>
 </section>
 <section class="tema" id="manual-medidas">
@@ -175,6 +175,7 @@
 <dt>meta.<wbr>el_<wbr>caso_<wbr>se_<wbr>pone_<wbr>como_<wbr>debe</dt><dd>mira todos los casos, propios y heredados, y compara el veredicto contra la polaridad declarada: que un caso de biblioteca difiera en este entorno informa sobre este entorno. NO ve si el caso está bien etiquetado, ni si la evidencia que trae es la del defecto que dice traer. Si caso viene vacía no hay desacuerdos de polaridad y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción antes de evaluar el nivel meta</dd>
 <dt>meta.<wbr>el_<wbr>hueco_<wbr>declarado_<wbr>explica_<wbr>por_<wbr>que</dt><dd>mira sólo casos propios (`es_heredado == false`) y ve que cada caso marcado explícitamente como hueco abierto tenga una explicación; los huecos de una biblioteca responden ante su certificación. NO juzga esa explicación ni confunde casos resueltos o límites humanos con trabajo pendiente. Si caso viene vacía no hay huecos abiertos sin explicar y verde es correcto; además el arnés de aceptación exige un corpus no vacío por construcción</dd>
 <dt>meta.<wbr>el_<wbr>nivel_<wbr>no_<wbr>se_<wbr>confunde_<wbr>con_<wbr>el_<wbr>dominio</dt><dd>compara el prefijo del nombre contra la relación de origen. NO ve si el dominio elegido es el correcto, ni si la medida mide lo que dice medir. Si medida viene vacía no hay medidas que confundan nivel con dominio y verde es correcto; además el catálogo evaluado contiene al menos las medidas meta por construcción</dd>
+<dt>meta.<wbr>el_<wbr>requisito_<wbr>nombra_<wbr>medidas_<wbr>que_<wbr>existen</dt><dd>mira cada medida que un requisito nombra en `medido_por` contra el catálogo efectivo. NO juzga si la medida nombrada mide de verdad la promesa, ni si una medida en sombra la cubre. Un requisito sin `medido_por` no nombra nada y queda fuera; sin requisitos no hay nada que nombrar y verde es correcto. No usa la macro «ninguno» porque la macro no admite `sin`</dd>
 <dt>meta.<wbr>la_<wbr>medida_<wbr>no_<wbr>se_<wbr>fija_<wbr>solo_<wbr>con_<wbr>evidencia_<wbr>fabricada</dt><dd>mira sólo casos propios (`es_heredado == false`), porque la fijación de una biblioteca es responsabilidad de su certificación. De esos casos mira lo que declaran sobre sí mismos. NO verifica que el commit exista, ni que la evidencia se corresponda con ese commit, ni que quien escribió `observada` haya observado algo. Un caso puede mentir en `procedencia` y esta medida no lo ve</dd>
 <dt>meta.<wbr>ningun_<wbr>campo_<wbr>sin_<wbr>unidad_<wbr>declarada</dt><dd>ve si cada campo de `campo_declarado` tiene `tiene_unidad` en false. NO juzga si la unidad declarada es la magnitud física correcta que emite el sensor</dd>
 <dt>meta.<wbr>ningun_<wbr>flotante_<wbr>comparado_<wbr>por_<wbr>igualdad_<wbr>en_<wbr>un_<wbr>filtro</dt><dd>mira literales flotantes escritos en la forma canónica, cuando son operandos directos de `==` o `!=` y ese comparador está debajo de un `donde`. NO ve un flotante que llega por una escalar ni uno que sale de un campo, NO juzga igualdades exactas fuera de un filtro, y NO mira el umbral final, del que ya se ocupa `meta.ningun_umbral_flotante_de_igualdad`</dd>
@@ -194,7 +195,7 @@
 <dt>meta.<wbr>toda_<wbr>medida_<wbr>declara_<wbr>su_<wbr>ambito</dt><dd>ve que el campo `ambito` esté declarado y no en `sin_declarar`. NO juzga si el ámbito declarado es el correcto: esa segunda pregunta no la contesta ninguna medida</dd>
 <dt>meta.<wbr>toda_<wbr>medida_<wbr>esta_<wbr>ejercitada</dt><dd>cuenta los casos del PROYECTO que la evalúan. NO exige nada de las medidas heredadas del catálogo base —de ésas responde oracle, con su propio corpus— ni ve si esos casos la ponen a prueba de verdad: para eso está la mutación. Si medida_en_uso viene vacía no hay medidas sin ejercitar y verde es correcto; además contiene una fila por medida cargada por construcción</dd>
 <dt>meta.<wbr>toda_<wbr>medida_<wbr>esta_<wbr>fijada</dt><dd>exige al menos un mutante y ninguno vivo sólo cuando `debe_tener_mutantes` es verdadero. NO vuelve a exigirlos a medidas heredadas —responde su corpus de origen— ni a las evaluadas aparte, y NO ve los mutadores que nadie escribió. Si medida_en_uso viene vacía no hay medidas sin fijar y verde es correcto; además contiene una fila por medida cargada por construcción</dd>
-<dt>meta.<wbr>toda_<wbr>medida_<wbr>filtra_<wbr>o_<wbr>agrupa</dt><dd>mira la forma declarada y exige al menos un `donde` o un `agrupar`. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional</dd>
+<dt>meta.<wbr>toda_<wbr>medida_<wbr>filtra_<wbr>o_<wbr>agrupa</dt><dd>mira la forma declarada y exige al menos un `donde`, un `sin` o un `agrupar` —`sin` deja pasar sólo las filas sin pareja, así que filtra—. NO juzga si el filtro discrimina bien, si el agrupamiento tiene la clave correcta ni si un conteo total fue intencional</dd>
 <dt>meta.<wbr>toda_<wbr>medida_<wbr>lee_<wbr>campos_<wbr>que_<wbr>existen</dt><dd>ve si los campos leídos por las medidas están declarados en relaciones conocidas. NO ve relaciones sin declarar, ni si la variante leída es la que la medida filtra</dd>
 <dt>meta.<wbr>toda_<wbr>sombra_<wbr>declara_<wbr>desde_<wbr>y_<wbr>porque</dt><dd>ve si los dos campos están declarados. NO juzga si el motivo es bueno ni si la fecha es cierta, ni ve las medidas que deberían estar en sombra y no se pusieron</dd>
 <dt>meta.<wbr>toda_<wbr>sombra_<wbr>declara_<wbr>una_<wbr>fecha_<wbr>real</dt><dd>mira los días calculados, que salen negativos por dos motivos distintos: la fecha no se pudo leer, o está en el futuro. NO los distingue — el testigo trae la medida y los días, no la cadena original. Y NO juzga si una fecha legible es la verdadera: alguien puede escribir una de hace un mes sobre una sombra puesta hoy</dd>

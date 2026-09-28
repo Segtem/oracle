@@ -75,6 +75,15 @@ oracle test --proyecto .
 entero. De los 3 de prosa, el 14 y el 24 se podrían medir con un sensor que abra una pseudoterminal;
 el 25 no, porque pide un comportamiento interno con un adjetivo («responsive»).
 
+### A nivel de requisito (con `oracle cobertura`)
+
+Los 12 requisitos están en `requisitos/*.requisito`, cada uno con las medidas que lo miden y un
+`sin_medir` que dice qué parte no se mide y por qué. Resultado de `oracle cobertura`: **3 medidos
+enteros, 9 en parte, 0 sin medir**, y las 32 medidas cubren algún requisito. Por requisito la cuenta
+es más dura que por escenario: al escribir cada `sin_medir` aparecieron partes que la tabla por
+escenario no mostraba, como CR solo, el silencio dentro de `openspec archive` o una spec principal
+que existe pero no se puede leer.
+
 ## Lo que encontró en OpenSpec 1.13.2
 
 Juicio de la CLI real: **28 medidas verdes y 4 rojas**. Las cuatro son divergencias entre la spec y

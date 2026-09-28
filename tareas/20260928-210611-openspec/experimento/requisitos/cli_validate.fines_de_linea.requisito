@@ -1,0 +1,5 @@
+requisito cli_validate.fines_de_linea:
+    texto "Parser SHALL handle cross-platform line endings"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.crlf_se_parsea
+    sin_medir "CR solo, que el requisito nombra: el sensor ejerce LF y CRLF"

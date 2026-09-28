@@ -1,0 +1,5 @@
+requisito cli_validate.remediacion:
+    texto "Validation SHALL provide actionable remediation steps"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.sin_deltas_nombra_no_deltas_found, openspec.sin_deltas_advierte_titulos_antes_de_operaciones, openspec.seccion_faltante_nombra_encabezados, openspec.error_de_estructura_remite_a_agents_md
+    sin_medir "si la guía es accionable y el esqueleto se puede copiar es un juicio; se miden los textos que la spec da literales"

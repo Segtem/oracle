@@ -1494,7 +1494,7 @@ class VersionDelAlgebra(unittest.TestCase):
         from nucleo.version import VERSION_SINTAXIS, del_nucleo_sintaxis
 
         self.assertEqual(str(del_nucleo_sintaxis()), VERSION_SINTAXIS)
-        self.assertEqual(str(del_nucleo_sintaxis()), "1.0")
+        self.assertEqual(str(del_nucleo_sintaxis()), "1.1")
 
     def test_parsear_acepta_mayor_menor_y_rechaza_lo_demas(self) -> None:
         from nucleo.version import Version, VersionInvalida, parsear

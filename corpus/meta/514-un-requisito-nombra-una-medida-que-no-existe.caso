@@ -1,0 +1,21 @@
+caso 514-un-requisito-nombra-una-medida-que-no-existe:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Un requisito dice estar medido por una medida que el catálogo no tiene"
+    etiqueta: falso_verde
+    sintoma:
+        El requisito nombra dos medidas y una no existe (la renombraron o nunca se escribió). Leído en el archivo, parece cubierto; nadie lo mide.
+    como_se_detecto: persona
+    medida: meta.el_requisito_nombra_medidas_que_existen
+    evidencia:
+        requisito_medido_por: requisito, medida
+            "cli_validate.rutas_de_archivo", "openspec.todo_problema_nombra_su_archivo"
+            "cli_validate.rutas_de_archivo", "openspec.ruta_renombrada"
+        medida: id
+            "openspec.todo_problema_nombra_su_archivo"
+            "openspec.otra"
+    leccion:
+        Un enlace que apunta a la nada es peor que no tener enlace: el hueco queda tapado con prosa. Con una sola referencia colgada la medida tiene que dar 1, lo que también fija el umbral en cero.

@@ -1,0 +1,5 @@
+requisito cli_validate.ambiguedad:
+    texto "Item type detection and ambiguity handling"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.nombre_no_resuelto_sale_con_1_sin_validar, openspec.nombre_ambiguo_no_valida, openspec.nombre_ambiguo_sugiere_type, openspec.nombre_desconocido_sugiere_el_mas_cercano, openspec.tipo_explicito_manda, openspec.item_directo_detecta_su_tipo
+    sin_medir "que el error «explique» las dos coincidencias es un juicio"

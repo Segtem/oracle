@@ -1,0 +1,5 @@
+requisito cli_validate.modified_omite:
+    texto "Change validation SHALL report scenarios a MODIFIED block would drop"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.modified_nombra_el_escenario_omitido, openspec.modified_tras_rename_nombra_s2, openspec.modified_sin_base_no_reporta_omision, openspec.item_invalido_sale_con_1
+    sin_medir "el silencio dentro de `openspec archive` y la spec principal ilegible: el sensor no corre archive ni rompe permisos"

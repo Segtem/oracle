@@ -1,0 +1,24 @@
+caso 515-los-requisitos-nombran-medidas-del-catalogo:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Cada medida que nombra un requisito está en el catálogo"
+    etiqueta: verde_correcto
+    sintoma:
+        Dos requisitos nombran tres medidas y las tres existen; el catálogo tiene además una medida que no cubre ningún requisito, y eso no es un defecto.
+    como_se_detecto: persona
+    medida: meta.el_requisito_nombra_medidas_que_existen
+    evidencia:
+        requisito_medido_por: requisito, medida
+            "cli_validate.rutas_de_archivo", "openspec.todo_problema_nombra_su_archivo"
+            "cli_validate.estricto", "openspec.estricto_falla_ante_un_aviso"
+            "cli_validate.estricto", "openspec.item_invalido_sale_con_1"
+        medida: id
+            "openspec.todo_problema_nombra_su_archivo"
+            "openspec.estricto_falla_ante_un_aviso"
+            "openspec.item_invalido_sale_con_1"
+            "openspec.huerfana"
+    leccion:
+        Una medida que no cubre ningún requisito no es un hueco de esta medida: lo informa `oracle cobertura`. Este caso fija que el `sin` compare contra el id y no invente un rojo.

@@ -1,0 +1,4 @@
+requisito cli_validate.palabra_clave:
+    texto "Normative keyword guidance SHALL not require English"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.sin_palabra_clave_avisa, openspec.sin_palabra_clave_no_falla, openspec.estricto_falla_ante_un_aviso, openspec.requisito_sin_cuerpo_es_error

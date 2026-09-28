@@ -1,0 +1,7 @@
+medida meta.el_requisito_nombra_medidas_que_existen:
+    de requisito_medido_por r
+    sin medida m donde m.id == r.medida
+    resumen contar(1)
+    umbral <= 0 segun contrato porque "un requisito que nombra una medida inexistente se lee como cubierto y no lo mide nadie; es el hueco que los requisitos existen para escribir, así que no se admite ninguno"
+    ambito universal
+    alcance "mira cada medida que un requisito nombra en `medido_por` contra el catálogo efectivo. NO juzga si la medida nombrada mide de verdad la promesa, ni si una medida en sombra la cubre. Un requisito sin `medido_por` no nombra nada y queda fuera; sin requisitos no hay nada que nombrar y verde es correcto. No usa la macro «ninguno» porque la macro no admite `sin`"

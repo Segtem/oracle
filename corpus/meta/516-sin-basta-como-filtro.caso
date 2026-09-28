@@ -1,0 +1,20 @@
+caso 516-sin-basta-como-filtro:
+    fecha: "2026-09-28"
+    origen:
+        repo: "Segtem/oracle"
+        commit: "sin-commit"
+    procedencia: construida
+    titulo: "Una medida que filtra sólo con `sin` declara qué ofende"
+    etiqueta: verde_correcto
+    sintoma:
+        La medida cuenta las filas que no tienen pareja en otra relación. No tiene `donde` ni `agrupar`, pero no cuenta la relación entera: `sin` es un filtro. Así está escrita `meta.el_requisito_nombra_medidas_que_existen`.
+    como_se_detecto: persona
+    medida: meta.toda_medida_filtra_o_agrupa
+    evidencia:
+        medida: id
+            "dominio.sin_pareja"
+        termino: medida, cabeza
+            "dominio.sin_pareja", "de"
+            "dominio.sin_pareja", "sin"
+    leccion:
+        La primera medida escrita sólo con `sin` hizo rojo a la política, que contaba como filtro únicamente `donde` y `agrupar`. Este caso fija la tercera rama de la disyunción.

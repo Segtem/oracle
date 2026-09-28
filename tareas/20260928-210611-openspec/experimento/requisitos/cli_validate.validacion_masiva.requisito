@@ -1,0 +1,4 @@
+requisito cli_validate.validacion_masiva:
+    texto "Bulk and filtered validation"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.todo_lo_vivo_se_valida, openspec.nada_archivado_se_valida, openspec.el_filtro_no_mezcla_tipos, openspec.item_invalido_sale_con_1

@@ -294,9 +294,9 @@ class AntijuntaEcosistemaTests(unittest.TestCase):
 
     def test_versiones_declaradas(self) -> None:
         self.assertEqual(VERSION_ALGEBRA, "1.0")
-        self.assertEqual(VERSION_SINTAXIS, "1.0")
+        self.assertEqual(VERSION_SINTAXIS, "1.1")
         self.assertEqual(str(del_nucleo()), "1.0")
-        self.assertEqual(str(del_nucleo_sintaxis()), "1.0")
+        self.assertEqual(str(del_nucleo_sintaxis()), "1.1")
 
     def test_vocabulario_operadores_contiene_sin(self) -> None:
         self.assertIn("sin", OPERADORES)

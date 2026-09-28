@@ -1,0 +1,4 @@
+requisito cli_validate.vinetas:
+    texto "Validator SHALL detect likely misformatted scenarios and warn with a fix"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.vinetas_avisan_con_el_texto_de_la_spec, openspec.vinetas_muestran_la_plantilla

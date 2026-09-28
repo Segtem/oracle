@@ -40,6 +40,7 @@ from nucleo.mutacion import (EXCLUSIONES_DE_MUTADORES, MUTADORES,  # noqa: E402
                              mutadores_declarados_por_sus_autores)
 from nucleo.relacion import (ambitos_de_relaciones_declarados,  # noqa: E402
                              cargar_relaciones, hechos_de_relaciones)
+from nucleo.requisito import cargar_requisitos, hechos_de_requisitos  # noqa: E402
 from nucleo.unidad import hechos_de_unidades  # noqa: E402
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables,  # noqa: E402
                              bibliotecas_del_proyecto, catalogo_efectivo, configuracion,
@@ -215,6 +216,7 @@ def _ejecutar(proy, hechos: str = "", solo: tuple[str, ...] = ()) -> int:
                       **hechos_de_casos(catalogo, todos),
                       **hechos_de_relaciones(
                           relaciones.values(), ambitos=ambitos_de_relaciones_declarados()),
+                      **hechos_de_requisitos(cargar_requisitos(proy.raiz / "requisitos").values()),
                       **hechos_de_unidades(catalogo.values(), relaciones),
                       **hechos_de_campos_leidos(catalogo.values(), relaciones)}
     metas = [m for mid, m in sorted(catalogo.items()) if mid.startswith("meta.")]

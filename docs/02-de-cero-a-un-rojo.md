@@ -18,7 +18,7 @@ oracle --version
 ```text salida
 oracle 0.34.0
   álgebra:  1.0   (qué SIGNIFICA una medida)
-  sintaxis: 1.0   (cómo se ESCRIBE)
+  sintaxis: 1.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle
 ```
 
@@ -227,7 +227,7 @@ CORPUS OK · 2 casos · esquema, evidencia L0 y trazabilidad en regla
 
 SINTAXIS OK · 1 medidas · 0 macros · 2 casos · 0 relaciones
 
-catálogo: 41 medidas · corpus: 2 casos
+catálogo: 42 medidas · corpus: 2 casos
 
   ROJO  001-un-nombre-fuera-de-convencion      documento.nombre_sigue_la_convencion  (valor 1)
   verde 002-un-lote-en-convencion              documento.nombre_sigue_la_convencion  (valor 0)
@@ -239,6 +239,7 @@ nivel meta — el marco medido con sus propias medidas:
   ✓ meta.el_caso_se_pone_como_debe                      0 (<= 0)
   ✓ meta.el_hueco_declarado_explica_por_que             0 (<= 0)
   ✓ meta.el_nivel_no_se_confunde_con_el_dominio         0 (<= 0)
+  ✓ meta.el_requisito_nombra_medidas_que_existen        0 (<= 0)
   ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada        1 (<= 0)
       → _={'medida': 'documento.nombre_sigue_la_convencion', 'casos': 2, 'no_observados': 2}
   ✓ meta.ningun_campo_sin_unidad_declarada              0 (<= 0)

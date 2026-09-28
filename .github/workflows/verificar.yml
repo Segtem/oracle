@@ -194,6 +194,9 @@ jobs:
           - tools/sondear_procedencia.py
           # El veredicto sobre evidencia real (0.18.0).
           - tools/juzgar.py
+          # Entra el 2026-09-28 con los requisitos: dice qué promesas mide alguna medida, y un
+          # requisito que apunta a una medida inexistente se leería como cubierto.
+          - tools/cobertura.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

@@ -1,0 +1,5 @@
+requisito cli_validate.interactividad:
+    texto "Interactivity controls"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.sin_argumentos_no_interactivo_sale_con_1
+    sin_medir "que con stdin en una terminal SÍ aparezca el prompt: el sensor no abre una pty"

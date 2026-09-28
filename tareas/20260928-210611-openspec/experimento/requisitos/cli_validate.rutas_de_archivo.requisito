@@ -1,0 +1,5 @@
+requisito cli_validate.rutas_de_archivo:
+    texto "All issues SHALL include file paths and structured locations"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.todo_problema_nombra_su_archivo
+    sin_medir "la «remediation hint if applicable» de un error de esquema: cuándo aplica no está definido"

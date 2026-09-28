@@ -20,6 +20,7 @@
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
     oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
+    oracle proyecto cobertura               qué requisitos mide alguna medida y cuáles declaran que no
 
     oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
@@ -46,7 +47,7 @@
     oracle reportar                         prepara un reporte local; no publica ni usa la red
     oracle censar --proyecto <ruta>…       censa varios proyectos y conserva el estado con su fecha
     oracle convertir <archivo>              convierte medidas JSON a superficie
-    oracle formatear <ruta> [--escribir]     normaliza .oracle, .caso y .relacion
+    oracle formatear <ruta> [--escribir]     normaliza .oracle, .caso, .relacion y .requisito
     oracle convertir <directorio> --a-superficie [--escribir]  migra fuentes JSON verificadas
     oracle juzgar --con <archivo>          juzga evidencia JSON contra el catálogo del proyecto
 """
@@ -110,7 +111,7 @@ Uso:
   oracle medida <verbo>                   Operaciones sobre medidas (nueva, revisar, probar, listar, expandir)
   oracle caso <verbo>                     Operaciones sobre casos del corpus (nuevo, listar, generar)
   oracle plantilla sensor-prosa <destino> Copia el sensor opcional a un directorio nuevo
-  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares)
+  oracle proyecto <verbo>                 Operaciones sobre el proyecto (init, test, juzgar, relaciones, escalares, cobertura)
   oracle biblioteca <verbo>               Inspecciona bibliotecas locales sin ejecutar código ajeno
   oracle tarea <verbo>                    (mudado) el tracker es el paquete trackertast: usá `tasks <verbo>`
   oracle convertir <archivo>              Convierte medidas JSON a superficie
@@ -135,6 +136,7 @@ Atajos directos:
   oracle relaciones                      Muestra las relaciones y campos observados
       --escribir                         Borradores en relaciones-por-revisar/ de las observadas sin declarar
   oracle escalares                       Muestra las funciones escalares y operadores
+  oracle cobertura                       Qué requisitos mide alguna medida y cuáles declaran que no
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
 
@@ -184,6 +186,7 @@ Uso:
   oracle proyecto juzgar --con <archivo>  Juzga evidencia contra el catálogo del proyecto
   oracle proyecto relaciones              Muestra las relaciones y campos observados
   oracle proyecto escalares               Muestra las funciones escalares y operadores
+  oracle proyecto cobertura               Qué requisitos mide alguna medida y cuáles declaran que no
   oracle contexto                        Inventario de relaciones y medidas activas""")
 
 
@@ -375,7 +378,7 @@ VERBOS = {
     "plantilla": ("sensor-prosa",),
     "medida": ("nueva", "revisar", "probar", "listar", "expandir"),
     "caso": ("nuevo", "listar", "generar"),
-    "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto"),
+    "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto", "cobertura"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
@@ -671,7 +674,8 @@ def cmd_expandir(proy: Proyecto, ruta_str: str) -> int:
     return medida.expandir_archivo(ruta, macros_del_proyecto(proy))
 
 
-EXTENSIONES = {"catalogos": ".oracle", "corpus": ".caso", "relaciones": ".relacion"}
+EXTENSIONES = {"catalogos": ".oracle", "corpus": ".caso", "relaciones": ".relacion",
+               "requisitos": ".requisito"}
 
 
 def _mismo_arbol(izquierda, derecha) -> bool:
@@ -837,14 +841,14 @@ def cmd_formatear(proy: Proyecto, ruta_str: str, *, escribir: bool = False) -> i
         # La raíz de un proyecto se formatea sólo en sus carpetas de autoría: el resto (tareas,
         # estudios, otros proyectos anidados) es historia o ajeno y no se reescribe. Cualquier otro
         # directorio se recorre entero, sin lo oculto ni los fixtures de diferencial/.
-        bases = ([ruta / d for d in ("catalogos", "corpus", "relaciones", "macros")
+        bases = ([ruta / d for d in ("catalogos", "corpus", "relaciones", "requisitos", "macros")
                   if (ruta / d).is_dir()] if (ruta / "oracle.json").is_file() else [ruta])
         archivos = sorted(
             a for base in bases for a in base.rglob("*")
             if a.is_file() and a.suffix in formato.LECTORES
             and not any(p.startswith(".") or p == "diferencial" for p in a.relative_to(ruta).parts))
         if not archivos:
-            print(f"✗ {ruta_str}: no hay archivos .oracle, .caso ni .relacion")
+            print(f"✗ {ruta_str}: no hay archivos .oracle, .caso, .relacion ni .requisito")
             return 1
         codigos = [_formatear_uno(proy, a, escribir=escribir, ruta_str=str(a)) for a in archivos]
         return max(codigos)
@@ -853,7 +857,7 @@ def cmd_formatear(proy: Proyecto, ruta_str: str, *, escribir: bool = False) -> i
 
 def _formatear_uno(proy: Proyecto, ruta: Path, *, escribir: bool, ruta_str: str) -> int:
     if not ruta.is_file() or ruta.suffix not in formato.LECTORES:
-        print(f"✗ {ruta_str}: se espera un archivo .oracle, .caso o .relacion, o un directorio")
+        print(f"✗ {ruta_str}: se espera un archivo .oracle, .caso, .relacion o .requisito, o un directorio")
         return 1
     try:
         from nucleo.forma import leer_texto
@@ -1492,6 +1496,9 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_escalares(proy, argv)
         if verbo in ("contexto", "--contexto"):
             return cmd_contexto(proy, argv)
+        if verbo in ("cobertura", "--cobertura"):
+            from tools import cobertura
+            return cobertura.main(proy)
 
     # Atajos directos históricos (planos)
     if subcomando == "test":
@@ -1523,6 +1530,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando in ("relaciones", "--relaciones"):
         return cmd_relaciones(proy, argv)
+
+    if subcomando in ("cobertura", "--cobertura"):
+        from tools import cobertura
+        return cobertura.main(proy)
 
     if subcomando in ("escalares", "--escalares"):
         return cmd_escalares(proy, argv)
