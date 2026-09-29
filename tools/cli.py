@@ -21,8 +21,8 @@
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
     oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
-    oracle proyecto cobertura               qué requisitos mide alguna medida y cuáles declaran que no
-    oracle proyecto cambios [--desde <ref>]  lo que el catálogo aflojó desde un commit (por omisión HEAD)
+    oracle proyecto cobertura [--confiar-escalares]  qué requisitos mide alguna medida y cuáles no
+    oracle proyecto cambios [--desde <ref>] [--confiar-escalares]  lo que el catálogo aflojó desde un commit
 
     oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
@@ -679,13 +679,13 @@ def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
     return 0
 
 
-def cmd_cambios(proy: Proyecto, args: list[str]) -> int:
+def cmd_cambios(proy: Proyecto, args: list[str], confiar: bool = False) -> int:
     from tools import cambios
     args = [a for a in args if a != "--rapido"]
     if args and (args[0] != "--desde" or len(args) != 2):
         print("uso: oracle cambios [--desde <ref>]")
         return 1
-    return cambios.main(proy, args[1] if args else "HEAD")
+    return cambios.main(proy, args[1] if args else "HEAD", confiar=confiar)
 
 
 def cmd_relaciones(proy: Proyecto, argv: list[str] | None = None) -> int:
@@ -1540,9 +1540,9 @@ def main(argv: list[str] | None = None) -> int:
             return cmd_contexto(proy, argv)
         if verbo in ("cobertura", "--cobertura"):
             from tools import cobertura
-            return cobertura.main(proy)
+            return cobertura.main(proy, confiar=confiar_escalares(argv))
         if verbo in ("cambios", "--cambios"):
-            return cmd_cambios(proy, resto[1:])
+            return cmd_cambios(proy, resto[1:], confiar_escalares(argv))
 
     # Atajos directos históricos (planos)
     if subcomando == "test":
@@ -1577,10 +1577,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando in ("cobertura", "--cobertura"):
         from tools import cobertura
-        return cobertura.main(proy)
+        return cobertura.main(proy, confiar=confiar_escalares(argv))
 
     if subcomando in ("cambios", "--cambios"):
-        return cmd_cambios(proy, resto)
+        return cmd_cambios(proy, resto, confiar_escalares(argv))
 
     if subcomando in ("escalares", "--escalares"):
         return cmd_escalares(proy, argv)

@@ -202,6 +202,24 @@ class CambiosTests(unittest.TestCase):
         self.assertIn("· sombra nueva  dominio.x", texto)
         self.assertIn("0 errores · 1 avisos", texto)
 
+    def test_un_proyecto_con_escalares_propias_pide_confianza(self) -> None:
+        (self.raiz / "escalares.py").write_text(
+            "from oracle_metalenguaje import escalar\n\n\n@escalar(\"es_grande\")\ndef es_grande(x):\n"
+            "    return x > 10\n", encoding="utf-8")
+        self._escribir(_medida().replace("donde c.codigo != 0", "donde es_grande(c.codigo)"), "falso_verde")
+        self._commit("con escalares")
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 1)
+        self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", texto)
+        from nucleo.proyecto import Proyecto
+        from tools import cambios
+        with redirect_stdout(io.StringIO()) as salida:
+            self.assertEqual(cambios.main(Proyecto(self.raiz), "HEAD", confiar=True), 0)
+        self.assertIn("nada se aflojó", salida.getvalue())
+        from tools import cli
+        with redirect_stdout(io.StringIO()) as salida:
+            self.assertEqual(cli.main(["cambios", "--proyecto", str(self.raiz), "--confiar-escalares"]), 0)
+
     def test_ref_inexistente(self) -> None:
         codigo, texto = self._correr("no-existe")
         self.assertEqual(codigo, 1)

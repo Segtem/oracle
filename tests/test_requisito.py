@@ -190,6 +190,33 @@ class CoberturaTests(unittest.TestCase):
         self.assertTrue(texto.startswith("✗ "), texto)
         self.assertIn("cli_validate.malo.requisito", texto)
 
+    def test_un_proyecto_con_escalares_propias_pide_confianza(self) -> None:
+        # 2026-09-29: en LyraGASP `oracle cobertura` terminaba en una traza, porque cargaba el
+        # catálogo sin registrar medidas/escalares.py.
+        raiz = self._proyecto({"cli_validate.rutas_de_archivo.requisito": MEDIDO.replace(", openspec.b", "")})
+        (raiz / "escalares.py").write_text(
+            "from oracle_metalenguaje import escalar\n\n\n@escalar(\"es_grande\")\ndef es_grande(x):\n"
+            "    return x > 10\n", encoding="utf-8")
+        (raiz / "catalogos" / "openspec.a.oracle").write_text(
+            "ninguno openspec.a:\n    de corrida c\n    donde es_grande(c.codigo)\n"
+            '    umbral <= 0 segun contrato porque "cero"\n    ambito universal\n    alcance "prueba"\n',
+            encoding="utf-8")
+        from nucleo.proyecto import Proyecto
+        from tools import cobertura
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            self.assertEqual(cobertura.main(Proyecto(raiz)), 1)
+        self.assertIn("ESCALARES EXTERNAS NO EJECUTADAS", salida.getvalue())
+        self.assertIn("--confiar-escalares", salida.getvalue())
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            self.assertEqual(cobertura.main(Proyecto(raiz), confiar=True), 0)
+        self.assertIn("✓ cli_validate.rutas_de_archivo   openspec.a", salida.getvalue())
+        from tools import cli
+        with redirect_stdout(io.StringIO()) as cli_salida:
+            self.assertEqual(cli.main(["cobertura", "--proyecto", str(raiz), "--confiar-escalares"]), 0)
+        self.assertIn("1 requisitos: 1 medidos", cli_salida.getvalue())
+
     def test_sin_requisitos(self) -> None:
         codigo, texto = self._correr(self._proyecto({}))
         self.assertEqual((codigo, texto), (0, "sin requisitos: el proyecto no tiene requisitos/*.requisito\n"))

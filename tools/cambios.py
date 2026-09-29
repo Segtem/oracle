@@ -21,7 +21,8 @@ from pathlib import Path
 
 from nucleo.caso import leer as leer_caso
 from nucleo.medida import cargar_catalogo
-from nucleo.proyecto import ProyectoInvalido, _sombra_declarada, macros_del_proyecto
+from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
+                             _sombra_declarada, escalares_del_proyecto, macros_del_proyecto)
 
 SUPERIORES = ("<", "<=")
 INFERIORES = (">", ">=")
@@ -121,7 +122,17 @@ def comparar(antes: dict, despues: dict, casos_antes: dict, casos_despues: dict,
     return errores, avisos
 
 
-def main(proy, ref: str = "HEAD") -> int:
+def main(proy, ref: str = "HEAD", *, confiar: bool = False) -> int:
+    # Las medidas de un proyecto pueden usar sus escalares: sin registrarlas, el catálogo no carga.
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar):
+            return _main(proy, ref)
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
+
+
+def _main(proy, ref: str) -> int:
     raiz = proy.raiz
     try:
         _git(raiz, "rev-parse", "--verify", "--quiet", f"{ref}^{{commit}}")

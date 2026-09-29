@@ -156,7 +156,7 @@
   "razon": "En `oracle_metalenguaje/_compat.py`, `sys.meta_path.insert(0, …)` → `insert(1, …)`. Lo que importa es que el buscador `_MismoModulo` quede ANTES del `PathFinder`, que es el que cargaría la segunda copia del módulo. En CPython `sys.meta_path` arranca con BuiltinImporter, FrozenImporter y PathFinder, en ese orden: en la posición 0 o en la 1, el buscador queda antes del PathFinder, y ningún nombre `paquete.nucleo.X` lo resuelven los dos primeros (no son módulos incorporados ni congelados). No hay orden de importación observable que distinga las dos posiciones."
  },
  {
-  "id": "tools/cambios.py:48:52:constante",
+  "id": "tools/cambios.py:49:52:constante",
   "linea_texto": "check=True, capture_output=True).stdout)",
   "ordinal": 1,
   "razon": "`check=True` → `check=False` en el `git show` de `_extraer`. El archivo que se muestra es uno que `git ls-tree` acaba de listar en el mismo ref, así que `git show` no falla y el valor de `check` no cambia nada. Se deja en `True` porque, si alguna vez fallara, escribir un archivo vacío compararía contra un catálogo inventado."

@@ -7,11 +7,12 @@ declara por qué no se mide y qué nombra una medida que no existe. Esto último
 
 from __future__ import annotations
 
-from nucleo.proyecto import ORIGEN_PROYECTO, catalogo_efectivo, macros_del_proyecto
+from nucleo.proyecto import (ORIGEN_PROYECTO, EscalaresInvalidas, EscalaresNoConfiables,
+                             catalogo_efectivo, escalares_del_proyecto, macros_del_proyecto)
 from nucleo.requisito import RequisitoMalDeclarado, cargar_requisitos
 
 
-def main(proy) -> int:
+def main(proy, *, confiar: bool = False) -> int:
     try:
         requisitos = cargar_requisitos(proy.raiz / "requisitos")
     except RequisitoMalDeclarado as e:
@@ -20,7 +21,13 @@ def main(proy) -> int:
     if not requisitos:
         print("sin requisitos: el proyecto no tiene requisitos/*.requisito")
         return 0
-    catalogo = catalogo_efectivo(proy, macros=macros_del_proyecto(proy))
+    # Las medidas de un proyecto pueden usar sus escalares: sin registrarlas, el catálogo no carga.
+    try:
+        with escalares_del_proyecto(proy, confiar=confiar):
+            catalogo = catalogo_efectivo(proy, macros=macros_del_proyecto(proy))
+    except (EscalaresNoConfiables, EscalaresInvalidas) as e:
+        print(f"ESCALARES EXTERNAS NO EJECUTADAS — {e}")
+        return 1
     cuenta = {"total": 0, "parcial": 0, "ninguna": 0}
     inexistentes = 0
     usadas: set[str] = set()
