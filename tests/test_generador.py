@@ -281,9 +281,6 @@ class TestUmbralDeclarado(unittest.TestCase):
                                  caso["etiqueta"] == "verde_correcto")
 
 
-if __name__ == "__main__":
-    unittest.main()
-
 
 class TestMedidaConSin(unittest.TestCase):
     """Tarea caso-generar-no: una medida con `sin` necesita parejas en la relación negada."""
@@ -350,7 +347,7 @@ class TestMedidaConSin(unittest.TestCase):
     def test_el_caso_sin_evidencia_lleva_su_espera(self) -> None:
         from nucleo.generador import construir_caso_final
         cand = next(c for c in fabricar_candidatos(self.medida) if c.get("espera"))
-        self.assertEqual(cand["evidencia"], {"corrida": []})
+        self.assertEqual(cand["evidencia"], {"corrida": [], "problema": []})
         caso = construir_caso_final(cand, {"quitar_requiere"})
         self.assertEqual(caso["espera"], "sin_evidencia")
         self.assertNotIn("vacia", caso)
@@ -438,3 +435,238 @@ class TestFormasDelSin(unittest.TestCase):
         pareja = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=True))["problema"][0]
         self.assertEqual(pareja["nivel"], "WARNING")
 
+
+class TestPiezasPuras(unittest.TestCase):
+    def test_alt_val_da_otro_valor_del_mismo_tipo(self) -> None:
+        from nucleo.generador import _alt_val
+        for val in (True, False, 0, 7, -3, 0.0, 2.5, "", "x"):
+            with self.subTest(val=val):
+                otro = _alt_val(val)
+                self.assertIs(type(otro), type(val))
+                self.assertNotEqual(otro, val)
+        self.assertEqual(_alt_val(None), "otro")
+
+    def test_un_predicado_que_no_es_expresion_no_asigna_nada(self) -> None:
+        self.assertEqual(resolver_predicado(True, True), {})
+        self.assertEqual(resolver_predicado("x", False), {})
+
+    def test_accesos_de_campo_por_alias(self) -> None:
+        tuberia = ["desde", ["unir", ["de", "a", "x"], ["de", "b", "y"]],
+                   ["donde", ["y", ["==", ["campo", "x", "f"], 1], ["==", ["campo", "z", "g"], 2]]],
+                   ["agrupar", [], []]]
+        self.assertEqual(extraer_accesos_campo(tuberia, ["resumen", "suma", ["campo", "y", "h"]]),
+                         {"x": {"f"}, "y": {"h"}})
+
+    def test_cada_comparador_resuelve_hacia_su_objetivo(self) -> None:
+        import operator
+        ops = {"<": operator.lt, "<=": operator.le, ">": operator.gt, ">=": operator.ge,
+               "==": operator.eq, "!=": operator.ne}
+        for op, fn in ops.items():
+            for val in (0, 5, -2, 0.0, 2.5, 1e300):
+                for objetivo in (True, False):
+                    with self.subTest(op=op, val=val, objetivo=objetivo):
+                        v = resolver_predicado([op, ["campo", "a", "f"], val], objetivo)["a"]["f"]
+                        self.assertIs(fn(v, val), objetivo)
+                        self.assertIs(type(v), type(val))
+                        # literal a la izquierda: `val op campo`
+                        w = resolver_predicado([op, val, ["campo", "a", "f"]], objetivo)["a"]["f"]
+                        self.assertIs(fn(val, w), objetivo)
+                        # dos campos
+                        par = resolver_predicado([op, ["campo", "a", "f"], ["campo", "b", "g"]], objetivo)
+                        self.assertIs(fn(par["a"]["f"], par["b"]["g"]), objetivo)
+                        # cerca(campo, blanco) op tolerancia
+                        if op not in ("==", "!="):
+                            c = resolver_predicado([op, ["cerca", ["campo", "a", "f"], val], 3], objetivo)
+                            self.assertIs(fn(abs(c["a"]["f"] - val), 3), objetivo)
+
+    def test_lo_que_no_se_sabe_ordenar_no_se_inventa(self) -> None:
+        for val in ("texto", True, None):
+            for op in ("<", "<=", ">", ">="):
+                with self.subTest(op=op, val=val):
+                    self.assertEqual(resolver_predicado([op, ["campo", "a", "f"], val], True), {})
+        self.assertEqual(resolver_predicado(["==", ["campo", "a", "f"], "x"], True), {"a": {"f": "x"}})
+        self.assertEqual(resolver_predicado(["<", ["mas", 1, 2], 5], True), {})
+        self.assertEqual(resolver_predicado(["==", 1, 1], True), {})
+        self.assertEqual(resolver_predicado(["contiene", ["campo", "a", "m"], "X"], True), {"a": {"m": "NO ve X"}})
+        self.assertNotIn("X", resolver_predicado(["contiene", ["campo", "a", "m"], "X"], False)["a"]["m"])
+        self.assertEqual(resolver_predicado(["==", ["cerca", ["campo", "a", "f"], 1], 3], True), {})
+
+    def test_rellenar_defaults_por_nombre(self) -> None:
+        from nucleo.generador import _rellenar_defaults
+        campos = {"es_x", "y_ok", "z_valida", "conocido", "presente", "id", "rol", "fecha", "updated",
+                  "fecha_en_nombre", "peso", "fijo"}
+        self.assertEqual(_rellenar_defaults({"fijo": 7}, campos), {
+            "es_x": True, "y_ok": True, "z_valida": True, "conocido": True, "presente": True,
+            "id": "val_id", "rol": "val_rol", "fecha": "2026-08-26", "updated": "2026-08-26",
+            "fecha_en_nombre": "2026-08-26", "peso": 0.0, "fijo": 7})
+
+
+def _medida_de(texto: str) -> Medida:
+    from nucleo.forma import datos_en_forma_unica
+    return Medida.de_datos(datos_en_forma_unica(texto, "prueba"))
+
+
+def _muertos(medida: Medida, casos: list) -> set[str]:
+    from nucleo.mutacion import correr
+    return {d["cambio"] for d in correr({medida.id: medida}, casos)["mutante"]
+            if d["detecciones_conductuales"] or d["rechazos_del_algebra"]}
+
+
+class TestRamasDeCandidatos(unittest.TestCase):
+    """Las ramas de `_proponer_candidatos`: disyunción, join entre relaciones y auto-join."""
+
+    def test_una_rama_por_disyuncion(self) -> None:
+        medida = _medida_de(
+            "medida prueba.dos.ramas:\n    de item x\n    donde x.a == 1 o x.b == 2\n    resumen contar(1)\n"
+            "    umbral <= 0 segun contrato porque \"cero\"\n    ambito universal\n    alcance \"prueba\"\n")
+        candidatos = fabricar_candidatos(medida)
+        ids = [c["id"] for c in candidatos]
+        self.assertEqual(ids[:2], ["prueba-gen-001-dos.ramas-rama1", "prueba-gen-002-dos.ramas-rama2"])
+        for c in candidatos:
+            self.assertEqual(medida.evaluar(c["evidencia"]).ok, c["etiqueta"] == "verde_correcto")
+        # La rama 1 ofende sólo por `a` y la 2 sólo por `b`: cada una mata el mutante que la borra.
+        ramas = {c["id"][-5:]: [f for f in c["evidencia"]["item"] if f["a"] == 1 or f["b"] == 2]
+                 for c in candidatos[:2]}
+        self.assertEqual([(f["a"] == 1, f["b"] == 2) for f in ramas["rama1"]], [(True, False)])
+        self.assertEqual([(f["a"] == 1, f["b"] == 2) for f in ramas["rama2"]], [(False, True)])
+        muertos = _muertos(medida, candidatos)
+        self.assertIn("expresion:logico@2.2.1:o→y", muertos)
+        self.assertIn("conservar_una_rama_de_disyuncion", muertos)
+
+    def test_join_entre_relaciones_distintas(self) -> None:
+        medida = _medida_de(
+            "medida prueba.join:\n    de pedido p\n    unir cliente c\n"
+            "    donde p.cliente == c.id y c.activo == false\n    resumen contar(1)\n"
+            "    umbral <= 0 segun contrato porque \"cero\"\n    ambito universal\n    alcance \"prueba\"\n")
+        candidatos = fabricar_candidatos(medida)
+        rojo = candidatos[0]
+        self.assertEqual(medida.evaluar(rojo["evidencia"]).valor, 1)
+        self.assertEqual(rojo["evidencia"]["cliente"][0]["id"], rojo["evidencia"]["pedido"][0]["cliente"])
+        self.assertEqual(len(rojo["evidencia"]["pedido"]), 2)   # la ofensora y la limpia
+        self.assertEqual(len(rojo["evidencia"]["cliente"]), 1)  # sólo la ofensora
+        for c in candidatos:
+            self.assertEqual(medida.evaluar(c["evidencia"]).ok, c["etiqueta"] == "verde_correcto")
+        self.assertIn("quitar_filtro", _muertos(medida, candidatos))
+
+    def test_un_join_con_sin_trae_la_relacion_negada(self) -> None:
+        medida = _medida_de(
+            "medida prueba.vivo:\n    de corrida c\n    unir en_disco e\n"
+            "    donde e.fixture == c.fixture y e.archivado == false\n"
+            "    sin item i donde i.caso == c.caso y i.id == e.id\n    resumen contar(1)\n"
+            "    umbral <= 0 segun contrato porque \"cero\"\n    requiere en_disco\n"
+            "    ambito universal\n    alcance \"prueba\"\n")
+        candidatos = fabricar_candidatos(medida)
+        for c in candidatos:
+            with self.subTest(candidato=c["id"]):
+                self.assertEqual(set(c["evidencia"]), {"corrida", "en_disco", "item"})
+                v = medida.evaluar(c["evidencia"])
+                if c.get("espera"):
+                    self.assertTrue(v.sin_evidencia)
+                else:
+                    self.assertEqual(v.ok, c["etiqueta"] == "verde_correcto")
+        self.assertIn("quitar_antijunta", _muertos(medida, [c for c in candidatos if not c.get("espera")]))
+
+    def test_auto_join_renombra_las_filas_limpias(self) -> None:
+        medida = _medida_de(
+            "medida prueba.duplicado:\n    de archivo a\n    unir archivo b\n"
+            "    donde a.nombre == b.nombre y a.id != b.id\n    resumen contar(1)\n"
+            "    umbral <= 0 segun contrato porque \"cero\"\n    ambito universal\n    alcance \"prueba\"\n")
+        from nucleo.generador import _proponer_candidatos
+        rojo = _proponer_candidatos(medida)[0]
+        nombres = [f["nombre"] for f in rojo["evidencia"]["archivo"]]
+        self.assertIn("nombre_limpio_0", nombres)
+        self.assertEqual(medida.evaluar(rojo["evidencia"]).valor, 2)  # la ofensora, cruzada en los dos órdenes
+
+    def test_un_nombre_fijado_por_el_donde_no_lleva_sufijo(self) -> None:
+        medida = _medida_de(
+            "medida prueba.nombres:\n    de item x\n    donde x.nombre == \"fijo\" y x.tipo == \"t\"\n"
+            "    resumen contar(1)\n    umbral <= 0 segun contrato porque \"cero\"\n"
+            "    ambito universal\n    alcance \"prueba\"\n")
+        self.assertEqual(fabricar_filas(medida, satisfacer=True, sufijo="-s")["item"][0]["nombre"], "fijo")
+        suelta = _medida_de(
+            "medida prueba.suelta:\n    de item x\n    donde x.tipo == \"t\" y x.nombre != \"\"\n"
+            "    resumen contar(1)\n    umbral <= 0 segun contrato porque \"cero\"\n"
+            "    ambito universal\n    alcance \"prueba\"\n")
+        fila = fabricar_filas(suelta, satisfacer=False, sufijo="-s")["item"][0]
+        self.assertEqual(fila["nombre"], "algo")
+
+    def test_el_titulo_por_omision(self) -> None:
+        from nucleo.generador import construir_caso_final
+        cand = {"id": "p-gen-001-x", "medida": "p.x", "etiqueta": "falso_verde", "evidencia": {"t": []}}
+        self.assertEqual(construir_caso_final(cand, set())["titulo"], "Evidencia generada para fijar p.x")
+        self.assertEqual(construir_caso_final({**cand, "titulo": "propio"}, set())["titulo"], "propio")
+
+
+class TestGenerarCasoEnUnProyecto(unittest.TestCase):
+    MEDIDA = ("medida prueba.x:\n    de item i\n    donde i.malo == true\n    resumen contar(1)\n"
+              "    umbral <= 0 segun contrato porque \"cero\"\n    ambito universal\n    alcance \"prueba\"\n")
+
+    def setUp(self) -> None:
+        self.raiz = Path(tempfile.mkdtemp())
+        self.addCleanup(lambda: __import__("shutil").rmtree(self.raiz))
+        (self.raiz / "oracle.json").write_text(
+            '{"esquema": "oracle.proyecto/v1", "catalogo_base": false, "perfiles": []}\n', encoding="utf-8")
+        (self.raiz / "catalogos" / "prueba").mkdir(parents=True)
+        (self.raiz / "corpus" / "prueba").mkdir(parents=True)
+        (self.raiz / "diferencial").mkdir()
+        (self.raiz / "catalogos" / "prueba" / "prueba.x.oracle").write_text(self.MEDIDA, encoding="utf-8")
+
+    def _generar(self, mid="prueba.x", **kw):
+        with redirect_stdout(io.StringIO()) as salida:
+            codigo, res = generar_caso(Proyecto(self.raiz), mid, **kw)
+        return codigo, res, salida.getvalue()
+
+    def test_una_medida_que_no_existe(self) -> None:
+        codigo, res, texto = self._generar("prueba.no_existe")
+        self.assertEqual((codigo, res), (1, {}))
+        self.assertIn("medida «prueba.no_existe» no encontrada", texto)
+
+    def test_escribe_en_el_grupo_y_despues_es_ruido(self) -> None:
+        codigo, res, _ = self._generar()
+        self.assertEqual(codigo, 0)
+        self.assertTrue(res["casos"])
+        self.assertTrue(all(r.parent == self.raiz / "corpus" / "prueba" for r in res["casos"]))
+        self.assertEqual(res["siguen_vivos"], [])
+        self.assertEqual(res["muertos_nuevos"], res["vivos_antes"])
+        codigo, res, texto = self._generar()
+        self.assertEqual((codigo, res), (0, {"mid": "prueba.x", "vivos_antes": 0, "muertos_nuevos": 0, "casos": []}))
+        self.assertIn("ya está fijada", texto)
+
+    def test_candidatos_que_no_matan_nada_no_se_escriben(self) -> None:
+        from unittest import mock
+        with mock.patch("nucleo.generador.evaluar_utilidad", return_value=(["quitar_filtro"], [])), \
+                mock.patch("nucleo.generador.fabricar_candidatos", return_value=[]):
+            codigo, res, texto = self._generar()
+        self.assertEqual((codigo, res), (0, {"mid": "prueba.x", "vivos_antes": 1, "muertos_nuevos": 0, "casos": []}))
+        self.assertIn("no mata ningún mutante adicional", texto)
+
+    def test_la_generacion_imposible_dice_por_que(self) -> None:
+        from unittest import mock
+        with mock.patch("nucleo.generador.fabricar_candidatos", side_effect=GeneracionNoPosible("motivo")):
+            codigo, res, _ = self._generar()
+        self.assertEqual(codigo, 1)
+        self.assertEqual({k: v for k, v in res.items() if k != "vivos_antes"},
+                         {"mid": "prueba.x", "muertos_nuevos": 0, "casos": [], "error": "motivo"})
+
+    def test_los_fixtures_del_diferencial_cuentan_solo_si_cargan_bien(self) -> None:
+        from unittest import mock
+        from nucleo.forma import datos_en_forma_unica
+        medida = Medida.de_datos(datos_en_forma_unica(self.MEDIDA, "prueba"))
+        casos = [c for c in fabricar_candidatos(medida) if "espera" not in c]
+        for fallas, fijada in (([], True), (["roto"], False)):
+            with self.subTest(fallas=fallas), \
+                    mock.patch("nucleo.fixtures.cargar_fixtures", return_value=(["f"], fallas)), \
+                    mock.patch("nucleo.fixtures.casos_para_mutacion", return_value=casos):
+                codigo, res, _ = self._generar(imprimir_solo=True)
+            self.assertEqual(res["vivos_antes"] == 0, fijada, res)
+
+    def test_sin_confianza_no_corre_las_escalares_del_proyecto(self) -> None:
+        from nucleo.proyecto import EscalaresNoConfiables
+        (self.raiz / "escalares.py").write_text("x = 1\n", encoding="utf-8")
+        with self.assertRaises(EscalaresNoConfiables):
+            self._generar()
+
+
+
+if __name__ == "__main__":
+    unittest.main()

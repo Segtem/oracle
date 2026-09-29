@@ -112,7 +112,7 @@ jobs:
           python tools/cli.py juzgar --proyecto ejemplo/seguimiento-tareas --con /tmp/hechos-tareas.json --parcial
 
   # ⚠ La matriz está DESACTUALIZADA a propósito y hay que decirlo: faltan `nucleo/sintaxis.py`,
-  # `nucleo/caso.py`, `nucleo/generador.py`, `nucleo/relacion.py`, `nucleo/version.py` y los tres de
+  # `nucleo/caso.py`, `nucleo/relacion.py`, `nucleo/version.py` y los tres de
   # `tools/` que se sumaron el 2026-08-27. Agregarlos sube el costo por corrida, y con la cuenta en
   # cero no es el momento. Queda anotado para cuando el cupo se renueve.
   #
@@ -210,6 +210,9 @@ jobs:
           # Entra el 2026-09-28: lee el escenario del que nace una medida. Si lee mal, la medida
           # arranca defendiendo otra cosa que la que la spec pide.
           - tools/escenario.py
+          # Entra el 2026-09-29 (tarea generador-los): 327/327 en 178 s. Tenía 400 vivos de 573;
+          # se borró el código de un consumidor y la evidencia escrita por nombre, y el resto se fijó.
+          - nucleo/generador.py
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

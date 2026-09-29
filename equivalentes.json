@@ -160,5 +160,17 @@
   "linea_texto": "check=True, capture_output=True).stdout)",
   "ordinal": 1,
   "razon": "`check=True` → `check=False` en el `git show` de `_extraer`. El archivo que se muestra es uno que `git ls-tree` acaba de listar en el mismo ref, así que `git show` no falla y el valor de `check` no cambia nada. Se deja en `True` porque, si alguna vez fallara, escribir un archivo vacío compararía contra un catálogo inventado."
+ },
+ {
+  "id": "nucleo/generador.py:85:79:constante",
+  "linea_texto": "return math.nextafter(val, -math.inf) if isinstance(val, float) else val - 1",
+  "ordinal": 1,
+  "razon": "`val - 1` → `val - 2` en `_menor`, que fabrica un entero estrictamente menor que el literal de un `<`. Cualquier paso positivo cumple la misma propiedad (el valor queda por debajo y es del mismo tipo), y eso es lo único que el generador necesita: el test de propiedad `test_cada_comparador_resuelve_hacia_su_objetivo` lo fija para los seis comparadores. Para los flotantes se usa `math.nextafter`, que no tiene constante; para los enteros el 1 es el paso mínimo, no un número elegido."
+ },
+ {
+  "id": "nucleo/generador.py:419:60:constante",
+  "linea_texto": "ev_ofensora = fabricar_filas(medida, satisfacer=True, alias_override=pred_override, sufijo=f\"-r{idx_rama}\")",
+  "ordinal": 1,
+  "razon": "`satisfacer=True` → `False` en la fila ofensora de la rama de una disyunción. Esa fila recibe además `alias_override`, que asigna cada campo de TODAS las ramas (la propia a verdadero, las otras a falso) y pisa lo que `satisfacer` hubiera resuelto para el `donde`, que en esta rama es justamente la disyunción. Resolver el `donde` hacia verdadero o hacia falso no deja ningún campo del predicado sin pisar, así que la fila es la misma. El test `test_una_rama_por_disyuncion` fija que cada rama ofenda sólo por su propio término."
  }
 ]
