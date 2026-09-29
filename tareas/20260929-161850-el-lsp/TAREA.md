@@ -1,6 +1,6 @@
 # el LSP diagnostica y completa los .requisito
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle
 
