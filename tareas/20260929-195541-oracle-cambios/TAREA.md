@@ -1,6 +1,6 @@
 # oracle cambios no lee el ref de un proyecto que vive en un subdirectorio del repositorio
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle
 
