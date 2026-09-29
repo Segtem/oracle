@@ -9,13 +9,15 @@
 
 ;; Modo mayor mínimo: Oracle es indentación de 4 espacios y nada más.
 (define-derived-mode oracle-mode prog-mode "Oracle"
-  "Modo para medidas (.oracle) y casos (.caso) de Oracle."
+  "Modo para medidas (.oracle), casos (.caso), relaciones (.relacion) y requisitos (.requisito)."
   (setq-local indent-tabs-mode nil)
   (setq-local tab-width 4)
   (setq-local comment-start "# "))
 
 (add-to-list 'auto-mode-alist '("\\.oracle\\'" . oracle-mode))
 (add-to-list 'auto-mode-alist '("\\.caso\\'"   . oracle-mode))
+(add-to-list 'auto-mode-alist '("\\.relacion\\'"  . oracle-mode))
+(add-to-list 'auto-mode-alist '("\\.requisito\\'" . oracle-mode))
 
 ;; `lsp-mode` RECIBE los diagnósticos pero no los dibuja: necesita un backend.
 ;; emacs50 no trae flycheck, y sin backend el servidor manda los errores y en la

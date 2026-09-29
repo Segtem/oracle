@@ -150,7 +150,7 @@ function publicar(params) {
 //
 // Cambiarlo globalmente encendería también Pylance y Java, y rompería la paridad con
 // cs50.dev que es el motivo de este perfil. Una decoración propia no depende de ese
-// ajuste: enciende el subrayado SÓLO para `.oracle` y `.caso`, y deja C, Python y Java
+// ajuste: enciende el subrayado SÓLO para los archivos de Oracle, y deja C, Python y Java
 // exactamente como CS50 los configuró.
 function anutar_editores(visibles) {
     anotar(`pintar: ${visibles.length} editores visibles · ` + visibles.map(

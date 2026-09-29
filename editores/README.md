@@ -39,7 +39,7 @@ Necesita [`lsp-mode`](https://emacs-lsp.github.io/lsp-mode/). Copiá `emacs/orac
 (require 'oracle-lsp)
 ```
 
-Enciende `oracle-mode` para `.oracle` y `.caso`, y arranca el servidor solo.
+Enciende `oracle-mode` para `.oracle`, `.caso`, `.relacion` y `.requisito`, y arranca el servidor solo.
 
 ## Cómo encuentran el servidor
 

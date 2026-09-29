@@ -16,6 +16,7 @@ from nucleo.caso import (DETECCIONES, ETIQUETAS, PROCEDENCIAS, CasoMalDeclarado,
 from nucleo.medida import (ORIGENES_DE_UMBRAL, Medida, MedidaMalDeclarada,  # noqa: E402
                            cargar_catalogo)
 from nucleo.relacion import RelacionMalDeclarada  # noqa: E402
+from nucleo.requisito import RequisitoMalDeclarado  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar, macros_del_proyecto,  # noqa: E402
                              relaciones_del_proyecto)
 from nucleo.sintaxis import IDENT_RE, ErrorSintaxis, leer_con_mapa  # noqa: E402
@@ -101,6 +102,8 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
             impreso = imprimir(datos)
             error = error_forma(ruta, texto, impreso)
             return [_diagnostico_forma(texto, error, impreso)] if error else []
+        if ruta.suffix == ".requisito":
+            return _diagnosticar_requisito(proy, ruta, texto)
         if ruta.suffix != ".oracle":
             return []
         macros = macros_del_proyecto(proy)
@@ -134,8 +137,41 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
         return []
     except ErrorSintaxis as e:
         return [_diagnostico(texto, str(e), ERROR, e.linea, e.columna)]
-    except (MedidaMalDeclarada, CasoMalDeclarado, RelacionMalDeclarada, ValueError) as e:
+    except (MedidaMalDeclarada, CasoMalDeclarado, RelacionMalDeclarada, RequisitoMalDeclarado,
+            ValueError) as e:
         return [_diagnostico(texto, str(e), ERROR)]
+
+
+def _ids_del_catalogo(proy: Proyecto) -> set[str] | None:
+    """Las medidas que el proyecto evalúa; None si el catálogo no carga (eso lo dice su archivo)."""
+    try:
+        return set(cargar_catalogo(catalogos_a_cargar(proy), macros=macros_del_proyecto(proy)))
+    except (MedidaMalDeclarada, ValueError, OSError):
+        return None
+
+
+def _diagnosticar_requisito(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
+    """Forma única, id igual al nombre del archivo, y que `medido_por` nombre medidas que existen.
+
+    Lo último es lo mismo que dicen `oracle cobertura` y `meta.el_requisito_nombra_medidas_que_existen`,
+    visto mientras se escribe: un requisito que apunta a la nada se lee como cubierto."""
+    from nucleo.forma import error_forma
+    from nucleo.requisito import Requisito, imprimir, leer
+    datos = leer(texto)
+    impreso = imprimir(datos)
+    error = error_forma(ruta, texto, impreso)
+    if error:
+        return [_diagnostico_forma(texto, error, impreso)]
+    requisito = Requisito.de_datos(datos)
+    if ruta.stem != requisito.id:
+        return [_diagnostico(texto, f"el archivo se llama como su id: {requisito.id}.requisito", ERROR)]
+    ids = _ids_del_catalogo(proy)
+    faltan = [m for m in requisito.medido_por if ids is not None and m not in ids]
+    if not faltan:
+        return []
+    linea = next(n for n, l in enumerate(texto.splitlines(), 1) if l.startswith("    medido_por "))
+    return [_diagnostico(texto, f"medido_por nombra medidas que no existen: {', '.join(faltan)}",
+                         AVISO, linea, 5)]
 
 
 def lentes(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
@@ -246,6 +282,11 @@ def completar(proy: Proyecto, ruta: Path, texto: str, posicion: dict) -> list[di
             except (MedidaMalDeclarada, ValueError, OSError):
                 return []
             return _items(catalogo)
+        return []
+
+    if ruta.suffix == ".requisito":
+        if re.fullmatch(r"\s*medido_por\s.*", prefijo):
+            return _items(sorted(_ids_del_catalogo(proy) or ()))
         return []
 
     if ruta.suffix != ".oracle":

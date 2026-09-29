@@ -717,5 +717,65 @@ class LenteSobreLaMedida(unittest.TestCase):
         self.assertIn("umbral", lente["command"]["title"])
 
 
+
+REQUISITO = """\
+requisito demo.alto_acotado:
+    texto "Ninguna pieza SHALL medir más de cuatro metros"
+    medido_por demo.alto
+    sin_medir "la malla no se mira"
+"""
+
+
+class RequisitoTests(unittest.TestCase):
+    def _ruta(self, proy: Proyecto, nombre: str = "demo.alto_acotado.requisito") -> Path:
+        (proy.raiz / "requisitos").mkdir(exist_ok=True)
+        return proy.raiz / "requisitos" / nombre
+
+    def test_un_requisito_bien_escrito_no_tiene_diagnosticos(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proy, _r = _proyecto(Path(tmp))
+            self.assertEqual(lsp.diagnosticar(proy, self._ruta(proy), REQUISITO), [])
+
+    def test_una_medida_que_no_existe_es_un_aviso_en_su_linea(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proy, _r = _proyecto(Path(tmp))
+            texto = REQUISITO.replace("medido_por demo.alto", "medido_por demo.alto, demo.ancho")
+            d, = lsp.diagnosticar(proy, self._ruta(proy), texto)
+            self.assertEqual(d["severity"], lsp.AVISO)
+            self.assertEqual(d["message"], "medido_por nombra medidas que no existen: demo.ancho")
+            self.assertEqual(d["range"]["start"], {"line": 2, "character": 4})
+
+    def test_si_el_catalogo_no_carga_no_inventa_el_aviso(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proy, ruta_medida = _proyecto(Path(tmp))
+            ruta_medida.write_text("ninguno roto\n", encoding="utf-8")
+            texto = REQUISITO.replace("medido_por demo.alto", "medido_por demo.ancho")
+            self.assertEqual(lsp.diagnosticar(proy, self._ruta(proy), texto), [])
+
+    def test_forma_nombre_y_lectura(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proy, _r = _proyecto(Path(tmp))
+            fuera = REQUISITO.replace("medido_por demo.alto", "medido_por  demo.alto")
+            for ruta, texto, fragmento in (
+                    (self._ruta(proy), fuera, "medido_por"),
+                    (self._ruta(proy, "otro.nombre.requisito"), REQUISITO, "se llama como su id"),
+                    (self._ruta(proy), 'requisito demo.x:\n    texto "t"\n', "sin_medir")):
+                with self.subTest(fragmento=fragmento):
+                    d, = lsp.diagnosticar(proy, ruta, texto)
+                    self.assertEqual(d["severity"], lsp.ERROR)
+                    self.assertIn(fragmento, d["message"])
+
+    def test_completa_medidas_despues_de_medido_por(self) -> None:
+        with tempfile.TemporaryDirectory() as tmp:
+            proy, _r = _proyecto(Path(tmp))
+            ruta = self._ruta(proy)
+            texto = 'requisito demo.x:\n    texto "t"\n    medido_por \n'
+            items = lsp.completar(proy, ruta, texto, {"line": 2, "character": 15})
+            self.assertEqual([i["label"] for i in items], ["demo.alto"])
+            self.assertEqual(lsp.completar(proy, ruta, texto, {"line": 1, "character": 10}), [])
+            (proy.catalogos / "demo" / "demo.alto.oracle").write_text("ninguno roto\n", encoding="utf-8")
+            self.assertEqual(lsp.completar(proy, ruta, texto, {"line": 2, "character": 15}), [])
+
+
 if __name__ == "__main__":
     unittest.main()

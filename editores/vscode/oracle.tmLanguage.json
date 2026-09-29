@@ -2,18 +2,18 @@
     "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
     "name": "Oracle",
     "scopeName": "source.oracle",
-    "fileTypes": ["oracle", "caso"],
+    "fileTypes": ["oracle", "caso", "relacion", "requisito"],
     "patterns": [
         { "match": "#.*$", "name": "comment.line.number-sign.oracle" },
 
         { "comment": "Encabezado: `ninguno dominio.nombre:` — la forma y el id de la medida",
-          "match": "^(medida|ninguno|ninguno-par|ninguno-requiere|peor|defmacro|caso|relacion)\\s+([\\w.-]+)",
+          "match": "^(medida|ninguno|ninguno-par|ninguno-requiere|peor|defmacro|caso|relacion|requisito)\\s+([\\w.-]+)",
           "captures": {
             "1": { "name": "storage.type.oracle" },
             "2": { "name": "entity.name.function.oracle" } } },
 
         { "comment": "Los cinco operadores del álgebra, más las cláusulas obligatorias",
-          "match": "^\\s*(de|donde|unir|agrupar|resumen|umbral|requiere|alcance|clave|agregado|evidencia|leccion|sintoma|origen|titulo)\\b",
+          "match": "^\\s*(de|donde|unir|agrupar|resumen|umbral|requiere|alcance|clave|agregado|evidencia|leccion|sintoma|origen|titulo|texto|fuente|medido_por|sin_medir)\\b",
           "name": "keyword.control.oracle" },
 
         { "comment": "`porque` y `segun` viajan dentro de la línea del umbral",
