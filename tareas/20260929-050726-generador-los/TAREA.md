@@ -1,6 +1,6 @@
 # generador: los sobrevivientes de la mutación en el código anterior
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 55
 - ETIQUETAS: oracle
 
