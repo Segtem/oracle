@@ -1,6 +1,6 @@
 # el LSP no conoce las escalares del proyecto
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 50
 - ETIQUETAS: oracle
 
