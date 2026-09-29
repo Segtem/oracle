@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.36.0](#0360--la-mutación-no-cuenta-muertes-que-no-pasaron-y-el-generador-escribe-los-casos-con-sin) | la mutación no cuenta muertes que no pasaron, y el generador escribe los casos con `sin` |
 | [0.35.0](#0350--lo-que-se-promete-lo-que-se-afloja-y-de-dónde-nace-una-medida) | lo que se promete, lo que se afloja y de dónde nace una medida |
 | [0.34.0](#0340--el-tracker-y-el-mcp-paquetes-aparte) | el tracker y el MCP, paquetes aparte |
 | [0.33.0](#0330--la-api-de-python-también-escribe-en-superficie-y-la-mutación-en-paralelo) | la API de Python también escribe en superficie, y la mutación en paralelo |
@@ -28,6 +29,56 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.36.0 — la mutación no cuenta muertes que no pasaron, y el generador escribe los casos con `sin`
+
+```
+VERSION_DISTRIBUCION   0.35.0 → 0.36.0   arnés de mutación, generador de casos y LSP
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+## La mutación ya no inventa mutantes muertos con el disco lleno
+
+Un mutante muere cuando sus tests fallan. Pero un test también falla cuando el disco se llena, y
+ese fallo salía con el mismo código que una muerte de verdad. Se midió: con `/tmp` llenándose, una
+ronda sobre el generador de casos contó 91 vivos donde, con el disco sano, había 380. Ahora el arnés
+mide el espacio libre de la copia y del `TMPDIR` antes y después de correr los tests; con menos de
+256 MiB, un fallo es **error del arnés** y la ronda sale inconclusa en vez de dar cifras falsas. Se
+mide el entorno y no el texto de la salida, por la misma razón por la que el arnés decide por el
+código de salida.
+
+Las cifras publicadas con 0.35.0 se volvieron a medir con este arreglo y se sostienen.
+
+## `oracle caso generar` escribe casos que antes no podía
+
+- **Medidas con `sin`.** Arma la fila que salva a la que no tiene que contar (con el valor real de la
+  clave del join y todos los `contiene` de la condición) y un verde nuevo donde el `sin` salva la
+  fila que ofendería. Sobre las 32 medidas de un experimento con la spec `cli-validate` de OpenSpec,
+  con el corpus borrado, genera casos para 29 (antes 18).
+- **Medidas con `requiere`.** Suma el caso con la relación requerida vacía y `espera:
+  sin_evidencia`, que antes había que escribir a mano en cada medida.
+- **Joins entre relaciones distintas.** No generaban nada: el sufijo que distingue filas tocaba un
+  `id` que el `donde` había fijado para casar con la otra relación.
+- Un auto-join sigue sin verde generable, y el generador lo dice (`GeneracionNoPosible`) en vez de
+  inventarlo.
+
+El generador además dejó de traer, escritas por nombre en el núcleo, escalares de un consumidor y la
+evidencia de una medida particular. Quedó con cero mutantes vivos (327) y entra a la mutación del CI.
+
+## El editor entiende los requisitos
+
+El LSP diagnostica los `.requisito` (forma única, id igual al archivo) y avisa en la línea de
+`medido_por` cuando nombra una medida que no existe; completa ids de medida. VS Code y Emacs
+registran ahora `.relacion` y `.requisito`: antes sólo `.oracle` y `.caso`, así que una relación nunca
+le llegaba al servidor.
+
+## Para actualizar
+
+Nada que migrar. Si mutás en un `tmpfs`, una ronda que antes salía «limpia» con el disco lleno ahora
+sale inconclusa: es la cifra honesta. Para el MCP, [oracle-mcp 0.1.1](https://github.com/Segtem/oracle-mcp/releases/tag/v0.1.1)
+suma `oracle_requirements`; fija Oracle 0.35.0 en su propio entorno, y no
+cambia nada de lo que expone 0.36.0.
 
 # 0.35.0 — lo que se promete, lo que se afloja y de dónde nace una medida
 

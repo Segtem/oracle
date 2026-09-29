@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.35.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.36.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,17 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.36.0 (2026-09-29): `VERSION_DISTRIBUCION` sube de `0.35.0` a `0.36.0`.** El arnés de
+mutación deja de contar como muerto un mutante cuyos tests fallaron con el disco casi lleno: con
+menos de 256 MiB libres en la copia o en el `TMPDIR`, un fallo de tests es error del arnés y la ronda
+sale inconclusa (se midió una ronda que daba 91 vivos donde había 380). `oracle caso generar` fabrica
+casos para medidas con `sin`, para toda medida con `requiere` (la relación vacía con `espera:
+sin_evidencia`) y para joins entre relaciones distintas, que antes no producían nada; el generador
+deja de traer escalares de un consumidor escritas por nombre y queda con cero mutantes vivos. El LSP
+diagnostica y completa `.requisito`. No cambia el álgebra ni la superficie. La mutación del corte:
+`nucleo/generador.py` y `perfiles/python/mutacion_codigo.py` completos, 625 mutantes, ninguno vivo,
+dos equivalentes declarados; `tools/lsp.py` está fuera del perfil con su razón.
 
 **Corte 0.35.0 (2026-09-29): `VERSION_DISTRIBUCION` sube de `0.34.0` a `0.35.0`.** Publica la
 sintaxis 1.1 del párrafo siguiente (los requisitos y `oracle cobertura`) y agrega `oracle cambios
