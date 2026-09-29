@@ -1,6 +1,6 @@
 # oracle cobertura y oracle cambios revientan en un proyecto con escalares propias
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle
 
