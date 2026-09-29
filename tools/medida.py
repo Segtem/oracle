@@ -282,7 +282,11 @@ def escalares(proy, *, externas_omitidas: bool = False) -> int:
     return 0
 
 
-def nueva(proy, mid: str) -> int:
+def nueva(proy, mid: str, *, escenario: dict | None = None, titulo: str = "", fuente: str = "",
+          requisito: str | None = None) -> int:
+    """Andamio de una medida y sus dos casos. Con `escenario`, el escenario queda escrito en la
+    medida como comentario y en los casos como síntoma; con `requisito`, la medida entra en su
+    `medido_por`. Todo se valida antes de escribir el primer archivo."""
     try:
         destino = ruta_de_medida_nueva(proy, mid)
     except ProyectoInvalido as e:
@@ -291,6 +295,15 @@ def nueva(proy, mid: str) -> int:
     if destino.exists():
         print(f"ya existe: {presentar_ruta(proy, destino)}")
         return 1
+    req = None
+    if requisito is not None:
+        from nucleo.requisito import RequisitoMalDeclarado, cargar
+        ruta_req = proy.raiz / "requisitos" / f"{requisito}.requisito"
+        try:
+            req = cargar(ruta_req)
+        except RequisitoMalDeclarado as e:
+            print(f"✗ {e}")
+            return 1
     from tools import corpus
 
     proy_casos = Proyecto(proy.raiz)
@@ -308,7 +321,21 @@ def nueva(proy, mid: str) -> int:
         return 1
 
     destino.parent.mkdir(parents=True, exist_ok=True)
-    destino.write_text(PLANTILLA.format(mid=mid), encoding="utf-8")
+    cabecera = ""
+    sintomas = {}
+    if escenario is not None:
+        from tools.escenario import comentario
+        encabezado = f"Escenario «{titulo}»" if titulo else "Escenario"
+        cabecera = comentario(escenario, f"{encabezado} de {fuente}" if fuente else encabezado)
+        cuando, entonces = "; ".join(escenario["cuando"]), "; ".join(escenario["entonces"])
+        sintomas = {"falso_verde": f"Pasa lo del escenario: {cuando}. Y NO se cumple: {entonces}.",
+                    "verde_correcto": f"Pasa lo del escenario: {cuando}. Y se cumple: {entonces}."}
+    destino.write_text(cabecera + PLANTILLA.format(mid=mid), encoding="utf-8")
+    if req is not None and mid not in req.medido_por:
+        from dataclasses import replace
+        from nucleo.requisito import imprimir as imprimir_requisito
+        ruta_req.write_text(imprimir_requisito(replace(req, medido_por=(*req.medido_por, mid)).a_datos()),
+                            encoding="utf-8")
     fecha, repo, commit = corpus._del_repositorio(proy.raiz)
     for ruta, etiqueta in ((rojo, "falso_verde"), (verde, "verde_correcto")):
         ruta.parent.mkdir(parents=True, exist_ok=True)
@@ -321,9 +348,17 @@ def nueva(proy, mid: str) -> int:
         plantilla = plantilla.replace("medida: DOMINIO.MEDIDA", f"medida: {mid}")
         plantilla = plantilla.replace("RELACION: CAMPO", "pendiente: valor")
         plantilla = plantilla.replace('"VALOR"', '"POR_COMPLETAR"')
+        if etiqueta in sintomas:
+            plantilla = plantilla.replace("        SINTOMA\n", f"        {sintomas[etiqueta]}\n")
+            if titulo:
+                sufijo = "no se cumple" if etiqueta == "falso_verde" else "se cumple"
+                plantilla = plantilla.replace('titulo: "TITULO"',
+                                              f"titulo: {json.dumps(f'«{titulo}» — {sufijo}', ensure_ascii=False)}")
         ruta.write_text("# ANDAMIO: completar evidencia y quitar esta marca\n" + plantilla,
                         encoding="utf-8")
     print(f"creada: {presentar_ruta(proy, destino)}\n")
+    if req is not None:
+        print(f"requisito: {requisito} ahora dice medido_por {', '.join(dict.fromkeys((*req.medido_por, mid)))}")
     print(f"casos de andamio: {presentar_ruta(proy, rojo)} y "
           f"{presentar_ruta(proy, verde)}")
     print("Reemplazá RELACION, CAMPO, SEGUN, AMBITO y los dos textos en MAYÚSCULAS. Después:")

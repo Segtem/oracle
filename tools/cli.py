@@ -5,6 +5,7 @@
 
     oracle plantilla sensor-prosa <destino> copia el sensor opcional sin ejecutarlo ni pisar archivos
     oracle medida nueva <dominio.nombre>    crea una nueva medida en catalogos/ con plantilla lista
+        [--escenario "<WHEN … THEN …>" | --escenario-de <spec.md> "<nombre>"] [--requisito <id>]
     oracle medida revisar <archivo>         revisa y evalúa una medida suelta contra la evidencia
     oracle medida probar <archivo> --con <filas>   corre una medida contra filas escritas a mano
     oracle medida listar                    lista las medidas del catálogo con umbral, alcance y fijación
@@ -579,8 +580,37 @@ def cmd_init(ruta_str: str | None, argv: list[str]) -> int:
     return 0
 
 
-def cmd_nueva(proy: Proyecto, mid: str) -> int:
-    return medida.nueva(proy, mid)
+USO_NUEVA = ("uso: oracle medida nueva <dominio.nombre> [--escenario \"<WHEN … THEN …>\" | "
+             "--escenario-de <spec.md> \"<nombre>\"] [--requisito <id>]")
+
+
+def cmd_nueva(proy: Proyecto, mid: str, opciones_cli=()) -> int:
+    """El id y, detrás, las opciones del escenario y del requisito."""
+    from tools import escenario
+    resto = list(opciones_cli)
+    opciones: dict[str, list[str]] = {}
+    aridad = {"--escenario": 1, "--escenario-de": 2, "--requisito": 1}
+    while resto:
+        bandera = resto.pop(0)
+        if bandera not in aridad or bandera in opciones or len(resto) < aridad[bandera]:
+            print(USO_NUEVA)
+            return 1
+        opciones[bandera] = [resto.pop(0) for _ in range(aridad[bandera])]
+    if "--escenario" in opciones and "--escenario-de" in opciones:
+        print(USO_NUEVA)
+        return 1
+    esc, titulo, fuente = None, "", ""
+    try:
+        if "--escenario" in opciones:
+            esc = escenario.leer(opciones["--escenario"][0])
+        elif "--escenario-de" in opciones:
+            fuente, titulo = opciones["--escenario-de"]
+            esc = escenario.leer(escenario.de_spec(Path(fuente), titulo))
+    except (OSError, ValueError) as e:
+        print(f"✗ escenario: {e}")
+        return 1
+    return medida.nueva(proy, mid, escenario=esc, titulo=titulo, fuente=fuente,
+                        requisito=opciones.get("--requisito", [None])[0])
 
 
 def cmd_medida_listar(proy: Proyecto, argv: list[str]) -> int:
@@ -1446,7 +1476,7 @@ def main(argv: list[str] | None = None) -> int:
             if not args:
                 print("falta el id: oracle medida nueva <dominio.nombre>")
                 return 1
-            return cmd_nueva(proy, args[0])
+            return cmd_nueva(proy, args[0], args[1:])
         if verbo in ("revisar", "--revisar"):
             if not args:
                 print("falta el archivo: oracle medida revisar <archivo>")
@@ -1523,7 +1553,7 @@ def main(argv: list[str] | None = None) -> int:
         if not args:
             print("falta el id: oracle nueva <dominio.nombre>")
             return 1
-        return cmd_nueva(proy, args[0])
+        return cmd_nueva(proy, args[0], args[1:])
 
     if subcomando in ("--caso", "--nuevo"):
         args = [a for a in resto if a != "--rapido"]
