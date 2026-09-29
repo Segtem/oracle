@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.34.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.35.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,15 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.35.0 (2026-09-29): `VERSION_DISTRIBUCION` sube de `0.34.0` a `0.35.0`.** Publica la
+sintaxis 1.1 del párrafo siguiente (los requisitos y `oracle cobertura`) y agrega `oracle cambios
+--desde <ref>`, que señala lo que un cambio afloja del catálogo, y `oracle medida nueva
+--escenario`, que arranca una medida desde un escenario WHEN/THEN. Las tres ideas salen de OpenSpec.
+`meta.toda_medida_filtra_o_agrupa` pasa a contar `sin` como filtro, y la mutación de medidas deja
+de caerse ante un `unir` con dos pasos y `requiere`. El álgebra sigue en `1.0`. La mutación del
+corte cubrió los nueve módulos con lógica nueva desde 0.34.0 (1400 mutantes) sin sobrevivientes, con
+tres equivalentes declarados.
 
 **Sintaxis 1.1 (2026-09-28): `VERSION_SINTAXIS` sube de `1.0` a `1.1`: los requisitos** (tarea
 `requisitos-con`). Se agrega la superficie `.requisito` (§1.4): una promesa en prosa, de dónde

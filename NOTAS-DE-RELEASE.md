@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.35.0](#0350--lo-que-se-promete-lo-que-se-afloja-y-de-dónde-nace-una-medida) | lo que se promete, lo que se afloja y de dónde nace una medida |
 | [0.34.0](#0340--el-tracker-y-el-mcp-paquetes-aparte) | el tracker y el MCP, paquetes aparte |
 | [0.33.0](#0330--la-api-de-python-también-escribe-en-superficie-y-la-mutación-en-paralelo) | la API de Python también escribe en superficie, y la mutación en paralelo |
 | [0.32.0](#0320--una-sola-forma-de-escribir-oracle) | una sola forma de escribir Oracle |
@@ -27,6 +28,69 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.35.0 — lo que se promete, lo que se afloja y de dónde nace una medida
+
+```
+VERSION_DISTRIBUCION   0.34.0 → 0.35.0   requisitos, `oracle cambios` y medidas desde un escenario
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.0    → 1.1      se agrega `.requisito`; todo lo anterior se lee igual
+```
+
+Tres ideas de [OpenSpec](https://github.com/Fission-AI/OpenSpec), el formato de specs para
+desarrollo con agentes. Se midió su `cli-validate` con Oracle (31 escenarios, 32 medidas, 651/651
+mutantes; cuatro rojos en su CLI 1.13.2), y lo que ese experimento hizo a mano pasa a ser del lenguaje.
+
+## Requisitos: la promesa y quién la mide
+
+Una medida dice qué ofende, pero no qué promesa del producto protege. Un requisito la escribe, en
+`requisitos/<id>.requisito`:
+
+```
+requisito cli_validate.opciones_y_progreso:
+    texto "Validation options and progress indication"
+    fuente "openspec/specs/cli-validate/spec.md"
+    medido_por openspec.estricto_falla_ante_un_aviso, openspec.resumen_cuadra
+    sin_medir "el progreso sólo se dibuja en una terminal"
+```
+
+`medido_por` dice qué medidas la miden y `sin_medir` qué parte no mide ninguna y por qué; alguna de
+las dos es obligatoria. **`oracle cobertura`** lista cada requisito como medido (✓), en parte (◐) o
+sin medir (·), y las medidas que no cubren ninguno. Un requisito que nombra una medida inexistente
+es un error ahí y en `oracle test` (`meta.el_requisito_nombra_medidas_que_existen`). El enlace va
+del requisito a la medida: las medidas no cambian y no hay nada que migrar.
+
+## `oracle cambios --desde <ref>`: lo que un cambio afloja
+
+Un verificador se debilita sin que nada falle: se sube un umbral, se quita un `requiere`, se borra
+el caso que lo ponía rojo. `oracle cambios` compara el árbol de trabajo contra un commit. **Aflojar
+no se prohíbe, se declara:** un umbral o la cota de una sombra que suben reescribiendo su `porque`
+salen como aviso; con el mismo `porque`, como error. Quitar un `requiere` es error siempre. Medidas
+y casos borrados, etiquetas y `alcance` cambiados y sombras nuevas salen como aviso. El CI de Oracle
+lo corre en cada push.
+
+## Una medida desde un escenario
+
+```
+oracle medida nueva openspec.x --escenario-de spec.md "Nombre del escenario" --requisito cli_validate.y
+```
+
+Lee GIVEN/WHEN/THEN (o DADO/CUANDO/ENTONCES), escritos a mano con `--escenario "WHEN … THEN …"` o
+sacados de una spec de OpenSpec. La medida nace con el escenario en comentarios, los casos rojo y
+verde con el síntoma derivado, y la medida entra en el `medido_por` del requisito. No escribe la
+tubería: qué relación leer lo sabe quien escribe el sensor.
+
+## Arreglos
+
+- `meta.toda_medida_filtra_o_agrupa` cuenta `sin` como filtro: una medida escrita sólo con `sin`
+  salía roja.
+- La mutación de medidas se caía con `TypeError` ante una medida con `unir`, dos pasos, `contar`,
+  `<=` y `requiere`.
+
+## Para actualizar
+
+Nada que migrar: el álgebra no cambió y todo lo que se leía se sigue leyendo. Para usar lo nuevo,
+creá `requisitos/` y corré `oracle cobertura`, o sumá `oracle cambios --desde <rama base>` a tu CI.
 
 # 0.34.0 — el tracker y el MCP, paquetes aparte
 
