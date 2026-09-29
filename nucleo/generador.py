@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from copy import deepcopy
 import datetime
+import itertools
 import math
 from pathlib import Path
 from typing import Any
@@ -396,6 +397,12 @@ def fabricar_filas(
             pred_res.setdefault(a, {}).update(vals)
 
     # 2. Armar las filas por relación
+    claves_de_sin: dict[str, set[str]] = {}
+    # El álgebra ya validó la forma: un `sin` es ["sin", ["de", rel, alias], condición].
+    for paso in tuberia[2:]:
+        if paso[0] == "sin":
+            for _campo, otro, campo_otro in _igualdades_con(paso[2], paso[1][2]):
+                claves_de_sin.setdefault(otro, set()).add(campo_otro)
     evidencia: dict[str, list[dict[str, Any]]] = {}
     for rel, alias in fuentes:
         valores_alias = pred_res.get(alias, {})
@@ -404,9 +411,81 @@ def fabricar_filas(
             fila["id"] = f"{fila['id']}{sufijo}"
         if "nombre" in fila and isinstance(fila["nombre"], str) and not valores_alias.get("nombre"):
             fila["nombre"] = f"{fila['nombre']}{sufijo}"
+        # Una clave con la que un `sin` busca pareja no puede quedar en su valor por defecto: la
+        # compartirían la fila que ofende y la que no, y la pareja salvaría a las dos. Se vuelve
+        # un texto único en TODA fila fabricada, para que las dos tengan el mismo tipo.
+        for campo in claves_de_sin.get(alias, ()):
+            if campo not in valores_alias:
+                fila[campo] = f"{campo}-{next(_CLAVES)}"
         evidencia.setdefault(rel, []).append(fila)
 
     return evidencia
+
+
+_CLAVES = itertools.count()
+
+
+def _igualdades_con(expr: Any, alias: str):
+    """(campo de `alias`, alias ajeno, campo ajeno) por cada `==` entre campos dentro de conjunciones.
+
+    Un `==` entre dos campos del mismo alias no une nada con la fila de afuera y no se cuenta."""
+    if not isinstance(expr, list):
+        return
+    if expr[0] == "y":
+        for sub in expr[1:]:
+            yield from _igualdades_con(sub, alias)
+    elif expr[0] == "==" and all(isinstance(lado, list) and lado[0] == "campo" for lado in expr[1:]):
+        lados = {expr[1][1]: expr[1][2], expr[2][1]: expr[2][2]}
+        if alias in lados and len(lados) == 2:
+            (otro, campo_otro), = ((a, c) for a, c in lados.items() if a != alias)
+            yield lados[alias], otro, campo_otro
+
+
+def _contiene_de(expr: Any, alias: str) -> dict[str, list[str]]:
+    """Los literales que `contiene` exige a cada campo de `alias`, en conjunción."""
+    salida: dict[str, list[str]] = {}
+    if isinstance(expr, list) and expr[0] == "y":
+        for sub in expr[1:]:
+            for campo, literales in _contiene_de(sub, alias).items():
+                salida.setdefault(campo, []).extend(literales)
+    elif (isinstance(expr, list) and expr[0] == "contiene"
+          and expr[1][:2] == ["campo", alias] and isinstance(expr[2], str)):
+        salida[expr[1][2]] = [expr[2]]
+    return salida
+
+
+def _campos_de(expr: Any, alias: str) -> set[str]:
+    if not isinstance(expr, list):
+        return set()
+    if expr[0] == "campo" and expr[1] == alias:
+        return {expr[2]}
+    return set().union(*(_campos_de(sub, alias) for sub in expr[1:]))
+
+
+def salvar_con_parejas(medida: Medida, evidencia: dict[str, list[dict[str, Any]]]) -> dict[str, list[dict[str, Any]]]:
+    """Agrega, por cada paso `sin`, la fila que hace que la tupla de `evidencia` NO pase el `sin`.
+
+    `evidencia` es la salida de UNA llamada a `fabricar_filas`: una fila por fuente. La pareja cumple
+    la condición del `sin`: los literales salen de `resolver_predicado` y cada igualdad con un campo
+    de la tupla copia el valor real de esa fila, no un marcador. Sin esto, un `sin` dejaba pasar
+    todas las filas fabricadas y el verde no se podía fabricar (tarea caso-generar-no).
+    """
+    # ponytail: si el `sin` niega la misma relación que una fuente, la pareja también entra como
+    # fila de esa fuente; el candidato lo comprueba `fabricar_candidatos` y, si no da, se rechaza.
+    salida = {rel: [dict(fila) for fila in filas] for rel, filas in evidencia.items()}
+    tupla = {alias: salida[rel][0] for rel, alias in extraer_fuentes(medida.tuberia[1]) if salida.get(rel)}
+    for paso in medida.tuberia[2:]:
+        if paso[0] != "sin":
+            continue
+        _, rel, alias = paso[1]
+        pareja = _rellenar_defaults(resolver_predicado(paso[2], True).get(alias, {}), _campos_de(paso[2], alias))
+        # `fabricar_filas` ya le dio a cada clave de un `sin` un valor propio en la tupla.
+        for campo, otro, campo_otro in _igualdades_con(paso[2], alias):
+            pareja[campo] = tupla[otro][campo_otro]
+        for campo, literales in _contiene_de(paso[2], alias).items():
+            pareja[campo] = " ".join(literales)
+        salida.setdefault(rel, []).append(pareja)
+    return salida
 
 
 class GeneracionNoPosible(ValueError):
@@ -446,6 +525,12 @@ def fabricar_candidatos(medida: Medida) -> list[dict[str, Any]]:
         except ErrorDeAlgebra as error:
             raise GeneracionNoPosible(
                 f"{medida.id}: no se pudo evaluar el candidato {candidato['id']}: {error}") from error
+        if candidato.get("espera") == "sin_evidencia":
+            if not veredicto.sin_evidencia:
+                raise GeneracionNoPosible(
+                    f"{medida.id}: con «{candidato['vacia']}» vacía la medida concluyó igual; "
+                    "su `requiere` no la protege")
+            continue
         if veredicto.sin_evidencia:
             raise GeneracionNoPosible(
                 f"{medida.id}: el candidato carece de la relación requerida "
@@ -533,7 +618,8 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
                     pred_override.setdefault(a, {}).update(vals)
 
             ev_ofensora = fabricar_filas(medida, satisfacer=True, alias_override=pred_override, sufijo=f"-r{idx_rama}")
-            ev_no_ofensora = fabricar_filas(medida, satisfacer=False, sufijo=f"-limpia{idx_rama}")
+            ev_no_ofensora = salvar_con_parejas(
+                medida, fabricar_filas(medida, satisfacer=False, sufijo=f"-limpia{idx_rama}"))
             ev_rojo = {}
             for rel in set(ev_ofensora) | set(ev_no_ofensora):
                 ev_rojo[rel] = ev_ofensora.get(rel, []) + ev_no_ofensora.get(rel, [])
@@ -550,10 +636,11 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
             rel1, _ = fuentes[0]
             rel2, _ = fuentes[1]
             ev_of = fabricar_filas(medida, satisfacer=True, sufijo="-of")
-            ev_no = fabricar_filas(medida, satisfacer=False, sufijo="-limpia")
+            ev_no = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=False, sufijo="-limpia"))
             ev_rojo = {
                 rel1: ev_of.get(rel1, []) + ev_no.get(rel1, []),
                 rel2: ev_of.get(rel2, []),  # Propuesta mínima; fabricar_candidatos verifica el umbral.
+                **{rel: filas for rel, filas in ev_no.items() if rel not in (rel1, rel2)},
             }
         elif es_auto_join:
             rel = fuentes[0][0]
@@ -569,7 +656,7 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
             }
         else:
             ev_ofensora = fabricar_filas(medida, satisfacer=True, sufijo="-ofensora")
-            ev_no_ofensora = fabricar_filas(medida, satisfacer=False, sufijo="-limpia")
+            ev_no_ofensora = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=False, sufijo="-limpia"))
             ev_rojo = {}
             for rel in set(ev_ofensora) | set(ev_no_ofensora):
                 ev_rojo[rel] = ev_ofensora.get(rel, []) + ev_no_ofensora.get(rel, [])
@@ -585,11 +672,42 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
     # Candidato Verde correcto (borde)
     # Contiene filas que NO ofenden, dejando la relación con veredicto verde
     # y matando quitar_filtro / negar_filtro / invertir_comparador
-    ev_verde1 = fabricar_filas(medida, satisfacer=False, sufijo="-v1")
-    ev_verde2 = fabricar_filas(medida, satisfacer=False, sufijo="-v2")
+    ev_verde1 = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=False, sufijo="-v1"))
+    ev_verde2 = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=False, sufijo="-v2"))
     ev_verde: dict[str, list[dict[str, Any]]] = {}
     for rel in set(ev_verde1) | set(ev_verde2):
         ev_verde[rel] = ev_verde1.get(rel, []) + ev_verde2.get(rel, [])
+
+    requeridas = [r for r in medida.requiere if isinstance(r, str)]
+    if requeridas:
+        # La relación que la medida necesita, vacía: fija `requiere`, que ningún otro candidato
+        # toca porque todos traen filas.
+        candidatos.append({
+            "id": f"{dominio}-gen-097-{nombre_medida}-sin-evidencia",
+            "etiqueta": "falso_verde",
+            "espera": "sin_evidencia",
+            "vacia": requeridas[0],
+            "medida": mid,
+            "evidencia": {requeridas[0]: []},
+            "titulo": f"Sin filas de {requeridas[0]}, {mid} no puede concluir",
+        })
+
+    if any(paso[0] == "sin" for paso in medida.tuberia[2:]):
+        # La fila que ofendería, salvada por su pareja, y una limpia SIN pareja. Mata quitar el
+        # `sin` (la salvada cuenta) y aflojar el `donde` (la limpia cuenta), que el verde de dos
+        # filas limpias no distingue.
+        salvada = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=True, sufijo="-salvada"))
+        limpia = fabricar_filas(medida, satisfacer=False, sufijo="-sola")
+        if not any(paso[0] == "donde" for paso in medida.tuberia[2:]):
+            # Sin `donde` nada deja afuera a la limpia: sólo la salva su pareja.
+            limpia = salvar_con_parejas(medida, limpia)
+        candidatos.append({
+            "id": f"{dominio}-gen-098-{nombre_medida}-salvada",
+            "etiqueta": "verde_correcto",
+            "medida": mid,
+            "evidencia": {rel: salvada.get(rel, []) + limpia.get(rel, []) for rel in set(salvada) | set(limpia)},
+            "titulo": f"Evidencia fabricada donde el `sin` salva la fila que ofendería en {mid}",
+        })
 
     candidatos.append({
         "id": f"{dominio}-gen-099-{nombre_medida}-verde",
@@ -638,7 +756,10 @@ def evaluar_utilidad(
         esperado_ok = cand["etiqueta"] == "verde_correcto"
         try:
             v_orig = medida.evaluar(cand["evidencia"])
-            if v_orig.ok != esperado_ok:
+            if cand.get("espera") == "sin_evidencia":
+                if not v_orig.sin_evidencia:
+                    continue
+            elif v_orig.ok != esperado_ok:
                 continue  # No cumple su propio contrato esperado
         except Exception:
             continue
@@ -680,6 +801,7 @@ def construir_caso_final(cand: dict[str, Any], muertos_que_mata: set[str]) -> di
         "procedencia": "generada",
         "titulo": cand.get("titulo") or f"Evidencia generada para fijar {mid}",
         "etiqueta": cand["etiqueta"],
+        **({"espera": cand["espera"]} if "espera" in cand else {}),
         "sintoma": (
             f"Evidencia fabricada por la herramienta para discriminar mutaciones en {mid} "
             f"(mutante: {lista_muertos}).\n"

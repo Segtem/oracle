@@ -283,3 +283,145 @@ class TestUmbralDeclarado(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class TestMedidaConSin(unittest.TestCase):
+    """Tarea caso-generar-no: una medida con `sin` necesita parejas en la relación negada."""
+
+    TEXTO = (
+        "medida prueba.avisa:\n"
+        "    de corrida c\n"
+        "    donde c.fixture == \"sin_clave\" y c.modo == \"normal\"\n"
+        "    sin problema p donde p.caso == c.caso y p.nivel == \"WARNING\" y contiene(p.mensaje, \"SHALL\") "
+        "y contiene(p.mensaje, \"MUST\")\n"
+        "    resumen contar(1)\n"
+        "    umbral <= 0 segun contrato porque \"cero\"\n"
+        "    requiere corrida\n"
+        "    ambito universal\n"
+        "    alcance \"prueba\"\n"
+    )
+
+    def setUp(self) -> None:
+        from nucleo.forma import datos_en_forma_unica
+        self.medida = Medida.de_datos(datos_en_forma_unica(self.TEXTO, "prueba"))
+
+    def test_cada_candidato_respeta_su_polaridad(self) -> None:
+        candidatos = fabricar_candidatos(self.medida)
+        etiquetas = {c["id"].rsplit("-", 1)[-1]: c for c in candidatos}
+        self.assertIn("salvada", etiquetas)
+        for c in candidatos:
+            with self.subTest(candidato=c["id"]):
+                v = self.medida.evaluar(c["evidencia"])
+                if c.get("espera") == "sin_evidencia":
+                    self.assertTrue(v.sin_evidencia)
+                else:
+                    self.assertEqual(v.ok, c["etiqueta"] == "verde_correcto")
+                    self.assertEqual(revisar_evidencia(c["id"], c["evidencia"]), [])
+
+    def test_la_pareja_copia_la_clave_real_y_junta_los_contiene(self) -> None:
+        from nucleo.generador import salvar_con_parejas
+        filas = fabricar_filas(self.medida, satisfacer=True)
+        salvada = salvar_con_parejas(self.medida, filas)
+        corrida, pareja = salvada["corrida"][0], salvada["problema"][0]
+        self.assertEqual(pareja["caso"], corrida["caso"])
+        self.assertIsInstance(corrida["caso"], str)
+        self.assertEqual(pareja["nivel"], "WARNING")
+        self.assertIn("SHALL", pareja["mensaje"])
+        self.assertIn("MUST", pareja["mensaje"])
+        self.assertNotIn("problema", filas, "salvar no toca la evidencia que recibe")
+
+    def test_las_claves_son_unicas_entre_filas(self) -> None:
+        a = fabricar_filas(self.medida, satisfacer=True)["corrida"][0]["caso"]
+        b = fabricar_filas(self.medida, satisfacer=False)["corrida"][0]["caso"]
+        self.assertNotEqual(a, b)
+
+    def test_los_candidatos_matan_quitar_sin_filtro_y_requiere(self) -> None:
+        from nucleo.mutacion import correr, mutantes
+        candidatos = fabricar_candidatos(self.medida)
+        informe = correr({self.medida.id: self.medida}, candidatos)
+        muertos = {d["cambio"] for d in informe["mutante"]
+                   if d["detecciones_conductuales"] or d["rechazos_del_algebra"]}
+        for nombre in ("quitar_antijunta", "quitar_filtro", "quitar_requiere",
+                       "quitar_requisitos_de_evidencia", "expresion:logico@2.2.1:y→o"):
+            with self.subTest(mutante=nombre):
+                self.assertIn(nombre, {n for n, _ in mutantes(self.medida.a_datos())})
+                self.assertIn(nombre, muertos)
+
+    def test_el_caso_sin_evidencia_lleva_su_espera(self) -> None:
+        from nucleo.generador import construir_caso_final
+        cand = next(c for c in fabricar_candidatos(self.medida) if c.get("espera"))
+        self.assertEqual(cand["evidencia"], {"corrida": []})
+        caso = construir_caso_final(cand, {"quitar_requiere"})
+        self.assertEqual(caso["espera"], "sin_evidencia")
+        self.assertNotIn("vacia", caso)
+        self.assertEqual(leer_caso(imprimir_caso(caso))["espera"], "sin_evidencia")
+
+    def test_un_requiere_que_no_protege_no_se_disfraza(self) -> None:
+        from dataclasses import replace
+        from unittest import mock
+        original = Medida.evaluar
+
+        def sin_proteccion(m, evidencia):
+            v = original(m, evidencia)
+            return replace(v, sin_evidencia=None) if v.sin_evidencia else v
+
+        with mock.patch.object(Medida, "evaluar", sin_proteccion):
+            with self.assertRaisesRegex(GeneracionNoPosible, "con «corrida» vacía la medida concluyó igual"):
+                fabricar_candidatos(self.medida)
+
+
+class TestFormasDelSin(unittest.TestCase):
+    def test_igualdades_solo_con_la_fila_de_afuera(self) -> None:
+        from nucleo.generador import _igualdades_con
+        cond = ["y", ["==", ["campo", "p", "caso"], ["campo", "c", "caso"]],
+                ["y", ["==", ["campo", "c", "id"], ["campo", "p", "item"]],
+                 ["==", ["campo", "p", "a"], ["campo", "p", "b"]]],
+                ["==", ["campo", "p", "nivel"], "ERROR"],
+                ["!=", ["campo", "p", "x"], ["campo", "c", "x"]]]
+        self.assertEqual(sorted(_igualdades_con(cond, "p")), [("caso", "c", "caso"), ("item", "c", "id")])
+        self.assertEqual(sorted(_igualdades_con(cond, "c")), [("caso", "p", "caso"), ("id", "p", "item")])
+        self.assertEqual(list(_igualdades_con("literal", "p")), [])
+
+    def test_contiene_solo_literales_del_alias(self) -> None:
+        from nucleo.generador import _campos_de, _contiene_de
+        cond = ["y", ["contiene", ["campo", "p", "m"], "A"],
+                ["y", ["contiene", ["campo", "p", "m"], "B"], ["contiene", ["campo", "c", "m"], "C"]],
+                ["contiene", ["campo", "p", "n"], ["campo", "c", "n"]]]
+        self.assertEqual(_contiene_de(cond, "p"), {"m": ["A", "B"]})
+        self.assertEqual(_contiene_de(["contiene", ["campo", "p", "m"], "A"], "p"), {"m": ["A"]})
+        self.assertEqual(_contiene_de("x", "p"), {})
+        self.assertEqual(_campos_de(cond, "p"), {"m", "n"})
+        self.assertEqual(_campos_de(cond, "c"), {"m", "n"})
+
+    def test_un_requiere_solo_condicional_no_fabrica_el_caso_vacio(self) -> None:
+        from nucleo.forma import datos_en_forma_unica
+        texto = TestMedidaConSin.TEXTO.replace(
+            "    requiere corrida\n", "    requiere corrida c donde c.modo == \"normal\"\n")
+        medida = Medida.de_datos(datos_en_forma_unica(texto, "prueba"))
+        self.assertFalse(any(c.get("espera") for c in fabricar_candidatos(medida)))
+
+    def test_la_utilidad_acepta_el_caso_vacio_solo_si_no_concluye(self) -> None:
+        from nucleo.generador import evaluar_utilidad
+        from nucleo.forma import datos_en_forma_unica
+        medida = Medida.de_datos(datos_en_forma_unica(TestMedidaConSin.TEXTO, "prueba"))
+        vacio = next(c for c in fabricar_candidatos(medida) if c.get("espera"))
+        _, utiles = evaluar_utilidad(medida, [], [vacio], {medida.id: medida})
+        self.assertEqual([c["id"] for c, _ in utiles], [vacio["id"]])
+        self.assertIn("quitar_requiere", utiles[0][1])
+        concluye = {**vacio, "evidencia": {"corrida": [{"fixture": "x", "modo": "x", "caso": "k"}],
+                                           "problema": []}}
+        self.assertEqual(evaluar_utilidad(medida, [], [concluye], {medida.id: medida})[1], [])
+
+    def test_un_sin_como_primer_paso(self) -> None:
+        from nucleo.forma import datos_en_forma_unica
+        texto = TestMedidaConSin.TEXTO.replace(
+            "    donde c.fixture == \"sin_clave\" y c.modo == \"normal\"\n", "")
+        medida = Medida.de_datos(datos_en_forma_unica(texto, "prueba"))
+        candidatos = fabricar_candidatos(medida)
+        self.assertIn("salvada", {c["id"].rsplit("-", 1)[-1] for c in candidatos})
+        verdes = [c for c in candidatos if c["etiqueta"] == "verde_correcto"]
+        self.assertTrue(verdes)
+        for c in verdes:
+            self.assertIn("problema", c["evidencia"])
+            self.assertTrue(medida.evaluar(c["evidencia"]).ok)
+
