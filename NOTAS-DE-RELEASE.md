@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.36.1](#0361--los-requisitos-usados-de-verdad) | los requisitos, usados de verdad |
 | [0.36.0](#0360--la-mutación-no-cuenta-muertes-que-no-pasaron-y-el-generador-escribe-los-casos-con-sin) | la mutación no cuenta muertes que no pasaron, y el generador escribe los casos con `sin` |
 | [0.35.0](#0350--lo-que-se-promete-lo-que-se-afloja-y-de-dónde-nace-una-medida) | lo que se promete, lo que se afloja y de dónde nace una medida |
 | [0.34.0](#0340--el-tracker-y-el-mcp-paquetes-aparte) | el tracker y el MCP, paquetes aparte |
@@ -29,6 +30,35 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.36.1 — los requisitos, usados de verdad
+
+```
+VERSION_DISTRIBUCION   0.36.0 → 0.36.1   tres arreglos de la primera adopción real
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+LyraGASP y Jam escribieron sus requisitos (10 y 16) y en el primer uso aparecieron tres defectos
+que el experimento con OpenSpec no podía ver, porque aquel proyecto no tenía escalares propias ni
+vivía en un subdirectorio.
+
+- **`oracle cobertura` y `oracle cambios` con escalares propias.** Terminaban en una traza con
+  cualquier `escalares.py` del proyecto. Ahora las registran y aceptan `--confiar-escalares`; sin la
+  bandera cortan con el mismo mensaje que los demás comandos.
+- **`oracle cambios` en un subdirectorio.** Con el proyecto en `medidas/`, el catálogo del ref salía
+  vacío y todo parecía «nada se aflojó». Ahora lee el ref completo, y un árbol de trabajo que no
+  carga se dice en vez de terminar en una traza.
+- **El LSP y las escalares del proyecto.** `oracle-lsp --confiar-escalares` las ejecuta; en VS Code
+  es la opción `oracle.confiarEscalares` y en Emacs `oracle-lsp-confiar-escalares`, las dos apagadas
+  por omisión. En VS Code sólo se fija en la configuración del usuario, para que un repositorio no
+  pueda encenderla solo. Sin confianza, el editor avisa que las escalares no se ejecutaron en vez de
+  marcar errores falsos, y sigue marcando los errores de lectura y de forma.
+
+## Para actualizar
+
+Nada que migrar. Si tu proyecto tiene `escalares.py`, agregá `--confiar-escalares` a
+`oracle cobertura` y a `oracle cambios`.
 
 # 0.36.0 — la mutación no cuenta muertes que no pasaron, y el generador escribe los casos con `sin`
 

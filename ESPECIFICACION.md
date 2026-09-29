@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.36.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.36.1`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,17 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.36.1 (2026-09-29): `VERSION_DISTRIBUCION` sube de `0.36.0` a `0.36.1`.** Tres
+arreglos que encontró la primera adopción real de los requisitos, en LyraGASP y en Jam: `oracle
+cobertura` y `oracle cambios` registran las escalares del proyecto y aceptan `--confiar-escalares`
+(antes terminaban en una traza con cualquier `escalares.py` propio); `oracle cambios` lee el ref de
+un proyecto que vive en un subdirectorio del repositorio, como el `medidas/` de un consumidor (antes
+el catálogo del ref salía vacío); y el LSP ejecuta las escalares del proyecto cuando se arranca con
+`--confiar-escalares` y, sin confianza, avisa sin perder los errores de forma. No cambia el álgebra ni
+la superficie. La mutación del corte: `tools/cobertura.py`, `tools/cambios.py` y `tools/cli.py`
+completos, 839 mutantes, ninguno vivo, dos equivalentes declarados; `tools/lsp.py` está fuera del
+perfil con su razón.
 
 **Corte 0.36.0 (2026-09-29): `VERSION_DISTRIBUCION` sube de `0.35.0` a `0.36.0`.** El arnés de
 mutación deja de contar como muerto un mutante cuyos tests fallaron con el disco casi lleno: con
