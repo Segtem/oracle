@@ -33,6 +33,17 @@
                 "scopeName": "source.oracle",
                 "path": "./oracle.tmLanguage.json"
             }
-        ]
+        ],
+        "configuration": {
+            "title": "Oracle",
+            "properties": {
+                "oracle.confiarEscalares": {
+                    "type": "boolean",
+                    "default": false,
+                    "scope": "machine",
+                    "description": "Autoriza las escalares.py del proyecto al iniciar el servidor Oracle. Sólo se fija en la configuración del usuario: un proyecto no puede encenderla desde su .vscode/settings.json."
+                }
+            }
+        }
     }
 }

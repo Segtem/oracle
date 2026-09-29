@@ -62,6 +62,19 @@ def _proyecto(raiz: Path) -> tuple[Proyecto, Path]:
     return Proyecto(raiz), ruta
 
 
+def _proyecto_con_escalar(raiz: Path) -> tuple[Proyecto, Path, str]:
+    proy, ruta = _proyecto(raiz)
+    (raiz / "escalares.py").write_text(
+        "from nucleo.algebra import escalar\n"
+        "@escalar('es_grande', unidades_argumentos=('cm',))\n"
+        "def es_grande(valor): return valor > 400\n",
+        encoding="utf-8",
+    )
+    texto = MEDIDA.replace("p.alto > 400", "es_grande(p.alto)")
+    ruta.write_text(texto, encoding="utf-8")
+    return proy, ruta, texto
+
+
 def _marco(mensaje: dict) -> bytes:
     cuerpo = json.dumps(mensaje, ensure_ascii=False).encode("utf-8")
     return f"Content-Length: {len(cuerpo)}\r\n\r\n".encode("ascii") + cuerpo
@@ -84,6 +97,30 @@ def _posicion(texto: str, aguja: str) -> dict:
 
 
 class DiagnosticosTests(unittest.TestCase):
+    def test_escalar_del_proyecto_sin_confianza_avisa_en_vez_de_error_falso(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta, texto = _proyecto_con_escalar(Path(td))
+            diagnosticos = lsp.diagnosticar(proy, ruta, texto)
+
+        self.assertEqual(len(diagnosticos), 1)
+        self.assertEqual(diagnosticos[0]["severity"], lsp.AVISO)
+        self.assertIn("--confiar-escalares", diagnosticos[0]["message"])
+
+    def test_sin_confianza_la_forma_y_la_lectura_se_siguen_diagnosticando(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta, texto = _proyecto_con_escalar(Path(td))
+            fuera = texto.replace("ninguno demo.alto:", "ninguno  demo.alto:")
+            d, = lsp.diagnosticar(proy, ruta, fuera)
+            self.assertEqual(d["severity"], lsp.ERROR)
+            self.assertNotIn("--confiar-escalares", d["message"])
+            (proy.raiz / "requisitos").mkdir()
+            req = proy.raiz / "requisitos" / "demo.alto_acotado.requisito"
+            d, = lsp.diagnosticar(proy, req, REQUISITO.replace("medido_por demo.alto", "medido_por  demo.alto"))
+            self.assertEqual(d["severity"], lsp.ERROR)
+            self.assertEqual(lsp.diagnosticar(proy, proy.corpus / "demo" / "001-alto.caso", CASO), [])
+            sin_medidas = 'requisito demo.x:\n    texto "t"\n    sin_medir "nada"\n'
+            self.assertEqual(lsp.diagnosticar(proy, proy.raiz / "requisitos" / "demo.x.requisito", sin_medidas), [])
+
     def test_diagnostico_por_omision_empieza_en_cero(self) -> None:
         diagnostico = lsp._diagnostico("ninguno demo.x:", "mal", 1)
         self.assertEqual(diagnostico["severity"], 1)
@@ -318,6 +355,82 @@ medida demo.alto:
 
 
 class ProtocoloTests(unittest.TestCase):
+    def _sesion_con_escalar(self, proy: Proyecto, ruta: Path, texto: str,
+                            *, confiar: bool) -> tuple[dict, dict]:
+        requisito = proy.raiz / "requisitos" / "demo.alto_acotado.requisito"
+        texto_requisito = REQUISITO.replace(
+            "medido_por demo.alto", "medido_por demo.alto, demo.ausente")
+        caso = proy.corpus / "demo" / "001-alto.caso"
+        entrada = b"".join((
+            _marco({"id": 1, "method": "initialize", "params": {}}),
+            *(_marco({"method": "textDocument/didOpen", "params": {
+                "textDocument": {"uri": uri, "text": contenido}}})
+              for uri, contenido in ((ruta.as_uri(), texto),
+                                      (requisito.as_uri(), texto_requisito),
+                                      (caso.as_uri(), CASO))),
+            _marco({"id": 2, "method": "textDocument/completion", "params": {
+                "textDocument": {"uri": caso.as_uri()},
+                "position": _posicion(CASO, "medida: demo.")}}),
+            _marco({"id": 3, "method": "textDocument/completion", "params": {
+                "textDocument": {"uri": requisito.as_uri()},
+                "position": _posicion(texto_requisito, "medido_por demo.alto")}}),
+            _marco({"id": 4, "method": "textDocument/codeLens", "params": {
+                "textDocument": {"uri": ruta.as_uri()}}}),
+            _marco({"id": 5, "method": "shutdown"}),
+            _marco({"method": "exit"}),
+        ))
+        comando = [sys.executable, str(lsp.RAIZ / "tools" / "lsp.py"),
+                   "--proyecto", str(proy.raiz)]
+        if confiar:
+            comando.append("--confiar-escalares")
+        resultado = subprocess.run(comando, input=entrada, capture_output=True,
+                                   cwd=proy.raiz.parent)
+        self.assertEqual(resultado.returncode, 0, resultado.stderr.decode())
+        mensajes = _mensajes(resultado.stdout)
+        publicaciones = {m["params"]["uri"]: m["params"]["diagnostics"]
+                         for m in mensajes if m.get("method") == "textDocument/publishDiagnostics"}
+        respuestas = {m["id"]: m["result"] for m in mensajes if "id" in m}
+        return publicaciones, respuestas
+
+    def test_escalar_sin_confianza_avisa_y_no_ofrece_catalogo_ni_lente(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta, texto = _proyecto_con_escalar(Path(td))
+            publicaciones, respuestas = self._sesion_con_escalar(
+                proy, ruta, texto, confiar=False)
+
+        requisito = proy.raiz / "requisitos" / "demo.alto_acotado.requisito"
+        caso = proy.corpus / "demo" / "001-alto.caso"
+        for uri in (ruta.as_uri(), requisito.as_uri()):
+            diagnosticos = publicaciones[uri]
+            self.assertEqual(len(diagnosticos), 1, uri)
+            self.assertEqual(diagnosticos[0]["severity"], lsp.AVISO)
+            self.assertIn("--confiar-escalares", diagnosticos[0]["message"])
+        self.assertEqual(publicaciones[requisito.as_uri()][0]["range"]["start"]["line"], 2)
+        # Un caso no usa escalares: se diagnostica igual que siempre.
+        self.assertEqual(publicaciones[caso.as_uri()], [])
+        self.assertEqual(len(publicaciones), 3)
+        self.assertEqual(respuestas[2], [])
+        self.assertEqual(respuestas[3], [])
+        self.assertEqual(respuestas[4], [])
+
+    def test_escalar_con_confianza_diagnostica_completa_y_dibuja_lente(self) -> None:
+        with tempfile.TemporaryDirectory() as td:
+            proy, ruta, texto = _proyecto_con_escalar(Path(td))
+            publicaciones, respuestas = self._sesion_con_escalar(
+                proy, ruta, texto, confiar=True)
+            requisito = proy.raiz / "requisitos" / "demo.alto_acotado.requisito"
+
+        diagnosticos_medida = publicaciones[ruta.as_uri()]
+        self.assertTrue(all(d["severity"] != lsp.ERROR for d in diagnosticos_medida))
+        self.assertTrue(all("--confiar-escalares" not in d["message"]
+                            for d in diagnosticos_medida))
+        self.assertEqual(publicaciones[requisito.as_uri()][0]["message"],
+                         "medido_por nombra medidas que no existen: demo.ausente")
+        self.assertEqual([i["label"] for i in respuestas[2]], ["demo.alto"])
+        self.assertIn("demo.alto", [i["label"] for i in respuestas[3]])
+        self.assertEqual(len(respuestas[4]), 1)
+        self.assertIn("umbral <= 0", respuestas[4][0]["command"]["title"])
+
     def test_initialize_declara_sincronizacion_diagnosticos_completado_y_lens(self) -> None:
         with tempfile.TemporaryDirectory() as td:
             proy, ruta = _proyecto(Path(td))

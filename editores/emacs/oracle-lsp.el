@@ -26,6 +26,15 @@
 ;; la misma restricción que tiene el núcleo de Oracle.
 (setq lsp-diagnostics-provider :flymake)
 
+(defgroup oracle-lsp nil
+  "Cliente LSP de Oracle."
+  :group 'languages)
+
+(defcustom oracle-lsp-confiar-escalares nil
+  "Autoriza las escalares.py del proyecto al iniciar el servidor Oracle."
+  :type 'boolean
+  :group 'oracle-lsp)
+
 ;; El servidor se busca en tres escalones, del más portable al más específico.
 ;;
 ;; Antes era una sola ruta clavada —`~/Dev/oracle/tools/lsp.py`—, que anda en la máquina
@@ -38,13 +47,15 @@
   "Cómo arrancar el servidor de Oracle: ORACLE_LSP, luego `oracle-lsp', luego el checkout."
   (let ((explicito (getenv "ORACLE_LSP"))
         (checkout (expand-file-name "~/Dev/oracle/tools/lsp.py")))
-    (cond
-     ((and explicito (file-exists-p explicito)) (list "python3" explicito))
-     ((executable-find "oracle-lsp") (list (executable-find "oracle-lsp")))
-     ((file-exists-p checkout) (list "python3" checkout))
-     (t (user-error (concat "Oracle: no se encontró el servidor. Instalá el paquete "
-                            "(pip install oracle-metalenguaje) o apuntá ORACLE_LSP "
-                            "al tools/lsp.py de tu checkout"))))))
+    (append
+     (cond
+      ((and explicito (file-exists-p explicito)) (list "python3" explicito))
+      ((executable-find "oracle-lsp") (list (executable-find "oracle-lsp")))
+      ((file-exists-p checkout) (list "python3" checkout))
+      (t (user-error (concat "Oracle: no se encontró el servidor. Instalá el paquete "
+                             "(pip install oracle-metalenguaje) o apuntá ORACLE_LSP "
+                             "al tools/lsp.py de tu checkout"))))
+     (when oracle-lsp-confiar-escalares (list "--confiar-escalares")))))
 
 (with-eval-after-load 'lsp-mode
   (add-to-list 'lsp-language-id-configuration '(oracle-mode . "oracle"))

@@ -41,6 +41,8 @@ Necesita [`lsp-mode`](https://emacs-lsp.github.io/lsp-mode/). Copiá `emacs/orac
 
 Enciende `oracle-mode` para `.oracle`, `.caso`, `.relacion` y `.requisito`, y arranca el servidor solo.
 
+Para habilitar `escalares.py` del proyecto, activá `oracle.confiarEscalares` en VS Code o `oracle-lsp-confiar-escalares` en Emacs; ambas vienen desactivadas. En VS Code sólo se fija en la configuración del usuario, para que un repositorio no pueda encenderla solo; sin ella, el editor avisa que las escalares no se ejecutaron en vez de marcar errores falsos.
+
 ## Cómo encuentran el servidor
 
 Los dos buscan en el mismo orden, del más específico al más portable:

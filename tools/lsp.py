@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import re
 import sys
+from contextlib import nullcontext
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
@@ -18,7 +19,8 @@ from nucleo.medida import (ORIGENES_DE_UMBRAL, Medida, MedidaMalDeclarada,  # no
 from nucleo.relacion import RelacionMalDeclarada  # noqa: E402
 from nucleo.requisito import RequisitoMalDeclarado  # noqa: E402
 from nucleo.proyecto import (Proyecto, catalogos_a_cargar, macros_del_proyecto,  # noqa: E402
-                             relaciones_del_proyecto)
+                             relaciones_del_proyecto, escalares_del_proyecto,
+                             EscalaresInvalidas)
 from nucleo.sintaxis import IDENT_RE, ErrorSintaxis, leer_con_mapa  # noqa: E402
 from nucleo.version import exigir_sintaxis_compatible  # noqa: E402
 from tools.medida import (_evaluadas_aparte, ejercicio_del_catalogo,  # noqa: E402
@@ -38,6 +40,8 @@ MENSAJE_SIN_FIJAR = {
     False: ("SIN FIJAR — ningún caso del corpus la evalúa. No se pudieron leer los "
             "diferenciales, así que podría estar fijada por uno"),
 }
+MENSAJE_ESCALARES = ("Las escalares del proyecto no se ejecutaron. "
+                     "Reiniciá oracle-lsp con `--confiar-escalares` para habilitarlas.")
 
 
 def _rango(texto: str, linea: int, columna: int) -> dict:
@@ -84,7 +88,11 @@ def _diagnostico_forma(texto: str, error: str, impreso: str) -> dict:
     return _diagnostico(texto, f"{error}\nVersión formateada:\n{impreso}", ERROR)
 
 
-def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
+def diagnosticar(proy: Proyecto, ruta: Path, texto: str,
+                *, confiar_escalares: bool = False) -> list[dict]:
+    # Sin confianza, sólo cambia lo que necesita las escalares: construir la medida y cargar el
+    # catálogo. La lectura y la forma única se diagnostican igual, y un `.caso` no las usa nunca.
+    sin_escalares = not confiar_escalares and (proy.raiz / "escalares.py").exists()
     try:
         if ruta.suffix == ".caso":
             datos = leer_caso(texto)
@@ -103,7 +111,7 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
             error = error_forma(ruta, texto, impreso)
             return [_diagnostico_forma(texto, error, impreso)] if error else []
         if ruta.suffix == ".requisito":
-            return _diagnosticar_requisito(proy, ruta, texto)
+            return _diagnosticar_requisito(proy, ruta, texto, sin_escalares=sin_escalares)
         if ruta.suffix != ".oracle":
             return []
         macros = macros_del_proyecto(proy)
@@ -117,6 +125,9 @@ def diagnosticar(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
             return [_diagnostico_forma(texto, error, impreso)]
         if lectura.datos[0] == "defmacro":
             return []
+        if sin_escalares:
+            ubicacion = lectura.ubicacion("1")
+            return [_diagnostico(texto, MENSAJE_ESCALARES, AVISO, ubicacion.linea, ubicacion.columna)]
         medida = Medida.de_datos(lectura.datos, macros=macros)
         try:
             ruta.resolve().relative_to(proy.catalogos.resolve())
@@ -150,7 +161,8 @@ def _ids_del_catalogo(proy: Proyecto) -> set[str] | None:
         return None
 
 
-def _diagnosticar_requisito(proy: Proyecto, ruta: Path, texto: str) -> list[dict]:
+def _diagnosticar_requisito(proy: Proyecto, ruta: Path, texto: str, *,
+                            sin_escalares: bool = False) -> list[dict]:
     """Forma única, id igual al nombre del archivo, y que `medido_por` nombre medidas que existen.
 
     Lo último es lo mismo que dicen `oracle cobertura` y `meta.el_requisito_nombra_medidas_que_existen`,
@@ -165,11 +177,15 @@ def _diagnosticar_requisito(proy: Proyecto, ruta: Path, texto: str) -> list[dict
     requisito = Requisito.de_datos(datos)
     if ruta.stem != requisito.id:
         return [_diagnostico(texto, f"el archivo se llama como su id: {requisito.id}.requisito", ERROR)]
+    if not requisito.medido_por:
+        return []
+    linea = next(n for n, l in enumerate(texto.splitlines(), 1) if l.startswith("    medido_por "))
+    if sin_escalares:
+        return [_diagnostico(texto, MENSAJE_ESCALARES, AVISO, linea, 5)]
     ids = _ids_del_catalogo(proy)
     faltan = [m for m in requisito.medido_por if ids is not None and m not in ids]
     if not faltan:
         return []
-    linea = next(n for n, l in enumerate(texto.splitlines(), 1) if l.startswith("    medido_por "))
     return [_diagnostico(texto, f"medido_por nombra medidas que no existen: {', '.join(faltan)}",
                          AVISO, linea, 5)]
 
@@ -360,9 +376,10 @@ def _enviar(salida, mensaje: dict) -> None:
 
 
 class Servidor:
-    def __init__(self, proy: Proyecto, salida) -> None:
+    def __init__(self, proy: Proyecto, salida, *, confiar_escalares: bool = False) -> None:
         self.proy = proy
         self.salida = salida
+        self.confiar_escalares = confiar_escalares
         self.apagado = False
         self.documentos: dict[str, str] = {}
 
@@ -371,7 +388,9 @@ class Servidor:
 
     def _publicar(self, uri: str, texto: str | None, version=None) -> None:
         parametros = {"uri": uri, "diagnostics": (
-            [] if texto is None else diagnosticar(self.proy, _ruta_de_uri(uri), texto))}
+            [] if texto is None else diagnosticar(
+                self.proy, _ruta_de_uri(uri), texto,
+                confiar_escalares=self.confiar_escalares))}
         if version is not None:
             parametros["version"] = version
         _enviar(self.salida, {
@@ -428,19 +447,29 @@ class Servidor:
         return True
 
 
-def servir(proy: Proyecto, entrada, salida) -> int:
-    servidor = Servidor(proy, salida)
-    while True:
-        mensaje = _leer_mensaje(entrada)
-        if mensaje is None or not servidor.manejar(mensaje):
-            return 0 if servidor.apagado else 1
+def servir(proy: Proyecto, entrada, salida, *, confiar_escalares: bool = False) -> int:
+    contexto = (escalares_del_proyecto(proy, confiar=True)
+                if confiar_escalares else nullcontext())
+    with contexto:
+        servidor = Servidor(proy, salida, confiar_escalares=confiar_escalares)
+        while True:
+            mensaje = _leer_mensaje(entrada)
+            if mensaje is None or not servidor.manejar(mensaje):
+                return 0 if servidor.apagado else 1
 
 
 def main(argv: list[str] | None = None) -> int:
-    proy = resolver_cli(list(sys.argv[1:] if argv is None else argv))
+    argumentos = list(sys.argv[1:] if argv is None else argv)
+    confiar_escalares = "--confiar-escalares" in argumentos
+    proy = resolver_cli([a for a in argumentos if a != "--confiar-escalares"])
     if proy is None:
         return 1
-    return servir(proy, sys.stdin.buffer, sys.stdout.buffer)
+    try:
+        return servir(proy, sys.stdin.buffer, sys.stdout.buffer,
+                      confiar_escalares=confiar_escalares)
+    except EscalaresInvalidas as e:
+        print(f"ESCALARES INVÁLIDAS — {e}", file=sys.stderr)
+        return 1
 
 
 for _punto_de_entrada in {"__main__": (main,)}.get(__name__, ()):

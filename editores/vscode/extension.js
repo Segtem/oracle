@@ -217,7 +217,9 @@ function activate(contexto) {
     const carpeta = (vscode.workspace.workspaceFolders || [])[0];
     const raiz = carpeta && carpeta.uri.scheme === 'file' ? carpeta.uri.fsPath : undefined;
     anotar(`directorio del proyecto: ${raiz || '(ninguna carpeta abierta)'}`);
-    servidor = spawn(servidorHallado.cmd, servidorHallado.args,
+    const confiarEscalares = vscode.workspace.getConfiguration('oracle').get('confiarEscalares', false);
+    const args = [...servidorHallado.args, ...(confiarEscalares ? ['--confiar-escalares'] : [])];
+    servidor = spawn(servidorHallado.cmd, args,
                      { cwd: raiz, stdio: ['pipe', 'pipe', 'pipe'] });
     servidor.on('error', (e) => {
         anotar(`no se pudo arrancar: ${e.message}`);
