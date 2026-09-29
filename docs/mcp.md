@@ -49,6 +49,7 @@ args = ["--proyecto", "/ruta/al/proyecto"]
 | `oracle_challenge` | qué parte de una medida candidata todavía no está fijada: las dos polaridades y sus mutantes, sin guardar nada |
 | `oracle_judge` | lo mismo que `oracle juzgar`: una evidencia contra el catálogo efectivo, con sombras, cotas y las medidas que no se aplicaron |
 | `oracle_tasks` | el tracker de tareas del proyecto ([trackertast](https://github.com/Segtem/trackertast)): listar, ver, buscar y hechos |
+| `oracle_requirements` | qué promesas de `requisitos/` mide alguna medida, cuáles en parte y cuáles no: lo que `oracle cobertura` imprime, como datos (desde oracle-mcp 0.1.1) |
 
 Una medida escrita en la llamada se recibe sólo en superficie `.oracle` y en la forma única, igual
 que en un archivo. Hasta Oracle 0.33.0 las herramientas se llamaban en español
