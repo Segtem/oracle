@@ -220,6 +220,29 @@ class CambiosTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()) as salida:
             self.assertEqual(cli.main(["cambios", "--proyecto", str(self.raiz), "--confiar-escalares"]), 0)
 
+    def test_un_proyecto_en_un_subdirectorio_del_repositorio(self) -> None:
+        # Como el `medidas/` de un consumidor: el repositorio empieza un nivel más arriba.
+        repo = Path(tempfile.mkdtemp())
+        self.addCleanup(shutil.rmtree, repo)
+        shutil.move(str(self.raiz), repo / "medidas")
+        self.raiz.mkdir()  # el addCleanup de setUp borra esta ruta
+        self.raiz = repo / "medidas"
+        shutil.rmtree(self.raiz / ".git")
+        for args in (["init", "-q"], ["add", "-A"],
+                     ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "base"]):
+            subprocess.run(["git", "-C", str(repo), *args], check=True)
+        self.assertEqual(self._correr()[0], 0)
+        self._escribir(_medida(umbral="<= 3"), "falso_verde")
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 1)
+        self.assertIn("✗ umbral aflojado sin nueva defensa  dominio.x  <= 0 → <= 3", texto)
+
+    def test_un_arbol_de_trabajo_que_no_carga_se_dice(self) -> None:
+        self._escribir(_medida().replace("resumen contar(1)", "resumen contar(1"), "falso_verde")
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 1)
+        self.assertTrue(texto.startswith("✗ no se pudo leer el catálogo del árbol de trabajo: "), texto)
+
     def test_ref_inexistente(self) -> None:
         codigo, texto = self._correr("no-existe")
         self.assertEqual(codigo, 1)
