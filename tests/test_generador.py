@@ -377,6 +377,8 @@ class TestFormasDelSin(unittest.TestCase):
                 ["y", ["==", ["campo", "c", "id"], ["campo", "p", "item"]],
                  ["==", ["campo", "p", "a"], ["campo", "p", "b"]]],
                 ["==", ["campo", "p", "nivel"], "ERROR"],
+                ["==", "ERROR", ["campo", "p", "nivel"]],
+                ["==", ["campo", "p", "codigo"], 1],
                 ["!=", ["campo", "p", "x"], ["campo", "c", "x"]]]
         self.assertEqual(sorted(_igualdades_con(cond, "p")), [("caso", "c", "caso"), ("item", "c", "id")])
         self.assertEqual(sorted(_igualdades_con(cond, "c")), [("caso", "p", "caso"), ("id", "p", "item")])
@@ -386,12 +388,13 @@ class TestFormasDelSin(unittest.TestCase):
         from nucleo.generador import _campos_de, _contiene_de
         cond = ["y", ["contiene", ["campo", "p", "m"], "A"],
                 ["y", ["contiene", ["campo", "p", "m"], "B"], ["contiene", ["campo", "c", "m"], "C"]],
-                ["contiene", ["campo", "p", "n"], ["campo", "c", "n"]]]
+                ["contiene", ["campo", "p", "n"], ["campo", "c", "k"]]]
         self.assertEqual(_contiene_de(cond, "p"), {"m": ["A", "B"]})
         self.assertEqual(_contiene_de(["contiene", ["campo", "p", "m"], "A"], "p"), {"m": ["A"]})
         self.assertEqual(_contiene_de("x", "p"), {})
         self.assertEqual(_campos_de(cond, "p"), {"m", "n"})
-        self.assertEqual(_campos_de(cond, "c"), {"m", "n"})
+        self.assertEqual(_campos_de(cond, "c"), {"m", "k"})
+        self.assertEqual(_campos_de(["campo", "c", "k"], "p"), set())
 
     def test_un_requiere_solo_condicional_no_fabrica_el_caso_vacio(self) -> None:
         from nucleo.forma import datos_en_forma_unica
@@ -424,4 +427,14 @@ class TestFormasDelSin(unittest.TestCase):
         for c in verdes:
             self.assertIn("problema", c["evidencia"])
             self.assertTrue(medida.evaluar(c["evidencia"]).ok)
+
+    def test_la_pareja_cumple_un_literal_que_va_primero(self) -> None:
+        from nucleo.forma import datos_en_forma_unica
+        from nucleo.generador import salvar_con_parejas
+        texto = TestMedidaConSin.TEXTO.replace(
+            "sin problema p donde p.caso == c.caso y p.nivel == \"WARNING\"",
+            "sin problema p donde p.nivel == \"WARNING\" y p.caso == c.caso")
+        medida = Medida.de_datos(datos_en_forma_unica(texto, "prueba"))
+        pareja = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=True))["problema"][0]
+        self.assertEqual(pareja["nivel"], "WARNING")
 

@@ -245,106 +245,8 @@ def resolver_predicado(expr: Any, objetivo: bool = True) -> dict[str, dict[str, 
             else:
                 return {alias: {campo: target + tol + 2.0}}
 
-        # Caso: desvio_de_paso(campo, paso) > tol
-        if (cabeza in (">", ">=") and isinstance(izq, list) and izq and izq[0] == "desvio_de_paso"
-                and len(izq) == 3 and isinstance(izq[1], list) and izq[1][0] == "campo"):
-            alias, campo = izq[1][1], izq[1][2]
-            paso = izq[2]
-            tol = der
-            if objetivo:
-                return {alias: {campo: paso / 2.0}}
-            else:
-                return {alias: {campo: paso}}
-
-        # Caso: desvio_de_*(hecho, paso) > tol
-        if (cabeza in (">", ">=") and isinstance(izq, list) and izq and izq[0].startswith("desvio_de_")
-                and len(izq) == 3 and isinstance(izq[1], list) and izq[1][0] == "hecho"
-                and isinstance(izq[2], (int, float))):
-            alias = izq[1][1]
-            intervalo = izq[2]
-            if objetivo:
-                return {alias: {"lx": intervalo / 2.0, "ly": 0.0, "lz": 0.0}}
-            else:
-                return {alias: {"lx": float(intervalo), "ly": 0.0, "lz": 0.0}}
-
-        # Caso: desvio_de_contacto(hecho_a, hecho_b) > tol
-        if (cabeza in (">", ">=") and isinstance(izq, list) and izq and izq[0] == "desvio_de_contacto"
-                and len(izq) == 3 and isinstance(izq[1], list) and izq[1][0] == "hecho"
-                and isinstance(izq[2], list) and izq[2][0] == "hecho"):
-            a, b = izq[1][1], izq[2][1]
-            if objetivo:
-                return {
-                    a: {"ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                    b: {"ox": 200.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0, "eje": "x"},
-                }
-            else:
-                return {
-                    a: {"ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                    b: {"ox": 100.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0, "eje": "x"},
-                }
-
-        # Caso: solape_lateral_minimo(hecho_a, hecho_b) <= tol
-        if (cabeza in ("<", "<=") and isinstance(izq, list) and izq and izq[0] == "solape_lateral_minimo"
-                and len(izq) == 3 and isinstance(izq[1], list) and izq[1][0] == "hecho"
-                and isinstance(izq[2], list) and izq[2][0] == "hecho"):
-            a, b = izq[1][1], izq[2][1]
-            if objetivo:
-                return {
-                    a: {"ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                    b: {"ox": 100.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0, "eje": "z"},
-                }
-            else:
-                return {
-                    a: {"ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                    b: {"ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0, "eje": "z"},
-                }
-
-        # Caso: penetracion(hecho_a, hecho_b) > 0
-        if (cabeza in (">", ">=") and isinstance(izq, list) and izq and izq[0] == "penetracion"
-                and len(izq) == 3 and isinstance(izq[1], list) and izq[1][0] == "hecho"
-                and isinstance(izq[2], list) and izq[2][0] == "hecho"):
-            a, b = izq[1][1], izq[2][1]
-            if objetivo:
-                return {
-                    a: {"id": "p1", "ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                    b: {"id": "p2", "ox": 10.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                }
-            else:
-                return {
-                    a: {"id": "p1", "ox": 0.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                    b: {"id": "p2", "ox": 200.0, "oy": 0.0, "oz": 0.0, "ex": 50.0, "ey": 50.0, "ez": 50.0},
-                }
-
-        # Caso: volumen(hecho) <= tol
-        if (cabeza in ("<", "<=") and isinstance(izq, list) and izq and izq[0] == "volumen"
-                and len(izq) == 2 and isinstance(izq[1], list) and izq[1][0] == "hecho"):
-            alias = izq[1][1]
-            if objetivo:
-                return {alias: {"ex": 0.0, "ey": 0.0, "ez": 0.0}}
-            else:
-                return {alias: {"ex": 50.0, "ey": 50.0, "ez": 50.0}}
-
-    # 5. UDFs booleanas directas
-    if cabeza == "es_fondo" and len(expr) == 2 and isinstance(expr[1], list) and expr[1][0] == "hecho":
-        alias = expr[1][1]
-        if objetivo:
-            return {alias: {"ex": 60000.0, "ey": 60000.0, "ez": 60000.0}}
-        else:
-            return {alias: {"ex": 50.0, "ey": 50.0, "ez": 50.0}}
-
-    if cabeza == "fuera_de_region" and len(expr) == 3:
-        i, c = expr[1][1], expr[2][1]
-        if objetivo:
-            return {
-                i: {"ox": 1000.0, "oy": 1000.0, "oz": 0.0},
-                c: {"cx": 0.0, "cy": 0.0, "sx": 100.0, "sy": 100.0},
-            }
-        else:
-            return {
-                i: {"ox": 0.0, "oy": 0.0, "oz": 0.0},
-                c: {"cx": 0.0, "cy": 0.0, "sx": 100.0, "sy": 100.0},
-            }
-
+    # 5. UDFs booleanas directas. Sólo las escalares del propio Oracle: las de un consumidor no son
+    # del núcleo (hasta el 2026-09-29 había siete, escritas por nombre y sin casos generados).
     if cabeza == "contiene" and len(expr) == 3 and isinstance(expr[1], list) and expr[1][0] == "campo":
         alias, campo = expr[1][1], expr[1][2]
         aguja = expr[2]
@@ -551,48 +453,6 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
     dominio = mid.split(".")[0]
     nombre_medida = mid.split(".", 1)[1].replace("_", "-")
 
-    # Manejo especial para agrupar (ej. simulacion.la_traza_no_tiene_huecos)
-    tiene_agrupar = any(p[0] == "agrupar" for p in medida.tuberia[2:])
-
-    if tiene_agrupar:
-        # Caso especial para eventos agrupados con hueco vs sin hueco
-        if "la_traza_no_tiene_huecos" in mid:
-            # Falso verde: corrida con hueco (c1 con t=0,2) y corrida completa (c2 con t=0,1,2)
-            ev_rojo = {
-                "evento": [
-                    {"corrida": "c1", "t": 0},
-                    {"corrida": "c1", "t": 2},
-                    {"corrida": "c2", "t": 0},
-                    {"corrida": "c2", "t": 1},
-                    {"corrida": "c2", "t": 2},
-                ]
-            }
-            candidatos.append({
-                "id": f"{dominio}-gen-001-{nombre_medida}",
-                "etiqueta": "falso_verde",
-                "medida": mid,
-                "evidencia": ev_rojo,
-                "titulo": f"Evidencia fabricada con hueco de traza para fijar {mid}",
-            })
-            # Verde correcto: trazas completas en ambos grupos
-            ev_verde = {
-                "evento": [
-                    {"corrida": "c1", "t": 0},
-                    {"corrida": "c1", "t": 1},
-                    {"corrida": "c2", "t": 0},
-                    {"corrida": "c2", "t": 1},
-                    {"corrida": "c2", "t": 2},
-                ]
-            }
-            candidatos.append({
-                "id": f"{dominio}-gen-002-{nombre_medida}-verde",
-                "etiqueta": "verde_correcto",
-                "medida": mid,
-                "evidencia": ev_verde,
-                "titulo": f"Evidencia fabricada con trazas completas para fijar {mid}",
-            })
-            return candidatos
-
     # Candidatos Falso Verde (defecto)
     # Si hay disyunciones 'o' en el 'donde', generamos un caso para cada rama
     ramas_disyuncion = []
@@ -618,8 +478,7 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
                     pred_override.setdefault(a, {}).update(vals)
 
             ev_ofensora = fabricar_filas(medida, satisfacer=True, alias_override=pred_override, sufijo=f"-r{idx_rama}")
-            ev_no_ofensora = salvar_con_parejas(
-                medida, fabricar_filas(medida, satisfacer=False, sufijo=f"-limpia{idx_rama}"))
+            ev_no_ofensora = fabricar_filas(medida, satisfacer=False, sufijo=f"-limpia{idx_rama}")
             ev_rojo = {}
             for rel in set(ev_ofensora) | set(ev_no_ofensora):
                 ev_rojo[rel] = ev_ofensora.get(rel, []) + ev_no_ofensora.get(rel, [])
@@ -636,11 +495,10 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
             rel1, _ = fuentes[0]
             rel2, _ = fuentes[1]
             ev_of = fabricar_filas(medida, satisfacer=True, sufijo="-of")
-            ev_no = salvar_con_parejas(medida, fabricar_filas(medida, satisfacer=False, sufijo="-limpia"))
+            ev_no = fabricar_filas(medida, satisfacer=False, sufijo="-limpia")
             ev_rojo = {
                 rel1: ev_of.get(rel1, []) + ev_no.get(rel1, []),
                 rel2: ev_of.get(rel2, []),  # Propuesta mínima; fabricar_candidatos verifica el umbral.
-                **{rel: filas for rel, filas in ev_no.items() if rel not in (rel1, rel2)},
             }
         elif es_auto_join:
             rel = fuentes[0][0]
