@@ -1,6 +1,6 @@
 # caso generar no fabrica evidencia para medidas con sin
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle
 
