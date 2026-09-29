@@ -1,0 +1,6 @@
+# corte 0.36.1
+
+- ESTADO: ABIERTA
+- PRIORIDAD: 90
+- ETIQUETAS: oracle
+
