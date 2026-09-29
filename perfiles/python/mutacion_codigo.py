@@ -98,6 +98,10 @@ class ManifiestoInvalido(ValueError):
 
 ESQUEMA_MANIFIESTO = "oracle.mutacion-codigo/v1"
 TIMEOUT_PREDETERMINADO = 60.0
+# Por debajo de esto, un fallo de tests no demuestra nada: puede ser el disco y no el mutante.
+# Medido el 2026-09-29: con /tmp llenándose, una ronda del generador dio 91 vivos de 683 y, con el
+# disco sano, 380 de 645. Los tests que caían por ENOSPC salían con código 1 y contaban como muertes.
+ESPACIO_MINIMO = 256 * 1024 * 1024
 CODIGOS_FALLO_PREDETERMINADOS = frozenset({1})
 LIMITE_DIAGNOSTICO_PREDETERMINADO = 16_384
 # Código de salida publicado cuando no hubo proceso que termine (timeout, o ningún fallo que
@@ -499,6 +503,19 @@ def _leer_acotado(canal, limite: int, salida: list[bytes], estado: dict) -> None
         canal.close()
 
 
+def _poco_espacio(raiz: Path, entorno) -> str | None:
+    """El primer sistema de archivos (el de la copia o el del TMPDIR) con menos de ESPACIO_MINIMO."""
+    tmp = (entorno or {}).get("TMPDIR") or tempfile.gettempdir()
+    for ruta in (raiz, Path(tmp)):
+        try:
+            libre = shutil.disk_usage(ruta).free
+        except OSError:
+            continue
+        if libre < ESPACIO_MINIMO:
+            return f"{ruta}: {libre // (1024 * 1024)} MiB libres"
+    return None
+
+
 def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
                    codigos_fallo_tests=CODIGOS_FALLO_PREDETERMINADOS, entorno=None,
                    limite_salida: int = LIMITE_SALIDA_PREDETERMINADO,
@@ -511,6 +528,10 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
 
     Un mutante que excede el tope de memoria muere con MemoryError (código 1), lo que clasifica como
     TESTS_FALLARON y cuenta como mutante muerto, no como timeout ni error de arnés.
+
+    Un fallo de tests con el disco casi lleno —antes o después de correr— es ERROR_ARNES: sin espacio
+    los tests fallan por el entorno, y contarlo como muerte inventaría un mutante fijado. Se mide el
+    entorno y no el texto de la salida, por la misma razón que arriba.
     """
     if (isinstance(timeout, bool) or not isinstance(timeout, (int, float))
             or not math.isfinite(timeout) or timeout <= 0):
@@ -534,6 +555,7 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
     # fork y el exec, cualquier excepción sale como «Exception occurred in preexec_fn» y se lleva
     # puesta la ronda sin decir cuál fue.
     topes = _tope_de_memoria_aplicable(limite_memoria)
+    espacio_antes = _poco_espacio(raiz, entorno)
 
     def _aplicar_limites():
         resource.setrlimit(resource.RLIMIT_AS, topes)
@@ -586,6 +608,10 @@ def ejecutar_tests(comando: list[str], raiz: Path, *, timeout: float,
         estado = EstadoTests.PASARON
     elif codigo in codigos:
         estado = EstadoTests.TESTS_FALLARON
+        sin_espacio = espacio_antes or _poco_espacio(raiz, entorno)
+        if sin_espacio:
+            estado = EstadoTests.ERROR_ARNES
+            stderr = f"{stderr}\ndisco casi lleno ({sin_espacio}): el fallo no demuestra una muerte"
     else:
         estado = EstadoTests.ERROR_ARNES
     return ResultadoTests(estado, codigo, stdout, stderr, truncado_out, truncado_err)

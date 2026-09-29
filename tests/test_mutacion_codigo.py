@@ -1097,6 +1097,48 @@ class CorrerTests(unittest.TestCase):
             [mock.call(timeout=mc.ESPERA_TERMINACION_SUAVE),
              mock.call(timeout=mc.ESPERA_TERMINACION_FORZADA)])
 
+    def test_un_fallo_con_el_disco_casi_lleno_no_es_una_muerte(self) -> None:
+        # 2026-09-29: con /tmp llenándose, los tests que caían por ENOSPC salían con código 1 y la
+        # ronda del generador contó 91 vivos donde había 380. El entorno se mide, no el texto.
+        from collections import namedtuple
+        Uso = namedtuple("Uso", "total used free")
+        self.assertEqual(mc.ESPACIO_MINIMO, 268_435_456, "el umbral documentado es 256 MiB")
+        lleno, sano = Uso(1, 1, mc.ESPACIO_MINIMO - 1), Uso(1, 1, mc.ESPACIO_MINIMO)
+        with tempfile.TemporaryDirectory() as d:
+            raiz = Path(d)
+            for usos, estado in (([lleno, lleno], "error_arnes"),       # ya estaba lleno antes
+                                 ([sano, sano, lleno], "error_arnes"),  # se llenó el TMPDIR durante
+                                 ([sano, sano, sano, sano], "tests_fallaron")):
+                with self.subTest(usos=usos), mock.patch.object(mc.shutil, "disk_usage", side_effect=usos):
+                    r = mc.ejecutar_tests(SIEMPRE_FALLA, raiz, timeout=5, entorno={"TMPDIR": d})
+                self.assertEqual(r.estado.value, estado)
+                if estado == "error_arnes":
+                    self.assertEqual(r.codigo_salida, 1)
+                    self.assertIn("disco casi lleno", r.stderr)
+                    self.assertIn("MiB libres", r.stderr)
+            with mock.patch.object(mc.shutil, "disk_usage", return_value=lleno):
+                self.assertEqual(mc.ejecutar_tests(SIEMPRE_PASA, raiz, timeout=5).estado.value, "pasaron")
+            with mock.patch.object(mc.shutil, "disk_usage", side_effect=OSError("sin montar")):
+                self.assertEqual(mc.ejecutar_tests(SIEMPRE_FALLA, raiz, timeout=5).estado.value,
+                                 "tests_fallaron")
+
+    def test_poco_espacio_mira_la_copia_y_el_tmpdir(self) -> None:
+        from collections import namedtuple
+        Uso = namedtuple("Uso", "total used free")
+        vistos = []
+
+        def uso(ruta):
+            vistos.append(Path(ruta))
+            return Uso(1, 1, 300 * 1024 * 1024 if len(vistos) == 1 else 100 * 1024 * 1024)
+
+        with mock.patch.object(mc.shutil, "disk_usage", side_effect=uso):
+            self.assertEqual(mc._poco_espacio(Path("/copia"), {"TMPDIR": "/otro"}), "/otro: 100 MiB libres")
+        self.assertEqual(vistos, [Path("/copia"), Path("/otro")])
+        with mock.patch.object(mc.shutil, "disk_usage", return_value=Uso(1, 1, mc.ESPACIO_MINIMO)), \
+                mock.patch.object(mc.tempfile, "gettempdir", return_value="/tmp-por-omision") as gtd:
+            self.assertIsNone(mc._poco_espacio(Path("/copia"), None))
+        gtd.assert_called_once()
+
     def test_ejecutar_tests_distingue_fallo_error_y_timeout(self) -> None:
         with tempfile.TemporaryDirectory() as d:
             raiz = Path(d)
