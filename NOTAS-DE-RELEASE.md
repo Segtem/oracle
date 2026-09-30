@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.36.2](#0362--las-escalares-en-un-python-embebido) | las escalares en un Python embebido |
 | [0.36.1](#0361--los-requisitos-usados-de-verdad) | los requisitos, usados de verdad |
 | [0.36.0](#0360--la-mutación-no-cuenta-muertes-que-no-pasaron-y-el-generador-escribe-los-casos-con-sin) | la mutación no cuenta muertes que no pasaron, y el generador escribe los casos con `sin` |
 | [0.35.0](#0350--lo-que-se-promete-lo-que-se-afloja-y-de-dónde-nace-una-medida) | lo que se promete, lo que se afloja y de dónde nace una medida |
@@ -30,6 +31,29 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.36.2 — las escalares en un Python embebido
+
+```
+VERSION_DISTRIBUCION   0.36.1 → 0.36.2   el trabajador de escalares elige su intérprete
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+Desde que las escalares del proyecto corren aisladas, el trabajador se lanzaba con
+`sys.executable`. En un Python embebido en otro programa —un editor de juegos, una herramienta de
+3D— eso no es un intérprete sino el programa anfitrión: el trabajador nunca contestaba y toda medida
+que usara una escalar propia terminaba en `EscalaresInvalidas`. Fuera de un anfitrión no pasaba
+nada, y por eso los tests no lo veían.
+
+- **El intérprete del trabajador se elige.** En orden: la variable `ORACLE_PYTHON`, después
+  `sys.executable` y `sys._base_executable` si se llaman `python…`, y por último `python3` del PATH.
+  Si ninguno sirve, Oracle se niega diciendo que fijes `ORACLE_PYTHON`.
+
+## Para actualizar
+
+Nada que migrar. Si usás Oracle desde un Python embebido, fijá `ORACLE_PYTHON` al `python3` que
+trae el anfitrión (o a cualquier Python 3.11 o posterior).
 
 # 0.36.1 — los requisitos, usados de verdad
 

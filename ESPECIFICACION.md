@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.36.1`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.36.2`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,14 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.36.2 (2026-09-30): `VERSION_DISTRIBUCION` sube de `0.36.1` a `0.36.2`.** Un arreglo:
+el trabajador que aísla las escalares del proyecto se lanzaba con `sys.executable`, y en un Python
+embebido en otro programa eso es el programa anfitrión, no un intérprete; ninguna UDF del proyecto
+llegaba a evaluarse. Ahora el intérprete se elige: `ORACLE_PYTHON`, `sys.executable` o
+`sys._base_executable` si son un Python, o `python3` del PATH; si no hay ninguno se niega con el
+remedio en el mensaje. No cambia el álgebra ni la superficie. La mutación del corte:
+`nucleo/aislamiento/escalares.py` completo, 141 mutantes, ninguno vivo.
 
 **Corte 0.36.1 (2026-09-29): `VERSION_DISTRIBUCION` sube de `0.36.0` a `0.36.1`.** Tres
 arreglos que encontró la primera adopción real de los requisitos, en LyraGASP y en Jam: `oracle
