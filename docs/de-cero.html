@@ -31,7 +31,7 @@
 <p>Esta guía es para alguien que recién empieza a programar y programa con un modelo de lenguaje. Vas a armar, <strong>copiando y pegando</strong>, una batalla naval que corre en el navegador. Y vas a aprender a contestar la pregunta que el juego solo no puede contestar: <strong>¿cumple las reglas?</strong></p>
 <p>La guía es una travesía de <strong>nueve misiones</strong>. Cada una tiene la misma forma: una <strong>pregunta</strong> para que la pienses vos, la <strong>respuesta</strong> plegada (abrila cuando quieras), el <strong>bloque para copiar</strong>, y <strong>lo que tenés que ver</strong>. Si ves otra cosa, el paso te dice qué hacer.</p>
 <p>En el sitio, además, se juega: antes de cada salida <strong>predecís</strong> qué va a decir Oracle, en la misión 5 <strong>rompés la regla</strong> en un tablero, y en la 6 <strong>cazás los mutantes</strong> de tu regla eligiendo casos. Cada cosa suma experiencia y algunas dan logros; la bitácora, abajo a la derecha, lleva la cuenta. Todo queda en tu navegador: no se manda a ningún lado.</p>
-<blockquote><p>Un test del repositorio arma el juego pegando los bloques de esta guía en orden, desde una carpeta vacía, y corre <code>oracle test</code> después de cada paso. Las salidas que ves acá salen de esa corrida: si un bloque cambia, el test lo nota.</p></blockquote>
+<blockquote><p>Un test del repositorio arma el juego pegando los bloques de esta guía en orden, desde una carpeta vacía, comprueba que estén todos los archivos del ejemplo y ejecuta los comandos de cada paso. Las salidas que ves acá salen de esa corrida: si un bloque cambia, el test lo nota.</p></blockquote>
 <h2 id="paso-1--preparar-la-carpeta">Paso 1 · Preparar la carpeta<a class="ancla" href="#paso-1--preparar-la-carpeta" aria-label="Enlace a esta sección">#</a></h2>
 <div class="juego juego-mision" data-juego="{&quot;logro&quot;: &quot;enrolado&quot;, &quot;n&quot;: 1, &quot;objetivo&quot;: &quot;Instalar Oracle, crear el proyecto y ver tu primer SIN MEDICIÓN.&quot;, &quot;sprite&quot;: &quot;ancla&quot;, &quot;tipo&quot;: &quot;mision&quot;, &quot;xp&quot;: 50}"></div>
 <p>Oracle se instala una sola vez. Necesitás Python 3.11 o posterior y <code>uv</code>.</p>
@@ -2930,7 +2930,7 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
 <summary>Ver la respuesta</summary>
 <p>Una con un barco en una casilla que no existe: por ejemplo, en la fila 10 (las filas van de 0 a 9). Escribir primero ese ejemplo te obliga a decir qué es un defecto antes de escribir cómo buscarlo.</p>
 </details>
-<p>En Oracle ese ejemplo se llama <strong>caso</strong>. Guardalo en <code>corpus/naval/</code>:</p>
+<p>En Oracle ese ejemplo se llama <strong>caso</strong>. Guardalo en <code>corpus/naval/</code>. <code>oracle init</code> no crea esa carpeta ni <code>catalogos/naval/</code>, que vas a usar enseguida: creá las dos (casi todo editor lo ofrece al guardar; en la terminal, <code>mkdir -p corpus/naval catalogos/naval</code>).</p>
 <pre class="archivo" data-lenguaje="corpus/naval/005-barco-fila-desbordada.caso"><code><span class="c-kw">caso</span> 005-barco-fila-desbordada:
     fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
     origen:
@@ -3970,7 +3970,7 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <p>Once reglas, cada una con casos que la pueden romper, y ningún mutante vivo.</p>
 <h2 id="paso-8--juzgar-una-partida-de-verdad">Paso 8 · Juzgar una partida de verdad<a class="ancla" href="#paso-8--juzgar-una-partida-de-verdad" aria-label="Enlace a esta sección">#</a></h2>
 <div class="juego juego-mision" data-juego="{&quot;logro&quot;: &quot;juez&quot;, &quot;n&quot;: 8, &quot;objetivo&quot;: &quot;Juzgar una partida real y leer lo que quedó sin mirar.&quot;, &quot;sprite&quot;: &quot;ojo&quot;, &quot;tipo&quot;: &quot;mision&quot;, &quot;xp&quot;: 120}"></div>
-<p>Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel de auditoría y descargá <code>hechos_partida.json</code> en la carpeta del proyecto. (Si todavía no jugaste, podés <a href="https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json" rel="noopener">bajar la partida del ejemplo</a> y guardarla con ese nombre.)</p>
+<p>Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel de auditoría y descargá <code>hechos_partida.json</code>. El navegador suele guardarlo en <strong>Descargas</strong>: movelo a la carpeta del proyecto, al lado de <code>oracle.json</code>, que es donde lo busca el comando. (Si todavía no jugaste, podés <a href="https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json" rel="noopener">bajar la partida del ejemplo</a> y guardarla con ese nombre.)</p>
 <details>
 <summary>Ver la partida del ejemplo (hechos_partida.json)</summary>
 <pre class="archivo" data-lenguaje="hechos_partida.json"><code>{
@@ -5594,11 +5594,60 @@ VEREDICTO: verde en 11 medidas. SIN MIRAR:
 <summary>Ver la respuesta</summary>
 <p>Quiere decir que esas once reglas se cumplieron en esta partida. La lista <code>SIN MIRAR</code> dice lo que ninguna regla garantiza, por ejemplo que cada barco sea una línea recta. Esa lista no es letra chica: es la mitad de la respuesta.</p>
 </details>
+<p>Las reglas tienen nombres, pero conviene escribir también las <strong>promesas</strong> que querés hacer sobre el juego. Cada archivo <code>.requisito</code> dice qué prometés, qué medidas lo comprueban y qué parte sigue sin medir. Copiá estos seis archivos; cinco agrupan las once medidas y el sexto deja visible una deuda.</p>
+<details>
+<summary>Ver las promesas del juego</summary>
+<pre class="archivo" data-lenguaje="requisitos/naval.flota.requisito"><code>requisito naval.flota:
+    texto <span class="c-txt">&quot;Las flotas ocupan 17 casillas por bando, dentro del tablero y sin solaparse&quot;</span>
+    medido_por naval.barcos_dentro_del_tablero, naval.barcos_sin_solapamiento, naval.flota_reglamentaria
+    sin_medir <span class="c-txt">&quot;la forma recta y continua de cada barco&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.disparos.requisito"><code>requisito naval.disparos:
+    texto <span class="c-txt">&quot;Cada tirador dispara a casillas válidas y no repite una coordenada&quot;</span>
+    medido_por naval.tiros_dentro_del_tablero, naval.tiros_sin_repeticion</code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.turnos.requisito"><code>requisito naval.turnos:
+    texto <span class="c-txt">&quot;Los tiros se registran sin huecos y alternan entre los jugadores&quot;</span>
+    medido_por naval.alternancia_turnos, naval.turnos_sin_huecos</code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.impactos.requisito"><code>requisito naval.impactos:
+    texto <span class="c-txt">&quot;Un impacto reportado corresponde a un barco rival y un tiro al barco no figura como agua&quot;</span>
+    medido_por naval.veracidad_impacto_negativo, naval.veracidad_impacto_positivo</code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.final.requisito"><code>requisito naval.final:
+    texto <span class="c-txt">&quot;El ganador registra 17 impactos y no se dispara después del turno final&quot;</span>
+    medido_por naval.fin_de_juego_sin_tiros_posteriores, naval.ganador_legitimo</code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.barcos_rectos.requisito"><code>requisito naval.barcos_rectos:
+    texto <span class="c-txt">&quot;Cada barco ocupa una línea recta y continua&quot;</span>
+    sin_medir <span class="c-txt">&quot;todavía no hay una medida para comprobar la forma de cada barco&quot;</span></code></pre>
+</details>
+<p class="pregunta"><strong>Pensalo.</strong> ¿Tener una medida para una promesa quiere decir que se cumplió en esta partida?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Todavía no. <code>oracle cobertura</code> muestra qué promesas tienen medidas; con <code>--con</code> juzga los hechos de esta partida y dice cuáles se cumplieron. Una promesa puede quedar sólo en parte medida.</p>
+</details>
+<pre data-lenguaje="bash"><code>oracle cobertura
+oracle cobertura --con hechos_partida.json</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>· naval.barcos_rectos   SIN MEDIR: todavía no hay una medida para comprobar la forma de cada barco
+✓ naval.disparos   naval.tiros_dentro_del_tablero, naval.tiros_sin_repeticion
+✓ naval.final   naval.fin_de_juego_sin_tiros_posteriores, naval.ganador_legitimo
+◐ naval.flota   naval.barcos_dentro_del_tablero, naval.barcos_sin_solapamiento, naval.flota_reglamentaria · SIN MEDIR: la forma recta y continua de cada barco
+✓ naval.impactos   naval.veracidad_impacto_negativo, naval.veracidad_impacto_positivo
+✓ naval.turnos   naval.alternancia_turnos, naval.turnos_sin_huecos
+
+6 requisitos: 4 medidos · 1 en parte · 1 sin medir · 0 con medidas inexistentes
+· naval.barcos_rectos   sin medir · SIN MEDIR: todavía no hay una medida para comprobar la forma de cada barco
+✓ naval.disparos   cumple · naval.tiros_dentro_del_tablero cumple, naval.tiros_sin_repeticion cumple
+✓ naval.final   cumple · naval.fin_de_juego_sin_tiros_posteriores cumple, naval.ganador_legitimo cumple
+◐ naval.flota   cumple · naval.barcos_dentro_del_tablero cumple, naval.barcos_sin_solapamiento cumple, naval.flota_reglamentaria cumple · SIN MEDIR: la forma recta y continua de cada barco
+✓ naval.impactos   cumple · naval.veracidad_impacto_negativo cumple, naval.veracidad_impacto_positivo cumple
+✓ naval.turnos   cumple · naval.alternancia_turnos cumple, naval.turnos_sin_huecos cumple
+
+6 requisitos: 5 se cumplen (1 sólo en lo medido) · 0 no se cumplen · 0 sin juicio · 1 sin medir · 0 con medidas inexistentes</code></pre>
+<p><strong>Lo que tenés que ver.</strong> Cinco promesas tienen medidas y se cumplen en esta partida. La de la flota se cumple sólo en lo medido: todavía no sabemos si cada barco es recto. La sexta está <code>sin medir</code>; Oracle no la pinta de verde.</p>
+<p>Si más adelante tus promesas vienen de una especificación de OpenSpec, <code>oracle requisito importar</code> puede crear esos archivos. Acá los escribimos a mano para que veas qué significa cada línea.</p>
 <p class="pregunta"><strong>Pensalo.</strong> ¿Y si el juego se olvidara de anotar los tiros?</p>
 <details>
 <summary>Ver la respuesta</summary>
 <p>Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las lista aparte, en <code>NO SE APLICARON</code>, y falla la corrida completa. Si ejecutás sólo una parte del catálogo a propósito, <code>--parcial</code> permite esa omisión. Probalo:</p>
 </details>
+<p>La primera línea de abajo es un programa de Python de una línea: lee <code>hechos_partida.json</code> y guarda en <code>sin-tiros.json</code> sólo las relaciones <code>celda_barco</code> y <code>partida</code>, es decir, la misma partida sin ningún tiro. Copiala tal cual.</p>
 <pre data-lenguaje="bash"><code>python3 -c &quot;import json; d = json.load(open(&#x27;hechos_partida.json&#x27;)); json.dump({&#x27;celda_barco&#x27;: d[&#x27;celda_barco&#x27;], &#x27;partida&#x27;: d[&#x27;partida&#x27;]}, open(&#x27;sin-tiros.json&#x27;, &#x27;w&#x27;))&quot;
 oracle juzgar --con sin-tiros.json</code></pre>
 <div class="juego juego-predecir" data-juego="{&quot;correcta&quot;: &quot;NO SE APLICARON&quot;, &quot;explica&quot;: &quot;Siete reglas no tenían qué mirar. Oracle no las da por buenas: las lista aparte y falla la corrida.&quot;, &quot;id&quot;: &quot;p9&quot;, &quot;opciones&quot;: [&quot;VERDE&quot;, &quot;ROJO&quot;, &quot;NO SE APLICARON&quot;], &quot;pregunta&quot;: &quot;El archivo no trae la relación `tiro`. ¿Qué pasa?&quot;, &quot;tipo&quot;: &quot;predecir&quot;}"></div>
@@ -5620,6 +5669,357 @@ VEREDICTO: 7 medidas propias sin aplicar (usá --parcial para una corrida delibe
 <p>Si una regla sale roja, el veredicto trae <strong>testigos</strong>: las filas exactas que ofendieron. Con eso le volvés a hablar al modelo con precisión: «el tiro del turno 14 se marcó como impacto y no había barco en esa casilla; corregilo».</p>
 <h2 id="paso-9--qué-le-falta-a-este-juego">Paso 9 · Qué le falta a este juego<a class="ancla" href="#paso-9--qué-le-falta-a-este-juego" aria-label="Enlace a esta sección">#</a></h2>
 <div class="juego juego-mision" data-juego="{&quot;logro&quot;: &quot;disenador&quot;, &quot;n&quot;: 9, &quot;objetivo&quot;: &quot;Diseñar, en tu cabeza, la regla que le falta al juego.&quot;, &quot;sprite&quot;: &quot;hoja&quot;, &quot;tipo&quot;: &quot;mision&quot;, &quot;xp&quot;: 100}"></div>
+<p>Antes de agregar otra regla, guardá esta versión en Git. <code>oracle cambios</code> compara las reglas actuales con ese punto guardado. Vamos a aflojar a propósito el límite de una regla: permitir un disparo repetido a la misma casilla, sin cambiar la frase <code>porque</code> que defiende el límite original.</p>
+<p class="pregunta"><strong>Pensalo.</strong> Si los casos siguen pasando, ¿cómo te enterás de que alguien aflojó esa promesa?</p>
+<details>
+<summary>Ver la respuesta</summary>
+<p>Git guarda el antes; <code>oracle cambios</code> revisa el después. Un límite más permisivo con el mismo <code>porque</code> es un error aunque el resto del catálogo siga igual.</p>
+</details>
+<pre data-lenguaje="bash"><code>git init -q
+git add .
+git -c user.name=Guia -c user.email=guia@example.invalid commit -qm base
+python3 -c &#x27;from pathlib import Path; p = Path(&quot;catalogos/naval/naval.tiros_sin_repeticion.oracle&quot;); p.write_text(p.read_text().replace(&quot;umbral &lt;= 0 segun contrato&quot;, &quot;umbral &lt;= 1 segun contrato&quot;))&#x27;</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code></code></pre>
+<pre data-lenguaje="bash"><code>oracle cambios</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>cambios desde HEAD:
+✗ umbral aflojado sin nueva defensa  naval.tiros_sin_repeticion  &lt;= 0 → &lt;= 1  (el `porque` no cambió)
+
+1 errores · 0 avisos</code></pre>
+<p><strong>Lo que tenés que ver.</strong> Oracle señala <code>naval.tiros_sin_repeticion</code> y el paso de <code>&lt;= 0</code> a <code>&lt;= 1</code>: el <code>porque</code> sigue defendiendo que no haya disparos repetidos. Devolvé el umbral a cero:</p>
+<pre data-lenguaje="bash"><code>python3 -c &#x27;from pathlib import Path; p = Path(&quot;catalogos/naval/naval.tiros_sin_repeticion.oracle&quot;); p.write_text(p.read_text().replace(&quot;umbral &lt;= 1 segun contrato&quot;, &quot;umbral &lt;= 0 segun contrato&quot;))&#x27;
+oracle cambios</code></pre>
+<pre class="salida" data-lenguaje="lo que tenés que ver"><code>cambios desde HEAD:
+  nada se aflojó
+
+0 errores · 0 avisos</code></pre>
+<p>El ejemplo también incluye una explicación y un script para probar infracciones deliberadas. Copialos para tener la carpeta completa; el recorrido de arriba no necesita ejecutar ese script.</p>
+<details>
+<summary>Ver los archivos complementarios</summary>
+<pre class="archivo" data-lenguaje="README.md"><code># Batalla Naval en HTML5 con Auditoría Formal
+
+Juego táctico de **Batalla Naval (Battleship)** en HTML5/CSS3/JavaScript con verificación formal de reglas mediante **Oracle** (`oracle-metalenguaje`).
+
+---
+
+## 1. Cómo jugar
+
+Podés abrir [`index.html`](index.html) directamente en cualquier navegador moderno:
+
+```bash
+# Podés abrirlo con xdg-open o con un servidor web local:
+xdg-open index.html
+# o
+python3 -m http.server 8080
+```
+
+### Características del juego:
+- **Tableros 10x10** reglamentarios (filas A–J, columnas 1–10).
+- **Flota estándar de 5 navíos** (17 casillas en total):
+  - Portaaviones (5 casillas)
+  - Acorazado (4 casillas)
+  - Crucero (3 casillas)
+  - Submarino (3 casillas)
+  - Destructor (2 casillas)
+- **Fase de Despliegue**: colocación interactiva de buques, rotación horizontal/vertical con tecla `R` o botón, o botón **&quot;🎲 Auto-Desplegar&quot;** para despliegue rápido.
+- **Fase de Batalla**: radar hostil interactivo con retícula táctica, efectos sonoros sintetizados proceduralmente vía **Web Audio API** (cañonazos, salpicaduras de agua, explosiones, sirenas navales), animaciones de impacto y bitácora cronológica de combate.
+- **Inteligencia Artificial**: CPU con estrategia de Caza y Blanco (*Hunt &amp; Target*) y búsqueda con paridad de tablero.
+- **Panel de Auditoría integrado**: botón **&quot;⚖ Auditoría &amp; Traza Oracle&quot;** para ver el estado de las reglas en vivo, inspeccionar el JSON de hechos relacionales y descargarlo para auditarlo en terminal.
+
+---
+
+## 2. ¿Cómo comprobamos que las reglas se cumplen de verdad?
+
+Para no depender de afirmaciones de confianza (&quot;funciona porque yo lo digo&quot;) ni de aserciones atrapadas dentro del mismo código que ejecuta el juego (que podrían compartir los mismos sesgos y errores lógicos), implementamos una **separación estricta entre ejecución y juicio**:
+
+1. **El juego actúa como sensor fáctico puro**: Durante la partida no se valida a sí mismo; en cambio, emite una **traza relacional inmutable de hechos objetivos**:
+   - `celda_barco`: qué casillas `(fila, columna)` ocupa cada buque de cada jugador.
+   - `tiro`: la secuencia ordenada de disparos `(turno, tirador, receptor, fila, columna, es_impacto, hundio_barco)`.
+   - `partida`: el resultado final `(estado, ganador, perdedor, turno_final, total_tiros, impactos_ganador, impactos_perdedor)`.
+2. **Oracle actúa como juez formal externo**: Un catálogo declarativo de 11 medidas en lenguaje Oracle evalúa la evidencia relacional de forma independiente.
+
+---
+
+## 3. ¿Por qué usamos `oracle-metalenguaje`?
+
+Elegimos usar `oracle-metalenguaje` por cuatro razones metodológicas fundamentales:
+
+1. **Independencia del evaluador (Desacoplamiento)**:
+   Si las pruebas se limitan a `assert` dentro de JavaScript, cualquier error conceptual en el diseño del modelo suele propagarse al verificador. Oracle corre fuera del runtime de JavaScript, evaluando únicamente la evidencia relacional sin conocer las estructuras de datos internas del juego.
+2. **Declaratividad y álgebra relacional**:
+   En vez de escribir bucles imperativos con estados mutables, las reglas se declaran mediante álgebra relacional pura (`de`, `unir`, `sin`, `donde`, `agrupar`, `resumen contar(1)`, `umbral &lt;= 0`).
+3. **Honestidad epistémica (`alcance` y `porque`)**:
+   En Oracle cada medida declara explícitamente su justificación contractual (`porque`) y lo que **NO** mira (`alcance`). Un veredicto verde no oculta supuestos invisibles.
+4. **Auditabilidad directa para el usuario**:
+   Cualquier jugador puede descargar el archivo `hechos_partida.json` desde la interfaz web o desde el script y ejecutar directamente:
+   ```bash
+   oracle juzgar --con hechos_partida.json
+   ```
+   obteniendo un informe matemático con veredicto, umbrales y testigos.
+
+---
+
+## 4. Las 11 Reglas Formalizadas en el Catálogo
+
+Las medidas se encuentran en el directorio [`catalogos/naval/`](catalogos/naval/):
+
+| Medida | Qué verifica |
+| :--- | :--- |
+| `naval.tiros_dentro_del_tablero` | Ningún disparo tiene coordenadas fuera de $[0, 9] \times [0, 9]$. |
+| `naval.tiros_sin_repeticion` | Ningún jugador dispara más de una vez a la misma casilla. |
+| `naval.alternancia_turnos` | Los turnos consecutivos alternan estrictamente entre `jugador` y `cpu`. |
+| `naval.turnos_sin_huecos` | La secuencia de turnos es monótona y continua desde $0$ hasta $N-1$ sin saltos ni pérdidas. |
+| `naval.barcos_dentro_del_tablero` | Todas las casillas ocupadas por buques pertenecen a la cuadrícula de $10 \times 10$. |
+| `naval.barcos_sin_solapamiento` | Dos buques del mismo bando no pueden compartir casillas. |
+| `naval.flota_reglamentaria` | Cada bando cuenta con exactamente 17 casillas de barco ($5 + 4 + 3 + 3 + 2$). |
+| `naval.veracidad_impacto_positivo` | Un disparo reportado como impacto debe tener un barco rival en esa coordenada (prohíbe impactos fantasma). |
+| `naval.veracidad_impacto_negativo` | Un disparo en una celda donde hay un barco rival no puede ser reportado como agua (prohíbe impactos omitidos). |
+| `naval.fin_de_juego_sin_tiros_posteriores` | No se registran disparos con turno posterior a la finalización de la partida. |
+| `naval.ganador_legitimo` | El bando declarado ganador acumula exactamente 17 impactos (destrucción total de la flota rival). |
+
+---
+
+## 5. Demostración práctica y Falsabilidad
+
+Para comprobar que el oráculo funciona y **no es complaciente** (es decir, que sabe ponerse en **ROJO** cuando se rompen las reglas), creamos el script [`verificar_oraculo.py`](verificar_oraculo.py):
+
+```bash
+python3 verificar_oraculo.py
+```
+
+El script realiza:
+1. **Partida real guardada**: lee `partida_real.json` y ejecuta `oracle juzgar`, confirmando **VEREDICTO: verde en 11 medidas**.
+2. **Inyección de infracciones (contraejemplos)**:
+   - Inyecta un disparo duplicado $\rightarrow$ Atrapado por `naval.tiros_sin_repeticion` (ROJO).
+   - Inyecta un disparo en fila 14 $\rightarrow$ Atrapado por `naval.tiros_dentro_del_tablero` (ROJO).
+   - Inyecta un impacto fantasma en agua $\rightarrow$ Atrapado por `naval.veracidad_impacto_positivo` (ROJO).
+   - Inyecta turnos consecutivos del mismo tirador $\rightarrow$ Atrapado por `naval.alternancia_turnos` (ROJO).
+
+### Cómo juzgar cualquier partida manualmente:
+```bash
+oracle juzgar --con partida_real.json
+```
+Salida esperada:
+```
+✓ naval.alternancia_turnos                            0 (&lt;= 0)
+✓ naval.barcos_dentro_del_tablero                     0 (&lt;= 0)
+✓ naval.barcos_sin_solapamiento                       0 (&lt;= 0)
+✓ naval.fin_de_juego_sin_tiros_posteriores            0 (&lt;= 0)
+✓ naval.flota_reglamentaria                           0 (&lt;= 0)
+✓ naval.ganador_legitimo                              0 (&lt;= 0)
+✓ naval.tiros_dentro_del_tablero                      0 (&lt;= 0)
+✓ naval.tiros_sin_repeticion                          0 (&lt;= 0)
+✓ naval.turnos_sin_huecos                             0 (&lt;= 0)
+✓ naval.veracidad_impacto_negativo                    0 (&lt;= 0)
+✓ naval.veracidad_impacto_positivo                    0 (&lt;= 0)
+
+VEREDICTO: verde en 11 medidas.
+```</code></pre>
+<pre class="archivo" data-lenguaje="verificar_oraculo.py"><code>#!/usr/bin/env python3
+&quot;&quot;&quot;
+verificar_oraculo.py - Demostración de verificación rigurosa de reglas con Oracle
+
+Este script:
+1. Lee la partida guardada en &#x27;partida_real.json&#x27;.
+2. Ejecuta `oracle juzgar --con partida_real.json` para comprobar que las 11 reglas se cumplen (VERDE).
+4. Genera variantes con infracciones deliberadas (trampas/errores) para demostrar
+   que el oráculo es falsable y no un sello complaciente:
+   a) Disparo duplicado a la misma celda.
+   b) Disparo fuera de los límites del tablero (fila 10).
+   c) Impacto fantasma (mentir diciendo que dio en un barco cuando era agua).
+   d) Turnos consecutivos del mismo tirador sin alternar.
+   e) Disparo posterior al fin de la partida.
+   f) Ganador ilegítimo (con menos de 17 impactos).
+&quot;&quot;&quot;
+
+import copy
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+BASE_DIR = Path(__file__).resolve().parent
+CLI = BASE_DIR.parents[1] / &quot;tools&quot; / &quot;cli.py&quot;
+
+
+def simular_partida():
+    &quot;&quot;&quot;Ejecuta una partida automática usando el motor del juego en Node.js.&quot;&quot;&quot;
+    script = &quot;&quot;&quot;
+    const { TraceRecorder } = require(&quot;./js/trace.js&quot;);
+    const { NavalGame } = require(&quot;./js/engine.js&quot;);
+
+    const trace = new TraceRecorder();
+    const game = new NavalGame(trace);
+    game.newGame();
+    game.playerBoard.autoPlaceFleet();
+    game.startBattle();
+
+    while (game.phase === &quot;battle&quot;) {
+      if (game.currentTurn === &quot;jugador&quot;) {
+        const unshot = [];
+        for (let r = 0; r &lt; 10; r++) {
+          for (let c = 0; c &lt; 10; c++) {
+            if (!game.cpuBoard.grid[r][c].shot) unshot.push({ r, c });
+          }
+        }
+        const target = unshot[Math.floor(Math.random() * unshot.length)];
+        game.firePlayerShot(target.r, target.c);
+      } else {
+        game.executeCpuTurn();
+      }
+    }
+    console.log(trace.toJSON(2));
+    &quot;&quot;&quot;
+    res = subprocess.run(
+        [&quot;node&quot;, &quot;-e&quot;, script],
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True,
+        check=True
+    )
+    return json.loads(res.stdout)
+
+
+def ejecutar_oracle_juzgar(ruta_json):
+    &quot;&quot;&quot;Ejecuta `oracle juzgar --con &lt;ruta_json&gt;` y retorna (codigo, salida).&quot;&quot;&quot;
+    comando = [sys.executable, str(CLI)] if CLI.is_file() else [&quot;oracle&quot;]
+    res = subprocess.run(
+        [*comando, &quot;juzgar&quot;, &quot;--proyecto&quot;, str(BASE_DIR),
+         &quot;--con&quot;, str(ruta_json)],
+        cwd=BASE_DIR,
+        capture_output=True,
+        text=True
+    )
+    return res.returncode, res.stdout.strip() or res.stderr.strip()
+
+
+def main():
+    print(&quot;=&quot; * 70)
+    print(&quot;DEMOSTRACIÓN DE VERIFICACIÓN FORMAL DE BATALLA NAVAL&quot;)
+    print(&quot;Herramienta: Oracle Metalenguaje (oracle juzgar)&quot;)
+    print(&quot;=&quot; * 70)
+
+    # 1. Partida real legítima
+    print(&quot;\n[1/3] Leyendo partida real guardada...&quot;)
+    ruta_real = BASE_DIR / &quot;partida_real.json&quot;
+    evidencia_real = json.loads(ruta_real.read_text(encoding=&quot;utf-8&quot;))
+    print(f&quot; -&gt; Leída de {ruta_real.name}&quot;)
+    print(f&quot;    - Celdas de barco: {len(evidencia_real[&#x27;celda_barco&#x27;])}&quot;)
+    print(f&quot;    - Tiros jugados: {len(evidencia_real[&#x27;tiro&#x27;])}&quot;)
+    print(f&quot;    - Ganador: {evidencia_real[&#x27;partida&#x27;][0][&#x27;ganador&#x27;]}&quot;)
+
+    print(&quot;\n[2/3] Juzgando la partida legítima contra el catálogo de Oracle...&quot;)
+    rc, salida = ejecutar_oracle_juzgar(ruta_real)
+    print(salida)
+    if rc == 0 and &quot;VEREDICTO: verde en 11 medidas&quot; in salida:
+        print(&quot;\n&gt;&gt;&gt; RESULTADO: ÉXITO. Todas las 11 reglas se cumplen formalmente.&quot;)
+    else:
+        print(&quot;\n&gt;&gt;&gt; RESULTADO: Error en la evaluación de la partida real.&quot;)
+        sys.exit(1)
+
+    # 2. Pruebas de falsabilidad (contraejemplos / inyección de faltas)
+    print(&quot;\n&quot; + &quot;=&quot; * 70)
+    print(&quot;[3/3] DEMOSTRACIÓN DE FALSIBILIDAD: Inyectando infracciones a propósito&quot;)
+    print(&quot;      (Probamos que el oráculo no aprueba cualquier cosa)&quot;)
+    print(&quot;=&quot; * 70)
+
+    escenarios_infraccion = [
+        (
+            &quot;Disparo duplicado a la misma casilla (fila 3, col 3)&quot;,
+            &quot;naval.tiros_sin_repeticion&quot;,
+            lambda e: e[&quot;tiro&quot;].append({
+                &quot;turno&quot;: len(e[&quot;tiro&quot;]),
+                &quot;tirador&quot;: e[&quot;tiro&quot;][0][&quot;tirador&quot;],
+                &quot;receptor&quot;: e[&quot;tiro&quot;][0][&quot;receptor&quot;],
+                &quot;fila&quot;: e[&quot;tiro&quot;][0][&quot;fila&quot;],
+                &quot;columna&quot;: e[&quot;tiro&quot;][0][&quot;columna&quot;],
+                &quot;es_impacto&quot;: False,
+                &quot;hundio_barco&quot;: False,
+                &quot;barco_hundido&quot;: &quot;ninguno&quot;
+            })
+        ),
+        (
+            &quot;Disparo fuera del tablero reglamentario (fila 14, col 2)&quot;,
+            &quot;naval.tiros_dentro_del_tablero&quot;,
+            lambda e: e[&quot;tiro&quot;].append({
+                &quot;turno&quot;: len(e[&quot;tiro&quot;]),
+                &quot;tirador&quot;: &quot;jugador&quot;,
+                &quot;receptor&quot;: &quot;cpu&quot;,
+                &quot;fila&quot;: 14,
+                &quot;columna&quot;: 2,
+                &quot;es_impacto&quot;: False,
+                &quot;hundio_barco&quot;: False,
+                &quot;barco_hundido&quot;: &quot;ninguno&quot;
+            })
+        ),
+        (
+            &quot;Impacto fantasma (afirmar impacto en casilla donde no había barco)&quot;,
+            &quot;naval.veracidad_impacto_positivo&quot;,
+            lambda e: e[&quot;tiro&quot;].append({
+                &quot;turno&quot;: len(e[&quot;tiro&quot;]),
+                &quot;tirador&quot;: &quot;jugador&quot;,
+                &quot;receptor&quot;: &quot;cpu&quot;,
+                &quot;fila&quot;: 0,
+                &quot;columna&quot;: 9,  # Supongamos agua
+                &quot;es_impacto&quot;: True,
+                &quot;hundio_barco&quot;: False,
+                &quot;barco_hundido&quot;: &quot;ninguno&quot;
+            }) if not any(c[&quot;jugador&quot;] == &quot;cpu&quot; and c[&quot;fila&quot;] == 0 and c[&quot;columna&quot;] == 9 for c in e[&quot;celda_barco&quot;])
+            else e[&quot;tiro&quot;].append({
+                &quot;turno&quot;: len(e[&quot;tiro&quot;]),
+                &quot;tirador&quot;: &quot;jugador&quot;,
+                &quot;receptor&quot;: &quot;cpu&quot;,
+                &quot;fila&quot;: 0,
+                &quot;columna&quot;: 8,
+                &quot;es_impacto&quot;: True,
+                &quot;hundio_barco&quot;: False,
+                &quot;barco_hundido&quot;: &quot;ninguno&quot;
+            })
+        ),
+        (
+            &quot;Turnos consecutivos del mismo tirador sin alternar&quot;,
+            &quot;naval.alternancia_turnos&quot;,
+            lambda e: e[&quot;tiro&quot;].insert(1, {
+                &quot;turno&quot;: 1,
+                &quot;tirador&quot;: e[&quot;tiro&quot;][0][&quot;tirador&quot;],  # Mismo tirador consecutivo
+                &quot;receptor&quot;: e[&quot;tiro&quot;][0][&quot;receptor&quot;],
+                &quot;fila&quot;: 8,
+                &quot;columna&quot;: 8,
+                &quot;es_impacto&quot;: False,
+                &quot;hundio_barco&quot;: False,
+                &quot;barco_hundido&quot;: &quot;ninguno&quot;
+            }) or [t.__setitem__(&quot;turno&quot;, i) for i, t in enumerate(e[&quot;tiro&quot;])]
+        )
+    ]
+
+    fallas = 0
+    for titulo, medida_esperada, inyector in escenarios_infraccion:
+        evidencia_rota = copy.deepcopy(evidencia_real)
+        inyector(evidencia_rota)
+        ruta_rota = BASE_DIR / &quot;partida_con_infraccion.json&quot;
+        ruta_rota.write_text(json.dumps(evidencia_rota, indent=2), encoding=&quot;utf-8&quot;)
+
+        rc, salida = ejecutar_oracle_juzgar(ruta_rota)
+        ruta_rota.unlink(missing_ok=True)
+
+        if medida_esperada in salida and (&quot;✗&quot; in salida or &quot;en rojo&quot; in salida):
+            print(f&quot;  ✓ {titulo}&quot;)
+            print(f&quot;    -&gt; Atrapado con éxito por medida: {medida_esperada}&quot;)
+        else:
+            fallas += 1
+            print(f&quot;  ✗ Falló detección para: {titulo}&quot;)
+            print(salida)
+
+    if fallas:
+        sys.exit(1)
+
+    print(&quot;\n&quot; + &quot;=&quot; * 70)
+    print(&quot;VERIFICACIÓN COMPLETA FINALIZADA CON ÉXITO&quot;)
+    print(&quot;=&quot; * 70)
+
+
+if __name__ == &quot;__main__&quot;:
+    main()</code></pre>
+</details>
 <p>Once reglas miran lo principal, no todo. Ninguna mira hoy:</p>
 <ul><li>que cada barco sea una línea recta y continua (se cuentan casillas, no la forma);</li><li>que un barco hundido tenga todas sus casillas impactadas;</li><li>que la computadora no sepa dónde están tus barcos antes de dispararles.</li></ul>
 <p class="pregunta"><strong>Pensalo.</strong> Elegí una. ¿Qué hecho tendría que anotar el juego, qué fila ofendería y qué caso rojo la fijaría?</p>

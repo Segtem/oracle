@@ -324,6 +324,14 @@ ERROR AL EVALUAR — «flota.casillas_dentro_sin_requiere»: la relación «casi
 Sin la cabecera, dos filas iguales son dos hechos: Oracle no deduplica, porque no puede inventar una
 identidad que tu dominio no declaró.
 
+### Juzgar contra requisitos: `oracle cobertura --con`
+
+Cuando además de medidas el proyecto define requisitos (`.requisito`), `oracle cobertura --con hechos.json`
+juzga la evidencia con las mismas sombras y cotas que `oracle juzgar`, pero agrupa el veredicto por
+requisito: ✓ se cumple, ◐ se cumple en lo medido (con su `SIN MEDIR`), ✗ no se cumple o ? sin juicio
+(sin evidencia, no aplicada o no juzgó). Sale con código 1 si algún requisito no se cumple y no está
+amparado por una sombra.
+
 ## Qué comprueba `oracle test`
 
 `juzgar` mira una partida. `test` mira **tus reglas**: ¿se ponen rojas cuando deben y verdes cuando
@@ -562,6 +570,18 @@ Un caso rojo no alcanza. El mutador `alejar_limite_de_defecto` cambia `c.fila < 
 sobreviviría y `oracle test` se pondría rojo. La mutación prueba que tus casos **sostienen** cada
 parte de tu regla, no sólo que la ejercitan. Lo cuenta en detalle [Por qué la mutación](05-por-que-la-mutacion.md).
 
+Al lado de la cifra de mutantes muertos, `oracle test` informa el **respaldo real**: cuántos de ellos
+los mata al menos un caso con `procedencia: observada`. Un mutante que sólo muere por evidencia `construida`
+o `generada` demuestra que la medida está fijada contra lo que alguien imaginó, no contra un defecto que
+haya existido de verdad. Un catálogo con mutación 100 % y respaldo real cero todavía no vio el mundo.
+
+### Cuando un mutante sobrevive: `oracle caso generar`
+
+Si un mutante sobrevive y cuesta diseñar a mano el caso que lo mata, `oracle caso generar <medida>`
+busca evidencia discriminante: combina casos del corpus y literales de la medida, altera campos o filas
+hasta encontrar una discrepancia entre la regla y el mutante, y después encoge la evidencia resultante.
+Los casos generados llevan `procedencia: generada`: suben la mutación pero no el respaldo real.
+
 ## Lo que Oracle no hace
 
 - **No corre tu producto.** Juzga lo que el sensor exportó. Un verde dice que la regla se cumple
@@ -574,6 +594,9 @@ parte de tu regla, no sólo que la ejercitan. Lo cuenta en detalle [Por qué la 
 - **No compone medidas.** Una medida termina en un número y un umbral. Ninguna puede leer el
   veredicto de otra: las preguntas sobre el catálogo se contestan midiendo el catálogo, en el nivel
   meta.
+- **No deja aflojar reglas ni sensores en silencio.** `oracle cambios [--desde <ref>]` compara el
+  catálogo contra un commit para avisar qué medidas se aflojaron y qué escalares cambiaron, y nombra cada archivo
+  de sensor modificado si declarás `"sensores"` en `oracle.json`.
 
 La referencia completa del lenguaje está en la [especificación](../ESPECIFICACION.md) y en el
 [manual](manual.html), que se genera de las mismas declaraciones que usa Oracle.

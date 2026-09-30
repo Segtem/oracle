@@ -165,6 +165,9 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
       invierte un comparador, le quita el filtro o el <code>requiere</code>. A cada versión debilitada
       la llama mutante. Si algún caso del corpus nota la diferencia, el mutante muere. Si ninguno la nota, esa
       parte de la medida no la está fijando nadie, y Oracle lo dice.</p>
+      <p>Al lado de los muertos informa el <strong>respaldo real</strong>: cuántos mueren por casos
+      observados en el producto y no sólo por evidencia construida o generada. Y si un mutante sobrevive,
+      <code>oracle caso generar</code> busca y encoge evidencia hasta dar con el caso que lo mata.</p>
       <p><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></p>
     </div>
   </div>
@@ -202,6 +205,10 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
       <p>El lenguaje se amolda a cómo escriben los modelos: <code>t2.turno == t1.turno + 1</code> se lee
       tal cual. Y un modelo puede servir de sensor de la prosa de un catálogo, nunca de juez:
       <a href="14-sensor-prosa.html">un modelo como sensor</a>.</p>
+      <p>Si el agente intenta aflojar reglas o sensores en vez de arreglar su código, <code>oracle cambios</code>
+      vigila el catálogo, las escalares y los sensores declarados. Y con <code>oracle requisito importar</code>
+      y <code>oracle cobertura --con</code>, las promesas de una spec se verifican contra hechos reales:
+      <a href="openspec.html">OpenSpec y Oracle</a>.</p>
     </div>
   </div>
   <figure class="escena">
@@ -232,7 +239,8 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
     <a class="recorrido" href="02-de-cero-a-un-rojo.html"><span class="pixel">5 minutos</span><strong>De cero a un rojo</strong><span>Instalar, escribir una medida y verla fallar con sus testigos.</span></a>
     <a class="recorrido" href="13-primer-valor.html"><span class="pixel">tu producto</span><strong>La primera medida real</strong><span>De un producto nuevo a un hecho exportado, una medida y un veredicto.</span></a>
     <a class="recorrido" href="03-escribir-una-medida.html"><span class="pixel">el lenguaje</span><strong>Escribir una medida</strong><span>Anatomía, macros, la forma canónica y los errores que te dice.</span></a>
-    <a class="recorrido" href="07-conectar-a-un-proyecto-propio.html"><span class="pixel">integrar</span><strong>Conectar un proyecto</strong><span>Sensor puro, adaptador, escalares propias y la sombra.</span></a>
+    <a class="recorrido" href="07-conectar-a-un-proyecto-propio.html"><span class="pixel">integrar</span><strong>Conectar un proyecto</strong><span>Sensor puro, adaptador, vigilar sensores con cambios, escalares propias y la sombra.</span></a>
+    <a class="recorrido" href="openspec.html"><span class="pixel">specs</span><strong>OpenSpec y Oracle</strong><span>Importar requisitos con oracle requisito importar y juzgar evidencia con cobertura --con.</span></a>
     <a class="recorrido" href="12-tareas.html"><span class="pixel">trabajo</span><strong>El tracker de tareas</strong><span>Tareas en carpetas y Markdown, con el próximo paso como relevo.</span></a>
     <a class="recorrido" href="especificacion.html"><span class="pixel">referencia</span><strong>Especificación</strong><span>El álgebra entera, para implementarla sin ver el núcleo.</span></a>
   </div>

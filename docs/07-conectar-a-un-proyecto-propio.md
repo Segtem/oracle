@@ -230,6 +230,10 @@ PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de orige
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
 
+Fijate en la línea `respaldo real: 7 de 9 muertos`: siete de los nueve mutantes fueron liquidados por el caso
+observado `003-la-biblioteca-real`. La evidencia construida a mano (`001` y `002`) fija la regla contra lo que
+imaginamos al diseñarla; la observada prueba que resiste defectos reales del proyecto.
+
 ## Funciones propias: `escalares.py`
 
 Si tu dominio necesita una función que el álgebra no trae —una distancia, una norma, un desvío—, se
@@ -255,6 +259,23 @@ burocracia: es lo que impide comparar centímetros contra grados.
 **Ejecutarlas exige `--confiar-escalares`.** Oracle no corre código de un proyecto sin permiso
 explícito, y cuando lo hace es en un **proceso aislado**: una función hostil no puede leer fuera del
 proyecto, escribir fuera, abrir red ni lanzar procesos.
+
+## Vigilar lo que alimenta a las medidas: `oracle cambios`
+
+Una medida puede pasar a dar verde si alguien la afloja, pero también si cambia el código de una
+escalar o si se altera el sensor para que oculte hechos. Para proteger la cadena entera, podés declarar
+tus sensores en `oracle.json`:
+
+```json
+{
+  "sensores": ["sensores"]
+}
+```
+
+Con eso configurado, `oracle cambios [--desde <ref>]` revisa qué medidas se debilitaron, qué función
+en `escalares.py` cambió (se compara función por función), qué relaciones cambiaron y qué archivos
+de sensor se tocaron. Sacar una ruta de `sensores` es error: evita que alguien esquive la vigilancia
+borrando la declaración.
 
 ## El paquete instalado es otro proyecto (`DECISION-010`)
 
@@ -359,6 +380,7 @@ Reúne en una sola salida:
 - [Por qué la mutación](05-por-que-la-mutacion.md) — dos autores, 30 mutadores en aislamiento y qué
   hacer cuando uno sobrevive.
 - [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) — la guía completa de autoría.
+- [OpenSpec y Oracle](openspec.md) — importar requisitos con `oracle requisito importar` y juzgar evidencia con `oracle cobertura --con`.
 - [`docs/migracion/de-subtree-a-pypi.md`](migracion/de-subtree-a-pypi.md) — guía paso a paso de migración
   desde subtree a PyPI.
 - [`DECISION-010`](decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) — por qué el paquete
