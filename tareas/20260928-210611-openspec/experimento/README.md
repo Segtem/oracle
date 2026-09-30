@@ -130,3 +130,7 @@ sobre una spec que no se escribió pensando en Oracle. Nueve de cada diez escena
 cláusula que se puede volver falsable. Lo que queda afuera es poco y conocido: interacción de
 terminal y adjetivos de calidad («helpful», «targeted», «responsive»). Esa parte sí es terreno de un
 modelo, y es la única en la que `/opsx:verify` debería opinar.
+
+## Atribución
+
+Los textos citados de OpenSpec (títulos y frases de sus specs, en particular `cli-validate`) son © 2024 OpenSpec Contributors, bajo [licencia MIT](https://github.com/Fission-AI/OpenSpec/blob/main/LICENSE).

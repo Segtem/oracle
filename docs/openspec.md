@@ -78,3 +78,7 @@ oracle cobertura --con hechos.json || exit 1      # ¿se cumple lo que la spec p
 
 `oracle cambios` es la otra mitad: el agente que no logra cumplir la spec puede aflojar la medida,
 la escalar o el sensor. Eso sale nombrado, y aflojar sin reescribir el `porque` es error.
+
+---
+
+Los textos citados de OpenSpec en esta página son © 2024 OpenSpec Contributors, bajo [licencia MIT](https://github.com/Fission-AI/OpenSpec/blob/main/LICENSE).
