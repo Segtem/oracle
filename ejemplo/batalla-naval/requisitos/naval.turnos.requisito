@@ -1,0 +1,3 @@
+requisito naval.turnos:
+    texto "Los tiros se registran sin huecos y alternan entre los jugadores"
+    medido_por naval.alternancia_turnos, naval.turnos_sin_huecos

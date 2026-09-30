@@ -1,6 +1,7 @@
 """Los recorridos se pueden reproducir desde una carpeta vacía."""
 
 import unittest
+from pathlib import Path
 
 from tools import guia
 
@@ -10,6 +11,22 @@ class GuiaTests(unittest.TestCase):
         for ruta in guia.GUIAS:
             with self.subTest(guia=ruta.name):
                 guia.verificar(guia=ruta)
+
+    def test_la_batalla_naval_entera_llega_por_incluir(self):
+        texto = (guia.RAIZ / "docs/de-cero.md").read_text(encoding="utf-8")
+        bloques = list(guia.bloques(texto.splitlines(keepends=True)))
+        archivos = {}
+        for _, _, cabecera, _ in bloques:
+            atributos = dict(guia.ATRIBUTOS.findall(" ".join(cabecera)))
+            if "incluir" in atributos and atributos["incluir"].startswith("ejemplo/batalla-naval/"):
+                fuente = Path(atributos["incluir"]).relative_to("ejemplo/batalla-naval")
+                self.assertNotIn(fuente, archivos, f"archivo incluido dos veces: {fuente}")
+                archivos[fuente] = Path(atributos["archivo"])
+        raiz = guia.RAIZ / "ejemplo/batalla-naval"
+        esperados = {p.relative_to(raiz) for p in raiz.rglob("*") if p.is_file() and p.name != ".gitkeep"}
+        self.assertEqual(set(archivos), esperados)
+        for fuente, destino in archivos.items():
+            self.assertEqual(destino, Path("hechos_partida.json") if fuente == Path("partida_real.json") else fuente)
 
 
 class JuegoDeLaGuiaTests(unittest.TestCase):

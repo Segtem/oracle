@@ -65,8 +65,9 @@ def simular_partida():
 
 def ejecutar_oracle_juzgar(ruta_json):
     """Ejecuta `oracle juzgar --con <ruta_json>` y retorna (codigo, salida)."""
+    comando = [sys.executable, str(CLI)] if CLI.is_file() else ["oracle"]
     res = subprocess.run(
-        [sys.executable, str(CLI), "juzgar", "--proyecto", str(BASE_DIR),
+        [*comando, "juzgar", "--proyecto", str(BASE_DIR),
          "--con", str(ruta_json)],
         cwd=BASE_DIR,
         capture_output=True,

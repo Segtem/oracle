@@ -1,0 +1,3 @@
+requisito naval.disparos:
+    texto "Cada tirador dispara a casillas válidas y no repite una coordenada"
+    medido_por naval.tiros_dentro_del_tablero, naval.tiros_sin_repeticion

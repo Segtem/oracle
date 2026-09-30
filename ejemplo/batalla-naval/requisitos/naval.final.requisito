@@ -1,0 +1,3 @@
+requisito naval.final:
+    texto "El ganador registra 17 impactos y no se dispara después del turno final"
+    medido_por naval.fin_de_juego_sin_tiros_posteriores, naval.ganador_legitimo

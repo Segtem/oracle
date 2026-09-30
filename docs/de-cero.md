@@ -14,8 +14,8 @@ cosa suma experiencia y algunas dan logros; la bitácora, abajo a la derecha, ll
 en tu navegador: no se manda a ningún lado.
 
 > Un test del repositorio arma el juego pegando los bloques de esta guía en orden, desde una carpeta
-> vacía, y corre `oracle test` después de cada paso. Las salidas que ves acá salen de esa corrida: si un
-> bloque cambia, el test lo nota.
+> vacía, comprueba que estén todos los archivos del ejemplo y ejecuta los comandos de cada paso. Las
+> salidas que ves acá salen de esa corrida: si un bloque cambia, el test lo nota.
 
 ## Paso 1 · Preparar la carpeta
 
@@ -198,7 +198,9 @@ Escribir primero ese ejemplo te obliga a decir qué es un defecto antes de escri
 
 </details>
 
-En Oracle ese ejemplo se llama **caso**. Guardalo en `corpus/naval/`:
+En Oracle ese ejemplo se llama **caso**. Guardalo en `corpus/naval/`. `oracle init` no crea esa
+carpeta ni `catalogos/naval/`, que vas a usar enseguida: creá las dos (casi todo editor lo ofrece al
+guardar; en la terminal, `mkdir -p corpus/naval catalogos/naval`).
 
 ```oracle archivo=corpus/naval/005-barco-fila-desbordada.caso incluir=ejemplo/batalla-naval/corpus/naval/005-barco-fila-desbordada.caso
 ```
@@ -770,7 +772,8 @@ Once reglas, cada una con casos que la pueden romper, y ningún mutante vivo.
 <!-- juego {"tipo": "mision", "n": 8, "objetivo": "Juzgar una partida real y leer lo que quedó sin mirar.", "xp": 120, "logro": "juez", "sprite": "ojo"} -->
 
 Las reglas ya están probadas. Ahora se juzga una partida real: jugá una partida entera, abrí el panel
-de auditoría y descargá `hechos_partida.json` en la carpeta del proyecto. (Si todavía no jugaste, podés
+de auditoría y descargá `hechos_partida.json`. El navegador suele guardarlo en **Descargas**: movelo a
+la carpeta del proyecto, al lado de `oracle.json`, que es donde lo busca el comando. (Si todavía no jugaste, podés
 [bajar la partida del ejemplo](https://github.com/Segtem/oracle/raw/main/ejemplo/batalla-naval/partida_real.json)
 y guardarla con ese nombre.)
 
@@ -826,6 +829,74 @@ es la mitad de la respuesta.
 
 </details>
 
+Las reglas tienen nombres, pero conviene escribir también las **promesas** que querés hacer sobre el
+juego. Cada archivo `.requisito` dice qué prometés, qué medidas lo comprueban y qué parte sigue sin
+medir. Copiá estos seis archivos; cinco agrupan las once medidas y el sexto deja visible una deuda.
+
+<details>
+<summary>Ver las promesas del juego</summary>
+
+```oracle archivo=requisitos/naval.flota.requisito incluir=ejemplo/batalla-naval/requisitos/naval.flota.requisito
+```
+
+```oracle archivo=requisitos/naval.disparos.requisito incluir=ejemplo/batalla-naval/requisitos/naval.disparos.requisito
+```
+
+```oracle archivo=requisitos/naval.turnos.requisito incluir=ejemplo/batalla-naval/requisitos/naval.turnos.requisito
+```
+
+```oracle archivo=requisitos/naval.impactos.requisito incluir=ejemplo/batalla-naval/requisitos/naval.impactos.requisito
+```
+
+```oracle archivo=requisitos/naval.final.requisito incluir=ejemplo/batalla-naval/requisitos/naval.final.requisito
+```
+
+```oracle archivo=requisitos/naval.barcos_rectos.requisito incluir=ejemplo/batalla-naval/requisitos/naval.barcos_rectos.requisito
+```
+
+</details>
+
+<p class="pregunta">**Pensalo.** ¿Tener una medida para una promesa quiere decir que se cumplió en esta partida?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+Todavía no. `oracle cobertura` muestra qué promesas tienen medidas; con `--con` juzga los hechos de
+esta partida y dice cuáles se cumplieron. Una promesa puede quedar sólo en parte medida.
+
+</details>
+
+```bash paso
+oracle cobertura
+oracle cobertura --con hechos_partida.json
+```
+
+```text salida
+· naval.barcos_rectos   SIN MEDIR: todavía no hay una medida para comprobar la forma de cada barco
+✓ naval.disparos   naval.tiros_dentro_del_tablero, naval.tiros_sin_repeticion
+✓ naval.final   naval.fin_de_juego_sin_tiros_posteriores, naval.ganador_legitimo
+◐ naval.flota   naval.barcos_dentro_del_tablero, naval.barcos_sin_solapamiento, naval.flota_reglamentaria · SIN MEDIR: la forma recta y continua de cada barco
+✓ naval.impactos   naval.veracidad_impacto_negativo, naval.veracidad_impacto_positivo
+✓ naval.turnos   naval.alternancia_turnos, naval.turnos_sin_huecos
+
+6 requisitos: 4 medidos · 1 en parte · 1 sin medir · 0 con medidas inexistentes
+· naval.barcos_rectos   sin medir · SIN MEDIR: todavía no hay una medida para comprobar la forma de cada barco
+✓ naval.disparos   cumple · naval.tiros_dentro_del_tablero cumple, naval.tiros_sin_repeticion cumple
+✓ naval.final   cumple · naval.fin_de_juego_sin_tiros_posteriores cumple, naval.ganador_legitimo cumple
+◐ naval.flota   cumple · naval.barcos_dentro_del_tablero cumple, naval.barcos_sin_solapamiento cumple, naval.flota_reglamentaria cumple · SIN MEDIR: la forma recta y continua de cada barco
+✓ naval.impactos   cumple · naval.veracidad_impacto_negativo cumple, naval.veracidad_impacto_positivo cumple
+✓ naval.turnos   cumple · naval.alternancia_turnos cumple, naval.turnos_sin_huecos cumple
+
+6 requisitos: 5 se cumplen (1 sólo en lo medido) · 0 no se cumplen · 0 sin juicio · 1 sin medir · 0 con medidas inexistentes
+```
+
+**Lo que tenés que ver.** Cinco promesas tienen medidas y se cumplen en esta partida. La de la flota
+se cumple sólo en lo medido: todavía no sabemos si cada barco es recto. La sexta está `sin medir`;
+Oracle no la pinta de verde.
+
+Si más adelante tus promesas vienen de una especificación de OpenSpec, `oracle requisito importar`
+puede crear esos archivos. Acá los escribimos a mano para que veas qué significa cada línea.
+
 <p class="pregunta">**Pensalo.** ¿Y si el juego se olvidara de anotar los tiros?</p>
 
 <details>
@@ -836,6 +907,10 @@ lista aparte, en `NO SE APLICARON`, y falla la corrida completa. Si ejecutás s�
 catálogo a propósito, `--parcial` permite esa omisión. Probalo:
 
 </details>
+
+La primera línea de abajo es un programa de Python de una línea: lee `hechos_partida.json` y guarda
+en `sin-tiros.json` sólo las relaciones `celda_barco` y `partida`, es decir, la misma partida sin
+ningún tiro. Copiala tal cual.
 
 ```bash paso
 python3 -c "import json; d = json.load(open('hechos_partida.json')); json.dump({'celda_barco': d['celda_barco'], 'partida': d['partida']}, open('sin-tiros.json', 'w'))"
@@ -869,6 +944,70 @@ en esa casilla; corregilo».
 ## Paso 9 · Qué le falta a este juego
 
 <!-- juego {"tipo": "mision", "n": 9, "objetivo": "Diseñar, en tu cabeza, la regla que le falta al juego.", "xp": 100, "logro": "disenador", "sprite": "hoja"} -->
+
+Antes de agregar otra regla, guardá esta versión en Git. `oracle cambios` compara las reglas actuales
+con ese punto guardado. Vamos a aflojar a propósito el límite de una regla: permitir un disparo repetido
+a la misma casilla, sin cambiar la frase `porque` que defiende el límite original.
+
+<p class="pregunta">**Pensalo.** Si los casos siguen pasando, ¿cómo te enterás de que alguien aflojó esa promesa?</p>
+
+<details>
+<summary>Ver la respuesta</summary>
+
+Git guarda el antes; `oracle cambios` revisa el después. Un límite más permisivo con el mismo
+`porque` es un error aunque el resto del catálogo siga igual.
+
+</details>
+
+```bash paso
+git init -q
+git add .
+git -c user.name=Guia -c user.email=guia@example.invalid commit -qm base
+python3 -c 'from pathlib import Path; p = Path("catalogos/naval/naval.tiros_sin_repeticion.oracle"); p.write_text(p.read_text().replace("umbral <= 0 segun contrato", "umbral <= 1 segun contrato"))'
+```
+
+```text salida
+```
+
+```bash paso falla
+oracle cambios
+```
+
+```text salida
+cambios desde HEAD:
+✗ umbral aflojado sin nueva defensa  naval.tiros_sin_repeticion  <= 0 → <= 1  (el `porque` no cambió)
+
+1 errores · 0 avisos
+```
+
+**Lo que tenés que ver.** Oracle señala `naval.tiros_sin_repeticion` y el paso de `<= 0` a
+`<= 1`: el `porque` sigue defendiendo que no haya disparos repetidos. Devolvé el umbral a cero:
+
+```bash paso
+python3 -c 'from pathlib import Path; p = Path("catalogos/naval/naval.tiros_sin_repeticion.oracle"); p.write_text(p.read_text().replace("umbral <= 1 segun contrato", "umbral <= 0 segun contrato"))'
+oracle cambios
+```
+
+```text salida
+cambios desde HEAD:
+  nada se aflojó
+
+0 errores · 0 avisos
+```
+
+El ejemplo también incluye una explicación y un script para probar infracciones deliberadas. Copialos
+para tener la carpeta completa; el recorrido de arriba no necesita ejecutar ese script.
+
+<details>
+<summary>Ver los archivos complementarios</summary>
+
+```markdown archivo=README.md incluir=ejemplo/batalla-naval/README.md
+```
+
+```python archivo=verificar_oraculo.py incluir=ejemplo/batalla-naval/verificar_oraculo.py
+```
+
+</details>
 
 Once reglas miran lo principal, no todo. Ninguna mira hoy:
 

@@ -1,0 +1,4 @@
+requisito naval.flota:
+    texto "Las flotas ocupan 17 casillas por bando, dentro del tablero y sin solaparse"
+    medido_por naval.barcos_dentro_del_tablero, naval.barcos_sin_solapamiento, naval.flota_reglamentaria
+    sin_medir "la forma recta y continua de cada barco"

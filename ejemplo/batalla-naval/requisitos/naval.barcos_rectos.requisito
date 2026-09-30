@@ -1,0 +1,3 @@
+requisito naval.barcos_rectos:
+    texto "Cada barco ocupa una línea recta y continua"
+    sin_medir "todavía no hay una medida para comprobar la forma de cada barco"

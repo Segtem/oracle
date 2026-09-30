@@ -1,0 +1,3 @@
+requisito naval.impactos:
+    texto "Un impacto reportado corresponde a un barco rival y un tiro al barco no figura como agua"
+    medido_por naval.veracidad_impacto_negativo, naval.veracidad_impacto_positivo

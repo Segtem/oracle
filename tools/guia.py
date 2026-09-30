@@ -81,13 +81,18 @@ def correr(comando: str, cwd: Path, temporal: Path, falla: bool = False) -> tupl
     if argumentos[0] == "rm" and argumentos[1:2] == ["-f"] and len(argumentos) == 3:
         dentro(cwd, argumentos[2]).unlink(missing_ok=True)
         return "", cwd
+    git_permitidos = (["git", "init", "-q"], ["git", "add", "."],
+                     ["git", "-c", "user.name=Guia", "-c", "user.email=guia@example.invalid",
+                      "commit", "-qm", "base"])
+    if argumentos[0] == "git" and argumentos not in git_permitidos:
+        raise ValueError(f"Comando git no contemplado: {comando}")
     if argumentos[0] == "oracle":
         argumentos = [sys.executable, str(CLI), *argumentos[1:]]
     elif argumentos[0] == "python3":
         argumentos[0] = sys.executable
         if len(argumentos) > 1 and not argumentos[1].startswith("-"):
             dentro(cwd, argumentos[1])
-    else:
+    elif argumentos[0] != "git":
         raise ValueError(f"Comando no contemplado: {comando}")
     entorno = os.environ.copy()
     entorno.pop("ORACLE_PROYECTO", None)
