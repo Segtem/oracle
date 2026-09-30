@@ -1,0 +1,238 @@
+{
+  "proyecto": "/home/workstation/Dev/games/unreal/LyraGASP/medidas",
+  "medidas": 29,
+  "mutantes": 487,
+  "muertos": 373,
+  "proporcion": 0.766,
+  "no_posible": 6,
+  "medidas_enteras": 19,
+  "segundos": 0.0,
+  "filas": [
+    {
+      "medida": "animacion.clip_de_linea_base_ausente_del_lote",
+      "mutantes": 18,
+      "no_posible": false,
+      "muertos": 18,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "animacion.clip_perdio_curva_de_linea_base",
+      "mutantes": 20,
+      "no_posible": false,
+      "muertos": 19,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "animacion.linea_base_vacia",
+      "mutantes": 13,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.autoria_habilitada_sin_malla_deformable",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.cascara_excluida_no_declarada",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.entrada_fbx_faltante",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.ground_truth_faltante",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.malla_confirmada_sin_firma",
+      "mutantes": 20,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.malla_objetivo_fragmentada",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.manifiesto_ausente_o_incompleto",
+      "mutantes": 18,
+      "no_posible": false,
+      "muertos": 18,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.region_objetivo_ausente_en_la_malla",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.region_objetivo_mayoritariamente_excluida",
+      "mutantes": 17,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.region_objetivo_rigida",
+      "mutantes": 19,
+      "no_posible": false,
+      "muertos": 19,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "ml_deformer.regiones_objetivo_en_cascaras_distintas",
+      "mutantes": 41,
+      "no_posible": false,
+      "muertos": 41,
+      "casos": 1,
+      "segundos": 0.01
+    },
+    {
+      "medida": "personaje.ancla_no_decidible_declarada_requerida",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.ancla_requerida_ausente",
+      "mutantes": 19,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.animacion_en_esqueleto_incompatible",
+      "mutantes": 37,
+      "no_posible": false,
+      "muertos": 32,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.correccion_dedos_altera_otros_canales",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.hueso_de_ik_sin_datos_que_lo_animen",
+      "mutantes": 19,
+      "no_posible": false,
+      "muertos": 18,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.malla_no_cubre_la_capsula",
+      "mutantes": 12,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.mapa_inicia_experiencia_declarada",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "personaje.retarget_altera_flexion_digital",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "recarga.ability_bloquea_salto_por_tags",
+      "mutantes": 31,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "recarga.ensayo_ik_no_discriminante",
+      "mutantes": 27,
+      "no_posible": false,
+      "muertos": 27,
+      "casos": 3,
+      "segundos": 0.01
+    },
+    {
+      "medida": "recarga.ik_altera_mano_del_montage",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "recarga.montage_en_slot_cuerpo_entero",
+      "mutantes": 17,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "recarga.objetivo_ik_contradice_pose_autorada",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "recarga.root_motion_habilitado",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "recarga.root_motion_no_decidible",
+      "mutantes": 12,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    }
+  ]
+}

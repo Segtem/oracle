@@ -1,0 +1,331 @@
+{
+  "proyecto": "/home/workstation/Dev/jam/medidas",
+  "medidas": 41,
+  "mutantes": 449,
+  "muertos": 344,
+  "proporcion": 0.766,
+  "no_posible": 9,
+  "medidas_enteras": 32,
+  "segundos": 0.0,
+  "filas": [
+    {
+      "medida": "colocacion.bounds",
+      "mutantes": 12,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "colocacion.interpenetracion",
+      "mutantes": 15,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "espacio.ganable",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "espacio.inicio_unico",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "espacio.meta_unica",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "malla.cara_visible",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "malla.solido_esta_cerrado",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "malla.solido_hacia_afuera",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "malla.superficie_sin_vueltas",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "physics.apoyado",
+      "mutantes": 23,
+      "no_posible": false,
+      "muertos": 23,
+      "casos": 4,
+      "segundos": 0.01
+    },
+    {
+      "medida": "physics.tanda_completa",
+      "mutantes": 17,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "physics.tanda_sin_interpenetracion",
+      "mutantes": 13,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "physics.tiene_suelo",
+      "mutantes": 17,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "reemplazo.apoyado",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "reemplazo.centrado",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "reemplazo.footprint",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "relevo.agentes_conocidos",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "relevo.el_relevo_tiene_dos_puntas",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "relevo.testigo_tiene_sus_campos",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "relevo.testigo_tiene_sus_secciones",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "relevo.verificacion_existe",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "scatter.cantidad",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "scatter.cobertura",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "scatter.contencion",
+      "mutantes": 9,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "scatter.interpenetracion",
+      "mutantes": 11,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "snap.al_ras",
+      "mutantes": 13,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "snap.comparte_cara",
+      "mutantes": 14,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "snap.grilla",
+      "mutantes": 9,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "snap.yaw",
+      "mutantes": 9,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "spline.cobertura",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "spline.sin_solape",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.area_es_la_carpeta",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.carpeta_conocida",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.enlace_resuelve",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.fecha_coincide",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.frontmatter_completo",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.ningun_doc_suelto_en_la_raiz",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.nombre_es_ascii",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.nombre_sigue_la_convencion",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.nombre_unico_en_el_vault",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "vault.tipo_coincide",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    }
+  ]
+}

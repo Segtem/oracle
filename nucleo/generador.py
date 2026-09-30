@@ -523,6 +523,178 @@ def _proponer_candidatos(medida: Medida) -> list[dict[str, Any]]:
     return candidatos
 
 
+# ── Búsqueda: evidencia que separa a la medida de un mutante, encogida al mínimo ────────────────
+#
+# Las reglas de `_proponer_candidatos` derivan la evidencia de la forma de la medida y no cubren
+# todas las formas: un campo cambiado por otro sobrevive si las filas fabricadas tienen el mismo
+# valor en los dos, y una escalar que espera un tipo del dominio falla con un `0.0` inventado. La
+# búsqueda no deduce: parte de la evidencia que ya hay (la que proponen las reglas y la del corpus
+# de la medida), la perturba de a un cambio por vez y se queda con la primera en la que la medida
+# y el mutante dan veredictos distintos. Después la encoge, como el *shrinking* de las pruebas
+# basadas en propiedades: saca filas y simplifica valores mientras la discrepancia siga. Todo es
+# determinista —el mismo catálogo da los mismos casos— y nada llama a un modelo.
+
+PRESUPUESTO_BUSQUEDA = 3000     # evaluaciones por mutante; alcanza para dos cambios sobre semillas chicas
+
+
+def _literales(expr: Any, salida: list) -> list:
+    """Los números, textos y booleanos que aparecen escritos en la medida, en orden y sin repetir."""
+    if isinstance(expr, list):
+        # La cabeza es el operador; `campo` y `de` sólo nombran relaciones, alias y campos.
+        if expr and expr[0] not in ("campo", "de"):
+            for sub in expr[1:] if isinstance(expr[0], str) else expr:
+                _literales(sub, salida)
+    elif isinstance(expr, (bool, int, float, str)) and expr not in salida:
+        salida.append(expr)
+    return salida
+
+
+def _alternativas(valor: Any, fila: dict, literales: list) -> list:
+    """Valores de prueba para un campo: los de la medida, los de la misma fila y los vecinos."""
+    if isinstance(valor, bool):
+        propios = [not valor]
+    elif isinstance(valor, (int, float)):
+        propios = [valor + 1, valor - 1, 0, -valor, valor * 2 + 1]
+    elif isinstance(valor, str):
+        propios = ["", f"{valor}-otro"]
+    else:
+        return []
+    del_mismo_tipo = [v for v in [*literales, *fila.values()]
+                      if type(v) is type(valor) or (isinstance(v, (int, float)) and isinstance(valor, (int, float))
+                                                    and not isinstance(v, bool) and not isinstance(valor, bool))]
+    salida = []
+    for v in [*del_mismo_tipo, *propios]:
+        if v != valor and v not in salida:
+            salida.append(v)
+    return salida
+
+
+def _vecinos(evidencia: dict, literales: list):
+    """Cada evidencia a un cambio de distancia, en un orden fijo."""
+    for rel in sorted(evidencia):
+        filas = evidencia[rel]
+        for i, fila in enumerate(filas):
+            for campo in sorted(fila):
+                for v in _alternativas(fila[campo], fila, literales):
+                    nueva = {**evidencia, rel: [*filas[:i], {**fila, campo: v}, *filas[i + 1:]]}
+                    yield nueva
+            yield {**evidencia, rel: [*filas, dict(fila)]}
+            yield {**evidencia, rel: [*filas[:i], *filas[i + 1:]]}
+
+
+def _veredicto(medida: Medida, evidencia: dict):
+    try:
+        return medida.evaluar(evidencia)
+    except Exception:            # noqa: BLE001  una evidencia que no evalúa no separa nada
+        return None
+
+
+def _separa(original: Medida, mutante: Medida, evidencia: dict) -> bool | None:
+    """El `ok` de la original si ella y el mutante discrepan en esta evidencia; None si no."""
+    base = _veredicto(original, evidencia)
+    if base is None or base.sin_evidencia:
+        return None
+    otro = _veredicto(mutante, evidencia)
+    if otro is None or otro.ok == base.ok:
+        return None
+    return base.ok
+
+
+def _simplificaciones(evidencia: dict):
+    """Cada evidencia con una fila menos, y después cada una con un valor llevado a 0, "" o false."""
+    for rel in sorted(evidencia):
+        for i in range(len(evidencia[rel]) - 1, -1, -1):
+            yield {**evidencia, rel: evidencia[rel][:i] + evidencia[rel][i + 1:]}
+    for rel in sorted(evidencia):
+        for i, fila in enumerate(evidencia[rel]):
+            for campo in sorted(fila):
+                valor = fila[campo]
+                simple = (False if isinstance(valor, bool) else 0 if isinstance(valor, (int, float))
+                          else "" if isinstance(valor, str) else valor)
+                if simple != valor:
+                    yield {**evidencia, rel: [*evidencia[rel][:i], {**fila, campo: simple}, *evidencia[rel][i + 1:]]}
+
+
+def _encoger(original: Medida, mutante: Medida, evidencia: dict, ok: bool) -> dict:
+    """Saca filas y simplifica valores mientras la medida y el mutante sigan discrepando igual.
+    Cada paso aceptado achica la evidencia y vuelve a empezar, así que termina."""
+    for menor in _simplificaciones(evidencia):
+        if _separa(original, mutante, menor) is ok:
+            return _encoger(original, mutante, menor, ok)
+    return evidencia
+
+
+def _buscar(original: Medida, mutante: Medida, semillas: list[dict], literales: list,
+            presupuesto: int) -> tuple[dict, bool] | None:
+    """Anchura primero desde las semillas, hasta dos cambios: la primera evidencia que separa."""
+    gastado = 0
+    frontera = []
+    for semilla in semillas:
+        ok = _separa(original, mutante, semilla)
+        if ok is not None:
+            return semilla, ok
+        frontera.append(semilla)
+    for _profundidad in range(2):
+        siguiente = []
+        for ev in frontera:
+            for vecina in _vecinos(ev, literales):
+                gastado += 1
+                if gastado > presupuesto:
+                    return None
+                ok = _separa(original, mutante, vecina)
+                if ok is not None:
+                    return vecina, ok
+                siguiente.append(vecina)
+        frontera = siguiente
+    return None
+
+
+def buscar_candidatos(medida: Medida, casos_existentes: list[dict[str, Any]], *,
+                      presupuesto: int = PRESUPUESTO_BUSQUEDA) -> list[dict[str, Any]]:
+    """Los candidatos de las reglas que respetan su polaridad, más uno buscado por mutante que ni
+    el corpus ni esos candidatos matan. Cada buscado lleva la etiqueta que la medida original le da."""
+    mid = medida.id
+    dominio = mid.split(".")[0]
+    nombre_medida = mid.split(".", 1)[1].replace("_", "-")
+    try:
+        reglas = fabricar_candidatos(medida)
+    except GeneracionNoPosible:
+        reglas = []
+    leidas = relaciones_de_medida(medida)
+
+    def completa(evidencia: dict) -> dict:
+        return {rel: [dict(f) for f in evidencia.get(rel, []) if isinstance(f, dict)] for rel in leidas}
+
+    semillas = [completa(c["evidencia"]) for c in _proponer_candidatos(medida)]
+    semillas += [completa(c["evidencia"]) for c in casos_existentes if c.get("medida") == mid]
+    muertos = {d["cambio"] for d in correr({mid: medida}, [*casos_existentes, *reglas])["mutante"]
+               if d["detecciones_conductuales"] or d["rechazos_del_algebra"]}
+    literales = _literales([medida.tuberia, medida.resumen, medida.limite], [])
+    buscados = []
+    for nombre, datos in mutantes(medida.a_datos()):
+        if nombre in muertos:
+            continue
+        try:
+            mutante = Medida.de_datos(datos)
+        except Exception:        # noqa: BLE001  un mutante que no construye ya lo mata el álgebra
+            continue
+        if any(_separa(medida, mutante, b["evidencia"]) is not None for b in buscados):
+            continue             # un caso ya buscado lo separa: `evaluar_utilidad` lo cuenta ahí
+        hallado = _buscar(medida, mutante, semillas, literales, presupuesto)
+        if hallado is None:
+            continue
+        evidencia, ok = hallado
+        buscados.append({
+            "id": f"{dominio}-gen-2{len(buscados):02d}-{nombre_medida}-buscado",
+            "etiqueta": "verde_correcto" if ok else "falso_verde",
+            "medida": mid,
+            "evidencia": _encoger(medida, mutante, evidencia, ok),
+            "titulo": f"Evidencia buscada y encogida que separa a {mid} de su mutante {nombre}",
+        })
+        muertos.add(nombre)
+    return [*reglas, *buscados]
+
+
 def evaluar_utilidad(
     medida: Medida,
     casos_existentes: list[dict[str, Any]],
@@ -659,12 +831,15 @@ def generar_caso(
             print(f"ruido: 0 mutantes sobrevivientes para «{mid}» — no se generó ningún caso (ya está fijada)")
             return 0, {"mid": mid, "vivos_antes": 0, "muertos_nuevos": 0, "casos": []}
 
-        try:
-            candidatos = fabricar_candidatos(medida)
-        except GeneracionNoPosible as error:
-            print(f"generación no posible: {error} — no se escribió ningún archivo")
-            return 1, {"mid": mid, "vivos_antes": len(vivos_antes),
-                       "muertos_nuevos": 0, "casos": [], "error": str(error)}
+        candidatos = buscar_candidatos(medida, casos_existentes)
+        if not candidatos:
+            # Ni las reglas ni la búsqueda dieron evidencia: el motivo lo dicen las reglas.
+            try:
+                fabricar_candidatos(medida)
+            except GeneracionNoPosible as error:
+                print(f"generación no posible: {error} — no se escribió ningún archivo")
+                return 1, {"mid": mid, "vivos_antes": len(vivos_antes),
+                           "muertos_nuevos": 0, "casos": [], "error": str(error)}
         vivos_antes, utiles = evaluar_utilidad(medida, casos_existentes, candidatos, catalogo)
 
         if not utiles:

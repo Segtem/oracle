@@ -1,0 +1,265 @@
+{
+  "proyecto": "/home/workstation/Dev/oracle/tareas/20260928-210611-openspec/experimento",
+  "medidas": 32,
+  "mutantes": 651,
+  "muertos": 526,
+  "proporcion": 0.808,
+  "no_posible": 3,
+  "medidas_enteras": 16,
+  "segundos": 0.1,
+  "filas": [
+    {
+      "medida": "openspec.cambio_invalido_muestra_el_pie",
+      "mutantes": 40,
+      "no_posible": false,
+      "muertos": 31,
+      "casos": 2,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.crlf_se_parsea",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.el_filtro_no_mezcla_tipos",
+      "mutantes": 24,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.error_de_estructura_remite_a_agents_md",
+      "mutantes": 19,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.estricto_falla_ante_un_aviso",
+      "mutantes": 24,
+      "no_posible": false,
+      "muertos": 24,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.item_directo_detecta_su_tipo",
+      "mutantes": 27,
+      "no_posible": false,
+      "muertos": 19,
+      "casos": 2,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.item_invalido_sale_con_1",
+      "mutantes": 20,
+      "no_posible": false,
+      "muertos": 20,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.modified_nombra_el_escenario_omitido",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.modified_sin_base_no_reporta_omision",
+      "mutantes": 18,
+      "no_posible": false,
+      "muertos": 18,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.modified_tras_rename_nombra_s2",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.nada_archivado_se_valida",
+      "mutantes": 31,
+      "no_posible": false,
+      "muertos": 25,
+      "casos": 2,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.nombre_ambiguo_no_valida",
+      "mutantes": 26,
+      "no_posible": false,
+      "muertos": 22,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.nombre_ambiguo_sugiere_type",
+      "mutantes": 24,
+      "no_posible": false,
+      "muertos": 23,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.nombre_desconocido_sugiere_el_mas_cercano",
+      "mutantes": 24,
+      "no_posible": false,
+      "muertos": 23,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.nombre_no_resuelto_sale_con_1_sin_validar",
+      "mutantes": 29,
+      "no_posible": false,
+      "muertos": 22,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.pie_trae_dos_a_tres_pasos",
+      "mutantes": 14,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.requisito_sin_cuerpo_es_error",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.resumen_cuadra",
+      "mutantes": 25,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.seccion_faltante_nombra_encabezados",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.sin_argumentos_lista_las_banderas",
+      "mutantes": 25,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 2,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.sin_argumentos_no_interactivo_sale_con_1",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.sin_deltas_advierte_titulos_antes_de_operaciones",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.sin_deltas_nombra_no_deltas_found",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.sin_palabra_clave_avisa",
+      "mutantes": 19,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 3,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.sin_palabra_clave_no_falla",
+      "mutantes": 24,
+      "no_posible": false,
+      "muertos": 22,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.tipo_explicito_manda",
+      "mutantes": 27,
+      "no_posible": false,
+      "muertos": 19,
+      "casos": 2,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.todo_item_trae_duracion",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.todo_lo_vivo_se_valida",
+      "mutantes": 29,
+      "no_posible": false,
+      "muertos": 25,
+      "casos": 3,
+      "segundos": 0.01
+    },
+    {
+      "medida": "openspec.todo_problema_nombra_su_archivo",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.todo_problema_tiene_nivel_conocido",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.vinetas_avisan_con_el_texto_de_la_spec",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    },
+    {
+      "medida": "openspec.vinetas_muestran_la_plantilla",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 3,
+      "segundos": 0.0
+    }
+  ]
+}

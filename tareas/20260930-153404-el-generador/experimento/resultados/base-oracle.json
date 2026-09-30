@@ -1,0 +1,514 @@
+{
+  "proyecto": "/home/workstation/Dev/oracle",
+  "medidas": 64,
+  "mutantes": 1111,
+  "muertos": 755,
+  "proporcion": 0.68,
+  "no_posible": 10,
+  "medidas_enteras": 36,
+  "segundos": 0.0,
+  "filas": [
+    {
+      "medida": "meta.agrupar_no_agranda_la_relacion",
+      "mutantes": 16,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.agrupar_sin_claves_es_el_resumen_global",
+      "mutantes": 21,
+      "no_posible": false,
+      "muertos": 17,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.donde_compone",
+      "mutantes": 29,
+      "no_posible": false,
+      "muertos": 20,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.donde_nunca_agrega_filas",
+      "mutantes": 16,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.el_caso_reclama_una_medida_que_existe",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.el_caso_se_pone_como_debe",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.el_diagnostico_no_publica_el_dominio",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.el_hueco_declarado_explica_por_que",
+      "mutantes": 28,
+      "no_posible": false,
+      "muertos": 24,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.el_nivel_no_se_confunde_con_el_dominio",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.el_requisito_nombra_medidas_que_existen",
+      "mutantes": 6,
+      "no_posible": false,
+      "muertos": 6,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.la_medida_no_se_fija_solo_con_evidencia_fabricada",
+      "mutantes": 32,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.los_logicos_evaluan_todos_sus_operandos",
+      "mutantes": 10,
+      "no_posible": false,
+      "muertos": 10,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ningun_campo_sin_unidad_declarada",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ningun_flotante_comparado_por_igualdad_en_un_filtro",
+      "mutantes": 24,
+      "no_posible": false,
+      "muertos": 20,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ningun_umbral_de_igualdad",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ningun_umbral_flotante_de_igualdad",
+      "mutantes": 17,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_cota_mas_alta_que_su_deuda",
+      "mutantes": 22,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_evidencia_declara_un_referente_sin_huella",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_evidencia_se_juzga_con_referente_vencido",
+      "mutantes": 12,
+      "no_posible": false,
+      "muertos": 12,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_exclusion_de_mutador_se_aplica_globalmente",
+      "mutantes": 14,
+      "no_posible": false,
+      "muertos": 14,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_medida_declara_un_ambito_mas_amplio_que_sus_dependencias",
+      "mutantes": 24,
+      "no_posible": false,
+      "muertos": 20,
+      "casos": 1,
+      "segundos": 0.01
+    },
+    {
+      "medida": "meta.ninguna_medida_sin_alcance",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_sombra_envejece_sin_revisarse",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 7,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_sombra_sobre_una_medida_que_no_existe",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_sombra_supera_su_cota",
+      "mutantes": 22,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.ninguna_sombra_ya_en_verde",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.se_escribe_en_superficie",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.sin_nunca_agrega_filas",
+      "mutantes": 16,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.sintaxis_casos_cubre_casos",
+      "mutantes": 50,
+      "no_posible": false,
+      "muertos": 32,
+      "casos": 1,
+      "segundos": 0.01
+    },
+    {
+      "medida": "meta.sintaxis_casos_ida_y_vuelta",
+      "mutantes": 50,
+      "no_posible": false,
+      "muertos": 32,
+      "casos": 1,
+      "segundos": 0.01
+    },
+    {
+      "medida": "meta.sintaxis_cubre_algebra",
+      "mutantes": 38,
+      "no_posible": false,
+      "muertos": 27,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.sintaxis_ida_y_vuelta",
+      "mutantes": 38,
+      "no_posible": false,
+      "muertos": 27,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_cantidad_comparada_tiene_unidad_derivable",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_medida_de_ausencia_declara_requiere",
+      "mutantes": 43,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_medida_declara_su_ambito",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_medida_esta_ejercitada",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_medida_esta_fijada",
+      "mutantes": 20,
+      "no_posible": false,
+      "muertos": 16,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_medida_filtra_o_agrupa",
+      "mutantes": 24,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_medida_lee_campos_que_existen",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_opcion_del_vocabulario_declara_su_sentido",
+      "mutantes": 12,
+      "no_posible": false,
+      "muertos": 12,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_relacion_del_lenguaje_esta_en_la_referencia",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_sombra_declara_desde_y_porque",
+      "mutantes": 15,
+      "no_posible": false,
+      "muertos": 15,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.toda_sombra_declara_una_fecha_real",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.todo_caso_observado_declara_de_donde_salio",
+      "mutantes": 13,
+      "no_posible": false,
+      "muertos": 13,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.todo_tanteo_explica_por_que",
+      "mutantes": 12,
+      "no_posible": false,
+      "muertos": 12,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.todo_umbral_declara_de_donde_sale",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.todo_verbo_del_cli_esta_en_la_ayuda",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.todo_vocabulario_cerrado_esta_en_el_manual",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.una_macro_equivale_a_su_expansion",
+      "mutantes": 29,
+      "no_posible": false,
+      "muertos": 20,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.unir_conmuta",
+      "mutantes": 29,
+      "no_posible": false,
+      "muertos": 20,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "meta.unir_materializa_el_producto",
+      "mutantes": 14,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.afirmacion_declara_alcance",
+      "mutantes": 8,
+      "no_posible": false,
+      "muertos": 8,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.arnes_con_bytecode_frio",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.codigo_con_mutante_que_lo_mata",
+      "mutantes": 20,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.modulo_alcanzable",
+      "mutantes": 25,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.modulo_con_consumidor",
+      "mutantes": 20,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.ronda_mutacion_concluyente",
+      "mutantes": 38,
+      "no_posible": false,
+      "muertos": 38,
+      "casos": 4,
+      "segundos": 0.01
+    },
+    {
+      "medida": "proceso.sintaxis_valida_tras_edicion_masiva",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.test_con_mutante_que_lo_mata",
+      "mutantes": 19,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.verificacion_vigente",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "proceso.verificador_sin_falsos_rojos",
+      "mutantes": 9,
+      "no_posible": false,
+      "muertos": 9,
+      "casos": 1,
+      "segundos": 0.0
+    },
+    {
+      "medida": "simulacion.corrida_reproducible",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    },
+    {
+      "medida": "simulacion.la_traza_no_tiene_huecos",
+      "mutantes": 18,
+      "no_posible": true,
+      "muertos": 0,
+      "segundos": 0.0
+    },
+    {
+      "medida": "simulacion.no_se_agoto_el_presupuesto",
+      "mutantes": 11,
+      "no_posible": false,
+      "muertos": 11,
+      "casos": 2,
+      "segundos": 0.0
+    }
+  ]
+}

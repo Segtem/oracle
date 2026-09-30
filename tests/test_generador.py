@@ -248,20 +248,25 @@ class TestUmbralDeclarado(unittest.TestCase):
         with self.assertRaisesRegex(GeneracionNoPosible, "no se pudo fabricar verde_correcto"):
             fabricar_candidatos(self.medida(5, op=">="))
 
-    def test_el_comando_rechaza_sin_escribir_y_explica_el_umbral(self):
+    def test_donde_las_reglas_no_pueden_la_busqueda_escribe_casos_con_su_polaridad(self):
+        # Hasta 0.37.0 esto era «generación no posible»: la regla no sabe superar un `max`. La
+        # búsqueda sube el valor de a un paso hasta que la medida y el mutante discrepan.
+        medida = self.medida(10, agregado="max")
+        with self.assertRaisesRegex(GeneracionNoPosible, "umbral <= 10"):
+            fabricar_candidatos(medida)
         with tempfile.TemporaryDirectory() as td:
             raiz = Path(td)
             (raiz / "catalogos").mkdir()
-            (raiz / "catalogos" / "prueba.json").write_text(
-                json.dumps(self.medida(10, agregado="max").a_datos()), encoding="utf-8")
-            salida = io.StringIO()
-            with redirect_stdout(salida):
+            (raiz / "catalogos" / "prueba.json").write_text(json.dumps(medida.a_datos()), encoding="utf-8")
+            with redirect_stdout(io.StringIO()):
                 codigo, resultado = generar_caso(Proyecto(raiz), "prueba.umbral")
-            self.assertEqual(codigo, 1)
-            self.assertEqual(resultado["casos"], [])
-            self.assertIn("umbral <= 10", resultado["error"])
-            self.assertIn("generación no posible", salida.getvalue())
-            self.assertFalse((raiz / "corpus").exists())
+            self.assertEqual(codigo, 0)
+            self.assertTrue(resultado["casos"])
+            from nucleo.caso import cargar_fuente_caso
+            for ruta in resultado["casos"]:
+                caso = cargar_fuente_caso(ruta)
+                self.assertEqual(caso["procedencia"], "generada")
+                self.assertEqual(medida.evaluar(caso["evidencia"]).ok, caso["etiqueta"] == "verde_correcto")
 
     def test_el_comando_escribe_solo_casos_con_polaridad_correcta(self):
         medida = self.medida()
@@ -642,7 +647,8 @@ class TestGenerarCasoEnUnProyecto(unittest.TestCase):
 
     def test_la_generacion_imposible_dice_por_que(self) -> None:
         from unittest import mock
-        with mock.patch("nucleo.generador.fabricar_candidatos", side_effect=GeneracionNoPosible("motivo")):
+        with mock.patch("nucleo.generador.fabricar_candidatos", side_effect=GeneracionNoPosible("motivo")), \
+                mock.patch("nucleo.generador._buscar", return_value=None):
             codigo, res, _ = self._generar()
         self.assertEqual(codigo, 1)
         self.assertEqual({k: v for k, v in res.items() if k != "vivos_antes"},
@@ -670,3 +676,95 @@ class TestGenerarCasoEnUnProyecto(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class BusquedaTests(unittest.TestCase):
+    """La búsqueda parte de evidencia que ya hay, la perturba y la encoge. Todo determinista."""
+
+    medida = staticmethod(TestUmbralDeclarado.medida)
+
+    def _mutante(self, medida, prefijo):
+        from nucleo.mutacion import mutantes
+        return next(Medida.de_datos(d) for n, d in mutantes(medida.a_datos()) if n.startswith(prefijo))
+
+    def test_literales_sin_operadores_ni_nombres(self):
+        from nucleo.generador import _literales
+        arbol = ["desde", ["de", "paso", "p"],
+                 ["donde", ["y", ["==", ["campo", "p", "op"], "agrupar"], [">", ["campo", "p", "a"], 3]]]]
+        self.assertEqual(_literales([arbol, 3, True], []), ["agrupar", 3, True])
+
+    def test_alternativas_por_tipo(self):
+        from nucleo.generador import _alternativas
+        self.assertEqual(_alternativas(True, {"b": True}, ["t", 4]), [False])
+        self.assertEqual(_alternativas(2, {"a": 2, "b": 7, "c": "t", "d": True}, [4, 2.5, "t", True]),
+                         [4, 2.5, 7, 3, 1, 0, -2, 5])
+        self.assertEqual(_alternativas("a", {"x": "a", "y": "b", "n": 1}, ["c", 1]), ["c", "b", "", "a-otro"])
+        self.assertEqual(_alternativas(None, {}, [1]), [])
+        self.assertEqual(_alternativas(0.5, {}, [True, False]), [1.5, -0.5, 0, 2.0])   # -0.5 una sola vez
+
+    def test_vecinos_cambian_un_campo_duplican_y_quitan(self):
+        from nucleo.generador import _vecinos
+        vecinos = list(_vecinos({"dato": [{"v": True}]}, []))
+        self.assertEqual(vecinos, [{"dato": [{"v": False}]}, {"dato": [{"v": True}, {"v": True}]}, {"dato": []}])
+
+    def test_separa_encuentra_encoge_y_es_determinista(self):
+        from nucleo.generador import _buscar, _encoger, _separa, buscar_candidatos
+        medida = self.medida(10, agregado="max")
+        mutante = self._mutante(medida, "aflojar_umbral")
+        semilla = {"dato": [{"valor": 1}, {"valor": 3}]}
+        self.assertIsNone(_separa(medida, mutante, semilla))                 # los dos verdes
+        self.assertIsNone(_buscar(medida, mutante, [semilla], [10], presupuesto=0))
+        evidencia, ok = _buscar(medida, mutante, [semilla], [10], presupuesto=500)
+        self.assertIs(ok, False)
+        self.assertIs(_separa(medida, mutante, evidencia), False)
+        chica = _encoger(medida, mutante, {"dato": [*evidencia["dato"], {"valor": 2}]}, ok)
+        self.assertEqual(len(chica["dato"]), 1)
+        self.assertIs(_separa(medida, mutante, chica), False)
+        self.assertEqual(buscar_candidatos(medida, []), buscar_candidatos(medida, []))
+
+    def test_separa_ignora_lo_que_no_evalua_o_no_tiene_evidencia(self):
+        from nucleo.generador import _separa
+        medida = self.medida(10, agregado="max", requiere=("dato",))
+        mutante = self._mutante(medida, "aflojar_umbral")
+        self.assertIsNone(_separa(medida, mutante, {"dato": []}))            # sin evidencia
+        self.assertIsNone(_separa(medida, mutante, {"otra": [{"x": 1}]}))    # no evalúa
+        self.assertIs(_separa(medida, mutante, {"dato": [{"valor": 11}]}), False)
+
+    def test_encoger_simplifica_valores_y_conserva_el_veredicto(self):
+        from nucleo.generador import _encoger
+        medida = Medida.de_datos([
+            "medida", "prueba.texto",
+            ["desde", ["de", "dato", "x"], ["donde", ["==", ["campo", "x", "activo"], True]]],
+            ["resumen", "contar", 1],
+            ["umbral", "<=", 0, "Contrato construido"],
+            ["alcance", "Prueba construida"],
+        ])
+        mutante = self._mutante(medida, "aflojar_umbral")
+        ev = {"dato": [{"activo": True, "nombre": "x", "peso": 3, "otro": False}]}
+        self.assertEqual(_encoger(medida, mutante, ev, False),
+                         {"dato": [{"activo": True, "nombre": "", "peso": 0, "otro": False}]})
+
+    def test_la_busqueda_mata_lo_que_las_reglas_no_y_sin_repetir(self):
+        from nucleo.generador import buscar_candidatos, evaluar_utilidad
+        from nucleo.mutacion import correr, mutantes
+        medida = self.medida(10, agregado="max")
+        candidatos = buscar_candidatos(medida, [])
+        buscados = [c for c in candidatos if c["id"].endswith("-buscado")]
+        self.assertTrue(buscados)
+        self.assertEqual([c["id"] for c in buscados],
+                         [f"prueba-gen-2{i:02d}-umbral-buscado" for i in range(len(buscados))])
+        for c in buscados:
+            self.assertEqual(medida.evaluar(c["evidencia"]).ok, c["etiqueta"] == "verde_correcto")
+        _, utiles = evaluar_utilidad(medida, [], candidatos, {medida.id: medida})
+        self.assertEqual(len(utiles), len(buscados))                       # ninguno es ruido
+        muertos = {d["cambio"] for d in correr({medida.id: medida}, candidatos)["mutante"]
+                   if d["detecciones_conductuales"] or d["rechazos_del_algebra"]}
+        self.assertGreater(len(muertos), 0)
+        self.assertLessEqual(len(muertos), len(list(mutantes(medida.a_datos()))))
+
+    def test_el_corpus_de_la_medida_es_semilla_y_sus_muertos_no_se_buscan(self):
+        from nucleo.generador import buscar_candidatos
+        medida = self.medida(10, agregado="max")
+        todos = buscar_candidatos(medida, [])
+        corpus = [{**c, "medida": medida.id} for c in todos]
+        self.assertEqual([c for c in buscar_candidatos(medida, corpus) if c["id"].endswith("-buscado")], [])
