@@ -27,10 +27,17 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html" aria-current=page>Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html">OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="escribir-una-medida">Escribir una medida<a class="ancla" href="#escribir-una-medida" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="empezar" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Empezar</span>
+        <span class="seccion-lema">De cero a un rojo: la primera medida con veredicto.</span>
+      </div>
+    </div>
+<h1 id="escribir-una-medida"><canvas class="sprite sprite-titulo" data-sprite="pluma" width="14" height="14" aria-hidden="true"></canvas>Escribir una medida<a class="ancla" href="#escribir-una-medida" aria-label="Enlace a esta sección">#</a></h1>
 <p>Esto existe para que <strong>no haga falta pedirle permiso a nadie</strong>. Todo el argumento del repositorio es que quien ve un defecto pueda escribir la regla que lo atrapa; si para eso hay que saber cómo está hecho el evaluador, el único que puede escribir reglas es quien lo escribió — y ese es exactamente el problema que veníamos a resolver.</p>
 <p><strong>La superficie es cómo se escribe; el JSON es cómo se guarda.</strong> Este documento enseña a escribir medidas, casos y relaciones directamente en su superficie de autoría (<code>.oracle</code>, <code>.caso</code> y <code>.relacion</code>), que el sistema carga sin paso de traducción.</p>
-<h2 id="instalación">Instalación<a class="ancla" href="#instalación" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="instalación"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Instalación<a class="ancla" href="#instalación" aria-label="Enlace a esta sección">#</a></h2>
 <p>Requiere Python 3.11 o posterior y no tiene dependencias de runtime. Desde el checkout de Oracle, la forma principal de instalar el comando es:</p>
 <pre data-lenguaje="bash"><code>uv tool install .
 oracle --help</code></pre>
@@ -44,7 +51,7 @@ oracle --help</code></pre>
 <p>Después trabajás desde tu proyecto o lo pasás explícitamente:</p>
 <pre data-lenguaje="bash"><code>oracle init &lt;tu-proyecto&gt;
 oracle test --proyecto &lt;tu-proyecto&gt; --confiar-escalares</code></pre>
-<h2 id="el-orden-importa-primero-el-caso-después-la-medida">El orden importa: primero el caso, después la medida<a class="ancla" href="#el-orden-importa-primero-el-caso-después-la-medida" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="el-orden-importa-primero-el-caso-después-la-medida"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>El orden importa: primero el caso, después la medida<a class="ancla" href="#el-orden-importa-primero-el-caso-después-la-medida" aria-label="Enlace a esta sección">#</a></h2>
 <p><strong>Escribí el caso del corpus antes que la medida.</strong> No es prolijidad:</p>
 <ul><li>una medida escrita primero se escribe para pasar, no para atrapar;</li><li>la herramienta puede decirte si tu medida está mal <em>formada</em>, pero <strong>no puede saber qué quisiste decir</strong>. Una condición invertida —que selecciona lo que está bien en vez de lo que ofende— pasa todas las comprobaciones automáticas. El caso es lo único que lo detecta.</li></ul>
 <pre data-lenguaje="bash"><code># 1. el caso: la evidencia del defecto, y que se espera ROJO
@@ -62,11 +69,12 @@ oracle revisar catalogos/colocacion/colocacion.mi_regla.oracle
 
 # 4. que todo siga cerrando
 oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y mutación de medidas</code></pre>
+<p>Si la regla viene de una spec de OpenSpec, <code>oracle requisito importar &lt;spec.md&gt; --dominio &lt;d&gt;</code> muestra primero los requisitos que crearía; <code>--escribir</code> los guarda con <code>sin_medir</code> y sin enlaces supuestos. Después podés usar <code>oracle medida nueva &lt;id&gt; --escenario-de &lt;spec.md&gt; &quot;&lt;escenario&gt;&quot; --requisito &lt;id&gt;</code> para enlazar cada escenario que mediste. <code>oracle cobertura</code> muestra los enlaces; <code>oracle cobertura --con &lt;hechos.json&gt;</code> juzga cuáles se cumplen con esa evidencia.</p>
 <h3 id="oracle-contexto-el-inventario-vivo-de-tu-proyecto"><code>oracle contexto</code>: el inventario vivo de tu proyecto<a class="ancla" href="#oracle-contexto-el-inventario-vivo-de-tu-proyecto" aria-label="Enlace a esta sección">#</a></h3>
 <p><code>oracle contexto</code> junta en una sola salida todo lo que hace falta para escribir una medida en el proyecto donde estás parado:</p>
 <ol><li>Qué declara toda medida: <code>umbral &lt;comparador&gt; &lt;número&gt; segun &lt;origen&gt; porque &quot;&lt;defensa&gt;&quot;</code> y <code>alcance &quot;&lt;punto ciego&gt;&quot;</code>.</li><li>Las relaciones con sus campos y tipos derivados de la evidencia que existe.</li><li>Con qué se escribe: operadores (<code>agrupar</code>, <code>de</code>, <code>donde</code>, <code>resumen</code>, <code>unir</code>), comparadores, lógicos, agregados y escalares declaradas.</li><li>Las medidas que ya existen en el catálogo con lo que NO ven.</li><li>La regla de orden: escribir el caso antes que la medida.</li></ol>
 <p>Con <code>--compacto</code>, la misma salida se emite en un quinto del texto (~1.600 tokens contra ~8.600 de correr los comandos que reemplaza).</p>
-<p><strong>Por qué complementa esta guía en vez de acortarla:</strong> este documento explica la semántica del álgebra, el modelo homoicónico en JSON, las macros, los comparadores prohibidos (como la igualdad flotante) y las reglas de diseño. <code>oracle contexto</code> no reemplaza esas explicaciones: entrega el inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras escribís.</p>
+<p><strong>Por qué complementa esta guía en vez de acortarla:</strong> este documento explica la semántica del álgebra, el modelo homoicónico en JSON, las macros, la igualdad flotante que falla cerrada y las reglas de diseño. <code>oracle contexto</code> no reemplaza esas explicaciones: entrega el inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras escribís.</p>
 <h3 id="una-sola-forma-de-escribir">Una sola forma de escribir<a class="ancla" href="#una-sola-forma-de-escribir" aria-label="Enlace a esta sección">#</a></h3>
 <p>Desde Oracle 0.32.0 (sintaxis 1.0) hay una sola manera de escribir cada cosa: <strong>medidas y macros en <code>.oracle</code>, casos en <code>.caso</code>, relaciones en <code>.relacion</code></strong>, y dentro de cada archivo el texto exacto que escribe el impresor, como pasa con <code>gofmt</code>. Un espacio de más no es un estilo: es otro texto, y no carga.</p>
 <pre data-lenguaje="text"><code>$ oracle formatear catalogos/naval/naval.dentro.oracle
@@ -100,17 +108,17 @@ catalogos/naval/naval.dentro.oracle: requiere formato
 <p>Lo que ese confinamiento <strong>sí</strong> detiene: leer el CONTENIDO de archivos fuera del proyecto, escribir fuera, abrir red, crear procesos y usar <code>ctypes</code>.</p>
 <p>Lo que <strong>no</strong> detiene, y conviene saberlo antes de correr un <code>escalares.py</code> ajeno: <strong>los metadatos del sistema de archivos</strong>. Una UDF puede preguntar si existe cualquier ruta, leer tamaños, permisos y fechas, y devolver eso como resultado. No es un descuido — <code>os.stat</code> no emite ningún evento auditable en CPython, así que el mecanismo no puede verlo — y está declarado en el docstring de <code>nucleo/aislamiento/escalares.py</code> con un test que lo fija.</p>
 <p><code>--confiar-escalares</code> es opt-in por esto: la pregunta no es si el sandbox es perfecto, es si confiás en ese archivo. Si una UDF necesita más autoridad de la que el confinamiento da, no pertenece a una medida: generá ese dato antes y entregalo como evidencia.</p>
-<p><code>--relaciones</code> y <code>--escalares</code> sin la bandera son seguros: no ejecutan el archivo externo.</p>
+<p><code>oracle relaciones</code> y <code>oracle escalares</code> sin la bandera no ejecutan el archivo externo.</p>
 <p>El id tiene una gramática cerrada: <code>dominio.nombre</code>, con segmentos en minúsculas ASCII, dígitos o <code>_</code>. No se aceptan rutas ni <code>..</code>; el archivo se resuelve y confina debajo de <code>catalogos/</code> antes de crear cualquier directorio.</p>
-<h2 id="la-forma-corta-las-macros">La forma corta: las macros<a class="ancla" href="#la-forma-corta-las-macros" aria-label="Enlace a esta sección">#</a></h2>
-<p><strong>La mayoría de las medidas del catálogo están escritas como macro.</strong> Son azúcar que expande a la forma canónica —<code>oracle expandir &lt;archivo&gt;</code> te muestra en qué—, así que el evaluador, la mutación y el inventario no se enteran de que existen.</p>
+<h2 id="la-forma-corta-las-macros"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>La forma corta: las macros<a class="ancla" href="#la-forma-corta-las-macros" aria-label="Enlace a esta sección">#</a></h2>
+<p>Las macros son azúcar que expande a la forma canónica —<code>oracle expandir &lt;archivo&gt;</code> te muestra en qué—, así que el evaluador, la mutación y el inventario no se enteran de que existen.</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> proceso.test_con_mutante_que_lo_mata:
     <span class="c-kw">de</span> mutante m
     <span class="c-kw">donde</span> m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina&quot;</span>
     <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta mutantes DECLARADOS. NO ve los que nadie escribió&quot;</span></code></pre>
-<div class="tabla"><table><thead><tr><th>Macro</th><th>Para qué</th><th>Cuántas la usan</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td>ninguna fila debe cumplir el predicado</td><td>29</td></tr><tr><td><code>ninguno-requiere</code></td><td>lo mismo, declarando evidencia indispensable</td><td>4</td></tr><tr><td><code>ninguno-par</code></td><td>lo mismo sobre PARES de la misma relación</td><td>0</td></tr><tr><td><code>peor</code></td><td>el peor caso de una expresión no pasa de una tolerancia</td><td>0</td></tr></tbody></table></div>
+<div class="tabla"><table><thead><tr><th>Macro</th><th>Para qué</th></tr></thead><tbody><tr><td><code>ninguno</code></td><td>ninguna fila debe cumplir el predicado</td></tr><tr><td><code>ninguno-requiere</code></td><td>lo mismo, declarando evidencia indispensable</td></tr><tr><td><code>ninguno-par</code></td><td>lo mismo sobre PARES de la misma relación</td></tr><tr><td><code>peor</code></td><td>el peor caso de una expresión no pasa de una tolerancia</td></tr></tbody></table></div>
 <p><strong><code>peor</code> exige la misma tolerancia en el filtro y en el umbral</strong>; la plantilla valida que coincidan:</p>
 <pre data-lenguaje="oracle"><code>peor snap.grilla:
     <span class="c-kw">de</span> pieza a
@@ -121,18 +129,19 @@ catalogos/naval/naval.dentro.oracle: requiere formato
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla&quot;</span></code></pre>
 <p>La invocación repite la tolerancia, y el lector rechaza valores distintos. Ese desajuste era el caso <code>012</code> del corpus.</p>
 <p>Las macros no son un embudo: si tu caso no encaja, la forma canónica sigue siendo válida. <code>colocacion.interpenetracion</code> está escrita así porque une dos relaciones DISTINTAS.</p>
-<h2 id="la-forma-canónica">La forma canónica<a class="ancla" href="#la-forma-canónica" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="la-forma-canónica"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>La forma canónica<a class="ancla" href="#la-forma-canónica" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="oracle-gramatica"><code>medida dominio.nombre:
     de relacion x
     donde &lt;lo que OFENDE&gt;
     resumen contar(1)
     umbral &lt;= 0 segun contrato porque &quot;por qué ese número y no otro&quot;
     requiere relacion
+    ambito universal
     alcance &quot;qué NO ve esta medida&quot;</code></pre>
 <p>Las piezas obligatorias están por una razón:</p>
 <ul><li><strong><code>umbral</code> con <code>segun</code></strong> — el número declara de dónde sale: <code>medicion</code>, <code>contrato</code>, <code>convencion</code> o <code>tanteo</code>. La prosa de <code>porque</code> puede quedar vacía, salvo en un <code>tanteo</code>, donde sigue haciendo falta explicar qué se probó.</li><li><strong><code>alcance</code></strong> — un verde que no dice lo que no miró se lee como «está bien». Con esto, el informe termina enumerando sus propios puntos ciegos.</li><li><strong><code>requiere</code></strong> — declara qué relaciones de evidencia son indispensables para concluir. Si una relación requerida viene vacía o falta, la evaluación no emite un verde espurio sino <code>SIN EVIDENCIA</code>.</li></ul>
 <p>Y una que <strong>no se declara</strong>: los <strong>testigos</strong> son las filas que sobrevivieron al <code>donde</code>. No los calculás aparte — si lo hicieras, tendrías la misma condición escrita dos veces y nada que las mantenga sincronizadas. Tampoco se permite componer medidas entre sí (<code>DECISION-002</code>): cada medida es una unidad de juicio aislada sobre evidencia directa.</p>
-<h2 id="la-forma-canónica-lo-que-oracle-guarda-por-dentro">La forma canónica: lo que Oracle guarda por dentro<a class="ancla" href="#la-forma-canónica-lo-que-oracle-guarda-por-dentro" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="la-forma-canónica-lo-que-oracle-guarda-por-dentro"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>La forma canónica: lo que Oracle guarda por dentro<a class="ancla" href="#la-forma-canónica-lo-que-oracle-guarda-por-dentro" aria-label="Enlace a esta sección">#</a></h2>
 <p>Una medida se escribe <strong>sólo</strong> en superficie, en un archivo <code>.oracle</code>. Al leerla, Oracle la convierte en un árbol JSON —la <strong>forma canónica</strong>— y trabaja sobre ese árbol. <code>oracle medida expandir</code> lo muestra; la medida de arriba queda así:</p>
 <pre data-lenguaje="json"><code>[&quot;medida&quot;, &quot;dominio.nombre&quot;,
   [&quot;desde&quot;, [&quot;de&quot;, &quot;relacion&quot;, &quot;x&quot;],
@@ -140,25 +149,28 @@ catalogos/naval/naval.dentro.oracle: requiere formato
   [&quot;resumen&quot;, &quot;contar&quot;, 1],
   [&quot;umbral&quot;, &quot;&lt;=&quot;, 0, &quot;por qué ese número y no otro&quot;, &quot;contrato&quot;],
   [&quot;requiere&quot;, &quot;relacion&quot;],
+  [&quot;ambito&quot;, &quot;universal&quot;],
   [&quot;alcance&quot;, &quot;qué NO ve esta medida&quot;]]</code></pre>
 <p>No hace falta escribirlo nunca: es la representación interna, como el bytecode de un lenguaje. Existe porque <strong>es homoicónica: el árbol es directamente la medida</strong>, y eso habilita lo que Oracle hace con ella:</p>
 <ul><li>La mutación la debilita transformando el árbol, sin un parser en cada etapa.</li><li><strong>Las medidas pueden hablar de medidas</strong>: es el nivel <strong>L2</strong>. El catálogo se vuelve una relación (<code>medida_en_uso</code>) y se juzga con la misma álgebra (por ejemplo, que ninguna use un umbral de igualdad o que todas declaren su defensa y alcance).</li><li>El diferencial guarda su huella, así que dos escrituras distintas de la misma medida son la misma medida.</li></ul>
 <p>Oracle sigue <strong>leyendo</strong> JSON —es el formato de intercambio—, pero una medida, un caso o una relación se escriben en superficie. Para migrar un proyecto viejo: <code>oracle convertir &lt;directorio&gt; --a-superficie</code>.</p>
-<h2 id="tres-ejemplos-de-menor-a-mayor">Tres ejemplos, de menor a mayor<a class="ancla" href="#tres-ejemplos-de-menor-a-mayor" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="tres-ejemplos-de-menor-a-mayor"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Tres ejemplos, de menor a mayor<a class="ancla" href="#tres-ejemplos-de-menor-a-mayor" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="1-contar-lo-que-ofende">1. Contar lo que ofende<a class="ancla" href="#1-contar-lo-que-ofende" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> proceso.test_con_mutante_que_lo_mata:
     <span class="c-kw">de</span> mutante m
     <span class="c-kw">donde</span> m.detecciones_conductuales == 0 <span class="c-kw">y</span> m.rechazos_del_algebra == 0
     <span class="c-kw">resumen</span> contar(1)
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un mutante que sobrevive es un test que no discrimina: pasa con el código roto&quot;</span>
+    <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió&quot;</span></code></pre>
-<p>El 90% de las medidas son así: filtrás lo malo, contás, y el umbral es <code>&lt;= 0</code> (un umbral <code>==</code> no se usa y está prohibido por <code>meta.ningun_umbral_de_igualdad</code>).</p>
+<p>Muchas medidas son así: filtrás lo malo, contás, y el umbral es <code>&lt;= 0</code> (un umbral <code>==</code> queda en rojo por <code>meta.ningun_umbral_de_igualdad</code>).</p>
 <h3 id="2-medir-una-magnitud-no-contar">2. Medir una magnitud, no contar<a class="ancla" href="#2-medir-una-magnitud-no-contar" aria-label="Enlace a esta sección">#</a></h3>
 <pre data-lenguaje="oracle"><code><span class="c-kw">medida</span> snap.grilla:
     <span class="c-kw">de</span> pieza a
     <span class="c-kw">donde</span> desvio_de_grilla(hecho(a), 100.0) &gt; 1.0
     <span class="c-kw">resumen</span> max(desvio_de_grilla(hecho(a), 100.0))
     <span class="c-kw">umbral</span> &lt;= 1.0 <span class="c-kw">segun</span> convencion <span class="c-kw">porque</span> <span class="c-txt">&quot;por debajo de 1 cm el desvío no se ve&quot;</span>
+    <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla&quot;</span></code></pre>
 <p>Acá el valor es centímetros y no una cuenta, y eso dice más en el informe. <strong>Escrita a mano en forma canónica, la tolerancia aparece dos veces</strong> —en el <code>donde</code> y en el <code>umbral</code>— y nada las mantiene juntas: era el caso <code>012</code> del corpus. La macro <code>peor</code> exige que ambas apariciones coincidan.</p>
 <h3 id="3-comparar-filas-entre-sí">3. Comparar filas entre sí<a class="ancla" href="#3-comparar-filas-entre-sí" aria-label="Enlace a esta sección">#</a></h3>
@@ -168,26 +180,36 @@ catalogos/naval/naval.dentro.oracle: requiere formato
     <span class="c-kw">donde</span> a.nombre == b.nombre <span class="c-kw">y</span> a.carpeta != b.carpeta
     <span class="c-kw">resumen</span> contar(1)
     <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz&quot;</span>
+    <span class="c-kw">ambito</span> universal
     <span class="c-kw">alcance</span> <span class="c-txt">&quot;NO ve nombres parecidos pero distintos, que confunden aunque no rompan un enlace&quot;</span></code></pre>
 <p><code>unir</code> hace el producto de una relación consigo misma. Es como se comparan cosas de a pares: piezas que se clavan, documentos homónimos, las dos puntas de un relevo.</p>
-<h2 id="los-errores-que-la-herramienta-sí-te-dice">Los errores que la herramienta sí te dice<a class="ancla" href="#los-errores-que-la-herramienta-sí-te-dice" aria-label="Enlace a esta sección">#</a></h2>
-<div class="tabla"><table><thead><tr><th>Qué pasa</th><th>Qué dice</th></tr></thead><tbody><tr><td>falta la defensa del umbral</td><td><em>el umbral <code>&lt;= 0</code> no trae defensa</em></td></tr><tr><td>falta <code>alcance</code></td><td><em>hay que declarar qué NO ve</em></td></tr><tr><td>un campo mal escrito</td><td><em>«&gt;» sobre un valor ausente</em> — mirá <code>--relaciones</code></td></tr><tr><td>nunca se pone roja</td><td><em>una medida que no puede fallar no mide nada</em></td></tr><tr><td>nunca se pone verde</td><td><em>probablemente la condición esté invertida</em></td></tr></tbody></table></div>
+<h2 id="los-errores-que-la-herramienta-sí-te-dice"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Los errores que la herramienta sí te dice<a class="ancla" href="#los-errores-que-la-herramienta-sí-te-dice" aria-label="Enlace a esta sección">#</a></h2>
+<div class="tabla"><table><thead><tr><th>Qué pasa</th><th>Qué dice</th></tr></thead><tbody><tr><td>falta explicar un <code>tanteo</code></td><td><code>meta.todo_tanteo_explica_por_que</code> queda roja</td></tr><tr><td>falta <code>alcance</code></td><td><em>hay que declarar qué NO ve</em></td></tr><tr><td>un campo mal escrito</td><td><em>«&gt;» sobre un valor ausente</em> — mirá <code>oracle relaciones</code></td></tr><tr><td>nunca se pone roja</td><td><em>una medida que no puede fallar no mide nada</em></td></tr><tr><td>nunca se pone verde</td><td><em>probablemente la condición esté invertida</em></td></tr></tbody></table></div>
 <p>Comparar contra un campo que no existe <strong>es un error</strong>, no un <code>False</code>. Un <code>False</code> silencioso convertiría un nombre mal escrito en un verde, que es la peor falla posible acá.</p>
-<h2 id="lo-que-no-te-puede-decir">Lo que NO te puede decir<a class="ancla" href="#lo-que-no-te-puede-decir" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="lo-que-no-te-puede-decir"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Lo que NO te puede decir<a class="ancla" href="#lo-que-no-te-puede-decir" aria-label="Enlace a esta sección">#</a></h2>
 <p><strong>Si la condición dice lo que quisiste decir.</strong> Una medida que selecciona lo que está bien en vez de lo que ofende pasa todas las comprobaciones: está bien formada, discrimina, y mide exactamente al revés. La herramienta no lee intenciones.</p>
 <p>Por eso el caso va primero. Y por eso <code>tools/mutar.py</code> existe: comprueba que el corpus <strong>fije</strong> tu medida, o sea que si alguien la escribiera distinta, algún caso lo notaría.</p>
-<h2 id="cuando-la-medida-no-es-tuya">Cuando la medida no es tuya<a class="ancla" href="#cuando-la-medida-no-es-tuya" aria-label="Enlace a esta sección">#</a></h2>
+<p>Si sobrevive un mutante, <code>oracle caso generar &lt;medida&gt;</code> intenta encontrar una evidencia que separe la medida del mutante y la achica antes de escribir el caso. El caso queda con procedencia <code>generada</code>: ayuda a fijar la medida, pero no reemplaza una corrida observada del producto. Leé <code>respaldo real</code> en la salida de mutación para distinguir esas dos cosas.</p>
+<h2 id="cuando-la-medida-no-es-tuya"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Cuando la medida no es tuya<a class="ancla" href="#cuando-la-medida-no-es-tuya" aria-label="Enlace a esta sección">#</a></h2>
 <p>Dos cosas que aparecieron después de que este documento se escribiera, y que cambian qué hacés cuando el rojo viene de una medida que no escribiste vos:</p>
 <ul><li><strong><code>oracle manual</code></strong> es la referencia del lenguaje armada de las declaraciones, no escrita aparte. Incluye los operadores, orígenes de umbral, etiquetas, relaciones explicadas y el tema <code>medidas</code> (<code>oracle manual medidas</code>), que lista las medidas universales con qué NO ve cada una. Ofrece tres vistas de la misma fuente: en terminal, en HTML para el sitio (<code>--html</code>), o en formato de páginas de manual (<code>oracle manual --instalar-man &lt;dir&gt;</code> deja <code>man oracle(1)</code> y <code>man oracle-segun(7)</code> funcionando).</li><li><strong>La sombra y su envejecimiento.</strong> Si heredás un catálogo y sale rojo en algo real que hoy no vas a arreglar, no apagues la medida: declarala en sombra en <code>oracle.json</code>, con <code>desde</code> y <code>porque</code>. Se sigue midiendo e informando como <code>[EN SOMBRA]</code>, y no tumba la corrida. Los dos campos son obligatorios porque <strong>la sombra ahora envejece</strong>:
 <ul><li><code>meta.ninguna_sombra_envejece_sin_revisarse</code>: si la sombra tiene más de 90 días, la medida falla.</li><li><code>meta.toda_sombra_declara_una_fecha_real</code>: si la fecha no se puede parsear o está en el futuro, falla.</li><li><code>meta.ninguna_sombra_ya_en_verde</code>: prohíbe tener en sombra medidas que ya dan verde.</li><li><code>meta.ninguna_sombra_sobre_una_medida_que_no_existe</code>: prohíbe sombras huérfanas. Ninguna de estas medidas puede ponerse en sombra a sí misma.</li></ul></li></ul>
-<h2 id="si-te-falta-un-hecho">Si te falta un hecho<a class="ancla" href="#si-te-falta-un-hecho" aria-label="Enlace a esta sección">#</a></h2>
-<p>Si lo que querés medir no está en <code>--relaciones</code>, no se agrega acá: se agrega en el <strong>sensor</strong>, que vive con el proyecto que produce los datos. El sensor produce hechos y <strong>no juzga</strong>; el álgebra juzga y <strong>no mira el mundo</strong>. Mezclarlos es cómo se llega a un verificador que nadie puede discutir.</p>
+<p>Para revisar cambios de una medida o de lo que la alimenta antes de integrarlos, <code>oracle cambios --desde &lt;ref&gt;</code> compara con Git. Si el proyecto declara <code>&quot;sensores&quot;: [&quot;ruta/al/sensor&quot;]</code> en <code>oracle.json</code>, también avisa cuando esos archivos cambian. Quitar una ruta vigilada es error.</p>
+<h2 id="si-te-falta-un-hecho"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Si te falta un hecho<a class="ancla" href="#si-te-falta-un-hecho" aria-label="Enlace a esta sección">#</a></h2>
+<p>Si lo que querés medir no aparece en <code>oracle relaciones</code>, no se agrega acá: se agrega en el <strong>sensor</strong>, que vive con el proyecto que produce los datos. El sensor produce hechos y <strong>no juzga</strong>; el álgebra juzga y <strong>no mira el mundo</strong>. Mezclarlos es cómo se llega a un verificador que nadie puede discutir.</p>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/03-escribir-una-medida.md" rel="noopener">docs/03-escribir-una-medida.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#instalación">Instalación</a></li><li class="n2"><a href="#el-orden-importa-primero-el-caso-después-la-medida">El orden importa: primero el caso, después la medida</a></li><li class="n3"><a href="#oracle-contexto-el-inventario-vivo-de-tu-proyecto">oracle contexto: el inventario vivo de tu proyecto</a></li><li class="n3"><a href="#una-sola-forma-de-escribir">Una sola forma de escribir</a></li><li class="n3"><a href="#frontera-de-confianza">Frontera de confianza</a></li><li class="n2"><a href="#la-forma-corta-las-macros">La forma corta: las macros</a></li><li class="n2"><a href="#la-forma-canónica">La forma canónica</a></li><li class="n2"><a href="#la-forma-canónica-lo-que-oracle-guarda-por-dentro">La forma canónica: lo que Oracle guarda por dentro</a></li><li class="n2"><a href="#tres-ejemplos-de-menor-a-mayor">Tres ejemplos, de menor a mayor</a></li><li class="n3"><a href="#1-contar-lo-que-ofende">1. Contar lo que ofende</a></li><li class="n3"><a href="#2-medir-una-magnitud-no-contar">2. Medir una magnitud, no contar</a></li><li class="n3"><a href="#3-comparar-filas-entre-sí">3. Comparar filas entre sí</a></li><li class="n2"><a href="#los-errores-que-la-herramienta-sí-te-dice">Los errores que la herramienta sí te dice</a></li><li class="n2"><a href="#lo-que-no-te-puede-decir">Lo que NO te puede decir</a></li><li class="n2"><a href="#cuando-la-medida-no-es-tuya">Cuando la medida no es tuya</a></li><li class="n2"><a href="#si-te-falta-un-hecho">Si te falta un hecho</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

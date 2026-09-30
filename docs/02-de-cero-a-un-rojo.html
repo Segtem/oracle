@@ -27,11 +27,18 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html" aria-current=page>De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html">OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="de-cero-a-un-rojo-con-testigos">De cero a un rojo con testigos<a class="ancla" href="#de-cero-a-un-rojo-con-testigos" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="empezar" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Empezar</span>
+        <span class="seccion-lema">De cero a un rojo: la primera medida con veredicto.</span>
+      </div>
+    </div>
+<h1 id="de-cero-a-un-rojo-con-testigos"><canvas class="sprite sprite-titulo" data-sprite="bandera_roja" width="14" height="14" aria-hidden="true"></canvas>De cero a un rojo con testigos<a class="ancla" href="#de-cero-a-un-rojo-con-testigos" aria-label="Enlace a esta sección">#</a></h1>
 <p>Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que <strong>falla</strong> sobre un defecto de verdad y te dice <strong>qué filas</strong> lo causaron.</p>
-<p>Todo lo que sigue está copiado de una corrida real con Oracle 0.30.0. Si algo no te da igual, es un defecto de esta página: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
-<hr>
-<h2 id="1-instalar">1. Instalar<a class="ancla" href="#1-instalar" aria-label="Enlace a esta sección">#</a></h2>
+<p>Todo lo que sigue está copiado de una corrida real con Oracle 0.38.0. Si algo no te da igual, es un defecto de esta página: <a href="https://github.com/Segtem/oracle/issues" rel="noopener">abrí un issue</a>.</p>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="1-instalar"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>1. Instalar<a class="ancla" href="#1-instalar" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>uv tool install oracle-metalenguaje
 oracle --version</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>oracle 0.38.0
@@ -40,7 +47,7 @@ oracle --version</code></pre>
   corriendo desde: …/oracle</code></pre>
 <p>Tres versiones porque son tres contratos distintos, y envejecen por separado. La del paquete sube cuando se arregla una herramienta; la del <strong>álgebra</strong> cuando cambia qué significa una medida; la de la <strong>sintaxis</strong> cuando cambia cómo se escribe.</p>
 <blockquote><p><strong>Por qué <code>uv</code> y no <code>pip</code>.</strong> En Arch, Debian 12+, Ubuntu 23.04+ y Fedora, <code>pip install</code> al Python del sistema falla con <code>externally-managed-environment</code> (PEP 668). Con <code>pip</code> andá a un entorno propio: <code>python3 -m venv venv &amp;&amp; source venv/bin/activate</code>. Pero para el editor eso <strong>no alcanza</strong>: los clientes de Emacs y VS Code buscan <code>oracle-lsp</code> en el <code>PATH</code>, y dentro de un venv sólo se ve con el venv activado.</p></blockquote>
-<h2 id="2-un-proyecto">2. Un proyecto<a class="ancla" href="#2-un-proyecto" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="2-un-proyecto"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>2. Un proyecto<a class="ancla" href="#2-un-proyecto" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle init biblioteca
 cd biblioteca</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>Proyecto Oracle inicializado en ./biblioteca:
@@ -69,7 +76,7 @@ MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 
 PRODUCTO: sin nueva medición; no se ejecutó el producto.
 VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)</code></pre>
-<h2 id="3-una-medida">3. Una medida<a class="ancla" href="#3-una-medida" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="3-una-medida"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>3. Una medida<a class="ancla" href="#3-una-medida" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle nueva documento.nombre_sigue_la_convencion</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>creada: catalogos/documento/documento.nombre_sigue_la_convencion.oracle
 
@@ -116,7 +123,7 @@ contra la evidencia que hay: 0 verde · 0 rojo · 0 error
 ⚠ nunca se pone roja. Una medida que no puede fallar no mide nada — hace falta
   evidencia donde el defecto exista. Agregá un caso al corpus con esa evidencia.</code></pre>
 <p>Está bien declarada <strong>y la herramienta te avisa que todavía no sirve</strong>. Es la primera vez que vas a ver la tesis del proyecto: una regla que nada puede romper es decoración.</p>
-<h2 id="4-el-rojo-sin-escribir-todavía-un-caso">4. El rojo, sin escribir todavía un caso<a class="ancla" href="#4-el-rojo-sin-escribir-todavía-un-caso" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="4-el-rojo-sin-escribir-todavía-un-caso"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>4. El rojo, sin escribir todavía un caso<a class="ancla" href="#4-el-rojo-sin-escribir-todavía-un-caso" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle medida probar catalogos/documento/documento.nombre_sigue_la_convencion.oracle --con &#x27;documento: nombre, sigue_convencion
     &quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;, true
     &quot;notas finales.md&quot;, false&#x27;</code></pre>
@@ -128,7 +135,7 @@ contra la evidencia que hay: 0 verde · 0 rojo · 0 error
   alcance: no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena</code></pre>
 <p><strong>Eso es un rojo de Oracle.</strong> No dice «falló la verificación»: dice el valor medido (<code>1</code>), contra qué se lo comparó (<code>&lt;= 0</code>), <strong>qué fila exacta lo produjo</strong>, y qué no estaba mirando.</p>
 <p>Un rojo sin testigos te obliga a creerle. Con testigos se puede discutir — y a veces la equivocada resulta ser la medida.</p>
-<h2 id="5-los-dos-casos">5. Los dos casos<a class="ancla" href="#5-los-dos-casos" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="5-los-dos-casos"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>5. Los dos casos<a class="ancla" href="#5-los-dos-casos" aria-label="Enlace a esta sección">#</a></h2>
 <p>Un caso es evidencia guardada que <strong>pone a prueba la medida</strong>.</p>
 <pre data-lenguaje="bash"><code>oracle caso documento/001-un-nombre-fuera-de-convencion</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>creado: corpus/documento/001-un-nombre-fuera-de-convencion.caso
@@ -180,7 +187,7 @@ Después:  oracle test</code></pre>
     leccion:
         Ninguno <span class="c-kw">de</span> estos nombres debe ponerse rojo.</code></pre>
 <p><strong>Los dos hacen falta, y no por simetría.</strong> Sin el rojo, la medida nunca falla. Sin el verde, el mutador que le <em>quita el filtro</em> sobrevive: una medida sin <code>donde</code> marca todo, y si nunca viste un caso donde no debía marcar nada, no lo notás.</p>
-<h2 id="6-el-ciclo-completo">6. El ciclo completo<a class="ancla" href="#6-el-ciclo-completo" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="6-el-ciclo-completo"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>6. El ciclo completo<a class="ancla" href="#6-el-ciclo-completo" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
 
@@ -242,13 +249,12 @@ MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 ALCANCE: verificación de medidas contra casos guardados del corpus.
 PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: ROJO (falló: aceptación)</code></pre>
-<p><strong>Los nueve mutantes son el punto.</strong> Oracle rompió tu medida de nueve maneras distintas —le sacó el filtro, le aflojó el umbral, le dio vuelta un comparador— y comprobó que tus dos casos lo notaran. Los nueve murieron: tus casos la fijan.</p>
+<p><strong>Los nueve mutantes son el punto.</strong> Oracle rompió tu medida de nueve maneras distintas —le sacó el filtro, le aflojó el umbral, le dio vuelta un comparador— y comprobó que tus dos casos lo notaran. Los nueve murieron: tus casos la fijan frente a esas roturas. La línea <code>respaldo real: 0 de 9</code> aclara el límite: ningún mutante murió por un caso observado del producto.</p>
 <p>Pero la aceptación queda en rojo, y hay que leerlo:</p>
-<pre><code>  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada   1 (&lt;= 0)
-  ✗ meta.toda_cantidad_comparada_tiene_unidad_derivable      1 (&lt;= 0)</code></pre>
-<p>Ésas no son tus medidas: son las universales que heredaste, juzgándote.</p>
-<h2 id="7-declarar-el-sensor-l1">7. Declarar el sensor (L−1)<a class="ancla" href="#7-declarar-el-sensor-l1" aria-label="Enlace a esta sección">#</a></h2>
-<p>La segunda dice que comparaste un campo cuya <strong>unidad</strong> nadie declaró. Falta decir qué produce el sensor:</p>
+<pre><code>  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada   1 (&lt;= 0)</code></pre>
+<p>Ésa no es tu medida: es una universal que heredaste, juzgándote.</p>
+<h2 id="7-declarar-lo-que-entrega-el-sensor-l1"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>7. Declarar lo que entrega el sensor (L−1)<a class="ancla" href="#7-declarar-lo-que-entrega-el-sensor-l1" aria-label="Enlace a esta sección">#</a></h2>
+<p>Aunque ese rojo ya no aparece en esta corrida, declarás qué produce el sensor y el alcance de sus hechos:</p>
 <pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code>relacion documento:
     nombre: texto
     sigue_convencion: booleano
@@ -263,21 +269,28 @@ VEREDICTO: ROJO (falló: aceptación)</code></pre>
       · aparece en: 001-un-nombre-fuera-de-convencion, 002-un-lote-en-convencion
 
 Un hecho nuevo se agrega desde su SENSOR, no acá: el sensor produce, el álgebra juzga.</code></pre>
-<p>Con eso, ese rojo se cierra. Si en cualquier momento querés ver las relaciones, campos, escalares y medidas de tu proyecto en una sola salida, <code>oracle contexto</code> (o <code>oracle contexto --compacto</code>) reúne todo en un solo lugar.</p>
-<h2 id="8-el-rojo-que-queda-y-por-qué-está-bien">8. El rojo que queda, y por qué está bien<a class="ancla" href="#8-el-rojo-que-queda-y-por-qué-está-bien" aria-label="Enlace a esta sección">#</a></h2>
+<p>Si en cualquier momento querés ver las relaciones, campos, escalares y medidas de tu proyecto en una sola salida, <code>oracle contexto</code> (o <code>oracle contexto --compacto</code>) reúne todo en un solo lugar.</p>
+<h2 id="8-el-rojo-que-queda-y-por-qué-está-bien"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>8. El rojo que queda, y por qué está bien<a class="ancla" href="#8-el-rojo-que-queda-y-por-qué-está-bien" aria-label="Enlace a esta sección">#</a></h2>
 <pre><code>  ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada   1 (&lt;= 0)</code></pre>
 <p>Tus dos casos declaran <code>procedencia: construida</code> — los escribiste a mano. Y eso es cierto: nunca corriste un sensor sobre una biblioteca real.</p>
 <p><strong>Oracle acaba de atraparte inventando evidencia</strong>, en un proyecto de cinco minutos. No es un falso positivo: es la diferencia entre «probé que mi regla funciona sobre casos que yo mismo diseñé» y «probé que atrapa algo que pasó de verdad».</p>
 <p>Para cerrarlo hace falta evidencia <code>observada</code>: correr un sensor sobre documentos reales y guardar lo que devolvió. Hasta entonces el rojo es honesto y conviene dejarlo a la vista.</p>
-<hr>
-<h2 id="qué-sigue">Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
-<ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 30 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar Oracle a un proyecto propio</a> — de dónde sale la evidencia <code>observada</code>, migración a PyPI y la sombra.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía de autoría con <code>oracle contexto</code>.</li><li><code>oracle manual</code> — la referencia del lenguaje en la terminal (con <code>oracle manual medidas</code> para las 54 universales y sus puntos ciegos).</li><li><a href="https://github.com/Segtem/oracle/blob/main/editores/README.md" rel="noopener">El editor</a> — diagnósticos, completado con unidades y CodeLens en Emacs y VS Code.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="qué-sigue"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
+<ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 30 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar Oracle a un proyecto propio</a> — de dónde sale la evidencia <code>observada</code>, migración a PyPI y la sombra.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía de autoría con <code>oracle contexto</code>.</li><li><code>oracle manual</code> — la referencia del lenguaje en la terminal (con <code>oracle manual medidas</code> para las universales vigentes y sus puntos ciegos).</li><li><a href="https://github.com/Segtem/oracle/blob/main/editores/README.md" rel="noopener">El editor</a> — diagnósticos, completado con unidades y CodeLens en Emacs y VS Code.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/02-de-cero-a-un-rojo.md" rel="noopener">docs/02-de-cero-a-un-rojo.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
-    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#1-instalar">1. Instalar</a></li><li class="n2"><a href="#2-un-proyecto">2. Un proyecto</a></li><li class="n2"><a href="#3-una-medida">3. Una medida</a></li><li class="n2"><a href="#4-el-rojo-sin-escribir-todavía-un-caso">4. El rojo, sin escribir todavía un caso</a></li><li class="n2"><a href="#5-los-dos-casos">5. Los dos casos</a></li><li class="n2"><a href="#6-el-ciclo-completo">6. El ciclo completo</a></li><li class="n2"><a href="#7-declarar-el-sensor-l1">7. Declarar el sensor (L−1)</a></li><li class="n2"><a href="#8-el-rojo-que-queda-y-por-qué-está-bien">8. El rojo que queda, y por qué está bien</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
+    <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#1-instalar">1. Instalar</a></li><li class="n2"><a href="#2-un-proyecto">2. Un proyecto</a></li><li class="n2"><a href="#3-una-medida">3. Una medida</a></li><li class="n2"><a href="#4-el-rojo-sin-escribir-todavía-un-caso">4. El rojo, sin escribir todavía un caso</a></li><li class="n2"><a href="#5-los-dos-casos">5. Los dos casos</a></li><li class="n2"><a href="#6-el-ciclo-completo">6. El ciclo completo</a></li><li class="n2"><a href="#7-declarar-lo-que-entrega-el-sensor-l1">7. Declarar lo que entrega el sensor (L−1)</a></li><li class="n2"><a href="#8-el-rojo-que-queda-y-por-qué-está-bien">8. El rojo que queda, y por qué está bien</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

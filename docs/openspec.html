@@ -27,10 +27,17 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html" aria-current=page>OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="openspec-y-oracle">OpenSpec y Oracle<a class="ancla" href="#openspec-y-oracle" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="herramientas" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Herramientas</span>
+        <span class="seccion-lema">Sensores vigilados, memoria y conexiones.</span>
+      </div>
+    </div>
+<h1 id="openspec-y-oracle"><canvas class="sprite sprite-titulo" data-sprite="llave_tuerca" width="14" height="14" aria-hidden="true"></canvas>OpenSpec y Oracle<a class="ancla" href="#openspec-y-oracle" aria-label="Enlace a esta sección">#</a></h1>
 <p>OpenSpec escribe lo que el código promete: requisitos con <code>SHALL</code> y escenarios con <code>WHEN</code>/<code>THEN</code>. No dice si el código lo cumple. <code>/opsx:verify</code> se lo pregunta a un agente, que lee el código y opina. Oracle contesta con una medida que se corre, con el corpus que la fija y con lo que no mide escrito al lado.</p>
 <p>El puente tiene tres pasos: importar las promesas, medirlas una por una y juzgar la evidencia.</p>
-<h2 id="1-importar-los-requisitos">1. Importar los requisitos<a class="ancla" href="#1-importar-los-requisitos" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="1-importar-los-requisitos"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>1. Importar los requisitos<a class="ancla" href="#1-importar-los-requisitos" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle requisito importar openspec/specs                 # muestra lo que haría
 oracle requisito importar openspec/specs --escribir      # escribe requisitos/*.requisito</code></pre>
 <p>Cada <code>### Requirement:</code> de cada <code>openspec/specs/&lt;capacidad&gt;/spec.md</code> se vuelve un requisito <code>&lt;capacidad&gt;.&lt;nombre&gt;</code>, con el párrafo <code>SHALL</code> como texto y la spec como fuente. <code>--dominio &lt;d&gt;</code> cambia el prefijo. Con un solo <code>spec.md</code> en vez del directorio importa esa spec nada más.</p>
@@ -39,13 +46,13 @@ oracle requisito importar openspec/specs --escribir      # escribe requisitos/*.
     fuente &quot;openspec/specs/cli-validate/spec.md#Interactivity controls&quot;
     sin_medir &quot;sin medida todavía; escenarios: «Disabling prompts via flags or environment»&quot;</code></pre>
 <p>Nace <strong>sin medir</strong> a propósito. El importador no sabe qué medida prueba qué, y un enlace inventado es peor que ninguno: se lee como cubierto. Un requisito que ya existe no se toca nunca, así que se puede reimportar cada vez que cambia la spec y sólo entra lo nuevo.</p>
-<h2 id="2-medir-cada-escenario">2. Medir cada escenario<a class="ancla" href="#2-medir-cada-escenario" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="2-medir-cada-escenario"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>2. Medir cada escenario<a class="ancla" href="#2-medir-cada-escenario" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle medida nueva cli_validate.no_interactivo_no_pregunta \
     --escenario-de openspec/specs/cli-validate/spec.md &quot;Disabling prompts via flags or environment&quot; \
     --requisito cli_validate.interactivity_controls</code></pre>
 <p>Crea la medida con el escenario como comentario, sus casos, y la agrega al <code>medido_por</code> del requisito. Cuando todos los escenarios de un requisito tienen medida, se reescribe su <code>sin_medir</code> con lo que de verdad queda afuera —«que el mensaje sea claro es un juicio»— o se borra. <code>oracle cobertura</code> dice en cualquier momento qué está medido, qué en parte y qué no.</p>
 <p>En el experimento con la spec <code>cli-validate</code> de OpenSpec, de 31 escenarios 19 fueron medibles enteros, 9 en parte y 3 eran prosa (<code>tareas/20260928-210611-openspec/experimento/</code>).</p>
-<h2 id="3-juzgar-el-paso-de-verificación">3. Juzgar: el paso de verificación<a class="ancla" href="#3-juzgar-el-paso-de-verificación" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="3-juzgar-el-paso-de-verificación"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>3. Juzgar: el paso de verificación<a class="ancla" href="#3-juzgar-el-paso-de-verificación" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle cobertura --con hechos.json</code></pre>
 <p>Juzga la evidencia que emite tu sensor y marca cada requisito: ✓ se cumple, ◐ se cumple en lo medido (con su <code>SIN MEDIR</code>), ✗ no se cumple, ? sin juicio. Sale con 1 si hay un rojo que la sombra no perdona.</p>
 <h3 id="dentro-de-opsxverify">Dentro de <code>/opsx:verify</code><a class="ancla" href="#dentro-de-opsxverify" aria-label="Enlace a esta sección">#</a></h3>
@@ -59,14 +66,21 @@ oracle requisito importar openspec/specs --escribir      # escribe requisitos/*.
 oracle cambios --desde origin/main || exit 1      # ¿se aflojó alguna medida?
 oracle cobertura --con hechos.json || exit 1      # ¿se cumple lo que la spec promete?</code></pre>
 <p><code>oracle cambios</code> es la otra mitad: el agente que no logra cumplir la spec puede aflojar la medida, la escalar o el sensor. Eso sale nombrado, y aflojar sin reescribir el <code>porque</code> es error.</p>
-<hr>
+<hr class="divisor-pixel" aria-hidden="true">
 <p>Los textos citados de OpenSpec en esta página son © 2024 OpenSpec Contributors, bajo <a href="https://github.com/Fission-AI/OpenSpec/blob/main/LICENSE" rel="noopener">licencia MIT</a>.</p>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/openspec.md" rel="noopener">docs/openspec.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#1-importar-los-requisitos">1. Importar los requisitos</a></li><li class="n2"><a href="#2-medir-cada-escenario">2. Medir cada escenario</a></li><li class="n2"><a href="#3-juzgar-el-paso-de-verificación">3. Juzgar: el paso de verificación</a></li><li class="n3"><a href="#dentro-de-opsxverify">Dentro de /opsx:verify</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

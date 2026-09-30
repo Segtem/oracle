@@ -317,3 +317,129 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
   .rejilla { grid-template-columns: repeat(12, minmax(0, 1fr)); width: 100%; }
   .mision-cinta { margin-bottom: -40px; }
 }
+
+/* ---------------------------------------------------------------- pixel art en páginas de documentación (assets/pixel-sitio.js) */
+.sprite-titulo {
+  display: inline-block;
+  flex: none;
+  vertical-align: -0.1em;
+  width: 28px;
+  height: 28px;
+  margin-right: 12px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  flex: none;
+}
+.sprite-h2 {
+  flex: none;
+  display: inline-block;
+  vertical-align: -0.05em;
+  width: 14px;
+  height: 14px;
+  margin-right: 10px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  flex: none;
+}
+.prosa h1 {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.prosa h2 {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+}
+.cabecera-seccion {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin: 0 0 28px;
+  padding: 12px 16px;
+  background: var(--papel-2);
+  border: 1px solid var(--linea);
+  border-radius: 6px;
+}
+.escena-seccion {
+  flex: none;
+  width: 320px;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 320 / 64;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border-radius: 4px;
+  border: 1px solid var(--linea);
+  background: var(--papel);
+}
+.seccion-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+.seccion-nombre {
+  font-size: 11px;
+  color: var(--acento);
+  letter-spacing: 0.08em;
+}
+.seccion-lema {
+  font-family: var(--sans);
+  font-size: 13.5px;
+  color: var(--tinta-2);
+  line-height: 1.35;
+}
+.prosa hr.divisor-pixel, hr.divisor-pixel {
+  border: 0;
+  height: auto;
+  margin: 36px 0;
+  padding: 0;
+  background: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.divisor-canvas {
+  display: block;
+  width: 320px;
+  max-width: 100%;
+  height: 10px;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
+.pie-seccion {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--linea);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.escena-pie {
+  width: 320px;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 320 / 56;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  border: 1px solid var(--linea);
+  border-radius: 4px;
+  background: var(--papel);
+}
+.pie-seccion-meta {
+  color: var(--gris);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+
+@media (max-width: 640px) {
+  .cabecera-seccion {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
+

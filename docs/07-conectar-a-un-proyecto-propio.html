@@ -27,18 +27,25 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html" aria-current=page>Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html">OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="conectar-oracle-a-un-proyecto-propio">Conectar Oracle a un proyecto propio<a class="ancla" href="#conectar-oracle-a-un-proyecto-propio" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="entender" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Entender</span>
+        <span class="seccion-lema">El álgebra, los testigos y los mutantes que caen.</span>
+      </div>
+    </div>
+<h1 id="conectar-oracle-a-un-proyecto-propio"><canvas class="sprite sprite-titulo" data-sprite="conector" width="14" height="14" aria-hidden="true"></canvas>Conectar Oracle a un proyecto propio<a class="ancla" href="#conectar-oracle-a-un-proyecto-propio" aria-label="Enlace a esta sección">#</a></h1>
 <p><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a> termina con un rojo honesto: toda tu evidencia era <code>construida</code> a mano. Acá se cierra, escribiendo el sensor que produce evidencia <strong>observada</strong>.</p>
 <p>Todo lo que sigue está copiado de una corrida real.</p>
-<hr>
-<h2 id="la-partición-el-sensor-no-juzga">La partición: el sensor no juzga<a class="ancla" href="#la-partición-el-sensor-no-juzga" aria-label="Enlace a esta sección">#</a></h2>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="la-partición-el-sensor-no-juzga"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>La partición: el sensor no juzga<a class="ancla" href="#la-partición-el-sensor-no-juzga" aria-label="Enlace a esta sección">#</a></h2>
 <p>Oracle no lee tu mundo. Lee <strong>filas</strong>. Quien las produce es tuyo, y conviene partirlo en dos:</p>
 <div class="tabla"><table><thead><tr><th></th><th>qué hace</th><th>cómo se prueba</th></tr></thead><tbody><tr><td><strong>sensor</strong></td><td>decide, y nada más. Sin <code>open</code>, sin red, sin SDK</td><td>pasándole valores</td></tr><tr><td><strong>adaptador</strong></td><td>habla con el disco, la base o el motor. No decide nada</td><td>corriéndolo</td></tr></tbody></table></div>
 <p>La razón no es estética. Un sensor que además abre archivos sólo se puede probar teniendo esos archivos; separado, se prueba con strings. Y un adaptador que además decide esconde la decisión donde nadie la revisa.</p>
 <p>Es la misma partición que usan los dos consumidores reales de Oracle en producción:</p>
 <ul><li><strong>Jam</strong> (<code>~/Dev/jam</code>): plugin de Unreal Engine, 41 archivos de catálogo, 24 casos en corpus, 11 fixtures diferenciales.</li><li><strong>LyraGASP</strong> (<code>~/Dev/games/unreal/LyraGASP</code>): proyecto de juego en Unreal Engine, 9 archivos de catálogo, 26 casos en corpus, 3 fixtures diferenciales.</li></ul>
 <p>Los dos migraron de un subtree de git al paquete publicado (<code>oracle-metalenguaje==0.3.3</code>) en PyPI. Los detalles de qué se midió en cada uno están en <a href="https://github.com/Segtem/oracle/blob/main/docs/migracion/de-subtree-a-pypi.md" rel="noopener"><code>docs/migracion/</code></a>.</p>
-<h2 id="el-sensor">El sensor<a class="ancla" href="#el-sensor" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="el-sensor"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>El sensor<a class="ancla" href="#el-sensor" aria-label="Enlace a esta sección">#</a></h2>
 <p>Para reproducirlo desde una carpeta vacía, prepará el proyecto de biblioteca:</p>
 <pre data-lenguaje="bash"><code>oracle init biblioteca
 cd biblioteca</code></pre>
@@ -114,7 +121,7 @@ CONVENCION = re.compile(r&quot;^\d{4}-\d{2}-\d{2}-[A-Z]+-[A-Za-z0-9-]+-v\d+\.\d+
 def sigue_convencion(nombre: str) -&gt; bool:
     return CONVENCION.fullmatch(nombre) is not None</code></pre>
 <p>Eso se testea con <code>assert sigue_convencion(&quot;borrador.md&quot;) is False</code>. No hace falta un disco.</p>
-<h2 id="el-adaptador">El adaptador<a class="ancla" href="#el-adaptador" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="el-adaptador"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>El adaptador<a class="ancla" href="#el-adaptador" aria-label="Enlace a esta sección">#</a></h2>
 <p><code>mide_nombres.py</code> — camina la carpeta y emite filas en la superficie que Oracle lee:</p>
 <pre class="archivo" data-lenguaje="mide_nombres.py"><code>&quot;&quot;&quot;El ADAPTADOR: habla con el disco y emite evidencia. No decide nada.&quot;&quot;&quot;
 import json, sys
@@ -134,7 +141,7 @@ for p in sorted(carpeta.glob(&quot;*.md&quot;)):
     &quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;, true
     &quot;borrador.md&quot;, false
     &quot;notas-finales.md&quot;, false</code></pre>
-<h2 id="medir-el-mundo-real">Medir el mundo real<a class="ancla" href="#medir-el-mundo-real" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="medir-el-mundo-real"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Medir el mundo real<a class="ancla" href="#medir-el-mundo-real" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle medida probar catalogos/documento/documento.nombre_sigue_la_convencion.oracle \
       --con &quot;$(python3 mide_nombres.py docs-de-prueba)&quot;</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>ROJO   valor 2  (&lt;= 0)
@@ -147,7 +154,7 @@ for p in sorted(carpeta.glob(&quot;*.md&quot;)):
     de `documento` NO lee: nombre</code></pre>
 <p>Dos archivos que existen en el disco. Ésa es la diferencia entre una regla que probaste y una regla que <strong>encontró algo</strong>.</p>
 <p>La última línea la deriva Oracle sola: la relación declara <code>nombre</code>, y la medida no lo lee —filtra por <code>sigue_convencion</code>—. No es un error; es información sobre qué parte del sensor está sin usar.</p>
-<h2 id="guardar-lo-que-se-observó">Guardar lo que se observó<a class="ancla" href="#guardar-lo-que-se-observó" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="guardar-lo-que-se-observó"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Guardar lo que se observó<a class="ancla" href="#guardar-lo-que-se-observó" aria-label="Enlace a esta sección">#</a></h2>
 <p>Un caso con <code>procedencia: observada</code> es evidencia que <strong>pasó</strong>, copiada tal cual:</p>
 <pre class="archivo" data-lenguaje="corpus/documento/003-la-biblioteca-real.caso"><code><span class="c-kw">caso</span> 003-la-biblioteca-real:
     fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
@@ -232,7 +239,7 @@ ALCANCE: verificación de medidas contra casos guardados del corpus.
 PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <p>Fijate en la línea <code>respaldo real: 7 de 9 muertos</code>: siete de los nueve mutantes fueron liquidados por el caso observado <code>003-la-biblioteca-real</code>. La evidencia construida a mano (<code>001</code> y <code>002</code>) fija la regla contra lo que imaginamos al diseñarla; la observada prueba que resiste defectos reales del proyecto.</p>
-<h2 id="funciones-propias-escalarespy">Funciones propias: <code>escalares.py</code><a class="ancla" href="#funciones-propias-escalarespy" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="funciones-propias-escalarespy"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Funciones propias: <code>escalares.py</code><a class="ancla" href="#funciones-propias-escalarespy" aria-label="Enlace a esta sección">#</a></h2>
 <p>Si tu dominio necesita una función que el álgebra no trae —una distancia, una norma, un desvío—, se <strong>declara</strong> en <code>escalares.py</code> del proyecto:</p>
 <pre data-lenguaje="python"><code>from oracle_metalenguaje import escalar
 
@@ -243,13 +250,13 @@ def desvio(a, b):
 <p>Dos cosas que importan:</p>
 <p><strong>Declarar la unidad de retorno Y las de los argumentos.</strong> Sin las dos, la unidad del resultado no se puede derivar y <code>meta.toda_cantidad_comparada_tiene_unidad_derivable</code> te lo marca. No es burocracia: es lo que impide comparar centímetros contra grados.</p>
 <p><strong>Ejecutarlas exige <code>--confiar-escalares</code>.</strong> Oracle no corre código de un proyecto sin permiso explícito, y cuando lo hace es en un <strong>proceso aislado</strong>: una función hostil no puede leer fuera del proyecto, escribir fuera, abrir red ni lanzar procesos.</p>
-<h2 id="vigilar-lo-que-alimenta-a-las-medidas-oracle-cambios">Vigilar lo que alimenta a las medidas: <code>oracle cambios</code><a class="ancla" href="#vigilar-lo-que-alimenta-a-las-medidas-oracle-cambios" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="vigilar-lo-que-alimenta-a-las-medidas-oracle-cambios"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Vigilar lo que alimenta a las medidas: <code>oracle cambios</code><a class="ancla" href="#vigilar-lo-que-alimenta-a-las-medidas-oracle-cambios" aria-label="Enlace a esta sección">#</a></h2>
 <p>Una medida puede pasar a dar verde si alguien la afloja, pero también si cambia el código de una escalar o si se altera el sensor para que oculte hechos. Para proteger la cadena entera, podés declarar tus sensores en <code>oracle.json</code>:</p>
 <pre data-lenguaje="json"><code>{
   &quot;sensores&quot;: [&quot;sensores&quot;]
 }</code></pre>
 <p>Con eso configurado, <code>oracle cambios [--desde &lt;ref&gt;]</code> revisa qué medidas se debilitaron, qué función en <code>escalares.py</code> cambió (se compara función por función), qué relaciones cambiaron y qué archivos de sensor se tocaron. Sacar una ruta de <code>sensores</code> es error: evita que alguien esquive la vigilancia borrando la declaración.</p>
-<h2 id="el-paquete-instalado-es-otro-proyecto-decision-010">El paquete instalado es otro proyecto (<code>DECISION-010</code>)<a class="ancla" href="#el-paquete-instalado-es-otro-proyecto-decision-010" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="el-paquete-instalado-es-otro-proyecto-decision-010"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>El paquete instalado es otro proyecto (<code>DECISION-010</code>)<a class="ancla" href="#el-paquete-instalado-es-otro-proyecto-decision-010" aria-label="Enlace a esta sección">#</a></h2>
 <p>La migración de los dos consumidores reales sacó a la luz dos defectos sobre el paquete publicado:</p>
 <h3 id="1-el-comando-vs-el-paquete">1. El comando vs el paquete<a class="ancla" href="#1-el-comando-vs-el-paquete" aria-label="Enlace a esta sección">#</a></h3>
 <ul><li>Si el proyecto sólo ejecuta comandos (<code>oracle test</code>, <code>oracle-corpus</code>), alcanza con <code>uv tool install oracle-metalenguaje</code>.</li><li>Si algún script propio importa la biblioteca (<code>from oracle_metalenguaje import Motor</code> o <code>escalar</code>), necesita el paquete en su propio intérprete.</li><li>Para el Python embebido de un motor como Unreal (el caso de Jam), no hay venv posible: se vendoriza el wheel publicado con <code>python3 -m pip install --target vendor/oracle-pkg --no-deps &quot;oracle-metalenguaje==0.6.0&quot;</code>. Medido en Jam: 2,3 MB y 183 archivos contra 3,5 MB y 284 del subtree original.</li></ul>
@@ -262,7 +269,7 @@ def desvio(a, b):
 <pre data-lenguaje="bash"><code>git diff --name-only -- vendor/oracle       # tiene que dar vacío
 git status --short -- vendor/oracle         # tiene que dar vacío</code></pre>
 <p>Borrar sin verificar pierde ediciones que no existen arriba. En Jam y LyraGASP se midió: cero ediciones locales en ambos antes de migrar.</p>
-<h2 id="heredar-un-catálogo-la-sombra-y-su-envejecimiento">Heredar un catálogo: la sombra y su envejecimiento<a class="ancla" href="#heredar-un-catálogo-la-sombra-y-su-envejecimiento" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="heredar-un-catálogo-la-sombra-y-su-envejecimiento"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Heredar un catálogo: la sombra y su envejecimiento<a class="ancla" href="#heredar-un-catálogo-la-sombra-y-su-envejecimiento" aria-label="Enlace a esta sección">#</a></h2>
 <p>Cuando un proyecto conecta Oracle y declara <code>&quot;catalogo_base&quot;: true</code>, pasa a ser juzgado por las 54 medidas universales. En proyectos existentes esto encuentra deudas reales de inmediato:</p>
 <ul><li>En <strong>Jam</strong> aparecieron <strong>104 infracciones</strong> en 3 medidas (54 comparaciones sin unidad derivable, 41 umbrales sin <code>segun</code>, 9 medidas con evidencia puramente fabricada).</li><li>En <strong>LyraGASP</strong> aparecieron <strong>34 infracciones</strong> en las mismas 3 medidas (16 sin unidad, 9 sin <code>segun</code>, 9 sólo fabricadas).</li></ul>
 <p>Ninguno era un error de Oracle: eran omisiones reales del catálogo heredado que antes nadie medía. La salida no es apagar la regla —eso volvería al verde que no significa nada— ni arreglar 104 defectos en el commit de la conexión. La solución es la <strong>sombra</strong> en <code>oracle.json</code>:</p>
@@ -279,22 +286,29 @@ git status --short -- vendor/oracle         # tiene que dar vacío</code></pre>
 <p>Una sombra sin fecha no se puede envejecer; una sin motivo no se puede discutir. Dos medidas universales custodian que las sombras no se conviertan en excepciones permanentes:</p>
 <ol><li><strong><code>meta.ninguna_sombra_envejece_sin_revisarse</code></strong>: cuenta los días desde la fecha declarada en <code>desde</code>. Si supera los <strong>90 días</strong>, la medida se pone roja.</li><li><strong><code>meta.toda_sombra_declara_una_fecha_real</code></strong>: si la fecha no se puede leer (formato inválido) o está en el futuro (días negativos), la medida falla de inmediato.</li></ol>
 <p>Además, <code>meta.ninguna_sombra_ya_en_verde</code> prohíbe mantener en sombra una medida que ya pasa, y <code>meta.ninguna_sombra_sobre_una_medida_que_no_existe</code> evita sombras huérfanas. Ninguna de estas cuatro medidas puede ponerse en sombra a sí misma.</p>
-<h2 id="todo-el-contexto-en-un-comando-oracle-contexto">Todo el contexto en un comando: <code>oracle contexto</code><a class="ancla" href="#todo-el-contexto-en-un-comando-oracle-contexto" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="todo-el-contexto-en-un-comando-oracle-contexto"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Todo el contexto en un comando: <code>oracle contexto</code><a class="ancla" href="#todo-el-contexto-en-un-comando-oracle-contexto" aria-label="Enlace a esta sección">#</a></h2>
 <p>Para saber qué podés escribir en tu proyecto sin recorrer archivos ni memorizar esquemas:</p>
 <pre data-lenguaje="bash"><code>oracle contexto</code></pre>
 <p>O en formato compacto (~1.600 tokens contra ~8.600 de correr los tres comandos que reemplaza):</p>
 <pre data-lenguaje="bash"><code>oracle contexto --compacto</code></pre>
 <p>Reúne en una sola salida:</p>
 <ol><li>Lo que toda medida declara (<code>umbral ... segun ... porque ...</code>, <code>alcance ...</code>).</li><li>Las relaciones y campos disponibles en tu proyecto (derivados de tu evidencia).</li><li>Con qué se escribe: operadores (<code>agrupar</code>, <code>de</code>, <code>donde</code>, <code>resumen</code>, <code>unir</code>), comparadores, lógicos, agregados y escalares declaradas.</li><li>Las medidas que ya existen en el catálogo con sus puntos ciegos declarados.</li><li>La regla de orden: escribir el caso antes que la medida.</li></ol>
-<hr>
-<h2 id="qué-sigue">Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="qué-sigue"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Qué sigue<a class="ancla" href="#qué-sigue" aria-label="Enlace a esta sección">#</a></h2>
 <ul><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a> — dos autores, 30 mutadores en aislamiento y qué hacer cuando uno sobrevive.</li><li><a href="03-escribir-una-medida.html">docs/03-escribir-una-medida.md</a> — la guía completa de autoría.</li><li><a href="openspec.html">OpenSpec y Oracle</a> — importar requisitos con <code>oracle requisito importar</code> y juzgar evidencia con <code>oracle cobertura --con</code>.</li><li><a href="https://github.com/Segtem/oracle/blob/main/docs/migracion/de-subtree-a-pypi.md" rel="noopener"><code>docs/migracion/de-subtree-a-pypi.md</code></a> — guía paso a paso de migración desde subtree a PyPI.</li><li><a href="decisiones/DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.html"><code>DECISION-010</code></a> — por qué el paquete instalado es otro proyecto y cómo se mide.</li><li><a href="especificacion.html">ESPECIFICACION.md</a> — la referencia formal del lenguaje.</li></ul>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/07-conectar-a-un-proyecto-propio.md" rel="noopener">docs/07-conectar-a-un-proyecto-propio.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#la-partición-el-sensor-no-juzga">La partición: el sensor no juzga</a></li><li class="n2"><a href="#el-sensor">El sensor</a></li><li class="n2"><a href="#el-adaptador">El adaptador</a></li><li class="n2"><a href="#medir-el-mundo-real">Medir el mundo real</a></li><li class="n2"><a href="#guardar-lo-que-se-observó">Guardar lo que se observó</a></li><li class="n2"><a href="#funciones-propias-escalarespy">Funciones propias: escalares.py</a></li><li class="n2"><a href="#vigilar-lo-que-alimenta-a-las-medidas-oracle-cambios">Vigilar lo que alimenta a las medidas: oracle cambios</a></li><li class="n2"><a href="#el-paquete-instalado-es-otro-proyecto-decision-010">El paquete instalado es otro proyecto (DECISION-010)</a></li><li class="n3"><a href="#1-el-comando-vs-el-paquete">1. El comando vs el paquete</a></li><li class="n3"><a href="#2-aislamiento-de-escalares-en-layouts-no-estándar">2. Aislamiento de escalares en layouts no estándar</a></li><li class="n3"><a href="#3-la-fachada-no-debe-ocupar-nombres-ajenos">3. La fachada no debe ocupar nombres ajenos</a></li><li class="n3"><a href="#4-antes-de-borrar-un-subtree">4. Antes de borrar un subtree</a></li><li class="n2"><a href="#heredar-un-catálogo-la-sombra-y-su-envejecimiento">Heredar un catálogo: la sombra y su envejecimiento</a></li><li class="n3"><a href="#la-sombra-envejece-dos-medidas-nuevas">La sombra envejece (dos medidas nuevas)</a></li><li class="n2"><a href="#todo-el-contexto-en-un-comando-oracle-contexto">Todo el contexto en un comando: oracle contexto</a></li><li class="n2"><a href="#qué-sigue">Qué sigue</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

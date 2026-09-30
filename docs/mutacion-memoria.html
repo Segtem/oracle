@@ -27,12 +27,19 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html">OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html" aria-current=page>Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="memoria-y-rondas-de-mutación-en-paralelo">Memoria y rondas de mutación en paralelo<a class="ancla" href="#memoria-y-rondas-de-mutación-en-paralelo" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="herramientas" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Herramientas</span>
+        <span class="seccion-lema">Sensores vigilados, memoria y conexiones.</span>
+      </div>
+    </div>
+<h1 id="memoria-y-rondas-de-mutación-en-paralelo"><canvas class="sprite sprite-titulo" data-sprite="chip_memoria" width="14" height="14" aria-hidden="true"></canvas>Memoria y rondas de mutación en paralelo<a class="ancla" href="#memoria-y-rondas-de-mutación-en-paralelo" aria-label="Enlace a esta sección">#</a></h1>
 <p><code>--limite-memoria-mb</code> limita el espacio de direcciones virtuales <strong>por proceso</strong> mediante <code>RLIMIT_AS</code> (MiB, aunque la opción diga <code>mb</code>). Los hijos heredan el límite, pero cada uno dispone de su propio cupo. <code>0</code> lo desactiva. El arnés no administra cgroups ni decide cuántas raíces lanzar: esa política vive en esta receta.</p>
-<h2 id="calcular-antes-de-lanzar">Calcular antes de lanzar<a class="ancla" href="#calcular-antes-de-lanzar" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="calcular-antes-de-lanzar"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>Calcular antes de lanzar<a class="ancla" href="#calcular-antes-de-lanzar" aria-label="Enlace a esta sección">#</a></h2>
 <p>Usar <code>MemAvailable</code> de <code>/proc/meminfo</code>, no <code>MemFree</code>. Reservar la mitad para el resto de la máquina. El presupuesto común es <code>B = floor(disponible_MiB / 2)</code> y el costo presupuestado por ronda es <code>C = 2 * limite_MiB + 512</code>: dos procesos al tope más 512 MiB para el arnés, copias y caché. La concurrencia es <code>N = min(cantidad_de_raices, floor(B / C))</code>. Si da cero, no lanzar.</p>
 <p>Este costo es una reserva operativa, no una cota del árbol de procesos: un test puede crear más hijos. El techo común es el que contiene ese caso. Si el proyecto necesita más hijos simultáneos o copias más grandes, aumentar <code>C</code>. Recalcular en cada lote; no lanzar varios lotes independientes con el mismo presupuesto.</p>
-<h2 id="un-scope-para-todo-el-lote">Un scope para todo el lote<a class="ancla" href="#un-scope-para-todo-el-lote" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="un-scope-para-todo-el-lote"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>Un scope para todo el lote<a class="ancla" href="#un-scope-para-todo-el-lote" aria-label="Enlace a esta sección">#</a></h2>
 <p>Ejecutar desde Oracle, con raíces distintas y previamente preparadas con los mismos cambios. Pasar cada raíz una sola vez. El bloqueo del arnés impide dos rondas sobre una misma raíz. Guardar el siguiente bloque como <code>/tmp/oracle-rondas.sh</code> y pasar las rutas como argumentos. Requiere Bash, Linux con cgroup v2 y systemd de usuario con controlador de memoria disponible. La receta hace una comprobación <strong>parcial</strong> de una línea; los parámetros <code>OBJETIVO</code> y <code>LINEAS</code> permiten elegir otra zona.</p>
 <pre data-lenguaje="bash"><code>#!/usr/bin/env bash
 set -euo pipefail
@@ -78,7 +85,8 @@ systemd-run --user --scope \
     &#x27; _ &quot;$rondas&quot; &quot;$@&quot;</code></pre>
 <p><code>MemoryMax</code> limita el uso conjunto del cgroup; <code>MemorySwapMax=0</code> impide que el lote use swap. Ver la documentación de <a href="https://raw.githubusercontent.com/systemd/systemd/main/man/systemd.resource-control.xml" rel="noopener">control de recursos de systemd</a> y de <a href="https://raw.githubusercontent.com/systemd/systemd/main/man/systemd-run.xml" rel="noopener">systemd-run</a>. Si systemd rechaza el scope, resolver la configuración antes de lanzar el lote; no sustituirlo por varios scopes con el techo entero cada uno.</p>
 <p>Una ronda parcial sale con código 2 aunque mate todos los mutantes; <code>xargs</code> convierte códigos 1–125 de sus comandos en 123. Leer los informes individuales: un timeout, una muerte por OOM o un error del arnés no demuestran que los tests mataron un mutante. Esta receta no produce evidencia de release.</p>
-<h2 id="medición-que-justifica-el-predeterminado">Medición que justifica el predeterminado<a class="ancla" href="#medición-que-justifica-el-predeterminado" aria-label="Enlace a esta sección">#</a></h2>
+<p>El arnés comprueba también el espacio libre de la copia y de <code>TMPDIR</code>: con menos de 256 MiB, un fallo de tests se informa como error del arnés. No se cuenta como mutante muerto.</p>
+<h2 id="medición-que-justifica-el-predeterminado"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>Medición que justifica el predeterminado<a class="ancla" href="#medición-que-justifica-el-predeterminado" aria-label="Enlace a esta sección">#</a></h2>
 <p>El 2026-09-21, en Linux 7.2.6 x86_64 y Python 3.14.7, la línea base completa (<code>python3 tools/ejecutar_suite_mutacion.py</code>, 2386 tests, verde) tardó 152,04 s. Se muestreó <code>/proc/&lt;pid&gt;/status</code> del proceso de la suite cada 10 ms (15011 lecturas):</p>
 <div class="tabla"><table><thead><tr><th>Campo</th><th>KiB</th><th>MiB</th></tr></thead><tbody><tr><td><code>VmPeak</code> (máximo virtual registrado por el kernel)</td><td>760328</td><td>742,51</td></tr><tr><td><code>VmHWM</code> (máximo residente registrado por el kernel)</td><td>105276</td><td>102,81</td></tr></tbody></table></div>
 <p>El predeterminado baja de 4000 a <strong>1024 MiB</strong>: 281,49 MiB de margen sobre el pico virtual observado (37,9 %). La decisión usa <code>VmPeak</code>, porque <code>RLIMIT_AS</code> limita espacio virtual. No extrapola el RSS histórico de otra versión de la suite.</p>
@@ -86,19 +94,26 @@ systemd-run --user --scope \
 <p>Desde la raíz se puede reproducir con:</p>
 <pre data-lenguaje="bash"><code>python3 tareas/20260917-011705-memoria/verificacion/medir_baseline.py</code></pre>
 <p>El script vuelve a escribir <code>baseline.log</code> y <code>baseline-memoria.json</code> en esa carpeta. Los tests de <code>LimiteMemoriaTests</code> fijan 1024 MiB tanto para el perfil como para el CLI y comprueban su propagación en bytes, además de mantener la cobertura del valor explícito, la desactivación con cero y <code>RLIMIT_AS</code> real.</p>
-<h2 id="niveles-de-mutación-y-paralelismo--j-n">Niveles de mutación y paralelismo (-j N)<a class="ancla" href="#niveles-de-mutación-y-paralelismo--j-n" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="niveles-de-mutación-y-paralelismo--j-n"><canvas class="sprite sprite-h2" data-sprite="martillo" width="14" height="14" aria-hidden="true"></canvas>Niveles de mutación y paralelismo (-j N)<a class="ancla" href="#niveles-de-mutación-y-paralelismo--j-n" aria-label="Enlace a esta sección">#</a></h2>
 <p>La mutación de código soporta dos ejes independientes:</p>
 <h3 id="velocidad-paralelismo-y-selección-de-tests">Velocidad (paralelismo y selección de tests)<a class="ancla" href="#velocidad-paralelismo-y-selección-de-tests" aria-label="Enlace a esta sección">#</a></h3>
 <ul><li><code>-j N</code> / <code>--paralelo N</code>: ejecuta N mutantes simultáneamente, cada uno en una copia aislada del proyecto y con su propio <code>TMPDIR</code>. Por omisión usa <code>max(1, núcleos // 2)</code>. El tope <code>--limite-memoria-mb</code> aplica por proceso individual.</li><li><strong>Selección de tests</strong>: durante la línea base se captura el mapa de cobertura línea→tests (<code>sys.monitoring</code> o <code>sys.settrace</code>). Para cada mutante se corren primero los tests que cubren su línea mutada; si alguno falla, el mutante muere sin ejecutar la suite completa. Si pasan o no hay tests mapeados, se corre la suite entera como confirmación. El resultado final por mutante es idéntico al secuencial.</li></ul>
 <h3 id="alcance-niveles">Alcance (niveles)<a class="ancla" href="#alcance-niveles" aria-label="Enlace a esta sección">#</a></h3>
 <ul><li><code>--bajo</code>: muta sitios en líneas modificadas contra <code>HEAD</code> (incluye cambios no commiteados; ronda parcial, sale con código 2).</li><li><code>--medio</code>: muta sitios en líneas modificadas desde el último tag de Git (<code>git describe --tags --abbrev=0</code>; ronda parcial, sale con código 2).</li><li><code>--alto</code>: muta los módulos completos del perfil que cambiaron desde el último tag (ronda completa, lo requerido para validar un release; sale con 0 si todos mueren).</li><li><code>--muy-alto</code>: muta todo el perfil completo de código y herramientas custodias.</li></ul>
 <p>Los cuatro niveles son mutuamente excluyentes entre sí y no admiten combinarse con <code>--lineas</code> ni <code>--sitio</code>. <code>--objetivo</code> sólo puede combinarse con <code>--bajo</code> o <code>--medio</code> para acotar los módulos a inspeccionar.</p>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/mutacion-memoria.md" rel="noopener">docs/mutacion-memoria.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#calcular-antes-de-lanzar">Calcular antes de lanzar</a></li><li class="n2"><a href="#un-scope-para-todo-el-lote">Un scope para todo el lote</a></li><li class="n2"><a href="#medición-que-justifica-el-predeterminado">Medición que justifica el predeterminado</a></li><li class="n2"><a href="#niveles-de-mutación-y-paralelismo--j-n">Niveles de mutación y paralelismo (-j N)</a></li><li class="n3"><a href="#velocidad-paralelismo-y-selección-de-tests">Velocidad (paralelismo y selección de tests)</a></li><li class="n3"><a href="#alcance-niveles">Alcance (niveles)</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

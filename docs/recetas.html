@@ -27,11 +27,18 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html">Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html" aria-current=page>Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html">OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="recetas-de-medidas">Recetas de medidas<a class="ancla" href="#recetas-de-medidas" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="entender" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Entender</span>
+        <span class="seccion-lema">El álgebra, los testigos y los mutantes que caen.</span>
+      </div>
+    </div>
+<h1 id="recetas-de-medidas"><canvas class="sprite sprite-titulo" data-sprite="matraz" width="14" height="14" aria-hidden="true"></canvas>Recetas de medidas<a class="ancla" href="#recetas-de-medidas" aria-label="Enlace a esta sección">#</a></h1>
 <p>Esta página reúne dos patrones frecuentes al escribir medidas en Oracle que resuelven problemas del álgebra y de la mutación sin necesidad de operadores nuevos:</p>
 <ol><li><strong>Pares no orientados sin contarlos dos veces</strong>: por qué usar <code>&lt;</code> en lugar de <code>!=</code> al unir una relación consigo misma, para no inflar el conteo de testigos y permitir que la mutación compruebe el umbral.</li><li><strong>Contar distintos por grupo con doble <code>agrupar</code></strong>: cómo calcular un recuento de valores distintos (<code>DISTINCT</code>) agrupados por clave, colapsando filas repetidas sin un agregador especial.</li></ol>
 <p>No hay ninguna salida inventada: la suite del repositorio arma el proyecto de esta página desde una carpeta vacía, corre cada comando y comprueba lo que ves acá.</p>
-<h2 id="el-proyecto-de-ejemplo">El proyecto de ejemplo<a class="ancla" href="#el-proyecto-de-ejemplo" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="el-proyecto-de-ejemplo"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>El proyecto de ejemplo<a class="ancla" href="#el-proyecto-de-ejemplo" aria-label="Enlace a esta sección">#</a></h2>
 <p>Arrancamos desde una carpeta limpia e inicializamos el proyecto. Desactivamos el catálogo base en <code>oracle.json</code> para concentrarnos exclusivamente en las dos reglas de dominio:</p>
 <pre data-lenguaje="bash"><code>oracle init .</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>Proyecto Oracle inicializado en .:
@@ -50,8 +57,8 @@ Próximos pasos:
   &quot;catalogo_base&quot;: false,
   &quot;perfiles&quot;: []
 }</code></pre>
-<hr>
-<h2 id="1-pares-no-orientados-la-clave-ordenable-lt">1. Pares no orientados: la clave ordenable <code>&lt;</code><a class="ancla" href="#1-pares-no-orientados-la-clave-ordenable-lt" aria-label="Enlace a esta sección">#</a></h2>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="1-pares-no-orientados-la-clave-ordenable-lt"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>1. Pares no orientados: la clave ordenable <code>&lt;</code><a class="ancla" href="#1-pares-no-orientados-la-clave-ordenable-lt" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="el-problema--infla-el-conteo-y-deja-vivos-mutantes">El problema: <code>!=</code> infla el conteo y deja vivos mutantes<a class="ancla" href="#el-problema--infla-el-conteo-y-deja-vivos-mutantes" aria-label="Enlace a esta sección">#</a></h3>
 <p>Al comparar elementos de una misma relación entre sí para detectar colisiones o incompatibilidades —por ejemplo, dos servicios que reclaman el mismo puerto de red, dos barcos superpuestos o dos reuniones encimadas en la misma sala—, la intuición suele llevar a una auto-unión con desigualdad:</p>
 <pre data-lenguaje="oracle"><code><span class="c-kw">de</span> servicio a
@@ -113,8 +120,8 @@ Próximos pasos:
             <span class="c-txt">&quot;web&quot;</span>, 9090
     leccion:
         Servicios bien configurados <span class="c-kw">no</span> disparan la infraccion.</code></pre>
-<hr>
-<h2 id="2-contar-distintos-por-grupo-doble-agrupar">2. Contar distintos por grupo: doble <code>agrupar</code><a class="ancla" href="#2-contar-distintos-por-grupo-doble-agrupar" aria-label="Enlace a esta sección">#</a></h2>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="2-contar-distintos-por-grupo-doble-agrupar"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>2. Contar distintos por grupo: doble <code>agrupar</code><a class="ancla" href="#2-contar-distintos-por-grupo-doble-agrupar" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="el-problema-no-existe-contar_distintos">El problema: no existe <code>contar_distintos</code><a class="ancla" href="#el-problema-no-existe-contar_distintos" aria-label="Enlace a esta sección">#</a></h3>
 <p>El álgebra de Oracle no incluye un agregado <code>contar_distintos</code> ni una función escalar <code>distinto()</code>. Esta omisión es deliberada: el núcleo no incorpora operadores hasta que al menos dos medidas independientes lo requieran como primitiva irreducible.</p>
 <p>Además, en evidencia real (métricas de réplicas, trazas de auditoría o eventos de despliegue), una relación suele traer filas repetidas con la misma clave. Un simple <code>contar(1)</code> contaría filas totales, inflando la cuenta con eventos duplicados en lugar de medir entidades distintas.</p>
@@ -179,8 +186,8 @@ Próximos pasos:
             <span class="c-txt">&quot;n2&quot;</span>, <span class="c-txt">&quot;db&quot;</span>
     leccion:
         Las replicas duplicadas <span class="c-kw">no</span> inflan la cuenta <span class="c-kw">de</span> distintos.</code></pre>
-<hr>
-<h2 id="3-verificación-con-oracle-test">3. Verificación con <code>oracle test</code><a class="ancla" href="#3-verificación-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
+<hr class="divisor-pixel" aria-hidden="true">
+<h2 id="3-verificación-con-oracle-test"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>3. Verificación con <code>oracle test</code><a class="ancla" href="#3-verificación-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
 <p>Con ambas medidas y sus cuatro casos en el proyecto, ejecutamos la verificación completa:</p>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -217,13 +224,20 @@ MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 ALCANCE: verificación de medidas contra casos guardados del corpus.
 PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
-<p>Tanto la sintaxis como el corpus y la aceptación pasan en verde. Además, la suite de mutación ejecuta los 30 mutadores del motor: los 30 mueren y ninguno sobrevive, demostrando que ambos patrones fijan estrictamente el comportamiento esperado sin relajar el rigor del catálogo.</p>
+<p>Tanto la sintaxis como el corpus y la aceptación pasan en verde. Además, la suite de mutación ejecuta 30 mutantes aplicables: los 30 mueren y ninguno sobrevive. El <code>respaldo real: 0 de 30</code> recuerda que los casos construidos fijan las medidas frente a esas mutaciones, pero todavía no las sostienen con defectos observados del producto.</p>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/recetas.md" rel="noopener">docs/recetas.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#el-proyecto-de-ejemplo">El proyecto de ejemplo</a></li><li class="n2"><a href="#1-pares-no-orientados-la-clave-ordenable-lt">1. Pares no orientados: la clave ordenable &amp;lt;</a></li><li class="n3"><a href="#el-problema--infla-el-conteo-y-deja-vivos-mutantes">El problema: != infla el conteo y deja vivos mutantes</a></li><li class="n3"><a href="#la-solución-imponer-orden-con-lt">La solución: imponer orden con &amp;lt;</a></li><li class="n3"><a href="#la-medida-copiable">La medida copiable</a></li><li class="n3"><a href="#los-casos-rojo-y-verde">Los casos: rojo y verde</a></li><li class="n2"><a href="#2-contar-distintos-por-grupo-doble-agrupar">2. Contar distintos por grupo: doble agrupar</a></li><li class="n3"><a href="#el-problema-no-existe-contar_distintos">El problema: no existe contar_distintos</a></li><li class="n3"><a href="#la-solución-encadenar-dos-pasos-agrupar">La solución: encadenar dos pasos agrupar</a></li><li class="n3"><a href="#la-medida-copiable-1">La medida copiable</a></li><li class="n3"><a href="#los-casos-rojo-y-verde-1">Los casos: rojo y verde</a></li><li class="n2"><a href="#3-verificación-con-oracle-test">3. Verificación con oracle test</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

@@ -27,7 +27,14 @@
     <nav aria-label="Documentación"><p class="menu-grupo">Empezar</p><ul><li><a href="de-cero.html">Tu primer juego con un LLM</a></li><li><a href="documentacion.html">El camino</a></li><li><a href="02-de-cero-a-un-rojo.html">De cero a un rojo</a></li><li><a href="03-escribir-una-medida.html">Escribir una medida</a></li><li><a href="13-primer-valor.html">La primera medida real</a></li></ul><p class="menu-grupo">Entender</p><ul><li><a href="como-funciona.html" aria-current=page>Cómo funciona Oracle</a></li><li><a href="05-por-que-la-mutacion.html">Por qué la mutación</a></li><li><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto</a></li><li><a href="tutorial-practico.html">Tutorial práctico</a></li><li><a href="recetas.html">Recetas de medidas</a></li></ul><p class="menu-grupo">Herramientas</p><ul><li><a href="14-sensor-prosa.html">Un modelo como sensor</a></li><li><a href="openspec.html">OpenSpec y Oracle</a></li><li><a href="mcp.html">El servidor MCP</a></li><li><a href="mutacion-memoria.html">Memoria de la mutación</a></li><li><a href="reportar.html">Reportar un límite</a></li></ul><p class="menu-grupo">Referencia</p><ul><li><a href="especificacion.html">Especificación</a></li><li><a href="decisiones/index.html">Decisiones</a></li><li><a href="notas.html">Notas de release</a></li><li><a href="notas/anteriores-a-0.20.html">Notas anteriores a 0.20</a></li></ul></nav>
   </details>
   <main id="contenido" class="prosa">
-<h1 id="cómo-funciona-oracle">Cómo funciona Oracle<a class="ancla" href="#cómo-funciona-oracle" aria-label="Enlace a esta sección">#</a></h1>
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="entender" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">Entender</span>
+        <span class="seccion-lema">El álgebra, los testigos y los mutantes que caen.</span>
+      </div>
+    </div>
+<h1 id="cómo-funciona-oracle"><canvas class="sprite sprite-titulo" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Cómo funciona Oracle<a class="ancla" href="#cómo-funciona-oracle" aria-label="Enlace a esta sección">#</a></h1>
 <p>Esta página cuenta qué hace Oracle, en qué orden y qué contesta en cada caso. No hay ninguna salida inventada: un test del repositorio arma el proyecto de esta página desde una carpeta vacía, corre cada comando y compara lo que sale con lo que ves acá. Si Oracle cambia y la página no, el test se pone rojo.</p>
 <p>El proyecto es chico a propósito: una sola regla de la batalla naval —<strong>ningún barco fuera del tablero de 10×10</strong>— para mirar de cerca cada pieza. La guía <a href="de-cero.html">Tu primer juego con un LLM</a> arma el juego completo; esta página explica la máquina.</p>
 <pre data-lenguaje="bash"><code>oracle --version</code></pre>
@@ -36,13 +43,13 @@
   sintaxis: 1.1   (cómo se ESCRIBE)
   corriendo desde: …/oracle</code></pre>
 <p>Tres versiones, y son tres cosas distintas. El <strong>álgebra</strong> versiona lo que una medida significa: si sube la mayor, una medida que ya tenías puede dar otro resultado. La <strong>sintaxis</strong> versiona cómo se escribe un <code>.oracle</code> o un <code>.caso</code>. La <strong>distribución</strong> es el paquete que instalás, y cambia también cuando se arregla una herramienta sin tocar el lenguaje.</p>
-<h2 id="las-tres-piezas">Las tres piezas<a class="ancla" href="#las-tres-piezas" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="las-tres-piezas"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Las tres piezas<a class="ancla" href="#las-tres-piezas" aria-label="Enlace a esta sección">#</a></h2>
 <p>Todo en Oracle es uno de estos tres archivos:</p>
 <div class="tabla"><table><thead><tr><th>pieza</th><th>archivo</th><th>qué es</th></tr></thead><tbody><tr><td><strong>evidencia</strong></td><td>un <code>.json</code></td><td>lo que pasó, en filas planas. La escribe un <strong>sensor</strong> de tu proyecto, no Oracle</td></tr><tr><td><strong>medida</strong></td><td>un <code>.oracle</code> en <code>catalogos/</code></td><td>una regla: qué filas cuentan como infracción y cuántas se toleran</td></tr><tr><td><strong>caso</strong></td><td>un <code>.caso</code> en <code>corpus/</code></td><td>una evidencia guardada y lo que la medida <strong>tiene</strong> que decir sobre ella</td></tr></tbody></table></div>
 <p>Y dos verbos:</p>
 <ul><li><code>oracle juzgar --con hechos.json</code> cruza tus medidas con una evidencia nueva y da un veredicto.</li><li><code>oracle test</code> cruza tus medidas con los casos guardados, y además <strong>ataca a las medidas</strong> para ver si los casos las sostienen.</li></ul>
 <p>Oracle no corre tu juego, no abre la red y no llama a ningún modelo. Juzga lo que el sensor le entrega, y cada veredicto dice qué no miró.</p>
-<h2 id="el-proyecto">El proyecto<a class="ancla" href="#el-proyecto" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="el-proyecto"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>El proyecto<a class="ancla" href="#el-proyecto" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle init .</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>Proyecto Oracle inicializado en .:
   · catalogos/
@@ -61,7 +68,7 @@ Próximos pasos:
   &quot;catalogo_base&quot;: false,
   &quot;perfiles&quot;: []
 }</code></pre>
-<h2 id="una-medida-línea-por-línea">Una medida, línea por línea<a class="ancla" href="#una-medida-línea-por-línea" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="una-medida-línea-por-línea"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Una medida, línea por línea<a class="ancla" href="#una-medida-línea-por-línea" aria-label="Enlace a esta sección">#</a></h2>
 <pre class="archivo" data-lenguaje="catalogos/flota/flota.casillas_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno-requiere</span> flota.casillas_dentro_del_tablero:
     <span class="c-kw">de</span> casilla c
     <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
@@ -154,7 +161,7 @@ Próximos pasos:
 ]</code></pre>
 <p><code>ninguno</code> se vuelve una <strong>tubería</strong> (<code>desde</code>: de dónde salen las filas y cómo se filtran), un <strong>resumen</strong> (<code>contar</code> las filas que quedaron) y un <strong>umbral</strong> (<code>&lt;= 0</code>). Toda medida tiene esa forma.</p>
 </details>
-<h2 id="qué-pasa-cuando-juzgás">Qué pasa cuando juzgás<a class="ancla" href="#qué-pasa-cuando-juzgás" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="qué-pasa-cuando-juzgás"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Qué pasa cuando juzgás<a class="ancla" href="#qué-pasa-cuando-juzgás" aria-label="Enlace a esta sección">#</a></h2>
 <p><code>oracle juzgar</code> hace siempre lo mismo, en este orden:</p>
 <ol><li><strong>Carga el catálogo.</strong> Cada medida se valida al leerla: vocabularios cerrados, <code>alcance</code> obligatorio, macros completas. Una medida mal escrita no se evalúa a medias: la corrida no empieza.</li><li><strong>Lee la evidencia.</strong> Un objeto JSON: cada clave es una relación y su valor, una lista de filas.</li><li><strong>Valida la evidencia entera, antes de medir nada.</strong> Un <code>null</code> se rechaza, y las claves de unicidad se comprueban en <strong>todas</strong> las relaciones, también en las que ninguna medida usa.</li><li><strong>Mide cada regla.</strong> Si una relación de <code>requiere</code> viene vacía, esa medida sale SIN EVIDENCIA y no se mide. Si no, corre la tubería: las filas que sobreviven son los <strong>testigos</strong>, el resumen las cuenta y el umbral decide.</li><li><strong>Aplica las sombras.</strong> Una medida en sombra se mide igual, pero su rojo no hace fallar la corrida mientras no supere su cota. Un SIN EVIDENCIA no se perdona nunca.</li><li><strong>Da el veredicto y un código de salida</strong>: <code>0</code> si todo pasó; <code>1</code> si hubo un rojo, un SIN EVIDENCIA o una medida propia que no se pudo aplicar; <code>2</code> si no se pudo juzgar (evidencia inválida, error del álgebra, uso incorrecto).</li></ol>
 <p>Veámoslo con cinco evidencias.</p>
@@ -234,7 +241,7 @@ ERROR AL EVALUAR — «flota.casillas_dentro_sin_requiere»: la relación «casi
 <p>Sin la cabecera, dos filas iguales son dos hechos: Oracle no deduplica, porque no puede inventar una identidad que tu dominio no declaró.</p>
 <h3 id="juzgar-contra-requisitos-oracle-cobertura---con">Juzgar contra requisitos: <code>oracle cobertura --con</code><a class="ancla" href="#juzgar-contra-requisitos-oracle-cobertura---con" aria-label="Enlace a esta sección">#</a></h3>
 <p>Cuando además de medidas el proyecto define requisitos (<code>.requisito</code>), <code>oracle cobertura --con hechos.json</code> juzga la evidencia con las mismas sombras y cotas que <code>oracle juzgar</code>, pero agrupa el veredicto por requisito: ✓ se cumple, ◐ se cumple en lo medido (con su <code>SIN MEDIR</code>), ✗ no se cumple o ? sin juicio (sin evidencia, no aplicada o no juzgó). Sale con código 1 si algún requisito no se cumple y no está amparado por una sombra.</p>
-<h2 id="qué-comprueba-oracle-test">Qué comprueba <code>oracle test</code><a class="ancla" href="#qué-comprueba-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="qué-comprueba-oracle-test"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Qué comprueba <code>oracle test</code><a class="ancla" href="#qué-comprueba-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
 <p><code>juzgar</code> mira una partida. <code>test</code> mira <strong>tus reglas</strong>: ¿se ponen rojas cuando deben y verdes cuando deben? ¿Y se nota si alguien las rompe?</p>
 <pre data-lenguaje="bash"><code>oracle test --rapido</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -501,15 +508,22 @@ catalogos/flota/flota.casillas_dentro_del_tablero.oracle: escrito</code></pre>
 <p>Al lado de la cifra de mutantes muertos, <code>oracle test</code> informa el <strong>respaldo real</strong>: cuántos de ellos los mata al menos un caso con <code>procedencia: observada</code>. Un mutante que sólo muere por evidencia <code>construida</code> o <code>generada</code> demuestra que la medida está fijada contra lo que alguien imaginó, no contra un defecto que haya existido de verdad. Un catálogo con mutación 100 % y respaldo real cero todavía no vio el mundo.</p>
 <h3 id="cuando-un-mutante-sobrevive-oracle-caso-generar">Cuando un mutante sobrevive: <code>oracle caso generar</code><a class="ancla" href="#cuando-un-mutante-sobrevive-oracle-caso-generar" aria-label="Enlace a esta sección">#</a></h3>
 <p>Si un mutante sobrevive y cuesta diseñar a mano el caso que lo mata, <code>oracle caso generar &lt;medida&gt;</code> busca evidencia discriminante: combina casos del corpus y literales de la medida, altera campos o filas hasta encontrar una discrepancia entre la regla y el mutante, y después encoge la evidencia resultante. Los casos generados llevan <code>procedencia: generada</code>: suben la mutación pero no el respaldo real.</p>
-<h2 id="lo-que-oracle-no-hace">Lo que Oracle no hace<a class="ancla" href="#lo-que-oracle-no-hace" aria-label="Enlace a esta sección">#</a></h2>
+<h2 id="lo-que-oracle-no-hace"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>Lo que Oracle no hace<a class="ancla" href="#lo-que-oracle-no-hace" aria-label="Enlace a esta sección">#</a></h2>
 <ul><li><strong>No corre tu producto.</strong> Juzga lo que el sensor exportó. Un verde dice que la regla se cumple sobre esos hechos, dentro de su <code>alcance</code>; no dice que el juego esté bien en todo lo demás.</li><li><strong>No llama a la red ni a ningún modelo.</strong> El núcleo es determinista: la misma evidencia da el mismo veredicto.</li><li><strong>No confía en tu código sin permiso.</strong> Si tu proyecto trae funciones propias en <code>escalares.py</code>, Oracle las ejecuta sólo con <code>--confiar-escalares</code>, y en un proceso aislado que no puede leer ni escribir fuera del proyecto, abrir la red ni lanzar procesos.</li><li><strong>No compone medidas.</strong> Una medida termina en un número y un umbral. Ninguna puede leer el veredicto de otra: las preguntas sobre el catálogo se contestan midiendo el catálogo, en el nivel meta.</li><li><strong>No deja aflojar reglas ni sensores en silencio.</strong> <code>oracle cambios [--desde &lt;ref&gt;]</code> compara el catálogo contra un commit para avisar qué medidas se aflojaron y qué escalares cambiaron, y nombra cada archivo de sensor modificado si declarás <code>&quot;sensores&quot;</code> en <code>oracle.json</code>.</li></ul>
 <p>La referencia completa del lenguaje está en la <a href="especificacion.html">especificación</a> y en el <a href="manual.html">manual</a>, que se genera de las mismas declaraciones que usa Oracle.</p>
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="https://github.com/Segtem/oracle/blob/main/docs/como-funciona.md" rel="noopener">docs/como-funciona.md</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     <p class='menu-grupo'>En esta página</p><ul><li class="n2"><a href="#las-tres-piezas">Las tres piezas</a></li><li class="n2"><a href="#el-proyecto">El proyecto</a></li><li class="n2"><a href="#una-medida-línea-por-línea">Una medida, línea por línea</a></li><li class="n2"><a href="#qué-pasa-cuando-juzgás">Qué pasa cuando juzgás</a></li><li class="n3"><a href="#verde-y-lo-que-no-miró">Verde: y lo que no miró</a></li><li class="n3"><a href="#rojo-con-el-testigo-exacto">Rojo: con el testigo exacto</a></li><li class="n3"><a href="#sin-evidencia-no-es-verde-ni-rojo">Sin evidencia: no es verde ni rojo</a></li><li class="n3"><a href="#evidencia-inválida-no-se-juzga">Evidencia inválida: no se juzga</a></li><li class="n3"><a href="#juzgar-contra-requisitos-oracle-cobertura---con">Juzgar contra requisitos: oracle cobertura --con</a></li><li class="n2"><a href="#qué-comprueba-oracle-test">Qué comprueba oracle test</a></li><li class="n3"><a href="#una-sola-forma-de-escribir">Una sola forma de escribir</a></li><li class="n3"><a href="#las-capas-en-orden">Las capas, en orden</a></li><li class="n3"><a href="#por-qué-la-mutación">Por qué la mutación</a></li><li class="n3"><a href="#cuando-un-mutante-sobrevive-oracle-caso-generar">Cuando un mutante sobrevive: oracle caso generar</a></li><li class="n2"><a href="#lo-que-oracle-no-hace">Lo que Oracle no hace</a></li></ul>
   </aside>
 </div>
+<script src="./assets/pixel-sitio.js" defer></script>
 <script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {

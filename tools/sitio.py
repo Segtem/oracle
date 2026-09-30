@@ -250,9 +250,51 @@ def _cazamutantes(proyecto: str, mid: str) -> dict:
     }
 
 
+SPRITES_POR_PAGINA: dict[str, str] = {
+    "de-cero.html": "timon",
+    "documentacion.html": "mapa",
+    "02-de-cero-a-un-rojo.html": "bandera_roja",
+    "03-escribir-una-medida.html": "pluma",
+    "13-primer-valor.html": "tacometro",
+    "como-funciona.html": "engranajes",
+    "05-por-que-la-mutacion.html": "mutante_cazado",
+    "07-conectar-a-un-proyecto-propio.html": "conector",
+    "tutorial-practico.html": "martillo",
+    "recetas.html": "matraz",
+    "14-sensor-prosa.html": "sensor_ojo",
+    "openspec.html": "llave_tuerca",
+    "mcp.html": "servidor_antena",
+    "mutacion-memoria.html": "chip_memoria",
+    "reportar.html": "boya_campana",
+    "especificacion.html": "pergamino_sello",
+    "decisiones/index.html": "encrucijada",
+    "notas.html": "faro_destello",
+    "notas/anteriores-a-0.20.html": "ancla_antigua",
+}
+
+SPRITES_POR_SECCION: dict[str, str] = {
+    "Empezar": "timon",
+    "Entender": "engranajes",
+    "Herramientas": "martillo",
+    "Referencia": "pergamino_sello",
+    "Decisiones": "brujula",
+}
+
+LEMAS_SECCION: dict[str, str] = {
+    "Empezar": "De cero a un rojo: la primera medida con veredicto.",
+    "Entender": "El álgebra, los testigos y los mutantes que caen.",
+    "Herramientas": "Sensores vigilados, memoria y conexiones.",
+    "Referencia": "El catálogo canónico, las cotas y el álgebra.",
+    "Decisiones": "El rumbo registrado y cada elección de diseño.",
+}
+
+
 class Convertidor:
-    def __init__(self, origen: Path, salida: Path):
+    def __init__(self, origen: Path, salida: Path, sprite_titulo: str | None = None,
+                 sprite_h2: str | None = None):
         self.origen, self.salida = origen, salida
+        self.sprite_titulo = sprite_titulo
+        self.sprite_h2 = sprite_h2
         self.indice: list[tuple[int, str, str]] = []
         self._ids: dict[str, int] = {}
 
@@ -312,13 +354,19 @@ class Convertidor:
                 ident = self._id(contenido)
                 if nivel in (2, 3):
                     self.indice.append((nivel, ident, re.sub(r"<[^>]+>", "", contenido)))
-                salida.append(f'<h{nivel} id="{ident}">{contenido}'
+                if nivel == 1 and self.sprite_titulo:
+                    icono = f'<canvas class="sprite sprite-titulo" data-sprite="{self.sprite_titulo}" width="14" height="14" aria-hidden="true"></canvas>'
+                elif nivel == 2 and self.sprite_h2:
+                    icono = f'<canvas class="sprite sprite-h2" data-sprite="{self.sprite_h2}" width="14" height="14" aria-hidden="true"></canvas>'
+                else:
+                    icono = ""
+                salida.append(f'<h{nivel} id="{ident}">{icono}{contenido}'
                               f'<a class="ancla" href="#{ident}" aria-label="Enlace a esta sección">#</a>'
                               f'</h{nivel}>')
                 i += 1
                 continue
             if re.match(r"^ {0,3}([-*_])( *\1){2,}\s*$", linea):
-                salida.append("<hr>")
+                salida.append('<hr class="divisor-pixel" aria-hidden="true">')
                 i += 1
                 continue
             if "|" in linea and i + 1 < len(lineas) and _es_separador_tabla(lineas[i + 1]):
@@ -425,7 +473,9 @@ def pagina(p: Pagina) -> str:
     origen = RAIZ / p.origen
     salida = DOCS / p.salida
     texto = origen.read_text(encoding="utf-8")
-    conv = Convertidor(origen, salida)
+    sprite_titulo = SPRITES_POR_PAGINA.get(p.salida, "brujula")
+    sprite_h2 = SPRITES_POR_SECCION.get(p.grupo, sprite_titulo)
+    conv = Convertidor(origen, salida, sprite_titulo=sprite_titulo, sprite_h2=sprite_h2)
     cuerpo = conv.bloques(texto.splitlines())
     titulo = _titulo(texto)
     raiz = _relativa(DOCS / "index.html", salida).removesuffix("index.html") or "./"
@@ -433,6 +483,8 @@ def pagina(p: Pagina) -> str:
         f'<li class="n{nivel}"><a href="#{ident}">{html.escape(t)}</a></li>'
         for nivel, ident, t in conv.indice)
     en_github = f"{REPO}/blob/main/{p.origen}"
+    seccion_id = p.grupo.lower()
+    lema = LEMAS_SECCION.get(p.grupo, "Medida y verificación continua.")
     return f"""<!doctype html>
 <html lang="es">
 <head>
@@ -462,14 +514,28 @@ def pagina(p: Pagina) -> str:
     <nav aria-label="Documentación">{_menu(p, salida)}</nav>
   </details>
   <main id="contenido" class="prosa">
+    <div class="cabecera-seccion">
+      <canvas class="escena-seccion" data-escena-seccion="{seccion_id}" width="320" height="64" aria-hidden="true"></canvas>
+      <div class="seccion-texto">
+        <span class="pixel seccion-nombre">{html.escape(p.grupo)}</span>
+        <span class="seccion-lema">{html.escape(lema)}</span>
+      </div>
+    </div>
 {cuerpo}
+    <footer class="pie-seccion">
+      <canvas class="escena-pie" data-escena-pie="marina" width="320" height="56" aria-hidden="true"></canvas>
+      <div class="pie-seccion-meta">
+        <span class="pixel">Oracle · navegación y medida continua</span>
+      </div>
+    </footer>
     <p class="fuente">Esta página se genera desde <a href="{en_github}" rel="noopener">{html.escape(p.origen)}</a>.</p>
   </main>
   <aside class="en-esta-pagina" aria-label="En esta página">
     {"<p class='menu-grupo'>En esta página</p><ul>" + indice + "</ul>" if indice else ""}
   </aside>
 </div>
-{f'<script src="{raiz}assets/guia.js" defer></script>{chr(10)}' if 'class="juego ' in cuerpo else ""}<script>
+{f'<script src="{raiz}assets/guia.js" defer></script>{chr(10)}' if 'class="juego ' in cuerpo else ""}<script src="{raiz}assets/pixel-sitio.js" defer></script>
+<script>
 if (matchMedia("(max-width: 760px)").matches) document.querySelector(".menu").removeAttribute("open");
 document.querySelectorAll(".prosa pre:not(.salida)").forEach((pre) => {{
   const b = document.createElement("button");
