@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.37.0`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.38.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,17 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.38.0 (2026-09-30): `VERSION_DISTRIBUCION` sube de `0.37.0` a `0.38.0`.** Dos mejoras.
+`oracle requisito importar <spec.md | openspec/specs>` convierte cada `### Requirement:` de OpenSpec
+en un `.requisito` sin medir que nombra sus escenarios pendientes; nunca inventa un `medido_por` ni
+pisa un requisito que ya existe, y `docs/openspec.md` cuenta el camino hasta el paso de verificación.
+El generador de casos, además de sus reglas, **busca** evidencia que separe a la medida de cada
+mutante vivo —perturbando de a un cambio la que proponen las reglas y la del corpus— y la
+**encoge**; es determinista y no llama a ningún modelo. Con corpus vacío, en cuatro catálogos, la
+fijación de lo generado sube de 68–81 % a 79–94 % y las medidas que no se podían generar pasan de 28
+a 0. No cambia el álgebra ni la superficie. La mutación del corte: `nucleo/generador.py`, `tools/cli.py` y
+`tools/openspec.py` completos, 1233 mutantes, ninguno vivo, tres equivalentes declarados.
 
 **Corte 0.37.0 (2026-09-30): `VERSION_DISTRIBUCION` sube de `0.36.2` a `0.37.0`.** Tres
 mejoras que salen del estado del arte sobre verificadores que se aflojan y fijación que ningún

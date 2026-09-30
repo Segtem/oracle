@@ -1,0 +1,6 @@
+# corte 0.38.0
+
+- ESTADO: ABIERTA
+- PRIORIDAD: 90
+- ETIQUETAS: 
+

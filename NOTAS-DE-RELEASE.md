@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.38.0](#0380--las-promesas-de-openspec-y-un-generador-que-busca) | las promesas de OpenSpec, y un generador que busca |
 | [0.37.0](#0370--lo-que-respalda-la-fijación-lo-que-alimenta-a-las-medidas-y-lo-que-se-cumple) | lo que respalda la fijación, lo que alimenta a las medidas y lo que se cumple |
 | [0.36.2](#0362--las-escalares-en-un-python-embebido) | las escalares en un Python embebido |
 | [0.36.1](#0361--los-requisitos-usados-de-verdad) | los requisitos, usados de verdad |
@@ -32,6 +33,35 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.38.0 — las promesas de OpenSpec, y un generador que busca
+
+```
+VERSION_DISTRIBUCION   0.37.0 → 0.38.0   importador de OpenSpec y búsqueda en el generador
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+- **`oracle requisito importar <spec.md | openspec/specs> [--dominio d] [--escribir]`.** Cada
+  `### Requirement:` de una spec de OpenSpec se vuelve un `.requisito` con su texto `SHALL`, su
+  fuente y un `sin_medir` que nombra los escenarios pendientes. Nace sin medir a propósito: un
+  enlace inventado se leería como cubierto. Sin `--escribir` sólo muestra; lo que ya existe no se
+  toca. Probado sobre las 36 specs de OpenSpec: 251 requisitos. El camino entero —importar, medir
+  cada escenario con `oracle medida nueva … --escenario-de … --requisito …`, y juzgar con
+  `oracle cobertura --con` dentro de `/opsx:verify` y en un hook— está en `docs/openspec.md`.
+- **El generador busca y encoge.** `oracle caso generar` ya no se rinde cuando sus reglas no
+  alcanzan: parte de la evidencia que proponen y de la del corpus de la medida, cambia un campo por
+  un literal de la medida, por otro campo de la fila o por un vecino, duplica o quita filas, y se
+  queda con la primera evidencia en la que la medida y el mutante discrepan; después la achica
+  mientras discrepen. Con corpus vacío, lo generado fija 93,7 % del experimento con OpenSpec (antes
+  80,8 %), 88,9 % de LyraGASP (76,6 %), 83,9 % de Oracle (68,0 %) y 78,6 % de Jam (76,6 %: sus
+  escalares piden geometría que un corpus vacío no tiene). «Generación no posible» pasó de 28
+  medidas a 0.
+
+## Para actualizar
+
+Nada que migrar. `oracle caso generar` puede escribir ahora casos donde antes decía «generación no
+posible»: son `procedencia: generada`, suben la mutación y no el respaldo real.
 
 # 0.37.0 — lo que respalda la fijación, lo que alimenta a las medidas y lo que se cumple
 
