@@ -1,6 +1,6 @@
 # atribución MIT de los textos citados de OpenSpec
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: 
 
