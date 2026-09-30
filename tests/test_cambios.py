@@ -243,6 +243,79 @@ class CambiosTests(unittest.TestCase):
         self.assertEqual(codigo, 1)
         self.assertTrue(texto.startswith("✗ no se pudo leer el catálogo del árbol de trabajo: "), texto)
 
+    def _sensores(self, *rutas: str) -> None:
+        config = json.loads((self.raiz / "oracle.json").read_text(encoding="utf-8"))
+        config["sensores"] = list(rutas)
+        (self.raiz / "oracle.json").write_text(json.dumps(config), encoding="utf-8")
+
+    def test_una_escalar_cambiada_nombra_las_medidas_que_la_usan(self) -> None:
+        escalares = self.raiz / "escalares.py"
+        base = ('"""Escalares."""\nfrom oracle_metalenguaje import escalar\n\n\n@escalar("es_grande")\n'
+                'def es_grande(x):\n    return x > 10\n\n\n@escalar("es_chico")\ndef es_chico(x):\n'
+                '    return x < 1\n')
+        escalares.write_text(base, encoding="utf-8")
+        self._escribir(_medida().replace("donde c.codigo != 0", "donde es_grande(c.codigo)"), "falso_verde")
+        self._commit("con escalares")
+        from nucleo.proyecto import Proyecto
+        from tools import cambios
+
+        def correr() -> tuple[int, str]:
+            with redirect_stdout(io.StringIO()) as salida:
+                codigo = cambios.main(Proyecto(self.raiz), "HEAD", confiar=True)
+            return codigo, salida.getvalue()
+
+        escalares.write_text(base.replace('"""Escalares."""', '"""Otra docstring."""')
+                             .replace("x > 10", "x > 1000"), encoding="utf-8")
+        codigo, texto = correr()
+        self.assertEqual(codigo, 0)
+        self.assertIn("· escalar cambiada  es_grande  (la usan: dominio.x)", texto)
+        self.assertNotIn("es_chico", texto)
+        # Un cambio en el código que comparten alcanza a todas.
+        escalares.write_text(base.replace("from oracle_metalenguaje import escalar",
+                                          "from oracle_metalenguaje import escalar\nLIMITE = 3"), encoding="utf-8")
+        texto = correr()[1]
+        self.assertIn("· escalar cambiada  es_chico  (ninguna medida la usa)", texto)
+        self.assertIn("· escalar cambiada  es_grande  (la usan: dominio.x)", texto)
+
+    def test_una_relacion_cambiada_nombra_las_medidas_que_la_leen(self) -> None:
+        (self.raiz / "relaciones").mkdir()
+        ruta = self.raiz / "relaciones" / "corrida.relacion"
+        texto = 'relacion corrida:\n    codigo: entero sin_unidad\n    alcance "una corrida"\n'
+        ruta.write_text(texto, encoding="utf-8")
+        self._commit("con relación")
+        self.assertIn("nada se aflojó", self._correr()[1])
+        ruta.write_text(texto.replace("una corrida", "una corrida cualquiera"), encoding="utf-8")
+        codigo, salida = self._correr()
+        self.assertEqual(codigo, 0)
+        self.assertIn("· relación cambiada  corrida  (la usan: dominio.x)", salida)
+
+    def test_los_sensores_declarados_se_vigilan(self) -> None:
+        (self.raiz / "sensores").mkdir()
+        (self.raiz / "sensores" / "lee.py").write_text("HECHOS = 1\n", encoding="utf-8")
+        self._sensores("sensores")
+        self._commit("con sensores")
+        self.assertIn("nada se aflojó", self._correr()[1])
+        (self.raiz / "sensores" / "lee.py").write_text("HECHOS = 0\n", encoding="utf-8")
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 0)
+        self.assertIn("· sensor cambiado  sensores/lee.py", texto)
+        # Dejar de vigilar es error, y lo tocado en el mismo cambio se sigue viendo.
+        self._sensores()
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 1)
+        self.assertIn("✗ sensor que se deja de vigilar  sensores", texto)
+        self.assertIn("· sensor cambiado  sensores/lee.py", texto)
+
+    def test_sensores_mal_declarados_o_fuera_del_repositorio(self) -> None:
+        self._sensores("")
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 1)
+        self.assertIn("`sensores` de `oracle.json` debe ser una lista de rutas", texto)
+        self._sensores("../../fuera")
+        codigo, texto = self._correr()
+        self.assertEqual(codigo, 1)
+        self.assertIn("nombra una ruta que git no puede mirar", texto)
+
     def test_ref_inexistente(self) -> None:
         codigo, texto = self._correr("no-existe")
         self.assertEqual(codigo, 1)

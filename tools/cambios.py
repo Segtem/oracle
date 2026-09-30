@@ -9,18 +9,26 @@ es una decisión escrita y sale como aviso; uno que se afloja con el mismo `porq
 porque la defensa que queda ya no defiende el número que tiene al lado. Lo mismo con la cota de una
 sombra. Quitar un `requiere` es siempre error: vuelve verde lo que no midió nada.
 
+Un agente que no puede aflojar la medida puede aflojar lo que la alimenta (SpecBench, EvilGenie y el
+Reward Hacking Benchmark lo documentan): una escalar, una relación, el sensor que emite el hecho.
+Eso no se puede juzgar sin correrlo, así que se nombra: qué escalar o relación cambió y qué medidas
+la usan, y qué archivo de los `sensores` que declara `oracle.json` se tocó. Dejar de vigilar una
+ruta de `sensores` es error: es la forma de que todo lo anterior deje de avisar.
+
 Compara el árbol de trabajo contra `<ref>` (por omisión `HEAD`) y sale con 1 si hay algún error.
 """
 
 from __future__ import annotations
 
+import ast
 import json
 import subprocess
 import tempfile
 from pathlib import Path
 
 from nucleo.caso import leer as leer_caso
-from nucleo.medida import cargar_catalogo
+from nucleo.medida import cargar_catalogo, relaciones_de_medida
+from nucleo.relacion import Relacion, cargar_fuente_relacion, rutas_de_relaciones
 from nucleo.proyecto import (EscalaresInvalidas, EscalaresNoConfiables, ProyectoInvalido,
                              _sombra_declarada, escalares_del_proyecto, macros_del_proyecto)
 
@@ -73,6 +81,69 @@ def _sombra(raiz: Path) -> dict:
     if not ruta.is_file():
         return {}
     return {e.medida: e for e in _sombra_declarada(json.loads(ruta.read_text(encoding="utf-8")))}
+
+
+def _sensores(raiz: Path) -> list[str]:
+    ruta = raiz / "oracle.json"
+    datos = json.loads(ruta.read_text(encoding="utf-8")) if ruta.is_file() else {}
+    sensores = datos.get("sensores", [])
+    if not isinstance(sensores, list) or not all(isinstance(s, str) and s for s in sensores):
+        raise ProyectoInvalido("`sensores` de `oracle.json` debe ser una lista de rutas")
+    return sensores
+
+
+def _escalares(raiz: Path) -> dict[str, str]:
+    """Cada escalar declarada con la forma de su código. Si cambia lo que comparten (un ayudante,
+    un import, una constante), cambia la forma de todas: no se sigue quién llama a quién."""
+    ruta = raiz / "escalares.py"
+    if not ruta.is_file():
+        return {}
+    arbol = ast.parse(ruta.read_text(encoding="utf-8"))
+    propias, comun = {}, []
+    for nodo in arbol.body:
+        nombres = [d.args[0].value for d in getattr(nodo, "decorator_list", ())
+                   if isinstance(d, ast.Call) and getattr(d.func, "id", "") == "escalar"
+                   and d.args and isinstance(d.args[0], ast.Constant)]
+        if nombres:
+            propias.update(dict.fromkeys(nombres, ast.dump(nodo)))
+        elif not (isinstance(nodo, ast.Expr) and isinstance(nodo.value, ast.Constant)):
+            comun.append(ast.dump(nodo))   # la docstring del módulo no cuenta
+    return {n: forma + "".join(comun) for n, forma in propias.items()}
+
+
+def _relaciones(raiz: Path) -> dict[str, list]:
+    directorio = raiz / "relaciones"
+    if not directorio.is_dir():
+        return {}
+    relaciones = {}
+    for ruta in rutas_de_relaciones(directorio):
+        datos = cargar_fuente_relacion(ruta)
+        relaciones[Relacion.de_datos(datos).nombre] = datos
+    return relaciones
+
+
+def _quienes(medidas: dict, usa) -> str:
+    ids = sorted(mid for mid, m in medidas.items() if usa(m))
+    return f"  (la usan: {', '.join(ids)})" if ids else "  (ninguna medida la usa)"
+
+
+def comparar_fuentes(escalares_antes: dict, escalares_despues: dict, relaciones_antes: dict,
+                     relaciones_despues: dict, medidas: dict, sensores_antes: list[str],
+                     sensores_despues: list[str], sensores_tocados: list[str]) -> tuple[list[str], list[str]]:
+    """Lo que alimenta a las medidas sin ser una medida: escalares, relaciones y sensores."""
+    errores, avisos = [], []
+    for nombre in sorted(escalares_antes):
+        if escalares_despues.get(nombre, escalares_antes[nombre]) != escalares_antes[nombre]:
+            avisos.append(f"escalar cambiada  {nombre}" + _quienes(
+                medidas, lambda m: f'"{nombre}"' in json.dumps([m.tuberia, m.resumen])))
+    for nombre in sorted(relaciones_antes):
+        if relaciones_despues.get(nombre, relaciones_antes[nombre]) != relaciones_antes[nombre]:
+            avisos.append(f"relación cambiada  {nombre}" + _quienes(
+                medidas, lambda m: nombre in relaciones_de_medida(m)))
+    for ruta in sorted(set(sensores_antes) - set(sensores_despues)):
+        errores.append(f"sensor que se deja de vigilar  {ruta}")
+    avisos.extend(f"sensor cambiado  {ruta}" for ruta in sensores_tocados)
+    return errores, avisos
 
 
 def endurece_o_iguala(op_antes: str, lim_antes, op_despues: str, lim_despues) -> bool:
@@ -145,21 +216,34 @@ def _main(proy, ref: str) -> int:
     macros = macros_del_proyecto(proy)
     with tempfile.TemporaryDirectory() as tmp:
         viejo = Path(tmp)
-        _extraer(raiz, ref, viejo, [*_directorios_de_medidas(proy), "corpus", "oracle.json"])
+        _extraer(raiz, ref, viejo, [*_directorios_de_medidas(proy), "corpus", "oracle.json",
+                                    "escalares.py", "relaciones"])
         try:
             # ponytail: el ref se expande con las macros de HOY; si usaba una macro del proyecto que
             # ya se borró, no carga y se dice, en vez de comparar contra otra cosa.
             antes = _medidas(viejo, proy, macros)
             casos_antes, sombra_antes = _casos(viejo), _sombra(viejo)
-        except (ValueError, ProyectoInvalido) as e:
+            fuentes_antes = _escalares(viejo), _relaciones(viejo), _sensores(viejo)
+        except (ValueError, SyntaxError, ProyectoInvalido) as e:
             print(f"✗ no se pudo leer el catálogo de {ref}: {e}")
             return 1
     try:
         despues, casos_despues, sombra_despues = _medidas(raiz, proy, macros), _casos(raiz), _sombra(raiz)
-    except (ValueError, ProyectoInvalido) as e:
+        escalares, relaciones, sensores = _escalares(raiz), _relaciones(raiz), _sensores(raiz)
+    except (ValueError, SyntaxError, ProyectoInvalido) as e:
         print(f"✗ no se pudo leer el catálogo del árbol de trabajo: {e}")
         return 1
+    # Lo vigilado es lo que se vigilaba en el ref: sacar una ruta no la esconde de este mismo cambio.
+    vigiladas = sorted(set(fuentes_antes[2]) | set(sensores))
+    try:
+        tocados = _git(raiz, "diff", "--name-only", ref, "--", *vigiladas).splitlines() if vigiladas else []
+    except subprocess.CalledProcessError as e:
+        print(f"✗ `sensores` de `oracle.json` nombra una ruta que git no puede mirar: {e.stderr.strip()}")
+        return 1
     errores, avisos = comparar(antes, despues, casos_antes, casos_despues, sombra_antes, sombra_despues)
+    e2, a2 = comparar_fuentes(fuentes_antes[0], escalares, fuentes_antes[1], relaciones, despues,
+                              fuentes_antes[2], sensores, tocados)
+    errores, avisos = errores + e2, avisos + a2
     print(f"cambios desde {ref}:")
     for linea in errores:
         print(f"✗ {linea}")
