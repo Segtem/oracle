@@ -1,0 +1,30 @@
+{
+  "proyecto": "~/Dev/oracle",
+  "casos": {
+    "observada": 116,
+    "fabricada": 105,
+    "sin_declarar": 0,
+    "diferencial": 30
+  },
+  "mutantes": 1026,
+  "muertos_con_todo": 1026,
+  "muertos_por_conducta_con_todo": 849,
+  "muertos_por_grupo": {
+    "observada": 744,
+    "fabricada": 746,
+    "sin_declarar": 0,
+    "diferencial": 34
+  },
+  "muertos_sin_respaldo_de_un_defecto_real": 282,
+  "proporcion_sin_respaldo_real": 0.275,
+  "medidas": 59,
+  "medidas_con_algun_defecto_real": 59,
+  "medidas_fijadas_solo_con_inventada": [],
+  "etiquetas_observadas": {
+    "falso_verde": 52,
+    "verde_correcto": 58,
+    "deuda_de_diseño": 3,
+    "falso_rojo": 2,
+    "medida_correcta_conclusion_errada": 1
+  }
+}

@@ -1,0 +1,47 @@
+{
+  "proyecto": "~/Dev/games/unreal/LyraGASP/medidas",
+  "casos": {
+    "observada": 29,
+    "fabricada": 137,
+    "sin_declarar": 28,
+    "diferencial": 1740
+  },
+  "mutantes": 487,
+  "muertos_con_todo": 487,
+  "muertos_por_conducta_con_todo": 423,
+  "muertos_por_grupo": {
+    "observada": 103,
+    "fabricada": 356,
+    "sin_declarar": 149,
+    "diferencial": 93
+  },
+  "muertos_sin_respaldo_de_un_defecto_real": 384,
+  "proporcion_sin_respaldo_real": 0.789,
+  "medidas": 29,
+  "medidas_con_algun_defecto_real": 11,
+  "medidas_fijadas_solo_con_inventada": [
+    "animacion.linea_base_vacia",
+    "ml_deformer.autoria_habilitada_sin_malla_deformable",
+    "ml_deformer.cascara_excluida_no_declarada",
+    "ml_deformer.entrada_fbx_faltante",
+    "ml_deformer.malla_objetivo_fragmentada",
+    "ml_deformer.manifiesto_ausente_o_incompleto",
+    "ml_deformer.region_objetivo_ausente_en_la_malla",
+    "ml_deformer.region_objetivo_mayoritariamente_excluida",
+    "ml_deformer.region_objetivo_rigida",
+    "ml_deformer.regiones_objetivo_en_cascaras_distintas",
+    "personaje.animacion_en_esqueleto_incompatible",
+    "personaje.hueso_de_ik_sin_datos_que_lo_animen",
+    "personaje.malla_no_cubre_la_capsula",
+    "recarga.ability_bloquea_salto_por_tags",
+    "recarga.montage_en_slot_cuerpo_entero",
+    "recarga.objetivo_ik_contradice_pose_autorada",
+    "recarga.root_motion_habilitado",
+    "recarga.root_motion_no_decidible"
+  ],
+  "etiquetas_observadas": {
+    "verde_correcto": 17,
+    "falso_verde": 10,
+    "deuda_de_diseño": 2
+  }
+}
