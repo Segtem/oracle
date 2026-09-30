@@ -1,6 +1,6 @@
 # El trabajador de escalares se lanza con sys.executable, que en un Python embebido (Unreal) no es Python
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 90
 - ETIQUETAS: oracle
 
@@ -26,3 +26,7 @@ Verificación del corte 0.36.2 (38c1ed4): oracle test VERDE (2219 tests, 1026/10
 ### Nota (2026-09-30 02:23:43 UTC)
 
 Revisado por Claude: arreglo en nucleo/aislamiento/escalares.py (ORACLE_PYTHON, luego sys.executable o sys._base_executable si son un Python, luego python3 del PATH; si no, error con el remedio). oracle test VERDE, 2219 tests; CI verde en 38c1ed4 y 611b6f5. El wheel de dist/ trae el escalares.py del tag v0.36.2 y, instalado limpio, da oracle cobertura en LyraGASP (10) y Jam (16). Release de GitHub creado. Falta: que Brian suba a PyPI, verificar sha256 y pasar los consumidores.
+
+### Nota (2026-09-30 10:06:34 UTC)
+
+Publicado en PyPI por Brian; sha256 coinciden. Herramienta global 0.36.2. Consumidores medidos antes del pin: LyraGASP 027cd77 (78/116, 580, 487/487, suite 151, igual que antes); Jam da25a9d (28/9/3, 1099, 458/458, suite 1434; el cambio desde 28/4/3 y 448 es de las medidas nuevas de Jam: con 0.36.1 sobre el mismo árbol da igual), con el vendor en 0.36.2 y su tarea oracle-escalares-embebido cerrada; commander sin medidas propias.
