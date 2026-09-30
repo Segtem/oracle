@@ -138,7 +138,7 @@
   "razon": "En `tools/sitio.py`, `replace(\"</p>\", \"\", 1)` → `replace(\"</p>\", \"\", 2)`. El cuerpo HTML generado para un elemento de lista no suelta con un único párrafo contiene exactamente una etiqueta de cierre `</p>`. Al haber una única ocurrencia, reemplazar como máximo una o dos instancias produce exactamente la misma cadena."
  },
  {
-  "id": "tools/cli.py:789:39:constante",
+  "id": "tools/cli.py:798:39:constante",
   "linea_texto": "temporal.unlink(missing_ok=True)",
   "ordinal": 1,
   "razon": "En `tools/cli.py`, `temporal.unlink(missing_ok=True)` → `missing_ok=False` en el bloque `finally` de `_reemplazar`. La variable `temporal` sólo deja de ser `None` si la llamada previa a `NamedTemporaryFile(..., delete=False)` creó exitosamente el archivo en el sistema de archivos. Ninguna instrucción posterior dentro del bloque `try` elimina dicho archivo (la llamada `os.link(temporal, destino)` crea un enlace duro adicional al mismo inodo y `origen.unlink()` elimina el archivo fuente de entrada, no el temporal). Por lo tanto, al alcanzar `finally`, el archivo apuntado por `temporal` siempre existe en disco. En un archivo existente, `unlink(missing_ok=True)` y `unlink(missing_ok=False)` ejecutan la misma operación y ninguno genera `FileNotFoundError`. Ningún flujo de ejecución alcanzable distingue ambos valores booleanos."

@@ -21,7 +21,7 @@
     oracle proyecto relaciones              hechos y campos disponibles derivados de la evidencia
     oracle proyecto escalares               funciones de dominio y operadores disponibles
     oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
-    oracle proyecto cobertura [--confiar-escalares]  qué requisitos mide alguna medida y cuáles no
+    oracle proyecto cobertura [--con <hechos.json>] [--confiar-escalares]  qué requisitos mide alguna medida y, con evidencia, cuáles se cumplen
     oracle proyecto cambios [--desde <ref>] [--confiar-escalares]  lo que el catálogo aflojó desde un commit
 
     oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
@@ -138,7 +138,7 @@ Atajos directos:
   oracle relaciones                      Muestra las relaciones y campos observados
       --escribir                         Borradores en relaciones-por-revisar/ de las observadas sin declarar
   oracle escalares                       Muestra las funciones escalares y operadores
-  oracle cobertura                       Qué requisitos mide alguna medida y cuáles declaran que no
+  oracle cobertura [--con <hechos.json>] Qué requisitos mide alguna medida; con evidencia, cuáles se cumplen
   oracle cambios [--desde <ref>]         Lo que el catálogo aflojó desde un commit
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
@@ -677,6 +677,15 @@ def cmd_contexto(proy: Proyecto, argv: list[str]) -> int:
     print(contexto.texto(proy, compacto="--compacto" in argv,
                          confiar_escalares=confiar_escalares(argv)))
     return 0
+
+
+def cmd_cobertura(proy: Proyecto, args: list[str], confiar: bool = False) -> int:
+    from tools import cobertura
+    args = [a for a in args if a != "--rapido"]
+    if args and (args[0] != "--con" or len(args) != 2):
+        print("uso: oracle cobertura [--con <hechos.json>]")
+        return 1
+    return cobertura.main(proy, confiar=confiar, con=args[1] if args else None)
 
 
 def cmd_cambios(proy: Proyecto, args: list[str], confiar: bool = False) -> int:
@@ -1539,8 +1548,7 @@ def main(argv: list[str] | None = None) -> int:
         if verbo in ("contexto", "--contexto"):
             return cmd_contexto(proy, argv)
         if verbo in ("cobertura", "--cobertura"):
-            from tools import cobertura
-            return cobertura.main(proy, confiar=confiar_escalares(argv))
+            return cmd_cobertura(proy, resto[1:], confiar_escalares(argv))
         if verbo in ("cambios", "--cambios"):
             return cmd_cambios(proy, resto[1:], confiar_escalares(argv))
 
@@ -1576,8 +1584,7 @@ def main(argv: list[str] | None = None) -> int:
         return cmd_relaciones(proy, argv)
 
     if subcomando in ("cobertura", "--cobertura"):
-        from tools import cobertura
-        return cobertura.main(proy, confiar=confiar_escalares(argv))
+        return cmd_cobertura(proy, resto, confiar_escalares(argv))
 
     if subcomando in ("cambios", "--cambios"):
         return cmd_cambios(proy, resto, confiar_escalares(argv))

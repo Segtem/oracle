@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import io
+import json
 import tempfile
 import unittest
 from contextlib import redirect_stdout
@@ -216,6 +217,90 @@ class CoberturaTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()) as cli_salida:
             self.assertEqual(cli.main(["cobertura", "--proyecto", str(raiz), "--confiar-escalares"]), 0)
         self.assertIn("1 requisitos: 1 medidos", cli_salida.getvalue())
+
+    def _juzgar(self, raiz: Path, evidencia: dict, *, cli_argv: bool = False) -> tuple[int, str]:
+        ruta = raiz / "hechos.json"
+        ruta.write_text(json.dumps(evidencia), encoding="utf-8")
+        from nucleo.proyecto import Proyecto
+        from tools import cli, cobertura
+        salida = io.StringIO()
+        with redirect_stdout(salida):
+            codigo = (cli.main(["cobertura", "--con", str(ruta), "--proyecto", str(raiz)]) if cli_argv
+                      else cobertura.main(Proyecto(raiz), con=str(ruta)))
+        return codigo, salida.getvalue()
+
+    def test_con_evidencia_dice_si_se_cumple(self) -> None:
+        raiz = self._proyecto({"cli_validate.rutas_de_archivo.requisito": MEDIDO.replace(", openspec.b", ""),
+                               "cli_validate.opciones.requisito": PARCIAL,
+                               "cli_validate.progreso.requisito": SIN_MEDIDA})
+        codigo, texto = self._juzgar(raiz, {"corrida": [{"codigo": 0}]})
+        self.assertEqual(codigo, 0)
+        self.assertIn("✓ cli_validate.rutas_de_archivo   cumple · openspec.a cumple\n", texto)
+        self.assertIn("◐ cli_validate.opciones   cumple · openspec.a cumple · SIN MEDIR: el progreso", texto)
+        self.assertIn("· cli_validate.progreso   sin medir · SIN MEDIR:", texto)
+        self.assertIn("3 requisitos: 2 se cumplen (1 sólo en lo medido) · 0 no se cumplen · 0 sin juicio"
+                      " · 1 sin medir · 0 con medidas inexistentes", texto)
+        codigo, texto = self._juzgar(raiz, {"corrida": [{"codigo": 2}]}, cli_argv=True)
+        self.assertEqual(codigo, 1)
+        self.assertIn("✗ cli_validate.rutas_de_archivo   no cumple · openspec.a falla\n", texto)
+        self.assertIn("0 se cumplen (0 sólo en lo medido) · 2 no se cumplen", texto)
+
+    def test_en_sombra_no_se_cumple_pero_no_hace_fallar(self) -> None:
+        raiz = self._proyecto({"cli_validate.rutas_de_archivo.requisito": MEDIDO.replace(", openspec.b", "")})
+        (raiz / "oracle.json").write_text(json.dumps({
+            "esquema": "oracle.proyecto/v1", "catalogo_base": False, "perfiles": [],
+            "sombra": {"openspec.a": {"desde": "2026-09-30", "porque": "deuda", "cota": 5}}}), encoding="utf-8")
+        codigo, texto = self._juzgar(raiz, {"corrida": [{"codigo": 2}]})
+        self.assertEqual(codigo, 0)
+        self.assertIn("✗ cli_validate.rutas_de_archivo   no cumple · openspec.a falla en sombra", texto)
+
+    def test_sin_la_relacion_queda_sin_juicio(self) -> None:
+        raiz = self._proyecto({"cli_validate.rutas_de_archivo.requisito": MEDIDO.replace(", openspec.b", "")})
+        codigo, texto = self._juzgar(raiz, {"otra": [{"x": 1}]})
+        self.assertEqual(codigo, 0)
+        self.assertIn("? cli_validate.rutas_de_archivo   sin juicio · openspec.a no aplicada", texto)
+        self.assertIn("0 se cumplen (0 sólo en lo medido) · 0 no se cumplen · 1 sin juicio", texto)
+
+    def test_sin_evidencia_no_juzgo_e_inexistente(self) -> None:
+        raiz = self._proyecto({"cli_validate.rutas_de_archivo.requisito": MEDIDO.replace(", openspec.b", ""),
+                               "cli_validate.otro.requisito": MEDIDO.replace("cli_validate.rutas_de_archivo",
+                                                                             "cli_validate.otro")})
+        medida = raiz / "catalogos" / "openspec.a.oracle"
+        medida.write_text("medida openspec.a:\n    de corrida c\n    donde c.codigo != 0\n    resumen contar(1)\n"
+                          '    umbral <= 0 segun contrato porque "cero"\n    requiere corrida\n'
+                          '    ambito universal\n    alcance "prueba"\n', encoding="utf-8")
+        codigo, texto = self._juzgar(raiz, {"corrida": []})
+        self.assertEqual(codigo, 1)
+        self.assertIn("? cli_validate.rutas_de_archivo   sin juicio · openspec.a sin evidencia\n", texto)
+        self.assertIn("✗ cli_validate.otro   nombra medidas que no existen: openspec.b", texto)
+        self.assertIn("0 se cumplen (0 sólo en lo medido) · 0 no se cumplen · 1 sin juicio · 0 sin medir"
+                      " · 1 con medidas inexistentes", texto)
+        (raiz / "requisitos" / "cli_validate.otro.requisito").unlink()
+        codigo, texto = self._juzgar(raiz, {"corrida": [{"otro": 1}]})
+        self.assertEqual(codigo, 1)
+        self.assertIn("? cli_validate.rutas_de_archivo   sin juicio · openspec.a no juzgó\n", texto)
+        self.assertIn("✗ openspec.a no juzgó: ", texto)
+
+    def test_un_proyecto_que_no_se_puede_juzgar_se_dice(self) -> None:
+        raiz = self._proyecto({"cli_validate.progreso.requisito": SIN_MEDIDA})
+        (raiz / "oracle.json").write_text(json.dumps({
+            "esquema": "oracle.proyecto/v1", "catalogo_base": False, "perfiles": [],
+            "sombra": {"openspec.a": {"desde": "2026-09-30", "porque": "deuda", "cota": "mucha"}}}),
+            encoding="utf-8")
+        codigo, texto = self._juzgar(raiz, {"corrida": [{"codigo": 0}]})
+        self.assertEqual(codigo, 1)
+        self.assertTrue(texto.startswith("✗ no se pudo juzgar la evidencia: "), texto)
+
+    def test_evidencia_ilegible_o_uso_malo(self) -> None:
+        raiz = self._proyecto({"cli_validate.progreso.requisito": SIN_MEDIDA})
+        from nucleo.proyecto import Proyecto
+        from tools import cli, cobertura
+        with redirect_stdout(io.StringIO()) as salida:
+            self.assertEqual(cobertura.main(Proyecto(raiz), con=str(raiz / "no-existe.json")), 1)
+        self.assertIn("✗ el archivo de evidencia no existe", salida.getvalue())
+        with redirect_stdout(io.StringIO()) as salida:
+            self.assertEqual(cli.main(["cobertura", "--con", "--proyecto", str(raiz)]), 1)
+        self.assertIn("uso: oracle cobertura [--con <hechos.json>]", salida.getvalue())
 
     def test_sin_requisitos(self) -> None:
         codigo, texto = self._correr(self._proyecto({}))
