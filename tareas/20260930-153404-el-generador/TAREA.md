@@ -1,6 +1,6 @@
 # el generador busca y encoge evidencia en vez de aplicar reglas fijas
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 60
 - ETIQUETAS: oracle
 
