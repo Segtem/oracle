@@ -1,6 +1,6 @@
 # puente OpenSpec → Oracle: importar spec.md a requisitos y verificar como paso de /opsx:verify
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 85
 - ETIQUETAS: oracle
 
