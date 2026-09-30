@@ -70,6 +70,28 @@ def casos(proy, catalogo) -> list[dict]:
     return salida
 
 
+def respaldo_real(catalogo: dict, listado: list[dict], mutantes: list[dict]) -> str:
+    """Cuántos mutantes muertos mata al menos un caso con `procedencia: observada`.
+
+    La mutación dice que el corpus distingue a la medida de sus variantes, no que la medida atrape
+    defectos reales: Zhao, Zhou y Cohen (ISSTA 2026) muestran que el puntaje de mutación deja de
+    predecir la detección de fallas reales cuando el código ya tiene bugs. Medido el 2026-09-30, con
+    mutación 100 % en tres proyectos, la parte que ningún defecto real respalda iba de 27,5 % (el
+    propio Oracle) a 100 % (un consumidor sin ningún caso observado). Por eso la cifra va al lado, no
+    en su lugar.
+    """
+    def clave(m):
+        return m["apunta_a"], m["cambio"]
+    muertos = {clave(m) for m in mutantes if m["detecciones_conductuales"] or m["rechazos_del_algebra"]}
+    observados = [c for c in listado if c.get("procedencia") == "observada"]
+    respaldados = {clave(m) for m in correr(catalogo, observados)["mutante"]
+                   if m["detecciones_conductuales"] or m["rechazos_del_algebra"]} & muertos
+    sin_respaldo = len(muertos) - len(respaldados)
+    return (f"respaldo real: {len(respaldados)} de {len(muertos)} muertos los mata al menos un caso "
+            f"observado; {sin_respaldo} sólo los sostiene evidencia construida, generada, sin "
+            f"procedencia o diferencial")
+
+
 def _ejecutar(proy, args: list[str]) -> int:
     estructura = problemas_estructura(proy, ("catalogos", "corpus", "diferencial"))
     if estructura:
@@ -115,6 +137,7 @@ def _ejecutar(proy, args: list[str]) -> int:
     print(f"  de los muertos: {conductuales} por conducta "
           f"(invirtió el veredicto, cambió testigos o cambió el valor) · "
           f"{len(solo_excepcion)} rechazados por el álgebra sin evaluar")
+    print(f"  {respaldo_real(catalogo, listado, mutantes)}")
     print(f"detecciones evaluadas (mutante × caso): {len(evidencia['deteccion'])}\n")
 
     # El bucle: los hechos del sensor, juzgados por MEDIDAS. Antes acá había un `if vivos: return 1`

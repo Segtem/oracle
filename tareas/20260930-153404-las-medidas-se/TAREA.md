@@ -11,3 +11,7 @@ Por qué: Zhao, Zhou y Cohen (ISSTA 2026, arXiv 2607.22880) muestran que el punt
 ### Nota (2026-09-30 15:46:56 UTC)
 
 Experimento 1 (2026-09-30, procedencia.py): la mutación de medidas corrida por grupo de procedencia (observada, construida o generada, corpus sin declarar, fixtures diferenciales). Los tres proyectos publican mutación 100 %, pero la parte que ningún defecto real respalda (mutantes muertos que no mata ningún caso observado) es: Oracle 282 de 1026 (27,5 %; las 59 medidas tienen algún defecto real), LyraGASP 384 de 487 (78,9 %; 11 de 29 medidas con defecto real), Jam 458 de 458 (100 %; 0 de 42 medidas: su corpus no tiene ni un caso observado y la fijación sale del diferencial, 4298 casos, y de 40 casos construidos o sin procedencia). Es el efecto de Zhao et al. (ISSTA 2026) medido en Oracle: la cifra de mutación dice que el corpus distingue la medida de sus variantes, no que atrape defectos reales. Resultados en resultados/*.json. Próximo: que oracle test lo diga junto a la mutación.
+
+### Nota (2026-09-30 16:02:26 UTC)
+
+La mutación de medidas imprime ahora «respaldo real»: cuántos muertos mata al menos un caso observado. En Oracle: 744 de 1026 (282 sólo por evidencia fabricada). Mutación parcial de las líneas nuevas: 5/5. Suite 2221 OK, oracle test VERDE.

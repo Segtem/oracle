@@ -302,6 +302,7 @@ DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 mutantes de medida (medida × mutador): 18 · murieron 10 · sobrevivieron 8
   con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 10 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 10 muertos los mata al menos un caso observado; 10 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
 detecciones evaluadas (mutante × caso): 18
 
 sin políticas meta activas — se informa sólo el resultado operativo
@@ -379,6 +380,7 @@ DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 mutantes de medida (medida × mutador): 18 · murieron 14 · sobrevivieron 4
   con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 14 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 14 muertos los mata al menos un caso observado; 14 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
 detecciones evaluadas (mutante × caso): 36
 
 sin políticas meta activas — se informa sólo el resultado operativo
@@ -444,6 +446,7 @@ DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 mutantes de medida (medida × mutador): 18 · murieron 18 · sobrevivieron 0
   con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 18 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 18 muertos los mata al menos un caso observado; 18 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
 detecciones evaluadas (mutante × caso): 90
 
 sin políticas meta activas — se informa sólo el resultado operativo
@@ -571,6 +574,7 @@ DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 mutantes de medida (medida × mutador): 36 · murieron 32 · sobrevivieron 4
   con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 32 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 32 muertos los mata al menos un caso observado; 32 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
 detecciones evaluadas (mutante × caso): 126
 
 medidas que no se pudieron mutar por falta de casos:
@@ -747,6 +751,7 @@ DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 mutantes de medida (medida × mutador): 209 · murieron 209 · sobrevivieron 0
   con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 158 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 51 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 209 muertos los mata al menos un caso observado; 209 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
 detecciones evaluadas (mutante × caso): 634
 
 sin políticas meta activas — se informa sólo el resultado operativo

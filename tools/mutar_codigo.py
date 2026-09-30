@@ -107,7 +107,7 @@ PRIORIDADES = {
         "tests.test_mutacion_codigo.LimiteMemoriaTests",
         "tests.test_mutacion_codigo.FiltroSitiosTests"),
     "tools/mutar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
-                       "tests.test_mutacion"),
+                       "tests.test_mutacion", "tests.test_mutar_respaldo_real"),
     "tools/trazar.py": ("tests.test_custodia_fase1", "tests.test_herramientas",
                         "tests.test_algebra"),
     "tools/verificar_instalacion.py": ("tests.test_verificar_instalacion",),

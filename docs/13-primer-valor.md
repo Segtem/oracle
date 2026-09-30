@@ -188,6 +188,7 @@ DIFERENCIAL: salteado (el proyecto no tiene fixtures en diferencial/ todavía)
 mutantes de medida (medida × mutador): 20 · murieron 20 · sobrevivieron 0
   con 30 mutadores: 6 de quien escribió el lenguaje y 24 de otro autor (ver https://github.com/Segtem/oracle/blob/main/docs/decisiones/DECISION-011-LOS-MUTADORES-TIENEN-AUTOR.md)
   de los muertos: 20 por conducta (invirtió el veredicto, cambió testigos o cambió el valor) · 0 rechazados por el álgebra sin evaluar
+  respaldo real: 0 de 20 muertos los mata al menos un caso observado; 20 sólo los sostiene evidencia construida, generada, sin procedencia o diferencial
 detecciones evaluadas (mutante × caso): 120
 
 sin políticas meta activas — se informa sólo el resultado operativo
