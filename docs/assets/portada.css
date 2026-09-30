@@ -50,6 +50,9 @@
 .flujo li.final { border-color: var(--acento); background: var(--acento-suave); }
 .paso { color: var(--acento); font-size: 11px; }
 @keyframes fluir { 0%, 100% { opacity: 0.35; } 50% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .flujo li:not(:last-child)::after { animation: none; }
+}
 
 /* ---------------------------------------------------------------- medida anotada */
 .par { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: clamp(20px, 4vw, 48px); align-items: start; }

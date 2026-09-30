@@ -177,7 +177,25 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
   </figure>
 </section>
 
-<section class="capitulo envoltura dos-escenas invertido" aria-labelledby="t-sombra">
+<section class="capitulo envoltura dos-escenas invertido" aria-labelledby="t-generador">
+  <div>
+    <p class="ceja pixel">generación con búsqueda</p>
+    <h2 id="t-generador">El generador no se rinde: busca y encoge hasta dar con el contraejemplo.</h2>
+    <div class="lectura">
+      <p>Cuando las reglas directas no alcanzan para matar a un mutante, <code>oracle caso generar</code>
+      explora el espacio de evidencia: toma literales de la medida, vecinos y filas del corpus hasta encontrar
+      una combinación donde la regla y el mutante discrepen.</p>
+      <p>Una vez hallada la discrepancia, no te deja una masa de datos ruidosa: <strong>encoge la evidencia</strong>
+      quitando filas y campos mientras sigan discrepando, hasta aislar el caso mínimo irreducible.</p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="generador" role="img" aria-label="El generador de casos busca perturbando valores hasta que la medida y el mutante discrepan. Luego encoge la evidencia quitando filas sobrantes hasta dejar el caso mínimo que mata al mutante."></canvas>
+    <figcaption>Busca la discrepancia entre medida y mutante, y luego encoge la evidencia hasta el caso mínimo.</figcaption>
+  </figure>
+</section>
+
+<section class="capitulo envoltura dos-escenas" aria-labelledby="t-sombra">
   <div>
     <p class="ceja pixel">deuda con límite</p>
     <h2 id="t-sombra">La sombra perdona, pero sólo hasta su cota.</h2>
@@ -193,12 +211,71 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
   </figure>
 </section>
 
+<section class="capitulo envoltura dos-escenas invertido" aria-labelledby="t-cambios">
+  <div>
+    <p class="ceja pixel">vigilancia de cambios</p>
+    <h2 id="t-cambios">Nadie afloja una regla ni toca un sensor a escondidas.</h2>
+    <div class="lectura">
+      <p>Un verificador se debilita cuando alguien sube un umbral, quita un <code>requiere</code> o modifica
+      un sensor para esconder un fallo en vez de arreglarlo. <code>oracle cambios --desde &lt;ref&gt;</code>
+      compara tu árbol de trabajo contra el commit de referencia.</p>
+      <p>Aflojar no se prohíbe, pero se declara: subir un umbral con el mismo <code>porque</code> es error.
+      Y con <code>"sensores"</code> en <code>oracle.json</code>, vigila además los archivos que alimentan
+      a las medidas para que ningún sensor deje de avisar.</p>
+      <p><a href="07-conectar-a-un-proyecto-propio.html">Conectar un proyecto y vigilar sensores</a></p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="cambios" role="img" aria-label="oracle cambios detecta que alguien intentó aflojar un umbral manteniendo el mismo porque y modificó un sensor vigilado. El centinela hace sonar la alarma y atrapa el intento en rojo."></canvas>
+    <figcaption>Alguien afloja un umbral y toca un sensor. oracle cambios lo compara con la referencia y lo atrapa.</figcaption>
+  </figure>
+</section>
+
+<section class="capitulo envoltura dos-escenas" aria-labelledby="t-requisitos">
+  <div>
+    <p class="ceja pixel">requisitos y cobertura</p>
+    <h2 id="t-requisitos">Cada promesa del producto tiene su veredicto exacto.</h2>
+    <div class="lectura">
+      <p>Una medida dice qué ofende, pero un <code>.requisito</code> dice qué promesa del producto protege.
+      Con <code>oracle cobertura --con &lt;hechos.json&gt;</code>, el catálogo juzga la evidencia real y califica
+      cada requisito con honestidad:</p>
+      <p><strong>✓</strong> se cumple por completo; <strong>◐</strong> se cumple en lo medido pero admite
+      escenarios <code>sin_medir</code>; <strong>✗</strong> no se cumple (incluso si la medida está en sombra);
+      y <strong>?</strong> quedó sin juicio por falta de evidencia.</p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="requisitos" role="img" aria-label="oracle cobertura evalúa los requisitos contra hechos reales y clasifica cada promesa: cumplida con tilde verde, parcial en lo medido con círculo bicolor ámbar, rota con cruz roja o sin juicio con signo de interrogación."></canvas>
+    <figcaption>oracle cobertura juzga cada requisito: cumplido (✓), parcial (◐), roto (✗) o sin juicio (?).</figcaption>
+  </figure>
+</section>
+
+<section class="capitulo envoltura dos-escenas invertido" aria-labelledby="t-openspec">
+  <div>
+    <p class="ceja pixel">de la spec a la medida</p>
+    <h2 id="t-openspec">OpenSpec entra como especificación y sale como requisitos.</h2>
+    <div class="lectura">
+      <p>Las especificaciones de desarrollo para agentes ya tienen formato estándar. Con
+      <code>oracle requisito importar</code>, cada sección <code>### Requirement:</code> y cláusula
+      <code>SHALL</code> de OpenSpec se convierte en un archivo <code>.requisito</code> con su texto y su fuente.</p>
+      <p>Nace con sus escenarios pendientes en <code>sin_medir</code> para no fingir cobertura. Desde allí,
+      <code>oracle medida nueva --escenario-de</code> crea las medidas que cierran el circuito entre la spec
+      y el código.</p>
+      <p><a href="openspec.html">OpenSpec y Oracle</a></p>
+    </div>
+  </div>
+  <figure class="escena">
+    <canvas data-escena="openspec" role="img" aria-label="Una especificación spec.md en formato OpenSpec entra al comando oracle requisito importar y sale convertida en archivos .requisito con texto, fuente y sin medir; luego se enlaza la medida."></canvas>
+    <figcaption>La spec de OpenSpec entra con sus cláusulas SHALL y sale convertida en requisitos medibles.</figcaption>
+  </figure>
+</section>
+
 <section class="capitulo envoltura dos-escenas" aria-labelledby="t-agentes">
   <div>
     <p class="ceja pixel">agentes</p>
     <h2 id="t-agentes">El agente escribe. Oracle juzga desde afuera.</h2>
     <div class="lectura">
-      <p>Un agente de programación puede consultar a Oracle por <a href="mcp-contrato.html">MCP</a>: qué
+      <p>Un agente de programación puede consultar a Oracle por <a href="mcp.html">MCP</a>: qué
       reglas aplican, qué dice una medida sobre estos hechos, cuál es el veredicto del catálogo entero.
       El servidor es de sólo lectura: por ahí el agente no puede cambiar las reglas para darse la
       razón.</p>
@@ -241,7 +318,7 @@ $ oracle formatear catalogos/naval/naval.cuenta.oracle
     <a class="recorrido" href="03-escribir-una-medida.html"><span class="pixel">el lenguaje</span><strong>Escribir una medida</strong><span>Anatomía, macros, la forma canónica y los errores que te dice.</span></a>
     <a class="recorrido" href="07-conectar-a-un-proyecto-propio.html"><span class="pixel">integrar</span><strong>Conectar un proyecto</strong><span>Sensor puro, adaptador, vigilar sensores con cambios, escalares propias y la sombra.</span></a>
     <a class="recorrido" href="openspec.html"><span class="pixel">specs</span><strong>OpenSpec y Oracle</strong><span>Importar requisitos con oracle requisito importar y juzgar evidencia con cobertura --con.</span></a>
-    <a class="recorrido" href="12-tareas.html"><span class="pixel">trabajo</span><strong>El tracker de tareas</strong><span>Tareas en carpetas y Markdown, con el próximo paso como relevo.</span></a>
+    <a class="recorrido" href="https://github.com/Segtem/trackertast"><span class="pixel">trabajo</span><strong>El tracker de tareas</strong><span>Tareas en carpetas y Markdown, con el próximo paso como relevo.</span></a>
     <a class="recorrido" href="especificacion.html"><span class="pixel">referencia</span><strong>Especificación</strong><span>El álgebra entera, para implementarla sin ver el núcleo.</span></a>
   </div>
 </section>
