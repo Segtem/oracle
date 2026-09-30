@@ -6,6 +6,7 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 <!-- notas_indice:inicio -->
 | versión | qué trae |
 |---|---|
+| [0.37.0](#0370--lo-que-respalda-la-fijación-lo-que-alimenta-a-las-medidas-y-lo-que-se-cumple) | lo que respalda la fijación, lo que alimenta a las medidas y lo que se cumple |
 | [0.36.2](#0362--las-escalares-en-un-python-embebido) | las escalares en un Python embebido |
 | [0.36.1](#0361--los-requisitos-usados-de-verdad) | los requisitos, usados de verdad |
 | [0.36.0](#0360--la-mutación-no-cuenta-muertes-que-no-pasaron-y-el-generador-escribe-los-casos-con-sin) | la mutación no cuenta muertes que no pasaron, y el generador escribe los casos con `sin` |
@@ -31,6 +32,37 @@ Una sección por versión, de la más nueva a la más vieja. Las anteriores a 0.
 | [0.20.0](#0200--motor-juzga-con-el-mismo-catálogo-y-las-mismas-sombras-que-oracle-test) | `Motor` juzga con el mismo catálogo y las mismas sombras que `oracle test` |
 | 0.19.0 y anteriores | en [docs/notas/anteriores-a-0.20.md](docs/notas/anteriores-a-0.20.md) |
 <!-- notas_indice:fin -->
+
+# 0.37.0 — lo que respalda la fijación, lo que alimenta a las medidas y lo que se cumple
+
+```
+VERSION_DISTRIBUCION   0.36.2 → 0.37.0   respaldo real, cambios en los sensores, cobertura con veredicto
+VERSION_ALGEBRA        1.0    → 1.0
+VERSION_SINTAXIS       1.1    → 1.1
+```
+
+Tres mejoras tomadas del estado del arte: la mutación que no predice fallas reales, los agentes que
+aflojan el verificador en vez de arreglar el código, y la pregunta «¿el código cumple la spec?».
+
+- **Respaldo real en la mutación de medidas.** Un mutante muerto sólo por evidencia construida o
+  generada prueba que la medida está fijada contra lo que alguien imaginó, no contra un defecto que
+  existió. Al lado de la cifra sale ahora
+  `respaldo real: N de M muertos los mata al menos un caso observado`. Un catálogo con mutación
+  100 % y respaldo 0 es un catálogo que todavía no vio el mundo.
+- **`oracle cambios` mira lo que alimenta a las medidas.** Nombra la escalar que cambió (se compara
+  `escalares.py` función por función; si cambia el código común, todas) y la relación que cambió,
+  con las medidas que las usan. Con `"sensores": ["../tools/sensores"]` en `oracle.json`, nombra
+  además cada archivo de sensor tocado. Sacar una ruta de `sensores` es error, igual que quitar un
+  `requiere`: es la forma de que todo lo demás deje de avisar.
+- **`oracle cobertura --con <hechos.json>`.** Juzga la evidencia —con sombras y cotas, como
+  `oracle juzgar`— y marca cada requisito: ✓ se cumple, ◐ se cumple en lo medido (con su
+  `SIN MEDIR`), ✗ no se cumple (también si la medida roja está en sombra) y ? sin juicio (sin
+  evidencia, no aplicada o no juzgó). Sale con 1 si hay un rojo que la sombra no perdona.
+
+## Para actualizar
+
+Nada que migrar. Para que `oracle cambios` vigile tus sensores, declarálos en `oracle.json`:
+`"sensores": ["../tools/sensores"]` (rutas relativas al proyecto; pueden salir de él).
 
 # 0.36.2 — las escalares en un Python embebido
 

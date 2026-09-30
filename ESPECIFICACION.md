@@ -36,7 +36,7 @@ decorativo; con ella, la incompatibilidad se detecta en vez de descubrirse.
 La distribución se versiona aparte como `VERSION_DISTRIBUCION`, con `MAYOR.MENOR.PARCHE`, porque
 también cambia cuando cambia una herramienta sin cambiar el lenguaje.
 
-**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.36.2`.**
+**Versiones vigentes: álgebra `1.0`, sintaxis `1.1`, distribución `0.37.0`.**
 
 Esa línea es lo primero que necesita quien va a implementar el álgebra sin ver el núcleo, y hasta
 0.23.2 no estaba: había que deducirla del último párrafo de una crónica de veinte cortes, varios de
@@ -50,6 +50,17 @@ Se queda acá, y no en las notas de release, porque es lo que vuelve discutible 
 —un número sin su argumento no se puede auditar—. Va del corte más nuevo al más viejo, y un test lo
 comprueba. Para saber en qué versión está el lenguaje no hace falta recorrerla: está en la línea de
 arriba.
+
+**Corte 0.37.0 (2026-09-30): `VERSION_DISTRIBUCION` sube de `0.36.2` a `0.37.0`.** Tres
+mejoras que salen del estado del arte sobre verificadores que se aflojan y fijación que ningún
+defecto real respalda. La mutación de medidas imprime al lado de su cifra el **respaldo real**:
+cuántos muertos mata al menos un caso con procedencia `observada`; medido en tres proyectos con
+mutación 100 %, la parte sin respaldo iba de 27,5 % a 100 %. `oracle cambios` nombra también lo que
+alimenta a las medidas —la escalar o la relación que cambió y qué medidas la usan, y los archivos
+de los `sensores` que declara `oracle.json`— y dejar de vigilar una ruta de `sensores` es error.
+`oracle cobertura --con <hechos.json>` juzga la evidencia y dice qué requisitos se cumplen, no sólo
+cuáles tienen medida. No cambia el álgebra ni la superficie. La mutación del corte: `tools/cambios.py`, `tools/cobertura.py`, `tools/cli.py` y
+`tools/mutar.py` completos, 974 mutantes, ninguno vivo, tres equivalentes declarados.
 
 **Corte 0.36.2 (2026-09-30): `VERSION_DISTRIBUCION` sube de `0.36.1` a `0.36.2`.** Un arreglo:
 el trabajador que aísla las escalares del proyecto se lanzaba con `sys.executable`, y en un Python
