@@ -119,12 +119,14 @@ PRIORIDADES = {
     "tools/cli.py": ("tests.test_reportar", "tests.test_vigilar", "tests.test_biblioteca",
                      "tests.test_cli", "tests.test_censar", "tests.test_manual",
                      "tests.test_herramientas", "tests.test_cli_integracion",
-                     "tests.test_requisito", "tests.test_cambios", "tests.test_escenario"),
+                     "tests.test_requisito", "tests.test_cambios", "tests.test_escenario",
+                     "tests.test_openspec"),
     # `test_contexto` primero y solo: es chico y es suyo. La lección de costo de arriba —un mutante
     # cuesta lo que tarde el arnés en LLEGAR al test que lo mata— dice poner el módulo más
     # específico adelante, y acá se puede porque el archivo tiene su propio test.
     "tools/contexto.py": ("tests.test_contexto", "tests.test_cli"),
     "tools/cobertura.py": ("tests.test_requisito",),
+    "tools/openspec.py": ("tests.test_openspec",),
     "tools/cambios.py": ("tests.test_cambios",),
     "tools/escenario.py": ("tests.test_escenario",),
     "tools/corpus.py": ("tests.test_corpus_cli", "tests.test_herramientas", "tests.test_cli"),
@@ -315,7 +317,7 @@ HERRAMIENTAS_CUSTODIAS = ("aceptacion.py", "censar.py", "cifras.py", "cambios.py
                           "diferencial.py", "generar_diferencial.py",
                           "ejecutar_suite_mutacion.py",
                           "corpus.py", "formato.py", "guia.py", "juzgar.py", "manual.py", "medida.py", "metamorficas.py",
-                          "mutar.py", "mutar_codigo.py", "observar.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
+                          "mutar.py", "mutar_codigo.py", "observar.py", "openspec.py", "reportar.py", "sintaxis.py", "sondear_generador.py",
                           "sondear_procedencia.py",
                           "sitio.py", "trazar.py", "verificar_instalacion.py")
 

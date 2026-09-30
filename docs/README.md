@@ -26,6 +26,7 @@ cazás sus mutantes. Si nunca usaste Oracle, no hace falta leer nada antes.
 | correr la mutación sin quedarte sin memoria | [Memoria de la mutación](mutacion-memoria.md) | cómo medir la memoria y limitar las rondas con systemd |
 | llevar las tareas del proyecto | [trackertast](https://github.com/Segtem/trackertast) (paquete aparte) | el comando `tasks` y el próximo paso como relevo |
 | usar un modelo como sensor de prosa | [Un modelo como sensor](14-sensor-prosa.md) | el patrón optativo, con calibración y revisión humana |
+| verificar una spec de OpenSpec | [OpenSpec y Oracle](openspec.md) | importar los requisitos, medir cada escenario y juzgar como paso de `/opsx:verify` |
 | conectar un agente por MCP | [El servidor MCP](mcp.md) (paquete aparte, oracle-mcp) | cómo configurarlo en Claude Code y Codex, y por qué es sólo de lectura |
 | implementar el álgebra sin ver el núcleo | [Especificación](../ESPECIFICACION.md) | el álgebra entera y la crónica de cada versión |
 | escribir medidas en tu editor, con diagnósticos | [Editores](../editores/README.md) | el servidor de lenguaje y la configuración de cada editor |

@@ -23,6 +23,7 @@
     oracle proyecto contexto [--compacto]   todo lo que hace falta para escribir una medida acá
     oracle proyecto cobertura [--con <hechos.json>] [--confiar-escalares]  qué requisitos mide alguna medida y, con evidencia, cuáles se cumplen
     oracle proyecto cambios [--desde <ref>] [--confiar-escalares]  lo que el catálogo aflojó desde un commit
+    oracle requisito importar <spec.md | openspec/specs> [--dominio <d>] [--escribir]  las promesas de OpenSpec como requisitos sin medir
 
     oracle biblioteca nueva <id> [ruta]     crea el esqueleto de una biblioteca publicable
     oracle biblioteca instaladas            lista las instaladas y cuáles usa el proyecto
@@ -139,6 +140,8 @@ Atajos directos:
       --escribir                         Borradores en relaciones-por-revisar/ de las observadas sin declarar
   oracle escalares                       Muestra las funciones escalares y operadores
   oracle cobertura [--con <hechos.json>] Qué requisitos mide alguna medida; con evidencia, cuáles se cumplen
+  oracle requisito importar <spec.md | openspec/specs> [--dominio <d>] [--escribir]
+                                         Los requisitos de OpenSpec como .requisito, sin medir
   oracle cambios [--desde <ref>]         Lo que el catálogo aflojó desde un commit
   oracle expandir <archivo>              Muestra la forma canónica de una macro
   oracle diagnostico [--salida <ruta>]   Versión, entorno y forma del proyecto, sin red
@@ -384,6 +387,7 @@ VERBOS = {
     "caso": ("nuevo", "listar", "generar"),
     "proyecto": ("init", "test", "juzgar", "relaciones", "escalares", "contexto", "cobertura", "cambios"),
     "biblioteca": ("nueva", "instaladas", "verificar", "listar"),
+    "requisito": ("importar",),
     # Los temas del manual NO se copian acá: son los que el manual sabe mostrar. Copiarlos sería
     # una segunda lista que se despega, que es exactamente lo que el manual existe para evitar.
     "manual": tuple(manual.temas()),
@@ -686,6 +690,30 @@ def cmd_cobertura(proy: Proyecto, args: list[str], confiar: bool = False) -> int
         print("uso: oracle cobertura [--con <hechos.json>]")
         return 1
     return cobertura.main(proy, confiar=confiar, con=args[1] if args else None)
+
+
+USO_REQUISITO = "uso: oracle requisito importar <spec.md | openspec/specs> [--dominio <d>] [--escribir]"
+
+
+def cmd_requisito(proy: Proyecto, resto: list[str]) -> int:
+    from tools import openspec
+    args = [a for a in resto if a != "--rapido"]
+    escribir = "--escribir" in args
+    args = [a for a in args if a != "--escribir"]
+    dominio = None
+    if "--dominio" in args:
+        i = args.index("--dominio")
+        if i + 1 >= len(args):
+            print(USO_REQUISITO)
+            return 1
+        dominio = args.pop(i + 1)
+        args.pop(i)
+    if not args or args[0] not in verbos_aceptados("requisito"):
+        return _verbo_desconocido("requisito", args[0]) if args else (print(USO_REQUISITO) or 1)
+    if len(args) != 2:
+        print(USO_REQUISITO)
+        return 1
+    return openspec.main(proy, args[1], dominio=dominio, escribir=escribir)
 
 
 def cmd_cambios(proy: Proyecto, args: list[str], confiar: bool = False) -> int:
@@ -1585,6 +1613,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if subcomando in ("cobertura", "--cobertura"):
         return cmd_cobertura(proy, resto, confiar_escalares(argv))
+
+    if subcomando == "requisito":
+        return cmd_requisito(proy, resto)
 
     if subcomando in ("cambios", "--cambios"):
         return cmd_cambios(proy, resto, confiar_escalares(argv))

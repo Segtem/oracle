@@ -47,6 +47,7 @@ PAGINAS = (
     Pagina("docs/tutorial-practico.md", "tutorial-practico.html", "Entender", "Tutorial práctico"),
     Pagina("docs/recetas.md", "recetas.html", "Entender", "Recetas de medidas"),
     Pagina("docs/14-sensor-prosa.md", "14-sensor-prosa.html", "Herramientas", "Un modelo como sensor"),
+    Pagina("docs/openspec.md", "openspec.html", "Herramientas", "OpenSpec y Oracle"),
     Pagina("docs/mcp.md", "mcp.html", "Herramientas", "El servidor MCP"),
     Pagina("docs/mutacion-memoria.md", "mutacion-memoria.html", "Herramientas", "Memoria de la mutación"),
     Pagina("docs/reportar.md", "reportar.html", "Herramientas", "Reportar un límite"),

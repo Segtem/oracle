@@ -207,6 +207,9 @@ jobs:
           # Entra el 2026-09-28: dice qué aflojó un cambio al catálogo. Si calla, un umbral subido
           # con la misma defensa pasa como una línea más del diff.
           - tools/cambios.py
+          # Entra el 2026-09-30: importa los requisitos de OpenSpec. Si inventara un `medido_por`, un
+          # requisito sin medir se leería como cubierto.
+          - tools/openspec.py
           # Entra el 2026-09-28: lee el escenario del que nace una medida. Si lee mal, la medida
           # arranca defendiendo otra cosa que la que la spec pide.
           - tools/escenario.py
