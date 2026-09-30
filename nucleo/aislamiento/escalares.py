@@ -46,7 +46,9 @@ import contextlib
 import importlib.util
 import json
 import os
+import re
 import selectors
+import shutil
 import signal
 import subprocess
 import sys
@@ -101,6 +103,37 @@ def camino_del_trabajador() -> str:
     return os.pathsep.join(
         dict.fromkeys((str(RAIZ_ORACLE), str(_raiz_importable()))))
 TIEMPO_MAXIMO_SEGUNDOS = 10
+
+#: Un Python embebido en otro programa no tiene su intérprete en `sys.executable`: ahí está el programa
+#: anfitrión. Quien embebe puede decir cuál usar con esta variable.
+VARIABLE_INTERPRETE = "ORACLE_PYTHON"
+
+
+def _es_python(ruta: str | None) -> bool:
+    return bool(ruta) and re.fullmatch(r"python(\d+(\.\d+)*)?(w)?(\.exe)?",
+                                       Path(ruta).name.lower()) is not None
+
+
+def interprete_del_trabajador() -> str:
+    """Con qué Python se lanza el trabajador. `sys.executable` NO alcanza: en un Python embebido es el
+    programa anfitrión, y lanzarlo con `-m` abre otra instancia de ese programa, que nunca contesta
+    como un trabajador: toda UDF del proyecto quedaba sin evaluar. En orden: `ORACLE_PYTHON`,
+    `sys.executable` si es un Python, `sys._base_executable` ídem, y `python3` del PATH. Si nada
+    sirve, se niega con el remedio en el mensaje."""
+    pedido = os.environ.get(VARIABLE_INTERPRETE)
+    if pedido:
+        if not Path(pedido).is_file():
+            raise ErrorEscalarAislada(f"{VARIABLE_INTERPRETE}={pedido} no es un archivo")
+        return pedido
+    for candidato in (sys.executable, getattr(sys, "_base_executable", None)):
+        if _es_python(candidato):
+            return candidato
+    del_path = shutil.which("python3") or shutil.which("python")
+    if del_path:
+        return del_path
+    raise ErrorEscalarAislada(
+        f"no encuentro un intérprete de Python para el trabajador de escalares: sys.executable es "
+        f"{sys.executable!r} (¿Python embebido?). Fijá {VARIABLE_INTERPRETE} a un python3 >= 3.11")
 
 
 class ErrorEscalarAislada(RuntimeError):
@@ -184,7 +217,7 @@ class TrabajadorEscalares:
             "LANG": "C.UTF-8",
         }
         self._proc = subprocess.Popen(
-            [sys.executable, "-B", "-m", "nucleo.aislamiento.escalares",
+            [interprete_del_trabajador(), "-B", "-m", "nucleo.aislamiento.escalares",
              "--trabajador", str(self.raiz), str(self.archivo)],
             cwd=RAIZ_ORACLE,
             env=entorno,

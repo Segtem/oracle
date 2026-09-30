@@ -520,6 +520,83 @@ class TrabajadorObjetoTests(AislamientoTestCase):
         repetido.cerrar.assert_called_once()
 
 
+class InterpreteTests(AislamientoTestCase):
+    """En un Python embebido `sys.executable` es el programa anfitrión (en Unreal, UnrealEditor):
+    lanzarlo con `-m` abría otro editor que nunca contestaba (Jam, 2026-09-29)."""
+
+    ANFITRION = "/opt/Engine/Binaries/Linux/UnrealEditor"
+
+    def _elegir(self, *, executable, base=None, entorno=None, which=None):
+        with (mock.patch.object(modulo.sys, "executable", executable),
+              mock.patch.object(modulo.sys, "_base_executable", base, create=True),
+              mock.patch.dict(modulo.os.environ, entorno or {}, clear=False),
+              mock.patch.object(modulo.shutil, "which", side_effect=lambda n: (which or {}).get(n))):
+            if not entorno:
+                modulo.os.environ.pop(modulo.VARIABLE_INTERPRETE, None)
+            return modulo.interprete_del_trabajador()
+
+    def test_40_un_python_de_verdad_se_usa_tal_cual(self) -> None:
+        for nombre in ("python", "python3", "python3.11", "Python.exe", "pythonw.exe"):
+            with self.subTest(nombre=nombre):
+                self.assertEqual(self._elegir(executable=f"/x/{nombre}"), f"/x/{nombre}")
+
+    def test_41_el_anfitrion_no_es_python_y_se_busca_otro(self) -> None:
+        self.assertEqual(self._elegir(executable=self.ANFITRION, base="/py/bin/python3.11"),
+                         "/py/bin/python3.11")
+        self.assertEqual(self._elegir(executable=self.ANFITRION, base=self.ANFITRION,
+                                      which={"python3": "/usr/bin/python3"}), "/usr/bin/python3")
+        for falso in ("UnrealEditor", "blender", "hython", "python-config", "mipython3"):
+            with self.subTest(falso=falso):
+                self.assertFalse(modulo._es_python(f"/x/{falso}"))
+
+    def test_42_oracle_python_manda_y_se_valida(self) -> None:
+        with tempfile.NamedTemporaryFile() as f:
+            self.assertEqual(self._elegir(executable="/x/python3",
+                                          entorno={modulo.VARIABLE_INTERPRETE: f.name}), f.name)
+        with self.assertRaisesRegex(modulo.ErrorEscalarAislada, "no es un archivo"):
+            self._elegir(executable="/x/python3",
+                         entorno={modulo.VARIABLE_INTERPRETE: "/no/existe/python3"})
+
+    def test_43_sin_ningun_python_se_niega_con_el_remedio(self) -> None:
+        with self.assertRaisesRegex(modulo.ErrorEscalarAislada, "ORACLE_PYTHON"):
+            self._elegir(executable=self.ANFITRION, base=self.ANFITRION)
+
+    def test_44_iniciar_lanza_el_interprete_elegido(self) -> None:
+        with (mock.patch.object(modulo, "interprete_del_trabajador", return_value="/elegido"),
+              mock.patch.object(modulo.subprocess, "Popen",
+                                return_value=ProcFalso(stdout=CanalFalso())) as popen,
+              mock.patch.object(modulo.selectors, "DefaultSelector", return_value=SelectorFalso([])),
+              mock.patch.object(modulo.weakref, "finalize", return_value=FinalizadorFalso()),
+              mock.patch.object(modulo.TrabajadorEscalares, "_leer",
+                                return_value={"ok": True, "escalares": []})):
+            modulo.TrabajadorEscalares(Path("/tmp/p"), Path("/tmp/p/escalares.py")).iniciar()
+        self.assertEqual(popen.call_args.args[0][0], "/elegido")
+
+    def test_45_con_un_anfitrion_que_no_es_python_el_trabajador_real_igual_contesta(self) -> None:
+        # Punta a punta: `sys.executable` apunta a un programa que no es Python —como en Unreal—
+        # y el trabajador se levanta con el Python de `_base_executable`, carga y responde.
+        with tempfile.TemporaryDirectory() as td:
+            raiz = Path(td)
+            (raiz / "catalogos").mkdir()
+            archivo = raiz / "escalares.py"
+            archivo.write_text("from nucleo.algebra import escalar\n\n"
+                               "@escalar(\"eco\")\ndef eco(valor=1):\n    return valor\n",
+                               encoding="utf-8")
+            anfitrion = raiz / "UnrealEditor"
+            anfitrion.write_text("#!/bin/sh\nexit 3\n", encoding="utf-8")
+            anfitrion.chmod(0o755)
+            real = sys.executable
+            with (mock.patch.object(modulo.sys, "executable", str(anfitrion)),
+                  mock.patch.object(modulo.sys, "_base_executable", real, create=True),
+                  mock.patch.dict(modulo.os.environ, {}, clear=False)):
+                modulo.os.environ.pop(modulo.VARIABLE_INTERPRETE, None)
+                trabajador = modulo.TrabajadorEscalares(raiz.resolve(), archivo.resolve())
+                self.addCleanup(trabajador.cerrar)
+                declaradas = trabajador.iniciar()
+            self.assertEqual([d.nombre for d in declaradas], ["eco"])
+            self.assertEqual(trabajador.llamar("eco", (4,)), 4)
+
+
 class SubprocesoTests(AislamientoTestCase):
     def _proyecto(self, raiz: Path, fuente: str) -> Path:
         (raiz / "catalogos").mkdir()
