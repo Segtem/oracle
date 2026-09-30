@@ -9,8 +9,8 @@ Registro normativo de las decisiones citadas por el código y la documentación.
 | [003](DECISION-003-SIN-PARAMETROS-OPCIONALES-EN-DEFMACRO.md) | Decisión 003 — `defmacro` no tiene parámetros opcionales | 2026-08-24 | revertida la capacidad el 2026-08-24 (commit `d2532fa`, que revierte `eb9ad40`) |
 | [004](DECISION-004-DOS-MEDIDAS-QUEDAN-SOSTENIDAS-POR-EVIDENCIA-GENERADA.md) | Decisión 004 — dos medidas quedan sostenidas por evidencia fabricada, y se deja dicho | 2026-08-26 | CUMPLIDA |
 | [005](DECISION-005-CINCO-NIVELES-DE-REPRESENTACION.md) | Decisión 005 — la numeración va de L−2 a L2, y se cierra en los dos extremos | 2026-08-26 | vigente, comprobada por L−1 y L−2 el 2026-08-28 |
-| [006](DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | Decisión 006 — el umbral declara de dónde sale su número, y la prosa deja de ser obligatoria | 2026-08-27 | aprobado, en construcción |
-| [007](DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Decisión 007 — bibliotecas de políticas: se adopta, con seis correcciones | 2026-08-31 | aceptada la dirección, la primera versión sin construir |
+| [006](DECISION-006-DE-DONDE-SALE-EL-NUMERO.md) | Decisión 006 — el umbral declara de dónde sale su número, y la prosa deja de ser obligatoria | 2026-08-27 | implementada: `segun` se lee y `tanteo` exige defensa |
+| [007](DECISION-007-BIBLIOTECAS-DE-POLITICAS.md) | Decisión 007 — bibliotecas de políticas: se adopta, con seis correcciones | 2026-08-31 | implementada: comandos `oracle biblioteca` disponibles |
 | [008](DECISION-008-EL-REPOSITORIO-SE-ABRE.md) | DECISIÓN 008 — El repositorio se abre | 2026-08-31 | tomada |
 | [009](DECISION-009-DE-QUIEN-ES-EL-CASO.md) | DECISIÓN 009 — de quién es el caso | 2026-09-01 | tomada |
 | [010](DECISION-010-EL-PAQUETE-INSTALADO-ES-OTRO-PROYECTO.md) | Decisión 010 — el paquete instalado es otro proyecto, y hay que medirlo como tal | 2026-09-02 | vigente |

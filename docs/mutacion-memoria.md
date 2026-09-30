@@ -84,6 +84,9 @@ convierte códigos 1–125 de sus comandos en 123. Leer los informes individuale
 un timeout, una muerte por OOM o un error del arnés no demuestran que los tests
 mataron un mutante. Esta receta no produce evidencia de release.
 
+El arnés comprueba también el espacio libre de la copia y de `TMPDIR`: con menos de 256 MiB, un
+fallo de tests se informa como error del arnés. No se cuenta como mutante muerto.
+
 ## Medición que justifica el predeterminado
 
 El 2026-09-21, en Linux 7.2.6 x86_64 y Python 3.14.7, la línea base completa

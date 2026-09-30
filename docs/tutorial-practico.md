@@ -7,9 +7,9 @@ repositorio y de un proyecto que ya lo usa en producción (Jam, un plugin de Unr
 el estudio generado responde «¿por qué existe Oracle?», este documento responde «¿cómo
 escribo la primera medida, y la segunda, y la que necesita algo más complicado?».
 
-- Generado: `2026-08-24`
-- Todos los ejemplos de sintaxis fueron verificados contra el código fuente vigente de
-  `Segtem/oracle` (rama `main`) y contra medidas reales en producción del proyecto Jam.
+- Escrito originalmente el `2026-08-24`; comandos y ejemplos indicados revisados contra Oracle
+  0.38.0 en este repositorio.
+- Los pasajes sobre Jam describen los ejemplos históricos que motivaron la guía.
 
 ---
 
@@ -82,14 +82,14 @@ medida <id>:
 | `donde …` | el filtro de lo que ofende — **acá se definen los testigos** | opcional |
 | `agrupar:` | agrupa filas por claves y calcula agregados intermedios | opcional |
 | `resumen` | cómo se colapsa la tubería a UN escalar — la medición en sí | sí |
-| `umbral` | comparador + valor + origen (`segun`) + **defensa en texto** (`porque`) de por qué ese valor | sí, con origen y defensa no vacía |
+| `umbral` | comparador + valor + origen (`segun`); `porque` explica el número cuando hace falta | sí; `segun` y la defensa de un `tanteo` los exige el catálogo meta |
 | `requiere` | declara qué relaciones de evidencia son indispensables | opcional (obligatorio en medidas de ausencia) |
 | `ambito` | jurisdicción de la medida | sí |
 | `alcance` | qué NO mira esta medida, en texto | sí, no puede estar vacío |
 
 Tres reglas no son estilo, son validación dura:
-1. **Una medida sin defensa del umbral no carga, y una medida sin `alcance` no carga.** Fallan al leerse, no al usarse — antes de evaluar un solo hecho.
-2. **Un umbral de igualdad (`==`) está prohibido.** La regla universal `meta.ningun_umbral_de_igualdad` exige umbrales de orden (`<=`, `>=`, `<`, `>`).
+1. **Una medida sin `alcance` no carga.** Si falta `segun`, queda `sin_declarar` y la política meta lo señala; `segun tanteo` sin `porque` también da rojo en la política meta.
+2. **Un umbral de igualdad (`==`) queda en rojo por la política universal `meta.ningun_umbral_de_igualdad`.** Usá umbrales de orden (`<=`, `>=`, `<`, `>`).
 3. **Si una medida declara `requiere <relacion>`, la relación no puede faltar ni venir vacía.** Si no hay evidencia requerida, la evaluación devuelve `SIN EVIDENCIA` y no un verde espurio.
 
 ### La forma canónica
@@ -128,10 +128,11 @@ medida proceso.test_con_mutante_que_lo_mata:
     donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
     resumen contar(1)
     umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina: pasa igual con el código roto"
+    ambito universal
     alcance "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los mutadores que nadie escribió"
 ```
 
-Léelo en voz alta y ya sabés leer el 90% de las medidas que vas a encontrar: **«de la relación
+Leélo en voz alta y ya sabés leer una medida de conteo: **«de la relación
 `mutante`, alias `m`, quedate con los que sobrevivieron (`detecciones == 0` y `rechazos == 0`); contá cuántos quedaron; si son más
 de 0, rojo — porque un mutante vivo es un test que no discrimina; y esto no ve los mutantes que nadie
 llegó a escribir».**
@@ -203,9 +204,8 @@ Reglas del álgebra que sorprenden si vienen de Python:
 
 - **`bool` no es número.** `true == 1` da error acá, aunque en Python valga. Sólo `suma` y `promedio`
   tratan un booleano como indicador 0/1, y de forma explícita.
-- **Igualdad exacta sobre flotantes está PROHIBIDA**, tanto en una expresión como en el umbral final.
-  `x == 3.0` no carga. La razón: `0.1 + 0.2 != 0.3` en punto flotante, y una medida que compare
-  así puede decir verde sin que nadie se entere. Usá una comparación de orden con tolerancia:
+- **La igualdad exacta sobre flotantes falla cerrada al evaluar** y las medidas meta la señalan.
+  La razón: `0.1 + 0.2 != 0.3` en punto flotante. Usá una comparación de orden con tolerancia:
   `distancia(hecho(a), hecho(b)) <= 0.5`.
 - **Los dos lados de una comparación tienen que ser del mismo tipo.** Comparar un número contra texto
   es error de álgebra, no `false`.
@@ -282,7 +282,7 @@ la expansión.
 
 | Macro | Superficie | Para qué |
 |---|---|---|
-| `ninguno` | `ninguno <id>:\n    de <rel> <alias>\n    donde <pred>\n    umbral <= 0 segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | ninguna fila debe cumplir el predicado — el 80% de los casos |
+| `ninguno` | `ninguno <id>:\n    de <rel> <alias>\n    donde <pred>\n    umbral <= 0 segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | ninguna fila debe cumplir el predicado |
 | `ninguno-par` | `ninguno-par <id>:\n    de <rel> <a1>\n    unir <rel> <a2>\n    donde <pred>\n    umbral <= 0 segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | lo mismo, sobre PARES de la misma relación |
 | `peor` | `peor <id>:\n    de <rel> <alias>\n    donde <expr> > <tol>\n    resumen max(<expr>)\n    umbral <= <tol> segun <origen> porque "..."\n    ambito <ámbito>\n    alcance "..."` | el peor caso de una magnitud no puede pasar de una tolerancia |
 
@@ -400,6 +400,7 @@ medida colocacion.interpenetracion:
     donde no es_fondo(hecho(b)) y penetracion(hecho(a), hecho(b)) > 0
     resumen max(penetracion(hecho(a), hecho(b)))
     umbral <= 0 segun contrato porque "`penetracion` ya descuenta la tolerancia de contacto: tocarse da 0 y clavarse da >0"
+    ambito universal
     alcance "solape de AABB entre piezas de escala comparable. NO ve la malla real, oclusión visual, ni si la pieza quedó flotando"
 ```
 
@@ -418,6 +419,7 @@ medida snap.comparte_cara:
     unir objetivo b
     resumen min(solape_lateral_minimo(hecho(a), hecho(b)))
     umbral > 1.0 segun convencion porque "el solape lateral debe superar la tolerancia de 1 cm: tocar una arista o estar en diagonal no cuenta"
+    ambito universal
     alcance "solape de AABB en los dos ejes laterales. NO ve cuánto de la cara real de la malla coincide"
 ```
 
@@ -437,10 +439,11 @@ medida simulacion.la_traza_no_tiene_huecos:
     resumen contar(1)
     umbral <= 0 segun convencion porque "una traza con huecos describe otra corrida que la que ocurrió: si faltan pasos, cualquier cosa que se mida sobre ella habla de lo que se registró y no de lo que pasó"
     requiere evento
+    ambito universal
     alcance "compara cuántos eventos hay contra el instante final, asumiendo que el tiempo arranca en cero y avanza de a uno. NO ve trazas donde varios eventos comparten instante, ni sabe si el que falta es importante. Si evento viene vacío la medida NO concluye —lo declara en requiere, y sale SIN EVIDENCIA en vez de verde—."
 ```
 
-`mas` es una escalar del núcleo (`+1`) — así se expresa aritmética sobre un campo ordinal
+`+` es el operador de aritmética — así se expresa aritmética sobre un campo ordinal
 (`t`), porque una relación es una bolsa sin orden: «consecutivo» se vuelve aritmética sobre el campo,
 no una propiedad implícita del almacenamiento.
 
@@ -501,10 +504,9 @@ Reglas:
   medida).
 - En la superficie infija, una escalar recibe hechos completos con `hecho(alias)` (como `penetracion(hecho(a), hecho(b))` arriba) o
   campos sueltos con `alias.nombre` (como `desvio_de_paso(a.yaw, 90.0)`).
-- Es **código Python con los mismos permisos que el proceso**. Por eso ninguna herramienta la ejecuta
-  salvo que se pase explícitamente `--confiar-escalares`. Sin esa bandera, `--relaciones`,
-  `--escalares` (sólo el inventario base) y `--nueva` siguen siendo seguros — nunca importan el
-  archivo del proyecto.
+- Es **código Python externo**. Oracle lo ejecuta en un trabajador aislado sólo con
+  `--confiar-escalares`; sin esa bandera, `oracle relaciones` y `oracle escalares` no ejecutan
+  las funciones del proyecto.
 
 ---
 
@@ -576,16 +578,16 @@ caso 102-verificacion-vigente:
 |---|---|
 | `falso_verde` | algo estaba mal y la medición dijo bien |
 | `falso_rojo` | algo estaba bien y la medición dijo mal (pesa igual de grave: enseña a ignorar el verificador) |
-| `verde_correcto` | algo estaba bien y la medición dijo bien — **la otra polaridad**, sin ella `quitar_filtro` sobrevive siempre |
+| `verde_correcto` | algo estaba bien y la medición dijo bien — **la otra polaridad**, que puede matar `quitar_filtro` |
 | `deuda_de_diseño` | un defecto del propio lenguaje, no de una medida de dominio |
 | `medida_correcta_conclusion_errada` | la medida dio el veredicto correcto pero alguien sacó la conclusión causal equivocada de ella |
 
 ### ¿Por qué necesito la otra polaridad (`verde_correcto`)?
 
 Es el error más común al empezar. Con `contar` y umbral `<= 0`, una medida sin la evidencia positiva
-**siempre puede pasar vaciando la relación** — quitarle el filtro a una medida sólo se nota si hay
+**puede pasar sin distinguir bien y mal** — quitarle el filtro a una medida sólo se nota si hay
 filas que NO ofenden y que deberían seguir dando verde. Sin `verde_correcto`, el corpus tiene "sólo
-defectos" y varias mutaciones (sobre todo `quitar_filtro`) sobreviven siempre. Es lo mismo que evaluar
+defectos" y varias mutaciones (sobre todo `quitar_filtro`) pueden sobrevivir. Es lo mismo que evaluar
 un clasificador únicamente con ejemplos positivos.
 
 ### Casos sin medida: `abierto`, `resuelto`, `limite_humano`
@@ -771,8 +773,9 @@ medida = """medida tareas.vencida_sin_dueno:
     de tarea t
     donde t.vencida == true y t.asignada == false
     resumen contar(1)
-    umbral <= 0 porque "toda tarea vencida debe tener responsable"
-    alcance "exige responsable a tareas vencidas"
+    umbral <= 0 segun contrato porque "toda tarea vencida debe tener responsable"
+    ambito universal
+    alcance "NO ve tareas que el sensor haya omitido"
 """
 motor_mem = Motor.desde_texto([medida])
 ```
@@ -785,10 +788,10 @@ Para un proyecto completo usá `Motor.desde_proyecto`. Para medidas escritas a m
 
 | Comando | Para qué |
 |---|---|
-| `oracle init [ruta]` | inicializa un proyecto con `catalogos/`, `corpus/`, `diferencial/` y `oracle.json` |
+| `oracle init [ruta]` | inicializa un proyecto con `catalogos/`, `corpus/`, `diferencial/`, `relaciones/` y `oracle.json` |
 | `oracle caso nuevo <grupo/id>` | crea el andamio de un caso nuevo, ya en superficie (`.caso`) |
 | `oracle caso listar` | lista los casos del corpus, su etiqueta y qué medida reclaman |
-| `oracle caso generar <medida>` | fabrica evidencia discriminante para fijar mutaciones a partir de sobrevivientes |
+| `oracle caso generar <medida>` | busca evidencia discriminante para mutantes sobrevivientes, la reduce y escribe un caso `generada` |
 | `oracle nueva <dominio.nombre>` | crea el andamio de una medida, ya en superficie infija (`.oracle`) |
 | `oracle revisar <archivo>` | valida una medida suelta contra la evidencia |
 | `oracle medida probar <arch> --con <filas>` | corre una medida contra filas escritas a mano (`--vigilar` para re-probar al guardar) |
@@ -797,7 +800,10 @@ Para un proyecto completo usá `Motor.desde_proyecto`. Para medidas escritas a m
 | `oracle test [--rapido\|--todo]` | secuencia completa: corpus, sintaxis, aceptación, diferencial y mutación |
 | `oracle relaciones` | ver qué hechos y campos existen HOY (derivados de evidencia real) |
 | `oracle escalares` | ver las funciones de dominio, operadores y agregados disponibles |
-| `oracle manual [tema]` | la referencia del lenguaje armada de sus fuentes (`--html` para el sitio, `--man` para páginas de manual; tema `medidas` para las 54 universales y sus alcances) |
+| `oracle manual [tema]` | la referencia del lenguaje armada de sus fuentes (`--html` para el sitio, `--man` para páginas de manual; tema `medidas` para las universales vigentes y sus alcances) |
+| `oracle requisito importar <spec.md> [--escribir]` | trae promesas de OpenSpec como requisitos que nacen `sin_medir` |
+| `oracle cobertura [--con hechos.json]` | muestra qué requisitos están medidos; con evidencia, cuáles se cumplen |
+| `oracle cambios --desde <ref>` | avisa qué se aflojó o qué fuente de las medidas cambió, incluidos sensores declarados en `oracle.json` |
 | `oracle biblioteca instaladas` | qué bibliotecas de políticas hay instaladas y cuáles usa este proyecto |
 | `oracle biblioteca verificar <ruta>` | certifica una biblioteca antes de confiar en ella |
 | `oracle biblioteca listar <ruta>` | muestra umbrales, orígenes (`segun`) y alcances de una biblioteca |
@@ -805,9 +811,10 @@ Para un proyecto completo usá `Motor.desde_proyecto`. Para medidas escritas a m
 | `tools/sintaxis.py --verificar` | comprueba ida y vuelta entre JSON y superficie en todo el catálogo, macros, corpus y bloques de documentación |
 | `python -m unittest discover -s tests -t . -q` | la suite de tests, sin dependencias externas |
 
-Todos aceptan `--proyecto <ruta>` (o `$ORACLE_PROYECTO`) y, si el proyecto declara `escalares.py`,
-exigen `--confiar-escalares` para ejecutarlo. Sin esa bandera, las inspecciones (`--help`,
-`--relaciones`, `--nueva`, `--escalares` sin UDF externas, `contexto`) son siempre seguras.
+Los comandos que operan sobre un proyecto aceptan `--proyecto <ruta>` (o `$ORACLE_PROYECTO`).
+Si el proyecto declara `escalares.py`, los que cargan o evalúan el catálogo necesitan
+`--confiar-escalares` para ejecutarlo. Las inspecciones `oracle relaciones` y `oracle escalares`
+sin esa bandera no ejecutan las funciones externas.
 
 ### Heredar un catálogo sin quedar en rojo el primer día
 
@@ -848,9 +855,9 @@ sombra se coma su propio control.
 
 | Lo que ves | Qué significa | Cómo se arregla |
 |---|---|---|
-| `el umbral <= 0 no trae defensa` | falta el texto de `porque` en `umbral` | agregá por qué ese número y no otro |
+| `meta.todo_tanteo_explica_por_que` en rojo | falta explicar un umbral con `segun tanteo` | agregá en `porque` qué se probó |
 | `hay que declarar qué NO ve` | falta `alcance`, o está vacío | escribí honestamente el punto ciego |
-| `«>» sobre un valor ausente` | un `campo` mal escrito o que no existe en la evidencia | `--relaciones` para ver los campos reales |
+| `«>» sobre un valor ausente` | un `campo` mal escrito o que no existe en la evidencia | `oracle relaciones` para ver los campos reales |
 | `«==» sobre un flotante…` | comparaste igualdad exacta de dos flotantes | usá `<=`/`>=` con una tolerancia |
 | medida que nunca se pone roja | la condición del `donde` probablemente está invertida | escribí el caso del corpus primero; si no se pone rojo, la medida mide al revés |
 | medida que nunca se pone verde | falta un caso `verde_correcto`, o el filtro es demasiado amplio | agregá evidencia donde la medida DEBE dar verde |
@@ -874,7 +881,7 @@ va primero: es lo único que lee la intención.
 | **evidencia** | el mapa completo `relación → lista de hechos` que se le pasa a una medida |
 | **medida** | un dato que describe cómo medir algo: tubería + resumen + umbral + alcance |
 | **testigos** | las filas que sobrevivieron al último `donde` — se muestran cuando la medida da rojo |
-| **umbral** | el límite contra el que se compara el valor medido, con su defensa en texto (`porque`) |
+| **umbral** | el límite contra el que se compara el valor medido, con origen `segun` y, cuando corresponde, defensa `porque` |
 | **requiere** | declaración explícita de relaciones necesarias para no emitir veredictos vacíos |
 | **alcance** | lo que la medida explícitamente NO mira — obligatorio, no puede estar vacío |
 | **escalar (UDF)** | una función de dominio declarada con `@escalar`, para lo que el álgebra no sabe hacer sola |

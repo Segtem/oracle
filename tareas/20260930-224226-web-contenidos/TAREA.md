@@ -1,9 +1,21 @@
 # toda la web al día: cada página revisada contra Oracle 0.38.0, corriendo lo que cita
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 82
 - ETIQUETAS: 
 
 ### Nota (2026-09-30 22:42:26 UTC)
 
 Por qué: el 2026-09-30 se pusieron al día la portada, docs/README.md, como-funciona, 07, de-cero y openspec. El resto no se revisó desde el 25–27 de septiembre: por-que.html, donde-entra.html, 02, 03, 05, 13, 14-sensor-prosa, tutorial-practico, recetas, mcp.md (nombra 0.33.0/0.34.0; oracle-mcp 0.1.1 fija 0.35.0), mutacion-memoria, reportar, migracion/*.md y decisiones/README.md. Qué: leer cada página contra Oracle 0.38.0 y corregir lo viejo o falso (comandos, banderas, versiones, cifras escritas a mano, conductas que cambiaron), sumando lo nuevo sólo donde el lector lo necesita. Encargado a Codex.
+
+### Nota (2026-09-30 22:57:17 UTC)
+
+Revisión de Oracle 0.38.0 terminada en contenido (sin commits). Cambié docs/por-que.html: la frase «sin sensor sale sin medición» confundía verificación de catálogo con medición del producto; comprobado con oracle test del ejemplo y código de juzgar. docs/02-de-cero-a-un-rojo.md: 0.30.0, 54 universales y un segundo rojo de unidades que ya no figura; verifiqué los 10 pasos con tools/guia.py y oracle --version, y aclaré respaldo real 0/9. docs/03-escribir-una-medida.md: ejemplos sin ambito, conteos de macros, banderas inexistentes y explicación incompleta de requisitos, cambios y generación; contrasté sintaxis/código, oracle --help, importar en proyecto temporal, cobertura, cambios y caso generar. docs/05-por-que-la-mutacion.md: faltaba distinguir mutantes muertos de respaldo observado y explicar búsqueda del generador; verifiqué sus 4 pasos y leí nucleo/generador.py. docs/13-primer-valor.md y docs/recetas.md: el verde de mutación podía leerse como respaldo real; verifiqué sus 4 y 2 pasos con guia y sus salidas 0/20 y 0/30. docs/14-sensor-prosa.md: agregué vigilancia optativa del sensor según tools/cambios.py. docs/tutorial-practico.md: corregí ejemplos sin ambito, la obligatoriedad de porque, igualdad flotante, aislamiento de escalares, 54 universales, API y comandos vigentes; contrasté nucleo/sintaxis.py, nucleo/medida.py, herramientas CLI y manual. docs/mcp.md: decía cinco herramientas mientras listaba seis, y omitía que oracle-mcp 0.1.1 fija Oracle 0.35.0; cotejado con NOTAS-DE-RELEASE.md. docs/mutacion-memoria.md: añadí el límite real de 256 MiB leído en perfiles/python/mutacion_codigo.py. docs/migracion/de-subtree-a-pypi.md, jam.md y lyragasp.md: instrucciones fijaban 0.6.0 y decían «Oracle de hoy» sobre mediciones del 2026-09-01; actualicé ejemplos de versión a 0.38.0 (oracle --version), separé las cifras históricas y corregí la afirmación falsa de que uv tool install hace importable el paquete en el Python del sistema. docs/decisiones/README.md: 006/007 seguían «en construcción»; comprobé segun en el lector y ejecuté oracle biblioteca instaladas. Revisé sin cambios docs/donde-entra.html (redirección) y docs/reportar.md (banderas coinciden con oracle --help). Evidencia final: tools/guia.py --escribir sobre 02/05/13/recetas y tools/guia.py completo: 0 salidas actualizadas; oracle cobertura --con ejemplo/batalla-naval/partida_real.json: 5 cumplen (1 parcial), 1 sin medir; oracle cambios --desde HEAD: 0 errores, 0 avisos; git diff --check: OK. La suite completa y oracle test corrieron y fallan sólo por tests del sitio que exigen regenerar HTML derivados, prohibido en esta tarea; oracle test sí informó mutación 1026/1026 (respaldo real 744). La suite sin test_sitio dejó únicamente test_sitio_rapido.test_entrada_directa_sitio, que invoca la misma comprobación. Pendiente de integración: regenerar HTML con tools/sitio.py --escribir después de unir los cambios y repetir las verificaciones completas.
+
+## Próximo paso
+
+Al unir el trabajo de contenidos con las otras tareas web, regenerar los HTML derivados con `python3 tools/sitio.py --escribir` y volver a correr `python3 -m unittest discover -s tests`, `python3 tools/guia.py` y `python3 tools/oracle.py test`.
+
+### Nota (2026-09-30 23:29:49 UTC)
+
+Unido por Claude: 14 páginas corregidas por Codex (jam.md instalaba Oracle 0.6.0; cifras de septiembre presentadas como de hoy; mcp.md sin el pin 0.35.0 de oracle-mcp; ejemplos sin ambito); donde-entra y reportar no necesitaban cambios. Además, dos enlaces rotos que ya estaban en la portada: mcp-contrato.html → mcp.html y 12-tareas.html → trackertast. Enlaces internos del sitio verificados por script: 0 rotos. Suite 2248 OK, oracle test VERDE.

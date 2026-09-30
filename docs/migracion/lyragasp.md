@@ -1,7 +1,7 @@
 # Migrar LyraGASP a Oracle desde PyPI
 
 Leé primero [`de-subtree-a-pypi.md`](de-subtree-a-pypi.md): el procedimiento está ahí. Acá está sólo
-lo que se **midió** de este repositorio el 2026-09-01, corriendo el Oracle de hoy contra
+lo que se **midió** de este repositorio el 2026-09-01, corriendo el Oracle de entonces contra
 `~/Dev/games/unreal/LyraGASP/medidas`.
 
 > ⚠️ **Este repo tenía 47 archivos con trabajo sin commitear del usuario** al medirlo, todos dentro
@@ -14,8 +14,8 @@ lo que se **midió** de este repositorio el 2026-09-01, corriendo el Oracle de h
 |---|---|
 | ediciones locales en `vendor/oracle` | **ninguna** — el subtree se puede borrar sin perder nada |
 | catálogo | 9 archivos · corpus 26 · fixtures diferenciales 3 |
-| `oracle-corpus` con el Oracle de hoy | **CORPUS OK · 26 casos** |
-| `oracle-aceptacion` con el Oracle de hoy | **sale 1**: 3 medidas en rojo, 34 infracciones |
+| `oracle-corpus` en aquella medición | **CORPUS OK · 26 casos** |
+| `oracle-aceptacion` en aquella medición | **sale 1**: 3 medidas en rojo, 34 infracciones |
 
 `medidas/oracle.json` declara `"catalogo_base": true` y `"perfiles": []`.
 
@@ -67,7 +67,7 @@ abierto — falta hacerlo para las nueve.
 más. Para ese script hace falta la forma **(b)** de la guía general:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.6.0"
+uv venv && uv pip install "oracle-metalenguaje==0.38.0"
 .venv/bin/python tools/juzga_oracle.py …
 ```
 

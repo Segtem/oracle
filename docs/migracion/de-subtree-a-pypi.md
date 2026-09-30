@@ -64,7 +64,7 @@ oracle --version          # comprobá la versión instalada
 corren con el Python del sistema:
 
 ```bash
-uv venv && uv pip install "oracle-metalenguaje==0.6.0"
+uv venv && uv pip install "oracle-metalenguaje==0.38.0"
 .venv/bin/python tools/mi_script.py
 ```
 
@@ -74,7 +74,7 @@ directorio en el repo, pero es un artefacto con versión, no una copia de un rep
 acordarse de traer y que se puede editar a mano sin que nadie se entere.
 
 ```bash
-python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.6.0"
+python3 -m pip install --target <destino> --no-deps "oracle-metalenguaje==0.38.0"
 ```
 
 Medido el 2026-09-01 contra el subtree de Jam: **2,3 MB y 183 archivos**, contra 3,5 MB y 284. Y el
@@ -105,9 +105,10 @@ cd /tmp
 <el python que corresponda> -c "import oracle_metalenguaje as o; print(o.__file__)"
 ```
 
-La ruta que imprima tiene que estar dentro de lo que instalaste: `site-packages/` para (a) y (b), o
-el directorio del `--target` para (c). Si dice el repo del proyecto, la instalación no está donde
-creés.
+La ruta que imprima tiene que estar dentro de lo que instalaste: `site-packages/` para (b), o
+el directorio del `--target` para (c). En (a), `uv tool install` expone el comando pero su paquete
+no queda importable desde cualquier Python del sistema: comprobá `oracle --version` y su ruta.
+Si el import dice el repo del proyecto, no verificaste la instalación.
 
 `uv tool install` es lo recomendado para (a) y no es capricho: en Arch, Debian 12+, Ubuntu 23.04+ y
 Fedora un `pip install` al Python del sistema **falla** con `externally-managed-environment`, y
@@ -147,7 +148,8 @@ en el documento de tu proyecto.
 
 ### 4 · Declarar la sombra ANTES de correr
 
-Acá está el punto delicado. El Oracle de hoy trae medidas que el del subtree no tenía, así que el
+Acá está el punto delicado. Al migrar a una versión más nueva, Oracle puede traer medidas que el
+subtree no tenía, así que el
 proyecto va a salir rojo en cosas **reales** que nadie va a arreglar en el mismo commit de la
 migración. Apagar la medida sería volver al verde que no significa nada. La sombra es la tercera
 opción: la medida se evalúa, se informa con `[EN SOMBRA]` y **no tumba la corrida**.
@@ -193,4 +195,8 @@ contemplado: leelo, no lo agregues a la sombra sin entenderlo.
 - **No poner en sombra una medida sin leer qué encontró.** La sombra existe para posponer un
   arreglo, no para no mirarlo.
 - **No fijar la versión con `>=`.** Un consumidor que se actualiza solo se pone rojo un martes por
-  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.6.0` y subí a propósito.
+  algo que no cambió de su lado. Fijá `oracle-metalenguaje==0.38.0` para esta revisión y subí a
+  propósito después de probar el consumidor.
+
+Los ejemplos de instalación apuntan a 0.38.0; las cifras y sombras del 2026-09-01 en las guías de
+Jam y LyraGASP son una medición histórica. Volvé a correr los verificadores al migrar hoy.

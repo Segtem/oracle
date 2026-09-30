@@ -3,7 +3,7 @@
 Cinco minutos, sin abrir el código de Oracle. Al final vas a tener una regla que **falla** sobre un
 defecto de verdad y te dice **qué filas** lo causaron.
 
-Todo lo que sigue está copiado de una corrida real con Oracle 0.30.0. Si algo no te da igual,
+Todo lo que sigue está copiado de una corrida real con Oracle 0.38.0. Si algo no te da igual,
 es un defecto de esta página: [abrí un issue](https://github.com/Segtem/oracle/issues).
 
 ---
@@ -285,21 +285,21 @@ VEREDICTO: ROJO (falló: aceptación)
 
 **Los nueve mutantes son el punto.** Oracle rompió tu medida de nueve maneras distintas —le sacó el
 filtro, le aflojó el umbral, le dio vuelta un comparador— y comprobó que tus dos casos lo notaran.
-Los nueve murieron: tus casos la fijan.
+Los nueve murieron: tus casos la fijan frente a esas roturas. La línea `respaldo real: 0 de 9`
+aclara el límite: ningún mutante murió por un caso observado del producto.
 
 Pero la aceptación queda en rojo, y hay que leerlo:
 
 ```
   ✗ meta.la_medida_no_se_fija_solo_con_evidencia_fabricada   1 (<= 0)
-  ✗ meta.toda_cantidad_comparada_tiene_unidad_derivable      1 (<= 0)
 ```
 
-Ésas no son tus medidas: son las universales que heredaste, juzgándote.
+Ésa no es tu medida: es una universal que heredaste, juzgándote.
 
-## 7. Declarar el sensor (L−1)
+## 7. Declarar lo que entrega el sensor (L−1)
 
-La segunda dice que comparaste un campo cuya **unidad** nadie declaró. Falta decir qué produce el
-sensor:
+Aunque ese rojo ya no aparece en esta corrida, declarás qué produce el sensor y el alcance de
+sus hechos:
 
 ```relacion archivo=relaciones/documento.relacion incluir=ejemplo/biblioteca-guia/relaciones/documento.relacion
 ```
@@ -322,7 +322,7 @@ RELACIONES que se pueden medir hoy:
 Un hecho nuevo se agrega desde su SENSOR, no acá: el sensor produce, el álgebra juzga.
 ```
 
-Con eso, ese rojo se cierra. Si en cualquier momento querés ver las relaciones,
+Si en cualquier momento querés ver las relaciones,
 campos, escalares y medidas de tu proyecto en una sola salida, `oracle contexto`
 (o `oracle contexto --compacto`) reúne todo en un solo lugar.
 
@@ -352,7 +352,7 @@ lo que devolvió. Hasta entonces el rojo es honesto y conviene dejarlo a la vist
   evidencia `observada`, migración a PyPI y la sombra.
 - [docs/03-escribir-una-medida.md](03-escribir-una-medida.md) — la guía de autoría con `oracle contexto`.
 - `oracle manual` — la referencia del lenguaje en la terminal (con `oracle manual medidas` para
-  las 54 universales y sus puntos ciegos).
+  las universales vigentes y sus puntos ciegos).
 - [El editor](../editores/README.md) — diagnósticos, completado con unidades y CodeLens en Emacs y
   VS Code.
 - [ESPECIFICACION.md](../ESPECIFICACION.md) — la referencia formal del lenguaje.

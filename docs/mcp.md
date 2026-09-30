@@ -8,7 +8,7 @@ no está fijada y cuál es el veredicto del catálogo entero. El servidor es el 
 
 ## Sólo lectura, y por qué
 
-Las cinco herramientas son de **sólo lectura**. No es prudencia genérica: los falsos verdes que un
+Las seis herramientas son de **sólo lectura**. No es prudencia genérica: los falsos verdes que un
 agente comete ocurren al leer, y una escritura «aprobada» por dos evidencias que el mismo agente
 fabricó parece una aprobación sin serlo. El proyecto se fija al arrancar el servidor, y
 `--confiar-escalares` sólo se concede ahí: ninguna llamada puede ampliar esa autoridad.
@@ -20,7 +20,8 @@ uv tool install oracle-mcp
 ```
 
 Trae la versión de Oracle con la que se probó, fijada con `==`: el servidor usa API interna de
-Oracle, y una versión distinta podría romperlo sin avisar.
+Oracle, y una versión distinta podría romperlo sin avisar. `oracle-mcp` 0.1.1 fija Oracle 0.35.0;
+instalarlo no actualiza automáticamente su motor a Oracle 0.38.0.
 
 ## Configurarlo en un cliente
 
@@ -49,7 +50,7 @@ args = ["--proyecto", "/ruta/al/proyecto"]
 | `oracle_challenge` | qué parte de una medida candidata todavía no está fijada: las dos polaridades y sus mutantes, sin guardar nada |
 | `oracle_judge` | lo mismo que `oracle juzgar`: una evidencia contra el catálogo efectivo, con sombras, cotas y las medidas que no se aplicaron |
 | `oracle_tasks` | el tracker de tareas del proyecto ([trackertast](https://github.com/Segtem/trackertast)): listar, ver, buscar y hechos |
-| `oracle_requirements` | qué promesas de `requisitos/` mide alguna medida, cuáles en parte y cuáles no: lo que `oracle cobertura` imprime, como datos (desde oracle-mcp 0.1.1) |
+| `oracle_requirements` | qué promesas de `requisitos/` mide alguna medida, cuáles en parte y cuáles no: la cobertura declarada de `oracle cobertura`, como datos (desde oracle-mcp 0.1.1) |
 
 Una medida escrita en la llamada se recibe sólo en superficie `.oracle` y en la forma única, igual
 que en un archivo. Hasta Oracle 0.33.0 las herramientas se llamaban en español

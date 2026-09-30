@@ -1,7 +1,7 @@
 # Migrar Jam a Oracle desde PyPI
 
 Leé primero [`de-subtree-a-pypi.md`](de-subtree-a-pypi.md): el procedimiento está ahí. Acá está sólo
-lo que se **midió** de este repositorio el 2026-09-01, corriendo el Oracle de hoy contra
+lo que se **midió** de este repositorio el 2026-09-01, corriendo el Oracle de entonces contra
 `~/Dev/jam/medidas`.
 
 > ⚠️ **Este repo tenía 4 archivos con trabajo sin commitear del usuario** al medirlo. No corras
@@ -13,8 +13,8 @@ lo que se **midió** de este repositorio el 2026-09-01, corriendo el Oracle de h
 |---|---|
 | ediciones locales en `vendor/oracle` | **ninguna** — el subtree se puede borrar sin perder nada |
 | catálogo | 41 archivos · corpus 24 · fixtures diferenciales 11 |
-| `oracle-corpus` con el Oracle de hoy | **CORPUS OK · 23 casos** |
-| `oracle-aceptacion` con el Oracle de hoy | **sale 1**: 3 medidas en rojo, 104 infracciones |
+| `oracle-corpus` en aquella medición | **CORPUS OK · 23 casos** |
+| `oracle-aceptacion` en aquella medición | **sale 1**: 3 medidas en rojo, 104 infracciones |
 
 `medidas/oracle.json` declara `"catalogo_base": true` y `"perfiles": ["python"]`.
 
@@ -86,7 +86,7 @@ La forma correcta para Jam es la **(c)** de la guía general: reemplazar el subt
 wheel publicado, en el mismo lugar donde ya está.
 
 ```bash
-python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.6.0"
+python3 -m pip install --target vendor/oracle-pkg --no-deps "oracle-metalenguaje==0.38.0"
 ```
 
 > **Hace falta 0.3.2 o más, y no es un detalle de versión.** En 0.3.1 este camino estaba roto: el

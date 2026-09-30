@@ -166,7 +166,9 @@ VEREDICTO: ROJO (falló: aceptación)
 
 Oracle rompió tu medida de nueve maneras —le sacó el filtro, le aflojó el umbral, le dio vuelta un
 comparador— y evaluó cada versión rota contra cada caso: 18 comprobaciones. Los nueve murieron:
-**algún caso tuyo notó cada rotura**.
+**algún caso tuyo notó cada rotura**. La misma salida informa `respaldo real: 0 de 9`: esos
+casos son construidos. La mutación demuestra sensibilidad a ellos, todavía no a una falla observada
+del producto.
 
 «Murieron por conducta» significa que el mutante cambió algo observable: el veredicto, los testigos
 o el valor. No alcanza con que reviente — un mutante que hace explotar el álgebra no demuestra que
@@ -260,6 +262,11 @@ da cero y la rota da dos. Por eso hacen falta las dos polaridades, y no por sime
 
 Fijate que la herramienta te dice cuál es el mutador y qué polaridad suele pedir. No dice sólo que
 falta algo: dice qué.
+
+`oracle caso generar <medida>` puede buscar un caso que discrimine un sobreviviente aun cuando las
+reglas directas del generador no alcancen: prueba cambios de campos, valores y filas a partir del
+corpus, y achica la evidencia que encuentra. Revisá el caso que escribe. Su
+`procedencia: generada` suma a la fijación, no al respaldo real.
 
 ## Lo que NO hay que hacer
 

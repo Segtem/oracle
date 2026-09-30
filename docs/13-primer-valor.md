@@ -203,6 +203,10 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 > [!IMPORTANT]
 > Este veredicto verde indica que **el catálogo satisface las verificaciones aplicables y los casos presentes**. No certifica en absoluto el estado del código del juego en este momento.
 
+La salida también dice `respaldo real: 0 de 20`: los seis casos del corpus son construidos. El
+paso siguiente mide una corrida del juego; para sostener además la fijación de la medida con
+evidencia real, habría que guardar casos observados de corridas identificables.
+
 ---
 
 ## 6. Paso 5: Juzgar una corrida real con `oracle juzgar`
@@ -264,7 +268,7 @@ La corrida pasa limpiamente y el reporte final imprime de forma transparente el 
 
 - **Basta un `assert`** cuando estás programando una comprobación interna rápida en una función (`assert 0 <= fila < 10`), o en una prueba unitaria clásica donde el mismo desarrollador escribe el código y el test.
 - **Aporta Oracle** cuando:
-  1. **Hay riesgo de Goodhart:** Quien escribe el código (por ejemplo, un LLM o agente) tiende a adaptar el test para que dé verde; en Oracle las medidas están desacopladas y custodiadas por mutación obligatoria.
+  1. **Hay riesgo de Goodhart:** Quien escribe el código (por ejemplo, un LLM o agente) puede adaptar el test para que dé verde; en Oracle las medidas están desacopladas y la mutación comprueba si los casos detectan cambios en ellas. La línea de respaldo real aclara cuántos mutantes mata evidencia observada.
   2. **Se necesita explicitar el punto ciego:** Un `assert` que pasa produce silencio; una medida de Oracle que pasa concluye enumerando su `alcance` (lo que no puede garantizar).
   3. **Auditoría de artefactos en caja negra:** Querés evaluar la validez de los datos producidos por un proceso sin acoplarte a cómo está implementado el generador por dentro.
 

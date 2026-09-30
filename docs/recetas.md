@@ -196,5 +196,6 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)
 ```
 
 Tanto la sintaxis como el corpus y la aceptación pasan en verde. Además, la suite de mutación ejecuta
-los 30 mutadores del motor: los 30 mueren y ninguno sobrevive, demostrando que ambos patrones fijan
-estrictamente el comportamiento esperado sin relajar el rigor del catálogo.
+30 mutantes aplicables: los 30 mueren y ninguno sobrevive. El `respaldo real: 0 de 30` recuerda
+que los casos construidos fijan las medidas frente a esas mutaciones, pero todavía no las sostienen
+con defectos observados del producto.

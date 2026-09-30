@@ -105,6 +105,10 @@ parcial. Revisá los artefactos y el consumo del proveedor antes de repetir una
 corrida. Código 0 indica preparación completa o corrida sin filas en la zona media;
 código 2 indica corrida completa con revisión pendiente, no un veredicto semántico.
 
+Si incorporás este sensor a un proyecto versionado, podés declararlo en `oracle.json` bajo
+`"sensores": ["ruta/al/sensor_prosa.py"]`. Entonces `oracle cambios --desde <ref>` avisa si
+su archivo cambió junto con las medidas que se alimentan de él; quitar la ruta vigilada da error.
+
 ## Qué prueba el ejemplo
 
 El corpus es construido, no son respuestas observadas de un modelo: cubre ambas

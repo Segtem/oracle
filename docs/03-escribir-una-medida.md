@@ -72,6 +72,12 @@ oracle revisar catalogos/colocacion/colocacion.mi_regla.oracle
 oracle test    # corpus, sintaxis, aceptación, diferencial si hay fixtures, y mutación de medidas
 ```
 
+Si la regla viene de una spec de OpenSpec, `oracle requisito importar <spec.md> --dominio <d>`
+muestra primero los requisitos que crearía; `--escribir` los guarda con `sin_medir` y sin enlaces
+supuestos. Después podés usar `oracle medida nueva <id> --escenario-de <spec.md> "<escenario>"
+--requisito <id>` para enlazar cada escenario que mediste. `oracle cobertura` muestra los enlaces;
+`oracle cobertura --con <hechos.json>` juzga cuáles se cumplen con esa evidencia.
+
 ### `oracle contexto`: el inventario vivo de tu proyecto
 
 `oracle contexto` junta en una sola salida todo lo que hace falta para escribir una medida en el
@@ -88,8 +94,8 @@ Con `--compacto`, la misma salida se emite en un quinto del texto (~1.600 tokens
 correr los comandos que reemplaza).
 
 **Por qué complementa esta guía en vez de acortarla:** este documento explica la semántica del
-álgebra, el modelo homoicónico en JSON, las macros, los comparadores prohibidos (como la igualdad
-flotante) y las reglas de diseño. `oracle contexto` no reemplaza esas explicaciones: entrega el
+álgebra, el modelo homoicónico en JSON, las macros, la igualdad flotante que falla cerrada y las
+reglas de diseño. `oracle contexto` no reemplaza esas explicaciones: entrega el
 inventario concreto y vivo del proyecto para no tener que buscar campos o funciones a mano mientras
 escribís.
 
@@ -194,7 +200,7 @@ auditable en CPython, así que el mecanismo no puede verlo — y está declarado
 en ese archivo. Si una UDF necesita más autoridad de la que el confinamiento da, no pertenece a una
 medida: generá ese dato antes y entregalo como evidencia.
 
-`--relaciones` y `--escalares` sin la bandera son seguros: no ejecutan el archivo externo.
+`oracle relaciones` y `oracle escalares` sin la bandera no ejecutan el archivo externo.
 
 El id tiene una gramática cerrada: `dominio.nombre`, con segmentos en minúsculas ASCII, dígitos o
 `_`. No se aceptan rutas ni `..`; el archivo se resuelve y confina debajo de `catalogos/` antes de
@@ -202,7 +208,7 @@ crear cualquier directorio.
 
 ## La forma corta: las macros
 
-**La mayoría de las medidas del catálogo están escritas como macro.** Son azúcar que expande a la forma
+Las macros son azúcar que expande a la forma
 canónica —`oracle expandir <archivo>` te muestra en qué—, así que el evaluador, la mutación y el inventario no se
 enteran de que existen.
 
@@ -215,12 +221,12 @@ ninguno proceso.test_con_mutante_que_lo_mata:
     alcance "cuenta mutantes DECLARADOS. NO ve los que nadie escribió"
 ```
 
-| Macro | Para qué | Cuántas la usan |
-|---|---|---|
-| `ninguno` | ninguna fila debe cumplir el predicado | 29 |
-| `ninguno-requiere` | lo mismo, declarando evidencia indispensable | 4 |
-| `ninguno-par` | lo mismo sobre PARES de la misma relación | 0 |
-| `peor` | el peor caso de una expresión no pasa de una tolerancia | 0 |
+| Macro | Para qué |
+|---|---|
+| `ninguno` | ninguna fila debe cumplir el predicado |
+| `ninguno-requiere` | lo mismo, declarando evidencia indispensable |
+| `ninguno-par` | lo mismo sobre PARES de la misma relación |
+| `peor` | el peor caso de una expresión no pasa de una tolerancia |
 
 **`peor` exige la misma tolerancia en el filtro y en el umbral**; la plantilla valida que coincidan:
 
@@ -248,6 +254,7 @@ medida dominio.nombre:
     resumen contar(1)
     umbral <= 0 segun contrato porque "por qué ese número y no otro"
     requiere relacion
+    ambito universal
     alcance "qué NO ve esta medida"
 ```
 
@@ -276,6 +283,7 @@ muestra; la medida de arriba queda así:
   ["resumen", "contar", 1],
   ["umbral", "<=", 0, "por qué ese número y no otro", "contrato"],
   ["requiere", "relacion"],
+  ["ambito", "universal"],
   ["alcance", "qué NO ve esta medida"]]
 ```
 
@@ -303,10 +311,11 @@ medida proceso.test_con_mutante_que_lo_mata:
     donde m.detecciones_conductuales == 0 y m.rechazos_del_algebra == 0
     resumen contar(1)
     umbral <= 0 segun contrato porque "un mutante que sobrevive es un test que no discrimina: pasa con el código roto"
+    ambito universal
     alcance "cuenta mutantes DECLARADOS que sobrevivieron. NO ve los que nadie escribió"
 ```
 
-El 90% de las medidas son así: filtrás lo malo, contás, y el umbral es `<= 0` (un umbral `==` no se usa y está prohibido por `meta.ningun_umbral_de_igualdad`).
+Muchas medidas son así: filtrás lo malo, contás, y el umbral es `<= 0` (un umbral `==` queda en rojo por `meta.ningun_umbral_de_igualdad`).
 
 ### 2. Medir una magnitud, no contar
 
@@ -316,6 +325,7 @@ medida snap.grilla:
     donde desvio_de_grilla(hecho(a), 100.0) > 1.0
     resumen max(desvio_de_grilla(hecho(a), 100.0))
     umbral <= 1.0 segun convencion porque "por debajo de 1 cm el desvío no se ve"
+    ambito universal
     alcance "desvío del PIVOTE. NO ve si el pivote está bien puesto dentro de la malla"
 ```
 
@@ -332,6 +342,7 @@ medida vault.nombre_unico_en_el_vault:
     donde a.nombre == b.nombre y a.carpeta != b.carpeta
     resumen contar(1)
     umbral <= 0 segun contrato porque "un wikilink apunta por NOMBRE y no por ruta: dos homónimos dejan el enlace a cara o cruz"
+    ambito universal
     alcance "NO ve nombres parecidos pero distintos, que confunden aunque no rompan un enlace"
 ```
 
@@ -342,9 +353,9 @@ piezas que se clavan, documentos homónimos, las dos puntas de un relevo.
 
 | Qué pasa | Qué dice |
 |---|---|
-| falta la defensa del umbral | *el umbral `<= 0` no trae defensa* |
+| falta explicar un `tanteo` | `meta.todo_tanteo_explica_por_que` queda roja |
 | falta `alcance` | *hay que declarar qué NO ve* |
-| un campo mal escrito | *«>» sobre un valor ausente* — mirá `--relaciones` |
+| un campo mal escrito | *«>» sobre un valor ausente* — mirá `oracle relaciones` |
 | nunca se pone roja | *una medida que no puede fallar no mide nada* |
 | nunca se pone verde | *probablemente la condición esté invertida* |
 
@@ -359,6 +370,11 @@ revés. La herramienta no lee intenciones.
 
 Por eso el caso va primero. Y por eso `tools/mutar.py` existe: comprueba que el corpus **fije** tu
 medida, o sea que si alguien la escribiera distinta, algún caso lo notaría.
+
+Si sobrevive un mutante, `oracle caso generar <medida>` intenta encontrar una evidencia que separe
+la medida del mutante y la achica antes de escribir el caso. El caso queda con procedencia
+`generada`: ayuda a fijar la medida, pero no reemplaza una corrida observada del producto. Leé
+`respaldo real` en la salida de mutación para distinguir esas dos cosas.
 
 ## Cuando la medida no es tuya
 
@@ -383,9 +399,13 @@ cuando el rojo viene de una medida que no escribiste vos:
   - `meta.ninguna_sombra_sobre_una_medida_que_no_existe`: prohíbe sombras huérfanas.
   Ninguna de estas medidas puede ponerse en sombra a sí misma.
 
+Para revisar cambios de una medida o de lo que la alimenta antes de integrarlos, `oracle cambios
+--desde <ref>` compara con Git. Si el proyecto declara `"sensores": ["ruta/al/sensor"]` en
+`oracle.json`, también avisa cuando esos archivos cambian. Quitar una ruta vigilada es error.
+
 ## Si te falta un hecho
 
-Si lo que querés medir no está en `--relaciones`, no se agrega acá: se agrega en el **sensor**, que
+Si lo que querés medir no aparece en `oracle relaciones`, no se agrega acá: se agrega en el **sensor**, que
 vive con el proyecto que produce los datos. El sensor produce hechos y
 **no juzga**; el álgebra juzga y **no mira el mundo**. Mezclarlos es cómo se llega a un verificador
 que nadie puede discutir.
