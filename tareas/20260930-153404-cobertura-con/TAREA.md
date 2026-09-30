@@ -1,6 +1,6 @@
 # cobertura con veredicto: qué requisitos se cumplen hoy, no sólo cuáles tienen medida
 
-- ESTADO: ABIERTA
+- ESTADO: CERRADA
 - PRIORIDAD: 65
 - ETIQUETAS: oracle
 
