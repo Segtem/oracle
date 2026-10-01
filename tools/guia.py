@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Reconstruye los recorridos de las guías y comprueba sus salidas.
 
-Con --escribir sustituye sólo los cuerpos de los bloques ``text salida``.
+Con --escribir sustituye los cuerpos de ``text salida`` y ``text arbol``.
 """
 
 from __future__ import annotations
@@ -81,9 +81,8 @@ def correr(comando: str, cwd: Path, temporal: Path, falla: bool = False) -> tupl
     if argumentos[0] == "rm" and argumentos[1:2] == ["-f"] and len(argumentos) == 3:
         dentro(cwd, argumentos[2]).unlink(missing_ok=True)
         return "", cwd
-    git_permitidos = (["git", "init", "-q"], ["git", "add", "."],
-                     ["git", "-c", "user.name=Guia", "-c", "user.email=guia@example.invalid",
-                      "commit", "-qm", "base"])
+    git_permitidos = (["git", "init"], ["git", "add", "."],
+                     ["git", "commit", "-m", "base"])
     if argumentos[0] == "git" and argumentos not in git_permitidos:
         raise ValueError(f"Comando git no contemplado: {comando}")
     if argumentos[0] == "oracle":
@@ -97,6 +96,9 @@ def correr(comando: str, cwd: Path, temporal: Path, falla: bool = False) -> tupl
     entorno = os.environ.copy()
     entorno.pop("ORACLE_PROYECTO", None)
     entorno.pop("PYTHONPATH", None)
+    entorno.update({clave: valor for clave, valor in (
+        ("GIT_AUTHOR_NAME", "Guia"), ("GIT_AUTHOR_EMAIL", "guia@example.invalid"),
+        ("GIT_COMMITTER_NAME", "Guia"), ("GIT_COMMITTER_EMAIL", "guia@example.invalid"))})
     p = subprocess.run(argumentos, cwd=cwd, env=entorno, stdout=subprocess.PIPE,
                        stderr=subprocess.STDOUT, text=True, timeout=180)
     salida = normalizar(p.stdout, temporal)
@@ -111,6 +113,8 @@ def correr(comando: str, cwd: Path, temporal: Path, falla: bool = False) -> tupl
                              ((" medidas en rojo" in salida or " medidas propias sin aplicar" in salida)
                               and len(argumentos) > 2 and argumentos[2] == "juzgar")):
         raise RuntimeError(f"Falló `{comando}` (código {p.returncode}):\n{salida}")
+    if argumentos[0] == "git":
+        return "", cwd  # git init/commit informa rutas, rama y hash según la máquina.
     return salida, cwd
 
 
@@ -120,6 +124,23 @@ def reemplazar_salidas(lineas: list[str], cambios: list[tuple[int, int, str]]) -
     for inicio, fin, salida in reversed(cambios):
         resultado[inicio:fin] = salida.splitlines(keepends=True)
     return resultado
+
+
+def arbol(carpeta: Path) -> str:
+    """Lista el proyecto real, con directorios antes que archivos."""
+    lineas = ["batalla-naval/"]
+
+    def visitar(actual: Path, prefijo: str) -> None:
+        entradas = [p for p in actual.iterdir() if p.name not in {".git", "__pycache__"}]
+        entradas.sort(key=lambda p: (not p.is_dir(), p.name))
+        for indice, entrada in enumerate(entradas):
+            ultima = indice == len(entradas) - 1
+            lineas.append(f"{prefijo}{'└──' if ultima else '├──'} {entrada.name}{'/' if entrada.is_dir() else ''}")
+            if entrada.is_dir():
+                visitar(entrada, prefijo + ("    " if ultima else "│   "))
+
+    visitar(carpeta, "")
+    return "\n".join(lineas) + "\n"
 
 
 def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
@@ -141,6 +162,14 @@ def verificar(escribir: bool = False, guia: Path = GUIA) -> None:
                     shutil.copytree(fuente, destino, dirs_exist_ok=True)
                 else:
                     destino.write_bytes(fuente.read_bytes())
+            if cabecera == ["text", "arbol"]:
+                real = arbol(cwd)
+                if real != cuerpo:
+                    if not escribir:
+                        raise AssertionError(f"Árbol viejo en línea {inicio + 1}; ejecutá "
+                                             "python3 tools/guia.py --escribir")
+                    cambios.append((inicio + 1, fin, real))
+                continue
             if cabecera not in (["bash", "paso"], ["bash", "paso", "falla"]):
                 continue
             falla = cabecera[2:] == ["falla"]

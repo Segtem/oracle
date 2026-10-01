@@ -1,6 +1,7 @@
 """Los recorridos se pueden reproducir desde una carpeta vacía."""
 
 import unittest
+import tempfile
 from pathlib import Path
 
 from tools import guia
@@ -11,6 +12,14 @@ class GuiaTests(unittest.TestCase):
         for ruta in guia.GUIAS:
             with self.subTest(guia=ruta.name):
                 guia.verificar(guia=ruta)
+
+    def test_arbol_desactualizado_falla(self):
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".md", dir=guia.RAIZ,
+                                         encoding="utf-8") as archivo:
+            archivo.write("```text arbol\narbol viejo\n```\n")
+            archivo.flush()
+            with self.assertRaisesRegex(AssertionError, "Árbol viejo"):
+                guia.verificar(guia=Path(archivo.name))
 
     def test_la_batalla_naval_entera_llega_por_incluir(self):
         texto = (guia.RAIZ / "docs/de-cero.md").read_text(encoding="utf-8")

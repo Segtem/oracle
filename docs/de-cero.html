@@ -70,6 +70,12 @@ MUTACIÓN DE CÓDIGO: salteada (sólo aplica al propio Oracle)
 
 PRODUCTO: sin nueva medición; no se ejecutó el producto.
 VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)</code></pre>
+<pre data-lenguaje="text"><code>batalla-naval/
+├── catalogos/
+├── corpus/
+├── diferencial/
+├── relaciones/
+└── oracle.json</code></pre>
 <p><strong>Si ves otra cosa.</strong> Si dice <code>oracle: command not found</code>, cerrá y abrí la terminal: <code>uv</code> agrega <code>oracle</code> al <code>PATH</code> pero la terminal abierta no se entera.</p>
 <details>
 <summary>¿Por qué dice «sin medición» y no «verde»?</summary>
@@ -2909,6 +2915,20 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
   });
 });</code></pre>
 </details>
+<pre data-lenguaje="text"><code>batalla-naval/
+├── catalogos/
+├── corpus/
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── index.html
+└── oracle.json</code></pre>
 <p>Recargá la página. Ahora se juega: colocá tus barcos (o usá el despliegue automático) y disparale a la computadora.</p>
 <p><strong>Si ves otra cosa.</strong> Si la página queda en blanco, abrí la consola del navegador (F12, pestaña Consola). Casi siempre es un archivo guardado con otro nombre o en otra carpeta: tienen que quedar <code>js/audio.js</code>, <code>js/trace.js</code>, <code>js/engine.js</code> y <code>js/ui.js</code>.</p>
 <p class="pregunta"><strong>Pensalo.</strong> El juego anda. ¿Eso quiere decir que cumple las reglas?</p>
@@ -2938,23 +2958,23 @@ document.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
 <p>Una con un barco en una casilla que no existe: por ejemplo, en la fila 10 (las filas van de 0 a 9). Escribir primero ese ejemplo te obliga a decir qué es un defecto antes de escribir cómo buscarlo.</p>
 </details>
 <p>En Oracle ese ejemplo se llama <strong>caso</strong>. Guardalo en <code>corpus/naval/</code>. <code>oracle init</code> no crea esa carpeta ni <code>catalogos/naval/</code>, que vas a usar enseguida: creá las dos (casi todo editor lo ofrece al guardar; en la terminal, <code>mkdir -p corpus/naval catalogos/naval</code>).</p>
-<pre class="archivo" data-lenguaje="corpus/naval/005-barco-fila-desbordada.caso"><code><span class="c-kw">caso</span> 005-barco-fila-desbordada:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barco fila desbordada&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Una celda <span class="c-kw">de</span> barco cae en fila 10.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/005-barco-fila-desbordada.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">005-barco-fila-desbordada</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barco fila desbordada&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Una celda de barco cae en fila <span class="tok-number">10</span>.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 10, 4
-    leccion:
-        Una celda <span class="c-kw">de</span> barco cae en fila 10.</code></pre>
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">10</span>, <span class="tok-number">4</span>
+<span class="tok-keyword">    leccion</span>:
+        Una celda de barco cae en fila <span class="tok-number">10</span>.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <div class="juego juego-predecir" data-juego="{&quot;correcta&quot;: &quot;ROJO&quot;, &quot;explica&quot;: &quot;El caso nombra una medida que el catálogo no tiene, y la aceptación falla.&quot;, &quot;id&quot;: &quot;p2&quot;, &quot;opciones&quot;: [&quot;VERDE&quot;, &quot;ROJO&quot;, &quot;SIN MEDICIÓN&quot;], &quot;pregunta&quot;: &quot;Hay un caso que reclama una regla que todavía no escribiste. ¿Qué dice `oracle test`?&quot;, &quot;tipo&quot;: &quot;predecir&quot;}"></div>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -2983,17 +3003,35 @@ ALCANCE: verificación de medidas contra casos guardados del corpus.
 PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: ROJO (falló: aceptación)</code></pre>
 <p>Rojo, y está bien: el caso reclama una regla que todavía no existe. Ahora sí, la regla. En Oracle se llama <strong>medida</strong>:</p>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno</span> naval.barcos_dentro_del_tablero:
-    <span class="c-kw">de</span> celda_barco c
-    <span class="c-kw">donde</span> c.fila &lt; 0 <span class="c-kw">o</span> c.fila &gt; 9 <span class="c-kw">o</span> c.columna &lt; 0 <span class="c-kw">o</span> c.columna &gt; 9
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;todas las celdas ocupadas por barcos deben ubicarse dentro de la cuadrícula de 10x10&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_dentro_del_tablero.oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">naval.barcos_dentro_del_tablero</span>:
+<span class="tok-keyword">    de</span> celda_barco c
+<span class="tok-keyword">    donde</span> <span class="tok-variable">c</span>.<span class="tok-property">fila</span> <span class="tok-operator">&lt;</span> <span class="tok-number">0</span> <span class="tok-keyword">o</span> <span class="tok-variable">c</span>.<span class="tok-property">fila</span> <span class="tok-operator">&gt;</span> <span class="tok-number">9</span> <span class="tok-keyword">o</span> <span class="tok-variable">c</span>.<span class="tok-property">columna</span> <span class="tok-operator">&lt;</span> <span class="tok-number">0</span> <span class="tok-keyword">o</span> <span class="tok-variable">c</span>.<span class="tok-property">columna</span> <span class="tok-operator">&gt;</span> <span class="tok-number">9</span>
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;todas las celdas ocupadas por barcos deben ubicarse dentro de la cuadrícula de 10x10&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;revisa los límites de cada celda de barco reportada. No verifica solapamientos ni continuidad.&quot;</span></code></pre>
 <p>Línea por línea: <code>ninguno</code> dice que <strong>no tiene que haber ninguna</strong> fila que ofenda; <code>de celda_barco c</code> elige qué mirar; <code>donde</code> dice cuáles ofenden; <code>umbral &lt;= 0</code> cuántas se toleran, <code>segun contrato</code> de dónde sale ese cero y <code>porque</code> lo defiende; <code>alcance</code> dice <strong>qué no mira</strong>.</p>
 <p>Oracle no acepta variantes de estilo: cada regla se escribe de <strong>una sola manera</strong>, la que escribe su impresor. Si la escribe un modelo, <code>oracle formatear</code> la pone en esa forma antes de medir nada:</p>
 <pre data-lenguaje="bash"><code>oracle formatear . --escribir</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>catalogos/naval/naval.barcos_dentro_del_tablero.oracle: ya tiene forma única
 corpus/naval/005-barco-fila-desbordada.caso: ya tiene forma única</code></pre>
+<pre data-lenguaje="text"><code>batalla-naval/
+├── catalogos/
+│   └── naval/
+│       └── naval.barcos_dentro_del_tablero.oracle
+├── corpus/
+│   └── naval/
+│       └── 005-barco-fila-desbordada.caso
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── index.html
+└── oracle.json</code></pre>
 <div class="juego juego-elegir" data-juego="{&quot;id&quot;: &quot;forma&quot;, &quot;opciones&quot;: [{&quot;codigo&quot;: true, &quot;ok&quot;: false, &quot;porque&quot;: &quot;Se lee igual, pero no es el texto que escribe el impresor: sin espacios alrededor del `&lt;` queda fuera de la forma única y no carga. `oracle formatear` lo arregla.&quot;, &quot;texto&quot;: &quot;donde c.fila&lt;0 o c.fila&gt;9 o c.columna&lt;0 o c.columna&gt;9&quot;}, {&quot;codigo&quot;: true, &quot;ok&quot;: true, &quot;porque&quot;: &quot;Es exactamente lo que escribe el impresor. En Oracle cada regla se escribe de una sola manera, como el código Go con gofmt.&quot;, &quot;texto&quot;: &quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;}, {&quot;codigo&quot;: true, &quot;ok&quot;: false, &quot;porque&quot;: &quot;Hay dos espacios antes de la primera `o`. Un espacio de más no es estilo: es otro texto, y Oracle lo rechaza con el diff y el comando que lo corrige.&quot;, &quot;texto&quot;: &quot;donde c.fila &lt; 0  o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;}], &quot;pregunta&quot;: &quot;El modelo te devuelve la regla con la línea del `donde` escrita de tres maneras. ¿Cuál carga Oracle?&quot;, &quot;tipo&quot;: &quot;elegir&quot;, &quot;titulo&quot;: &quot;Una sola forma de escribir&quot;, &quot;xp&quot;: 30}"></div>
 <p class="pregunta"><strong>Pensalo.</strong> ¿Qué no está mirando esta regla?</p>
 <details>
@@ -3057,23 +3095,23 @@ VEREDICTO: ROJO (falló: mutación)</code></pre>
 <p>Uno <strong>verde</strong>: una partida con todos los barcos dentro, que la regla sin filtro pondría roja. Y conviene que esté en el borde (fila 9), para que también se note si alguien corre el límite.</p>
 </details>
 <div class="juego juego-cazamutantes" data-juego="{&quot;activos&quot;: [&quot;005-barco-fila-desbordada&quot;], &quot;casos&quot;: [{&quot;etiqueta&quot;: &quot;falso_verde&quot;, &quot;evidencia&quot;: {&quot;celda_barco&quot;: [{&quot;columna&quot;: 4, &quot;fila&quot;: 10, &quot;id&quot;: &quot;b1&quot;, &quot;jugador&quot;: &quot;jugador&quot;}]}, &quot;id&quot;: &quot;005-barco-fila-desbordada&quot;, &quot;titulo&quot;: &quot;barco fila desbordada&quot;}, {&quot;etiqueta&quot;: &quot;verde_correcto&quot;, &quot;evidencia&quot;: {&quot;celda_barco&quot;: [{&quot;columna&quot;: 9, &quot;fila&quot;: 0, &quot;id&quot;: &quot;b1&quot;, &quot;jugador&quot;: &quot;jugador&quot;}]}, &quot;id&quot;: &quot;006-barco-en-borde&quot;, &quot;titulo&quot;: &quot;barco en borde&quot;}, {&quot;etiqueta&quot;: &quot;falso_verde&quot;, &quot;evidencia&quot;: {&quot;celda_barco&quot;: [{&quot;columna&quot;: 10, &quot;fila&quot;: 5, &quot;id&quot;: &quot;b1&quot;, &quot;jugador&quot;: &quot;jugador&quot;}]}, &quot;id&quot;: &quot;026-barco-columna-desbordada&quot;, &quot;titulo&quot;: &quot;barco columna desbordada&quot;}, {&quot;etiqueta&quot;: &quot;falso_verde&quot;, &quot;evidencia&quot;: {&quot;celda_barco&quot;: [{&quot;columna&quot;: 5, &quot;fila&quot;: -1, &quot;id&quot;: &quot;b1&quot;, &quot;jugador&quot;: &quot;jugador&quot;}]}, &quot;id&quot;: &quot;027-barco-fila-negativa&quot;, &quot;titulo&quot;: &quot;barco fila negativa&quot;}, {&quot;etiqueta&quot;: &quot;falso_verde&quot;, &quot;evidencia&quot;: {&quot;celda_barco&quot;: [{&quot;columna&quot;: -1, &quot;fila&quot;: 5, &quot;id&quot;: &quot;b1&quot;, &quot;jugador&quot;: &quot;jugador&quot;}]}, &quot;id&quot;: &quot;028-barco-columna-negativa&quot;, &quot;titulo&quot;: &quot;barco columna negativa&quot;}], &quot;consigna&quot;: &quot;Estos son los mutantes reales que Oracle genera para tu regla. Empezás con el caso 005. Sumá casos hasta que no quede ninguno vivo: ¿cuántos hacen falta, y cuál mata a cada uno?&quot;, &quot;id&quot;: &quot;c6&quot;, &quot;logro&quot;: &quot;cazamutantes&quot;, &quot;medida&quot;: &quot;naval.barcos_dentro_del_tablero&quot;, &quot;mutantes&quot;: [{&quot;cambia&quot;: [&quot;umbral &lt;= 1&quot;], &quot;id&quot;: &quot;aflojar_umbral&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;umbral &lt;= 0&quot;]}, {&quot;cambia&quot;: [&quot;umbral &gt; 0&quot;], &quot;id&quot;: &quot;invertir_comparador&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;006-barco-en-borde&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;umbral &lt;= 0&quot;]}, {&quot;cambia&quot;: [], &quot;id&quot;: &quot;quitar_filtro&quot;, &quot;muere_con&quot;: [&quot;006-barco-en-borde&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde no (c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9)&quot;], &quot;id&quot;: &quot;negar_filtro&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;006-barco-en-borde&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;umbral &lt;= 1&quot;], &quot;id&quot;: &quot;aflojar_cota_superior&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;umbral &lt;= 0&quot;]}, {&quot;cambia&quot;: [&quot;donde false&quot;], &quot;id&quot;: &quot;vaciar_tuberia_si_cero_aprueba&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: []}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0&quot;], &quot;id&quot;: &quot;conservar_una_rama_de_disyuncion&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; -1 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;alejar_limite_de_defecto&quot;, &quot;muere_con&quot;: [&quot;027-barco-fila-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 y c.fila &gt; 9 y c.columna &lt; 0 y c.columna &gt; 9&quot;], &quot;id&quot;: &quot;expresion:logico@2.2.1:o→y&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &gt;= 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;expresion:comparador@2.2.1.1:&lt;→&gt;=&quot;, &quot;muere_con&quot;: [&quot;006-barco-en-borde&quot;, &quot;027-barco-fila-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 o c.fila &lt;= 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;expresion:comparador@2.2.1.2:&gt;→&lt;=&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;006-barco-en-borde&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &gt;= 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;expresion:comparador@2.2.1.3:&lt;→&gt;=&quot;, &quot;muere_con&quot;: [&quot;006-barco-en-borde&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &lt;= 9&quot;], &quot;id&quot;: &quot;expresion:comparador@2.2.1.4:&gt;→&lt;=&quot;, &quot;muere_con&quot;: [&quot;006-barco-en-borde&quot;, &quot;026-barco-columna-desbordada&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;resumen suma(0)&quot;], &quot;id&quot;: &quot;agregado:3.1:contar→suma(0)&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;, &quot;026-barco-columna-desbordada&quot;, &quot;027-barco-fila-negativa&quot;, &quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;resumen contar(1)&quot;]}, {&quot;cambia&quot;: [&quot;donde c.columna &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;campo:2.2.1.1.1.2:fila→columna&quot;, &quot;muere_con&quot;: [&quot;027-barco-fila-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 o c.columna &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;campo:2.2.1.2.1.2:fila→columna&quot;, &quot;muere_con&quot;: [&quot;005-barco-fila-desbordada&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.fila &lt; 0 o c.columna &gt; 9&quot;], &quot;id&quot;: &quot;campo:2.2.1.3.1.2:columna→fila&quot;, &quot;muere_con&quot;: [&quot;028-barco-columna-negativa&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}, {&quot;cambia&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.fila &gt; 9&quot;], &quot;id&quot;: &quot;campo:2.2.1.4.1.2:columna→fila&quot;, &quot;muere_con&quot;: [&quot;026-barco-columna-desbordada&quot;], &quot;quita&quot;: [&quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;]}], &quot;proyecto&quot;: &quot;ejemplo/batalla-naval&quot;, &quot;regla&quot;: [&quot;de celda_barco c&quot;, &quot;donde c.fila &lt; 0 o c.fila &gt; 9 o c.columna &lt; 0 o c.columna &gt; 9&quot;, &quot;resumen contar(1)&quot;, &quot;umbral &lt;= 0&quot;], &quot;tipo&quot;: &quot;cazamutantes&quot;, &quot;titulo&quot;: &quot;Cacería de mutantes&quot;, &quot;xp&quot;: 80}"></div>
-<pre class="archivo" data-lenguaje="corpus/naval/006-barco-en-borde.caso"><code><span class="c-kw">caso</span> 006-barco-en-borde:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barco en borde&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        La celda <span class="c-kw">de</span> barco está en el borde válido.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/006-barco-en-borde.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">006-barco-en-borde</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barco en borde&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        La celda de barco está en el borde válido.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
-    leccion:
-        La celda <span class="c-kw">de</span> barco está en el borde válido.</code></pre>
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">9</span>
+<span class="tok-keyword">    leccion</span>:
+        La celda de barco está en el borde válido.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <div class="juego juego-predecir" data-juego="{&quot;correcta&quot;: &quot;ROJO&quot;, &quot;explica&quot;: &quot;Murieron más mutantes, pero todavía viven los que tocan las otras tres condiciones del donde.&quot;, &quot;id&quot;: &quot;p4&quot;, &quot;opciones&quot;: [&quot;VERDE&quot;, &quot;ROJO&quot;], &quot;pregunta&quot;: &quot;Agregaste el caso verde del borde. ¿Verde?&quot;, &quot;tipo&quot;: &quot;predecir&quot;}"></div>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -3119,57 +3157,57 @@ ALCANCE: verificación de medidas contra casos guardados del corpus.
 PRODUCTO: sin nueva medición; la aceptación no reejecuta los comandos de origen ni el producto. El resultado no certifica su estado actual.
 VEREDICTO: ROJO (falló: mutación)</code></pre>
 <p>Quedan mutantes vivos. La regla tiene cuatro formas de ofender (fila menor que 0, fila mayor que 9, columna menor que 0, columna mayor que 9) y tu caso rojo sólo prueba una. Los otros tres casos rojos:</p>
-<pre class="archivo" data-lenguaje="corpus/naval/026-barco-columna-desbordada.caso"><code><span class="c-kw">caso</span> 026-barco-columna-desbordada:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barco columna desbordada&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Una celda <span class="c-kw">de</span> barco cae en columna 10.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/026-barco-columna-desbordada.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">026-barco-columna-desbordada</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barco columna desbordada&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Una celda de barco cae en columna <span class="tok-number">10</span>.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 5, 10
-    leccion:
-        Una celda <span class="c-kw">de</span> barco cae en columna 10.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/027-barco-fila-negativa.caso"><code><span class="c-kw">caso</span> 027-barco-fila-negativa:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barco fila negativa&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Una celda <span class="c-kw">de</span> barco cae en fila negativa.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">5</span>, <span class="tok-number">10</span>
+<span class="tok-keyword">    leccion</span>:
+        Una celda de barco cae en columna <span class="tok-number">10</span>.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/027-barco-fila-negativa.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">027-barco-fila-negativa</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barco fila negativa&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Una celda de barco cae en fila negativa.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, -1, 5
-    leccion:
-        Una celda <span class="c-kw">de</span> barco cae en fila negativa.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/028-barco-columna-negativa.caso"><code><span class="c-kw">caso</span> 028-barco-columna-negativa:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barco columna negativa&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Una celda <span class="c-kw">de</span> barco cae en columna negativa.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, -<span class="tok-number">1</span>, <span class="tok-number">5</span>
+<span class="tok-keyword">    leccion</span>:
+        Una celda de barco cae en fila negativa.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/028-barco-columna-negativa.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">028-barco-columna-negativa</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barco columna negativa&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Una celda de barco cae en columna negativa.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 5, -1
-    leccion:
-        Una celda <span class="c-kw">de</span> barco cae en columna negativa.</code></pre>
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">5</span>, -<span class="tok-number">1</span>
+<span class="tok-keyword">    leccion</span>:
+        Una celda de barco cae en columna negativa.</code></pre>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
 <div class="juego juego-predecir" data-juego="{&quot;correcta&quot;: &quot;VERDE&quot;, &quot;explica&quot;: &quot;Cada forma de debilitar la regla la nota algún caso.&quot;, &quot;id&quot;: &quot;p5&quot;, &quot;opciones&quot;: [&quot;VERDE&quot;, &quot;ROJO&quot;], &quot;pregunta&quot;: &quot;Un caso rojo por cada condición. ¿Y ahora?&quot;, &quot;tipo&quot;: &quot;predecir&quot;}"></div>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>UNITARIOS: salteados (sólo aplican al propio Oracle)
@@ -3213,126 +3251,160 @@ VEREDICTO: VERDE (todas las verificaciones aplicables en regla)</code></pre>
 <p>El juego tiene más reglas. Pegá las diez que faltan de una vez, cada una con su idea:</p>
 <details>
 <summary>Ver las diez medidas</summary>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_dentro_del_tablero.oracle"><code><span class="c-kw">ninguno</span> naval.tiros_dentro_del_tablero:
-    <span class="c-kw">de</span> tiro t
-    <span class="c-kw">donde</span> t.fila &lt; 0 <span class="c-kw">o</span> t.fila &gt; 9 <span class="c-kw">o</span> t.columna &lt; 0 <span class="c-kw">o</span> t.columna &gt; 9
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el tablero reglamentario es de 10x10; cualquier coordenada con fila o columna fuera de [0, 9] es un tiro inválido&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;comprueba que las coordenadas de cada disparo estén en el rango [0, 9]. No comprueba si el casillero ya fue disparado previamente ni la validez del turno.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_sin_solapamiento.oracle"><code><span class="c-kw">medida</span> naval.barcos_sin_solapamiento:
-    <span class="c-kw">de</span> celda_barco c1
-    <span class="c-kw">unir</span> celda_barco c2
-    <span class="c-kw">donde</span> c1.jugador == c2.jugador <span class="c-kw">y</span> c1.id &lt; c2.id <span class="c-kw">y</span> c1.fila == c2.fila <span class="c-kw">y</span> c1.columna == c2.columna
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;dos casillas de barco del mismo jugador no pueden coincidir en la misma fila y columna&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta pares de celdas distintas del mismo jugador con id1 &lt; id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.flota_reglamentaria.oracle"><code><span class="c-kw">medida</span> naval.flota_reglamentaria:
-    <span class="c-kw">de</span> celda_barco c
-    <span class="c-kw">agrupar</span>:
-        clave jugador = c.jugador
-        agregado celdas = contar(1)
-    <span class="c-kw">donde</span> celdas != 17
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;la flota reglamentaria de cada jugador debe sumar exactamente 17 casillas (portaaviones 5 + acorazado 4 + crucero 3 + submarino 3 + destructor 2)&quot;</span>
-    <span class="c-kw">requiere</span> celda_barco
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.alternancia_turnos.oracle"><code><span class="c-kw">medida</span> naval.alternancia_turnos:
-    <span class="c-kw">de</span> tiro t1
-    <span class="c-kw">unir</span> tiro t2
-    <span class="c-kw">donde</span> t2.turno == t1.turno + 1 <span class="c-kw">y</span> t1.tirador == t2.tirador
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.turnos_sin_huecos.oracle"><code><span class="c-kw">medida</span> naval.turnos_sin_huecos:
-    <span class="c-kw">de</span> tiro t
-    <span class="c-kw">agrupar</span>:
-        agregado registrados = contar(1)
-        agregado ultimo = max(t.turno)
-    <span class="c-kw">donde</span> registrados != ultimo + 1
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;la secuencia de turnos debe ser continua, arrancando en 0 y avanzando de a 1 sin huecos ni saltos&quot;</span>
-    <span class="c-kw">requiere</span> tiro
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_sin_repeticion.oracle"><code><span class="c-kw">medida</span> naval.tiros_sin_repeticion:
-    <span class="c-kw">de</span> tiro t1
-    <span class="c-kw">unir</span> tiro t2
-    <span class="c-kw">donde</span> t1.tirador == t2.tirador <span class="c-kw">y</span> t1.turno &lt; t2.turno <span class="c-kw">y</span> t1.fila == t2.fila <span class="c-kw">y</span> t1.columna == t2.columna
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un jugador no puede disparar dos veces a la misma casilla en una partida&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.veracidad_impacto_positivo.oracle"><code><span class="c-kw">medida</span> naval.veracidad_impacto_positivo:
-    <span class="c-kw">de</span> tiro t
-    <span class="c-kw">sin</span> celda_barco c <span class="c-kw">donde</span> c.jugador == t.receptor <span class="c-kw">y</span> c.fila == t.fila <span class="c-kw">y</span> c.columna == t.columna
-    <span class="c-kw">donde</span> t.es_impacto == true
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un disparo no puede declararse impacto si en esa casilla no había un segmento de barco rival&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.veracidad_impacto_negativo.oracle"><code><span class="c-kw">medida</span> naval.veracidad_impacto_negativo:
-    <span class="c-kw">de</span> tiro t
-    <span class="c-kw">unir</span> celda_barco c
-    <span class="c-kw">donde</span> c.jugador == t.receptor <span class="c-kw">y</span> c.fila == t.fila <span class="c-kw">y</span> c.columna == t.columna <span class="c-kw">y</span> t.es_impacto == false
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;un disparo en una casilla que contiene un barco no puede ser reportado como agua&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;cruza cada disparo contra las celdas de la flota rival y detecta impactos omitidos registrados falsamente como agua. No verifica la secuencia de turnos.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.ganador_legitimo.oracle"><code><span class="c-kw">ninguno</span> naval.ganador_legitimo:
-    <span class="c-kw">de</span> partida p
-    <span class="c-kw">donde</span> p.impactos_ganador != 17
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el ganador de la partida debe haber destruido la totalidad de las 17 casillas de la flota enemiga&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="catalogos/naval/naval.fin_de_juego_sin_tiros_posteriores.oracle"><code><span class="c-kw">medida</span> naval.fin_de_juego_sin_tiros_posteriores:
-    <span class="c-kw">de</span> tiro t
-    <span class="c-kw">unir</span> partida p
-    <span class="c-kw">donde</span> t.turno &gt; p.turno_final
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;una vez finalizada la partida no se permiten más disparos&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara el turno de cada tiro contra el turno final registrado en el estado de la partida. No valida si la partida debió terminar antes.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_dentro_del_tablero.oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">naval.tiros_dentro_del_tablero</span>:
+<span class="tok-keyword">    de</span> tiro t
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t</span>.<span class="tok-property">fila</span> <span class="tok-operator">&lt;</span> <span class="tok-number">0</span> <span class="tok-keyword">o</span> <span class="tok-variable">t</span>.<span class="tok-property">fila</span> <span class="tok-operator">&gt;</span> <span class="tok-number">9</span> <span class="tok-keyword">o</span> <span class="tok-variable">t</span>.<span class="tok-property">columna</span> <span class="tok-operator">&lt;</span> <span class="tok-number">0</span> <span class="tok-keyword">o</span> <span class="tok-variable">t</span>.<span class="tok-property">columna</span> <span class="tok-operator">&gt;</span> <span class="tok-number">9</span>
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;el tablero reglamentario es de 10x10; cualquier coordenada con fila o columna fuera de [0, 9] es un tiro inválido&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;comprueba que las coordenadas de cada disparo estén en el rango [0, 9]. No comprueba si el casillero ya fue disparado previamente ni la validez del turno.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.barcos_sin_solapamiento.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.barcos_sin_solapamiento</span>:
+<span class="tok-keyword">    de</span> celda_barco c1
+<span class="tok-keyword">    unir</span> celda_barco c2
+<span class="tok-keyword">    donde</span> <span class="tok-variable">c1</span>.<span class="tok-property">jugador</span> <span class="tok-operator">==</span> <span class="tok-variable">c2</span>.<span class="tok-property">jugador</span> <span class="tok-keyword">y</span> <span class="tok-variable">c1</span>.<span class="tok-property">id</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">c2</span>.<span class="tok-property">id</span> <span class="tok-keyword">y</span> <span class="tok-variable">c1</span>.<span class="tok-property">fila</span> <span class="tok-operator">==</span> <span class="tok-variable">c2</span>.<span class="tok-property">fila</span> <span class="tok-keyword">y</span> <span class="tok-variable">c1</span>.<span class="tok-property">columna</span> <span class="tok-operator">==</span> <span class="tok-variable">c2</span>.<span class="tok-property">columna</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;dos casillas de barco del mismo jugador no pueden coincidir en la misma fila y columna&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;detecta pares de celdas distintas del mismo jugador con id1 &lt; id2 que colisionan en la misma coordenada. No comprueba barcos de jugadores opuestos.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.flota_reglamentaria.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.flota_reglamentaria</span>:
+<span class="tok-keyword">    de</span> celda_barco c
+<span class="tok-keyword">    agrupar</span>:
+<span class="tok-keyword">        clave</span> jugador = <span class="tok-variable">c</span>.<span class="tok-property">jugador</span>
+<span class="tok-keyword">        agregado</span> celdas = <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    donde</span> celdas <span class="tok-operator">!=</span> <span class="tok-number">17</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;la flota reglamentaria de cada jugador debe sumar exactamente 17 casillas (portaaviones 5 + acorazado 4 + crucero 3 + submarino 3 + destructor 2)&quot;</span>
+<span class="tok-keyword">    requiere</span> celda_barco
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;agrupa las casillas de barco por jugador y exige exactamente 17 casillas por flota. No comprueba la orientación lineal de los barcos.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.alternancia_turnos.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.alternancia_turnos</span>:
+<span class="tok-keyword">    de</span> tiro t1
+<span class="tok-keyword">    unir</span> tiro t2
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t2</span>.<span class="tok-property">turno</span> <span class="tok-operator">==</span> <span class="tok-variable">t1</span>.<span class="tok-property">turno</span> + <span class="tok-number">1</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">tirador</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">tirador</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;los turnos deben alternar estrictamente entre ambos jugadores en turnos consecutivos&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara el tirador del turno k con el tirador del turno k+1. No valida la ausencia de saltos si falta un turno completo.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.turnos_sin_huecos.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.turnos_sin_huecos</span>:
+<span class="tok-keyword">    de</span> tiro t
+<span class="tok-keyword">    agrupar</span>:
+<span class="tok-keyword">        agregado</span> registrados = <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">        agregado</span> ultimo = <span class="tok-support">max</span>(<span class="tok-variable">t</span>.<span class="tok-property">turno</span>)
+<span class="tok-keyword">    donde</span> registrados <span class="tok-operator">!=</span> ultimo + <span class="tok-number">1</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;la secuencia de turnos debe ser continua, arrancando en 0 y avanzando de a 1 sin huecos ni saltos&quot;</span>
+<span class="tok-keyword">    requiere</span> tiro
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara la cantidad total de tiros registrados contra el turno máximo reportado más uno. No valida la alternancia de tiradores.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_sin_repeticion.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.tiros_sin_repeticion</span>:
+<span class="tok-keyword">    de</span> tiro t1
+<span class="tok-keyword">    unir</span> tiro t2
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t1</span>.<span class="tok-property">tirador</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">tirador</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">turno</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">t2</span>.<span class="tok-property">turno</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">fila</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">fila</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">columna</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">columna</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un jugador no puede disparar dos veces a la misma casilla en una partida&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.veracidad_impacto_positivo.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.veracidad_impacto_positivo</span>:
+<span class="tok-keyword">    de</span> tiro t
+    sin celda_barco c donde <span class="tok-variable">c</span>.<span class="tok-property">jugador</span> <span class="tok-operator">==</span> <span class="tok-variable">t</span>.<span class="tok-property">receptor</span> <span class="tok-keyword">y</span> <span class="tok-variable">c</span>.<span class="tok-property">fila</span> <span class="tok-operator">==</span> <span class="tok-variable">t</span>.<span class="tok-property">fila</span> <span class="tok-keyword">y</span> <span class="tok-variable">c</span>.<span class="tok-property">columna</span> <span class="tok-operator">==</span> <span class="tok-variable">t</span>.<span class="tok-property">columna</span>
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t</span>.<span class="tok-property">es_impacto</span> <span class="tok-operator">==</span> <span class="tok-keyword">true</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un disparo no puede declararse impacto si en esa casilla no había un segmento de barco rival&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;detecta disparos registrados como impacto que no corresponden a ninguna celda ocupada por la flota del receptor. No verifica si el barco ya estaba completamente hundido.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.veracidad_impacto_negativo.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.veracidad_impacto_negativo</span>:
+<span class="tok-keyword">    de</span> tiro t
+<span class="tok-keyword">    unir</span> celda_barco c
+<span class="tok-keyword">    donde</span> <span class="tok-variable">c</span>.<span class="tok-property">jugador</span> <span class="tok-operator">==</span> <span class="tok-variable">t</span>.<span class="tok-property">receptor</span> <span class="tok-keyword">y</span> <span class="tok-variable">c</span>.<span class="tok-property">fila</span> <span class="tok-operator">==</span> <span class="tok-variable">t</span>.<span class="tok-property">fila</span> <span class="tok-keyword">y</span> <span class="tok-variable">c</span>.<span class="tok-property">columna</span> <span class="tok-operator">==</span> <span class="tok-variable">t</span>.<span class="tok-property">columna</span> <span class="tok-keyword">y</span> <span class="tok-variable">t</span>.<span class="tok-property">es_impacto</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un disparo en una casilla que contiene un barco no puede ser reportado como agua&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cruza cada disparo contra las celdas de la flota rival y detecta impactos omitidos registrados falsamente como agua. No verifica la secuencia de turnos.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.ganador_legitimo.oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">naval.ganador_legitimo</span>:
+<span class="tok-keyword">    de</span> partida p
+<span class="tok-keyword">    donde</span> <span class="tok-variable">p</span>.<span class="tok-property">impactos_ganador</span> <span class="tok-operator">!=</span> <span class="tok-number">17</span>
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;el ganador de la partida debe haber destruido la totalidad de las 17 casillas de la flota enemiga&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;comprueba que los impactos acumulados por el ganador sean exactamente 17. No valida si los tiros fueron asignados al tirador correcto.&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.fin_de_juego_sin_tiros_posteriores.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.fin_de_juego_sin_tiros_posteriores</span>:
+<span class="tok-keyword">    de</span> tiro t
+<span class="tok-keyword">    unir</span> partida p
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t</span>.<span class="tok-property">turno</span> <span class="tok-operator">&gt;</span> <span class="tok-variable">p</span>.<span class="tok-property">turno_final</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;una vez finalizada la partida no se permiten más disparos&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara el turno de cada tiro contra el turno final registrado en el estado de la partida. No valida si la partida debió terminar antes.&quot;</span></code></pre>
 </details>
 <p>Tres para mirar con calma, porque cada una enseña algo del lenguaje:</p>
 <ul><li><code>naval.alternancia_turnos</code> compara cada tiro con el siguiente usando <code>unir</code>, y se escribe como lo pensás: <code>t2.turno == t1.turno + 1</code>.</li><li><code>naval.flota_reglamentaria</code> usa <code>agrupar</code> para contar las casillas de cada jugador y dice <code>requiere celda_barco</code>: si el juego no mandó ningún barco, la regla no sale verde, sale <strong>sin evidencia</strong>. Cero barcos no es una flota correcta, es un registro roto.</li><li><code>naval.veracidad_impacto_positivo</code> usa <code>sin</code>: busca los tiros marcados como impacto <strong>sin</strong> ningún barco del rival en esa casilla.</li></ul>
 <p>Con el juego original venían sólo dos casos, los dos de la regla de tiros:</p>
-<pre class="archivo" data-lenguaje="corpus/naval/001-tiro-fuera-de-tablero.caso"><code><span class="c-kw">caso</span> 001-tiro-fuera-de-tablero:
-    fecha: <span class="c-txt">&quot;2026-09-22&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;Disparo con coordenada fuera del tablero de 10x10&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Un disparo reporta fila 10, fuera del tablero reglamentario.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/001-tiro-fuera-de-tablero.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-tiro-fuera-de-tablero</span>:
+    fecha: <span class="tok-string">&quot;2026-09-22&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Disparo con coordenada fuera del tablero de 10x10&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Un disparo reporta fila <span class="tok-number">10</span>, fuera del tablero reglamentario.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, fila, columna
-            0, <span class="c-txt">&quot;jugador&quot;</span>, 10, 4
-    leccion:
-        Todo disparo debe acotarse estrictamente entre las filas 0 a 9 <span class="c-kw">y</span> columnas 0 a 9.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/002-tiro-valido.caso"><code><span class="c-kw">caso</span> 002-tiro-valido:
-    fecha: <span class="c-txt">&quot;2026-09-22&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;Disparo válido dentro del tablero de 10x10&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        Un disparo dentro del rango válido <span class="c-kw">no</span> debe generar alertas.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">10</span>, <span class="tok-number">4</span>
+<span class="tok-keyword">    leccion</span>:
+        Todo disparo debe acotarse estrictamente entre las filas <span class="tok-number">0</span> a <span class="tok-number">9</span> <span class="tok-keyword">y</span> columnas <span class="tok-number">0</span> a <span class="tok-number">9</span>.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/002-tiro-valido.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-tiro-valido</span>:
+    fecha: <span class="tok-string">&quot;2026-09-22&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Disparo válido dentro del tablero de 10x10&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        Un disparo dentro del rango válido <span class="tok-keyword">no</span> debe generar alertas.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, fila, columna
-            0, <span class="c-txt">&quot;jugador&quot;</span>, 5, 5
-    leccion:
-        Las coordenadas entre 0 <span class="c-kw">y</span> 9 son aceptadas <span class="c-kw">sin</span> faltas.</code></pre>
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">5</span>, <span class="tok-number">5</span>
+<span class="tok-keyword">    leccion</span>:
+        Las coordenadas entre <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-number">9</span> son aceptadas sin faltas.</code></pre>
+<pre data-lenguaje="text"><code>batalla-naval/
+├── catalogos/
+│   └── naval/
+│       ├── naval.alternancia_turnos.oracle
+│       ├── naval.barcos_dentro_del_tablero.oracle
+│       ├── naval.barcos_sin_solapamiento.oracle
+│       ├── naval.fin_de_juego_sin_tiros_posteriores.oracle
+│       ├── naval.flota_reglamentaria.oracle
+│       ├── naval.ganador_legitimo.oracle
+│       ├── naval.tiros_dentro_del_tablero.oracle
+│       ├── naval.tiros_sin_repeticion.oracle
+│       ├── naval.turnos_sin_huecos.oracle
+│       ├── naval.veracidad_impacto_negativo.oracle
+│       └── naval.veracidad_impacto_positivo.oracle
+├── corpus/
+│   └── naval/
+│       ├── 001-tiro-fuera-de-tablero.caso
+│       ├── 002-tiro-valido.caso
+│       ├── 005-barco-fila-desbordada.caso
+│       ├── 006-barco-en-borde.caso
+│       ├── 026-barco-columna-desbordada.caso
+│       ├── 027-barco-fila-negativa.caso
+│       └── 028-barco-columna-negativa.caso
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── index.html
+└── oracle.json</code></pre>
 <p class="pregunta"><strong>Pensalo.</strong> Once reglas y siete casos, casi todos de dos reglas. ¿Qué tendría que decir <code>oracle test</code>?</p>
 <details>
 <summary>Ver la respuesta</summary>
@@ -3411,502 +3483,502 @@ VEREDICTO: ROJO (falló: medidas sin casos, mutación)</code></pre>
 <p>Los casos que faltan: para cada regla, al menos uno que la ponga roja cerca del borde y uno verde.</p>
 <details>
 <summary>Ver los casos que faltan</summary>
-<pre class="archivo" data-lenguaje="corpus/naval/023-columna-desbordada.caso"><code><span class="c-kw">caso</span> 023-columna-desbordada:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;columna desbordada&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        La columna 10 está fuera del tablero.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/023-columna-desbordada.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">023-columna-desbordada</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;columna desbordada&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        La columna <span class="tok-number">10</span> está fuera del tablero.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 5, 10, false
-    leccion:
-        La columna 10 está fuera del tablero.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/024-fila-negativa.caso"><code><span class="c-kw">caso</span> 024-fila-negativa:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;fila negativa&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">5</span>, <span class="tok-number">10</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
+        La columna <span class="tok-number">10</span> está fuera del tablero.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/024-fila-negativa.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">024-fila-negativa</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;fila negativa&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
         La fila negativa está fuera del tablero.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, -1, 5, false
-    leccion:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, -<span class="tok-number">1</span>, <span class="tok-number">5</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
         La fila negativa está fuera del tablero.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/025-columna-negativa.caso"><code><span class="c-kw">caso</span> 025-columna-negativa:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;columna negativa&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/naval/025-columna-negativa.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">025-columna-negativa</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;columna negativa&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
         La columna negativa está fuera del tablero.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_dentro_del_tablero
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_dentro_del_tablero</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 5, -1, false
-    leccion:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">5</span>, -<span class="tok-number">1</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
         La columna negativa está fuera del tablero.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/007-barcos-superpuestos.caso"><code><span class="c-kw">caso</span> 007-barcos-superpuestos:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barcos superpuestos&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/naval/007-barcos-superpuestos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">007-barcos-superpuestos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barcos superpuestos&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
         Dos barcos del mismo jugador comparten una casilla.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_sin_solapamiento
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_sin_solapamiento</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
-            <span class="c-txt">&quot;b&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
-    leccion:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>
+            <span class="tok-string">&quot;b&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>
+<span class="tok-keyword">    leccion</span>:
         Dos barcos del mismo jugador comparten una casilla.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/008-barcos-separados.caso"><code><span class="c-kw">caso</span> 008-barcos-separados:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barcos separados&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/naval/008-barcos-separados.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">008-barcos-separados</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barcos separados&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         Dos barcos del mismo jugador ocupan casillas distintas.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.barcos_sin_solapamiento
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">barcos_sin_solapamiento</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 4
-            <span class="c-txt">&quot;b&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 3, 5
-    leccion:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">3</span>, <span class="tok-number">4</span>
+            <span class="tok-string">&quot;b&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">3</span>, <span class="tok-number">5</span>
+<span class="tok-keyword">    leccion</span>:
         Dos barcos del mismo jugador ocupan casillas distintas.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/011-flota-de-dieciseis.caso"><code><span class="c-kw">caso</span> 011-flota-de-dieciseis:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;flota de dieciseis&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        La flota registra 16 casillas <span class="c-kw">y</span> necesita 17.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.flota_reglamentaria
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/011-flota-de-dieciseis.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">011-flota-de-dieciseis</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;flota de dieciseis&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        La flota registra <span class="tok-number">16</span> casillas <span class="tok-keyword">y</span> necesita <span class="tok-number">17</span>.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">flota_reglamentaria</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b0&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 0
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 1
-            <span class="c-txt">&quot;b2&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 2
-            <span class="c-txt">&quot;b3&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 3
-            <span class="c-txt">&quot;b4&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 4
-            <span class="c-txt">&quot;b5&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 5
-            <span class="c-txt">&quot;b6&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 6
-            <span class="c-txt">&quot;b7&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 7
-            <span class="c-txt">&quot;b8&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 8
-            <span class="c-txt">&quot;b9&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
-            <span class="c-txt">&quot;b10&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 0
-            <span class="c-txt">&quot;b11&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 1
-            <span class="c-txt">&quot;b12&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 2
-            <span class="c-txt">&quot;b13&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 3
-            <span class="c-txt">&quot;b14&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 4
-            <span class="c-txt">&quot;b15&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 5
-    leccion:
-        La flota registra 16 casillas <span class="c-kw">y</span> necesita 17.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/012-flota-de-diecisiete.caso"><code><span class="c-kw">caso</span> 012-flota-de-diecisiete:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;flota de diecisiete&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        La flota registra exactamente 17 casillas.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.flota_reglamentaria
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-string">&quot;b0&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">1</span>
+            <span class="tok-string">&quot;b2&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">2</span>
+            <span class="tok-string">&quot;b3&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">3</span>
+            <span class="tok-string">&quot;b4&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">4</span>
+            <span class="tok-string">&quot;b5&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">5</span>
+            <span class="tok-string">&quot;b6&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">6</span>
+            <span class="tok-string">&quot;b7&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">7</span>
+            <span class="tok-string">&quot;b8&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">8</span>
+            <span class="tok-string">&quot;b9&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">9</span>
+            <span class="tok-string">&quot;b10&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">0</span>
+            <span class="tok-string">&quot;b11&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>
+            <span class="tok-string">&quot;b12&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">2</span>
+            <span class="tok-string">&quot;b13&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">3</span>
+            <span class="tok-string">&quot;b14&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">4</span>
+            <span class="tok-string">&quot;b15&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">5</span>
+<span class="tok-keyword">    leccion</span>:
+        La flota registra <span class="tok-number">16</span> casillas <span class="tok-keyword">y</span> necesita <span class="tok-number">17</span>.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/012-flota-de-diecisiete.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">012-flota-de-diecisiete</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;flota de diecisiete&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        La flota registra exactamente <span class="tok-number">17</span> casillas.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">flota_reglamentaria</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;b0&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 0
-            <span class="c-txt">&quot;b1&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 1
-            <span class="c-txt">&quot;b2&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 2
-            <span class="c-txt">&quot;b3&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 3
-            <span class="c-txt">&quot;b4&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 4
-            <span class="c-txt">&quot;b5&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 5
-            <span class="c-txt">&quot;b6&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 6
-            <span class="c-txt">&quot;b7&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 7
-            <span class="c-txt">&quot;b8&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 8
-            <span class="c-txt">&quot;b9&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 0, 9
-            <span class="c-txt">&quot;b10&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 0
-            <span class="c-txt">&quot;b11&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 1
-            <span class="c-txt">&quot;b12&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 2
-            <span class="c-txt">&quot;b13&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 3
-            <span class="c-txt">&quot;b14&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 4
-            <span class="c-txt">&quot;b15&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 5
-            <span class="c-txt">&quot;b16&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 1, 6
-    leccion:
-        La flota registra exactamente 17 casillas.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/029-flota-sin-celdas.caso"><code><span class="c-kw">caso</span> 029-flota-sin-celdas:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;flota sin celdas&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
+            <span class="tok-string">&quot;b0&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">0</span>
+            <span class="tok-string">&quot;b1&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">1</span>
+            <span class="tok-string">&quot;b2&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">2</span>
+            <span class="tok-string">&quot;b3&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">3</span>
+            <span class="tok-string">&quot;b4&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">4</span>
+            <span class="tok-string">&quot;b5&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">5</span>
+            <span class="tok-string">&quot;b6&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">6</span>
+            <span class="tok-string">&quot;b7&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">7</span>
+            <span class="tok-string">&quot;b8&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">8</span>
+            <span class="tok-string">&quot;b9&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">9</span>
+            <span class="tok-string">&quot;b10&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">0</span>
+            <span class="tok-string">&quot;b11&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>
+            <span class="tok-string">&quot;b12&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">2</span>
+            <span class="tok-string">&quot;b13&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">3</span>
+            <span class="tok-string">&quot;b14&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">4</span>
+            <span class="tok-string">&quot;b15&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">5</span>
+            <span class="tok-string">&quot;b16&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">6</span>
+<span class="tok-keyword">    leccion</span>:
+        La flota registra exactamente <span class="tok-number">17</span> casillas.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/029-flota-sin-celdas.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">029-flota-sin-celdas</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;flota sin celdas&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
     espera: sin_evidencia
-    sintoma:
-        Sin ninguna celda <span class="c-kw">de</span> barco <span class="c-kw">no</span> se puede declarar reglamentaria la flota.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.flota_reglamentaria
-    <span class="c-kw">evidencia</span>:
+<span class="tok-keyword">    sintoma</span>:
+        Sin ninguna celda de barco <span class="tok-keyword">no</span> se puede declarar reglamentaria la flota.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">flota_reglamentaria</span>
+<span class="tok-keyword">    evidencia</span>:
         celda_barco:
-    leccion:
-        Sin ninguna celda <span class="c-kw">de</span> barco <span class="c-kw">no</span> se puede declarar reglamentaria la flota.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/003-mismo-tirador-seguido.caso"><code><span class="c-kw">caso</span> 003-mismo-tirador-seguido:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;mismo tirador seguido&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
+<span class="tok-keyword">    leccion</span>:
+        Sin ninguna celda de barco <span class="tok-keyword">no</span> se puede declarar reglamentaria la flota.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/003-mismo-tirador-seguido.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">003-mismo-tirador-seguido</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;mismo tirador seguido&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
         Dos turnos consecutivos pertenecen al mismo tirador.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.alternancia_turnos
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">alternancia_turnos</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
-            1, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 2, false
-    leccion:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">1</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">2</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
         Dos turnos consecutivos pertenecen al mismo tirador.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/004-tiradores-alternos.caso"><code><span class="c-kw">caso</span> 004-tiradores-alternos:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;tiradores alternos&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        Los turnos consecutivos cambian <span class="c-kw">de</span> tirador.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.alternancia_turnos
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/004-tiradores-alternos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">004-tiradores-alternos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;tiradores alternos&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        Los turnos consecutivos cambian de tirador.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">alternancia_turnos</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
-            1, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
-    leccion:
-        Los turnos consecutivos cambian <span class="c-kw">de</span> tirador.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/017-turno-saltado.caso"><code><span class="c-kw">caso</span> 017-turno-saltado:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;turno saltado&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        La secuencia salta el turno 1.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.turnos_sin_huecos
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">1</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">2</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
+        Los turnos consecutivos cambian de tirador.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/017-turno-saltado.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">017-turno-saltado</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;turno saltado&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        La secuencia salta el turno <span class="tok-number">1</span>.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">turnos_sin_huecos</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
-            2, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
-    leccion:
-        La secuencia salta el turno 1.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/018-turnos-contiguos.caso"><code><span class="c-kw">caso</span> 018-turnos-contiguos:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;turnos contiguos&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        La secuencia comienza en 0 <span class="c-kw">y</span> <span class="c-kw">no</span> tiene huecos.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.turnos_sin_huecos
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">2</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">2</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
+        La secuencia salta el turno <span class="tok-number">1</span>.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/018-turnos-contiguos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">018-turnos-contiguos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;turnos contiguos&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        La secuencia comienza en <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-keyword">no</span> tiene huecos.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">turnos_sin_huecos</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
-            1, <span class="c-txt">&quot;cpu&quot;</span>, <span class="c-txt">&quot;jugador&quot;</span>, 2, 2, false
-    leccion:
-        La secuencia comienza en 0 <span class="c-kw">y</span> <span class="c-kw">no</span> tiene huecos.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/030-sin-tiros-registrados.caso"><code><span class="c-kw">caso</span> 030-sin-tiros-registrados:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;sin tiros registrados&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">1</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">2</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
+        La secuencia comienza en <span class="tok-number">0</span> <span class="tok-keyword">y</span> <span class="tok-keyword">no</span> tiene huecos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/030-sin-tiros-registrados.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">030-sin-tiros-registrados</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;sin tiros registrados&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
     espera: sin_evidencia
-    sintoma:
-        Sin tiros registrados <span class="c-kw">no</span> se puede afirmar continuidad <span class="c-kw">de</span> turnos.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.turnos_sin_huecos
-    <span class="c-kw">evidencia</span>:
+<span class="tok-keyword">    sintoma</span>:
+        Sin tiros registrados <span class="tok-keyword">no</span> se puede afirmar continuidad de turnos.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">turnos_sin_huecos</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro:
-    leccion:
-        Sin tiros registrados <span class="c-kw">no</span> se puede afirmar continuidad <span class="c-kw">de</span> turnos.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/015-tiro-repetido.caso"><code><span class="c-kw">caso</span> 015-tiro-repetido:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;tiro repetido&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
+<span class="tok-keyword">    leccion</span>:
+        Sin tiros registrados <span class="tok-keyword">no</span> se puede afirmar continuidad de turnos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/015-tiro-repetido.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">015-tiro-repetido</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;tiro repetido&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
         El mismo tirador repite la misma casilla.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_sin_repeticion</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
-            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
-    leccion:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">2</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
         El mismo tirador repite la misma casilla.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/016-tiros-distintos.caso"><code><span class="c-kw">caso</span> 016-tiros-distintos:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;tiros distintos&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/naval/016-tiros-distintos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">016-tiros-distintos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;tiros distintos&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         El mismo tirador elige dos casillas distintas.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_sin_repeticion</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
-            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4, false
-    leccion:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">2</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">4</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
         El mismo tirador elige dos casillas distintas.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/031-distinta-fila-igual-turno-ajeno.caso"><code><span class="c-kw">caso</span> 031-distinta-fila-igual-turno-ajeno:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;distinta fila igual turno ajeno&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        La fila cambia aunque coincida con el número <span class="c-kw">de</span> turno previo.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/031-distinta-fila-igual-turno-ajeno.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">031-distinta-fila-igual-turno-ajeno</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;distinta fila igual turno ajeno&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        La fila cambia aunque coincida con el número de turno previo.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_sin_repeticion</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 3, false
-            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 0, 3, false
-    leccion:
-        La fila cambia aunque coincida con el número <span class="c-kw">de</span> turno previo.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/033-fila-confundida-con-turno.caso"><code><span class="c-kw">caso</span> 033-fila-confundida-con-turno:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;fila confundida con turno&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">2</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">0</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
+        La fila cambia aunque coincida con el número de turno previo.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/033-fila-confundida-con-turno.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">033-fila-confundida-con-turno</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;fila confundida con turno&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         La fila del primer tiro coincide con el turno del segundo, pero las casillas son distintas.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.tiros_sin_repeticion
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">tiros_sin_repeticion</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
-            2, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 3, 3, false
-    leccion:
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+            <span class="tok-number">2</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">3</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
         La fila del primer tiro coincide con el turno del segundo, pero las casillas son distintas.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/021-impacto-fantasma.caso"><code><span class="c-kw">caso</span> 021-impacto-fantasma:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;impacto fantasma&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        El disparo se declara impacto <span class="c-kw">sin</span> barco rival en la casilla.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.veracidad_impacto_positivo
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/021-impacto-fantasma.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">021-impacto-fantasma</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;impacto fantasma&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        El disparo se declara impacto sin barco rival en la casilla.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_positivo</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, true
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">true</span>
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
-    leccion:
-        El disparo se declara impacto <span class="c-kw">sin</span> barco rival en la casilla.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/022-impacto-real.caso"><code><span class="c-kw">caso</span> 022-impacto-real:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;impacto real&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">4</span>
+<span class="tok-keyword">    leccion</span>:
+        El disparo se declara impacto sin barco rival en la casilla.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/022-impacto-real.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">022-impacto-real</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;impacto real&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         El impacto declarado coincide con un barco rival.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.veracidad_impacto_positivo
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_positivo</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, true
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">true</span>
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3
-    leccion:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>
+<span class="tok-keyword">    leccion</span>:
         El impacto declarado coincide con un barco rival.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/032-agua-declarada-agua.caso"><code><span class="c-kw">caso</span> 032-agua-declarada-agua:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;agua declarada agua&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        Una casilla <span class="c-kw">de</span> agua declarada agua <span class="c-kw">no</span> es impacto fantasma.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.veracidad_impacto_positivo
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/naval/032-agua-declarada-agua.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">032-agua-declarada-agua</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;agua declarada agua&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        Una casilla de agua declarada agua <span class="tok-keyword">no</span> es impacto fantasma.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_positivo</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
-    leccion:
-        Una casilla <span class="c-kw">de</span> agua declarada agua <span class="c-kw">no</span> es impacto fantasma.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/019-barco-reportado-como-agua.caso"><code><span class="c-kw">caso</span> 019-barco-reportado-como-agua:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;barco reportado como agua&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        El disparo toca un barco rival <span class="c-kw">y</span> se registra como agua.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.veracidad_impacto_negativo
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">4</span>
+<span class="tok-keyword">    leccion</span>:
+        Una casilla de agua declarada agua <span class="tok-keyword">no</span> es impacto fantasma.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/019-barco-reportado-como-agua.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">019-barco-reportado-como-agua</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;barco reportado como agua&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        El disparo toca un barco rival <span class="tok-keyword">y</span> se registra como agua.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_negativo</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3
-    leccion:
-        El disparo toca un barco rival <span class="c-kw">y</span> se registra como agua.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/020-agua-reportada-como-agua.caso"><code><span class="c-kw">caso</span> 020-agua-reportada-como-agua:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;agua reportada como agua&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        El disparo cae en agua <span class="c-kw">y</span> se registra como agua.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.veracidad_impacto_negativo
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>
+<span class="tok-keyword">    leccion</span>:
+        El disparo toca un barco rival <span class="tok-keyword">y</span> se registra como agua.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/020-agua-reportada-como-agua.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">020-agua-reportada-como-agua</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;agua reportada como agua&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        El disparo cae en agua <span class="tok-keyword">y</span> se registra como agua.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_negativo</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            0, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 3, false
+            <span class="tok-number">0</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">3</span>, <span class="tok-keyword">false</span>
         celda_barco: id, jugador, fila, columna
-            <span class="c-txt">&quot;a&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 2, 4
-    leccion:
-        El disparo cae en agua <span class="c-kw">y</span> se registra como agua.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/013-ganador-con-dieciseis-impactos.caso"><code><span class="c-kw">caso</span> 013-ganador-con-dieciseis-impactos:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;ganador con dieciseis impactos&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        El ganador sólo acumuló 16 impactos.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.ganador_legitimo
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-string">&quot;a&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">2</span>, <span class="tok-number">4</span>
+<span class="tok-keyword">    leccion</span>:
+        El disparo cae en agua <span class="tok-keyword">y</span> se registra como agua.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/013-ganador-con-dieciseis-impactos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">013-ganador-con-dieciseis-impactos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;ganador con dieciseis impactos&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        El ganador sólo acumuló <span class="tok-number">16</span> impactos.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">ganador_legitimo</span>
+<span class="tok-keyword">    evidencia</span>:
         partida: turno_final, impactos_ganador
-            30, 16
-    leccion:
-        El ganador sólo acumuló 16 impactos.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/014-ganador-con-diecisiete-impactos.caso"><code><span class="c-kw">caso</span> 014-ganador-con-diecisiete-impactos:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;ganador con diecisiete impactos&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        El ganador acumuló los 17 impactos exigidos.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.ganador_legitimo
-    <span class="c-kw">evidencia</span>:
+            <span class="tok-number">30</span>, <span class="tok-number">16</span>
+<span class="tok-keyword">    leccion</span>:
+        El ganador sólo acumuló <span class="tok-number">16</span> impactos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/014-ganador-con-diecisiete-impactos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">014-ganador-con-diecisiete-impactos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;ganador con diecisiete impactos&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        El ganador acumuló los <span class="tok-number">17</span> impactos exigidos.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">ganador_legitimo</span>
+<span class="tok-keyword">    evidencia</span>:
         partida: turno_final, impactos_ganador
-            30, 17
-    leccion:
-        El ganador acumuló los 17 impactos exigidos.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/009-tiro-despues-del-final.caso"><code><span class="c-kw">caso</span> 009-tiro-despues-del-final:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;tiro despues del final&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
+            <span class="tok-number">30</span>, <span class="tok-number">17</span>
+<span class="tok-keyword">    leccion</span>:
+        El ganador acumuló los <span class="tok-number">17</span> impactos exigidos.</code></pre>
+<pre class="archivo" data-lenguaje="corpus/naval/009-tiro-despues-del-final.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">009-tiro-despues-del-final</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;tiro despues del final&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
         El turno del tiro supera el turno final.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.fin_de_juego_sin_tiros_posteriores
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">fin_de_juego_sin_tiros_posteriores</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            5, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+            <span class="tok-number">5</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-keyword">false</span>
         partida: turno_final, impactos_ganador
-            4, 17
-    leccion:
+            <span class="tok-number">4</span>, <span class="tok-number">17</span>
+<span class="tok-keyword">    leccion</span>:
         El turno del tiro supera el turno final.</code></pre>
-<pre class="archivo" data-lenguaje="corpus/naval/010-tiro-en-turno-final.caso"><code><span class="c-kw">caso</span> 010-tiro-en-turno-final:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/batalla-naval&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;tiro en turno final&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/naval/010-tiro-en-turno-final.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">010-tiro-en-turno-final</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/batalla-naval&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;tiro en turno final&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         El tiro ocurre en el turno final permitido.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: naval.fin_de_juego_sin_tiros_posteriores
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">naval</span>.<span class="tok-property">fin_de_juego_sin_tiros_posteriores</span>
+<span class="tok-keyword">    evidencia</span>:
         tiro: turno, tirador, receptor, fila, columna, es_impacto
-            4, <span class="c-txt">&quot;jugador&quot;</span>, <span class="c-txt">&quot;cpu&quot;</span>, 1, 1, false
+            <span class="tok-number">4</span>, <span class="tok-string">&quot;jugador&quot;</span>, <span class="tok-string">&quot;cpu&quot;</span>, <span class="tok-number">1</span>, <span class="tok-number">1</span>, <span class="tok-keyword">false</span>
         partida: turno_final, impactos_ganador
-            4, 17
-    leccion:
+            <span class="tok-number">4</span>, <span class="tok-number">17</span>
+<span class="tok-keyword">    leccion</span>:
         El tiro ocurre en el turno final permitido.</code></pre>
 </details>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
@@ -5604,25 +5676,25 @@ VEREDICTO: verde en 11 medidas. SIN MIRAR:
 <p>Las reglas tienen nombres, pero conviene escribir también las <strong>promesas</strong> que querés hacer sobre el juego. Cada archivo <code>.requisito</code> dice qué prometés, qué medidas lo comprueban y qué parte sigue sin medir. Copiá estos seis archivos; cinco agrupan las once medidas y el sexto deja visible una deuda.</p>
 <details>
 <summary>Ver las promesas del juego</summary>
-<pre class="archivo" data-lenguaje="requisitos/naval.flota.requisito"><code>requisito naval.flota:
-    texto <span class="c-txt">&quot;Las flotas ocupan 17 casillas por bando, dentro del tablero y sin solaparse&quot;</span>
-    medido_por naval.barcos_dentro_del_tablero, naval.barcos_sin_solapamiento, naval.flota_reglamentaria
-    sin_medir <span class="c-txt">&quot;la forma recta y continua de cada barco&quot;</span></code></pre>
-<pre class="archivo" data-lenguaje="requisitos/naval.disparos.requisito"><code>requisito naval.disparos:
-    texto <span class="c-txt">&quot;Cada tirador dispara a casillas válidas y no repite una coordenada&quot;</span>
-    medido_por naval.tiros_dentro_del_tablero, naval.tiros_sin_repeticion</code></pre>
-<pre class="archivo" data-lenguaje="requisitos/naval.turnos.requisito"><code>requisito naval.turnos:
-    texto <span class="c-txt">&quot;Los tiros se registran sin huecos y alternan entre los jugadores&quot;</span>
-    medido_por naval.alternancia_turnos, naval.turnos_sin_huecos</code></pre>
-<pre class="archivo" data-lenguaje="requisitos/naval.impactos.requisito"><code>requisito naval.impactos:
-    texto <span class="c-txt">&quot;Un impacto reportado corresponde a un barco rival y un tiro al barco no figura como agua&quot;</span>
-    medido_por naval.veracidad_impacto_negativo, naval.veracidad_impacto_positivo</code></pre>
-<pre class="archivo" data-lenguaje="requisitos/naval.final.requisito"><code>requisito naval.final:
-    texto <span class="c-txt">&quot;El ganador registra 17 impactos y no se dispara después del turno final&quot;</span>
-    medido_por naval.fin_de_juego_sin_tiros_posteriores, naval.ganador_legitimo</code></pre>
-<pre class="archivo" data-lenguaje="requisitos/naval.barcos_rectos.requisito"><code>requisito naval.barcos_rectos:
-    texto <span class="c-txt">&quot;Cada barco ocupa una línea recta y continua&quot;</span>
-    sin_medir <span class="c-txt">&quot;todavía no hay una medida para comprobar la forma de cada barco&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.flota.requisito"><code><span class="tok-storage">requisito</span> <span class="tok-entity">naval.flota</span>:
+<span class="tok-keyword">    texto</span> <span class="tok-string">&quot;Las flotas ocupan 17 casillas por bando, dentro del tablero y sin solaparse&quot;</span>
+<span class="tok-keyword">    medido_por</span> <span class="tok-variable">naval</span>.<span class="tok-property">barcos_dentro_del_tablero</span>, <span class="tok-variable">naval</span>.<span class="tok-property">barcos_sin_solapamiento</span>, <span class="tok-variable">naval</span>.<span class="tok-property">flota_reglamentaria</span>
+<span class="tok-keyword">    sin_medir</span> <span class="tok-string">&quot;la forma recta y continua de cada barco&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.disparos.requisito"><code><span class="tok-storage">requisito</span> <span class="tok-entity">naval.disparos</span>:
+<span class="tok-keyword">    texto</span> <span class="tok-string">&quot;Cada tirador dispara a casillas válidas y no repite una coordenada&quot;</span>
+<span class="tok-keyword">    medido_por</span> <span class="tok-variable">naval</span>.<span class="tok-property">tiros_dentro_del_tablero</span>, <span class="tok-variable">naval</span>.<span class="tok-property">tiros_sin_repeticion</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.turnos.requisito"><code><span class="tok-storage">requisito</span> <span class="tok-entity">naval.turnos</span>:
+<span class="tok-keyword">    texto</span> <span class="tok-string">&quot;Los tiros se registran sin huecos y alternan entre los jugadores&quot;</span>
+<span class="tok-keyword">    medido_por</span> <span class="tok-variable">naval</span>.<span class="tok-property">alternancia_turnos</span>, <span class="tok-variable">naval</span>.<span class="tok-property">turnos_sin_huecos</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.impactos.requisito"><code><span class="tok-storage">requisito</span> <span class="tok-entity">naval.impactos</span>:
+<span class="tok-keyword">    texto</span> <span class="tok-string">&quot;Un impacto reportado corresponde a un barco rival y un tiro al barco no figura como agua&quot;</span>
+<span class="tok-keyword">    medido_por</span> <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_negativo</span>, <span class="tok-variable">naval</span>.<span class="tok-property">veracidad_impacto_positivo</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.final.requisito"><code><span class="tok-storage">requisito</span> <span class="tok-entity">naval.final</span>:
+<span class="tok-keyword">    texto</span> <span class="tok-string">&quot;El ganador registra 17 impactos y no se dispara después del turno final&quot;</span>
+<span class="tok-keyword">    medido_por</span> <span class="tok-variable">naval</span>.<span class="tok-property">fin_de_juego_sin_tiros_posteriores</span>, <span class="tok-variable">naval</span>.<span class="tok-property">ganador_legitimo</span></code></pre>
+<pre class="archivo" data-lenguaje="requisitos/naval.barcos_rectos.requisito"><code><span class="tok-storage">requisito</span> <span class="tok-entity">naval.barcos_rectos</span>:
+<span class="tok-keyword">    texto</span> <span class="tok-string">&quot;Cada barco ocupa una línea recta y continua&quot;</span>
+<span class="tok-keyword">    sin_medir</span> <span class="tok-string">&quot;todavía no hay una medida para comprobar la forma de cada barco&quot;</span></code></pre>
 </details>
 <p class="pregunta"><strong>Pensalo.</strong> ¿Tener una medida para una promesa quiere decir que se cumplió en esta partida?</p>
 <details>
@@ -5654,9 +5726,295 @@ oracle cobertura --con hechos_partida.json</code></pre>
 <summary>Ver la respuesta</summary>
 <p>Las reglas de tiros no tendrían nada que mirar. Un sistema descuidado las daría por buenas; Oracle las lista aparte, en <code>NO SE APLICARON</code>, y falla la corrida completa. Si ejecutás sólo una parte del catálogo a propósito, <code>--parcial</code> permite esa omisión. Probalo:</p>
 </details>
-<p>La primera línea de abajo es un programa de Python de una línea: lee <code>hechos_partida.json</code> y guarda en <code>sin-tiros.json</code> sólo las relaciones <code>celda_barco</code> y <code>partida</code>, es decir, la misma partida sin ningún tiro. Copiala tal cual.</p>
-<pre data-lenguaje="bash"><code>python3 -c &quot;import json; d = json.load(open(&#x27;hechos_partida.json&#x27;)); json.dump({&#x27;celda_barco&#x27;: d[&#x27;celda_barco&#x27;], &#x27;partida&#x27;: d[&#x27;partida&#x27;]}, open(&#x27;sin-tiros.json&#x27;, &#x27;w&#x27;))&quot;
-oracle juzgar --con sin-tiros.json</code></pre>
+<p>Guardá este archivo como <code>sin-tiros.json</code>: contiene la misma partida, con <code>celda_barco</code> y <code>partida</code>, pero sin la relación <code>tiro</code>.</p>
+<pre class="archivo" data-lenguaje="sin-tiros.json"><code>{
+  &quot;celda_barco&quot;: [
+    {
+      &quot;id&quot;: 0,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 1,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 2,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 3,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 6,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 4,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 4,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 0
+    },
+    {
+      &quot;id&quot;: 5,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 0,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 6,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 7,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 8,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 9
+    },
+    {
+      &quot;id&quot;: 9,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 3,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 10,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 11,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 5,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 12,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 2
+    },
+    {
+      &quot;id&quot;: 13,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 3
+    },
+    {
+      &quot;id&quot;: 14,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 4
+    },
+    {
+      &quot;id&quot;: 15,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 16,
+      &quot;jugador&quot;: &quot;cpu&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 17,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 2
+    },
+    {
+      &quot;id&quot;: 18,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 3
+    },
+    {
+      &quot;id&quot;: 19,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 4
+    },
+    {
+      &quot;id&quot;: 20,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 5
+    },
+    {
+      &quot;id&quot;: 21,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;portaaviones&quot;,
+      &quot;segmento_idx&quot;: 4,
+      &quot;fila&quot;: 9,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 22,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 5
+    },
+    {
+      &quot;id&quot;: 23,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 24,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 7
+    },
+    {
+      &quot;id&quot;: 25,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;acorazado&quot;,
+      &quot;segmento_idx&quot;: 3,
+      &quot;fila&quot;: 7,
+      &quot;columna&quot;: 8
+    },
+    {
+      &quot;id&quot;: 26,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 1
+    },
+    {
+      &quot;id&quot;: 27,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 2
+    },
+    {
+      &quot;id&quot;: 28,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;crucero&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 8,
+      &quot;columna&quot;: 3
+    },
+    {
+      &quot;id&quot;: 29,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 4
+    },
+    {
+      &quot;id&quot;: 30,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 5
+    },
+    {
+      &quot;id&quot;: 31,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;submarino&quot;,
+      &quot;segmento_idx&quot;: 2,
+      &quot;fila&quot;: 4,
+      &quot;columna&quot;: 6
+    },
+    {
+      &quot;id&quot;: 32,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 0,
+      &quot;fila&quot;: 1,
+      &quot;columna&quot;: 8
+    },
+    {
+      &quot;id&quot;: 33,
+      &quot;jugador&quot;: &quot;jugador&quot;,
+      &quot;barco_id&quot;: &quot;destructor&quot;,
+      &quot;segmento_idx&quot;: 1,
+      &quot;fila&quot;: 2,
+      &quot;columna&quot;: 8
+    }
+  ],
+  &quot;partida&quot;: [
+    {
+      &quot;estado&quot;: &quot;terminada&quot;,
+      &quot;ganador&quot;: &quot;cpu&quot;,
+      &quot;perdedor&quot;: &quot;jugador&quot;,
+      &quot;turno_final&quot;: 129,
+      &quot;total_tiros&quot;: 130,
+      &quot;impactos_ganador&quot;: 17,
+      &quot;impactos_perdedor&quot;: 12
+    }
+  ]
+}</code></pre>
+<pre data-lenguaje="bash"><code>oracle juzgar --con sin-tiros.json</code></pre>
 <div class="juego juego-predecir" data-juego="{&quot;correcta&quot;: &quot;NO SE APLICARON&quot;, &quot;explica&quot;: &quot;Siete reglas no tenían qué mirar. Oracle no las da por buenas: las lista aparte y falla la corrida.&quot;, &quot;id&quot;: &quot;p9&quot;, &quot;opciones&quot;: [&quot;VERDE&quot;, &quot;ROJO&quot;, &quot;NO SE APLICARON&quot;], &quot;pregunta&quot;: &quot;El archivo no trae la relación `tiro`. ¿Qué pasa?&quot;, &quot;tipo&quot;: &quot;predecir&quot;}"></div>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>✓ naval.barcos_dentro_del_tablero                     0 (&lt;= 0)
 ✓ naval.barcos_sin_solapamiento                       0 (&lt;= 0)
@@ -5682,19 +6040,35 @@ VEREDICTO: 7 medidas propias sin aplicar (usá --parcial para una corrida delibe
 <summary>Ver la respuesta</summary>
 <p>Git guarda el antes; <code>oracle cambios</code> revisa el después. Un límite más permisivo con el mismo <code>porque</code> es un error aunque el resto del catálogo siga igual.</p>
 </details>
-<pre data-lenguaje="bash"><code>git init -q
+<pre data-lenguaje="bash"><code>git init
 git add .
-git -c user.name=Guia -c user.email=guia@example.invalid commit -qm base
-python3 -c &#x27;from pathlib import Path; p = Path(&quot;catalogos/naval/naval.tiros_sin_repeticion.oracle&quot;); p.write_text(p.read_text().replace(&quot;umbral &lt;= 0 segun contrato&quot;, &quot;umbral &lt;= 1 segun contrato&quot;))&#x27;</code></pre>
+git commit -m base</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code></code></pre>
+<p>Git confirma la creación del repositorio y el commit; la rama y el hash varían según tu máquina. Si Git pide nombre y correo, configurá <code>git config user.name &quot;Tu nombre&quot;</code> y <code>git config user.email &quot;tu@correo&quot;</code>, y repetí el commit.</p>
+<p>Editá <code>catalogos/naval/naval.tiros_sin_repeticion.oracle</code>: reemplazá el archivo entero por este bloque, que permite un tiro repetido.</p>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_sin_repeticion.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.tiros_sin_repeticion</span>:
+<span class="tok-keyword">    de</span> tiro t1
+<span class="tok-keyword">    unir</span> tiro t2
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t1</span>.<span class="tok-property">tirador</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">tirador</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">turno</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">t2</span>.<span class="tok-property">turno</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">fila</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">fila</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">columna</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">columna</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">1</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un jugador no puede disparar dos veces a la misma casilla en una partida&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.&quot;</span></code></pre>
 <pre data-lenguaje="bash"><code>oracle cambios</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>cambios desde HEAD:
 ✗ umbral aflojado sin nueva defensa  naval.tiros_sin_repeticion  &lt;= 0 → &lt;= 1  (el `porque` no cambió)
 
 1 errores · 0 avisos</code></pre>
 <p><strong>Lo que tenés que ver.</strong> Oracle señala <code>naval.tiros_sin_repeticion</code> y el paso de <code>&lt;= 0</code> a <code>&lt;= 1</code>: el <code>porque</code> sigue defendiendo que no haya disparos repetidos. Devolvé el umbral a cero:</p>
-<pre data-lenguaje="bash"><code>python3 -c &#x27;from pathlib import Path; p = Path(&quot;catalogos/naval/naval.tiros_sin_repeticion.oracle&quot;); p.write_text(p.read_text().replace(&quot;umbral &lt;= 1 segun contrato&quot;, &quot;umbral &lt;= 0 segun contrato&quot;))&#x27;
-oracle cambios</code></pre>
+<pre class="archivo" data-lenguaje="catalogos/naval/naval.tiros_sin_repeticion.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">naval.tiros_sin_repeticion</span>:
+<span class="tok-keyword">    de</span> tiro t1
+<span class="tok-keyword">    unir</span> tiro t2
+<span class="tok-keyword">    donde</span> <span class="tok-variable">t1</span>.<span class="tok-property">tirador</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">tirador</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">turno</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">t2</span>.<span class="tok-property">turno</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">fila</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">fila</span> <span class="tok-keyword">y</span> <span class="tok-variable">t1</span>.<span class="tok-property">columna</span> <span class="tok-operator">==</span> <span class="tok-variable">t2</span>.<span class="tok-property">columna</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;un jugador no puede disparar dos veces a la misma casilla en una partida&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;detecta disparos repetidos del mismo jugador a la misma celda con diferente número de turno. No evalúa si el tiro fue agua o impacto.&quot;</span></code></pre>
+<pre data-lenguaje="bash"><code>oracle cambios</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>cambios desde HEAD:
   nada se aflojó
 
@@ -6027,6 +6401,77 @@ def main():
 if __name__ == &quot;__main__&quot;:
     main()</code></pre>
 </details>
+<pre data-lenguaje="text"><code>batalla-naval/
+├── catalogos/
+│   └── naval/
+│       ├── naval.alternancia_turnos.oracle
+│       ├── naval.barcos_dentro_del_tablero.oracle
+│       ├── naval.barcos_sin_solapamiento.oracle
+│       ├── naval.fin_de_juego_sin_tiros_posteriores.oracle
+│       ├── naval.flota_reglamentaria.oracle
+│       ├── naval.ganador_legitimo.oracle
+│       ├── naval.tiros_dentro_del_tablero.oracle
+│       ├── naval.tiros_sin_repeticion.oracle
+│       ├── naval.turnos_sin_huecos.oracle
+│       ├── naval.veracidad_impacto_negativo.oracle
+│       └── naval.veracidad_impacto_positivo.oracle
+├── corpus/
+│   └── naval/
+│       ├── 001-tiro-fuera-de-tablero.caso
+│       ├── 002-tiro-valido.caso
+│       ├── 003-mismo-tirador-seguido.caso
+│       ├── 004-tiradores-alternos.caso
+│       ├── 005-barco-fila-desbordada.caso
+│       ├── 006-barco-en-borde.caso
+│       ├── 007-barcos-superpuestos.caso
+│       ├── 008-barcos-separados.caso
+│       ├── 009-tiro-despues-del-final.caso
+│       ├── 010-tiro-en-turno-final.caso
+│       ├── 011-flota-de-dieciseis.caso
+│       ├── 012-flota-de-diecisiete.caso
+│       ├── 013-ganador-con-dieciseis-impactos.caso
+│       ├── 014-ganador-con-diecisiete-impactos.caso
+│       ├── 015-tiro-repetido.caso
+│       ├── 016-tiros-distintos.caso
+│       ├── 017-turno-saltado.caso
+│       ├── 018-turnos-contiguos.caso
+│       ├── 019-barco-reportado-como-agua.caso
+│       ├── 020-agua-reportada-como-agua.caso
+│       ├── 021-impacto-fantasma.caso
+│       ├── 022-impacto-real.caso
+│       ├── 023-columna-desbordada.caso
+│       ├── 024-fila-negativa.caso
+│       ├── 025-columna-negativa.caso
+│       ├── 026-barco-columna-desbordada.caso
+│       ├── 027-barco-fila-negativa.caso
+│       ├── 028-barco-columna-negativa.caso
+│       ├── 029-flota-sin-celdas.caso
+│       ├── 030-sin-tiros-registrados.caso
+│       ├── 031-distinta-fila-igual-turno-ajeno.caso
+│       ├── 032-agua-declarada-agua.caso
+│       └── 033-fila-confundida-con-turno.caso
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── requisitos/
+│   ├── naval.barcos_rectos.requisito
+│   ├── naval.disparos.requisito
+│   ├── naval.final.requisito
+│   ├── naval.flota.requisito
+│   ├── naval.impactos.requisito
+│   └── naval.turnos.requisito
+├── README.md
+├── hechos_partida.json
+├── index.html
+├── oracle.json
+├── sin-tiros.json
+└── verificar_oraculo.py</code></pre>
 <p>Once reglas miran lo principal, no todo. Ninguna mira hoy:</p>
 <ul><li>que cada barco sea una línea recta y continua (se cuentan casillas, no la forma);</li><li>que un barco hundido tenga todas sus casillas impactadas;</li><li>que la computadora no sepa dónde están tus barcos antes de dispararles.</li></ul>
 <p class="pregunta"><strong>Pensalo.</strong> Elegí una. ¿Qué hecho tendría que anotar el juego, qué fila ofendería y qué caso rojo la fijaría?</p>

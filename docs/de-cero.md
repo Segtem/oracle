@@ -58,6 +58,15 @@ PRODUCTO: sin nueva medición; no se ejecutó el producto.
 VEREDICTO: SIN MEDICIÓN (advertencia: proyecto vacío: 0 medidas propias, 0 casos, 0 fixtures diferenciales)
 ```
 
+```text arbol
+batalla-naval/
+├── catalogos/
+├── corpus/
+├── diferencial/
+├── relaciones/
+└── oracle.json
+```
+
 **Si ves otra cosa.** Si dice `oracle: command not found`, cerrá y abrí la terminal: `uv` agrega
 `oracle` al `PATH` pero la terminal abierta no se entera.
 
@@ -125,6 +134,23 @@ la interfaz que dibuja los tableros.
 ```
 
 </details>
+
+```text arbol
+batalla-naval/
+├── catalogos/
+├── corpus/
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── index.html
+└── oracle.json
+```
 
 Recargá la página. Ahora se juega: colocá tus barcos (o usá el despliegue automático) y disparale a
 la computadora.
@@ -259,6 +285,27 @@ oracle formatear . --escribir
 ```text salida
 catalogos/naval/naval.barcos_dentro_del_tablero.oracle: ya tiene forma única
 corpus/naval/005-barco-fila-desbordada.caso: ya tiene forma única
+```
+
+```text arbol
+batalla-naval/
+├── catalogos/
+│   └── naval/
+│       └── naval.barcos_dentro_del_tablero.oracle
+├── corpus/
+│   └── naval/
+│       └── 005-barco-fila-desbordada.caso
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── index.html
+└── oracle.json
 ```
 
 <!-- juego {"tipo": "elegir", "id": "forma", "titulo": "Una sola forma de escribir", "xp": 30, "pregunta": "El modelo te devuelve la regla con la línea del `donde` escrita de tres maneras. ¿Cuál carga Oracle?", "opciones": [{"texto": "donde c.fila<0 o c.fila>9 o c.columna<0 o c.columna>9", "codigo": true, "ok": false, "porque": "Se lee igual, pero no es el texto que escribe el impresor: sin espacios alrededor del `<` queda fuera de la forma única y no carga. `oracle formatear` lo arregla."}, {"texto": "donde c.fila < 0 o c.fila > 9 o c.columna < 0 o c.columna > 9", "codigo": true, "ok": true, "porque": "Es exactamente lo que escribe el impresor. En Oracle cada regla se escribe de una sola manera, como el código Go con gofmt."}, {"texto": "donde c.fila < 0  o c.fila > 9 o c.columna < 0 o c.columna > 9", "codigo": true, "ok": false, "porque": "Hay dos espacios antes de la primera `o`. Un espacio de más no es estilo: es otro texto, y Oracle lo rechaza con el diff y el comando que lo corrige."}]} -->
@@ -519,6 +566,43 @@ Con el juego original venían sólo dos casos, los dos de la regla de tiros:
 ```
 
 ```oracle archivo=corpus/naval/002-tiro-valido.caso incluir=ejemplo/batalla-naval/corpus/naval/002-tiro-valido.caso
+```
+
+```text arbol
+batalla-naval/
+├── catalogos/
+│   └── naval/
+│       ├── naval.alternancia_turnos.oracle
+│       ├── naval.barcos_dentro_del_tablero.oracle
+│       ├── naval.barcos_sin_solapamiento.oracle
+│       ├── naval.fin_de_juego_sin_tiros_posteriores.oracle
+│       ├── naval.flota_reglamentaria.oracle
+│       ├── naval.ganador_legitimo.oracle
+│       ├── naval.tiros_dentro_del_tablero.oracle
+│       ├── naval.tiros_sin_repeticion.oracle
+│       ├── naval.turnos_sin_huecos.oracle
+│       ├── naval.veracidad_impacto_negativo.oracle
+│       └── naval.veracidad_impacto_positivo.oracle
+├── corpus/
+│   └── naval/
+│       ├── 001-tiro-fuera-de-tablero.caso
+│       ├── 002-tiro-valido.caso
+│       ├── 005-barco-fila-desbordada.caso
+│       ├── 006-barco-en-borde.caso
+│       ├── 026-barco-columna-desbordada.caso
+│       ├── 027-barco-fila-negativa.caso
+│       └── 028-barco-columna-negativa.caso
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── index.html
+└── oracle.json
 ```
 
 <p class="pregunta">**Pensalo.** Once reglas y siete casos, casi todos de dos reglas. ¿Qué tendría que decir `oracle test`?</p>
@@ -908,12 +992,13 @@ catálogo a propósito, `--parcial` permite esa omisión. Probalo:
 
 </details>
 
-La primera línea de abajo es un programa de Python de una línea: lee `hechos_partida.json` y guarda
-en `sin-tiros.json` sólo las relaciones `celda_barco` y `partida`, es decir, la misma partida sin
-ningún tiro. Copiala tal cual.
+Guardá este archivo como `sin-tiros.json`: contiene la misma partida, con `celda_barco` y
+`partida`, pero sin la relación `tiro`.
+
+```json archivo=sin-tiros.json incluir=ejemplo/batalla-naval/sin-tiros.json
+```
 
 ```bash paso
-python3 -c "import json; d = json.load(open('hechos_partida.json')); json.dump({'celda_barco': d['celda_barco'], 'partida': d['partida']}, open('sin-tiros.json', 'w'))"
 oracle juzgar --con sin-tiros.json
 ```
 
@@ -960,13 +1045,21 @@ Git guarda el antes; `oracle cambios` revisa el después. Un límite más permis
 </details>
 
 ```bash paso
-git init -q
+git init
 git add .
-git -c user.name=Guia -c user.email=guia@example.invalid commit -qm base
-python3 -c 'from pathlib import Path; p = Path("catalogos/naval/naval.tiros_sin_repeticion.oracle"); p.write_text(p.read_text().replace("umbral <= 0 segun contrato", "umbral <= 1 segun contrato"))'
+git commit -m base
 ```
 
 ```text salida
+```
+
+Git confirma la creación del repositorio y el commit; la rama y el hash varían según tu máquina.
+Si Git pide nombre y correo, configurá `git config user.name "Tu nombre"` y
+`git config user.email "tu@correo"`, y repetí el commit.
+
+Editá `catalogos/naval/naval.tiros_sin_repeticion.oracle`: reemplazá el archivo entero por este bloque, que permite un tiro repetido.
+
+```oracle archivo=catalogos/naval/naval.tiros_sin_repeticion.oracle incluir=docs/archivos-guia/naval.tiros_sin_repeticion_aflojada.oracle
 ```
 
 ```bash paso falla
@@ -983,8 +1076,10 @@ cambios desde HEAD:
 **Lo que tenés que ver.** Oracle señala `naval.tiros_sin_repeticion` y el paso de `<= 0` a
 `<= 1`: el `porque` sigue defendiendo que no haya disparos repetidos. Devolvé el umbral a cero:
 
+```oracle archivo=catalogos/naval/naval.tiros_sin_repeticion.oracle incluir=docs/archivos-guia/naval.tiros_sin_repeticion_restaurada.oracle
+```
+
 ```bash paso
-python3 -c 'from pathlib import Path; p = Path("catalogos/naval/naval.tiros_sin_repeticion.oracle"); p.write_text(p.read_text().replace("umbral <= 1 segun contrato", "umbral <= 0 segun contrato"))'
 oracle cambios
 ```
 
@@ -1008,6 +1103,80 @@ para tener la carpeta completa; el recorrido de arriba no necesita ejecutar ese 
 ```
 
 </details>
+
+```text arbol
+batalla-naval/
+├── catalogos/
+│   └── naval/
+│       ├── naval.alternancia_turnos.oracle
+│       ├── naval.barcos_dentro_del_tablero.oracle
+│       ├── naval.barcos_sin_solapamiento.oracle
+│       ├── naval.fin_de_juego_sin_tiros_posteriores.oracle
+│       ├── naval.flota_reglamentaria.oracle
+│       ├── naval.ganador_legitimo.oracle
+│       ├── naval.tiros_dentro_del_tablero.oracle
+│       ├── naval.tiros_sin_repeticion.oracle
+│       ├── naval.turnos_sin_huecos.oracle
+│       ├── naval.veracidad_impacto_negativo.oracle
+│       └── naval.veracidad_impacto_positivo.oracle
+├── corpus/
+│   └── naval/
+│       ├── 001-tiro-fuera-de-tablero.caso
+│       ├── 002-tiro-valido.caso
+│       ├── 003-mismo-tirador-seguido.caso
+│       ├── 004-tiradores-alternos.caso
+│       ├── 005-barco-fila-desbordada.caso
+│       ├── 006-barco-en-borde.caso
+│       ├── 007-barcos-superpuestos.caso
+│       ├── 008-barcos-separados.caso
+│       ├── 009-tiro-despues-del-final.caso
+│       ├── 010-tiro-en-turno-final.caso
+│       ├── 011-flota-de-dieciseis.caso
+│       ├── 012-flota-de-diecisiete.caso
+│       ├── 013-ganador-con-dieciseis-impactos.caso
+│       ├── 014-ganador-con-diecisiete-impactos.caso
+│       ├── 015-tiro-repetido.caso
+│       ├── 016-tiros-distintos.caso
+│       ├── 017-turno-saltado.caso
+│       ├── 018-turnos-contiguos.caso
+│       ├── 019-barco-reportado-como-agua.caso
+│       ├── 020-agua-reportada-como-agua.caso
+│       ├── 021-impacto-fantasma.caso
+│       ├── 022-impacto-real.caso
+│       ├── 023-columna-desbordada.caso
+│       ├── 024-fila-negativa.caso
+│       ├── 025-columna-negativa.caso
+│       ├── 026-barco-columna-desbordada.caso
+│       ├── 027-barco-fila-negativa.caso
+│       ├── 028-barco-columna-negativa.caso
+│       ├── 029-flota-sin-celdas.caso
+│       ├── 030-sin-tiros-registrados.caso
+│       ├── 031-distinta-fila-igual-turno-ajeno.caso
+│       ├── 032-agua-declarada-agua.caso
+│       └── 033-fila-confundida-con-turno.caso
+├── css/
+│   └── style.css
+├── diferencial/
+├── js/
+│   ├── audio.js
+│   ├── engine.js
+│   ├── trace.js
+│   └── ui.js
+├── relaciones/
+├── requisitos/
+│   ├── naval.barcos_rectos.requisito
+│   ├── naval.disparos.requisito
+│   ├── naval.final.requisito
+│   ├── naval.flota.requisito
+│   ├── naval.impactos.requisito
+│   └── naval.turnos.requisito
+├── README.md
+├── hechos_partida.json
+├── index.html
+├── oracle.json
+├── sin-tiros.json
+└── verificar_oraculo.py
+```
 
 Once reglas miran lo principal, no todo. Ninguna mira hoy:
 

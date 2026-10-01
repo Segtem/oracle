@@ -1,0 +1,287 @@
+{
+  "celda_barco": [
+    {
+      "id": 0,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 0,
+      "fila": 3,
+      "columna": 0
+    },
+    {
+      "id": 1,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 1,
+      "fila": 4,
+      "columna": 0
+    },
+    {
+      "id": 2,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 2,
+      "fila": 5,
+      "columna": 0
+    },
+    {
+      "id": 3,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 3,
+      "fila": 6,
+      "columna": 0
+    },
+    {
+      "id": 4,
+      "jugador": "cpu",
+      "barco_id": "portaaviones",
+      "segmento_idx": 4,
+      "fila": 7,
+      "columna": 0
+    },
+    {
+      "id": 5,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 0,
+      "fila": 0,
+      "columna": 9
+    },
+    {
+      "id": 6,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 1,
+      "fila": 1,
+      "columna": 9
+    },
+    {
+      "id": 7,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 2,
+      "fila": 2,
+      "columna": 9
+    },
+    {
+      "id": 8,
+      "jugador": "cpu",
+      "barco_id": "acorazado",
+      "segmento_idx": 3,
+      "fila": 3,
+      "columna": 9
+    },
+    {
+      "id": 9,
+      "jugador": "cpu",
+      "barco_id": "crucero",
+      "segmento_idx": 0,
+      "fila": 3,
+      "columna": 7
+    },
+    {
+      "id": 10,
+      "jugador": "cpu",
+      "barco_id": "crucero",
+      "segmento_idx": 1,
+      "fila": 4,
+      "columna": 7
+    },
+    {
+      "id": 11,
+      "jugador": "cpu",
+      "barco_id": "crucero",
+      "segmento_idx": 2,
+      "fila": 5,
+      "columna": 7
+    },
+    {
+      "id": 12,
+      "jugador": "cpu",
+      "barco_id": "submarino",
+      "segmento_idx": 0,
+      "fila": 1,
+      "columna": 2
+    },
+    {
+      "id": 13,
+      "jugador": "cpu",
+      "barco_id": "submarino",
+      "segmento_idx": 1,
+      "fila": 1,
+      "columna": 3
+    },
+    {
+      "id": 14,
+      "jugador": "cpu",
+      "barco_id": "submarino",
+      "segmento_idx": 2,
+      "fila": 1,
+      "columna": 4
+    },
+    {
+      "id": 15,
+      "jugador": "cpu",
+      "barco_id": "destructor",
+      "segmento_idx": 0,
+      "fila": 1,
+      "columna": 6
+    },
+    {
+      "id": 16,
+      "jugador": "cpu",
+      "barco_id": "destructor",
+      "segmento_idx": 1,
+      "fila": 2,
+      "columna": 6
+    },
+    {
+      "id": 17,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 0,
+      "fila": 9,
+      "columna": 2
+    },
+    {
+      "id": 18,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 1,
+      "fila": 9,
+      "columna": 3
+    },
+    {
+      "id": 19,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 2,
+      "fila": 9,
+      "columna": 4
+    },
+    {
+      "id": 20,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 3,
+      "fila": 9,
+      "columna": 5
+    },
+    {
+      "id": 21,
+      "jugador": "jugador",
+      "barco_id": "portaaviones",
+      "segmento_idx": 4,
+      "fila": 9,
+      "columna": 6
+    },
+    {
+      "id": 22,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 0,
+      "fila": 7,
+      "columna": 5
+    },
+    {
+      "id": 23,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 1,
+      "fila": 7,
+      "columna": 6
+    },
+    {
+      "id": 24,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 2,
+      "fila": 7,
+      "columna": 7
+    },
+    {
+      "id": 25,
+      "jugador": "jugador",
+      "barco_id": "acorazado",
+      "segmento_idx": 3,
+      "fila": 7,
+      "columna": 8
+    },
+    {
+      "id": 26,
+      "jugador": "jugador",
+      "barco_id": "crucero",
+      "segmento_idx": 0,
+      "fila": 8,
+      "columna": 1
+    },
+    {
+      "id": 27,
+      "jugador": "jugador",
+      "barco_id": "crucero",
+      "segmento_idx": 1,
+      "fila": 8,
+      "columna": 2
+    },
+    {
+      "id": 28,
+      "jugador": "jugador",
+      "barco_id": "crucero",
+      "segmento_idx": 2,
+      "fila": 8,
+      "columna": 3
+    },
+    {
+      "id": 29,
+      "jugador": "jugador",
+      "barco_id": "submarino",
+      "segmento_idx": 0,
+      "fila": 4,
+      "columna": 4
+    },
+    {
+      "id": 30,
+      "jugador": "jugador",
+      "barco_id": "submarino",
+      "segmento_idx": 1,
+      "fila": 4,
+      "columna": 5
+    },
+    {
+      "id": 31,
+      "jugador": "jugador",
+      "barco_id": "submarino",
+      "segmento_idx": 2,
+      "fila": 4,
+      "columna": 6
+    },
+    {
+      "id": 32,
+      "jugador": "jugador",
+      "barco_id": "destructor",
+      "segmento_idx": 0,
+      "fila": 1,
+      "columna": 8
+    },
+    {
+      "id": 33,
+      "jugador": "jugador",
+      "barco_id": "destructor",
+      "segmento_idx": 1,
+      "fila": 2,
+      "columna": 8
+    }
+  ],
+  "partida": [
+    {
+      "estado": "terminada",
+      "ganador": "cpu",
+      "perdedor": "jugador",
+      "turno_final": 129,
+      "total_tiros": 130,
+      "impactos_ganador": 17,
+      "impactos_perdedor": 12
+    }
+  ]
+}

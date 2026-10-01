@@ -101,12 +101,12 @@ Completá ambos casos con evidencia que ejerza la medida y quitá la marca ANDAM
    7 |     umbral &lt;= 0 segun SEGUN porque &quot;POR QUE ese numero y no otro. Si SEGUN es tanteo, esta explicacion es obligatoria.&quot;
      |                       ^</code></pre>
 <p>Completala así:</p>
-<pre class="archivo" data-lenguaje="catalogos/documento/documento.nombre_sigue_la_convencion.oracle"><code><span class="c-kw">ninguno</span> documento.nombre_sigue_la_convencion:
-    <span class="c-kw">de</span> documento d
-    <span class="c-kw">donde</span> d.sigue_convencion == false
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/documento/documento.nombre_sigue_la_convencion.oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">documento.nombre_sigue_la_convencion</span>:
+<span class="tok-keyword">    de</span> documento d
+<span class="tok-keyword">    donde</span> <span class="tok-variable">d</span>.<span class="tok-property">sigue_convencion</span> <span class="tok-operator">==</span> <span class="tok-keyword">false</span>
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;la convención de nombres es lo que hace que el índice se pueda generar solo; un archivo fuera de convención lo rompe&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el contenido del documento, sólo su nombre; y no juzga si la convención en sí es buena&quot;</span></code></pre>
 <p><strong><code>segun</code> no es decoración.</strong> Dice de dónde salió el número, de un conjunto cerrado. Acá es <code>contrato</code> porque el cero no se midió: es una regla que alguien decidió. Si fuera un umbral puesto a ojo sería <code>tanteo</code>, y entonces la explicación pasa a ser obligatoria.</p>
 <p><strong><code>alcance</code> tampoco.</strong> Es qué NO mira. Sin eso, un verde se lee como «está todo bien» cuando en realidad significa «está bien lo poco que miré».</p>
 <pre data-lenguaje="bash"><code>rm -f corpus/documento/001-nombre-sigue-la-convencion-rojo.caso
@@ -150,42 +150,42 @@ Reemplazá los marcadores en MAYÚSCULAS. Tres campos tienen valores cerrados:
 Consultá `oracle manual etiqueta` para conocer la polaridad esperada de cada etiqueta.
 Después:  oracle test</code></pre>
 <p>Escribí <strong>dos</strong>, uno de cada polaridad:</p>
-<pre class="archivo" data-lenguaje="corpus/documento/001-un-nombre-fuera-de-convencion.caso"><code><span class="c-kw">caso</span> 001-un-nombre-fuera-de-convencion:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;Un nombre fuera de convención&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Un documento tiene nombre fuera <span class="c-kw">de</span> convención.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: documento.nombre_sigue_la_convencion
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/documento/001-un-nombre-fuera-de-convencion.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-un-nombre-fuera-de-convencion</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Un nombre fuera de convención&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Un documento tiene nombre fuera de convención.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
-            <span class="c-txt">&quot;notas finales.md&quot;</span>, false
-    leccion:
-        El nombre fuera <span class="c-kw">de</span> convención debe ponerse rojo.</code></pre>
+            <span class="tok-string">&quot;notas finales.md&quot;</span>, <span class="tok-keyword">false</span>
+<span class="tok-keyword">    leccion</span>:
+        El nombre fuera de convención debe ponerse rojo.</code></pre>
 <p>Guardá el segundo caso en <code>corpus/documento/002-un-lote-en-convencion.caso</code>:</p>
-<pre class="archivo" data-lenguaje="corpus/documento/002-un-lote-en-convencion.caso"><code><span class="c-kw">caso</span> 002-un-lote-en-convencion:
-    fecha: <span class="c-txt">&quot;2026-09-25&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;aula/biblioteca&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;Dos nombres en convención&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/documento/002-un-lote-en-convencion.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-un-lote-en-convencion</span>:
+    fecha: <span class="tok-string">&quot;2026-09-25&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;aula/biblioteca&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;Dos nombres en convención&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         Ambos nombres respetan la convención.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: documento.nombre_sigue_la_convencion
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">documento</span>.<span class="tok-property">nombre_sigue_la_convencion</span>
+<span class="tok-keyword">    evidencia</span>:
         documento: nombre, sigue_convencion
-            <span class="c-txt">&quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;</span>, true
-            <span class="c-txt">&quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;</span>, true
-    leccion:
-        Ninguno <span class="c-kw">de</span> estos nombres debe ponerse rojo.</code></pre>
+            <span class="tok-string">&quot;2026-08-31-GUIA-Convencion-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
+            <span class="tok-string">&quot;2026-09-01-INFORME-Primera-Medida-v1.0.md&quot;</span>, <span class="tok-keyword">true</span>
+<span class="tok-keyword">    leccion</span>:
+        Ninguno de estos nombres debe ponerse rojo.</code></pre>
 <p><strong>Los dos hacen falta, y no por simetría.</strong> Sin el rojo, la medida nunca falla. Sin el verde, el mutador que le <em>quita el filtro</em> sobrevive: una medida sin <code>donde</code> marca todo, y si nunca viste un caso donde no debía marcar nada, no lo notás.</p>
 <h2 id="6-el-ciclo-completo"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>6. El ciclo completo<a class="ancla" href="#6-el-ciclo-completo" aria-label="Enlace a esta sección">#</a></h2>
 <pre data-lenguaje="bash"><code>oracle test</code></pre>
@@ -255,10 +255,10 @@ VEREDICTO: ROJO (falló: aceptación)</code></pre>
 <p>Ésa no es tu medida: es una universal que heredaste, juzgándote.</p>
 <h2 id="7-declarar-lo-que-entrega-el-sensor-l1"><canvas class="sprite sprite-h2" data-sprite="timon" width="14" height="14" aria-hidden="true"></canvas>7. Declarar lo que entrega el sensor (L−1)<a class="ancla" href="#7-declarar-lo-que-entrega-el-sensor-l1" aria-label="Enlace a esta sección">#</a></h2>
 <p>Aunque ese rojo ya no aparece en esta corrida, declarás qué produce el sensor y el alcance de sus hechos:</p>
-<pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code>relacion documento:
+<pre class="archivo" data-lenguaje="relaciones/documento.relacion"><code><span class="tok-storage">relacion</span> <span class="tok-entity">documento</span>:
     nombre: texto
     sigue_convencion: booleano
-    alcance &quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</code></pre>
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;el sensor lee el NOMBRE del archivo y nada más: no abre el documento, no mira su contenido ni su fecha de modificación&quot;</span></code></pre>
 <p>En <code>relaciones/documento.relacion</code>. Fijate que <strong>la relación también declara su alcance</strong>: la medida dice qué no mira, el sensor dice hasta dónde llega.</p>
 <pre data-lenguaje="bash"><code>oracle relaciones</code></pre>
 <pre class="salida" data-lenguaje="lo que tenés que ver"><code>RELACIONES que se pueden medir hoy:
