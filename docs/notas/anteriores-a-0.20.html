@@ -497,19 +497,19 @@ VERSION_SINTAXIS       0.1   → 0.2       cómo se ESCRIBE</code></pre>
 <p><code>ambito</code> es ahora un <strong>parámetro obligatorio</strong> en las cuatro macros del lenguaje (<code>ninguno</code>, <code>ninguno-par</code>, <code>ninguno-requiere</code> y <code>peor</code>).</p>
 <h3 id="cómo-migrar-en-concreto">Cómo migrar en concreto<a class="ancla" href="#cómo-migrar-en-concreto" aria-label="Enlace a esta sección">#</a></h3>
 <p>En cada medida escrita con macros en tu catálogo, agregá la línea <code>ambito universal</code> o <code>ambito del_origen</code> entre el <code>umbral</code> (o el <code>requiere</code>) y el <code>alcance</code>:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno</span> mi_dominio.mi_politica:
-    <span class="c-kw">de</span> mi_relacion r
-    <span class="c-kw">donde</span> r.estado == <span class="c-txt">&quot;invalido&quot;</span>
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;el estado debe ser valido&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;comprueba la validez de los estados registrados&quot;</span></code></pre>
+<pre data-lenguaje="oracle"><code><span class="tok-storage">ninguno</span> <span class="tok-entity">mi_dominio.mi_politica</span>:
+<span class="tok-keyword">    de</span> mi_relacion r
+<span class="tok-keyword">    donde</span> <span class="tok-variable">r</span>.<span class="tok-property">estado</span> <span class="tok-operator">==</span> <span class="tok-string">&quot;invalido&quot;</span>
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;el estado debe ser valido&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;comprueba la validez de los estados registrados&quot;</span></code></pre>
 <p>Si la medida usa la macro <code>ninguno-requiere</code>:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">ninguno-requiere</span> mi_dominio.otra_politica:
-    <span class="c-kw">de</span> mi_relacion r
-    <span class="c-kw">requiere</span> mi_precondicion p
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;...&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;...&quot;</span></code></pre>
+<pre data-lenguaje="oracle"><code><span class="tok-storage">ninguno-requiere</span> <span class="tok-entity">mi_dominio.otra_politica</span>:
+<span class="tok-keyword">    de</span> mi_relacion r
+<span class="tok-keyword">    requiere</span> mi_precondicion p
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;...&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;...&quot;</span></code></pre>
 <h3 id="el-catálogo-existente-sigue-cargando-sin-tocar-nada">El catálogo existente sigue cargando sin tocar nada<a class="ancla" href="#el-catálogo-existente-sigue-cargando-sin-tocar-nada" aria-label="Enlace a esta sección">#</a></h3>
 <p>Para no invalidar el catálogo entero de un consumidor al actualizar la versión, el cargador y las macros conservan la ausencia de la cláusula como el estado transitorio <code>sin_declarar</code>. Es el mismo camino que se abrió cuando se incorporó <code>segun</code>: no se inventa un valor por omisión arbitrario, sino que se registra honestamente que el autor todavía no eligió.</p>
 <p>Sin este escalón de migración, introducir el parámetro obligatorio rompía la carga de cualquier proyecto consumidor antes de permitirle clasificar sus propias medidas. Se probó qué pasaba sin él, y Jam pasaba de 25 medidas a cero.</p>

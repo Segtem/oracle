@@ -34,6 +34,20 @@ class ElConvertidorTests(unittest.TestCase):
         salida = self.convertir("```\n<b>**no**</b>\n```")
         self.assertIn("&lt;b&gt;**no**&lt;/b&gt;", salida)
 
+    def test_medida_coloreada_con_la_gramatica_del_editor(self) -> None:
+        entrada = 'medida naval.prueba:\n    donde t.fila < 2 y t.columna == "<x>" # nota'
+        esperado = ('<span class="tok-storage">medida</span> '
+                    '<span class="tok-entity">naval.prueba</span>:\n'
+                    '<span class="tok-keyword">    donde</span> '
+                    '<span class="tok-variable">t</span>.<span class="tok-property">fila</span> '
+                    '<span class="tok-operator">&lt;</span> <span class="tok-number">2</span> '
+                    '<span class="tok-keyword">y</span> '
+                    '<span class="tok-variable">t</span>.<span class="tok-property">columna</span> '
+                    '<span class="tok-operator">==</span> '
+                    '<span class="tok-string">&quot;&lt;x&gt;&quot;</span> '
+                    '<span class="tok-comment"># nota</span>')
+        self.assertEqual(sitio.colorear_oracle(entrada), esperado)
+
     def test_una_tabla_se_convierte_en_tabla(self) -> None:
         salida = self.convertir("| a | b |\n|---|---|\n| 1 | 2 |")
         self.assertIn("<th>a</th>", salida)
@@ -52,4 +66,3 @@ class ElIndiceDeLasNotasLlegaASuVersionTests(unittest.TestCase):
         for ancla in anclas:
             with self.subTest(ancla=ancla):
                 self.assertIn(ancla, ids)
-

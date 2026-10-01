@@ -18,8 +18,17 @@
   --ambar-suave: #F6E8C8;
   --codigo-fondo: #1B2229;
   --codigo-tinta: #E3E9E5;
-  --codigo-clave: #B3AEFF;
-  --codigo-texto: #8FD6AE;
+  --tok-comment: #A8B3BA;
+  --tok-storage: #C9B6FF;
+  --tok-entity: #8DCBFF;
+  --tok-keyword: #B3AEFF;
+  --tok-constant: #F2B87C;
+  --tok-support: #81D5D1;
+  --tok-variable: #E3E9E5;
+  --tok-property: #9ECDF2;
+  --tok-string: #8FD6AE;
+  --tok-number: #F2BE8B;
+  --tok-operator: #FFAEAC;
   --sans: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
@@ -33,14 +42,22 @@
     --papel: #0E1215; --papel-2: #161C21; --tinta: #E4EAE6; --tinta-2: #B9C3BD; --gris: #8E9AA2;
     --linea: #2A3339; --acento: #A5A0FF; --acento-suave: #25234A; --sobre-acento: #0E1215; --rojo: #FF6F61; --rojo-suave: #3A1C19;
     --verde: #4FD192; --verde-suave: #14301F; --ambar: #F0B340; --ambar-suave: #33280F;
-    --codigo-fondo: #151B20; color-scheme: dark;
+    --codigo-fondo: #151B20;
+    --tok-comment: #AEBAC0; --tok-storage: #D0C0FF; --tok-entity: #9BD4FF;
+    --tok-keyword: #C0B9FF; --tok-constant: #F8C590; --tok-support: #8DE2DC;
+    --tok-variable: #E3E9E5; --tok-property: #A8D7F8; --tok-string: #9BE2B9;
+    --tok-number: #F8C896; --tok-operator: #FFBDB7; color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --papel: #0E1215; --papel-2: #161C21; --tinta: #E4EAE6; --tinta-2: #B9C3BD; --gris: #8E9AA2;
   --linea: #2A3339; --acento: #A5A0FF; --acento-suave: #25234A; --sobre-acento: #0E1215; --rojo: #FF6F61; --rojo-suave: #3A1C19;
   --verde: #4FD192; --verde-suave: #14301F; --ambar: #F0B340; --ambar-suave: #33280F;
-  --codigo-fondo: #151B20; color-scheme: dark;
+  --codigo-fondo: #151B20;
+  --tok-comment: #AEBAC0; --tok-storage: #D0C0FF; --tok-entity: #9BD4FF;
+  --tok-keyword: #C0B9FF; --tok-constant: #F8C590; --tok-support: #8DE2DC;
+  --tok-variable: #E3E9E5; --tok-property: #A8D7F8; --tok-string: #9BE2B9;
+  --tok-number: #F8C896; --tok-operator: #FFBDB7; color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -119,8 +136,17 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
 .prosa pre[data-lenguaje="text"], .prosa pre.salida { white-space: pre-wrap; overflow-wrap: anywhere; }
 .prosa pre[data-lenguaje]::before { content: attr(data-lenguaje); display: block; font-family: var(--pixel);
              font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: #8B97A0; margin-bottom: 8px; }
-.c-kw { color: var(--codigo-clave); font-weight: 600; }
-.c-txt { color: var(--codigo-texto); }
+.tok-comment { color: var(--tok-comment); }
+.tok-storage { color: var(--tok-storage); font-weight: 600; }
+.tok-entity { color: var(--tok-entity); }
+.tok-keyword { color: var(--tok-keyword); font-weight: 600; }
+.tok-constant { color: var(--tok-constant); }
+.tok-support { color: var(--tok-support); }
+.tok-variable { color: var(--tok-variable); }
+.tok-property { color: var(--tok-property); }
+.tok-string { color: var(--tok-string); }
+.tok-number { color: var(--tok-number); }
+.tok-operator { color: var(--tok-operator); }
 .prosa blockquote { margin: 0 0 20px; padding: 4px 0 4px 20px; border-left: 3px solid var(--acento); color: var(--tinta-2); }
 .prosa blockquote p:last-child { margin-bottom: 0; }
 .prosa hr { border: 0; border-top: 1px solid var(--linea); margin: 40px 0; }
@@ -442,4 +468,3 @@ h1, h2, h3, h4 { text-wrap: balance; line-height: 1.15; letter-spacing: -0.01em;
     gap: 12px;
   }
 }
-

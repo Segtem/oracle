@@ -61,65 +61,65 @@ Próximos pasos:
 <h2 id="1-pares-no-orientados-la-clave-ordenable-lt"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>1. Pares no orientados: la clave ordenable <code>&lt;</code><a class="ancla" href="#1-pares-no-orientados-la-clave-ordenable-lt" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="el-problema--infla-el-conteo-y-deja-vivos-mutantes">El problema: <code>!=</code> infla el conteo y deja vivos mutantes<a class="ancla" href="#el-problema--infla-el-conteo-y-deja-vivos-mutantes" aria-label="Enlace a esta sección">#</a></h3>
 <p>Al comparar elementos de una misma relación entre sí para detectar colisiones o incompatibilidades —por ejemplo, dos servicios que reclaman el mismo puerto de red, dos barcos superpuestos o dos reuniones encimadas en la misma sala—, la intuición suele llevar a una auto-unión con desigualdad:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">de</span> servicio a
-<span class="c-kw">unir</span> servicio b
-<span class="c-kw">donde</span> a.nombre != b.nombre <span class="c-kw">y</span> a.puerto == b.puerto</code></pre>
+<pre data-lenguaje="oracle"><code><span class="tok-keyword">de</span> servicio a
+<span class="tok-keyword">unir</span> servicio b
+<span class="tok-keyword">donde</span> <span class="tok-variable">a</span>.<span class="tok-property">nombre</span> <span class="tok-operator">!=</span> <span class="tok-variable">b</span>.<span class="tok-property">nombre</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">puerto</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">puerto</span></code></pre>
 <p>El problema no se nota al juzgar, pero <strong>rompe la mutación de medidas</strong>:</p>
 <ul><li>Si el servicio <code>api</code> y el servicio <code>web</code> comparten el puerto 8080, la unión produce <strong>dos</strong> filas de testigos: <code>(api, web)</code> y <code>(web, api)</code>.</li><li>El valor mínimo de una colisión es <strong>2</strong>.</li><li>Cuando <code>oracle test</code> ataca la medida con el mutador <code>aflojar_umbral</code> (sustituyendo el umbral <code>&lt;= 0</code> por <code>&lt;= 1</code>), el defecto sigue teniendo valor 2, que es <code>&gt; 1</code>: el mutante sigue dando ROJO.</li><li>El mutante se comporta igual que la medida original sobre el caso de prueba, por lo que <strong>sobrevive</strong> y la verificación falla.</li></ul>
 <h3 id="la-solución-imponer-orden-con-lt">La solución: imponer orden con <code>&lt;</code><a class="ancla" href="#la-solución-imponer-orden-con-lt" aria-label="Enlace a esta sección">#</a></h3>
 <p>Si la clave es ordenable (un identificador alfanumérico, un timestamp o un número de secuencia), reemplazar <code>!=</code> por <code>&lt;</code> impone una orientación estricta:</p>
-<pre data-lenguaje="oracle"><code><span class="c-kw">de</span> servicio a
-<span class="c-kw">unir</span> servicio b
-<span class="c-kw">donde</span> a.nombre &lt; b.nombre <span class="c-kw">y</span> a.puerto == b.puerto</code></pre>
+<pre data-lenguaje="oracle"><code><span class="tok-keyword">de</span> servicio a
+<span class="tok-keyword">unir</span> servicio b
+<span class="tok-keyword">donde</span> <span class="tok-variable">a</span>.<span class="tok-property">nombre</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">b</span>.<span class="tok-property">nombre</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">puerto</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">puerto</span></code></pre>
 <ul><li>El par no orientado <code>{api, web}</code> se evalúa una sola vez: <code>&quot;api&quot; &lt; &quot;web&quot;</code> es verdadero, mientras que <code>&quot;web&quot; &lt; &quot;api&quot;</code> es falso.</li><li>El valor de la colisión es exactamente <strong>1</strong>.</li><li>Ante el mutador <code>aflojar_umbral</code> (<code>&lt;= 1</code>), el valor 1 ahora pasa en verde (<code>1 &lt;= 1</code>).</li><li>La inversión de veredicto sobre el caso rojo <strong>mata al mutante</strong>.</li></ul>
 <h3 id="la-medida-copiable">La medida copiable<a class="ancla" href="#la-medida-copiable" aria-label="Enlace a esta sección">#</a></h3>
-<pre class="archivo" data-lenguaje="catalogos/red/red.puerto_exclusivo.oracle"><code><span class="c-kw">medida</span> red.puerto_exclusivo:
-    <span class="c-kw">de</span> servicio a
-    <span class="c-kw">unir</span> servicio b
-    <span class="c-kw">donde</span> a.nombre &lt; b.nombre <span class="c-kw">y</span> a.puerto == b.puerto
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;dos servicios no pueden compartir el mismo puerto de escucha&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;compara servicios de a pares por puerto. NO ve si el puerto está fuera de rango&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/red/red.puerto_exclusivo.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">red.puerto_exclusivo</span>:
+<span class="tok-keyword">    de</span> servicio a
+<span class="tok-keyword">    unir</span> servicio b
+<span class="tok-keyword">    donde</span> <span class="tok-variable">a</span>.<span class="tok-property">nombre</span> <span class="tok-operator">&lt;</span> <span class="tok-variable">b</span>.<span class="tok-property">nombre</span> <span class="tok-keyword">y</span> <span class="tok-variable">a</span>.<span class="tok-property">puerto</span> <span class="tok-operator">==</span> <span class="tok-variable">b</span>.<span class="tok-property">puerto</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;dos servicios no pueden compartir el mismo puerto de escucha&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;compara servicios de a pares por puerto. NO ve si el puerto está fuera de rango&quot;</span></code></pre>
 <h3 id="los-casos-rojo-y-verde">Los casos: rojo y verde<a class="ancla" href="#los-casos-rojo-y-verde" aria-label="Enlace a esta sección">#</a></h3>
 <p>Un caso rojo que presenta dos servicios en colisión y espera que la regla lo atrape:</p>
-<pre class="archivo" data-lenguaje="corpus/red/001-puerto-duplicado.caso"><code><span class="c-kw">caso</span> 001-puerto-duplicado:
-    fecha: <span class="c-txt">&quot;2026-09-26&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;dos servicios escuchan en el mismo puerto&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        Tanto web como api intentan enlazar el puerto 8080.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: red.puerto_exclusivo
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/red/001-puerto-duplicado.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">001-puerto-duplicado</span>:
+    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;dos servicios escuchan en el mismo puerto&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        Tanto web como api intentan enlazar el puerto <span class="tok-number">8080</span>.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">red</span>.<span class="tok-property">puerto_exclusivo</span>
+<span class="tok-keyword">    evidencia</span>:
         servicio: nombre, puerto
-            <span class="c-txt">&quot;api&quot;</span>, 8080
-            <span class="c-txt">&quot;web&quot;</span>, 8080
-    leccion:
-        Un solo par en colision genera exactamente un testigo gracias a &lt;.</code></pre>
+            <span class="tok-string">&quot;api&quot;</span>, <span class="tok-number">8080</span>
+            <span class="tok-string">&quot;web&quot;</span>, <span class="tok-number">8080</span>
+<span class="tok-keyword">    leccion</span>:
+        Un solo par en colision genera exactamente un testigo gracias a <span class="tok-operator">&lt;</span>.</code></pre>
 <p>Y un caso verde donde cada servicio tiene su propio puerto:</p>
-<pre class="archivo" data-lenguaje="corpus/red/002-puertos-distintos.caso"><code><span class="c-kw">caso</span> 002-puertos-distintos:
-    fecha: <span class="c-txt">&quot;2026-09-26&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;servicios con puertos independientes&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
-        Cada servicio escucha en su propio puerto <span class="c-kw">sin</span> conflicto.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: red.puerto_exclusivo
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/red/002-puertos-distintos.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">002-puertos-distintos</span>:
+    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;servicios con puertos independientes&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
+        Cada servicio escucha en su propio puerto sin conflicto.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">red</span>.<span class="tok-property">puerto_exclusivo</span>
+<span class="tok-keyword">    evidencia</span>:
         servicio: nombre, puerto
-            <span class="c-txt">&quot;api&quot;</span>, 8080
-            <span class="c-txt">&quot;web&quot;</span>, 9090
-    leccion:
-        Servicios bien configurados <span class="c-kw">no</span> disparan la infraccion.</code></pre>
+            <span class="tok-string">&quot;api&quot;</span>, <span class="tok-number">8080</span>
+            <span class="tok-string">&quot;web&quot;</span>, <span class="tok-number">9090</span>
+<span class="tok-keyword">    leccion</span>:
+        Servicios bien configurados <span class="tok-keyword">no</span> disparan la infraccion.</code></pre>
 <hr class="divisor-pixel" aria-hidden="true">
 <h2 id="2-contar-distintos-por-grupo-doble-agrupar"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>2. Contar distintos por grupo: doble <code>agrupar</code><a class="ancla" href="#2-contar-distintos-por-grupo-doble-agrupar" aria-label="Enlace a esta sección">#</a></h2>
 <h3 id="el-problema-no-existe-contar_distintos">El problema: no existe <code>contar_distintos</code><a class="ancla" href="#el-problema-no-existe-contar_distintos" aria-label="Enlace a esta sección">#</a></h3>
@@ -130,62 +130,62 @@ Próximos pasos:
 <ol><li><strong>Primer <code>agrupar</code> (deduplicar)</strong>: Se agrupa por la clave del grupo (<code>d.nodo</code>) <strong>y</strong> por la clave del elemento (<code>d.servicio</code>), sin declarar agregados. En Oracle, un <code>agrupar:</code> sin agregados colapsa todas las filas idénticas en una sola por combinación de claves (equivalente a un <code>DISTINCT</code>).</li><li><strong>Segundo <code>agrupar</code> (contar)</strong>: Se agrupa únicamente por la clave del grupo (<code>nodo</code>), calculando <code>agregado distintos = contar(1)</code>. Dado que el paso previo dejó una fila por elemento único, este conteo refleja con exactitud la cantidad de elementos distintos por grupo.</li><li><strong>Filtro y umbral</strong>: Con <code>donde distintos &gt; 2</code> se aíslan los grupos que superan la cota permitida, y <code>resumen contar(1)</code> totaliza las infracciones.</li></ol>
 <h3 id="la-medida-copiable-1">La medida copiable<a class="ancla" href="#la-medida-copiable-1" aria-label="Enlace a esta sección">#</a></h3>
 <p>En este ejemplo, la regla exige que ningún nodo del clúster aloje más de dos tipos de servicios distintos:</p>
-<pre class="archivo" data-lenguaje="catalogos/red/red.servicios_por_nodo.oracle"><code><span class="c-kw">medida</span> red.servicios_por_nodo:
-    <span class="c-kw">de</span> despliegue d
-    <span class="c-kw">agrupar</span>:
-        clave nodo = d.nodo
-        clave servicio = d.servicio
-    <span class="c-kw">agrupar</span>:
-        clave nodo = nodo
-        agregado distintos = contar(1)
-    <span class="c-kw">donde</span> distintos &gt; 2
-    <span class="c-kw">resumen</span> contar(1)
-    <span class="c-kw">umbral</span> &lt;= 0 <span class="c-kw">segun</span> contrato <span class="c-kw">porque</span> <span class="c-txt">&quot;ningún nodo puede alojar más de dos servicios distintos&quot;</span>
-    <span class="c-kw">ambito</span> universal
-    <span class="c-kw">alcance</span> <span class="c-txt">&quot;cuenta servicios distintos por nodo. NO ve el consumo de memoria ni CPU&quot;</span></code></pre>
+<pre class="archivo" data-lenguaje="catalogos/red/red.servicios_por_nodo.oracle"><code><span class="tok-storage">medida</span> <span class="tok-entity">red.servicios_por_nodo</span>:
+<span class="tok-keyword">    de</span> despliegue d
+<span class="tok-keyword">    agrupar</span>:
+<span class="tok-keyword">        clave</span> nodo = <span class="tok-variable">d</span>.<span class="tok-property">nodo</span>
+<span class="tok-keyword">        clave</span> servicio = <span class="tok-variable">d</span>.<span class="tok-property">servicio</span>
+<span class="tok-keyword">    agrupar</span>:
+<span class="tok-keyword">        clave</span> nodo = nodo
+<span class="tok-keyword">        agregado</span> distintos = <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    donde</span> distintos <span class="tok-operator">&gt;</span> <span class="tok-number">2</span>
+<span class="tok-keyword">    resumen</span> <span class="tok-support">contar</span>(<span class="tok-number">1</span>)
+<span class="tok-keyword">    umbral</span> <span class="tok-operator">&lt;=</span> <span class="tok-number">0</span> <span class="tok-keyword">segun</span> <span class="tok-constant">contrato</span> <span class="tok-keyword">porque</span> <span class="tok-string">&quot;ningún nodo puede alojar más de dos servicios distintos&quot;</span>
+    ambito universal
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;cuenta servicios distintos por nodo. NO ve el consumo de memoria ni CPU&quot;</span></code></pre>
 <h3 id="los-casos-rojo-y-verde-1">Los casos: rojo y verde<a class="ancla" href="#los-casos-rojo-y-verde-1" aria-label="Enlace a esta sección">#</a></h3>
 <p>Un caso rojo con filas repetidas donde un nodo aloja tres servicios distintos (<code>web</code>, <code>api</code>, <code>db</code>), violando el límite:</p>
-<pre class="archivo" data-lenguaje="corpus/red/003-nodo-con-tres-servicios.caso"><code><span class="c-kw">caso</span> 003-nodo-con-tres-servicios:
-    fecha: <span class="c-txt">&quot;2026-09-26&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;un nodo supera el maximo de servicios distintos&quot;</span>
-    <span class="c-kw">etiqueta</span>: falso_verde
-    sintoma:
-        El nodo n1 aloja tres servicios distintos a pesar <span class="c-kw">de</span> tener filas duplicadas.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: red.servicios_por_nodo
-    <span class="c-kw">evidencia</span>:
+<pre class="archivo" data-lenguaje="corpus/red/003-nodo-con-tres-servicios.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">003-nodo-con-tres-servicios</span>:
+    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;un nodo supera el maximo de servicios distintos&quot;</span>
+    etiqueta: <span class="tok-constant">falso_verde</span>
+<span class="tok-keyword">    sintoma</span>:
+        El nodo n1 aloja tres servicios distintos a pesar de tener filas duplicadas.
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">red</span>.<span class="tok-property">servicios_por_nodo</span>
+<span class="tok-keyword">    evidencia</span>:
         despliegue: nodo, servicio
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;web&quot;</span>
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;web&quot;</span>
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;api&quot;</span>
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;db&quot;</span>
-    leccion:
-        Doble <span class="c-kw">agrupar</span> deduplica web <span class="c-kw">y</span> cuenta 3 servicios distintos, superando el limite.</code></pre>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;web&quot;</span>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;web&quot;</span>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;api&quot;</span>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;db&quot;</span>
+<span class="tok-keyword">    leccion</span>:
+        Doble agrupar deduplica web <span class="tok-keyword">y</span> cuenta <span class="tok-number">3</span> servicios distintos, superando el limite.</code></pre>
 <p>Y un caso verde con réplicas duplicadas que confirman que las repeticiones no inflan la cuenta de distintos:</p>
-<pre class="archivo" data-lenguaje="corpus/red/004-nodo-dentro-del-limite.caso"><code><span class="c-kw">caso</span> 004-nodo-dentro-del-limite:
-    fecha: <span class="c-txt">&quot;2026-09-26&quot;</span>
-    origen:
-        repo: <span class="c-txt">&quot;ejemplo/recetas&quot;</span>
-        commit: <span class="c-txt">&quot;sin-commit&quot;</span>
-    procedencia: construida
-    titulo: <span class="c-txt">&quot;nodo con dos servicios distintos y replicas repetidas&quot;</span>
-    <span class="c-kw">etiqueta</span>: verde_correcto
-    sintoma:
+<pre class="archivo" data-lenguaje="corpus/red/004-nodo-dentro-del-limite.caso"><code><span class="tok-storage">caso</span> <span class="tok-entity">004-nodo-dentro-del-limite</span>:
+    fecha: <span class="tok-string">&quot;2026-09-26&quot;</span>
+<span class="tok-keyword">    origen</span>:
+        repo: <span class="tok-string">&quot;ejemplo/recetas&quot;</span>
+        commit: <span class="tok-string">&quot;sin-commit&quot;</span>
+    procedencia: <span class="tok-constant">construida</span>
+<span class="tok-keyword">    titulo</span>: <span class="tok-string">&quot;nodo con dos servicios distintos y replicas repetidas&quot;</span>
+    etiqueta: <span class="tok-constant">verde_correcto</span>
+<span class="tok-keyword">    sintoma</span>:
         El nodo n1 aloja dos servicios con varias instancias cada uno.
-    como_se_detecto: persona
-    <span class="c-kw">medida</span>: red.servicios_por_nodo
-    <span class="c-kw">evidencia</span>:
+    como_se_detecto: <span class="tok-constant">persona</span>
+    medida: <span class="tok-variable">red</span>.<span class="tok-property">servicios_por_nodo</span>
+<span class="tok-keyword">    evidencia</span>:
         despliegue: nodo, servicio
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;web&quot;</span>
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;web&quot;</span>
-            <span class="c-txt">&quot;n1&quot;</span>, <span class="c-txt">&quot;api&quot;</span>
-            <span class="c-txt">&quot;n2&quot;</span>, <span class="c-txt">&quot;db&quot;</span>
-    leccion:
-        Las replicas duplicadas <span class="c-kw">no</span> inflan la cuenta <span class="c-kw">de</span> distintos.</code></pre>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;web&quot;</span>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;web&quot;</span>
+            <span class="tok-string">&quot;n1&quot;</span>, <span class="tok-string">&quot;api&quot;</span>
+            <span class="tok-string">&quot;n2&quot;</span>, <span class="tok-string">&quot;db&quot;</span>
+<span class="tok-keyword">    leccion</span>:
+        Las replicas duplicadas <span class="tok-keyword">no</span> inflan la cuenta de distintos.</code></pre>
 <hr class="divisor-pixel" aria-hidden="true">
 <h2 id="3-verificación-con-oracle-test"><canvas class="sprite sprite-h2" data-sprite="engranajes" width="14" height="14" aria-hidden="true"></canvas>3. Verificación con <code>oracle test</code><a class="ancla" href="#3-verificación-con-oracle-test" aria-label="Enlace a esta sección">#</a></h2>
 <p>Con ambas medidas y sus cuatro casos en el proyecto, ejecutamos la verificación completa:</p>

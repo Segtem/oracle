@@ -154,25 +154,25 @@
 <h3 id="13-relaciones-declaradas-y-sus-variantes">1.3 Relaciones declaradas y sus variantes<a class="ancla" href="#13-relaciones-declaradas-y-sus-variantes" aria-label="Enlace a esta sección">#</a></h3>
 <p>Una relación que produce un sensor <strong>se puede declarar</strong> en <code>relaciones/</code>: su nombre, sus campos con tipo y unidad, y qué no lee el sensor. La declaración no filtra evidencia; es de lo que salen <code>relacion_declarada</code> y <code>campo_declarado</code>, la derivación de unidades y los puntos ciegos de una medida.</p>
 <p>La forma de autoría es un archivo <code>.relacion</code>:</p>
-<pre data-lenguaje="relacion"><code>relacion corrida:
+<pre data-lenguaje="relacion"><code><span class="tok-storage">relacion</span> <span class="tok-entity">corrida</span>:
     id: texto
     pasos: entero pasos
-    alcance &quot;no ve el estado interno del simulador&quot;</code></pre>
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;no ve el estado interno del simulador&quot;</span></code></pre>
 <p>Cada campo ocupa una línea <code>nombre: tipo unidad</code> para <code>entero</code> y <code>flotante</code>, que exigen una unidad sin corchetes, incluso <code>sin_unidad</code> cuando el número no expresa una magnitud. Para <code>texto</code> y <code>booleano</code> se escribe sólo <code>nombre: tipo</code>: se cargan con <code>sin_unidad</code> y cualquier unidad escrita es un error. Los corchetes en una declaración de campo son un error de sintaxis. <code>alcance &quot;…&quot;</code> es obligatorio al final. La forma canónica equivalente, que sigue siendo válida como representación JSON de intercambio, es:</p>
 <pre data-lenguaje="json"><code>[&quot;relacion&quot;, &quot;corrida&quot;,
   [&quot;campos&quot;, [&quot;campo&quot;, &quot;id&quot;, &quot;texto&quot;, &quot;sin_unidad&quot;], [&quot;campo&quot;, &quot;pasos&quot;, &quot;entero&quot;, &quot;pasos&quot;]],
   [&quot;alcance&quot;, &quot;no ve el estado interno del simulador&quot;]]</code></pre>
 <p>En el árbol canónico, un campo es <code>[&quot;campo&quot;, &lt;nombre&gt;, &lt;tipo&gt;, &lt;unidad&gt;]</code>, con <code>tipo</code> en <code>texto</code>, <code>entero</code>, <code>flotante</code> o <code>booleano</code>.</p>
 <p><strong>Variantes</strong> (álgebra <code>0.7</code>). Una misma relación puede traer filas de clases distintas con campos distintos: <code>mutante</code> la producen la mutación de medidas y la de código. Un nodo opcional <code>variantes</code>, entre <code>campos</code> y <code>alcance</code>, declara qué campos trae cada clase según el valor de un campo <strong>discriminante</strong>:</p>
-<pre data-lenguaje="relacion"><code>relacion mutante:
+<pre data-lenguaje="relacion"><code><span class="tok-storage">relacion</span> <span class="tok-entity">mutante</span>:
     id: texto
     tipo: texto
     variantes por tipo:
         medida:
-            detecciones_conductuales: entero sin_unidad
+            detecciones_conductuales: entero <span class="tok-constant">sin_unidad</span>
         codigo:
             murio: booleano
-    alcance &quot;observa resultados de mutación; no ve la traza completa&quot;</code></pre>
+<span class="tok-keyword">    alcance</span> <span class="tok-string">&quot;observa resultados de mutación; no ve la traza completa&quot;</span></code></pre>
 <p>Los valores simples de variante se escriben como nombres; valores con otros caracteres se escriben como textos entre comillas. El árbol canónico correspondiente tiene un nodo opcional <code>variantes</code> entre <code>campos</code> y <code>alcance</code>:</p>
 <pre data-lenguaje="json"><code>[&quot;relacion&quot;, &quot;mutante&quot;,
   [&quot;campos&quot;, [&quot;campo&quot;, &quot;id&quot;, &quot;texto&quot;, &quot;sin_unidad&quot;], [&quot;campo&quot;, &quot;apunta_a&quot;, &quot;texto&quot;, &quot;sin_unidad&quot;],

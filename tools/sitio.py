@@ -17,9 +17,11 @@ Oracle no tiene dependencias y el sitio no va a ser la primera.
 from __future__ import annotations
 
 import html
+import json
 import re
 import sys
 from dataclasses import dataclass
+from functools import lru_cache
 from pathlib import Path
 
 RAIZ = Path(__file__).resolve().parents[1]
@@ -132,19 +134,77 @@ def en_linea(texto: str, origen: Path, salida: Path) -> str:
 
 # ------------------------------------------------------------------------------ código
 
-_CLAVES_ORACLE = ("medida", "ninguno", "ninguno-requiere", "caso", "de", "donde", "sin", "unir",
-                  "agrupar", "resumen", "umbral", "segun", "porque", "alcance", "ambito",
-                  "requiere", "etiqueta", "evidencia", "defmacro", "sombra", "y", "o", "no")
+_LENGUAJES_ORACLE = {"oracle", "caso", "relacion", "requisito"}
+_SCOPES = {"comment", "storage", "entity", "keyword", "constant", "support",
+           "variable", "property", "string", "number", "operator"}
+
+
+@lru_cache(maxsize=1)
+def _gramatica_oracle() -> tuple[dict, ...]:
+    ruta = RAIZ / "editores/vscode/oracle.tmLanguage.json"
+    return tuple(json.loads(ruta.read_text(encoding="utf-8"))["patterns"])
+
+
+def _clase(scope: str | None) -> str | None:
+    if not scope:
+        return None
+    if scope.startswith("variable.other.property."):
+        return "property"
+    if scope.startswith("constant.numeric."):
+        return "number"
+    if scope.startswith("keyword.operator."):
+        return "operator"
+    categoria = scope.split(".", 1)[0]
+    return categoria if categoria in _SCOPES else None
+
+
+def _span(texto: str, scope: str | None) -> str:
+    contenido = html.escape(texto)
+    clase = _clase(scope)
+    return f'<span class="tok-{clase}">{contenido}</span>' if clase else contenido
+
+
+def colorear_oracle(texto: str) -> str:
+    """Aplica, por posición, el primer patrón TextMate que coincide."""
+    patrones = _gramatica_oracle()
+    expresiones = [re.compile(p.get("match", p.get("begin", "")), re.MULTILINE)
+                   for p in patrones]
+    salida = []
+    pos = 0
+    while pos < len(texto):
+        candidatos = [(m.start(), orden, m) for orden, rx in enumerate(expresiones)
+                      if (m := rx.search(texto, pos)) is not None]
+        if not candidatos:
+            salida.append(html.escape(texto[pos:]))
+            break
+        inicio, orden, match = min(candidatos, key=lambda x: (x[0], x[1]))
+        salida.append(html.escape(texto[pos:inicio]))
+        patron = patrones[orden]
+        if "begin" in patron:
+            fin = re.compile(patron["end"]).search(texto, match.end())
+            final = fin.end() if fin else len(texto)
+            salida.append(_span(texto[inicio:final], patron.get("name")))
+        elif "captures" in patron:
+            cursor = inicio
+            for numero, captura in sorted(patron["captures"].items(),
+                                          key=lambda par: match.start(int(par[0]))):
+                a, b = match.span(int(numero))
+                if a < 0:
+                    continue
+                salida.append(html.escape(texto[cursor:a]))
+                salida.append(_span(texto[a:b], captura["name"]))
+                cursor = b
+            salida.append(html.escape(texto[cursor:match.end()]))
+            final = match.end()
+        else:
+            final = match.end()
+            salida.append(_span(texto[inicio:final], patron.get("name")))
+        pos = max(final, pos + 1)
+    return "".join(salida)
 
 
 def codigo(texto: str, lenguaje: str, archivo: str | None = None, es_salida: bool = False) -> str:
-    cuerpo = html.escape(texto)
-    if lenguaje in ("oracle", "caso"):
-        cuerpo = re.sub(r"(&quot;.*?&quot;)", r'<span class="c-txt">\1</span>', cuerpo)
-        patron = r"(?<![\w.-])(" + "|".join(map(re.escape, _CLAVES_ORACLE)) + r")(?![\w-])"
-        partes = re.split(r'(<span class="c-txt">.*?</span>)', cuerpo)
-        cuerpo = "".join(p if p.startswith("<span") else
-                         re.sub(patron, r'<span class="c-kw">\1</span>', p) for p in partes)
+    cuerpo = colorear_oracle(texto) if lenguaje in _LENGUAJES_ORACLE else html.escape(texto)
     if es_salida:
         return f'<pre class="salida" data-lenguaje="lo que tenés que ver"><code>{cuerpo}</code></pre>'
     etiqueta = f' data-lenguaje="{html.escape(archivo or lenguaje)}"' if (archivo or lenguaje) else ""
