@@ -16,6 +16,10 @@ tools/sitio.py lee la gramática TextMate de VS Code al generar y colorea oracle
 
 Verificación final: python3 tools/guia.py --escribir (0 salidas actualizadas), python3 tools/sitio.py --escribir (sin páginas pendientes), python3 -m unittest discover -s tests (2250 tests, OK), python3 tools/oracle.py test (VEREDICTO: VERDE; mutación de código salteada). No se hizo commit.
 
+### Nota (2026-10-02 10:50:49 UTC)
+
+Cierre formal registrado durante corte-web: el cambio estaba integrado y la tarea CERRADA, pero faltaba el asunto exacto <ID>: done. Pruebas del resaltador y sitio verdes; tools/sitio.py completo está cubierto por la mutación del corte. Este commit sólo completa el protocolo.
+
 ## Próximo paso
 
-Sin implementación pendiente. Resaltado integrado y ronda parcial del sitio final con 36/36 mutantes muertos. Evidencia en de-cero-novato/mutacion-sitio-final.log.
+Trabajo integrado, verificado y con cierre formal. Sin pendientes; evidencia adicional en corte-web.
