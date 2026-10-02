@@ -16,6 +16,10 @@ Reemplacé los tres python3 -c de docs/de-cero.md por archivos enteros: sin-tiro
 
 Verificación final: python3 tools/guia.py --escribir (0 salidas actualizadas), python3 tools/sitio.py --escribir (sin páginas pendientes), python3 -m unittest discover -s tests (2250 tests, OK), python3 tools/oracle.py test (VEREDICTO: VERDE; mutación de código salteada). No se hizo commit.
 
+### Nota (2026-10-02 10:50:49 UTC)
+
+Cierre formal registrado durante corte-web: el cambio estaba integrado y la tarea CERRADA, pero faltaba el asunto exacto <ID>: done. La guía sigue reproduciéndose en la suite final de 2258 tests. Este commit sólo completa el protocolo, sin modificar la implementación.
+
 ## Próximo paso
 
-Sin implementación pendiente. Pasos manuales integrados y reproducidos desde el HTML en de-cero-novato; su tarea conserva la evidencia del cierre conjunto.
+Trabajo integrado, verificado y con cierre formal. Sin pendientes; evidencia adicional en corte-web.
